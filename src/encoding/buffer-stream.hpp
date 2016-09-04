@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,84 +26,63 @@
 
 #include "buffer.hpp"
 
-#include <boost/iostreams/detail/ios.hpp>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 
 namespace ndn {
 
-/// @cond include_hidden
-namespace iostreams
-{
+namespace detail {
 
-class buffer_append_device
+/** @brief (implementation detail) a Boost.Iostreams.Sink which appends to an \p ndn::Buffer
+ */
+class BufferAppendDevice
 {
 public:
   typedef char char_type;
   typedef boost::iostreams::sink_tag category;
 
-  buffer_append_device(Buffer& container)
-    : m_container(container)
-  {
-  }
+  explicit
+  BufferAppendDevice(Buffer& container);
 
   std::streamsize
-  write(const char_type* s, std::streamsize n)
-  {
-    std::copy(s, s+n, std::back_inserter(m_container));
-    return n;
-  }
+  write(const char_type* s, std::streamsize n);
 
 protected:
   Buffer& m_container;
 };
 
-} // iostreams
-/// @endcond
+} // namespace detail
 
-/**
- * Class implementing interface similar to ostringstream, but to construct ndn::Buffer
+/** @brief implements an output stream that constructs \p ndn::Buffer
  *
- * The benefit of using stream interface is that it provides automatic buffering of
- * written data and eliminates (or reduces) overhead of resizing the underlying buffer
- * when writing small pieces of data.
+ *  The benefit of using stream interface is that it provides automatic buffering of
+ *  written data and eliminates (or reduces) overhead of resizing the underlying buffer
+ *  when writing small pieces of data.
  *
- * Usage example:
- * @code
- *      OBufferStream obuf;
- *      obuf.put(0);
- *      obuf.write(another_buffer, another_buffer_size);
- *      shared_ptr<Buffer> buf = obuf.get();
- * @endcode
+ *  Usage example:
+ *  @code
+ *  OBufferStream obuf;
+ *  obuf.put(0);
+ *  obuf.write(anotherBuffer, anotherBufferSize);
+ *  shared_ptr<Buffer> buf = obuf.buf();
+ *  @endcode
  */
-class OBufferStream : public boost::iostreams::stream<iostreams::buffer_append_device>
+class OBufferStream : public boost::iostreams::stream<detail::BufferAppendDevice>
 {
 public:
-  /**
-   * Default constructor
-   */
-  OBufferStream()
-    : m_buffer(make_shared<Buffer>())
-    , m_device(*m_buffer)
-  {
-    open(m_device);
-  }
+  OBufferStream();
 
   /**
    * Flush written data to the stream and return shared pointer to the underlying buffer
    */
   shared_ptr<Buffer>
-  buf()
-  {
-    flush();
-    return m_buffer;
-  }
+  buf();
 
 private:
   BufferPtr m_buffer;
-  iostreams::buffer_append_device m_device;
+  detail::BufferAppendDevice m_device;
 };
 
-} // ndn
+} // namespace ndn
 
 #endif // NDN_ENCODING_BUFFER_STREAM_HPP
