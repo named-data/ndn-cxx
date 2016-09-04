@@ -19,42 +19,56 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "buffer-stream.hpp"
+#include "encoding/buffer-stream.hpp"
+
+#include "boost-test.hpp"
 
 namespace ndn {
-namespace detail {
+namespace tests {
 
-BufferAppendDevice::BufferAppendDevice(Buffer& container)
-  : m_container(container)
+BOOST_AUTO_TEST_SUITE(Encoding)
+BOOST_AUTO_TEST_SUITE(TestBufferStream)
+
+BOOST_AUTO_TEST_CASE(Empty)
 {
+  OBufferStream os;
+
+  shared_ptr<Buffer> buf = os.buf();
+  BOOST_CHECK_EQUAL(buf->size(), 0);
 }
 
-std::streamsize
-BufferAppendDevice::write(const char_type* s, std::streamsize n)
+BOOST_AUTO_TEST_CASE(Put)
 {
-  std::copy(s, s + n, std::back_inserter(m_container));
-  return n;
+  OBufferStream os;
+  os.put(0x33);
+  os.put(0x44);
+
+  shared_ptr<Buffer> buf = os.buf();
+  BOOST_REQUIRE_EQUAL(buf->size(), 2);
+  BOOST_CHECK_EQUAL(buf->at(0), 0x33);
+  BOOST_CHECK_EQUAL(buf->at(1), 0x44);
 }
 
-} // namespace detail
-
-OBufferStream::OBufferStream()
-  : m_buffer(make_shared<Buffer>())
-  , m_device(*m_buffer)
+BOOST_AUTO_TEST_CASE(Write)
 {
-  open(m_device);
+  OBufferStream os;
+  os.write("\x11\x22", 2);
+
+  shared_ptr<Buffer> buf = os.buf();
+  BOOST_REQUIRE_EQUAL(buf->size(), 2);
+  BOOST_CHECK_EQUAL(buf->at(0), 0x11);
+  BOOST_CHECK_EQUAL(buf->at(1), 0x22);
 }
 
-OBufferStream::~OBufferStream()
+BOOST_AUTO_TEST_CASE(Destructor) // Bug 3727
 {
-  close();
+  auto os = make_unique<OBufferStream>();
+  *os << 'x';
+  os.reset(); // should not cause use-after-free
 }
 
-shared_ptr<Buffer>
-OBufferStream::buf()
-{
-  flush();
-  return m_buffer;
-}
+BOOST_AUTO_TEST_SUITE_END() // TestBufferStream
+BOOST_AUTO_TEST_SUITE_END() // Encoding
 
+} // namespace tests
 } // namespace ndn

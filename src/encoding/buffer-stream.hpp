@@ -72,6 +72,8 @@ class OBufferStream : public boost::iostreams::stream<detail::BufferAppendDevice
 public:
   OBufferStream();
 
+  ~OBufferStream();
+
   /**
    * Flush written data to the stream and return shared pointer to the underlying buffer
    */
