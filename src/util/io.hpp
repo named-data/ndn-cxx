@@ -22,6 +22,7 @@
 #ifndef NDN_UTIL_IO_HPP
 #define NDN_UTIL_IO_HPP
 
+#include "concepts.hpp"
 #include "../encoding/block.hpp"
 
 #include <iostream>
@@ -63,6 +64,25 @@ enum IoEncoding {
 
 constexpr IoEncoding DEPRECATED(BASE_64) = BASE64;
 
+namespace detail {
+
+template<typename T>
+static void
+checkInnerError(typename T::Error*)
+{
+  static_assert(std::is_base_of<tlv::Error, typename T::Error>::value,
+                "T::Error, if declared, must inherit from ndn::tlv::Error");
+}
+
+template<typename T>
+static void
+checkInnerError(...)
+{
+  // T::Error is not declared
+}
+
+} // namespace detail
+
 /** \brief loads a TLV block from a stream
  *  \return if success, the Block and true
  *          otherwise, a default-constructed Block and false
@@ -79,20 +99,18 @@ template<typename T>
 shared_ptr<T>
 load(std::istream& is, IoEncoding encoding = BASE64)
 {
+  BOOST_CONCEPT_ASSERT((WireDecodable<T>));
+  detail::checkInnerError<T>(nullptr);
+
   optional<Block> block = loadBlock(is, encoding);
   if (!block) {
     return nullptr;
   }
 
   try {
-    auto obj = make_shared<T>();
-    obj->wireDecode(*block);
-    return obj;
+    return make_shared<T>(*block);
   }
-  catch (const typename T::Error& e) {
-    return nullptr;
-  }
-  catch (const tlv::Error& e) {
+  catch (const tlv::Error&) {
     return nullptr;
   }
 }
@@ -122,12 +140,12 @@ template<typename T>
 void
 save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
 {
+  BOOST_CONCEPT_ASSERT((WireEncodable<T>));
+  detail::checkInnerError<T>(nullptr);
+
   Block block;
   try {
     block = obj.wireEncode();
-  }
-  catch (const typename T::Error& e) {
-    BOOST_THROW_EXCEPTION(Error(e.what()));
   }
   catch (const tlv::Error& e) {
     BOOST_THROW_EXCEPTION(Error(e.what()));

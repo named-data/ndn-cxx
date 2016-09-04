@@ -90,20 +90,11 @@ BOOST_FIXTURE_TEST_SUITE(TestIo, IoFixture)
 class EncodableType
 {
 public:
-  class Error : public tlv::Error
-  {
-  public:
-    Error()
-      : tlv::Error("encode error")
-    {
-    }
-  };
-
   Block
   wireEncode() const
   {
     if (shouldThrow) {
-      BOOST_THROW_EXCEPTION(Error());
+      BOOST_THROW_EXCEPTION(tlv::Error("encode error"));
     }
 
     // block will be 0xAA, 0x01, 0xDD
@@ -114,23 +105,23 @@ public:
   bool shouldThrow = false;
 };
 
-class DecodableType
+template<bool SHOULD_THROW = false>
+class DecodableTypeTpl
 {
 public:
-  class Error : public tlv::Error
+  DecodableTypeTpl() = default;
+
+  explicit
+  DecodableTypeTpl(const Block& block)
   {
-  public:
-    Error()
-      : tlv::Error("decode error")
-    {
-    }
-  };
+    this->wireDecode(block);
+  }
 
   void
-  wireDecode(const Block& block) const
+  wireDecode(const Block& block)
   {
-    if (shouldThrow) {
-      BOOST_THROW_EXCEPTION(Error());
+    if (m_shouldThrow) {
+      BOOST_THROW_EXCEPTION(tlv::Error("decode error"));
     }
 
     // block must be 0xBB, 0x01, 0xEE
@@ -139,18 +130,12 @@ public:
     BOOST_CHECK_EQUAL(block.value()[0], 0xEE);
   }
 
-public:
-  bool shouldThrow = false;
+private:
+  bool m_shouldThrow = SHOULD_THROW;
 };
 
-class DecodableTypeThrow : public DecodableType
-{
-public:
-  DecodableTypeThrow()
-  {
-    this->shouldThrow = true;
-  }
-};
+typedef DecodableTypeTpl<false> DecodableType;
+typedef DecodableTypeTpl<true> DecodableTypeThrow;
 
 BOOST_AUTO_TEST_CASE(LoadNoEncoding)
 {
