@@ -19,7 +19,64 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-/** \file
- *  \deprecated Use mgmt/nfd/status-dataset.hpp
+#ifndef NDN_MGMT_NFD_CHANNEL_STATUS_HPP
+#define NDN_MGMT_NFD_CHANNEL_STATUS_HPP
+
+#include "../../encoding/block.hpp"
+
+namespace ndn {
+namespace nfd {
+
+/**
+ * @ingroup management
+ * @brief represents NFD Channel Status dataset
+ * @sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Channel-Dataset
  */
-#include "../mgmt/nfd/status-dataset.hpp"
+class ChannelStatus
+{
+public:
+  class Error : public tlv::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : tlv::Error(what)
+    {
+    }
+  };
+
+  ChannelStatus();
+
+  explicit
+  ChannelStatus(const Block& payload);
+
+  template<encoding::Tag TAG>
+  size_t
+  wireEncode(EncodingImpl<TAG>& encoder) const;
+
+  const Block&
+  wireEncode() const;
+
+  void
+  wireDecode(const Block& wire);
+
+public: // getters & setters
+  const std::string&
+  getLocalUri() const
+  {
+    return m_localUri;
+  }
+
+  ChannelStatus&
+  setLocalUri(const std::string localUri);
+
+private:
+  std::string m_localUri;
+
+  mutable Block m_wire;
+};
+
+} // namespace nfd
+} // namespace ndn
+
+#endif // NDN_MGMT_NFD_CHANNEL_STATUS_HPP

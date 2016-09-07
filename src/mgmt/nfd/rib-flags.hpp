@@ -19,7 +19,39 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-/** \file
- *  \deprecated Use mgmt/nfd/status-dataset.hpp
+#ifndef NDN_MGMT_NFD_RIB_FLAGS_HPP
+#define NDN_MGMT_NFD_RIB_FLAGS_HPP
+
+#include "../../encoding/nfd-constants.hpp"
+
+namespace ndn {
+namespace nfd {
+
+/**
+ * \ingroup management
+ * \brief implements getters to each RIB flag
+ *
+ * \tparam T class containing a RibFlags field and implements
+ *           `RibFlags getFlags() const` method
  */
-#include "../mgmt/nfd/status-dataset.hpp"
+template<typename T>
+class RibFlagsTraits
+{
+public:
+  bool
+  isChildInherit() const
+  {
+    return static_cast<const T*>(this)->getFlags() & ROUTE_FLAG_CHILD_INHERIT;
+  }
+
+  bool
+  isRibCapture() const
+  {
+    return static_cast<const T*>(this)->getFlags() & ROUTE_FLAG_CAPTURE;
+  }
+};
+
+} // namespace nfd
+} // namespace ndn
+
+#endif // NDN_MGMT_NFD_RIB_FLAGS_HPP

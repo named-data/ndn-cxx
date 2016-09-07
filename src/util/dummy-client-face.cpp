@@ -20,9 +20,10 @@
  */
 
 #include "dummy-client-face.hpp"
+#include "../lp/tags.hpp"
+#include "../mgmt/nfd/controller.hpp"
+#include "../mgmt/nfd/control-response.hpp"
 #include "../transport/transport.hpp"
-#include "../management/nfd-controller.hpp"
-#include "../management/nfd-control-response.hpp"
 
 #include <boost/asio/io_service.hpp>
 

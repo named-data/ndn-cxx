@@ -20,7 +20,7 @@
  */
 
 #include "mgmt/dispatcher.hpp"
-#include "management/nfd-control-parameters.hpp"
+#include "mgmt/nfd/control-parameters.hpp"
 #include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"

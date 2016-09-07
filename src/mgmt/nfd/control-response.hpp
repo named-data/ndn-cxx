@@ -19,7 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-/** \file
- *  \deprecated Use mgmt/nfd/status-dataset.hpp
- */
-#include "../mgmt/nfd/status-dataset.hpp"
+#ifndef NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
+#define NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
+
+#include "../dispatcher.hpp"
+
+namespace ndn {
+namespace nfd {
+
+typedef ndn::mgmt::ControlResponse ControlResponse;
+
+} // namespace nfd
+} // namespace ndn
+
+#endif // NDN_MANAGEMENT_CONTROL_RESPONSE_HPP

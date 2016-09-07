@@ -27,8 +27,8 @@
 #include "../interest.hpp"
 
 #include "interest-filter-record.hpp"
-#include "management/nfd-command-options.hpp"
-#include "management/nfd-control-parameters.hpp"
+#include "mgmt/nfd/command-options.hpp"
+#include "mgmt/nfd/control-parameters.hpp"
 
 namespace ndn {
 

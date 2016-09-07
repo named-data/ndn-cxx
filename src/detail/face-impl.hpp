@@ -37,8 +37,8 @@
 #include "../transport/unix-transport.hpp"
 #include "../transport/tcp-transport.hpp"
 
-#include "../management/nfd-controller.hpp"
-#include "../management/nfd-command-options.hpp"
+#include "../mgmt/nfd/controller.hpp"
+#include "../mgmt/nfd/command-options.hpp"
 
 #include "../lp/packet.hpp"
 #include "../lp/tags.hpp"
