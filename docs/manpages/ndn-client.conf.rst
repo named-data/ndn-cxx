@@ -54,6 +54,9 @@ pib
 
       rm -rf ~/.ndn/ndnsec-*
 
+  It's not recommended to share the same directory between machines, e.g. via NFS.
+  Simultaneous access from multiple machines may cause errors.
+
   ..note::
     This value can be overriden using `NDN_CLIENT_PIB` environment variable.
 
@@ -88,6 +91,9 @@ tpm
 
   **Change of ``tpm`` setting is only possible together with ``pib`` setting. Otherwise, an
   error will be generated during PIB/TPM access**
+
+  It's not recommended to share the same directory between machines, e.g. via NFS.
+  Simultaneous access from multiple machines may cause errors.
 
   ..note::
     This value can be overriden using `NDN_CLIENT_TPM` environment variable.
