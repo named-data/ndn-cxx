@@ -32,7 +32,7 @@ BufferAppendDevice::BufferAppendDevice(Buffer& container)
 std::streamsize
 BufferAppendDevice::write(const char_type* s, std::streamsize n)
 {
-  std::copy(s, s + n, std::back_inserter(m_container));
+  m_container.insert(m_container.end(), s, s + n);
   return n;
 }
 
