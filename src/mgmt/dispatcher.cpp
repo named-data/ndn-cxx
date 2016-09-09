@@ -20,6 +20,7 @@
  */
 
 #include "dispatcher.hpp"
+#include "../lp/tags.hpp"
 #include "../util/logger.hpp"
 
 #include <algorithm>

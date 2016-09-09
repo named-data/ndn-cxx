@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,14 +22,12 @@
 #ifndef NDN_DATA_HPP
 #define NDN_DATA_HPP
 
-#include "common.hpp"
 #include "name.hpp"
 #include "encoding/block.hpp"
 
 #include "signature.hpp"
 #include "meta-info.hpp"
 #include "key-locator.hpp"
-#include "lp/tags.hpp"
 #include "tag-host.hpp"
 
 namespace ndn {
@@ -282,46 +280,6 @@ public:
 
   Data&
   setSignatureValue(const Block& value);
-
-  ///////////////////////////////////////////////////////////////
-
-#ifdef NDN_LP_KEEP_LOCAL_CONTROL_HEADER
-  /** @deprecated use getTag and setTag with lp::IncomingFaceIdTag, lp::CachePolicyTag
-   */
-  DEPRECATED(
-  lp::LocalControlHeaderFacade
-  getLocalControlHeader());
-
-  /** @deprecated use getTag with lp::IncomingFaceIdTag, lp::CachePolicyTag
-   */
-  DEPRECATED(
-  const lp::LocalControlHeaderFacade
-  getLocalControlHeader() const);
-
-  /** @deprecated use getTag<lp::IncomingFaceIdTag>
-   */
-  DEPRECATED(
-  uint64_t
-  getIncomingFaceId() const);
-
-  /** @deprecated use setTag<lp::IncomingFaceIdTag>
-   */
-  DEPRECATED(
-  Data&
-  setIncomingFaceId(uint64_t incomingFaceId));
-
-  /** @deprecated use getTag<lp::CachePolicyTag>
-   */
-  DEPRECATED(
-  lp::LocalControlHeaderFacade::CachingPolicy
-  getCachingPolicy() const);
-
-  /** @deprecated use setTag<lp::CachePolicyTag>
-   */
-  DEPRECATED(
-  Data&
-  setCachingPolicy(lp::LocalControlHeaderFacade::CachingPolicy cachingPolicy));
-#endif // NDN_LP_KEEP_LOCAL_CONTROL_HEADER
 
 public: // EqualityComparable concept
   bool

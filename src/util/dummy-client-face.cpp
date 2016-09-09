@@ -30,7 +30,7 @@
 namespace ndn {
 namespace util {
 
-const DummyClientFace::Options DummyClientFace::DEFAULT_OPTIONS { true, false };
+const DummyClientFace::Options DummyClientFace::DEFAULT_OPTIONS{true, false};
 
 class DummyClientFace::Transport : public ndn::Transport
 {

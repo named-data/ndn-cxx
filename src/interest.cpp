@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -484,54 +484,5 @@ operator<<(std::ostream& os, const Interest& interest)
 
   return os;
 }
-
-#ifdef NDN_LP_KEEP_LOCAL_CONTROL_HEADER
-
-// Permit deprecated usage for gcc only.
-// clang allows deprecated usage in deprecated functions, so it doesn't need this directive.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
-lp::LocalControlHeaderFacade
-Interest::getLocalControlHeader()
-{
-  return lp::LocalControlHeaderFacade(*this);
-}
-
-const lp::LocalControlHeaderFacade
-Interest::getLocalControlHeader() const
-{
-  return lp::LocalControlHeaderFacade(const_cast<Interest&>(*this));
-}
-
-uint64_t
-Interest::getIncomingFaceId() const
-{
-  return getLocalControlHeader().getIncomingFaceId();
-}
-
-Interest&
-Interest::setIncomingFaceId(uint64_t incomingFaceId)
-{
-  getLocalControlHeader().setIncomingFaceId(incomingFaceId);
-  return *this;
-}
-
-uint64_t
-Interest::getNextHopFaceId() const
-{
-  return getLocalControlHeader().getNextHopFaceId();
-}
-
-Interest&
-Interest::setNextHopFaceId(uint64_t nextHopFaceId)
-{
-  getLocalControlHeader().setNextHopFaceId(nextHopFaceId);
-  return *this;
-}
-
-#pragma GCC diagnostic pop
-
-#endif // NDN_LP_KEEP_LOCAL_CONTROL_HEADER
 
 } // namespace ndn

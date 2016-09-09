@@ -20,11 +20,12 @@
  */
 
 #include "face.hpp"
-#include "util/scheduler.hpp"
+#include "lp/tags.hpp"
 #include "security/key-chain.hpp"
-#include "util/dummy-client-face.hpp"
 #include "transport/tcp-transport.hpp"
 #include "transport/unix-transport.hpp"
+#include "util/dummy-client-face.hpp"
+#include "util/scheduler.hpp"
 
 #include "boost-test.hpp"
 #include "identity-management-time-fixture.hpp"

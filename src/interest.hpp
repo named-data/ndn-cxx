@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,12 +22,9 @@
 #ifndef NDN_INTEREST_HPP
 #define NDN_INTEREST_HPP
 
-#include "common.hpp"
-
 #include "name.hpp"
 #include "selectors.hpp"
 #include "util/time.hpp"
-#include "lp/tags.hpp"
 #include "tag-host.hpp"
 #include "link.hpp"
 
@@ -274,45 +271,6 @@ public: // Name and guiders
    */
   void
   refreshNonce();
-
-#ifdef NDN_LP_KEEP_LOCAL_CONTROL_HEADER
-public: // local control header
-  /** @deprecated use getTag and setTag with lp::IncomingFaceIdTag, lp::NextHopFaceIdTag
-   */
-  DEPRECATED(
-  lp::LocalControlHeaderFacade
-  getLocalControlHeader());
-
-  /** @deprecated use getTag with lp::IncomingFaceIdTag, lp::NextHopFaceIdTag
-   */
-  DEPRECATED(
-  const lp::LocalControlHeaderFacade
-  getLocalControlHeader() const);
-
-  /** @deprecated use getTag<lp::IncomingFaceIdTag>
-   */
-  DEPRECATED(
-  uint64_t
-  getIncomingFaceId() const);
-
-  /** @deprecated use setTag<lp::IncomingFaceIdTag>
-   */
-  DEPRECATED(
-  Interest&
-  setIncomingFaceId(uint64_t incomingFaceId));
-
-  /** @deprecated use getTag<lp::NextHopFaceIdTag>
-   */
-  DEPRECATED(
-  uint64_t
-  getNextHopFaceId() const);
-
-  /** @deprecated use setTag<lp::NextHopFaceIdTag>
-   */
-  DEPRECATED(
-  Interest&
-  setNextHopFaceId(uint64_t nextHopFaceId));
-#endif // NDN_LP_KEEP_LOCAL_CONTROL_HEADER
 
 public: // Selectors
   /**
