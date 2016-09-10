@@ -67,6 +67,9 @@ private:
 class Downstream
 {
 public:
+  virtual
+  ~Downstream() = default;
+
   /**
    * @brief Accept input data and perform transformation.
    *
@@ -152,6 +155,10 @@ private:
  */
 class Upstream
 {
+public:
+  virtual
+  ~Upstream() = default;
+
 protected:
   Upstream();
 

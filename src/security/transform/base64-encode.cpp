@@ -44,7 +44,7 @@ public:
 
   ~Impl()
   {
-    BIO_free_all(m_sink);
+    BIO_free_all(m_base64);
   }
 
 public:
