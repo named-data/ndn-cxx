@@ -219,7 +219,6 @@ protected:
   isOutputBufferEmpty() const;
 
 private:
-
   /**
    * @brief Abstraction of data processing in an intermediate module
    */

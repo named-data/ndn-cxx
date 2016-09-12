@@ -33,6 +33,7 @@ Error::Error(size_t index, const std::string& what)
 
 Downstream::Downstream()
   : m_isEnd(false)
+  , m_index(0)
 {
 }
 
