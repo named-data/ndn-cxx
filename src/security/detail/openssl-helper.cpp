@@ -63,7 +63,11 @@ EvpPkeyCtx::~EvpPkeyCtx()
   EVP_PKEY_CTX_free(m_ctx);
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
 Bio::Bio(BIO_METHOD* method)
+#else
+Bio::Bio(const BIO_METHOD* method)
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
   : m_bio(BIO_new(method))
 {
   BOOST_ASSERT(m_bio != nullptr);

@@ -67,7 +67,11 @@ PublicKey::getKeyType() const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
   switch (EVP_PKEY_type(m_impl->key->type)) {
+#else
+  switch (EVP_PKEY_base_id(m_impl->key)) {
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
   case EVP_PKEY_RSA:
     return KeyType::RSA;
   case EVP_PKEY_EC:
@@ -137,7 +141,11 @@ PublicKey::encrypt(const uint8_t* plainText, size_t plainLen) const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
   switch (EVP_PKEY_type(m_impl->key->type)) {
+#else
+  switch (EVP_PKEY_base_id(m_impl->key)) {
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
   case EVP_PKEY_RSA:
     return rsaEncrypt(plainText, plainLen);
   default:

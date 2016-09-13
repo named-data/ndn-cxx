@@ -158,10 +158,18 @@ public:
   }
 
 private: // RAND_METHOD callbacks
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
   static void
   seed(const void* buf, int num)
   {
   }
+#else
+  static int
+  seed(const void* buf, int num)
+  {
+    return 0;
+  }
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
 
   static int
   bytes(unsigned char *buf, int num)
@@ -174,10 +182,18 @@ private: // RAND_METHOD callbacks
   {
   }
 
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
   static void
   add(const void *buf, int num, double entropy)
   {
   }
+#else
+  static int
+  add(const void *buf, int num, double entropy)
+  {
+    return 0;
+  }
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
 
   static int
   pseudorand(unsigned char *buf, int num)

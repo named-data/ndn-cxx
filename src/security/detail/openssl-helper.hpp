@@ -80,7 +80,11 @@ class Bio
 {
 public:
   explicit
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
   Bio(BIO_METHOD* method);
+#else
+  Bio(const BIO_METHOD* method);
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
 
   ~Bio();
 
