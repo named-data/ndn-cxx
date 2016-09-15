@@ -439,7 +439,7 @@ Face::unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
 }
 
 void
-Face::processEvents(const time::milliseconds& timeout, bool keepThread)
+Face::doProcessEvents(const time::milliseconds& timeout, bool keepThread)
 {
   if (m_ioService.stopped()) {
     m_ioService.reset(); // ensure that run()/poll() will do some work

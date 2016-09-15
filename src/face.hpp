@@ -676,7 +676,10 @@ public: // IO routine
    */
   void
   processEvents(const time::milliseconds& timeout = time::milliseconds::zero(),
-                bool keepThread = false);
+                bool keepThread = false)
+  {
+    this->doProcessEvents(timeout, keepThread);
+  }
 
   /**
    * @brief Shutdown face operations
@@ -704,6 +707,10 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
    */
   shared_ptr<Transport>
   getTransport();
+
+protected:
+  virtual void
+  doProcessEvents(const time::milliseconds& timeout, bool keepThread);
 
 private:
   /**

@@ -20,6 +20,7 @@
  */
 
 #include "dummy-client-face.hpp"
+#include "../lp/packet.hpp"
 #include "../lp/tags.hpp"
 #include "../mgmt/nfd/controller.hpp"
 #include "../mgmt/nfd/control-response.hpp"
@@ -29,8 +30,6 @@
 
 namespace ndn {
 namespace util {
-
-const DummyClientFace::Options DummyClientFace::DEFAULT_OPTIONS{true, false};
 
 class DummyClientFace::Transport : public ndn::Transport
 {
@@ -163,6 +162,8 @@ DummyClientFace::construct(const Options& options)
 
   if (options.enableRegistrationReply)
     this->enableRegistrationReply();
+
+  m_processEventsOverride = options.processEventsOverride;
 }
 
 void
@@ -248,6 +249,17 @@ DummyClientFace::receive<lp::Nack>(const lp::Nack& nack)
   }
 
   static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
+}
+
+void
+DummyClientFace::doProcessEvents(const time::milliseconds& timeout, bool keepThread)
+{
+  if (m_processEventsOverride != nullptr) {
+    m_processEventsOverride(timeout);
+  }
+  else {
+    this->Face::doProcessEvents(timeout, keepThread);
+  }
 }
 
 } // namespace util

@@ -24,7 +24,7 @@
 
 #include "../face.hpp"
 #include "signal.hpp"
-#include "../lp/packet.hpp"
+#include "../security/key-chain.hpp"
 
 namespace ndn {
 namespace util {
@@ -36,8 +36,28 @@ class DummyClientFace : public ndn::Face
 public:
   /** \brief options for DummyClientFace
    */
-  struct Options
+  class Options
   {
+  public:
+    Options(bool enablePacketLogging, bool enableRegistrationReply,
+            const std::function<void(time::milliseconds)>& processEventsOverride)
+      : enablePacketLogging(enablePacketLogging)
+      , enableRegistrationReply(enableRegistrationReply)
+      , processEventsOverride(processEventsOverride)
+    {
+    }
+
+    Options(bool enablePacketLogging, bool enableRegistrationReply)
+      : Options(enablePacketLogging, enableRegistrationReply, nullptr)
+    {
+    }
+
+    Options()
+      : Options(true, false)
+    {
+    }
+
+  public:
     /** \brief if true, packets sent out of DummyClientFace will be appended to a container
      */
     bool enablePacketLogging;
@@ -46,29 +66,31 @@ public:
      *         replied with a successful response
      */
     bool enableRegistrationReply;
+
+    /** \brief if not empty, face.processEvents() will be overridden by this function
+     */
+    std::function<void(time::milliseconds)> processEventsOverride;
   };
 
-  /**
-   * @brief Create a dummy face with internal IO service
+  /** \brief Create a dummy face with internal IO service
    */
-  DummyClientFace(const Options& options = DummyClientFace::DEFAULT_OPTIONS);
+  explicit
+  DummyClientFace(const Options& options = Options());
 
-  /**
-   * @brief Create a dummy face with internal IO service and the specified KeyChain
+  /** \brief Create a dummy face with internal IO service and the specified KeyChain
    */
-  DummyClientFace(KeyChain& keyChain, const Options& options = DummyClientFace::DEFAULT_OPTIONS);
+  explicit
+  DummyClientFace(KeyChain& keyChain, const Options& options = Options());
 
-  /**
-   * @brief Create a dummy face with the provided IO service
+  /** \brief Create a dummy face with the provided IO service
    */
-  DummyClientFace(boost::asio::io_service& ioService,
-                  const Options& options = DummyClientFace::DEFAULT_OPTIONS);
+  explicit
+  DummyClientFace(boost::asio::io_service& ioService, const Options& options = Options());
 
-  /**
-   * @brief Create a dummy face with the provided IO service and the specified KeyChain
+  /** \brief Create a dummy face with the provided IO service and the specified KeyChain
    */
   DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
-                  const Options& options = DummyClientFace::DEFAULT_OPTIONS);
+                  const Options& options = Options());
 
   /** \brief cause the Face to receive a packet
    *  \tparam Packet either Interest or Data
@@ -77,27 +99,22 @@ public:
   void
   receive(const Packet& packet);
 
-private: // constructors
+private:
   class Transport;
 
   void
   construct(const Options& options);
 
-private:
   void
   enablePacketLogging();
 
   void
   enableRegistrationReply();
 
-public:
-  /** \brief default options
-   *
-   *  enablePacketLogging=true
-   *  enableRegistrationReply=false
-   */
-  static const Options DEFAULT_OPTIONS;
+  virtual void
+  doProcessEvents(const time::milliseconds& timeout, bool keepThread) override;
 
+public:
   /** \brief Interests sent out of this DummyClientFace
    *
    *  Sent Interests are appended to this container if options.enablePacketLogger is true.
@@ -114,9 +131,9 @@ public:
    */
   std::vector<Data> sentData;
 
-  /** \brief NACKs sent out of this DummyClientFace
+  /** \brief Nacks sent out of this DummyClientFace
    *
-   *  Sent NACKs are appended to this container if options.enablePacketLogger is true.
+   *  Sent Nacks are appended to this container if options.enablePacketLogger is true.
    *  User of this class is responsible for cleaning up the container, if necessary.
    *  After .put, .processEvents must be called before the NACK would show up here.
    */
@@ -134,7 +151,7 @@ public:
    */
   Signal<DummyClientFace, Data> onSendData;
 
-  /** \brief emits whenever a NACK is sent
+  /** \brief emits whenever a Nack is sent
    *
    *  After .put, .processEvents must be called before this signal would be emitted.
    */
@@ -143,6 +160,7 @@ public:
 private:
   std::unique_ptr<KeyChain> m_internalKeyChain;
   KeyChain& m_keyChain;
+  std::function<void(time::milliseconds)> m_processEventsOverride;
 };
 
 template<>
