@@ -32,8 +32,10 @@ fi
 # Configure/build shared library in debug mode with tests/examples and without precompiled headers
 if [[ "$JOB_NAME" == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
+elif ! has OSX-10.9 $NODE_LABELS && ! has OSX-10.11 $NODE_LABELS; then
+    ASAN="--with-sanitizer=address"
 fi
-./waf -j1 --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples --without-pch $COVERAGE
+./waf -j1 --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples --without-pch $COVERAGE $ASAN
 ./waf -j1 --color=yes build
 
 # (tests will be run against debug version)
