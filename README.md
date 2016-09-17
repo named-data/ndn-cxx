@@ -1,6 +1,8 @@
 ndn-cxx: NDN C++ library with eXperimental eXtensions
 =====================================================
 
+[![Build Status](https://travis-ci.org/named-data/ndn-cxx.svg?branch=master)](https://travis-ci.org/named-data/ndn-cxx)
+
 ndn-cxx is a C++ library, implementing Named Data Networking (NDN) primitives that can be
 used to implement various NDN applications.  The library is currently being used as part
 of the following projects:
