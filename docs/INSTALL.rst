@@ -177,10 +177,6 @@ This builds and installs the following items:
    configured properly (or ``<LIBPATH>/pkgconfig`` is a default path),
    ``pkgconfig --libs --clflags libndn-cxx`` will return all necessary
    compile and link flags for the library.
--  ``<BINPATH>/ndncatchunks3``: a simplified equivalent to ndncatchunks2
-   in NDNx package
--  ``<BINPATH>/ndnputchunks3``: a simplified equivalent to ndnputchunks2
-   in NDNx package
 -  ``<BINPATH>/ndnsec``: tool to manage NDN keys and certificates
 -  ``<BINPATH>/ndnsec-*``: convenience scripts for ``ndnsec`` tools
 
