@@ -48,7 +48,8 @@ BOOST_AUTO_TEST_CASE(Encode)
          .setNOutDatas(4)
          .setNOutNacks(2)
          .setNInBytes(1329719163)
-         .setNOutBytes(999110448);
+         .setNOutBytes(999110448)
+         .setFlags(0x7);
 
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = status1.wireEncode());
@@ -59,7 +60,7 @@ BOOST_AUTO_TEST_CASE(Encode)
   //  printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0x80, 0x5e, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63, 0x70,
+    0x80, 0x61, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63, 0x70,
     0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e,
     0x32, 0x2e, 0x31, 0x3a, 0x36, 0x33, 0x36, 0x33, 0x81, 0x16,
     0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
@@ -68,7 +69,7 @@ BOOST_AUTO_TEST_CASE(Encode)
     0x01, 0x01, 0x86, 0x01, 0x01, 0x90, 0x01, 0x0a, 0x91, 0x01,
     0xc8, 0x97, 0x01, 0x01, 0x92, 0x02, 0x0b, 0xb8, 0x93, 0x01,
     0x04, 0x98, 0x01, 0x02, 0x94, 0x04, 0x4f, 0x41, 0xe7, 0x7b,
-    0x95, 0x04, 0x3b, 0x8d, 0x37, 0x30,
+    0x95, 0x04, 0x3b, 0x8d, 0x37, 0x30, 0x6c, 0x01, 0x07,
   };
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
@@ -89,6 +90,7 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL(status1.getNOutNacks(), status2.getNOutNacks());
   BOOST_CHECK_EQUAL(status1.getNInBytes(), status2.getNInBytes());
   BOOST_CHECK_EQUAL(status1.getNOutBytes(), status2.getNOutBytes());
+  BOOST_CHECK_EQUAL(status1.getFlags(), status2.getFlags());
 
   std::ostringstream os;
   os << status2;
@@ -99,11 +101,32 @@ BOOST_AUTO_TEST_CASE(Encode)
                               "FaceScope: local,\n"
                               "FacePersistency: on-demand,\n"
                               "LinkType: multi-access,\n"
+                              "Flags: 0x7,\n"
                               "Counters: { Interests: {in: 10, out: 3000},\n"
                               "            Data: {in: 200, out: 4},\n"
                               "            Nack: {in: 1, out: 2},\n"
                               "            bytes: {in: 1329719163, out: 999110448} }\n"
                               ")");
+}
+
+BOOST_AUTO_TEST_CASE(FlagBit)
+{
+  FaceStatus status;
+  status.setFlags(0x7);
+  BOOST_CHECK_EQUAL(status.getFlags(), 0x7);
+
+  BOOST_CHECK(status.getFlagBit(0));
+  BOOST_CHECK(status.getFlagBit(1));
+  BOOST_CHECK(status.getFlagBit(2));
+  BOOST_CHECK(!status.getFlagBit(3));
+
+  status.setFlagBit(3, true);
+  BOOST_CHECK_EQUAL(status.getFlags(), 0xf);
+  BOOST_CHECK(status.getFlagBit(3));
+
+  status.setFlagBit(1, false);
+  BOOST_CHECK_EQUAL(status.getFlags(), 0xd);
+  BOOST_CHECK(!status.getFlagBit(1));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestFaceStatus

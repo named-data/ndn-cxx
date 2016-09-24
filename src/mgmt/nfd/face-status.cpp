@@ -43,6 +43,7 @@ FaceStatus::FaceStatus()
   , m_nOutNacks(0)
   , m_nInBytes(0)
   , m_nOutBytes(0)
+  , m_flags(0)
 {
 }
 
@@ -57,6 +58,8 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::Flags, m_flags);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NOutBytes, m_nOutBytes);
   totalLength += prependNonNegativeIntegerBlock(encoder,
@@ -248,6 +251,14 @@ FaceStatus::wireDecode(const Block& block)
   else {
     BOOST_THROW_EXCEPTION(Error("missing required NOutBytes field"));
   }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
+    m_flags = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
+  }
 }
 
 FaceStatus&
@@ -323,6 +334,43 @@ FaceStatus::setNOutBytes(uint64_t nOutBytes)
   return *this;
 }
 
+FaceStatus&
+FaceStatus::setFlags(uint64_t flags)
+{
+  m_wire.reset();
+  m_flags = flags;
+  return *this;
+}
+
+bool
+FaceStatus::getFlagBit(size_t bit) const
+{
+  if (bit >= 64) {
+    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+  }
+
+  return m_flags & (1 << bit);
+}
+
+FaceStatus&
+FaceStatus::setFlagBit(size_t bit, bool value)
+{
+  if (bit >= 64) {
+    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+  }
+
+  m_wire.reset();
+
+  if (value) {
+    m_flags |= (1 << bit);
+  }
+  else {
+    m_flags &= ~(1 << bit);
+  }
+
+  return *this;
+}
+
 void
 FaceStatus::wireReset() const
 {
@@ -346,8 +394,13 @@ operator<<(std::ostream& os, const FaceStatus& status)
 
   os << "FaceScope: " << status.getFaceScope() << ",\n"
      << "FacePersistency: " << status.getFacePersistency() << ",\n"
-     << "LinkType: " << status.getLinkType() << ",\n"
-     << "Counters: { Interests: {in: " << status.getNInInterests() << ", "
+     << "LinkType: " << status.getLinkType() << ",\n";
+
+  auto osFlags = os.flags();
+  os << "Flags: " << std::showbase << std::hex << status.getFlags() << ",\n";
+  os.flags(osFlags);
+
+  os << "Counters: { Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"
      << "            Data: {in: " << status.getNInDatas() << ", "
      << "out: " << status.getNOutDatas() << "},\n"
