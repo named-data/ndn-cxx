@@ -51,6 +51,7 @@ public:
     , m_faceScope(FACE_SCOPE_NON_LOCAL)
     , m_facePersistency(FACE_PERSISTENCY_PERSISTENT)
     , m_linkType(LINK_TYPE_POINT_TO_POINT)
+    , m_flags(0x0)
   {
   }
 
@@ -138,6 +139,49 @@ public:
     return static_cast<C&>(*this);
   }
 
+  uint64_t
+  getFlags() const
+  {
+    return m_flags;
+  }
+
+  C&
+  setFlags(uint64_t flags)
+  {
+    wireReset();
+    m_flags = flags;
+    return static_cast<C&>(*this);
+  }
+
+  bool
+  getFlagBit(size_t bit) const
+  {
+    if (bit >= 64) {
+      BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+    }
+
+    return m_flags & (1 << bit);
+  }
+
+  C&
+  setFlagBit(size_t bit, bool value)
+  {
+    if (bit >= 64) {
+      BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+    }
+
+    wireReset();
+
+    if (value) {
+      m_flags |= (1 << bit);
+    }
+    else {
+      m_flags &= ~(1 << bit);
+    }
+
+    return static_cast<C&>(*this);
+  }
+
 protected:
   virtual void
   wireReset() const = 0;
@@ -149,6 +193,7 @@ protected:
   FaceScope m_faceScope;
   FacePersistency  m_facePersistency;
   LinkType m_linkType;
+  uint64_t m_flags;
 };
 
 } // namespace nfd

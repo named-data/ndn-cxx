@@ -50,6 +50,8 @@ FaceEventNotification::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
 
   totalLength += prependNonNegativeIntegerBlock(encoder,
+                 tlv::nfd::Flags, m_flags);
+  totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::LinkType, m_linkType);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FacePersistency, m_facePersistency);
@@ -150,6 +152,13 @@ FaceEventNotification::wireDecode(const Block& block)
   else {
     BOOST_THROW_EXCEPTION(Error("missing required LinkType field"));
   }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
+    m_flags = readNonNegativeInteger(*val);
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
+  }
 }
 
 FaceEventNotification&
@@ -192,8 +201,13 @@ operator<<(std::ostream& os, const FaceEventNotification& notification)
      << "LocalUri: " << notification.getLocalUri() << ", "
      << "FaceScope: " << notification.getFaceScope() << ", "
      << "FacePersistency: " << notification.getFacePersistency() << ", "
-     << "LinkType: " << notification.getLinkType()
-     << ")";
+     << "LinkType: " << notification.getLinkType() << ", ";
+
+  auto osFlags = os.flags();
+  os << "Flags: " << std::showbase << std::hex << notification.getFlags();
+  os.flags(osFlags);
+
+  os << ")";
   return os;
 }
 

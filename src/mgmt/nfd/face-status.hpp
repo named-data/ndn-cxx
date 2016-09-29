@@ -147,21 +147,6 @@ public: // getters & setters
   FaceStatus&
   setNOutBytes(uint64_t nOutBytes);
 
-  uint64_t
-  getFlags() const
-  {
-    return m_flags;
-  }
-
-  FaceStatus&
-  setFlags(uint64_t flags);
-
-  bool
-  getFlagBit(size_t bit) const;
-
-  FaceStatus&
-  setFlagBit(size_t bit, bool value);
-
 protected:
   void
   wireReset() const;
@@ -177,7 +162,6 @@ private:
   uint64_t m_nOutNacks;
   uint64_t m_nInBytes;
   uint64_t m_nOutBytes;
-  uint64_t m_flags;
 
   mutable Block m_wire;
 };

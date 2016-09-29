@@ -69,7 +69,8 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
                .setLocalUri("tcp4://192.0.2.2:6363")
                .setFaceScope(FACE_SCOPE_LOCAL)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
-               .setLinkType(LINK_TYPE_MULTI_ACCESS);
+               .setLinkType(LINK_TYPE_MULTI_ACCESS)
+               .setFlags(0x3);
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
 
@@ -79,13 +80,13 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0xc0, 0x3e, 0xc1, 0x01, 0x01, 0x69, 0x01, 0x14, 0x72, 0x16,
+    0xc0, 0x41, 0xc1, 0x01, 0x01, 0x69, 0x01, 0x14, 0x72, 0x16,
     0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
     0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35,
     0x35, 0x35, 0x81, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f,
     0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32,
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
-    0x01, 0x86, 0x01, 0x01,
+    0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x03,
   };
   BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                   wire.begin(), wire.end());
@@ -99,6 +100,7 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
   BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
   BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
   BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
+  BOOST_CHECK_EQUAL(notification1.getFlags(), notification2.getFlags());
 
   std::ostringstream os;
   os << notification2;
@@ -109,7 +111,8 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
                               "LocalUri: tcp4://192.0.2.2:6363, "
                               "FaceScope: local, "
                               "FacePersistency: on-demand, "
-                              "LinkType: multi-access)");
+                              "LinkType: multi-access, "
+                              "Flags: 0x3)");
 }
 
 BOOST_AUTO_TEST_CASE(EncodeDestroyed)
@@ -121,7 +124,8 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
                .setLocalUri("tcp4://192.0.2.2:6363")
                .setFaceScope(FACE_SCOPE_LOCAL)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
-               .setLinkType(LINK_TYPE_MULTI_ACCESS);
+               .setLinkType(LINK_TYPE_MULTI_ACCESS)
+               .setFlags(0x4);
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
 
@@ -131,13 +135,13 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0xc0, 0x3e, 0xc1, 0x01, 0x02, 0x69, 0x01, 0x14, 0x72, 0x16,
+    0xc0, 0x41, 0xc1, 0x01, 0x02, 0x69, 0x01, 0x14, 0x72, 0x16,
     0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
     0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35,
     0x35, 0x35, 0x81, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f,
     0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32,
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
-    0x01, 0x86, 0x01, 0x01,
+    0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x04,
   };
   BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                   wire.begin(), wire.end());
@@ -151,6 +155,7 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
   BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
   BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
   BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
+  BOOST_CHECK_EQUAL(notification1.getFlags(), notification2.getFlags());
 
   std::ostringstream os;
   os << notification2;
@@ -161,7 +166,8 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
                               "LocalUri: tcp4://192.0.2.2:6363, "
                               "FaceScope: local, "
                               "FacePersistency: on-demand, "
-                              "LinkType: multi-access)");
+                              "LinkType: multi-access, "
+                              "Flags: 0x4)");
 }
 
 BOOST_AUTO_TEST_CASE(EncodeUp)
@@ -173,7 +179,8 @@ BOOST_AUTO_TEST_CASE(EncodeUp)
                .setLocalUri("tcp4://192.0.2.2:6363")
                .setFaceScope(FACE_SCOPE_LOCAL)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
-               .setLinkType(LINK_TYPE_MULTI_ACCESS);
+               .setLinkType(LINK_TYPE_MULTI_ACCESS)
+               .setFlags(0x05);
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
 
@@ -183,13 +190,13 @@ BOOST_AUTO_TEST_CASE(EncodeUp)
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0xc0, 0x3e, 0xc1, 0x01, 0x03, 0x69, 0x01, 0x14, 0x72, 0x16,
+    0xc0, 0x41, 0xc1, 0x01, 0x03, 0x69, 0x01, 0x14, 0x72, 0x16,
     0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
     0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35,
     0x35, 0x35, 0x81, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f,
     0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32,
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
-    0x01, 0x86, 0x01, 0x01,
+    0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x05,
   };
   BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                   wire.begin(), wire.end());
@@ -213,7 +220,8 @@ BOOST_AUTO_TEST_CASE(EncodeUp)
                               "LocalUri: tcp4://192.0.2.2:6363, "
                               "FaceScope: local, "
                               "FacePersistency: on-demand, "
-                              "LinkType: multi-access)");
+                              "LinkType: multi-access, "
+                              "Flags: 0x5)");
 }
 
 BOOST_AUTO_TEST_CASE(EncodeDown)
@@ -225,7 +233,8 @@ BOOST_AUTO_TEST_CASE(EncodeDown)
                .setLocalUri("tcp4://192.0.2.2:6363")
                .setFaceScope(FACE_SCOPE_LOCAL)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
-               .setLinkType(LINK_TYPE_MULTI_ACCESS);
+               .setLinkType(LINK_TYPE_MULTI_ACCESS)
+               .setFlags(0x06);
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
 
@@ -235,13 +244,13 @@ BOOST_AUTO_TEST_CASE(EncodeDown)
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0xc0, 0x3e, 0xc1, 0x01, 0x04, 0x69, 0x01, 0x14, 0x72, 0x16,
+    0xc0, 0x41, 0xc1, 0x01, 0x04, 0x69, 0x01, 0x14, 0x72, 0x16,
     0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32,
     0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x31, 0x3a, 0x35, 0x35, 0x35,
     0x35, 0x35, 0x81, 0x15, 0x74, 0x63, 0x70, 0x34, 0x3a, 0x2f,
     0x2f, 0x31, 0x39, 0x32, 0x2e, 0x30, 0x2e, 0x32, 0x2e, 0x32,
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
-    0x01, 0x86, 0x01, 0x01,
+    0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x06,
   };
   BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                   wire.begin(), wire.end());
@@ -265,7 +274,8 @@ BOOST_AUTO_TEST_CASE(EncodeDown)
                               "LocalUri: tcp4://192.0.2.2:6363, "
                               "FaceScope: local, "
                               "FacePersistency: on-demand, "
-                              "LinkType: multi-access)");
+                              "LinkType: multi-access, "
+                              "Flags: 0x6)");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestFaceEventNotification

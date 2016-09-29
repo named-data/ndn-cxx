@@ -43,7 +43,6 @@ FaceStatus::FaceStatus()
   , m_nOutNacks(0)
   , m_nInBytes(0)
   , m_nOutBytes(0)
-  , m_flags(0)
 {
 }
 
@@ -331,43 +330,6 @@ FaceStatus::setNOutBytes(uint64_t nOutBytes)
 {
   m_wire.reset();
   m_nOutBytes = nOutBytes;
-  return *this;
-}
-
-FaceStatus&
-FaceStatus::setFlags(uint64_t flags)
-{
-  m_wire.reset();
-  m_flags = flags;
-  return *this;
-}
-
-bool
-FaceStatus::getFlagBit(size_t bit) const
-{
-  if (bit >= 64) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
-  }
-
-  return m_flags & (1 << bit);
-}
-
-FaceStatus&
-FaceStatus::setFlagBit(size_t bit, bool value)
-{
-  if (bit >= 64) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
-  }
-
-  m_wire.reset();
-
-  if (value) {
-    m_flags |= (1 << bit);
-  }
-  else {
-    m_flags &= ~(1 << bit);
-  }
-
   return *this;
 }
 
