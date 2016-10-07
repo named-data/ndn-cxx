@@ -19,19 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "common.hpp"
-
 #include "random.hpp"
 #include "../security/detail/openssl.hpp"
 
-#include <boost/nondet_random.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
+#include <random>
 
 namespace ndn {
 namespace random {
-
-// OpenSSL-based (secure) pseudo-randomness generators
 
 uint32_t
 generateSecureWord32()
@@ -58,31 +52,26 @@ generateSecureBytes(uint8_t* bytes, size_t size)
   }
 }
 
-// Boost.Random-based (simple) random generators
-
-static boost::random::mt19937&
+static std::mt19937&
 getRandomGenerator()
 {
-  static boost::random_device randomSeedGenerator;
-  static boost::random::mt19937 gen(randomSeedGenerator);
-
-  return gen;
+  static std::mt19937 rng{std::random_device{}()};
+  return rng;
 }
 
 uint32_t
 generateWord32()
 {
-  static boost::random::uniform_int_distribution<uint32_t> distribution;
+  static std::uniform_int_distribution<uint32_t> distribution;
   return distribution(getRandomGenerator());
 }
 
 uint64_t
 generateWord64()
 {
-  static boost::random::uniform_int_distribution<uint64_t> distribution;
+  static std::uniform_int_distribution<uint64_t> distribution;
   return distribution(getRandomGenerator());
 }
-
 
 } // namespace random
 } // namespace ndn

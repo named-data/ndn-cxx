@@ -104,8 +104,8 @@ main(int, char**)
     conf.check_openssl(mandatory=True, atleast_version=0x10001000) # 1.0.1
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
-                       'regex', 'program_options', 'chrono', 'random',
-                       'thread', 'log', 'log_setup']
+                       'regex', 'program_options', 'chrono', 'thread',
+                       'log', 'log_setup']
 
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']

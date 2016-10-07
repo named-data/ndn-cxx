@@ -52,11 +52,9 @@ void
 generateSecureBytes(uint8_t* bytes, size_t size);
 
 /**
- * @brief Generate a cryptographically non-secure random integer from the range [0, 2^32)
+ * @brief Generate a non-cryptographically-secure random integer in the range [0, 2^32)
  *
- * This method uses Boost.Random routines
- *
- * This version is faster than generateSecureWord32, but it should not be used when
+ * This version is faster than generateSecureWord32, but it must not be used when
  * cryptographically secure random integers are needed (e.g., when creating signing or
  * encryption keys)
  */
@@ -64,11 +62,9 @@ uint32_t
 generateWord32();
 
 /**
- * @brief Generate a cryptographically non-secure random integer from range [0, 2^64)
+ * @brief Generate a non-cryptographically-secure random integer in the range [0, 2^64)
  *
- * This method uses Boost.Random routines
- *
- * This version is faster than generateSecureWord64, but it should not be used when
+ * This version is faster than generateSecureWord64, but it must not be used when
  * cryptographically secure random integers are needed (e.g., when creating signing or
  * encryption keys)
  */
