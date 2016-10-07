@@ -179,6 +179,12 @@ operator<<(std::ostream& os, const FaceEventNotification& notification)
     case FACE_EVENT_DESTROYED:
       os << "Kind: destroyed, ";
       break;
+    case FACE_EVENT_UP:
+      os << "Kind: up, ";
+      break;
+    case FACE_EVENT_DOWN:
+      os << "Kind: down, ";
+      break;
     }
 
   os << "FaceID: " << notification.getFaceId() << ", "

@@ -32,8 +32,10 @@ namespace nfd {
  * \ingroup management
  */
 enum FaceEventKind {
-  FACE_EVENT_CREATED = 1,
-  FACE_EVENT_DESTROYED = 2
+  FACE_EVENT_CREATED = 1, ///< face created
+  FACE_EVENT_DESTROYED = 2, ///< face destroyed
+  FACE_EVENT_UP = 3, ///< face went UP (from DOWN state)
+  FACE_EVENT_DOWN = 4 ///< face went DOWN (from UP state)
 };
 
 /**
