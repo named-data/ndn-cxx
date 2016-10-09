@@ -12,13 +12,13 @@ Trivial consumer
 
 In the following trivial example, a consumer creates a :ndn-cxx:`Face` with default
 transport (:ndn-cxx:`UnixTransport`) and sends an Interest for
-``/localhost/testApp/randomData``.  While expressing Interest, the app specifies two
-callbacks to be called when Data is retrieved or Interest times out.
+``/localhost/testApp/randomData``.  While expressing Interest, the app specifies three
+callbacks to be called when Data/Nack is retrieved or Interest times out.
 
 .. literalinclude:: ../examples/consumer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 24-27,39,43-46,50,57,67
+   :emphasize-lines: 24-27,39,43-47,51,58,75
 
 
 Trivial producer
@@ -66,5 +66,5 @@ Interest approximately 2 seconds after the first one.
 .. literalinclude:: ../examples/consumer-with-timer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 39-40,51-54,58-59,61-62,99-100
+   :emphasize-lines: 39-40,51-55,59-60,62-63,108-109
 

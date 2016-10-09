@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,6 +50,7 @@ public:
 
     m_face.expressInterest(interest,
                            bind(&ConsumerWithTimer::onData, this, _1, _2),
+                           bind(&ConsumerWithTimer::onNack, this, _1, _2),
                            bind(&ConsumerWithTimer::onTimeout, this, _1));
 
     std::cout << "Sending " << interest << std::endl;
@@ -74,6 +75,13 @@ private:
   }
 
   void
+  onNack(const Interest& interest, const lp::Nack& nack)
+  {
+    std::cout << "received Nack with reason " << nack.getReason()
+              << " for interest " << interest << std::endl;
+  }
+
+  void
   onTimeout(const Interest& interest)
   {
     std::cout << "Timeout " << interest << std::endl;
@@ -90,6 +98,7 @@ private:
 
     m_face.expressInterest(interest,
                            bind(&ConsumerWithTimer::onData, this, _1, _2),
+                           bind(&ConsumerWithTimer::onNack, this, _1, _2),
                            bind(&ConsumerWithTimer::onTimeout, this, _1));
 
     std::cout << "Sending " << interest << std::endl;
