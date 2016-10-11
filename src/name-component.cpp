@@ -394,6 +394,14 @@ Component::equals(const Component& other) const
 int
 Component::compare(const Component& other) const
 {
+  if (this->hasWire() && other.hasWire()) {
+    // In the common case where both components have wire encoding,
+    // it's more efficient to simply compare the wire encoding.
+    // This works because lexical order of TLV encoding happens to be
+    // the same as canonical order of the value.
+    return std::memcmp(wire(), other.wire(), std::min(size(), other.size()));
+  }
+
   int cmpType = type() - other.type();
   if (cmpType != 0)
     return cmpType;
