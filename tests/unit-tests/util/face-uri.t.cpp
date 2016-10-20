@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California,
+ * Copyright (c) 2013-2016 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -415,6 +415,50 @@ BOOST_AUTO_TEST_CASE(ParseDev)
   std::string ifname = "en1";
   BOOST_REQUIRE_NO_THROW(FaceUri::fromDev(ifname));
   BOOST_CHECK_EQUAL(FaceUri::fromDev(ifname).toString(), "dev://en1");
+}
+
+BOOST_AUTO_TEST_CASE(ParseUdpDev)
+{
+  FaceUri uri;
+
+  BOOST_CHECK(uri.parse("udp4+dev://eth0:7777"));
+  BOOST_CHECK_EQUAL(uri.getScheme(), "udp4+dev");
+  BOOST_CHECK_EQUAL(uri.getHost(), "eth0");
+  BOOST_CHECK_EQUAL(uri.getPort(), "7777");
+  BOOST_CHECK_EQUAL(uri.getPath(), "");
+
+  BOOST_CHECK(uri.parse("udp6+dev://eth1:7777"));
+  BOOST_CHECK_EQUAL(uri.getScheme(), "udp6+dev");
+  BOOST_CHECK_EQUAL(uri.getHost(), "eth1");
+  BOOST_CHECK_EQUAL(uri.getPort(), "7777");
+  BOOST_CHECK_EQUAL(uri.getPath(), "");
+
+  BOOST_CHECK(uri.parse("abc+efg://eth0"));
+  BOOST_CHECK(!uri.parse("abc+://eth0"));
+  BOOST_CHECK(!uri.parse("+abc://eth0"));
+
+  using namespace boost::asio;
+
+  ip::udp::endpoint endpoint4(ip::udp::v4(), 7777);
+  BOOST_REQUIRE_NO_THROW(FaceUri::fromUdpDev(endpoint4, "en1"));
+  BOOST_CHECK_EQUAL(FaceUri::fromUdpDev(endpoint4, "en1").toString(), "udp4+dev://en1:7777");
+
+  ip::udp::endpoint endpoint6(ip::udp::v6(), 7777);
+  BOOST_REQUIRE_NO_THROW(FaceUri::fromUdpDev(endpoint6, "en2"));
+  BOOST_CHECK_EQUAL(FaceUri::fromUdpDev(endpoint6, "en2").toString(), "udp6+dev://en2:7777");
+}
+
+BOOST_FIXTURE_TEST_CASE(CanonizeUdpDev, CanonizeFixture)
+{
+  BOOST_CHECK_EQUAL(FaceUri("udp4+dev://eth0:7777").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("udp6+dev://eth1:7777").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("udp+dev://eth1:7777").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp6+dev://eth1").isCanonical(), false);
+
+  addTest("udp4+dev://en0:7777", true, "udp4+dev://en0:7777");
+  addTest("udp6+dev://en0:7777", true, "udp6+dev://en0:7777");
+  addTest("udp+dev://en1:7777", false, "");
+  addTest("udp6+dev://en2", false, "");
 }
 
 BOOST_AUTO_TEST_CASE(CanonizeEmptyCallback)

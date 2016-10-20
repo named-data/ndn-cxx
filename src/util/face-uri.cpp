@@ -68,14 +68,14 @@ FaceUri::parse(const std::string& uri)
   m_port.clear();
   m_path.clear();
 
-  static const boost::regex protocolExp("(\\w+\\d?)://([^/]*)(\\/[^?]*)?");
+  static const boost::regex protocolExp("(\\w+\\d?(\\+\\w+)?)://([^/]*)(\\/[^?]*)?");
   boost::smatch protocolMatch;
   if (!boost::regex_match(uri, protocolMatch, protocolExp)) {
     return false;
   }
   m_scheme = protocolMatch[1];
-  const std::string& authority = protocolMatch[2];
-  m_path = protocolMatch[3];
+  const std::string& authority = protocolMatch[3];
+  m_path = protocolMatch[4];
 
   // pattern for IPv6 address enclosed in [ ], with optional port number
   static const boost::regex v6Exp("^\\[([a-fA-F0-9:]+)\\](?:\\:(\\d+))?$");
@@ -112,7 +112,7 @@ FaceUri::FaceUri(const boost::asio::ip::udp::endpoint& endpoint)
   m_isV6 = endpoint.address().is_v6();
   m_scheme = m_isV6 ? "udp6" : "udp4";
   m_host = endpoint.address().to_string();
-  m_port = boost::lexical_cast<std::string>(endpoint.port());
+  m_port = to_string(endpoint.port());
 }
 
 FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint)
@@ -120,7 +120,7 @@ FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint)
   m_isV6 = endpoint.address().is_v6();
   m_scheme = m_isV6 ? "tcp6" : "tcp4";
   m_host = endpoint.address().to_string();
-  m_port = boost::lexical_cast<std::string>(endpoint.port());
+  m_port = to_string(endpoint.port());
 }
 
 FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::string& scheme)
@@ -128,7 +128,7 @@ FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::stri
 {
   m_isV6 = endpoint.address().is_v6();
   m_host = endpoint.address().to_string();
-  m_port = boost::lexical_cast<std::string>(endpoint.port());
+  m_port = to_string(endpoint.port());
 }
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
@@ -145,7 +145,7 @@ FaceUri::fromFd(int fd)
 {
   FaceUri uri;
   uri.m_scheme = "fd";
-  uri.m_host = boost::lexical_cast<std::string>(fd);
+  uri.m_host = to_string(fd);
   return uri;
 }
 
@@ -162,6 +162,16 @@ FaceUri::fromDev(const std::string& ifname)
   FaceUri uri;
   uri.m_scheme = "dev";
   uri.m_host = ifname;
+  return uri;
+}
+
+FaceUri
+FaceUri::fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, const std::string& ifname)
+{
+  FaceUri uri;
+  uri.m_scheme = endpoint.address().is_v6() ? "udp6+dev" : "udp4+dev";
+  uri.m_host = ifname;
+  uri.m_port = to_string(endpoint.port());
   return uri;
 }
 
@@ -445,10 +455,47 @@ public:
   }
 };
 
+class UdpDevCanonizeProvider : public CanonizeProvider
+{
+public:
+  virtual std::set<std::string>
+  getSchemes() const override
+  {
+    return {"udp4+dev", "udp6+dev"};
+  }
+
+  virtual bool
+  isCanonical(const FaceUri& faceUri) const override
+  {
+    if (faceUri.getPort().empty()) {
+      return false;
+    }
+    if (!faceUri.getPath().empty()) {
+      return false;
+    }
+    return true;
+  }
+
+  virtual void
+  canonize(const FaceUri& faceUri,
+           const FaceUri::CanonizeSuccessCallback& onSuccess,
+           const FaceUri::CanonizeFailureCallback& onFailure,
+           boost::asio::io_service& io, const time::nanoseconds& timeout) const override
+  {
+    if (this->isCanonical(faceUri)) {
+      onSuccess(faceUri);
+    }
+    else {
+      onFailure("cannot canonize " + faceUri.toString());
+    }
+  }
+};
+
 typedef boost::mpl::vector<
     UdpCanonizeProvider*,
     TcpCanonizeProvider*,
-    EtherCanonizeProvider*
+    EtherCanonizeProvider*,
+    UdpDevCanonizeProvider*
   > CanonizeProviders;
 typedef std::map<std::string, shared_ptr<CanonizeProvider> > CanonizeProviderTable;
 
