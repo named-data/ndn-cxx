@@ -68,8 +68,7 @@ def configure(conf):
 
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
                'default-compiler-flags', 'compiler-features', 'type_traits',
-               'pch', 'sanitizers', 'osx-security',
-               'boost', 'cryptopp', 'openssl', 'sqlite3',
+               'pch', 'osx-security', 'boost', 'cryptopp', 'openssl', 'sqlite3',
                'doxygen', 'sphinx_build'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
@@ -130,6 +129,8 @@ main(int, char**)
 
     # Loading "late" to prevent tests to be compiled with profiling flags
     conf.load('coverage')
+
+    conf.load('sanitizers')
 
     conf.define('SYSCONFDIR', conf.env['SYSCONFDIR'])
 
