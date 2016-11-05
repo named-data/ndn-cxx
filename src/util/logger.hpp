@@ -24,6 +24,10 @@
 
 #include "../common.hpp"
 
+#ifdef HAVE_NDN_CXX_CUSTOM_LOGGER
+#include "ndn-cxx-custom-logger.hpp"
+#else
+
 #include <boost/log/common.hpp>
 #include <boost/log/sources/logger.hpp>
 #include <atomic>
@@ -163,5 +167,7 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 
 } // namespace util
 } // namespace ndn
+
+#endif // HAVE_NDN_CXX_CUSTOM_LOGGER
 
 #endif // NDN_UTIL_LOGGER_HPP

@@ -24,6 +24,10 @@
 
 #include "../common.hpp"
 
+#ifdef HAVE_NDN_CXX_CUSTOM_LOGGER
+#include "ndn-cxx-custom-logging.hpp"
+#else
+
 #include <boost/log/sinks.hpp>
 #include <mutex>
 #include <unordered_map>
@@ -183,5 +187,7 @@ Logging::flush()
 
 } // namespace util
 } // namespace ndn
+
+#endif // HAVE_NDN_CXX_CUSTOM_LOGGER
 
 #endif // NDN_UTIL_LOGGING_HPP
