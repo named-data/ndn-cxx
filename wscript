@@ -5,7 +5,7 @@ import os
 
 VERSION = "0.5.0"
 APPNAME = "ndn-cxx"
-PACKAGE_BUGREPORT = "http://redmine.named-data.net/projects/ndn-cxx"
+PACKAGE_BUGREPORT = "https://redmine.named-data.net/projects/ndn-cxx"
 PACKAGE_URL = "http://named-data.net/doc/ndn-cxx/"
 GIT_TAG_PREFIX = "ndn-cxx-"
 
@@ -114,7 +114,7 @@ main(int, char**)
     if conf.env.BOOST_VERSION_NUMBER < 105400:
         Logs.error("Minimum required boost version is 1.54.0")
         Logs.error("Please upgrade your distribution or install custom boost libraries" +
-                    " (http://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)")
+                    " (https://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)")
         return
 
     if not conf.options.with_sqlite_locking:

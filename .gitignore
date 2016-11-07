@@ -1,7 +1,7 @@
 # Emacs temp files
 *~
 
-# Mac OSX
+# macOS stuff
 .DS_*
 
 # waf build system
@@ -12,6 +12,7 @@ build/
 
 # Compiled python code
 *.pyc
+*.pyo
 
 # Other
 VERSION

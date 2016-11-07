@@ -5,7 +5,7 @@ ndn-cxx is a C++ library, implementing Named Data Networking (NDN) primitives th
 used to implement various NDN applications.
 
 Please submit any bugs or issues to the `ndn-cxx issue tracker
-<http://redmine.named-data.net/projects/ndn-cxx/issues>`__.
+<https://redmine.named-data.net/projects/ndn-cxx/issues>`__.
 
 ndn-cxx Documentation
 ---------------------

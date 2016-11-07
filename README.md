@@ -4,8 +4,8 @@ ndn-cxx: NDN C++ library with eXperimental eXtensions
 [![Build Status](https://travis-ci.org/named-data/ndn-cxx.svg?branch=master)](https://travis-ci.org/named-data/ndn-cxx)
 
 ndn-cxx is a C++ library, implementing Named Data Networking (NDN) primitives that can be
-used to implement various NDN applications.  The library is currently being used as part
-of the following projects:
+used to implement various NDN applications. The library is currently being used as part of
+the following projects:
 
 * [NFD - NDN Forwarding Daemon](https://github.com/named-data/NFD)
 * [NLSR - Named-data Link-State Routing protocol](https://github.com/named-data/NLSR)
@@ -15,11 +15,11 @@ of the following projects:
 * [ndn-tools - NDN Essential Tools](https://github.com/named-data/ndn-tools)
 * [ndn-traffic-generator - Traffic Generator For NDN](https://github.com/named-data/ndn-traffic-generator)
 
-See the file [`docs/INSTALL.rst`](https://github.com/cawka/ndn-cxx/blob/master/docs/INSTALL.rst)
+See the file [`docs/INSTALL.rst`](https://github.com/named-data/ndn-cxx/blob/master/docs/INSTALL.rst)
 for build and install instructions.
 
 Please submit any bugs or issues to the ndn-cxx issue tracker:
-http://redmine.named-data.net/projects/ndn-cxx/issues
+https://redmine.named-data.net/projects/ndn-cxx/issues
 
 ## More documentation
 

@@ -11,10 +11,10 @@ platforms:
 
 -  Ubuntu 14.04 (64-bit and 32-bit)
 -  Ubuntu 16.04 (64-bit and 32-bit)
--  OS X 10.8
 -  OS X 10.9
 -  OS X 10.10
 -  OS X 10.11
+-  macOS 10.12
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
@@ -34,15 +34,15 @@ Required:
 -  ``python`` >= 2.6
 -  ``libsqlite3``
 -  ``libcrypto++``
--  OpenSSL version >= 1.0
+-  OpenSSL >= 1.0.1
 -  ``pkg-config``
 -  Boost libraries >= 1.54
--  OSX Security framework (on OSX platform only)
+-  OSX Security framework (on OSX/macOS platform only)
 
 Following are the detailed steps for each platform to install the compiler, all necessary
 development tools and libraries, and ndn-cxx prerequisites.
 
--  OS X
+-  OS X / macOS
 
    Install Xcode from AppStore or at least Command Line Tools (``xcode-select --install``)
 
@@ -57,11 +57,10 @@ development tools and libraries, and ndn-cxx prerequisites.
        In a terminal, enter::
 
            brew install boost pkg-config cryptopp openssl
-           brew link --force openssl
 
    .. note::
 
-      If a major OS X system upgrade is performed after installing dependencies with
+      If a major OS upgrade is performed after installing dependencies with
       MacPorts or Homebrew, remember to reinstall all packages.
 
 -  Ubuntu
@@ -90,7 +89,7 @@ dependencies need to be installed:
 
 The following lists steps for common platforms to install these prerequisites:
 
--  On OS X with MacPorts::
+-  On OS X / macOS with MacPorts::
 
        sudo port install doxygen graphviz py27-sphinx sphinx_select
        sudo port select sphinx py27-sphinx
@@ -323,10 +322,10 @@ running ``./waf configure``:
 Customize Compiler
 ------------------
 
-To customize compiler, set ``CXX`` environment variable to point to compiler binary and, in
-some case, specify type of the compiler using ``--check-cxx-compiler``.  For example, when
-using clang compiler on Linux system, use the following:
+To choose a custom C++ compiler for building ndn-cxx, set ``CXX`` environment
+variable to point to the compiler binary. For example, to build with clang on
+Linux, use the following:
 
 ::
 
-    CXX=clang++ ./waf configure --check-cxx-compiler=clang++
+    CXX=clang++ ./waf configure

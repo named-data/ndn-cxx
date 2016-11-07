@@ -17,7 +17,7 @@ in the library:
 
 * Wentao Shang          <http://irl.cs.ucla.edu/~wentao/>
 * Steve DiBenedetto     <http://www.cs.colostate.edu/~dibenede/>
-* Davide Pesavento      <http://www.lip6.fr/actualite/personnes-fiche.php?ident=D1469>
+* Davide Pesavento      <https://www.linkedin.com/in/davidepesavento>
 * Syed Obaid Amin       <http://obaidamin.weebly.com/>
 * Shuo Chen             <chenatu2006@gmail.com>
 * Hila Ben Abraham      <http://research.engineering.wustl.edu/~abrahamh/>

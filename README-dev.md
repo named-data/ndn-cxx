@@ -41,7 +41,7 @@ you are choosing LGPL 3.0, please use the following license boilerplate in all `
      */
 
 If you are affiliated to an NSF-supported NDN project institution, please use the [NDN Team License
-Boilerplate](http://redmine.named-data.net/projects/ndn-cxx/wiki/NDN_Team_License_Boilerplate_(ndn-cxx)).
+Boilerplate](https://redmine.named-data.net/projects/ndn-cxx/wiki/NDN_Team_License_Boilerplate_(ndn-cxx)).
 
 Running unit-tests
 ------------------

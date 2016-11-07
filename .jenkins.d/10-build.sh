@@ -13,7 +13,7 @@ sudo rm -f /usr/local/lib/pkgconfig/libndn-cxx*
 # Cleanup
 sudo ./waf -j1 --color=yes distclean
 
-if [[ "$JOB_NAME" != *"limited-build" ]]; then
+if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
   # Configure/build static library in optimized mode with tests
   ./waf -j1 --color=yes configure --enable-static --disable-shared --with-tests
   ./waf -j1 --color=yes build
@@ -30,7 +30,7 @@ if [[ "$JOB_NAME" != *"limited-build" ]]; then
 fi
 
 # Configure/build shared library in debug mode with tests/examples and without precompiled headers
-if [[ "$JOB_NAME" == *"code-coverage" ]]; then
+if [[ $JOB_NAME == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
 elif ! has OSX-10.9 $NODE_LABELS && ! has OSX-10.11 $NODE_LABELS; then
     ASAN="--with-sanitizer=address"

@@ -19,4 +19,4 @@ the following projects:
    NDN <https://github.com/named-data/ndn-traffic-generator>`__
 
 Please submit any bugs or issues to the `ndn-cxx issue tracker
-<http://redmine.named-data.net/projects/ndn-cxx/issues>`__.
+<https://redmine.named-data.net/projects/ndn-cxx/issues>`__.

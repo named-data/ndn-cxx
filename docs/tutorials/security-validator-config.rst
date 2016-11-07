@@ -578,7 +578,7 @@ And here is the configuration file:
 Example Configuration For NFD RIB Management
 --------------------------------------------
 
-Assume `NFD RIB Management <http://redmine.named-data.net/projects/nfd/wiki/RibMgmt>`_
+Assume `NFD RIB Management <https://redmine.named-data.net/projects/nfd/wiki/RibMgmt>`_
 allows any valid testbed certificate to register prefix, the configuration file could be
 written as:
 

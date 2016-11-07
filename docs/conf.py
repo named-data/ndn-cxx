@@ -274,4 +274,4 @@ if os.getenv('GOOGLE_ANALYTICS', None):
 
 # exclude_patterns = ['RELEASE_NOTES.rst']
 
-redmine_project_url = "http://redmine.named-data.net/"
+redmine_project_url = "https://redmine.named-data.net/"
