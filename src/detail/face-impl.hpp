@@ -93,6 +93,11 @@ public: // consumer
       packet.add<lp::NextHopFaceIdField>(*nextHopFaceIdTag);
     }
 
+    shared_ptr<lp::CongestionMarkTag> congestionMarkTag = interest->getTag<lp::CongestionMarkTag>();
+    if (congestionMarkTag != nullptr) {
+      packet.add<lp::CongestionMarkField>(*congestionMarkTag);
+    }
+
     packet.add<lp::FragmentField>(std::make_pair(interest->wireEncode().begin(),
                                                  interest->wireEncode().end()));
 

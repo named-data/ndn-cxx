@@ -240,10 +240,22 @@ Face::put(const Data& data)
 {
   Block wire = data.wireEncode();
 
+  lp::Packet packet;
+  bool hasLpFields = false;
+
   shared_ptr<lp::CachePolicyTag> cachePolicyTag = data.getTag<lp::CachePolicyTag>();
   if (cachePolicyTag != nullptr) {
-    lp::Packet packet;
     packet.add<lp::CachePolicyField>(*cachePolicyTag);
+    hasLpFields = true;
+  }
+
+  shared_ptr<lp::CongestionMarkTag> congestionMarkTag = data.getTag<lp::CongestionMarkTag>();
+  if (congestionMarkTag != nullptr) {
+    packet.add<lp::CongestionMarkField>(*congestionMarkTag);
+    hasLpFields = true;
+  }
+
+  if (hasLpFields) {
     packet.add<lp::FragmentField>(std::make_pair(wire.begin(), wire.end()));
     wire = packet.wireEncode();
   }
@@ -263,6 +275,11 @@ Face::put(const lp::Nack& nack)
   packet.add<lp::NackField>(nack.getHeader());
   const Block& interestWire = nack.getInterest().wireEncode();
   packet.add<lp::FragmentField>(std::make_pair(interestWire.begin(), interestWire.end()));
+
+  shared_ptr<lp::CongestionMarkTag> congestionMarkTag = nack.getTag<lp::CongestionMarkTag>();
+  if (congestionMarkTag != nullptr) {
+    packet.add<lp::CongestionMarkField>(*congestionMarkTag);
+  }
 
   Block wire = packet.wireEncode();
 
@@ -500,12 +517,16 @@ Face::asyncShutdown()
 /**
  * @brief extract local fields from NDNLPv2 packet and tag onto a network layer packet
  */
-template<typename NETPKT>
+template<typename NetPkt>
 static void
-extractLpLocalFields(NETPKT& netPacket, const lp::Packet& lpPacket)
+extractLpLocalFields(NetPkt& netPacket, const lp::Packet& lpPacket)
 {
   if (lpPacket.has<lp::IncomingFaceIdField>()) {
     netPacket.setTag(make_shared<lp::IncomingFaceIdTag>(lpPacket.get<lp::IncomingFaceIdField>()));
+  }
+
+  if (lpPacket.has<lp::CongestionMarkField>()) {
+    netPacket.setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
   }
 }
 

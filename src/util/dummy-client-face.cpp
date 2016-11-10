@@ -137,11 +137,17 @@ DummyClientFace::construct(const Options& options)
         if (lpPacket.has<lp::NextHopFaceIdField>()) {
           nack->setTag(make_shared<lp::NextHopFaceIdTag>(lpPacket.get<lp::NextHopFaceIdField>()));
         }
+        if (lpPacket.has<lp::CongestionMarkField>()) {
+          nack->setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
+        }
         onSendNack(*nack);
       }
       else {
         if (lpPacket.has<lp::NextHopFaceIdField>()) {
           interest->setTag(make_shared<lp::NextHopFaceIdTag>(lpPacket.get<lp::NextHopFaceIdField>()));
+        }
+        if (lpPacket.has<lp::CongestionMarkField>()) {
+          interest->setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
         }
         onSendInterest(*interest);
       }
@@ -151,6 +157,9 @@ DummyClientFace::construct(const Options& options)
 
       if (lpPacket.has<lp::CachePolicyField>()) {
         data->setTag(make_shared<lp::CachePolicyTag>(lpPacket.get<lp::CachePolicyField>()));
+      }
+      if (lpPacket.has<lp::CongestionMarkField>()) {
+        data->setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
       }
 
       onSendData(*data);
@@ -208,23 +217,26 @@ DummyClientFace::enableRegistrationReply()
   });
 }
 
+template<typename Packet, typename Field, typename Tag>
+static void
+addFieldFromTag(lp::Packet& lpPacket, const Packet& packet)
+{
+  shared_ptr<Tag> tag = static_cast<const TagHost&>(packet).getTag<Tag>();
+  if (tag != nullptr) {
+    lpPacket.add<Field>(*tag);
+  }
+}
+
 template<typename Packet>
 void
 DummyClientFace::receive(const Packet& packet)
 {
   lp::Packet lpPacket(packet.wireEncode());
 
-  shared_ptr<lp::IncomingFaceIdTag> incomingFaceIdTag =
-    static_cast<const TagHost&>(packet).getTag<lp::IncomingFaceIdTag>();
-  if (incomingFaceIdTag != nullptr) {
-    lpPacket.add<lp::IncomingFaceIdField>(*incomingFaceIdTag);
-  }
+  addFieldFromTag<Packet, lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, packet);
+  addFieldFromTag<Packet, lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, packet);
+  addFieldFromTag<Packet, lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, packet);
 
-  shared_ptr<lp::NextHopFaceIdTag> nextHopFaceIdTag =
-    static_cast<const TagHost&>(packet).getTag<lp::NextHopFaceIdTag>();
-  if (nextHopFaceIdTag != nullptr) {
-    lpPacket.add<lp::NextHopFaceIdField>(*nextHopFaceIdTag);
-  }
   static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
 }
 
@@ -243,10 +255,8 @@ DummyClientFace::receive<lp::Nack>(const lp::Nack& nack)
   Block interest = nack.getInterest().wireEncode();
   lpPacket.add<lp::FragmentField>(make_pair(interest.begin(), interest.end()));
 
-  shared_ptr<lp::IncomingFaceIdTag> incomingFaceIdTag = nack.getTag<lp::IncomingFaceIdTag>();
-  if (incomingFaceIdTag != nullptr) {
-    lpPacket.add<lp::IncomingFaceIdField>(*incomingFaceIdTag);
-  }
+  addFieldFromTag<lp::Nack, lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, nack);
+  addFieldFromTag<lp::Nack, lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
 
   static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
 }

@@ -316,12 +316,15 @@ BOOST_AUTO_TEST_CASE(PutData)
   lp::CachePolicy cachePolicy;
   cachePolicy.setPolicy(lp::CachePolicyType::NO_CACHE);
   data.setTag(make_shared<lp::CachePolicyTag>(cachePolicy));
+  data.setTag(make_shared<lp::CongestionMarkTag>(1));
   face.put(data);
 
   advanceClocks(time::milliseconds(10));
   BOOST_REQUIRE_EQUAL(face.sentData.size(), 2);
   BOOST_CHECK(face.sentData[0].getTag<lp::CachePolicyTag>() == nullptr);
+  BOOST_CHECK(face.sentData[0].getTag<lp::CongestionMarkTag>() == nullptr);
   BOOST_CHECK(face.sentData[1].getTag<lp::CachePolicyTag>() != nullptr);
+  BOOST_CHECK(face.sentData[1].getTag<lp::CongestionMarkTag>() != nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(PutNack)
@@ -332,6 +335,15 @@ BOOST_AUTO_TEST_CASE(PutNack)
 
   advanceClocks(time::milliseconds(10));
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 1);
+
+  auto nack = makeNack(Interest("/another/prefix", time::milliseconds(50)), lp::NackReason::NO_ROUTE);
+  nack.setTag(make_shared<lp::CongestionMarkTag>(1));
+  face.put(nack);
+
+  advanceClocks(time::milliseconds(10));
+  BOOST_REQUIRE_EQUAL(face.sentNacks.size(), 2);
+  BOOST_CHECK(face.sentNacks[0].getTag<lp::CongestionMarkTag>() == nullptr);
+  BOOST_CHECK(face.sentNacks[1].getTag<lp::CongestionMarkTag>() != nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)

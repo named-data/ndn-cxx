@@ -49,6 +49,13 @@ typedef SimpleTag<uint64_t, 11> NextHopFaceIdTag;
  */
 typedef SimpleTag<CachePolicy, 12> CachePolicyTag;
 
+/** \class CongestionMarkTag
+ *  \brief a packet tag for CongestionMark field
+ *
+ * This tag can be attached to Interest, Data, Nack.
+ */
+typedef SimpleTag<uint64_t, 13> CongestionMarkTag;
+
 } // namespace lp
 } // namespace ndn
 
