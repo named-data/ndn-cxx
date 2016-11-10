@@ -33,6 +33,9 @@
 namespace ndn {
 namespace security {
 
+/**
+ * @brief The validator which can be set up via a configuration file.
+ */
 class ValidatorConfig : public Validator
 {
 public:
@@ -67,9 +70,6 @@ public:
                   const size_t maxTrackedKeys = 1000,
                   const time::system_clock::Duration& keyTimestampTtl = DEFAULT_KEY_TIMESTAMP_TTL);
 
-  virtual
-  ~ValidatorConfig() = default;
-
   void
   load(const std::string& filename);
 
@@ -95,14 +95,14 @@ protected:
               int nSteps,
               const OnDataValidated& onValidated,
               const OnDataValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest>>& nextSteps);
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps) override;
 
   virtual void
   checkPolicy(const Interest& interest,
               int nSteps,
               const OnInterestValidated& onValidated,
               const OnInterestValidationFailed& onValidationFailed,
-              std::vector<shared_ptr<ValidationRequest>>& nextSteps);
+              std::vector<shared_ptr<ValidationRequest>>& nextSteps) override;
 
 private:
   template<class Packet, class OnValidated, class OnFailed>
@@ -157,10 +157,6 @@ private:
   class TrustAnchorContainer
   {
   public:
-    TrustAnchorContainer()
-    {
-    }
-
     const std::list<shared_ptr<v1::IdentityCertificate>>&
     getAll() const
     {
@@ -237,7 +233,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   typedef std::map<Name, shared_ptr<v1::IdentityCertificate>> AnchorList;
   typedef std::list<DynamicTrustAnchorContainer> DynamicContainers; // sorted by m_lastRefresh
   typedef std::list<shared_ptr<v1::IdentityCertificate>> CertificateList;
-
 
   /**
    * @brief gives whether validation should be preformed

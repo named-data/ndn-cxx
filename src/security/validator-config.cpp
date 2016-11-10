@@ -52,7 +52,7 @@ ValidatorConfig::ValidatorConfig(Face* face,
   , m_maxTrackedKeys(maxTrackedKeys)
   , m_keyTimestampTtl(keyTimestampTtl)
 {
-  if (!static_cast<bool>(m_certificateCache) && face != nullptr)
+  if (m_certificateCache == nullptr && face != nullptr)
     m_certificateCache = make_shared<CertificateCacheTtl>(ref(face->getIoService()));
 }
 
@@ -71,7 +71,7 @@ ValidatorConfig::ValidatorConfig(Face& face,
   , m_maxTrackedKeys(maxTrackedKeys)
   , m_keyTimestampTtl(keyTimestampTtl)
 {
-  if (!static_cast<bool>(m_certificateCache))
+  if (m_certificateCache == nullptr)
     m_certificateCache = make_shared<CertificateCacheTtl>(ref(face.getIoService()));
 }
 
@@ -80,12 +80,11 @@ ValidatorConfig::load(const std::string& filename)
 {
   std::ifstream inputFile;
   inputFile.open(filename.c_str());
-  if (!inputFile.good() || !inputFile.is_open())
-    {
-      std::string msg = "Failed to read configuration file: ";
-      msg += filename;
-      BOOST_THROW_EXCEPTION(security::conf::Error(msg));
-    }
+  if (!inputFile.good() || !inputFile.is_open()) {
+    std::string msg = "Failed to read configuration file: ";
+    msg += filename;
+    BOOST_THROW_EXCEPTION(security::conf::Error(msg));
+  }
   load(inputFile, filename);
   inputFile.close();
 }
@@ -102,18 +101,16 @@ void
 ValidatorConfig::load(std::istream& input, const std::string& filename)
 {
   security::conf::ConfigSection tree;
-  try
-    {
-      boost::property_tree::read_info(input, tree);
-    }
-  catch (boost::property_tree::info_parser_error& error)
-    {
-      std::stringstream msg;
-      msg << "Failed to parse configuration file";
-      msg << " " << filename;
-      msg << " " << error.message() << " line " << error.line();
-      BOOST_THROW_EXCEPTION(security::conf::Error(msg.str()));
-    }
+  try {
+    boost::property_tree::read_info(input, tree);
+  }
+  catch (const boost::property_tree::info_parser_error& error) {
+    std::stringstream msg;
+    msg << "Failed to parse configuration file";
+    msg << " " << filename;
+    msg << " " << error.message() << " line " << error.line();
+    BOOST_THROW_EXCEPTION(security::conf::Error(msg.str()));
+  }
 
   load(tree, filename);
 }
@@ -126,38 +123,33 @@ ValidatorConfig::load(const security::conf::ConfigSection& configSection,
 
   reset();
 
-  if (configSection.begin() == configSection.end())
-    {
-      std::string msg = "Error processing configuration file";
-      msg += ": ";
-      msg += filename;
-      msg += " no data";
-      BOOST_THROW_EXCEPTION(security::conf::Error(msg));
-    }
+  if (configSection.begin() == configSection.end()) {
+    std::string msg = "Error processing configuration file";
+    msg += ": ";
+    msg += filename;
+    msg += " no data";
+    BOOST_THROW_EXCEPTION(security::conf::Error(msg));
+  }
 
   for (security::conf::ConfigSection::const_iterator i = configSection.begin();
-       i != configSection.end(); ++i)
-    {
-      const std::string& sectionName = i->first;
-      const security::conf::ConfigSection& section = i->second;
+       i != configSection.end(); ++i) {
+    const std::string& sectionName = i->first;
+    const security::conf::ConfigSection& section = i->second;
 
-      if (boost::iequals(sectionName, "rule"))
-        {
-          onConfigRule(section, filename);
-        }
-      else if (boost::iequals(sectionName, "trust-anchor"))
-        {
-          onConfigTrustAnchor(section, filename);
-        }
-      else
-        {
-          std::string msg = "Error processing configuration file";
-          msg += " ";
-          msg += filename;
-          msg += " unrecognized section: " + sectionName;
-          BOOST_THROW_EXCEPTION(security::conf::Error(msg));
-        }
+    if (boost::iequals(sectionName, "rule")) {
+      onConfigRule(section, filename);
     }
+    else if (boost::iequals(sectionName, "trust-anchor")) {
+      onConfigTrustAnchor(section, filename);
+    }
+    else {
+      std::string msg = "Error processing configuration file";
+      msg += " ";
+      msg += filename;
+      msg += " unrecognized section: " + sectionName;
+      BOOST_THROW_EXCEPTION(security::conf::Error(msg));
+    }
+  }
 }
 
 void
@@ -182,7 +174,7 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
   std::string usage = propertyIt->second.data();
   propertyIt++;
 
-  bool isForData;
+  bool isForData = false;
   if (boost::iequals(usage, "data"))
     isForData = true;
   else if (boost::iequals(usage, "interest"))
@@ -193,57 +185,52 @@ ValidatorConfig::onConfigRule(const security::conf::ConfigSection& configSection
 
   // Get rule.filter(s)
   std::vector<shared_ptr<Filter>> filters;
-  for (; propertyIt != configSection.end(); propertyIt++)
-    {
-      if (!boost::iequals(propertyIt->first, "filter"))
-        {
-          if (boost::iequals(propertyIt->first, "checker"))
-            break;
-          BOOST_THROW_EXCEPTION(Error("Expect <rule.filter> in rule: " + ruleId));
-        }
-
-      filters.push_back(FilterFactory::create(propertyIt->second));
-      continue;
+  for (; propertyIt != configSection.end(); propertyIt++) {
+    if (!boost::iequals(propertyIt->first, "filter")) {
+      if (boost::iequals(propertyIt->first, "checker"))
+        break;
+      BOOST_THROW_EXCEPTION(Error("Expect <rule.filter> in rule: " + ruleId));
     }
+
+    filters.push_back(FilterFactory::create(propertyIt->second));
+    continue;
+  }
 
   // Get rule.checker(s)
   std::vector<shared_ptr<Checker>> checkers;
-  for (; propertyIt != configSection.end(); propertyIt++)
-    {
-      if (!boost::iequals(propertyIt->first, "checker"))
-        BOOST_THROW_EXCEPTION(Error("Expect <rule.checker> in rule: " + ruleId));
+  for (; propertyIt != configSection.end(); propertyIt++) {
+    if (!boost::iequals(propertyIt->first, "checker"))
+      BOOST_THROW_EXCEPTION(Error("Expect <rule.checker> in rule: " + ruleId));
 
-      checkers.push_back(CheckerFactory::create(propertyIt->second, filename));
-      continue;
-    }
+    checkers.push_back(CheckerFactory::create(propertyIt->second, filename));
+    continue;
+  }
 
   // Check other stuff
   if (propertyIt != configSection.end())
     BOOST_THROW_EXCEPTION(Error("Expect the end of rule: " + ruleId));
 
-  if (checkers.size() == 0)
+  if (checkers.empty())
     BOOST_THROW_EXCEPTION(Error("No <rule.checker> is specified in rule: " + ruleId));
 
-  if (isForData)
-    {
-      shared_ptr<DataRule> rule(new DataRule(ruleId));
-      for (size_t i = 0; i < filters.size(); i++)
-        rule->addFilter(filters[i]);
-      for (size_t i = 0; i < checkers.size(); i++)
-        rule->addChecker(checkers[i]);
+  if (isForData) {
+    shared_ptr<DataRule> rule = make_shared<DataRule>(ruleId);
+    for (const auto& filter : filters)
+      rule->addFilter(filter);
+    for (const auto& checker : checkers)
+      rule->addChecker(checker);
 
-      m_dataRules.push_back(rule);
-    }
-  else
-    {
-      shared_ptr<InterestRule> rule(new InterestRule(ruleId));
-      for (size_t i = 0; i < filters.size(); i++)
-        rule->addFilter(filters[i]);
-      for (size_t i = 0; i < checkers.size(); i++)
-        rule->addChecker(checkers[i]);
+    m_dataRules.push_back(rule);
+  }
+  else {
+    shared_ptr<InterestRule> rule = make_shared<InterestRule>(ruleId);;
+    for (const auto& filter : filters)
+      rule->addFilter(filter);
+    for (const auto& checker : checkers)
+      rule->addChecker(checker);
 
-      m_interestRules.push_back(rule);
-    }
+    m_interestRules.push_back(rule);
+  }
 }
 
 void
@@ -262,116 +249,103 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
   std::string type = propertyIt->second.data();
   propertyIt++;
 
-  if (boost::iequals(type, "file"))
-    {
-      // Get trust-anchor.file
-      if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first,"file-name"))
-        BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.file-name>!"));
+  if (boost::iequals(type, "file")) {
+    // Get trust-anchor.file
+    if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "file-name"))
+      BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.file-name>!"));
 
-      std::string file = propertyIt->second.data();
-      propertyIt++;
+    std::string file = propertyIt->second.data();
+    propertyIt++;
 
-      // Check other stuff
-      if (propertyIt != configSection.end())
-        BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
+    // Check other stuff
+    if (propertyIt != configSection.end())
+      BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
 
-      path certfilePath = absolute(file, path(filename).parent_path());
-      shared_ptr<v1::IdentityCertificate> idCert =
-        io::load<v1::IdentityCertificate>(certfilePath.string());
+    path certfilePath = absolute(file, path(filename).parent_path());
+    auto idCert = io::load<v1::IdentityCertificate>(certfilePath.string());
 
-      if (static_cast<bool>(idCert))
-        {
-          BOOST_ASSERT(idCert->getName().size() >= 1);
-          m_staticContainer.add(idCert);
-          m_anchors[idCert->getName().getPrefix(-1)] = idCert;
-        }
+    if (idCert != nullptr) {
+      BOOST_ASSERT(idCert->getName().size() >= 1);
+      m_staticContainer.add(idCert);
+      m_anchors[idCert->getName().getPrefix(-1)] = idCert;
+    }
+    else
+      BOOST_THROW_EXCEPTION(Error("Cannot read certificate from file: " + certfilePath.native()));
+
+    return;
+  }
+  else if (boost::iequals(type, "base64")) {
+    // Get trust-anchor.base64-string
+    if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "base64-string"))
+      BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.base64-string>!"));
+
+    std::stringstream ss(propertyIt->second.data());
+    propertyIt++;
+
+    // Check other stuff
+    if (propertyIt != configSection.end())
+      BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
+
+    auto idCert = io::load<v1::IdentityCertificate>(ss);
+
+    if (idCert != nullptr) {
+      BOOST_ASSERT(idCert->getName().size() >= 1);
+      m_staticContainer.add(idCert);
+      m_anchors[idCert->getName().getPrefix(-1)] = idCert;
+    }
+    else
+      BOOST_THROW_EXCEPTION(Error("Cannot decode certificate from base64-string"));
+
+    return;
+  }
+  else if (boost::iequals(type, "dir")) {
+    if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "dir"))
+      BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.dir>"));
+
+    std::string dirString(propertyIt->second.data());
+    propertyIt++;
+
+    if (propertyIt != configSection.end()) {
+      if (boost::iequals(propertyIt->first, "refresh")) {
+        using namespace boost::filesystem;
+
+        time::nanoseconds refresh = getRefreshPeriod(propertyIt->second.data());
+        propertyIt++;
+
+        if (propertyIt != configSection.end())
+          BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor"));
+
+        path dirPath = absolute(dirString, path(filename).parent_path());
+
+        m_dynamicContainers.push_back(DynamicTrustAnchorContainer(dirPath, true, refresh));
+
+        m_dynamicContainers.rbegin()->setLastRefresh(time::system_clock::now() - refresh);
+
+        return;
+      }
       else
-        BOOST_THROW_EXCEPTION(Error("Cannot read certificate from file: " +
-                                    certfilePath.native()));
+        BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.refresh>!"));
+    }
+    else {
+      using namespace boost::filesystem;
+
+      path dirPath = absolute(dirString, path(filename).parent_path());
+
+      directory_iterator end;
+
+      for (directory_iterator it(dirPath); it != end; it++) {
+        auto idCert = io::load<v1::IdentityCertificate>(it->path().string());
+
+        if (idCert != nullptr)
+          m_staticContainer.add(idCert);
+      }
 
       return;
     }
-  else if (boost::iequals(type, "base64"))
-    {
-      // Get trust-anchor.base64-string
-      if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "base64-string"))
-        BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.base64-string>!"));
-
-      std::stringstream ss(propertyIt->second.data());
-      propertyIt++;
-
-      // Check other stuff
-      if (propertyIt != configSection.end())
-        BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
-
-      shared_ptr<v1::IdentityCertificate> idCert = io::load<v1::IdentityCertificate>(ss);
-
-      if (static_cast<bool>(idCert))
-        {
-          BOOST_ASSERT(idCert->getName().size() >= 1);
-          m_staticContainer.add(idCert);
-          m_anchors[idCert->getName().getPrefix(-1)] = idCert;
-        }
-      else
-        BOOST_THROW_EXCEPTION(Error("Cannot decode certificate from base64-string"));
-
-      return;
-    }
-  else if (boost::iequals(type, "dir"))
-    {
-      if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "dir"))
-        BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.dir>"));
-
-      std::string dirString(propertyIt->second.data());
-      propertyIt++;
-
-      if (propertyIt != configSection.end())
-        {
-          if (boost::iequals(propertyIt->first, "refresh"))
-            {
-              using namespace boost::filesystem;
-
-              time::nanoseconds refresh = getRefreshPeriod(propertyIt->second.data());
-              propertyIt++;
-
-              if (propertyIt != configSection.end())
-                BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor"));
-
-              path dirPath = absolute(dirString, path(filename).parent_path());
-
-              m_dynamicContainers.push_back(DynamicTrustAnchorContainer(dirPath, true, refresh));
-
-              m_dynamicContainers.rbegin()->setLastRefresh(time::system_clock::now() - refresh);
-
-              return;
-            }
-          else
-            BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.refresh>!"));
-        }
-      else
-        {
-          using namespace boost::filesystem;
-
-          path dirPath = absolute(dirString, path(filename).parent_path());
-
-          directory_iterator end;
-
-          for (directory_iterator it(dirPath); it != end; it++)
-            {
-              shared_ptr<v1::IdentityCertificate> idCert =
-                io::load<v1::IdentityCertificate>(it->path().string());
-
-              if (static_cast<bool>(idCert))
-                m_staticContainer.add(idCert);
-            }
-
-          return;
-        }
-    }
-  else if (boost::iequals(type, "any"))
-    {
-      m_shouldValidate = false;
-    }
+  }
+  else if (boost::iequals(type, "any")) {
+    m_shouldValidate = false;
+  }
   else
     BOOST_THROW_EXCEPTION(Error("Unsupported trust-anchor.type: " + type));
 }
@@ -379,7 +353,7 @@ ValidatorConfig::onConfigTrustAnchor(const security::conf::ConfigSection& config
 void
 ValidatorConfig::reset()
 {
-  if (static_cast<bool>(m_certificateCache))
+  if (m_certificateCache != nullptr)
     m_certificateCache->reset();
   m_interestRules.clear();
   m_dataRules.clear();
@@ -394,12 +368,8 @@ ValidatorConfig::reset()
 bool
 ValidatorConfig::isEmpty()
 {
-  if ((!static_cast<bool>(m_certificateCache) || m_certificateCache->isEmpty()) &&
-      m_interestRules.empty() &&
-      m_dataRules.empty() &&
-      m_anchors.empty())
-    return true;
-  return false;
+  return ((m_certificateCache == nullptr || m_certificateCache->isEmpty()) &&
+          m_interestRules.empty() && m_dataRules.empty() && m_anchors.empty());
 }
 
 time::nanoseconds
@@ -408,31 +378,28 @@ ValidatorConfig::getRefreshPeriod(std::string inputString)
   char unit = inputString[inputString.size() - 1];
   std::string refreshString = inputString.substr(0, inputString.size() - 1);
 
-  uint32_t number;
+  uint32_t refreshPeriod = 0;
 
-  try
-    {
-      number = boost::lexical_cast<uint32_t>(refreshString);
-    }
-  catch (boost::bad_lexical_cast&)
-    {
-      BOOST_THROW_EXCEPTION(Error("Bad number: " + refreshString));
-    }
+  try {
+    refreshPeriod = boost::lexical_cast<uint32_t>(refreshString);
+  }
+  catch (const boost::bad_lexical_cast&) {
+    BOOST_THROW_EXCEPTION(Error("Bad number: " + refreshString));
+  }
 
-  if (number == 0)
+  if (refreshPeriod == 0)
     return getDefaultRefreshPeriod();
 
-  switch (unit)
-    {
-    case 'h':
-      return time::duration_cast<time::nanoseconds>(time::hours(number));
-    case 'm':
-      return time::duration_cast<time::nanoseconds>(time::minutes(number));
-    case 's':
-      return time::duration_cast<time::nanoseconds>(time::seconds(number));
-    default:
-      BOOST_THROW_EXCEPTION(Error(std::string("Wrong time unit: ") + unit));
-    }
+  switch (unit) {
+  case 'h':
+    return time::duration_cast<time::nanoseconds>(time::hours(refreshPeriod));
+  case 'm':
+    return time::duration_cast<time::nanoseconds>(time::minutes(refreshPeriod));
+  case 's':
+    return time::duration_cast<time::nanoseconds>(time::seconds(refreshPeriod));
+  default:
+    BOOST_THROW_EXCEPTION(Error(std::string("Wrong time unit: ") + unit));
+  }
 }
 
 time::nanoseconds
@@ -448,42 +415,30 @@ ValidatorConfig::refreshAnchors()
 
   bool isRefreshed = false;
 
-  for (DynamicContainers::iterator cIt = m_dynamicContainers.begin();
-       cIt != m_dynamicContainers.end(); cIt++)
-    {
-      if (cIt->getLastRefresh() + cIt->getRefreshPeriod() < now)
-        {
-          isRefreshed = true;
-          cIt->refresh();
-          cIt->setLastRefresh(now);
-        }
-      else
-        break;
+  for (auto cIt = m_dynamicContainers.begin();
+       cIt != m_dynamicContainers.end() && cIt->getLastRefresh() + cIt->getRefreshPeriod() < now;
+       cIt++) {
+    isRefreshed = true;
+    cIt->refresh();
+    cIt->setLastRefresh(now);
+  }
+
+  if (isRefreshed) {
+    m_anchors.clear();
+
+    for (const auto& cert : m_staticContainer.getAll()) {
+      m_anchors[cert->getName().getPrefix(-1)] = cert;
     }
 
-  if (isRefreshed)
-    {
-      m_anchors.clear();
+    for (const auto& container : m_dynamicContainers) {
+      const CertificateList& certList = container.getAll();
 
-      for (CertificateList::const_iterator it = m_staticContainer.getAll().begin();
-           it != m_staticContainer.getAll().end(); it++)
-        {
-          m_anchors[(*it)->getName().getPrefix(-1)] = (*it);
-        }
-
-      for (DynamicContainers::iterator cIt = m_dynamicContainers.begin();
-           cIt != m_dynamicContainers.end(); cIt++)
-        {
-          const CertificateList& certList = cIt->getAll();
-
-          for (CertificateList::const_iterator it = certList.begin();
-               it != certList.end(); it++)
-            {
-              m_anchors[(*it)->getName().getPrefix(-1)] = (*it);
-            }
-        }
-      m_dynamicContainers.sort(ValidatorConfig::compareDynamicContainer);
+      for (const auto& cert :certList) {
+        m_anchors[cert->getName().getPrefix(-1)] = cert;
+      }
     }
+    m_dynamicContainers.sort(ValidatorConfig::compareDynamicContainer);
+  }
 }
 
 void
@@ -499,26 +454,22 @@ ValidatorConfig::checkPolicy(const Data& data,
   bool isMatched = false;
   int8_t checkResult = -1;
 
-  for (DataRuleList::iterator it = m_dataRules.begin();
-       it != m_dataRules.end(); it++)
-    {
-      if ((*it)->match(data))
-        {
-          isMatched = true;
-          checkResult = (*it)->check(data, onValidated, onValidationFailed);
-          break;
-        }
+  for (const auto& dataRule : m_dataRules) {
+    if (dataRule->match(data)) {
+      isMatched = true;
+      checkResult = dataRule->check(data, onValidated, onValidationFailed);
+      break;
     }
+  }
 
   if (!isMatched)
     return onValidationFailed(data.shared_from_this(), "No rule matched!");
 
-  if (checkResult == 0)
-    {
-      const Signature& signature = data.getSignature();
-      checkSignature(data, signature, nSteps,
-                     onValidated, onValidationFailed, nextSteps);
-    }
+  if (checkResult == 0) {
+    const Signature& signature = data.getSignature();
+    checkSignature(data, signature, nSteps,
+                   onValidated, onValidationFailed, nextSteps);
+  }
 }
 
 void
@@ -537,75 +488,59 @@ ValidatorConfig::checkPolicy(const Interest& interest,
     return onValidationFailed(interest.shared_from_this(),
                               "Interest is not signed: " + interest.getName().toUri());
 
-  try
-    {
-      const Name& interestName = interest.getName();
-      Signature signature(interestName[signed_interest::POS_SIG_INFO].blockFromValue(),
-                          interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
+  try {
+    const Name& interestName = interest.getName();
+    Signature signature(interestName[signed_interest::POS_SIG_INFO].blockFromValue(),
+                        interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
 
-      if (!signature.hasKeyLocator())
-        return onValidationFailed(interest.shared_from_this(),
-                                  "No valid KeyLocator");
+    if (!signature.hasKeyLocator())
+      return onValidationFailed(interest.shared_from_this(), "No valid KeyLocator");
 
-      const KeyLocator& keyLocator = signature.getKeyLocator();
+    const KeyLocator& keyLocator = signature.getKeyLocator();
 
-      if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
-        return onValidationFailed(interest.shared_from_this(),
-                                  "Key Locator is not a name");
+    if (keyLocator.getType() != KeyLocator::KeyLocator_Name)
+      return onValidationFailed(interest.shared_from_this(), "Key Locator is not a name");
 
-      Name keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
+    Name keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocator.getName());
 
-      bool isMatched = false;
-      int8_t checkResult = -1;
+    bool isMatched = false;
+    int8_t checkResult = -1;
 
-      for (InterestRuleList::iterator it = m_interestRules.begin();
-           it != m_interestRules.end(); it++)
-        {
-          if ((*it)->match(interest))
-            {
-              isMatched = true;
-              checkResult = (*it)->check(interest,
-                                         bind(&ValidatorConfig::checkTimestamp, this, _1,
-                                              keyName, onValidated, onValidationFailed),
-                                         onValidationFailed);
-              break;
-            }
-        }
-
-      if (!isMatched)
-        return onValidationFailed(interest.shared_from_this(), "No rule matched!");
-
-      if (checkResult == 0)
-        {
-          checkSignature<Interest, OnInterestValidated, OnInterestValidationFailed>
-            (interest, signature, nSteps,
-             bind(&ValidatorConfig::checkTimestamp, this, _1,
-                  keyName, onValidated, onValidationFailed),
-             onValidationFailed,
-             nextSteps);
-        }
-    }
-  catch (Signature::Error& e)
-    {
-      return onValidationFailed(interest.shared_from_this(),
-                                "No valid signature");
-    }
-  catch (KeyLocator::Error& e)
-    {
-      return onValidationFailed(interest.shared_from_this(),
-                                "No valid KeyLocator");
-    }
-  catch (v1::IdentityCertificate::Error& e)
-    {
-      return onValidationFailed(interest.shared_from_this(),
-                                "Cannot determine the signing key");
+    for (const auto& interestRule : m_interestRules) {
+      if (interestRule->match(interest)) {
+        isMatched = true;
+        checkResult = interestRule->check(interest,
+                                          bind(&ValidatorConfig::checkTimestamp, this, _1,
+                                               keyName, onValidated, onValidationFailed),
+                                          onValidationFailed);
+        break;
+      }
     }
 
-  catch (tlv::Error& e)
-    {
-      return onValidationFailed(interest.shared_from_this(),
-                                "Cannot decode signature");
+    if (!isMatched)
+      return onValidationFailed(interest.shared_from_this(), "No rule matched!");
+
+    if (checkResult == 0) {
+      checkSignature<Interest, OnInterestValidated, OnInterestValidationFailed>
+        (interest, signature, nSteps,
+         bind(&ValidatorConfig::checkTimestamp, this, _1,
+              keyName, onValidated, onValidationFailed),
+         onValidationFailed,
+         nextSteps);
     }
+  }
+  catch (const Signature::Error& e) {
+    return onValidationFailed(interest.shared_from_this(), "No valid signature");
+  }
+  catch (const KeyLocator::Error& e){
+    return onValidationFailed(interest.shared_from_this(), "No valid KeyLocator");
+  }
+  catch (const v1::IdentityCertificate::Error& e){
+    return onValidationFailed(interest.shared_from_this(), "Cannot determine the signing key");
+  }
+  catch (const tlv::Error& e){
+    return onValidationFailed(interest.shared_from_this(), "Cannot decode signature");
+  }
 }
 
 void
@@ -617,47 +552,38 @@ ValidatorConfig::checkTimestamp(const shared_ptr<const Interest>& interest,
   const Name& interestName = interest->getName();
   time::system_clock::TimePoint interestTime;
 
-  try
-    {
-      interestTime =
-        time::fromUnixTimestamp(
-          time::milliseconds(interestName.get(-signed_interest::MIN_LENGTH).toNumber()));
-    }
-  catch (tlv::Error& e)
-    {
-      return onValidationFailed(interest,
-                                "Cannot decode signature related TLVs");
-    }
+  try {
+    interestTime =
+      time::fromUnixTimestamp(time::milliseconds(interestName.get(-signed_interest::MIN_LENGTH).toNumber()));
+  }
+  catch (const tlv::Error& e) {
+    return onValidationFailed(interest,
+                              "Cannot decode signature related TLVs");
+  }
 
   time::system_clock::TimePoint currentTime = time::system_clock::now();
 
   LastTimestampMap::iterator timestampIt = m_lastTimestamp.find(keyName);
-  if (timestampIt == m_lastTimestamp.end())
-    {
-      if (!(currentTime - m_graceInterval <= interestTime &&
-            interestTime <= currentTime + m_graceInterval))
-        return onValidationFailed(interest,
-                                  "The command is not in grace interval: " +
-                                  interest->getName().toUri());
-    }
-  else
-    {
-      if (interestTime <= timestampIt->second)
-        return onValidationFailed(interest,
-                                  "The command is outdated: " +
-                                  interest->getName().toUri());
-    }
+  if (timestampIt == m_lastTimestamp.end()) {
+    if (!(currentTime - m_graceInterval <= interestTime &&
+          interestTime <= currentTime + m_graceInterval))
+      return onValidationFailed(interest,
+                                "The command is not in grace interval: " + interest->getName().toUri());
+  }
+  else {
+    if (interestTime <= timestampIt->second)
+      return onValidationFailed(interest,
+                                "The command is outdated: " + interest->getName().toUri());
+  }
 
-  //Update timestamp
-  if (timestampIt == m_lastTimestamp.end())
-    {
-      cleanOldKeys();
-      m_lastTimestamp[keyName] = interestTime;
-    }
-  else
-    {
-      timestampIt->second = interestTime;
-    }
+  // Update timestamp
+  if (timestampIt == m_lastTimestamp.end()) {
+    cleanOldKeys();
+    m_lastTimestamp[keyName] = interestTime;
+  }
+  else {
+    timestampIt->second = interestTime;
+  }
 
   return onValidated(interest);
 }
@@ -675,24 +601,21 @@ ValidatorConfig::cleanOldKeys()
   LastTimestampMap::iterator oldestKeyIt = m_lastTimestamp.begin();
   time::system_clock::TimePoint oldestTimestamp = oldestKeyIt->second;
 
-  while (timestampIt != end)
-    {
-      if (now - timestampIt->second > m_keyTimestampTtl)
-        {
-          LastTimestampMap::iterator toDelete = timestampIt;
-          timestampIt++;
-          m_lastTimestamp.erase(toDelete);
-          continue;
-        }
-
-      if (timestampIt->second < oldestTimestamp)
-        {
-          oldestTimestamp = timestampIt->second;
-          oldestKeyIt = timestampIt;
-        }
-
+  while (timestampIt != end) {
+    if (now - timestampIt->second > m_keyTimestampTtl) {
+      LastTimestampMap::iterator toDelete = timestampIt;
       timestampIt++;
+      m_lastTimestamp.erase(toDelete);
+      continue;
     }
+
+    if (timestampIt->second < oldestTimestamp) {
+      oldestTimestamp = timestampIt->second;
+      oldestKeyIt = timestampIt;
+    }
+
+    timestampIt++;
+  }
 
   if (m_lastTimestamp.size() >= m_maxTrackedKeys)
     m_lastTimestamp.erase(oldestKeyIt);
@@ -705,27 +628,22 @@ ValidatorConfig::DynamicTrustAnchorContainer::refresh()
 
   m_certificates.clear();
 
-  if (m_isDir)
-    {
-      directory_iterator end;
+  if (m_isDir) {
+    directory_iterator end;
 
-      for (directory_iterator it(m_path); it != end; it++)
-        {
-          shared_ptr<v1::IdentityCertificate> idCert =
-            io::load<v1::IdentityCertificate>(it->path().string());
+    for (directory_iterator it(m_path); it != end; it++) {
+      auto idCert = io::load<v1::IdentityCertificate>(it->path().string());
 
-          if (static_cast<bool>(idCert))
-            m_certificates.push_back(idCert);
-        }
-    }
-  else
-    {
-      shared_ptr<v1::IdentityCertificate> idCert =
-        io::load<v1::IdentityCertificate>(m_path.string());
-
-      if (static_cast<bool>(idCert))
+      if (idCert != nullptr)
         m_certificates.push_back(idCert);
     }
+  }
+  else {
+    auto idCert = io::load<v1::IdentityCertificate>(m_path.string());
+
+    if (idCert != nullptr)
+      m_certificates.push_back(idCert);
+  }
 }
 
 template<class Packet, class OnValidated, class OnFailed>
@@ -737,42 +655,36 @@ ValidatorConfig::checkSignature(const Packet& packet,
                                 const OnFailed& onValidationFailed,
                                 std::vector<shared_ptr<ValidationRequest>>& nextSteps)
 {
-  if (signature.getType() == tlv::DigestSha256)
-    {
-      DigestSha256 sigSha256(signature);
+  if (signature.getType() == tlv::DigestSha256) {
+    DigestSha256 sigSha256(signature);
 
-      if (verifySignature(packet, sigSha256))
-        return onValidated(packet.shared_from_this());
-      else
-        return onValidationFailed(packet.shared_from_this(),
-                                  "Sha256 Signature cannot be verified!");
-    }
+    if (verifySignature(packet, sigSha256))
+      return onValidated(packet.shared_from_this());
+    else
+      return onValidationFailed(packet.shared_from_this(), "Sha256 Signature cannot be verified!");
+  }
 
   try {
     switch (signature.getType()) {
-    case tlv::SignatureSha256WithRsa:
-    case tlv::SignatureSha256WithEcdsa:
-      {
+      case tlv::SignatureSha256WithRsa:
+      case tlv::SignatureSha256WithEcdsa: {
         if (!signature.hasKeyLocator()) {
           return onValidationFailed(packet.shared_from_this(),
                                     "Missing KeyLocator in SignatureInfo");
         }
         break;
       }
-    default:
-      return onValidationFailed(packet.shared_from_this(),
-                              "Unsupported signature type");
+      default:
+        return onValidationFailed(packet.shared_from_this(), "Unsupported signature type");
     }
   }
-  catch (KeyLocator::Error& e) {
+  catch (const KeyLocator::Error& e) {
     return onValidationFailed(packet.shared_from_this(),
                               "Cannot decode KeyLocator in public key signature");
   }
-  catch (tlv::Error& e) {
-    return onValidationFailed(packet.shared_from_this(),
-                              "Cannot decode public key signature");
+  catch (const tlv::Error& e) {
+    return onValidationFailed(packet.shared_from_this(), "Cannot decode public key signature");
   }
-
 
   if (signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name) {
     return onValidationFailed(packet.shared_from_this(), "Unsupported KeyLocator type");
@@ -785,45 +697,39 @@ ValidatorConfig::checkSignature(const Packet& packet,
   refreshAnchors();
 
   AnchorList::const_iterator it = m_anchors.find(keyLocatorName);
-  if (m_anchors.end() == it && static_cast<bool>(m_certificateCache))
+  if (m_anchors.end() == it && m_certificateCache != nullptr)
     trustedCert = m_certificateCache->getCertificate(keyLocatorName);
   else if (m_anchors.end() != it)
     trustedCert = it->second;
 
-  if (static_cast<bool>(trustedCert))
-    {
-      if (verifySignature(packet, signature, trustedCert->getPublicKeyInfo()))
-        return onValidated(packet.shared_from_this());
-      else
-        return onValidationFailed(packet.shared_from_this(),
-                                  "Cannot verify signature");
-    }
-  else
-    {
-      if (m_stepLimit == nSteps)
-        return onValidationFailed(packet.shared_from_this(),
-                                  "Maximum steps of validation reached");
+  if (trustedCert != nullptr) {
+    if (verifySignature(packet, signature, trustedCert->getPublicKeyInfo()))
+      return onValidated(packet.shared_from_this());
+    else
+      return onValidationFailed(packet.shared_from_this(), "Cannot verify signature");
+  }
+  else {
+    if (m_stepLimit == nSteps)
+      return onValidationFailed(packet.shared_from_this(), "Maximum steps of validation reached");
 
-      OnDataValidated onCertValidated =
-        bind(&ValidatorConfig::onCertValidated<Packet, OnValidated, OnFailed>,
-             this, _1, packet.shared_from_this(), onValidated, onValidationFailed);
+    OnDataValidated onCertValidated =
+      bind(&ValidatorConfig::onCertValidated<Packet, OnValidated, OnFailed>,
+           this, _1, packet.shared_from_this(), onValidated, onValidationFailed);
 
-      OnDataValidationFailed onCertValidationFailed =
-        bind(&ValidatorConfig::onCertFailed<Packet, OnFailed>,
-             this, _1, _2, packet.shared_from_this(), onValidationFailed);
+    OnDataValidationFailed onCertValidationFailed =
+      bind(&ValidatorConfig::onCertFailed<Packet, OnFailed>,
+           this, _1, _2, packet.shared_from_this(), onValidationFailed);
 
-      Interest certInterest(keyLocatorName);
+    Interest certInterest(keyLocatorName);
 
-      shared_ptr<ValidationRequest> nextStep =
-        make_shared<ValidationRequest>(certInterest,
-                                       onCertValidated,
-                                       onCertValidationFailed,
-                                       1, nSteps + 1);
+    auto nextStep = make_shared<ValidationRequest>(certInterest,
+                                                   onCertValidated,
+                                                   onCertValidationFailed,
+                                                   1, nSteps + 1);
 
-      nextSteps.push_back(nextStep);
-      return;
-    }
-
+    nextSteps.push_back(nextStep);
+    return;
+  }
   return onValidationFailed(packet.shared_from_this(), "Unsupported Signature Type");
 }
 
@@ -843,31 +749,27 @@ ValidatorConfig::onCertValidated(const shared_ptr<const Data>& signCertificate,
   try {
     certificate = make_shared<v1::IdentityCertificate>(*signCertificate);
   }
-  catch (tlv::Error&) {
+  catch (const tlv::Error&) {
     return onValidationFailed(packet,
                               "Cannot decode signer's cert: " +
                               signCertificate->getName().toUri());
   }
 
-  if (!certificate->isTooLate() && !certificate->isTooEarly())
-    {
-      if (static_cast<bool>(m_certificateCache))
-        m_certificateCache->insertCertificate(certificate);
+  if (!certificate->isTooLate() && !certificate->isTooEarly()) {
+    if (m_certificateCache != nullptr)
+      m_certificateCache->insertCertificate(certificate);
 
-      if (verifySignature(*packet, certificate->getPublicKeyInfo()))
-        return onValidated(packet);
-      else
-        return onValidationFailed(packet,
-                                  "Cannot verify signature: " +
-                                  packet->getName().toUri());
-    }
-  else
-    {
+    if (verifySignature(*packet, certificate->getPublicKeyInfo()))
+      return onValidated(packet);
+    else
       return onValidationFailed(packet,
-                                "Signing certificate " +
-                                signCertificate->getName().toUri() +
-                                " is no longer valid.");
-    }
+                                "Cannot verify signature: " + packet->getName().toUri());
+  }
+  else {
+    return onValidationFailed(packet,
+                              "Signing certificate " +
+                              signCertificate->getName().toUri() + " is no longer valid.");
+  }
 }
 
 template<class Packet, class OnFailed>
