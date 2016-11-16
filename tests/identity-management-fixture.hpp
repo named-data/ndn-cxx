@@ -47,9 +47,22 @@ public:
   bool
   addIdentity(const Name& identity, const KeyParams& params = KeyChain::DEFAULT_KEY_PARAMS);
 
+  /**
+   *  @brief save identity certificate to a file
+   *  @param identity identity name
+   *  @param filename file name, should be writable
+   *  @param wantAdd if true, add new identity when necessary
+   *  @return whether successful
+   */
+  bool
+  saveIdentityCertificate(const Name& identity, const std::string& filename, bool wantAdd = false);
+
 protected:
   KeyChain m_keyChain;
+
+private:
   std::vector<Name> m_identities;
+  std::vector<std::string> m_certFiles;
 };
 
 } // namespace tests
