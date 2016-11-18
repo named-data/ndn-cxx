@@ -47,10 +47,8 @@ BOOST_AUTO_TEST_CASE(NameFilter)
 {
   Name identity("/TestValidatorConfig/NameFilter");
   identity.appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity));
+  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-1.cert", true));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
-  io::save(*idCert, "trust-anchor-1.cert");
 
   Name dataName1("/simple/equal");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
@@ -107,20 +105,14 @@ BOOST_AUTO_TEST_CASE(NameFilter)
   validator.validate(*data2,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-1.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 BOOST_AUTO_TEST_CASE(NameFilter2)
 {
   Name identity("/TestValidatorConfig/NameFilter2");
   identity.appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity));
+  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-2.cert", true));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
-  io::save(*idCert, "trust-anchor-2.cert");
 
   Name dataName1("/simple/isPrefixOf");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
@@ -185,20 +177,14 @@ BOOST_AUTO_TEST_CASE(NameFilter2)
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-2.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 BOOST_AUTO_TEST_CASE(NameFilter3)
 {
   Name identity("/TestValidatorConfig/NameFilter3");
   identity.appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity));
+  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-3.cert", true));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
-  io::save(*idCert, "trust-anchor-3.cert");
 
   Name dataName1("/simple/isStrictPrefixOf");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
@@ -263,20 +249,14 @@ BOOST_AUTO_TEST_CASE(NameFilter3)
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-3.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 BOOST_AUTO_TEST_CASE(NameFilter4)
 {
   Name identity("/TestValidatorConfig/NameFilter4");
   identity.appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity));
+  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-4.cert", true));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
-  io::save(*idCert, "trust-anchor-4.cert");
 
   Name dataName1("/simple/regex");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
@@ -340,20 +320,13 @@ BOOST_AUTO_TEST_CASE(NameFilter4)
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(false); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-4.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
 {
   Name identity("/TestValidatorConfig/KeyLocatorNameChecker1");
   identity.appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity));
-  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<v1::IdentityCertificate> idCert = m_keyChain.getCertificate(certName);
-  io::save(*idCert, "trust-anchor-5.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-5.cert", true));
 
   Name dataName1 = identity;
   dataName1.append("1");
@@ -414,10 +387,6 @@ BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
   validator.validate(*data3,
     [] (const shared_ptr<const Data>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Data>&, const std::string&) { BOOST_CHECK(true); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-5.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 BOOST_AUTO_TEST_CASE(FixedSignerChecker)
@@ -426,10 +395,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
 
   Name identity1 = identity;
   identity1.append("1").appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
-  Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
-  io::save(*idCert1, "trust-anchor-7.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-7.cert", true));
 
   Name identity2 = identity;
   identity2.append("2").appendVersion();
@@ -509,49 +475,17 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
   validator.validate(*interest,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-7.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
-struct CertCleanFixture : public IdentityManagementTimeFixture
+BOOST_AUTO_TEST_CASE(MultiCheckers)
 {
-public:
-  CertCleanFixture()
-    : tmpPath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH))
-  {
-    boost::filesystem::create_directories(tmpPath);
-  }
-
-  ~CertCleanFixture()
-  {
-    boost::filesystem::remove_all(tmpPath);
-  }
-
-public:
-  boost::filesystem::path tmpPath;
-};
-
-BOOST_FIXTURE_TEST_CASE(MultiCheckers, CertCleanFixture)
-{
-  std::string certDir = tmpPath.c_str();
-
   Name identity1("/TestValidatorConfig/MultiCheckers/");
   identity1.appendVersion();
-  addIdentity(identity1);
-  Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
-  std::string certDir1 = certDir + "trust-anchor-multi-1.cert";
-  io::save(*idCert1, certDir1);
+  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-multi-1.cert", true));
 
   Name identity2("/TestValidatorConfig/");
   identity2.appendVersion();
-  addIdentity(identity2);
-  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
-  shared_ptr<v1::IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
-  std::string certDir2 = certDir + "trust-anchor-multi-2.cert";
-  io::save(*idCert2, certDir2);
+  BOOST_REQUIRE(saveIdentityCertificate(identity2, "trust-anchor-multi-2.cert", true));
 
   const std::string CONFIG =
     "rule\n"
@@ -593,7 +527,7 @@ BOOST_FIXTURE_TEST_CASE(MultiCheckers, CertCleanFixture)
     "}\n";
 
   const boost::filesystem::path CONFIG_PATH =
-    (tmpPath / std::string("unit-test-multicheckers.conf"));
+    (boost::filesystem::current_path() / std::string("unit-test-multicheckers.conf"));
 
   ValidatorConfig validator;
   validator.load(CONFIG, CONFIG_PATH.c_str());
@@ -660,10 +594,7 @@ BOOST_FIXTURE_TEST_CASE(MultiCheckers, CertCleanFixture)
 BOOST_AUTO_TEST_CASE(Reset)
 {
   Name root("/TestValidatorConfig/Reload");
-  BOOST_REQUIRE_NO_THROW(addIdentity(root));
-  Name rootCertName = m_keyChain.getDefaultCertificateNameForIdentity(root);
-  shared_ptr<v1::IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
-  io::save(*rootCert, "trust-anchor-8.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(root, "trust-anchor-8.cert", true));
 
   Face face(nullptr, m_keyChain);
 
@@ -711,7 +642,6 @@ BOOST_AUTO_TEST_CASE(Reset)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-
   shared_ptr<ValidatorConfig> validator = shared_ptr<ValidatorConfig>(new ValidatorConfig(face));
 
   validator->load(CONFIG, CONFIG_PATH.c_str());
@@ -719,10 +649,6 @@ BOOST_AUTO_TEST_CASE(Reset)
 
   validator->reset();
   BOOST_CHECK(validator->isEmpty());
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-8.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
@@ -759,10 +685,7 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
 
   Name identity1 = identity;
   identity1.appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
-  Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
-  io::save(*idCert1, "trust-anchor-9.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-9.cert", true));
 
   Name interestName("/TestValidatorConfig/SignedInterestTest");
   Name interestName1 = interestName;
@@ -816,10 +739,6 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-9.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 
@@ -829,24 +748,15 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
 
   Name identity1 = identity;
   identity1.append("Key1");
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
-  Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
-  io::save(*idCert1, "trust-anchor-10-1.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-10-1.cert", true));
 
   Name identity2 = identity;
   identity2.append("Key2");
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity2));
-  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
-  shared_ptr<v1::IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
-  io::save(*idCert2, "trust-anchor-10-2.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity2, "trust-anchor-10-2.cert", true));
 
   Name identity3 = identity;
   identity3.append("Key3");
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity3));
-  Name certName3 = m_keyChain.getDefaultCertificateNameForIdentity(identity3);
-  shared_ptr<v1::IdentityCertificate> idCert3 = m_keyChain.getCertificate(certName3);
-  io::save(*idCert3, "trust-anchor-10-3.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity3, "trust-anchor-10-3.cert", true));
 
 
   Name interestName("/TestValidatorConfig/MaxKeyTest");
@@ -930,18 +840,6 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
-
-  const boost::filesystem::path CERT_PATH1 =
-    (boost::filesystem::current_path() / std::string("trust-anchor-10-1.cert"));
-  boost::filesystem::remove(CERT_PATH1);
-
-  const boost::filesystem::path CERT_PATH2 =
-    (boost::filesystem::current_path() / std::string("trust-anchor-10-2.cert"));
-  boost::filesystem::remove(CERT_PATH2);
-
-  const boost::filesystem::path CERT_PATH3 =
-    (boost::filesystem::current_path() / std::string("trust-anchor-10-3.cert"));
-  boost::filesystem::remove(CERT_PATH3);
 }
 
 BOOST_AUTO_TEST_CASE(MaxKeyTest2)
@@ -950,31 +848,19 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
 
   Name identity1 = identity;
   identity1.append("Key1");
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity1));
-  Name certName1 = m_keyChain.getDefaultCertificateNameForIdentity(identity1);
-  shared_ptr<v1::IdentityCertificate> idCert1 = m_keyChain.getCertificate(certName1);
-  io::save(*idCert1, "trust-anchor-10-1.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-10-1.cert", true));
 
   Name identity2 = identity;
   identity2.append("Key2");
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity2));
-  Name certName2 = m_keyChain.getDefaultCertificateNameForIdentity(identity2);
-  shared_ptr<v1::IdentityCertificate> idCert2 = m_keyChain.getCertificate(certName2);
-  io::save(*idCert2, "trust-anchor-10-2.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity2, "trust-anchor-10-2.cert", true));
 
   Name identity3 = identity;
   identity3.append("Key3");
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity3));
-  Name certName3 = m_keyChain.getDefaultCertificateNameForIdentity(identity3);
-  shared_ptr<v1::IdentityCertificate> idCert3 = m_keyChain.getCertificate(certName3);
-  io::save(*idCert3, "trust-anchor-10-3.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity3, "trust-anchor-10-3.cert", true));
 
   Name identity4 = identity;
   identity4.append("Key4");
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity4));
-  Name certName4 = m_keyChain.getDefaultCertificateNameForIdentity(identity4);
-  shared_ptr<v1::IdentityCertificate> idCert4 = m_keyChain.getCertificate(certName4);
-  io::save(*idCert4, "trust-anchor-10-4.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(identity4, "trust-anchor-10-4.cert", true));
 
 
   Name interestName("/TestValidatorConfig/MaxKeyTest");
@@ -990,7 +876,6 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   Name interestName4 = interestName;
   interestName4.append("4");
   shared_ptr<Interest> interest4 = make_shared<Interest>(interestName4);
-
 
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(identity1)));
   usleep(10000);
@@ -1045,7 +930,7 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
                             ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                             ValidatorConfig::DEFAULT_GRACE_INTERVAL,
                             10,
-                            3,                 // Two keys can be tracked
+                            3,                 // Three keys can be tracked
                             time::seconds(1)); // TTL is set to 1 sec
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
@@ -1091,37 +976,17 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
-
-
-  const boost::filesystem::path CERT_PATH1 =
-    (boost::filesystem::current_path() / std::string("trust-anchor-10-1.cert"));
-  boost::filesystem::remove(CERT_PATH1);
-
-  const boost::filesystem::path CERT_PATH2 =
-    (boost::filesystem::current_path() / std::string("trust-anchor-10-2.cert"));
-  boost::filesystem::remove(CERT_PATH2);
-
-  const boost::filesystem::path CERT_PATH3 =
-    (boost::filesystem::current_path() / std::string("trust-anchor-10-3.cert"));
-  boost::filesystem::remove(CERT_PATH3);
-
-  const boost::filesystem::path CERT_PATH4 =
-    (boost::filesystem::current_path() / std::string("trust-anchor-10-4.cert"));
-  boost::filesystem::remove(CERT_PATH4);
 }
 
 BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 {
   Name rsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Rsa");
-  BOOST_REQUIRE_NO_THROW(addIdentity(rsaIdentity));
+  BOOST_REQUIRE(addIdentity(rsaIdentity));
   Name rsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(rsaIdentity);
 
   Name ecdsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Ecdsa");
-  BOOST_REQUIRE_NO_THROW(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
-  Name ecdsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(ecdsaIdentity);
-  shared_ptr<v1::IdentityCertificate> ecdsaCert = m_keyChain.getCertificate(ecdsaCertName);
-  io::save(*ecdsaCert, "trust-anchor-11.cert");
-
+  BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
+  BOOST_REQUIRE(saveIdentityCertificate(ecdsaIdentity, "trust-anchor-11.cert"));
 
   Name dataName("/TestValidatorConfig/FixedSignerChecker2");
   shared_ptr<Data> dataRsa = make_shared<Data>(dataName);
@@ -1199,10 +1064,6 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
   validator.validate(*interestRsa,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-11.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 
@@ -1264,14 +1125,11 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   std::vector<v1::CertificateSubjectDescription> subjectDescription;
 
   Name root("/TestValidatorConfig");
-  BOOST_REQUIRE_NO_THROW(addIdentity(root));
-  Name rootCertName = m_keyChain.getDefaultCertificateNameForIdentity(root);
-  shared_ptr<v1::IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
-  io::save(*rootCert, "trust-anchor-6.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(root, "trust-anchor-6.cert", true));
 
 
   Name sld("/TestValidatorConfig/HierarchicalChecker");
-  BOOST_REQUIRE_NO_THROW(addIdentity(sld));
+  BOOST_REQUIRE(addIdentity(sld));
   advanceClocks(time::milliseconds(100));
   Name sldKeyName = m_keyChain.generateRsaKeyPairAsDefault(sld, true);
   shared_ptr<v1::IdentityCertificate> sldCert =
@@ -1284,7 +1142,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   m_keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/HierarchicalChecker/NextLevel");
-  BOOST_REQUIRE_NO_THROW(addIdentity(nld));
+  BOOST_REQUIRE(addIdentity(nld));
   advanceClocks(time::milliseconds(100));
   Name nldKeyName = m_keyChain.generateRsaKeyPairAsDefault(nld, true);
   shared_ptr<v1::IdentityCertificate> nldCert =
@@ -1293,7 +1151,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(7300),
                                                   subjectDescription);
-m_keyChain.sign(*nldCert, security::signingByIdentity(sld));
+  m_keyChain.sign(*nldCert, security::signingByIdentity(sld));
   m_keyChain.addCertificateAsIdentityDefault(*nldCert);
 
   face1.setInterestFilter(sldCert->getName().getPrefix(-1),
@@ -1315,7 +1173,6 @@ m_keyChain.sign(*nldCert, security::signingByIdentity(sld));
   dataName2.append("data1");
   shared_ptr<Data> data2 = make_shared<Data>(dataName2);
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*data2, security::signingByIdentity(nld)));
-
 
   const std::string CONFIG =
     "rule\n"
@@ -1356,10 +1213,6 @@ m_keyChain.sign(*nldCert, security::signingByIdentity(sld));
   do {
     advanceClocks(time::milliseconds(2), 10);
   } while (passPacket());
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-6.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
@@ -1369,14 +1222,11 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   std::vector<v1::CertificateSubjectDescription> subjectDescription;
 
   Name root("/TestValidatorConfig");
-  BOOST_REQUIRE_NO_THROW(addIdentity(root));
-  Name rootCertName = m_keyChain.getDefaultCertificateNameForIdentity(root);
-  shared_ptr<v1::IdentityCertificate> rootCert = m_keyChain.getCertificate(rootCertName);
-  io::save(*rootCert, "trust-anchor-8.cert");
+  BOOST_REQUIRE(saveIdentityCertificate(root, "trust-anchor-8.cert", true));
 
 
   Name sld("/TestValidatorConfig/Nrd-1");
-  BOOST_REQUIRE_NO_THROW(addIdentity(sld));
+  BOOST_REQUIRE(addIdentity(sld));
   advanceClocks(time::milliseconds(100));
   Name sldKeyName = m_keyChain.generateRsaKeyPairAsDefault(sld, true);
   shared_ptr<v1::IdentityCertificate> sldCert =
@@ -1389,7 +1239,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   m_keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/Nrd-1/Nrd-2");
-  BOOST_REQUIRE_NO_THROW(addIdentity(nld));
+  BOOST_REQUIRE(addIdentity(nld));
   advanceClocks(time::milliseconds(100));
   Name nldKeyName = m_keyChain.generateRsaKeyPairAsDefault(nld, true);
   shared_ptr<v1::IdentityCertificate> nldCert =
@@ -1514,10 +1364,6 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   do {
     advanceClocks(time::milliseconds(2), 10);
   } while (passPacket());
-
-  const boost::filesystem::path CERT_PATH =
-    (boost::filesystem::current_path() / std::string("trust-anchor-8.cert"));
-  boost::filesystem::remove(CERT_PATH);
 }
 
 struct DirTestFixture : public IdentityManagementTimeFixture
@@ -1539,13 +1385,13 @@ struct DirTestFixture : public IdentityManagementTimeFixture
                       std::string("trust-anchor-2.cert"));
 
     firstIdentity = Name("/TestValidatorConfig/Dir/First");
-    BOOST_REQUIRE_NO_THROW(addIdentity(firstIdentity));
+    BOOST_REQUIRE(addIdentity(firstIdentity));
     Name firstCertName = m_keyChain.getDefaultCertificateNameForIdentity(firstIdentity);
     firstCert = m_keyChain.getCertificate(firstCertName);
     io::save(*firstCert, firstCertPath.string());
 
     secondIdentity = Name("/TestValidatorConfig/Dir/Second");
-    BOOST_REQUIRE_NO_THROW(addIdentity(secondIdentity));
+    BOOST_REQUIRE(addIdentity(secondIdentity));
     Name secondCertName = m_keyChain.getDefaultCertificateNameForIdentity(secondIdentity);
     secondCert = m_keyChain.getCertificate(secondCertName);
   }
