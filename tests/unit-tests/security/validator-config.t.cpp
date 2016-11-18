@@ -1087,7 +1087,7 @@ struct FacesFixture : public IdentityManagementTimeFixture
     checkFace(face1.sentInterests, readInterestOffset1, face2, hasPassed);
     checkFace(face1.sentData, readDataOffset1, face2, hasPassed);
     checkFace(face2.sentInterests, readInterestOffset2, face1, hasPassed);
-    checkFace(face2.sentInterests, readDataOffset2, face1, hasPassed);
+    checkFace(face2.sentData, readDataOffset2, face1, hasPassed);
 
     return hasPassed;
   }
