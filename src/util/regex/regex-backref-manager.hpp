@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,8 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_UTIL_REGEX_BACKREF_MANAGER_HPP
-#define NDN_UTIL_REGEX_BACKREF_MANAGER_HPP
+#ifndef NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
+#define NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
 
 #include "../../common.hpp"
 
@@ -35,13 +35,6 @@ class RegexMatcher;
 class RegexBackrefManager
 {
 public:
-  RegexBackrefManager()
-  {
-  }
-
-  virtual
-  ~RegexBackrefManager();
-
   size_t
   pushRef(const shared_ptr<RegexMatcher>& matcher);
 
@@ -49,21 +42,15 @@ public:
   popRef();
 
   size_t
-  size();
+  size() const;
 
-  const shared_ptr<RegexMatcher>&
-  getBackref(size_t backrefNo);
+  shared_ptr<RegexMatcher>
+  getBackref(size_t i) const;
 
 private:
-  std::vector<shared_ptr<RegexMatcher> > m_backrefs;
+  std::vector<weak_ptr<RegexMatcher>> m_backrefs;
 };
 
-
-inline
-RegexBackrefManager::~RegexBackrefManager()
-{
-  m_backrefs.clear();
-}
 
 inline size_t
 RegexBackrefManager::pushRef(const shared_ptr<RegexMatcher>& matcher)
@@ -81,18 +68,19 @@ RegexBackrefManager::popRef()
 }
 
 inline size_t
-RegexBackrefManager::size()
+RegexBackrefManager::size() const
 {
   return m_backrefs.size();
 }
 
-inline const shared_ptr<RegexMatcher>&
-RegexBackrefManager::getBackref(size_t backrefNo)
+inline shared_ptr<RegexMatcher>
+RegexBackrefManager::getBackref(size_t i) const
 {
-  return m_backrefs[backrefNo];
+  auto backref = m_backrefs[i].lock();
+  BOOST_ASSERT(backref != nullptr);
+  return backref;
 }
-
 
 } // namespace ndn
 
-#endif // NDN_UTIL_REGEX_BACKREF_MANAGER_HPP
+#endif // NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP

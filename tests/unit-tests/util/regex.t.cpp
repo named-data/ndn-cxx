@@ -439,6 +439,23 @@ BOOST_AUTO_TEST_CASE(TopMatcherAdvanced)
   BOOST_CHECK_EQUAL(cm->expand(), Name("/ndn/edu/ucla/yingdi/mac/"));
 }
 
+BOOST_AUTO_TEST_CASE(RegexBackrefManagerMemoryLeak)
+{
+  auto re = make_unique<Regex>("^(<>)$");
+
+  weak_ptr<RegexPatternListMatcher> m1(re->m_primaryMatcher);
+  weak_ptr<RegexPatternListMatcher> m2(re->m_secondaryMatcher);
+  weak_ptr<RegexBackrefManager> b1(re->m_primaryBackrefManager);
+  weak_ptr<RegexBackrefManager> b2(re->m_secondaryBackrefManager);
+
+  re.reset();
+
+  BOOST_CHECK_EQUAL(m1.use_count(), 0);
+  BOOST_CHECK_EQUAL(m2.use_count(), 0);
+  BOOST_CHECK_EQUAL(b1.use_count(), 0);
+  BOOST_CHECK_EQUAL(b2.use_count(), 0);
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestRegex
 BOOST_AUTO_TEST_SUITE_END() // Util
 
