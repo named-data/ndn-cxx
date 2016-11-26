@@ -20,6 +20,7 @@
  *
  * @author Zhiyi Zhang <dreamerbarrychang@gmail.com>
  */
+
 #include "security/safe-bag.hpp"
 
 #include "boost-test.hpp"

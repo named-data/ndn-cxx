@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,10 @@ namespace ndn {
 namespace security {
 namespace tests {
 
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestPibMemory)
+
 // most functionalities are tested in pib-impl.t.cpp
-BOOST_AUTO_TEST_SUITE(SecurityPibMemory)
 
 BOOST_AUTO_TEST_CASE(TpmLocatorManagement)
 {
@@ -38,7 +40,8 @@ BOOST_AUTO_TEST_CASE(TpmLocatorManagement)
   BOOST_CHECK_THROW(pibImpl.setTpmLocator(""), PibImpl::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestPibMemory
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

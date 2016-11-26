@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,20 +22,19 @@
 #include "encoding/tlv.hpp"
 
 #include "boost-test.hpp"
+
 #include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/array.hpp>
 
 namespace ndn {
 namespace tlv {
 namespace tests {
 
-using std::ostringstream;
+BOOST_AUTO_TEST_SUITE(Encoding)
+BOOST_AUTO_TEST_SUITE(TestTlv)
 
-BOOST_AUTO_TEST_SUITE(EncodingTlv)
-
-BOOST_AUTO_TEST_CASE(Exception)
-{
-  BOOST_CHECK_THROW(throw Error("Test"), Error);
-}
+using ArrayStream = boost::iostreams::stream<boost::iostreams::array_source>;
+using Iterator = std::istream_iterator<uint8_t>;
 
 BOOST_AUTO_TEST_SUITE(VarNumber)
 
@@ -58,7 +57,7 @@ BOOST_AUTO_TEST_CASE(SizeOf)
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-  ostringstream os;
+  std::ostringstream os;
 
   writeVarNumber(os, 1);
   writeVarNumber(os, 252);
@@ -143,9 +142,6 @@ BOOST_AUTO_TEST_CASE(ReadFromBuffer)
 
 BOOST_AUTO_TEST_CASE(ReadFromStream)
 {
-  typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
-  typedef std::istream_iterator<uint8_t> Iterator;
-
   Iterator end; // end of stream
   uint64_t value;
   {
@@ -300,7 +296,7 @@ BOOST_AUTO_TEST_CASE(SizeOf)
 
 BOOST_AUTO_TEST_CASE(Write)
 {
-  ostringstream os;
+  std::ostringstream os;
 
   writeNonNegativeInteger(os, 1);
   writeNonNegativeInteger(os, 257);
@@ -314,7 +310,6 @@ BOOST_AUTO_TEST_CASE(Write)
   BOOST_CHECK_EQUAL_COLLECTIONS(BUFFER, BUFFER + sizeof(BUFFER),
                                 actual, actual + sizeof(BUFFER));
 }
-
 
 BOOST_AUTO_TEST_CASE(ReadFromBuffer)
 {
@@ -347,9 +342,6 @@ BOOST_AUTO_TEST_CASE(ReadFromBuffer)
 
 BOOST_AUTO_TEST_CASE(ReadFromStream)
 {
-  typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
-  typedef std::istream_iterator<uint8_t> Iterator;
-
   Iterator end; // end of stream
   uint64_t value;
   {
@@ -409,7 +401,8 @@ BOOST_AUTO_TEST_CASE(ReadFromStream)
 
 BOOST_AUTO_TEST_SUITE_END() // NonNegativeInteger
 
-BOOST_AUTO_TEST_SUITE_END() // EncodingTlv
+BOOST_AUTO_TEST_SUITE_END() // TestTlv
+BOOST_AUTO_TEST_SUITE_END() // Encoding
 
 } // namespace tests
 } // namespace tlv

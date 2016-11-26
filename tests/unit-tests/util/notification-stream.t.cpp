@@ -36,7 +36,8 @@ namespace ndn {
 namespace util {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(UtilNotificationStream, ndn::tests::IdentityManagementTimeFixture)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_FIXTURE_TEST_SUITE(TestNotificationStream, ndn::tests::IdentityManagementTimeFixture)
 
 BOOST_AUTO_TEST_CASE(Post)
 {
@@ -69,7 +70,8 @@ BOOST_AUTO_TEST_CASE(Post)
   BOOST_CHECK_EQUAL(decoded2.getMessage(), "msg2");
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestNotificationStream
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace util

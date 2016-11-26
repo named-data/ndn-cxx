@@ -262,6 +262,9 @@ BOOST_AUTO_TEST_CASE(RemovePendingInterest)
 
   face.receive(*makeData("/Hello/World/%21"));
   advanceClocks(time::milliseconds(200), 5);
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_CASE(RemoveAllPendingInterests)
@@ -297,8 +300,10 @@ BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518
     advanceClocks(time::milliseconds(50), 2);
   }
 
-  advanceClocks(time::milliseconds(50), 2);
-  // should not segfault
+  advanceClocks(time::milliseconds(50), 2); // should not crash
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Consumer
@@ -634,6 +639,9 @@ BOOST_AUTO_TEST_CASE(DestroyWithoutProcessEvents) // Bug 3248
   face2.reset();
 
   io.poll(); // should not crash
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // IoRoutines

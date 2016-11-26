@@ -22,18 +22,19 @@
 #include "security/sec-tpm-file.hpp"
 #include "security/key-chain.hpp"
 #include "security/v1/cryptopp.hpp"
-
 #include "util/time.hpp"
+
+#include "boost-test.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include "boost-test.hpp"
 
 namespace ndn {
 namespace security {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecuritySecTpmFile)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestSecTpmFile)
 
 BOOST_AUTO_TEST_CASE(Delete)
 {
@@ -404,7 +405,8 @@ BOOST_AUTO_TEST_CASE(ImportExportEcdsaKey)
   BOOST_REQUIRE_EQUAL(tpm.doesKeyExistInTpm(keyName, KeyClass::PUBLIC), false);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSecTpmFile
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

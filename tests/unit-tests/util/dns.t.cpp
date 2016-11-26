@@ -24,8 +24,7 @@
 #include "boost-test.hpp"
 #include "../network-configuration-detector.hpp"
 
-#include <boost/asio.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/asio/io_service.hpp>
 
 namespace ndn {
 namespace util {
@@ -51,24 +50,19 @@ public:
             bool isValid,
             bool shouldCheckAddress = false)
   {
-    BOOST_TEST_MESSAGE("Resolved to: " << resolvedAddress);
-
     ++m_nSuccesses;
 
-    if (!isValid)
-      {
-        BOOST_FAIL("Resolved to " + boost::lexical_cast<std::string>(resolvedAddress)
-                   + ", but should have failed");
-      }
+    if (!isValid) {
+      BOOST_FAIL("Resolved to " + resolvedAddress.to_string() + ", but should have failed");
+    }
 
     BOOST_CHECK_EQUAL(resolvedAddress.is_v4(), expectedAddress.is_v4());
 
     // checking address is not deterministic and should be enabled only
     // if only one IP address will be returned by resolution
-    if (shouldCheckAddress)
-      {
-        BOOST_CHECK_EQUAL(resolvedAddress, expectedAddress);
-      }
+    if (shouldCheckAddress) {
+      BOOST_CHECK_EQUAL(resolvedAddress, expectedAddress);
+    }
   }
 
   void
@@ -76,27 +70,26 @@ public:
   {
     ++m_nFailures;
 
-    if (!isValid)
-      {
-        BOOST_FAIL("Resolution should not have failed");
-      }
+    if (!isValid) {
+      BOOST_FAIL("Resolution should not have failed");
+    }
 
     BOOST_CHECK_MESSAGE(true, "Resolution failed as expected");
   }
 
-public:
+protected:
   uint32_t m_nFailures;
   uint32_t m_nSuccesses;
-
   boost::asio::io_service m_ioService;
 };
 
-BOOST_FIXTURE_TEST_SUITE(UtilDns, DnsFixture)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_FIXTURE_TEST_SUITE(TestDns, DnsFixture)
 
 BOOST_AUTO_TEST_CASE(Asynchronous)
 {
   if (!NetworkConfigurationDetector::hasIpv4() && !NetworkConfigurationDetector::hasIpv6()) {
-    BOOST_TEST_MESSAGE("Platform does not support both IPv4 and IPv6, skipping test case");
+    BOOST_WARN_MESSAGE(false, "skipping assertions that require either IPv4 or IPv6 support");
     return;
   }
 
@@ -113,10 +106,7 @@ BOOST_AUTO_TEST_CASE(Asynchronous)
 
 BOOST_AUTO_TEST_CASE(AsynchronousV4)
 {
-  if (!NetworkConfigurationDetector::hasIpv4()) {
-    BOOST_TEST_MESSAGE("Platform does not support IPv4, skipping the test case");
-    return;
-  }
+  SKIP_IF_IPV4_UNAVAILABLE();
 
   dns::asyncResolve("192.0.2.1",
                     bind(&DnsFixture::onSuccess, this, _1,
@@ -132,10 +122,7 @@ BOOST_AUTO_TEST_CASE(AsynchronousV4)
 
 BOOST_AUTO_TEST_CASE(AsynchronousV6)
 {
-  if (!NetworkConfigurationDetector::hasIpv6()) {
-    BOOST_TEST_MESSAGE("Platform does not support IPv6, skipping the test case");
-    return;
-  }
+  SKIP_IF_IPV6_UNAVAILABLE();
 
   dns::asyncResolve("ipv6.google.com", // only IPv6 address should be available
                     bind(&DnsFixture::onSuccess, this, _1,
@@ -158,10 +145,8 @@ BOOST_AUTO_TEST_CASE(AsynchronousV6)
 
 BOOST_AUTO_TEST_CASE(AsynchronousV4AndV6)
 {
-  if (!NetworkConfigurationDetector::hasIpv4() || !NetworkConfigurationDetector::hasIpv6()) {
-    BOOST_TEST_MESSAGE("Platform does not support either IPv4 or IPv6, skipping test case");
-    return;
-  }
+  SKIP_IF_IPV4_UNAVAILABLE();
+  SKIP_IF_IPV6_UNAVAILABLE();
 
   dns::asyncResolve("www.named-data.net",
                     bind(&DnsFixture::onSuccess, this, _1,
@@ -206,7 +191,7 @@ BOOST_AUTO_TEST_CASE(AsynchronousV4AndV6)
 BOOST_AUTO_TEST_CASE(Synchronous)
 {
   if (!NetworkConfigurationDetector::hasIpv4() && !NetworkConfigurationDetector::hasIpv6()) {
-    BOOST_TEST_MESSAGE("Platform does not support both IPv4 and IPv6, skipping test case");
+    BOOST_WARN_MESSAGE(false, "skipping assertions that require either IPv4 or IPv6 support");
     return;
   }
   dns::IpAddress address;
@@ -215,7 +200,8 @@ BOOST_AUTO_TEST_CASE(Synchronous)
   BOOST_CHECK(address.is_v4() || address.is_v6());
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestDns
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace util

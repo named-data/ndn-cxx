@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,8 @@ namespace ndn {
 namespace lp {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(LpPacket)
+BOOST_AUTO_TEST_SUITE(Lp)
+BOOST_AUTO_TEST_SUITE(TestPacket)
 
 BOOST_AUTO_TEST_CASE(FieldAccess)
 {
@@ -332,7 +333,8 @@ BOOST_AUTO_TEST_CASE(DecodeUnrecognizedTlvType)
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestPacket
+BOOST_AUTO_TEST_SUITE_END() // Lp
 
 } // namespace tests
 } // namespace lp

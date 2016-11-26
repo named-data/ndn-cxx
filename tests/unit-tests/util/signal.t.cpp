@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,8 @@ namespace util {
 namespace signal {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilSignal)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestSignal)
 
 class SignalOwner0
 {
@@ -420,7 +421,8 @@ BOOST_AUTO_TEST_CASE(ThrowInHandler)
   BOOST_CHECK_EQUAL(hit, 2); // handler called
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSignal
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace signal

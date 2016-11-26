@@ -21,13 +21,12 @@
 
 #include "security/sec-tpm-osx.hpp"
 #include "security/v1/cryptopp.hpp"
-
 #include "util/time.hpp"
+
+#include "boost-test.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <Availability.h>
-
-#include "boost-test.hpp"
 
 namespace ndn {
 namespace security {
@@ -63,7 +62,8 @@ protected:
   std::string m_HOME;
 };
 
-BOOST_FIXTURE_TEST_SUITE(SecuritySecTpmOsx, OsxKeyChainTestFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestSecTpmOsx, OsxKeyChainTestFixture)
 
 BOOST_AUTO_TEST_CASE(Delete)
 {
@@ -360,7 +360,8 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
 #endif
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSecTpmOsx
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

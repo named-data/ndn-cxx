@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,13 +22,13 @@
 #include "util/string-helper.hpp"
 
 #include "boost-test.hpp"
-#include <iostream>
 
 namespace ndn {
 namespace util {
 namespace test {
 
-BOOST_AUTO_TEST_SUITE(UtilStringHelper)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestStringHelper)
 
 BOOST_AUTO_TEST_CASE(ToHex)
 {
@@ -170,7 +170,8 @@ BOOST_AUTO_TEST_CASE(Unescape)
                     "\x01\x2a\x3b\xc4\xde\xfa\xb5\xcd\xef");
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestStringHelper
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace test
 } // namespace util

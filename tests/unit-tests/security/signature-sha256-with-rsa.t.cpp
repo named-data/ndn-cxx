@@ -23,15 +23,14 @@
 #include "security/key-chain.hpp"
 #include "security/validator.hpp"
 #include "util/scheduler.hpp"
-#include "identity-management-fixture.hpp"
-#include "../unit-test-time-fixture.hpp"
+
 #include "boost-test.hpp"
+#include "../identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
-class SignatureSha256RsaTimeFixture : public UnitTestTimeFixture
-                                    , public IdentityManagementFixture
+class SignatureSha256RsaTimeFixture : public IdentityManagementTimeFixture
 {
 public:
   SignatureSha256RsaTimeFixture()
@@ -43,7 +42,8 @@ public:
   Scheduler scheduler;
 };
 
-BOOST_FIXTURE_TEST_SUITE(SecuritySignatureSha256WithRsa, SignatureSha256RsaTimeFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestSignatureSha256WithRsa, SignatureSha256RsaTimeFixture)
 
 const uint8_t sigInfo[] = {
 0x16, 0x1b, // SignatureInfo
@@ -176,7 +176,8 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
   BOOST_CHECK(Validator::verifySignature(interest2, *publicKey));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSignatureSha256WithRsa
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace ndn

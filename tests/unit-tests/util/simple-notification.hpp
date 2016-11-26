@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014-2015,  Regents of the University of California,
+ * Copyright (c) 2014-2016,  Regents of the University of California,
  *                           Arizona Board of Regents,
  *                           Colorado State University,
  *                           University Pierre & Marie Curie, Sorbonne University,
@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP
-#define NDN_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP
+#ifndef NDN_TESTS_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP
+#define NDN_TESTS_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP
 
 #include "common.hpp"
 
@@ -40,9 +40,7 @@ namespace tests {
 class SimpleNotification
 {
 public:
-  SimpleNotification()
-  {
-  }
+  SimpleNotification() = default;
 
   explicit
   SimpleNotification(const Block& block)
@@ -52,10 +50,6 @@ public:
 
   SimpleNotification(const std::string& message)
     : m_message(message)
-  {
-  }
-
-  ~SimpleNotification()
   {
   }
 
@@ -80,7 +74,6 @@ public:
       BOOST_THROW_EXCEPTION(tlv::Error("0x07 error"));
   }
 
-public:
   const std::string&
   getMessage() const
   {
@@ -101,4 +94,4 @@ private:
 } // namespace util
 } // namespace ndn
 
-#endif // NDN_UNIT_TESTS_UTIL_CORE_SIMPLE_NOTIFICATION_HPP
+#endif // NDN_TESTS_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP

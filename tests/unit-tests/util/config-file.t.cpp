@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,79 +20,51 @@
  */
 
 #include "util/config-file.hpp"
-#include "../util/test-home-environment-fixture.hpp"
-
-#include <cstdlib>
+#include "../test-home-env-saver.hpp"
 
 #include "boost-test.hpp"
+
+#include <cstdlib>
 
 namespace ndn {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(UtilConfigFile, util::TestHomeEnvironmentFixture)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_FIXTURE_TEST_SUITE(TestConfigFile, TestHomeEnvSaver)
 
-BOOST_AUTO_TEST_CASE(TestParse)
+BOOST_AUTO_TEST_CASE(Parse)
 {
-  using namespace boost::filesystem;
-  // std::cerr << "current home = " << std::getenv("TEST_HOME") << std::endl;
+  namespace fs = boost::filesystem;
 
   setenv("TEST_HOME", "tests/unit-tests/util/config-file-home", 1);
 
-  path homePath(absolute(std::getenv("TEST_HOME")));
+  fs::path homePath(fs::absolute(std::getenv("TEST_HOME")));
   homePath /= ".ndn/client.conf";
 
-  try
-    {
-      ConfigFile config;
+  ConfigFile config;
+  BOOST_REQUIRE_EQUAL(config.getPath(), homePath);
 
-      BOOST_REQUIRE_EQUAL(config.getPath(), homePath);
-
-      const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
-      BOOST_CHECK_EQUAL(parsed.get<std::string>("a"), "/path/to/nowhere");
-      BOOST_CHECK_EQUAL(parsed.get<std::string>("b"), "some-othervalue.01");
-    }
-  catch (const std::runtime_error& error)
-    {
-      BOOST_FAIL("Unexpected exception: " << error.what());
-    }
+  const ConfigFile::Parsed& parsed = config.getParsedConfiguration();
+  BOOST_CHECK_EQUAL(parsed.get<std::string>("a"), "/path/to/nowhere");
+  BOOST_CHECK_EQUAL(parsed.get<std::string>("b"), "some-othervalue.01");
 }
 
-BOOST_AUTO_TEST_CASE(EmptyPathParse)
+BOOST_AUTO_TEST_CASE(ParseEmptyPath)
 {
-  // std::cerr << "current home = " << std::getenv("TEST_HOME") << std::endl;
-
   setenv("TEST_HOME", "tests/unit-tests/util/does/not/exist", 1);
-  try
-    {
-      ConfigFile config;
-    }
-  catch (const std::runtime_error& error)
-    {
-      BOOST_FAIL("Unexpected exception: " << error.what());
-    }
+
+  BOOST_CHECK_NO_THROW(ConfigFile config);
 }
 
-BOOST_AUTO_TEST_CASE(MalformedParse)
+BOOST_AUTO_TEST_CASE(ParseMalformed)
 {
-  using namespace boost::filesystem;
-  // std::cerr << "current home = " << std::getenv("TEST_HOME") << std::endl;
-
   setenv("TEST_HOME", "tests/unit-tests/util/config-file-malformed-home", 1);
 
-  bool fileWasMalformed = false;
-  try
-    {
-      ConfigFile config;
-    }
-  catch (const ConfigFile::Error& error)
-    {
-      fileWasMalformed = true;
-    }
-
-  BOOST_REQUIRE(fileWasMalformed);
+  BOOST_CHECK_THROW(ConfigFile config, ConfigFile::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestConfigFile
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace ndn

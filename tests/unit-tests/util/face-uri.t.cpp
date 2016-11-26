@@ -36,7 +36,8 @@ namespace tests {
 
 using ndn::tests::NetworkConfigurationDetector;
 
-BOOST_AUTO_TEST_SUITE(UtilFaceUri)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestFaceUri)
 
 class CanonizeFixture : noncopyable
 {
@@ -196,10 +197,7 @@ BOOST_FIXTURE_TEST_CASE(CheckCanonicalUdp, CanonizeFixture)
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
 {
-  if (!NetworkConfigurationDetector::hasIpv4()) {
-    BOOST_TEST_MESSAGE("Platform does not support IPv4, skipping the test case");
-    return;
-  }
+  SKIP_IF_IPV4_UNAVAILABLE();
 
   // IPv4 unicast
   addTest("udp4://192.0.2.1:6363", true, "udp4://192.0.2.1:6363");
@@ -221,10 +219,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
 {
-  if (!NetworkConfigurationDetector::hasIpv6()) {
-    BOOST_TEST_MESSAGE("Platform does not support IPv6, skipping the test case");
-    return;
-  }
+  SKIP_IF_IPV6_UNAVAILABLE();
 
   // IPv6 unicast
   addTest("udp6://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
@@ -287,10 +282,7 @@ BOOST_FIXTURE_TEST_CASE(CheckCanonicalTcp, CanonizeFixture)
 
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
 {
-  if (!NetworkConfigurationDetector::hasIpv4()) {
-    BOOST_TEST_MESSAGE("Platform does not support IPv4, skipping the test case");
-    return;
-  }
+  SKIP_IF_IPV4_UNAVAILABLE();
 
   // IPv4 unicast
   addTest("tcp4://192.0.2.1:6363", true, "tcp4://192.0.2.1:6363");
@@ -312,10 +304,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
 
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
 {
-  if (!NetworkConfigurationDetector::hasIpv6()) {
-    BOOST_TEST_MESSAGE("Platform does not support IPv6, skipping the test case");
-    return;
-  }
+  SKIP_IF_IPV6_UNAVAILABLE();
 
   // IPv6 unicast
   addTest("tcp6://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
@@ -486,6 +475,9 @@ BOOST_AUTO_TEST_CASE(CanonizeEmptyCallback)
                                            io, time::milliseconds(1));
 
   io.run(); // should not crash
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUnsupported, CanonizeFixture)
@@ -523,7 +515,8 @@ BOOST_AUTO_TEST_CASE(Bug1635)
   BOOST_CHECK_EQUAL(uri.toString(), "wsclient://76.90.11.239:56366");
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestFaceUri
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace util

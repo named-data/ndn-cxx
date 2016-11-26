@@ -22,16 +22,17 @@
 #include "security/signing-info.hpp"
 #include "security/key-chain.hpp"
 
-#include <sstream>
-#include <boost/lexical_cast.hpp>
-
 #include "boost-test.hpp"
+
+#include <boost/lexical_cast.hpp>
+#include <sstream>
 
 namespace ndn {
 namespace security {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecuritySigningInfo)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestSigningInfo)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
@@ -151,7 +152,8 @@ BOOST_AUTO_TEST_CASE(ToString)
                     "id:/localhost/identity/digest-sha256");
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSigningInfo
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,17 +22,18 @@
 #include "security/identity-container.hpp"
 #include "security/pib.hpp"
 #include "security/pib-memory.hpp"
-#include "pib-data-fixture.hpp"
 
 #include "boost-test.hpp"
+#include "pib-data-fixture.hpp"
 
 namespace ndn {
 namespace security {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityIdentityContainer)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestIdentityContainer)
 
-BOOST_FIXTURE_TEST_CASE(TestIdentityContainer, PibDataFixture)
+BOOST_FIXTURE_TEST_CASE(Basic, PibDataFixture)
 {
   auto pibImpl = make_shared<PibMemory>();
   Pib pib("pib-memory", "", pibImpl);
@@ -69,7 +70,8 @@ BOOST_FIXTURE_TEST_CASE(TestIdentityContainer, PibDataFixture)
   BOOST_CHECK_EQUAL(count, 2);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestIdentityContainer
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

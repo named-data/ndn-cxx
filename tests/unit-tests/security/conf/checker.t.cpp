@@ -21,8 +21,9 @@
 
 #include "security/conf/checker.hpp"
 #include "security/key-chain.hpp"
-#include "identity-management-fixture.hpp"
+
 #include "boost-test.hpp"
+#include "identity-management-fixture.hpp"
 
 namespace ndn {
 namespace security {
@@ -31,7 +32,9 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_FIXTURE_TEST_SUITE(SecurityConfChecker, IdentityManagementFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(Conf)
+BOOST_FIXTURE_TEST_SUITE(TestChecker, IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
 {
@@ -427,7 +430,9 @@ BOOST_AUTO_TEST_CASE(FixedSignerCheckerTest1)
   BOOST_CHECK_EQUAL(result, 1);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestChecker
+BOOST_AUTO_TEST_SUITE_END() // Conf
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace conf

@@ -28,9 +28,10 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_FIXTURE_TEST_SUITE(SecuritySecRuleRelative, IdentityManagementFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestSecRuleRelative, IdentityManagementFixture)
 
-BOOST_AUTO_TEST_CASE(SecRuleRelativeTest)
+BOOST_AUTO_TEST_CASE(Basic)
 {
   Name rsaIdentity("/SecurityTestSecRule/Basic/Rsa");
   BOOST_REQUIRE(addIdentity(rsaIdentity, RsaKeyParams()));
@@ -61,7 +62,8 @@ BOOST_AUTO_TEST_CASE(SecRuleRelativeTest)
   BOOST_CHECK_EQUAL(rule.matchSignerName(sha256Data), false);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSecRuleRelative
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

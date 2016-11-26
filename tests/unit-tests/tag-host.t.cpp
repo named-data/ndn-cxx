@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -80,7 +80,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Basic, T, Fixtures, T)
   BOOST_CHECK(this->template getTag<TestTag2>() == nullptr);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestTagHost
 
 } // namespace tests
 } // namespace ndn

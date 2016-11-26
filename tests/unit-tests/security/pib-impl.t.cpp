@@ -22,17 +22,19 @@
 #include "security/pib-memory.hpp"
 #include "security/pib-sqlite3.hpp"
 #include "security/pib.hpp"
+
+#include "boost-test.hpp"
 #include "pib-data-fixture.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/mpl/list.hpp>
-#include "boost-test.hpp"
 
 namespace ndn {
 namespace security {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityPibImpl)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestPibImpl)
 
 class PibMemoryWrapper
 {
@@ -54,6 +56,7 @@ public:
     boost::filesystem::remove_all(tmpPath);
   }
 
+public:
   boost::filesystem::path tmpPath;
   PibSqlite3 impl;
 };
@@ -223,7 +226,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, PibDataFixt
   BOOST_CHECK_EQUAL(certNames.size(), 0);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestPibImpl
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

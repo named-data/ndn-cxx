@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,35 +19,38 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "common.hpp"
+#ifndef NDN_TESTS_UNIT_TESTS_TEST_HOME_ENV_SAVER_HPP
+#define NDN_TESTS_UNIT_TESTS_TEST_HOME_ENV_SAVER_HPP
 
-#include "boost-test.hpp"
+#include <string>
+#include <cstdlib>
 
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(TestNdebug)
-
-BOOST_AUTO_TEST_CASE(AssertFalse)
+class TestHomeEnvSaver
 {
-#ifndef _DEBUG
-  // in release builds, assertion shouldn't execute
-  BOOST_ASSERT(false);
-#endif
-}
+public:
+  TestHomeEnvSaver()
+  {
+    if (std::getenv("TEST_HOME") != nullptr)
+      m_HOME = std::getenv("TEST_HOME");
+  }
 
-BOOST_AUTO_TEST_CASE(SideEffect)
-{
-  int a = 1;
-  BOOST_ASSERT((a = 2) > 0);
-#ifdef _DEBUG
-  BOOST_CHECK_EQUAL(a, 2);
-#else
-  BOOST_CHECK_EQUAL(a, 1);
-#endif
-}
+  virtual
+  ~TestHomeEnvSaver()
+  {
+    if (!m_HOME.empty())
+      setenv("TEST_HOME", m_HOME.c_str(), 1);
+    else
+      unsetenv("TEST_HOME");
+  }
 
-BOOST_AUTO_TEST_SUITE_END()
+private:
+  std::string m_HOME;
+};
 
 } // namespace tests
 } // namespace ndn
+
+#endif // NDN_TESTS_UNIT_TESTS_TEST_HOME_ENV_SAVER_HPP

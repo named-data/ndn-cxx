@@ -65,6 +65,9 @@ BOOST_AUTO_TEST_CASE(Destructor) // Bug 3727
   auto os = make_unique<OBufferStream>();
   *os << 'x';
   os.reset(); // should not cause use-after-free
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBufferStream

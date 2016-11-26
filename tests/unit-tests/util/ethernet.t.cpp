@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California,
+ * Copyright (c) 2013-2016 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -33,9 +33,10 @@ namespace ndn {
 namespace util {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilEthernet)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestEthernet)
 
-BOOST_AUTO_TEST_CASE(BasicChecks)
+BOOST_AUTO_TEST_CASE(Basic)
 {
   ethernet::Address a;
   BOOST_CHECK(a.isNull());
@@ -110,7 +111,8 @@ BOOST_AUTO_TEST_CASE(StdHash)
   BOOST_CHECK_NO_THROW(h(ethernet::getDefaultMulticastAddress()));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestEthernet
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace util

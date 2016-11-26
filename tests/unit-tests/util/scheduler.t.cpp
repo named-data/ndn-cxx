@@ -48,6 +48,8 @@ public:
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_FIXTURE_TEST_SUITE(TestScheduler, SchedulerFixture)
 
+BOOST_AUTO_TEST_SUITE(General)
+
 BOOST_AUTO_TEST_CASE(Events)
 {
   size_t count1 = 0;
@@ -97,6 +99,9 @@ BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
 {
   EventId i;
   scheduler.cancelEvent(i);
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_CASE(SelfCancel)
@@ -233,7 +238,12 @@ BOOST_AUTO_TEST_CASE(CancelAllWithScopedEventId) // Bug 3691
   eid = sched.scheduleEvent(time::milliseconds(10), []{});
   sched.cancelAllEvents();
   eid.cancel(); // should not crash
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
+
+BOOST_AUTO_TEST_SUITE_END() // General
 
 BOOST_AUTO_TEST_SUITE(EventId)
 
@@ -243,6 +253,9 @@ BOOST_AUTO_TEST_CASE(ConstructEmpty)
 {
   EventId eid;
   eid = nullptr;
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_CASE(Compare)

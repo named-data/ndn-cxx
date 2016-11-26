@@ -29,7 +29,8 @@ namespace ndn {
 namespace util {
 namespace test {
 
-BOOST_AUTO_TEST_SUITE(UtilDigest)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestDigest)
 
 BOOST_AUTO_TEST_CASE(Sha256Digest)
 {
@@ -185,7 +186,6 @@ BOOST_AUTO_TEST_CASE(OperatorUint64t)
                                 digest2->buf() + digest2->size());
 }
 
-
 BOOST_AUTO_TEST_CASE(Error)
 {
   uint64_t origin = 256;
@@ -234,7 +234,8 @@ BOOST_AUTO_TEST_CASE(Print)
   BOOST_CHECK_EQUAL(digest.toString(), hexString);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestDigest
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace test
 } // namespace util

@@ -98,7 +98,7 @@ makeTestAuthorization()
   };
 }
 
-BOOST_FIXTURE_TEST_CASE(BasicUsageSemantics, DispatcherFixture)
+BOOST_FIXTURE_TEST_CASE(Basic, DispatcherFixture)
 {
   BOOST_CHECK_NO_THROW(dispatcher
                          .addControlCommand<VoidParameters>("test/1", makeAcceptAllAuthorization(),

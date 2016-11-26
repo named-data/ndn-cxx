@@ -41,17 +41,12 @@ BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
 BOOST_AUTO_TEST_SUITE(Common)
 
-typedef boost::mpl::list<InMemoryStoragePersistent, InMemoryStorageFifo, InMemoryStorageLfu,
-                         InMemoryStorageLru> InMemoryStorages;
+using InMemoryStorages = boost::mpl::list<InMemoryStoragePersistent,
+                                          InMemoryStorageFifo,
+                                          InMemoryStorageLfu,
+                                          InMemoryStorageLru>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion, T, InMemoryStorages)
-{
-  T ims;
-
-  ims.insert(*makeData("/insertion"));
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion2, T, InMemoryStorages)
 {
   T ims;
 
@@ -63,7 +58,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion2, T, InMemoryStorages)
   BOOST_CHECK_EQUAL(ims.size(), 4);
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion3, T, InMemoryStorages)
+BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion2, T, InMemoryStorages)
 {
   T ims;
 
@@ -347,6 +342,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertCanonical, T, InMemoryStorages)
 
   shared_ptr<Data> data7 = makeData("/c/c/1");
   ims.insert(*data7);
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
@@ -627,8 +625,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ExcludeSelector, T, InMemoryStorages)
   BOOST_CHECK_EQUAL(found3->getName(), "/c/a");
 }
 
-typedef boost::mpl::list<InMemoryStorageFifo, InMemoryStorageLfu, InMemoryStorageLru>
-                         InMemoryStoragesLimited;
+using InMemoryStoragesLimited = boost::mpl::list<InMemoryStorageFifo,
+                                                 InMemoryStorageLfu,
+                                                 InMemoryStorageLru>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(SetCapacity, T, InMemoryStoragesLimited)
 {

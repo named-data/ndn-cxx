@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,29 +20,29 @@
  */
 
 #include "util/config-file.hpp"
-#include "../util/test-home-environment-fixture.hpp"
+#include "../test-home-env-saver.hpp"
 
 #ifndef NDN_TESTS_UNIT_TESTS_TRANSPORT_FIXTURE_HPP
 #define NDN_TESTS_UNIT_TESTS_TRANSPORT_FIXTURE_HPP
 
 namespace ndn {
+namespace tests {
 
-class TransportFixture : public util::TestHomeEnvironmentFixture
+class TransportFixture : public TestHomeEnvSaver
 {
 public:
-
   void
   initializeConfig(const char* path)
   {
     setenv("TEST_HOME", path, 1);
-    m_config.reset(new ConfigFile);
+    m_config = make_unique<ConfigFile>();
   }
 
 protected:
-  std::string m_HOME;
   unique_ptr<ConfigFile> m_config;
 };
 
+} // namespace tests
 } // namespace ndn
 
 #endif // NDN_TESTS_UNIT_TESTS_TRANSPORT_FIXTURE_HPP

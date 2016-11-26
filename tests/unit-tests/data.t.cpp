@@ -358,7 +358,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
     "sha256digest=28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestData
 
 } // namespace tests
 } // namespace ndn

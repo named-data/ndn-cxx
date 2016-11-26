@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,8 @@ namespace ndn {
 namespace encoding {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(EncodingEncoder)
+BOOST_AUTO_TEST_SUITE(Encoding)
+BOOST_AUTO_TEST_SUITE(TestEncoder)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
@@ -164,7 +165,8 @@ BOOST_AUTO_TEST_CASE(Reserve)
   BOOST_CHECK_GT(e.capacity(), 2000);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // EncodingEncoder
+BOOST_AUTO_TEST_SUITE_END() // TestEncoder
+BOOST_AUTO_TEST_SUITE_END() // Encoding
 
 } // namespace tests
 } // namespace encoding

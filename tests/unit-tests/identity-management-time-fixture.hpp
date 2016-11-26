@@ -22,11 +22,8 @@
 #ifndef NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
 #define NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
 
-#include "security/key-chain.hpp"
-
 #include "identity-management-fixture.hpp"
 #include "unit-test-time-fixture.hpp"
-#include "boost-test.hpp"
 
 namespace ndn {
 namespace tests {
@@ -37,13 +34,9 @@ namespace tests {
  * Identities added via addIdentity method are automatically deleted
  * during test teardown.
  */
-class IdentityManagementTimeFixture : public tests::UnitTestTimeFixture
+class IdentityManagementTimeFixture : public UnitTestTimeFixture
                                     , public IdentityManagementFixture
 {
-public:
-  IdentityManagementTimeFixture();
-
-  ~IdentityManagementTimeFixture();
 };
 
 } // namespace tests

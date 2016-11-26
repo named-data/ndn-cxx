@@ -21,9 +21,10 @@
 
 #include "exclude.hpp"
 #include "util/crypto.hpp"
-#include <boost/lexical_cast.hpp>
 
 #include "boost-test.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace tests {
@@ -234,7 +235,6 @@ BOOST_AUTO_TEST_CASE(Ranges)
 
 BOOST_AUTO_TEST_SUITE_END() // GenericComponent
 
-
 BOOST_AUTO_TEST_SUITE(ImplicitDigest) // exclude ImplicitSha256DigestComponent
 
 /** \brief make a name::Component with an octet repeated crypto::SHA256_DIGEST_SIZE times
@@ -434,7 +434,6 @@ BOOST_AUTO_TEST_CASE(RangeGenericDigest)
 
 BOOST_AUTO_TEST_SUITE_END() // ImplicitDigest
 
-
 BOOST_AUTO_TEST_SUITE(WireCompare) // wireEncode, wireDecode, operator==, operator!=
 
 BOOST_AUTO_TEST_CASE(EqualityComparable)
@@ -563,8 +562,7 @@ BOOST_AUTO_TEST_CASE(EmptyComponent) // Bug #2660
 
 BOOST_AUTO_TEST_SUITE_END() // WireCompare
 
-
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestExclude
 
 } // namespace tests
 } // namespace ndn

@@ -25,13 +25,13 @@
 
 #include "boost-test.hpp"
 #include "dummy-keychain.hpp"
-#include "../util/test-home-environment-fixture.hpp"
+#include "../test-home-env-saver.hpp"
 #include "key-chain-fixture.hpp"
 #include "identity-management-fixture.hpp"
 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <fstream>
+#include <boost/filesystem.hpp>
+#include <cstdlib>
 
 namespace ndn {
 namespace security {
@@ -39,7 +39,8 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_FIXTURE_TEST_SUITE(SecurityKeyChain, util::TestHomeEnvironmentFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestKeyChain, TestHomeEnvSaver)
 
 template<class Path>
 class TestHomeAndPibFixture : public TestHomeFixture<Path>
@@ -417,7 +418,8 @@ BOOST_FIXTURE_TEST_CASE(EcdsaSigningByIdentityNoCert, IdentityManagementFixture)
   BOOST_CHECK(ecdsaIdentity.isPrefixOf(data.getSignature().getKeyLocator().getName()));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestKeyChain
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

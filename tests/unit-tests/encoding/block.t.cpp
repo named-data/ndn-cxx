@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,16 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "encoding/encoding-buffer.hpp"
-#include "encoding/buffer-stream.hpp"
+#include "encoding/block.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/encoding-buffer.hpp"
 
 #include "boost-test.hpp"
+
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(EncodingBlock)
+BOOST_AUTO_TEST_SUITE(Encoding)
+BOOST_AUTO_TEST_SUITE(TestBlock)
 
 class BasicBlockFixture
 {
@@ -167,7 +171,9 @@ BOOST_AUTO_TEST_CASE(NonNegativeNumberEightBytes)
 
 BOOST_AUTO_TEST_SUITE_END() // Basic
 
-BOOST_AUTO_TEST_CASE(BlockFromBlock)
+BOOST_AUTO_TEST_SUITE(Construction)
+
+BOOST_AUTO_TEST_CASE(FromBlock)
 {
   static uint8_t buffer[] = {0x80, 0x06, 0x81, 0x01, 0x01, 0x82, 0x01, 0x01};
   Block block(buffer, sizeof(buffer));
@@ -186,7 +192,7 @@ BOOST_AUTO_TEST_CASE(BlockFromBlock)
   BOOST_CHECK_THROW(Block(block, otherBuffer.begin(), otherBuffer.end()), Block::Error);
 }
 
-BOOST_AUTO_TEST_CASE(BlockFromBlockCopyOnWriteModifyOrig)
+BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyOriginal)
 {
   static uint8_t buffer[] = {
     0x05, 0x0b, 0x07, 0x03, 0x01, 0x02, 0x03, 0x0a, 0x04, 0x04, 0x05, 0x06, 0x07,
@@ -207,7 +213,7 @@ BOOST_AUTO_TEST_CASE(BlockFromBlockCopyOnWriteModifyOrig)
   BOOST_CHECK_EQUAL(buf2, block2.getBuffer());
 }
 
-BOOST_AUTO_TEST_CASE(BlockFromBlockCopyOnWriteModifyCopy)
+BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyCopy)
 {
   static uint8_t buffer[] = {
     0x05, 0x0b, 0x07, 0x03, 0x01, 0x02, 0x03, 0x0a, 0x04, 0x04, 0x05, 0x06, 0x07,
@@ -228,7 +234,7 @@ BOOST_AUTO_TEST_CASE(BlockFromBlockCopyOnWriteModifyCopy)
   BOOST_CHECK_EQUAL(buf1, block1.getBuffer());
 }
 
-BOOST_AUTO_TEST_CASE(EncodingBufferToBlock)
+BOOST_AUTO_TEST_CASE(FromEncodingBuffer)
 {
   uint8_t value[4];
 
@@ -247,10 +253,11 @@ BOOST_AUTO_TEST_CASE(EncodingBufferToBlock)
   BOOST_CHECK_EQUAL(block.value_size(), sizeof(value));
 }
 
-BOOST_AUTO_TEST_CASE(BlockToBuffer)
+BOOST_AUTO_TEST_CASE(ToEncodingBuffer)
 {
   shared_ptr<Buffer> buf = make_shared<Buffer>(10);
-  for (int i = 0; i < 10; i++) (*buf)[i] = i;
+  for (int i = 0; i < 10; i++)
+    (*buf)[i] = i;
 
   Block block(0xab, buf);
   block.encode();
@@ -343,7 +350,6 @@ BOOST_AUTO_TEST_CASE(FromStream)
   typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
   ArrayStream stream(reinterpret_cast<const char*>(TEST_BUFFER), sizeof(TEST_BUFFER));
 
-
   Block testBlock;
   BOOST_REQUIRE_NO_THROW(testBlock = Block::fromStream(stream));
   BOOST_CHECK_EQUAL(testBlock.type(), 0);
@@ -400,6 +406,8 @@ BOOST_AUTO_TEST_CASE(FromStreamZeroLength) // Bug 2729
   BOOST_CHECK_EQUAL(block.type(), 0x07);
   BOOST_CHECK_EQUAL(block.value_size(), 0);
 }
+
+BOOST_AUTO_TEST_SUITE_END() // Construction
 
 BOOST_AUTO_TEST_CASE(Equality)
 {
@@ -559,7 +567,8 @@ BOOST_AUTO_TEST_CASE(Remove)
   BOOST_CHECK(readString(elements[1]).compare("ndn:/test-prefix") == 0);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestBlock
+BOOST_AUTO_TEST_SUITE_END() // Encoding
 
 } // namespace tests
 } // namespace ndn

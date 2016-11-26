@@ -23,13 +23,13 @@
 
 #include "boost-test.hpp"
 
-
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityKeyParams)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestKeyParams)
 
-BOOST_AUTO_TEST_CASE(RsaParameter)
+BOOST_AUTO_TEST_CASE(Rsa)
 {
   RsaKeyParams params;
   BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::RSA);
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(RsaParameter)
   BOOST_CHECK_EQUAL(params3.getKeySize(), 2048);
 }
 
-BOOST_AUTO_TEST_CASE(EcdsaParameter)
+BOOST_AUTO_TEST_CASE(Ecdsa)
 {
   EcdsaKeyParams params;
   BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::EC);
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(EcdsaParameter)
   BOOST_CHECK_EQUAL(params3.getKeySize(), 256);
 }
 
-BOOST_AUTO_TEST_CASE(AesParameter)
+BOOST_AUTO_TEST_CASE(Aes)
 {
   AesKeyParams params;
   BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::AES);
@@ -87,7 +87,8 @@ BOOST_AUTO_TEST_CASE(Error)
   BOOST_REQUIRE_THROW((RsaKeyParams(params2)), KeyParams::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestKeyParams
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace ndn

@@ -30,24 +30,20 @@
 namespace ndn {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(SecurityDigestSha256, IdentityManagementFixture)
-
-std::string SHA256_RESULT("a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestDigestSha256, IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(Sha256)
 {
-  using namespace CryptoPP;
-
   char content[6] = "1234\n";
   ConstBufferPtr buf = crypto::computeSha256Digest(reinterpret_cast<uint8_t*>(content), 5);
 
-  BOOST_CHECK_EQUAL(SHA256_RESULT, toHex(buf->buf(), buf->size(), false));
+  BOOST_CHECK_EQUAL(toHex(buf->buf(), buf->size(), false),
+                    "a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
 }
 
 BOOST_AUTO_TEST_CASE(DataSignature)
 {
-  using namespace CryptoPP;
-
   Name name("/TestSignatureSha/Basic");
   Data testData(name);
   char content[5] = "1234";
@@ -79,7 +75,8 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
   BOOST_CHECK(Validator::verifySignature(testInterest, sig));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestDigestSha256
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace ndn

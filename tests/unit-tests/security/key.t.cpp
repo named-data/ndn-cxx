@@ -22,17 +22,18 @@
 #include "security/key.hpp"
 #include "security/pib.hpp"
 #include "security/pib-memory.hpp"
-#include "pib-data-fixture.hpp"
 
 #include "boost-test.hpp"
+#include "pib-data-fixture.hpp"
 
 namespace ndn {
 namespace security {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityKey)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestKey, PibDataFixture)
 
-BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
+BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
   // key
   Key key;
@@ -57,7 +58,7 @@ BOOST_FIXTURE_TEST_CASE(ValidityChecking, PibDataFixture)
     BOOST_CHECK(false);
 }
 
-BOOST_FIXTURE_TEST_CASE(TestCertificateOperation, PibDataFixture)
+BOOST_AUTO_TEST_CASE(CertificateOperations)
 {
   auto pibImpl = make_shared<PibMemory>();
 
@@ -85,8 +86,8 @@ BOOST_FIXTURE_TEST_CASE(TestCertificateOperation, PibDataFixture)
   BOOST_CHECK_THROW(key11.getDefaultCertificate(), Pib::Error);
 }
 
-
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestKey
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

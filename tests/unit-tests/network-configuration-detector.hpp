@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,22 @@
 
 #ifndef NDN_TESTS_NETWORK_CONFIGURATION_DETECTOR_HPP
 #define NDN_TESTS_NETWORK_CONFIGURATION_DETECTOR_HPP
+
+#define SKIP_IF_IPV4_UNAVAILABLE() \
+  do { \
+    if (!NetworkConfigurationDetector::hasIpv4()) { \
+      BOOST_WARN_MESSAGE(false, "skipping assertions that require IPv4 support"); \
+      return; \
+    } \
+  } while (false)
+
+#define SKIP_IF_IPV6_UNAVAILABLE() \
+  do { \
+    if (!NetworkConfigurationDetector::hasIpv6()) { \
+      BOOST_WARN_MESSAGE(false, "skipping assertions that require IPv6 support"); \
+      return; \
+    } \
+  } while (false)
 
 namespace ndn {
 namespace tests {

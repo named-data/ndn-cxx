@@ -30,6 +30,8 @@
 namespace ndn {
 namespace tests {
 
+BOOST_AUTO_TEST_SUITE(TestLink)
+
 const uint8_t LinkTest[] = {
 0x06, 0xda, // Data
     0x07, 0x14, // Name
@@ -229,8 +231,6 @@ const uint8_t MissingNameLink[] = {
         0xfc, 0x90, 0x7a, 0xb8, 0x66, 0x9c, 0x0e, 0xf6, 0xb7, 0x64, 0xd1
 };
 
-BOOST_AUTO_TEST_SUITE(TestLink)
-
 BOOST_AUTO_TEST_CASE(PairParsingCheck)
 {
   Link link("test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(MissingNameEncoding)
   BOOST_REQUIRE_THROW(link.wireDecode(linkBlock), Link::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestLink
 
 } // namespace tests
 } // namespace ndn

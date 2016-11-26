@@ -27,9 +27,10 @@ namespace ndn {
 namespace security {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(SecurityAdditionalDescription)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestAdditionalDescription)
 
-static const uint8_t description[] = {
+const uint8_t description[] = {
   0xfd, 0x01, 0x02, 0x28,
     0xfd, 0x02, 0x00, 0x10, // DescriptionEntry
       0xfd, 0x02, 0x01, 0x04, // DescriptionKey
@@ -43,7 +44,7 @@ static const uint8_t description[] = {
         0x76, 0x61, 0x6c, 0x32, // "val2"
 };
 
-static const std::string text = "((key1:val1), (key2:val2))";
+const std::string text = "((key1:val1), (key2:val2))";
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
@@ -94,7 +95,8 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(os.str(), text);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestAdditionalDescription
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

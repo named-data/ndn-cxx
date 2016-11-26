@@ -20,12 +20,14 @@
  */
 
 #include "identity-management-fixture.hpp"
+
 #include "boost-test.hpp"
 
 namespace ndn {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(SecurityIdentityManagementFixture, IdentityManagementFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestIdentityManagementFixture, IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(Tmp)
 {
@@ -36,7 +38,8 @@ BOOST_AUTO_TEST_CASE(Tmp)
   BOOST_REQUIRE_NO_THROW(m_keyChain.getCertificate(certName));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestIdentityManagementFixture
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace ndn

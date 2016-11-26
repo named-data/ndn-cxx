@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,35 +19,37 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UTIL_HOME_ENVIRONMENT_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UTIL_HOME_ENVIRONMENT_FIXTURE_HPP
+#include "common.hpp"
+
+#include "boost-test.hpp"
 
 namespace ndn {
-namespace util {
+namespace tests {
 
-class TestHomeEnvironmentFixture
+BOOST_AUTO_TEST_SUITE(TestNdebug)
+
+BOOST_AUTO_TEST_CASE(AssertFalse)
 {
-public:
-  TestHomeEnvironmentFixture()
-  {
-    if (std::getenv("TEST_HOME"))
-      m_HOME = std::getenv("TEST_HOME");
-  }
+#ifndef _DEBUG
+  // in release builds, assertion shouldn't execute
+  BOOST_ASSERT(false);
+#endif
+  // Trivial check to avoid "test case did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
+}
 
-  virtual
-  ~TestHomeEnvironmentFixture()
-  {
-    if (!m_HOME.empty())
-      setenv("TEST_HOME", m_HOME.c_str(), 1);
-    else
-      unsetenv("TEST_HOME");
-  }
+BOOST_AUTO_TEST_CASE(SideEffect)
+{
+  int a = 1;
+  BOOST_ASSERT((a = 2) > 0);
+#ifdef _DEBUG
+  BOOST_CHECK_EQUAL(a, 2);
+#else
+  BOOST_CHECK_EQUAL(a, 1);
+#endif
+}
 
-protected:
-  std::string m_HOME;
-};
+BOOST_AUTO_TEST_SUITE_END() // TestNdebug
 
 } // namespace tests
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_UTIL_HOME_ENVIRONMENT_FIXTURE_HPP

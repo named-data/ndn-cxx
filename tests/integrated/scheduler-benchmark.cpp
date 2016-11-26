@@ -21,7 +21,7 @@
 
 #define BOOST_TEST_MAIN 1
 #define BOOST_TEST_DYN_LINK 1
-#define BOOST_TEST_MODULE Scheduler Benchmark
+#define BOOST_TEST_MODULE ndn-cxx Scheduler Benchmark
 
 #include "util/scheduler.hpp"
 

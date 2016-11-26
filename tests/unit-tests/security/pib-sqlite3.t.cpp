@@ -22,8 +22,9 @@
 #include "security/pib-sqlite3.hpp"
 #include "security/pib.hpp"
 
-#include <boost/filesystem.hpp>
 #include "boost-test.hpp"
+
+#include <boost/filesystem.hpp>
 
 namespace ndn {
 namespace security {
@@ -50,8 +51,8 @@ public:
   PibSqlite3 impl;
 };
 
-
-BOOST_FIXTURE_TEST_SUITE(SecurityPibSqlite3, PibSqlite3TestFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestPibSqlite3, PibSqlite3TestFixture)
 
 // most functionalities are tested in pib-impl.t.cpp
 
@@ -117,7 +118,8 @@ BOOST_AUTO_TEST_CASE(TpmTest)
   BOOST_CHECK_EQUAL(impl.getCertificatesOfKey(identity, keyId).size(), 0);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestPibSqlite3
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

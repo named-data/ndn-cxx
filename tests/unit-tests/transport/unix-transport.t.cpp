@@ -27,7 +27,10 @@
 namespace ndn {
 namespace tests {
 
-BOOST_FIXTURE_TEST_SUITE(TransportUnixTransport, TransportFixture)
+BOOST_AUTO_TEST_SUITE(Transport)
+BOOST_FIXTURE_TEST_SUITE(TestUnixTransport, TransportFixture)
+
+using ndn::Transport;
 
 BOOST_AUTO_TEST_CASE(GetDefaultSocketNameOk)
 {
@@ -58,7 +61,8 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadMalformedUri)
                         });
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestUnixTransport
+BOOST_AUTO_TEST_SUITE_END() // Transport
 
 } // namespace tests
 } // namespace ndn

@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE(DeepCopy)
   BOOST_CHECK_EQUAL(n3.wireEncode().getBuffer()->size(), n3.wireEncode().size());
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestName
 
 } // namespace tests
 } // namespace ndn

@@ -21,7 +21,6 @@
 
 #include "in-memory-storage.hpp"
 #include "in-memory-storage-entry.hpp"
-#include "util/backports.hpp"
 
 #include "crypto.hpp"
 

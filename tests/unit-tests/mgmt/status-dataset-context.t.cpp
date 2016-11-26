@@ -20,6 +20,7 @@
  */
 
 #include "mgmt/status-dataset-context.hpp"
+
 #include "boost-test.hpp"
 #include "unit-tests/make-interest-data.hpp"
 
@@ -31,7 +32,7 @@ using namespace ndn::tests;
 
 class StatusDatasetContextFixture
 {
-public:
+private:
   struct SendDataArgs
   {
     Name dataName;
@@ -40,6 +41,7 @@ public:
     bool isFinalBlock;
   };
 
+protected:
   StatusDatasetContextFixture()
     : interest(makeInterest("/test/context/interest"))
     , contentBlock(makeStringBlock(tlv::Content, "/test/data/content"))
@@ -57,18 +59,18 @@ public:
   }
 
   Name
-  makeSegmentName(size_t segmentNo)
+  makeSegmentName(size_t segmentNo) const
   {
     auto name = context.getPrefix();
     return name.appendSegment(segmentNo);
   }
 
   Block
-  concatenateDataContent()
+  concatenateDataContent() const
   {
     EncodingBuffer encoder;
     size_t valueLength = 0;
-    for (auto args : sendDataHistory) {
+    for (const auto& args : sendDataHistory) {
       const auto& content = args.content;
       valueLength += encoder.appendByteArray(content.value(), content.value_size());
     }
@@ -77,7 +79,7 @@ public:
     return encoder.block();
   }
 
-public:
+protected:
   std::vector<SendDataArgs> sendDataHistory;
   std::vector<ControlResponse> sendNackHistory;
   shared_ptr<Interest> interest;
@@ -89,16 +91,16 @@ public:
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_FIXTURE_TEST_SUITE(TestStatusDatasetContext, StatusDatasetContextFixture)
 
-BOOST_AUTO_TEST_CASE(GetPrefix)
+BOOST_AUTO_TEST_SUITE(Prefix)
+
+BOOST_AUTO_TEST_CASE(Get)
 {
   Name dataName = context.getPrefix();
   BOOST_CHECK(dataName[-1].isVersion());
   BOOST_CHECK(dataName.getPrefix(-1) == interest->getName());
 }
 
-BOOST_AUTO_TEST_SUITE(SetPrefix)
-
-BOOST_AUTO_TEST_CASE(Valid)
+BOOST_AUTO_TEST_CASE(SetValid)
 {
   Name validPrefix = Name(interest->getName()).append("/valid");
   BOOST_CHECK_NO_THROW(context.setPrefix(validPrefix));
@@ -106,44 +108,49 @@ BOOST_AUTO_TEST_CASE(Valid)
   BOOST_CHECK(context.getPrefix().getPrefix(-1) == validPrefix);
 }
 
-BOOST_AUTO_TEST_CASE(Invalid)
+BOOST_AUTO_TEST_CASE(SetInvalid)
 {
   Name invalidPrefix = Name(interest->getName()).getPrefix(-1).append("/invalid");
   BOOST_CHECK_THROW(context.setPrefix(invalidPrefix), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(ValidWithAppendCalled)
+BOOST_AUTO_TEST_CASE(SetValidWithAppendCalled)
 {
   Name validPrefix = Name(interest->getName()).append("/valid");
   context.append(contentBlock);
   BOOST_CHECK_THROW(context.setPrefix(validPrefix), std::domain_error);
 }
 
-BOOST_AUTO_TEST_CASE(ValidWithEndCalled)
+BOOST_AUTO_TEST_CASE(SetValidWithEndCalled)
 {
   Name validPrefix = Name(interest->getName()).append("/valid");
   context.end();
   BOOST_CHECK_THROW(context.setPrefix(validPrefix), std::domain_error);
 }
 
-BOOST_AUTO_TEST_CASE(ValidWithRejectCalled)
+BOOST_AUTO_TEST_CASE(SetValidWithRejectCalled)
 {
   Name validPrefix = Name(interest->getName()).append("/valid");
   context.reject();
   BOOST_CHECK_THROW(context.setPrefix(validPrefix), std::domain_error);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // SetPrefix
+BOOST_AUTO_TEST_SUITE_END() // Prefix
 
-BOOST_AUTO_TEST_CASE(Expiry)
+BOOST_AUTO_TEST_SUITE(Expiry)
+
+BOOST_AUTO_TEST_CASE(GetAndSet)
 {
-  // getExpiry & setExpiry
   auto period = time::milliseconds(9527);
   BOOST_CHECK_EQUAL(context.getExpiry(), time::milliseconds(1000));
   BOOST_CHECK_EQUAL(context.setExpiry(period).getExpiry(), period);
 }
 
-BOOST_AUTO_TEST_CASE(Respond)
+BOOST_AUTO_TEST_SUITE_END() // Expiry
+
+BOOST_AUTO_TEST_SUITE(Respond)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
   BOOST_CHECK_NO_THROW(context.append(contentBlock));
   BOOST_CHECK(sendDataHistory.empty()); // does not call end yet
@@ -159,7 +166,7 @@ BOOST_AUTO_TEST_CASE(Respond)
   BOOST_CHECK_EQUAL(args.isFinalBlock, true);
 }
 
-BOOST_AUTO_TEST_CASE(RespondLarge)
+BOOST_AUTO_TEST_CASE(Large)
 {
   static Block largeBlock = [] () -> Block {
     EncodingBuffer encoder;
@@ -195,7 +202,7 @@ BOOST_AUTO_TEST_CASE(RespondLarge)
   BOOST_CHECK(contentLargeBlock.elements()[0] == largeBlock);
 }
 
-BOOST_AUTO_TEST_CASE(ResponseMultipleSmall)
+BOOST_AUTO_TEST_CASE(MultipleSmall)
 {
   size_t nBlocks = 100;
   for (size_t i = 0 ; i < nBlocks ; i ++) {
@@ -217,22 +224,28 @@ BOOST_AUTO_TEST_CASE(ResponseMultipleSmall)
   }
 }
 
-BOOST_AUTO_TEST_CASE(Reject)
+BOOST_AUTO_TEST_SUITE_END() // Respond
+
+BOOST_AUTO_TEST_SUITE(Reject)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
   BOOST_CHECK_NO_THROW(context.reject());
   BOOST_REQUIRE_EQUAL(sendNackHistory.size(), 1);
   BOOST_CHECK_EQUAL(sendNackHistory[0].getCode(), 400);
 }
 
+BOOST_AUTO_TEST_SUITE_END() // Reject
+
 class AbnormalStateTestFixture
 {
-public:
+protected:
   AbnormalStateTestFixture()
     : context(Interest("/abnormal-state"), bind([]{}), bind([]{}))
   {
   }
 
-public:
+protected:
   mgmt::StatusDatasetContext context;
 };
 
@@ -283,6 +296,7 @@ BOOST_AUTO_TEST_CASE(RejectEnd)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // AbnormalState
+
 BOOST_AUTO_TEST_SUITE_END() // TestStatusDatasetContext
 BOOST_AUTO_TEST_SUITE_END() // Mgmt
 

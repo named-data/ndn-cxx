@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(AppMetaInfoTypeRange)
   BOOST_CHECK_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(253, 1000)), MetaInfo::Error);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestMetaInfo
 
 } // namespace tests
 } // namespace ndn

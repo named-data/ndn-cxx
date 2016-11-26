@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,9 +21,9 @@
 
 #include "util/sqlite3-statement.hpp"
 
-#include <boost/filesystem.hpp>
 #include "boost-test.hpp"
 
+#include <boost/filesystem.hpp>
 #include <sqlite3.h>
 
 namespace ndn {
@@ -64,7 +64,8 @@ public:
   sqlite3* db;
 };
 
-BOOST_FIXTURE_TEST_SUITE(UtilSqlite3Statement, Sqlite3StatementTestFixture)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_FIXTURE_TEST_SUITE(TestSqlite3Statement, Sqlite3StatementTestFixture)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
@@ -149,7 +150,8 @@ BOOST_AUTO_TEST_CASE(Basic)
   }
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSqlite3Statement
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace util

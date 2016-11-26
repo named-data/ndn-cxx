@@ -21,12 +21,13 @@
 
 #include "security/command-interest-validator.hpp"
 #include "security/signing-helpers.hpp"
-#include <boost/lexical_cast.hpp>
 
 #include "boost-test.hpp"
-#include "../../dummy-validator.hpp"
+#include "dummy-validator.hpp"
 #include "../identity-management-time-fixture.hpp"
 #include "../make-interest-data.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace security {
@@ -51,7 +52,7 @@ protected:
   }
 
   Name
-  makeIdentity(int identity)
+  makeIdentity(uint64_t identity)
   {
     Name name("/localhost/CommandInterestValidatorIdentity");
     name.appendSequenceNumber(identity);
@@ -60,7 +61,7 @@ protected:
   }
 
   shared_ptr<Interest>
-  makeCommandInterest(int identity = 0)
+  makeCommandInterest(uint64_t identity = 0)
   {
     auto interest = makeInterest("/CommandInterestPrefix");
     m_keyChain.sign(*interest, signingByIdentity(makeIdentity(identity)));
@@ -115,7 +116,9 @@ protected:
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestCommandInterestValidator, CommandInterestValidatorFixture)
 
-BOOST_AUTO_TEST_CASE(Normal)
+BOOST_AUTO_TEST_SUITE(Accepts)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
   auto i1 = makeCommandInterest();
   assertAccept(*i1);
@@ -136,10 +139,12 @@ BOOST_AUTO_TEST_CASE(DataPassthru)
   validator->validate(*d1,
     [&nAccepts] (const shared_ptr<const Data>&) { ++nAccepts; },
     [] (const shared_ptr<const Data>&, const std::string& msg) {
-      BOOST_ERROR("validation request should succeed but fails with " << msg);
+      BOOST_ERROR("validation request should succeed but fails with: " << msg);
     });
   BOOST_CHECK_EQUAL(nAccepts, 1);
 }
+
+BOOST_AUTO_TEST_SUITE_END() // Accepts
 
 BOOST_AUTO_TEST_SUITE(Rejects)
 

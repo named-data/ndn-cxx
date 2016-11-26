@@ -25,9 +25,10 @@
 #include "encoding/buffer-stream.hpp"
 #include "util/time.hpp"
 
+#include "boost-test.hpp"
+
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include "boost-test.hpp"
 
 namespace ndn {
 namespace security {
@@ -53,7 +54,8 @@ public:
   boost::filesystem::path tmpPath;
 };
 
-BOOST_AUTO_TEST_SUITE(SecuritySecPublicInfoSqlite3)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(TestSecPublicInfoSqlite3)
 
 const std::string RSA_DER("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuFoDcNtffwbfFix64fw0\
 hI2tKMkFrc6Ex7yw0YLMK9vGE8lXOyBl/qXabow6RCz+GldmFN6E2Qhm1+AX3Zm5\
@@ -134,16 +136,16 @@ BOOST_AUTO_TEST_CASE(KeyTypeEcdsa)
   pib.deleteIdentityInfo(Name("/TestSecPublicInfoSqlite3/KeyType/ECDSA"));
 }
 
-BOOST_AUTO_TEST_CASE(KeyTypeNonExist)
+BOOST_AUTO_TEST_CASE(KeyTypeNonExistent)
 {
   Name nullKeyName("/TestSecPublicInfoSqlite3/KeyType/Null");
   SecPublicInfoSqlite3 pib;
 
   BOOST_CHECK_EQUAL(KeyType::NONE, pib.getPublicKeyType(nullKeyName));
-
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSecPublicInfoSqlite3
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
 } // namespace security

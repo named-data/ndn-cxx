@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,15 +20,16 @@
  */
 
 #include "encoding/block-helpers.hpp"
+#include "name.hpp"
 
 #include "boost-test.hpp"
-#include "name.hpp"
 
 namespace ndn {
 namespace encoding {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(EncodingBlockHelpers)
+BOOST_AUTO_TEST_SUITE(Encoding)
+BOOST_AUTO_TEST_SUITE(TestBlockHelpers)
 
 BOOST_AUTO_TEST_CASE(NonNegativeInteger)
 {
@@ -86,7 +87,8 @@ BOOST_AUTO_TEST_CASE(Nested)
   BOOST_CHECK(*b1.elements().begin() == name.wireEncode());
 }
 
-BOOST_AUTO_TEST_SUITE_END() // EncodingBlockHelpers
+BOOST_AUTO_TEST_SUITE_END() // TestBlockHelpers
+BOOST_AUTO_TEST_SUITE_END() // Encoding
 
 } // namespace tests
 } // namespace encoding

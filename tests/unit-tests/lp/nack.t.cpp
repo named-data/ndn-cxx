@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,8 @@ namespace ndn {
 namespace lp {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(LpNack)
+BOOST_AUTO_TEST_SUITE(Lp)
+BOOST_AUTO_TEST_SUITE(TestNack)
 
 BOOST_AUTO_TEST_CASE(Members)
 {
@@ -56,7 +57,8 @@ BOOST_AUTO_TEST_CASE(Members)
   BOOST_CHECK_EQUAL(nack2.getReason(), NackReason::NONE);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestNack
+BOOST_AUTO_TEST_SUITE_END() // Lp
 
 } // namespace tests
 } // namespace lp

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,35 +23,18 @@
 #include "util/scheduler.hpp"
 
 #include "boost-test.hpp"
+#include "../unit-test-time-fixture.hpp"
+
 #include <boost/lexical_cast.hpp>
 #include <thread>
 
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(UtilTimeUnitTestClock)
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_FIXTURE_TEST_SUITE(TestTimeUnitTestClock, UnitTestTimeFixture)
 
-class UnitTestTimeFixture
-{
-public:
-  UnitTestTimeFixture()
-    : steadyClock(make_shared<time::UnitTestSteadyClock>())
-    , systemClock(make_shared<time::UnitTestSystemClock>())
-  {
-    time::setCustomClocks(steadyClock, systemClock);
-  }
-
-  ~UnitTestTimeFixture()
-  {
-    time::setCustomClocks(nullptr, nullptr);
-  }
-
-public:
-  shared_ptr<time::UnitTestSteadyClock> steadyClock;
-  shared_ptr<time::UnitTestSystemClock> systemClock;
-};
-
-BOOST_FIXTURE_TEST_CASE(SystemClock, UnitTestTimeFixture)
+BOOST_AUTO_TEST_CASE(SystemClock)
 {
   BOOST_CHECK_EQUAL(time::system_clock::now().time_since_epoch(),
                     time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
@@ -106,7 +89,7 @@ BOOST_FIXTURE_TEST_CASE(SystemClock, UnitTestTimeFixture)
                     time::fromUnixTimestamp(time::seconds(1390953600)));
 }
 
-BOOST_FIXTURE_TEST_CASE(SteadyClock, UnitTestTimeFixture)
+BOOST_AUTO_TEST_CASE(SteadyClock)
 {
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(),
                     time::steady_clock::duration::zero());
@@ -132,9 +115,8 @@ BOOST_FIXTURE_TEST_CASE(SteadyClock, UnitTestTimeFixture)
                     "100 nanoseconds since unit test clock advancements");
 }
 
-BOOST_FIXTURE_TEST_CASE(Scheduler, UnitTestTimeFixture)
+BOOST_AUTO_TEST_CASE(Scheduler)
 {
-  boost::asio::io_service io;
   ndn::Scheduler scheduler(io);
 
   bool hasFired = false;
@@ -149,7 +131,8 @@ BOOST_FIXTURE_TEST_CASE(Scheduler, UnitTestTimeFixture)
   BOOST_CHECK_EQUAL(hasFired, true);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestTimeUnitTestClock
+BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace ndn

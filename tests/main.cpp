@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MODULE ndn-cxx Unit Tests
+#define BOOST_TEST_MODULE ndn-cxx Tests
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_ALTERNATIVE_INIT_API
 

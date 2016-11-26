@@ -1117,7 +1117,7 @@ BOOST_AUTO_TEST_CASE(InterestFilterMatching)
   BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>+").doesMatch("/a/b/c"), true);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestInterest
 
 } // namespace tests
 } // namespace ndn

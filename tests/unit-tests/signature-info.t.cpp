@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(OtherTlvs)
   BOOST_REQUIRE_NO_THROW(info.getTypeSpecificTlv(0x81));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // TestSignatureInfo
 
 } // namespace tests
 } // namespace ndn
