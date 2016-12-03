@@ -52,7 +52,6 @@
 #include "signal.hpp"
 #include "concepts.hpp"
 #include "time.hpp"
-#include "random.hpp"
 #include "scheduler.hpp"
 #include "scheduler-scoped-event-id.hpp"
 #include <boost/concept_check.hpp>
@@ -60,43 +59,16 @@
 namespace ndn {
 namespace util {
 
-/** \brief provides a subscriber of Notification Stream
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/Notification
- *  \tparam Notification type of Notification item, appears in payload of Data packets
- */
-template<typename Notification>
-class NotificationSubscriber : noncopyable
+class NotificationSubscriberBase : noncopyable
 {
 public:
-  BOOST_CONCEPT_ASSERT((boost::DefaultConstructible<Notification>));
-  BOOST_CONCEPT_ASSERT((WireDecodable<Notification>));
-
-  /** \brief construct a NotificationSubscriber
-   *  \note The subscriber is not started after construction.
-   *        User should add one or more handlers to onNotification, and invoke .start().
-   */
-  NotificationSubscriber(Face& face, const Name& prefix,
-                         const time::milliseconds& interestLifetime = time::milliseconds(60000))
-    : m_face(face)
-    , m_prefix(prefix)
-    , m_isRunning(false)
-    , m_lastSequenceNo(std::numeric_limits<uint64_t>::max())
-    , m_lastNackSequenceNo(std::numeric_limits<uint64_t>::max())
-    , m_attempts(1)
-    , m_scheduler(face.getIoService())
-    , m_nackEvent(m_scheduler)
-    , m_interestLifetime(interestLifetime)
-  {
-  }
-
   virtual
-  ~NotificationSubscriber()
-  {
-  }
+  ~NotificationSubscriberBase();
 
   /** \return InterestLifetime of Interests to retrieve notifications
-   *  \details This must be greater than FreshnessPeriod of Notification Data packets,
-   *           to ensure correct operation of this subscriber implementation.
+   *
+   *  This must be greater than FreshnessPeriod of Notification Data packets,
+   *  to ensure correct operation of this subscriber implementation.
    */
   time::milliseconds
   getInterestLifetime() const
@@ -115,170 +87,67 @@ public:
    *        otherwise this operation has no effect.
    */
   void
-  start()
-  {
-    if (m_isRunning) // already running
-      return;
-    m_isRunning = true;
-
-    this->sendInitialInterest();
-  }
+  start();
 
   /** \brief stop receiving notifications
    */
   void
-  stop()
-  {
-    if (!m_isRunning) // not running
-      return;
-    m_isRunning = false;
+  stop();
 
-    if (m_lastInterestId != 0)
-      m_face.removePendingInterest(m_lastInterestId);
-    m_lastInterestId = 0;
-  }
-
-public: // subscriptions
-  /** \brief fires when a Notification is received
-   *  \note Removing all handlers will cause the subscriber to stop.
+protected:
+  /** \brief construct a NotificationSubscriber
+   *  \note The subscriber is not started after construction.
+   *        User should add one or more handlers to onNotification, and invoke .start().
    */
-  signal::Signal<NotificationSubscriber, Notification> onNotification;
-
-  /** \brief fires when a NACK is received
-   */
-  signal::Signal<NotificationSubscriber, lp::Nack> onNack;
-
-  /** \brief fires when no Notification is received within .getInterestLifetime period
-   */
-  signal::Signal<NotificationSubscriber> onTimeout;
-
-  /** \brief fires when a Data packet in the Notification Stream cannot be decoded as Notification
-   */
-  signal::Signal<NotificationSubscriber, Data> onDecodeError;
+  NotificationSubscriberBase(Face& face, const Name& prefix,
+                             time::milliseconds interestLifetime);
 
 private:
   void
-  sendInitialInterest()
-  {
-    if (this->shouldStop())
-      return;
-
-    shared_ptr<Interest> interest = make_shared<Interest>(m_prefix);
-    interest->setMustBeFresh(true);
-    interest->setChildSelector(1);
-    interest->setInterestLifetime(getInterestLifetime());
-
-    m_lastInterestId = m_face.expressInterest(*interest,
-                         bind(&NotificationSubscriber<Notification>::afterReceiveData, this, _2),
-                         bind(&NotificationSubscriber<Notification>::afterReceiveNack, this, _2),
-                         bind(&NotificationSubscriber<Notification>::afterTimeout, this));
-  }
+  sendInitialInterest();
 
   void
-  sendNextInterest()
-  {
-    if (this->shouldStop())
-      return;
+  sendNextInterest();
 
-    BOOST_ASSERT(m_lastSequenceNo !=
-                 std::numeric_limits<uint64_t>::max());// overflow or missing initial reply
-
-    Name nextName = m_prefix;
-    nextName.appendSequenceNumber(m_lastSequenceNo + 1);
-
-    shared_ptr<Interest> interest = make_shared<Interest>(nextName);
-    interest->setInterestLifetime(getInterestLifetime());
-
-    m_lastInterestId = m_face.expressInterest(*interest,
-                         bind(&NotificationSubscriber<Notification>::afterReceiveData, this, _2),
-                         bind(&NotificationSubscriber<Notification>::afterReceiveNack, this, _2),
-                         bind(&NotificationSubscriber<Notification>::afterTimeout, this));
-  }
+  virtual bool
+  hasSubscriber() const = 0;
 
   /** \brief Check if the subscriber is or should be stopped.
    *  \return true if the subscriber is stopped.
    */
   bool
-  shouldStop()
-  {
-    if (!m_isRunning)
-      return true;
-    if (onNotification.isEmpty() && onNack.isEmpty()) {
-      this->stop();
-      return true;
-    }
-    return false;
-  }
+  shouldStop();
 
   void
-  afterReceiveData(const Data& data)
-  {
-    if (this->shouldStop())
-      return;
+  afterReceiveData(const Data& data);
 
-    Notification notification;
-    try {
-      m_lastSequenceNo = data.getName().get(-1).toSequenceNumber();
-      notification.wireDecode(data.getContent().blockFromValue());
-    }
-    catch (tlv::Error&) {
-      this->onDecodeError(data);
-      this->sendInitialInterest();
-      return;
-    }
-
-    this->onNotification(notification);
-
-    this->sendNextInterest();
-  }
+  /** \brief decode the Data as a notification, and deliver it to subscribers
+   *  \return whether decode was successful
+   */
+  virtual bool
+  decodeAndDeliver(const Data& data) = 0;
 
   void
-  afterReceiveNack(const lp::Nack& nack)
-  {
-    if (this->shouldStop())
-      return;
-
-    this->onNack(nack);
-
-    time::milliseconds delay = exponentialBackoff(nack);
-    m_nackEvent = m_scheduler.scheduleEvent(delay, [this] {this->sendInitialInterest();});
-  }
+  afterReceiveNack(const lp::Nack& nack);
 
   void
-  afterTimeout()
-  {
-    if (this->shouldStop())
-      return;
-
-    this->onTimeout();
-
-    this->sendInitialInterest();
-  }
+  afterTimeout();
 
   time::milliseconds
-  exponentialBackoff(lp::Nack nack)
-  {
-    uint64_t nackSequenceNo;
+  exponentialBackoff(lp::Nack nack);
 
-    try {
-      nackSequenceNo = nack.getInterest().getName().get(-1).toSequenceNumber();
-    }
-    catch (name::Component::Error&) {
-      nackSequenceNo = 0;
-    }
+public:
+  /** \brief fires when a NACK is received
+   */
+  signal::Signal<NotificationSubscriberBase, lp::Nack> onNack;
 
-    if (m_lastNackSequenceNo ==  nackSequenceNo) {
-      ++m_attempts;
-    } else {
-      m_attempts = 1;
-    }
+  /** \brief fires when no Notification is received within .getInterestLifetime period
+   */
+  signal::Signal<NotificationSubscriberBase> onTimeout;
 
-    time::milliseconds delayTime =
-      time::milliseconds (static_cast<uint32_t>( pow(2, m_attempts) * 100 + random::generateWord32() % 100));
-
-    m_lastNackSequenceNo = nackSequenceNo;
-    return delayTime;
-  }
+  /** \brief fires when a Data packet in the Notification Stream cannot be decoded as Notification
+   */
+  signal::Signal<NotificationSubscriberBase, Data> onDecodeError;
 
 private:
   Face& m_face;
@@ -291,6 +160,56 @@ private:
   util::scheduler::ScopedEventId m_nackEvent;
   const PendingInterestId* m_lastInterestId;
   time::milliseconds m_interestLifetime;
+};
+
+/** \brief provides a subscriber of Notification Stream
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
+ *  \tparam Notification type of Notification item, appears in payload of Data packets
+ */
+template<typename Notification>
+class NotificationSubscriber : public NotificationSubscriberBase
+{
+public:
+  BOOST_CONCEPT_ASSERT((boost::DefaultConstructible<Notification>));
+  BOOST_CONCEPT_ASSERT((WireDecodable<Notification>));
+
+  /** \brief construct a NotificationSubscriber
+   *  \note The subscriber is not started after construction.
+   *        User should add one or more handlers to onNotification, and invoke .start().
+   */
+  NotificationSubscriber(Face& face, const Name& prefix,
+                         time::milliseconds interestLifetime = time::seconds(60))
+    : NotificationSubscriberBase(face, prefix, interestLifetime)
+  {
+  }
+
+public:
+  /** \brief fires when a Notification is received
+   *  \note Removing all handlers will cause the subscriber to stop.
+   */
+  signal::Signal<NotificationSubscriber, Notification> onNotification;
+
+private:
+  virtual bool
+  hasSubscriber() const override
+  {
+    return !onNotification.isEmpty();
+  }
+
+  virtual bool
+  decodeAndDeliver(const Data& data) override
+  {
+    Notification notification;
+    try {
+      notification.wireDecode(data.getContent().blockFromValue());
+    }
+    catch (const tlv::Error&) {
+      return false;
+    }
+
+    onNotification(notification);
+    return true;
+  }
 };
 
 } // namespace util
