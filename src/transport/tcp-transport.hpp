@@ -49,25 +49,25 @@ public:
   explicit
   TcpTransport(const std::string& host, const std::string& port = "6363");
 
-  ~TcpTransport();
+  ~TcpTransport() override;
 
-  virtual void
+  void
   connect(boost::asio::io_service& ioService,
           const ReceiveCallback& receiveCallback) override;
 
-  virtual void
+  void
   close() override;
 
-  virtual void
+  void
   pause() override;
 
-  virtual void
+  void
   resume() override;
 
-  virtual void
+  void
   send(const Block& wire) override;
 
-  virtual void
+  void
   send(const Block& header, const Block& payload) override;
 
   /** \brief Create transport with parameters defined in URI

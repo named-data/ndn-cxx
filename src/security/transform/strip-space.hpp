@@ -44,7 +44,7 @@ public:
   StripSpace(const char* whitespaces = DEFAULT_WHITESPACES);
 
 private:
-  virtual size_t
+  size_t
   convert(const uint8_t* buf, size_t buflen) final;
 
 private:

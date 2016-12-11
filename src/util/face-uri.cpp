@@ -241,7 +241,7 @@ template<typename Protocol>
 class IpHostCanonizeProvider : public CanonizeProvider
 {
 public:
-  virtual std::set<std::string>
+  std::set<std::string>
   getSchemes() const override
   {
     std::set<std::string> schemes;
@@ -251,7 +251,7 @@ public:
     return schemes;
   }
 
-  virtual bool
+  bool
   isCanonical(const FaceUri& faceUri) const override
   {
     if (faceUri.getPort().empty()) {
@@ -276,7 +276,7 @@ public:
            this->checkAddress(addr).first;
   }
 
-  virtual void
+  void
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
@@ -402,7 +402,7 @@ public:
   }
 
 protected:
-  virtual std::pair<bool, std::string>
+  std::pair<bool, std::string>
   checkAddress(const dns::IpAddress& ipAddress) const override
   {
     if (ipAddress.is_multicast()) {
@@ -415,7 +415,7 @@ protected:
 class EtherCanonizeProvider : public CanonizeProvider
 {
 public:
-  virtual std::set<std::string>
+  std::set<std::string>
   getSchemes() const override
   {
     std::set<std::string> schemes;
@@ -423,7 +423,7 @@ public:
     return schemes;
   }
 
-  virtual bool
+  bool
   isCanonical(const FaceUri& faceUri) const override
   {
     if (!faceUri.getPort().empty()) {
@@ -437,7 +437,7 @@ public:
     return addr.toString() == faceUri.getHost();
   }
 
-  virtual void
+  void
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
@@ -458,13 +458,13 @@ public:
 class UdpDevCanonizeProvider : public CanonizeProvider
 {
 public:
-  virtual std::set<std::string>
+  std::set<std::string>
   getSchemes() const override
   {
     return {"udp4+dev", "udp6+dev"};
   }
 
-  virtual bool
+  bool
   isCanonical(const FaceUri& faceUri) const override
   {
     if (faceUri.getPort().empty()) {
@@ -476,7 +476,7 @@ public:
     return true;
   }
 
-  virtual void
+  void
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,

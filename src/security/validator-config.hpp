@@ -90,14 +90,14 @@ public:
   isEmpty();
 
 protected:
-  virtual void
+  void
   checkPolicy(const Data& data,
               int nSteps,
               const OnDataValidated& onValidated,
               const OnDataValidationFailed& onValidationFailed,
               std::vector<shared_ptr<ValidationRequest>>& nextSteps) override;
 
-  virtual void
+  void
   checkPolicy(const Interest& interest,
               int nSteps,
               const OnInterestValidated& onValidated,

@@ -222,7 +222,7 @@ private:
   /**
    * @brief Abstraction of data processing in an intermediate module
    */
-  virtual size_t
+  size_t
   doWrite(const uint8_t* data, size_t dataLen) final;
 
   /**
@@ -230,7 +230,7 @@ private:
    *
    * This method will not return until all transformation result is written into next module
    */
-  virtual void
+  void
   doEnd() final;
 
   /**

@@ -49,7 +49,7 @@ private:
   /**
    * @brief Read bytes from the input stream until EOF is reached and write them into the next module.
    */
-  virtual void
+  void
   doPump() final;
 
 public:

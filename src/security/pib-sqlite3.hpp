@@ -60,77 +60,77 @@ public:
 
 public: // TpmLocator management
 
-  virtual void
+  void
   setTpmLocator(const std::string& tpmLocator) final;
 
-  virtual std::string
+  std::string
   getTpmLocator() const final;
 
 public: // Identity management
 
-  virtual bool
+  bool
   hasIdentity(const Name& identity) const final;
 
-  virtual void
+  void
   addIdentity(const Name& identity) final;
 
-  virtual void
+  void
   removeIdentity(const Name& identity) final;
 
-  virtual std::set<Name>
+  std::set<Name>
   getIdentities() const final;
 
-  virtual void
+  void
   setDefaultIdentity(const Name& identityName) final;
 
-  virtual Name
+  Name
   getDefaultIdentity() const final;
 
 public: // Key management
 
-  virtual bool
+  bool
   hasKey(const Name& identity, const name::Component& keyId) const final;
 
-  virtual void
+  void
   addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) final;
 
-  virtual void
+  void
   removeKey(const Name& identity, const name::Component& keyId) final;
 
-  virtual v1::PublicKey
+  v1::PublicKey
   getKeyBits(const Name& identity, const name::Component& keyId) const final;
 
-  virtual std::set<name::Component>
+  std::set<name::Component>
   getKeysOfIdentity(const Name& identity) const final;
 
-  virtual void
+  void
   setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) final;
 
-  virtual name::Component
+  name::Component
   getDefaultKeyOfIdentity(const Name& identity) const final;
 
 public: // Certificate Management
 
-  virtual bool
+  bool
   hasCertificate(const Name& certName) const final;
 
-  virtual void
+  void
   addCertificate(const v1::IdentityCertificate& certificate) final;
 
-  virtual void
+  void
   removeCertificate(const Name& certName) final;
 
-  virtual v1::IdentityCertificate
+  v1::IdentityCertificate
   getCertificate(const Name& certName) const final;
 
-  virtual std::set<Name>
+  std::set<Name>
   getCertificatesOfKey(const Name& identity, const name::Component& keyId) const final;
 
-  virtual void
+  void
   setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId,
                              const Name& certName) final;
 
-  virtual v1::IdentityCertificate
+  v1::IdentityCertificate
   getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const final;
 
 private:

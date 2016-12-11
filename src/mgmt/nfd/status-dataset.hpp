@@ -170,7 +170,7 @@ public:
   FaceQueryDataset(const FaceQueryFilter& filter);
 
 private:
-  virtual void
+  void
   addParameters(Name& name) const override;
 
 private:

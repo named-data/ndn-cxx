@@ -49,7 +49,7 @@ private:
   /**
    * @brief Read partial transformation results into output buffer and write them into next module.
    */
-  virtual void
+  void
   preTransform() final;
 
   /**
@@ -57,7 +57,7 @@ private:
    *
    * @return number of bytes that have been accepted by the converter
    */
-  virtual size_t
+  size_t
   convert(const uint8_t* buf, size_t size) final;
 
   /**
@@ -65,7 +65,7 @@ private:
    *
    * This method with read all decoding results from the converter and write them into next module.
    */
-  virtual void
+  void
   finalize() final;
 
   /**

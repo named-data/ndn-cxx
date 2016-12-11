@@ -88,7 +88,6 @@ public:
      *  and causes every command Interest to be processed as initial.
      */
     time::nanoseconds timestampTtl = time::hours(1);
-
   };
 
   /** \brief error codes
@@ -129,7 +128,7 @@ protected:
    *
    *  The validation request is rejected if any step in this procedure fails.
    */
-  virtual void
+  void
   checkPolicy(const Interest& interest, int nSteps,
               const OnInterestValidated& accept,
               const OnInterestValidationFailed& reject,
@@ -139,7 +138,7 @@ protected:
    *
    *  The validation request is redirected to the inner validator.
    */
-  virtual void
+  void
   checkPolicy(const Data& data, int nSteps,
               const OnDataValidated& accept,
               const OnDataValidationFailed& reject,

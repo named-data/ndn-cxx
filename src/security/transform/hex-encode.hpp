@@ -51,7 +51,7 @@ private:
    *
    * @return The number of input bytes that have been accepted by the converter.
    */
-  virtual size_t
+  size_t
   convert(const uint8_t* data, size_t dataLen) final;
 
   /**

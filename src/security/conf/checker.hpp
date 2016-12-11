@@ -104,13 +104,13 @@ public:
     }
   }
 
-  virtual int8_t
+  int8_t
   check(const Data& data) override
   {
     return check(data, data.getSignature());
   }
 
-  virtual int8_t
+  int8_t
   check(const Interest& interest) override
   {
     try {
@@ -211,13 +211,13 @@ public:
     }
   }
 
-  virtual int8_t
+  int8_t
   check(const Data& data) override
   {
     return check(data, data.getSignature());
   }
 
-  virtual int8_t
+  int8_t
   check(const Interest& interest) override
   {
     try {

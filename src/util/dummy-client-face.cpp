@@ -43,28 +43,28 @@ public:
     }
   }
 
-  virtual void
+  void
   close() override
   {
   }
 
-  virtual void
+  void
   pause() override
   {
   }
 
-  virtual void
+  void
   resume() override
   {
   }
 
-  virtual void
+  void
   send(const Block& wire) override
   {
     onSendBlock(wire);
   }
 
-  virtual void
+  void
   send(const Block& header, const Block& payload) override
   {
     EncodingBuffer encoder(header.size() + payload.size(), header.size() + payload.size());

@@ -99,10 +99,10 @@ public:
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  virtual Block
+  Block
   wireEncode() const final;
 
-  virtual void
+  void
   wireDecode(const Block& wire) final;
 
 public: // getters & setters

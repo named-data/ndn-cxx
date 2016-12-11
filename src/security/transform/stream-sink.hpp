@@ -47,13 +47,13 @@ private:
    *
    * @return number of bytes that have been written into the stream
    */
-  virtual size_t
+  size_t
   doWrite(const uint8_t* buf, size_t size) final;
 
   /**
    * @brief Finalize sink processing
    */
-  virtual void
+  void
   doEnd() final;
 
 private:

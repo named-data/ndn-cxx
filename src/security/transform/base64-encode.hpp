@@ -46,14 +46,14 @@ private:
   /**
    * @brief Read partial transformation result (if exists) from BIO
    */
-  virtual void
+  void
   preTransform() final;
 
   /**
-   * @brief Encode @data into base64 format.
+   * @brief Encode @p data into base64 format.
    * @return The number of input bytes that have been accepted by the converter.
    */
-  virtual size_t
+  size_t
   convert(const uint8_t* data, size_t dataLen) final;
 
   /**
@@ -61,7 +61,7 @@ private:
    *
    * This method with read all encoding results from the converter and write them into next module.
    */
-  virtual void
+  void
   finalize() final;
 
   /**

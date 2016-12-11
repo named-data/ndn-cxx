@@ -56,7 +56,7 @@ private:
   /**
    * @brief Read partial transformation result (if exists) from BIO
    */
-  virtual void
+  void
   preTransform() final;
 
   /**
@@ -64,13 +64,13 @@ private:
    *
    * @return number of bytes that are actually accepted
    */
-  virtual size_t
+  size_t
   convert(const uint8_t* data, size_t dataLen) final;
 
   /**
    * @brief Finalize the encryption
    */
-  virtual void
+  void
   finalize() final;
 
   /**

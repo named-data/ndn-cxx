@@ -49,24 +49,24 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
    *  recently accessed Data packet
    *  @return{ whether the Data was removed }
    */
-  virtual bool
+  bool
   evictItem() override;
 
   /** @brief Update the entry when the entry is returned by the find() function,
    *  update the last used time according to LRU
    */
-  virtual void
+  void
   afterAccess(InMemoryStorageEntry* entry) override;
 
   /** @brief Update the entry after a entry is successfully inserted, add it to the cleanupIndex
    */
-  virtual void
+  void
   afterInsert(InMemoryStorageEntry* entry) override;
 
   /** @brief Update the entry or other data structures before a entry is successfully erased,
    *  erase it from the cleanupIndex
    */
-  virtual void
+  void
   beforeErase(InMemoryStorageEntry* entry) override;
 
 private:

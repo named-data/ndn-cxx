@@ -49,13 +49,13 @@ private:
    *
    * @return The number of bytes that are actually written
    */
-  virtual size_t
+  size_t
   convert(const uint8_t* buf, size_t size) final;
 
   /**
    * @brief Finalize verification and write the result (single byte) into next module.
    */
-  virtual void
+  void
   finalize() final;
 
 private:

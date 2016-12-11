@@ -62,7 +62,7 @@ private:
   /**
    * @brief Write the whole buffer into the next module.
    */
-  virtual void
+  void
   doPump() final;
 
 private:

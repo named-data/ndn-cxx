@@ -144,13 +144,13 @@ class FaceCreateCommand : public ControlCommand
 public:
   FaceCreateCommand();
 
-  virtual void
+  void
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateRequest(const ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -165,17 +165,17 @@ class FaceUpdateCommand : public ControlCommand
 public:
   FaceUpdateCommand();
 
-  virtual void
+  void
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateRequest(const ControlParameters& parameters) const override;
 
   /**
    * \note This can only validate ControlParameters in a success response.
    *       Failure responses should be validated with validateRequest.
    */
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -190,10 +190,10 @@ class FaceDestroyCommand : public ControlCommand
 public:
   FaceDestroyCommand();
 
-  virtual void
+  void
   validateRequest(const ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -205,10 +205,10 @@ public:
 class FaceLocalControlCommand : public ControlCommand
 {
 public:
-  virtual void
+  void
   validateRequest(const ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 
 protected:
@@ -251,10 +251,10 @@ class FibAddNextHopCommand : public ControlCommand
 public:
   FibAddNextHopCommand();
 
-  virtual void
+  void
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -269,10 +269,10 @@ class FibRemoveNextHopCommand : public ControlCommand
 public:
   FibRemoveNextHopCommand();
 
-  virtual void
+  void
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -299,10 +299,10 @@ class StrategyChoiceUnsetCommand : public ControlCommand
 public:
   StrategyChoiceUnsetCommand();
 
-  virtual void
+  void
   validateRequest(const ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -317,10 +317,10 @@ class RibRegisterCommand : public ControlCommand
 public:
   RibRegisterCommand();
 
-  virtual void
+  void
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -335,10 +335,10 @@ class RibUnregisterCommand : public ControlCommand
 public:
   RibUnregisterCommand();
 
-  virtual void
+  void
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
-  virtual void
+  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 

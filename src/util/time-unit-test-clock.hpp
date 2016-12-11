@@ -89,13 +89,13 @@ public:
   setNow(const nanoseconds& timeSinceEpoch);
 
 public: // CustomClock<BaseClock>
-  virtual std::string
+  std::string
   getSince() const override;
 
-  virtual typename BaseClock::time_point
+  typename BaseClock::time_point
   getNow() const override;
 
-  virtual boost::posix_time::time_duration
+  boost::posix_time::time_duration
   toPosixDuration(const typename BaseClock::duration& duration) const override;
 
 private:

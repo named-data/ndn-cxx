@@ -50,13 +50,13 @@ private:
    *
    * @return number of input bytes that are accepted
    */
-  virtual size_t
+  size_t
   convert(const uint8_t* buf, size_t size) final;
 
   /**
    * @throws Error if pending byte exists.
    */
-  virtual void
+  void
   finalize() final;
 
   /**

@@ -68,9 +68,8 @@ private:
    *
    * use write() and end() method explicitly to input data.
    */
-  virtual void
+  void
   doPump() final;
-
 };
 
 typedef StepSource stepSource;

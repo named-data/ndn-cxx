@@ -45,7 +45,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
    *
    *  @return false
    */
-  virtual bool
+  bool
   evictItem() override;
 };
 

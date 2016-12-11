@@ -49,13 +49,13 @@ private:
    *
    * @return the same value as @p size.
    */
-  virtual size_t
+  size_t
   doWrite(const uint8_t* buf, size_t size) final;
 
   /**
    * @brief Finalize sink processing
    */
-  virtual void
+  void
   doEnd() final;
 
 private:

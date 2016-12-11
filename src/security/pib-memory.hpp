@@ -51,76 +51,76 @@ public:
 
 public: // TpmLocator management
 
-  virtual void
+  void
   setTpmLocator(const std::string& tpmLocator) override;
 
-  virtual std::string
+  std::string
   getTpmLocator() const override;
 
 public: // Identity management
 
-  virtual bool
+  bool
   hasIdentity(const Name& identity) const override;
 
-  virtual void
+  void
   addIdentity(const Name& identity) override;
 
-  virtual void
+  void
   removeIdentity(const Name& identity) override;
 
-  virtual std::set<Name>
+  std::set<Name>
   getIdentities() const override;
 
-  virtual void
+  void
   setDefaultIdentity(const Name& identityName) override;
 
-  virtual Name
+  Name
   getDefaultIdentity() const override;
 
 public: // Key management
 
-  virtual bool
+  bool
   hasKey(const Name& identity, const name::Component& keyId) const override;
 
-  virtual void
+  void
   addKey(const Name& identity, const name::Component& keyId, const v1::PublicKey& publicKey) override;
 
-  virtual void
+  void
   removeKey(const Name& identity, const name::Component& keyId) override;
 
-  virtual v1::PublicKey
+  v1::PublicKey
   getKeyBits(const Name& identity, const name::Component& keyId) const override;
 
-  virtual std::set<name::Component>
+  std::set<name::Component>
   getKeysOfIdentity(const Name& identity) const override;
 
-  virtual void
+  void
   setDefaultKeyOfIdentity(const Name& identity, const name::Component& keyId) override;
 
-  virtual name::Component
+  name::Component
   getDefaultKeyOfIdentity(const Name& identity) const override;
 
 public: // Certificate management
 
-  virtual bool
+  bool
   hasCertificate(const Name& certName) const override;
 
-  virtual void
+  void
   addCertificate(const v1::IdentityCertificate& certificate) override;
 
-  virtual void
+  void
   removeCertificate(const Name& certName) override;
 
-  virtual v1::IdentityCertificate
+  v1::IdentityCertificate
   getCertificate(const Name& certName) const override;
 
-  virtual std::set<Name>
+  std::set<Name>
   getCertificatesOfKey(const Name& identity, const name::Component& keyId) const override;
 
-  virtual void
+  void
   setDefaultCertificateOfKey(const Name& identity, const name::Component& keyId, const Name& certName) override;
 
-  virtual v1::IdentityCertificate
+  v1::IdentityCertificate
   getDefaultCertificateOfKey(const Name& identity, const name::Component& keyId) const override;
 
 private: // Key management

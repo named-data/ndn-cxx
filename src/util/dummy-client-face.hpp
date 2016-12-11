@@ -111,7 +111,7 @@ private:
   void
   enableRegistrationReply();
 
-  virtual void
+  void
   doProcessEvents(const time::milliseconds& timeout, bool keepThread) override;
 
 public:

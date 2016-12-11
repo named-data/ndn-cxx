@@ -190,13 +190,13 @@ public:
   signal::Signal<NotificationSubscriber, Notification> onNotification;
 
 private:
-  virtual bool
+  bool
   hasSubscriber() const override
   {
     return !onNotification.isEmpty();
   }
 
-  virtual bool
+  bool
   decodeAndDeliver(const Data& data) override
   {
     Notification notification;

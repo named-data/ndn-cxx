@@ -56,7 +56,6 @@ class IndentedStream : public std::ostream
 public:
   IndentedStream(std::ostream& os, const std::string& indent);
 
-  virtual
   ~IndentedStream() override;
 
 private:
@@ -66,7 +65,7 @@ private:
   public:
     StreamBuf(std::ostream& os, const std::string& indent);
 
-    virtual int
+    int
     sync() override;
 
   private:
