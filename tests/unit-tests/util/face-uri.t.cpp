@@ -207,6 +207,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
   addTest("udp4://192.0.2.5:9695", true, "udp4://192.0.2.5:9695");
   addTest("udp4://192.0.2.666:6363", false, "");
   addTest("udp4://google-public-dns-a.google.com", true, "udp4://8.8.8.8:6363");
+  addTest("udp4://google-public-dns-a.google.com:70000", false, "");
   addTest("udp4://invalid.invalid", false, "");
 
   // IPv4 multicast
@@ -223,9 +224,12 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
 
   // IPv6 unicast
   addTest("udp6://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
+  addTest("udp6://[2001:db8::1]", true, "udp6://[2001:db8::1]:6363");
   addTest("udp://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
   addTest("udp6://[2001:db8::01]:6363", true, "udp6://[2001:db8::1]:6363");
+  addTest("udp6://[2001::db8::1]:6363", false, "");
   addTest("udp6://google-public-dns-a.google.com", true, "udp6://[2001:4860:4860::8888]:6363");
+  addTest("udp6://google-public-dns-a.google.com:70000", false, "");
   addTest("udp6://invalid.invalid", false, "");
   addTest("udp://invalid.invalid", false, "");
 
@@ -292,6 +296,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
   addTest("tcp4://192.0.2.5:9695", true, "tcp4://192.0.2.5:9695");
   addTest("tcp4://192.0.2.666:6363", false, "");
   addTest("tcp4://google-public-dns-a.google.com", true, "tcp4://8.8.8.8:6363");
+  addTest("tcp4://google-public-dns-a.google.com:70000", false, "");
   addTest("tcp4://invalid.invalid", false, "");
 
   // IPv4 multicast
@@ -308,9 +313,12 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
 
   // IPv6 unicast
   addTest("tcp6://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
+  addTest("tcp6://[2001:db8::1]", true, "tcp6://[2001:db8::1]:6363");
   addTest("tcp://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
   addTest("tcp6://[2001:db8::01]:6363", true, "tcp6://[2001:db8::1]:6363");
+  addTest("tcp6://[2001::db8::1]:6363", false, "");
   addTest("tcp6://google-public-dns-a.google.com", true, "tcp6://[2001:4860:4860::8888]:6363");
+  addTest("tcp6://google-public-dns-a.google.com:70000", false, "");
   addTest("tcp6://invalid.invalid", false, "");
   addTest("tcp://invalid.invalid", false, "");
 

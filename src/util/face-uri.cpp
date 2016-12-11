@@ -310,8 +310,8 @@ public:
 protected:
   explicit
   IpHostCanonizeProvider(const std::string& baseScheme,
-                         uint32_t defaultUnicastPort = 6363,
-                         uint32_t defaultMulticastPort = 56363)
+                         uint16_t defaultUnicastPort = 6363,
+                         uint16_t defaultMulticastPort = 56363)
     : m_baseScheme(baseScheme)
     , m_v4Scheme(baseScheme + "4")
     , m_v6Scheme(baseScheme + "6")
@@ -334,15 +334,15 @@ private:
       return;
     }
 
-    uint32_t port = 0;
+    uint16_t port = 0;
     if (faceUri->getPort().empty()) {
       port = ipAddress.is_multicast() ? m_defaultMulticastPort : m_defaultUnicastPort;
     }
     else {
       try {
-        port = boost::lexical_cast<uint32_t>(faceUri->getPort());
+        port = boost::lexical_cast<uint16_t>(faceUri->getPort());
       }
-      catch (boost::bad_lexical_cast&) {
+      catch (const boost::bad_lexical_cast&) {
         onFailure("invalid port number");
         return;
       }
@@ -375,8 +375,8 @@ private:
   std::string m_baseScheme;
   std::string m_v4Scheme;
   std::string m_v6Scheme;
-  uint32_t m_defaultUnicastPort;
-  uint32_t m_defaultMulticastPort;
+  uint16_t m_defaultUnicastPort;
+  uint16_t m_defaultMulticastPort;
 };
 
 class UdpCanonizeProvider : public IpHostCanonizeProvider<boost::asio::ip::udp>
