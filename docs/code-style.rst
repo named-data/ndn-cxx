@@ -1097,11 +1097,14 @@ the alternative structured counterpart is proven to be less readable.
           statements; // can modify `str`
         }
 
-3.30. Annotate with ``override`` or ``final`` when overriding a virtual method or destructor.
+3.30. Use the ``override`` or ``final`` specifier when overriding a virtual
+member function or a virtual destructor.
 
-    ``virtual`` should still be used along with ``override`` and ``final``,
-    so that a human reader can easily recognize a virtual method
-    without looking toward the end of the function signature.
+    ``virtual`` MUST NOT be used along with ``final``, so that the compiler
+    can generate an error when a final function does not override.
+
+    ``virtual`` SHOULD NOT be used along with ``override``, for consistency
+    with ``final``.
 
     .. code-block:: c++
 
@@ -1115,19 +1118,19 @@ the alternative structured counterpart is proven to be less readable.
         class InputStream : public Stream
         {
         public:
-          virtual void
+          void
           open() override;
         };
 
         class Console : public InputStream
         {
         public:
-          virtual void
-          open() override;
+          void
+          open() final;
         };
 
 3.31. The recommended way to throw an exception derived from ``std::exception`` is to use
 the ``BOOST_THROW_EXCEPTION``
-`macro <http://www.boost.org/doc/libs/1_42_0/libs/exception/doc/BOOST_THROW_EXCEPTION.html>`__.
+`macro <http://www.boost.org/doc/libs/1_54_0/libs/exception/doc/BOOST_THROW_EXCEPTION.html>`__.
 Exceptions thrown using this macro will be augmented with additional diagnostic information,
 including file name, line number, and function name from where the exception was thrown.
