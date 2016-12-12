@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(DecodeIgnoredHeader)
     0x64, 0x0c, // LpPacket
           0x52, 0x01, // FragIndex
                 0x00,
-          0xfd, 0x03, 0x23, 0x01, // unknown TLV-TYPE 803 (ignored)
+          0xfd, 0x03, 0x24, 0x01, // unknown TLV-TYPE 804 (ignored)
                 0x02,
           0x50, 0x02, // Fragment
                 0x03, 0xe8,

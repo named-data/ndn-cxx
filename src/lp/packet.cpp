@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -109,12 +109,12 @@ Packet::wireDecode(const Block& wire)
     detail::FieldInfo info(element.type());
 
     if (!info.isRecognized && !info.canIgnore) {
-      BOOST_THROW_EXCEPTION(Error("unrecognized field cannot be ignored"));
+      BOOST_THROW_EXCEPTION(Error("unrecognized field " + to_string(element.type()) + " cannot be ignored"));
     }
 
     if (!isFirst) {
       if (info.tlvType == prev.tlvType && !info.isRepeatable) {
-        BOOST_THROW_EXCEPTION(Error("non-repeatable field cannot be repeated"));
+        BOOST_THROW_EXCEPTION(Error("non-repeatable field " + to_string(element.type()) + " cannot be repeated"));
       }
 
       else if (info.tlvType != prev.tlvType && !detail::compareFieldSortOrder(prev, info)) {

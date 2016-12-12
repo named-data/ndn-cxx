@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2016 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -65,7 +65,7 @@ FieldInfo::FieldInfo(uint64_t tlv)
   boost::mpl::for_each<FieldSet>(boost::bind(ExtractFieldInfo(), this, _1));
   if (!isRecognized) {
     canIgnore = tlv::HEADER3_MIN <= tlvType && tlvType <= tlv::HEADER3_MAX &&
-                (tlvType & 0x01) == 0x01;
+                (tlvType & 0x03) == 0x00;
   }
 }
 
