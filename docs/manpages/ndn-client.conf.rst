@@ -24,7 +24,7 @@ transport
   By default, ``unix:///var/run/nfd.sock`` is used.
 
   ..note::
-    This value can be overriden using `NDN_CLIENT_TRANSPORT` environment variable.
+    This value can be overridden using `NDN_CLIENT_TRANSPORT` environment variable.
 
 Key Management
 --------------
@@ -58,7 +58,7 @@ pib
   Simultaneous access from multiple machines may cause errors.
 
   ..note::
-    This value can be overriden using `NDN_CLIENT_PIB` environment variable.
+    This value can be overridden using `NDN_CLIENT_PIB` environment variable.
 
 tpm
   Trusted Platform Module (TPM) where the private keys are stored.  The format for this setting
@@ -96,4 +96,4 @@ tpm
   Simultaneous access from multiple machines may cause errors.
 
   ..note::
-    This value can be overriden using `NDN_CLIENT_TPM` environment variable.
+    This value can be overridden using `NDN_CLIENT_TPM` environment variable.
