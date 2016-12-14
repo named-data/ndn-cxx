@@ -234,35 +234,35 @@ latex_documents = [
 
 # -- Options for manual page output ---------------------------------------
 
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    ('manpages/ndnsec', 'ndnsec', u'NDN security tools', None, 1),
-    ('manpages/ndnsec-cert-dump',    'ndnsec-cert-dump',   'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-cert-gen',     'ndnsec-cert-gen',    'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-cert-revoke',  'ndnsec-cert-revoke', 'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-cert-install', 'ndnsec-cert-instal', 'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-delete',       'ndnsec-delete',      'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-export',       'ndnsec-export',      'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-get-default',  'ndnsec-get-default', 'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-import',       'ndnsec-import',      'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-key-gen',      'ndnsec-key-gen',     'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-list',         'ndnsec-list',        'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-set-acl',      'ndnsec-set-acl',     'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-set-default',  'ndnsec-set-default', 'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-sign-req',     'ndnsec-sign-req',    'part of NDN security tools', None, 1),
-    ('manpages/ndnsec-unlock-tpm',   'ndnsec-unlock-tpm',  'part of NDN security tools', None, 1),
-    ('tutorials/security-validator-config', 'ndnsec-validator.conf',
-     'NDN trust validator configuration file', None, 5),
-    ('manpages/ndn-client.conf', 'ndn-client.conf',  'Configuration file for NDN platform', None, 5),
-]
-
-
 # If true, show URL addresses after external links.
 man_show_urls = True
 
-
 # ---- Custom options --------
+
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+    ('manpages/ndn-client.conf', 'ndn-client.conf', u'System configuration of the NDN platform', None, 1),
+    ('manpages/ndnsec-cert-dump', 'ndnsec-cert-dump', u'Dump certificates from the Public Info Base', None, 1),
+    ('manpages/ndnsec-cert-gen', 'ndnsec-cert-gen', u'Issue an identity certificate', None, 1),
+    ('manpages/ndnsec-cert-install', 'ndnsec-cert-install', u'Install a certificate into the Public Information Base', None, 1),
+    ('manpages/ndnsec-cert-revoke', 'ndnsec-cert-revoke', u'Generate certificate revocation data', None, 1),
+    ('manpages/ndnsec-delete', 'ndnsec-delete', u'Delete security data from the Public Information Base and Trusted Platform Module', None, 1),
+    ('manpages/ndnsec-dsk-gen', 'ndnsec-dsk-gen', u'Generate a pair of Data-Signing-Key (DSK)', None, 1),
+    ('manpages/ndnsec-export', 'ndnsec-export', u'Export an identity\'s secure data', None, 1),
+    ('manpages/ndnsec-get-default', 'ndnsec-get-default', u'Display the default settings of a particular entity', None, 1),
+    ('manpages/ndnsec-import', 'ndnsec-import', u'Import an identity\`s security data', None, 1),
+    ('manpages/ndnsec-key-gen', 'ndnsec-key-gen', u'Generate a pair of keys', None, 1),
+    ('manpages/ndnsec-list', 'ndnsec-list', u'Display entities stored in the Public Information Base', None, 1),
+    ('manpages/ndnsec', 'ndnsec', u'Command-line toolkit for NDN security', None, 1),
+    ('manpages/ndnsec-set-acl', 'ndnsec-set-acl', u'Add an application into a private key\'s Access Control List', None, 1),
+    ('manpages/ndnsec-set-default', 'ndnsec-set-default', u'Change default security settings', None, 1),
+    ('manpages/ndnsec-sign-req', 'ndnsec-sign-req', u'Generate signing requests for a particular key', None, 1),
+    ('manpages/ndnsec-unlock-tpm', 'ndnsec-unlock-tpm', u'Unlock the Trusted Platform Module', None, 1),
+    ('tutorials/security-validator-config', 'ndnsec-validator.conf',
+     'NDN trust validator configuration file', None, 5)
+]
+
 
 doxylink = {
   'ndn-cxx' : ('ndn-cxx.tag', 'doxygen/'),
