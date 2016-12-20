@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016, Regents of the University of California,
+ * Copyright (c) 2014-2016, Regents of the University of California,
  *                          Arizona Board of Regents,
  *                          Colorado State University,
  *                          University Pierre & Marie Curie, Sorbonne University,
@@ -27,13 +27,14 @@
 
 #include "face-uri.hpp"
 #include "dns.hpp"
+#include "ethernet.hpp"
 
-#include <set>
 #include <boost/concept_check.hpp>
-#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
+#include <boost/regex.hpp>
+#include <set>
 
 namespace ndn {
 namespace util {
@@ -53,10 +54,8 @@ FaceUri::FaceUri(const std::string& uri)
 }
 
 FaceUri::FaceUri(const char* uri)
+  : FaceUri(std::string(uri))
 {
-  if (!parse(uri)) {
-    BOOST_THROW_EXCEPTION(Error("Malformed URI: " + std::string(uri)));
-  }
 }
 
 bool
@@ -64,9 +63,9 @@ FaceUri::parse(const std::string& uri)
 {
   m_scheme.clear();
   m_host.clear();
-  m_isV6 = false;
   m_port.clear();
   m_path.clear();
+  m_isV6 = false;
 
   static const boost::regex protocolExp("(\\w+\\d?(\\+\\w+)?)://([^/]*)(\\/[^?]*)?");
   boost::smatch protocolMatch;
@@ -124,19 +123,19 @@ FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint)
 }
 
 FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::string& scheme)
-  : m_scheme(scheme)
 {
   m_isV6 = endpoint.address().is_v6();
+  m_scheme = scheme;
   m_host = endpoint.address().to_string();
   m_port = to_string(endpoint.port());
 }
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
 FaceUri::FaceUri(const boost::asio::local::stream_protocol::endpoint& endpoint)
-  : m_isV6(false)
+  : m_scheme("unix")
+  , m_path(endpoint.path())
+  , m_isV6(false)
 {
-  m_scheme = "unix";
-  m_path = endpoint.path();
 }
 #endif // BOOST_ASIO_HAS_LOCAL_SOCKETS
 
@@ -150,10 +149,10 @@ FaceUri::fromFd(int fd)
 }
 
 FaceUri::FaceUri(const ethernet::Address& address)
-  : m_isV6(true)
+  : m_scheme("ether")
+  , m_host(address.toString())
+  , m_isV6(true)
 {
-  m_scheme = "ether";
-  m_host = address.toString();
 }
 
 FaceUri
@@ -178,11 +177,11 @@ FaceUri::fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, const std::s
 bool
 FaceUri::operator==(const FaceUri& rhs) const
 {
-  return (m_scheme == rhs.m_scheme &&
-          m_host == rhs.m_host &&
-          m_isV6 == rhs.m_isV6 &&
-          m_port == rhs.m_port &&
-          m_path == rhs.m_path);
+  return m_isV6 == rhs.m_isV6 &&
+         m_scheme == rhs.m_scheme &&
+         m_host == rhs.m_host &&
+         m_port == rhs.m_port &&
+         m_path == rhs.m_path;
 }
 
 bool
@@ -216,6 +215,7 @@ operator<<(std::ostream& os, const FaceUri& uri)
   return os;
 }
 
+
 /** \brief a CanonizeProvider provides FaceUri canonization functionality for a group of schemes
  */
 class CanonizeProvider : noncopyable
@@ -244,11 +244,7 @@ public:
   std::set<std::string>
   getSchemes() const override
   {
-    std::set<std::string> schemes;
-    schemes.insert(m_baseScheme);
-    schemes.insert(m_v4Scheme);
-    schemes.insert(m_v6Scheme);
-    return schemes;
+    return {m_baseScheme, m_v4Scheme, m_v6Scheme};
   }
 
   bool
@@ -272,8 +268,8 @@ public:
     else {
       return false;
     }
-    return !static_cast<bool>(ec) && addr.to_string() == faceUri.getHost() &&
-           this->checkAddress(addr).first;
+
+    return !ec && addr.to_string() == faceUri.getHost() && checkAddress(addr).first;
   }
 
   void
@@ -300,7 +296,7 @@ public:
     }
 
     // make a copy because caller may modify faceUri
-    shared_ptr<FaceUri> uri = make_shared<FaceUri>(faceUri);
+    auto uri = make_shared<FaceUri>(faceUri);
     dns::asyncResolve(faceUri.getHost(),
       bind(&IpHostCanonizeProvider<Protocol>::onDnsSuccess, this, uri, onSuccess, onFailure, _1),
       bind(&IpHostCanonizeProvider<Protocol>::onDnsFailure, this, uri, onFailure, _1),
@@ -313,25 +309,25 @@ protected:
                          uint16_t defaultUnicastPort = 6363,
                          uint16_t defaultMulticastPort = 56363)
     : m_baseScheme(baseScheme)
-    , m_v4Scheme(baseScheme + "4")
-    , m_v6Scheme(baseScheme + "6")
+    , m_v4Scheme(baseScheme + '4')
+    , m_v6Scheme(baseScheme + '6')
     , m_defaultUnicastPort(defaultUnicastPort)
     , m_defaultMulticastPort(defaultMulticastPort)
   {
   }
 
 private:
-  // faceUri is a shared_ptr passed by value because this function can take ownership
   void
-  onDnsSuccess(shared_ptr<FaceUri> faceUri,
+  onDnsSuccess(const shared_ptr<FaceUri>& faceUri,
                const FaceUri::CanonizeSuccessCallback& onSuccess,
                const FaceUri::CanonizeFailureCallback& onFailure,
                const dns::IpAddress& ipAddress) const
   {
-    std::pair<bool, std::string> checkAddressRes = this->checkAddress(ipAddress);
-    if (!checkAddressRes.first) {
-      onFailure(checkAddressRes.second);
-      return;
+    bool isOk = false;
+    std::string reason;
+    std::tie(isOk, reason) = this->checkAddress(ipAddress);
+    if (!isOk) {
+      return onFailure(reason);
     }
 
     uint16_t port = 0;
@@ -343,8 +339,7 @@ private:
         port = boost::lexical_cast<uint16_t>(faceUri->getPort());
       }
       catch (const boost::bad_lexical_cast&) {
-        onFailure("invalid port number");
-        return;
+        return onFailure("invalid port number '" + faceUri->getPort() + "'");
       }
     }
 
@@ -353,9 +348,9 @@ private:
     onSuccess(canonicalUri);
   }
 
-  // faceUri is a shared_ptr passed by value because this function can take ownership
   void
-  onDnsFailure(shared_ptr<FaceUri> faceUri, const FaceUri::CanonizeFailureCallback& onFailure,
+  onDnsFailure(const shared_ptr<FaceUri>& faceUri,
+               const FaceUri::CanonizeFailureCallback& onFailure,
                const std::string& reason) const
   {
     onFailure(reason);
@@ -418,9 +413,7 @@ public:
   std::set<std::string>
   getSchemes() const override
   {
-    std::set<std::string> schemes;
-    schemes.insert("ether");
-    return schemes;
+    return {"ether"};
   }
 
   bool
@@ -433,7 +426,7 @@ public:
       return false;
     }
 
-    ethernet::Address addr = ethernet::Address::fromString(faceUri.getHost());
+    auto addr = ethernet::Address::fromString(faceUri.getHost());
     return addr.toString() == faceUri.getHost();
   }
 
@@ -443,10 +436,9 @@ public:
            const FaceUri::CanonizeFailureCallback& onFailure,
            boost::asio::io_service& io, const time::nanoseconds& timeout) const override
   {
-    ethernet::Address addr = ethernet::Address::fromString(faceUri.getHost());
+    auto addr = ethernet::Address::fromString(faceUri.getHost());
     if (addr.isNull()) {
-      onFailure("cannot parse address");
-      return;
+      return onFailure("invalid ethernet address '" + faceUri.getHost() + "'");
     }
 
     FaceUri canonicalUri(addr);
@@ -491,13 +483,11 @@ public:
   }
 };
 
-typedef boost::mpl::vector<
-    UdpCanonizeProvider*,
-    TcpCanonizeProvider*,
-    EtherCanonizeProvider*,
-    UdpDevCanonizeProvider*
-  > CanonizeProviders;
-typedef std::map<std::string, shared_ptr<CanonizeProvider> > CanonizeProviderTable;
+using CanonizeProviders = boost::mpl::vector<UdpCanonizeProvider*,
+                                             TcpCanonizeProvider*,
+                                             EtherCanonizeProvider*,
+                                             UdpDevCanonizeProvider*>;
+using CanonizeProviderTable = std::map<std::string, shared_ptr<CanonizeProvider>>;
 
 class CanonizeProviderTableInitializer
 {
@@ -508,17 +498,17 @@ public:
   {
   }
 
-  template<typename CP> void
+  template<typename CP>
+  void
   operator()(CP*)
   {
     shared_ptr<CanonizeProvider> cp = make_shared<CP>();
-
-    std::set<std::string> schemes = cp->getSchemes();
+    auto schemes = cp->getSchemes();
     BOOST_ASSERT(!schemes.empty());
-    for (std::set<std::string>::iterator it = schemes.begin();
-         it != schemes.end(); ++it) {
-      BOOST_ASSERT(m_providerTable.count(*it) == 0);
-      m_providerTable[*it] = cp;
+
+    for (const auto& scheme : schemes) {
+      BOOST_ASSERT(m_providerTable.count(scheme) == 0);
+      m_providerTable[scheme] = cp;
     }
   }
 
@@ -536,23 +526,21 @@ getCanonizeProvider(const std::string& scheme)
   }
 
   auto it = providerTable.find(scheme);
-  if (it == providerTable.end()) {
-    return nullptr;
-  }
-  return it->second.get();
+  return it == providerTable.end() ? nullptr : it->second.get();
 }
+
 
 bool
 FaceUri::canCanonize(const std::string& scheme)
 {
-  return getCanonizeProvider(scheme) != 0;
+  return getCanonizeProvider(scheme) != nullptr;
 }
 
 bool
 FaceUri::isCanonical() const
 {
   const CanonizeProvider* cp = getCanonizeProvider(this->getScheme());
-  if (cp == 0) {
+  if (cp == nullptr) {
     return false;
   }
 
@@ -574,7 +562,6 @@ FaceUri::canonize(const CanonizeSuccessCallback& onSuccess,
 
   static CanonizeSuccessCallback successNop = bind([]{});
   static CanonizeFailureCallback failureNop = bind([]{});
-
   cp->canonize(*this,
                onSuccess ? onSuccess : successNop,
                onFailure ? onFailure : failureNop,

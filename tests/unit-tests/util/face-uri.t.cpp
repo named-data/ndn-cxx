@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California,
- *                         Arizona Board of Regents,
- *                         Colorado State University,
- *                         University Pierre & Marie Curie, Sorbonne University,
- *                         Washington University in St. Louis,
- *                         Beijing Institute of Technology,
- *                         The University of Memphis.
+ * Copyright (c) 2014-2016, Regents of the University of California,
+ *                          Arizona Board of Regents,
+ *                          Colorado State University,
+ *                          University Pierre & Marie Curie, Sorbonne University,
+ *                          Washington University in St. Louis,
+ *                          Beijing Institute of Technology,
+ *                          The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,7 @@
  */
 
 #include "util/face-uri.hpp"
+#include "util/ethernet.hpp"
 
 #include "boost-test.hpp"
 #include "../network-configuration-detector.hpp"
@@ -42,13 +43,17 @@ BOOST_AUTO_TEST_SUITE(TestFaceUri)
 class CanonizeFixture : noncopyable
 {
 protected:
-  CanonizeFixture()
-    : m_nPending(0)
-  {
-  }
-
   void
-  addTest(const std::string& request, bool shouldSucceed, const std::string& expectedUri);
+  addTest(const std::string& request, bool shouldSucceed, const std::string& expectedUri)
+  {
+    ++m_nPending;
+    auto tc = make_shared<CanonizeTestCase>(request, shouldSucceed, expectedUri);
+
+    FaceUri uri(request);
+    uri.canonize(bind(&CanonizeFixture::onCanonizeSuccess, this, tc, _1),
+                 bind(&CanonizeFixture::onCanonizeFailure, this, tc, _1),
+                 m_io, time::seconds(10));
+  }
 
   void
   runTests()
@@ -61,39 +66,38 @@ private:
   class CanonizeTestCase
   {
   public:
-    CanonizeTestCase(const std::string& request,
-                     bool shouldSucceed, const std::string& expectedUri)
-      : m_shouldSucceed(shouldSucceed)
-      , m_expectedUri(expectedUri)
+    CanonizeTestCase(const std::string& request, bool shouldSucceed, const std::string& expectedUri)
+      : m_expectedUri(expectedUri)
       , m_message(request + " should " + (shouldSucceed ? "succeed" : "fail"))
+      , m_shouldSucceed(shouldSucceed)
       , m_isCompleted(false)
     {
     }
 
   public:
-    bool m_shouldSucceed;
     std::string m_expectedUri;
     std::string m_message;
+    bool m_shouldSucceed;
     bool m_isCompleted;
   };
 
-  // tc is a shared_ptr passed by value, because this function can take ownership
   void
-  onCanonizeSuccess(shared_ptr<CanonizeTestCase> tc, const FaceUri& canonicalUri)
+  onCanonizeSuccess(const shared_ptr<CanonizeTestCase>& tc, const FaceUri& canonicalUri)
   {
-    BOOST_CHECK(!tc->m_isCompleted);
+    BOOST_CHECK_EQUAL(tc->m_isCompleted, false);
     tc->m_isCompleted = true;
     --m_nPending;
 
     BOOST_CHECK_MESSAGE(tc->m_shouldSucceed, tc->m_message);
-    BOOST_CHECK_EQUAL(tc->m_expectedUri, canonicalUri.toString());
+    if (tc->m_shouldSucceed) {
+      BOOST_CHECK_EQUAL(canonicalUri.toString(), tc->m_expectedUri);
+    }
   }
 
-  // tc is a shared_ptr passed by value, because this function can take ownership
   void
-  onCanonizeFailure(shared_ptr<CanonizeTestCase> tc, const std::string& reason)
+  onCanonizeFailure(const shared_ptr<CanonizeTestCase>& tc, const std::string& reason)
   {
-    BOOST_CHECK(!tc->m_isCompleted);
+    BOOST_CHECK_EQUAL(tc->m_isCompleted, false);
     tc->m_isCompleted = true;
     --m_nPending;
 
@@ -102,21 +106,8 @@ private:
 
 private:
   boost::asio::io_service m_io;
-  ssize_t m_nPending;
+  ssize_t m_nPending = 0;
 };
-
-void
-CanonizeFixture::addTest(const std::string& request,
-                         bool shouldSucceed, const std::string& expectedUri)
-{
-  ++m_nPending;
-  auto tc = make_shared<CanonizeTestCase>(request, shouldSucceed, expectedUri);
-
-  FaceUri uri(request);
-  uri.canonize(bind(&CanonizeFixture::onCanonizeSuccess, this, tc, _1),
-               bind(&CanonizeFixture::onCanonizeFailure, this, tc, _1),
-               m_io, time::seconds(10));
-}
 
 BOOST_AUTO_TEST_CASE(ParseInternal)
 {
@@ -167,7 +158,8 @@ BOOST_AUTO_TEST_CASE(ParseUdp)
 
   BOOST_CHECK_EQUAL(uri.parse("udp6://[2001:db8:3f9:0:3025:ccc5:eeeb:86dg]:6363"), false);
 
-  using namespace boost::asio;
+  namespace ip = boost::asio::ip;
+
   ip::udp::endpoint endpoint4(ip::address_v4::from_string("192.0.2.1"), 7777);
   BOOST_REQUIRE_NO_THROW(FaceUri(endpoint4));
   BOOST_CHECK_EQUAL(FaceUri(endpoint4).toString(), "udp4://192.0.2.1:7777");
@@ -177,7 +169,7 @@ BOOST_AUTO_TEST_CASE(ParseUdp)
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "udp6://[2001:db8::1]:7777");
 }
 
-BOOST_FIXTURE_TEST_CASE(CheckCanonicalUdp, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
 {
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("udp"), true);
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("udp4"), true);
@@ -195,6 +187,7 @@ BOOST_FIXTURE_TEST_CASE(CheckCanonicalUdp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("udp4://224.0.23.170:56363").isCanonical(), true);
 }
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeUdpV4, 1)
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
 {
   SKIP_IF_IPV4_UNAVAILABLE();
@@ -206,6 +199,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
   addTest("udp4://192.0.2.4:6363/", true, "udp4://192.0.2.4:6363");
   addTest("udp4://192.0.2.5:9695", true, "udp4://192.0.2.5:9695");
   addTest("udp4://192.0.2.666:6363", false, "");
+  addTest("udp4://192.0.2.7:99999", false, ""); // Bug #3897
   addTest("udp4://google-public-dns-a.google.com", true, "udp4://8.8.8.8:6363");
   addTest("udp4://google-public-dns-a.google.com:70000", false, "");
   addTest("udp4://invalid.invalid", false, "");
@@ -218,6 +212,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
   runTests();
 }
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeUdpV6, 1)
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
 {
   SKIP_IF_IPV6_UNAVAILABLE();
@@ -228,6 +223,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
   addTest("udp://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
   addTest("udp6://[2001:db8::01]:6363", true, "udp6://[2001:db8::1]:6363");
   addTest("udp6://[2001::db8::1]:6363", false, "");
+  addTest("udp6://[2001:db8::1]:99999", false, ""); // Bug #3897
   addTest("udp6://google-public-dns-a.google.com", true, "udp6://[2001:4860:4860::8888]:6363");
   addTest("udp6://google-public-dns-a.google.com:70000", false, "");
   addTest("udp6://invalid.invalid", false, "");
@@ -253,7 +249,8 @@ BOOST_AUTO_TEST_CASE(ParseTcp)
   BOOST_CHECK_EQUAL(uri.parse("tcp://192.0.2.1:"), false);
   BOOST_CHECK_EQUAL(uri.parse("tcp://[::zzzz]"), false);
 
-  using namespace boost::asio;
+  namespace ip = boost::asio::ip;
+
   ip::tcp::endpoint endpoint4(ip::address_v4::from_string("192.0.2.1"), 7777);
   BOOST_REQUIRE_NO_THROW(FaceUri(endpoint4));
   BOOST_CHECK_EQUAL(FaceUri(endpoint4).toString(), "tcp4://192.0.2.1:7777");
@@ -266,7 +263,7 @@ BOOST_AUTO_TEST_CASE(ParseTcp)
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "tcp6://[2001:db8::1]:7777");
 }
 
-BOOST_FIXTURE_TEST_CASE(CheckCanonicalTcp, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
 {
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("tcp"), true);
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("tcp4"), true);
@@ -284,6 +281,7 @@ BOOST_FIXTURE_TEST_CASE(CheckCanonicalTcp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("tcp4://224.0.23.170:56363").isCanonical(), false);
 }
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeTcpV4, 1)
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
 {
   SKIP_IF_IPV4_UNAVAILABLE();
@@ -295,6 +293,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
   addTest("tcp4://192.0.2.4:6363/", true, "tcp4://192.0.2.4:6363");
   addTest("tcp4://192.0.2.5:9695", true, "tcp4://192.0.2.5:9695");
   addTest("tcp4://192.0.2.666:6363", false, "");
+  addTest("tcp4://192.0.2.7:99999", false, ""); // Bug #3897
   addTest("tcp4://google-public-dns-a.google.com", true, "tcp4://8.8.8.8:6363");
   addTest("tcp4://google-public-dns-a.google.com:70000", false, "");
   addTest("tcp4://invalid.invalid", false, "");
@@ -307,6 +306,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
   runTests();
 }
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeTcpV6, 1)
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
 {
   SKIP_IF_IPV6_UNAVAILABLE();
@@ -317,6 +317,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
   addTest("tcp://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
   addTest("tcp6://[2001:db8::01]:6363", true, "tcp6://[2001:db8::1]:6363");
   addTest("tcp6://[2001::db8::1]:6363", false, "");
+  addTest("tcp6://[2001:db8::1]:99999", false, ""); // Bug #3897
   addTest("tcp6://google-public-dns-a.google.com", true, "tcp6://[2001:4860:4860::8888]:6363");
   addTest("tcp6://google-public-dns-a.google.com:70000", false, "");
   addTest("tcp6://invalid.invalid", false, "");
@@ -329,6 +330,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
   runTests();
 }
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(ParseUnix, 1)
 BOOST_AUTO_TEST_CASE(ParseUnix)
 {
   FaceUri uri;
@@ -339,15 +341,15 @@ BOOST_AUTO_TEST_CASE(ParseUnix)
   BOOST_CHECK_EQUAL(uri.getPort(), "");
   BOOST_CHECK_EQUAL(uri.getPath(), "/var/run/example.sock");
 
-  //BOOST_CHECK_EQUAL(uri.parse("unix://var/run/example.sock"), false);
-  // This is not a valid unix:/ URI, but the parse would treat "var" as host
+  // This is not a valid unix:// URI, but the parse would treat "var" as host
+  BOOST_CHECK_EQUAL(uri.parse("unix://var/run/example.sock"), false); // Bug #3896
 
-#ifdef HAVE_UNIX_SOCKETS
-  using namespace boost::asio;
-  local::stream_protocol::endpoint endpoint("/var/run/example.sock");
+#ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
+  using boost::asio::local::stream_protocol;
+  stream_protocol::endpoint endpoint("/var/run/example.sock");
   BOOST_REQUIRE_NO_THROW(FaceUri(endpoint));
   BOOST_CHECK_EQUAL(FaceUri(endpoint).toString(), "unix:///var/run/example.sock");
-#endif // HAVE_UNIX_SOCKETS
+#endif // BOOST_ASIO_HAS_LOCAL_SOCKETS
 }
 
 BOOST_AUTO_TEST_CASE(ParseFd)
@@ -377,7 +379,7 @@ BOOST_AUTO_TEST_CASE(ParseEther)
 
   BOOST_CHECK_EQUAL(uri.parse("ether://[08:00:27:zz:dd:01]"), false);
 
-  ethernet::Address address = ethernet::Address::fromString("33:33:01:01:01:01");
+  auto address = ethernet::Address::fromString("33:33:01:01:01:01");
   BOOST_REQUIRE_NO_THROW(FaceUri(address));
   BOOST_CHECK_EQUAL(FaceUri(address).toString(), "ether://[33:33:01:01:01:01]");
 }
@@ -434,7 +436,7 @@ BOOST_AUTO_TEST_CASE(ParseUdpDev)
   BOOST_CHECK(!uri.parse("abc+://eth0"));
   BOOST_CHECK(!uri.parse("+abc://eth0"));
 
-  using namespace boost::asio;
+  namespace ip = boost::asio::ip;
 
   ip::udp::endpoint endpoint4(ip::udp::v4(), 7777);
   BOOST_REQUIRE_NO_THROW(FaceUri::fromUdpDev(endpoint4, "en1"));

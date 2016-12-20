@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014-2016,  Regents of the University of California,
- *                      Arizona Board of Regents,
- *                      Colorado State University,
- *                      University Pierre & Marie Curie, Sorbonne University,
- *                      Washington University in St. Louis,
- *                      Beijing Institute of Technology,
- *                      The University of Memphis
+ * Copyright (c) 2014-2016, Regents of the University of California,
+ *                          Arizona Board of Regents,
+ *                          Colorado State University,
+ *                          University Pierre & Marie Curie, Sorbonne University,
+ *                          Washington University in St. Louis,
+ *                          Beijing Institute of Technology,
+ *                          The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,14 +29,18 @@
 #define NDN_UTIL_FACE_URI_HPP
 
 #include "../common.hpp"
-#include <boost/asio/ip/udp.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/local/stream_protocol.hpp>
-#include "ethernet.hpp"
 #include "time.hpp"
+
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/udp.hpp>
+#include <boost/asio/local/stream_protocol.hpp>
 
 namespace ndn {
 namespace util {
+
+namespace ethernet {
+class Address;
+} // namespace ethernet
 
 /** \brief represents the underlying protocol and address used by a Face
  *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#FaceUri
@@ -82,7 +86,7 @@ public: // scheme-specific construction
   explicit
   FaceUri(const boost::asio::ip::tcp::endpoint& endpoint);
 
-  /// construct tcp canonical FaceUri with customized scheme
+  /// construct tcp canonical FaceUri with custom scheme
   FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::string& scheme);
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
@@ -176,15 +180,16 @@ public: // canonical FaceUri
   void
   canonize(const CanonizeSuccessCallback& onSuccess,
            const CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, const time::nanoseconds& timeout) const;
+           boost::asio::io_service& io,
+           const time::nanoseconds& timeout) const;
 
 private:
   std::string m_scheme;
   std::string m_host;
-  /// whether to add [] around host when writing string
-  bool m_isV6;
   std::string m_port;
   std::string m_path;
+  /// whether to add [] around host when writing string
+  bool m_isV6;
 
   friend std::ostream& operator<<(std::ostream& os, const FaceUri& uri);
 };
