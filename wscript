@@ -185,7 +185,7 @@ def build(bld):
     if bld.env.enable_shared:
         bld(features=['pch', 'cxx', 'cxxshlib'],
             vnum=VERSION_BASE,
-            cnum=VERSION_BASE,
+            cnum=VERSION_BASE.split('.')[0],
             **libndn_cxx)
 
     if bld.env.enable_static:
