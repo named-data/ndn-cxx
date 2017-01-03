@@ -300,11 +300,18 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
     SigningInfo(SigningInfo::SIGNER_TYPE_ID, id.getName()),
     signingByIdentity(id.getName()),
 
+    SigningInfo(id),
+    signingByIdentity(id),
+
     SigningInfo(SigningInfo::SIGNER_TYPE_KEY, key.getName()),
     signingByKey(key.getName()),
 
+    SigningInfo(key),
+    signingByKey(key),
+
     SigningInfo(SigningInfo::SIGNER_TYPE_CERT, cert.getName()),
     signingByCertificate(cert.getName()),
+    signingByCertificate(cert),
 
     SigningInfo(SigningInfo::SIGNER_TYPE_SHA256),
     signingWithSha256()

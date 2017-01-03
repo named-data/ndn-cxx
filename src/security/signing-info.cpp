@@ -53,6 +53,25 @@ SigningInfo::SigningInfo(SignerType signerType,
   , m_digestAlgorithm(DigestAlgorithm::SHA256)
   , m_info(signatureInfo)
 {
+  BOOST_ASSERT(signerType == SIGNER_TYPE_NULL ||
+               signerType == SIGNER_TYPE_ID ||
+               signerType == SIGNER_TYPE_KEY ||
+               signerType == SIGNER_TYPE_CERT ||
+               signerType == SIGNER_TYPE_SHA256);
+}
+
+SigningInfo::SigningInfo(const Identity& identity)
+  : m_type(SIGNER_TYPE_PIB_ID)
+  , m_identity(identity)
+  , m_digestAlgorithm(DigestAlgorithm::SHA256)
+{
+}
+
+SigningInfo::SigningInfo(const Key& key)
+  : m_type(SIGNER_TYPE_PIB_KEY)
+  , m_key(key)
+  , m_digestAlgorithm(DigestAlgorithm::SHA256)
+{
 }
 
 SigningInfo::SigningInfo(const std::string& signingStr)
@@ -124,6 +143,24 @@ SigningInfo::setSha256Signing()
 }
 
 SigningInfo&
+SigningInfo::setPibIdentity(const Identity& identity)
+{
+  m_type = SIGNER_TYPE_PIB_ID;
+  m_name.clear();
+  m_identity = identity;
+  return *this;
+}
+
+SigningInfo&
+SigningInfo::setPibKey(const Key& key)
+{
+  m_type = SIGNER_TYPE_PIB_KEY;
+  m_name.clear();
+  m_key = key;
+  return *this;
+}
+
+SigningInfo&
 SigningInfo::setSignatureInfo(const SignatureInfo& signatureInfo)
 {
   m_info = signatureInfo;
@@ -137,22 +174,20 @@ operator<<(std::ostream& os, const SigningInfo& si)
     case SigningInfo::SIGNER_TYPE_NULL:
       return os;
     case SigningInfo::SIGNER_TYPE_ID:
-      os << "id:";
-      break;
+      return os << "id:" << si.getSignerName();
     case SigningInfo::SIGNER_TYPE_KEY:
-      os << "key:";
-      break;
+      return os << "key:" << si.getSignerName();
     case SigningInfo::SIGNER_TYPE_CERT:
-      os << "cert:";
-      break;
+      return os << "cert:" << si.getSignerName();
     case SigningInfo::SIGNER_TYPE_SHA256:
-      os << "id:" << SigningInfo::getDigestSha256Identity();
-      return os;
-    default:
-      BOOST_THROW_EXCEPTION(std::invalid_argument("Unknown signer type"));
+      return os << "id:" << SigningInfo::getDigestSha256Identity();
+    case SigningInfo::SIGNER_TYPE_PIB_ID:
+      return os << "id:" << si.getPibIdentity().getName();
+    case SigningInfo::SIGNER_TYPE_PIB_KEY:
+      return os << "key:" << si.getPibKey().getName();
   }
 
-  os << si.getSignerName();
+  BOOST_THROW_EXCEPTION(std::invalid_argument("Unknown signer type"));
   return os;
 }
 

@@ -643,6 +643,18 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
       sigInfo.setSignatureType(tlv::DigestSha256);
       return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
     }
+    case SigningInfo::SIGNER_TYPE_PIB_ID: {
+      identity = params.getPibIdentity();
+      if (!identity)
+        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB Identity is invalid"));
+      break;
+    }
+    case SigningInfo::SIGNER_TYPE_PIB_KEY: {
+      key = params.getPibKey();
+      if (!key)
+        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB Key is invalid"));
+      break;
+    }
     default: {
       BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Unrecognized signer type " +
                                                     boost::lexical_cast<std::string>(params.getSignerType())));

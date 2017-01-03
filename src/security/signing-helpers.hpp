@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,13 @@ namespace security {
  * \return a SigningInfo for signing with an identity
  */
 SigningInfo
-signingByIdentity(const Name& identity);
+signingByIdentity(const Name& identityName);
+
+/**
+ * \return a SigningInfo for signing with an identity
+ */
+SigningInfo
+signingByIdentity(const Identity& identity);
 
 /**
  * \return a SigningInfo for signing with a key
@@ -41,10 +47,22 @@ SigningInfo
 signingByKey(const Name& keyName);
 
 /**
+ * \return a SigningInfo for signing with a key
+ */
+SigningInfo
+signingByKey(const Key& key);
+
+/**
  * \return a SigningInfo for signing with a certificate
  */
 SigningInfo
 signingByCertificate(const Name& certName);
+
+/**
+ * \return a SigningInfo for signing with a certificate
+ */
+SigningInfo
+signingByCertificate(const v2::Certificate& cert);
 
 /**
  * \return a SigningInfo for signing with Sha256

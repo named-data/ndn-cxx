@@ -158,6 +158,8 @@ BOOST_AUTO_TEST_CASE(Chaining)
     .setSigningIdentity("/identity")
     .setSigningKeyName("/key/name")
     .setSigningCertName("/cert/name")
+    .setPibIdentity(Identity())
+    .setPibKey(Key())
     .setSha256Signing()
     .setDigestAlgorithm(DigestAlgorithm::SHA256)
     .setSignatureInfo(SignatureInfo());
