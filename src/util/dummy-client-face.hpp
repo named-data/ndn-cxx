@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,12 +92,20 @@ public:
   DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
                   const Options& options = Options());
 
-  /** \brief cause the Face to receive a packet
-   *  \tparam Packet either Interest or Data
+  /** \brief cause the Face to receive an interest
    */
-  template<typename Packet>
   void
-  receive(const Packet& packet);
+  receive(const Interest& interest);
+
+  /** \brief cause the Face to receive a data
+   */
+  void
+  receive(const Data& data);
+
+  /** \brief cause the Face to receive a nack
+   */
+  void
+  receive(const lp::Nack& nack);
 
 private:
   class Transport;
@@ -162,10 +170,6 @@ private:
   KeyChain& m_keyChain;
   std::function<void(time::milliseconds)> m_processEventsOverride;
 };
-
-template<>
-void
-DummyClientFace::receive(const lp::Nack& nack);
 
 } // namespace util
 } // namespace ndn

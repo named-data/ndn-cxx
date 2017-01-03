@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -217,7 +217,7 @@ DummyClientFace::enableRegistrationReply()
   });
 }
 
-template<typename Packet, typename Field, typename Tag>
+template<typename Field, typename Tag, typename Packet>
 static void
 addFieldFromTag(lp::Packet& lpPacket, const Packet& packet)
 {
@@ -227,36 +227,39 @@ addFieldFromTag(lp::Packet& lpPacket, const Packet& packet)
   }
 }
 
-template<typename Packet>
 void
-DummyClientFace::receive(const Packet& packet)
+DummyClientFace::receive(const Interest& interest)
 {
-  lp::Packet lpPacket(packet.wireEncode());
+  lp::Packet lpPacket(interest.wireEncode());
 
-  addFieldFromTag<Packet, lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, packet);
-  addFieldFromTag<Packet, lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, packet);
-  addFieldFromTag<Packet, lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, packet);
+  addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, interest);
+  addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest);
+  addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, interest);
 
   static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
 }
 
-template void
-DummyClientFace::receive<Interest>(const Interest& packet);
-
-template void
-DummyClientFace::receive<Data>(const Data& packet);
-
-template<>
 void
-DummyClientFace::receive<lp::Nack>(const lp::Nack& nack)
+DummyClientFace::receive(const Data& data)
+{
+  lp::Packet lpPacket(data.wireEncode());
+
+  addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, data);
+  addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, data);
+
+  static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
+}
+
+void
+DummyClientFace::receive(const lp::Nack& nack)
 {
   lp::Packet lpPacket;
   lpPacket.add<lp::NackField>(nack.getHeader());
   Block interest = nack.getInterest().wireEncode();
   lpPacket.add<lp::FragmentField>(make_pair(interest.begin(), interest.end()));
 
-  addFieldFromTag<lp::Nack, lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, nack);
-  addFieldFromTag<lp::Nack, lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
+  addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, nack);
+  addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
 
   static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
 }
