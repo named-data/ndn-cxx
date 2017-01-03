@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
 
 #include "security/key-chain.hpp"
+#include "security/signing-helpers.hpp"
 #include <vector>
 
 #include "boost-test.hpp"
@@ -56,6 +57,18 @@ public:
    */
   bool
   saveIdentityCertificate(const Name& identity, const std::string& filename, bool wantAdd = false);
+
+  /** \brief issue a certificate for \p identity signed by \p issuer
+   *
+   *  If identity does not exist, it is created.
+   *  A new key is generated as the default key for identity.
+   *  A default certificate for the key is signed by the issuer using its default certificate.
+   *
+   *  \return whether success
+   */
+  bool
+  addSubCertificate(const Name& identity, const Name& issuer,
+                    const KeyParams& params = KeyChain::DEFAULT_KEY_PARAMS);
 
 protected:
   KeyChain m_keyChain;

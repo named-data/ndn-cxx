@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,6 +79,34 @@ IdentityManagementFixture::saveIdentityCertificate(const Name& identity,
   catch (const ndn::io::Error&) {
     return false;
   }
+}
+
+bool
+IdentityManagementFixture::addSubCertificate(const Name& identity, const Name& issuer,
+                                             const KeyParams& params)
+{
+  if (!m_keyChain.doesIdentityExist(issuer))
+    return false;
+  if (!m_keyChain.doesIdentityExist(identity)) {
+    addIdentity(identity, params);
+  }
+  Name identityKeyName;
+  try {
+    identityKeyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
+  }
+  catch (const ndn::SecPublicInfo::Error&) {
+    identityKeyName = m_keyChain.generateRsaKeyPairAsDefault(identity, true);
+  }
+  std::vector<ndn::CertificateSubjectDescription> subjectDescription;
+  shared_ptr<ndn::IdentityCertificate> identityCert =
+    m_keyChain.prepareUnsignedIdentityCertificate(identityKeyName,
+                                                  issuer,
+                                                  time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(7300),
+                                                  subjectDescription);
+  m_keyChain.sign(*identityCert, security::signingByIdentity(issuer));
+  m_keyChain.addCertificateAsIdentityDefault(*identityCert);
+  return true;
 }
 
 } // namespace tests
