@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -1096,6 +1096,46 @@ BOOST_AUTO_TEST_CASE(MatchesData)
 
   Interest interest7b("/A/B/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
   BOOST_CHECK_EQUAL(interest7b.matchesData(data7), false); // violates implicit digest
+}
+
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MatchesInterest, 1)
+BOOST_AUTO_TEST_CASE(MatchesInterest)
+{
+  Interest interest;
+  interest
+    .setName("ndn:/A")
+    .setMinSuffixComponents(2)
+    .setMaxSuffixComponents(2)
+    .setPublisherPublicKeyLocator(KeyLocator("ndn:/B"))
+    .setExclude(Exclude().excludeAfter(name::Component("J")))
+    .setNonce(10)
+    .setInterestLifetime(time::seconds(5));
+
+  Link link("/A/LINK", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
+  m_keyChain.sign(link);
+  interest.setLink(link.wireEncode());
+
+  Interest other;
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), false);
+
+  other.setName(interest.getName());
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), false);
+
+  // TODO: will match until #3162 implemented
+  other.setSelectors(interest.getSelectors());
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), false);
+
+  other.setLink(interest.getLink().wireEncode());
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
+
+  other.setNonce(200);
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
+
+  other.setInterestLifetime(time::hours(5));
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
+
+  other.setSelectedDelegation(0);
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 }
 
 BOOST_AUTO_TEST_CASE(InterestFilterMatching)

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -210,6 +210,14 @@ Interest::matchesData(const Data& data) const
   }
 
   return true;
+}
+
+bool
+Interest::matchesInterest(const Interest& other) const
+{
+  /// @todo #3162 match Link field
+  return (this->getName() == other.getName() &&
+          this->getSelectors() == other.getSelectors());
 }
 
 template<encoding::Tag TAG>

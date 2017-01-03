@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,6 +93,35 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
                        bind([&nTimeouts] { ++nTimeouts; }));
   advanceClocks(time::milliseconds(200), 5);
   BOOST_CHECK_EQUAL(nTimeouts, 1);
+}
+
+BOOST_AUTO_TEST_CASE(ExpressMultipleInterestData)
+{
+  size_t nData = 0;
+
+  face.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+                       [&] (const Interest& i, const Data& d) {
+                         ++nData;
+                       },
+                       bind([] { BOOST_FAIL("Unexpected Nack"); }),
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+
+  face.expressInterest(Interest("/Hello/World/a", time::milliseconds(50)),
+                       [&] (const Interest& i, const Data& d) {
+                         ++nData;
+                       },
+                       bind([] { BOOST_FAIL("Unexpected Nack"); }),
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+
+  advanceClocks(time::milliseconds(40));
+
+  face.receive(*makeData("/Hello/World/a/b"));
+
+  advanceClocks(time::milliseconds(50), 2);
+
+  BOOST_CHECK_EQUAL(nData, 2);
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 2);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(ExpressInterestEmptyDataCallback)
@@ -216,6 +245,38 @@ BOOST_AUTO_TEST_CASE(ExpressInterestNack)
 
   BOOST_CHECK_EQUAL(nNacks, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(ExpressMultipleInterestNack)
+{
+  size_t nNacks = 0;
+
+  Interest interest("/Hello/World", time::milliseconds(50));
+  interest.setNonce(1);
+
+  face.expressInterest(interest,
+                       bind([] { BOOST_FAIL("Unexpected Data"); }),
+                       [&] (const Interest& i, const lp::Nack& n) {
+                         ++nNacks;
+                       },
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+
+  interest.setNonce(2);
+  face.expressInterest(interest,
+                       bind([] { BOOST_FAIL("Unexpected Data"); }),
+                       [&] (const Interest& i, const lp::Nack& n) {
+                         ++nNacks;
+                       },
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+
+  advanceClocks(time::milliseconds(40));
+
+  face.receive(makeNack(face.sentInterests.at(1), lp::NackReason::DUPLICATE));
+
+  advanceClocks(time::milliseconds(50), 2);
+
+  BOOST_CHECK_EQUAL(nNacks, 2);
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 2);
 }
 
 BOOST_AUTO_TEST_CASE(ExpressInterestEmptyNackCallback)
