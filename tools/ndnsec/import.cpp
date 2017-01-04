@@ -28,17 +28,14 @@ namespace ndnsec {
 int
 ndnsec_import(int argc, char** argv)
 {
-  using namespace ndn;
   namespace po = boost::program_options;
 
   std::string input("-");
   std::string importPassword;
-  bool isPrivateImport = false;
 
   po::options_description description("General Usage\n  ndnsec import [-h] [-p] input \nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
-    ("private,p", "import info contains private key")
     ("input,i", po::value<std::string>(&input), "input source, stdin if -")
     ;
 
@@ -61,43 +58,32 @@ ndnsec_import(int argc, char** argv)
     return 0;
   }
 
-  if (vm.count("private") != 0)
-    isPrivateImport = true;
+  try {
+    security::v2::KeyChain keyChain;
 
-  if (!isPrivateImport) {
-    std::cerr << "You are trying to import certificate!\n"
-              << "Please use ndnsec cert-install!" << std::endl;
-    return 1;
-  }
-  else {
-    try {
-      security::v1::KeyChain keyChain;
+    shared_ptr<security::SafeBag> safeBag;
+    if (input == "-")
+      safeBag = io::load<security::SafeBag>(std::cin);
+    else
+      safeBag = io::load<security::SafeBag>(input);
 
-      shared_ptr<security::v1::SecuredBag> securedBag;
-      if (input == "-")
-        securedBag = io::load<security::v1::SecuredBag>(std::cin);
-      else
-        securedBag = io::load<security::v1::SecuredBag>(input);
-
-      int count = 3;
-      while (!getPassword(importPassword, "Passphrase for the private key: ")) {
-        count--;
-        if (count <= 0) {
-          std::cerr << "ERROR: Fail to get password" << std::endl;
-          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-          return 1;
-        }
+    int count = 3;
+    while (!getPassword(importPassword, "Passphrase for the private key: ")) {
+      count--;
+      if (count <= 0) {
+        std::cerr << "ERROR: Fail to get password" << std::endl;
+        memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+        return 1;
       }
-      keyChain.importIdentity(*securedBag, importPassword);
-      memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
     }
-    catch (const std::runtime_error& e) {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-      return 1;
-    }
-
+    keyChain.importSafeBag(*safeBag, importPassword.c_str(), importPassword.size());
+    memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
     return 0;
+  }
+  catch (const std::runtime_error& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+    return 1;
   }
 }
 

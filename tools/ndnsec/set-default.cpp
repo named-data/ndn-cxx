@@ -28,21 +28,20 @@ namespace ndnsec {
 int
 ndnsec_set_default(int argc, char** argv)
 {
-  using namespace ndn;
   namespace po = boost::program_options;
 
   std::string certFileName;
   bool isSetDefaultId = true;
   bool isSetDefaultKey = false;
   bool isSetDefaultCert = false;
-  std::string name;
+  Name name;
 
   po::options_description description("General Usage\n  ndnsec set-default [-h] [-k|c] name\nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
-    ("default_key,k", "set default key of the identity")
-    ("default_cert,c", "set default certificate of the key")
-    ("name,n", po::value<std::string>(&name), "the name to set")
+    ("default_key,k", po::bool_switch(&isSetDefaultKey), "set default key of the identity")
+    ("default_cert,c", po::bool_switch(&isSetDefaultCert), "set default certificate of the key")
+    ("name,n", po::value<Name>(&name), "the identity/key/certificate name to set")
     ;
 
   po::positional_options_description p;
@@ -69,30 +68,28 @@ ndnsec_set_default(int argc, char** argv)
     return 1;
   }
 
-  security::v1::KeyChain keyChain;
+  isSetDefaultId = !isSetDefaultKey && !isSetDefaultCert;
 
-  if (vm.count("default_key") != 0) {
-    isSetDefaultKey = true;
-    isSetDefaultId = false;
-  }
-  else if (vm.count("default_cert") != 0) {
-    isSetDefaultCert = true;
-    isSetDefaultId = false;
-  }
+  security::v2::KeyChain keyChain;
 
   if (isSetDefaultId) {
-    Name idName(name);
-    keyChain.setDefaultIdentity(idName);
+    security::Identity identity = keyChain.getPib().getIdentity(name);
+    keyChain.setDefaultIdentity(identity);
     return 0;
   }
+
   if (isSetDefaultKey) {
-    Name keyName(name);
-    keyChain.setDefaultKeyNameForIdentity(keyName);
+    security::Identity identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromKeyName(name));
+    security::Key key = identity.getKey(name);
+    keyChain.setDefaultKey(identity, key);
     return 0;
   }
 
   if (isSetDefaultCert) {
-    keyChain.setDefaultCertificateNameForKey(name);
+    security::Identity identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromCertName(name));
+    security::Key key = identity.getKey(security::v2::extractKeyNameFromCertName(name));
+    security::v2::Certificate cert = key.getCertificate(name);
+    keyChain.setDefaultCertificate(key, cert);
     return 0;
   }
 

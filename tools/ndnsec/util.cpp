@@ -25,11 +25,9 @@ namespace ndn {
 namespace ndnsec {
 
 bool
-getPassword(std::string& password, const std::string& prompt)
+getPassword(std::string& password, const std::string& prompt, bool shouldConfirm)
 {
 #ifdef NDN_CXX_HAVE_GETPASS
-  bool isReady = false;
-
   char* pw0 = nullptr;
 
   pw0 = getpass(prompt.c_str());
@@ -38,12 +36,18 @@ getPassword(std::string& password, const std::string& prompt)
   std::string password1 = pw0;
   memset(pw0, 0, strlen(pw0));
 
+  if (!shouldConfirm) {
+    return true;
+  }
+
   pw0 = getpass("Confirm:");
   if (!pw0) {
     char* pw1 = const_cast<char*>(password1.c_str());
     memset(pw1, 0, password1.size());
     return false;
   }
+
+  bool isReady = false;
 
   if (!password1.compare(pw0)) {
     isReady = true;
@@ -63,13 +67,19 @@ getPassword(std::string& password, const std::string& prompt)
 #endif // NDN_CXX_HAVE_GETPASS
 }
 
-shared_ptr<security::v1::IdentityCertificate>
-getIdentityCertificate(const std::string& fileName)
+security::v2::Certificate
+loadCertificate(const std::string& fileName)
 {
+  shared_ptr<security::v2::Certificate> cert;
   if (fileName == "-")
-    return io::load<security::v1::IdentityCertificate>(std::cin);
+    cert = io::load<security::v2::Certificate>(std::cin);
   else
-    return io::load<security::v1::IdentityCertificate>(fileName);
+    cert = io::load<security::v2::Certificate>(fileName);
+
+  if (cert == nullptr) {
+    BOOST_THROW_EXCEPTION(CannotLoadCertificate(fileName));
+  }
+  return *cert;
 }
 
 } // namespace ndnsec

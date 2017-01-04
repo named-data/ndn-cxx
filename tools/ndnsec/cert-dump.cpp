@@ -124,41 +124,50 @@ ndnsec_cert_dump(int argc, char** argv)
     return 1;
   }
 
-  shared_ptr<security::v1::IdentityCertificate> certificate;
+  security::v2::Certificate certificate;
 
-  security::v1::KeyChain keyChain;
+  security::v2::KeyChain keyChain;
 
-  if (isIdentityName || isKeyName || isCertName) {
-    if (isIdentityName) {
-      Name certName = keyChain.getDefaultCertificateNameForIdentity(name);
-      certificate = keyChain.getCertificate(certName);
+  try {
+    if (isIdentityName || isKeyName || isCertName) {
+      if (isIdentityName) {
+        certificate = keyChain.getPib()
+          .getIdentity(name)
+          .getDefaultKey()
+          .getDefaultCertificate();
+      }
+      else if (isKeyName) {
+        certificate = keyChain.getPib()
+          .getIdentity(security::v2::extractIdentityFromKeyName(name))
+          .getKey(name)
+          .getDefaultCertificate();
+      }
+      else {
+        certificate = keyChain.getPib()
+          .getIdentity(security::v2::extractIdentityFromCertName(name))
+          .getKey(security::v2::extractKeyNameFromCertName(name))
+          .getDefaultCertificate();
+      }
     }
-    else if (isKeyName) {
-      Name certName = keyChain.getDefaultCertificateNameForKey(name);
-      certificate = keyChain.getCertificate(certName);
-    }
-    else
-      certificate = keyChain.getCertificate(name);
-
-    if (certificate == nullptr) {
-      std::cerr << "No certificate found!" << std::endl;
-      return 1;
+    else {
+      certificate = loadCertificate(name);
     }
   }
-  else {
-    certificate = getIdentityCertificate(name);
-    if (certificate == nullptr) {
-      std::cerr << "No certificate read!" << std::endl;
-      return 1;
-    }
+  catch (const security::Pib::Error& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
+  }
+  catch (const CannotLoadCertificate&) {
+    std::cerr << "Cannot load certificate from `" << name << "`" << std::endl;
+    return 1;
   }
 
   if (isPretty) {
-    std::cout << *certificate << std::endl;
+    std::cout << certificate << std::endl;
   }
   else {
     if (isStdOut) {
-      io::save(*certificate, std::cout);
+      io::save(certificate, std::cout);
       return 0;
     }
     if (isRepoOut) {
@@ -170,8 +179,8 @@ ndnsec_cert_dump(int argc, char** argv)
         std::cerr << "fail to open the stream!" << std::endl;
         return 1;
       }
-      request_stream.write(reinterpret_cast<const char*>(certificate->wireEncode().wire()),
-                           certificate->wireEncode().size());
+      request_stream.write(reinterpret_cast<const char*>(certificate.wireEncode().wire()),
+                           certificate.wireEncode().size());
 
       return 0;
     }

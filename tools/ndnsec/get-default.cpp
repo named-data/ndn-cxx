@@ -28,15 +28,14 @@ namespace ndnsec {
 int
 ndnsec_get_default(int argc, char** argv)
 {
-  using namespace ndn;
   namespace po = boost::program_options;
 
   bool isGetDefaultId = true;
   bool isGetDefaultKey = false;
   bool isGetDefaultCert = false;
   bool isQuiet = false;
-  std::string identityString;
-  std::string keyName;
+  Name identityName;
+  Name keyName;
 
   po::options_description description("General Usage\n"
                                       "  ndnsec get-default [-h] [-k|c] [-i identity|-K key] [-q]\n"
@@ -45,8 +44,8 @@ ndnsec_get_default(int argc, char** argv)
     ("help,h", "produce help message")
     ("default_key,k", "get default key")
     ("default_cert,c", "get default certificate")
-    ("identity,i", po::value<std::string>(&identityString), "target identity")
-    ("key,K", po::value<std::string>(&keyName), "target key")
+    ("identity,i", po::value<Name>(&identityName), "target identity")
+    ("key,K", po::value<Name>(&keyName), "target key")
     ("quiet,q", "don't output trailing newline")
     ;
 
@@ -80,53 +79,57 @@ ndnsec_get_default(int argc, char** argv)
     isQuiet = true;
   }
 
-  security::v1::KeyChain keyChain;
+  security::v2::KeyChain keyChain;
 
   if (vm.count("key") != 0) {
-    Name keyNdnName(keyName);
     if (isGetDefaultCert) {
-      std::cout << keyChain.getDefaultCertificateNameForKey(keyNdnName);
-      if (!isQuiet)
+      std::cout << keyChain.getPib()
+        .getIdentity(security::v2::extractIdentityFromKeyName(keyName))
+        .getKey(keyName)
+        .getDefaultCertificate().getName();
+
+      if (!isQuiet) {
         std::cout << std::endl;
+      }
       return 0;
     }
     return 1;
   }
   else if (vm.count("identity") != 0) {
-    Name identity(identityString);
+    security::Key key = keyChain.getPib()
+      .getIdentity(identityName)
+      .getDefaultKey();
 
     if (isGetDefaultKey) {
-      std::cout << keyChain.getDefaultKeyNameForIdentity(identity);
+      std::cout << key.getName();
       if (!isQuiet)
         std::cout << std::endl;
-
       return 0;
     }
     if (isGetDefaultCert) {
-      std::cout << keyChain.getDefaultCertificateNameForIdentity(identity);
+      std::cout << key.getDefaultCertificate().getName();
       if (!isQuiet)
         std::cout << std::endl;
-
       return 0;
     }
     return 1;
   }
   else {
-    Name identity = keyChain.getDefaultIdentity();
+    security::Identity identity = keyChain.getPib().getDefaultIdentity();
     if (isGetDefaultId) {
-      std::cout << identity;
+      std::cout << identity.getName();
       if (!isQuiet)
         std::cout << std::endl;
       return 0;
     }
     if (isGetDefaultKey) {
-      std::cout << keyChain.getDefaultKeyNameForIdentity(identity);
+      std::cout << identity.getDefaultKey().getName();
       if (!isQuiet)
         std::cout << std::endl;
       return 0;
     }
     if (isGetDefaultCert) {
-      std::cout << keyChain.getDefaultCertificateNameForIdentity(identity);
+      std::cout << identity.getDefaultKey().getDefaultCertificate().getName();
       if (!isQuiet)
         std::cout << std::endl;
       return 0;

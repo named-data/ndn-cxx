@@ -21,82 +21,90 @@
 
 #include "ndnsec.hpp"
 #include "util.hpp"
+#include "util/indented-stream.hpp"
 
 namespace ndn {
 namespace ndnsec {
 
-void
-printCertificate(security::v1::KeyChain& keyChain,
-                 const ndn::Name& certName,
-                 bool isDefault,
-                 int verboseLevel)
+class Printer
 {
-  if (isDefault)
-    std::cout << "       +->* ";
-  else
-    std::cout << "       +->  ";
-
-  std::cout << certName << std::endl;
-
-  if (verboseLevel >= 3) {
-    shared_ptr<security::v1::IdentityCertificate> certificate = keyChain.getCertificate(certName);
-    if (certificate != nullptr)
-      certificate->printCertificate(std::cout, "            ");
+public:
+  Printer(int verboseLevel)
+    : m_verboseLevel(verboseLevel)
+  {
   }
-}
 
-void
-printKey(security::v1::KeyChain& keyChain, const ndn::Name& keyName, bool isDefault, int verboseLevel)
-{
-  if (isDefault)
-    std::cout << "  +->* ";
-  else
-    std::cout << "  +->  ";
+  void
+  printIdentity(const security::Identity& identity, bool isDefault)
+  {
+    if (isDefault)
+      std::cout << "* ";
+    else
+      std::cout << "  ";
 
-  std::cout << keyName << std::endl;
+    std::cout << identity.getName() << std::endl;
 
-  if (verboseLevel >= 2) {
-    std::vector<ndn::Name> defaultCertificates;
-    keyChain.getAllCertificateNamesOfKey(keyName, defaultCertificates, true);
+    if (m_verboseLevel >= 1) {
+      security::Key defaultKey;
+      try {
+        defaultKey = identity.getDefaultKey();
+      }
+      catch (const security::Pib::Error&) {
+        // no default key
+      }
 
-    for (const auto& certName : defaultCertificates)
-      printCertificate(keyChain, certName, true, verboseLevel);
+      for (const auto& key : identity.getKeys()) {
+        printKey(key, key == defaultKey);
+      }
 
-    std::vector<ndn::Name> otherCertificates;
-    keyChain.getAllCertificateNamesOfKey(keyName, otherCertificates, false);
-    for (const auto& certName : otherCertificates)
-      printCertificate(keyChain, certName, false, verboseLevel);
-  }
-}
-
-void
-printIdentity(security::v1::KeyChain& keyChain,
-              const ndn::Name& identity,
-              bool isDefault,
-              int verboseLevel)
-{
-  if (isDefault)
-    std::cout << "* ";
-  else
-    std::cout << "  ";
-
-  std::cout << identity << std::endl;
-
-  if (verboseLevel >= 1) {
-    std::vector<ndn::Name> defaultKeys;
-    keyChain.getAllKeyNamesOfIdentity(identity, defaultKeys, true);
-    for (const auto& keyName : defaultKeys)
-      printKey(keyChain, keyName, true, verboseLevel);
-
-    std::vector<ndn::Name> otherKeys;
-    keyChain.getAllKeyNamesOfIdentity(identity, otherKeys, false);
-    for (const auto& keyName : otherKeys) {
-      printKey(keyChain, keyName, false, verboseLevel);
+      std::cout << std::endl;
     }
-
-    std::cout << std::endl;
   }
-}
+
+  void
+  printKey(const security::Key& key, bool isDefault)
+  {
+    if (isDefault)
+      std::cout << "  +->* ";
+    else
+      std::cout << "  +->  ";
+
+    std::cout << key.getName() << std::endl;
+
+    if (m_verboseLevel >= 2) {
+      security::v2::Certificate defaultCert;
+      try {
+        defaultCert = key.getDefaultCertificate();
+      }
+      catch (const security::Pib::Error&) {
+        // no default certificate
+      }
+
+      for (const auto& cert : key.getCertificates()) {
+        printCertificate(cert, cert == defaultCert);
+      }
+    }
+  }
+
+  void
+  printCertificate(const security::v2::Certificate& cert, bool isDefault)
+  {
+    if (isDefault)
+      std::cout << "       +->* ";
+    else
+      std::cout << "       +->  ";
+
+    std::cout << cert.getName() << std::endl;
+
+    if (m_verboseLevel >= 3) {
+      util::IndentedStream os(std::cout, "            ");
+      os << cert;
+    }
+  }
+
+private:
+  int m_verboseLevel;
+};
 
 int
 ndnsec_list(int argc, char** argv)
@@ -118,17 +126,9 @@ ndnsec_list(int argc, char** argv)
                   "verbose mode: -v is equivalent to -k, -vv is equivalent to -c")
     ;
 
-  po::options_description oldOptions;
-  oldOptions.add_options()
-    ("key2,K",         "granularity: key")
-    ("cert2,C",        "granularity: certificate");
-
-  po::options_description allOptions;
-  allOptions.add(options).add(oldOptions);
-
   po::variables_map vm;
   try {
-    po::store(po::parse_command_line(argc, argv, allOptions), vm);
+    po::store(po::parse_command_line(argc, argv, options), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
@@ -144,25 +144,26 @@ ndnsec_list(int argc, char** argv)
   }
 
   int tmpVerboseLevel = 0;
-  if (vm.count("cert") != 0 || vm.count("cert2") != 0)
+  if (vm.count("cert") != 0)
     tmpVerboseLevel = 2;
-  else if (vm.count("key") != 0 || vm.count("key2") != 0)
+  else if (vm.count("key") != 0)
     tmpVerboseLevel = 1;
 
   verboseLevel = std::max(verboseLevel, tmpVerboseLevel);
 
-  security::v1::KeyChain keyChain;
+  security::v2::KeyChain keyChain;
+  Printer printer(verboseLevel);
 
-  std::vector<Name> defaultIdentities;
-  keyChain.getAllIdentities(defaultIdentities, true);
-  for (const auto& identity : defaultIdentities) {
-    printIdentity(keyChain, identity, true, verboseLevel);
+  // TODO add API to check for default identity (may be from the identity itself)
+  security::Identity defaultIdentity;
+  try {
+    keyChain.getPib().getDefaultIdentity();
   }
-
-  std::vector<Name> otherIdentities;
-  keyChain.getAllIdentities(otherIdentities, false);
-  for (const auto& identity : otherIdentities) {
-    printIdentity(keyChain, identity, false, verboseLevel);
+  catch (const security::Pib::Error&) {
+    // no default identity
+  }
+  for (const auto& identity : keyChain.getPib().getIdentities()) {
+    printer.printIdentity(identity, identity == defaultIdentity);
   }
 
   return 0;

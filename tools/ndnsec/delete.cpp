@@ -28,7 +28,6 @@ namespace ndnsec {
 int
 ndnsec_delete(int argc, char** argv)
 {
-  using namespace ndn;
   namespace po = boost::program_options;
 
   bool isDeleteKey = false;
@@ -41,9 +40,7 @@ ndnsec_delete(int argc, char** argv)
   description.add_options()
     ("help,h", "produce help message")
     ("delete-key,k", "(Optional) delete a key if specified.")
-    ("delete-key2,K", "(Optional) delete a key if specified.")
     ("delete-cert,c", "(Optional) delete a certificate if specified.")
-    ("delete-cert2,C", "(Optional) delete a certificate if specified.")
     ("name,n", po::value<std::string>(&name), "By default, it refers to an identity."
      "If -k is specified, it refers to a key."
      "If -c is specified, it refers to a certificate.");
@@ -74,52 +71,45 @@ ndnsec_delete(int argc, char** argv)
     return 2;
   }
 
-  if (vm.count("delete-cert") != 0 || vm.count("delete-cert2") != 0)
+  if (vm.count("delete-cert") != 0) {
     isDeleteCert = true;
-
-  else if (vm.count("delete-key") != 0 || vm.count("delete-key2") != 0)
+  }
+  else if (vm.count("delete-key") != 0) {
     isDeleteKey = true;
+  }
 
-  security::v1::KeyChain keyChain;
+  security::v2::KeyChain keyChain;
 
   try {
     if (isDeleteCert) {
-      if (!keyChain.doesCertificateExist(name)) {
-        std::cerr << "ERROR: Certificate does not exist: " << name << std::endl;
-        return 1;
-      }
+      security::Key key = keyChain.getPib()
+        .getIdentity(security::v2::extractIdentityFromCertName(name))
+        .getKey(security::v2::extractKeyNameFromCertName(name));
 
-      keyChain.deleteCertificate(name);
+      keyChain.deleteCertificate(key, key.getCertificate(name).getName());
       std::cerr << "OK: Delete certificate: " << name << std::endl;
     }
     else if (isDeleteKey) {
-      if (!keyChain.doesPublicKeyExist(name) && !keyChain.doesKeyExistInTpm(name, KeyClass::PRIVATE)) {
-        std::cerr << "ERROR: Key does not exist: " << name << std::endl;
-        return 1;
-      }
+      security::Identity identity = keyChain.getPib()
+        .getIdentity(security::v2::extractIdentityFromKeyName(name));
 
-      keyChain.deleteKey(name);
+      keyChain.deleteKey(identity, identity.getKey(name));
       std::cerr << "OK: Delete key: " << name << std::endl;
     }
     else {
-      if (!keyChain.doesIdentityExist(name)) {
-        std::cerr << "ERROR: Identity does not exist: " << name << std::endl;
-        return 1;
-      }
-
-      keyChain.deleteIdentity(name);
+      keyChain.deleteIdentity(keyChain.getPib().getIdentity(name));
       std::cerr << "OK: Delete identity: " << name << std::endl;
     }
   }
-  catch (const security::v1::SecPublicInfo::Error& e) {
+  catch (const security::Pib::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
     return 2;
   }
-  catch (const security::v1::SecTpm::Error& e) {
+  catch (const security::Tpm::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
     return 2;
   }
-  catch (const security::v1::KeyChain::Error& e) {
+  catch (const security::v2::KeyChain::Error& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     return 2;
   }

@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-cert-gen [-h] [-S timestamp] [-E timestamp] [-N name] [-I info] [-s sign-id] [-p cert-prefix] request
+    $ ndnsec-cert-gen [-h] [-S timestamp] [-E timestamp] [-I info] [-s sign-id] [-i issuer-id] request
 
 Description
 -----------
@@ -24,7 +24,6 @@ then signing request will be read from standard input.
 
 The generated certificate will be written to standard output in base64 encoding.
 
-
 Options
 -------
 
@@ -34,25 +33,20 @@ Options
 ``-E timestamp``
   Timestamp when the certificate expires. The default value is one year from now.
 
-``-N name``
-  Name of the certificate owner.
-
 ``-I info``
-  Other information about the certificate owner. ``subject-info`` is a list of pairs of OID and
-  corresponding value. For example, "2.5.4.10 'Some Organization' 2.5.4.3 'http://home.page/'".
+  Other information to be included in the issued certificate.  For example,
+
+   ::
+
+      -I "affiliation Some Organization" -I "homepage http://home.page/"
 
 ``-s sign-id``
   Signing identity. The default key/certificate of ``sign-id`` will be used to sign the requested
   certificate. If this option is not specified, the system default identity will be used.
 
-``-p cert-prefix``
-  The certificate prefix, which is the part of certificate name before ``KEY`` component.
-
-  By default, the certificate prefix will be inferred from the certificate name according
-  to the relation between the signing identity and the subject identity. If the signing
-  identity is a prefix of the subject identity, ``KEY`` will be inserted after the
-  signingIdentity, otherwise ``KEY`` is inserted after subject identity (i.e., before
-  ``ksk-....``).
+``-s issuer-id``
+  Issuer's ID to be included as part of the issued certificate name.  If not specified, "NA"
+  value will be used
 
 Examples
 --------

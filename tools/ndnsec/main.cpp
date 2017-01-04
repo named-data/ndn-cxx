@@ -22,24 +22,26 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 #include "version.hpp"
+#include "util/logger.hpp"
 
-std::string ndnsec_helper = R"STR(
+#include <boost/exception/get_error_info.hpp>
+
+NDN_LOG_INIT(ndnsec);
+
+std::string ndnsec_helper = R"STR(\
   help         Show all commands
   version      Show version and exit
   list         Display information in PublicInfo
   get-default  Get default setting info
   set-default  Configure default setting
   key-gen      Generate a Key-Signing-Key for an identity
-  dsk-gen      Generate a Data-Signing-Key for an identity
   sign-req     Generate a certificate signing request
   cert-gen     Generate an identity certificate
-  cert-revoke  Revoke an identity certificate
   cert-dump    Dump a certificate from PublicInfo
   cert-install Install a certificate into PublicInfo
   delete       Delete identity/key/certificate
   export       Export an identity package
   import       Import an identity package
-  set-acl      Configure ACL of a private key
   unlock-tpm   Unlock Tpm
 )STR";
 
@@ -61,24 +63,35 @@ main(int argc, char** argv)
     else if (command == "get-default")  { return ndnsec_get_default(argc - 1, argv + 1); }
     else if (command == "set-default")  { return ndnsec_set_default(argc - 1, argv + 1); }
     else if (command == "key-gen")      { return ndnsec_key_gen(argc - 1, argv + 1); }
-    else if (command == "dsk-gen")      { return ndnsec_dsk_gen(argc - 1, argv + 1); }
     else if (command == "sign-req")     { return ndnsec_sign_req(argc - 1, argv + 1); }
     else if (command == "cert-gen")     { return ndnsec_cert_gen(argc - 1, argv + 1); }
-    else if (command == "cert-revoke")  { return ndnsec_cert_revoke(argc - 1, argv + 1); }
     else if (command == "cert-dump")    { return ndnsec_cert_dump(argc - 1, argv + 1); }
     else if (command == "cert-install") { return ndnsec_cert_install(argc - 1, argv + 1); }
     else if (command == "delete")       { return ndnsec_delete(argc - 1, argv + 1); }
     else if (command == "export")       { return ndnsec_export(argc - 1, argv + 1); }
     else if (command == "import")       { return ndnsec_import(argc - 1, argv + 1); }
-    else if (command == "set-acl")      { return ndnsec_set_acl(argc - 1, argv + 1); }
     else if (command == "unlock-tpm")   { return ndnsec_unlock_tpm(argc - 1, argv + 1); }
     else {
       std::cerr << ndnsec_helper << std::endl;
       return 1;
     }
   }
-  catch (const std::runtime_error& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
+  catch (const std::exception& e) {
+
+    std::cerr << "ERROR: " << e.what();
+
+    std::ostringstream extendedError;
+    const char* const* file = boost::get_error_info<boost::throw_file>(e);
+    const int* line = boost::get_error_info<boost::throw_line>(e);
+    const char* const* func = boost::get_error_info<boost::throw_function>(e);
+    if (file && line) {
+      extendedError << " [from " << *file << ":" << *line;
+      if (func) {
+        extendedError << " in " << *func;
+      }
+      extendedError << "]";
+    }
+    NDN_LOG_ERROR(e.what() << extendedError.str());
     return 1;
   }
 

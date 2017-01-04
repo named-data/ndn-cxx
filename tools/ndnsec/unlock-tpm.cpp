@@ -29,7 +29,6 @@ int
 ndnsec_unlock_tpm(int argc, char** argv)
 {
 #ifdef NDN_CXX_HAVE_GETPASS
-  using namespace ndn;
   namespace po = boost::program_options;
 
   std::string keyName;
@@ -56,11 +55,11 @@ ndnsec_unlock_tpm(int argc, char** argv)
 
   bool isUnlocked = false;
 
-  security::v1::KeyChain keyChain;
+  security::v2::KeyChain keyChain;
 
   char* password;
   password = getpass("Password to unlock the TPM: ");
-  isUnlocked = keyChain.unlockTpm(password, strlen(password), true);
+  isUnlocked = keyChain.getTpm().unlockTpm(password, strlen(password));
   memset(password, 0, strlen(password));
 
   if (isUnlocked) {

@@ -43,14 +43,14 @@ Examples
 Dump a certificate from PIB to standard output:
 ::
 
-    $ ndnsec-cert-dump /ndn/test/KEY/david/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
+    $ ndnsec-cert-dump /ndn/test/david/KEY/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
 
 Dump a certificate to a human-readable format:
 ::
 
-    $ ndnsec-cert-dump -p /ndn/test/KEY/david/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
+    $ ndnsec-cert-dump -p /ndn/test/david/KEY/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
     Certificate name:
-      /ndn/test/KEY/david/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
+      /ndn/test/david/KEY/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
     Validity:
       NotBefore: 20140401T000000
       NotAfter: 20150331T235959

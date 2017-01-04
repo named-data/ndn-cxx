@@ -25,8 +25,8 @@ Options
 ``-n``
   Do not set the identity as the system default identity.
 
-``-d``
-  Generate Data-Signing-Key (DSK) instead of the default Key-Signing-Key (KSK).
+  Note that if it is the first identity/key/certificate, then it will be
+  set as default regardless of ``-n`` flag.
 
 ``-t keyType``
   Specify the key type. ``r`` (default) for RSA key. ``e`` for ECDSA key.

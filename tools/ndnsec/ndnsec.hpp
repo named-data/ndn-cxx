@@ -25,6 +25,8 @@
 namespace ndn {
 namespace ndnsec {
 
+// TODO convert to tool registry (may be)
+
 int
 ndnsec_list(int argc, char** argv);
 
@@ -38,16 +40,10 @@ int
 ndnsec_key_gen(int argc, char** argv);
 
 int
-ndnsec_dsk_gen(int argc, char** argv);
-
-int
 ndnsec_sign_req(int argc, char** argv);
 
 int
 ndnsec_cert_gen(int argc, char** argv);
-
-int
-ndnsec_cert_revoke(int argc, char** argv);
 
 int
 ndnsec_cert_dump(int argc, char** argv);
@@ -63,9 +59,6 @@ ndnsec_export(int argc, char** argv);
 
 int
 ndnsec_import(int argc, char** argv);
-
-int
-ndnsec_set_acl(int argc, char** argv);
 
 int
 ndnsec_unlock_tpm(int argc, char** argv);
