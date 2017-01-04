@@ -86,13 +86,13 @@ public:
 
 DummyClientFace::DummyClientFace(const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>())
-  , m_internalKeyChain(new KeyChain)
+  , m_internalKeyChain(new security::v1::KeyChain)
   , m_keyChain(*m_internalKeyChain)
 {
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(KeyChain& keyChain,
+DummyClientFace::DummyClientFace(security::v1::KeyChain& keyChain,
                                  const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>(), keyChain)
   , m_keyChain(keyChain)
@@ -103,13 +103,13 @@ DummyClientFace::DummyClientFace(KeyChain& keyChain,
 DummyClientFace::DummyClientFace(boost::asio::io_service& ioService,
                                  const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>(), ioService)
-  , m_internalKeyChain(new KeyChain)
+  , m_internalKeyChain(new security::v1::KeyChain)
   , m_keyChain(*m_internalKeyChain)
 {
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
+DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, security::v1::KeyChain& keyChain,
                                  const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>(), ioService, keyChain)
   , m_keyChain(keyChain)

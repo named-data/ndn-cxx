@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,14 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_SECURED_BAG_HPP
-#define NDN_SECURITY_SECURED_BAG_HPP
+#ifndef NDN_SECURITY_V1_SECURED_BAG_HPP
+#define NDN_SECURITY_V1_SECURED_BAG_HPP
 
-#include "../common.hpp"
-#include "v1/identity-certificate.hpp"
+#include "../../common.hpp"
+#include "identity-certificate.hpp"
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 class SecuredBag
 {
@@ -46,7 +47,7 @@ public:
   explicit
   SecuredBag(const Block& wire);
 
-  SecuredBag(const v1::IdentityCertificate& cert,
+  SecuredBag(const IdentityCertificate& cert,
              ConstBufferPtr key);
 
   virtual
@@ -58,7 +59,7 @@ public:
   const Block&
   wireEncode() const;
 
-  const v1::IdentityCertificate&
+  const IdentityCertificate&
   getCertificate() const
   {
     return m_cert;
@@ -71,16 +72,14 @@ public:
   }
 
 private:
-  v1::IdentityCertificate m_cert;
+  IdentityCertificate m_cert;
   ConstBufferPtr m_key;
 
   mutable Block m_wire;
 };
 
+} // namespace v1
 } // namespace security
-
-using security::SecuredBag;
-
 } // namespace ndn
 
-#endif // NDN_SECURITY_SECURED_BAG_HPP
+#endif // NDN_SECURITY_V1_SECURED_BAG_HPP

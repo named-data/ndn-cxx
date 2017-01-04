@@ -80,7 +80,7 @@ public:
   /** \brief Create a dummy face with internal IO service and the specified KeyChain
    */
   explicit
-  DummyClientFace(KeyChain& keyChain, const Options& options = Options());
+  DummyClientFace(security::v1::KeyChain& keyChain, const Options& options = Options());
 
   /** \brief Create a dummy face with the provided IO service
    */
@@ -89,7 +89,7 @@ public:
 
   /** \brief Create a dummy face with the provided IO service and the specified KeyChain
    */
-  DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
+  DummyClientFace(boost::asio::io_service& ioService, security::v1::KeyChain& keyChain,
                   const Options& options = Options());
 
   /** \brief cause the Face to receive an interest
@@ -166,8 +166,8 @@ public:
   Signal<DummyClientFace, lp::Nack> onSendNack;
 
 private:
-  std::unique_ptr<KeyChain> m_internalKeyChain;
-  KeyChain& m_keyChain;
+  std::unique_ptr<security::v1::KeyChain> m_internalKeyChain;
+  security::v1::KeyChain& m_keyChain;
   std::function<void(time::milliseconds)> m_processEventsOverride;
 };
 

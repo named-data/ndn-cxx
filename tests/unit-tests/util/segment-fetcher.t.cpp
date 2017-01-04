@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,16 +21,15 @@
 
 #include "util/segment-fetcher.hpp"
 #include "security/validator-null.hpp"
-#include "../../dummy-validator.hpp"
+#include "lp/nack-header.hpp"
 #include "data.hpp"
 #include "encoding/block.hpp"
 
 #include "boost-test.hpp"
 #include "util/dummy-client-face.hpp"
-#include "security/key-chain.hpp"
-#include "lp/nack-header.hpp"
 #include "../identity-management-time-fixture.hpp"
 #include "../make-interest-data.hpp"
+#include "../../dummy-validator.hpp"
 
 namespace ndn {
 namespace util {

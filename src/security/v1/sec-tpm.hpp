@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,18 +21,19 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_SECURITY_SEC_TPM_HPP
-#define NDN_SECURITY_SEC_TPM_HPP
+#ifndef NDN_SECURITY_V1_SEC_TPM_HPP
+#define NDN_SECURITY_V1_SEC_TPM_HPP
 
-#include "../common.hpp"
-#include "security-common.hpp"
-#include "../name.hpp"
-#include "../data.hpp"
-#include "key-params.hpp"
-#include "v1/public-key.hpp"
+#include "../../common.hpp"
+#include "../security-common.hpp"
+#include "../../name.hpp"
+#include "../../data.hpp"
+#include "../key-params.hpp"
+#include "public-key.hpp"
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 /**
  * @brief SecTpm is the base class of the TPM classes.
@@ -301,10 +302,18 @@ protected:
   std::string m_location;
 };
 
+} // namespace v1
+
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+using v1::SecTpm;
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES
+
 } // namespace security
 
-using security::SecTpm;
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+using security::v1::SecTpm;
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES
 
 } // namespace ndn
 
-#endif // NDN_SECURITY_SEC_TPM_HPP
+#endif // NDN_SECURITY_V1_SEC_TPM_HPP

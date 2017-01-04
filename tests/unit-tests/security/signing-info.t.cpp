@@ -20,7 +20,6 @@
  */
 
 #include "security/signing-info.hpp"
-#include "security/key-chain.hpp"
 
 #include "boost-test.hpp"
 

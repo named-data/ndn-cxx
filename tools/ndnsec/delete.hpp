@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -82,7 +82,7 @@ ndnsec_delete(int argc, char** argv)
   else if (vm.count("delete-key") != 0 || vm.count("delete-key2") != 0)
     isDeleteKey = true;
 
-  KeyChain keyChain;
+  ndn::security::v1::KeyChain keyChain;
 
   try {
     if (isDeleteCert) {
@@ -114,15 +114,15 @@ ndnsec_delete(int argc, char** argv)
       std::cerr << "OK: Delete identity: " << name << std::endl;
     }
   }
-  catch (const SecPublicInfo::Error& e) {
+  catch (const ndn::security::v1::SecPublicInfo::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
     return 2;
   }
-  catch (const SecTpm::Error& e) {
+  catch (const ndn::security::v1::SecTpm::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
     return 2;
   }
-  catch (const KeyChain::Error& e) {
+  catch (const ndn::security::v1::KeyChain::Error& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     return 2;
   }

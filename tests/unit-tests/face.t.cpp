@@ -21,7 +21,6 @@
 
 #include "face.hpp"
 #include "lp/tags.hpp"
-#include "security/key-chain.hpp"
 #include "transport/tcp-transport.hpp"
 #include "transport/unix-transport.hpp"
 #include "util/dummy-client-face.hpp"

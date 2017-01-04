@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,7 +77,7 @@ ndnsec_dsk_gen(int argc, char** argv)
   shared_ptr<v1::IdentityCertificate> kskCert;
   Name signingCertName;
 
-  KeyChain keyChain;
+  ndn::security::v1::KeyChain keyChain;
 
   try {
     Name defaultCertName = keyChain.getDefaultCertificateNameForIdentity(identityName);

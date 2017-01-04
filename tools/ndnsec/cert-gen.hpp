@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,7 +37,7 @@ ndnsec_cert_gen(int argc, char** argv)
   using namespace ndn::security;
   namespace po = boost::program_options;
 
-  KeyChain keyChain;
+  ndn::security::v1::KeyChain keyChain;
 
   std::string notBeforeStr;
   std::string notAfterStr;
@@ -46,7 +46,7 @@ ndnsec_cert_gen(int argc, char** argv)
   Name signId;
   std::string subjectInfo;
   std::vector<std::string> signedInfo;
-  Name certPrefix = KeyChain::DEFAULT_PREFIX; // to avoid displaying the default value
+  Name certPrefix = ndn::security::v1::KeyChain::DEFAULT_PREFIX; // to avoid displaying the default value
 
   po::options_description description(
     "General Usage\n"

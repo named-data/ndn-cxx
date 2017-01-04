@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,16 +22,17 @@
  * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
-#ifndef NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP
-#define NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP
+#ifndef NDN_SECURITY_V1_SEC_PUBLIC_INFO_SQLITE3_HPP
+#define NDN_SECURITY_V1_SEC_PUBLIC_INFO_SQLITE3_HPP
 
-#include "../common.hpp"
+#include "../../common.hpp"
 #include "sec-public-info.hpp"
 
 struct sqlite3;
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 class SecPublicInfoSqlite3 : public SecPublicInfo
 {
@@ -78,9 +79,9 @@ public:
   doesPublicKeyExist(const Name& keyName);
 
   virtual void
-  addKey(const Name& keyName, const v1::PublicKey& publicKeyDer);
+  addKey(const Name& keyName, const PublicKey& publicKeyDer);
 
-  virtual shared_ptr<v1::PublicKey>
+  virtual shared_ptr<PublicKey>
   getPublicKey(const Name& keyName);
 
   virtual KeyType
@@ -90,9 +91,9 @@ public:
   doesCertificateExist(const Name& certificateName);
 
   virtual void
-  addCertificate(const v1::IdentityCertificate& certificate);
+  addCertificate(const IdentityCertificate& certificate);
 
-  virtual shared_ptr<v1::IdentityCertificate>
+  virtual shared_ptr<IdentityCertificate>
   getCertificate(const Name& certificateName);
 
 
@@ -163,10 +164,8 @@ private:
   sqlite3* m_database;
 };
 
+} // namespace v1
 } // namespace security
-
-using security::SecPublicInfoSqlite3;
-
 } // namespace ndn
 
-#endif // NDN_SECURITY_SEC_PUBLIC_INFO_SQLITE3_HPP
+#endif // NDN_SECURITY_V1_SEC_PUBLIC_INFO_SQLITE3_HPP

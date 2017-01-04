@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,10 +20,12 @@
  */
 
 #include "secured-bag.hpp"
-#include "encoding/tlv-security.hpp"
-#include "util/concepts.hpp"
+#include "../../encoding/tlv-security.hpp"
+#include "../../util/concepts.hpp"
 
 namespace ndn {
+namespace security {
+namespace v1 {
 
 //BOOST_CONCEPT_ASSERT((boost::EqualityComparable<SecuredBag>));
 BOOST_CONCEPT_ASSERT((WireEncodable<SecuredBag>));
@@ -41,7 +43,7 @@ SecuredBag::SecuredBag(const Block& wire)
   this->wireDecode(wire);
 }
 
-SecuredBag::SecuredBag(const v1::IdentityCertificate& cert, ConstBufferPtr key)
+SecuredBag::SecuredBag(const IdentityCertificate& cert, ConstBufferPtr key)
   : m_cert(cert)
   , m_key(key)
   , m_wire(tlv::security::IdentityPackage)
@@ -76,4 +78,6 @@ SecuredBag::wireEncode() const
   return m_wire;
 }
 
+} // namespace v1
+} // namespace security
 } // namespace ndn

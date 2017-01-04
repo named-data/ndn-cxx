@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,6 @@
 #include "detail/face-impl.hpp"
 
 #include "encoding/tlv.hpp"
-#include "security/key-chain.hpp"
 #include "security/signing-helpers.hpp"
 #include "util/time.hpp"
 #include "util/random.hpp"

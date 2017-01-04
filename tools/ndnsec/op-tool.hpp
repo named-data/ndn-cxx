@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -72,7 +72,7 @@ ndnsec_op_tool(int argc, char** argv)
 
   if (command == "sign") // the content to be signed from stdin
     {
-      KeyChain keyChain;
+      ndn::security::v1::KeyChain keyChain;
 
       Buffer dataToSign((std::istreambuf_iterator<char>(std::cin)), std::istreambuf_iterator<char>());
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,11 +22,11 @@
  */
 
 #include "sec-tpm-osx.hpp"
-#include "v1/public-key.hpp"
+#include "public-key.hpp"
 
-#include "../encoding/oid.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "v1/cryptopp.hpp"
+#include "../../encoding/oid.hpp"
+#include "../../encoding/buffer-stream.hpp"
+#include "cryptopp.hpp"
 
 #include <pwd.h>
 #include <unistd.h>
@@ -44,6 +44,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 using std::string;
 
@@ -499,7 +500,7 @@ SecTpmOsx::generateSymmetricKeyInTpm(const Name& keyName, const KeyParams& param
   //   throw Error("Fail to create a symmetric key");
 }
 
-shared_ptr<v1::PublicKey>
+shared_ptr<PublicKey>
 SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
 {
   CFReleaser<SecKeychainItemRef> publicKey = m_impl->getKey(keyName, KeyClass::PUBLIC);
@@ -518,7 +519,7 @@ SecTpmOsx::getPublicKeyFromTpm(const Name& keyName)
     BOOST_THROW_EXCEPTION(Error("Cannot export requested public key from OSX Keychain"));
   }
 
-  shared_ptr<v1::PublicKey> key = make_shared<v1::PublicKey>(CFDataGetBytePtr(exportedKey.get()),
+  shared_ptr<PublicKey> key = make_shared<PublicKey>(CFDataGetBytePtr(exportedKey.get()),
                                                              CFDataGetLength(exportedKey.get()));
   return key;
 }
@@ -541,7 +542,7 @@ SecTpmOsx::exportPrivateKeyPkcs8FromTpmInternal(const Name& keyName, bool needRe
                                 "in OSX Keychain"));
   }
 
-  shared_ptr<v1::PublicKey> publicKey = getPublicKeyFromTpm(keyName);
+  shared_ptr<PublicKey> publicKey = getPublicKeyFromTpm(keyName);
 
   CFReleaser<CFDataRef> exportedKey;
   OSStatus res = SecItemExport(privateKey.get(),
@@ -1139,5 +1140,6 @@ SecTpmOsx::Impl::getDigestSize(DigestAlgorithm digestAlgo)
   }
 }
 
+} // namespace v1
 } // namespace security
 } // namespace ndn

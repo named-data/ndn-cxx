@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,6 @@
 #define NDN_TOOLS_NDNSEC_GET_DEFAULT_HPP
 
 #include "util.hpp"
-
 
 int
 ndnsec_get_default(int argc, char** argv)
@@ -85,7 +84,7 @@ ndnsec_get_default(int argc, char** argv)
       isQuiet = true;
     }
 
-  KeyChain keyChain;
+  ndn::security::v1::KeyChain keyChain;
 
   if (vm.count("key") != 0)
     {

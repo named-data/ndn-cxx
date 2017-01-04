@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,7 +79,7 @@ ndnsec_export(int argc, char** argv)
 
   Name identity(identityStr);
   if (!isPrivateExport) {
-    KeyChain keyChain;
+    ndn::security::v1::KeyChain keyChain;
     shared_ptr<security::v1::IdentityCertificate> cert
       = keyChain.getCertificate(keyChain.getDefaultCertificateNameForIdentity(identity));
 
@@ -93,7 +93,7 @@ ndnsec_export(int argc, char** argv)
   else {
     Block wire;
     try {
-      KeyChain keyChain;
+      ndn::security::v1::KeyChain keyChain;
 
       int count = 3;
       while (!getPassword(exportPassword, "Passphrase for the private key: ")) {
@@ -104,7 +104,7 @@ ndnsec_export(int argc, char** argv)
           return 1;
         }
       }
-      shared_ptr<SecuredBag> securedBag = keyChain.exportIdentity(identity, exportPassword);
+      shared_ptr<ndn::security::v1::SecuredBag> securedBag = keyChain.exportIdentity(identity, exportPassword);
       memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
 
       if (output == "-")

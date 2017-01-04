@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 static const uint8_t DUMMY_CERT[] =
   "Bv0C8Ac4CAVkdW1teQgDa2V5CANLRVkIEWtzay0xNDE4NjAwMzkxMDUwCAdJRC1D"
@@ -67,14 +68,14 @@ static const uint8_t DUMMY_SIGNATURE[] =
 const std::string DummyPublicInfo::SCHEME = "pib-dummy";
 const std::string DummyTpm::SCHEME = "tpm-dummy";
 
-NDN_CXX_KEYCHAIN_REGISTER_PIB(DummyPublicInfo, "pib-dummy", "dummy");
-NDN_CXX_KEYCHAIN_REGISTER_TPM(DummyTpm, "tpm-dummy", "dummy");
+NDN_CXX_V1_KEYCHAIN_REGISTER_PIB(DummyPublicInfo, "pib-dummy", "dummy");
+NDN_CXX_V1_KEYCHAIN_REGISTER_TPM(DummyTpm, "tpm-dummy", "dummy");
 
 typedef DummyPublicInfo DummyPublicInfo2;
 typedef DummyTpm DummyTpm2;
 
-NDN_CXX_KEYCHAIN_REGISTER_PIB(DummyPublicInfo2, "pib-dummy2");
-NDN_CXX_KEYCHAIN_REGISTER_TPM(DummyTpm2, "tpm-dummy2");
+NDN_CXX_V1_KEYCHAIN_REGISTER_PIB(DummyPublicInfo2, "pib-dummy2");
+NDN_CXX_V1_KEYCHAIN_REGISTER_TPM(DummyTpm2, "tpm-dummy2");
 
 DummyPublicInfo::DummyPublicInfo(const std::string& locator)
   : SecPublicInfo(locator)
@@ -389,5 +390,6 @@ DummyTpm::getScheme()
   return DummyTpm::SCHEME;
 }
 
+} // namespace v1
 } // namespace security
 } // namespace ndn

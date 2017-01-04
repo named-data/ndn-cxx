@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/sec-public-info-sqlite3.hpp"
-#include "security/key-chain.hpp"
+#include "security/v1/sec-public-info-sqlite3.hpp"
+#include "security/v1/key-chain.hpp"
 #include "security/v1/cryptopp.hpp"
 #include "encoding/buffer-stream.hpp"
 #include "util/time.hpp"
@@ -32,6 +32,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 namespace tests {
 
 class PibTmpPathFixture
@@ -55,6 +56,7 @@ public:
 };
 
 BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(V1)
 BOOST_AUTO_TEST_SUITE(TestSecPublicInfoSqlite3)
 
 const std::string RSA_DER("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuFoDcNtffwbfFix64fw0\
@@ -145,8 +147,10 @@ BOOST_AUTO_TEST_CASE(KeyTypeNonExistent)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSecPublicInfoSqlite3
+BOOST_AUTO_TEST_SUITE_END() // V1
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace v1
 } // namespace security
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,7 @@
 #include "util.hpp"
 
 void
-printCertificate(ndn::KeyChain& keyChain,
+printCertificate(ndn::security::v1::KeyChain& keyChain,
                  const ndn::Name& certName,
                  bool isDefault,
                  int verboseLevel)
@@ -47,7 +47,7 @@ printCertificate(ndn::KeyChain& keyChain,
 }
 
 void
-printKey(ndn::KeyChain& keyChain,
+printKey(ndn::security::v1::KeyChain& keyChain,
          const ndn::Name& keyName,
          bool isDefault,
          int verboseLevel)
@@ -74,7 +74,7 @@ printKey(ndn::KeyChain& keyChain,
 }
 
 void
-printIdentity(ndn::KeyChain& keyChain,
+printIdentity(ndn::security::v1::KeyChain& keyChain,
               const ndn::Name& identity,
               bool isDefault,
               int verboseLevel)
@@ -154,7 +154,7 @@ ndnsec_list(int argc, char** argv)
 
   verboseLevel = std::max(verboseLevel, tmpVerboseLevel);
 
-  KeyChain keyChain;
+  ndn::security::v1::KeyChain keyChain;
 
   std::vector<Name> defaultIdentities;
   keyChain.getAllIdentities(defaultIdentities, true);

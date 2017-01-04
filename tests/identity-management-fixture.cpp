@@ -60,11 +60,11 @@ bool
 IdentityManagementFixture::saveIdentityCertificate(const Name& identity,
                                                    const std::string& filename, bool wantAdd)
 {
-  shared_ptr<ndn::IdentityCertificate> cert;
+  shared_ptr<security::v1::IdentityCertificate> cert;
   try {
     cert = m_keyChain.getCertificate(m_keyChain.getDefaultCertificateNameForIdentity(identity));
   }
-  catch (const ndn::SecPublicInfo::Error&) {
+  catch (const security::v1::SecPublicInfo::Error&) {
     if (wantAdd && this->addIdentity(identity)) {
       return this->saveIdentityCertificate(identity, filename, false);
     }
@@ -73,10 +73,10 @@ IdentityManagementFixture::saveIdentityCertificate(const Name& identity,
 
   m_certFiles.push_back(filename);
   try {
-    ndn::io::save(*cert, filename);
+    io::save(*cert, filename);
     return true;
   }
-  catch (const ndn::io::Error&) {
+  catch (const io::Error&) {
     return false;
   }
 }
@@ -94,11 +94,11 @@ IdentityManagementFixture::addSubCertificate(const Name& identity, const Name& i
   try {
     identityKeyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
   }
-  catch (const ndn::SecPublicInfo::Error&) {
+  catch (const security::v1::SecPublicInfo::Error&) {
     identityKeyName = m_keyChain.generateRsaKeyPairAsDefault(identity, true);
   }
-  std::vector<ndn::CertificateSubjectDescription> subjectDescription;
-  shared_ptr<ndn::IdentityCertificate> identityCert =
+  std::vector<security::v1::CertificateSubjectDescription> subjectDescription;
+  shared_ptr<security::v1::IdentityCertificate> identityCert =
     m_keyChain.prepareUnsignedIdentityCertificate(identityKeyName,
                                                   issuer,
                                                   time::system_clock::now(),

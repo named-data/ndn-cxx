@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,12 +33,12 @@ ndnsec_cert_revoke(int argc, char** argv)
   using namespace ndn::security;
   namespace po = boost::program_options;
 
-  KeyChain keyChain;
+  ndn::security::v1::KeyChain keyChain;
 
   std::string requestFile("-");
   Name signId = keyChain.getDefaultIdentity();
   bool hasSignId = false;
-  Name certPrefix = KeyChain::DEFAULT_PREFIX;
+  Name certPrefix = ndn::security::v1::KeyChain::DEFAULT_PREFIX;
 
   po::options_description description("General Usage\n  ndnsec cert-revoke [-h] request\n"
                                       "General options");
@@ -108,7 +108,7 @@ ndnsec_cert_revoke(int argc, char** argv)
     }
 
     Name certName;
-    if (certPrefix == KeyChain::DEFAULT_PREFIX) {
+    if (certPrefix == ndn::security::v1::KeyChain::DEFAULT_PREFIX) {
       certName = revokedCertificate->getName().getPrefix(-1);
     }
     else {
@@ -157,7 +157,7 @@ ndnsec_cert_revoke(int argc, char** argv)
     std::cerr << "ERROR: Cannot determine the signing key!" << std::endl;
     return 1;
   }
-  catch (const SecPublicInfo::Error& e) {
+  catch (const v1::SecPublicInfo::Error& e) {
     std::cerr << "ERROR: Incomplete or corrupted PIB (" << e.what() << ")" << std::endl;
     return 1;
   }

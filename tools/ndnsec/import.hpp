@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,13 +79,13 @@ ndnsec_import(int argc, char** argv)
     {
       try
         {
-          KeyChain keyChain;
+          ndn::security::v1::KeyChain keyChain;
 
-          shared_ptr<SecuredBag> securedBag;
+          shared_ptr<ndn::security::v1::SecuredBag> securedBag;
           if (input == "-")
-            securedBag = io::load<SecuredBag>(std::cin);
+            securedBag = io::load<ndn::security::v1::SecuredBag>(std::cin);
           else
-            securedBag = io::load<SecuredBag>(input);
+            securedBag = io::load<ndn::security::v1::SecuredBag>(input);
 
           int count = 3;
           while (!getPassword(importPassword, "Passphrase for the private key: "))

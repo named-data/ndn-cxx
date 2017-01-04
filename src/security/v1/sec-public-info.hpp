@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,16 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_SEC_PUBLIC_INFO_HPP
-#define NDN_SECURITY_SEC_PUBLIC_INFO_HPP
+#ifndef NDN_SECURITY_V1_SEC_PUBLIC_INFO_HPP
+#define NDN_SECURITY_V1_SEC_PUBLIC_INFO_HPP
 
-#include "../name.hpp"
-#include "security-common.hpp"
-#include "v1/public-key.hpp"
-#include "v1/identity-certificate.hpp"
+#include "../../name.hpp"
+#include "../security-common.hpp"
+#include "public-key.hpp"
+#include "identity-certificate.hpp"
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 /**
  * @brief SecPublicInfo is a base class for the storage of public information.
@@ -132,7 +133,7 @@ public:
    */
   DEPRECATED(
   void
-  addPublicKey(const Name& keyName, KeyType keyType, const v1::PublicKey& publicKey));
+  addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey));
 
   /**
    * @brief Add a public key to the identity storage.
@@ -141,7 +142,7 @@ public:
    * @param publicKey Reference to the PublicKey object
    */
   virtual void
-  addKey(const Name& keyName, const v1::PublicKey& publicKey) = 0;
+  addKey(const Name& keyName, const PublicKey& publicKey) = 0;
 
   /**
    * @brief Get shared pointer to PublicKey object from the identity storage
@@ -149,7 +150,7 @@ public:
    * @param keyName The name of the requested public key
    * @throws SecPublicInfo::Error if public key does not exist
    */
-  virtual shared_ptr<v1::PublicKey>
+  virtual shared_ptr<PublicKey>
   getPublicKey(const Name& keyName) = 0;
 
   /**
@@ -180,7 +181,7 @@ public:
    * @param certificate The certificate to be added
    */
   virtual void
-  addCertificate(const v1::IdentityCertificate& certificate) = 0;
+  addCertificate(const IdentityCertificate& certificate) = 0;
 
   /**
    * @brief Get a shared pointer to identity certificate object from the identity storage
@@ -188,7 +189,7 @@ public:
    * @param certificateName The name of the requested certificate
    * @throws SecPublicInfo::Error if the certificate does not exist
    */
-  virtual shared_ptr<v1::IdentityCertificate>
+  virtual shared_ptr<IdentityCertificate>
   getCertificate(const Name& certificateName) = 0;
 
 
@@ -404,7 +405,7 @@ public:
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   void
-  addCertificateAsKeyDefault(const v1::IdentityCertificate& certificate);
+  addCertificateAsKeyDefault(const IdentityCertificate& certificate);
 
   /**
    * @brief Add a certificate into the public key identity storage and set the certificate as the
@@ -414,7 +415,7 @@ public:
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   void
-  addCertificateAsIdentityDefault(const v1::IdentityCertificate& certificate);
+  addCertificateAsIdentityDefault(const IdentityCertificate& certificate);
 
   /**
    * @brief Add a certificate into the public key identity storage and set the certificate as the
@@ -424,24 +425,24 @@ public:
    * @throws SecPublicInfo::Error if the certificate cannot be added (though it is really rare)
    */
   void
-  addCertificateAsSystemDefault(const v1::IdentityCertificate& certificate);
+  addCertificateAsSystemDefault(const IdentityCertificate& certificate);
 
   /**
    * @brief Get cached default certificate of the default identity
    *
-   * @return The certificate which might be empty shared_ptr<v1::IdentityCertificate>()
+   * @return The certificate which might be empty shared_ptr<IdentityCertificate>()
    * @deprecated Use getDefaultCertificate instead
    */
   DEPRECATED(
-  shared_ptr<v1::IdentityCertificate>
+  shared_ptr<IdentityCertificate>
   defaultCertificate());
 
   /**
    * @brief Get cached default certificate of the default identity
    *
-   * @return The certificate which might be empty shared_ptr<v1::IdentityCertificate>()
+   * @return The certificate which might be empty shared_ptr<IdentityCertificate>()
    */
-  shared_ptr<v1::IdentityCertificate>
+  shared_ptr<IdentityCertificate>
   getDefaultCertificate();
 
   /**
@@ -451,14 +452,22 @@ public:
   refreshDefaultCertificate();
 
 protected:
-  shared_ptr<v1::IdentityCertificate> m_defaultCertificate;
+  shared_ptr<IdentityCertificate> m_defaultCertificate;
   std::string m_location;
 };
 
+} // namespace v1
+
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+using v1::SecPublicInfo;
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES
+
 } // namespace security
 
-using security::SecPublicInfo;
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+using security::v1::SecPublicInfo;
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES
 
 } // namespace ndn
 
-#endif // NDN_SECURITY_SEC_PUBLIC_INFO_HPP
+#endif // NDN_SECURITY_V1_SEC_PUBLIC_INFO_HPP

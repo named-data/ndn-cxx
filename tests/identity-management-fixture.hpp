@@ -22,7 +22,7 @@
 #ifndef NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
 #define NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
 
-#include "security/key-chain.hpp"
+#include "security/v1/key-chain.hpp"
 #include "security/signing-helpers.hpp"
 #include <vector>
 
@@ -46,7 +46,7 @@ public:
 
   /// @brief add identity, return true if succeed.
   bool
-  addIdentity(const Name& identity, const KeyParams& params = KeyChain::DEFAULT_KEY_PARAMS);
+  addIdentity(const Name& identity, const KeyParams& params = security::v1::KeyChain::DEFAULT_KEY_PARAMS);
 
   /**
    *  @brief save identity certificate to a file
@@ -68,10 +68,10 @@ public:
    */
   bool
   addSubCertificate(const Name& identity, const Name& issuer,
-                    const KeyParams& params = KeyChain::DEFAULT_KEY_PARAMS);
+                    const KeyParams& params = security::v1::KeyChain::DEFAULT_KEY_PARAMS);
 
 protected:
-  KeyChain m_keyChain;
+  security::v1::KeyChain m_keyChain;
 
 private:
   std::vector<Name> m_identities;

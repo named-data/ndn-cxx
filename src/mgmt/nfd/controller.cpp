@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@ const uint32_t Controller::ERROR_SERVER = 500;
 const uint32_t Controller::ERROR_LBOUND = 400;
 ValidatorNull Controller::s_validatorNull;
 
-Controller::Controller(Face& face, KeyChain& keyChain, Validator& validator)
+Controller::Controller(Face& face, security::v1::KeyChain& keyChain, Validator& validator)
   : m_face(face)
   , m_keyChain(keyChain)
   , m_validator(validator)

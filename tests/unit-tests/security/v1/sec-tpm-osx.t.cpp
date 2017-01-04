@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/sec-tpm-osx.hpp"
+#include "security/v1/sec-tpm-osx.hpp"
 #include "security/v1/cryptopp.hpp"
 #include "util/time.hpp"
 
@@ -30,6 +30,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 namespace tests {
 
 class OsxKeyChainTestFixture
@@ -63,6 +64,7 @@ protected:
 };
 
 BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(V1)
 BOOST_FIXTURE_TEST_SUITE(TestSecTpmOsx, OsxKeyChainTestFixture)
 
 BOOST_AUTO_TEST_CASE(Delete)
@@ -361,8 +363,10 @@ BOOST_AUTO_TEST_CASE(ExportImportEcdsaKey)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSecTpmOsx
+BOOST_AUTO_TEST_SUITE_END() // V1
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace v1
 } // namespace security
 } // namespace ndn

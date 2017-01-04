@@ -22,7 +22,6 @@
 #ifndef NDN_TESTS_KEY_CHAIN_FIXTURE_HPP
 #define NDN_TESTS_KEY_CHAIN_FIXTURE_HPP
 
-#include "security/key-chain.hpp"
 #include "security/v2/key-chain.hpp"
 
 #include "boost-test.hpp"

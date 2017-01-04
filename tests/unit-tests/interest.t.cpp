@@ -24,7 +24,6 @@
 #include "data.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
 #include "security/digest-sha256.hpp"
-#include "security/key-chain.hpp"
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"

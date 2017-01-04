@@ -21,7 +21,7 @@
 
 #include "security/validator-config.hpp"
 
-#include "security/key-chain.hpp"
+#include "security/signing-helpers.hpp"
 #include "util/io.hpp"
 #include "util/scheduler.hpp"
 #include "util/dummy-client-face.hpp"

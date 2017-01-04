@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,8 @@
 #include "util/in-memory-storage-fifo.hpp"
 #include "util/in-memory-storage-lfu.hpp"
 #include "util/in-memory-storage-lru.hpp"
-#include "security/key-chain.hpp"
+#include "util/crypto.hpp"
+#include "security/signature-sha256-with-rsa.hpp"
 
 #include "boost-test.hpp"
 #include "../make-interest-data.hpp"
@@ -273,8 +274,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(DigestCalculation, T, InMemoryStorages)
 {
   shared_ptr<Data> data = makeData("/digest/compute");
 
-  ndn::ConstBufferPtr digest1 = ndn::crypto::computeSha256Digest(data->wireEncode().wire(),
-                                                                 data->wireEncode().size());
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(data->wireEncode().wire(), data->wireEncode().size());
   BOOST_CHECK_EQUAL(digest1->size(), 32);
 
   InMemoryStorageEntry* entry = new InMemoryStorageEntry();
@@ -372,8 +372,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
   shared_ptr<Data> data7 = makeData("/c/c/1");
   ims.insert(*data7);
 
-  ndn::ConstBufferPtr digest1 = ndn::crypto::computeSha256Digest(data->wireEncode().wire(),
-                                                                 data->wireEncode().size());
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(data->wireEncode().wire(), data->wireEncode().size());
 
   Name name("/a");
   ims.erase(name);
@@ -394,8 +393,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
   shared_ptr<Data> data3 = makeData("/z/z/z");
   ims.insert(*data3);
 
-  ndn::ConstBufferPtr digest1 = ndn::crypto::computeSha256Digest(data->wireEncode().wire(),
-                                                                 data->wireEncode().size());
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(data->wireEncode().wire(), data->wireEncode().size());
 
   shared_ptr<Interest> interest = makeInterest("");
   interest->setName(Name(name).appendImplicitSha256Digest(digest1->buf(), digest1->size()));
@@ -486,7 +484,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector, T, InMemoryStorages)
   shared_ptr<Interest> interest = makeInterest(name);
   Name keyName("/somewhere/key");
 
-  ndn::KeyLocator locator(keyName);
+  KeyLocator locator(keyName);
   interest->setPublisherPublicKeyLocator(locator);
 
   shared_ptr<const Data> found = ims.find(*interest);
@@ -504,9 +502,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector2, T, InMemoryStorages)
   shared_ptr<Data> data2 = make_shared<Data>(name2);
 
   Name keyName("/somewhere/key");
-  const ndn::KeyLocator locator(keyName);
+  const KeyLocator locator(keyName);
 
-  ndn::SignatureSha256WithRsa fakeSignature;
+  SignatureSha256WithRsa fakeSignature;
   fakeSignature.setValue(makeEmptyBlock(tlv::SignatureValue));
 
   fakeSignature.setKeyLocator(locator);
@@ -698,7 +696,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEvict, T, InMemoryStoragesLimited)
 
 ///as Find function is implemented at the base case, therefore testing for one derived class is
 ///sufficient for all
-class FindFixture : public ndn::tests::UnitTestTimeFixture
+class FindFixture : public tests::UnitTestTimeFixture
 {
 protected:
   FindFixture()
@@ -930,9 +928,9 @@ BOOST_AUTO_TEST_CASE(DigestExclude)
   Name n2 = insert(2, "ndn:/A");
   insert(3, "ndn:/A/B");
 
-  uint8_t digest00[ndn::crypto::SHA256_DIGEST_SIZE];
+  uint8_t digest00[crypto::SHA256_DIGEST_SIZE];
   std::fill_n(digest00, sizeof(digest00), 0x00);
-  uint8_t digestFF[ndn::crypto::SHA256_DIGEST_SIZE];
+  uint8_t digestFF[crypto::SHA256_DIGEST_SIZE];
   std::fill_n(digestFF, sizeof(digestFF), 0xFF);
 
   Exclude excludeDigest;

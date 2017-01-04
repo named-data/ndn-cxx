@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,13 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_SECURITY_DUMMY_KEYCHAIN_HPP
-#define NDN_TESTS_SECURITY_DUMMY_KEYCHAIN_HPP
+#ifndef NDN_TESTS_SECURITY_V1_DUMMY_KEYCHAIN_HPP
+#define NDN_TESTS_SECURITY_V1_DUMMY_KEYCHAIN_HPP
 
-#include "security/key-chain.hpp"
+#include "security/v1/key-chain.hpp"
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 class DummyPublicInfo : public SecPublicInfo
 {
@@ -197,7 +198,8 @@ public:
   static const std::string SCHEME;
 };
 
+} // namespace v1
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_TESTS_SECURITY_DUMMY_KEYCHAIN_HPP
+#endif // NDN_TESTS_SECURITY_V1_DUMMY_KEYCHAIN_HPP

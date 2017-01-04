@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,15 +23,16 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_SECURITY_SEC_TPM_FILE_HPP
-#define NDN_SECURITY_SEC_TPM_FILE_HPP
+#ifndef NDN_SECURITY_V1_SEC_TPM_FILE_HPP
+#define NDN_SECURITY_V1_SEC_TPM_FILE_HPP
 
-#include "../common.hpp"
+#include "../../common.hpp"
 
 #include "sec-tpm.hpp"
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 class SecTpmFile : public SecTpm
 {
@@ -92,7 +93,7 @@ public:
   virtual void
   deleteKeyPairInTpm(const Name& keyName);
 
-  virtual shared_ptr<v1::PublicKey>
+  virtual shared_ptr<PublicKey>
   getPublicKeyFromTpm(const Name&  keyName);
 
   virtual Block
@@ -144,10 +145,8 @@ private:
   bool m_inTerminal;
 };
 
+} // namespace v1
 } // namespace security
-
-using security::SecTpmFile;
-
 } // namespace ndn
 
-#endif  // NDN_SECURITY_SEC_TPM_FILE_HPP
+#endif // NDN_SECURITY_V1_SEC_TPM_FILE_HPP

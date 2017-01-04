@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 SecPublicInfo::SecPublicInfo(const std::string& location)
   : m_location(location)
@@ -40,7 +41,7 @@ SecPublicInfo::getPibLocator()
 }
 
 void
-SecPublicInfo::addPublicKey(const Name& keyName, KeyType keyType, const v1::PublicKey& publicKey)
+SecPublicInfo::addPublicKey(const Name& keyName, KeyType keyType, const PublicKey& publicKey)
 {
   addKey(keyName, publicKey);
 }
@@ -105,7 +106,7 @@ SecPublicInfo::getNewKeyName(const Name& identityName, bool useKsk)
 }
 
 void
-SecPublicInfo::addCertificateAsKeyDefault(const v1::IdentityCertificate& certificate)
+SecPublicInfo::addCertificateAsKeyDefault(const IdentityCertificate& certificate)
 {
   addCertificate(certificate);
   setDefaultCertificateNameForKeyInternal(certificate.getName());
@@ -113,35 +114,35 @@ SecPublicInfo::addCertificateAsKeyDefault(const v1::IdentityCertificate& certifi
 }
 
 void
-SecPublicInfo::addCertificateAsIdentityDefault(const v1::IdentityCertificate& certificate)
+SecPublicInfo::addCertificateAsIdentityDefault(const IdentityCertificate& certificate)
 {
   addCertificate(certificate);
   Name certName = certificate.getName();
-  Name keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(certName);
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certName);
   setDefaultKeyNameForIdentityInternal(keyName);
   setDefaultCertificateNameForKeyInternal(certName);
   refreshDefaultCertificate();
 }
 
 void
-SecPublicInfo::addCertificateAsSystemDefault(const v1::IdentityCertificate& certificate)
+SecPublicInfo::addCertificateAsSystemDefault(const IdentityCertificate& certificate)
 {
   addCertificate(certificate);
   Name certName = certificate.getName();
-  Name keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(certName);
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certName);
   setDefaultIdentityInternal(keyName.getPrefix(-1));
   setDefaultKeyNameForIdentityInternal(keyName);
   setDefaultCertificateNameForKeyInternal(certName);
   refreshDefaultCertificate();
 }
 
-shared_ptr<v1::IdentityCertificate>
+shared_ptr<IdentityCertificate>
 SecPublicInfo::defaultCertificate()
 {
   return getDefaultCertificate();
 }
 
-shared_ptr<v1::IdentityCertificate>
+shared_ptr<IdentityCertificate>
 SecPublicInfo::getDefaultCertificate()
 {
   return m_defaultCertificate;
@@ -159,5 +160,6 @@ SecPublicInfo::refreshDefaultCertificate()
   }
 }
 
+} // namespace v1
 } // namespace security
 } // namespace ndn

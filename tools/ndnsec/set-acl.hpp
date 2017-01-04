@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,7 +79,7 @@ ndnsec_set_acl(int argc, char** argv)
       return 1;
     }
 
-  KeyChain keyChain;
+  ndn::security::v1::KeyChain keyChain;
   keyChain.addAppToAcl(keyName, KeyClass::PRIVATE, appPath, AclType::PRIVATE);
 
   return 0;

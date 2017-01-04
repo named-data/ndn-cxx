@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,13 +23,14 @@
 
 #include "sec-tpm.hpp"
 
-#include "../encoding/oid.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "v1/cryptopp.hpp"
+#include "../../encoding/oid.hpp"
+#include "../../encoding/buffer-stream.hpp"
+#include "cryptopp.hpp"
 #include <unistd.h>
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 SecTpm::SecTpm(const std::string& location)
   : m_location(location)
@@ -381,5 +382,6 @@ SecTpm::getImpExpPassWord(std::string& password, const std::string& prompt)
   return isInitialized;
 }
 
+} // namespace v1
 } // namespace security
 } // namespace ndn

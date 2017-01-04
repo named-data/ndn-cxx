@@ -22,10 +22,10 @@
  */
 
 #include "key-chain.hpp"
-#include "signing-helpers.hpp"
+#include "../signing-helpers.hpp"
 
-#include "../util/random.hpp"
-#include "../util/config-file.hpp"
+#include "../../util/random.hpp"
+#include "../../util/config-file.hpp"
 
 #include "sec-public-info-sqlite3.hpp"
 
@@ -37,6 +37,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 // Use a GUID as a magic number of KeyChain::DEFAULT_PREFIX identifier
 const Name KeyChain::DEFAULT_PREFIX("/723821fd-f534-44b3-80d9-44bf5f58bbbb");
@@ -60,13 +61,13 @@ const std::string DEFAULT_TPM_SCHEME = "tpm-file";
 // http://stackoverflow.com/q/9459980/2150331
 //
 // Also, cannot use Type::SCHEME, as its value may be uninitialized
-NDN_CXX_KEYCHAIN_REGISTER_PIB(SecPublicInfoSqlite3, "pib-sqlite3", "sqlite3");
+NDN_CXX_V1_KEYCHAIN_REGISTER_PIB(SecPublicInfoSqlite3, "pib-sqlite3", "sqlite3");
 
 #ifdef NDN_CXX_HAVE_OSX_SECURITY
-NDN_CXX_KEYCHAIN_REGISTER_TPM(SecTpmOsx, "tpm-osxkeychain", "osx-keychain");
+NDN_CXX_V1_KEYCHAIN_REGISTER_TPM(SecTpmOsx, "tpm-osxkeychain", "osx-keychain");
 #endif // NDN_CXX_HAVE_OSX_SECURITY
 
-NDN_CXX_KEYCHAIN_REGISTER_TPM(SecTpmFile, "tpm-file", "file");
+NDN_CXX_V1_KEYCHAIN_REGISTER_TPM(SecTpmFile, "tpm-file", "file");
 
 template<class T>
 struct Factory
@@ -297,7 +298,7 @@ KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
   try {
     keyName = m_pib->getDefaultKeyNameForIdentity(identityName);
 
-    shared_ptr<v1::PublicKey> key = m_pib->getPublicKey(keyName);
+    shared_ptr<PublicKey> key = m_pib->getPublicKey(keyName);
 
     if (key->getKeyType() != params.getKeyType()) {
       keyName = generateKeyPair(identityName, true, params);
@@ -314,7 +315,7 @@ KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
     certName = m_pib->getDefaultCertificateNameForKey(keyName);
   }
   catch (const SecPublicInfo::Error& e) {
-    shared_ptr<v1::IdentityCertificate> selfCert = selfSign(keyName);
+    shared_ptr<IdentityCertificate> selfCert = selfSign(keyName);
     m_pib->addCertificateAsIdentityDefault(*selfCert);
     certName = selfCert->getName();
   }
@@ -361,15 +362,15 @@ KeyChain::generateEcdsaKeyPairAsDefault(const Name& identityName, bool isKsk, ui
 }
 
 
-shared_ptr<v1::IdentityCertificate>
+shared_ptr<IdentityCertificate>
 KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
   const Name& signingIdentity,
   const time::system_clock::TimePoint& notBefore,
   const time::system_clock::TimePoint& notAfter,
-  const std::vector<v1::CertificateSubjectDescription>& subjectDescription,
+  const std::vector<CertificateSubjectDescription>& subjectDescription,
   const Name& certPrefix)
 {
-  shared_ptr<v1::PublicKey> publicKey;
+  shared_ptr<PublicKey> publicKey;
   try {
     publicKey = m_pib->getPublicKey(keyName);
   }
@@ -382,13 +383,13 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
                                             subjectDescription, certPrefix);
 }
 
-shared_ptr<v1::IdentityCertificate>
+shared_ptr<IdentityCertificate>
 KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
-  const v1::PublicKey& publicKey,
+  const PublicKey& publicKey,
   const Name& signingIdentity,
   const time::system_clock::TimePoint& notBefore,
   const time::system_clock::TimePoint& notAfter,
-  const std::vector<v1::CertificateSubjectDescription>& subjectDescription,
+  const std::vector<CertificateSubjectDescription>& subjectDescription,
   const Name& certPrefix)
 {
   if (keyName.size() < 1)
@@ -427,19 +428,19 @@ KeyChain::prepareUnsignedIdentityCertificate(const Name& keyName,
       return nullptr;
   }
 
-  auto certificate = make_shared<v1::IdentityCertificate>();
+  auto certificate = make_shared<IdentityCertificate>();
   certificate->setName(certName);
   certificate->setNotBefore(notBefore);
   certificate->setNotAfter(notAfter);
   certificate->setPublicKeyInfo(publicKey);
 
   if (subjectDescription.empty()) {
-    v1::CertificateSubjectDescription subjectName(oid::ATTRIBUTE_NAME, keyName.getPrefix(-1).toUri());
+    CertificateSubjectDescription subjectName(oid::ATTRIBUTE_NAME, keyName.getPrefix(-1).toUri());
     certificate->addSubjectDescription(subjectName);
   }
   else {
-    std::vector<v1::CertificateSubjectDescription>::const_iterator sdIt = subjectDescription.begin();
-    std::vector<v1::CertificateSubjectDescription>::const_iterator sdEnd = subjectDescription.end();
+    std::vector<CertificateSubjectDescription>::const_iterator sdIt = subjectDescription.begin();
+    std::vector<CertificateSubjectDescription>::const_iterator sdEnd = subjectDescription.end();
     for(; sdIt != sdEnd; sdIt++)
       certificate->addSubjectDescription(*sdIt);
   }
@@ -454,7 +455,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
 {
   SignatureInfo sigInfo = params.getSignatureInfo();
 
-  shared_ptr<v1::IdentityCertificate> signingCert;
+  shared_ptr<IdentityCertificate> signingCert;
 
   switch (params.getSignerType()) {
     case SigningInfo::SIGNER_TYPE_NULL: {
@@ -536,7 +537,7 @@ KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& pa
 Signature
 KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certificateName)
 {
-  shared_ptr<v1::IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
+  shared_ptr<IdentityCertificate> certificate = m_pib->getCertificate(certificateName);
 
   if (certificate == nullptr) {
     BOOST_THROW_EXCEPTION(SecPublicInfo::Error("certificate does not exist"));
@@ -552,10 +553,10 @@ KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const Name& certifica
   return sig;
 }
 
-shared_ptr<v1::IdentityCertificate>
+shared_ptr<IdentityCertificate>
 KeyChain::selfSign(const Name& keyName)
 {
-  shared_ptr<v1::PublicKey> pubKey;
+  shared_ptr<PublicKey> pubKey;
   try {
     pubKey = m_pib->getPublicKey(keyName); // may throw an exception.
   }
@@ -563,7 +564,7 @@ KeyChain::selfSign(const Name& keyName)
     return nullptr;
   }
 
-  auto certificate = make_shared<v1::IdentityCertificate>();
+  auto certificate = make_shared<IdentityCertificate>();
 
   Name certificateName = keyName.getPrefix(-1);
   certificateName.append("KEY").append(keyName.get(-1)).append("ID-CERT").appendVersion();
@@ -572,7 +573,7 @@ KeyChain::selfSign(const Name& keyName)
   certificate->setNotBefore(time::system_clock::now());
   certificate->setNotAfter(time::system_clock::now() + time::days(7300)); // ~20 years
   certificate->setPublicKeyInfo(*pubKey);
-  certificate->addSubjectDescription(v1::CertificateSubjectDescription(oid::ATTRIBUTE_NAME,
+  certificate->addSubjectDescription(CertificateSubjectDescription(oid::ATTRIBUTE_NAME,
                                                                        keyName.toUri()));
   certificate->encode();
 
@@ -583,7 +584,7 @@ KeyChain::selfSign(const Name& keyName)
 }
 
 void
-KeyChain::selfSign(v1::IdentityCertificate& cert)
+KeyChain::selfSign(IdentityCertificate& cert)
 {
   Name keyName = cert.getPublicKeyName();
 
@@ -614,7 +615,7 @@ KeyChain::exportIdentity(const Name& identity, const std::string& passwordStr)
     BOOST_THROW_EXCEPTION(SecPublicInfo::Error("Fail to export PKCS5 of private key"));
   }
 
-  shared_ptr<v1::IdentityCertificate> cert;
+  shared_ptr<IdentityCertificate> cert;
   try {
     cert = m_pib->getCertificate(m_pib->getDefaultCertificateNameForKey(keyName));
   }
@@ -631,7 +632,7 @@ void
 KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwordStr)
 {
   Name certificateName = securedBag.getCertificate().getName();
-  Name keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(certificateName);
+  Name keyName = IdentityCertificate::certificateNameToPublicKeyName(certificateName);
   Name identity = keyName.getPrefix(-1);
 
   // Add identity
@@ -643,7 +644,7 @@ KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwo
                                       securedBag.getKey()->size(),
                                       passwordStr);
 
-  shared_ptr<v1::PublicKey> pubKey = m_tpm->getPublicKeyFromTpm(keyName.toUri());
+  shared_ptr<PublicKey> pubKey = m_tpm->getPublicKeyFromTpm(keyName.toUri());
   // HACK! We should set key type according to the pkcs8 info.
   m_pib->addKey(keyName, *pubKey);
   m_pib->setDefaultKeyNameForIdentity(keyName);
@@ -708,7 +709,7 @@ KeyChain::generateKeyPair(const Name& identityName, bool isKsk, const KeyParams&
 
   m_tpm->generateKeyPairInTpm(keyName.toUri(), params);
 
-  shared_ptr<v1::PublicKey> pubKey = m_tpm->getPublicKeyFromTpm(keyName.toUri());
+  shared_ptr<PublicKey> pubKey = m_tpm->getPublicKeyFromTpm(keyName.toUri());
   m_pib->addKey(keyName, *pubKey);
 
   return keyName;
@@ -838,8 +839,8 @@ KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm)
     default:
       BOOST_THROW_EXCEPTION(Error("Unsupported key types"));
   }
-
 }
 
+} // namespace v1
 } // namespace security
 } // namespace ndn

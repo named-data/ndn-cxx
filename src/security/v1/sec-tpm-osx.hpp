@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_SECURITY_SEC_TPM_OSX_HPP
-#define NDN_SECURITY_SEC_TPM_OSX_HPP
+#ifndef NDN_SECURITY_V1_SEC_TPM_OSX_HPP
+#define NDN_SECURITY_V1_SEC_TPM_OSX_HPP
 
-#include "../common.hpp"
+#include "../../common.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_SECURITY
 #error "This files should not be compiled ..."
@@ -34,6 +34,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 class SecTpmOsx : public SecTpm
 {
@@ -161,10 +162,8 @@ private:
   shared_ptr<Impl> m_impl;
 };
 
+} // namespace v1
 } // namespace security
-
-using security::SecTpmOsx;
-
 } // namespace ndn
 
-#endif // NDN_SECURITY_SEC_TPM_OSX_HPP
+#endif // NDN_SECURITY_V1_SEC_TPM_OSX_HPP

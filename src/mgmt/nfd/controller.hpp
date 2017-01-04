@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,11 +27,11 @@
 #include "status-dataset.hpp"
 #include "command-options.hpp"
 #include "../../security/validator-null.hpp"
+#include "../../security/key-chain.hpp"
 
 namespace ndn {
 
 namespace security {
-class KeyChain;
 class Validator;
 } // namespace security
 class Face;
@@ -66,7 +66,7 @@ public:
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
    */
-  Controller(Face& face, security::KeyChain& keyChain, security::Validator& validator = s_validatorNull);
+  Controller(Face& face, security::v1::KeyChain& keyChain, security::Validator& validator = s_validatorNull);
 
   /** \brief start command execution
    */
@@ -170,7 +170,7 @@ public:
 
 protected:
   Face& m_face;
-  security::KeyChain& m_keyChain;
+  security::v1::KeyChain& m_keyChain;
   security::Validator& m_validator;
 
 private:

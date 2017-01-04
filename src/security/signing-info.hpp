@@ -28,7 +28,6 @@
 #include "pib/key.hpp"
 #include "security-common.hpp"
 
-
 namespace ndn {
 namespace security {
 

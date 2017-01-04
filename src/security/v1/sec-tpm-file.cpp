@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,12 +25,12 @@
 
 #include "sec-tpm-file.hpp"
 
-#include "../encoding/buffer-stream.hpp"
+#include "../../encoding/buffer-stream.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "v1/cryptopp.hpp"
+#include "cryptopp.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,6 +39,7 @@
 
 namespace ndn {
 namespace security {
+namespace v1 {
 
 using std::string;
 using std::ostringstream;
@@ -232,7 +233,7 @@ SecTpmFile::deleteKeyPairInTpm(const Name& keyName)
     boost::filesystem::remove(privateKeyPath);
 }
 
-shared_ptr<v1::PublicKey>
+shared_ptr<PublicKey>
 SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
 {
   string keyURI = keyName.toUri();
@@ -251,7 +252,7 @@ SecTpmFile::getPublicKeyFromTpm(const Name&  keyName)
     BOOST_THROW_EXCEPTION(Error(e.what()));
   }
 
-  return make_shared<v1::PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()),
+  return make_shared<PublicKey>(reinterpret_cast<const uint8_t*>(os.str().c_str()),
                                 os.str().size());
 }
 
@@ -321,7 +322,7 @@ SecTpmFile::signInTpm(const uint8_t* data, size_t dataLength,
     AutoSeededRandomPool rng;
 
     // Read public key
-    shared_ptr<v1::PublicKey> pubkeyPtr;
+    shared_ptr<PublicKey> pubkeyPtr;
     pubkeyPtr = getPublicKeyFromTpm(keyName);
 
     switch (pubkeyPtr->getKeyType()) {
@@ -587,5 +588,6 @@ SecTpmFile::generateRandomBlock(uint8_t* res, size_t size)
   }
 }
 
+} // namespace v1
 } // namespace security
 } // namespace ndn

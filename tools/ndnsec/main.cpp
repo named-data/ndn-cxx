@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,10 @@
 
 #include "version.hpp"
 
+#include "security/key-chain.hpp"
+#include "security/v1/certificate-subject-description.hpp"
+#include "security/v1/secured-bag.hpp"
+
 #include "util.hpp"
 #include "list.hpp"
 #include "get-default.hpp"
@@ -37,12 +41,13 @@
 #include "export.hpp"
 #include "import.hpp"
 #include "delete.hpp"
-#include "sig-verify.hpp"
 #include "set-acl.hpp"
 #include "unlock-tpm.hpp"
 #include "op-tool.hpp"
 
 using namespace ndn;
+using namespace ndn::security;
+using namespace ndn::security::v1;
 
 std::string ndnsec_helper("\
   help         Show all commands.\n\
@@ -60,7 +65,6 @@ std::string ndnsec_helper("\
   delete       Delete identity/key/certificate.\n\
   export       Export an identity package.\n\
   import       Import an identity package.\n\
-  sig-verify   Verify the signature of a Data packet.\n\
   set-acl      Configure ACL of a private key.\n\
   unlock-tpm   Unlock Tpm.\n\
   op-tool      Operator tool.\n\
@@ -95,7 +99,6 @@ main(int argc, char** argv)
       else if (command == "delete")       { return ndnsec_delete(argc - 1, argv + 1); }
       else if (command == "export")       { return ndnsec_export(argc - 1, argv + 1); }
       else if (command == "import")       { return ndnsec_import(argc - 1, argv + 1); }
-      else if (command == "sig-verify")   { return ndnsec_sig_verify(argc - 1, argv + 1); }
       else if (command == "set-acl")      { return ndnsec_set_acl(argc - 1, argv + 1); }
       else if (command == "unlock-tpm")   { return ndnsec_unlock_tpm(argc - 1, argv + 1); }
       else if (command == "op-tool")      { return ndnsec_op_tool(argc - 1, argv + 1); }

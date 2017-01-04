@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,6 +31,7 @@
 #include "encoding/nfd-constants.hpp"
 #include "lp/nack.hpp"
 #include "security/signing-info.hpp"
+#include "security/key-chain.hpp"
 
 #define NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
@@ -51,11 +52,6 @@ class Transport;
 class PendingInterestId;
 class RegisteredPrefixId;
 class InterestFilterId;
-
-namespace security {
-class KeyChain;
-} // namespace security
-using security::KeyChain;
 
 namespace nfd {
 class Controller;

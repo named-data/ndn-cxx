@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -145,7 +145,7 @@ public:
    *  \param signingInfo signing parameters to sign Data with \p keyChain
    *  \param imsCapacity capacity of the internal InMemoryStorage used by dispatcher
    */
-  Dispatcher(Face& face, security::KeyChain& keyChain,
+  Dispatcher(Face& face, security::v1::KeyChain& keyChain,
              const security::SigningInfo& signingInfo = security::SigningInfo(),
              size_t imsCapacity = 256);
 
@@ -462,7 +462,7 @@ private:
   std::unordered_map<Name, TopPrefixEntry> m_topLevelPrefixes;
 
   Face& m_face;
-  security::KeyChain& m_keyChain;
+  security::v1::KeyChain& m_keyChain;
   security::SigningInfo m_signingInfo;
 
   typedef std::unordered_map<PartialName, InterestHandler> HandlerMap;
