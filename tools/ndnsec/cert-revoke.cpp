@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_CERT_REVOKE_HPP
-#define NDN_TOOLS_NDNSEC_CERT_REVOKE_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_cert_revoke(int argc, char** argv)
@@ -33,12 +32,12 @@ ndnsec_cert_revoke(int argc, char** argv)
   using namespace ndn::security;
   namespace po = boost::program_options;
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   std::string requestFile("-");
   Name signId = keyChain.getDefaultIdentity();
   bool hasSignId = false;
-  Name certPrefix = ndn::security::v1::KeyChain::DEFAULT_PREFIX;
+  Name certPrefix = security::v1::KeyChain::DEFAULT_PREFIX;
 
   po::options_description description("General Usage\n  ndnsec cert-revoke [-h] request\n"
                                       "General options");
@@ -58,8 +57,7 @@ ndnsec_cert_revoke(int argc, char** argv)
 
   po::variables_map vm;
   try {
-    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-              vm);
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
@@ -79,9 +77,9 @@ ndnsec_cert_revoke(int argc, char** argv)
     return 1;
   }
 
-  shared_ptr<v1::IdentityCertificate> revokedCertificate = getIdentityCertificate(requestFile);
+  shared_ptr<security::v1::IdentityCertificate> revokedCertificate = getIdentityCertificate(requestFile);
 
-  if (!static_cast<bool>(revokedCertificate)) {
+  if (revokedCertificate == nullptr) {
     std::cerr << "ERROR: input error" << std::endl;
     return 1;
   }
@@ -97,18 +95,16 @@ ndnsec_cert_revoke(int argc, char** argv)
     else {
       const Signature& signature = revokedCertificate->getSignature();
       if (!signature.hasKeyLocator() ||
-          signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name)
-        {
-          std::cerr << "ERROR: Invalid certificate to revoke" << std::endl;
-          return 1;
-        }
+          signature.getKeyLocator().getType() != KeyLocator::KeyLocator_Name) {
+        std::cerr << "ERROR: Invalid certificate to revoke" << std::endl;
+        return 1;
+      }
 
-      keyName = v1::IdentityCertificate::certificateNameToPublicKeyName(
-                  signature.getKeyLocator().getName());
+      keyName = security::v1::IdentityCertificate::certificateNameToPublicKeyName(signature.getKeyLocator().getName());
     }
 
     Name certName;
-    if (certPrefix == ndn::security::v1::KeyChain::DEFAULT_PREFIX) {
+    if (certPrefix == security::v1::KeyChain::DEFAULT_PREFIX) {
       certName = revokedCertificate->getName().getPrefix(-1);
     }
     else {
@@ -121,14 +117,11 @@ ndnsec_cert_revoke(int argc, char** argv)
           .append("ID-CERT");
       }
       else {
-        std::cerr << "ERROR: certificate prefix does not match the revoked certificate"
-                  << std::endl;
+        std::cerr << "ERROR: certificate prefix does not match the revoked certificate" << std::endl;
         return 1;
       }
     }
-    certName
-      .appendVersion()
-      .append("REVOKED");
+    certName.appendVersion().append("REVOKED");
 
     Data revocationCert;
     revocationCert.setName(certName);
@@ -153,18 +146,19 @@ ndnsec_cert_revoke(int argc, char** argv)
     std::cerr << "ERROR: No valid KeyLocator!" << std::endl;
     return 1;
   }
-  catch (const v1::IdentityCertificate::Error& e) {
+  catch (const security::v1::IdentityCertificate::Error& e) {
     std::cerr << "ERROR: Cannot determine the signing key!" << std::endl;
     return 1;
   }
-  catch (const v1::SecPublicInfo::Error& e) {
+  catch (const security::v1::SecPublicInfo::Error& e) {
     std::cerr << "ERROR: Incomplete or corrupted PIB (" << e.what() << ")" << std::endl;
     return 1;
   }
 
   try {
-    transform::bufferSource(wire.wire(), wire.size()) >> transform::base64Encode(true) >> transform::streamSink(std::cout);
-    }
+    transform::bufferSource(wire.wire(), wire.size()) >> transform::base64Encode(true) >>
+      transform::streamSink(std::cout);
+  }
   catch (const transform::Error& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     return 1;
@@ -173,4 +167,5 @@ ndnsec_cert_revoke(int argc, char** argv)
   return 0;
 }
 
-#endif // NDN_TOOLS_NDNSEC_CERT_REVOKE_HPP
+} // namespace ndnsec
+} // namespace ndn

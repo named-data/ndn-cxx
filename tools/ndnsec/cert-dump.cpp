@@ -17,20 +17,17 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_CERT_DUMP_HPP
-#define NDN_TOOLS_NDNSEC_CERT_DUMP_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_cert_dump(int argc, char** argv)
 {
-  using namespace ndn;
-  using namespace ndn::security;
   namespace po = boost::program_options;
 
   std::string name;
@@ -74,8 +71,7 @@ ndnsec_cert_dump(int argc, char** argv)
 
   po::variables_map vm;
   try {
-    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-              vm);
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
@@ -128,9 +124,9 @@ ndnsec_cert_dump(int argc, char** argv)
     return 1;
   }
 
-  shared_ptr<v1::IdentityCertificate> certificate;
+  shared_ptr<security::v1::IdentityCertificate> certificate;
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   if (isIdentityName || isKeyName || isCertName) {
     if (isIdentityName) {
@@ -144,18 +140,17 @@ ndnsec_cert_dump(int argc, char** argv)
     else
       certificate = keyChain.getCertificate(name);
 
-    if (!static_cast<bool>(certificate)) {
+    if (certificate == nullptr) {
       std::cerr << "No certificate found!" << std::endl;
       return 1;
     }
   }
   else {
     certificate = getIdentityCertificate(name);
-    if (!static_cast<bool>(certificate))
-      {
-        std::cerr << "No certificate read!" << std::endl;
-        return 1;
-      }
+    if (certificate == nullptr) {
+      std::cerr << "No certificate read!" << std::endl;
+      return 1;
+    }
   }
 
   if (isPretty) {
@@ -184,4 +179,5 @@ ndnsec_cert_dump(int argc, char** argv)
   return 0;
 }
 
-#endif // NDN_TOOLS_NDNSEC_CERT_DUMP_HPP
+} // namespace ndnsec
+} // namespace ndn

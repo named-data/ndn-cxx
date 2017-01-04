@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_SIGN_REQ_HPP
-#define NDN_TOOLS_NDNSEC_SIGN_REQ_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_sign_req(int argc, char** argv)
@@ -36,49 +35,44 @@ ndnsec_sign_req(int argc, char** argv)
   std::string name;
   bool isKeyName = false;
 
-  po::options_description description("General Usage\n  ndnsec sign-req [-h] [-k] name\nGeneral options");
+  po::options_description description(
+    "General Usage\n  ndnsec sign-req [-h] [-k] name\nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
     ("key,k", "optional, if specified, name is keyName (e.g. /ndn/edu/ucla/alice/ksk-123456789), otherwise identity name")
-    ("name,n", po::value<std::string>(&name), "name, for example, /ndn/edu/ucla/alice")
-    ;
+    ("name,n", po::value<std::string>(&name), "name, for example, /ndn/edu/ucla/alice");
 
   po::positional_options_description p;
   p.add("name", 1);
 
   po::variables_map vm;
-  try
-    {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
-      po::notify(vm);
-    }
-  catch (const std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
-  if (vm.count("name") == 0)
-    {
-      std::cerr << "ERROR: name must be specified" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  if (vm.count("name") == 0) {
+    std::cerr << "ERROR: name must be specified" << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
   if (vm.count("key") != 0)
     isKeyName = true;
 
-  shared_ptr<v1::IdentityCertificate> selfSignCert;
+  shared_ptr<security::v1::IdentityCertificate> selfSignCert;
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   if (isKeyName)
     selfSignCert = keyChain.selfSign(name);
@@ -87,7 +81,7 @@ ndnsec_sign_req(int argc, char** argv)
     selfSignCert = keyChain.selfSign(keyName);
   }
 
-  if (static_cast<bool>(selfSignCert)) {
+  if (selfSignCert != nullptr) {
     io::save(*selfSignCert, std::cout);
     return 0;
   }
@@ -97,4 +91,5 @@ ndnsec_sign_req(int argc, char** argv)
   }
 }
 
-#endif // NDN_TOOLS_NDNSEC_SIGN_REQ_HPP
+} // namespace ndnsec
+} // namespace ndn

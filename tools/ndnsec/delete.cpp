@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_DELETE_HPP
-#define NDN_TOOLS_NDNSEC_DELETE_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_delete(int argc, char** argv)
@@ -55,8 +54,7 @@ ndnsec_delete(int argc, char** argv)
 
   po::variables_map vm;
   try {
-    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-              vm);
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
@@ -66,7 +64,7 @@ ndnsec_delete(int argc, char** argv)
   }
 
   if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;;
+    std::cerr << description << std::endl;
     return 0;
   }
 
@@ -82,7 +80,7 @@ ndnsec_delete(int argc, char** argv)
   else if (vm.count("delete-key") != 0 || vm.count("delete-key2") != 0)
     isDeleteKey = true;
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   try {
     if (isDeleteCert) {
@@ -95,8 +93,7 @@ ndnsec_delete(int argc, char** argv)
       std::cerr << "OK: Delete certificate: " << name << std::endl;
     }
     else if (isDeleteKey) {
-      if (!keyChain.doesPublicKeyExist(name) &&
-          !keyChain.doesKeyExistInTpm(name, KeyClass::PRIVATE)) {
+      if (!keyChain.doesPublicKeyExist(name) && !keyChain.doesKeyExistInTpm(name, KeyClass::PRIVATE)) {
         std::cerr << "ERROR: Key does not exist: " << name << std::endl;
         return 1;
       }
@@ -114,15 +111,15 @@ ndnsec_delete(int argc, char** argv)
       std::cerr << "OK: Delete identity: " << name << std::endl;
     }
   }
-  catch (const ndn::security::v1::SecPublicInfo::Error& e) {
+  catch (const security::v1::SecPublicInfo::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
     return 2;
   }
-  catch (const ndn::security::v1::SecTpm::Error& e) {
+  catch (const security::v1::SecTpm::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
     return 2;
   }
-  catch (const ndn::security::v1::KeyChain::Error& e) {
+  catch (const security::v1::KeyChain::Error& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     return 2;
   }
@@ -130,4 +127,5 @@ ndnsec_delete(int argc, char** argv)
   return 0;
 }
 
-#endif // NDN_TOOLS_NDNSEC_DELETE_HPP
+} // namespace ndnsec
+} // namespace ndn

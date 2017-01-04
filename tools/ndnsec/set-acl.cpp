@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_SET_ACL_HPP
-#define NDN_TOOLS_NDNSEC_SET_ACL_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_set_acl(int argc, char** argv)
@@ -47,42 +46,37 @@ ndnsec_set_acl(int argc, char** argv)
   p.add("appPath", 1);
 
   po::variables_map vm;
-  try
-    {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
-      po::notify(vm);
-    }
-  catch (std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
-  if (vm.count("keyName") == 0)
-    {
-      std::cerr << "ERROR: keyName is required!" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  if (vm.count("keyName") == 0) {
+    std::cerr << "ERROR: keyName is required!" << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  if (vm.count("appPath") == 0)
-    {
-      std::cerr << "ERROR: appPath is required!" << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  if (vm.count("appPath") == 0) {
+    std::cerr << "ERROR: appPath is required!" << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
   keyChain.addAppToAcl(keyName, KeyClass::PRIVATE, appPath, AclType::PRIVATE);
 
   return 0;
 }
 
-#endif // NDN_TOOLS_NDNSEC_SET_ACL_HPP
+} // namespace ndnsec
+} // namespace ndn

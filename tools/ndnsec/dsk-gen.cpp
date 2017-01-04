@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_DSK_GEN_HPP
-#define NDN_TOOLS_NDNSEC_DSK_GEN_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_dsk_gen(int argc, char** argv)
@@ -74,15 +73,15 @@ ndnsec_dsk_gen(int argc, char** argv)
     return 1;
   }
 
-  shared_ptr<v1::IdentityCertificate> kskCert;
+  shared_ptr<security::v1::IdentityCertificate> kskCert;
   Name signingCertName;
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   try {
     Name defaultCertName = keyChain.getDefaultCertificateNameForIdentity(identityName);
     bool isDefaultDsk = false;
-    std::string keyUsageTag = defaultCertName.get(-3).toUri().substr(0,4);
+    std::string keyUsageTag = defaultCertName.get(-3).toUri().substr(0, 4);
     if (keyUsageTag == "ksk-")
       isDefaultDsk = false;
     else if (keyUsageTag == "dsk-")
@@ -93,14 +92,14 @@ ndnsec_dsk_gen(int argc, char** argv)
     }
 
     if (isDefaultDsk) {
-      shared_ptr<v1::IdentityCertificate> dskCert = keyChain.getCertificate(defaultCertName);
+      shared_ptr<security::v1::IdentityCertificate> dskCert = keyChain.getCertificate(defaultCertName);
 
-      if (static_cast<bool>(dskCert)) {
+      if (dskCert != nullptr) {
         SignatureSha256WithRsa sha256sig(dskCert->getSignature());
 
         Name keyLocatorName = sha256sig.getKeyLocator().getName();
 
-        Name kskName = v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
+        Name kskName = security::v1::IdentityCertificate::certificateNameToPublicKeyName(keyLocatorName);
         Name kskCertName = keyChain.getDefaultCertificateNameForKey(kskName);
         signingCertName = kskCertName;
         kskCert = keyChain.getCertificate(kskCertName);
@@ -115,15 +114,14 @@ ndnsec_dsk_gen(int argc, char** argv)
       kskCert = keyChain.getCertificate(defaultCertName);
     }
 
-    if (!static_cast<bool>(kskCert)) {
+    if (kskCert == nullptr) {
       std::cerr << "ERROR: KSK certificate is missing." << std::endl;
       return 1;
     }
 
     Name newKeyName;
     switch (keyType) {
-    case 'r':
-      {
+      case 'r': {
         RsaKeyParams params;
         newKeyName = keyChain.generateRsaKeyPair(Name(identityName), false, params.getKeySize());
         if (0 == newKeyName.size()) {
@@ -132,8 +130,7 @@ ndnsec_dsk_gen(int argc, char** argv)
         }
         break;
       }
-    case 'e':
-      {
+      case 'e': {
         EcKeyParams params;
         newKeyName = keyChain.generateEcKeyPair(Name(identityName), false, params.getKeySize());
         if (0 == newKeyName.size()) {
@@ -142,29 +139,28 @@ ndnsec_dsk_gen(int argc, char** argv)
         }
         break;
       }
-    default:
-      std::cerr << "ERROR: Unrecongized key type" << "\n";
-      std::cerr << description << std::endl;
-      return 1;
+      default:
+        std::cerr << "ERROR: Unrecongized key type"
+                  << "\n";
+        std::cerr << description << std::endl;
+        return 1;
     }
 
     Name certName = newKeyName.getPrefix(-1);
-    certName.append("KEY")
-      .append(newKeyName.get(-1))
-      .append("ID-CERT")
-      .appendVersion();
+    certName.append("KEY").append(newKeyName.get(-1)).append("ID-CERT").appendVersion();
 
-    shared_ptr<v1::IdentityCertificate> certificate =
+    shared_ptr<security::v1::IdentityCertificate> certificate =
       keyChain.prepareUnsignedIdentityCertificate(newKeyName,
                                                   Name(identityName),
                                                   kskCert->getNotBefore(),
                                                   kskCert->getNotAfter(),
                                                   kskCert->getSubjectDescriptionList());
 
-    if (static_cast<bool>(certificate))
+    if (certificate != nullptr)
       certificate->encode();
     else {
-      std::cerr << "ERROR: Cannot format the certificate of the requested dsk." << "\n";
+      std::cerr << "ERROR: Cannot format the certificate of the requested dsk."
+                << "\n";
       return 1;
     }
 
@@ -173,14 +169,15 @@ ndnsec_dsk_gen(int argc, char** argv)
 
     keyChain.addCertificateAsIdentityDefault(*certificate);
 
-    std::cerr << "OK: dsk certificate with name [" << certificate->getName() <<
-      "] has been successfully installed\n";
+    std::cerr << "OK: dsk certificate with name [" << certificate->getName()
+              << "] has been successfully installed\n";
     return 0;
   }
-  catch (std::runtime_error& e) {
+  catch (const std::runtime_error& e) {
     std::cerr << "ERROR: other runtime errors: " << e.what() << "\n";
     return 1;
   }
 }
 
-#endif // NDN_TOOLS_NDNSEC_DSK_GEN_HPP
+} // namespace ndnsec
+} // namespace ndn

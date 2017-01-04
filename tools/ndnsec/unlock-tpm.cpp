@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_UNLOCK_TPM_HPP
-#define NDN_TOOLS_NDNSEC_UNLOCK_TPM_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_unlock_tpm(int argc, char** argv)
@@ -36,53 +35,47 @@ ndnsec_unlock_tpm(int argc, char** argv)
   std::string keyName;
 
   po::options_description description("General Usage\n  ndnsec unlock-tpm [-h] \nGeneral options");
-  description.add_options()
-    ("help,h", "produce help message")
-    ;
+  description.add_options()("help,h", "produce help message");
 
   po::variables_map vm;
 
-  try
-    {
-      po::store(po::parse_command_line(argc, argv, description), vm);
-      po::notify(vm);
-    }
-  catch (const std::exception& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      std::cerr << description << std::endl;
-      return 1;
-    }
+  try {
+    po::store(po::parse_command_line(argc, argv, description), vm);
+    po::notify(vm);
+  }
+  catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    std::cerr << description << std::endl;
+    return 1;
+  }
 
-  if (vm.count("help") != 0)
-    {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+  if (vm.count("help") != 0) {
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
   bool isUnlocked = false;
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   char* password;
   password = getpass("Password to unlock the TPM: ");
   isUnlocked = keyChain.unlockTpm(password, strlen(password), true);
   memset(password, 0, strlen(password));
 
-  if (isUnlocked)
-    {
-      std::cerr << "OK: TPM is unlocked" << std::endl;
-      return 0;
-    }
-  else
-    {
-      std::cerr << "ERROR: TPM is still locked" << std::endl;
-      return 1;
-    }
+  if (isUnlocked) {
+    std::cerr << "OK: TPM is unlocked" << std::endl;
+    return 0;
+  }
+  else {
+    std::cerr << "ERROR: TPM is still locked" << std::endl;
+    return 1;
+  }
 #else
   std::cerr << "ERROR: Command not supported on this platform" << std::endl;
   return 1;
 #endif // NDN_CXX_HAVE_GETPASS
 }
 
-#endif // NDN_TOOLS_NDNSEC_UNLOCK_TPM_HPP
+} // namespace ndnsec
+} // namespace ndn

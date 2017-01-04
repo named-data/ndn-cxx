@@ -17,17 +17,16 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_LIST_HPP
-#define NDN_TOOLS_NDNSEC_LIST_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
 
+namespace ndn {
+namespace ndnsec {
+
 void
-printCertificate(ndn::security::v1::KeyChain& keyChain,
+printCertificate(security::v1::KeyChain& keyChain,
                  const ndn::Name& certName,
                  bool isDefault,
                  int verboseLevel)
@@ -40,17 +39,14 @@ printCertificate(ndn::security::v1::KeyChain& keyChain,
   std::cout << certName << std::endl;
 
   if (verboseLevel >= 3) {
-    ndn::shared_ptr<ndn::security::v1::IdentityCertificate> certificate = keyChain.getCertificate(certName);
-    if (static_cast<bool>(certificate))
+    shared_ptr<security::v1::IdentityCertificate> certificate = keyChain.getCertificate(certName);
+    if (certificate != nullptr)
       certificate->printCertificate(std::cout, "            ");
   }
 }
 
 void
-printKey(ndn::security::v1::KeyChain& keyChain,
-         const ndn::Name& keyName,
-         bool isDefault,
-         int verboseLevel)
+printKey(security::v1::KeyChain& keyChain, const ndn::Name& keyName, bool isDefault, int verboseLevel)
 {
   if (isDefault)
     std::cout << "  +->* ";
@@ -74,7 +70,7 @@ printKey(ndn::security::v1::KeyChain& keyChain,
 }
 
 void
-printIdentity(ndn::security::v1::KeyChain& keyChain,
+printIdentity(security::v1::KeyChain& keyChain,
               const ndn::Name& identity,
               bool isDefault,
               int verboseLevel)
@@ -142,19 +138,20 @@ ndnsec_list(int argc, char** argv)
   }
 
   if (vm.count("help") != 0) {
-    std::cerr << options << std::endl;;
+    std::cerr << options << std::endl;
+    ;
     return 0;
   }
 
   int tmpVerboseLevel = 0;
   if (vm.count("cert") != 0 || vm.count("cert2") != 0)
     tmpVerboseLevel = 2;
-  else if(vm.count("key") != 0 || vm.count("key2") != 0)
+  else if (vm.count("key") != 0 || vm.count("key2") != 0)
     tmpVerboseLevel = 1;
 
   verboseLevel = std::max(verboseLevel, tmpVerboseLevel);
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   std::vector<Name> defaultIdentities;
   keyChain.getAllIdentities(defaultIdentities, true);
@@ -171,4 +168,5 @@ ndnsec_list(int argc, char** argv)
   return 0;
 }
 
-#endif // NDN_TOOLS_NDNSEC_LIST_HPP
+} // namespace ndnsec
+} // namespace ndn

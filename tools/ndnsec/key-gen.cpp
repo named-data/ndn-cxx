@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_KEY_GEN_HPP
-#define NDN_TOOLS_NDNSEC_KEY_GEN_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 int
 ndnsec_key_gen(int argc, char** argv)
@@ -59,8 +58,7 @@ ndnsec_key_gen(int argc, char** argv)
 
   po::variables_map vm;
   try {
-    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-              vm);
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
@@ -85,25 +83,25 @@ ndnsec_key_gen(int argc, char** argv)
 
   bool isKsk = (vm.count("dsk") == 0);
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
   Name keyName;
 
   try {
     switch (keyType) {
-    case 'r':
-      keyName = keyChain.generateRsaKeyPair(Name(identityName), isKsk, RsaKeyParams().getKeySize());
-      break;
-    case 'e':
-      keyName = keyChain.generateEcKeyPair(Name(identityName), isKsk, EcKeyParams().getKeySize());
-      break;
-    default:
-      std::cerr << "Unrecongized key type" << "\n";
-      std::cerr << description << std::endl;
-      return 1;
+      case 'r':
+        keyName = keyChain.generateRsaKeyPair(Name(identityName), isKsk, RsaKeyParams().getKeySize());
+        break;
+      case 'e':
+        keyName = keyChain.generateEcKeyPair(Name(identityName), isKsk, EcKeyParams().getKeySize());
+        break;
+      default:
+        std::cerr << "Unrecongized key type\n"
+                  << description << std::endl;
+        return 1;
     }
 
-    if (0 == keyName.size()) {
-      std::cerr << "Error: failed to generate key" << "\n";
+    if (keyName.empty()) {
+      std::cerr << "Error: failed to generate key" << std::endl;
       return 1;
     }
 
@@ -122,4 +120,5 @@ ndnsec_key_gen(int argc, char** argv)
   return 0;
 }
 
-#endif // NDN_TOOLS_NDNSEC_KEY_GEN_HPP
+} // namespace ndnsec
+} // namespace ndn

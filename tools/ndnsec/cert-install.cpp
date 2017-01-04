@@ -17,14 +17,13 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_TOOLS_NDNSEC_CERT_INSTALL_HPP
-#define NDN_TOOLS_NDNSEC_CERT_INSTALL_HPP
-
+#include "ndnsec.hpp"
 #include "util.hpp"
+
+namespace ndn {
+namespace ndnsec {
 
 class HttpException : public std::runtime_error
 {
@@ -36,7 +35,7 @@ public:
   }
 };
 
-ndn::shared_ptr<ndn::security::v1::IdentityCertificate>
+shared_ptr<security::v1::IdentityCertificate>
 getCertificateHttp(const std::string& host, const std::string& port, const std::string& path)
 {
   using namespace boost::asio::ip;
@@ -45,8 +44,8 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
   requestStream.expires_from_now(boost::posix_time::milliseconds(3000));
 
   requestStream.connect(host, port);
-  if (!static_cast<bool>(requestStream)) {
-    throw HttpException("HTTP connection error");
+  if (!requestStream) {
+    BOOST_THROW_EXCEPTION(HttpException("HTTP connection error"));
   }
   requestStream << "GET " << path << " HTTP/1.0\r\n";
   requestStream << "Host: " << host << "\r\n";
@@ -57,10 +56,9 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
 
   std::string statusLine;
   std::getline(requestStream, statusLine);
-  if (!static_cast<bool>(requestStream))
-    {
-      throw HttpException("HTTP communication error");
-    }
+  if (!requestStream) {
+    BOOST_THROW_EXCEPTION(HttpException("HTTP communication error"));
+  }
 
   std::stringstream responseStream(statusLine);
   std::string httpVersion;
@@ -70,11 +68,11 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
   std::string statusMessage;
 
   std::getline(responseStream, statusMessage);
-  if (!static_cast<bool>(requestStream) || httpVersion.substr(0, 5) != "HTTP/") {
-    throw HttpException("HTTP communication error");
+  if (!requestStream || httpVersion.substr(0, 5) != "HTTP/") {
+    BOOST_THROW_EXCEPTION(HttpException("HTTP communication error"));
   }
   if (statusCode != 200) {
-    throw HttpException("HTTP server error");
+    BOOST_THROW_EXCEPTION(HttpException("HTTP server error"));
   }
   std::string header;
   while (std::getline(requestStream, header) && header != "\r")
@@ -86,7 +84,7 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
     streamSource(requestStream) >> base64Decode(true) >> streamSink(os);
   }
 
-  auto identityCertificate = std::make_shared<ndn::security::v1::IdentityCertificate>();
+  auto identityCertificate = std::make_shared<security::v1::IdentityCertificate>();
   identityCertificate->wireDecode(ndn::Block(os.buf()));
 
   return identityCertificate;
@@ -119,19 +117,18 @@ ndnsec_cert_install(int argc, char** argv)
 
   po::variables_map vm;
   try {
-      po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(),
-                vm);
-      po::notify(vm);
-    }
+    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
+    po::notify(vm);
+  }
   catch (const std::exception& e) {
-      std::cerr << "ERROR: " << e.what() << std::endl;
-      return 1;
-    }
+    std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
+  }
 
   if (vm.count("help") != 0) {
-      std::cerr << description << std::endl;
-      return 0;
-    }
+    std::cerr << description << std::endl;
+    return 0;
+  }
 
   if (vm.count("cert-file") == 0) {
     std::cerr << "cert_file must be specified" << std::endl;
@@ -152,7 +149,7 @@ ndnsec_cert_install(int argc, char** argv)
     isSystemDefault = false;
   }
 
-  shared_ptr<v1::IdentityCertificate> cert;
+  shared_ptr<security::v1::IdentityCertificate> cert;
 
   if (certFileName.find("http://") == 0) {
     std::string host;
@@ -163,7 +160,7 @@ ndnsec_cert_install(int argc, char** argv)
     size_t posSlash = certFileName.find("/", pos);
 
     if (posSlash == std::string::npos)
-      throw HttpException("Request line is not correctly formatted");
+      BOOST_THROW_EXCEPTION(HttpException("Request line is not correctly formatted"));
 
     size_t posPort = certFileName.find(":", pos);
 
@@ -177,7 +174,7 @@ ndnsec_cert_install(int argc, char** argv)
       host = certFileName.substr(pos, posSlash - pos);
     }
 
-    path = certFileName.substr(posSlash, certFileName.size () - posSlash);
+    path = certFileName.substr(posSlash, certFileName.size() - posSlash);
 
     cert = getCertificateHttp(host, port, path);
   }
@@ -185,15 +182,15 @@ ndnsec_cert_install(int argc, char** argv)
     cert = getIdentityCertificate(certFileName);
   }
 
-  if (!static_cast<bool>(cert))
+  if (cert == nullptr)
     return 1;
 
-  ndn::security::v1::KeyChain keyChain;
+  security::v1::KeyChain keyChain;
 
   if (isSystemDefault) {
     keyChain.addCertificateAsIdentityDefault(*cert);
     Name keyName = cert->getPublicKeyName();
-    Name identity = keyName.getSubName(0, keyName.size()-1);
+    Name identity = keyName.getSubName(0, keyName.size() - 1);
     keyChain.setDefaultIdentity(identity);
   }
   else if (isIdentityDefault) {
@@ -206,12 +203,11 @@ ndnsec_cert_install(int argc, char** argv)
     keyChain.addCertificate(*cert);
   }
 
-  std::cerr << "OK: certificate with name ["
-            << cert->getName().toUri()
-            << "] has been successfully installed"
-            << std::endl;
+  std::cerr << "OK: certificate with name [" << cert->getName().toUri()
+            << "] has been successfully installed" << std::endl;
 
   return 0;
 }
 
-#endif // NDN_TOOLS_NDNSEC_CERT_INSTALL_HPP
+} // namespace ndnsec
+} // namespace ndn

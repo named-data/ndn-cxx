@@ -17,82 +17,36 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_TOOLS_NDNSEC_UTIL_HPP
 #define NDN_TOOLS_NDNSEC_UTIL_HPP
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cstring>
-
-#include <boost/program_options/options_description.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/program_options/parsers.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/asio.hpp>
-#include <boost/exception/all.hpp>
-
 #include "encoding/buffer-stream.hpp"
-#include "security/v1/key-chain.hpp"
 #include "security/transform.hpp"
+#include "security/v1/key-chain.hpp"
 #include "util/io.hpp"
 
+#include <fstream>
+#include <iostream>
+#include <string>
+
+#include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/exception/all.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/tokenizer.hpp>
+
+namespace ndn {
+namespace ndnsec {
+
 bool
-getPassword(std::string& password, const std::string& prompt)
-{
-#ifdef NDN_CXX_HAVE_GETPASS
-  bool isReady = false;
+getPassword(std::string& password, const std::string& prompt);
 
-  char* pw0 = 0;
-
-  pw0 = getpass(prompt.c_str());
-  if (!pw0)
-    return false;
-  std::string password1 = pw0;
-  memset(pw0, 0, strlen(pw0));
-
-  pw0 = getpass("Confirm:");
-  if (!pw0)
-    {
-      char* pw1 = const_cast<char*>(password1.c_str());
-      memset(pw1, 0, password1.size());
-      return false;
-    }
-
-  if (!password1.compare(pw0))
-    {
-      isReady = true;
-      password.swap(password1);
-    }
-
-  char* pw1 = const_cast<char*>(password1.c_str());
-  memset(pw1, 0, password1.size());
-  memset(pw0, 0, strlen(pw0));
-
-  if (password.empty())
-    return false;
-
-  return isReady;
-#else
-  return false;
-#endif // NDN_CXX_HAVE_GETPASS
-}
-
-ndn::shared_ptr<ndn::security::v1::IdentityCertificate>
-getIdentityCertificate(const std::string& fileName)
-{
-
-  if (fileName == "-")
-    return ndn::io::load<ndn::security::v1::IdentityCertificate>(std::cin);
-  else
-    return ndn::io::load<ndn::security::v1::IdentityCertificate>(fileName);
-}
-
+shared_ptr<security::v1::IdentityCertificate>
+getIdentityCertificate(const std::string& fileName);
 
 /**
  * @brief An accumulating option value to handle multiple incrementing options.
@@ -112,11 +66,6 @@ public:
   {
   }
 
-  virtual
-  ~AccumulatorType()
-  {
-  }
-
   /// @brief Set the default value for this option.
   AccumulatorType*
   setDefaultValue(const T& t)
@@ -132,7 +81,8 @@ public:
    * to be applied on each occurrence of the option.
    */
   AccumulatorType*
-  setInterval(const T& t) {
+  setInterval(const T& t)
+  {
     m_interval = t;
     return this;
   }
@@ -177,9 +127,7 @@ public:
    * There should never be any tokens.
    */
   void
-  parse(boost::any& value_store,
-        const std::vector<std::string>& new_tokens,
-        bool utf8) const final
+  parse(boost::any& value_store, const std::vector<std::string>& new_tokens, bool utf8) const final
   {
     if (value_store.empty())
       value_store = T();
@@ -216,21 +164,26 @@ public:
 #endif // BOOST_VERSION >= 105900
 
 private:
-    T* m_store;
-    T m_interval;
-    T m_default;
+  T* m_store;
+  T m_interval;
+  T m_default;
 };
 
-template<typename T>
-AccumulatorType<T>* accumulator()
+template <typename T>
+AccumulatorType<T>*
+accumulator()
 {
   return new AccumulatorType<T>(0);
 }
 
-template<typename T>
-AccumulatorType<T>* accumulator(T* store)
+template <typename T>
+AccumulatorType<T>*
+accumulator(T* store)
 {
   return new AccumulatorType<T>(store);
 }
+
+} // namespace ndnsec
+} // namespace ndn
 
 #endif // NDN_TOOLS_NDNSEC_UTIL_HPP
