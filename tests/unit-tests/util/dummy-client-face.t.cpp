@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
+#include "../identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace util {
@@ -30,7 +31,7 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestDummyClientFace)
 
-BOOST_AUTO_TEST_CASE(ProcessEventsOverride)
+BOOST_FIXTURE_TEST_CASE(ProcessEventsOverride, ndn::tests::IdentityManagementTimeFixture)
 {
   bool isOverrideInvoked = false;
   auto override = [&] (time::milliseconds timeout) {
@@ -38,7 +39,7 @@ BOOST_AUTO_TEST_CASE(ProcessEventsOverride)
     BOOST_CHECK_EQUAL(timeout, time::milliseconds(200));
   };
 
-  DummyClientFace face({false, false, override});
+  DummyClientFace face(io, {false, false, override});
   face.processEvents(time::milliseconds(200));
   BOOST_CHECK(isOverrideInvoked);
 }

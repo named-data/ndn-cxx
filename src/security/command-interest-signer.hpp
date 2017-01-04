@@ -67,7 +67,7 @@ class CommandInterestSigner : private CommandInterestPreparer
 {
 public:
   explicit
-  CommandInterestSigner(v2::KeyChain& keyChain);
+  CommandInterestSigner(KeyChain& keyChain);
 
   /**
    * @brief Create CommandInterest
@@ -82,10 +82,10 @@ public:
    * @sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
    */
   Interest
-  makeCommandInterest(const Name& name, const SigningInfo& params = v2::KeyChain::getDefaultSigningInfo());
+  makeCommandInterest(const Name& name, const SigningInfo& params = KeyChain::getDefaultSigningInfo());
 
 private:
-  v2::KeyChain& m_keyChain;
+  KeyChain& m_keyChain;
 };
 
 } // namespace security

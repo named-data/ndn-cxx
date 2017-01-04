@@ -39,7 +39,7 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class NotificationSubscriberFixture : public IdentityManagementV1TimeFixture
+class NotificationSubscriberFixture : public IdentityManagementTimeFixture
 {
 public:
   NotificationSubscriberFixture()

@@ -19,21 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-/**
- * @file security/key-chain.hpp
- */
+#ifndef NDN_CXX_SECURITY_KEY_CHAIN_HPP
+#define NDN_CXX_SECURITY_KEY_CHAIN_HPP
 
 #include "security-common.hpp"
-#include "v1/key-chain.hpp"
 #include "v2/key-chain.hpp"
 
-namespace ndn {
-namespace security {
-
-using security::v1::KeyChain;
-
-} // namespace security
-
-using ndn::security::KeyChain;
-
-} // namespace ndn
+#endif // NDN_CXX_SECURITY_KEY_CHAIN_HPP

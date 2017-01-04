@@ -23,7 +23,7 @@
 
 #include "version.hpp"
 
-#include "security/key-chain.hpp"
+#include "security/v1/key-chain.hpp"
 #include "security/v1/certificate-subject-description.hpp"
 #include "security/v1/secured-bag.hpp"
 

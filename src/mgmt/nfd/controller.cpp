@@ -36,9 +36,10 @@ const uint32_t Controller::ERROR_SERVER = 500;
 const uint32_t Controller::ERROR_LBOUND = 400;
 ValidatorNull Controller::s_validatorNull;
 
-Controller::Controller(Face& face, security::v1::KeyChain& keyChain, Validator& validator)
+Controller::Controller(Face& face, KeyChain& keyChain, Validator& validator)
   : m_face(face)
   , m_keyChain(keyChain)
+  , m_signer(keyChain)
   , m_validator(validator)
 {
 }
@@ -56,9 +57,8 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
     onFailure1 : [] (const ControlResponse&) {};
 
   Name requestName = command->getRequestName(options.getPrefix(), parameters);
-  Interest interest(requestName);
+  Interest interest = m_signer.makeCommandInterest(requestName, options.getSigningInfo());
   interest.setInterestLifetime(options.getTimeout());
-  m_keyChain.sign(interest, options.getSigningInfo());
 
   m_face.expressInterest(interest,
     [=] (const Interest&, const Data& data) {

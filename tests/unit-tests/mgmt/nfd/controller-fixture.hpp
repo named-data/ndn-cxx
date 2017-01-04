@@ -35,7 +35,7 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class ControllerFixture : public IdentityManagementV1TimeFixture
+class ControllerFixture : public IdentityManagementTimeFixture
 {
 protected:
   ControllerFixture()
@@ -45,8 +45,7 @@ protected:
     , datasetFailCallback(bind(&ControllerFixture::recordDatasetFail, this, _1, _2))
   {
     Name identityName("/localhost/ControllerFixture");
-    this->addIdentity(identityName);
-    m_keyChain.setDefaultIdentity(identityName);
+    m_keyChain.setDefaultIdentity(this->addIdentity(identityName));
   }
 
   /** \brief controls whether Controller's validator should accept or reject validation requests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,7 +38,7 @@
 #include <boost/exception/all.hpp>
 
 #include "encoding/buffer-stream.hpp"
-#include "security/key-chain.hpp"
+#include "security/v1/key-chain.hpp"
 #include "security/transform.hpp"
 #include "util/io.hpp"
 
@@ -137,34 +137,34 @@ public:
     return this;
   }
 
-  virtual std::string
+  std::string
   name() const final
   {
     return std::string();
   }
 
   // There are no tokens for an AccumulatorType
-  virtual unsigned
+  unsigned
   min_tokens() const final
   {
     return 0;
   }
 
-  virtual unsigned
+  unsigned
   max_tokens() const final
   {
     return 0;
   }
 
   // Accumulating from different sources is silly.
-  virtual bool
+  bool
   is_composing() const final
   {
     return false;
   }
 
   // Requiring one or more appearances is unlikely.
-  virtual bool
+  bool
   is_required() const final
   {
     return false;
@@ -176,7 +176,7 @@ public:
    * Every appearance of the option simply increments the value
    * There should never be any tokens.
    */
-  virtual void
+  void
   parse(boost::any& value_store,
         const std::vector<std::string>& new_tokens,
         bool utf8) const final
@@ -189,7 +189,7 @@ public:
   /**
    * @brief If the option doesn't appear, this is the default value.
    */
-  virtual bool
+  bool
   apply_default(boost::any& value_store) const final
   {
     value_store = m_default;
@@ -199,7 +199,7 @@ public:
   /**
    * @brief Notify the user function with the value of the value store.
    */
-  virtual void
+  void
   notify(const boost::any& value_store) const final
   {
     const T* val = boost::any_cast<T>(&value_store);
@@ -208,7 +208,7 @@ public:
   }
 
 #if BOOST_VERSION >= 105900
-  virtual bool
+  bool
   adjacent_tokens_only() const final
   {
     return false;

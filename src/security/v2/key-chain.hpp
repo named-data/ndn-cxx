@@ -503,6 +503,9 @@ public:                                                       \
 
 } // namespace v2
 } // namespace security
+
+using security::v2::KeyChain;
+
 } // namespace ndn
 
 #endif // NDN_SECURITY_V2_KEY_CHAIN_HPP

@@ -42,7 +42,7 @@ makeAcceptAllAuthorization()
   };
 }
 
-Dispatcher::Dispatcher(Face& face, security::v1::KeyChain& keyChain,
+Dispatcher::Dispatcher(Face& face, KeyChain& keyChain,
                        const security::SigningInfo& signingInfo,
                        size_t imsCapacity)
   : m_face(face)

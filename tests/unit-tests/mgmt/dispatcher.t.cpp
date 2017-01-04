@@ -34,7 +34,7 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class DispatcherFixture : public IdentityManagementV1TimeFixture
+class DispatcherFixture : public IdentityManagementTimeFixture
 {
 public:
   DispatcherFixture()

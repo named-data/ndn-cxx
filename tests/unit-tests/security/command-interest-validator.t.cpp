@@ -20,6 +20,7 @@
  */
 
 #include "security/command-interest-validator.hpp"
+#include "security/command-interest-signer.hpp"
 #include "security/signing-helpers.hpp"
 
 #include "boost-test.hpp"
@@ -35,10 +36,11 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class CommandInterestValidatorFixture : public IdentityManagementV1TimeFixture
+class CommandInterestValidatorFixture : public IdentityManagementTimeFixture
 {
 protected:
   CommandInterestValidatorFixture()
+    : signer(m_keyChain)
   {
     this->initialize(CommandInterestValidator::Options{});
   }
@@ -63,10 +65,8 @@ protected:
   shared_ptr<Interest>
   makeCommandInterest(uint64_t identity = 0)
   {
-    auto interest = makeInterest("/CommandInterestPrefix");
-    m_keyChain.sign(*interest, signingByIdentity(makeIdentity(identity)));
-    BOOST_TEST_MESSAGE("makeCommandInterest " << interest->getName());
-    return interest;
+    auto interest = signer.makeCommandInterest("/CommandInterestPrefix", signingByIdentity(makeIdentity(identity)));
+    return make_shared<Interest>(std::move(interest));
   }
 
   /** \brief check that validator accepts interest
@@ -75,7 +75,6 @@ protected:
   void
   assertAccept(const Interest& interest)
   {
-    BOOST_TEST_MESSAGE("assertAccept " << interest.getName());
     int nAccepts = 0;
     validator->validate(interest,
       [&nAccepts] (const shared_ptr<const Interest>&) { ++nAccepts; },
@@ -93,7 +92,6 @@ protected:
   void
   assertReject(const Interest& interest, CommandInterestValidator::ErrorCode error)
   {
-    BOOST_TEST_MESSAGE("assertReject " << interest.getName());
     int nRejects = 0;
     validator->validate(interest,
       [] (const shared_ptr<const Interest>&) {
@@ -109,6 +107,7 @@ protected:
   }
 
 protected:
+  CommandInterestSigner signer;
   DummyValidator* inner;
   unique_ptr<CommandInterestValidator> validator;
 };

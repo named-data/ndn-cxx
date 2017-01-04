@@ -28,6 +28,7 @@
 #include "command-options.hpp"
 #include "../../security/validator-null.hpp"
 #include "../../security/key-chain.hpp"
+#include "../../security/command-interest-signer.hpp"
 
 namespace ndn {
 
@@ -66,7 +67,7 @@ public:
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
    */
-  Controller(Face& face, security::v1::KeyChain& keyChain, security::Validator& validator = s_validatorNull);
+  Controller(Face& face, KeyChain& keyChain, security::Validator& validator = s_validatorNull);
 
   /** \brief start command execution
    */
@@ -170,7 +171,8 @@ public:
 
 protected:
   Face& m_face;
-  security::v1::KeyChain& m_keyChain;
+  KeyChain& m_keyChain;
+  security::CommandInterestSigner m_signer;
   security::Validator& m_validator;
 
 private:

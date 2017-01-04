@@ -47,6 +47,12 @@ public:
     unsetenv("NDN_CLIENT_PIB");
     unsetenv("NDN_CLIENT_TPM");
   }
+
+  ~TestHomeAndPibFixture()
+  {
+    const_cast<std::string&>(KeyChain::getDefaultPibLocator()).clear();
+    const_cast<std::string&>(KeyChain::getDefaultTpmLocator()).clear();
+  }
 };
 
 struct PibPathConfigFileHome

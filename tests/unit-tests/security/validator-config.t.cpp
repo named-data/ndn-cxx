@@ -49,12 +49,14 @@ class ValidatorConfigFixture : public IdentityManagementV1TimeFixture
 {
 public:
   ValidatorConfigFixture()
-    : face(nullptr, m_keyChain)
+    : m_v2KeyChain("pib-memory:", "tpm-memory:")
+    , face(nullptr, m_v2KeyChain)
     , validator(face)
   {
   }
 
 public:
+  v2::KeyChain m_v2KeyChain;
   Face face;
   ValidatorConfig validator;
 };
@@ -1078,8 +1080,8 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 struct FacesFixture : public ValidatorConfigFixture
 {
   FacesFixture()
-    : face1(io, m_keyChain, {true, true})
-    , face2(io, m_keyChain, {true, true})
+    : face1(io, m_v2KeyChain, {true, true})
+    , face2(io, m_v2KeyChain, {true, true})
     , readInterestOffset1(0)
     , readDataOffset1(0)
     , readInterestOffset2(0)
@@ -1486,11 +1488,11 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
   advanceClocks(time::milliseconds(10), 20);
 }
 
-class DirectCertFetchFixture : public IdentityManagementV1TimeFixture
+class DirectCertFetchFixture : public ValidatorConfigFixture
 {
 public:
   DirectCertFetchFixture()
-    : clientFace(io, m_keyChain, {true, true})
+    : clientFace(io, m_v2KeyChain, {true, true})
     , validationResult(boost::logic::indeterminate)
   {
     auto certName = addIdentity(ca);

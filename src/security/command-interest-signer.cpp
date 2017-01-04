@@ -47,7 +47,7 @@ CommandInterestPreparer::prepareCommandInterestName(Name name)
   return name;
 }
 
-CommandInterestSigner::CommandInterestSigner(v2::KeyChain& keyChain)
+CommandInterestSigner::CommandInterestSigner(KeyChain& keyChain)
   : m_keyChain(keyChain)
 {
 }
