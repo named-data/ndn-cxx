@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California,
+ * Copyright (c) 2013-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -39,7 +39,7 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class NotificationSubscriberFixture : public IdentityManagementTimeFixture
+class NotificationSubscriberFixture : public IdentityManagementV1TimeFixture
 {
 public:
   NotificationSubscriberFixture()

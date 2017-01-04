@@ -32,18 +32,48 @@ namespace signed_interest {
 
 const ssize_t POS_SIG_VALUE = -1;
 const ssize_t POS_SIG_INFO = -2;
+
+/** \brief minimal number of components for Signed Interest
+ *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/SignedInterest
+ */
+const size_t MIN_SIZE = 2;
+
+/** \deprecated To avoid a potentially breaking change, this value is kept based on the Command
+ *              Interest definition.  This value will be eliminated in favor of `MIN_SIZE=2`.
+ */
+const size_t MIN_LENGTH = 4;
+
+/** \deprecated Use `MIN_SIZE`
+ */
+const size_t MIN_LENGTH_SIG_ONLY = 2;
+
+} // namespace signed_interest
+
+namespace command_interest {
+
+using signed_interest::POS_SIG_VALUE;
+using signed_interest::POS_SIG_INFO;
 const ssize_t POS_RANDOM_VAL = -3;
 const ssize_t POS_TIMESTAMP = -4;
 
 /** \brief minimal number of components for Command Interest
  *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
  */
-const size_t MIN_LENGTH = 4;
+const size_t MIN_SIZE = 4;
 
-/** \brief minimal number of components for Signed Interest
- *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/SignedInterest
+} // namespace command_interest
+
+namespace signed_interest {
+
+/**
+ * @deprecated Use command_interest::POS_RANDOM_VAL
  */
-const size_t MIN_LENGTH_SIG_ONLY = 2;
+using command_interest::POS_RANDOM_VAL;
+
+/**
+ * @deprecated Use command_interest::POS_TIMESTAMP
+ */
+using command_interest::POS_TIMESTAMP;
 
 } // namespace signed_interest
 

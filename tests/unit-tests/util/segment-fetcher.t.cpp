@@ -40,7 +40,7 @@ using namespace ndn::tests;
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestSegmentFetcher)
 
-class Fixture : public IdentityManagementTimeFixture
+class Fixture : public IdentityManagementV1TimeFixture
 {
 public:
   Fixture()

@@ -267,18 +267,14 @@ class IdCertFixture : public IoFixture
 
 BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
 {
-  Name identity("/TestIo/IdCert");
-  identity.appendVersion();
-  addIdentity(identity, RsaKeyParams());
-  Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
-  shared_ptr<security::v1::IdentityCertificate> idCert;
-  BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));
+  auto identity = addIdentity("/TestIo/IdCert", RsaKeyParams());
+  const auto& cert = identity.getDefaultKey().getDefaultCertificate();
+  io::save(cert, filename);
 
-  io::save(*idCert, filename);
-  shared_ptr<security::v1::IdentityCertificate> readCert = io::load<security::v1::IdentityCertificate>(filename);
+  auto readCert = io::load<security::v2::Certificate>(filename);
 
   BOOST_REQUIRE(readCert != nullptr);
-  BOOST_CHECK_EQUAL(idCert->getName(), readCert->getName());
+  BOOST_CHECK_EQUAL(cert.getName(), readCert->getName());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIo

@@ -482,14 +482,14 @@ ValidatorConfig::checkPolicy(const Interest& interest,
 
   // If interestName has less than 4 name components,
   // it is definitely not a signed interest.
-  if (interest.getName().size() < signed_interest::MIN_LENGTH)
+  if (interest.getName().size() < command_interest::MIN_SIZE)
     return onValidationFailed(interest.shared_from_this(),
                               "Interest is not signed: " + interest.getName().toUri());
 
   try {
     const Name& interestName = interest.getName();
-    Signature signature(interestName[signed_interest::POS_SIG_INFO].blockFromValue(),
-                        interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
+    Signature signature(interestName[command_interest::POS_SIG_INFO].blockFromValue(),
+                        interestName[command_interest::POS_SIG_VALUE].blockFromValue());
 
     if (!signature.hasKeyLocator())
       return onValidationFailed(interest.shared_from_this(), "No valid KeyLocator");
@@ -552,7 +552,7 @@ ValidatorConfig::checkTimestamp(const shared_ptr<const Interest>& interest,
 
   try {
     interestTime =
-      time::fromUnixTimestamp(time::milliseconds(interestName.get(-signed_interest::MIN_LENGTH).toNumber()));
+      time::fromUnixTimestamp(time::milliseconds(interestName.at(command_interest::POS_TIMESTAMP).toNumber()));
   }
   catch (const tlv::Error& e) {
     return onValidationFailed(interest,

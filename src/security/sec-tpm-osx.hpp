@@ -19,28 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+/**
+ * @file security/sec-tpm-osx.hpp
+ * @deprecated Use new TPM backed routines
+ */
 
-#include "identity-management-fixture.hpp"
-#include "unit-test-time-fixture.hpp"
+#include "security-common.hpp"
 
-namespace ndn {
-namespace tests {
-
-class IdentityManagementV1TimeFixture : public UnitTestTimeFixture
-                                      , public IdentityManagementV1Fixture
-{
-};
-
-class IdentityManagementV2TimeFixture : public UnitTestTimeFixture
-                                      , public IdentityManagementV2Fixture
-{
-};
-
-using IdentityManagementTimeFixture = IdentityManagementV2TimeFixture;
-
-} // namespace tests
-} // namespace ndn
-
-#endif // NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#ifdef NDN_CXX_KEEP_SECURITY_V1_ALIASES
+#include "v1/sec-tpm-osx.hpp"
+#else
+#error "Deprecated. Use the new TPM backed routines"
+#endif // NDN_CXX_KEEP_SECURITY_V1_ALIASES

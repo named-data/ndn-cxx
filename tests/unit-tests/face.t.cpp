@@ -36,7 +36,7 @@ namespace tests {
 
 using ndn::util::DummyClientFace;
 
-class FaceFixture : public IdentityManagementTimeFixture
+class FaceFixture : public IdentityManagementV1TimeFixture
 {
 public:
   explicit

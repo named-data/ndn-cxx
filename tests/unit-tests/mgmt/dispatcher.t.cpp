@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,7 +37,7 @@ using namespace ndn::tests;
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(TestDispatcher)
 
-class DispatcherFixture : public IdentityManagementTimeFixture
+class DispatcherFixture : public IdentityManagementV1TimeFixture
 {
 public:
   DispatcherFixture()

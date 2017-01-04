@@ -136,7 +136,7 @@ protected:
   security::v2::KeyChain m_keyChain;
 };
 
-using IdentityManagementFixture = IdentityManagementV1Fixture;
+using IdentityManagementFixture = IdentityManagementV2Fixture;
 
 } // namespace tests
 } // namespace ndn

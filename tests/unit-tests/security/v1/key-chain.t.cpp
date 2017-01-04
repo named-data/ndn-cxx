@@ -146,7 +146,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorMal2Config, TestHomeAndPibFixture<DefaultPibD
   BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
 }
 
-BOOST_FIXTURE_TEST_CASE(ExportIdentity, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(ExportIdentity, IdentityManagementV1Fixture)
 {
   Name identity("/TestKeyChain/ExportIdentity/");
   identity.appendVersion();
@@ -178,7 +178,7 @@ BOOST_FIXTURE_TEST_CASE(ExportIdentity, IdentityManagementFixture)
   BOOST_CHECK(m_keyChain.doesCertificateExist(certName));
 }
 
-BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementV1Fixture)
 {
   Name identity("/TestKeyChain/PrepareIdentityCertificate/");
   identity.appendVersion();
@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(PrepareIdentityCertificate, IdentityManagementFixture)
   BOOST_CHECK_EQUAL(static_cast<bool>(idCert5), false);
 }
 
-BOOST_FIXTURE_TEST_CASE(Delete, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(Delete, IdentityManagementV1Fixture)
 {
   Name identity("/TestSecPublicInfoSqlite3/Delete");
   identity.appendVersion();
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
   BOOST_CHECK_EQUAL(keyChain.getDefaultIdentity(), "/dummy/key");
 }
 
-BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementV1Fixture)
 {
   Name id("/id");
   Name certName = m_keyChain.createIdentity(id);
@@ -400,7 +400,7 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
                                                                 interest5.getName()[-1].blockFromValue()))));
 }
 
-BOOST_FIXTURE_TEST_CASE(EcdsaSigningByIdentityNoCert, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(EcdsaSigningByIdentityNoCert, IdentityManagementV1Fixture)
 {
   Data data("/test/data");
 

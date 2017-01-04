@@ -35,7 +35,7 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class ControllerFixture : public IdentityManagementTimeFixture
+class ControllerFixture : public IdentityManagementV1TimeFixture
 {
 protected:
   ControllerFixture()

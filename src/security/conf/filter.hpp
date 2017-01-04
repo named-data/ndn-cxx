@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -63,10 +63,10 @@ public:
   bool
   match(const Interest& interest)
   {
-    if (interest.getName().size() < signed_interest::MIN_LENGTH)
+    if (interest.getName().size() < command_interest::MIN_SIZE)
       return false;
 
-    Name unsignedName = interest.getName().getPrefix(-signed_interest::MIN_LENGTH);
+    Name unsignedName = interest.getName().getPrefix(-command_interest::MIN_SIZE);
     return matchName(unsignedName);
   }
 

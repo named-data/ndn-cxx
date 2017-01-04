@@ -20,14 +20,17 @@
  */
 
 #include "security/signature-sha256-with-rsa.hpp"
-#include "security/validator.hpp"
 #include "util/scheduler.hpp"
 
 #include "boost-test.hpp"
 #include "../identity-management-time-fixture.hpp"
+#include "v2/validator.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
+
+using namespace ndn::tests;
 
 class SignatureSha256RsaTimeFixture : public IdentityManagementTimeFixture
 {
@@ -45,17 +48,17 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestSignatureSha256WithRsa, SignatureSha256RsaTimeFixture)
 
 const uint8_t sigInfo[] = {
-0x16, 0x1b, // SignatureInfo
-  0x1b, 0x01, // SignatureType
-    0x01,
-  0x1c, 0x16, // KeyLocator
-    0x07, 0x14, // Name
-      0x08, 0x04,
-        0x74, 0x65, 0x73, 0x74,
-      0x08, 0x03,
-        0x6b, 0x65, 0x79,
-      0x08, 0x07,
-        0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
+  0x16, 0x1b, // SignatureInfo
+    0x1b, 0x01, // SignatureType
+      0x01,
+    0x1c, 0x16, // KeyLocator
+      0x07, 0x14, // Name
+        0x08, 0x04,
+          0x74, 0x65, 0x73, 0x74,
+        0x08, 0x03,
+          0x6b, 0x65, 0x79,
+        0x08, 0x07,
+          0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
 };
 
 const uint8_t sigValue[] = {
@@ -109,74 +112,47 @@ BOOST_AUTO_TEST_CASE(Encoding)
 
 BOOST_AUTO_TEST_CASE(DataSignature)
 {
-  Name identityName("/SecurityTestSignatureSha256WithRsa/DataSignature");
-  addIdentity(identityName, RsaKeyParams());
-  shared_ptr<security::v1::PublicKey> publicKey;
-  BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
-    m_keyChain.getDefaultKeyNameForIdentity(identityName)));
+  Identity identity = addIdentity("/SecurityTestSignatureSha256WithRsa/DataSignature", RsaKeyParams());
 
   Data testData("/SecurityTestSignatureSha256WithRsa/DataSignature/Data1");
   char content[5] = "1234";
   testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(testData,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identityName)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(testData, security::SigningInfo(identity)));
   Block dataBlock(testData.wireEncode().wire(), testData.wireEncode().size());
 
   Data testData2;
   testData2.wireDecode(dataBlock);
-  BOOST_CHECK(Validator::verifySignature(testData2, *publicKey));
+  BOOST_CHECK(v2::Validator::verifySignature(testData2, identity.getDefaultKey().getPublicKey()));
 }
 
 BOOST_AUTO_TEST_CASE(InterestSignature)
 {
-  Name identityName("/SecurityTestSignatureSha256WithRsa/InterestSignature");
-  addIdentity(identityName, RsaKeyParams());
-  shared_ptr<security::v1::PublicKey> publicKey;
-  BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
-    m_keyChain.getDefaultKeyNameForIdentity(identityName)));
+  Identity identity = addIdentity("/SecurityTestSignatureSha256WithRsa/InterestSignature", RsaKeyParams());
 
   Interest interest("/SecurityTestSignatureSha256WithRsa/InterestSignature/Interest1");
   Interest interest11("/SecurityTestSignatureSha256WithRsa/InterestSignature/Interest1");
 
   scheduler.scheduleEvent(time::milliseconds(100), [&] {
-      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest,
-                                           security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                                 identityName)));
+      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest, security::SigningInfo(identity)));
     });
 
   advanceClocks(time::milliseconds(100));
   scheduler.scheduleEvent(time::milliseconds(100), [&] {
-      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest11,
-                                           security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                                 identityName)));
+      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest11, security::SigningInfo(identity)));
     });
 
   advanceClocks(time::milliseconds(100));
-
-  time::system_clock::TimePoint timestamp1 =
-    time::fromUnixTimestamp(
-      time::milliseconds(interest.getName().get(signed_interest::POS_TIMESTAMP).toNumber()));
-
-  time::system_clock::TimePoint timestamp2 =
-    time::fromUnixTimestamp(
-      time::milliseconds(interest11.getName().get(signed_interest::POS_TIMESTAMP).toNumber()));
-
-  BOOST_CHECK_EQUAL(time::milliseconds(100), (timestamp2 - timestamp1));
-
-  uint64_t nonce1 = interest.getName().get(signed_interest::POS_RANDOM_VAL).toNumber();
-  uint64_t nonce2 = interest11.getName().get(signed_interest::POS_RANDOM_VAL).toNumber();
-  BOOST_WARN_NE(nonce1, nonce2);
 
   Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
 
   Interest interest2;
   interest2.wireDecode(interestBlock);
-  BOOST_CHECK(Validator::verifySignature(interest2, *publicKey));
+  BOOST_CHECK(v2::Validator::verifySignature(interest2, identity.getDefaultKey().getPublicKey()));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSignatureSha256WithRsa
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace security
 } // namespace ndn

@@ -43,7 +43,23 @@ namespace tests {
 using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestValidatorConfig, IdentityManagementFixture)
+
+// Needed to create Face instance
+class ValidatorConfigFixture : public IdentityManagementV1TimeFixture
+{
+public:
+  ValidatorConfigFixture()
+    : face(nullptr, m_keyChain)
+    , validator(face)
+  {
+  }
+
+public:
+  Face face;
+  ValidatorConfig validator;
+};
+
+BOOST_FIXTURE_TEST_SUITE(TestValidatorConfig, ValidatorConfigFixture)
 
 BOOST_AUTO_TEST_CASE(NameFilter)
 {
@@ -96,8 +112,6 @@ BOOST_AUTO_TEST_CASE(NameFilter)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
@@ -164,8 +178,6 @@ BOOST_AUTO_TEST_CASE(NameFilter2)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
@@ -236,8 +248,6 @@ BOOST_AUTO_TEST_CASE(NameFilter3)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
@@ -307,8 +317,6 @@ BOOST_AUTO_TEST_CASE(NameFilter4)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
@@ -374,8 +382,6 @@ BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
@@ -462,8 +468,6 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
@@ -598,8 +602,6 @@ BOOST_AUTO_TEST_CASE(Reset)
   Name root("/TestValidatorConfig/Reload");
   BOOST_REQUIRE(saveIdentityCertificate(addIdentity(root), "trust-anchor-8.cert"));
 
-  Face face(nullptr, m_keyChain);
-
   const std::string CONFIG =
     "rule\n"
     "{\n"
@@ -644,13 +646,11 @@ BOOST_AUTO_TEST_CASE(Reset)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  shared_ptr<ValidatorConfig> validator = shared_ptr<ValidatorConfig>(new ValidatorConfig(face));
+  validator.load(CONFIG, CONFIG_PATH.c_str());
+  BOOST_CHECK_EQUAL(validator.isEmpty(), false);
 
-  validator->load(CONFIG, CONFIG_PATH.c_str());
-  BOOST_CHECK_EQUAL(validator->isEmpty(), false);
-
-  validator->reset();
-  BOOST_CHECK(validator->isEmpty());
+  validator.reset();
+  BOOST_CHECK(validator.isEmpty());
 }
 
 BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
@@ -672,8 +672,6 @@ BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*data1,
@@ -683,11 +681,8 @@ BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
 
 BOOST_AUTO_TEST_CASE(SignedInterestTest)
 {
-  Name identity("/TestValidatorConfig/SignedInterestTest");
-
-  Name identity1 = identity;
-  identity1.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity1), "trust-anchor-9.cert"));
+  Name certName = addIdentity("/TestValidatorConfig/SignedInterestTest");
+  BOOST_REQUIRE(saveIdentityCertificate(certName, "trust-anchor-9.cert"));
 
   Name interestName("/TestValidatorConfig/SignedInterestTest");
   Name interestName1 = interestName;
@@ -697,9 +692,9 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
   interestName2.append("2");
   shared_ptr<Interest> interest2 = make_shared<Interest>(interestName2);
 
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(identity1)));
-  usleep(10000);
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByIdentity(identity1)));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByCertificate(certName)));
+  advanceClocks(time::milliseconds(10));
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByCertificate(certName)));
 
   const std::string CONFIG =
     "rule\n"
@@ -726,23 +721,23 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
+  advanceClocks(time::milliseconds(10));
 }
-
 
 BOOST_AUTO_TEST_CASE(MaxKeyTest)
 {
@@ -773,10 +768,11 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
   shared_ptr<Interest> interest3 = make_shared<Interest>(interestName3);
 
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(identity1)));
-  usleep(10000);
+  advanceClocks(time::milliseconds(10));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByIdentity(identity2)));
-  usleep(10000);
+  advanceClocks(time::milliseconds(10));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3, security::signingByIdentity(identity3)));
+  advanceClocks(time::milliseconds(10));
 
   const std::string CONFIG =
     "rule\n"
@@ -813,7 +809,6 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face,
                             ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                             ValidatorConfig::DEFAULT_GRACE_INTERVAL,
@@ -825,23 +820,28 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   // Should succeed because identity1's key has been cleaned up due to space limit.
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 }
 
 BOOST_AUTO_TEST_CASE(MaxKeyTest2)
@@ -880,12 +880,13 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   shared_ptr<Interest> interest4 = make_shared<Interest>(interestName4);
 
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest1, security::signingByIdentity(identity1)));
-  usleep(10000);
+  advanceClocks(time::milliseconds(10));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest2, security::signingByIdentity(identity2)));
-  usleep(10000);
+  advanceClocks(time::milliseconds(10));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest3, security::signingByIdentity(identity3)));
-  usleep(10000);
+  advanceClocks(time::milliseconds(10));
   BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest4, security::signingByIdentity(identity4)));
+  advanceClocks(time::milliseconds(10));
 
   const std::string CONFIG =
     "rule\n"
@@ -927,7 +928,6 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
 
-  Face face(nullptr, m_keyChain);
   ValidatorConfig validator(face,
                             ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                             ValidatorConfig::DEFAULT_GRACE_INTERVAL,
@@ -939,52 +939,60 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(false); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(true); });
 
-  sleep(2);
+  advanceClocks(time::seconds(2));
 
   validator.validate(*interest4,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   // Should succeed because identity1 and identity2's key has been cleaned up due to ttl limit.
   validator.validate(*interest1,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest2,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 
   validator.validate(*interest3,
     [] (const shared_ptr<const Interest>&) { BOOST_CHECK(true); },
     [] (const shared_ptr<const Interest>&, const std::string&) { BOOST_CHECK(false); });
+  advanceClocks(time::milliseconds(10));
 }
 
 BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 {
   Name rsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Rsa");
-  addIdentity(rsaIdentity);
-  // Name rsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(rsaIdentity);
+  addIdentity(rsaIdentity, RsaKeyParams());
 
   Name ecdsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Ecdsa");
   auto identity = addIdentity(ecdsaIdentity, EcdsaKeyParams());
@@ -1047,8 +1055,6 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test.conf"));
 
-  Face face(nullptr, m_keyChain);
-  ValidatorConfig validator(face);
   validator.load(CONFIG, CONFIG_PATH.c_str());
 
   validator.validate(*dataEcdsa,
@@ -1069,7 +1075,7 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 }
 
 
-struct FacesFixture : public IdentityManagementTimeFixture
+struct FacesFixture : public ValidatorConfigFixture
 {
   FacesFixture()
     : face1(io, m_keyChain, {true, true})
@@ -1106,10 +1112,6 @@ struct FacesFixture : public IdentityManagementTimeFixture
       readPacketOffset++;
       hasPassed = true;
     }
-  }
-
-  ~FacesFixture()
-  {
   }
 
 public:
@@ -1194,7 +1196,6 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
     "}\n";
   const boost::filesystem::path CONFIG_PATH =
     (boost::filesystem::current_path() / std::string("unit-test-nfd.conf"));
-
 
   auto validator = make_shared<ValidatorConfig>(&face2);
   validator->load(CONFIG, CONFIG_PATH.c_str());
@@ -1367,11 +1368,10 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   } while (passPacket());
 }
 
-struct DirTestFixture : public IdentityManagementTimeFixture
+struct DirTestFixture : public ValidatorConfigFixture
 {
   DirTestFixture()
-    : face(io, m_keyChain, {true, true})
-    , validator(&face, ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
+    : validator(&face, ValidatorConfig::DEFAULT_CERTIFICATE_CACHE,
                 ValidatorConfig::DEFAULT_GRACE_INTERVAL, 0)
   {
     certDirPath = (boost::filesystem::current_path() / std::string("test-cert-dir"));
@@ -1413,7 +1413,6 @@ public:
   shared_ptr<v1::IdentityCertificate> firstCert;
   shared_ptr<v1::IdentityCertificate> secondCert;
 
-  util::DummyClientFace face;
   ValidatorConfig validator;
 };
 
@@ -1487,7 +1486,7 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
   advanceClocks(time::milliseconds(10), 20);
 }
 
-class DirectCertFetchFixture : public IdentityManagementTimeFixture
+class DirectCertFetchFixture : public IdentityManagementV1TimeFixture
 {
 public:
   DirectCertFetchFixture()

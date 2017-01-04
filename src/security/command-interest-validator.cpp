@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -118,11 +118,11 @@ CommandInterestValidator::parseCommandInterest(const Interest& interest, Name& k
                                                uint64_t& timestamp) const
 {
   const Name& name = interest.getName();
-  if (name.size() < signed_interest::MIN_LENGTH) {
+  if (name.size() < command_interest::MIN_SIZE) {
     return ErrorCode::NAME_TOO_SHORT;
   }
 
-  const name::Component& timestampComp = name[signed_interest::POS_TIMESTAMP];
+  const name::Component& timestampComp = name.at(command_interest::POS_TIMESTAMP);
   if (!timestampComp.isNumber()) {
     return ErrorCode::BAD_TIMESTAMP;
   }

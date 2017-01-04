@@ -32,7 +32,7 @@ namespace tests {
 using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestValidator, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestValidator, IdentityManagementV1Fixture)
 
 void
 onValidated(const shared_ptr<const Data>& data)

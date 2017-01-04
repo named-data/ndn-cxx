@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,12 +47,6 @@ public:
                         const std::string&)> OnInterestCheckFailed;
   typedef function<void(const shared_ptr<const Data>&)> OnDataChecked;
   typedef function<void(const shared_ptr<const Data>&, const std::string&)> OnDataCheckFailed;
-
-  enum {
-    INTEREST_SIG_VALUE = -1,
-    INTEREST_SIG_INFO = -2
-  };
-
 
   virtual
   ~Checker()
@@ -115,8 +109,8 @@ public:
   {
     try {
       const Name& interestName = interest.getName();
-      Signature signature(interestName[Checker::INTEREST_SIG_INFO].blockFromValue(),
-                          interestName[Checker::INTEREST_SIG_VALUE].blockFromValue());
+      Signature signature(interestName[command_interest::POS_SIG_INFO].blockFromValue(),
+                          interestName[command_interest::POS_SIG_VALUE].blockFromValue());
       return check(interest, signature);
     }
     catch (const Signature::Error& e) {
@@ -222,8 +216,8 @@ public:
   {
     try {
       const Name& interestName = interest.getName();
-      Signature signature(interestName[Checker::INTEREST_SIG_INFO].blockFromValue(),
-                          interestName[Checker::INTEREST_SIG_VALUE].blockFromValue());
+      Signature signature(interestName[command_interest::POS_SIG_INFO].blockFromValue(),
+                          interestName[command_interest::POS_SIG_VALUE].blockFromValue());
       return check(interest, signature);
     }
     catch (const Signature::Error& e) {

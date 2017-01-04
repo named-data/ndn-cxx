@@ -33,7 +33,7 @@ using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Conf)
-BOOST_FIXTURE_TEST_SUITE(TestChecker, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestChecker, IdentityManagementV1Fixture)
 
 BOOST_AUTO_TEST_CASE(CustomizedCheckerTest1)
 {

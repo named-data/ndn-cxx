@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016, Regents of the University of California,
+ * Copyright (c) 2013-2017, Regents of the University of California,
  *                          Arizona Board of Regents,
  *                          Colorado State University,
  *                          University Pierre & Marie Curie, Sorbonne University,
@@ -37,7 +37,7 @@ namespace util {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
-BOOST_FIXTURE_TEST_SUITE(TestNotificationStream, ndn::tests::IdentityManagementTimeFixture)
+BOOST_FIXTURE_TEST_SUITE(TestNotificationStream, ndn::tests::IdentityManagementV1TimeFixture)
 
 BOOST_AUTO_TEST_CASE(Post)
 {

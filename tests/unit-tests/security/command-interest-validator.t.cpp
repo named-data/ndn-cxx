@@ -35,7 +35,7 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class CommandInterestValidatorFixture : public IdentityManagementTimeFixture
+class CommandInterestValidatorFixture : public IdentityManagementV1TimeFixture
 {
 protected:
   CommandInterestValidatorFixture()
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(NameTooShort)
 BOOST_AUTO_TEST_CASE(BadTimestamp)
 {
   auto i1 = makeCommandInterest();
-  setNameComponent(*i1, signed_interest::POS_TIMESTAMP, "not-timestamp");
+  setNameComponent(*i1, command_interest::POS_TIMESTAMP, "not-timestamp");
   assertReject(*i1, CommandInterestValidator::ErrorCode::BAD_TIMESTAMP);
 }
 
@@ -251,8 +251,8 @@ BOOST_AUTO_TEST_CASE(TimestampReorderEqual)
   assertAccept(*i1);
 
   auto i2 = makeCommandInterest(); // signed at 0s
-  setNameComponent(*i2, signed_interest::POS_TIMESTAMP,
-                   i1->getName()[signed_interest::POS_TIMESTAMP]);
+  setNameComponent(*i2, command_interest::POS_TIMESTAMP,
+                   i1->getName()[command_interest::POS_TIMESTAMP]);
   assertReject(*i2, CommandInterestValidator::ErrorCode::TIMESTAMP_REORDER);
 
   advanceClocks(time::seconds(2));
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GraceNonPositive, VALUE, GraceNonPositiveValues)
   auto i1 = makeCommandInterest(1); // signed at 0ms
   auto i2 = makeCommandInterest(2); // signed at 0ms
   for (auto interest : {i1, i2}) {
-    setNameComponent(*interest, signed_interest::POS_TIMESTAMP,
+    setNameComponent(*interest, command_interest::POS_TIMESTAMP,
                      name::Component::fromNumber(time::toUnixTimestamp(time::system_clock::now()).count()));
   } // ensure timestamps are exactly 0ms
 

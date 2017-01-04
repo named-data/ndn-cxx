@@ -117,7 +117,7 @@ Validator::verifySignature(const Interest& interest, const v1::PublicKey& key)
 {
   const Name& name = interest.getName();
 
-  if (name.size() < signed_interest::MIN_LENGTH_SIG_ONLY)
+  if (name.size() < signed_interest::MIN_SIZE)
     return false;
 
   Signature sig;
