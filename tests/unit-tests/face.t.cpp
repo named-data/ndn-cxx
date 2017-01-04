@@ -28,7 +28,7 @@
 
 #include "boost-test.hpp"
 #include "identity-management-time-fixture.hpp"
-#include "key-chain-fixture.hpp"
+#include "test-home-fixture.hpp"
 #include "make-interest-data.hpp"
 
 namespace ndn {

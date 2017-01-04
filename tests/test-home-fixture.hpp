@@ -25,7 +25,6 @@
 #include "security/v2/key-chain.hpp"
 
 #include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -117,22 +116,10 @@ public:
   }
 };
 
-
 struct DefaultPibDir
 {
   const std::string PATH = "build/keys";
 };
-
-/**
- * @brief Fixture to create a test KeyChain with default identity
- */
-class KeyChainFixture : public PibDirFixture<DefaultPibDir>,
-                        public IdentityManagementFixture
-{
-public:
-  KeyChainFixture();
-};
-
 
 } // namespace tests
 } // namespace ndn

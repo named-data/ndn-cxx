@@ -24,7 +24,7 @@
 
 #include "boost-test.hpp"
 #include "unit-tests/test-home-env-saver.hpp"
-#include "key-chain-fixture.hpp"
+#include "test-home-fixture.hpp"
 #include "validator.hpp"
 
 namespace ndn {

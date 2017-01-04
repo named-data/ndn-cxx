@@ -36,9 +36,9 @@ BOOST_FIXTURE_TEST_SUITE(TestSecRuleSpecific, IdentityManagementFixture)
 BOOST_AUTO_TEST_CASE(Basic)
 {
   Name rsaIdentity("/SecurityTestSecRule/Basic/Rsa");
-  BOOST_REQUIRE(addIdentity(rsaIdentity, RsaKeyParams()));
+  addIdentity(rsaIdentity, RsaKeyParams());
   Name ecdsaIdentity("/SecurityTestSecRule/Basic/Ecdsa");
-  BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
+  addIdentity(ecdsaIdentity, EcdsaKeyParams());
 
   Name dataName("SecurityTestSecRule/Basic");
   Data rsaData(dataName);

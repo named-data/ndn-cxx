@@ -26,7 +26,7 @@
 #include "boost-test.hpp"
 #include "dummy-keychain.hpp"
 #include "../../test-home-env-saver.hpp"
-#include "key-chain-fixture.hpp"
+#include "test-home-fixture.hpp"
 #include "identity-management-fixture.hpp"
 
 #include <boost/algorithm/string.hpp>

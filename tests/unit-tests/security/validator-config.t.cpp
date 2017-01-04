@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(NameFilter)
 {
   Name identity("/TestValidatorConfig/NameFilter");
   identity.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-1.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity), "trust-anchor-1.cert"));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name dataName1("/simple/equal");
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(NameFilter2)
 {
   Name identity("/TestValidatorConfig/NameFilter2");
   identity.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-2.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity), "trust-anchor-2.cert"));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name dataName1("/simple/isPrefixOf");
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(NameFilter3)
 {
   Name identity("/TestValidatorConfig/NameFilter3");
   identity.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-3.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity), "trust-anchor-3.cert"));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name dataName1("/simple/isStrictPrefixOf");
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(NameFilter4)
 {
   Name identity("/TestValidatorConfig/NameFilter4");
   identity.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-4.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity), "trust-anchor-4.cert"));
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
 
   Name dataName1("/simple/regex");
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE(KeyLocatorNameChecker1)
 {
   Name identity("/TestValidatorConfig/KeyLocatorNameChecker1");
   identity.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-5.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity), "trust-anchor-5.cert"));
 
   Name dataName1 = identity;
   dataName1.append("1");
@@ -397,11 +397,11 @@ BOOST_AUTO_TEST_CASE(FixedSignerChecker)
 
   Name identity1 = identity;
   identity1.append("1").appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-7.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity1), "trust-anchor-7.cert"));
 
   Name identity2 = identity;
   identity2.append("2").appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity2));
+  addIdentity(identity2);
 
   Name dataName1 = identity;
   dataName1.append("data").appendVersion();
@@ -483,11 +483,11 @@ BOOST_AUTO_TEST_CASE(MultiCheckers)
 {
   Name identity1("/TestValidatorConfig/MultiCheckers/");
   identity1.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-multi-1.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity1), "trust-anchor-multi-1.cert"));
 
   Name identity2("/TestValidatorConfig/");
   identity2.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity2, "trust-anchor-multi-2.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity2), "trust-anchor-multi-2.cert"));
 
   const std::string CONFIG =
     "rule\n"
@@ -596,7 +596,7 @@ BOOST_AUTO_TEST_CASE(MultiCheckers)
 BOOST_AUTO_TEST_CASE(Reset)
 {
   Name root("/TestValidatorConfig/Reload");
-  BOOST_REQUIRE(saveIdentityCertificate(root, "trust-anchor-8.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(root), "trust-anchor-8.cert"));
 
   Face face(nullptr, m_keyChain);
 
@@ -657,7 +657,7 @@ BOOST_AUTO_TEST_CASE(TrustAnchorWildcard)
 {
   Name identity("/TestValidatorConfig/Wildcard");
   identity.appendVersion();
-  BOOST_REQUIRE_NO_THROW(addIdentity(identity));
+  addIdentity(identity);
 
   Name dataName1("/any/data");
   shared_ptr<Data> data1 = make_shared<Data>(dataName1);
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(SignedInterestTest)
 
   Name identity1 = identity;
   identity1.appendVersion();
-  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-9.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity1), "trust-anchor-9.cert"));
 
   Name interestName("/TestValidatorConfig/SignedInterestTest");
   Name interestName1 = interestName;
@@ -750,15 +750,15 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest)
 
   Name identity1 = identity;
   identity1.append("Key1");
-  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-10-1.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity1), "trust-anchor-10-1.cert"));
 
   Name identity2 = identity;
   identity2.append("Key2");
-  BOOST_REQUIRE(saveIdentityCertificate(identity2, "trust-anchor-10-2.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity2), "trust-anchor-10-2.cert"));
 
   Name identity3 = identity;
   identity3.append("Key3");
-  BOOST_REQUIRE(saveIdentityCertificate(identity3, "trust-anchor-10-3.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity3), "trust-anchor-10-3.cert"));
 
 
   Name interestName("/TestValidatorConfig/MaxKeyTest");
@@ -850,19 +850,19 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
 
   Name identity1 = identity;
   identity1.append("Key1");
-  BOOST_REQUIRE(saveIdentityCertificate(identity1, "trust-anchor-10-1.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity1), "trust-anchor-10-1.cert"));
 
   Name identity2 = identity;
   identity2.append("Key2");
-  BOOST_REQUIRE(saveIdentityCertificate(identity2, "trust-anchor-10-2.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity2), "trust-anchor-10-2.cert"));
 
   Name identity3 = identity;
   identity3.append("Key3");
-  BOOST_REQUIRE(saveIdentityCertificate(identity3, "trust-anchor-10-3.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity3), "trust-anchor-10-3.cert"));
 
   Name identity4 = identity;
   identity4.append("Key4");
-  BOOST_REQUIRE(saveIdentityCertificate(identity4, "trust-anchor-10-4.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(identity4), "trust-anchor-10-4.cert"));
 
 
   Name interestName("/TestValidatorConfig/MaxKeyTest");
@@ -983,12 +983,12 @@ BOOST_AUTO_TEST_CASE(MaxKeyTest2)
 BOOST_AUTO_TEST_CASE(FixedSignerChecker2)
 {
   Name rsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Rsa");
-  BOOST_REQUIRE(addIdentity(rsaIdentity));
-  Name rsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(rsaIdentity);
+  addIdentity(rsaIdentity);
+  // Name rsaCertName = m_keyChain.getDefaultCertificateNameForIdentity(rsaIdentity);
 
   Name ecdsaIdentity("/TestValidatorConfig/FixedSignerChecker2/Ecdsa");
-  BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
-  BOOST_REQUIRE(saveIdentityCertificate(ecdsaIdentity, "trust-anchor-11.cert"));
+  auto identity = addIdentity(ecdsaIdentity, EcdsaKeyParams());
+  BOOST_REQUIRE(saveIdentityCertificate(identity, "trust-anchor-11.cert"));
 
   Name dataName("/TestValidatorConfig/FixedSignerChecker2");
   shared_ptr<Data> dataRsa = make_shared<Data>(dataName);
@@ -1127,11 +1127,11 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   std::vector<v1::CertificateSubjectDescription> subjectDescription;
 
   Name root("/TestValidatorConfig");
-  BOOST_REQUIRE(saveIdentityCertificate(root, "trust-anchor-6.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(root), "trust-anchor-6.cert"));
 
 
   Name sld("/TestValidatorConfig/HierarchicalChecker");
-  BOOST_REQUIRE(addIdentity(sld));
+  addIdentity(sld);
   advanceClocks(time::milliseconds(100));
   Name sldKeyName = m_keyChain.generateRsaKeyPairAsDefault(sld, true);
   shared_ptr<v1::IdentityCertificate> sldCert =
@@ -1144,7 +1144,7 @@ BOOST_FIXTURE_TEST_CASE(HierarchicalChecker, FacesFixture)
   m_keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/HierarchicalChecker/NextLevel");
-  BOOST_REQUIRE(addIdentity(nld));
+  addIdentity(nld);
   advanceClocks(time::milliseconds(100));
   Name nldKeyName = m_keyChain.generateRsaKeyPairAsDefault(nld, true);
   shared_ptr<v1::IdentityCertificate> nldCert =
@@ -1224,10 +1224,10 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   std::vector<v1::CertificateSubjectDescription> subjectDescription;
 
   Name root("/TestValidatorConfig");
-  BOOST_REQUIRE(saveIdentityCertificate(root, "trust-anchor-8.cert", true));
+  BOOST_REQUIRE(saveIdentityCertificate(addIdentity(root), "trust-anchor-8.cert"));
 
   Name sld("/TestValidatorConfig/Nrd-1");
-  BOOST_REQUIRE(addIdentity(sld));
+  addIdentity(sld);
   advanceClocks(time::milliseconds(100));
   Name sldKeyName = m_keyChain.generateRsaKeyPairAsDefault(sld, true);
   shared_ptr<v1::IdentityCertificate> sldCert =
@@ -1240,7 +1240,7 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   m_keyChain.addCertificateAsIdentityDefault(*sldCert);
 
   Name nld("/TestValidatorConfig/Nrd-1/Nrd-2");
-  BOOST_REQUIRE(addIdentity(nld));
+  addIdentity(nld);
   advanceClocks(time::milliseconds(100));
   Name nldKeyName = m_keyChain.generateRsaKeyPairAsDefault(nld, true);
   shared_ptr<v1::IdentityCertificate> nldCert =
@@ -1386,13 +1386,13 @@ struct DirTestFixture : public IdentityManagementTimeFixture
                       std::string("trust-anchor-2.cert"));
 
     firstIdentity = Name("/TestValidatorConfig/Dir/First");
-    BOOST_REQUIRE(addIdentity(firstIdentity));
+    addIdentity(firstIdentity);
     Name firstCertName = m_keyChain.getDefaultCertificateNameForIdentity(firstIdentity);
     firstCert = m_keyChain.getCertificate(firstCertName);
     io::save(*firstCert, firstCertPath.string());
 
     secondIdentity = Name("/TestValidatorConfig/Dir/Second");
-    BOOST_REQUIRE(addIdentity(secondIdentity));
+    addIdentity(secondIdentity);
     Name secondCertName = m_keyChain.getDefaultCertificateNameForIdentity(secondIdentity);
     secondCert = m_keyChain.getCertificate(secondCertName);
   }
@@ -1494,9 +1494,9 @@ public:
     : clientFace(io, m_keyChain, {true, true})
     , validationResult(boost::logic::indeterminate)
   {
-    BOOST_REQUIRE(addIdentity(ca));
-    BOOST_REQUIRE(saveIdentityCertificate(ca, "trust-anchor-1.cert", true));
-    BOOST_REQUIRE(addSubCertificate(user, ca));
+    auto certName = addIdentity(ca);
+    saveIdentityCertificate(certName, "trust-anchor-1.cert");
+    addSubCertificate(user, ca);
 
     userCertName = m_keyChain.getDefaultCertificateNameForIdentity(user);
     userCert = m_keyChain.getCertificate(userCertName);

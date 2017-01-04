@@ -28,7 +28,6 @@
 
 #include "identity-management-fixture.hpp"
 #include "boost-test.hpp"
-#include "key-chain-fixture.hpp"
 
 #include <stdio.h>
 
@@ -40,8 +39,7 @@ struct PibDirWithDefaultTpm
   const std::string PATH = "build/keys-with-default-tpm";
 };
 
-class FacesFixture : public IdentityManagementFixture,
-                     public PibDirFixture<PibDirWithDefaultTpm>
+class FacesFixture : public IdentityManagementFixture
 {
 public:
   FacesFixture()

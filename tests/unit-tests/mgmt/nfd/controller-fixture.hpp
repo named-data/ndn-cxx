@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,12 +45,8 @@ protected:
     , datasetFailCallback(bind(&ControllerFixture::recordDatasetFail, this, _1, _2))
   {
     Name identityName("/localhost/ControllerFixture");
-    if (this->addIdentity(identityName)) {
-      m_keyChain.setDefaultIdentity(identityName);
-    }
-    else {
-      BOOST_FAIL("cannot create identity");
-    }
+    this->addIdentity(identityName);
+    m_keyChain.setDefaultIdentity(identityName);
   }
 
   /** \brief controls whether Controller's validator should accept or reject validation requests

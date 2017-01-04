@@ -269,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
 {
   Name identity("/TestIo/IdCert");
   identity.appendVersion();
-  BOOST_REQUIRE(addIdentity(identity, RsaKeyParams()));
+  addIdentity(identity, RsaKeyParams());
   Name certName = m_keyChain.getDefaultCertificateNameForIdentity(identity);
   shared_ptr<security::v1::IdentityCertificate> idCert;
   BOOST_REQUIRE_NO_THROW(idCert = m_keyChain.getCertificate(certName));

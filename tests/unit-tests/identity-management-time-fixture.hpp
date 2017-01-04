@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,16 +28,17 @@
 namespace ndn {
 namespace tests {
 
-/**
- * @brief IdentityManagementTimeFixture is a test suite level fixture.
- * Test cases in the suite can use this fixture to create identities.
- * Identities added via addIdentity method are automatically deleted
- * during test teardown.
- */
-class IdentityManagementTimeFixture : public UnitTestTimeFixture
-                                    , public IdentityManagementFixture
+class IdentityManagementV1TimeFixture : public UnitTestTimeFixture
+                                      , public IdentityManagementV1Fixture
 {
 };
+
+class IdentityManagementV2TimeFixture : public UnitTestTimeFixture
+                                      , public IdentityManagementV2Fixture
+{
+};
+
+using IdentityManagementTimeFixture = IdentityManagementV1TimeFixture;
 
 } // namespace tests
 } // namespace ndn

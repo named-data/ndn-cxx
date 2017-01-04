@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(Encoding)
 BOOST_AUTO_TEST_CASE(DataSignature)
 {
   Name identityName("/SecurityTestSignatureSha256WithRsa/DataSignature");
-  BOOST_REQUIRE(addIdentity(identityName, RsaKeyParams()));
+  addIdentity(identityName, RsaKeyParams());
   shared_ptr<security::v1::PublicKey> publicKey;
   BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
     m_keyChain.getDefaultKeyNameForIdentity(identityName)));
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(DataSignature)
 BOOST_AUTO_TEST_CASE(InterestSignature)
 {
   Name identityName("/SecurityTestSignatureSha256WithRsa/InterestSignature");
-  BOOST_REQUIRE(addIdentity(identityName, RsaKeyParams()));
+  addIdentity(identityName, RsaKeyParams());
   shared_ptr<security::v1::PublicKey> publicKey;
   BOOST_REQUIRE_NO_THROW(publicKey = m_keyChain.getPublicKeyFromTpm(
     m_keyChain.getDefaultKeyNameForIdentity(identityName)));

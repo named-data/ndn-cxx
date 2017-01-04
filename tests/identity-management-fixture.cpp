@@ -21,22 +21,18 @@
 
 #include "identity-management-fixture.hpp"
 #include "util/io.hpp"
+#include "security/v2/additional-description.hpp"
 
 #include <boost/filesystem.hpp>
 
 namespace ndn {
 namespace tests {
 
-IdentityManagementFixture::IdentityManagementFixture()
-{
-}
+namespace v1 = security::v1;
+namespace v2 = security::v2;
 
-IdentityManagementFixture::~IdentityManagementFixture()
+IdentityManagementBaseFixture::~IdentityManagementBaseFixture()
 {
-  for (const auto& identity : m_identities) {
-    m_keyChain.deleteIdentity(identity);
-  }
-
   boost::system::error_code ec;
   for (const auto& certFile : m_certFiles) {
     boost::filesystem::remove(certFile, ec); // ignore error
@@ -44,36 +40,11 @@ IdentityManagementFixture::~IdentityManagementFixture()
 }
 
 bool
-IdentityManagementFixture::addIdentity(const Name& identity, const KeyParams& params)
+IdentityManagementBaseFixture::saveCertToFile(const Data& obj, const std::string& filename)
 {
+  m_certFiles.insert(filename);
   try {
-    m_keyChain.createIdentity(identity, params);
-    m_identities.push_back(identity);
-    return true;
-  }
-  catch (std::runtime_error&) {
-    return false;
-  }
-}
-
-bool
-IdentityManagementFixture::saveIdentityCertificate(const Name& identity,
-                                                   const std::string& filename, bool wantAdd)
-{
-  shared_ptr<security::v1::IdentityCertificate> cert;
-  try {
-    cert = m_keyChain.getCertificate(m_keyChain.getDefaultCertificateNameForIdentity(identity));
-  }
-  catch (const security::v1::SecPublicInfo::Error&) {
-    if (wantAdd && this->addIdentity(identity)) {
-      return this->saveIdentityCertificate(identity, filename, false);
-    }
-    return false;
-  }
-
-  m_certFiles.push_back(filename);
-  try {
-    io::save(*cert, filename);
+    io::save(obj, filename);
     return true;
   }
   catch (const io::Error&) {
@@ -81,32 +52,110 @@ IdentityManagementFixture::saveIdentityCertificate(const Name& identity,
   }
 }
 
+IdentityManagementV1Fixture::~IdentityManagementV1Fixture()
+{
+  for (const auto& identity : m_identities) {
+    m_keyChain.deleteIdentity(identity);
+  }
+}
+
+Name
+IdentityManagementV1Fixture::addIdentity(const Name& identity, const KeyParams& params)
+{
+  Name certName = m_keyChain.createIdentity(identity, params);
+  m_identities.insert(identity);
+  return certName;
+}
+
 bool
-IdentityManagementFixture::addSubCertificate(const Name& identity, const Name& issuer,
-                                             const KeyParams& params)
+IdentityManagementV1Fixture::saveIdentityCertificate(const Name& certName, const std::string& filename)
+{
+  try {
+    auto cert = m_keyChain.getCertificate(certName);
+    return saveCertToFile(*cert, filename);
+  }
+  catch (const v1::SecPublicInfo::Error&) {
+    return false;
+  }
+}
+
+bool
+IdentityManagementV1Fixture::addSubCertificate(const Name& subIdentity, const Name& issuer, const KeyParams& params)
 {
   if (!m_keyChain.doesIdentityExist(issuer))
     return false;
-  if (!m_keyChain.doesIdentityExist(identity)) {
-    addIdentity(identity, params);
+  if (!m_keyChain.doesIdentityExist(subIdentity)) {
+    addIdentity(subIdentity, params);
   }
   Name identityKeyName;
   try {
-    identityKeyName = m_keyChain.getDefaultKeyNameForIdentity(identity);
+    identityKeyName = m_keyChain.getDefaultKeyNameForIdentity(subIdentity);
   }
-  catch (const security::v1::SecPublicInfo::Error&) {
-    identityKeyName = m_keyChain.generateRsaKeyPairAsDefault(identity, true);
+  catch (const v1::SecPublicInfo::Error&) {
+    identityKeyName = m_keyChain.generateRsaKeyPairAsDefault(subIdentity, true);
   }
-  std::vector<security::v1::CertificateSubjectDescription> subjectDescription;
-  shared_ptr<security::v1::IdentityCertificate> identityCert =
+  std::vector<v1::CertificateSubjectDescription> subjectDescription;
+  shared_ptr<v1::IdentityCertificate> identityCert =
     m_keyChain.prepareUnsignedIdentityCertificate(identityKeyName,
                                                   issuer,
                                                   time::system_clock::now(),
                                                   time::system_clock::now() + time::days(7300),
                                                   subjectDescription);
-  m_keyChain.sign(*identityCert, security::signingByIdentity(issuer));
+  m_keyChain.sign(*identityCert, signingByIdentity(issuer));
   m_keyChain.addCertificateAsIdentityDefault(*identityCert);
   return true;
+}
+
+IdentityManagementV2Fixture::IdentityManagementV2Fixture()
+  : m_keyChain("pib-memory:", "tpm-memory:")
+{
+}
+
+security::Identity
+IdentityManagementV2Fixture::addIdentity(const Name& identityName, const KeyParams& params)
+{
+  auto identity = m_keyChain.createIdentity(identityName, params);
+  m_identities.insert(identityName);
+  return identity;
+}
+
+bool
+IdentityManagementV2Fixture::saveIdentityCertificate(const security::Identity& identity,
+                                                     const std::string& filename)
+{
+  try {
+    auto cert = identity.getDefaultKey().getDefaultCertificate();
+    return saveCertToFile(cert, filename);
+  }
+  catch (const security::Pib::Error&) {
+    return false;
+  }
+}
+
+security::Identity
+IdentityManagementV2Fixture::addSubCertificate(const Name& subIdentityName,
+                                               const security::Identity& issuer, const KeyParams& params)
+{
+  auto subIdentity = addIdentity(subIdentityName, params);
+
+  v2::Certificate request = subIdentity.getDefaultKey().getDefaultCertificate();
+
+  request.setName(request.getKeyName().append("parent").appendVersion());
+
+  SignatureInfo info;
+  info.setValidityPeriod(security::ValidityPeriod(time::system_clock::now(),
+                                                  time::system_clock::now() + time::days(7300)));
+
+  v2::AdditionalDescription description;
+  description.set("type", "sub-certificate");
+  info.appendTypeSpecificTlv(description.wireEncode());
+
+  request.setSignature(Signature(info));
+
+  m_keyChain.sign(request, signingByIdentity(issuer));
+  m_keyChain.setDefaultCertificate(subIdentity.getDefaultKey(), request);
+
+  return subIdentity;
 }
 
 } // namespace tests

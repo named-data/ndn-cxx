@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,9 +34,9 @@ BOOST_FIXTURE_TEST_SUITE(TestSecRuleRelative, IdentityManagementFixture)
 BOOST_AUTO_TEST_CASE(Basic)
 {
   Name rsaIdentity("/SecurityTestSecRule/Basic/Rsa");
-  BOOST_REQUIRE(addIdentity(rsaIdentity, RsaKeyParams()));
+  addIdentity(rsaIdentity, RsaKeyParams());
   Name ecdsaIdentity("/SecurityTestSecRule/Basic/Ecdsa");
-  BOOST_REQUIRE(addIdentity(ecdsaIdentity, EcdsaKeyParams()));
+  addIdentity(ecdsaIdentity, EcdsaKeyParams());
 
   Name dataName("SecurityTestSecRule/Basic");
   Data rsaData(dataName);

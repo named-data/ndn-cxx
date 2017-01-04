@@ -16,7 +16,7 @@ def build(bld):
     # core modules that can be shared between unit and integrated tests
     bld(features="cxx",
         target="boost-tests-base",
-        source="key-chain-fixture.cpp identity-management-fixture.cpp",
+        source="identity-management-fixture.cpp",
         use='ndn-cxx tests-base BOOST',
         includes='.',
         install_path=None)
