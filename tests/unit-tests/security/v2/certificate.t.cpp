@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -254,6 +254,30 @@ BOOST_FIXTURE_TEST_CASE(EmptyContent, InvalidCertFixture)
   cert.setContent(nullptr, 0);
   cert.setSignature(generateFakeSignature());
   BOOST_CHECK_THROW(cert.getPublicKey(), Certificate::Error);
+}
+
+BOOST_AUTO_TEST_CASE(PrintCertificateInfo)
+{
+  const std::string expectedCertificateInfo = std::string(R"INFO(
+Certificate name:
+  /ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B
+Validity:
+  NotBefore: 20150814T223739
+  NotAfter: 20150818T223738
+Public key bits:
+  MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQCeBj5HhbI0N6qFR6wDJIO1nKgF
+  OiQe64kBu+mbssMirGjj8GwCzmimxNCnBpCcqhsIHYtDmjNnRG0hoxuImpdeWcQV
+  C9ksvVEHYYKtwbjXv5vPfSTCY/OXF+v+YiW6W02Kwnq9Q4qPuPLxxWow01CMyJrf
+  7+0153pi6nZ8uwgmxwIBEQ==
+Signature Information:
+  Signature Type: SignatureSha256WithRsa
+  Key Locator: Name=/ndn/site1/KEY/ksk-2516425377094
+)INFO").substr(1);
+
+  Certificate certificate(Block(CERT, sizeof(CERT)));
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate), expectedCertificateInfo);
+
+  // @todo Check output formats of other certificates
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificate

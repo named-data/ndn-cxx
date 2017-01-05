@@ -172,6 +172,9 @@ public:
   static const name::Component KEY_COMPONENT;
 };
 
+std::ostream&
+operator<<(std::ostream& os, const Certificate& cert);
+
 /**
  * @brief Extract identity namespace from the certificate name @p certName
  */

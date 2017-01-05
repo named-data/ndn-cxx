@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #include "encoding/block-helpers.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace tests {
@@ -56,6 +57,8 @@ BOOST_AUTO_TEST_CASE(TypeNone)
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_None);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
   BOOST_CHECK_THROW(b.getKeyDigest(), KeyLocator::Error);
+
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "None");
 }
 
 BOOST_AUTO_TEST_CASE(TypeName)
@@ -86,13 +89,15 @@ BOOST_AUTO_TEST_CASE(TypeName)
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_Name);
   BOOST_CHECK_EQUAL(b.getName(), Name("/N"));
   BOOST_CHECK_THROW(b.getKeyDigest(), KeyLocator::Error);
+
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "Name=/N");
 }
 
 BOOST_AUTO_TEST_CASE(TypeKeyDigest)
 {
-  char digestOctets[] = "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD";
-  ConstBufferPtr digestBuffer = make_shared<Buffer>(digestOctets, 8);
-  Block expectedDigestBlock = makeBinaryBlock(tlv::KeyDigest, digestOctets, 8);
+  std::string digestOctets = "\x12\x34\x56\x78\x9a\xbc\xde\xf1\x23\x45";
+  ConstBufferPtr digestBuffer = make_shared<Buffer>(digestOctets.c_str(), digestOctets.size());
+  Block expectedDigestBlock = makeBinaryBlock(tlv::KeyDigest, digestOctets.c_str(), digestOctets.size());
 
   KeyLocator a;
   a.setKeyDigest(digestBuffer);
@@ -109,7 +114,7 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0x1c, 0x0a, 0x1d, 0x08, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd
+    0x1c, 0x0c, 0x1d, 0x0a, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf1, 0x23, 0x45
   };
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
@@ -120,6 +125,12 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_KeyDigest);
   BOOST_CHECK(b.getKeyDigest() == expectedDigestBlock);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
+
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=123456789A...");
+
+  std::string shortDigest = "\xbc\xde\xf1";
+  b.setKeyDigest(make_shared<Buffer>(shortDigest.c_str(), shortDigest.size()));
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=BCDEF1");
 }
 
 BOOST_AUTO_TEST_CASE(Equality)
@@ -166,6 +177,8 @@ BOOST_AUTO_TEST_CASE(UnknownType)
   KeyLocator b(wire);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
+
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "Unknown");
 
   b.setName("/N");
   BOOST_CHECK_EQUAL(a == b, false);

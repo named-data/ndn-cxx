@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,7 @@
 
 #include "key-locator.hpp"
 #include "encoding/block-helpers.hpp"
+#include "util/string-helper.hpp"
 
 namespace ndn {
 
@@ -187,6 +188,32 @@ bool
 KeyLocator::operator==(const KeyLocator& other) const
 {
   return wireEncode() == other.wireEncode();
+}
+
+std::ostream&
+operator<<(std::ostream& os, const KeyLocator& keyLocator)
+{
+  switch (keyLocator.getType()) {
+    case KeyLocator::KeyLocator_Name: {
+      return os << "Name=" << keyLocator.getName();
+    }
+    case KeyLocator::KeyLocator_KeyDigest: {
+      const size_t MAX_DIGEST_OCTETS_TO_SHOW = 5;
+      const Block& digest = keyLocator.getKeyDigest();
+      os << "KeyDigest=" << toHex(digest.value(), digest.value_size()).substr(0, MAX_DIGEST_OCTETS_TO_SHOW * 2);
+      if (digest.value_size() > MAX_DIGEST_OCTETS_TO_SHOW) {
+        os << "...";
+      }
+      return os;
+    }
+    case KeyLocator::KeyLocator_None: {
+      return os << "None";
+    }
+    case KeyLocator::KeyLocator_Unknown: {
+      return os << "Unknown";
+    }
+  }
+  return os << "Unknown";
 }
 
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,7 @@
 
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace tlv {
@@ -400,6 +401,26 @@ BOOST_AUTO_TEST_CASE(ReadFromStream)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // NonNegativeInteger
+
+BOOST_AUTO_TEST_SUITE(PrintHelpers)
+
+BOOST_AUTO_TEST_CASE(PrintSignatureTypeValue)
+{
+  SignatureTypeValue value = DigestSha256;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "DigestSha256");
+
+  value = SignatureSha256WithRsa;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "SignatureSha256WithRsa");
+
+  value = SignatureSha256WithEcdsa;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "SignatureSha256WithEcdsa");
+
+  value = static_cast<SignatureTypeValue>(-1);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "Unknown Signature Type");
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestTlv
+
 
 BOOST_AUTO_TEST_SUITE_END() // TestTlv
 BOOST_AUTO_TEST_SUITE_END() // Encoding

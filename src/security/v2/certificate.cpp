@@ -23,7 +23,10 @@
  */
 
 #include "certificate.hpp"
+#include "additional-description.hpp"
 #include "../../encoding/block-helpers.hpp"
+#include "../../util/indented-stream.hpp"
+#include "../transform.hpp"
 
 namespace ndn {
 namespace security {
@@ -130,6 +133,52 @@ Certificate::isValidName(const Name& certName)
   // /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
   return (certName.size() >= Certificate::MIN_CERT_NAME_LENGTH &&
           certName.get(Certificate::KEY_COMPONENT_OFFSET) == Certificate::KEY_COMPONENT);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Certificate& cert)
+{
+  os << "Certificate name:\n";
+  os << "  " << cert.getName() << "\n";
+  os << "Validity:\n";
+  {
+    os << "  NotBefore: " << time::toIsoString(cert.getValidityPeriod().getPeriod().first) << "\n";
+    os << "  NotAfter: "  << time::toIsoString(cert.getValidityPeriod().getPeriod().second)  << "\n";
+  }
+
+  try {
+    const Block& info = cert.getSignature().getSignatureInfo().getTypeSpecificTlv(tlv::AdditionalDescription);
+    os << "Additional Description:\n";
+    for (const auto& item : v2::AdditionalDescription(info)) {
+      os << "  " << item.first << ": " << item.second << "\n";
+    }
+  }
+  catch (const SignatureInfo::Error&) {
+    // ignore
+  }
+
+  os << "Public key bits:\n";
+  {
+    util::IndentedStream os2(os, "  ");
+    namespace t = ndn::security::transform;
+    t::bufferSource(cert.getPublicKey().buf(), cert.getPublicKey().size()) >> t::base64Encode() >> t::streamSink(os2);
+  }
+
+  os << "Signature Information:\n";
+  {
+    os << "  Signature Type: " << static_cast<tlv::SignatureTypeValue>(cert.getSignature().getType()) << "\n";
+
+    if (cert.getSignature().hasKeyLocator()) {
+      os << "  Key Locator: ";
+      const KeyLocator& keyLocator = cert.getSignature().getKeyLocator();
+      if (keyLocator.getType() == KeyLocator::KeyLocator_Name && keyLocator.getName() == cert.getKeyName()) {
+        os << "Self-Signed ";
+      }
+      os << keyLocator << "\n";
+    }
+  }
+
+  return os;
 }
 
 Name
