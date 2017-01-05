@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -150,6 +150,19 @@ BOOST_AUTO_TEST_CASE(ToString)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(
                     SigningInfo(SigningInfo::SIGNER_TYPE_SHA256)),
                     "id:/localhost/identity/digest-sha256");
+}
+
+BOOST_AUTO_TEST_CASE(Chaining)
+{
+  SigningInfo info = SigningInfo()
+    .setSigningIdentity("/identity")
+    .setSigningKeyName("/key/name")
+    .setSigningCertName("/cert/name")
+    .setSha256Signing()
+    .setDigestAlgorithm(DigestAlgorithm::SHA256)
+    .setSignatureInfo(SignatureInfo());
+
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(info), "id:/localhost/identity/digest-sha256");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSigningInfo

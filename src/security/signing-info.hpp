@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,28 +93,28 @@ public:
    * @brief Set signer as an identity with name @p identity
    * @post Change the signerType to SIGNER_TYPE_ID
    */
-  void
+  SigningInfo&
   setSigningIdentity(const Name& identity);
 
   /**
    * @brief Set signer as a key with name @p keyName
    * @post Change the signerType to SIGNER_TYPE_KEY
    */
-  void
+  SigningInfo&
   setSigningKeyName(const Name& keyName);
 
   /**
    * @brief Set signer as a certificate with name @p certificateName
    * @post Change the signerType to SIGNER_TYPE_CERT
    */
-  void
+  SigningInfo&
   setSigningCertName(const Name& certificateName);
 
   /**
    * @brief Set Sha256 as the signing method
    * @post Reset signerName, also change the signerType to SIGNER_TYPE_SHA256
    */
-  void
+  SigningInfo&
   setSha256Signing();
 
   /**
@@ -138,10 +138,11 @@ public:
   /**
    * @brief Set the digest algorithm for public key operations
    */
-  void
+  SigningInfo&
   setDigestAlgorithm(const DigestAlgorithm& algorithm)
   {
     m_digestAlgorithm = algorithm;
+    return *this;
   }
 
   /**
@@ -156,7 +157,7 @@ public:
   /**
    * @brief Set a semi-prepared SignatureInfo;
    */
-  void
+  SigningInfo&
   setSignatureInfo(const SignatureInfo& signatureInfo);
 
   /**

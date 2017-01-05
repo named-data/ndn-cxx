@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,37 +74,43 @@ SigningInfo::SigningInfo(const std::string& signingStr)
   }
 }
 
-void
+SigningInfo&
 SigningInfo::setSigningIdentity(const Name& identity)
 {
   m_type = SIGNER_TYPE_ID;
   m_name = identity;
+  return *this;
 }
-void
+
+SigningInfo&
 SigningInfo::setSigningKeyName(const Name& keyName)
 {
   m_type = SIGNER_TYPE_KEY;
   m_name = keyName;
+  return *this;
 }
 
-void
+SigningInfo&
 SigningInfo::setSigningCertName(const Name& certificateName)
 {
   m_type = SIGNER_TYPE_CERT;
   m_name = certificateName;
+  return *this;
 }
 
-void
+SigningInfo&
 SigningInfo::setSha256Signing()
 {
   m_type = SIGNER_TYPE_SHA256;
   m_name.clear();
+  return *this;
 }
 
-void
+SigningInfo&
 SigningInfo::setSignatureInfo(const SignatureInfo& signatureInfo)
 {
   m_info = signatureInfo;
+  return *this;
 }
 
 std::ostream&
