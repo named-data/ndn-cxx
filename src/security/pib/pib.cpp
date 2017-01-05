@@ -21,10 +21,13 @@
 
 #include "pib.hpp"
 #include "pib-impl.hpp"
+#include "util/logger.hpp"
 
 namespace ndn {
 namespace security {
 namespace pib {
+
+NDN_LOG_INIT(ndn.security.pib.Pib);
 
 Pib::Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl)
   : m_scheme(scheme)
@@ -86,8 +89,9 @@ Pib::removeIdentity(const Name& identity)
 {
   BOOST_ASSERT(m_identities.isConsistent());
 
-  if (m_isDefaultIdentityLoaded && m_defaultIdentity.getName() == identity)
+  if (m_isDefaultIdentityLoaded && m_defaultIdentity.getName() == identity) {
     m_isDefaultIdentityLoaded = false;
+  }
 
   m_identities.remove(identity);
 }
@@ -115,6 +119,7 @@ Pib::setDefaultIdentity(const Name& identityName)
 
   m_defaultIdentity = m_identities.add(identityName);
   m_isDefaultIdentityLoaded = true;
+  NDN_LOG_DEBUG("Default identity is set to " << identityName);
 
   m_impl->setDefaultIdentity(identityName);
   return m_defaultIdentity;
@@ -128,6 +133,7 @@ Pib::getDefaultIdentity() const
   if (!m_isDefaultIdentityLoaded) {
     m_defaultIdentity = m_identities.get(m_impl->getDefaultIdentity());
     m_isDefaultIdentityLoaded = true;
+    NDN_LOG_DEBUG("Default identity is " << m_defaultIdentity.getName());
   }
 
   BOOST_ASSERT(m_impl->getDefaultIdentity() == m_defaultIdentity.getName());

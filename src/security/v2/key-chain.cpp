@@ -22,6 +22,7 @@
 #include "key-chain.hpp"
 
 #include "../../util/config-file.hpp"
+#include "../../util/logger.hpp"
 
 #include "../pib/pib-sqlite3.hpp"
 #include "../pib/pib-memory.hpp"
@@ -70,6 +71,8 @@ NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndMem);
 } // namespace tpm
 
 namespace v2 {
+
+NDN_LOG_INIT(ndn.security.v2.KeyChain);
 
 std::string KeyChain::s_defaultPibLocator;
 std::string KeyChain::s_defaultTpmLocator;
@@ -230,6 +233,7 @@ KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
     key.getDefaultCertificate();
   }
   catch (const Pib::Error&) {
+    NDN_LOG_DEBUG("No default cert for " << key.getName() << ", requesting self-signing");
     selfSign(key);
   }
 
@@ -269,6 +273,8 @@ KeyChain::createKey(const Identity& identity, const KeyParams& params)
   // set up key info in PIB
   ConstBufferPtr pubKey = m_tpm->getPublicKey(keyName);
   Key key = identity.addKey(pubKey->buf(), pubKey->size(), keyName);
+
+  NDN_LOG_DEBUG("Requesting self-signing for newly created key " << key.getName());
   selfSign(key);
 
   return key;
@@ -561,17 +567,11 @@ KeyChain::selfSign(Key& key)
   certificate.setContent(key.getPublicKey().buf(), key.getPublicKey().size());
 
   // set signature-info
-  SignatureInfo sigInfo;
-  sigInfo.setKeyLocator(key.getName());
-  sigInfo.setSignatureType(getSignatureType(key.getKeyType(), DigestAlgorithm::SHA256));
-  sigInfo.setValidityPeriod(ValidityPeriod(time::system_clock::now(),
-                                           time::system_clock::now() + time::days(1000 * 3365)));
-  certificate.setSignature(Signature(sigInfo));
+  SignatureInfo signatureInfo;
+  signatureInfo.setValidityPeriod(ValidityPeriod(time::system_clock::now(),
+                                                 time::system_clock::now() + time::days(1000 * 365)));
 
-  EncodingBuffer encoder;
-  certificate.wireEncode(encoder, true);
-  Block sigValue = sign(encoder.buf(), encoder.size(), key.getName(), DigestAlgorithm::SHA256);
-  certificate.wireEncode(encoder, sigValue);
+  sign(certificate, SigningInfo(key).setSignatureInfo(signatureInfo));
 
   key.addCertificate(certificate);
   return certificate;
@@ -646,13 +646,13 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
     case SigningInfo::SIGNER_TYPE_PIB_ID: {
       identity = params.getPibIdentity();
       if (!identity)
-        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB Identity is invalid"));
+        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB identity is invalid"));
       break;
     }
     case SigningInfo::SIGNER_TYPE_PIB_KEY: {
       key = params.getPibKey();
       if (!key)
-        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB Key is invalid"));
+        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB key is invalid"));
       break;
     }
     default: {
