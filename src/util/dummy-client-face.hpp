@@ -72,6 +72,12 @@ public:
     std::function<void(time::milliseconds)> processEventsOverride;
   };
 
+  class AlreadyLinkedError : public Error
+  {
+  public:
+    AlreadyLinkedError();
+  };
+
   /** \brief Create a dummy face with internal IO service
    */
   explicit
@@ -92,6 +98,8 @@ public:
   DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
                   const Options& options = Options());
 
+  ~DummyClientFace();
+
   /** \brief cause the Face to receive an interest
    */
   void
@@ -107,11 +115,24 @@ public:
   void
   receive(const lp::Nack& nack);
 
+  /** \brief link another DummyClientFace through a broadcast media
+   */
+  void
+  linkTo(DummyClientFace& other);
+
+  /** \brief unlink the broadcast media if previously linked
+   */
+  void
+  unlink();
+
 private:
   class Transport;
 
   void
   construct(const Options& options);
+
+  void
+  enableBroadcastLink();
 
   void
   enablePacketLogging();
@@ -165,7 +186,9 @@ public:
    */
   Signal<DummyClientFace, lp::Nack> onSendNack;
 
-private:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  struct BroadcastLink;
+  shared_ptr<BroadcastLink> m_bcastLink;
   std::unique_ptr<KeyChain> m_internalKeyChain;
   KeyChain& m_keyChain;
   std::function<void(time::milliseconds)> m_processEventsOverride;

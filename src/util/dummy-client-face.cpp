@@ -85,6 +85,16 @@ public:
   Signal<Transport, Block> onSendBlock;
 };
 
+struct DummyClientFace::BroadcastLink
+{
+  std::vector<DummyClientFace*> faces;
+};
+
+DummyClientFace::AlreadyLinkedError::AlreadyLinkedError()
+  : Error("Face has already been linked to another face")
+{
+}
+
 DummyClientFace::DummyClientFace(const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
   : Face(make_shared<DummyClientFace::Transport>())
   , m_internalKeyChain(new KeyChain)
@@ -116,6 +126,11 @@ DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, KeyChain& k
   , m_keyChain(keyChain)
 {
   this->construct(options);
+}
+
+DummyClientFace::~DummyClientFace()
+{
+  unlink();
 }
 
 void
@@ -159,6 +174,40 @@ DummyClientFace::construct(const Options& options)
     this->enableRegistrationReply();
 
   m_processEventsOverride = options.processEventsOverride;
+
+  enableBroadcastLink();
+}
+
+void
+DummyClientFace::enableBroadcastLink()
+{
+  this->onSendInterest.connect([this] (const Interest& interest) {
+      if (m_bcastLink != nullptr) {
+        for (auto otherFace : m_bcastLink->faces) {
+          if (otherFace != this) {
+            otherFace->receive(interest);
+          }
+        }
+      }
+    });
+  this->onSendData.connect([this] (const Data& data) {
+      if (m_bcastLink != nullptr) {
+        for (auto otherFace : m_bcastLink->faces) {
+          if (otherFace != this) {
+            otherFace->receive(data);
+          }
+        }
+      }
+    });
+  this->onSendNack.connect([this] (const lp::Nack& nack) {
+      if (m_bcastLink != nullptr) {
+        for (auto otherFace : m_bcastLink->faces) {
+          if (otherFace != this) {
+            otherFace->receive(nack);
+          }
+        }
+      }
+    });
 }
 
 void
@@ -238,6 +287,48 @@ DummyClientFace::receive(const lp::Nack& nack)
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
 
   static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
+}
+
+void
+DummyClientFace::linkTo(DummyClientFace& other)
+{
+  if (m_bcastLink != nullptr && other.m_bcastLink != nullptr) {
+    if (m_bcastLink != other.m_bcastLink) {
+      // already on different links
+      BOOST_THROW_EXCEPTION(AlreadyLinkedError());
+    }
+  }
+  else if (m_bcastLink == nullptr && other.m_bcastLink != nullptr) {
+    m_bcastLink = other.m_bcastLink;
+    m_bcastLink->faces.push_back(this);
+  }
+  else if (m_bcastLink != nullptr && other.m_bcastLink == nullptr) {
+    other.m_bcastLink = m_bcastLink;
+    m_bcastLink->faces.push_back(&other);
+  }
+  else {
+    m_bcastLink = other.m_bcastLink = make_shared<BroadcastLink>();
+    m_bcastLink->faces.push_back(this);
+    m_bcastLink->faces.push_back(&other);
+  }
+}
+
+void
+DummyClientFace::unlink()
+{
+  if (m_bcastLink == nullptr) {
+    return;
+  }
+
+  auto it = std::find(m_bcastLink->faces.begin(), m_bcastLink->faces.end(), this);
+  BOOST_ASSERT(it != m_bcastLink->faces.end());
+  m_bcastLink->faces.erase(it);
+
+  if (m_bcastLink->faces.size() == 1) {
+    m_bcastLink->faces[0]->m_bcastLink = nullptr;
+    m_bcastLink->faces.clear();
+  }
+  m_bcastLink = nullptr;
 }
 
 void
