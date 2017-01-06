@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,13 +17,11 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
- * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
 #include "validator.hpp"
 #include "../util/crypto.hpp"
+#include "../lp/tags.hpp"
 
 #include "v1/cryptopp.hpp"
 
@@ -35,11 +33,12 @@ static Oid SECP384R1("1.3.132.0.34");
 
 Validator::Validator(Face* face)
   : m_face(face)
+  , m_wantDirectCertFetch(false)
 {
 }
 
 Validator::Validator(Face& face)
-  : m_face(&face)
+  : Validator(&face)
 {
 }
 
@@ -311,6 +310,12 @@ Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest>>& ne
   }
 
   for (shared_ptr<ValidationRequest> step : nextSteps) {
+    if (m_wantDirectCertFetch && step->m_requesterFaceId != 0) {
+      Interest directFetchInterest(step->m_interest);
+      directFetchInterest.refreshNonce();
+      directFetchInterest.setTag(make_shared<lp::NextHopFaceIdTag>(step->m_requesterFaceId));
+      m_face->expressInterest(directFetchInterest, nullptr, nullptr, nullptr);
+    }
     m_face->expressInterest(step->m_interest,
                             bind(&Validator::onData, this, _1, _2, step),
                             bind(&Validator::onNack, this, _1, _2,
@@ -320,6 +325,12 @@ Validator::afterCheckPolicy(const std::vector<shared_ptr<ValidationRequest>>& ne
                                  onFailure,
                                  step));
   }
+}
+
+void
+Validator::setDirectCertFetchEnabled(bool isEnabled)
+{
+  m_wantDirectCertFetch = isEnabled;
 }
 
 } // namespace security

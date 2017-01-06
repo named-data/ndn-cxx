@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
 #ifndef NDN_SECURITY_VALIDATION_REQUEST_HPP
@@ -58,17 +56,14 @@ public:
   ValidationRequest(const Interest& interest,
                     const OnDataValidated& onDataValidated,
                     const OnDataValidationFailed& onDataValidationFailed,
-                    int nRetries, int nSteps)
+                    int nRetries, int nSteps,
+                    uint64_t requesterFaceId = 0)
     : m_interest(interest)
     , m_onDataValidated(onDataValidated)
     , m_onDataValidationFailed(onDataValidationFailed)
     , m_nRetries(nRetries)
     , m_nSteps(nSteps)
-  {
-  }
-
-  virtual
-  ~ValidationRequest()
+    , m_requesterFaceId(requesterFaceId)
   {
   }
 
@@ -82,6 +77,8 @@ public:
   int m_nRetries;
   /// @brief the number of validation steps that have been performed.
   int m_nSteps;
+  /// @brief the incoming face id of the origin packet.
+  uint64_t m_requesterFaceId;
 };
 
 } // namespace security

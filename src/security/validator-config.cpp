@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,14 +17,12 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
- * @author Zhiyi Zhang <zhangzhiyi1919@gmail.com>
  */
 
 #include "validator-config.hpp"
 #include "certificate-cache-ttl.hpp"
 #include "../util/io.hpp"
+#include "../lp/tags.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/info_parser.hpp>
@@ -722,10 +720,16 @@ ValidatorConfig::checkSignature(const Packet& packet,
 
     Interest certInterest(keyLocatorName);
 
+    uint64_t incomingFaceId = 0;
+    auto incomingFaceIdTag = packet.template getTag<lp::IncomingFaceIdTag>();
+    if (incomingFaceIdTag != nullptr) {
+      incomingFaceId = incomingFaceIdTag->get();
+    }
     auto nextStep = make_shared<ValidationRequest>(certInterest,
                                                    onCertValidated,
                                                    onCertValidationFailed,
-                                                   1, nSteps + 1);
+                                                   1, nSteps + 1,
+                                                   incomingFaceId);
 
     nextSteps.push_back(nextStep);
     return;

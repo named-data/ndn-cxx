@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,9 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
- * @author Jeff Thompson <jefft0@remap.ucla.edu>
  */
 
 #ifndef NDN_SECURITY_VALIDATOR_HPP
@@ -99,6 +96,27 @@ public:
   {
     validate(interest, onValidated, onValidationFailed, 0);
   }
+
+  /**
+   * @brief Enable or disable the direct certificate fetch feature.
+   *
+   * When enabled, the validator will attempt to fetch the certificate that signs an Interest from
+   * the sender of that Interest, as identified by IncomingFaceId field, in addition to fetching
+   * from the infrastructure.
+   *
+   * Prior to enabling this feature, the application must enable NextHopFaceId privilege on the face
+   * used by this validator.
+   *
+   * @note Current implementation can only fetch the Interest signer certificate from the
+   * Interest sender; the issuer certificate of that certificate is only fetched from the
+   * infrastructure.
+   *
+   * @note Currently, this feature can only be used with ValidatorConfig.
+   *
+   * @param isEnabled Set true to enable the feature or false to disable.
+   */
+  void
+  setDirectCertFetchEnabled(bool isEnabled);
 
   /*****************************************
    *      verifySignature method set       *
@@ -329,6 +347,7 @@ protected:
 
 protected:
   Face* m_face;
+  bool m_wantDirectCertFetch;
 };
 
 } // namespace security

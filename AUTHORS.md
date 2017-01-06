@@ -39,4 +39,4 @@ in the library:
 * Marcin Juszkiewicz    <http://marcin.juszkiewicz.com.pl/>
 * Susmit Shannigrahi    <https://www.linkedin.com/in/susmit-shannigrahi-90433b8>
 * José Quevedo          <http://atnog.av.it.pt/members/jquevedo>
-* Zhiyi Zhang           <zhangzhiyi1919@cs.ucla.edu>
+* Zhiyi Zhang           <http://irl.cs.ucla.edu/~zhiyi/>

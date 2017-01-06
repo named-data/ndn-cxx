@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,12 +22,14 @@
 #include "security/validator-config.hpp"
 
 #include "security/key-chain.hpp"
-#include "security/signing-helpers.hpp"
 #include "util/io.hpp"
 #include "util/scheduler.hpp"
 #include "util/dummy-client-face.hpp"
+#include "lp/tags.hpp"
+#include "lp/nack.hpp"
 
 #include <boost/asio.hpp>
+#include <boost/logic/tribool.hpp>
 
 #include "identity-management-fixture.hpp"
 #include "../identity-management-time-fixture.hpp"
@@ -1224,7 +1226,6 @@ BOOST_FIXTURE_TEST_CASE(Nrd, FacesFixture)
   Name root("/TestValidatorConfig");
   BOOST_REQUIRE(saveIdentityCertificate(root, "trust-anchor-8.cert", true));
 
-
   Name sld("/TestValidatorConfig/Nrd-1");
   BOOST_REQUIRE(addIdentity(sld));
   advanceClocks(time::milliseconds(100));
@@ -1486,6 +1487,152 @@ BOOST_FIXTURE_TEST_CASE(TrustAnchorDir, DirTestFixture)
   advanceClocks(time::milliseconds(10), 20);
 }
 
+class DirectCertFetchFixture : public IdentityManagementTimeFixture
+{
+public:
+  DirectCertFetchFixture()
+    : clientFace(io, m_keyChain, {true, true})
+    , validationResult(boost::logic::indeterminate)
+  {
+    BOOST_REQUIRE(addIdentity(ca));
+    BOOST_REQUIRE(saveIdentityCertificate(ca, "trust-anchor-1.cert", true));
+    BOOST_REQUIRE(addSubCertificate(user, ca));
+
+    userCertName = m_keyChain.getDefaultCertificateNameForIdentity(user);
+    userCert = m_keyChain.getCertificate(userCertName);
+  }
+
+protected:
+  void
+  runTest(const std::function<void(const Interest&, const Interest&)> respond)
+  {
+    optional<Interest> directInterest;
+    optional<Interest> infrastructureInterest;
+    clientFace.onSendInterest.connect([&] (const Interest& interest) {
+      const Name& interestName = interest.getName();
+      if (interestName == userCert->getName().getPrefix(-1)) {
+        auto nextHopFaceIdTag = interest.getTag<lp::NextHopFaceIdTag>();
+        if (nextHopFaceIdTag != nullptr) {
+          BOOST_CHECK(!directInterest);
+          directInterest = interest;
+        }
+        else {
+          BOOST_CHECK(!infrastructureInterest);
+          infrastructureInterest = interest;
+        }
+        if (static_cast<bool>(directInterest) && static_cast<bool>(infrastructureInterest)) {
+          io.post([directInterest, infrastructureInterest, respond] {
+              respond(directInterest.value(), infrastructureInterest.value());
+            });
+          directInterest = nullopt;
+          infrastructureInterest = nullopt;
+        }
+      }
+    });
+
+    const boost::filesystem::path CONFIG_PATH =
+      (boost::filesystem::current_path() / std::string("unit-test-direct.conf"));
+    ValidatorConfig validator(&clientFace);
+    validator.load(CONFIG, CONFIG_PATH.c_str());
+    validator.setDirectCertFetchEnabled(true);
+
+    shared_ptr<Interest> interest = make_shared<Interest>(interestName);
+    interest->setTag(make_shared<lp::IncomingFaceIdTag>(123));
+    BOOST_CHECK_NO_THROW(m_keyChain.sign(*interest, security::signingByIdentity(user)));
+
+    validator.validate(*interest,
+                       [&] (const shared_ptr<const Interest>&) {
+                         BOOST_CHECK(boost::logic::indeterminate(validationResult));
+                         validationResult = true;
+                       },
+                       [&] (const shared_ptr<const Interest>&, const std::string& s) {
+                         BOOST_CHECK(boost::logic::indeterminate(validationResult));
+                         validationResult = false;
+                       });
+
+    advanceClocks(time::milliseconds(200), 60);
+
+    BOOST_CHECK(!boost::logic::indeterminate(validationResult));
+  }
+
+public:
+  util::DummyClientFace clientFace;
+  const Name ca = Name("/DirectCertFetch");
+  const Name user = Name("/DirectCertFetch/user");
+  const Name interestName = Name("/DirectCertFetch/user/tag-interest");
+  const std::string CONFIG = R"_TEXT_(
+      rule
+      {
+        id "RuleForInterest"
+        for interest
+        checker
+        {
+          type hierarchical
+          sig-type rsa-sha256
+        }
+      }
+      rule
+      {
+        id "RuleForData"
+        for data
+        filter
+        {
+          type name
+          regex ^<>*$
+        }
+        checker
+        {
+          type customized
+          sig-type rsa-sha256
+          key-locator
+        {
+          type name
+           regex ^<>*$
+          }
+        }
+      }
+      trust-anchor
+      {
+        type file
+        file-name "trust-anchor-1.cert"
+      }
+      )_TEXT_";
+  boost::logic::tribool validationResult;
+  Name userCertName;
+  shared_ptr<v1::IdentityCertificate> userCert;
+};
+
+BOOST_FIXTURE_TEST_SUITE(DirectCertFetch, DirectCertFetchFixture)
+
+BOOST_AUTO_TEST_CASE(CertFetchSuccess)
+{
+  runTest([this] (const Interest& directInterest, const Interest& infrastructureInterest) {
+      this->clientFace.receive(*userCert);
+    });
+
+  BOOST_CHECK_EQUAL(validationResult, true);
+}
+
+BOOST_AUTO_TEST_CASE(CertFetchTimeout)
+{
+  // In this test case, certificate request would time out
+  runTest([this] (const Interest& directInterest, const Interest& infrastructureInterest) { });
+
+  BOOST_CHECK_EQUAL(validationResult, false);
+}
+
+BOOST_AUTO_TEST_CASE(CertFetchNack)
+{
+  runTest([this] (const Interest& directInterest, const Interest& infrastructureInterest) {
+      lp::Nack nackInfrastructureInterest(infrastructureInterest);
+      nackInfrastructureInterest.setHeader(lp::NackHeader().setReason(lp::NackReason::NO_ROUTE));
+      this->clientFace.receive(nackInfrastructureInterest);
+    });
+
+  BOOST_CHECK_EQUAL(validationResult, false);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // DirectCertFetch
 BOOST_AUTO_TEST_SUITE_END() // TestValidatorConfig
 BOOST_AUTO_TEST_SUITE_END() // Security
 
