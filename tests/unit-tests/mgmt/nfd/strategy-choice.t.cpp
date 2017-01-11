@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "mgmt/nfd/strategy-choice.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
@@ -33,14 +34,12 @@ BOOST_AUTO_TEST_SUITE(TestStrategyChoice)
 
 BOOST_AUTO_TEST_CASE(Encode)
 {
-  StrategyChoice strategyChoice1;
-  strategyChoice1
-    .setName("/hello/world")
-    .setStrategy("/some/non/existing/strategy/name")
-    ;
+  StrategyChoice sc1;
+  sc1.setName("/hello/world")
+     .setStrategy("/some/non/existing/strategy/name");
 
   Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = strategyChoice1.wireEncode());
+  BOOST_REQUIRE_NO_THROW(wire = sc1.wireEncode());
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
@@ -58,9 +57,34 @@ BOOST_AUTO_TEST_CASE(Encode)
                                   wire.begin(), wire.end());
 
   BOOST_REQUIRE_NO_THROW(StrategyChoice(wire));
-  StrategyChoice strategyChoice2(wire);
-  BOOST_CHECK_EQUAL(strategyChoice1.getName(), strategyChoice2.getName());
-  BOOST_CHECK_EQUAL(strategyChoice1.getStrategy(), strategyChoice2.getStrategy());
+  StrategyChoice sc2(wire);
+  BOOST_CHECK_EQUAL(sc1, sc2);
+}
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+  StrategyChoice sc1, sc2;
+
+  sc1.setName("/A")
+     .setStrategy("/strategyP");
+  sc2 = sc1;
+  BOOST_CHECK_EQUAL(sc1, sc2);
+
+  sc2.setName("/B");
+  BOOST_CHECK_NE(sc1, sc2);
+
+  sc2 = sc1;
+  sc2.setStrategy("/strategyQ");
+  BOOST_CHECK_NE(sc1, sc2);
+}
+
+BOOST_AUTO_TEST_CASE(Print)
+{
+  StrategyChoice sc;
+  sc.setName("/A")
+    .setStrategy("/strategyP");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(sc),
+                    "StrategyChoice(Name: /A, Strategy: /strategyP)");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestStrategyChoice

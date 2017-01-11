@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,15 +27,14 @@
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<StrategyChoice>));
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<StrategyChoice>));
 BOOST_CONCEPT_ASSERT((WireEncodable<StrategyChoice>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<StrategyChoice>));
 BOOST_CONCEPT_ASSERT((WireDecodable<StrategyChoice>));
 static_assert(std::is_base_of<tlv::Error, StrategyChoice::Error>::value,
               "StrategyChoice::Error must inherit from tlv::Error");
 
-StrategyChoice::StrategyChoice()
-{
-}
+StrategyChoice::StrategyChoice() = default;
 
 StrategyChoice::StrategyChoice(const Block& payload)
 {
@@ -125,6 +124,21 @@ StrategyChoice::setStrategy(const Name& strategy)
   m_wire.reset();
   m_strategy = strategy;
   return *this;
+}
+
+bool
+operator==(const StrategyChoice& a, const StrategyChoice& b)
+{
+  return a.getName() == b.getName() && a.getStrategy() == b.getStrategy();
+}
+
+std::ostream&
+operator<<(std::ostream& os, const StrategyChoice& sc)
+{
+  return os << "StrategyChoice("
+            << "Name: " << sc.getName() << ", "
+            << "Strategy: " << sc.getStrategy()
+            << ")";
 }
 
 } // namespace nfd
