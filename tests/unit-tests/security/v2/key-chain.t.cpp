@@ -21,11 +21,11 @@
 
 #include "security/v2/key-chain.hpp"
 #include "security/signing-helpers.hpp"
+#include "security/verification-helpers.hpp"
 
 #include "boost-test.hpp"
 #include "unit-tests/test-home-env-saver.hpp"
 #include "identity-management-fixture.hpp"
-#include "validator.hpp"
 
 namespace ndn {
 namespace security {
@@ -313,8 +313,8 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
       BOOST_CHECK_EQUAL(data.getSignature().getType(), tlv::DigestSha256);
       BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::DigestSha256);
 
-      BOOST_CHECK(Validator::verifySha256Digest(data));
-      BOOST_CHECK(Validator::verifySha256Digest(interest));
+      BOOST_CHECK(verifyDigest(data, DigestAlgorithm::SHA256));
+      BOOST_CHECK(verifyDigest(interest, DigestAlgorithm::SHA256));
     }
     else {
       BOOST_CHECK_EQUAL(data.getSignature().getType(), tlv::SignatureSha256WithEcdsa);
@@ -323,8 +323,8 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
       BOOST_CHECK_EQUAL(data.getSignature().getKeyLocator().getName(), cert.getName().getPrefix(-2));
       BOOST_CHECK_EQUAL(interestSignature.getKeyLocator().getName(), cert.getName().getPrefix(-2));
 
-      BOOST_CHECK(Validator::verifySignature(data, key.getPublicKey()));
-      BOOST_CHECK(Validator::verifySignature(interest, key.getPublicKey()));
+      BOOST_CHECK(verifySignature(data, key));
+      BOOST_CHECK(verifySignature(interest, key));
     }
   }
 }

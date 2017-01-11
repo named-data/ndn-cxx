@@ -157,6 +157,15 @@ enum class AclType {
 std::ostream&
 operator<<(std::ostream& os, AclType aclType);
 
+namespace security {
+namespace transform {
+class PublicKey;
+} // namespace transform
+namespace v2 {
+using transform::PublicKey;
+} // namespace v2
+} // namespace security
+
 } // namespace ndn
 
 #endif // NDN_SECURITY_SECURITY_COMMON_HPP

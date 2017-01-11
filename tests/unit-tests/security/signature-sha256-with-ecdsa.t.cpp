@@ -20,11 +20,11 @@
  */
 
 #include "security/signature-sha256-with-ecdsa.hpp"
+#include "security/verification-helpers.hpp"
 #include "util/scheduler.hpp"
 
 #include "boost-test.hpp"
 #include "../identity-management-time-fixture.hpp"
-#include "v2/validator.hpp"
 
 namespace ndn {
 namespace security {
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(DataSignature)
 
   Data testData2;
   testData2.wireDecode(dataBlock);
-  BOOST_CHECK(v2::Validator::verifySignature(testData2, identity.getDefaultKey().getPublicKey()));
+  BOOST_CHECK(verifySignature(testData2, identity.getDefaultKey()));
 }
 
 BOOST_AUTO_TEST_CASE(InterestSignature)
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
 
   Interest interest2;
   interest2.wireDecode(interestBlock);
-  BOOST_CHECK(v2::Validator::verifySignature(interest2, identity.getDefaultKey().getPublicKey()));
+  BOOST_CHECK(verifySignature(interest2, identity.getDefaultKey()));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSignatureSha256WithEcdsa

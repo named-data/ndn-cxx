@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,17 +31,15 @@ namespace ndn {
 namespace util {
 
 /**
- * @brief provides a  digest calculation
+ * @brief provides a stateful digest calculation
  *
- * Take SHA256 as an example:
+ * SHA256 example:
  *
  *   Digest<CryptoPP::SHA256> digest;
  *   digest.update(buf1, size1);
  *   digest.update(buf2, size2);
  *   ...
  *   ConstBufferPtr result = digest.computeDigest();
- *
- * @sa http://redmine.named-data.net/issues/1934
  */
 template<typename Hash>
 class Digest
@@ -64,14 +62,14 @@ public:
   Digest();
 
   /**
-   * @brief Create digest of the input stream @p is
+   * @brief Calculate digest of the input stream @p is
    * @param is input stream
    */
   explicit
   Digest(std::istream& is);
 
   /**
-   * @brief Discard the current state and start a new digest.
+   * @brief Discard the current state and start a new digest calculation.
    */
   void
   reset();
@@ -88,33 +86,23 @@ public:
   }
 
   /**
-   * @brief Obtain the digest
-   *
-   * Note this digest is finalized once this method is invoked.
+   * @brief Finalize and return the digest based on all previously supplied inputs.
    */
   ConstBufferPtr
   computeDigest();
 
   /**
-   * @brief Check if supplied digest equal to this digest
+   * @brief Check if the supplied digest equals to this digest
    *
-   * Note that this method will invoke computeDigest().
-   * Once this method is invoked, both this digest and the supplied digest are finalized.
-   *
-   * @warning This method cannot be used in security related context
-   *          because it is vulnerable to timing attack
+   * @note This method will invoke computeDigest(), finalizing the digest.
    */
   bool
   operator==(Digest<Hash>& digest);
 
   /**
-   * @brief Check if supplied digest is not equal to this digest
+   * @brief Check if the supplied digest is not equal to this digest
    *
-   * Note that this method will invoke computeDigest().
-   * Once this method is invoked, both this digest and the supplied digest are finalized.
-   *
-   * @warning This method cannot be used in security related context
-   *          because it is vulnerable to timing attack
+   * @note This method will invoke computeDigest(), finalizing the digest.
    */
   bool
   operator!=(Digest<Hash>& digest)
@@ -123,46 +111,48 @@ public:
   }
 
   /**
-   * @brief Add existing digest to digest calculation
+   * @brief Add existing digest to the digest calculation
    * @param src digest to combine with
    *
-   * The result of this combination is  hash (hash (...))
-   * Note that this method will invoke computeDigest().
-   * Once this method is invoked, the supplied digest is fixed.
+   * The result of this combination is `digest(digest(...))`
+   *
+   * @note This method will invoke computeDigest(), finalizing the digest.
    */
   Digest<Hash>&
   operator<<(Digest<Hash>& src);
 
   /**
-   * @brief Add string to digest calculation
+   * @brief Add string to the digest calculation
    * @param str string to put into digest
    */
   Digest<Hash>&
   operator<<(const std::string& str);
 
   /**
-   * @brief Add block to digest calculation
-   * @param block to put into digest
+   * @brief Add block to the digest calculation
+   * @param block data block to put into digest
+   * @throw Error the digest has been finalized.
    */
   Digest<Hash>&
   operator<<(const Block& block);
 
   /**
-   * @brief Add uint64_t value to digest calculation
-   * @param value uint64_t value to put into digest
+   * @brief Add uint64_t value to the digest calculation
+   * @param value the integer value to put into digest
+   * @throw Error the digest has been finalized.
    */
   Digest<Hash>&
   operator<<(uint64_t value);
 
   /**
-   * @brief Add a buffer to digest calculation
+   * @brief Add a buffer to the digest calculation
    *
-   * Update the state of the digest if it is not finalized
-   * and mark the digest as InProcess.
+   * Update the state of the digest if it has not been finalized and mark the digest as
+   * InProcess.
    *
    * @param buffer the input buffer
    * @param size the size of the input buffer.
-   * @throws Error if the digest has been finalized.
+   * @throw Error the digest has been finalized.
    */
   void
   update(const uint8_t* buffer, size_t size);
@@ -171,7 +161,7 @@ public:
    * @brief Compute one-time digest
    * @param buffer the input buffer
    * @param size the size of the input buffer.
-   * @return digest computed according to the HashAlgorithm
+   * @return digest computed according to the `Hash` algorithm
    */
   static ConstBufferPtr
   computeDigest(const uint8_t* buffer, size_t size);
@@ -179,8 +169,7 @@ public:
   /**
    * @brief Convert digest to std::string
    *
-   * Note that this method will invoke computeDigest().
-   * Once this method is invoked, the digest is finalized.
+   * @note This method will invoke computeDigest(), finalizing the digest.
    */
   std::string
   toString();

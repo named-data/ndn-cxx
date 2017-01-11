@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,8 @@
 
 #include "digest.hpp"
 #include "string-helper.hpp"
+#include "security/detail/openssl.hpp"
+
 #include <sstream>
 
 namespace ndn {
@@ -80,7 +82,15 @@ template<typename Hash>
 bool
 Digest<Hash>::operator==(Digest<Hash>& digest)
 {
-  return *computeDigest() == *digest.computeDigest();
+  const Buffer& lhs = *computeDigest();
+  const Buffer& rhs = *digest.computeDigest();
+
+  if (lhs.size() != rhs.size()) {
+    return false;
+  }
+
+  // constant-time buffer comparison to mitigate timing attacks
+  return CRYPTO_memcmp(lhs.buf(), rhs.buf(), lhs.size()) == 0;
 }
 
 template<typename Hash>

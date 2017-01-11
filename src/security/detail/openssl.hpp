@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,14 +32,15 @@
 
 #endif // __APPLE__
 
-#include <openssl/rand.h>
 #include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/rsa.h>
+#include <openssl/crypto.h>
 #include <openssl/ec.h>
-#include <openssl/pem.h>
-#include <openssl/hmac.h>
-#include <openssl/x509.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/hmac.h>
+#include <openssl/pem.h>
+#include <openssl/rand.h>
+#include <openssl/rsa.h>
+#include <openssl/x509.h>
 
 #endif // NDN_SECURITY_DETAIL_OPENSSL_HPP
