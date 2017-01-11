@@ -132,7 +132,7 @@ Create Keys Manually
 ~~~~~~~~~~~~~~~~~~~~
 
 One can call :ndn-cxx:`KeyChain::generateRsaKeyPair` to generate an RSA key pair or
-:ndn-cxx:`KeyChain::generateEcdsaKeyPair` to generate an ECDSA key.  Note that generated
+:ndn-cxx:`KeyChain::generateEcKeyPair` to generate an EC key.  Note that generated
 key pair is not set as the default key of the identity, so you need to set it manually by
 calling :ndn-cxx:`KeyChain::setDefaultKeyNameForIdentity`. There is also a helper method
 :ndn-cxx:`KeyChain::generateRsaKeyPairAsDefault`, which combines the two steps into one.

@@ -64,13 +64,13 @@ public:
 
   /**
    * @brief Get certificate given key name
-   * @param keyName  Key name for searching the certificate.
+   * @param certPrefix  Certificate prefix for searching the certificate.
    * @return The found certificate, nullptr if not found.
    *
    * @note The returned value may be invalidated after next call to one of find methods.
    */
   const Certificate*
-  find(const Name& keyName);
+  find(const Name& certPrefix) const;
 
   /**
    * @brief Find certificate given interest
@@ -82,7 +82,7 @@ public:
    * @note The returned value may be invalidated after next call to one of find methods.
    */
   const Certificate*
-  find(const Interest& interest);
+  find(const Interest& interest) const;
 
 private:
   class Entry

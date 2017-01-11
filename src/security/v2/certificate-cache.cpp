@@ -59,28 +59,28 @@ CertificateCache::insert(const Certificate& cert)
 }
 
 const Certificate*
-CertificateCache::find(const Name& keyName)
+CertificateCache::find(const Name& certPrefix) const
 {
-  refresh();
-  if (keyName.size() > 0 && keyName[-1].isImplicitSha256Digest()) {
+  const_cast<CertificateCache*>(this)->refresh();
+  if (certPrefix.size() > 0 && certPrefix[-1].isImplicitSha256Digest()) {
     NDN_LOG_INFO("Certificate search using name with the implicit digest is not yet supported");
   }
-  auto itr = m_certsByName.lower_bound(keyName);
-  if (itr == m_certsByName.end() || !keyName.isPrefixOf(itr->getCertName()))
+  auto itr = m_certsByName.lower_bound(certPrefix);
+  if (itr == m_certsByName.end() || !certPrefix.isPrefixOf(itr->getCertName()))
     return nullptr;
   return &itr->cert;
 }
 
 const Certificate*
-CertificateCache::find(const Interest& interest)
+CertificateCache::find(const Interest& interest) const
 {
   if (interest.getChildSelector() >= 0) {
-    NDN_LOG_DEBUG("Certificate search using ChildSelector is not supported, search as if selector not specified");
+    NDN_LOG_DEBUG("Certificate search using ChildSelector is not supported, searching as if selector not specified");
   }
   if (interest.getName().size() > 0 && interest.getName()[-1].isImplicitSha256Digest()) {
-    NDN_LOG_INFO("Certificate search using name with the implicit digest is not yet supported");
+    NDN_LOG_INFO("Certificate search using name with implicit digest is not yet supported");
   }
-  refresh();
+  const_cast<CertificateCache*>(this)->refresh();
 
   for (auto i = m_certsByName.lower_bound(interest.getName());
        i != m_certsByName.end() && interest.getName().isPrefixOf(i->getCertName());

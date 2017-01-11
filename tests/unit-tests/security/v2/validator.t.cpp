@@ -1,0 +1,277 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/**
+ * Copyright (c) 2013-2017 Regents of the University of California.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ *
+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received copies of the GNU General Public License and GNU Lesser
+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ */
+
+#include "security/v2/validator.hpp"
+#include "security/v2/validation-policy-simple-hierarchy.hpp"
+
+#include "boost-test.hpp"
+#include "validator-fixture.hpp"
+
+namespace ndn {
+namespace security {
+namespace v2 {
+namespace tests {
+
+using namespace ndn::tests;
+
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(V2)
+BOOST_FIXTURE_TEST_SUITE(TestValidator, HierarchicalValidatorFixture<ValidationPolicySimpleHierarchy>)
+
+BOOST_AUTO_TEST_CASE(Timeouts)
+{
+  processInterest = nullptr; // no response for all interests
+
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+
+  VALIDATE_FAILURE(data, "Should fail to retrieve certificate");
+  BOOST_CHECK_GT(face.sentInterests.size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(NackedInterests)
+{
+  processInterest = [this] (const Interest& interest) {
+    lp::Nack nack(interest);
+    nack.setReason(lp::NackReason::NO_ROUTE);
+    face.receive(nack);
+  };
+
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+
+  VALIDATE_FAILURE(data, "All interests should get NACKed");
+  BOOST_CHECK_GT(face.sentInterests.size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(MalformedCert)
+{
+  Data malformedCert = subIdentity.getDefaultKey().getDefaultCertificate();
+  malformedCert.setContentType(tlv::ContentType_Blob);
+  m_keyChain.sign(malformedCert, signingByIdentity(identity));
+  // wrong content type & missing ValidityPeriod
+  BOOST_REQUIRE_THROW(Certificate(malformedCert.wireEncode()), tlv::Error);
+
+  auto originalProcessInterest = processInterest;
+  processInterest = [this, &originalProcessInterest, &malformedCert] (const Interest& interest) {
+    if (interest.getName().isPrefixOf(malformedCert.getName())) {
+      face.receive(malformedCert);
+    }
+    else {
+      originalProcessInterest(interest);
+    }
+  };
+
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+
+  VALIDATE_FAILURE(data, "Signed by a malformed certificate");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+}
+
+
+BOOST_AUTO_TEST_CASE(ExpiredCert)
+{
+  Data expiredCert = subIdentity.getDefaultKey().getDefaultCertificate();
+  SignatureInfo info;
+  info.setValidityPeriod(ValidityPeriod(time::system_clock::now() - time::hours(2),
+                                        time::system_clock::now() - time::hours(1)));
+  m_keyChain.sign(expiredCert, signingByIdentity(identity).setSignatureInfo(info));
+  BOOST_REQUIRE_NO_THROW(Certificate(expiredCert.wireEncode()));
+
+  auto originalProcessInterest = processInterest;
+  processInterest = [this, &originalProcessInterest, &expiredCert] (const Interest& interest) {
+    if (interest.getName().isPrefixOf(expiredCert.getName())) {
+      face.receive(expiredCert);
+    }
+    else {
+      processInterest(interest);
+    }
+  };
+
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+
+  VALIDATE_FAILURE(data, "Signed by an expired certificate");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(TrustedCertCaching)
+{
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+
+  VALIDATE_SUCCESS(data, "Should get accepted, as signed by the policy-compliant cert");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  face.sentInterests.clear();
+
+  processInterest = nullptr; // disable data responses from mocked network
+
+  VALIDATE_SUCCESS(data, "Should get accepted, based on the cached trusted cert");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  face.sentInterests.clear();
+
+  advanceClocks(time::hours(1), 2); // expire trusted cache
+
+  VALIDATE_FAILURE(data, "Should try and fail to retrieve certs");
+  BOOST_CHECK_GT(face.sentInterests.size(), 1);
+  face.sentInterests.clear();
+}
+
+BOOST_AUTO_TEST_CASE(UntrustedCertCaching)
+{
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subSelfSignedIdentity));
+
+  VALIDATE_FAILURE(data, "Should fail, as signed by the policy-violating cert");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  face.sentInterests.clear();
+
+  processInterest = nullptr; // disable data responses from mocked network
+
+  VALIDATE_FAILURE(data, "Should fail again, but no network operations expected");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  face.sentInterests.clear();
+
+  advanceClocks(time::minutes(10), 2); // expire untrusted cache
+
+  VALIDATE_FAILURE(data, "Should try and fail to retrieve certs");
+  BOOST_CHECK_GT(face.sentInterests.size(), 1);
+  face.sentInterests.clear();
+}
+
+class ValidationPolicySimpleHierarchyForInterestOnly : public ValidationPolicySimpleHierarchy
+{
+public:
+  void
+  checkPolicy(const Data& data, const shared_ptr<ValidationState>& state,
+              const ValidationContinuation& continueValidation) override
+  {
+    continueValidation(nullptr, state);
+  }
+};
+
+BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
+                        HierarchicalValidatorFixture<ValidationPolicySimpleHierarchyForInterestOnly>)
+{
+  Interest interest("/Security/V2/ValidatorFixture/Sub1/Sub2/Interest");
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Interest");
+
+  VALIDATE_FAILURE(interest, "Unsigned");
+  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  face.sentInterests.clear();
+
+  interest = Interest("/Security/V2/ValidatorFixture/Sub1/Sub2/Interest");
+  m_keyChain.sign(interest, signingWithSha256());
+  m_keyChain.sign(data, signingWithSha256());
+  VALIDATE_FAILURE(interest, "Required KeyLocator/Name missing (not passed to policy)");
+  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  face.sentInterests.clear();
+
+  m_keyChain.sign(interest, signingByIdentity(identity));
+  m_keyChain.sign(data, signingByIdentity(identity));
+  VALIDATE_SUCCESS(interest, "Should get accepted, as signed by the anchor");
+  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  face.sentInterests.clear();
+
+  m_keyChain.sign(interest, signingByIdentity(subIdentity));
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+  VALIDATE_FAILURE(interest, "Should fail, as policy is not allowed to create new trust anchors");
+  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  face.sentInterests.clear();
+
+  m_keyChain.sign(interest, signingByIdentity(otherIdentity));
+  m_keyChain.sign(data, signingByIdentity(otherIdentity));
+  VALIDATE_FAILURE(interest, "Should fail, as signed by the policy-violating cert");
+  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
+  // no network operations expected, as certificate is not validated by the policy
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  face.sentInterests.clear();
+
+  advanceClocks(time::hours(1), 2); // expire trusted cache
+
+  m_keyChain.sign(interest, signingByIdentity(subSelfSignedIdentity));
+  m_keyChain.sign(data, signingByIdentity(subSelfSignedIdentity));
+  VALIDATE_FAILURE(interest, "Should fail, as policy is not allowed to create new trust anchors");
+  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  face.sentInterests.clear();
+}
+
+BOOST_AUTO_TEST_CASE(LoopingCert)
+{
+  processInterest = [this] (const Interest& interest) {
+    // create another key for the same identity and sign it properly
+    Key parentKey = m_keyChain.createKey(subIdentity);
+    Key requestedKey = subIdentity.getKey(interest.getName());
+
+    Name certificateName = requestedKey.getName();
+    certificateName
+    .append("looper")
+    .appendVersion();
+    v2::Certificate certificate;
+    certificate.setName(certificateName);
+
+    // set metainfo
+    certificate.setContentType(tlv::ContentType_Key);
+    certificate.setFreshnessPeriod(time::hours(1));
+
+    // set content
+    certificate.setContent(requestedKey.getPublicKey().buf(), requestedKey.getPublicKey().size());
+
+    // set signature-info
+    SignatureInfo info;
+    info.setValidityPeriod(security::ValidityPeriod(time::system_clock::now() - time::days(10),
+                                                    time::system_clock::now() + time::days(10)));
+
+    m_keyChain.sign(certificate, signingByKey(parentKey).setSignatureInfo(info));
+    face.receive(certificate);
+  };
+
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+
+  validator.setMaxDepth(40);
+  BOOST_CHECK_EQUAL(validator.getMaxDepth(), 40);
+  VALIDATE_FAILURE(data, "Should fail, as certificate should be looped");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 40);
+  face.sentInterests.clear();
+
+  advanceClocks(time::hours(1), 5); // expire caches
+
+  validator.setMaxDepth(30);
+  BOOST_CHECK_EQUAL(validator.getMaxDepth(), 30);
+  VALIDATE_FAILURE(data, "Should fail, as certificate should be looped");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 30);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestValidator
+BOOST_AUTO_TEST_SUITE_END() // V2
+BOOST_AUTO_TEST_SUITE_END() // Security
+
+} // namespace tests
+} // namespace v2
+} // namespace security
+} // namespace ndn

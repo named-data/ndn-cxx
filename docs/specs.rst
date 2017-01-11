@@ -7,3 +7,4 @@ Specifications
    specs/signed-interest
    specs/certificate-format
    specs/safe-bag
+   specs/validation-error-code

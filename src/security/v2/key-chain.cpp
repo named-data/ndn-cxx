@@ -681,6 +681,8 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
 
   sigInfo.setSignatureType(getSignatureType(key.getKeyType(), params.getDigestAlgorithm()));
   sigInfo.setKeyLocator(KeyLocator(key.getName()));
+
+  NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
   return std::make_tuple(key.getName(), sigInfo);
 }
 

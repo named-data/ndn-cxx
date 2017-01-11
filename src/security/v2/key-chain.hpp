@@ -22,6 +22,7 @@
 #ifndef NDN_SECURITY_V2_KEY_CHAIN_HPP
 #define NDN_SECURITY_V2_KEY_CHAIN_HPP
 
+#include "../security-common.hpp"
 #include "certificate.hpp"
 #include "../key-params.hpp"
 #include "../pib/pib.hpp"
