@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "signature-info.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace tests {
@@ -54,12 +55,16 @@ BOOST_AUTO_TEST_CASE(Constructor)
   BOOST_CHECK_EQUAL(sha256Info.hasKeyLocator(), false);
   BOOST_CHECK_THROW(sha256Info.getKeyLocator(), SignatureInfo::Error);
 
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(sha256Info), "DigestSha256");
+
   KeyLocator keyLocator("/test/key/locator");
   SignatureInfo sha256RsaInfo(tlv::SignatureSha256WithRsa, keyLocator);
   BOOST_CHECK_EQUAL(sha256RsaInfo.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(sha256RsaInfo.hasKeyLocator(), true);
   BOOST_CHECK_NO_THROW(sha256RsaInfo.getKeyLocator());
   BOOST_CHECK_EQUAL(sha256RsaInfo.getKeyLocator().getName(), Name("/test/key/locator"));
+
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(sha256RsaInfo), "SignatureSha256WithRsa Name=/test/key/locator");
 
   const Block& encoded = sha256RsaInfo.wireEncode();
   Block sigInfoBlock(sigInfoRsa, sizeof(sigInfoRsa));
@@ -222,6 +227,36 @@ BOOST_AUTO_TEST_CASE(OtherTlvs)
   info.appendTypeSpecificTlv(block1);
   BOOST_CHECK_THROW(info.getTypeSpecificTlv(0x82), SignatureInfo::Error);
   BOOST_REQUIRE_NO_THROW(info.getTypeSpecificTlv(0x81));
+}
+
+BOOST_AUTO_TEST_CASE(OtherTlvsEncoding) // Bug #3914
+{
+  SignatureInfo info1;
+  info1.appendTypeSpecificTlv(makeStringBlock(101, "First"));
+  info1.appendTypeSpecificTlv(makeStringBlock(102, "Second"));
+  info1.appendTypeSpecificTlv(makeStringBlock(103, "Third"));
+
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(info1), "Unknown Signature Type { 101 102 103 }");
+
+  SignatureInfo info2;
+  info2.wireDecode(info1.wireEncode());
+  BOOST_CHECK_EQUAL(info1, info2);
+
+  // // These octets are obtained by the snippet below.
+  // // This check is intended to detect unexpected encoding change in the future.
+  // for (uint8_t ch : info1.wireEncode()) {
+  //  printf("0x%02x, ", ch);
+  // }
+  const uint8_t infoBytes[] = {
+    0x16, 0x20, 0x1b, 0x08, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x65, 0x05, 0x46, 0x69,
+    0x72, 0x73, 0x74, 0x66, 0x06, 0x53, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x67, 0x05, 0x54, 0x68, 0x69,
+    0x72, 0x64
+  };
+
+  SignatureInfo info3(Block(infoBytes, sizeof(infoBytes)));
+  BOOST_CHECK_EQUAL(info3, info1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(infoBytes, infoBytes + sizeof(infoBytes),
+                                info1.wireEncode().begin(), info1.wireEncode().end());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSignatureInfo

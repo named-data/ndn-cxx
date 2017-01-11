@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -145,7 +145,7 @@ SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 
   for (std::list<Block>::const_reverse_iterator i = m_otherTlvs.rbegin();
        i != m_otherTlvs.rend(); i++) {
-    totalLength += encoder.appendBlock(*i);
+    totalLength += encoder.prependBlock(*i);
   }
 
   if (m_hasKeyLocator)
@@ -228,6 +228,23 @@ SignatureInfo::operator==(const SignatureInfo& rhs) const
           m_hasKeyLocator == rhs.m_hasKeyLocator &&
           m_keyLocator == rhs.m_keyLocator &&
           m_otherTlvs == rhs.m_otherTlvs);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const SignatureInfo& info)
+{
+  os << static_cast<tlv::SignatureTypeValue>(info.getSignatureType());
+  if (info.hasKeyLocator()) {
+    os << " " << info.getKeyLocator();
+  }
+  if (!info.m_otherTlvs.empty()) {
+    os << " { ";
+    for (const auto& block : info.m_otherTlvs) {
+      os << block.type() << " ";
+    }
+    os << "}";
+  }
+  return os;
 }
 
 } // namespace ndn
