@@ -568,8 +568,10 @@ KeyChain::selfSign(Key& key)
 
   // set signature-info
   SignatureInfo signatureInfo;
-  signatureInfo.setValidityPeriod(ValidityPeriod(time::system_clock::now(),
-                                                 time::system_clock::now() + time::days(1000 * 365)));
+  // Note time::system_clock::max() or other NotAfter date results in incorrect encoded value
+  // because of overflow during conversion to boost::posix_time::ptime (bug #3915).
+  signatureInfo.setValidityPeriod(ValidityPeriod(time::system_clock::TimePoint(),
+                                                 time::system_clock::now() + time::days(20 * 365)));
 
   sign(certificate, SigningInfo(key).setSignatureInfo(signatureInfo));
 

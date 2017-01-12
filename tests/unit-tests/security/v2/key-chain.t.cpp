@@ -24,7 +24,7 @@
 
 #include "boost-test.hpp"
 #include "unit-tests/test-home-env-saver.hpp"
-#include "test-home-fixture.hpp"
+#include "identity-management-fixture.hpp"
 #include "validator.hpp"
 
 namespace ndn {
@@ -167,30 +167,6 @@ BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
   BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-memory:");
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-memory:");
 }
-
-// @TODO Delete after upgrade of the existing management fixture
-class IdentityManagementFixture
-{
-public:
-  IdentityManagementFixture()
-    : m_keyChain("pib-memory:", "tpm-memory:")
-  {
-  }
-
-  Identity
-  addIdentity(const Name& identityName, const KeyParams& params = KeyChain::getDefaultKeyParams())
-  {
-    Identity identity = m_keyChain.createIdentity(identityName, params);
-    m_identities.push_back(identity);
-    return identity;
-  }
-
-protected:
-  KeyChain m_keyChain;
-
-private:
-  std::vector<Identity> m_identities;
-};
 
 BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
 {
@@ -407,8 +383,19 @@ BOOST_FIXTURE_TEST_CASE(ExportImport, IdentityManagementFixture)
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), false);
 }
 
+BOOST_FIXTURE_TEST_CASE(SelfSignedCertValidity, IdentityManagementFixture)
+{
+  Certificate cert = addIdentity("/Security/V2/TestKeyChain/SelfSignedCertValidity")
+                       .getDefaultKey()
+                       .getDefaultCertificate();
+  BOOST_CHECK(cert.isValid());
+  BOOST_CHECK(cert.isValid(time::system_clock::now() + time::days(10 * 365)));
+  BOOST_CHECK_GT(cert.getValidityPeriod().getPeriod().second,
+                 time::system_clock::now() + time::days(10 * 365));
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestKeyChain
-BOOST_AUTO_TEST_SUITE_END() // Tmp
+BOOST_AUTO_TEST_SUITE_END() // V2
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
