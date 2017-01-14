@@ -22,10 +22,9 @@
 #ifndef NDN_SECURITY_V2_VALIDATOR_HPP
 #define NDN_SECURITY_V2_VALIDATOR_HPP
 
-#include "certificate.hpp"
-#include "certificate-cache.hpp"
+#include "certificate-fetcher.hpp"
 #include "certificate-request.hpp"
-#include "trust-anchor-container.hpp"
+#include "certificate-storage.hpp"
 #include "validation-callback.hpp"
 #include "validation-policy.hpp"
 #include "validation-state.hpp"
@@ -33,10 +32,6 @@
 namespace ndn {
 
 class Face;
-
-namespace lp {
-class Nack;
-} // namespace lp
 
 namespace security {
 namespace v2 {
@@ -52,8 +47,8 @@ namespace v2 {
  * - record names of the requested certificates to detect loops in the certificate chain
  * - keep track of the validation chain size (aka validation "depth")
  *
- * During validation, policy can augment validation state with policy- and fetcher-specific
- * information using ndn::Tag's.
+ * During validation, policy and/or key fetcher can augment validation state with policy- and
+ * fetcher-specific information using ndn::Tag's.
  *
  * A validator has a trust anchor cache to save static and dynamic trust anchors, a verified
  * certificate cache for saving certificates that are already verified and an unverified
@@ -63,18 +58,16 @@ namespace v2 {
  * @todo Ability to customize maximum lifetime for trusted and untrusted certificate caches.
  *       Current implementation hard-codes them to be 1 hour and 5 minutes.
  */
-class Validator : noncopyable
+class Validator : public CertificateStorage
 {
 public:
   /**
    * @brief Validator constructor.
    *
-   * @param policy Validation policy to be associated with the validator
-   * @param face   Face for fetching certificates from network.  If provided, the Validator
-   *               operates in online mode; otherwise, the Validator operates in offline mode.
+   * @param policy      Validation policy to be associated with the validator
+   * @param certFetcher Certificate fetcher implementation.
    */
-  explicit
-  Validator(unique_ptr<ValidationPolicy> policy, Face* face = nullptr);
+  Validator(unique_ptr<ValidationPolicy> policy, unique_ptr<CertificateFetcher> certFetcher);
 
   ~Validator();
 
@@ -145,38 +138,6 @@ public: // anchor management
   void
   cacheVerifiedCertificate(Certificate&& cert);
 
-  /**
-   * @brief Cache unverified @p cert for a period of time (5 minutes)
-   *
-   * @todo Add ability to customize time period
-   */
-  void
-  cacheUnverifiedCertificate(Certificate&& cert);
-
-  /**
-   * @return Trust anchor container
-   */
-  const TrustAnchorContainer&
-  getTrustAnchors() const;
-
-  /**
-   * @return Verified certificate cache
-   */
-  const CertificateCache&
-  getVerifiedCertificateCache() const;
-
-  /**
-   * @return Unverified certificate cache
-   */
-  const CertificateCache&
-  getUnverifiedCertificateCache() const;
-
-  /**
-   * @brief Check if certificate with @p certName exists in verified or unverified cache
-   */
-  bool
-  isCertificateCached(const Name& certName) const;
-
 private: // Common validator operations
   /**
    * @brief Recursive validation of the certificate in the certification chain
@@ -197,75 +158,9 @@ private: // Common validator operations
   requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
                      const shared_ptr<ValidationState>& state);
 
-  /**
-   * @brief Find trusted certificate among trust anchors and verified certificates.
-   *
-   * @param interestForCertificate Interest for certificate
-   * @param state                  The current validation state.
-   *
-   * @return found certificate, nullptr if not found.
-   *
-   * @note The returned pointer may get invalidated after next findTrustedCert call.
-   */
-  const Certificate*
-  findTrustedCert(const Interest& interestForCertificate,
-                  const shared_ptr<ValidationState>& state);
-
-  /**
-   * @brief fetch certificate from network based on certificate request.
-   *
-   * @param certRequest Certificate request.
-   * @param state       The current validation state.
-   */
-  void
-  fetchCertificateFromNetwork(const shared_ptr<CertificateRequest>& certRequest,
-                              const shared_ptr<ValidationState>& state);
-
-  /**
-   * @brief Callback invoked when certificated is retrieved.
-   *
-   * @param data        Retrieved certificate.
-   * @param certRequest Certificate request.
-   * @param state       The current validation state.
-   * @param isFromNetwork Flag to indicate that the data packet is retrieved (to avoid re-caching).
-   */
-  void
-  dataCallback(const Data& data,
-               const shared_ptr<CertificateRequest>& certRequest,
-               const shared_ptr<ValidationState>& state,
-               bool isFromNetwork = true);
-
-  /**
-   * @brief Callback invoked when interest for fetching certificate gets NACKed.
-   *
-   * It will retry for pre-configured amount of retries.
-   *
-   * @param nack        Received NACK
-   * @param certRequest Certificate request.
-   * @param state       The current validation state.
-   */
-  void
-  nackCallback(const lp::Nack& nack, const shared_ptr<CertificateRequest>& certRequest,
-               const shared_ptr<ValidationState>& state);
-
-  /**
-   * @brief Callback invoked when interest for fetching certificate times out.
-   *
-   * It will retry for pre-configured amount of retries.
-   *
-   * @param certRequest Certificate request.
-   * @param state       The current validation state.
-   */
-  void
-  timeoutCallback(const shared_ptr<CertificateRequest>& certRequest,
-                  const shared_ptr<ValidationState>& state);
-
 private:
   unique_ptr<ValidationPolicy> m_policy;
-  Face* m_face;
-  TrustAnchorContainer m_trustAnchors;
-  CertificateCache m_verifiedCertificateCache;
-  CertificateCache m_unverifiedCertificateCache;
+  unique_ptr<CertificateFetcher> m_certFetcher;
   size_t m_maxDepth;
 };
 

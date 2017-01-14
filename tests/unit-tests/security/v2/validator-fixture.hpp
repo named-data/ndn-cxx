@@ -23,6 +23,7 @@
 #define NDN_TESTS_SECURITY_V2_VALIDATOR_FIXTURE_HPP
 
 #include "security/v2/validator.hpp"
+#include "security/v2/certificate-fetcher-from-network.hpp"
 #include "util/dummy-client-face.hpp"
 
 #include "../../identity-management-time-fixture.hpp"
@@ -34,13 +35,13 @@ namespace security {
 namespace v2 {
 namespace tests {
 
-template<class ValidationPolicy>
+template<class ValidationPolicy, class CertificateFetcher = CertificateFetcherFromNetwork>
 class ValidatorFixture : public ndn::tests::IdentityManagementTimeFixture
 {
 public:
   ValidatorFixture()
     : face(io, {true, true})
-    , validator(make_unique<ValidationPolicy>(), &face)
+    , validator(make_unique<ValidationPolicy>(), make_unique<CertificateFetcher>(face))
     , cache(time::days(100))
   {
     processInterest = [this] (const Interest& interest) {
@@ -96,8 +97,8 @@ public:
   CertificateCache cache;
 };
 
-template<class ValidationPolicy>
-class HierarchicalValidatorFixture : public ValidatorFixture<ValidationPolicy>
+template<class ValidationPolicy, class CertificateFetcher = CertificateFetcherFromNetwork>
+class HierarchicalValidatorFixture : public ValidatorFixture<ValidationPolicy, CertificateFetcher>
 {
 public:
   HierarchicalValidatorFixture()
