@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_FACE_STATUS_HPP
 #define NDN_MGMT_NFD_FACE_STATUS_HPP
 
-#include "face-traits.hpp" // include this first, to ensure it compiles on its own.
+#include "face-traits.hpp"
 #include "../../encoding/block.hpp"
 #include "../../util/time.hpp"
 
@@ -149,7 +149,7 @@ public: // getters & setters
 
 protected:
   void
-  wireReset() const;
+  wireReset() const override;
 
 private:
   time::milliseconds m_expirationPeriod;

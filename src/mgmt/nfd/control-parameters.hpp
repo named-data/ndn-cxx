@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,7 +77,7 @@ enum LocalControlFeature {
  * \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
  * \details This type is copyable because it's an abstraction of a TLV type.
  */
-class ControlParameters : public ndn::mgmt::ControlParameters
+class ControlParameters : public mgmt::ControlParameters
 {
 public:
   class Error : public tlv::Error

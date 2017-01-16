@@ -106,6 +106,7 @@ class GccBasicFlags(CompilerFlags):
                               '-Wall',
                               '-Wextra',
                               '-Werror',
+                              '-Wnon-virtual-dtor',
                               '-Wno-unused-parameter',
                               '-Wno-error=maybe-uninitialized', # Bug #1615
                               '-Wno-error=deprecated-declarations', # Bug #3795
@@ -119,6 +120,7 @@ class GccBasicFlags(CompilerFlags):
                               '-pedantic',
                               '-Wall',
                               '-Wextra',
+                              '-Wnon-virtual-dtor',
                               '-Wno-unused-parameter',
                               ]
         return flags

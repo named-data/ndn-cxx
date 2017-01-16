@@ -25,8 +25,8 @@
 #include "../../data.hpp"
 #include "certificate.hpp"
 
-#include <set>
 #include <boost/filesystem/path.hpp>
+#include <set>
 
 namespace ndn {
 namespace security {
@@ -35,6 +35,9 @@ namespace v2 {
 class CertContainerInterface
 {
 public:
+  virtual
+  ~CertContainerInterface() = default;
+
   virtual void
   add(Certificate&& cert) = 0;
 
@@ -51,8 +54,10 @@ public:
   /**
    * @brief Create an anchor group
    */
-  explicit
   TrustAnchorGroup(CertContainerInterface& certContainer, const std::string& id);
+
+  virtual
+  ~TrustAnchorGroup();
 
   /**
    * @return group id
@@ -145,7 +150,8 @@ public:
    * @throw std::invalid_argument @p refreshPeriod is negative
    */
   DynamicTrustAnchorGroup(CertContainerInterface& certContainer, const std::string& id,
-                          const boost::filesystem::path& path, time::nanoseconds refreshPeriod, bool isDir = false);
+                          const boost::filesystem::path& path, time::nanoseconds refreshPeriod,
+                          bool isDir = false);
 
   void
   refresh() override;

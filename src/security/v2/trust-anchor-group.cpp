@@ -24,7 +24,6 @@
 #include "util/io.hpp"
 #include "util/logger.hpp"
 
-#include <set>
 #include <boost/filesystem.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
@@ -43,6 +42,8 @@ TrustAnchorGroup::TrustAnchorGroup(CertContainerInterface& certContainer, const 
   , m_id(id)
 {
 }
+
+TrustAnchorGroup::~TrustAnchorGroup() = default;
 
 size_t
 TrustAnchorGroup::size() const

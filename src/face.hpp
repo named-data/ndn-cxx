@@ -231,6 +231,7 @@ public: // constructors
    */
   Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain);
 
+  virtual
   ~Face();
 
 public: // consumer

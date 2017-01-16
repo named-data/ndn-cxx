@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,8 +29,8 @@ namespace nfd {
 
 /** \ingroup management
  *  \brief providers getters and setters of face information fields
- *  \tparam C the concrete class; it must provide .wireReset() method
-            to clear wire encoding when a field changes
+ *  \tparam C the concrete class; it must provide a wireReset() member
+ *            function to clear the wire encoding when a field changes
  */
 template<class C>
 class FaceTraits
@@ -54,6 +54,9 @@ public:
     , m_flags(0x0)
   {
   }
+
+  virtual
+  ~FaceTraits() = default;
 
   uint64_t
   getFaceId() const
