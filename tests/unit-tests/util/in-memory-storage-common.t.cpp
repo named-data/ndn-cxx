@@ -277,12 +277,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(DigestCalculation, T, InMemoryStorages)
   ConstBufferPtr digest1 = crypto::computeSha256Digest(data->wireEncode().wire(), data->wireEncode().size());
   BOOST_CHECK_EQUAL(digest1->size(), 32);
 
-  InMemoryStorageEntry* entry = new InMemoryStorageEntry();
-  entry->setData(*data);
+  InMemoryStorageEntry entry;
+  entry.setData(*data);
 
   BOOST_CHECK_EQUAL_COLLECTIONS(digest1->begin(), digest1->end(),
-                                entry->getFullName()[-1].value_begin(),
-                                entry->getFullName()[-1].value_end());
+                                entry.getFullName()[-1].value_begin(),
+                                entry.getFullName()[-1].value_end());
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Iterator, T, InMemoryStorages)

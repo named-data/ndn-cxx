@@ -25,6 +25,11 @@
 namespace ndn {
 namespace security {
 
+CommandInterestPreparer::CommandInterestPreparer()
+  : m_lastUsedTimestamp(0)
+{
+}
+
 Name
 CommandInterestPreparer::prepareCommandInterestName(Name name)
 {

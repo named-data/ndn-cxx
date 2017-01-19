@@ -41,6 +41,8 @@ namespace security {
 class CommandInterestPreparer : noncopyable
 {
 public:
+  CommandInterestPreparer();
+
   /**
    * @brief Prepare name of the CommandInterest
    *
