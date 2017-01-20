@@ -1,3 +1,5 @@
+.. _Security Library Tutorial:
+
 Security Library Tutorial
 =========================
 

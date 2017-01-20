@@ -3,7 +3,7 @@
 from waflib import Logs, Utils, Context
 import os
 
-VERSION = "0.5.0"
+VERSION = "0.5.1"
 APPNAME = "ndn-cxx"
 PACKAGE_BUGREPORT = "https://redmine.named-data.net/projects/ndn-cxx"
 PACKAGE_URL = "http://named-data.net/doc/ndn-cxx/"

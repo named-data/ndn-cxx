@@ -1,3 +1,5 @@
+.. _NDN Certificate Format Version 2.0:
+
 NDN Certificate Format Version 2.0
 ==================================
 

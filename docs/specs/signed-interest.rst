@@ -1,3 +1,5 @@
+.. _Signed Interest:
+
 Signed Interest
 ===============
 
