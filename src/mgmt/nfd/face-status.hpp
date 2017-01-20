@@ -92,22 +92,8 @@ public: // getters & setters
     return m_nInData;
   }
 
-  DEPRECATED(
-  uint64_t
-  getNInDatas() const)
-  {
-    return getNInData();
-  }
-
   FaceStatus&
   setNInData(uint64_t nInData);
-
-  DEPRECATED(
-  FaceStatus&
-  setNInDatas(uint64_t nInData))
-  {
-    return setNInData(nInData);
-  }
 
   uint64_t
   getNInNacks() const
@@ -133,22 +119,8 @@ public: // getters & setters
     return m_nOutData;
   }
 
-  DEPRECATED(
-  uint64_t
-  getNOutDatas() const)
-  {
-    return getNOutData();
-  }
-
   FaceStatus&
   setNOutData(uint64_t nOutData);
-
-  DEPRECATED(
-  FaceStatus&
-  setNOutDatas(uint64_t nOutData))
-  {
-    return setNOutData(nOutData);
-  }
 
   uint64_t
   getNOutNacks() const

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,8 +23,6 @@
 #define NDN_MGMT_NFD_COMMAND_OPTIONS_HPP
 
 #include "../../security/signing-info.hpp"
-
-#define NDN_MGMT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 namespace ndn {
 
@@ -93,87 +91,6 @@ public:
    */
   CommandOptions&
   setSigningInfo(const security::SigningInfo& signingInfo);
-
-#ifdef NDN_MGMT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
-public: // signing parameters
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \brief indicates the selection of signing parameters
-   */
-  enum SigningParamsKind {
-    /** \brief picks the default signing identity and certificate
-     */
-    SIGNING_PARAMS_DEFAULT,
-    /** \brief picks the default certificate of a specific identity Name
-     */
-    SIGNING_PARAMS_IDENTITY,
-    /** \brief picks a specific identity certificate
-     */
-    SIGNING_PARAMS_CERTIFICATE
-  };
-
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \return selection of signing parameters
-   */
-  DEPRECATED(
-  SigningParamsKind
-  getSigningParamsKind() const);
-
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \return identity Name
-   *  \pre getSigningParamsKind() == SIGNING_PARAMS_IDENTITY
-   */
-  DEPRECATED(
-  const Name&
-  getSigningIdentity() const);
-
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \return certificate Name
-   *  \pre getSigningParamsKind() == SIGNING_PARAMS_CERTIFICATE
-   */
-  DEPRECATED(
-  const Name&
-  getSigningCertificate() const);
-
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \brief chooses to use default identity and certificate
-   *  \post getSigningParamsKind() == SIGNING_PARAMS_DEFAULT
-   *  \return self
-   */
-  DEPRECATED(
-  CommandOptions&
-  setSigningDefault());
-
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \brief chooses to use a specific identity and its default certificate
-   *  \post getSigningParamsKind() == SIGNING_PARAMS_IDENTITY
-   *  \post getIdentityName() == identityName
-   *  \return self
-   */
-  DEPRECATED(
-  CommandOptions&
-  setSigningIdentity(const Name& identityName));
-
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \brief chooses to use a specific identity certificate
-   *  \param certificateName identity certificate Name
-   *  \throw std::invalid_argument if certificateName is invalid
-   *  \post getSigningParamsKind() == SIGNING_PARAMS_CERTIFICATE
-   *  \post getSigningCertificate() == certificateName
-   *  \return self
-   */
-  DEPRECATED(
-  CommandOptions&
-  setSigningCertificate(const Name& certificateName));
-
-  /** \deprecated use getSigningInfo and setSigningInfo
-   *  \brief chooses to use a specific identity certificate
-   *  \details This is equivalent to .setIdentityCertificate(certificate.getName())
-   */
-  DEPRECATED(
-  CommandOptions&
-  setSigningCertificate(const security::v1::IdentityCertificate& certificate));
-
-#endif // NDN_MGMT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 public:
   /** \brief gives the default command timeout: 10000ms

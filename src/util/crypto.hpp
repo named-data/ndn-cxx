@@ -41,17 +41,6 @@ const size_t SHA256_DIGEST_SIZE = 32;
 ConstBufferPtr
 computeSha256Digest(const uint8_t* data, size_t dataLength);
 
-/**
- * @brief Compute the sha-256 digest of data.
- *
- * @deprecated Use computeSha256Digest function instead
- */
-inline ConstBufferPtr
-sha256(const uint8_t* data, size_t dataLength)
-{
-  return computeSha256Digest(data, dataLength);
-}
-
 } // namespace crypto
 } // namespace ndn
 

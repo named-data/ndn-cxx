@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -201,38 +201,6 @@ public:
   fromEscapedString(const std::string& escapedString)
   {
     return fromEscapedString(escapedString.c_str(), 0, escapedString.size());
-  }
-
-  /**
-   * @brief Write *this to the output stream, escaping characters according to the NDN URI Scheme
-   *
-   * @deprecated Use toUri(std::ostream&) instead
-   *
-   * This also adds "..." to a value with zero or more "."
-   *
-   * @param os The output stream to where write the URI escaped version *this
-   */
-  DEPRECATED(
-  void
-  toEscapedString(std::ostream& os) const)
-  {
-    return toUri(os);
-  }
-
-  /**
-   * @brief Convert *this by escaping characters according to the NDN URI Scheme
-   *
-   * @deprecated Use toUri() instead
-   *
-   * This also adds "..." to a value with zero or more "."
-   *
-   * @return The escaped string
-   */
-  DEPRECATED(
-  std::string
-  toEscapedString() const)
-  {
-    return toUri();
   }
 
   /**

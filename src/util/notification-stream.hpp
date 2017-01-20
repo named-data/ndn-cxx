@@ -38,7 +38,7 @@ namespace ndn {
 namespace util {
 
 /** \brief provides a publisher of Notification Stream
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/Notification
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
  */
 template<typename Notification>
 class NotificationStream : noncopyable

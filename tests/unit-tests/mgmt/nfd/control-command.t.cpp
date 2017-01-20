@@ -181,54 +181,6 @@ BOOST_AUTO_TEST_CASE(FaceDestroy)
   BOOST_CHECK(Name("ndn:/PREFIX/faces/destroy").isPrefixOf(n3));
 }
 
-BOOST_AUTO_TEST_CASE(FaceEnableLocalControl)
-{
-  FaceEnableLocalControlCommand command;
-
-  ControlParameters p1;
-  p1.setLocalControlFeature(LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID);
-  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
-  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
-  Name n1;
-  BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
-  BOOST_CHECK(Name("ndn:/PREFIX/faces/enable-local-control").isPrefixOf(n1));
-
-  ControlParameters p2;
-  p2.setLocalControlFeature(LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID)
-    .setFaceId(9);
-  BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
-
-  ControlParameters p3;
-  p3.setLocalControlFeature(static_cast<LocalControlFeature>(666));
-  BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
-}
-
-BOOST_AUTO_TEST_CASE(FaceDisableLocalControl)
-{
-  FaceDisableLocalControlCommand command;
-
-  ControlParameters p1;
-  p1.setLocalControlFeature(LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID);
-  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
-  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
-  Name n1;
-  BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
-  BOOST_CHECK(Name("ndn:/PREFIX/faces/disable-local-control").isPrefixOf(n1));
-
-  ControlParameters p2;
-  p2.setLocalControlFeature(LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID)
-    .setFaceId(9);
-  BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
-
-  ControlParameters p3;
-  p3.setLocalControlFeature(static_cast<LocalControlFeature>(666));
-  BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
-}
-
 BOOST_AUTO_TEST_CASE(FibAddNextHop)
 {
   FibAddNextHopCommand command;

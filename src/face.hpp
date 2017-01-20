@@ -33,12 +33,6 @@
 #include "security/signing-info.hpp"
 #include "security/key-chain.hpp"
 
-#define NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
-
-#ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
-#include "security/v1/identity-certificate.hpp"
-#endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
-
 namespace boost {
 namespace asio {
 class io_service;
@@ -73,27 +67,9 @@ typedef function<void(const Interest&, const lp::Nack&)> NackCallback;
 typedef function<void(const Interest&)> TimeoutCallback;
 
 /**
- * @brief Callback invoked when expressed Interest gets satisfied with Data packet
- * @deprecated use DataCallback
- */
-typedef function<void(const Interest&, Data&)> OnData;
-
-/**
- * @brief Callback invoked when expressed Interest times out
- * @deprecated use TimeoutCallback
- */
-typedef function<void(const Interest&)> OnTimeout;
-
-/**
  * @brief Callback invoked when incoming Interest matches the specified InterestFilter
  */
 typedef function<void(const InterestFilter&, const Interest&)> InterestCallback;
-
-/**
- * @brief Callback invoked when incoming Interest matches the specified InterestFilter
- * @deprecated use InterestCallback
- */
-typedef function<void (const InterestFilter&, const Interest&)> OnInterest;
 
 /**
  * @brief Callback invoked when registerPrefix or setInterestFilter command succeeds
@@ -251,44 +227,6 @@ public: // consumer
                   const TimeoutCallback& afterTimeout);
 
   /**
-   * @brief Express Interest
-   *
-   * @param interest  An Interest to be expressed
-   * @param onData    Callback to be called when a matching data packet is received
-   * @param onTimeout (optional) A function object to call if the interest times out or is Nacked
-   *
-   * @return The pending interest ID which can be used with removePendingInterest
-   *
-   * @throw Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
-   *
-   * @deprecated use expressInterest(Interest, DataCallback, NackCallback, TimeoutCallback)
-   */
-  const PendingInterestId*
-  expressInterest(const Interest& interest,
-                  const OnData& onData,
-                  const OnTimeout& onTimeout = nullptr);
-
-  /**
-   * @brief Express Interest using name and Interest template
-   *
-   * @param name      Name of the Interest
-   * @param tmpl      Interest template to fill parameters
-   * @param onData    Callback to be called when a matching data packet is received
-   * @param onTimeout (optional) A function object to call if the interest times out or is Nacked
-   *
-   * @return Opaque pending interest ID which can be used with removePendingInterest
-   *
-   * @throw Error when Interest size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
-   *
-   * @deprecated use expressInterest(Interest, DataCallback, NackCallback, TimeoutCallback)
-   */
-  const PendingInterestId*
-  expressInterest(const Name& name,
-                  const Interest& tmpl,
-                  const OnData& onData,
-                  const OnTimeout& onTimeout = nullptr);
-
-  /**
    * @brief Cancel previously expressed Interest
    *
    * @param pendingInterestId The ID returned from expressInterest.
@@ -381,128 +319,6 @@ public: // producer
   setInterestFilter(const InterestFilter& interestFilter,
                     const InterestCallback& onInterest);
 
-#ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
-  /**
-   * @deprecated Use override with SigningInfo instead of this function
-   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
-   * callback and register the filtered prefix with the connected NDN forwarder
-   *
-   * This version of setInterestFilter combines setInterestFilter and registerPrefix
-   * operations and is intended to be used when only one filter for the same prefix needed
-   * to be set.  When multiple names sharing the same prefix should be dispatched to
-   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
-   * a series of setInterestFilter calls.
-   *
-   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest     A callback to be called when a matching interest is received
-   * @param onSuccess      A callback to be called when prefixRegister command succeeds
-   * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param flags          (optional) RIB flags
-   * @param certificate    (optional) A certificate under which the prefix registration
-   *                       command is signed.  When omitted, a default certificate of
-   *                       the default identity is used to sign the registration command
-   *
-   * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
-   *         removeRegisteredPrefix
-   */
-  DEPRECATED(
-  const RegisteredPrefixId*
-  setInterestFilter(const InterestFilter& interestFilter,
-                    const OnInterest& onInterest,
-                    const RegisterPrefixSuccessCallback& onSuccess,
-                    const RegisterPrefixFailureCallback& onFailure,
-                    const security::v1::IdentityCertificate& certificate,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
-
-  /**
-   * @deprecated Use override with SigningInfo instead of this function
-   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
-   * callback and register the filtered prefix with the connected NDN forwarder
-   *
-   * This version of setInterestFilter combines setInterestFilter and registerPrefix
-   * operations and is intended to be used when only one filter for the same prefix needed
-   * to be set.  When multiple names sharing the same prefix should be dispatched to
-   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
-   * a series of setInterestFilter calls.
-   *
-   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest     A callback to be called when a matching interest is received
-   * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param flags          (optional) RIB flags
-   * @param certificate    (optional) A certificate under which the prefix registration
-   *                       command is signed.  When omitted, a default certificate of
-   *                       the default identity is used to sign the registration command
-   *
-   * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
-   *         removeRegisteredPrefix
-   */
-  DEPRECATED(
-  const RegisteredPrefixId*
-  setInterestFilter(const InterestFilter& interestFilter,
-                    const OnInterest& onInterest,
-                    const RegisterPrefixFailureCallback& onFailure,
-                    const security::v1::IdentityCertificate& certificate,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
-
-  /**
-   * @deprecated Use override with SigningInfo instead of this function
-   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
-   * callback and register the filtered prefix with the connected NDN forwarder
-   *
-   * This version of setInterestFilter combines setInterestFilter and registerPrefix
-   * operations and is intended to be used when only one filter for the same prefix needed
-   * to be set.  When multiple names sharing the same prefix should be dispatched to
-   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
-   * a series of setInterestFilter calls.
-   *
-   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest     A callback to be called when a matching interest is received
-   * @param onSuccess      A callback to be called when prefixRegister command succeeds
-   * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param identity       A signing identity. A prefix registration command is signed
-   *                       under the default certificate of this identity
-   * @param flags          (optional) RIB flags
-   *
-   * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
-   */
-  DEPRECATED(
-  const RegisteredPrefixId*
-  setInterestFilter(const InterestFilter& interestFilter,
-                    const OnInterest& onInterest,
-                    const RegisterPrefixSuccessCallback& onSuccess,
-                    const RegisterPrefixFailureCallback& onFailure,
-                    const Name& identity,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
-
-  /**
-   * @deprecated Use override with SigningInfo instead of this function
-   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
-   * callback and register the filtered prefix with the connected NDN forwarder
-   *
-   * This version of setInterestFilter combines setInterestFilter and registerPrefix
-   * operations and is intended to be used when only one filter for the same prefix needed
-   * to be set.  When multiple names sharing the same prefix should be dispatched to
-   * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
-   * a series of setInterestFilter calls.
-   *
-   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest     A callback to be called when a matching interest is received
-   * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param identity       A signing identity. A prefix registration command is signed
-   *                       under the default certificate of this identity
-   * @param flags          (optional) RIB flags
-   *
-   * @return Opaque registered prefix ID which can be used with removeRegisteredPrefix
-   */
-  DEPRECATED(
-  const RegisteredPrefixId*
-  setInterestFilter(const InterestFilter& interestFilter,
-                    const OnInterest& onInterest,
-                    const RegisterPrefixFailureCallback& onFailure,
-                    const Name& identity,
-                    uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
-#endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
-
   /**
    * @brief Register prefix with the connected NDN forwarder
    *
@@ -526,60 +342,6 @@ public: // producer
                  const RegisterPrefixFailureCallback& onFailure,
                  const security::SigningInfo& signingInfo = security::SigningInfo(),
                  uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
-
-#ifdef NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
-  /**
-   * @deprecated Use override with SigningInfo instead of this function
-   * @brief Register prefix with the connected NDN forwarder
-   *
-   * This method only modifies forwarder's RIB and does not associate any
-   * onInterest callbacks.  Use setInterestFilter method to dispatch incoming Interests to
-   * the right callbacks.
-   *
-   * @param prefix      A prefix to register with the connected NDN forwarder
-   * @param onSuccess   A callback to be called when prefixRegister command succeeds
-   * @param onFailure   A callback to be called when prefixRegister command fails
-   * @param certificate (optional) A certificate under which the prefix registration
-   *                    command is signed.  When omitted, a default certificate of
-   *                    the default identity is used to sign the registration command
-   * @param flags       (optional) RIB flags
-   *
-   * @return The registered prefix ID which can be used with unregisterPrefix
-   */
-  DEPRECATED(
-  const RegisteredPrefixId*
-  registerPrefix(const Name& prefix,
-                 const RegisterPrefixSuccessCallback& onSuccess,
-                 const RegisterPrefixFailureCallback& onFailure,
-                 const security::v1::IdentityCertificate& certificate,
-                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
-
-  /**
-   * @deprecated Use override with SigningInfo instead of this function
-   * @brief Register prefix with the connected NDN forwarder and call onInterest when a matching
-   *        interest is received.
-   *
-   * This method only modifies forwarder's RIB and does not associate any
-   * onInterest callbacks.  Use setInterestFilter method to dispatch incoming Interests to
-   * the right callbacks.
-   *
-   * @param prefix    A prefix to register with the connected NDN forwarder
-   * @param onSuccess A callback to be called when prefixRegister command succeeds
-   * @param onFailure A callback to be called when prefixRegister command fails
-   * @param identity  A signing identity. A prefix registration command is signed
-   *                  under the default certificate of this identity
-   * @param flags     (optional) RIB flags
-   *
-   * @return The registered prefix ID which can be used with unregisterPrefix
-   */
-  DEPRECATED(
-  const RegisteredPrefixId*
-  registerPrefix(const Name& prefix,
-                 const RegisterPrefixSuccessCallback& onSuccess,
-                 const RegisterPrefixFailureCallback& onFailure,
-                 const Name& identity,
-                 uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT));
-#endif // NDN_FACE_KEEP_DEPRECATED_REGISTRATION_SIGNING
 
   /**
    * @brief Remove the registered prefix entry with the registeredPrefixId

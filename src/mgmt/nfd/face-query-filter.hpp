@@ -31,7 +31,7 @@ namespace nfd {
 /**
  * \ingroup management
  * \brief represents Face Query Filter
- * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Query-Operation
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Query-Operation
  */
 class FaceQueryFilter
 {

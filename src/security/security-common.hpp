@@ -38,15 +38,6 @@ const ssize_t POS_SIG_INFO = -2;
  */
 const size_t MIN_SIZE = 2;
 
-/** \deprecated To avoid a potentially breaking change, this value is kept based on the Command
- *              Interest definition.  This value will be eliminated in favor of `MIN_SIZE=2`.
- */
-const size_t MIN_LENGTH = 4;
-
-/** \deprecated Use `MIN_SIZE`
- */
-const size_t MIN_LENGTH_SIG_ONLY = 2;
-
 } // namespace signed_interest
 
 namespace command_interest {
@@ -62,20 +53,6 @@ const ssize_t POS_TIMESTAMP = -4;
 const size_t MIN_SIZE = 4;
 
 } // namespace command_interest
-
-namespace signed_interest {
-
-/**
- * @deprecated Use command_interest::POS_RANDOM_VAL
- */
-using command_interest::POS_RANDOM_VAL;
-
-/**
- * @deprecated Use command_interest::POS_TIMESTAMP
- */
-using command_interest::POS_TIMESTAMP;
-
-} // namespace signed_interest
 
 /**
  * @brief The type of KeyId component in a key name

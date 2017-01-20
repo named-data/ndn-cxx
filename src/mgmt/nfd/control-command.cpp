@@ -20,7 +20,6 @@
  */
 
 #include "control-command.hpp"
-#include "command-options.hpp" // only used in deprecated functions
 
 namespace ndn {
 namespace nfd {
@@ -200,44 +199,6 @@ void
 FaceDestroyCommand::validateResponse(const ControlParameters& parameters) const
 {
   this->validateRequest(parameters);
-}
-
-FaceLocalControlCommand::FaceLocalControlCommand(const std::string& verb)
-  : ControlCommand("faces", verb)
-{
-  m_requestValidator
-    .required(CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE);
-  m_responseValidator = m_requestValidator;
-}
-
-void
-FaceLocalControlCommand::validateRequest(const ControlParameters& parameters) const
-{
-  this->ControlCommand::validateRequest(parameters);
-
-  switch (parameters.getLocalControlFeature()) {
-    case LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID:
-    case LOCAL_CONTROL_FEATURE_NEXT_HOP_FACE_ID:
-      break;
-    default:
-      BOOST_THROW_EXCEPTION(ArgumentError("LocalControlFeature is invalid"));
-  }
-}
-
-void
-FaceLocalControlCommand::validateResponse(const ControlParameters& parameters) const
-{
-  this->validateRequest(parameters);
-}
-
-FaceEnableLocalControlCommand::FaceEnableLocalControlCommand()
-  : FaceLocalControlCommand("enable-local-control")
-{
-}
-
-FaceDisableLocalControlCommand::FaceDisableLocalControlCommand()
-  : FaceLocalControlCommand("disable-local-control")
-{
 }
 
 FibAddNextHopCommand::FibAddNextHopCommand()

@@ -685,7 +685,7 @@ KeyChain::sign(const uint8_t* buf, size_t size,
                const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
   if (keyName == SigningInfo::getDigestSha256Identity())
-    return Block(tlv::SignatureValue, crypto::sha256(buf, size));
+    return Block(tlv::SignatureValue, crypto::computeSha256Digest(buf, size));
 
   return Block(tlv::SignatureValue, m_tpm->sign(buf, size, keyName, digestAlgorithm));
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,11 +20,6 @@
  */
 
 #include "command-options.hpp"
-
-#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
-#include "../../security/v1/identity-certificate.hpp"
-#include "../../security/signing-helpers.hpp"
-#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 namespace ndn {
 namespace nfd {
@@ -62,80 +57,6 @@ CommandOptions::setSigningInfo(const security::SigningInfo& signingInfo)
   m_signingInfo = signingInfo;
   return *this;
 }
-
-#ifdef NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
-
-CommandOptions::SigningParamsKind
-CommandOptions::getSigningParamsKind() const
-{
-  switch (m_signingInfo.getSignerType()) {
-  case security::SigningInfo::SIGNER_TYPE_NULL:
-    return SIGNING_PARAMS_DEFAULT;
-  case security::SigningInfo::SIGNER_TYPE_ID:
-    return SIGNING_PARAMS_IDENTITY;
-  case security::SigningInfo::SIGNER_TYPE_CERT:
-    return SIGNING_PARAMS_CERTIFICATE;
-  default:
-    BOOST_THROW_EXCEPTION(std::out_of_range("SigningInfo::SignerType is not convertible to "
-                                            "CommandOptions::SigningParamsKind"));
-  }
-}
-
-const Name&
-CommandOptions::getSigningIdentity() const
-{
-  BOOST_ASSERT(m_signingInfo.getSignerType() == security::SigningInfo::SIGNER_TYPE_ID);
-  return m_signingInfo.getSignerName();
-}
-
-const Name&
-CommandOptions::getSigningCertificate() const
-{
-  BOOST_ASSERT(m_signingInfo.getSignerType() == security::SigningInfo::SIGNER_TYPE_CERT);
-  return m_signingInfo.getSignerName();
-}
-
-CommandOptions&
-CommandOptions::setSigningDefault()
-{
-  m_signingInfo = security::SigningInfo();
-  return *this;
-}
-
-CommandOptions&
-CommandOptions::setSigningIdentity(const Name& identityName)
-{
-  m_signingInfo = security::signingByIdentity(identityName);
-  return *this;
-}
-
-static security::SigningInfo
-makeSigningInfoFromIdentityCertificate(const Name& certificateName)
-{
-  // A valid IdentityCertificate has at least 4 name components,
-  // as it follows `<...>/KEY/<...>/<key-id>/ID-CERT/<version>` naming model.
-  if (certificateName.size() < 4) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate is invalid"));
-  }
-
-  return security::signingByCertificate(certificateName);
-}
-
-CommandOptions&
-CommandOptions::setSigningCertificate(const Name& certificateName)
-{
-  m_signingInfo = makeSigningInfoFromIdentityCertificate(certificateName);
-  return *this;
-}
-
-CommandOptions&
-CommandOptions::setSigningCertificate(const security::v1::IdentityCertificate& certificate)
-{
-  m_signingInfo = makeSigningInfoFromIdentityCertificate(certificate.getName());
-  return *this;
-}
-
-#endif // NDN_MANAGEMENT_NFD_COMMAND_OPTIONS_KEEP_DEPRECATED_SIGNING_PARAMS
 
 } // namespace nfd
 } // namespace ndn

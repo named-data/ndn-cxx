@@ -74,10 +74,6 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
   if (this->hasOrigin()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Origin, m_origin);
   }
-  if (this->hasLocalControlFeature()) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::LocalControlFeature, m_localControlFeature);
-  }
   if (this->hasLocalUri()) {
     size_t valLength = encoder.prependByteArray(
                        reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
@@ -158,12 +154,6 @@ ControlParameters::wireDecode(const Block& block)
   m_hasFields[CONTROL_PARAMETER_LOCAL_URI] = val != m_wire.elements_end();
   if (this->hasLocalUri()) {
     m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-  }
-
-  val = m_wire.find(tlv::nfd::LocalControlFeature);
-  m_hasFields[CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE] = val != m_wire.elements_end();
-  if (this->hasLocalControlFeature()) {
-    m_localControlFeature = static_cast<LocalControlFeature>(readNonNegativeInteger(*val));
   }
 
   val = m_wire.find(tlv::nfd::Origin);
@@ -307,10 +297,6 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
 
   if (parameters.hasLocalUri()) {
     os << "LocalUri: " << parameters.getLocalUri() << ", ";
-  }
-
-  if (parameters.hasLocalControlFeature()) {
-    os << "LocalControlFeature: " << parameters.getLocalControlFeature() << ", ";
   }
 
   if (parameters.hasOrigin()) {

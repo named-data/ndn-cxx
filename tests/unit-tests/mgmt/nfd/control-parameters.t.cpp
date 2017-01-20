@@ -50,33 +50,10 @@ BOOST_AUTO_TEST_CASE(FaceOptions)
 
   BOOST_CHECK_EQUAL(decoded.hasName(), false);
   BOOST_CHECK_EQUAL(decoded.hasFaceId(), false);
-  BOOST_CHECK_EQUAL(decoded.hasLocalControlFeature(), false);
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
   BOOST_CHECK_EQUAL(decoded.hasCost(), false);
   BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
   BOOST_CHECK_EQUAL(decoded.hasExpirationPeriod(), false);
-}
-
-BOOST_AUTO_TEST_CASE(FaceLocalControlOptions)
-{
-  ControlParameters parameters;
-  parameters.setLocalControlFeature(LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID);
-
-  Block wire = parameters.wireEncode();
-
-  ControlParameters decoded(wire);
-  BOOST_CHECK_EQUAL(decoded.getLocalControlFeature(), LOCAL_CONTROL_FEATURE_INCOMING_FACE_ID);
-
-  BOOST_CHECK_EQUAL(decoded.hasName(), false);
-  BOOST_CHECK_EQUAL(decoded.hasFaceId(), false);
-  BOOST_CHECK_EQUAL(decoded.hasUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
-  BOOST_CHECK_EQUAL(decoded.hasCost(), false);
-  BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
-  BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
-  BOOST_CHECK_EQUAL(decoded.hasExpirationPeriod(), false);
-  BOOST_CHECK_EQUAL(decoded.hasFacePersistency(), false);
 }
 
 BOOST_AUTO_TEST_CASE(FibOptions)
@@ -95,7 +72,6 @@ BOOST_AUTO_TEST_CASE(FibOptions)
 
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasLocalControlFeature(), false);
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
   BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
   BOOST_CHECK_EQUAL(decoded.hasMask(), false);
@@ -119,7 +95,6 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceOptions)
   BOOST_CHECK_EQUAL(decoded.hasFaceId(), false);
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasLocalControlFeature(), false);
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
   BOOST_CHECK_EQUAL(decoded.hasCost(), false);
   BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
@@ -150,7 +125,6 @@ BOOST_AUTO_TEST_CASE(RibOptions)
 
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasLocalControlFeature(), false);
   BOOST_CHECK_EQUAL(decoded.hasMask(), false);
   BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
   BOOST_CHECK_EQUAL(decoded.hasFacePersistency(), false);

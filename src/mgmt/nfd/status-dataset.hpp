@@ -37,7 +37,7 @@ namespace nfd {
 /**
  * \ingroup management
  * \brief base class of NFD StatusDataset
- * \sa http://redmine.named-data.net/projects/nfd/wiki/StatusDataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
  */
 class StatusDataset : noncopyable
 {
@@ -115,7 +115,7 @@ private:
 /**
  * \ingroup management
  * \brief represents a status/general dataset
- * \sa http://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus#General-Status-Dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus#General-Status-Dataset
  */
 class ForwarderGeneralStatusDataset : public StatusDataset
 {
@@ -150,7 +150,7 @@ protected:
 /**
  * \ingroup management
  * \brief represents a faces/list dataset
- * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
  */
 class FaceDataset : public FaceDatasetBase
 {
@@ -162,7 +162,7 @@ public:
 /**
  * \ingroup management
  * \brief represents a faces/query dataset
- * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Query-Operation
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Query-Operation
  */
 class FaceQueryDataset : public FaceDatasetBase
 {
@@ -201,7 +201,7 @@ public:
 /**
  * \ingroup management
  * \brief represents a fib/list dataset
- * \sa http://redmine.named-data.net/projects/nfd/wiki/FibMgmt#FIB-Dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#FIB-Dataset
  */
 class FibDataset : public StatusDataset
 {
@@ -218,7 +218,7 @@ public:
 /**
  * \ingroup management
  * \brief represents a strategy-choice/list dataset
- * \sa http://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Strategy-Choice-Dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Strategy-Choice-Dataset
  */
 class StrategyChoiceDataset : public StatusDataset
 {
@@ -235,7 +235,7 @@ public:
 /**
  * \ingroup management
  * \brief represents a rib/list dataset
- * \sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt#RIB-Dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#RIB-Dataset
  */
 class RibDataset : public StatusDataset
 {
