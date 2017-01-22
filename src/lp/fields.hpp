@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,6 +73,12 @@ typedef detail::FieldDecl<field_location_tags::Header,
                           tlv::CongestionMark> CongestionMarkField;
 BOOST_CONCEPT_ASSERT((Field<CongestionMarkField>));
 
+typedef detail::FieldDecl<field_location_tags::Header,
+                          Sequence,
+                          tlv::Ack,
+                          true> AckField;
+BOOST_CONCEPT_ASSERT((Field<AckField>));
+
 /**
  * The value of the wire encoded field is the data between the provided iterators. During
  * encoding, the data is copied from the Buffer into the wire buffer.
@@ -94,7 +100,8 @@ typedef boost::mpl::set<
   NextHopFaceIdField,
   CachePolicyField,
   IncomingFaceIdField,
-  CongestionMarkField
+  CongestionMarkField,
+  AckField
   > FieldSet;
 
 } // namespace lp
