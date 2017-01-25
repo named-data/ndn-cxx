@@ -185,5 +185,14 @@ operator<<(std::ostream& os, const SigningInfo& si)
   return os;
 }
 
+bool
+SigningInfo::operator==(const SigningInfo& rhs) const
+{
+  return getSignerType() == rhs.getSignerType() &&
+    getSignerName() == rhs.getSignerName() &&
+    getDigestAlgorithm() == rhs.getDigestAlgorithm() &&
+    getSignatureInfo() == rhs.getSignatureInfo();
+}
+
 } // namespace security
 } // namespace ndn

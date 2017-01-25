@@ -166,6 +166,82 @@ BOOST_AUTO_TEST_CASE(Chaining)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(info), "id:/localhost/identity/digest-sha256");
 }
 
+BOOST_AUTO_TEST_CASE(OperatorEquals)
+{
+  // Check name equality
+  SigningInfo info1("id:/my-id");
+  SigningInfo info2("id:/my-id");
+  BOOST_CHECK_EQUAL(info1, info2);
+  // Change name, check inequality
+  info2 = SigningInfo("id:/not-same-id");
+  BOOST_CHECK_NE(info1, info2);
+
+  // Check name, digest algo equality
+  info1 = SigningInfo("id:/my-id");
+  info2 = SigningInfo("id:/my-id");
+  info1.setDigestAlgorithm(DigestAlgorithm::SHA256);
+  info2.setDigestAlgorithm(DigestAlgorithm::SHA256);
+  BOOST_CHECK_EQUAL(info1, info2);
+  // Change digest algo, check inequality
+  info2.setDigestAlgorithm(DigestAlgorithm::NONE);
+  BOOST_CHECK_NE(info1, info2);
+
+  // Check name, digest algo, signature info equality
+  info1 = SigningInfo("id:/my-id");
+  info2 = SigningInfo("id:/my-id");
+  info1.setDigestAlgorithm(DigestAlgorithm::SHA256);
+  info2.setDigestAlgorithm(DigestAlgorithm::SHA256);
+  SignatureInfo sigInfo1(tlv::SignatureTypeValue::DigestSha256);
+  info1.setSignatureInfo(sigInfo1);
+  info2.setSignatureInfo(sigInfo1);
+  BOOST_CHECK_EQUAL(info1, info2);
+  // Change signature info, check inequality
+  SignatureInfo sigInfo2(tlv::SignatureTypeValue::SignatureSha256WithRsa);
+  info2.setSignatureInfo(sigInfo2);
+  BOOST_CHECK_NE(info1, info2);
+}
+
+BOOST_AUTO_TEST_CASE(OperatorEqualsDifferentTypes)
+{
+  SigningInfo info1("key:/my-id/KEY/1");
+  SigningInfo info2("key:/my-id/KEY/1");
+  // Check equality for key type
+  BOOST_CHECK_EQUAL(info1, info2);
+  info2 = SigningInfo("id:/my-id");
+  // Change signature type, check inequality
+  BOOST_CHECK_NE(info1, info2);
+  info2 = SigningInfo("key:/not-same-id/KEY/1");
+  // Change key name, check inequality
+  BOOST_CHECK_NE(info1, info2);
+
+  info1 = SigningInfo("cert:/my-id/KEY/1/self/%FD01");
+  info2 = SigningInfo("cert:/my-id/KEY/1/self/%FD01");
+  // Check equality for cert type
+  BOOST_CHECK_EQUAL(info1, info2);
+  info2 = SigningInfo("cert:/not-my-id/KEY/1/other/%FD01");
+  // Change cert name, check inequality
+  BOOST_CHECK_NE(info1, info2);
+  info2 = SigningInfo("id:/my-id");
+  // Change signature type, check inequality
+  BOOST_CHECK_NE(info1, info2);
+
+  info1 = SigningInfo(SigningInfo::SIGNER_TYPE_NULL);
+  info2 = SigningInfo(SigningInfo::SIGNER_TYPE_NULL);
+  // Check equality for null type
+  BOOST_CHECK_EQUAL(info1, info2);
+  info2 = SigningInfo("id:/my-id");
+  // Change signature type, check inequality
+  BOOST_CHECK_NE(info1, info2);
+
+  info1 = SigningInfo(SigningInfo::SIGNER_TYPE_SHA256);
+  info2 = SigningInfo(SigningInfo::SIGNER_TYPE_SHA256);
+  // Check equality for SHA256 digest type
+  BOOST_CHECK_EQUAL(info1, info2);
+  info2 = SigningInfo("id:/my-id");
+  // Change signature type, check inequality
+  BOOST_CHECK_NE(info1, info2);
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestSigningInfo
 BOOST_AUTO_TEST_SUITE_END() // Security
 

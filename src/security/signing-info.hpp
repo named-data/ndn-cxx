@@ -235,6 +235,15 @@ public:
   static const Name&
   getDigestSha256Identity();
 
+  bool
+  operator==(const SigningInfo& rhs) const;
+
+  bool
+  operator!=(const SigningInfo& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
 private:
   SignerType m_type;
   Name m_name;
