@@ -61,10 +61,6 @@ public:
     SIGNER_TYPE_CERT = 3,
     /// @brief use sha256 digest, no signer needs to be specified
     SIGNER_TYPE_SHA256 = 4,
-    /// @brief given PIB identity handle, use its default key and default certificate
-    SIGNER_TYPE_PIB_ID = 5,
-    /// @brief given PIB key handle, use its default certificate
-    SIGNER_TYPE_PIB_KEY = 6
   };
 
 public:
@@ -139,14 +135,14 @@ public:
 
   /**
    * @brief Set signer as a PIB identity handler @p identity
-   * @post Change the signerType to SIGNER_TYPE_PIB_ID
+   * @post Change the signerType to SIGNER_TYPE_ID
    */
   SigningInfo&
   setPibIdentity(const Identity& identity);
 
   /**
    * @brief Set signer as a PIB key handler @p key
-   * @post Change the signerType to SIGNER_TYPE_PIB_KEY
+   * @post Change the signerType to SIGNER_TYPE_KEY
    */
   SigningInfo&
   setPibKey(const Key& key);
@@ -170,24 +166,25 @@ public:
   }
 
   /**
-   * @pre signerType must be SIGNER_TYPE_PIB_ID
-   * @return the identity handler of signer
+   * @pre signerType must be SIGNER_TYPE_ID
+   * @return the identity handler of signer, or Identity() if getSignerName() should be used
+   *         to find the identity
    */
   const Identity&
   getPibIdentity() const
   {
-    BOOST_ASSERT(m_type == SIGNER_TYPE_PIB_ID);
+    BOOST_ASSERT(m_type == SIGNER_TYPE_ID);
     return m_identity;
   }
 
   /**
-   * @pre signerType must be SIGNER_TYPE_PIB_KEY
-   * @return the key handler of signer
+   * @pre signerType must be SIGNER_TYPE_KEY
+   * @return the key handler of signer, or Key() if getSignerName() should be used to find the key
    */
   const Key&
   getPibKey() const
   {
-    BOOST_ASSERT(m_type == SIGNER_TYPE_PIB_KEY);
+    BOOST_ASSERT(m_type == SIGNER_TYPE_KEY);
     return m_key;
   }
 

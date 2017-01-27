@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //     std::cout << "struct " + type + "Dataset\n{\n";
 //     std::cout << "  const std::string name = \"" << type << "\";\n";
 
-//     if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_PIB_ID) {
+//     if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_ID) {
 //       print("cert", signingInfo.getPibIdentity().getDefaultKey().getDefaultCertificate().wireEncode().wire(),
 //             signingInfo.getPibIdentity().getDefaultKey().getDefaultCertificate().wireEncode().size());
 //     }

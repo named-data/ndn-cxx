@@ -603,26 +603,32 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
       break;
     }
     case SigningInfo::SIGNER_TYPE_ID: {
-      try {
-        identity = m_pib->getIdentity(params.getSignerName());
-      }
-      catch (const Pib::Error&) {
-        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing identity `" +
-                                                      params.getSignerName().toUri() + "` does not exist"));
+      identity = params.getPibIdentity();
+      if (!identity) {
+        try {
+          identity = m_pib->getIdentity(params.getSignerName());
+        }
+        catch (const Pib::Error&) {
+          BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing identity `" +
+                                                        params.getSignerName().toUri() + "` does not exist"));
+        }
       }
       break;
     }
     case SigningInfo::SIGNER_TYPE_KEY: {
-      Name identityName = extractIdentityFromKeyName(params.getSignerName());
+      key = params.getPibKey();
+      if (!key) {
+        Name identityName = extractIdentityFromKeyName(params.getSignerName());
 
-      try {
-        identity = m_pib->getIdentity(identityName);
-        key = identity.getKey(params.getSignerName());
-        identity = Identity(); // we will use the PIB key instance, so reset identity;
-      }
-      catch (const Pib::Error&) {
-        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing key `" +
-                                                      params.getSignerName().toUri() + "` does not exist"));
+        try {
+          identity = m_pib->getIdentity(identityName);
+          key = identity.getKey(params.getSignerName());
+          identity = Identity(); // we will use the PIB key instance, so reset identity;
+        }
+        catch (const Pib::Error&) {
+          BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing key `" +
+                                                        params.getSignerName().toUri() + "` does not exist"));
+        }
       }
       break;
     }
@@ -644,18 +650,6 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
     case SigningInfo::SIGNER_TYPE_SHA256: {
       sigInfo.setSignatureType(tlv::DigestSha256);
       return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
-    }
-    case SigningInfo::SIGNER_TYPE_PIB_ID: {
-      identity = params.getPibIdentity();
-      if (!identity)
-        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB identity is invalid"));
-      break;
-    }
-    case SigningInfo::SIGNER_TYPE_PIB_KEY: {
-      key = params.getPibKey();
-      if (!key)
-        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("PIB key is invalid"));
-      break;
     }
     default: {
       BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Unrecognized signer type " +
