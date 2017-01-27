@@ -51,7 +51,7 @@ public:
    * @brief Assign certificate storage to check known certificate and to cache unverified ones
    * @note The supplied @p certStorage should be valid for the lifetime of CertificateFetcher
    */
-  void
+  virtual void
   setCertificateStorage(CertificateStorage& certStorage);
 
   /**
