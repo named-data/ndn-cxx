@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(FromHexChar)
   //   if (ch % 8 == 7)
   //     std::cout << std::endl;
   // }
-  std::vector<std::pair<unsigned char, int>> hexMap{
+  static const std::vector<std::pair<char, int>> hexMap{
     {0x0, -1}, {0x1, -1}, {0x2, -1}, {0x3, -1}, {0x4, -1}, {0x5, -1}, {0x6, -1}, {0x7, -1},
     {0x8, -1}, {0x9, -1}, {0xa, -1}, {0xb, -1}, {0xc, -1}, {0xd, -1}, {0xe, -1}, {0xf, -1},
     {0x10, -1}, {0x11, -1}, {0x12, -1}, {0x13, -1}, {0x14, -1}, {0x15, -1}, {0x16, -1}, {0x17, -1},
@@ -87,24 +87,26 @@ BOOST_AUTO_TEST_CASE(FromHexChar)
     {0xf0, -1}, {0xf1, -1}, {0xf2, -1}, {0xf3, -1}, {0xf4, -1}, {0xf5, -1}, {0xf6, -1}, {0xf7, -1},
     {0xf8, -1}, {0xf9, -1}, {0xfa, -1}, {0xfb, -1}, {0xfc, -1}, {0xfd, -1}, {0xfe, -1}, {0xff, -1}
   };
+
   for (const auto& item : hexMap) {
-    BOOST_CHECK_EQUAL(fromHexChar(static_cast<char>(item.first)), item.second);
+    BOOST_CHECK_EQUAL(fromHexChar(item.first), item.second);
   }
 }
 
 BOOST_AUTO_TEST_CASE(FromHex)
 {
-  BOOST_CHECK_NO_THROW(fromHex("48656c6c6f2c20776f726c6421"));
+  BOOST_CHECK(*fromHex("") == Buffer{});
   BOOST_CHECK(*fromHex("48656c6c6f2c20776f726c6421") ==
-    (std::vector<uint8_t>{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21}));
-
-  BOOST_CHECK_NO_THROW(fromHex("012a3Bc4defAB5CdEF"));
+              (std::vector<uint8_t>{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20,
+                                    0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21}));
   BOOST_CHECK(*fromHex("012a3Bc4defAB5CdEF") ==
-    (std::vector<uint8_t>{0x01, 0x2a, 0x3b, 0xc4, 0xde, 0xfa, 0xb5, 0xcd, 0xef}));
+              (std::vector<uint8_t>{0x01, 0x2a, 0x3b, 0xc4, 0xde,
+                                    0xfa, 0xb5, 0xcd, 0xef}));
 
   BOOST_CHECK_THROW(fromHex("1"), StringHelperError);
   BOOST_CHECK_THROW(fromHex("zz"), StringHelperError);
   BOOST_CHECK_THROW(fromHex("00az"), StringHelperError);
+  BOOST_CHECK_THROW(fromHex("1234z"), StringHelperError);
 }
 
 BOOST_AUTO_TEST_CASE(Trim)

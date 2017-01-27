@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_STRING_HELPER_HPP
-#define NDN_STRING_HELPER_HPP
+#ifndef NDN_UTIL_STRING_HELPER_HPP
+#define NDN_UTIL_STRING_HELPER_HPP
 
 #include "../common.hpp"
 #include "../encoding/buffer.hpp"
@@ -96,12 +96,18 @@ std::string
 toHex(const Buffer& buffer, bool isUpperCase = true);
 
 /**
+ * @brief Convert the hex character to an integer from 0 to 15, or -1 if not a hex character
+ */
+int
+fromHexChar(char c);
+
+/**
  * @brief Convert the hex string to buffer
  * @param hexString sequence of pairs of hex numbers (lower and upper case can be mixed)
  *        without any whitespace separators (e.g., "48656C6C6F2C20776F726C6421")
  * @throw StringHelperError if input is invalid
  */
-shared_ptr<const Buffer>
+shared_ptr<Buffer>
 fromHex(const std::string& hexString);
 
 /**
@@ -123,12 +129,6 @@ void
 trim(std::string& str);
 
 /**
- * @brief Convert the hex character to an integer from 0 to 15, or -1 if not a hex character
- */
-int
-fromHexChar(uint8_t c);
-
-/**
  * @brief Decode a percent-encoded string
  * @see RFC 3986 section 2
  *
@@ -144,4 +144,4 @@ unescape(const std::string& str);
 
 } // namespace ndn
 
-#endif // NDN_STRING_HELPER_HPP
+#endif // NDN_UTIL_STRING_HELPER_HPP

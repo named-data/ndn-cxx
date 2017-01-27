@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,12 +21,14 @@
 
 #include "string-helper.hpp"
 #include "../encoding/buffer-stream.hpp"
-#include "../security/v1/cryptopp.hpp"
+#include "../security/transform/buffer-source.hpp"
+#include "../security/transform/hex-decode.hpp"
+#include "../security/transform/stream-sink.hpp"
+
+#include <boost/algorithm/string/trim.hpp>
 
 #include <sstream>
 #include <iomanip>
-
-#include <boost/algorithm/string/trim.hpp>
 
 namespace ndn {
 
@@ -73,7 +75,7 @@ toHex(const Buffer& buffer, bool isUpperCase/* = true*/)
 }
 
 int
-fromHexChar(uint8_t c)
+fromHexChar(char c)
 {
   if (c >= '0' && c <= '9')
     return c - '0';
@@ -85,25 +87,20 @@ fromHexChar(uint8_t c)
     return -1;
 }
 
-shared_ptr<const Buffer>
+shared_ptr<Buffer>
 fromHex(const std::string& hexString)
 {
-  if (hexString.size() % 2 != 0) {
-    BOOST_THROW_EXCEPTION(StringHelperError("Invalid number of characters in the supplied hex "
-                                            "string"));
-  }
-
-  using namespace CryptoPP;
+  namespace tr = security::transform;
 
   OBufferStream os;
-  StringSource(hexString, true, new HexDecoder(new FileSink(os)));
-  shared_ptr<const Buffer> buffer = os.buf();
-
-  if (buffer->size() * 2 != hexString.size()) {
-    BOOST_THROW_EXCEPTION(StringHelperError("The supplied hex string contains non-hex characters"));
+  try {
+    tr::bufferSource(hexString) >> tr::hexDecode() >> tr::streamSink(os);
+  }
+  catch (const tr::Error& e) {
+    BOOST_THROW_EXCEPTION(StringHelperError(std::string("Conversion from hex failed: ") + e.what()));
   }
 
-  return buffer;
+  return os.buf();
 }
 
 void
