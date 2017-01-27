@@ -13,7 +13,7 @@ def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
     opt.load(['default-compiler-flags', 'compiler-features', 'type_traits',
               'coverage', 'pch', 'sanitizers', 'osx-frameworks',
-              'boost', 'cryptopp', 'openssl', 'sqlite3',
+              'boost', 'openssl', 'sqlite3',
               'doxygen', 'sphinx_build'],
              tooldir=['.waf-tools'])
 
@@ -68,7 +68,7 @@ def configure(conf):
 
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
                'default-compiler-flags', 'compiler-features', 'type_traits',
-               'pch', 'osx-frameworks', 'boost', 'cryptopp', 'openssl', 'sqlite3',
+               'pch', 'osx-frameworks', 'boost', 'openssl', 'sqlite3',
                'doxygen', 'sphinx_build'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
@@ -94,7 +94,6 @@ def configure(conf):
     conf.check_osx_frameworks()
 
     conf.check_sqlite3(mandatory=True)
-    conf.check_cryptopp(mandatory=True, use='PTHREAD')
     conf.check_openssl(mandatory=True, atleast_version=0x10001000) # 1.0.1
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
@@ -166,7 +165,7 @@ def build(bld):
             target="ndn-cxx-mm",
             name="ndn-cxx-mm",
             source=bld.path.ant_glob(['src/**/*-osx.mm']),
-            use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
+            use='version BOOST OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
             includes=". src")
 
     libndn_cxx = dict(
@@ -177,7 +176,7 @@ def build(bld):
                                        'src/**/*-rtnl.cpp',
                                        'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
-        use='version ndn-cxx-mm BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD',
+        use='version ndn-cxx-mm BOOST OPENSSL SQLITE3 RT PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}')

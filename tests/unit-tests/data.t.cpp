@@ -21,6 +21,7 @@
 
 #include "data.hpp"
 #include "encoding/buffer-stream.hpp"
+#include "security/signature-sha256-with-rsa.hpp"
 #include "security/transform/private-key.hpp"
 #include "security/transform/public-key.hpp"
 #include "security/transform/signer-filter.hpp"

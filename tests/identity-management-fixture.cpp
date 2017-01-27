@@ -28,7 +28,6 @@
 namespace ndn {
 namespace tests {
 
-namespace v1 = security::v1;
 namespace v2 = security::v2;
 
 IdentityManagementBaseFixture::~IdentityManagementBaseFixture()
@@ -52,67 +51,13 @@ IdentityManagementBaseFixture::saveCertToFile(const Data& obj, const std::string
   }
 }
 
-IdentityManagementV1Fixture::~IdentityManagementV1Fixture()
-{
-  for (const auto& identity : m_identities) {
-    m_keyChain.deleteIdentity(identity);
-  }
-}
-
-Name
-IdentityManagementV1Fixture::addIdentity(const Name& identity, const KeyParams& params)
-{
-  Name certName = m_keyChain.createIdentity(identity, params);
-  m_identities.insert(identity);
-  return certName;
-}
-
-bool
-IdentityManagementV1Fixture::saveIdentityCertificate(const Name& certName, const std::string& filename)
-{
-  try {
-    auto cert = m_keyChain.getCertificate(certName);
-    return saveCertToFile(*cert, filename);
-  }
-  catch (const v1::SecPublicInfo::Error&) {
-    return false;
-  }
-}
-
-bool
-IdentityManagementV1Fixture::addSubCertificate(const Name& subIdentity, const Name& issuer, const KeyParams& params)
-{
-  if (!m_keyChain.doesIdentityExist(issuer))
-    return false;
-  if (!m_keyChain.doesIdentityExist(subIdentity)) {
-    addIdentity(subIdentity, params);
-  }
-  Name identityKeyName;
-  try {
-    identityKeyName = m_keyChain.getDefaultKeyNameForIdentity(subIdentity);
-  }
-  catch (const v1::SecPublicInfo::Error&) {
-    identityKeyName = m_keyChain.generateRsaKeyPairAsDefault(subIdentity, true);
-  }
-  std::vector<v1::CertificateSubjectDescription> subjectDescription;
-  shared_ptr<v1::IdentityCertificate> identityCert =
-    m_keyChain.prepareUnsignedIdentityCertificate(identityKeyName,
-                                                  issuer,
-                                                  time::system_clock::now(),
-                                                  time::system_clock::now() + time::days(7300),
-                                                  subjectDescription);
-  m_keyChain.sign(*identityCert, signingByIdentity(issuer));
-  m_keyChain.addCertificateAsIdentityDefault(*identityCert);
-  return true;
-}
-
-IdentityManagementV2Fixture::IdentityManagementV2Fixture()
+IdentityManagementFixture::IdentityManagementFixture()
   : m_keyChain("pib-memory:", "tpm-memory:")
 {
 }
 
 security::Identity
-IdentityManagementV2Fixture::addIdentity(const Name& identityName, const KeyParams& params)
+IdentityManagementFixture::addIdentity(const Name& identityName, const KeyParams& params)
 {
   auto identity = m_keyChain.createIdentity(identityName, params);
   m_identities.insert(identityName);
@@ -120,7 +65,7 @@ IdentityManagementV2Fixture::addIdentity(const Name& identityName, const KeyPara
 }
 
 bool
-IdentityManagementV2Fixture::saveCertificate(const security::Identity& identity, const std::string& filename)
+IdentityManagementFixture::saveCertificate(const security::Identity& identity, const std::string& filename)
 {
   try {
     auto cert = identity.getDefaultKey().getDefaultCertificate();
@@ -132,8 +77,8 @@ IdentityManagementV2Fixture::saveCertificate(const security::Identity& identity,
 }
 
 security::Identity
-IdentityManagementV2Fixture::addSubCertificate(const Name& subIdentityName,
-                                               const security::Identity& issuer, const KeyParams& params)
+IdentityManagementFixture::addSubCertificate(const Name& subIdentityName,
+                                             const security::Identity& issuer, const KeyParams& params)
 {
   auto subIdentity = addIdentity(subIdentityName, params);
 
@@ -156,7 +101,7 @@ IdentityManagementV2Fixture::addSubCertificate(const Name& subIdentityName,
 }
 
 v2::Certificate
-IdentityManagementV2Fixture::addCertificate(const security::Key& key, const std::string& issuer)
+IdentityManagementFixture::addCertificate(const security::Key& key, const std::string& issuer)
 {
   Name certificateName = key.getName();
   certificateName
@@ -180,7 +125,6 @@ IdentityManagementV2Fixture::addCertificate(const security::Key& key, const std:
   m_keyChain.sign(certificate, signingByKey(key).setSignatureInfo(info));
   return certificate;
 }
-
 
 } // namespace tests
 } // namespace ndn

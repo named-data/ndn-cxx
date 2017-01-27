@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -25,13 +25,6 @@
 #include "../../security/signing-info.hpp"
 
 namespace ndn {
-
-namespace security {
-namespace v1 {
-class IdentityCertificate;
-} // namespace v1
-} // namespace security
-
 namespace nfd {
 
 /** \ingroup management

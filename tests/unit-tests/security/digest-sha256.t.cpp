@@ -20,7 +20,7 @@
  */
 
 #include "security/digest-sha256.hpp"
-#include "security/validator.hpp"
+#include "security/verification-helpers.hpp"
 #include "util/sha256.hpp"
 #include "util/string-helper.hpp"
 
@@ -28,7 +28,10 @@
 #include "boost-test.hpp"
 
 namespace ndn {
+namespace security {
 namespace tests {
+
+using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestDigestSha256, IdentityManagementFixture)
@@ -48,16 +51,10 @@ BOOST_AUTO_TEST_CASE(DataSignature)
   Data testData(name);
   char content[5] = "1234";
   testData.setContent(reinterpret_cast<uint8_t*>(content), 5);
-
   m_keyChain.sign(testData, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
 
-  testData.wireEncode();
-
-  DigestSha256 sig(testData.getSignature());
-
-  BOOST_CHECK(Validator::verifySignature(testData, sig));
-
-  BOOST_CHECK_THROW(sig.getKeyLocator(), ndn::SignatureInfo::Error);
+  BOOST_CHECK_THROW(testData.getSignature().getKeyLocator(), ndn::SignatureInfo::Error);
+  verifyDigest(testData, DigestAlgorithm::SHA256);
 }
 
 BOOST_AUTO_TEST_CASE(InterestSignature)
@@ -66,17 +63,12 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
   Interest testInterest(name);
 
   m_keyChain.sign(testInterest, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
-  testInterest.wireEncode();
-  const Name& signedName = testInterest.getName();
-
-  Signature signature(signedName[signed_interest::POS_SIG_INFO].blockFromValue(),
-                      signedName[signed_interest::POS_SIG_VALUE].blockFromValue());
-  DigestSha256 sig(signature);
-  BOOST_CHECK(Validator::verifySignature(testInterest, sig));
+  verifyDigest(testInterest, DigestAlgorithm::SHA256);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestDigestSha256
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests
+} // namespace security
 } // namespace ndn
