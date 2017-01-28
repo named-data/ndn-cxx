@@ -43,7 +43,7 @@ public:
  * @param os Output stream
  * @param buffer The array of bytes
  * @param length Size of the array
- * @param isUpperCase if true (default) output use uppercase for hex values
+ * @param wantUpperCase if true (default) output use uppercase for hex values
  *
  * Examples:
  *
@@ -55,24 +55,24 @@ public:
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
 void
-printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool isUpperCase = true);
+printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase = true);
 
 /**
  * @brief Output the hex representation of the bytes in the @p buffer to the output stream @p os
  *
  * @param os Output stream
  * @param buffer The array of bytes
- * @param isUpperCase if true (default) output use uppercase for hex values
+ * @param wantUpperCase if true (default) output use uppercase for hex values
  */
 void
-printHex(std::ostream& os, const Buffer& buffer, bool isUpperCase = true);
+printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase = true);
 
 /**
  * @brief Return the hex representation of the bytes in array
  *
  * @param buffer The array of bytes
  * @param length Size of the array
- * @param isUpperCase if true (default) output use uppercase for hex values
+ * @param wantUpperCase if true (default) output use uppercase for hex values
  *
  * Examples:
  *
@@ -84,16 +84,16 @@ printHex(std::ostream& os, const Buffer& buffer, bool isUpperCase = true);
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
 std::string
-toHex(const uint8_t* buffer, size_t length, bool isUpperCase = true);
+toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true);
 
 /**
  * @brief Return the hex representation of the bytes in the @p buffer to the output stream @p os
  *
  * @param buffer The array of bytes
- * @param isUpperCase if true (default) output use uppercase for hex values
+ * @param wantUpperCase if true (default) output use uppercase for hex values
  */
 std::string
-toHex(const Buffer& buffer, bool isUpperCase = true);
+toHex(const Buffer& buffer, bool wantUpperCase = true);
 
 /**
  * @brief Convert the hex character to an integer from 0 to 15, or -1 if not a hex character

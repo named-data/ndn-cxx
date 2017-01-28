@@ -23,6 +23,7 @@
 #include "../encoding/buffer-stream.hpp"
 #include "../security/transform/buffer-source.hpp"
 #include "../security/transform/hex-decode.hpp"
+#include "../security/transform/hex-encode.hpp"
 #include "../security/transform/stream-sink.hpp"
 
 #include <boost/algorithm/string/trim.hpp>
@@ -33,13 +34,13 @@
 namespace ndn {
 
 void
-printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool isUpperCase/* = true*/)
+printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase)
 {
   if (buffer == nullptr || length == 0)
     return;
 
   auto newFlags = std::ios::hex;
-  if (isUpperCase) {
+  if (wantUpperCase) {
     newFlags |= std::ios::uppercase;
   }
   auto oldFlags = os.flags(newFlags);
@@ -52,26 +53,31 @@ printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool isUpperCas
 }
 
 void
-printHex(std::ostream& os, const Buffer& buffer, bool isUpperCase/* = true*/)
+printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase)
 {
-  return printHex(os, buffer.buf(), buffer.size(), isUpperCase);
+  return printHex(os, buffer.buf(), buffer.size(), wantUpperCase);
 }
 
 std::string
-toHex(const uint8_t* buffer, size_t length, bool isUpperCase/* = true*/)
+toHex(const uint8_t* buffer, size_t length, bool wantUpperCase)
 {
-  if (buffer == nullptr || length == 0)
-    return "";
+  BOOST_ASSERT(buffer != nullptr || length == 0);
+
+  namespace tr = security::transform;
 
   std::ostringstream result;
-  printHex(result, buffer, length, isUpperCase);
+  tr::bufferSource(buffer, length) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(result);
   return result.str();
 }
 
 std::string
-toHex(const Buffer& buffer, bool isUpperCase/* = true*/)
+toHex(const Buffer& buffer, bool wantUpperCase)
 {
-  return toHex(buffer.buf(), buffer.size(), isUpperCase);
+  namespace tr = security::transform;
+
+  std::ostringstream result;
+  tr::bufferSource(buffer) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(result);
+  return result.str();
 }
 
 int

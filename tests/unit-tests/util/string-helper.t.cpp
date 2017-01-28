@@ -35,14 +35,13 @@ BOOST_AUTO_TEST_CASE(ToHex)
   std::string test = "Hello, world!";
   BOOST_CHECK_EQUAL(toHex(reinterpret_cast<const uint8_t*>(test.data()), test.size()),
                     "48656C6C6F2C20776F726C6421");
-
   BOOST_CHECK_EQUAL(toHex(reinterpret_cast<const uint8_t*>(test.data()), test.size(), false),
                     "48656c6c6f2c20776f726c6421");
-
   BOOST_CHECK_EQUAL(toHex(nullptr, 0), "");
 
   Buffer buffer(test.data(), test.size());
   BOOST_CHECK_EQUAL(toHex(buffer, false),  "48656c6c6f2c20776f726c6421");
+  BOOST_CHECK_EQUAL(toHex(Buffer{}), "");
 }
 
 BOOST_AUTO_TEST_CASE(FromHexChar)
