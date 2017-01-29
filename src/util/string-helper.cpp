@@ -20,13 +20,12 @@
  */
 
 #include "string-helper.hpp"
+#include "../encoding/buffer.hpp"
 #include "../encoding/buffer-stream.hpp"
 #include "../security/transform/buffer-source.hpp"
 #include "../security/transform/hex-decode.hpp"
 #include "../security/transform/hex-encode.hpp"
 #include "../security/transform/stream-sink.hpp"
-
-#include <boost/algorithm/string/trim.hpp>
 
 #include <sstream>
 #include <iomanip>
@@ -107,24 +106,6 @@ fromHex(const std::string& hexString)
   }
 
   return os.buf();
-}
-
-void
-trimLeft(std::string& str)
-{
-  boost::algorithm::trim_left(str);
-}
-
-void
-trimRight(std::string& str)
-{
-  boost::algorithm::trim_right(str);
-}
-
-void
-trim(std::string& str)
-{
-  boost::algorithm::trim(str);
 }
 
 std::string

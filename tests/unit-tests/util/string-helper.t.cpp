@@ -20,6 +20,7 @@
  */
 
 #include "util/string-helper.hpp"
+#include "encoding/buffer.hpp"
 
 #include "boost-test.hpp"
 
@@ -106,52 +107,6 @@ BOOST_AUTO_TEST_CASE(FromHex)
   BOOST_CHECK_THROW(fromHex("zz"), StringHelperError);
   BOOST_CHECK_THROW(fromHex("00az"), StringHelperError);
   BOOST_CHECK_THROW(fromHex("1234z"), StringHelperError);
-}
-
-BOOST_AUTO_TEST_CASE(Trim)
-{
-  std::string test1 = "Hello, world!";
-  std::string test2 = "\n \t    Hello, world!\n\r   \t ";
-  std::string test3 = "            \t \n \r          ";
-
-  // TrimLeft
-  std::string test = test1;
-  trimLeft(test);
-  BOOST_CHECK_EQUAL(test, "Hello, world!");
-
-  test = test2;
-  trimLeft(test);
-  BOOST_CHECK_EQUAL(test, "Hello, world!\n\r   \t ");
-
-  test = test3;
-  trimLeft(test);
-  BOOST_CHECK_EQUAL(test, "");
-
-  // TrimRight
-  test = test1;
-  trimRight(test);
-  BOOST_CHECK_EQUAL(test, "Hello, world!");
-
-  test = test2;
-  trimRight(test);
-  BOOST_CHECK_EQUAL(test, "\n \t    Hello, world!");
-
-  test = test3;
-  trimRight(test);
-  BOOST_CHECK_EQUAL(test, "");
-
-  // Trim
-  test = test1;
-  trim(test);
-  BOOST_CHECK_EQUAL(test, "Hello, world!");
-
-  test = test2;
-  trim(test);
-  BOOST_CHECK_EQUAL(test, "Hello, world!");
-
-  test = test3;
-  trim(test);
-  BOOST_CHECK_EQUAL(test, "");
 }
 
 BOOST_AUTO_TEST_CASE(Unescape)

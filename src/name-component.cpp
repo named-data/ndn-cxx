@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@
 #include "util/string-helper.hpp"
 #include "util/crypto.hpp"
 
-#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 namespace ndn {
 namespace name {
@@ -92,7 +92,7 @@ Component
 Component::fromEscapedString(const char* escapedString, size_t beginOffset, size_t endOffset)
 {
   std::string trimmedString(escapedString + beginOffset, escapedString + endOffset);
-  trim(trimmedString);
+  boost::algorithm::trim(trimmedString);
 
   if (trimmedString.compare(0, getSha256DigestUriPrefix().size(),
                             getSha256DigestUriPrefix()) == 0) {

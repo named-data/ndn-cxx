@@ -23,9 +23,10 @@
 #define NDN_UTIL_STRING_HELPER_HPP
 
 #include "../common.hpp"
-#include "../encoding/buffer.hpp"
 
 namespace ndn {
+
+class Buffer;
 
 class StringHelperError : public std::invalid_argument
 {
@@ -109,24 +110,6 @@ fromHexChar(char c);
  */
 shared_ptr<Buffer>
 fromHex(const std::string& hexString);
-
-/**
- * @brief Modify str in place to erase whitespace on the left
- */
-void
-trimLeft(std::string& str);
-
-/**
- * @brief Modify str in place to erase whitespace on the right
- */
-void
-trimRight(std::string& str);
-
-/**
- * @brief Modify str in place to erase whitespace on the left and right
- */
-void
-trim(std::string& str);
 
 /**
  * @brief Decode a percent-encoded string

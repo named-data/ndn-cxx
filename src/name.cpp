@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,10 +26,10 @@
 #include "name.hpp"
 
 #include "util/time.hpp"
-#include "util/string-helper.hpp"
 #include "encoding/block.hpp"
 #include "encoding/encoding-buffer.hpp"
 
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/functional/hash.hpp>
 
 namespace ndn {
@@ -61,7 +61,7 @@ Name::Name(const char* uri)
 
 Name::Name(std::string uri)
 {
-  trim(uri);
+  boost::algorithm::trim(uri);
   if (uri.empty())
     return;
 
@@ -72,7 +72,7 @@ Name::Name(std::string uri)
     if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {
       // Omit the leading protocol such as ndn:
       uri.erase(0, iColon + 1);
-      trim(uri);
+      boost::algorithm::trim(uri);
     }
   }
 
@@ -86,12 +86,12 @@ Name::Name(std::string uri)
         return;
       else {
         uri.erase(0, iAfterAuthority + 1);
-        trim(uri);
+        boost::algorithm::trim(uri);
       }
     }
     else {
       uri.erase(0, 1);
-      trim(uri);
+      boost::algorithm::trim(uri);
     }
   }
 
