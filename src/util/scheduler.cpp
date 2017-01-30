@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -139,10 +139,10 @@ Scheduler::executeEvent(const boost::system::error_code& error)
 
   m_isEventExecuting = true;
 
-  BOOST_SCOPE_EXIT_ALL(this) {
-    m_isEventExecuting = false;
-    this->scheduleNext();
-  };
+  BOOST_SCOPE_EXIT(this_) {
+    this_->m_isEventExecuting = false;
+    this_->scheduleNext();
+  } BOOST_SCOPE_EXIT_END
 
   // process all expired events
   time::steady_clock::TimePoint now = time::steady_clock::now();
