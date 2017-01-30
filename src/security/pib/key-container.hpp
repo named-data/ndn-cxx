@@ -94,6 +94,8 @@ public:
   /**
    * @brief Add @p key of @p keyLen bytes with @p keyName into the container
    * @throw std::invalid_argument @p keyName does not match the identity
+   *
+   * If a key with the same name already exists, overwrite the key.
    */
   Key
   add(const uint8_t* key, size_t keyLen, const Name& keyName);

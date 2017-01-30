@@ -113,7 +113,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @brief Add a @p key of @p keyLen bytes (in PKCS#8 format) with @p keyName.
    * @return the handle of added key
    * @throw std::invalid_argument key name does not match identity
-   * @throw Pib::Error a key with the same name already exists
+   *
+   * If a key with the same name already exists, overwrite the key.
    */
   Key
   addKey(const uint8_t* key, size_t keyLen, const Name& keyName) const;

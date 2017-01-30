@@ -39,15 +39,11 @@ KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_
 {
   BOOST_ASSERT(impl != nullptr);
 
-  if (m_impl->hasKey(m_keyName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Cannot overwrite existing key " + m_keyName.toUri()));
-  }
-
   transform::PublicKey publicKey;
   try {
     publicKey.loadPkcs8(key, keyLen);
   }
-  catch (transform::PublicKey::Error&) {
+  catch (const transform::PublicKey::Error&) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid key bits"));
   }
   m_keyType = publicKey.getKeyType();
@@ -75,11 +71,6 @@ void
 KeyImpl::addCertificate(const v2::Certificate& certificate)
 {
   BOOST_ASSERT(m_certificates.isConsistent());
-
-  if (m_certificates.find(certificate.getName()) != m_certificates.end()) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Cannot overwrite existing certificate " + certificate.getName().toUri()));
-  }
-
   m_certificates.add(certificate);
 }
 

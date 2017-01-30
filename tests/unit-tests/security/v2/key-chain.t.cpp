@@ -228,8 +228,7 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
   m_keyChain.addCertificate(key3, key3Cert1);
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 1);
   BOOST_REQUIRE_NO_THROW(key3.getDefaultCertificate());
-  // Overwrite the same cert again, should throw Pib::Error.
-  BOOST_REQUIRE_THROW(m_keyChain.addCertificate(key3, key3Cert1), Pib::Error);
+  m_keyChain.addCertificate(key3, key3Cert1); // overwriting the cert should work
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 1);
   // Add another cert
   Certificate key3Cert2 = key3Cert1;

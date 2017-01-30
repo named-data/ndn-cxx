@@ -207,7 +207,6 @@ public: // Certificate management
    *
    * @pre @p key must be valid.
    * @throw std::invalid_argument @p key does not match @p certificate
-   * @throw Pib::Error a certificate with the same name already exists
    */
   void
   addCertificate(const Key& key, const Certificate& certificate);

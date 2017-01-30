@@ -64,10 +64,10 @@ public:
    * @brief Add a @p key of @p keyLen bytes with @p keyName (in PKCS#8 format).
    *
    * If no default key is set before, the new key will be set as the default key of the identity.
+   * If a key with the same name already exists, overwrite the key.
    *
    * @return the added key.
    * @throw std::invalid_argument key name does not match identity
-   * @throw Pib::Error a key with the same name already exists
    */
   Key
   addKey(const uint8_t* key, size_t keyLen, const Name& keyName);

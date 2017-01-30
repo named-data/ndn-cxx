@@ -107,8 +107,10 @@ public:
    * If no default certificate is set before, the new certificate will be set as the default
    * certificate of the key.
    *
+   * If a certificate with the same name (without implicit digest) already exists, overwrite
+   * the certificate.
+   *
    * @throw std::invalid_argument certificate name does not match key name
-   * @throw Pib::Error a certificate with the same name already exists
    */
   void
   addCertificate(const v2::Certificate& certificate);

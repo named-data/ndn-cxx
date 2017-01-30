@@ -121,6 +121,18 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
 }
 
+BOOST_AUTO_TEST_CASE(Overwrite)
+{
+  auto pibImpl = make_shared<pib::PibMemory>();
+  IdentityImpl identity1(id1, pibImpl, true);
+
+  identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key1);
+
+  identity1.addKey(id1Key2.buf(), id1Key2.size(), id1Key1Name); // overwriting key should work
+  BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key2);
+}
+
 BOOST_AUTO_TEST_CASE(Errors)
 {
   auto pibImpl = make_shared<pib::PibMemory>();
@@ -129,7 +141,6 @@ BOOST_AUTO_TEST_CASE(Errors)
   IdentityImpl identity1(id1, pibImpl, true);
 
   identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
-  BOOST_CHECK_THROW(identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name), Pib::Error);
   BOOST_CHECK_THROW(identity1.addKey(id2Key1.buf(), id2Key1.size(), id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.getKey(id2Key1Name), std::invalid_argument);

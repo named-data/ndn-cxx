@@ -120,10 +120,8 @@ KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
                                                 "`" + m_identity.toUri() + "`"));
   }
 
-  if (m_keyNames.count(keyName) == 0) {
-    m_keyNames.insert(keyName);
-    m_keys[keyName] = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, key, keyLen, m_impl));
-  }
+  m_keyNames.insert(keyName);
+  m_keys[keyName] = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, key, keyLen, m_impl));
 
   return get(keyName);
 }

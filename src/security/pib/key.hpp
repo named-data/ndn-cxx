@@ -137,7 +137,9 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
    * @brief Add @p certificate.
    * @throw std::invalid_argument certificate name does not match key name
-   * @throw Pib::Error a certificate with the same name already exists
+   *
+   * If a certificate with the same name (without implicit digest) already exists, overwrite
+   * the certificate.
    */
   void
   addCertificate(const v2::Certificate& certificate) const;
@@ -161,7 +163,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
    * @brief Add @p certificate and set it as the default certificate of the key
    * @throw std::invalid_argument @p certificate does not match key name
-   * @throw Pib::Error the certificate with the same name already exists.
    * @return the default certificate
    */
   const v2::Certificate&

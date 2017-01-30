@@ -49,10 +49,6 @@ IdentityImpl::addKey(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
   BOOST_ASSERT(m_keys.isConsistent());
 
-  if (m_keys.find(keyName) != m_keys.end()) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Cannot overwrite existing key " + keyName.toUri()));
-  }
-
   return m_keys.add(key, keyLen, keyName);
 }
 
