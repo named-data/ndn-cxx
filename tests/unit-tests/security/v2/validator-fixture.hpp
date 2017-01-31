@@ -62,17 +62,17 @@ public:
     std::string detailedInfo = msg + " on line " + to_string(line);
     size_t nCallbacks = 0;
     this->validator.validate(packet,
-                       [&] (const Packet&) {
-                         ++nCallbacks;
-                         BOOST_CHECK_MESSAGE(expectSuccess,
-                                             (expectSuccess ? "OK: " : "FAILED: ") + detailedInfo);
-                       },
-                       [&] (const Packet&, const ValidationError& error) {
-                         ++nCallbacks;
-                         BOOST_CHECK_MESSAGE(!expectSuccess,
-                                             (!expectSuccess ? "OK: " : "FAILED: ") + detailedInfo +
-                                             (expectSuccess ? " (" + boost::lexical_cast<std::string>(error) + ")" : ""));
-                       });
+      [&] (const Packet&) {
+        ++nCallbacks;
+        BOOST_CHECK_MESSAGE(expectSuccess,
+                            (expectSuccess ? "OK: " : "FAILED: ") + detailedInfo);
+      },
+      [&] (const Packet&, const ValidationError& error) {
+        ++nCallbacks;
+        BOOST_CHECK_MESSAGE(!expectSuccess,
+                            (!expectSuccess ? "OK: " : "FAILED: ") + detailedInfo +
+                            (expectSuccess ? " (" + boost::lexical_cast<std::string>(error) + ")" : ""));
+      });
 
     mockNetworkOperations();
     BOOST_CHECK_EQUAL(nCallbacks, 1);
@@ -86,7 +86,15 @@ public:
           io.post(bind(processInterest, interest));
         }
       });
-    advanceClocks(time::milliseconds(250), 200);
+    advanceClocks(time::milliseconds(s_mockPeriod), s_mockTimes);
+  }
+
+  /** \brief undo clock advancement of mockNetworkOperations
+   */
+  void
+  rewindClockAfterValidation()
+  {
+    this->systemClock->advance(time::milliseconds(s_mockPeriod * s_mockTimes * -1));
   }
 
 public:
@@ -95,7 +103,17 @@ public:
   Validator validator;
 
   CertificateCache cache;
+
+private:
+  const static int s_mockPeriod;
+  const static int s_mockTimes;
 };
+
+template<class ValidationPolicy, class CertificateFetcher>
+const int ValidatorFixture<ValidationPolicy, CertificateFetcher>::s_mockPeriod = 250;
+
+template<class ValidationPolicy, class CertificateFetcher>
+const int ValidatorFixture<ValidationPolicy, CertificateFetcher>::s_mockTimes = 200;
 
 template<class ValidationPolicy, class CertificateFetcher = CertificateFetcherFromNetwork>
 class HierarchicalValidatorFixture : public ValidatorFixture<ValidationPolicy, CertificateFetcher>

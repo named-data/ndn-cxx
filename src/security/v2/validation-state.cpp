@@ -149,10 +149,10 @@ InterestValidationState::InterestValidationState(const Interest& interest,
                                                  const InterestValidationSuccessCallback& successCb,
                                                  const InterestValidationFailureCallback& failureCb)
   : m_interest(interest)
-  , m_successCb(successCb)
   , m_failureCb(failureCb)
 {
-  BOOST_ASSERT(m_successCb != nullptr);
+  afterSuccess.connect(successCb);
+  BOOST_ASSERT(successCb != nullptr);
   BOOST_ASSERT(m_failureCb != nullptr);
 }
 
@@ -169,7 +169,7 @@ InterestValidationState::verifyOriginalPacket(const Certificate& trustedCert)
 {
   if (verifySignature(m_interest, trustedCert)) {
     NDN_LOG_TRACE_DEPTH("OK signature for interest `" << m_interest.getName() << "`");
-    m_successCb(m_interest);
+    this->afterSuccess(m_interest);
     BOOST_ASSERT(!m_hasOutcome);
     m_hasOutcome = true;
   }
@@ -183,7 +183,7 @@ void
 InterestValidationState::bypassValidation()
 {
   NDN_LOG_TRACE_DEPTH("Signature verification bypassed for interest `" << m_interest.getName() << "`");
-  m_successCb(m_interest);
+  this->afterSuccess(m_interest);
   BOOST_ASSERT(!m_hasOutcome);
   m_hasOutcome = true;
 }

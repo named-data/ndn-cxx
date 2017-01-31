@@ -25,6 +25,7 @@
 #include "../../tag-host.hpp"
 #include "validation-callback.hpp"
 #include "certificate.hpp"
+#include "../../util/signal.hpp"
 
 #include <unordered_set>
 #include <list>
@@ -222,6 +223,9 @@ public:
    */
   const Interest&
   getOriginalInterest() const;
+
+public:
+  util::Signal<InterestValidationState, Interest> afterSuccess;
 
 private:
   void
