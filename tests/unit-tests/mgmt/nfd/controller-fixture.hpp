@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -23,11 +23,12 @@
 #define NDN_TESTS_MGMT_NFD_CONTROLLER_FIXTURE_HPP
 
 #include "mgmt/nfd/controller.hpp"
-#include "../../../dummy-validator.hpp"
+#include "util/dummy-client-face.hpp"
+#include "security/v2/certificate-fetcher-offline.hpp"
 
 #include "boost-test.hpp"
-#include "util/dummy-client-face.hpp"
-#include "../../identity-management-time-fixture.hpp"
+#include "dummy-validator.hpp"
+#include "unit-tests/identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -40,6 +41,7 @@ class ControllerFixture : public IdentityManagementTimeFixture
 protected:
   ControllerFixture()
     : face(io, m_keyChain)
+    , m_validator(true)
     , controller(face, m_keyChain, m_validator)
     , commandFailCallback(bind(&ControllerFixture::recordCommandFail, this, _1))
     , datasetFailCallback(bind(&ControllerFixture::recordDatasetFail, this, _1, _2))
@@ -56,7 +58,7 @@ protected:
   void
   setValidationResult(bool shouldAccept)
   {
-    m_validator.setResult(shouldAccept);
+    m_validator.getPolicy().setResult(shouldAccept);
   }
 
 private:
@@ -74,13 +76,11 @@ private:
 
 protected:
   ndn::util::DummyClientFace face;
+  DummyValidator m_validator;
   Controller controller;
   Controller::CommandFailCallback commandFailCallback;
   Controller::DatasetFailCallback datasetFailCallback;
   std::vector<uint32_t> failCodes;
-
-private:
-  DummyValidator m_validator;
 };
 
 } // namespace tests

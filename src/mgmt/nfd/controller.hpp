@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -26,15 +26,13 @@
 #include "control-response.hpp"
 #include "status-dataset.hpp"
 #include "command-options.hpp"
-#include "../../security/validator-null.hpp"
-#include "../../security/key-chain.hpp"
 #include "../../security/command-interest-signer.hpp"
+#include "../../security/validator-null.hpp"
+#include "../../security/v2/key-chain.hpp"
+#include "../../security/v2/validator.hpp"
 
 namespace ndn {
 
-namespace security {
-class Validator;
-} // namespace security
 class Face;
 
 namespace nfd {
@@ -67,7 +65,7 @@ public:
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
    */
-  Controller(Face& face, KeyChain& keyChain, security::Validator& validator = s_validatorNull);
+  Controller(Face& face, KeyChain& keyChain, security::v2::Validator& validator = security::getAcceptAllValidator());
 
   /** \brief start command execution
    */
@@ -172,11 +170,8 @@ public:
 protected:
   Face& m_face;
   KeyChain& m_keyChain;
+  security::v2::Validator& m_validator;
   security::CommandInterestSigner m_signer;
-  security::Validator& m_validator;
-
-private:
-  static ValidatorNull s_validatorNull;
 };
 
 template<typename Dataset>

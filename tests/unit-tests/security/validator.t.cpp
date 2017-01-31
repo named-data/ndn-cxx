@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/validator-null.hpp"
+#include "security/validator.hpp"
 
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
@@ -33,40 +33,6 @@ using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestValidator, IdentityManagementV1Fixture)
-
-void
-onValidated(const shared_ptr<const Data>& data)
-{
-  BOOST_CHECK(true);
-}
-
-void
-onValidationFailed(const shared_ptr<const Data>& data, const std::string& failureInfo)
-{
-  BOOST_CHECK(false);
-}
-
-BOOST_AUTO_TEST_CASE(Null)
-{
-  Name identity("/TestValidator/Null");
-  identity.appendVersion();
-  addIdentity(identity, RsaKeyParams());
-
-  Name dataName = identity;
-  dataName.append("1");
-  shared_ptr<Data> data = make_shared<Data>(dataName);
-
-  BOOST_CHECK_NO_THROW(m_keyChain.sign(*data,
-                                       security::SigningInfo(security::SigningInfo::SIGNER_TYPE_ID,
-                                                             identity)));
-
-  ValidatorNull validator;
-
-  // data must be a shared pointer
-  validator.validate(*data,
-                     bind(&onValidated, _1),
-                     bind(&onValidationFailed, _1, _2));
-}
 
 const uint8_t ecdsaSigInfo[] = {
 0x16, 0x1b, // SignatureInfo

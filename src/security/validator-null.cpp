@@ -19,33 +19,26 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_VALIDATOR_NULL_HPP
-#define NDN_SECURITY_VALIDATOR_NULL_HPP
-
-#include "v2/validator.hpp"
+#include "validator-null.hpp"
+#include "v2/validation-policy-accept-all.hpp"
+#include "v2/certificate-fetcher-offline.hpp"
 
 namespace ndn {
 namespace security {
 namespace v2 {
 
-/**
- * @brief Validator with "accept-all" policy and offline certificate fetcher
- */
-class ValidatorNull : public Validator
+ValidatorNull::ValidatorNull()
+  : Validator(make_unique<ValidationPolicyAcceptAll>(), make_unique<CertificateFetcherOffline>())
 {
-public:
-  ValidatorNull();
-};
+}
 
 security::v2::Validator&
-getAcceptAllValidator();
+getAcceptAllValidator()
+{
+  static security::ValidatorNull validator;
+  return validator;
+}
 
 } // namespace v2
-
-using v2::ValidatorNull;
-using v2::getAcceptAllValidator;
-
 } // namespace security
 } // namespace ndn
-
-#endif // NDN_SECURITY_VALIDATOR_NULL_HPP

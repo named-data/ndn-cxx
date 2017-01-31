@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,21 +22,23 @@
 #ifndef NDN_TESTS_DUMMY_VALIDATOR_HPP
 #define NDN_TESTS_DUMMY_VALIDATOR_HPP
 
-#include "security/validator.hpp"
+#include "security/v2/validator.hpp"
+#include "security/v2/validation-policy.hpp"
+#include "security/v2/certificate-fetcher-offline.hpp"
 
 namespace ndn {
 namespace tests {
 
-/** \brief a Validator for unit testing
+/** \brief A validation policy for unit testing
  */
-class DummyValidator : public Validator
+class DummyValidationPolicy : public security::v2::ValidationPolicy
 {
 public:
   /** \brief constructor
    *  \param shouldAccept whether to accept or reject all validation requests
    */
   explicit
-  DummyValidator(bool shouldAccept = true)
+  DummyValidationPolicy(bool shouldAccept = true)
   {
     this->setResult(shouldAccept);
   }
@@ -61,29 +63,27 @@ public:
   }
 
 protected:
-  virtual void
-  checkPolicy(const Interest& interest, int nSteps,
-              const OnInterestValidated& accept, const OnInterestValidationFailed& reject,
-              std::vector<shared_ptr<ValidationRequest>>&) override
+  void
+  checkPolicy(const Data& data, const shared_ptr<security::v2::ValidationState>& state,
+              const ValidationContinuation& continueValidation) override
   {
-    if (m_decide(interest.getName())) {
-      accept(interest.shared_from_this());
+    if (m_decide(data.getName())) {
+      continueValidation(nullptr, state);
     }
     else {
-      reject(interest.shared_from_this(), "");
+      state->fail(security::v2::ValidationError::NO_ERROR);
     }
   }
 
-  virtual void
-  checkPolicy(const Data& data, int nSteps,
-              const OnDataValidated& accept, const OnDataValidationFailed& reject,
-              std::vector<shared_ptr<ValidationRequest>>&) override
+  void
+  checkPolicy(const Interest& interest, const shared_ptr<security::v2::ValidationState>& state,
+              const ValidationContinuation& continueValidation) override
   {
-    if (m_decide(data.getName())) {
-      accept(data.shared_from_this());
+    if (m_decide(interest.getName())) {
+      continueValidation(nullptr, state);
     }
     else {
-      reject(data.shared_from_this(), "");
+      state->fail(security::v2::ValidationError::NO_ERROR);
     }
   }
 
@@ -91,14 +91,20 @@ private:
   function<bool(const Name&)> m_decide;
 };
 
-/** \brief a DummyValidator initialized to reject all requests
- */
-class DummyRejectValidator : public DummyValidator
+
+class DummyValidator : public security::v2::Validator
 {
 public:
-  DummyRejectValidator()
-    : DummyValidator(false)
+  DummyValidator(bool shouldAccept = true)
+    : security::v2::Validator(make_unique<DummyValidationPolicy>(shouldAccept),
+                              make_unique<security::v2::CertificateFetcherOffline>())
   {
+  }
+
+  DummyValidationPolicy&
+  getPolicy()
+  {
+    return static_cast<DummyValidationPolicy&>(security::v2::Validator::getPolicy());
   }
 };
 

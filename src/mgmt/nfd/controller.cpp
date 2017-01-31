@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,9 +20,12 @@
  */
 
 #include "controller.hpp"
-#include "../../face.hpp"
-#include "../../security/key-chain.hpp"
-#include "../../util/segment-fetcher.hpp"
+#include "face.hpp"
+#include "security/v2/key-chain.hpp"
+#include "security/validator-null.hpp"
+#include "util/segment-fetcher.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
@@ -34,13 +37,12 @@ const uint32_t Controller::ERROR_NACK = 10800; // 10000 + TLV-TYPE of Nack heade
 const uint32_t Controller::ERROR_VALIDATION = 10021; // 10000 + TLS1_ALERT_DECRYPTION_FAILED
 const uint32_t Controller::ERROR_SERVER = 500;
 const uint32_t Controller::ERROR_LBOUND = 400;
-ValidatorNull Controller::s_validatorNull;
 
-Controller::Controller(Face& face, KeyChain& keyChain, Validator& validator)
+Controller::Controller(Face& face, KeyChain& keyChain, security::v2::Validator& validator)
   : m_face(face)
   , m_keyChain(keyChain)
-  , m_signer(keyChain)
   , m_validator(validator)
+  , m_signer(keyChain)
 {
 }
 
@@ -79,11 +81,11 @@ Controller::processCommandResponse(const Data& data,
                                    const CommandFailCallback& onFailure)
 {
   m_validator.validate(data,
-    [=] (const shared_ptr<const Data>& data) {
-      this->processValidatedCommandResponse(*data, command, onSuccess, onFailure);
+    [=] (const Data& data) {
+      this->processValidatedCommandResponse(data, command, onSuccess, onFailure);
     },
-    [=] (const shared_ptr<const Data>&, const std::string& msg) {
-      onFailure(ControlResponse(ERROR_VALIDATION, msg));
+    [=] (const Data& data, const security::v2::ValidationError& error) {
+      onFailure(ControlResponse(ERROR_VALIDATION, boost::lexical_cast<std::string>(error)));
     }
   );
 }

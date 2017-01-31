@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,13 +25,15 @@
 #include "../lp/nack.hpp"
 #include "../lp/nack-header.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 namespace ndn {
 namespace util {
 
 const uint32_t SegmentFetcher::MAX_INTEREST_REEXPRESS = 3;
 
 SegmentFetcher::SegmentFetcher(Face& face,
-                               shared_ptr<Validator> validator,
+                               shared_ptr<security::v2::Validator> validator,
                                const CompleteCallback& completeCallback,
                                const ErrorCallback& errorCallback)
   : m_face(face)
@@ -46,19 +48,18 @@ SegmentFetcher::SegmentFetcher(Face& face,
 void
 SegmentFetcher::fetch(Face& face,
                       const Interest& baseInterest,
-                      Validator& validator,
+                      security::v2::Validator& validator,
                       const CompleteCallback& completeCallback,
                       const ErrorCallback& errorCallback)
 {
-  shared_ptr<Validator> sharedValidator = shared_ptr<Validator>(&validator, [] (Validator*) {});
-
-  fetch(face, baseInterest, sharedValidator, completeCallback, errorCallback);
+  shared_ptr<security::v2::Validator> validatorPtr(&validator, [] (security::v2::Validator*) {});
+  fetch(face, baseInterest, validatorPtr, completeCallback, errorCallback);
 }
 
 void
 SegmentFetcher::fetch(Face& face,
                       const Interest& baseInterest,
-                      shared_ptr<Validator> validator,
+                      shared_ptr<security::v2::Validator> validator,
                       const CompleteCallback& completeCallback,
                       const ErrorCallback& errorCallback)
 {
@@ -106,29 +107,29 @@ SegmentFetcher::afterSegmentReceived(const Interest& origInterest,
   m_validator->validate(data,
                         bind(&SegmentFetcher::afterValidationSuccess, this, _1,
                              isSegmentZeroExpected, origInterest, self),
-                        bind(&SegmentFetcher::afterValidationFailure, this, _1));
+                        bind(&SegmentFetcher::afterValidationFailure, this, _1, _2));
 
 }
 
 void
-SegmentFetcher::afterValidationSuccess(const shared_ptr<const Data> data,
+SegmentFetcher::afterValidationSuccess(const Data& data,
                                        bool isSegmentZeroExpected,
                                        const Interest& origInterest,
                                        shared_ptr<SegmentFetcher> self)
 {
-  name::Component currentSegment = data->getName().get(-1);
+  name::Component currentSegment = data.getName().get(-1);
 
   if (currentSegment.isSegment()) {
     if (isSegmentZeroExpected && currentSegment.toSegment() != 0) {
-      fetchNextSegment(origInterest, data->getName(), 0, self);
+      fetchNextSegment(origInterest, data.getName(), 0, self);
     }
     else {
-      m_buffer->write(reinterpret_cast<const char*>(data->getContent().value()),
-                      data->getContent().value_size());
+      m_buffer->write(reinterpret_cast<const char*>(data.getContent().value()),
+                      data.getContent().value_size());
 
-      const name::Component& finalBlockId = data->getMetaInfo().getFinalBlockId();
+      const name::Component& finalBlockId = data.getMetaInfo().getFinalBlockId();
       if (finalBlockId.empty() || (finalBlockId > currentSegment)) {
-        fetchNextSegment(origInterest, data->getName(), currentSegment.toSegment() + 1, self);
+        fetchNextSegment(origInterest, data.getName(), currentSegment.toSegment() + 1, self);
       }
       else {
         return m_completeCallback(m_buffer->buf());
@@ -141,9 +142,10 @@ SegmentFetcher::afterValidationSuccess(const shared_ptr<const Data> data,
 }
 
 void
-SegmentFetcher::afterValidationFailure(const shared_ptr<const Data> data)
+SegmentFetcher::afterValidationFailure(const Data& data, const security::v2::ValidationError& error)
 {
-  return m_errorCallback(SEGMENT_VALIDATION_FAIL, "Segment validation fail");
+  return m_errorCallback(SEGMENT_VALIDATION_FAIL, "Segment validation fail " +
+                         boost::lexical_cast<std::string>(error));
 }
 
 

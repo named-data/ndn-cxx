@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,7 @@
 #include "scheduler.hpp"
 #include "../common.hpp"
 #include "../face.hpp"
-#include "../security/validator.hpp"
+#include "../security/v2/validator.hpp"
 
 namespace ndn {
 
@@ -140,7 +140,7 @@ public:
   void
   fetch(Face& face,
         const Interest& baseInterest,
-        Validator& validator,
+        security::v2::Validator& validator,
         const CompleteCallback& completeCallback,
         const ErrorCallback& errorCallback);
 
@@ -163,13 +163,13 @@ public:
   void
   fetch(Face& face,
         const Interest& baseInterest,
-        shared_ptr<Validator> validator,
+        shared_ptr<security::v2::Validator> validator,
         const CompleteCallback& completeCallback,
         const ErrorCallback& errorCallback);
 
 private:
   SegmentFetcher(Face& face,
-                 shared_ptr<Validator> validator,
+                 shared_ptr<security::v2::Validator> validator,
                  const CompleteCallback& completeCallback,
                  const ErrorCallback& errorCallback);
 
@@ -185,13 +185,13 @@ private:
                        const Data& data, bool isSegmentZeroExpected,
                        shared_ptr<SegmentFetcher> self);
   void
-  afterValidationSuccess(const shared_ptr<const Data> data,
+  afterValidationSuccess(const Data& data,
                          bool isSegmentZeroExpected,
                          const Interest& origInterest,
                          shared_ptr<SegmentFetcher> self);
 
   void
-  afterValidationFailure(const shared_ptr<const Data> data);
+  afterValidationFailure(const Data& data, const security::v2::ValidationError& error);
 
   void
   afterNackReceived(const Interest& origInterest, const lp::Nack& nack,
@@ -204,7 +204,7 @@ private:
 private:
   Face& m_face;
   Scheduler m_scheduler;
-  shared_ptr<Validator> m_validator;
+  shared_ptr<security::v2::Validator> m_validator;
   CompleteCallback m_completeCallback;
   ErrorCallback m_errorCallback;
 

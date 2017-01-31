@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,7 +20,6 @@
  */
 
 #include "util/segment-fetcher.hpp"
-#include "security/validator-null.hpp"
 #include "lp/nack-header.hpp"
 #include "data.hpp"
 #include "encoding/block.hpp"
@@ -103,9 +102,9 @@ public:
 
 BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
 {
-  ValidatorNull nullValidator;
+  DummyValidator acceptValidator;
   SegmentFetcher::fetch(face, Interest("/hello/world", time::milliseconds(100)),
-                        nullValidator,
+                        acceptValidator,
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
@@ -132,9 +131,9 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
 {
-  ValidatorNull nullValidator;
+  DummyValidator acceptValidator;
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        nullValidator,
+                        acceptValidator,
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
@@ -164,9 +163,9 @@ BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
 {
-  ValidatorNull nullValidator;
+  DummyValidator acceptValidator;
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        nullValidator,
+                        acceptValidator,
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
@@ -188,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
 {
-  DummyRejectValidator rejectValidator;
+  DummyValidator rejectValidator(false);
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
                         rejectValidator,
                         bind(&Fixture::onComplete, this, _1),
@@ -205,9 +204,9 @@ BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
 {
-  ValidatorNull nullValidator;
+  DummyValidator acceptValidator;
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        nullValidator,
+                        acceptValidator,
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
@@ -254,9 +253,9 @@ BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
 {
-  ValidatorNull nullValidator;
+  DummyValidator acceptValidator;
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        nullValidator,
+                        acceptValidator,
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
@@ -313,9 +312,9 @@ BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(MultipleSegmentFetching, Fixture)
 {
-  ValidatorNull nullValidator;
+  DummyValidator acceptValidator;
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        nullValidator,
+                        acceptValidator,
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
@@ -337,7 +336,7 @@ BOOST_FIXTURE_TEST_CASE(MultipleSegmentFetching, Fixture)
 BOOST_FIXTURE_TEST_CASE(DuplicateNack, Fixture)
 {
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        make_shared<ValidatorNull>(),
+                        make_shared<DummyValidator>(true),
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
   advanceClocks(time::milliseconds(10));
@@ -357,7 +356,7 @@ BOOST_FIXTURE_TEST_CASE(DuplicateNack, Fixture)
 BOOST_FIXTURE_TEST_CASE(CongestionNack, Fixture)
 {
   SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
-                        make_shared<ValidatorNull>(),
+                        make_shared<DummyValidator>(true),
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
   advanceClocks(time::milliseconds(10));
@@ -381,7 +380,7 @@ BOOST_FIXTURE_TEST_CASE(SegmentZero, Fixture)
   ndn::Name interestName("ndn:/A");
   SegmentFetcher::fetch(face,
                         Interest(interestName),
-                        make_shared<ValidatorNull>(),
+                        make_shared<DummyValidator>(true),
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
 
@@ -416,7 +415,7 @@ BOOST_FIXTURE_TEST_CASE(SegmentZero, Fixture)
 BOOST_FIXTURE_TEST_CASE(ZeroComponentName, Fixture)
 {
   SegmentFetcher::fetch(face, Interest("ndn:/"),
-                        make_shared<ValidatorNull>(),
+                        make_shared<DummyValidator>(true),
                         bind(&Fixture::onComplete, this, _1),
                         bind(&Fixture::onError, this, _1));
   advanceClocks(time::milliseconds(10));
