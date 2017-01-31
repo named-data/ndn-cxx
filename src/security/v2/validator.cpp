@@ -133,6 +133,12 @@ Validator::requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
     return;
   }
 
+  if (state->hasSeenCertificateName(certRequest->m_interest.getName())) {
+    state->fail({ValidationError::Code::LOOP_DETECTED,
+                 "Validation loop detected for certificate `" + certRequest->m_interest.getName().toUri() + "`"});
+    return;
+  }
+
   NDN_LOG_DEBUG_DEPTH("Retrieving " << certRequest->m_interest.getName());
 
   auto cert = findTrustedCert(certRequest->m_interest);

@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
   face.sentInterests.clear();
 }
 
-BOOST_AUTO_TEST_CASE(LoopingCert)
+BOOST_AUTO_TEST_CASE(InfiniteCertChain)
 {
   processInterest = [this] (const Interest& interest) {
     // create another key for the same identity and sign it properly
@@ -263,8 +263,38 @@ BOOST_AUTO_TEST_CASE(LoopingCert)
 
   validator.setMaxDepth(30);
   BOOST_CHECK_EQUAL(validator.getMaxDepth(), 30);
-  VALIDATE_FAILURE(data, "Should fail, as certificate should be looped");
+  VALIDATE_FAILURE(data, "Should fail, as certificate chain is infinite");
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 30);
+}
+
+BOOST_AUTO_TEST_CASE(LoopedCertChain)
+{
+  auto s1 = addIdentity("/loop");
+  auto k1 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key1")));
+  auto k2 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key2")));
+  auto k3 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key3")));
+
+  auto makeCert = [this] (Key& key, const Key& signer) {
+    v2::Certificate request = key.getDefaultCertificate();
+    request.setName(Name(key.getName()).append("looper").appendVersion());
+
+    SignatureInfo info;
+    info.setValidityPeriod({time::system_clock::now() - time::days(100),
+                            time::system_clock::now() + time::days(100)});
+    m_keyChain.sign(request, signingByKey(signer).setSignatureInfo(info));
+    m_keyChain.addCertificate(key, request);
+
+    cache.insert(request);
+  };
+
+  makeCert(k1, k2);
+  makeCert(k2, k3);
+  makeCert(k3, k1);
+
+  Data data("/loop/Data");
+  m_keyChain.sign(data, signingByKey(k1));
+  VALIDATE_FAILURE(data, "Should fail, as certificate chain loops");
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestValidator
