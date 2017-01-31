@@ -9,7 +9,7 @@ write a configuration file.
 The configuration file consists of **rules** and **trust-anchors** that will be used in
 validation. **Rules** tell the validator how to validate a packet, while **trust-anchors**
 tell the validator which certificates are valid immediately. Here is an example of
-configuration file containing two rules.
+configuration file containing two rules and a trust anchor.
 
 ::
 
@@ -30,7 +30,7 @@ configuration file containing two rules.
         key-locator
         {
           type name
-          name /ndn/edu/ucla/KEY/yingdi/ksk-1234/ID-CERT
+          name /ndn/edu/ucla/yingdi/KEY/ksk-1234
           relation equal
         }
       }
@@ -61,64 +61,73 @@ A rule can be broken into two parts:
 -  The second part is to check whether further validation process is
    necessary.
 
-When receiving a packet, the validator will apply rules in the configuration file
-one-by-one against the packet, until finding a rule that the packet qualifies for. And the
-second part of the matched rule will be used to check the validity of the packet. If the
-packet cannot qualify for any rules, it is treated as an invalid packet. Once a packet has
-been matched by a rule, the rest rules will not be applied against the packet. Therefore,
-you should always put the most specific rule to the top, otherwise it will become useless.
+When a packet is presented for validation, the validator will check the rules one-by-one
+in the configuration file using **for** and **filter** conditions against the packet,
+until finding a rule for which the packet qualifies. After that, the **checker**
+conditions of the matched rule will be used to check the validity of the packet.  If the
+packet does not match any rules, it is treated as an invalid packet. Once a packet has
+been matched by a rule, the remaining rules are not applied to the packet (i.e., the
+matched rule "captures" the packet). Therefore, you should always put the most specific
+rule first.
 
 In the example configuration, the first rule indicates that all the data packets under the
-name prefix ``/localhost/example`` must be signed by a key whose certificate name is
-``/ndn/edu/ucla/KEY/yingdi/ksk-1234/ID-CERT``. If a packet does not have a name under prefix
-``/localhost/example``, validator will skip the first rule and apply the second rule. The
-second rule indicates that any data packets must be validated along a hierarchy. And a
-certificate stored in a file "testbed-trust-anchor.cert" is valid.
+name prefix ``/localhost/example`` must be signed by a certificate whose name (the key
+part) is ``/ndn/edu/ucla/yingdi/KEY/ksk-1234``. If a packet does not have a name under
+prefix ``/localhost/example``, the validator will skip the first rule and apply the second
+rule. The second rule indicates that all other data packets must be validated using the
+hierarchical policy (data name should be prefix or equal to the identity part of the
+certificate name).  The example configuration defines that all certificate chains must be
+rooted in the certificate defined in the file "testbed-trust-anchor.cert".
 
 Rules in general
 ----------------
 
-A rule has four types of properties: **id**, **for**, **filter**, and **checker**.
+A rule has four properties: **id**, **for**, **filter**, and **checker**.
 
-The property **id** uniquely identifies the rule in the configuration file. As long as
+The **id** property uniquely identifies the rule in the configuration file. As long as
 being unique, any name can be given to a rule, e.g., "Simple Rule", "Testbed Validation
 Rule". A rule must have one and only one **id** property.
 
-A rule is either used to validate an interest packet or a data packet.  This information
-is specified in the property **for**. Only two value can be specified: **data** and
-**interest**. A rule must have one and only one **for** property.
+A rule is either used to validate a data packet or an interest packet.  This information
+is specified in the **for** property, which can be either **data** or **interest**.  A
+rule must have exactly one **for** property.
 
-The property **filter** further constrains the packets that can be checked by the
-rule. Filter property is not required in a rule, in this case, the rule will capture all
-the packets passed to it. A rule may contain more than one filters, in this case, a packet
-can be checked by a rule only if the packet satisfies all the filters.
+The **filter** property further constrains the packets that can be checked by the
+rule. The filter property is not required in a rule; if omitted, the rule will capture all
+packets passed to it.  A rule may contain multiple filters, in this case, a packet
+is captured by the rule only if all filters are satisfied.
 
 .. note::
     **ATTENTION: A packet that satisfies all the filters may not be valid**.
 
-The property **checker** defines the conditions that a matched packet must fulfill to be
+The **checker** property defines the conditions that a matched packet must fulfill to be
 treated as a valid packet. A rule must have at least one **checker** property. A packet is
 treated as valid if it can pass at least one of the checkers and as invalid when it cannot
 pass any checkers.
 
-**filter** and **checker** have their own properties. Next, we will introduce them
-separately.
-
 Filter Property
 ---------------
 
-Filter has its own **type** property. Although a rule may contain more than one filters,
-there is at most one filter of each type. So far, only one type of filter is defined:
-**name**. In other word, only one filter can be specified in a rule for now.
+Filter has a **type** property and type-specific properties.  Although a rule can contain
+more than one filters, there can be at most one filter of each type.
+
+Currently, only the packet name filter is defined.
 
 Name Filter
 ~~~~~~~~~~~
 
-There are two ways to express the conditions on name. The first way is to specify a
-relationship between the packet name and a particular name.  In this case, two more
-properties are required: **name** and **relation**. A packet can fulfill the condition if
-the **name** has a **relation\* to the packet name. Three types of **\ relation\*\* has
-been defined: **equal**, **is-prefix-of**, **is-strict-prefix-of**. For example, a filter
+There are two ways to express the conditions on packet name:
+
+- relationship between the packet name and the specified name
+- :doc:`NDN regular expression <utils-ndn-regex>`  match.
+
+Name and Relation
+^^^^^^^^^^^^^^^^^
+
+In the first case, two more properties are required: **name** and **relation**. A packet
+can fulfill the condition if the **name** has a **relation** to the packet's name. Three
+types of **relation** has been defined: **equal**, **is-prefix-of**,
+**is-strict-prefix-of**. For example, the filter
 
 ::
 
@@ -129,8 +138,9 @@ been defined: **equal**, **is-prefix-of**, **is-strict-prefix-of**. For example,
       relation equal
     }
 
-shall only capture a packet with the exact name ``/localhost/example``.
-And a filter
+will capture only a packet with the exact name ``/localhost/example``.
+
+The filter
 
 ::
 
@@ -141,8 +151,8 @@ And a filter
       relation is-prefix-of
     }
 
-shall capture a packet with name ``/localhost/example`` or ``/localhost/example/data``, but
-cannot catch a packet with name ``/localhost/another_example``. And a filter
+will capture a packet with name ``/localhost/example`` or ``/localhost/example/data``, but
+will not capture a packet with name ``/localhost/another_example``. And the filter
 
 ::
 
@@ -153,42 +163,46 @@ cannot catch a packet with name ``/localhost/another_example``. And a filter
       relation is-strict-prefix-of
     }
 
-shall capture a packet with name ``/localhost/example/data``, but cannot catch a packet
+will capture a packet with name ``/localhost/example/data``, but will not capture a packet
 with name ``/localhost/example``.
 
+NDN Regular Expression Match
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The second way is to specify an :doc:`utils-ndn-regex` that can match the packet. In this
-case, only one property **regex** is required. For example, a filter
+case, only one property **regex** is required. For example, the filter
 
 ::
 
     filter
     {
       type name
-      regex ^[^<KEY>]*<KEY><>*<ksk-.*><ID-CERT>$
+      regex ^<>*<KEY><><><>$
     }
 
-shall capture all the identity certificates.
+will capture all certificates.
 
 Checker Property
 ----------------
 
 Passing all the filters in a rule only indicates that a packet can be checked using the
-rule, and it does not necessarily implies that the packet is valid. The validity of a
+rule, and it does not necessarily imply that the packet is valid. The validity of a
 packet is determined by the property **checker**, which defines the conditions that a
 valid packet must fulfill.
 
-Same as **filter**, **checker** has a property **type**. We have defined three types of
-checkers: **customized**, and **hierarchical**, and **fixed-signer**. As suggested by its
-name, **customized** checker allows you to customize the conditions according to specific
-requirements. **hierarchical** checker and **fixed-signer** checker are pre-defined
-shortcuts, which specify specific trust models separately.
+Same as **filter**, **checker** has a property **type**. We have defined two types of
+checkers:
+
+- **customized** is a checker that allows customization of the conditions according to specific
+  requirements;
+
+- **hierarchical** is a checker with pre-defined hierarchical trust model.
 
 Customized Checker
 ~~~~~~~~~~~~~~~~~~
 
-So far, we only allow three customized properties in a customized
-checker: **sig-type**, **key-locator**. All of them are related to the
-``SignatureInfo`` of a packet.
+The customized checker requires two properties: **sig-type**, **key-locator**.  Both must
+appear exactly once and are related to the ``SignatureInfo`` of a packet.
 
 ::
 
@@ -202,18 +216,16 @@ checker: **sig-type**, **key-locator**. All of them are related to the
       }
     }
 
-The property **sig-type** specifies the acceptable signature type.  Right now three
-signature types have been defined: **rsa-sha256** and **ecdsa-sha256** (which are strong
-signature types) and **sha256** (which is a weak signature type).  If sig-type is sha256,
-then **key-locator** will be ignored. Validator will simply calculate the digest of a
-packet and compare it with the one in ``SignatureValue``. If sig-type is rsa-sha256 or
-ecdsa-sha256, you have to further customize the checker with **key-locator**.
+The property **sig-type** specifies the acceptable signature type and can be
+**rsa-sha256**, **ecdsa-sha256** (strong signature types), or **sha256** (weak signature
+type).  If sig-type is sha256, **key-locator** is ignored, and the validator will simply
+calculate the digest of a packet and compare it with the one in ``SignatureValue``. If
+sig-type is rsa-sha256 or ecdsa-sha256, you have to further customize the checker with
+**key-locator**.
 
-The property **key-locator** which specifies the conditions on ``KeyLocator``. If the
+The property **key-locator** specifies the conditions on ``KeyLocator``. If the
 **key-locator** property is specified, it requires the existence of the ``KeyLocator``
-field in ``SignatureInfo``.  Although there are more than one types of ``KeyLocator``
-defined in the `Packet Format <http://named-data.net/doc/ndn-tlv/signature.html>`__,
-**key-locator** property only supports one type: **name**:
+field in ``SignatureInfo``.  **key-locator** property only supports one type: **name**:
 
 ::
 
@@ -223,9 +235,9 @@ defined in the `Packet Format <http://named-data.net/doc/ndn-tlv/signature.html>
       ...
     }
 
-Such a key-locator property specifies the conditions on the certificate name of the
-signing key. Since the conditions are about name, they can be specified in the same way as
-the name filter. For example, a checker could be:
+This key-locator property specifies the conditions on the certificate name of the signing
+key. Since the conditions are about name, they can be specified in the same way as the
+name filter. For example, a checker can be:
 
 ::
 
@@ -236,23 +248,23 @@ the name filter. For example, a checker could be:
       key-locator
       {
         type name
-        name /ndn/edu/ucla/KEY/yingdi/ksk-1234/ID-CERT
+        name /ndn/edu/ucla/yingdi/KEY/ksk-1234
         relation equal
       }
     }
 
-This checker property requires that the packet must have a ``rsa-sha256`` signature generated
-by a key whose certificate name is ``/ndn/edu/ucla/KEY/yingdi/ksk-1234/ID-CERT``.
+This checker property requires that the packet must have a ``rsa-sha256`` signature that
+can be verified with ``/ndn/edu/ucla/yingdi/KEY/ksk-1234`` key.
 
 Besides the two ways to express conditions on the ``KeyLocator`` name (name and regex),
 you can further constrain the ``KeyLocator`` name using the information extracted from the
 packet name. This third type of condition is expressed via a property
 **hyper-relation**. The **hyper-relation** property consists of three parts:
 
-- an NDN regular expression that can extract information from packet name
-- an NDN regular expression that can extract information from ``KeyLocator`` name
-- relation from the part extracted from ``KeyLocator`` name to the one extracted from the
-   packet name
+- an NDN regular expression that extracts information from the packet name
+- an NDN regular expression that extracts information from the ``KeyLocator`` name
+- relation from the part extracted from the ``KeyLocator`` name to the one extracted from
+  the packet name
 
 For example, a checker:
 
@@ -267,8 +279,8 @@ For example, a checker:
         type name
         hyper-relation
         {
-          k-regex ^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>$
-          k-expand \\1\\2
+          k-regex ^(<>*)<KEY><>$
+          k-expand \\1
           h-relation is-prefix-of
           p-regex ^(<>*)$
           p-expand \\1
@@ -277,30 +289,8 @@ For example, a checker:
       }
     }
 
-requires the packet name must be under the corresponding namespace of the ``KeyLocator``
-name.
-
-In some cases, you can even customize checker with another property For example:
-
-::
-
-    checker
-    {
-      type customized
-      sig-type rsa-sha256
-      key-locator
-      {
-        type name
-        hyper-relation
-        {
-          k-regex ^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>$
-          k-expand \\1\\2
-          h-relation is-prefix-of
-          p-regex ^(<>*)$
-          p-expand \\1
-        }
-      }
-    }
+requires the packet name must be under the corresponding namespace (identity part) of the
+``KeyLocator`` name.
 
 Hierarchical Checker
 ~~~~~~~~~~~~~~~~~~~~
@@ -329,38 +319,12 @@ is equivalent to a customized checker:
         type name
         hyper-relation
         {
-          k-regex ^([^<KEY>]*)<KEY>(<>*)<ksk-.*><ID-CERT>$
-          k-expand \\1\\2
+          k-regex ^(<>*)<KEY><>$
+          k-expand \\1
           h-relation is-prefix-of
           p-regex ^(<>*)$
           p-expand \\1
         }
-      }
-    }
-
-Fixed-Signer Checker
-~~~~~~~~~~~~~~~~~~~~
-
-In some cases, you only accept packets signed with pre-trusted certificates,
-i.e. "one-step validation". Such a trust model can be expressed with **fixed-signer**
-checker. And you only need to specify the trusted certificate via property **signer**. The
-definition of **signer** is the same as **trust-anchor**. For example:
-
-::
-
-    checker
-    {
-      type fixed-signer
-      sig-type rsa-sha256
-      signer
-      {
-        type file
-        file-name "trusted-signer.cert"
-      }
-      signer
-      {
-        type base64
-        base64-string "Bv0DGwdG...amHFvHIMDw=="
       }
     }
 
@@ -369,11 +333,9 @@ definition of **signer** is the same as **trust-anchor**. For example:
 Trust Anchors
 -------------
 
-Although **trust-anchor** is always not required in the configuration file (for example,
-if fixed-signer checker is used), it is very common to have a few trust-anchors in the
-configuration file, otherwise most packets cannot be validated. A configuration file may
-contain more than one trust anchors, but the order of trust anchors does not matter. The
-structure of trust-anchor is same as the **signer** in fixed-signer checker, for example:
+**trust-anchor** is a necessary option in order to properly validate packets.  A
+configuration file may contain more than one trust anchors and the order of trust anchors
+does not matter. The structure of trust-anchor is as follows:
 
 ::
 
@@ -389,7 +351,7 @@ structure of trust-anchor is same as the **signer** in fixed-signer checker, for
     }
 
 You may also specify a trust-anchor directory. All certificates under this directory are
-taken as trust anchors. For example, if all trust anchors are put into
+taken as static trust anchors. For example, if all trust anchors are put into
 ``/usr/local/etc/ndn/keys``.
 
 ::
@@ -397,7 +359,7 @@ taken as trust anchors. For example, if all trust anchors are put into
     trust-anchor
     {
       type dir
-      file-name /usr/local/etc/ndn/keys
+      dir /usr/local/etc/ndn/keys
     }
 
 If certificates under the directory might be changed during runtime, you can set a refresh
@@ -408,11 +370,11 @@ period, such as
     trust-anchor
     {
       type dir
-      file-name /usr/local/etc/ndn/keys
+      dir /usr/local/etc/ndn/keys
       refresh 1h ; refresh certificates every hour, other units include m (for minutes) and s (for seconds)
     }
 
-There is another special trust anchor **any**.  As long as such a trust-anchor is defined
+There is also a special trust anchor **any**.  As long as such a trust-anchor is defined
 in config file, packet validation will be turned off.
 
 .. note::
@@ -429,6 +391,10 @@ in config file, packet validation will be turned off.
 
 Example Configuration For NLSR
 ------------------------------
+
+.. note::
+   **These example assumes the v1 certificate naming convention that is no longer in
+   use. The example will be updated later.**
 
 The trust model of NLSR is semi-hierarchical. An example certificate signing hierarchy is:
 
@@ -584,43 +550,63 @@ written as:
 
 ::
 
-    rule
-    {
-      id "NRD Prefix Registration Command Rule"
-      for interest
-      filter
-      {
-        type name
-        regex ^<localhost><nrd>[<register><unregister><advertise><withdraw>]
-      }
-      checker
-      {
-        type customized
-        sig-type rsa-sha256
-        key-locator
-        {
-          type name
-          regex ^[^<KEY>]*<KEY><>*<ksk-.*><ID-CERT>$
-        }
-      }
-    }
-    rule
-    {
-      id "Testbed Hierarchy Rule"
-      for data
-      filter
-      {
-        type name
-        regex ^[^<KEY>]*<KEY><>*<ksk-.*><ID-CERT><>$
-      }
-      checker
-      {
-        type hierarchical
-        sig-type rsa-sha256
-      }
-    }
-    trust-anchor
-    {
-      type file
-      file-name "testbed-trust-anchor.cert"
-    }
+     rule
+     {
+       id "RIB Prefix Registration Command Rule"
+       for interest                         ; rule for Interests (to validate CommandInterests)
+       filter
+       {
+         type name                          ; condition on interest name (w/o signature)
+         regex ^[<localhop><localhost>]<nfd><rib>[<register><unregister>]<><><>$ ; prefix before
+                                                                                 ; SigInfo & SigValue
+       }
+       checker
+       {
+         type customized
+         sig-type rsa-sha256                ; interest must have a rsa-sha256 signature
+         key-locator
+         {
+           type name                        ; key locator must be the certificate name of the
+                                            ; signing key
+           regex ^<>*<KEY><><><>$
+         }
+       }
+       checker
+       {
+         type customized
+         sig-type ecdsa-sha256                ; interest must have a ecdsa-sha256 signature
+         key-locator
+         {
+           type name                        ; key locator must be the certificate name of the
+                                            ; signing key
+           regex ^<>*<KEY><><><>$
+         }
+       }
+     }
+     rule
+     {
+       id "NDN Testbed Hierarchy Rule"
+       for data                             ; rule for Data (to validate NDN certificates)
+       filter
+       {
+         type name                          ; condition on data name
+         regex ^<>*<KEY><><><>$
+       }
+       checker
+       {
+         type hierarchical                  ; the certificate name of the signing key and
+                                            ; the data name must follow the hierarchical model
+         sig-type rsa-sha256                ; data must have a rsa-sha256 signature
+       }
+       checker
+       {
+         type hierarchical                  ; the certificate name of the signing key and
+                                            ; the data name must follow the hierarchical model
+         sig-type ecdsa-sha256              ; data must have a ecdsa-sha256 signature
+       }
+     }
+     trust-anchor
+     {
+       type file
+       file-name keys/ndn-testbed-root.ndncert.base64
+     }

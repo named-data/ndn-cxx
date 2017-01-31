@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -120,8 +120,7 @@ IdentityManagementV2Fixture::addIdentity(const Name& identityName, const KeyPara
 }
 
 bool
-IdentityManagementV2Fixture::saveIdentityCertificate(const security::Identity& identity,
-                                                     const std::string& filename)
+IdentityManagementV2Fixture::saveCertificate(const security::Identity& identity, const std::string& filename)
 {
   try {
     auto cert = identity.getDefaultKey().getDefaultCertificate();

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -25,10 +25,11 @@
 #include "security/v1/key-chain.hpp"
 #include "security/v2/key-chain.hpp"
 #include "security/signing-helpers.hpp"
-#include <vector>
 
 #include "boost-test.hpp"
 #include "test-home-fixture.hpp"
+
+#include <vector>
 
 namespace ndn {
 namespace tests {
@@ -117,7 +118,7 @@ public:
    *  @return whether successful
    */
   bool
-  saveIdentityCertificate(const security::Identity& identity, const std::string& filename);
+  saveCertificate(const security::Identity& identity, const std::string& filename);
 
   /**
    * @brief Issue a certificate for \p subIdentityName signed by \p issuer

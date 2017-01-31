@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -42,6 +42,7 @@ public:
   ValidatorFixture()
     : face(io, {true, true})
     , validator(make_unique<ValidationPolicy>(), make_unique<CertificateFetcher>(face))
+    , policy(static_cast<ValidationPolicy&>(validator.getPolicy()))
     , cache(time::days(100))
   {
     processInterest = [this] (const Interest& interest) {
@@ -101,6 +102,7 @@ public:
   util::DummyClientFace face;
   std::function<void(const Interest& interest)> processInterest;
   Validator validator;
+  ValidationPolicy& policy;
 
   CertificateCache cache;
 
@@ -143,6 +145,35 @@ public:
 
 #define VALIDATE_SUCCESS(packet, message) this->template validate(packet, message, true, __LINE__)
 #define VALIDATE_FAILURE(packet, message) this->template validate(packet, message, false, __LINE__)
+
+class DummyValidationState : public ValidationState
+{
+public:
+  ~DummyValidationState()
+  {
+    m_outcome = false;
+  }
+
+  void
+  fail(const ValidationError& error) override
+  {
+    // BOOST_TEST_MESSAGE(error);
+    m_outcome = false;
+  }
+
+private:
+  void
+  verifyOriginalPacket(const Certificate& trustedCert) override
+  {
+    // do nothing
+  }
+
+  void
+  bypassValidation() override
+  {
+    // do nothing
+  }
+};
 
 } // namespace tests
 } // namespace v2

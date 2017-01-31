@@ -19,28 +19,30 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-// Bug 2109 test case
+#ifndef NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
+#define NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
 
-// interest.hpp includes common.hpp; common.hpp shouldn't be used from external program
-#include "interest.hpp"
+#include <boost/property_tree/info_parser.hpp>
 
-// util/config-file.hpp indirectly includes <boost/property_tree/ptree.hpp>
-// which in turn imports Boost placeholders
-#include "util/config-file.hpp"
+namespace ndn {
+namespace security {
+namespace v2 {
+namespace validator_config {
+namespace tests {
 
-// It's intentional to write "using namespace",
-// to simulate an external program linked against ndn-cxx.
-using namespace ndn;
-
-void
-placeholdersTestFunction(int i)
+inline ConfigSection
+makeSection(const std::string& config)
 {
+  std::istringstream inputStream(config);
+  ConfigSection section;
+  boost::property_tree::read_info(inputStream, section);
+  return section;
 }
 
-int
-placeholdersTestMain()
-{
-  auto f = std::bind(&placeholdersTestFunction, _1);
-  f(1);
-  return 0;
-}
+} // namespace tests
+} // namespace validator_config
+} // namespace v2
+} // namespace security
+} // namespace ndn
+
+#endif // NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP

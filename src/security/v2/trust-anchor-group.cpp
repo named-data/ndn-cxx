@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -96,6 +96,8 @@ DynamicTrustAnchorGroup::DynamicTrustAnchorGroup(CertContainerInterface& certCon
     BOOST_THROW_EXCEPTION(std::runtime_error("Refresh period for the dynamic group must be positive"));
   }
 
+  NDN_LOG_TRACE("Create dynamic trust anchor group " << id << " for file/dir " << path
+                << " with refresh time " << refreshPeriod);
   refresh();
 }
 

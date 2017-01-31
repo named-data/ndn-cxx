@@ -19,28 +19,42 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-// Bug 2109 test case
+#ifndef NDN_SECURITY_V2_VALIDATOR_CONFIG_NAME_RELATION_HPP
+#define NDN_SECURITY_V2_VALIDATOR_CONFIG_NAME_RELATION_HPP
 
-// interest.hpp includes common.hpp; common.hpp shouldn't be used from external program
-#include "interest.hpp"
+#include "common.hpp"
+#include "../../../name.hpp"
 
-// util/config-file.hpp indirectly includes <boost/property_tree/ptree.hpp>
-// which in turn imports Boost placeholders
-#include "util/config-file.hpp"
+namespace ndn {
+namespace security {
+namespace v2 {
+namespace validator_config {
 
-// It's intentional to write "using namespace",
-// to simulate an external program linked against ndn-cxx.
-using namespace ndn;
+enum class NameRelation {
+  EQUAL,
+  IS_PREFIX_OF,
+  IS_STRICT_PREFIX_OF
+};
 
-void
-placeholdersTestFunction(int i)
-{
-}
+std::ostream&
+operator<<(std::ostream& os, NameRelation relation);
 
-int
-placeholdersTestMain()
-{
-  auto f = std::bind(&placeholdersTestFunction, _1);
-  f(1);
-  return 0;
-}
+/**
+ * @brief check whether @p name1 and @p name2 satisfies @p relation
+ */
+bool
+checkNameRelation(NameRelation relation, const Name& name1, const Name& name2);
+
+/**
+ * @brief convert @p relationString to NameRelation
+ * @throw Error if @p relationString cannot be converted
+ */
+NameRelation
+getNameRelationFromString(const std::string& relationString);
+
+} // namespace validator_config
+} // namespace v2
+} // namespace security
+} // namespace ndn
+
+#endif // NDN_SECURITY_V2_VALIDATOR_CONFIG_NAME_RELATION_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2014 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,31 +21,28 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_SECURITY_CONF_COMMON_HPP
-#define NDN_SECURITY_CONF_COMMON_HPP
+#ifndef NDN_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
+#define NDN_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
 
-#include "../../common.hpp"
-#include <string>
+#include "../../../common.hpp"
 #include <boost/property_tree/ptree.hpp>
 
 namespace ndn {
 namespace security {
-namespace conf {
+namespace v2 {
+namespace validator_config {
 
 typedef boost::property_tree::ptree ConfigSection;
 
 class Error : public std::runtime_error
 {
 public:
-  explicit
-  Error(const std::string& what)
-    : std::runtime_error(what)
-  {
-  }
+  using std::runtime_error::runtime_error;
 };
 
-} // namespace conf
+} // namespace validator_config
+} // namespace v2
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_CONF_COMMON_HPP
+#endif // NDN_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
