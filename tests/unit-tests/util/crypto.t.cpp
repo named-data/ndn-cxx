@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,9 +33,8 @@ BOOST_AUTO_TEST_SUITE(TestCrypto)
 BOOST_AUTO_TEST_CASE(Basic)
 {
   const std::string testString = "Hello, world!";
-  ConstBufferPtr result;
-  BOOST_CHECK_NO_THROW(result = computeSha256Digest(reinterpret_cast<const uint8_t*>(testString.data()),
-                                                    testString.size()));
+  auto result = computeSha256Digest(reinterpret_cast<const uint8_t*>(testString.data()),
+                                    testString.size());
 
   BOOST_CHECK_EQUAL(result->size(), SHA256_DIGEST_SIZE);
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,9 @@
 
 #include "crypto.hpp"
 #include "../encoding/buffer-stream.hpp"
-
-#include "../security/v1/cryptopp.hpp"
+#include "../security/transform/buffer-source.hpp"
+#include "../security/transform/digest-filter.hpp"
+#include "../security/transform/stream-sink.hpp"
 
 namespace ndn {
 namespace crypto {
@@ -30,15 +31,15 @@ namespace crypto {
 ConstBufferPtr
 computeSha256Digest(const uint8_t* data, size_t dataLength)
 {
+  namespace tr = security::transform;
   try {
-    CryptoPP::SHA256 hash;
     OBufferStream os;
-    CryptoPP::StringSource(data, dataLength, true,
-      new CryptoPP::HashFilter(hash, new CryptoPP::FileSink(os)));
+    tr::bufferSource(data, dataLength) >> tr::digestFilter(DigestAlgorithm::SHA256)
+                                       >> tr::streamSink(os);
     return os.buf();
   }
-  catch (CryptoPP::Exception& e) {
-    return ConstBufferPtr();
+  catch (const tr::Error&) {
+    return nullptr;
   }
 }
 
