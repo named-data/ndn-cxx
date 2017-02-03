@@ -28,27 +28,15 @@
 #include "../security/transform/stream-sink.hpp"
 
 #include <sstream>
-#include <iomanip>
 
 namespace ndn {
 
 void
 printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase)
 {
-  if (buffer == nullptr || length == 0)
-    return;
-
-  auto newFlags = std::ios::hex;
-  if (wantUpperCase) {
-    newFlags |= std::ios::uppercase;
-  }
-  auto oldFlags = os.flags(newFlags);
-  auto oldFill = os.fill('0');
-  for (size_t i = 0; i < length; ++i) {
-    os << std::setw(2) << static_cast<unsigned int>(buffer[i]);
-  }
-  os.fill(oldFill);
-  os.flags(oldFlags);
+  namespace tr = security::transform;
+  BOOST_ASSERT(buffer != nullptr || length == 0);
+  tr::bufferSource(buffer, length) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(os);
 }
 
 void
@@ -60,23 +48,15 @@ printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase)
 std::string
 toHex(const uint8_t* buffer, size_t length, bool wantUpperCase)
 {
-  BOOST_ASSERT(buffer != nullptr || length == 0);
-
-  namespace tr = security::transform;
-
   std::ostringstream result;
-  tr::bufferSource(buffer, length) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(result);
+  printHex(result, buffer, length, wantUpperCase);
   return result.str();
 }
 
 std::string
 toHex(const Buffer& buffer, bool wantUpperCase)
 {
-  namespace tr = security::transform;
-
-  std::ostringstream result;
-  tr::bufferSource(buffer) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(result);
-  return result.str();
+  return toHex(buffer.buf(), buffer.size(), wantUpperCase);
 }
 
 int
@@ -127,9 +107,10 @@ unescape(const std::string& str)
       // Skip ahead past the escaped value.
       i += 2;
     }
-    else
+    else {
       // Just copy through.
       result << str[i];
+    }
   }
 
   return result.str();
