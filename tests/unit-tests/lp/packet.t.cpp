@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -102,11 +102,17 @@ BOOST_AUTO_TEST_CASE(EncodeSubTlv)
 BOOST_AUTO_TEST_CASE(EncodeSortOrder)
 {
   static const uint8_t expectedBlock[] = {
-    0x64, 0x0a, // LpPacket
+    0x64, 0x19, // LpPacket
           0x52, 0x01, // FragIndex
                 0x00,
           0x53, 0x01, // FragCount
                 0x01,
+          0xfd, 0x03, 0x44, 0x01, // Ack
+                0x02,
+          0xfd, 0x03, 0x44, 0x01, // Ack
+                0x04,
+          0xfd, 0x03, 0x44, 0x01, // Ack
+                0x03,
           0x50, 0x02, // Fragment
                 0x03, 0xe8,
   };
@@ -118,7 +124,10 @@ BOOST_AUTO_TEST_CASE(EncodeSortOrder)
   Packet packet;
   BOOST_CHECK_NO_THROW(packet.add<FragmentField>(std::make_pair(frag.begin(), frag.end())));
   BOOST_CHECK_NO_THROW(packet.add<FragIndexField>(0));
+  BOOST_CHECK_NO_THROW(packet.add<AckField>(2));
   BOOST_CHECK_NO_THROW(packet.add<FragCountField>(1));
+  BOOST_CHECK_NO_THROW(packet.add<AckField>(4));
+  BOOST_CHECK_NO_THROW(packet.add<AckField>(3));
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = packet.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
@@ -218,6 +227,28 @@ BOOST_AUTO_TEST_CASE(DecodeRepeatedNonRepeatableHeader)
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
+}
+
+BOOST_AUTO_TEST_CASE(DecodeRepeatedRepeatableHeader)
+{
+  static const uint8_t inputBlock[] = {
+    0x64, 0x0f, // LpPacket
+          0xfd, 0x03, 0x44, 0x01, // Ack
+                0x01,
+          0xfd, 0x03, 0x44, 0x01, // Ack
+                0x03,
+          0xfd, 0x03, 0x44, 0x01, // Ack
+                0x02,
+  };
+
+  Packet packet;
+  Block wire(inputBlock, sizeof(inputBlock));
+  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  BOOST_REQUIRE_EQUAL(packet.count<AckField>(), 3);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(), 1);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(0), 1);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(1), 3);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(2), 2);
 }
 
 BOOST_AUTO_TEST_CASE(DecodeRepeatedFragment)

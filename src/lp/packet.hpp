@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -165,10 +165,8 @@ public: // field access
     FIELD::encode(buffer, value);
     Block block = buffer.block();
 
-    Block::element_const_iterator pos = std::lower_bound(m_wire.elements_begin(),
-                                                         m_wire.elements_end(),
-                                                         FIELD::TlvType::value,
-                                                         comparePos);
+    auto pos = std::upper_bound(m_wire.elements_begin(), m_wire.elements_end(),
+                                FIELD::TlvType::value, comparePos);
     m_wire.insert(pos, block);
 
     return *this;
@@ -213,7 +211,7 @@ public: // field access
 
 private:
   static bool
-  comparePos(const Block& first, const uint64_t second);
+  comparePos(uint64_t first, const Block& second);
 
 private:
   mutable Block m_wire;
