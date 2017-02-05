@@ -28,9 +28,13 @@
 #ifndef NDN_UTIL_CONCEPTS_HPP
 #define NDN_UTIL_CONCEPTS_HPP
 
-#include <boost/concept/usage.hpp>
 #include "../encoding/block.hpp"
 #include "../encoding/encoding-buffer.hpp"
+
+#include <boost/concept/usage.hpp>
+#include <boost/type_traits/has_equal_to.hpp>
+#include <boost/type_traits/has_not_equal_to.hpp>
+#include <boost/type_traits/has_left_shift.hpp>
 
 namespace ndn {
 
@@ -102,12 +106,31 @@ public:
   }
 };
 
+/** \brief a concept check for a Status Dataset item
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
+ */
+template<class X>
+class StatusDatasetItem : public WireEncodable<X>
+                        , public WireEncodableWithEncodingBuffer<X>
+                        , public WireDecodable<X>
+{
+public:
+  BOOST_CONCEPT_USAGE(StatusDatasetItem)
+  {
+    static_assert(std::is_default_constructible<X>::value, "");
+    static_assert(boost::has_equal_to<X, X, bool>::value, "");
+    static_assert(boost::has_not_equal_to<X, X, bool>::value, "");
+    static_assert(boost::has_left_shift<std::ostream, X, std::ostream&>::value, "");
+    static_assert(std::is_base_of<tlv::Error, typename X::Error>::value, "");
+  }
+};
+
 // NDN_CXX_ASSERT_DEFAULT_CONSTRUCTIBLE and NDN_CXX_ASSERT_FORWARD_ITERATOR
 // originally written as part of NFD codebase
 
 namespace detail {
 
-// As of Boost 1.54.0, the internal implementation of BOOST_CONCEPT_ASSERT does not allow
+// As of Boost 1.61.0, the internal implementation of BOOST_CONCEPT_ASSERT does not allow
 // multiple assertions on the same line, so we have to combine multiple concepts together.
 
 template<typename T>
@@ -118,6 +141,7 @@ class StlForwardIteratorConcept : public boost::ForwardIterator<T>
 
 } // namespace detail
 
+// std::is_default_constructible is broken in gcc-4.8, see bug #3882
 /** \brief assert T is default constructible
  *  \sa http://en.cppreference.com/w/cpp/concept/DefaultConstructible
  */
@@ -132,10 +156,9 @@ class StlForwardIteratorConcept : public boost::ForwardIterator<T>
  *        SGI standard which doesn't require DefaultConstructible, so a separate check is needed.
  */
 #define NDN_CXX_ASSERT_FORWARD_ITERATOR(T) \
-  BOOST_CONCEPT_ASSERT((::ndn::detail::StlForwardIteratorConcept<T>)); \
   static_assert(std::is_default_constructible<T>::value, \
-                #T " must be default-constructible")
-
+                #T " must be default-constructible"); \
+  BOOST_CONCEPT_ASSERT((::ndn::detail::StlForwardIteratorConcept<T>))
 
 } // namespace ndn
 

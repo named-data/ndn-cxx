@@ -20,19 +20,15 @@
  */
 
 #include "strategy-choice.hpp"
-#include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/encoding-buffer.hpp"
+#include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<StrategyChoice>));
-BOOST_CONCEPT_ASSERT((WireEncodable<StrategyChoice>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<StrategyChoice>));
-BOOST_CONCEPT_ASSERT((WireDecodable<StrategyChoice>));
-static_assert(std::is_base_of<tlv::Error, StrategyChoice::Error>::value,
-              "StrategyChoice::Error must inherit from tlv::Error");
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<StrategyChoice>));
 
 StrategyChoice::StrategyChoice() = default;
 
