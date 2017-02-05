@@ -25,26 +25,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_MGMT_NFD_FACE_MONITOR_HPP
-#define NDN_MGMT_NFD_FACE_MONITOR_HPP
-
-#include "../../util/notification-subscriber.hpp"
-#include "face-event-notification.hpp"
+#include "face-monitor.hpp"
 
 namespace ndn {
 namespace nfd {
 
-/** \brief A subscriber for Face status change notification stream
- *  \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
- */
-class FaceMonitor : public util::NotificationSubscriber<FaceEventNotification>
+FaceMonitor::FaceMonitor(Face& face)
+  : NotificationSubscriber<FaceEventNotification>(face, "ndn:/localhost/nfd/faces/events")
 {
-public:
-  explicit
-  FaceMonitor(Face& face);
-};
+}
 
 } // namespace nfd
 } // namespace ndn
-
-#endif // NDN_MGMT_NFD_FACE_MONITOR_HPP
