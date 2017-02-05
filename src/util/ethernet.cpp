@@ -1,6 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2014-2015 Regents of the University of California,
+ *                         Arizona Board of Regents,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University,
+ *                         Washington University in St. Louis,
+ *                         Beijing Institute of Technology,
+ *                         The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -135,7 +141,6 @@ operator<<(std::ostream& o, const Address& a)
 } // namespace ethernet
 } // namespace util
 } // namespace ndn
-
 
 std::size_t
 std::hash<ndn::util::ethernet::Address>::operator()(const ndn::util::ethernet::Address& a) const noexcept
