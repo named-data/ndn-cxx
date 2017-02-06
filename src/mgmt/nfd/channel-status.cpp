@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,22 +20,16 @@
  */
 
 #include "channel-status.hpp"
+#include "encoding/encoding-buffer.hpp"
 #include "encoding/tlv-nfd.hpp"
-#include "encoding/block-helpers.hpp"
 #include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ChannelStatus>));
-BOOST_CONCEPT_ASSERT((WireEncodable<ChannelStatus>));
-BOOST_CONCEPT_ASSERT((WireDecodable<ChannelStatus>));
-static_assert(std::is_base_of<tlv::Error, ChannelStatus::Error>::value,
-              "ChannelStatus::Error must inherit from tlv::Error");
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<ChannelStatus>));
 
-ChannelStatus::ChannelStatus()
-{
-}
+ChannelStatus::ChannelStatus() = default;
 
 ChannelStatus::ChannelStatus(const Block& payload)
 {
@@ -49,7 +43,7 @@ ChannelStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
 
   totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
+                 reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::nfd::ChannelStatus);
@@ -103,6 +97,18 @@ ChannelStatus::setLocalUri(const std::string localUri)
   m_wire.reset();
   m_localUri = localUri;
   return *this;
+}
+
+bool
+operator==(const ChannelStatus& a, const ChannelStatus& b)
+{
+  return a.getLocalUri() == b.getLocalUri();
+}
+
+std::ostream&
+operator<<(std::ostream& os, const ChannelStatus& cs)
+{
+  return os << "Channel(" << "LocalUri: " << cs.getLocalUri() << ")";
 }
 
 } // namespace nfd

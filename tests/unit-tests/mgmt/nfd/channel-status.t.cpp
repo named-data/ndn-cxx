@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "mgmt/nfd/channel-status.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
@@ -34,9 +35,7 @@ BOOST_AUTO_TEST_SUITE(TestChannelStatus)
 BOOST_AUTO_TEST_CASE(Encode)
 {
   ChannelStatus status1;
-  status1
-    .setLocalUri("udp4://192.168.2.1")
-    ;
+  status1.setLocalUri("udp4://192.168.2.1");
 
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = status1.wireEncode());
@@ -56,6 +55,26 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_REQUIRE_NO_THROW(ChannelStatus(wire));
   ChannelStatus status2(wire);
   BOOST_CHECK_EQUAL(status1.getLocalUri(), status2.getLocalUri());
+}
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+  ChannelStatus cs1, cs2;
+
+  cs1.setLocalUri("udp4://127.0.0.1:6363");
+  cs2 = cs1;
+  BOOST_CHECK_EQUAL(cs1, cs2);
+
+  cs2.setLocalUri("dev://eth0");
+  BOOST_CHECK_NE(cs1, cs2);
+}
+
+BOOST_AUTO_TEST_CASE(Print)
+{
+  ChannelStatus cs;
+  cs.setLocalUri("udp4://127.0.0.1:6363");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cs),
+                    "Channel(LocalUri: udp4://127.0.0.1:6363)");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestChannelStatus

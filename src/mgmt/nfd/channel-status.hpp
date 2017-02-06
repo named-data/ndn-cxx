@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,6 +75,18 @@ private:
 
   mutable Block m_wire;
 };
+
+bool
+operator==(const ChannelStatus& a, const ChannelStatus& b);
+
+inline bool
+operator!=(const ChannelStatus& a, const ChannelStatus& b)
+{
+  return !(a == b);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const ChannelStatus& cs);
 
 } // namespace nfd
 } // namespace ndn
