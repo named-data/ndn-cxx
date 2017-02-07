@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "mgmt/nfd/face-query-filter.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
@@ -50,8 +51,7 @@ BOOST_AUTO_TEST_CASE(Encode)
          .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
          .setLinkType(LINK_TYPE_MULTI_ACCESS);
 
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = filter1.wireEncode());
+  Block wire = filter1.wireEncode();
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
@@ -71,8 +71,6 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(FaceQueryFilter(wire));
-
   FaceQueryFilter filter2(wire);
   BOOST_CHECK_EQUAL(filter1.getFaceId(), filter2.getFaceId());
   BOOST_CHECK_EQUAL(filter1.getUriScheme(), filter2.getUriScheme());
@@ -81,17 +79,57 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL(filter1.getFaceScope(), filter2.getFaceScope());
   BOOST_CHECK_EQUAL(filter1.getFacePersistency(), filter2.getFacePersistency());
   BOOST_CHECK_EQUAL(filter1.getLinkType(), filter2.getLinkType());
+}
 
-  std::ostringstream os;
-  os << filter2;
-  BOOST_CHECK_EQUAL(os.str(), "FaceQueryFilter(FaceID: 100,\n"
-                              "UriScheme: tcp4,\n"
-                              "RemoteUri: tcp4://192.0.2.1:6363,\n"
-                              "LocalUri: tcp4://192.0.2.2:55555,\n"
-                              "FaceScope: local,\n"
-                              "FacePersistency: on-demand,\n"
-                              "LinkType: multi-access,\n"
-                              ")");
+BOOST_AUTO_TEST_CASE(Equality)
+{
+  FaceQueryFilter filter1, filter2;
+  BOOST_CHECK_EQUAL(filter1, filter2);
+
+  filter1.setFaceId(100)
+         .setUriScheme("tcp4")
+         .setRemoteUri("tcp4://192.0.2.1:6363")
+         .setLocalUri("tcp4://192.0.2.2:55555")
+         .setFaceScope(FACE_SCOPE_LOCAL)
+         .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
+         .setLinkType(LINK_TYPE_MULTI_ACCESS);
+  BOOST_CHECK_NE(filter1, filter2);
+
+  filter2 = filter1;
+  BOOST_CHECK_EQUAL(filter1, filter2);
+
+  filter2.setFaceScope(FACE_SCOPE_NON_LOCAL);
+  BOOST_CHECK_NE(filter1, filter2);
+}
+
+BOOST_AUTO_TEST_CASE(Print)
+{
+  FaceQueryFilter filter;
+  filter.setFaceId(100)
+        .setUriScheme("tcp4")
+        .setRemoteUri("tcp4://192.0.2.1:6363")
+        .setLocalUri("tcp4://192.0.2.2:55555")
+        .setFaceScope(FACE_SCOPE_LOCAL)
+        .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
+        .setLinkType(LINK_TYPE_MULTI_ACCESS);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(filter),
+                    "FaceQueryFilter(FaceID: 100,\n"
+                    "UriScheme: tcp4,\n"
+                    "RemoteUri: tcp4://192.0.2.1:6363,\n"
+                    "LocalUri: tcp4://192.0.2.2:55555,\n"
+                    "FaceScope: local,\n"
+                    "FacePersistency: on-demand,\n"
+                    "LinkType: multi-access,\n"
+                    ")");
+
+  filter.unsetFaceId()
+        .unsetUriScheme()
+        .unsetRemoteUri()
+        .unsetLocalUri()
+        .unsetFaceScope()
+        .unsetFacePersistency()
+        .unsetLinkType();
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(filter), "FaceQueryFilter()");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestFaceQueryFilter

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,7 @@
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceQueryFilter>));
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceQueryFilter>));
 BOOST_CONCEPT_ASSERT((WireEncodable<FaceQueryFilter>));
 BOOST_CONCEPT_ASSERT((WireDecodable<FaceQueryFilter>));
 static_assert(std::is_base_of<tlv::Error, FaceQueryFilter::Error>::value,
@@ -311,6 +311,25 @@ FaceQueryFilter::unsetLinkType()
   m_wire.reset();
   m_hasLinkType = false;
   return *this;
+}
+
+bool
+operator==(const FaceQueryFilter& a, const FaceQueryFilter& b)
+{
+  return a.hasFaceId() == b.hasFaceId() &&
+         (!a.hasFaceId() || a.getFaceId() == b.getFaceId()) &&
+         a.hasUriScheme() == b.hasUriScheme() &&
+         (!a.hasUriScheme() || a.getUriScheme() == b.getUriScheme()) &&
+         a.hasRemoteUri() == b.hasRemoteUri() &&
+         (!a.hasRemoteUri() || a.getRemoteUri() == b.getRemoteUri()) &&
+         a.hasLocalUri() == b.hasLocalUri() &&
+         (!a.hasLocalUri() || a.getLocalUri() == b.getLocalUri()) &&
+         a.hasFaceScope() == b.hasFaceScope() &&
+         (!a.hasFaceScope() || a.getFaceScope() == b.getFaceScope()) &&
+         a.hasFacePersistency() == b.hasFacePersistency() &&
+         (!a.hasFaceId() || a.getFacePersistency() == b.getFacePersistency()) &&
+         a.hasLinkType() == b.hasLinkType() &&
+         (!a.hasLinkType() || a.getLinkType() == b.getLinkType());
 }
 
 std::ostream&
