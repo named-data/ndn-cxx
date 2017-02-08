@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,26 +20,24 @@
  */
 
 #include "face-status.hpp"
-#include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/encoding-buffer.hpp"
+#include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
+
+#include <iomanip>
 
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceStatus>));
-BOOST_CONCEPT_ASSERT((WireEncodable<FaceStatus>));
-BOOST_CONCEPT_ASSERT((WireDecodable<FaceStatus>));
-static_assert(std::is_base_of<tlv::Error, FaceStatus::Error>::value,
-              "FaceStatus::Error must inherit from tlv::Error");
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<FaceStatus>));
 
 FaceStatus::FaceStatus()
-  : m_hasExpirationPeriod(false)
-  , m_nInInterests(0)
-  , m_nInDatas(0)
+  : m_nInInterests(0)
+  , m_nInData(0)
   , m_nInNacks(0)
   , m_nOutInterests(0)
-  , m_nOutDatas(0)
+  , m_nOutData(0)
   , m_nOutNacks(0)
   , m_nInBytes(0)
   , m_nOutBytes(0)
@@ -66,13 +64,13 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NOutNacks, m_nOutNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NOutDatas, m_nOutDatas);
+                 tlv::nfd::NOutDatas, m_nOutData);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NOutInterests, m_nOutInterests);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NInNacks, m_nInNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NInDatas, m_nInDatas);
+                 tlv::nfd::NInDatas, m_nInData);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::NInInterests, m_nInInterests);
   totalLength += prependNonNegativeIntegerBlock(encoder,
@@ -81,14 +79,14 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
                  tlv::nfd::FacePersistency, m_facePersistency);
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FaceScope, m_faceScope);
-  if (m_hasExpirationPeriod) {
+  if (m_expirationPeriod) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::ExpirationPeriod, m_expirationPeriod.count());
+                   tlv::nfd::ExpirationPeriod, static_cast<uint64_t>(m_expirationPeriod->count()));
   }
   totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
+                 reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
   totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
-                 reinterpret_cast<const uint8_t*>(m_remoteUri.c_str()), m_remoteUri.size());
+                 reinterpret_cast<const uint8_t*>(m_remoteUri.data()), m_remoteUri.size());
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FaceId, m_faceId);
 
@@ -154,13 +152,11 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::ExpirationPeriod) {
-    m_expirationPeriod = time::milliseconds(readNonNegativeInteger(*val));
-    m_hasExpirationPeriod = true;
+    m_expirationPeriod.emplace(readNonNegativeInteger(*val));
     ++val;
   }
   else {
-    m_hasExpirationPeriod = false;
-    // ExpirationPeriod is optional
+    m_expirationPeriod = nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
@@ -196,7 +192,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInDatas) {
-    m_nInDatas = readNonNegativeInteger(*val);
+    m_nInData = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -220,7 +216,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutDatas) {
-    m_nOutDatas = readNonNegativeInteger(*val);
+    m_nOutData = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -261,11 +257,10 @@ FaceStatus::wireDecode(const Block& block)
 }
 
 FaceStatus&
-FaceStatus::setExpirationPeriod(const time::milliseconds& expirationPeriod)
+FaceStatus::setExpirationPeriod(time::milliseconds expirationPeriod)
 {
   m_wire.reset();
   m_expirationPeriod = expirationPeriod;
-  m_hasExpirationPeriod = true;
   return *this;
 }
 
@@ -278,10 +273,10 @@ FaceStatus::setNInInterests(uint64_t nInInterests)
 }
 
 FaceStatus&
-FaceStatus::setNInDatas(uint64_t nInDatas)
+FaceStatus::setNInDatas(uint64_t nInData)
 {
   m_wire.reset();
-  m_nInDatas = nInDatas;
+  m_nInData = nInData;
   return *this;
 }
 
@@ -302,10 +297,10 @@ FaceStatus::setNOutInterests(uint64_t nOutInterests)
 }
 
 FaceStatus&
-FaceStatus::setNOutDatas(uint64_t nOutDatas)
+FaceStatus::setNOutDatas(uint64_t nOutData)
 {
   m_wire.reset();
-  m_nOutDatas = nOutDatas;
+  m_nOutData = nOutData;
   return *this;
 }
 
@@ -339,39 +334,62 @@ FaceStatus::wireReset() const
   m_wire.reset();
 }
 
+bool
+operator==(const FaceStatus& a, const FaceStatus& b)
+{
+  return a.getFaceId() == b.getFaceId() &&
+      a.getRemoteUri() == b.getRemoteUri() &&
+      a.getLocalUri() == b.getLocalUri() &&
+      a.getFaceScope() == b.getFaceScope() &&
+      a.getFacePersistency() == b.getFacePersistency() &&
+      a.getLinkType() == b.getLinkType() &&
+      a.getFlags() == b.getFlags() &&
+      a.hasExpirationPeriod() == b.hasExpirationPeriod() &&
+      (!a.hasExpirationPeriod() || a.getExpirationPeriod() == b.getExpirationPeriod()) &&
+      a.getNInInterests() == b.getNInInterests() &&
+      a.getNInDatas() == b.getNInDatas() &&
+      a.getNInNacks() == b.getNInNacks() &&
+      a.getNOutInterests() == b.getNOutInterests() &&
+      a.getNOutDatas() == b.getNOutDatas() &&
+      a.getNOutNacks() == b.getNOutNacks() &&
+      a.getNInBytes() == b.getNInBytes() &&
+      a.getNOutBytes() == b.getNOutBytes();
+}
+
 std::ostream&
 operator<<(std::ostream& os, const FaceStatus& status)
 {
-  os << "FaceStatus("
-     << "FaceID: " << status.getFaceId() << ",\n"
-     << "RemoteUri: " << status.getRemoteUri() << ",\n"
-     << "LocalUri: " << status.getLocalUri() << ",\n";
+  os << "Face(FaceId: " << status.getFaceId() << ",\n"
+     << "     RemoteUri: " << status.getRemoteUri() << ",\n"
+     << "     LocalUri: " << status.getLocalUri() << ",\n";
 
   if (status.hasExpirationPeriod()) {
-    os << "ExpirationPeriod: " << status.getExpirationPeriod() << ",\n";
+    os << "     ExpirationPeriod: " << status.getExpirationPeriod() << ",\n";
   }
   else {
-    os << "ExpirationPeriod: infinite,\n";
+    os << "     ExpirationPeriod: infinite,\n";
   }
 
-  os << "FaceScope: " << status.getFaceScope() << ",\n"
-     << "FacePersistency: " << status.getFacePersistency() << ",\n"
-     << "LinkType: " << status.getLinkType() << ",\n";
+  os << "     FaceScope: " << status.getFaceScope() << ",\n"
+     << "     FacePersistency: " << status.getFacePersistency() << ",\n"
+     << "     LinkType: " << status.getLinkType() << ",\n";
 
   auto osFlags = os.flags();
-  os << "Flags: " << std::showbase << std::hex << status.getFlags() << ",\n";
+  // std::showbase doesn't work with number 0
+  os << "     Flags: 0x" << std::noshowbase << std::noshowpos << std::nouppercase
+     << std::hex << status.getFlags() << ",\n";
   os.flags(osFlags);
 
-  os << "Counters: { Interests: {in: " << status.getNInInterests() << ", "
+  os << "     Counters: {Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"
-     << "            Data: {in: " << status.getNInDatas() << ", "
+     << "                Data: {in: " << status.getNInDatas() << ", "
      << "out: " << status.getNOutDatas() << "},\n"
-     << "            Nack: {in: " << status.getNInNacks() << ", "
+     << "                Nacks: {in: " << status.getNInNacks() << ", "
      << "out: " << status.getNOutNacks() << "},\n"
-     << "            bytes: {in: " << status.getNInBytes() << ", "
-     << "out: " << status.getNOutBytes() << "} }\n"
-     << ")";
-  return os;
+     << "                bytes: {in: " << status.getNInBytes() << ", "
+     << "out: " << status.getNOutBytes() << "}}\n";
+
+  return os << "     )";
 }
 
 } // namespace nfd

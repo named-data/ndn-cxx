@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "mgmt/nfd/face-status.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
@@ -31,33 +32,37 @@ BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(Nfd)
 BOOST_AUTO_TEST_SUITE(TestFaceStatus)
 
+static FaceStatus
+makeFaceStatus()
+{
+  return FaceStatus()
+      .setFaceId(100)
+      .setRemoteUri("tcp4://192.0.2.1:6363")
+      .setLocalUri("tcp4://192.0.2.2:55555")
+      .setFaceScope(FACE_SCOPE_LOCAL)
+      .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
+      .setLinkType(LINK_TYPE_MULTI_ACCESS)
+      .setExpirationPeriod(time::seconds(10))
+      .setNInInterests(10)
+      .setNInDatas(200)
+      .setNInNacks(1)
+      .setNOutInterests(3000)
+      .setNOutDatas(4)
+      .setNOutNacks(2)
+      .setNInBytes(1329719163)
+      .setNOutBytes(999110448)
+      .setFlags(0x7);
+}
+
 BOOST_AUTO_TEST_CASE(Encode)
 {
-  FaceStatus status1;
-  status1.setFaceId(100)
-         .setRemoteUri("tcp4://192.0.2.1:6363")
-         .setLocalUri("tcp4://192.0.2.2:55555")
-         .setFaceScope(FACE_SCOPE_LOCAL)
-         .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
-         .setLinkType(LINK_TYPE_MULTI_ACCESS)
-         .setExpirationPeriod(time::seconds(10))
-         .setNInInterests(10)
-         .setNInDatas(200)
-         .setNInNacks(1)
-         .setNOutInterests(3000)
-         .setNOutDatas(4)
-         .setNOutNacks(2)
-         .setNInBytes(1329719163)
-         .setNOutBytes(999110448)
-         .setFlags(0x7);
-
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = status1.wireEncode());
+  FaceStatus status1 = makeFaceStatus();
+  Block wire = status1.wireEncode();
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
   // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
-  //  printf("0x%02x, ", *it);
+  //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
     0x80, 0x61, 0x69, 0x01, 0x64, 0x72, 0x15, 0x74, 0x63, 0x70,
@@ -74,39 +79,55 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(FaceStatus(wire));
   FaceStatus status2(wire);
-  BOOST_CHECK_EQUAL(status1.getFaceId(), status2.getFaceId());
-  BOOST_CHECK_EQUAL(status1.getRemoteUri(), status2.getRemoteUri());
-  BOOST_CHECK_EQUAL(status1.getLocalUri(), status2.getLocalUri());
-  BOOST_CHECK_EQUAL(status1.getFaceScope(), status2.getFaceScope());
-  BOOST_CHECK_EQUAL(status1.getFacePersistency(), status2.getFacePersistency());
-  BOOST_CHECK_EQUAL(status1.getLinkType(), status2.getLinkType());
-  BOOST_CHECK_EQUAL(status1.getNInInterests(), status2.getNInInterests());
-  BOOST_CHECK_EQUAL(status1.getNInDatas(), status2.getNInDatas());
-  BOOST_CHECK_EQUAL(status1.getNInNacks(), status2.getNInNacks());
-  BOOST_CHECK_EQUAL(status1.getNOutInterests(), status2.getNOutInterests());
-  BOOST_CHECK_EQUAL(status1.getNOutDatas(), status2.getNOutDatas());
-  BOOST_CHECK_EQUAL(status1.getNOutNacks(), status2.getNOutNacks());
-  BOOST_CHECK_EQUAL(status1.getNInBytes(), status2.getNInBytes());
-  BOOST_CHECK_EQUAL(status1.getNOutBytes(), status2.getNOutBytes());
-  BOOST_CHECK_EQUAL(status1.getFlags(), status2.getFlags());
+  BOOST_CHECK_EQUAL(status1, status2);
+}
 
-  std::ostringstream os;
-  os << status2;
-  BOOST_CHECK_EQUAL(os.str(), "FaceStatus(FaceID: 100,\n"
-                              "RemoteUri: tcp4://192.0.2.1:6363,\n"
-                              "LocalUri: tcp4://192.0.2.2:55555,\n"
-                              "ExpirationPeriod: 10000 milliseconds,\n"
-                              "FaceScope: local,\n"
-                              "FacePersistency: on-demand,\n"
-                              "LinkType: multi-access,\n"
-                              "Flags: 0x7,\n"
-                              "Counters: { Interests: {in: 10, out: 3000},\n"
-                              "            Data: {in: 200, out: 4},\n"
-                              "            Nack: {in: 1, out: 2},\n"
-                              "            bytes: {in: 1329719163, out: 999110448} }\n"
-                              ")");
+BOOST_AUTO_TEST_CASE(Equality)
+{
+  FaceStatus status1, status2;
+
+  status1 = makeFaceStatus();
+  status2 = status1;
+  BOOST_CHECK_EQUAL(status1, status2);
+
+  status2.setFaceId(42);
+  BOOST_CHECK_NE(status1, status2);
+}
+
+BOOST_AUTO_TEST_CASE(Print)
+{
+  FaceStatus status;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(status),
+                    "Face(FaceId: 0,\n"
+                    "     RemoteUri: ,\n"
+                    "     LocalUri: ,\n"
+                    "     ExpirationPeriod: infinite,\n"
+                    "     FaceScope: non-local,\n"
+                    "     FacePersistency: persistent,\n"
+                    "     LinkType: point-to-point,\n"
+                    "     Flags: 0x0,\n"
+                    "     Counters: {Interests: {in: 0, out: 0},\n"
+                    "                Data: {in: 0, out: 0},\n"
+                    "                Nacks: {in: 0, out: 0},\n"
+                    "                bytes: {in: 0, out: 0}}\n"
+                    "     )");
+
+  status = makeFaceStatus();
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(status),
+                    "Face(FaceId: 100,\n"
+                    "     RemoteUri: tcp4://192.0.2.1:6363,\n"
+                    "     LocalUri: tcp4://192.0.2.2:55555,\n"
+                    "     ExpirationPeriod: 10000 milliseconds,\n"
+                    "     FaceScope: local,\n"
+                    "     FacePersistency: on-demand,\n"
+                    "     LinkType: multi-access,\n"
+                    "     Flags: 0x7,\n"
+                    "     Counters: {Interests: {in: 10, out: 3000},\n"
+                    "                Data: {in: 200, out: 4},\n"
+                    "                Nacks: {in: 1, out: 2},\n"
+                    "                bytes: {in: 1329719163, out: 999110448}}\n"
+                    "     )");
 }
 
 BOOST_AUTO_TEST_CASE(FlagBit)
