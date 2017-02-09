@@ -327,7 +327,7 @@ operator==(const FaceQueryFilter& a, const FaceQueryFilter& b)
          a.hasFaceScope() == b.hasFaceScope() &&
          (!a.hasFaceScope() || a.getFaceScope() == b.getFaceScope()) &&
          a.hasFacePersistency() == b.hasFacePersistency() &&
-         (!a.hasFaceId() || a.getFacePersistency() == b.getFacePersistency()) &&
+         (!a.hasFacePersistency() || a.getFacePersistency() == b.getFacePersistency()) &&
          a.hasLinkType() == b.hasLinkType() &&
          (!a.hasLinkType() || a.getLinkType() == b.getLinkType());
 }
