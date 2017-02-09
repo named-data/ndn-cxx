@@ -28,9 +28,9 @@ namespace ndn {
 namespace nfd {
 
 /**
- * @ingroup management
- * @brief represents NFD Channel Status dataset
- * @sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Channel-Dataset
+ * \ingroup management
+ * \brief represents an item in NFD Channel dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Channel-Dataset
  */
 class ChannelStatus
 {
@@ -86,7 +86,7 @@ operator!=(const ChannelStatus& a, const ChannelStatus& b)
 }
 
 std::ostream&
-operator<<(std::ostream& os, const ChannelStatus& cs);
+operator<<(std::ostream& os, const ChannelStatus& status);
 
 } // namespace nfd
 } // namespace ndn

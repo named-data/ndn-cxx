@@ -29,9 +29,9 @@ namespace ndn {
 namespace nfd {
 
 /**
- * @ingroup management
- * @brief represents NFD StrategyChoice dataset
- * @sa http://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Strategy-Choice-Dataset
+ * \ingroup management
+ * \brief represents an item in NFD StrategyChoice dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Strategy-Choice-Dataset
  */
 class StrategyChoice
 {

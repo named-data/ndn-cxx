@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,23 +20,18 @@
  */
 
 #include "forwarder-status.hpp"
-#include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/encoding-buffer.hpp"
+#include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ForwarderStatus>));
-BOOST_CONCEPT_ASSERT((WireEncodable<ForwarderStatus>));
-BOOST_CONCEPT_ASSERT((WireDecodable<ForwarderStatus>));
-static_assert(std::is_base_of<tlv::Error, ForwarderStatus::Error>::value,
-              "ForwarderStatus::Error must inherit from tlv::Error");
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<ForwarderStatus>));
 
 ForwarderStatus::ForwarderStatus()
-  : m_startTimestamp(time::system_clock::TimePoint::min())
-  , m_currentTimestamp(time::system_clock::TimePoint::min())
-  , m_nNameTreeEntries(0)
+  : m_nNameTreeEntries(0)
   , m_nFibEntries(0)
   , m_nPitEntries(0)
   , m_nMeasurementsEntries(0)
@@ -88,8 +83,8 @@ ForwarderStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::StartTimestamp,
                                                 time::toUnixTimestamp(m_startTimestamp).count());
   totalLength += encoder.prependByteArrayBlock(tlv::nfd::NfdVersion,
-                                       reinterpret_cast<const uint8_t*>(m_nfdVersion.c_str()),
-                                       m_nfdVersion.size());
+                                               reinterpret_cast<const uint8_t*>(m_nfdVersion.data()),
+                                               m_nfdVersion.size());
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::Content);
@@ -351,6 +346,47 @@ ForwarderStatus::setNOutNacks(uint64_t nOutNacks)
   m_wire.reset();
   m_nOutNacks = nOutNacks;
   return *this;
+}
+
+bool
+operator==(const ForwarderStatus& a, const ForwarderStatus& b)
+{
+  return a.getNfdVersion() == b.getNfdVersion() &&
+      a.getStartTimestamp() == b.getStartTimestamp() &&
+      a.getCurrentTimestamp() == b.getCurrentTimestamp() &&
+      a.getNNameTreeEntries() == b.getNNameTreeEntries() &&
+      a.getNFibEntries() == b.getNFibEntries() &&
+      a.getNPitEntries() == b.getNPitEntries() &&
+      a.getNMeasurementsEntries() == b.getNMeasurementsEntries() &&
+      a.getNCsEntries() == b.getNCsEntries() &&
+      a.getNInInterests() == b.getNInInterests() &&
+      a.getNInDatas() == b.getNInDatas() &&
+      a.getNInNacks() == b.getNInNacks() &&
+      a.getNOutInterests() == b.getNOutInterests() &&
+      a.getNOutDatas() == b.getNOutDatas() &&
+      a.getNOutNacks() == b.getNOutNacks();
+}
+
+std::ostream&
+operator<<(std::ostream& os, const ForwarderStatus& status)
+{
+  os << "GeneralStatus(NfdVersion: " << status.getNfdVersion() << ",\n"
+     << "              StartTimestamp: " << status.getStartTimestamp() << ",\n"
+     << "              CurrentTimestamp: " << status.getCurrentTimestamp() << ",\n"
+     << "              Counters: {NameTreeEntries: " << status.getNNameTreeEntries() << ",\n"
+     << "                         FibEntries: " << status.getNFibEntries() << ",\n"
+     << "                         PitEntries: " << status.getNPitEntries() << ",\n"
+     << "                         MeasurementsEntries: " << status.getNMeasurementsEntries() << ",\n"
+     << "                         CsEntries: " << status.getNCsEntries() << ",\n"
+     << "                         Interests: {in: " << status.getNInInterests() << ", "
+     << "out: " << status.getNOutInterests() << "},\n"
+     << "                         Data: {in: " << status.getNInDatas() << ", "
+     << "out: " << status.getNOutDatas() << "},\n"
+     << "                         Nacks: {in: " << status.getNInNacks() << ", "
+     << "out: " << status.getNOutNacks() << "}}\n"
+     << "              )";
+
+  return os;
 }
 
 } // namespace nfd

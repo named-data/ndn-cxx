@@ -106,9 +106,9 @@ operator==(const ChannelStatus& a, const ChannelStatus& b)
 }
 
 std::ostream&
-operator<<(std::ostream& os, const ChannelStatus& cs)
+operator<<(std::ostream& os, const ChannelStatus& status)
 {
-  return os << "Channel(" << "LocalUri: " << cs.getLocalUri() << ")";
+  return os << "Channel(LocalUri: " << status.getLocalUri() << ")";
 }
 
 } // namespace nfd

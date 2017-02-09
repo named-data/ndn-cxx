@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,8 +30,8 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief represents NFD Forwarder Status
- * \sa http://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus
+ * \brief represents NFD General Status dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus#General-Status-Dataset
  */
 class ForwarderStatus
 {
@@ -53,7 +53,7 @@ public:
 
   /** \brief prepend ForwarderStatus as a Content block to the encoder
    *
-   *  The outermost Content element isn't part of ForwardStatus structure.
+   *  The outermost Content element isn't part of ForwarderStatus structure.
    */
   template<encoding::Tag TAG>
   size_t
@@ -61,14 +61,14 @@ public:
 
   /** \brief encode ForwarderStatus as a Content block
    *
-   *  The outermost Content element isn't part of ForwardStatus structure.
+   *  The outermost Content element isn't part of ForwarderStatus structure.
    */
   const Block&
   wireEncode() const;
 
   /** \brief decode ForwarderStatus from a Content block
    *
-   *  The outermost Content element isn't part of ForwardStatus structure.
+   *  The outermost Content element isn't part of ForwarderStatus structure.
    */
   void
   wireDecode(const Block& wire);
@@ -218,6 +218,18 @@ private:
 
   mutable Block m_wire;
 };
+
+bool
+operator==(const ForwarderStatus& a, const ForwarderStatus& b);
+
+inline bool
+operator!=(const ForwarderStatus& a, const ForwarderStatus& b)
+{
+  return !(a == b);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const ForwarderStatus& status);
 
 } // namespace nfd
 } // namespace ndn
