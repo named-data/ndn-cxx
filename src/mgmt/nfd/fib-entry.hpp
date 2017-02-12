@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,12 +24,12 @@
 
 #include "../../encoding/block.hpp"
 #include "../../name.hpp"
-#include <list>
 
 namespace ndn {
 namespace nfd {
 
-/** @ingroup management
+/** \ingroup management
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#FIB-Dataset
  */
 class NextHopRecord
 {
@@ -75,7 +75,7 @@ public:
   wireEncode() const;
 
   void
-  wireDecode(const Block& wire);
+  wireDecode(const Block& block);
 
 private:
   uint64_t m_faceId;
@@ -84,7 +84,21 @@ private:
   mutable Block m_wire;
 };
 
-/** @ingroup management
+bool
+operator==(const NextHopRecord& a, const NextHopRecord& b);
+
+inline bool
+operator!=(const NextHopRecord& a, const NextHopRecord& b)
+{
+  return !(a == b);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const NextHopRecord& nh);
+
+
+/** \ingroup management
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#FIB-Dataset
  */
 class FibEntry
 {
@@ -113,24 +127,26 @@ public:
   FibEntry&
   setPrefix(const Name& prefix);
 
-  const std::list<NextHopRecord>&
+  const std::vector<NextHopRecord>&
   getNextHopRecords() const
   {
     return m_nextHopRecords;
   }
 
+  template<typename InputIt>
   FibEntry&
-  addNextHopRecord(const NextHopRecord& nextHopRecord);
-
-  template<typename T>
-  FibEntry&
-  setNextHopRecords(const T& begin, const T& end)
+  setNextHopRecords(InputIt first, InputIt last)
   {
-    m_nextHopRecords.clear();
-    m_nextHopRecords.assign(begin, end);
+    m_nextHopRecords.assign(first, last);
     m_wire.reset();
     return *this;
   }
+
+  FibEntry&
+  addNextHopRecord(const NextHopRecord& nh);
+
+  FibEntry&
+  clearNextHopRecords();
 
   template<encoding::Tag TAG>
   size_t
@@ -140,14 +156,26 @@ public:
   wireEncode() const;
 
   void
-  wireDecode(const Block& wire);
+  wireDecode(const Block& block);
 
 private:
   Name m_prefix;
-  std::list<NextHopRecord> m_nextHopRecords;
+  std::vector<NextHopRecord> m_nextHopRecords;
 
   mutable Block m_wire;
 };
+
+bool
+operator==(const FibEntry& a, const FibEntry& b);
+
+inline bool
+operator!=(const FibEntry& a, const FibEntry& b)
+{
+  return !(a == b);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const FibEntry& entry);
 
 } // namespace nfd
 } // namespace ndn

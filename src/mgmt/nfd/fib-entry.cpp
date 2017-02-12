@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,32 +20,21 @@
  */
 
 #include "fib-entry.hpp"
-#include <sstream>
-#include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/encoding-buffer.hpp"
+#include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
+
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<NextHopRecord>));
-BOOST_CONCEPT_ASSERT((WireEncodable<NextHopRecord>));
-BOOST_CONCEPT_ASSERT((WireDecodable<NextHopRecord>));
-static_assert(std::is_base_of<tlv::Error, NextHopRecord::Error>::value,
-              "NextHopRecord::Error must inherit from tlv::Error");
-
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FibEntry>));
-BOOST_CONCEPT_ASSERT((WireEncodable<FibEntry>));
-BOOST_CONCEPT_ASSERT((WireDecodable<FibEntry>));
-static_assert(std::is_base_of<tlv::Error, FibEntry::Error>::value,
-              "FibEntry::Error must inherit from tlv::Error");
-
-// NextHopRecord := NEXT-HOP-RECORD TLV-LENGTH
-//                    FaceId
-//                    Cost
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<NextHopRecord>));
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<FibEntry>));
 
 NextHopRecord::NextHopRecord()
-  : m_faceId(std::numeric_limits<uint64_t>::max())
+  : m_faceId(0) // INVALID_FACEID
   , m_cost(0)
 {
 }
@@ -76,13 +65,9 @@ size_t
 NextHopRecord::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
-  totalLength += prependNonNegativeIntegerBlock(block,
-                                                ndn::tlv::nfd::Cost,
-                                                m_cost);
 
-  totalLength += prependNonNegativeIntegerBlock(block,
-                                                ndn::tlv::nfd::FaceId,
-                                                m_faceId);
+  totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::Cost, m_cost);
+  totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::FaceId, m_faceId);
 
   totalLength += block.prependVarNumber(totalLength);
   totalLength += block.prependVarNumber(ndn::tlv::nfd::NextHopRecord);
@@ -98,9 +83,8 @@ NextHopRecord::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::Estimat
 const Block&
 NextHopRecord::wireEncode() const
 {
-  if (m_wire.hasWire()) {
+  if (m_wire.hasWire())
     return m_wire;
-  }
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
@@ -113,53 +97,53 @@ NextHopRecord::wireEncode() const
 }
 
 void
-NextHopRecord::wireDecode(const Block& wire)
+NextHopRecord::wireDecode(const Block& block)
 {
-  m_faceId = std::numeric_limits<uint64_t>::max();
-  m_cost = 0;
-
-  m_wire = wire;
-
-  if (m_wire.type() != tlv::nfd::NextHopRecord) {
-    std::stringstream error;
-    error << "Requested decoding of NextHopRecord, but Block is of a different type: #"
-          << m_wire.type();
-    BOOST_THROW_EXCEPTION(Error(error.str()));
+  if (block.type() != tlv::nfd::NextHopRecord) {
+    BOOST_THROW_EXCEPTION(Error("expecting NextHopRecord, but Block has type " + to_string(block.type())));
   }
+  m_wire = block;
   m_wire.parse();
-
   Block::element_const_iterator val = m_wire.elements_begin();
+
   if (val == m_wire.elements_end()) {
-    BOOST_THROW_EXCEPTION(Error("Unexpected end of NextHopRecord"));
+    BOOST_THROW_EXCEPTION(Error("unexpected end of NextHopRecord"));
   }
   else if (val->type() != tlv::nfd::FaceId) {
-    std::stringstream error;
-    error << "Expected FaceId, but Block is of a different type: #"
-          << val->type();
-    BOOST_THROW_EXCEPTION(Error(error.str()));
+    BOOST_THROW_EXCEPTION(Error("expecting FaceId, but Block has type " + to_string(val->type())));
   }
   m_faceId = readNonNegativeInteger(*val);
   ++val;
 
   if (val == m_wire.elements_end()) {
-    BOOST_THROW_EXCEPTION(Error("Unexpected end of NextHopRecord"));
+    BOOST_THROW_EXCEPTION(Error("unexpected end of NextHopRecord"));
   }
   else if (val->type() != tlv::nfd::Cost) {
-    std::stringstream error;
-    error << "Expected Cost, but Block is of a different type: #"
-          << m_wire.type();
-    BOOST_THROW_EXCEPTION(Error(error.str()));
+    BOOST_THROW_EXCEPTION(Error("expecting Cost, but Block has type " + to_string(val->type())));
   }
   m_cost = readNonNegativeInteger(*val);
+  ++val;
 }
 
-// FibEntry      := FIB-ENTRY-TYPE TLV-LENGTH
-//                    Name
-//                    NextHopRecord*
-
-FibEntry::FibEntry()
+bool
+operator==(const NextHopRecord& a, const NextHopRecord& b)
 {
+  return a.getFaceId() == b.getFaceId() &&
+      a.getCost() == b.getCost();
 }
+
+std::ostream&
+operator<<(std::ostream& os, const NextHopRecord& nh)
+{
+  return os << "NextHopRecord("
+            << "FaceId: " << nh.getFaceId() << ", "
+            << "Cost: " << nh.getCost()
+            << ")";
+}
+
+////////////////////
+
+FibEntry::FibEntry() = default;
 
 FibEntry::FibEntry(const Block& block)
 {
@@ -175,9 +159,17 @@ FibEntry::setPrefix(const Name& prefix)
 }
 
 FibEntry&
-FibEntry::addNextHopRecord(const NextHopRecord& nextHopRecord)
+FibEntry::addNextHopRecord(const NextHopRecord& nh)
 {
-  m_nextHopRecords.push_back(nextHopRecord);
+  m_nextHopRecords.push_back(nh);
+  m_wire.reset();
+  return *this;
+}
+
+FibEntry&
+FibEntry::clearNextHopRecords()
+{
+  m_nextHopRecords.clear();
   m_wire.reset();
   return *this;
 }
@@ -188,14 +180,13 @@ FibEntry::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
-  for (auto i = m_nextHopRecords.rbegin(); i != m_nextHopRecords.rend(); ++i) {
-    totalLength += i->wireEncode(block);
+  for (const auto& nh : m_nextHopRecords | boost::adaptors::reversed) {
+    totalLength += nh.wireEncode(block);
   }
-
   totalLength += m_prefix.wireEncode(block);
+
   totalLength += block.prependVarNumber(totalLength);
   totalLength += block.prependVarNumber(tlv::nfd::FibEntry);
-
   return totalLength;
 }
 
@@ -208,9 +199,8 @@ FibEntry::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag
 const Block&
 FibEntry::wireEncode() const
 {
-  if (m_wire.hasWire()) {
+  if (m_wire.hasWire())
     return m_wire;
-  }
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
@@ -219,49 +209,76 @@ FibEntry::wireEncode() const
   wireEncode(buffer);
 
   m_wire = buffer.block();
-
   return m_wire;
 }
 
 void
-FibEntry::wireDecode(const Block& wire)
+FibEntry::wireDecode(const Block& block)
 {
-  m_prefix.clear();
-  m_nextHopRecords.clear();
-
-  m_wire = wire;
-
-  if (m_wire.type() != tlv::nfd::FibEntry) {
-    std::stringstream error;
-    error << "Requested decoding of FibEntry, but Block is of a different type: #"
-          << m_wire.type();
-    BOOST_THROW_EXCEPTION(Error(error.str()));
+  if (block.type() != tlv::nfd::FibEntry) {
+    BOOST_THROW_EXCEPTION(Error("expecting FibEntry, but Block has type " + to_string(block.type())));
   }
-
+  m_wire = block;
   m_wire.parse();
-
   Block::element_const_iterator val = m_wire.elements_begin();
+
   if (val == m_wire.elements_end()) {
-    BOOST_THROW_EXCEPTION(Error("Unexpected end of FibEntry"));
+    BOOST_THROW_EXCEPTION(Error("unexpected end of FibEntry"));
   }
   else if (val->type() != tlv::Name) {
-    std::stringstream error;
-    error << "Expected Name, but Block is of a different type: #"
-          << val->type();
-    BOOST_THROW_EXCEPTION(Error(error.str()));
+    BOOST_THROW_EXCEPTION(Error("expecting Name, but Block has type " + to_string(val->type())));
   }
   m_prefix.wireDecode(*val);
   ++val;
 
+  m_nextHopRecords.clear();
   for (; val != m_wire.elements_end(); ++val) {
     if (val->type() != tlv::nfd::NextHopRecord) {
-      std::stringstream error;
-      error << "Expected NextHopRecords, but Block is of a different type: #"
-            << val->type();
-      BOOST_THROW_EXCEPTION(Error(error.str()));
+      BOOST_THROW_EXCEPTION(Error("expecting NextHopRecord, but Block has type " + to_string(val->type())));
     }
-    m_nextHopRecords.push_back(NextHopRecord(*val));
+    m_nextHopRecords.emplace_back(*val);
   }
+}
+
+bool
+operator==(const FibEntry& a, const FibEntry& b)
+{
+  const auto& aNextHops = a.getNextHopRecords();
+  const auto& bNextHops = b.getNextHopRecords();
+
+  if (a.getPrefix() != b.getPrefix() ||
+      aNextHops.size() != bNextHops.size())
+    return false;
+
+  std::vector<bool> matched(bNextHops.size(), false);
+  return std::all_of(aNextHops.begin(), aNextHops.end(),
+                     [&] (const NextHopRecord& nh) {
+                       for (size_t i = 0; i < bNextHops.size(); ++i) {
+                         if (!matched[i] && bNextHops[i] == nh) {
+                           matched[i] = true;
+                           return true;
+                         }
+                       }
+                       return false;
+                     });
+}
+
+std::ostream&
+operator<<(std::ostream& os, const FibEntry& entry)
+{
+  os << "FibEntry(Prefix: " << entry.getPrefix() << ",\n"
+     << "         NextHops: [";
+
+  bool first = true;
+  for (const auto& nh : entry.getNextHopRecords()) {
+    if (!first)
+      os << ",\n                    ";
+    first = false;
+    os << nh;
+  }
+  os << "]\n";
+
+  return os << "         )";
 }
 
 } // namespace nfd
