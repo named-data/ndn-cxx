@@ -30,6 +30,9 @@
 #include "boost-test.hpp"
 
 #include <stdio.h>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 namespace ndn {
 namespace tests {
@@ -563,6 +566,33 @@ BOOST_AUTO_TEST_CASE(LargeDelayBetweenFaceConstructorAndProcessEvents) // Bug #2
   ::sleep(5); // simulate setup workload
 
   BOOST_CHECK_NO_THROW(face.processEvents(time::seconds(1)));
+}
+
+BOOST_AUTO_TEST_CASE(ProcessEventsBlocksForeverWhenNothingScheduled) // Bug #3957
+{
+  ndn::Face face;
+  std::mutex m;
+  std::condition_variable cv;
+  bool processEventsFinished = false;
+
+  std::thread faceThread([&] {
+      face.processEvents();
+
+      processEventsFinished = true;
+      std::lock_guard<std::mutex> lk(m);
+      cv.notify_one();
+    });
+
+  {
+    std::unique_lock<std::mutex> lk(m);
+    cv.wait_for(lk, std::chrono::seconds(5), [&] { return processEventsFinished; });
+  }
+
+  BOOST_CHECK_EQUAL(processEventsFinished, true);
+  if (!processEventsFinished) {
+    face.shutdown();
+  }
+  faceThread.join();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
