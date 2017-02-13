@@ -84,6 +84,7 @@ BOOST_AUTO_TEST_CASE(Encode)
 BOOST_AUTO_TEST_CASE(Equality)
 {
   FaceQueryFilter filter1, filter2;
+  BOOST_CHECK_EQUAL(filter1.empty(), true);
   BOOST_CHECK_EQUAL(filter1, filter2);
 
   filter1.setFaceId(100)
@@ -93,6 +94,7 @@ BOOST_AUTO_TEST_CASE(Equality)
          .setFaceScope(FACE_SCOPE_LOCAL)
          .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
          .setLinkType(LINK_TYPE_MULTI_ACCESS);
+  BOOST_CHECK_EQUAL(filter1.empty(), false);
   BOOST_CHECK_NE(filter1, filter2);
 
   filter2 = filter1;

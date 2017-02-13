@@ -33,16 +33,7 @@ BOOST_CONCEPT_ASSERT((WireDecodable<FaceQueryFilter>));
 static_assert(std::is_base_of<tlv::Error, FaceQueryFilter::Error>::value,
               "FaceQueryFilter::Error must inherit from tlv::Error");
 
-FaceQueryFilter::FaceQueryFilter()
-  : m_hasFaceId(false)
-  , m_hasUriScheme(false)
-  , m_hasRemoteUri(false)
-  , m_hasLocalUri(false)
-  , m_hasFaceScope(false)
-  , m_hasFacePersistency(false)
-  , m_hasLinkType(false)
-{
-}
+FaceQueryFilter::FaceQueryFilter() = default;
 
 FaceQueryFilter::FaceQueryFilter(const Block& block)
 {
@@ -55,39 +46,39 @@ FaceQueryFilter::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
-  if (m_hasLinkType) {
+  if (m_linkType) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::LinkType, m_linkType);
+                   tlv::nfd::LinkType, *m_linkType);
   }
 
-  if (m_hasFacePersistency) {
+  if (m_facePersistency) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::FacePersistency, m_facePersistency);
+                   tlv::nfd::FacePersistency, *m_facePersistency);
   }
 
-  if (m_hasFaceScope) {
+  if (m_faceScope) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::FaceScope, m_faceScope);
+                   tlv::nfd::FaceScope, *m_faceScope);
   }
 
-  if (m_hasLocalUri) {
+  if (hasLocalUri()) {
     totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                   reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
+                   reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
   }
 
-  if (m_hasRemoteUri) {
+  if (hasRemoteUri()) {
     totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
-                   reinterpret_cast<const uint8_t*>(m_remoteUri.c_str()), m_remoteUri.size());
+                   reinterpret_cast<const uint8_t*>(m_remoteUri.data()), m_remoteUri.size());
   }
 
-  if (m_hasUriScheme) {
+  if (hasUriScheme()) {
     totalLength += encoder.prependByteArrayBlock(tlv::nfd::UriScheme,
-                   reinterpret_cast<const uint8_t*>(m_uriScheme.c_str()), m_uriScheme.size());
+                   reinterpret_cast<const uint8_t*>(m_uriScheme.data()), m_uriScheme.size());
   }
 
-  if (m_hasFaceId) {
+  if (m_faceId) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::FaceId, m_faceId);
+                   tlv::nfd::FaceId, *m_faceId);
   }
 
   totalLength += encoder.prependVarNumber(totalLength);
@@ -120,7 +111,7 @@ FaceQueryFilter::wireEncode() const
 void
 FaceQueryFilter::wireDecode(const Block& block)
 {
-  //all fields are optional
+  // all fields are optional
   if (block.type() != tlv::nfd::FaceQueryFilter) {
     BOOST_THROW_EXCEPTION(Error("expecting FaceQueryFilter block"));
   }
@@ -131,67 +122,71 @@ FaceQueryFilter::wireDecode(const Block& block)
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
     m_faceId = readNonNegativeInteger(*val);
-    m_hasFaceId = true;
     ++val;
   }
   else {
-    m_hasFaceId = false;
+    m_faceId = nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::UriScheme) {
     m_uriScheme.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-    m_hasUriScheme = true;
     ++val;
   }
   else {
-    m_hasUriScheme = false;
+    m_uriScheme.clear();
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
     m_remoteUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-    m_hasRemoteUri = true;
     ++val;
   }
   else {
-    m_hasRemoteUri = false;
+    m_remoteUri.clear();
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
     m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
-    m_hasLocalUri = true;
     ++val;
   }
   else {
-    m_hasLocalUri = false;
+    m_localUri.clear();
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
     m_faceScope = static_cast<FaceScope>(readNonNegativeInteger(*val));
-    m_hasFaceScope = true;
     ++val;
   }
   else {
-    m_hasFaceScope = false;
+    m_faceScope = nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
     m_facePersistency = static_cast<FacePersistency>(readNonNegativeInteger(*val));
-    m_hasFacePersistency = true;
     ++val;
   }
   else {
-    m_hasFacePersistency = false;
+    m_facePersistency = nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
     m_linkType = static_cast<LinkType>(readNonNegativeInteger(*val));
-    m_hasLinkType = true;
     ++val;
   }
   else {
-    m_hasLinkType = false;
+    m_linkType = nullopt;
   }
+}
 
+bool
+FaceQueryFilter::empty() const
+{
+  return !this->hasFaceId() &&
+         !this->hasUriScheme() &&
+         !this->hasRemoteUri() &&
+         !this->hasLocalUri() &&
+         !this->hasFaceScope() &&
+         !this->hasFacePersistency() &&
+         !this->hasLinkType();
 }
 
 FaceQueryFilter&
@@ -199,7 +194,6 @@ FaceQueryFilter::setFaceId(uint64_t faceId)
 {
   m_wire.reset();
   m_faceId = faceId;
-  m_hasFaceId = true;
   return *this;
 }
 
@@ -207,7 +201,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetFaceId()
 {
   m_wire.reset();
-  m_hasFaceId = false;
+  m_faceId = nullopt;
   return *this;
 }
 
@@ -216,16 +210,13 @@ FaceQueryFilter::setUriScheme(const std::string& uriScheme)
 {
   m_wire.reset();
   m_uriScheme = uriScheme;
-  m_hasUriScheme = true;
   return *this;
 }
 
 FaceQueryFilter&
 FaceQueryFilter::unsetUriScheme()
 {
-  m_wire.reset();
-  m_hasUriScheme = false;
-  return *this;
+  return this->setUriScheme("");
 }
 
 FaceQueryFilter&
@@ -233,16 +224,13 @@ FaceQueryFilter::setRemoteUri(const std::string& remoteUri)
 {
   m_wire.reset();
   m_remoteUri = remoteUri;
-  m_hasRemoteUri = true;
   return *this;
 }
 
 FaceQueryFilter&
 FaceQueryFilter::unsetRemoteUri()
 {
-  m_wire.reset();
-  m_hasRemoteUri = false;
-  return *this;
+  return this->setRemoteUri("");
 }
 
 FaceQueryFilter&
@@ -250,16 +238,13 @@ FaceQueryFilter::setLocalUri(const std::string& localUri)
 {
   m_wire.reset();
   m_localUri = localUri;
-  m_hasLocalUri = true;
   return *this;
 }
 
 FaceQueryFilter&
 FaceQueryFilter::unsetLocalUri()
 {
-  m_wire.reset();
-  m_hasLocalUri = false;
-  return *this;
+  return this->setLocalUri("");
 }
 
 FaceQueryFilter&
@@ -267,7 +252,6 @@ FaceQueryFilter::setFaceScope(FaceScope faceScope)
 {
   m_wire.reset();
   m_faceScope = faceScope;
-  m_hasFaceScope = true;
   return *this;
 }
 
@@ -275,7 +259,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetFaceScope()
 {
   m_wire.reset();
-  m_hasFaceScope = false;
+  m_faceScope = nullopt;
   return *this;
 }
 
@@ -284,7 +268,6 @@ FaceQueryFilter::setFacePersistency(FacePersistency facePersistency)
 {
   m_wire.reset();
   m_facePersistency = facePersistency;
-  m_hasFacePersistency = true;
   return *this;
 }
 
@@ -292,7 +275,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetFacePersistency()
 {
   m_wire.reset();
-  m_hasFacePersistency = false;
+  m_facePersistency = nullopt;
   return *this;
 }
 
@@ -301,7 +284,6 @@ FaceQueryFilter::setLinkType(LinkType linkType)
 {
   m_wire.reset();
   m_linkType = linkType;
-  m_hasLinkType = true;
   return *this;
 }
 
@@ -309,7 +291,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetLinkType()
 {
   m_wire.reset();
-  m_hasLinkType = false;
+  m_linkType = nullopt;
   return *this;
 }
 

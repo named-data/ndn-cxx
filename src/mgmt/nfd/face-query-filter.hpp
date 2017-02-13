@@ -67,19 +67,23 @@ public:
   void
   wireDecode(const Block& wire);
 
-public: // getters & setters
+  /** \return whether the filter is empty
+   */
+  bool
+  empty() const;
 
+public: // getters & setters
   bool
   hasFaceId() const
   {
-    return m_hasFaceId;
+    return !!m_faceId;
   }
 
   uint64_t
   getFaceId() const
   {
     BOOST_ASSERT(this->hasFaceId());
-    return m_faceId;
+    return *m_faceId;
   }
 
   FaceQueryFilter&
@@ -91,7 +95,7 @@ public: // getters & setters
   bool
   hasUriScheme() const
   {
-    return m_hasUriScheme;
+    return !m_uriScheme.empty();
   }
 
   const std::string&
@@ -110,7 +114,7 @@ public: // getters & setters
   bool
   hasRemoteUri() const
   {
-    return m_hasRemoteUri;
+    return !m_remoteUri.empty();
   }
 
   const std::string&
@@ -129,7 +133,7 @@ public: // getters & setters
   bool
   hasLocalUri() const
   {
-    return m_hasLocalUri;
+    return !m_localUri.empty();
   }
 
   const std::string&
@@ -148,14 +152,14 @@ public: // getters & setters
   bool
   hasFaceScope() const
   {
-    return m_hasFaceScope;
+    return !!m_faceScope;
   }
 
   FaceScope
   getFaceScope() const
   {
     BOOST_ASSERT(this->hasFaceScope());
-    return m_faceScope;
+    return *m_faceScope;
   }
 
   FaceQueryFilter&
@@ -167,14 +171,14 @@ public: // getters & setters
   bool
   hasFacePersistency() const
   {
-    return m_hasFacePersistency;
+    return !!m_facePersistency;
   }
 
   FacePersistency
   getFacePersistency() const
   {
     BOOST_ASSERT(this->hasFacePersistency());
-    return m_facePersistency;
+    return *m_facePersistency;
   }
 
   FaceQueryFilter&
@@ -186,14 +190,14 @@ public: // getters & setters
   bool
   hasLinkType() const
   {
-    return m_hasLinkType;
+    return !!m_linkType;
   }
 
   LinkType
   getLinkType() const
   {
     BOOST_ASSERT(this->hasLinkType());
-    return m_linkType;
+    return *m_linkType;
   }
 
   FaceQueryFilter&
@@ -203,21 +207,13 @@ public: // getters & setters
   unsetLinkType();
 
 private:
-  uint64_t m_faceId;
+  optional<uint64_t> m_faceId;
   std::string m_uriScheme;
   std::string m_remoteUri;
   std::string m_localUri;
-  FaceScope m_faceScope;
-  FacePersistency m_facePersistency;
-  LinkType m_linkType;
-
-  bool m_hasFaceId;
-  bool m_hasUriScheme;
-  bool m_hasRemoteUri;
-  bool m_hasLocalUri;
-  bool m_hasFaceScope;
-  bool m_hasFacePersistency;
-  bool m_hasLinkType;
+  optional<FaceScope> m_faceScope;
+  optional<FacePersistency> m_facePersistency;
+  optional<LinkType> m_linkType;
 
   mutable Block m_wire;
 };
