@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,10 +29,10 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief implements getters to each RIB flag
+ * \brief defines getters for each route inheritance flag
  *
- * \tparam T class containing a RibFlags field and implements
- *           `RibFlags getFlags() const` method
+ * \tparam T class containing a RouteFlags field and implementing
+ *           a `RouteFlags getFlags() const` member function
  */
 template<typename T>
 class RibFlagsTraits
@@ -49,6 +49,9 @@ public:
   {
     return static_cast<const T*>(this)->getFlags() & ROUTE_FLAG_CAPTURE;
   }
+
+protected:
+  RibFlagsTraits() = default;
 };
 
 } // namespace nfd

@@ -23,30 +23,21 @@
 #define NDN_MGMT_NFD_RIB_ENTRY_HPP
 
 #include "rib-flags.hpp"
+#include "../../encoding/block.hpp"
 #include "../../name.hpp"
 #include "../../util/time.hpp"
-
-#include <list>
 
 namespace ndn {
 namespace nfd {
 
 /**
- * @ingroup management
- *
- * @brief Data abstraction for Route
+ * \ingroup management
+ * \brief represents a route in a RibEntry
  *
  * A route indicates the availability of content via a certain face and
  * provides meta-information about the face.
  *
- *     Route := ROUTE-TYPE TLV-LENGTH
- *                FaceId
- *                Origin
- *                Cost
- *                Flags
- *                ExpirationPeriod?
- *
- * @sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Route
  */
 class Route : public RibFlagsTraits<Route>
 {
@@ -108,22 +99,23 @@ public:
   Route&
   setFlags(uint64_t flags);
 
-  static const time::milliseconds INFINITE_EXPIRATION_PERIOD;
+  bool
+  hasExpirationPeriod() const
+  {
+    return !!m_expirationPeriod;
+  }
 
   time::milliseconds
   getExpirationPeriod() const
   {
-    return m_expirationPeriod;
+    return m_expirationPeriod ? *m_expirationPeriod : time::milliseconds::max();
   }
 
   Route&
   setExpirationPeriod(time::milliseconds expirationPeriod);
 
-  bool
-  hasInfiniteExpirationPeriod() const
-  {
-    return m_hasInfiniteExpirationPeriod;
-  }
+  Route&
+  unsetExpirationPeriod();
 
   template<encoding::Tag TAG>
   size_t
@@ -133,34 +125,38 @@ public:
   wireEncode() const;
 
   void
-  wireDecode(const Block& wire);
+  wireDecode(const Block& block);
 
 private:
   uint64_t m_faceId;
   uint64_t m_origin;
   uint64_t m_cost;
   uint64_t m_flags;
-  time::milliseconds m_expirationPeriod;
-  bool m_hasInfiniteExpirationPeriod;
+  optional<time::milliseconds> m_expirationPeriod;
 
   mutable Block m_wire;
 };
 
+bool
+operator==(const Route& a, const Route& b);
+
+inline bool
+operator!=(const Route& a, const Route& b)
+{
+  return !(a == b);
+}
+
 std::ostream&
 operator<<(std::ostream& os, const Route& route);
 
+
 /**
- * @ingroup management
+ * \ingroup management
+ * \brief represents an item in NFD RIB dataset
  *
- * @brief Data abstraction for RIB entry
+ * A RIB entry contains one or more routes for a name prefix
  *
- * A RIB entry contains one or more routes for the name prefix
- *
- *     RibEntry := RIB-ENTRY-TYPE TLV-LENGTH
- *                Name
- *                Route+
- *
- * @sa http://redmine.named-data.net/projects/nfd/wiki/RibMgmt
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#RIB-Dataset
  */
 class RibEntry
 {
@@ -174,9 +170,6 @@ public:
     {
     }
   };
-
-  typedef std::list<Route> RouteList;
-  typedef RouteList::const_iterator iterator;
 
   RibEntry();
 
@@ -192,10 +185,19 @@ public:
   RibEntry&
   setName(const Name& prefix);
 
-  const std::list<Route>&
+  const std::vector<Route>&
   getRoutes() const
   {
     return m_routes;
+  }
+
+  template<typename InputIt>
+  RibEntry&
+  setRoutes(InputIt first, InputIt last)
+  {
+    m_routes.assign(first, last);
+    m_wire.reset();
+    return *this;
   }
 
   RibEntry&
@@ -212,31 +214,22 @@ public:
   wireEncode() const;
 
   void
-  wireDecode(const Block& wire);
-
-  iterator
-  begin() const;
-
-  iterator
-  end() const;
+  wireDecode(const Block& block);
 
 private:
   Name m_prefix;
-  RouteList m_routes;
+  std::vector<Route> m_routes;
 
   mutable Block m_wire;
 };
 
-inline RibEntry::iterator
-RibEntry::begin() const
-{
-  return m_routes.begin();
-}
+bool
+operator==(const RibEntry& a, const RibEntry& b);
 
-inline RibEntry::iterator
-RibEntry::end() const
+inline bool
+operator!=(const RibEntry& a, const RibEntry& b)
 {
-  return m_routes.end();
+  return !(a == b);
 }
 
 std::ostream&

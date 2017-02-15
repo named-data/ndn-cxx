@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,9 +20,9 @@
  */
 
 #include "mgmt/nfd/rib-entry.hpp"
-#include "mgmt/nfd/control-command.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
@@ -32,310 +32,182 @@ BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(Nfd)
 BOOST_AUTO_TEST_SUITE(TestRibEntry)
 
-const uint8_t RouteData[] =
+static Route
+makeRoute()
 {
-  0x81, 0x10, 0x69, 0x01, 0x01, 0x6f, 0x01, 0x80, 0x6a, 0x01, 0x64, 0x6c, 0x01, 0x02,
-  0x6d, 0x02, 0x27, 0x10
-};
+  return Route()
+      .setFaceId(1)
+      .setOrigin(128)
+      .setCost(100)
+      .setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
+}
 
-const uint8_t RouteInfiniteExpirationPeriod[] =
+static RibEntry
+makeRibEntry()
 {
-  0x81, 0x0C, 0x69, 0x01, 0x01, 0x6f, 0x01, 0x80, 0x6a, 0x01, 0x64, 0x6c, 0x01, 0x02
-};
-
-const uint8_t RibEntryData[] =
-{
-  // Header + Name
-  0x80, 0x34, 0x07, 0x0e, 0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f,
-  0x08, 0x05, 0x77, 0x6f, 0x72, 0x6c, 0x64,
-  // Route
-  0x81, 0x10, 0x69, 0x01, 0x01, 0x6f, 0x01, 0x80, 0x6a, 0x01, 0x64, 0x6c, 0x01, 0x02,
-  0x6d, 0x02, 0x27, 0x10,
-  // Route
-  0x81, 0x10, 0x69, 0x01, 0x02, 0x6f, 0x01, 0x00, 0x6a, 0x01, 0x20, 0x6c, 0x01, 0x01,
-  0x6d, 0x02, 0x13, 0x88
-};
-
-const uint8_t RibEntryInfiniteExpirationPeriod[] =
-{
-  // Header + Name
-  0x80, 0x30, 0x07, 0x0e, 0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f,
-  0x08, 0x05, 0x77, 0x6f, 0x72, 0x6c, 0x64,
-  // Route
-  0x81, 0x10, 0x69, 0x01, 0x01, 0x6f, 0x01, 0x80, 0x6a, 0x01, 0x64, 0x6c, 0x01, 0x02,
-  0x6d, 0x02, 0x27, 0x10,
-  // Route with no ExpirationPeriod
-  0x81, 0x0C, 0x69, 0x01, 0x02, 0x6f, 0x01, 0x00, 0x6a, 0x01, 0x20, 0x6c, 0x01, 0x01,
-};
+  return RibEntry()
+      .setName("/hello/world")
+      .addRoute(makeRoute()
+                .setExpirationPeriod(time::seconds(10)));
+}
 
 BOOST_AUTO_TEST_CASE(RouteEncode)
 {
-  Route route;
-  route.setFaceId(1);
-  route.setOrigin(128);
-  route.setCost(100);
-  route.setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
-  route.setExpirationPeriod(time::milliseconds(10000));
+  Route route1 = makeRoute();
+  route1.setExpirationPeriod(time::seconds(10));
+  const Block& wire = route1.wireEncode();
 
-  const Block& wire = route.wireEncode();
+  static const uint8_t expected[] = {
+    0x81, 0x10, 0x69, 0x01, 0x01, 0x6f, 0x01, 0x80, 0x6a, 0x01, 0x64, 0x6c, 0x01, 0x02,
+    0x6d, 0x02, 0x27, 0x10
+  };
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                wire.begin(), wire.end());
 
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(RouteData,
-                                  RouteData + sizeof(RouteData),
-                                  wire.begin(), wire.end());
+  Route route2(wire);
+  BOOST_CHECK_EQUAL(route1, route2);
 }
 
-BOOST_AUTO_TEST_CASE(RouteDecode)
+BOOST_AUTO_TEST_CASE(RouteNoExpirationPeriodEncode)
 {
-  Route route;
+  Route route1 = makeRoute();
+  const Block& wire = route1.wireEncode();
 
-  BOOST_REQUIRE_NO_THROW(route.wireDecode(Block(RouteData, sizeof(RouteData))));
+  static const uint8_t expected[] = {
+    0x81, 0x0C, 0x69, 0x01, 0x01, 0x6f, 0x01, 0x80, 0x6a, 0x01, 0x64, 0x6c, 0x01, 0x02
+  };
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                wire.begin(), wire.end());
 
-  BOOST_REQUIRE_EQUAL(route.getFaceId(), 1);
-  BOOST_REQUIRE_EQUAL(route.getOrigin(), 128);
-  BOOST_REQUIRE_EQUAL(route.getCost(), 100);
-  BOOST_REQUIRE_EQUAL(route.getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CAPTURE));
-  BOOST_REQUIRE_EQUAL(route.getExpirationPeriod(), time::milliseconds(10000));
-  BOOST_REQUIRE_EQUAL(route.hasInfiniteExpirationPeriod(), false);
+  Route route2(wire);
+  BOOST_CHECK_EQUAL(route1, route2);
 }
 
-BOOST_AUTO_TEST_CASE(RouteInfiniteExpirationPeriodEncode)
+BOOST_AUTO_TEST_CASE(RouteEquality)
 {
-  Route route;
-  route.setFaceId(1);
-  route.setOrigin(128);
-  route.setCost(100);
-  route.setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
-  route.setExpirationPeriod(Route::INFINITE_EXPIRATION_PERIOD);
+  Route route1, route2;
 
-  const Block& wire = route.wireEncode();
+  route1 = makeRoute();
+  route2 = route1;
+  BOOST_CHECK_EQUAL(route1, route2);
 
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(RouteInfiniteExpirationPeriod,
-                                  RouteInfiniteExpirationPeriod + sizeof(RouteInfiniteExpirationPeriod),
-                                  wire.begin(), wire.end());
-}
+  route2.setFaceId(42);
+  BOOST_CHECK_NE(route1, route2);
 
-BOOST_AUTO_TEST_CASE(RouteInfiniteExpirationPeriodDecode)
-{
-  Route route;
-
-  BOOST_REQUIRE_NO_THROW(route.wireDecode(Block(RouteInfiniteExpirationPeriod,
-                                                sizeof(RouteInfiniteExpirationPeriod))));
-
-  BOOST_REQUIRE_EQUAL(route.getFaceId(), 1);
-  BOOST_REQUIRE_EQUAL(route.getOrigin(), 128);
-  BOOST_REQUIRE_EQUAL(route.getCost(), 100);
-  BOOST_REQUIRE_EQUAL(route.getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CAPTURE));
-  BOOST_REQUIRE_EQUAL(route.getExpirationPeriod(), Route::INFINITE_EXPIRATION_PERIOD);
-  BOOST_REQUIRE_EQUAL(route.hasInfiniteExpirationPeriod(), true);
-}
-
-BOOST_AUTO_TEST_CASE(RouteOutputStream)
-{
-  Route route;
-  route.setFaceId(1);
-  route.setOrigin(128);
-  route.setCost(100);
-  route.setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
-  route.setExpirationPeriod(time::milliseconds(10000));
-
-  std::ostringstream os;
-  os << route;
-
-  BOOST_CHECK_EQUAL(os.str(), "Route(FaceId: 1, Origin: 128, Cost: 100, "
-                              "Flags: 2, ExpirationPeriod: 10000 milliseconds)");
+  route2 = route1;
+  route2.setExpirationPeriod(time::minutes(1));
+  BOOST_CHECK_NE(route1, route2);
 }
 
 BOOST_AUTO_TEST_CASE(RibEntryEncode)
 {
-  RibEntry entry;
-  entry.setName("/hello/world");
+  RibEntry entry1 = makeRibEntry();
+  entry1.addRoute(Route()
+                  .setFaceId(2)
+                  .setOrigin(0)
+                  .setCost(32)
+                  .setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT)
+                  .setExpirationPeriod(time::seconds(5)));
+  const Block& wire = entry1.wireEncode();
 
-  Route route1;
-  route1.setFaceId(1);
-  route1.setOrigin(128);
-  route1.setCost(100);
-  route1.setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
-  route1.setExpirationPeriod(time::milliseconds(10000));
-  entry.addRoute(route1);
-
-  Route route2;
-  route2.setFaceId(2);
-  route2.setOrigin(0);
-  route2.setCost(32);
-  route2.setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT);
-  route2.setExpirationPeriod(time::milliseconds(5000));
-  entry.addRoute(route2);
-
-  const Block& wire = entry.wireEncode();
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(RibEntryData,
-                                RibEntryData + sizeof(RibEntryData),
+  static const uint8_t expected[] = {
+    0x80, 0x34, 0x07, 0x0e, 0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x08, 0x05, 0x77,
+    0x6f, 0x72, 0x6c, 0x64, 0x81, 0x10, 0x69, 0x01, 0x01, 0x6f, 0x01, 0x80, 0x6a, 0x01,
+    0x64, 0x6c, 0x01, 0x02, 0x6d, 0x02, 0x27, 0x10, 0x81, 0x10, 0x69, 0x01, 0x02, 0x6f,
+    0x01, 0x00, 0x6a, 0x01, 0x20, 0x6c, 0x01, 0x01, 0x6d, 0x02, 0x13, 0x88
+  };
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
+
+  RibEntry entry2(wire);
+  BOOST_CHECK_EQUAL(entry1, entry2);
 }
 
-BOOST_AUTO_TEST_CASE(RibEntryDecode)
-{
-  RibEntry entry;
-  BOOST_REQUIRE_NO_THROW(entry.wireDecode(Block(RibEntryData,
-                                          sizeof(RibEntryData))));
-
-  BOOST_CHECK_EQUAL(entry.getName(), "/hello/world");
-  BOOST_CHECK_EQUAL(entry.getRoutes().size(), 2);
-
-  std::list<Route> routes = entry.getRoutes();
-
-  std::list<Route>::const_iterator it = routes.begin();
-  BOOST_CHECK_EQUAL(it->getFaceId(), 1);
-  BOOST_CHECK_EQUAL(it->getOrigin(), 128);
-  BOOST_CHECK_EQUAL(it->getCost(), 100);
-  BOOST_CHECK_EQUAL(it->getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CAPTURE));
-  BOOST_CHECK_EQUAL(it->getExpirationPeriod(), time::milliseconds(10000));
-  BOOST_CHECK_EQUAL(it->hasInfiniteExpirationPeriod(), false);
-
-  ++it;
-  BOOST_CHECK_EQUAL(it->getFaceId(), 2);
-  BOOST_CHECK_EQUAL(it->getOrigin(), 0);
-  BOOST_CHECK_EQUAL(it->getCost(), 32);
-  BOOST_CHECK_EQUAL(it->getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT));
-  BOOST_CHECK_EQUAL(it->getExpirationPeriod(), time::milliseconds(5000));
-  BOOST_CHECK_EQUAL(it->hasInfiniteExpirationPeriod(), false);
-}
-
-BOOST_AUTO_TEST_CASE(RibEntryInfiniteExpirationPeriodEncode)
+BOOST_AUTO_TEST_CASE(RibEntryClearRoutes)
 {
   RibEntry entry;
   entry.setName("/hello/world");
+  BOOST_CHECK_EQUAL(entry.getRoutes().size(), 0);
 
   Route route1;
-  route1.setFaceId(1);
-  route1.setOrigin(128);
-  route1.setCost(100);
-  route1.setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
-  route1.setExpirationPeriod(time::milliseconds(10000));
-  entry.addRoute(route1);
-
-  Route route2;
-  route2.setFaceId(2);
-  route2.setOrigin(0);
-  route2.setCost(32);
-  route2.setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT);
-  route2.setExpirationPeriod(Route::INFINITE_EXPIRATION_PERIOD);
-  entry.addRoute(route2);
-
-  const Block& wire = entry.wireEncode();
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(RibEntryInfiniteExpirationPeriod,
-                                RibEntryInfiniteExpirationPeriod +
-                                sizeof(RibEntryInfiniteExpirationPeriod),
-                                wire.begin(), wire.end());
-}
-
-BOOST_AUTO_TEST_CASE(RibEntryInfiniteExpirationPeriodDecode)
-{
-  RibEntry entry;
-  BOOST_REQUIRE_NO_THROW(entry.wireDecode(Block(RibEntryInfiniteExpirationPeriod,
-                                          sizeof(RibEntryInfiniteExpirationPeriod))));
-
-  BOOST_CHECK_EQUAL(entry.getName(), "/hello/world");
-  BOOST_CHECK_EQUAL(entry.getRoutes().size(), 2);
-
-  std::list<Route> routes = entry.getRoutes();
-
-  std::list<Route>::const_iterator it = routes.begin();
-  BOOST_CHECK_EQUAL(it->getFaceId(), 1);
-  BOOST_CHECK_EQUAL(it->getOrigin(), 128);
-  BOOST_CHECK_EQUAL(it->getCost(), 100);
-  BOOST_CHECK_EQUAL(it->getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CAPTURE));
-  BOOST_CHECK_EQUAL(it->getExpirationPeriod(), time::milliseconds(10000));
-  BOOST_CHECK_EQUAL(it->hasInfiniteExpirationPeriod(), false);
-
-  ++it;
-  BOOST_CHECK_EQUAL(it->getFaceId(), 2);
-  BOOST_CHECK_EQUAL(it->getOrigin(), 0);
-  BOOST_CHECK_EQUAL(it->getCost(), 32);
-  BOOST_CHECK_EQUAL(it->getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT));
-  BOOST_CHECK_EQUAL(it->getExpirationPeriod(), Route::INFINITE_EXPIRATION_PERIOD);
-  BOOST_CHECK_EQUAL(it->hasInfiniteExpirationPeriod(), true);
-}
-
-BOOST_AUTO_TEST_CASE(RibEntryClear)
-{
-  RibEntry entry;
-  entry.setName("/hello/world");
-
-  Route route1;
-  route1.setFaceId(1);
-  route1.setOrigin(128);
-  route1.setCost(100);
-  route1.setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
-  route1.setExpirationPeriod(time::milliseconds(10000));
+  route1.setFaceId(42);
   entry.addRoute(route1);
   BOOST_REQUIRE_EQUAL(entry.getRoutes().size(), 1);
-
-  std::list<Route> routes = entry.getRoutes();
-
-  std::list<Route>::const_iterator it = routes.begin();
-  BOOST_CHECK_EQUAL(it->getFaceId(), 1);
-  BOOST_CHECK_EQUAL(it->getOrigin(), 128);
-  BOOST_CHECK_EQUAL(it->getCost(), 100);
-  BOOST_CHECK_EQUAL(it->getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CAPTURE));
-  BOOST_CHECK_EQUAL(it->getExpirationPeriod(), time::milliseconds(10000));
-  BOOST_CHECK_EQUAL(it->hasInfiniteExpirationPeriod(), false);
+  BOOST_CHECK_EQUAL(entry.getRoutes().front(), route1);
 
   entry.clearRoutes();
   BOOST_CHECK_EQUAL(entry.getRoutes().size(), 0);
-
-  Route route2;
-  route2.setFaceId(2);
-  route2.setOrigin(0);
-  route2.setCost(32);
-  route2.setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT);
-  route2.setExpirationPeriod(Route::INFINITE_EXPIRATION_PERIOD);
-  entry.addRoute(route2);
-  BOOST_REQUIRE_EQUAL(entry.getRoutes().size(), 1);
-
-  routes = entry.getRoutes();
-
-  it = routes.begin();
-  BOOST_CHECK_EQUAL(it->getFaceId(), 2);
-  BOOST_CHECK_EQUAL(it->getOrigin(), 0);
-  BOOST_CHECK_EQUAL(it->getCost(), 32);
-  BOOST_CHECK_EQUAL(it->getFlags(), static_cast<uint64_t>(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT));
-  BOOST_CHECK_EQUAL(it->getExpirationPeriod(), Route::INFINITE_EXPIRATION_PERIOD);
-  BOOST_CHECK_EQUAL(it->hasInfiniteExpirationPeriod(), true);
 }
 
-BOOST_AUTO_TEST_CASE(RibEntryOutputStream)
+BOOST_AUTO_TEST_CASE(RibEntryEquality)
 {
+  RibEntry entry1, entry2;
+  BOOST_CHECK_EQUAL(entry1, entry2);
+
+  entry1 = entry2 = makeRibEntry();
+  BOOST_CHECK_EQUAL(entry1, entry2);
+  BOOST_CHECK_EQUAL(entry2, entry1);
+
+  entry2.setName("/different/name");
+  BOOST_CHECK_NE(entry1, entry2);
+
+  entry2 = entry1;
+  std::vector<Route> empty;
+  entry2.setRoutes(empty.begin(), empty.end());
+  BOOST_CHECK_NE(entry1, entry2);
+  BOOST_CHECK_NE(entry2, entry1);
+
+  entry2 = entry1;
+  auto r1 = Route()
+            .setFaceId(1)
+            .setCost(1000);
+  entry1.addRoute(r1);
+  BOOST_CHECK_NE(entry1, entry2);
+  BOOST_CHECK_NE(entry2, entry1);
+
+  auto r42 = Route()
+             .setFaceId(42)
+             .setCost(42);
+  entry1.addRoute(r42);
+  entry2.addRoute(r42)
+      .addRoute(r1);
+  BOOST_CHECK_EQUAL(entry1, entry2); // order of Routes is irrelevant
+  BOOST_CHECK_EQUAL(entry2, entry1);
+
+  entry1 = entry2 = makeRibEntry();
+  entry1.addRoute(r1)
+      .addRoute(r42);
+  entry2.addRoute(r42)
+      .addRoute(r42);
+  BOOST_CHECK_NE(entry1, entry2); // match each Route at most once
+  BOOST_CHECK_NE(entry2, entry1);
+}
+
+BOOST_AUTO_TEST_CASE(Print)
+{
+  Route route;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(route),
+                    "Route(FaceId: 0, Origin: 0, Cost: 0, Flags: 0x1, ExpirationPeriod: infinite)");
+
   RibEntry entry;
-  entry.setName("/hello/world");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(entry),
+                    "RibEntry(Prefix: /,\n"
+                    "         Routes: []\n"
+                    "         )");
 
-  Route route1;
-  route1.setFaceId(1);
-  route1.setOrigin(128);
-  route1.setCost(100);
-  route1.setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
-  route1.setExpirationPeriod(time::milliseconds(10000));
-  entry.addRoute(route1);
-
-  Route route2;
-  route2.setFaceId(2);
-  route2.setOrigin(0);
-  route2.setCost(32);
-  route2.setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT);
-  route2.setExpirationPeriod(Route::INFINITE_EXPIRATION_PERIOD);
-  entry.addRoute(route2);
-
-  std::ostringstream os;
-  os << entry;
-
-  BOOST_CHECK_EQUAL(os.str(), "RibEntry{\n"
-                              "  Name: /hello/world\n"
-                              "  Route(FaceId: 1, Origin: 128, Cost: 100, "
-                              "Flags: 2, ExpirationPeriod: 10000 milliseconds)\n"
-                              "  Route(FaceId: 2, Origin: 0, Cost: 32, "
-                              "Flags: 1, ExpirationPeriod: Infinity)\n"
-                              "}");
+  entry = makeRibEntry();
+  entry.addRoute(Route()
+                 .setFaceId(2)
+                 .setOrigin(0)
+                 .setCost(32)
+                 .setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT));
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(entry),
+                    "RibEntry(Prefix: /hello/world,\n"
+                    "         Routes: [Route(FaceId: 1, Origin: 128, Cost: 100, Flags: 0x2, "
+                    "ExpirationPeriod: 10000 milliseconds),\n"
+                    "                  Route(FaceId: 2, Origin: 0, Cost: 32, Flags: 0x1, "
+                    "ExpirationPeriod: infinite)]\n"
+                    "         )");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestRibEntry

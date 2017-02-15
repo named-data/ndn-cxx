@@ -20,34 +20,24 @@
  */
 
 #include "rib-entry.hpp"
-#include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/encoding-buffer.hpp"
+#include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
+
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Route>));
-BOOST_CONCEPT_ASSERT((WireEncodable<Route>));
-BOOST_CONCEPT_ASSERT((WireDecodable<Route>));
-static_assert(std::is_base_of<tlv::Error, Route::Error>::value,
-              "Route::Error must inherit from tlv::Error");
-
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<RibEntry>));
-BOOST_CONCEPT_ASSERT((WireEncodable<RibEntry>));
-BOOST_CONCEPT_ASSERT((WireDecodable<RibEntry>));
-static_assert(std::is_base_of<tlv::Error, RibEntry::Error>::value,
-              "RibEntry::Error must inherit from tlv::Error");
-
-const time::milliseconds Route::INFINITE_EXPIRATION_PERIOD(time::milliseconds::max());
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<Route>));
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<RibEntry>));
 
 Route::Route()
   : m_faceId(INVALID_FACE_ID)
   , m_origin(0)
   , m_cost(0)
   , m_flags(ROUTE_FLAG_CHILD_INHERIT)
-  , m_expirationPeriod(INFINITE_EXPIRATION_PERIOD)
-  , m_hasInfiniteExpirationPeriod(true)
 {
 }
 
@@ -91,8 +81,18 @@ Route::setFlags(uint64_t flags)
 Route&
 Route::setExpirationPeriod(time::milliseconds expirationPeriod)
 {
+  if (expirationPeriod == time::milliseconds::max())
+    return unsetExpirationPeriod();
+
   m_expirationPeriod = expirationPeriod;
-  m_hasInfiniteExpirationPeriod = m_expirationPeriod == INFINITE_EXPIRATION_PERIOD;
+  m_wire.reset();
+  return *this;
+}
+
+Route&
+Route::unsetExpirationPeriod()
+{
+  m_expirationPeriod = nullopt;
   m_wire.reset();
   return *this;
 }
@@ -103,10 +103,9 @@ Route::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
-  // Absence of an ExpirationPeriod signifies non-expiration
-  if (!m_hasInfiniteExpirationPeriod) {
+  if (m_expirationPeriod) {
     totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::ExpirationPeriod,
-                                                  static_cast<uint64_t>(m_expirationPeriod.count()));
+                                                  static_cast<uint64_t>(m_expirationPeriod->count()));
   }
   totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::Flags, m_flags);
   totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::Cost, m_cost);
@@ -141,25 +140,13 @@ Route::wireEncode() const
 }
 
 void
-Route::wireDecode(const Block& wire)
+Route::wireDecode(const Block& block)
 {
-  m_faceId = 0;
-  m_origin = 0;
-  m_cost = 0;
-  m_flags = 0;
-  m_expirationPeriod = time::milliseconds::min();
-
-  m_wire = wire;
-
-  if (m_wire.type() != tlv::nfd::Route) {
-    std::stringstream error;
-    error << "Expected Route Block, but Block is of a different type: #"
-          << m_wire.type();
-    BOOST_THROW_EXCEPTION(Error(error.str()));
+  if (block.type() != tlv::nfd::Route) {
+    BOOST_THROW_EXCEPTION(Error("expecting Route, but Block has type " + to_string(block.type())));
   }
-
+  m_wire = block;
   m_wire.parse();
-
   Block::element_const_iterator val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
@@ -167,7 +154,7 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Missing required FaceId field"));
+    BOOST_THROW_EXCEPTION(Error("missing required FaceId field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Origin) {
@@ -175,7 +162,7 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Missing required Origin field"));
+    BOOST_THROW_EXCEPTION(Error("missing required Origin field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Cost) {
@@ -183,7 +170,7 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Missing required Cost field"));
+    BOOST_THROW_EXCEPTION(Error("missing required Cost field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
@@ -191,17 +178,26 @@ Route::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Missing required Flags field"));
+    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::ExpirationPeriod) {
-    m_expirationPeriod = time::milliseconds(readNonNegativeInteger(*val));
-    m_hasInfiniteExpirationPeriod = false;
+    m_expirationPeriod.emplace(readNonNegativeInteger(*val));
+    ++val;
   }
   else {
-    m_expirationPeriod = INFINITE_EXPIRATION_PERIOD;
-    m_hasInfiniteExpirationPeriod = true;
+    m_expirationPeriod = nullopt;
   }
+}
+
+bool
+operator==(const Route& a, const Route& b)
+{
+  return a.getFaceId() == b.getFaceId() &&
+      a.getOrigin() == b.getOrigin() &&
+      a.getCost() == b.getCost() &&
+      a.getFlags() == b.getFlags() &&
+      a.getExpirationPeriod() == b.getExpirationPeriod();
 }
 
 std::ostream&
@@ -210,19 +206,22 @@ operator<<(std::ostream& os, const Route& route)
   os << "Route("
      << "FaceId: " << route.getFaceId() << ", "
      << "Origin: " << route.getOrigin() << ", "
-     << "Cost: " << route.getCost() << ", "
-     << "Flags: " << route.getFlags() << ", ";
+     << "Cost: " << route.getCost() << ", ";
 
-  if (!route.hasInfiniteExpirationPeriod()) {
+  auto osFlags = os.flags();
+  // std::showbase doesn't work with number 0
+  os << "Flags: 0x" << std::noshowbase << std::noshowpos << std::nouppercase
+     << std::hex << route.getFlags() << ", ";
+  os.flags(osFlags);
+
+  if (route.hasExpirationPeriod()) {
     os << "ExpirationPeriod: " << route.getExpirationPeriod();
   }
   else {
-    os << "ExpirationPeriod: Infinity";
+    os << "ExpirationPeriod: infinite";
   }
 
-  os << ")";
-
-  return os;
+  return os << ")";
 }
 
 ////////////////////
@@ -264,12 +263,9 @@ RibEntry::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
-  for (std::list<Route>::const_reverse_iterator it = m_routes.rbegin();
-       it != m_routes.rend(); ++it)
-    {
-      totalLength += it->wireEncode(block);
-    }
-
+  for (const auto& route : m_routes | boost::adaptors::reversed) {
+    totalLength += route.wireEncode(block);
+  }
   totalLength += m_prefix.wireEncode(block);
 
   totalLength += block.prependVarNumber(totalLength);
@@ -300,59 +296,72 @@ RibEntry::wireEncode() const
 }
 
 void
-RibEntry::wireDecode(const Block& wire)
+RibEntry::wireDecode(const Block& block)
 {
-  m_prefix.clear();
-  m_routes.clear();
-
-  m_wire = wire;
-
-  if (m_wire.type() != tlv::nfd::RibEntry) {
-    std::stringstream error;
-    error << "Expected RibEntry Block, but Block is of a different type: #"
-          << m_wire.type();
-    BOOST_THROW_EXCEPTION(Error(error.str()));
+  if (block.type() != tlv::nfd::RibEntry) {
+    BOOST_THROW_EXCEPTION(Error("expecting RibEntry, but Block has type " + to_string(block.type())));
   }
-
+  m_wire = block;
   m_wire.parse();
-
   Block::element_const_iterator val = m_wire.elements_begin();
 
-  if (val != m_wire.elements_end() && val->type() == tlv::Name) {
-    m_prefix.wireDecode(*val);
-    ++val;
+  if (val == m_wire.elements_end()) {
+    BOOST_THROW_EXCEPTION(Error("unexpected end of RibEntry"));
   }
-  else {
-    BOOST_THROW_EXCEPTION(Error("Missing required Name field"));
+  else if (val->type() != tlv::Name) {
+    BOOST_THROW_EXCEPTION(Error("expecting Name, but Block has type " + to_string(val->type())));
   }
+  m_prefix.wireDecode(*val);
+  ++val;
 
+  m_routes.clear();
   for (; val != m_wire.elements_end(); ++val) {
-
-    if (val->type() == tlv::nfd::Route) {
-      m_routes.push_back(Route(*val));
+    if (val->type() != tlv::nfd::Route) {
+      BOOST_THROW_EXCEPTION(Error("expecting Route, but Block has type " + to_string(val->type())));
     }
-    else {
-      std::stringstream error;
-      error << "Expected Route Block, but Block is of a different type: #"
-            << m_wire.type();
-      BOOST_THROW_EXCEPTION(Error(error.str()));
-    }
+    m_routes.emplace_back(*val);
   }
+}
+
+bool
+operator==(const RibEntry& a, const RibEntry& b)
+{
+  const auto& aRoutes = a.getRoutes();
+  const auto& bRoutes = b.getRoutes();
+
+  if (a.getName() != b.getName() ||
+      aRoutes.size() != bRoutes.size())
+    return false;
+
+  std::vector<bool> matched(bRoutes.size(), false);
+  return std::all_of(aRoutes.begin(), aRoutes.end(),
+                     [&] (const Route& route) {
+                       for (size_t i = 0; i < bRoutes.size(); ++i) {
+                         if (!matched[i] && bRoutes[i] == route) {
+                           matched[i] = true;
+                           return true;
+                         }
+                       }
+                       return false;
+                     });
 }
 
 std::ostream&
 operator<<(std::ostream& os, const RibEntry& entry)
 {
-  os << "RibEntry{\n"
-     << "  Name: " << entry.getName() << "\n";
+  os << "RibEntry(Prefix: " << entry.getName() << ",\n"
+     << "         Routes: [";
 
-  for (RibEntry::iterator it = entry.begin(); it != entry.end(); ++it) {
-    os << "  " << *it << "\n";
+  bool isFirst = true;
+  for (const auto& route : entry.getRoutes()) {
+    if (!isFirst)
+      os << ",\n                  ";
+    isFirst = false;
+    os << route;
   }
+  os << "]\n";
 
-  os << "}";
-
-  return os;
+  return os << "         )";
 }
 
 } // namespace nfd
