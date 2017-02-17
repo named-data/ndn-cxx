@@ -34,7 +34,7 @@ BOOST_CONCEPT_ASSERT((StatusDatasetItem<NextHopRecord>));
 BOOST_CONCEPT_ASSERT((StatusDatasetItem<FibEntry>));
 
 NextHopRecord::NextHopRecord()
-  : m_faceId(0) // INVALID_FACEID
+  : m_faceId(INVALID_FACE_ID)
   , m_cost(0)
 {
 }

@@ -47,7 +47,7 @@ public:
   };
 
   FaceTraits()
-    : m_faceId(0)
+    : m_faceId(INVALID_FACE_ID)
     , m_faceScope(FACE_SCOPE_NON_LOCAL)
     , m_facePersistency(FACE_PERSISTENCY_PERSISTENT)
     , m_linkType(LINK_TYPE_POINT_TO_POINT)

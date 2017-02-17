@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -82,13 +82,11 @@ ControlCommand::FieldValidator::validate(const ControlParameters& parameters) co
     bool isPresent = presentFields[i];
     if (m_required[i]) {
       if (!isPresent) {
-        BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but "
-                                            "missing"));
+        BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but missing"));
       }
     }
     else if (isPresent && !m_optional[i]) {
-      BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but "
-                                          "present"));
+      BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but present"));
     }
   }
 }
@@ -111,8 +109,6 @@ FaceCreateCommand::FaceCreateCommand()
 void
 FaceCreateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 {
-  parameters.setFaceId(0);
-
   if (!parameters.hasFacePersistency()) {
     parameters.setFacePersistency(FacePersistency::FACE_PERSISTENCY_PERSISTENT);
   }
@@ -133,8 +129,8 @@ FaceCreateCommand::validateResponse(const ControlParameters& parameters) const
 {
   this->ControlCommand::validateResponse(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.getFaceId() == INVALID_FACE_ID) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -175,8 +171,8 @@ FaceUpdateCommand::validateResponse(const ControlParameters& parameters) const
 {
   this->ControlCommand::validateResponse(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.getFaceId() == INVALID_FACE_ID) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -193,8 +189,8 @@ FaceDestroyCommand::validateRequest(const ControlParameters& parameters) const
 {
   this->ControlCommand::validateRequest(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.getFaceId() == INVALID_FACE_ID) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -271,8 +267,8 @@ FibAddNextHopCommand::validateResponse(const ControlParameters& parameters) cons
 {
   this->ControlCommand::validateResponse(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.getFaceId() == INVALID_FACE_ID) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -300,8 +296,8 @@ FibRemoveNextHopCommand::validateResponse(const ControlParameters& parameters) c
 {
   this->ControlCommand::validateResponse(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.getFaceId() == INVALID_FACE_ID) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -379,8 +375,8 @@ RibRegisterCommand::validateResponse(const ControlParameters& parameters) const
 {
   this->ControlCommand::validateResponse(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.getFaceId() == INVALID_FACE_ID) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -413,8 +409,8 @@ RibUnregisterCommand::validateResponse(const ControlParameters& parameters) cons
 {
   this->ControlCommand::validateResponse(parameters);
 
-  if (parameters.getFaceId() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must not be zero"));
+  if (parameters.getFaceId() == INVALID_FACE_ID) {
+    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
 }
 

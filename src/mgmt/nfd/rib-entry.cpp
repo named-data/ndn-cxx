@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,7 +42,7 @@ static_assert(std::is_base_of<tlv::Error, RibEntry::Error>::value,
 const time::milliseconds Route::INFINITE_EXPIRATION_PERIOD(time::milliseconds::max());
 
 Route::Route()
-  : m_faceId(0)
+  : m_faceId(INVALID_FACE_ID)
   , m_origin(0)
   , m_cost(0)
   , m_flags(ROUTE_FLAG_CHILD_INHERIT)

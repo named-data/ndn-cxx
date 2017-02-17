@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
 
   ControlParameters p3;
   p3.setUri("tcp4://192.0.2.1")
-    .setFaceId(0);
+    .setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
 
   ControlParameters p4;
@@ -96,6 +96,7 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
   ControlParameters p1;
   p1.setFaceId(0);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  p1.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
 
   p1.setFaceId(1);
@@ -154,7 +155,7 @@ BOOST_AUTO_TEST_CASE(FaceDestroy)
   BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
 
   ControlParameters p2;
-  p2.setFaceId(0);
+  p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
@@ -233,6 +234,7 @@ BOOST_AUTO_TEST_CASE(FibAddNextHop)
     .setFaceId(0)
     .setCost(6);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+  p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
   command.applyDefaultsToRequest(p1);
@@ -263,6 +265,7 @@ BOOST_AUTO_TEST_CASE(FibRemoveNextHop)
   p2.setName("ndn:/example")
     .setFaceId(0);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+  p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
   p1.unsetFaceId();
@@ -365,6 +368,7 @@ BOOST_AUTO_TEST_CASE(RibUnregister)
     .setFaceId(0)
     .setOrigin(ROUTE_ORIGIN_APP);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
+  p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
   p2.unsetFaceId();

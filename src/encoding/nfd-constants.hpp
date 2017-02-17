@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,7 @@
 namespace ndn {
 namespace nfd {
 
-static const uint64_t INVALID_FACE_ID = std::numeric_limits<uint64_t>::max();
+const uint64_t INVALID_FACE_ID = 0;
 
 /** \ingroup management
  */
