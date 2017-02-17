@@ -53,7 +53,48 @@ Route::Route()
 
 Route::Route(const Block& block)
 {
-  wireDecode(block);
+  this->wireDecode(block);
+}
+
+Route&
+Route::setFaceId(uint64_t faceId)
+{
+  m_faceId = faceId;
+  m_wire.reset();
+  return *this;
+}
+
+Route&
+Route::setOrigin(uint64_t origin)
+{
+  m_origin = origin;
+  m_wire.reset();
+  return *this;
+}
+
+Route&
+Route::setCost(uint64_t cost)
+{
+  m_cost = cost;
+  m_wire.reset();
+  return *this;
+}
+
+Route&
+Route::setFlags(uint64_t flags)
+{
+  m_flags = flags;
+  m_wire.reset();
+  return *this;
+}
+
+Route&
+Route::setExpirationPeriod(time::milliseconds expirationPeriod)
+{
+  m_expirationPeriod = expirationPeriod;
+  m_hasInfiniteExpirationPeriod = m_expirationPeriod == INFINITE_EXPIRATION_PERIOD;
+  m_wire.reset();
+  return *this;
 }
 
 template<encoding::Tag TAG>
@@ -64,30 +105,16 @@ Route::wireEncode(EncodingImpl<TAG>& block) const
 
   // Absence of an ExpirationPeriod signifies non-expiration
   if (!m_hasInfiniteExpirationPeriod) {
-    totalLength += prependNonNegativeIntegerBlock(block,
-                                                  ndn::tlv::nfd::ExpirationPeriod,
-                                                  m_expirationPeriod.count());
+    totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::ExpirationPeriod,
+                                                  static_cast<uint64_t>(m_expirationPeriod.count()));
   }
-
-  totalLength += prependNonNegativeIntegerBlock(block,
-                                                ndn::tlv::nfd::Flags,
-                                                m_flags);
-
-  totalLength += prependNonNegativeIntegerBlock(block,
-                                                ndn::tlv::nfd::Cost,
-                                                m_cost);
-
-  totalLength += prependNonNegativeIntegerBlock(block,
-                                                ndn::tlv::nfd::Origin,
-                                                m_origin);
-
-  totalLength += prependNonNegativeIntegerBlock(block,
-                                                ndn::tlv::nfd::FaceId,
-                                                m_faceId);
+  totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::Flags, m_flags);
+  totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::Cost, m_cost);
+  totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::Origin, m_origin);
+  totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::FaceId, m_faceId);
 
   totalLength += block.prependVarNumber(totalLength);
   totalLength += block.prependVarNumber(ndn::tlv::nfd::Route);
-
   return totalLength;
 }
 
@@ -100,9 +127,8 @@ Route::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& 
 const Block&
 Route::wireEncode() const
 {
-  if (m_wire.hasWire()) {
+  if (m_wire.hasWire())
     return m_wire;
-  }
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
@@ -111,7 +137,6 @@ Route::wireEncode() const
   wireEncode(buffer);
 
   m_wire = buffer.block();
-
   return m_wire;
 }
 
@@ -200,21 +225,38 @@ operator<<(std::ostream& os, const Route& route)
   return os;
 }
 
+////////////////////
 
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
-
-RibEntry::RibEntry()
-{
-}
+RibEntry::RibEntry() = default;
 
 RibEntry::RibEntry(const Block& block)
 {
-  wireDecode(block);
+  this->wireDecode(block);
 }
 
+RibEntry&
+RibEntry::setName(const Name& prefix)
+{
+  m_prefix = prefix;
+  m_wire.reset();
+  return *this;
+}
+
+RibEntry&
+RibEntry::addRoute(const Route& route)
+{
+  m_routes.push_back(route);
+  m_wire.reset();
+  return *this;
+}
+
+RibEntry&
+RibEntry::clearRoutes()
+{
+  m_routes.clear();
+  m_wire.reset();
+  return *this;
+}
 
 template<encoding::Tag TAG>
 size_t
@@ -232,7 +274,6 @@ RibEntry::wireEncode(EncodingImpl<TAG>& block) const
 
   totalLength += block.prependVarNumber(totalLength);
   totalLength += block.prependVarNumber(tlv::nfd::RibEntry);
-
   return totalLength;
 }
 
@@ -245,9 +286,8 @@ RibEntry::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag
 const Block&
 RibEntry::wireEncode() const
 {
-  if (m_wire.hasWire()) {
+  if (m_wire.hasWire())
     return m_wire;
-  }
 
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
@@ -256,7 +296,6 @@ RibEntry::wireEncode() const
   wireEncode(buffer);
 
   m_wire = buffer.block();
-
   return m_wire;
 }
 

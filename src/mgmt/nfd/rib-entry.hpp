@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_RIB_ENTRY_HPP
 #define NDN_MGMT_NFD_RIB_ENTRY_HPP
 
-#include "rib-flags.hpp" // include this first, to ensure it compiles on its own.
+#include "rib-flags.hpp"
 #include "../../name.hpp"
 #include "../../util/time.hpp"
 
@@ -55,7 +55,8 @@ public:
   {
   public:
     explicit
-    Error(const std::string& what) : tlv::Error(what)
+    Error(const std::string& what)
+      : tlv::Error(what)
     {
     }
   };
@@ -72,12 +73,7 @@ public:
   }
 
   Route&
-  setFaceId(uint64_t faceId)
-  {
-    m_faceId = faceId;
-    m_wire.reset();
-    return *this;
-  }
+  setFaceId(uint64_t faceId);
 
   uint64_t
   getOrigin() const
@@ -89,12 +85,7 @@ public:
    *  @param origin a code defined in ndn::nfd::RouteOrigin
    */
   Route&
-  setOrigin(uint64_t origin)
-  {
-    m_origin = origin;
-    m_wire.reset();
-    return *this;
-  }
+  setOrigin(uint64_t origin);
 
   uint64_t
   getCost() const
@@ -103,12 +94,7 @@ public:
   }
 
   Route&
-  setCost(uint64_t cost)
-  {
-    m_cost = cost;
-    m_wire.reset();
-    return *this;
-  }
+  setCost(uint64_t cost);
 
   uint64_t
   getFlags() const
@@ -120,31 +106,18 @@ public:
    *  @param flags a bitwise OR'ed code from ndn::nfd::RouteFlags
    */
   Route&
-  setFlags(uint64_t flags)
-  {
-    m_flags = flags;
-    m_wire.reset();
-    return *this;
-  }
+  setFlags(uint64_t flags);
 
   static const time::milliseconds INFINITE_EXPIRATION_PERIOD;
 
-  const time::milliseconds&
+  time::milliseconds
   getExpirationPeriod() const
   {
     return m_expirationPeriod;
   }
 
   Route&
-  setExpirationPeriod(const time::milliseconds& expirationPeriod)
-  {
-    m_expirationPeriod = expirationPeriod;
-
-    m_hasInfiniteExpirationPeriod = m_expirationPeriod == INFINITE_EXPIRATION_PERIOD;
-
-    m_wire.reset();
-    return *this;
-  }
+  setExpirationPeriod(time::milliseconds expirationPeriod);
 
   bool
   hasInfiniteExpirationPeriod() const
@@ -195,7 +168,9 @@ public:
   class Error : public tlv::Error
   {
   public:
-    Error(const std::string& what) : tlv::Error(what)
+    explicit
+    Error(const std::string& what)
+      : tlv::Error(what)
     {
     }
   };
@@ -215,12 +190,7 @@ public:
   }
 
   RibEntry&
-  setName(const Name& prefix)
-  {
-    m_prefix = prefix;
-    m_wire.reset();
-    return *this;
-  }
+  setName(const Name& prefix);
 
   const std::list<Route>&
   getRoutes() const
@@ -229,19 +199,10 @@ public:
   }
 
   RibEntry&
-  addRoute(const Route& route)
-  {
-    m_routes.push_back(route);
-    m_wire.reset();
-    return *this;
-  }
+  addRoute(const Route& route);
 
   RibEntry&
-  clearRoutes()
-  {
-    m_routes.clear();
-    return *this;
-  }
+  clearRoutes();
 
   template<encoding::Tag TAG>
   size_t
