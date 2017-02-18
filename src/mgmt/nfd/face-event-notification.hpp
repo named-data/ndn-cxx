@@ -23,7 +23,6 @@
 #define NDN_MGMT_NFD_FACE_EVENT_NOTIFICATION_HPP
 
 #include "face-traits.hpp"
-#include "../../encoding/block.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -32,6 +31,7 @@ namespace nfd {
  * \ingroup management
  */
 enum FaceEventKind {
+  FACE_EVENT_NONE = 0,
   FACE_EVENT_CREATED = 1, ///< face created
   FACE_EVENT_DESTROYED = 2, ///< face destroyed
   FACE_EVENT_UP = 3, ///< face went UP (from DOWN state)
@@ -41,7 +41,7 @@ enum FaceEventKind {
 /**
  * \ingroup management
  * \brief represents a Face status change notification
- * \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
  */
 class FaceEventNotification : public FaceTraits<FaceEventNotification>
 {
@@ -77,14 +77,8 @@ public: // getters & setters
   FaceEventNotification&
   setKind(FaceEventKind kind);
 
-protected:
-  void
-  wireReset() const override;
-
 private:
   FaceEventKind m_kind;
-
-  mutable Block m_wire;
 };
 
 std::ostream&

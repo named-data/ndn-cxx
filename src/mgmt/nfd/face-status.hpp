@@ -23,7 +23,6 @@
 #define NDN_MGMT_NFD_FACE_STATUS_HPP
 
 #include "face-traits.hpp"
-#include "../../encoding/block.hpp"
 #include "../../util/time.hpp"
 
 namespace ndn {
@@ -147,10 +146,6 @@ public: // getters & setters
   FaceStatus&
   setNOutBytes(uint64_t nOutBytes);
 
-protected:
-  void
-  wireReset() const override;
-
 private:
   optional<time::milliseconds> m_expirationPeriod;
   uint64_t m_nInInterests;
@@ -161,8 +156,6 @@ private:
   uint64_t m_nOutNacks;
   uint64_t m_nInBytes;
   uint64_t m_nOutBytes;
-
-  mutable Block m_wire;
 };
 
 bool

@@ -22,15 +22,16 @@
 #ifndef NDN_MGMT_NFD_FACE_TRAITS_HPP
 #define NDN_MGMT_NFD_FACE_TRAITS_HPP
 
-#include "../../encoding/tlv-nfd.hpp"
+#include "../../encoding/block.hpp"
+#include "../../encoding/nfd-constants.hpp"
 
 namespace ndn {
 namespace nfd {
 
-/** \ingroup management
- *  \brief providers getters and setters of face information fields
- *  \tparam C the concrete class; it must provide a wireReset() member
- *            function to clear the wire encoding when a field changes
+/**
+ * \ingroup management
+ * \brief provides getters and setters for face information fields
+ * \tparam C the concrete subclass
  */
 template<class C>
 class FaceTraits
@@ -46,18 +47,6 @@ public:
     }
   };
 
-  FaceTraits()
-    : m_faceId(INVALID_FACE_ID)
-    , m_faceScope(FACE_SCOPE_NON_LOCAL)
-    , m_facePersistency(FACE_PERSISTENCY_PERSISTENT)
-    , m_linkType(LINK_TYPE_POINT_TO_POINT)
-    , m_flags(0x0)
-  {
-  }
-
-  virtual
-  ~FaceTraits() = default;
-
   uint64_t
   getFaceId() const
   {
@@ -67,7 +56,7 @@ public:
   C&
   setFaceId(uint64_t faceId)
   {
-    wireReset();
+    m_wire.reset();
     m_faceId = faceId;
     return static_cast<C&>(*this);
   }
@@ -81,7 +70,7 @@ public:
   C&
   setRemoteUri(const std::string& remoteUri)
   {
-    wireReset();
+    m_wire.reset();
     m_remoteUri = remoteUri;
     return static_cast<C&>(*this);
   }
@@ -95,7 +84,7 @@ public:
   C&
   setLocalUri(const std::string& localUri)
   {
-    wireReset();
+    m_wire.reset();
     m_localUri = localUri;
     return static_cast<C&>(*this);
   }
@@ -109,7 +98,7 @@ public:
   C&
   setFaceScope(FaceScope faceScope)
   {
-    wireReset();
+    m_wire.reset();
     m_faceScope = faceScope;
     return static_cast<C&>(*this);
   }
@@ -123,7 +112,7 @@ public:
   C&
   setFacePersistency(FacePersistency facePersistency)
   {
-    wireReset();
+    m_wire.reset();
     m_facePersistency = facePersistency;
     return static_cast<C&>(*this);
   }
@@ -137,7 +126,7 @@ public:
   C&
   setLinkType(LinkType linkType)
   {
-    wireReset();
+    m_wire.reset();
     m_linkType = linkType;
     return static_cast<C&>(*this);
   }
@@ -151,7 +140,7 @@ public:
   C&
   setFlags(uint64_t flags)
   {
-    wireReset();
+    m_wire.reset();
     m_flags = flags;
     return static_cast<C&>(*this);
   }
@@ -162,7 +151,6 @@ public:
     if (bit >= 64) {
       BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
     }
-
     return m_flags & (1 << bit);
   }
 
@@ -173,7 +161,7 @@ public:
       BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
     }
 
-    wireReset();
+    m_wire.reset();
 
     if (value) {
       m_flags |= (1 << bit);
@@ -186,8 +174,14 @@ public:
   }
 
 protected:
-  virtual void
-  wireReset() const = 0;
+  FaceTraits()
+    : m_faceId(INVALID_FACE_ID)
+    , m_faceScope(FACE_SCOPE_NON_LOCAL)
+    , m_facePersistency(FACE_PERSISTENCY_PERSISTENT)
+    , m_linkType(LINK_TYPE_POINT_TO_POINT)
+    , m_flags(0)
+  {
+  }
 
 protected:
   uint64_t m_faceId;
@@ -197,6 +191,8 @@ protected:
   FacePersistency  m_facePersistency;
   LinkType m_linkType;
   uint64_t m_flags;
+
+  mutable Block m_wire;
 };
 
 } // namespace nfd

@@ -328,12 +328,6 @@ FaceStatus::setNOutBytes(uint64_t nOutBytes)
   return *this;
 }
 
-void
-FaceStatus::wireReset() const
-{
-  m_wire.reset();
-}
-
 bool
 operator==(const FaceStatus& a, const FaceStatus& b)
 {

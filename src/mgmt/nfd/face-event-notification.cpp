@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,8 +20,9 @@
  */
 
 #include "face-event-notification.hpp"
-#include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/encoding-buffer.hpp"
+#include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
 
 namespace ndn {
@@ -34,7 +35,7 @@ static_assert(std::is_base_of<tlv::Error, FaceEventNotification::Error>::value,
               "FaceEventNotification::Error must inherit from tlv::Error");
 
 FaceEventNotification::FaceEventNotification()
-  : m_kind(static_cast<FaceEventKind>(0))
+  : m_kind(FACE_EVENT_NONE)
 {
 }
 
@@ -169,19 +170,15 @@ FaceEventNotification::setKind(FaceEventKind kind)
   return *this;
 }
 
-void
-FaceEventNotification::wireReset() const
-{
-  m_wire.reset();
-}
-
 std::ostream&
 operator<<(std::ostream& os, const FaceEventNotification& notification)
 {
   os << "FaceEventNotification(";
 
-  switch (notification.getKind())
-    {
+  switch (notification.getKind()) {
+    case FACE_EVENT_NONE:
+      os << "Kind: none, ";
+      break;
     case FACE_EVENT_CREATED:
       os << "Kind: created, ";
       break;
@@ -194,7 +191,7 @@ operator<<(std::ostream& os, const FaceEventNotification& notification)
     case FACE_EVENT_DOWN:
       os << "Kind: down, ";
       break;
-    }
+  }
 
   os << "FaceID: " << notification.getFaceId() << ", "
      << "RemoteUri: " << notification.getRemoteUri() << ", "
