@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "mgmt/nfd/face-event-notification.hpp"
 
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
@@ -34,7 +35,6 @@ BOOST_AUTO_TEST_SUITE(TestFaceEventNotification)
 BOOST_AUTO_TEST_CASE(Traits)
 {
   FaceEventNotification notification;
-
   BOOST_CHECK_EQUAL(notification.getFaceScope(), FACE_SCOPE_NON_LOCAL);
   BOOST_CHECK_EQUAL(notification.getFacePersistency(), FACE_PERSISTENCY_PERSISTENT);
   BOOST_CHECK_EQUAL(notification.getLinkType(), LINK_TYPE_POINT_TO_POINT);
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(Traits)
   BOOST_CHECK_EQUAL(notification.getLinkType(), LINK_TYPE_MULTI_ACCESS);
 }
 
-BOOST_AUTO_TEST_CASE(EncodeCreated)
+BOOST_AUTO_TEST_CASE(Created)
 {
   FaceEventNotification notification1;
   notification1.setKind(FACE_EVENT_CREATED)
@@ -71,8 +71,7 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
                .setLinkType(LINK_TYPE_MULTI_ACCESS)
                .setFlags(0x3);
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
+  Block wire = notification1.wireEncode();
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
@@ -88,34 +87,25 @@ BOOST_AUTO_TEST_CASE(EncodeCreated)
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
     0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x03,
   };
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
-                                  wire.begin(), wire.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(FaceEventNotification(wire));
   FaceEventNotification notification2(wire);
-  BOOST_CHECK_EQUAL(notification1.getKind(), notification2.getKind());
-  BOOST_CHECK_EQUAL(notification1.getFaceId(), notification2.getFaceId());
-  BOOST_CHECK_EQUAL(notification1.getRemoteUri(), notification2.getRemoteUri());
-  BOOST_CHECK_EQUAL(notification1.getLocalUri(), notification2.getLocalUri());
-  BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
-  BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
-  BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
-  BOOST_CHECK_EQUAL(notification1.getFlags(), notification2.getFlags());
+  BOOST_CHECK_EQUAL(notification1, notification2);
 
-  std::ostringstream os;
-  os << notification2;
-  BOOST_CHECK_EQUAL(os.str(), "FaceEventNotification("
-                              "Kind: created, "
-                              "FaceID: 20, "
-                              "RemoteUri: tcp4://192.0.2.1:55555, "
-                              "LocalUri: tcp4://192.0.2.2:6363, "
-                              "FaceScope: local, "
-                              "FacePersistency: on-demand, "
-                              "LinkType: multi-access, "
-                              "Flags: 0x3)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(notification2),
+                    "FaceEvent(Kind: created,\n"
+                    "          FaceId: 20,\n"
+                    "          RemoteUri: tcp4://192.0.2.1:55555,\n"
+                    "          LocalUri: tcp4://192.0.2.2:6363,\n"
+                    "          FaceScope: local,\n"
+                    "          FacePersistency: on-demand,\n"
+                    "          LinkType: multi-access,\n"
+                    "          Flags: 0x3\n"
+                    "          )");
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDestroyed)
+BOOST_AUTO_TEST_CASE(Destroyed)
 {
   FaceEventNotification notification1;
   notification1.setKind(FACE_EVENT_DESTROYED)
@@ -126,8 +116,7 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
                .setLinkType(LINK_TYPE_MULTI_ACCESS)
                .setFlags(0x4);
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
+  Block wire = notification1.wireEncode();
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
@@ -143,34 +132,25 @@ BOOST_AUTO_TEST_CASE(EncodeDestroyed)
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
     0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x04,
   };
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
-                                  wire.begin(), wire.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(FaceEventNotification(wire));
   FaceEventNotification notification2(wire);
-  BOOST_CHECK_EQUAL(notification1.getKind(), notification2.getKind());
-  BOOST_CHECK_EQUAL(notification1.getFaceId(), notification2.getFaceId());
-  BOOST_CHECK_EQUAL(notification1.getRemoteUri(), notification2.getRemoteUri());
-  BOOST_CHECK_EQUAL(notification1.getLocalUri(), notification2.getLocalUri());
-  BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
-  BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
-  BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
-  BOOST_CHECK_EQUAL(notification1.getFlags(), notification2.getFlags());
+  BOOST_CHECK_EQUAL(notification1, notification2);
 
-  std::ostringstream os;
-  os << notification2;
-  BOOST_CHECK_EQUAL(os.str(), "FaceEventNotification("
-                              "Kind: destroyed, "
-                              "FaceID: 20, "
-                              "RemoteUri: tcp4://192.0.2.1:55555, "
-                              "LocalUri: tcp4://192.0.2.2:6363, "
-                              "FaceScope: local, "
-                              "FacePersistency: on-demand, "
-                              "LinkType: multi-access, "
-                              "Flags: 0x4)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(notification2),
+                    "FaceEvent(Kind: destroyed,\n"
+                    "          FaceId: 20,\n"
+                    "          RemoteUri: tcp4://192.0.2.1:55555,\n"
+                    "          LocalUri: tcp4://192.0.2.2:6363,\n"
+                    "          FaceScope: local,\n"
+                    "          FacePersistency: on-demand,\n"
+                    "          LinkType: multi-access,\n"
+                    "          Flags: 0x4\n"
+                    "          )");
 }
 
-BOOST_AUTO_TEST_CASE(EncodeUp)
+BOOST_AUTO_TEST_CASE(Up)
 {
   FaceEventNotification notification1;
   notification1.setKind(FACE_EVENT_UP)
@@ -181,8 +161,7 @@ BOOST_AUTO_TEST_CASE(EncodeUp)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
                .setLinkType(LINK_TYPE_MULTI_ACCESS)
                .setFlags(0x05);
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
+  Block wire = notification1.wireEncode();
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
@@ -198,33 +177,25 @@ BOOST_AUTO_TEST_CASE(EncodeUp)
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
     0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x05,
   };
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
-                                  wire.begin(), wire.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(FaceEventNotification(wire));
   FaceEventNotification notification2(wire);
-  BOOST_CHECK_EQUAL(notification1.getKind(), notification2.getKind());
-  BOOST_CHECK_EQUAL(notification1.getFaceId(), notification2.getFaceId());
-  BOOST_CHECK_EQUAL(notification1.getRemoteUri(), notification2.getRemoteUri());
-  BOOST_CHECK_EQUAL(notification1.getLocalUri(), notification2.getLocalUri());
-  BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
-  BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
-  BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
+  BOOST_CHECK_EQUAL(notification1, notification2);
 
-  std::ostringstream os;
-  os << notification2;
-  BOOST_CHECK_EQUAL(os.str(), "FaceEventNotification("
-                              "Kind: up, "
-                              "FaceID: 20, "
-                              "RemoteUri: tcp4://192.0.2.1:55555, "
-                              "LocalUri: tcp4://192.0.2.2:6363, "
-                              "FaceScope: local, "
-                              "FacePersistency: on-demand, "
-                              "LinkType: multi-access, "
-                              "Flags: 0x5)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(notification2),
+                    "FaceEvent(Kind: up,\n"
+                    "          FaceId: 20,\n"
+                    "          RemoteUri: tcp4://192.0.2.1:55555,\n"
+                    "          LocalUri: tcp4://192.0.2.2:6363,\n"
+                    "          FaceScope: local,\n"
+                    "          FacePersistency: on-demand,\n"
+                    "          LinkType: multi-access,\n"
+                    "          Flags: 0x5\n"
+                    "          )");
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDown)
+BOOST_AUTO_TEST_CASE(Down)
 {
   FaceEventNotification notification1;
   notification1.setKind(FACE_EVENT_DOWN)
@@ -235,8 +206,7 @@ BOOST_AUTO_TEST_CASE(EncodeDown)
                .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
                .setLinkType(LINK_TYPE_MULTI_ACCESS)
                .setFlags(0x06);
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = notification1.wireEncode());
+  Block wire = notification1.wireEncode();
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
@@ -252,30 +222,42 @@ BOOST_AUTO_TEST_CASE(EncodeDown)
     0x3a, 0x36, 0x33, 0x36, 0x33, 0x84, 0x01, 0x01, 0x85, 0x01,
     0x01, 0x86, 0x01, 0x01, 0x6c, 0x01, 0x06,
   };
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
-                                  wire.begin(), wire.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
+                                wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(FaceEventNotification(wire));
   FaceEventNotification notification2(wire);
-  BOOST_CHECK_EQUAL(notification1.getKind(), notification2.getKind());
-  BOOST_CHECK_EQUAL(notification1.getFaceId(), notification2.getFaceId());
-  BOOST_CHECK_EQUAL(notification1.getRemoteUri(), notification2.getRemoteUri());
-  BOOST_CHECK_EQUAL(notification1.getLocalUri(), notification2.getLocalUri());
-  BOOST_CHECK_EQUAL(notification1.getFaceScope(), notification2.getFaceScope());
-  BOOST_CHECK_EQUAL(notification1.getFacePersistency(), notification2.getFacePersistency());
-  BOOST_CHECK_EQUAL(notification1.getLinkType(), notification2.getLinkType());
+  BOOST_CHECK_EQUAL(notification1, notification2);
 
-  std::ostringstream os;
-  os << notification2;
-  BOOST_CHECK_EQUAL(os.str(), "FaceEventNotification("
-                              "Kind: down, "
-                              "FaceID: 20, "
-                              "RemoteUri: tcp4://192.0.2.1:55555, "
-                              "LocalUri: tcp4://192.0.2.2:6363, "
-                              "FaceScope: local, "
-                              "FacePersistency: on-demand, "
-                              "LinkType: multi-access, "
-                              "Flags: 0x6)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(notification2),
+                    "FaceEvent(Kind: down,\n"
+                    "          FaceId: 20,\n"
+                    "          RemoteUri: tcp4://192.0.2.1:55555,\n"
+                    "          LocalUri: tcp4://192.0.2.2:6363,\n"
+                    "          FaceScope: local,\n"
+                    "          FacePersistency: on-demand,\n"
+                    "          LinkType: multi-access,\n"
+                    "          Flags: 0x6\n"
+                    "          )");
+}
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+  FaceEventNotification notification1, notification2;
+  BOOST_CHECK_EQUAL(notification1, notification2);
+
+  notification1.setKind(FACE_EVENT_CREATED)
+               .setFaceId(123)
+               .setRemoteUri("tcp4://192.0.2.1:55555")
+               .setLocalUri("tcp4://192.0.2.2:6363");
+  notification2 = notification1;
+  BOOST_CHECK_EQUAL(notification1, notification2);
+
+  notification2.setFaceId(42);
+  BOOST_CHECK_NE(notification1, notification2);
+
+  notification2 = notification1;
+  notification2.setKind(FACE_EVENT_DESTROYED);
+  BOOST_CHECK_NE(notification1, notification2);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestFaceEventNotification

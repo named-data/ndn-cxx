@@ -106,16 +106,15 @@ public:
   }
 };
 
-/** \brief a concept check for a Status Dataset item
- *  \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
- */
+namespace detail {
+
 template<class X>
-class StatusDatasetItem : public WireEncodable<X>
-                        , public WireEncodableWithEncodingBuffer<X>
-                        , public WireDecodable<X>
+class NfdMgmtProtocolStruct : public WireEncodable<X>
+                            , public WireEncodableWithEncodingBuffer<X>
+                            , public WireDecodable<X>
 {
 public:
-  BOOST_CONCEPT_USAGE(StatusDatasetItem)
+  BOOST_CONCEPT_USAGE(NfdMgmtProtocolStruct)
   {
     static_assert(std::is_default_constructible<X>::value, "");
     static_assert(boost::has_equal_to<X, X, bool>::value, "");
@@ -123,6 +122,24 @@ public:
     static_assert(boost::has_left_shift<std::ostream, X, std::ostream&>::value, "");
     static_assert(std::is_base_of<tlv::Error, typename X::Error>::value, "");
   }
+};
+
+} // namespace detail
+
+/** \brief concept check for an item in a Status Dataset
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
+ */
+template<class X>
+class StatusDatasetItem : public detail::NfdMgmtProtocolStruct<X>
+{
+};
+
+/** \brief concept check for an item in a Notification Stream
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
+ */
+template<class X>
+class NotificationStreamItem : public detail::NfdMgmtProtocolStruct<X>
+{
 };
 
 // NDN_CXX_ASSERT_DEFAULT_CONSTRUCTIBLE and NDN_CXX_ASSERT_FORWARD_ITERATOR

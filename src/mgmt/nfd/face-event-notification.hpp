@@ -38,6 +38,9 @@ enum FaceEventKind {
   FACE_EVENT_DOWN = 4 ///< face went DOWN (from UP state)
 };
 
+std::ostream&
+operator<<(std::ostream& os, FaceEventKind kind);
+
 /**
  * \ingroup management
  * \brief represents a Face status change notification
@@ -80,6 +83,15 @@ public: // getters & setters
 private:
   FaceEventKind m_kind;
 };
+
+bool
+operator==(const FaceEventNotification& a, const FaceEventNotification& b);
+
+inline bool
+operator!=(const FaceEventNotification& a, const FaceEventNotification& b)
+{
+  return !(a == b);
+}
 
 std::ostream&
 operator<<(std::ostream& os, const FaceEventNotification& notification);

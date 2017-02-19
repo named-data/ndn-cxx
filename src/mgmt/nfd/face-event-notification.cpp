@@ -25,14 +25,12 @@
 #include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
 
+#include <iomanip>
+
 namespace ndn {
 namespace nfd {
 
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceEventNotification>));
-BOOST_CONCEPT_ASSERT((WireEncodable<FaceEventNotification>));
-BOOST_CONCEPT_ASSERT((WireDecodable<FaceEventNotification>));
-static_assert(std::is_base_of<tlv::Error, FaceEventNotification::Error>::value,
-              "FaceEventNotification::Error must inherit from tlv::Error");
+BOOST_CONCEPT_ASSERT((NotificationStreamItem<FaceEventNotification>));
 
 FaceEventNotification::FaceEventNotification()
   : m_kind(FACE_EVENT_NONE)
@@ -59,9 +57,9 @@ FaceEventNotification::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FaceScope, m_faceScope);
   totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.c_str()), m_localUri.size());
+                 reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
   totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
-                 reinterpret_cast<const uint8_t*>(m_remoteUri.c_str()), m_remoteUri.size());
+                 reinterpret_cast<const uint8_t*>(m_remoteUri.data()), m_remoteUri.size());
   totalLength += prependNonNegativeIntegerBlock(encoder,
                  tlv::nfd::FaceId, m_faceId);
   totalLength += prependNonNegativeIntegerBlock(encoder,
@@ -71,6 +69,12 @@ FaceEventNotification::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += encoder.prependVarNumber(tlv::nfd::FaceEventNotification);
   return totalLength;
 }
+
+template size_t
+FaceEventNotification::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
+
+template size_t
+FaceEventNotification::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
 
 const Block&
 FaceEventNotification::wireEncode() const
@@ -156,6 +160,7 @@ FaceEventNotification::wireDecode(const Block& block)
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
     m_flags = readNonNegativeInteger(*val);
+    ++val;
   }
   else {
     BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
@@ -170,42 +175,55 @@ FaceEventNotification::setKind(FaceEventKind kind)
   return *this;
 }
 
+bool
+operator==(const FaceEventNotification& a, const FaceEventNotification& b)
+{
+  return a.getFaceId() == b.getFaceId() &&
+      a.getRemoteUri() == b.getRemoteUri() &&
+      a.getLocalUri() == b.getLocalUri() &&
+      a.getFaceScope() == b.getFaceScope() &&
+      a.getFacePersistency() == b.getFacePersistency() &&
+      a.getLinkType() == b.getLinkType() &&
+      a.getFlags() == b.getFlags() &&
+      a.getKind() == b.getKind();
+}
+
+std::ostream&
+operator<<(std::ostream& os, FaceEventKind kind)
+{
+  switch (kind) {
+    case FACE_EVENT_NONE:
+      return os << "none";
+    case FACE_EVENT_CREATED:
+      return os << "created";
+    case FACE_EVENT_DESTROYED:
+      return os << "destroyed";
+    case FACE_EVENT_UP:
+      return os << "up";
+    case FACE_EVENT_DOWN:
+      return os << "down";
+  }
+  return os << static_cast<unsigned>(kind);
+}
+
 std::ostream&
 operator<<(std::ostream& os, const FaceEventNotification& notification)
 {
-  os << "FaceEventNotification(";
-
-  switch (notification.getKind()) {
-    case FACE_EVENT_NONE:
-      os << "Kind: none, ";
-      break;
-    case FACE_EVENT_CREATED:
-      os << "Kind: created, ";
-      break;
-    case FACE_EVENT_DESTROYED:
-      os << "Kind: destroyed, ";
-      break;
-    case FACE_EVENT_UP:
-      os << "Kind: up, ";
-      break;
-    case FACE_EVENT_DOWN:
-      os << "Kind: down, ";
-      break;
-  }
-
-  os << "FaceID: " << notification.getFaceId() << ", "
-     << "RemoteUri: " << notification.getRemoteUri() << ", "
-     << "LocalUri: " << notification.getLocalUri() << ", "
-     << "FaceScope: " << notification.getFaceScope() << ", "
-     << "FacePersistency: " << notification.getFacePersistency() << ", "
-     << "LinkType: " << notification.getLinkType() << ", ";
+  os << "FaceEvent(Kind: " << notification.getKind() << ",\n"
+     << "          FaceId: " << notification.getFaceId() << ",\n"
+     << "          RemoteUri: " << notification.getRemoteUri() << ",\n"
+     << "          LocalUri: " << notification.getLocalUri() << ",\n"
+     << "          FaceScope: " << notification.getFaceScope() << ",\n"
+     << "          FacePersistency: " << notification.getFacePersistency() << ",\n"
+     << "          LinkType: " << notification.getLinkType() << ",\n";
 
   auto osFlags = os.flags();
-  os << "Flags: " << std::showbase << std::hex << notification.getFlags();
+  // std::showbase doesn't work with number 0
+  os << "          Flags: 0x" << std::noshowbase << std::noshowpos << std::nouppercase
+     << std::hex << notification.getFlags() << "\n";
   os.flags(osFlags);
 
-  os << ")";
-  return os;
+  return os << "          )";
 }
 
 } // namespace nfd
