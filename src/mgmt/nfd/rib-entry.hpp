@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_RIB_ENTRY_HPP
 #define NDN_MGMT_NFD_RIB_ENTRY_HPP
 
-#include "rib-flags.hpp"
+#include "route-flags-traits.hpp"
 #include "../../encoding/block.hpp"
 #include "../../name.hpp"
 #include "../../util/time.hpp"
@@ -39,7 +39,7 @@ namespace nfd {
  *
  * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Route
  */
-class Route : public RibFlagsTraits<Route>
+class Route : public RouteFlagsTraits<Route>
 {
 public:
   class Error : public tlv::Error

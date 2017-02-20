@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,7 +19,42 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-/** \file
- *  \deprecated Use mgmt/nfd/rib-flags.hpp
+#ifndef NDN_MGMT_NFD_RIB_FLAGS_HPP
+#define NDN_MGMT_NFD_RIB_FLAGS_HPP
+
+#include "../../encoding/nfd-constants.hpp"
+
+namespace ndn {
+namespace nfd {
+
+/**
+ * \ingroup management
+ * \brief defines getters for each route inheritance flag
+ *
+ * \tparam T class containing a RouteFlags field and implementing
+ *           a `RouteFlags getFlags() const` member function
  */
-#include "../mgmt/nfd/rib-flags.hpp"
+template<typename T>
+class RouteFlagsTraits
+{
+public:
+  bool
+  isChildInherit() const
+  {
+    return static_cast<const T*>(this)->getFlags() & ROUTE_FLAG_CHILD_INHERIT;
+  }
+
+  bool
+  isRibCapture() const
+  {
+    return static_cast<const T*>(this)->getFlags() & ROUTE_FLAG_CAPTURE;
+  }
+
+protected:
+  RouteFlagsTraits() = default;
+};
+
+} // namespace nfd
+} // namespace ndn
+
+#endif // NDN_MGMT_NFD_RIB_FLAGS_HPP
