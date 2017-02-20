@@ -31,7 +31,7 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestNfdConstants)
 
-BOOST_AUTO_TEST_CASE(FaceScopeOutputStream)
+BOOST_AUTO_TEST_CASE(PrintFaceScope)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_SCOPE_NONE), "none");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_SCOPE_NON_LOCAL), "non-local");
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(FaceScopeOutputStream)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<FaceScope>(126)), "126");
 }
 
-BOOST_AUTO_TEST_CASE(FacePersistencyOutputStream)
+BOOST_AUTO_TEST_CASE(PrintFacePersistency)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_PERSISTENCY_NONE), "none");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_PERSISTENCY_ON_DEMAND), "on-demand");
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(FacePersistencyOutputStream)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<FacePersistency>(110)), "110");
 }
 
-BOOST_AUTO_TEST_CASE(LinkTypeOutputStream)
+BOOST_AUTO_TEST_CASE(PrintLinkType)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_NONE), "none");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_POINT_TO_POINT), "point-to-point");
@@ -56,7 +56,17 @@ BOOST_AUTO_TEST_CASE(LinkTypeOutputStream)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<LinkType>(104)), "104");
 }
 
-BOOST_AUTO_TEST_CASE(RouteOriginOutputStream)
+BOOST_AUTO_TEST_CASE(PrintFaceEventKind)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_EVENT_NONE), "none");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_EVENT_CREATED), "created");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_EVENT_DESTROYED), "destroyed");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_EVENT_UP), "up");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(FACE_EVENT_DOWN), "down");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<FaceEventKind>(175)), "175");
+}
+
+BOOST_AUTO_TEST_CASE(PrintRouteOrigin)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_NONE), "none");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_APP), "app");
@@ -68,17 +78,15 @@ BOOST_AUTO_TEST_CASE(RouteOriginOutputStream)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteOrigin>(27)), "27");
 }
 
-BOOST_AUTO_TEST_CASE(RouteFlagsOutputStream)
+BOOST_AUTO_TEST_CASE(PrintRouteFlags)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAGS_NONE), "none");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAG_CHILD_INHERIT), "child-inherit");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAG_CAPTURE), "capture");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteFlags>(
-                    ROUTE_FLAG_CHILD_INHERIT | ROUTE_FLAG_CAPTURE)),
-                    "child-inherit|capture");
+                    ROUTE_FLAG_CHILD_INHERIT | ROUTE_FLAG_CAPTURE)), "child-inherit|capture");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteFlags>(
-                    ROUTE_FLAG_CAPTURE | static_cast<RouteFlags>(0x9c))),
-                    "capture|0x9c");
+                    ROUTE_FLAG_CAPTURE | 0x9c)), "capture|0x9c");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestNfdConstants

@@ -36,9 +36,8 @@ operator<<(std::ostream& os, FaceScope faceScope)
       return os << "non-local";
     case FACE_SCOPE_LOCAL:
       return os << "local";
-    default:
-      return os << static_cast<unsigned>(faceScope);
   }
+  return os << static_cast<unsigned>(faceScope);
 }
 
 std::ostream&
@@ -53,9 +52,8 @@ operator<<(std::ostream& os, FacePersistency facePersistency)
       return os << "on-demand";
     case FACE_PERSISTENCY_PERMANENT:
       return os << "permanent";
-    default:
-      return os << static_cast<unsigned>(facePersistency);
   }
+  return os << static_cast<unsigned>(facePersistency);
 }
 
 std::ostream&
@@ -68,9 +66,26 @@ operator<<(std::ostream& os, LinkType linkType)
       return os << "point-to-point";
     case LINK_TYPE_MULTI_ACCESS:
       return os << "multi-access";
-    default:
-      return os << static_cast<unsigned>(linkType);
   }
+  return os << static_cast<unsigned>(linkType);
+}
+
+std::ostream&
+operator<<(std::ostream& os, FaceEventKind faceEventKind)
+{
+  switch (faceEventKind) {
+    case FACE_EVENT_NONE:
+      return os << "none";
+    case FACE_EVENT_CREATED:
+      return os << "created";
+    case FACE_EVENT_DESTROYED:
+      return os << "destroyed";
+    case FACE_EVENT_UP:
+      return os << "up";
+    case FACE_EVENT_DOWN:
+      return os << "down";
+  }
+  return os << static_cast<unsigned>(faceEventKind);
 }
 
 std::ostream&
@@ -91,9 +106,8 @@ operator<<(std::ostream& os, RouteOrigin routeOrigin)
       return os << "nlsr";
     case ROUTE_ORIGIN_STATIC:
       return os << "static";
-    default:
-      return os << static_cast<unsigned>(routeOrigin);
   }
+  return os << static_cast<unsigned>(routeOrigin);
 }
 
 std::ostream&

@@ -189,24 +189,6 @@ operator==(const FaceEventNotification& a, const FaceEventNotification& b)
 }
 
 std::ostream&
-operator<<(std::ostream& os, FaceEventKind kind)
-{
-  switch (kind) {
-    case FACE_EVENT_NONE:
-      return os << "none";
-    case FACE_EVENT_CREATED:
-      return os << "created";
-    case FACE_EVENT_DESTROYED:
-      return os << "destroyed";
-    case FACE_EVENT_UP:
-      return os << "up";
-    case FACE_EVENT_DOWN:
-      return os << "down";
-  }
-  return os << static_cast<unsigned>(kind);
-}
-
-std::ostream&
 operator<<(std::ostream& os, const FaceEventNotification& notification)
 {
   os << "FaceEvent(Kind: " << notification.getKind() << ",\n"

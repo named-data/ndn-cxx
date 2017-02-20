@@ -29,20 +29,6 @@ namespace nfd {
 
 /**
  * \ingroup management
- */
-enum FaceEventKind {
-  FACE_EVENT_NONE = 0,
-  FACE_EVENT_CREATED = 1, ///< face created
-  FACE_EVENT_DESTROYED = 2, ///< face destroyed
-  FACE_EVENT_UP = 3, ///< face went UP (from DOWN state)
-  FACE_EVENT_DOWN = 4 ///< face went DOWN (from UP state)
-};
-
-std::ostream&
-operator<<(std::ostream& os, FaceEventKind kind);
-
-/**
- * \ingroup management
  * \brief represents a Face status change notification
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
  */
