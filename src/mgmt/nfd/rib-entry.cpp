@@ -24,6 +24,7 @@
 #include "encoding/encoding-buffer.hpp"
 #include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
+#include "util/string-helper.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -206,13 +207,8 @@ operator<<(std::ostream& os, const Route& route)
   os << "Route("
      << "FaceId: " << route.getFaceId() << ", "
      << "Origin: " << route.getOrigin() << ", "
-     << "Cost: " << route.getCost() << ", ";
-
-  auto osFlags = os.flags();
-  // std::showbase doesn't work with number 0
-  os << "Flags: 0x" << std::noshowbase << std::noshowpos << std::nouppercase
-     << std::hex << route.getFlags() << ", ";
-  os.flags(osFlags);
+     << "Cost: " << route.getCost() << ", "
+     << "Flags: " << AsHex{route.getFlags()} << ", ";
 
   if (route.hasExpirationPeriod()) {
     os << "ExpirationPeriod: " << route.getExpirationPeriod();

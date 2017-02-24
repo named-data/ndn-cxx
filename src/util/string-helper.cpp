@@ -31,6 +31,24 @@
 
 namespace ndn {
 
+std::ostream&
+operator<<(std::ostream& os, const AsHex& hex)
+{
+  printHex(os, hex.m_value, os.flags() & std::ostream::uppercase);
+  return os;
+}
+
+void
+printHex(std::ostream& os, uint64_t num, bool wantUpperCase)
+{
+  auto osFlags = os.flags();
+  // std::showbase doesn't work with number 0
+  os << "0x" << std::noshowbase << std::noshowpos
+     << (wantUpperCase ? std::uppercase : std::nouppercase)
+     << std::hex << num;
+  os.flags(osFlags);
+}
+
 void
 printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase)
 {

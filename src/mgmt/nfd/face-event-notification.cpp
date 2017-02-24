@@ -24,8 +24,7 @@
 #include "encoding/encoding-buffer.hpp"
 #include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
-
-#include <iomanip>
+#include "util/string-helper.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -197,13 +196,8 @@ operator<<(std::ostream& os, const FaceEventNotification& notification)
      << "          LocalUri: " << notification.getLocalUri() << ",\n"
      << "          FaceScope: " << notification.getFaceScope() << ",\n"
      << "          FacePersistency: " << notification.getFacePersistency() << ",\n"
-     << "          LinkType: " << notification.getLinkType() << ",\n";
-
-  auto osFlags = os.flags();
-  // std::showbase doesn't work with number 0
-  os << "          Flags: 0x" << std::noshowbase << std::noshowpos << std::nouppercase
-     << std::hex << notification.getFlags() << "\n";
-  os.flags(osFlags);
+     << "          LinkType: " << notification.getLinkType() << ",\n"
+     << "          Flags: " << AsHex{notification.getFlags()} << "\n";
 
   return os << "          )";
 }

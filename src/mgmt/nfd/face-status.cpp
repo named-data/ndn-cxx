@@ -24,8 +24,7 @@
 #include "encoding/encoding-buffer.hpp"
 #include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
-
-#include <iomanip>
+#include "util/string-helper.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -366,15 +365,9 @@ operator<<(std::ostream& os, const FaceStatus& status)
 
   os << "     FaceScope: " << status.getFaceScope() << ",\n"
      << "     FacePersistency: " << status.getFacePersistency() << ",\n"
-     << "     LinkType: " << status.getLinkType() << ",\n";
-
-  auto osFlags = os.flags();
-  // std::showbase doesn't work with number 0
-  os << "     Flags: 0x" << std::noshowbase << std::noshowpos << std::nouppercase
-     << std::hex << status.getFlags() << ",\n";
-  os.flags(osFlags);
-
-  os << "     Counters: {Interests: {in: " << status.getNInInterests() << ", "
+     << "     LinkType: " << status.getLinkType() << ",\n"
+     << "     Flags: " << AsHex{status.getFlags()} << ",\n"
+     << "     Counters: {Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"
      << "                Data: {in: " << status.getNInDatas() << ", "
      << "out: " << status.getNOutDatas() << "},\n"

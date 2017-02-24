@@ -104,7 +104,7 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
       trimmedString.erase(0, getSha256DigestUriPrefix().size());
       return fromImplicitSha256Digest(fromHex(trimmedString));
     }
-    catch (StringHelperError& e) {
+    catch (const StringHelperError&) {
       BOOST_THROW_EXCEPTION(Error("Cannot convert to a ImplicitSha256DigestComponent (invalid hex "
                                   "encoding)"));
     }
@@ -154,7 +154,7 @@ Component::toUri(std::ostream& result) const
     }
     else {
       // In case we need to escape, set to upper case hex and save the previous flags.
-      std::ios::fmtflags saveFlags = result.flags(std::ios::hex | std::ios::uppercase);
+      auto savedFlags = result.flags(std::ios::hex | std::ios::uppercase);
 
       for (size_t i = 0; i < valueSize; ++i) {
         uint8_t x = value[i];
@@ -172,7 +172,7 @@ Component::toUri(std::ostream& result) const
       }
 
       // Restore.
-      result.flags(saveFlags);
+      result.flags(savedFlags);
     }
   }
 }

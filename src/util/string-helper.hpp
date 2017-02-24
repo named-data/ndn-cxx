@@ -39,17 +39,60 @@ public:
 };
 
 /**
- * @brief Output the hex representation of the bytes in array to the output stream @p os
+ * @brief Helper class to convert a number to hexadecimal
+ *        format, for use with stream insertion operators
+ *
+ * Example usage:
+ *
+ * @code
+ * std::cout << AsHex{42};                   // outputs "0x2a"
+ * std::cout << std::uppercase << AsHex{42}; // outputs "0x2A"
+ * @endcode
+ */
+class AsHex
+{
+public:
+  constexpr explicit
+  AsHex(uint64_t val) noexcept
+    : m_value(val)
+  {
+  }
+
+private:
+  uint64_t m_value;
+
+  friend std::ostream& operator<<(std::ostream&, const AsHex&);
+};
+
+std::ostream&
+operator<<(std::ostream& os, const AsHex& hex);
+
+/**
+ * @brief Output the hex representation of @p num to the output stream @p os
  *
  * @param os Output stream
- * @param buffer The array of bytes
+ * @param num Number to print in hexadecimal format
+ * @param wantUpperCase if true, print uppercase hex chars; the default is to use lowercase
+ *
+ * The output string is a continuous sequence of hex characters without any whitespace separators.
+ */
+void
+printHex(std::ostream& os, uint64_t num, bool wantUpperCase = false);
+
+/**
+ * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
+ *
+ * @param os Output stream
+ * @param buffer Pointer to an array of bytes
  * @param length Size of the array
- * @param wantUpperCase if true (default) output use uppercase for hex values
+ * @param wantUpperCase if true (the default) print uppercase hex chars
  *
  * Examples:
  *
- *     printHex(std::cout, "Hello, World!") outputs "48656C6C6F2C20776F726C6421"
- *     printHex(std::cout, "Hello, World!", false) outputs "48656c6c6f2c20776f726c6421"
+ * @code
+ * printHex(std::cout, "Hello, World!");        // outputs "48656C6C6F2C20776F726C6421"
+ * printHex(std::cout, "Hello, World!", false); // outputs "48656c6c6f2c20776f726c6421"
+ * @endcode
  *
  * Each octet is always represented as two hex characters ("00" for octet==0).
  *
@@ -59,26 +102,28 @@ void
 printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase = true);
 
 /**
- * @brief Output the hex representation of the bytes in the @p buffer to the output stream @p os
+ * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
  *
  * @param os Output stream
- * @param buffer The array of bytes
- * @param wantUpperCase if true (default) output use uppercase for hex values
+ * @param buffer Buffer of bytes to print in hexadecimal format
+ * @param wantUpperCase if true (the default) print uppercase hex chars
  */
 void
 printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase = true);
 
 /**
- * @brief Return the hex representation of the bytes in array
+ * @brief Return a string containing the hex representation of the bytes in @p buffer
  *
- * @param buffer The array of bytes
+ * @param buffer Pointer to an array of bytes
  * @param length Size of the array
- * @param wantUpperCase if true (default) output use uppercase for hex values
+ * @param wantUpperCase if true (the default) use uppercase hex chars
  *
  * Examples:
  *
- *     toHex("Hello, World!") == "48656C6C6F2C20776F726C6421"
- *     toHex("Hello, World!", false) == "48656c6c6f2c20776f726c6421"
+ * @code
+ * toHex("Hello, World!") == "48656C6C6F2C20776F726C6421"
+ * toHex("Hello, World!", false) == "48656c6c6f2c20776f726c6421"
+ * @endcode
  *
  * Each octet is always represented as two hex characters ("00" for octet==0).
  *
@@ -88,10 +133,10 @@ std::string
 toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true);
 
 /**
- * @brief Return the hex representation of the bytes in the @p buffer to the output stream @p os
+ * @brief Return a string containing the hex representation of the bytes in @p buffer
  *
- * @param buffer The array of bytes
- * @param wantUpperCase if true (default) output use uppercase for hex values
+ * @param buffer Buffer of bytes to convert to hexadecimal format
+ * @param wantUpperCase if true (the default) use uppercase hex chars
  */
 std::string
 toHex(const Buffer& buffer, bool wantUpperCase = true);
@@ -119,8 +164,10 @@ fromHex(const std::string& hexString);
  *
  * Examples:
  *
- *     unescape("hello%20world") == "hello world"
- *     unescape("hello%20world%FooBar") == "hello world%FooBar"
+ * @code
+ * unescape("hello%20world") == "hello world"
+ * unescape("hello%20world%FooBar") == "hello world%FooBar"
+ * @endcode
  */
 std::string
 unescape(const std::string& str);

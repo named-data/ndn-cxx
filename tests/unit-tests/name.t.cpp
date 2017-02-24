@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,27 +67,18 @@ BOOST_AUTO_TEST_CASE(Basic)
 BOOST_AUTO_TEST_CASE(Encode)
 {
   Name name("/local/ndn/prefix");
+  const Block& wire = name.wireEncode();
 
-  const Block &wire = name.wireEncode();
-
-  // for (Buffer::const_iterator i = wire.begin();
-  //      i != wire.end();
-  //      ++i)
-  //   {
-  //     std::ios::fmtflags saveFlags = std::cout.flags(std::ios::hex);
-
-  //     if (i != wire.begin())
-  //       std::cout << ", ";
-  //     std::cout << "0x" << static_cast<uint32_t>(*i);
-
-  //     std::cout.flags(saveFlags);
-  //   }
+  // for (auto i = wire.begin(); i != wire.end(); ++i) {
+  //   if (i != wire.begin())
+  //     std::cout << ", ";
+  //   printHex(std::cout, *i);
+  // }
   // std::cout << std::endl;
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(TestName, TestName+sizeof(TestName),
+  BOOST_CHECK_EQUAL_COLLECTIONS(TestName, TestName + sizeof(TestName),
                                 wire.begin(), wire.end());
 }
-
 
 BOOST_AUTO_TEST_CASE(Decode)
 {

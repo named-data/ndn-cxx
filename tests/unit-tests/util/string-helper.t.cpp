@@ -31,6 +31,47 @@ namespace test {
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestStringHelper)
 
+BOOST_AUTO_TEST_CASE(PrintHex)
+{
+  boost::test_tools::output_test_stream os;
+
+  printHex(os, 0);
+  BOOST_CHECK(os.is_equal("0x0"));
+
+  printHex(os, 42);
+  BOOST_CHECK(os.is_equal("0x2a"));
+
+  printHex(os, 2748, true);
+  BOOST_CHECK(os.is_equal("0xABC"));
+
+  printHex(os, static_cast<uint64_t>(-1));
+  BOOST_CHECK(os.is_equal("0xffffffffffffffff"));
+
+  printHex(os, ~0U, true);
+  BOOST_CHECK(os.is_equal("0xFFFFFFFF"));
+
+  printHex(os, ~0ULL, true);
+  BOOST_CHECK(os.is_equal("0xFFFFFFFFFFFFFFFF"));
+}
+
+BOOST_AUTO_TEST_CASE(AsHex)
+{
+  using ndn::AsHex;
+  boost::test_tools::output_test_stream os;
+
+  os << AsHex{0};
+  BOOST_CHECK(os.is_equal("0x0"));
+
+  os << AsHex{42};
+  BOOST_CHECK(os.is_equal("0x2a"));
+
+  os << std::uppercase << AsHex{~0U};
+  BOOST_CHECK(os.is_equal("0xFFFFFFFF"));
+
+  os << std::nouppercase << AsHex{~0U};
+  BOOST_CHECK(os.is_equal("0xffffffff"));
+}
+
 BOOST_AUTO_TEST_CASE(ToHex)
 {
   std::string test = "Hello, world!";

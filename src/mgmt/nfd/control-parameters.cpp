@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
 #include "util/concepts.hpp"
+#include "util/string-helper.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -304,15 +305,11 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
   }
 
   if (parameters.hasFlags()) {
-    std::ios_base::fmtflags osFlags = os.flags();
-    os << "Flags: " << std::showbase << std::hex << parameters.getFlags() << ", ";
-    os.flags(osFlags);
+    os << "Flags: " << AsHex{parameters.getFlags()} << ", ";
   }
 
   if (parameters.hasMask()) {
-    std::ios_base::fmtflags osFlags = os.flags();
-    os << "Mask: " << std::showbase << std::hex << parameters.getMask() << ", ";
-    os.flags(osFlags);
+    os << "Mask: " << AsHex{parameters.getMask()} << ", ";
   }
 
   if (parameters.hasStrategy()) {

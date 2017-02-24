@@ -20,9 +20,10 @@
  */
 
 #include "nfd-constants.hpp"
+#include "util/string-helper.hpp"
 
-#include <iostream>
 #include <map>
+#include <ostream>
 
 namespace ndn {
 namespace nfd {
@@ -137,20 +138,17 @@ operator<<(std::ostream& os, RouteFlags routeFlags)
     std::string token;
     std::tie(bit, token) = pair;
 
-    if ((routeFlags & bit) == 0) {
-      continue;
+    if ((routeFlags & bit) != 0) {
+      printToken(token);
+      routeFlags = static_cast<RouteFlags>(routeFlags & ~bit);
     }
-
-    printToken(token);
-    routeFlags = static_cast<RouteFlags>(routeFlags & ~bit);
   }
 
-  if (routeFlags != 0) {
-    printToken("0x");
-    std::ios_base::fmtflags oldFmt = os.flags();
-    os << std::hex << std::nouppercase
-       << static_cast<uint64_t>(routeFlags);
-    os.flags(oldFmt);
+  if (routeFlags != ROUTE_FLAGS_NONE) {
+    if (!isFirst) {
+      os << '|';
+    }
+    os << AsHex{routeFlags};
   }
 
   return os;
