@@ -99,7 +99,7 @@ operator<<(std::ostream& os, RouteOrigin routeOrigin);
 
 /** \ingroup management
  */
-enum RouteFlags {
+enum RouteFlags : uint64_t {
   ROUTE_FLAGS_NONE         = 0,
   ROUTE_FLAG_CHILD_INHERIT = 1,
   ROUTE_FLAG_CAPTURE       = 2,

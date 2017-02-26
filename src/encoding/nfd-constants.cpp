@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "nfd-constants.hpp"
+
 #include <iostream>
 #include <map>
 
@@ -148,7 +149,7 @@ operator<<(std::ostream& os, RouteFlags routeFlags)
     printToken("0x");
     std::ios_base::fmtflags oldFmt = os.flags();
     os << std::hex << std::nouppercase
-       << static_cast<unsigned>(routeFlags);
+       << static_cast<uint64_t>(routeFlags);
     os.flags(oldFmt);
   }
 
