@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,10 +24,7 @@
 
 #include "../common.hpp"
 #include "../encoding/encoding-buffer.hpp"
-
-#include <boost/concept/assert.hpp>
-#include <boost/concept/usage.hpp>
-#include <boost/type_traits.hpp>
+#include "../util/concepts.hpp"
 
 namespace ndn {
 namespace lp {
@@ -63,11 +60,11 @@ class Fragment : public Base
 template<class X>
 struct Field
 {
-  BOOST_CONCEPT_ASSERT((boost::is_base_of<field_location_tags::Base, typename X::FieldLocation>));
-  BOOST_CONCEPT_ASSERT((boost::DefaultConstructible<typename X::ValueType>));
+  static_assert(std::is_base_of<field_location_tags::Base, typename X::FieldLocation>::value, "");
+  static_assert(std::is_same<typename X::TlvType::value_type, uint64_t>::value, "");
+  static_assert(std::is_same<typename X::IsRepeatable::value_type, bool>::value, "");
+  NDN_CXX_ASSERT_DEFAULT_CONSTRUCTIBLE(typename X::ValueType);
   BOOST_CONCEPT_ASSERT((boost::CopyConstructible<typename X::ValueType>));
-  BOOST_CONCEPT_ASSERT((boost::is_same<typename X::TlvType::value_type, uint64_t>));
-  BOOST_CONCEPT_ASSERT((boost::is_same<typename X::IsRepeatable::value_type, bool>));
   BOOST_CONCEPT_USAGE(Field)
   {
     Block wire;

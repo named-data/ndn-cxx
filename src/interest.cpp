@@ -24,6 +24,8 @@
 #include "util/crypto.hpp"
 #include "data.hpp"
 
+#include <cstring>
+
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Interest>));

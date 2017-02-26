@@ -22,13 +22,11 @@
 #ifndef NDN_ENCODING_TLV_HPP
 #define NDN_ENCODING_TLV_HPP
 
-#include <stdexcept>
-#include <iostream>
-#include <iterator>
-#include <limits>
-
 #include "buffer.hpp"
 #include "endian.hpp"
+
+#include <iostream>
+#include <iterator>
 
 namespace ndn {
 

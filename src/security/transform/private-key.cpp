@@ -20,16 +20,16 @@
  */
 
 #include "private-key.hpp"
-#include "buffer-source.hpp"
-#include "stream-source.hpp"
-#include "base64-encode.hpp"
 #include "base64-decode.hpp"
+#include "base64-encode.hpp"
+#include "buffer-source.hpp"
 #include "stream-sink.hpp"
-#include "../../encoding/buffer-stream.hpp"
+#include "stream-source.hpp"
 #include "../detail/openssl-helper.hpp"
 #include "../key-params.hpp"
+#include "../../encoding/buffer-stream.hpp"
 
-#include <string.h>
+#include <cstring>
 
 #define ENSURE_PRIVATE_KEY_LOADED(key) \
   do { \

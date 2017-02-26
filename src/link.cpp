@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,9 +25,7 @@
 #include "util/crypto.hpp"
 #include "security/key-chain.hpp"
 
-#include <algorithm>
-
-#include <boost/range/adaptors.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 
@@ -160,7 +158,7 @@ Link::decodeContent()
     try {
       preference = static_cast<uint32_t>(readNonNegativeInteger(*val));
     }
-    catch (tlv::Error&) {
+    catch (const tlv::Error&) {
       BOOST_THROW_EXCEPTION(Error("Missing Preference field in Link Encoding"));
     }
     ++val;

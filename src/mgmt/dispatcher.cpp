@@ -23,8 +23,6 @@
 #include "../lp/tags.hpp"
 #include "../util/logger.hpp"
 
-#include <algorithm>
-
 NDN_LOG_INIT(ndn.mgmt.Dispatcher);
 
 namespace ndn {
