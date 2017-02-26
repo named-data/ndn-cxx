@@ -348,13 +348,9 @@ operator<<(std::ostream& os, const RibEntry& entry)
   os << "RibEntry(Prefix: " << entry.getName() << ",\n"
      << "         Routes: [";
 
-  bool isFirst = true;
-  for (const auto& route : entry.getRoutes()) {
-    if (!isFirst)
-      os << ",\n                  ";
-    isFirst = false;
-    os << route;
-  }
+  std::copy(entry.getRoutes().begin(), entry.getRoutes().end(),
+            make_ostream_joiner(os, ",\n                  "));
+
   os << "]\n";
 
   return os << "         )";

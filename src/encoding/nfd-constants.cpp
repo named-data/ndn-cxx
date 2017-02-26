@@ -119,36 +119,25 @@ operator<<(std::ostream& os, RouteFlags routeFlags)
     return os << "none";
   }
 
-  bool isFirst = true;
-  auto printToken = [&os, &isFirst] (const std::string& token) {
-    if (isFirst) {
-      isFirst = false;
-    }
-    else {
-      os << '|';
-    }
-    os << token;
-  };
-
   static const std::map<RouteFlags, std::string> knownBits = {
     {ROUTE_FLAG_CHILD_INHERIT, "child-inherit"},
-    {ROUTE_FLAG_CAPTURE, "capture"}};
+    {ROUTE_FLAG_CAPTURE, "capture"}
+  };
+
+  auto join = make_ostream_joiner(os, '|');
   for (const auto& pair : knownBits) {
     RouteFlags bit = ROUTE_FLAGS_NONE;
     std::string token;
     std::tie(bit, token) = pair;
 
     if ((routeFlags & bit) != 0) {
-      printToken(token);
+      join = token;
       routeFlags = static_cast<RouteFlags>(routeFlags & ~bit);
     }
   }
 
   if (routeFlags != ROUTE_FLAGS_NONE) {
-    if (!isFirst) {
-      os << '|';
-    }
-    os << AsHex{routeFlags};
+    join = AsHex{routeFlags};
   }
 
   return os;

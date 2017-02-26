@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,7 @@
 #include "exclude.hpp"
 #include "encoding/block-helpers.hpp"
 
-#include <boost/range/adaptors.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 
@@ -317,19 +317,13 @@ Exclude::excludeAfter(const name::Component& from)
 std::ostream&
 operator<<(std::ostream& os, const Exclude& exclude)
 {
-  bool isFirst = true;
+  auto join = make_ostream_joiner(os, ',');
   for (const Exclude::Entry& entry : exclude.m_entries | boost::adaptors::reversed) {
     if (!entry.first.isNegInf) {
-      if (!isFirst)
-        os << ",";
-      entry.first.component.toUri(os);
-      isFirst = false;
+      join = entry.first.component;
     }
     if (entry.second) {
-      if (!isFirst)
-        os << ",";
-      os << "*";
-      isFirst = false;
+      join = '*';
     }
   }
   return os;

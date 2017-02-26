@@ -269,13 +269,9 @@ operator<<(std::ostream& os, const FibEntry& entry)
   os << "FibEntry(Prefix: " << entry.getPrefix() << ",\n"
      << "         NextHops: [";
 
-  bool first = true;
-  for (const auto& nh : entry.getNextHopRecords()) {
-    if (!first)
-      os << ",\n                    ";
-    first = false;
-    os << nh;
-  }
+  std::copy(entry.getNextHopRecords().begin(), entry.getNextHopRecords().end(),
+            make_ostream_joiner(os, ",\n                    "));
+
   os << "]\n";
 
   return os << "         )";

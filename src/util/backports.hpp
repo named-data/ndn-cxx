@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2015-2016 Regents of the University of California.
+ * Copyright (c) 2015-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,11 +28,9 @@
 #include <boost/lexical_cast.hpp>
 #endif
 
-#include <algorithm>
-
 namespace ndn {
 
-#if __cpp_lib_make_unique
+#if __cpp_lib_make_unique >= 201304
 using std::make_unique;
 #else
 template<typename T, typename ...Args>
@@ -75,5 +73,6 @@ clamp(const T& v, const T& lo, const T& hi)
 } // namespace ndn
 
 #include "backports-optional.hpp"
+#include "backports-ostream-joiner.hpp"
 
 #endif // NDN_UTIL_BACKPORTS_HPP
