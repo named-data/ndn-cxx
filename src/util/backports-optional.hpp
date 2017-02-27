@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,6 +44,47 @@
 
 #include "../common.hpp"
 
+#ifdef __has_include
+#  if (__cplusplus > 201402L) && __has_include(<optional>)
+#    include <optional>
+#    define NDN_CXX_HAVE_STD_OPTIONAL
+#  elif (__cplusplus > 201103L) && __has_include(<experimental/optional>)
+#    include <experimental/optional>
+#    if __cpp_lib_experimental_optional >= 201411
+#      define NDN_CXX_HAVE_EXPERIMENTAL_OPTIONAL
+#    endif
+#  endif
+#endif
+
+#if defined(NDN_CXX_HAVE_STD_OPTIONAL)
+
+namespace ndn {
+using std::optional;
+using std::in_place;
+using std::nullopt;
+using std::bad_optional_access;
+using std::make_optional;
+} // namespace ndn
+
+#elif defined(NDN_CXX_HAVE_EXPERIMENTAL_OPTIONAL)
+
+namespace ndn {
+using std::experimental::optional;
+using std::experimental::in_place;
+using std::experimental::nullopt;
+using std::experimental::bad_optional_access;
+using std::experimental::make_optional;
+
+template<typename T, typename... Args>
+constexpr optional<T>
+make_optional(Args&&... args)
+{
+  return optional<T>(in_place, std::forward<Args>(args)...);
+}
+} // namespace ndn
+
+#else
+
 #include <boost/none.hpp>
 #include <boost/optional.hpp>
 #include <boost/utility/typed_in_place_factory.hpp>
@@ -66,7 +107,7 @@ public:
   {
   }
 };
-constexpr nullopt_t nullopt(0);
+constexpr nullopt_t nullopt{0};
 
 #if BOOST_VERSION >= 105600
 using boost::bad_optional_access;
@@ -306,4 +347,5 @@ make_optional(Args&&... args)
 
 } // namespace ndn
 
+#endif
 #endif // NDN_UTIL_BACKPORTS_OPTIONAL_HPP
