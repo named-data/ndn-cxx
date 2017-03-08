@@ -100,6 +100,11 @@ BOOST_AUTO_TEST_CASE(Aes)
   BOOST_CHECK_EQUAL(params5.getKeySize(), 128);
   BOOST_CHECK_EQUAL(params5.getKeyIdType(), KeyIdType::USER_SPECIFIED);
   BOOST_CHECK_EQUAL(params5.getKeyId(), keyId);
+
+  AesKeyParams params6(192);
+  BOOST_CHECK(params6.getKeyType() == KeyType::AES);
+  BOOST_CHECK_EQUAL(params6.getKeySize(), 192);
+  BOOST_CHECK(params6.getKeyIdType() == KeyIdType::RANDOM);
 }
 
 BOOST_AUTO_TEST_CASE(KeyIdTypeInfo)

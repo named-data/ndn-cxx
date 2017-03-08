@@ -238,6 +238,20 @@ public:
     setKeySize(size);
   }
 
+  /**
+   * @brief Create key parameter with auto-created keyId.
+   *
+   * This method is used only if user does not want to maintain the uniqueness of key name.
+   * By default, an 8-byte random number will be used as the key Id.
+   */
+  explicit
+  SimpleSymmetricKeyParams(uint32_t size = KeyParamsInfo::getDefaultSize(),
+                           KeyIdType keyIdType = KeyIdType::RANDOM)
+    : KeyParams(KeyParamsInfo::getType(), keyIdType)
+  {
+    setKeySize(size);
+  }
+
   uint32_t
   getKeySize() const
   {
