@@ -74,6 +74,9 @@ public: // getters & setters
   FaceStatus&
   setExpirationPeriod(time::milliseconds expirationPeriod);
 
+  FaceStatus&
+  unsetExpirationPeriod();
+
   uint64_t
   getNInInterests() const
   {

@@ -264,6 +264,14 @@ FaceStatus::setExpirationPeriod(time::milliseconds expirationPeriod)
 }
 
 FaceStatus&
+FaceStatus::unsetExpirationPeriod()
+{
+  m_wire.reset();
+  m_expirationPeriod = nullopt;
+  return *this;
+}
+
+FaceStatus&
 FaceStatus::setNInInterests(uint64_t nInInterests)
 {
   m_wire.reset();

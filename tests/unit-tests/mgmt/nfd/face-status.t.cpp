@@ -130,6 +130,19 @@ BOOST_AUTO_TEST_CASE(Print)
                     "     )");
 }
 
+BOOST_AUTO_TEST_CASE(ExpirationPeriod)
+{
+  FaceStatus status;
+  BOOST_CHECK_EQUAL(status.hasExpirationPeriod(), false);
+
+  status.setExpirationPeriod(time::minutes(1));
+  BOOST_REQUIRE_EQUAL(status.hasExpirationPeriod(), true);
+  BOOST_CHECK_EQUAL(status.getExpirationPeriod(), time::minutes(1));
+
+  status.unsetExpirationPeriod();
+  BOOST_CHECK_EQUAL(status.hasExpirationPeriod(), false);
+}
+
 BOOST_AUTO_TEST_CASE(FlagBit)
 {
   FaceStatus status;

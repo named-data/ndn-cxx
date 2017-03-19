@@ -83,6 +83,27 @@ BOOST_AUTO_TEST_CASE(RouteNoExpirationPeriodEncode)
   BOOST_CHECK_EQUAL(route1, route2);
 }
 
+BOOST_AUTO_TEST_CASE(RouteExpirationPeriod)
+{
+  Route route;
+  BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), false);
+  BOOST_CHECK_EQUAL(route.getExpirationPeriod(), time::milliseconds::max());
+
+  route.setExpirationPeriod(time::minutes(1));
+  BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), true);
+  BOOST_CHECK_EQUAL(route.getExpirationPeriod(), time::minutes(1));
+
+  route.setExpirationPeriod(time::milliseconds::max());
+  BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), false);
+  BOOST_CHECK_EQUAL(route.getExpirationPeriod(), time::milliseconds::max());
+
+  route.setExpirationPeriod(time::minutes(1));
+  BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), true);
+
+  route.unsetExpirationPeriod();
+  BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), false);
+}
+
 BOOST_AUTO_TEST_CASE(RouteEquality)
 {
   Route route1, route2;
