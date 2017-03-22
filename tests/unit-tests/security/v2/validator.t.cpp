@@ -36,6 +36,19 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(V2)
 BOOST_FIXTURE_TEST_SUITE(TestValidator, HierarchicalValidatorFixture<ValidationPolicySimpleHierarchy>)
 
+BOOST_AUTO_TEST_CASE(ConstructorSetValidator)
+{
+  auto middlePolicy = make_unique<ValidationPolicySimpleHierarchy>();
+  auto innerPolicy = make_unique<ValidationPolicySimpleHierarchy>();
+
+  validator.getPolicy().setInnerPolicy(std::move(middlePolicy));
+  validator.getPolicy().setInnerPolicy(std::move(innerPolicy));
+
+  BOOST_CHECK(validator.getPolicy().m_validator != nullptr);
+  BOOST_CHECK(validator.getPolicy().getInnerPolicy().m_validator != nullptr);
+  BOOST_CHECK(validator.getPolicy().getInnerPolicy().getInnerPolicy().m_validator != nullptr);
+}
+
 BOOST_AUTO_TEST_CASE(Timeouts)
 {
   processInterest = nullptr; // no response for all interests

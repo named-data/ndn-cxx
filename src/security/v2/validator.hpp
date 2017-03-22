@@ -71,6 +71,12 @@ public:
 
   ~Validator();
 
+  ValidationPolicy&
+  getPolicy();
+
+  CertificateFetcher&
+  getFetcher();
+
   /**
    * @brief Set the maximum depth of the certificate chain
    */

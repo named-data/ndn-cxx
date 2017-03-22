@@ -40,8 +40,39 @@ public:
   using ValidationContinuation = std::function<void(const shared_ptr<CertificateRequest>& certRequest,
                                                     const shared_ptr<ValidationState>& state)>;
 
+  ValidationPolicy()
+    : m_validator(nullptr)
+  {
+  }
+
   virtual
   ~ValidationPolicy() = default;
+
+  /**
+   * @brief Set inner policy
+   *
+   * Multiple assignments of the inner policy will create a "chain" of linked policies.
+   * The inner policy from the latest invocation of setInnerPolicy will be at the bottom
+   * of the policy list.
+   *
+   * For example, sequence of `this->setInnerPolicy(policy1)` and
+   * `this->setInnerPolicy(policy2)`, will result in `this->m_innerPolicy == policy1`,
+   * this->m_innerPolicy->m_innerPolicy == policy2', and
+   * `this->m_innerPolicy->m_innerPolicy->m_innerPolicy == nullptr`.
+   *
+   * @throw std::invalid_argument exception, if @p innerPolicy is nullptr.
+   */
+  void
+  setInnerPolicy(unique_ptr<ValidationPolicy> innerPolicy);
+
+  ValidationPolicy&
+  getInnerPolicy();
+
+  /**
+   * @brief Set validator to which the policy is associated
+   */
+  void
+  setValidator(Validator& validator);
 
   /**
    * @brief Check @p data against the policy
@@ -101,6 +132,10 @@ public:
   {
     checkPolicy(static_cast<const Data&>(certificate), state, continueValidation);
   }
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+  Validator* m_validator;
+  unique_ptr<ValidationPolicy> m_innerPolicy;
 };
 
 } // namespace v2
