@@ -58,6 +58,7 @@ enum LinkType : uint8_t {
   LINK_TYPE_NONE           = std::numeric_limits<uint8_t>::max(),
   LINK_TYPE_POINT_TO_POINT = 0, ///< link is point-to-point
   LINK_TYPE_MULTI_ACCESS   = 1, ///< link is multi-access
+  LINK_TYPE_AD_HOC         = 2, ///< link is ad hoc
 };
 
 std::ostream&

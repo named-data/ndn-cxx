@@ -68,6 +68,8 @@ operator<<(std::ostream& os, LinkType linkType)
       return os << "point-to-point";
     case LINK_TYPE_MULTI_ACCESS:
       return os << "multi-access";
+    case LINK_TYPE_AD_HOC:
+      return os << "adhoc";
   }
   return os << static_cast<unsigned>(linkType);
 }

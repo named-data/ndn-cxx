@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,6 +53,7 @@ BOOST_AUTO_TEST_CASE(PrintLinkType)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_NONE), "none");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_POINT_TO_POINT), "point-to-point");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_MULTI_ACCESS), "multi-access");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(LINK_TYPE_AD_HOC), "adhoc");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<LinkType>(104)), "104");
 }
 
