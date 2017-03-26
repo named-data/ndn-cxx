@@ -33,7 +33,7 @@ def build(bld):
         defines='UNIT_TEST_CONFIG_PATH=\"%s/tmp-files/\"' %(bld.bldnode),
         install_path=None)
 
-    if bld.env['HAVE_OSX_SECURITY']:
+    if bld.env['HAVE_OSX_FRAMEWORKS']:
         unit_tests.source += bld.path.ant_glob('unit-tests/**/*-osx.t.cpp')
 
     # In case we want to make it optional later

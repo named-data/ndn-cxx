@@ -12,7 +12,7 @@ GIT_TAG_PREFIX = "ndn-cxx-"
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
     opt.load(['default-compiler-flags', 'compiler-features', 'type_traits',
-              'coverage', 'pch', 'sanitizers', 'osx-security',
+              'coverage', 'pch', 'sanitizers', 'osx-frameworks',
               'boost', 'cryptopp', 'openssl', 'sqlite3',
               'doxygen', 'sphinx_build'],
              tooldir=['.waf-tools'])
@@ -68,7 +68,7 @@ def configure(conf):
 
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
                'default-compiler-flags', 'compiler-features', 'type_traits',
-               'pch', 'osx-security', 'boost', 'cryptopp', 'openssl', 'sqlite3',
+               'pch', 'osx-frameworks', 'boost', 'cryptopp', 'openssl', 'sqlite3',
                'doxygen', 'sphinx_build'])
 
     conf.env['WITH_TESTS'] = conf.options.with_tests
@@ -91,7 +91,7 @@ def configure(conf):
                        int main() { return IFA_FLAGS; }
                        ''')
 
-    conf.check_osx_security(mandatory=False)
+    conf.check_osx_frameworks()
 
     conf.check_sqlite3(mandatory=True)
     conf.check_cryptopp(mandatory=True, use='PTHREAD')
@@ -118,7 +118,7 @@ def configure(conf):
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
 
-    if conf.env['HAVE_OSX_SECURITY']:
+    if conf.env['HAVE_OSX_FRAMEWORKS']:
         conf.env['WITH_OSX_KEYCHAIN'] = conf.options.with_osx_keychain
         if conf.options.with_osx_keychain:
             conf.define('WITH_OSX_KEYCHAIN', 1)
@@ -164,7 +164,7 @@ def build(bld):
         target="ndn-cxx",
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
-                                 excl=['src/security/**/*-osx.cpp',
+                                 excl=['src/**/*-osx.cpp',
                                        'src/**/*-rtnl.cpp',
                                        'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
@@ -173,13 +173,12 @@ def build(bld):
         export_includes="src",
         install_path='${LIBDIR}')
 
+    if bld.env['HAVE_OSX_FRAMEWORKS']:
+        libndn_cxx['source'] += bld.path.ant_glob('src/**/*-osx.cpp')
+        libndn_cxx['use'] += " OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY"
+
     if bld.env['HAVE_RTNETLINK']:
         libndn_cxx['source'] += bld.path.ant_glob('src/**/*-rtnl.cpp')
-
-    if bld.env['HAVE_OSX_SECURITY']:
-        libndn_cxx['source'] += bld.path.ant_glob('src/security/**/*-osx.cpp')
-        libndn_cxx['mac_app'] = True
-        libndn_cxx['use'] += " OSX_COREFOUNDATION OSX_SECURITY"
 
     # In case we want to make it optional later
     libndn_cxx['source'] += bld.path.ant_glob('src/**/*-sqlite3.cpp')
@@ -213,8 +212,8 @@ def build(bld):
             pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
 
     EXTRA_FRAMEWORKS = ""
-    if bld.env['HAVE_OSX_SECURITY']:
-        EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework Security"
+    if bld.env['HAVE_OSX_FRAMEWORKS']:
+        EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework CoreServices -framework Security"
 
     def uniq(alist):
         seen = set()
@@ -245,11 +244,18 @@ def build(bld):
         bld.recurse("examples")
 
     headers = bld.path.ant_glob('src/**/*.hpp',
-                                excl=['src/security/**/*-osx.hpp',
-                                      'src/detail/**/*',
-                                      'src/util/detail/**/*'])
-    if bld.env['HAVE_OSX_SECURITY']:
-        headers += bld.path.ant_glob('src/security/**/*-osx.hpp')
+                                excl=['src/**/*-osx.hpp',
+                                      'src/**/*-rtnl.hpp',
+                                      'src/**/*-sqlite3.hpp',
+                                      'src/**/detail/**/*'])
+    if bld.env['HAVE_OSX_FRAMEWORKS']:
+        headers += bld.path.ant_glob('src/**/*-osx.hpp', excl='src/**/detail/**/*')
+
+    if bld.env['HAVE_RTNETLINK']:
+        headers += bld.path.ant_glob('src/**/*-rtnl.hpp', excl='src/**/detail/**/*')
+
+    # In case we want to make it optional later
+    headers += bld.path.ant_glob('src/**/*-sqlite3.hpp', excl='src/**/detail/**/*')
 
     bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'], headers,
                       relative_trick=True, cwd=bld.path.find_node('src'))

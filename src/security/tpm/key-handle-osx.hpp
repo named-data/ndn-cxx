@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,7 @@
 #include "key-handle.hpp"
 #include "helper-osx.hpp"
 
-#ifndef NDN_CXX_HAVE_OSX_SECURITY
+#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be compiled ..."
 #endif
 

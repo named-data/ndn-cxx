@@ -27,9 +27,9 @@
 #include "../pib/pib-sqlite3.hpp"
 #include "../pib/pib-memory.hpp"
 
-#ifdef NDN_CXX_HAVE_OSX_SECURITY
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #include "../tpm/back-end-osx.hpp"
-#endif // NDN_CXX_HAVE_OSX_SECURITY
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 
 #include "../tpm/back-end-file.hpp"
 #include "../tpm/back-end-mem.hpp"
@@ -62,9 +62,9 @@ NDN_CXX_V2_KEYCHAIN_REGISTER_PIB_BACKEND(PibMemory);
 // TPM //
 /////////
 namespace tpm {
-#if defined(NDN_CXX_HAVE_OSX_SECURITY) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndOsx);
-#endif // defined(NDN_CXX_HAVE_OSX_SECURITY) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#endif // defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 
 NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndFile);
 NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndMem);
@@ -100,11 +100,11 @@ KeyChain::getDefaultPibScheme()
 const std::string&
 KeyChain::getDefaultTpmScheme()
 {
-#if defined(NDN_CXX_HAVE_OSX_SECURITY) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
   return tpm::BackEndOsx::getScheme();;
 #else
   return tpm::BackEndFile::getScheme();
-#endif // defined(NDN_CXX_HAVE_OSX_SECURITY) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#endif // defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 }
 
 const std::string&

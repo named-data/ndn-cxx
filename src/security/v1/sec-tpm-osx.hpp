@@ -26,7 +26,7 @@
 
 #include "../../common.hpp"
 
-#ifndef NDN_CXX_HAVE_OSX_SECURITY
+#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This files should not be compiled ..."
 #endif
 

@@ -25,7 +25,7 @@
 #include "network-monitor.hpp"
 #include "ndn-cxx-config.hpp"
 
-#if defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
+#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
 #include "detail/network-monitor-impl-osx.hpp"
 #elif defined(NDN_CXX_HAVE_RTNETLINK)
 #include "detail/network-monitor-impl-rtnl.hpp"

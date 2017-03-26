@@ -52,8 +52,6 @@
 
 #include "ndn-cxx-config.hpp"
 
-#ifdef NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H
-
 #include "network-monitor-impl-osx.hpp"
 #include "../network-interface.hpp"
 
@@ -134,5 +132,3 @@ NetworkMonitor::Impl::pollCfLoop()
 
 } // namespace util
 } // namespace ndn
-
-#endif // NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H

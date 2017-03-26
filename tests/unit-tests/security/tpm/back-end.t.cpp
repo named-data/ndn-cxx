@@ -31,9 +31,9 @@
 
 #include "back-end-wrapper-file.hpp"
 #include "back-end-wrapper-mem.hpp"
-#ifdef NDN_CXX_HAVE_OSX_SECURITY
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #include "back-end-wrapper-osx.hpp"
-#endif // NDN_CXX_HAVE_OSX_SECURITY
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 #include "boost-test.hpp"
 
 #include <boost/mpl/list.hpp>
@@ -51,9 +51,9 @@ BOOST_AUTO_TEST_SUITE(TestBackEnd)
 using tpm::Tpm;
 
 typedef boost::mpl::list<
-#ifdef NDN_CXX_HAVE_OSX_SECURITY
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
   BackEndWrapperOsx,
-#endif // NDN_CXX_HAVE_OSX_SECURITY
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
   BackEndWrapperMem,
   BackEndWrapperFile
   > TestBackEnds;

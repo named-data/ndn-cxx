@@ -25,7 +25,7 @@
 #include "ndn-cxx-config.hpp"
 #include "../network-monitor.hpp"
 
-#ifndef NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H
+#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be compiled ..."
 #endif
 

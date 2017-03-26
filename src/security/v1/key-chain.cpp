@@ -29,9 +29,9 @@
 
 #include "sec-public-info-sqlite3.hpp"
 
-#ifdef NDN_CXX_HAVE_OSX_SECURITY
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #include "sec-tpm-osx.hpp"
-#endif // NDN_CXX_HAVE_OSX_SECURITY
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 
 #include "sec-tpm-file.hpp"
 
@@ -50,11 +50,11 @@ const RsaKeyParams KeyChain::DEFAULT_KEY_PARAMS;
 
 const std::string DEFAULT_PIB_SCHEME = "pib-sqlite3";
 
-#if defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 const std::string DEFAULT_TPM_SCHEME = "tpm-osxkeychain";
 #else
 const std::string DEFAULT_TPM_SCHEME = "tpm-file";
-#endif // defined(NDN_CXX_HAVE_OSX_SECURITY) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#endif // defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) and defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 
 // When static library is used, not everything is compiled into the resulting binary.
 // Therefore, the following standard PIB and TPMs need to be registered here.
@@ -63,9 +63,9 @@ const std::string DEFAULT_TPM_SCHEME = "tpm-file";
 // Also, cannot use Type::SCHEME, as its value may be uninitialized
 NDN_CXX_V1_KEYCHAIN_REGISTER_PIB(SecPublicInfoSqlite3, "pib-sqlite3", "sqlite3");
 
-#ifdef NDN_CXX_HAVE_OSX_SECURITY
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
 NDN_CXX_V1_KEYCHAIN_REGISTER_TPM(SecTpmOsx, "tpm-osxkeychain", "osx-keychain");
-#endif // NDN_CXX_HAVE_OSX_SECURITY
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 
 NDN_CXX_V1_KEYCHAIN_REGISTER_TPM(SecTpmFile, "tpm-file", "file");
 
@@ -650,7 +650,7 @@ KeyChain::importIdentity(const SecuredBag& securedBag, const std::string& passwo
 }
 
 const KeyParams&
-KeyChain::getDefaultKeyParamsForIdentity(const Name &identityName) const
+KeyChain::getDefaultKeyParamsForIdentity(const Name& identityName) const
 {
   KeyType keyType = KeyType::NONE;
   try {
