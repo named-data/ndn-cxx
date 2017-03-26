@@ -57,7 +57,6 @@ BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
     io.post([&] { nm.reset(); });
   });
   nm->onEnumerationCompleted.connect([&] {
-    BOOST_CHECK_EQUAL(nm->listNetworkInterfaces().size(), 0);
     // make sure the test case terminates even if we have zero interfaces
     io.post([&] { nm.reset(); });
   });

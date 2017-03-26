@@ -13,6 +13,12 @@ OSX_SECURITY_CODE = '''
 int main() {}
 '''
 
+OSX_SYSTEMCONFIGURATION_CODE = '''
+#include <CoreFoundation/CoreFoundation.h>
+#include <SystemConfiguration/SystemConfiguration.h>
+int main() {}
+'''
+
 @conf
 def check_osx_frameworks(conf, *k, **kw):
     if Utils.unversioned_sys_platform() == "darwin":
@@ -24,10 +30,13 @@ def check_osx_frameworks(conf, *k, **kw):
             conf.check_cxx(framework_name='Security', uselib_store='OSX_SECURITY',
                            use='OSX_COREFOUNDATION', fragment=OSX_SECURITY_CODE,
                            mandatory=True)
+            conf.check_cxx(framework_name='SystemConfiguration', uselib_store='OSX_SYSTEMCONFIGURATION',
+                           use='OSX_COREFOUNDATION', fragment=OSX_SYSTEMCONFIGURATION_CODE,
+                           mandatory=True)
 
             conf.define('HAVE_OSX_FRAMEWORKS', 1)
             conf.env['HAVE_OSX_FRAMEWORKS'] = True
         except:
-            Logs.warn("Compiling on OSX, but CoreFoundation, CoreServices, or Security " +
+            Logs.warn("Compiling on OSX, but CoreFoundation, CoreServices, Security, or SystemConfiguration " +
                       "framework is not functional.")
             Logs.warn("The frameworks are known to work only with the Apple clang compiler")

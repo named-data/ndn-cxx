@@ -29,11 +29,15 @@
 #error "This file should not be compiled ..."
 #endif
 
+#include "../network-interface.hpp"
 #include "../scheduler.hpp"
 #include "../scheduler-scoped-event-id.hpp"
+#include "../../security/tpm/helper-osx.hpp"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SystemConfiguration.h>
+
+#include <boost/asio/ip/udp.hpp>
 
 namespace ndn {
 namespace util {
@@ -48,8 +52,8 @@ public:
   uint32_t
   getCapabilities() const
   {
-    return NetworkMonitor::CAP_NONE;
-    /// \todo #3817 change to CAP_ENUM | CAP_IF_ADD_REMOVE | CAP_STATE_CHANGE | CAP_ADDR_ADD_REMOVE
+    return NetworkMonitor::CAP_ENUM | NetworkMonitor::CAP_IF_ADD_REMOVE |
+      NetworkMonitor::CAP_STATE_CHANGE | NetworkMonitor::CAP_ADDR_ADD_REMOVE;
   }
 
   shared_ptr<NetworkInterface>
@@ -72,11 +76,42 @@ private:
   void
   pollCfLoop();
 
+  void
+  addNewInterface(const std::string& ifName);
+
+  void
+  enumerateInterfaces();
+
+  std::set<std::string>
+  getInterfaceNames();
+
+  InterfaceState
+  getInterfaceState(const std::string& ifName);
+
+  void
+  updateInterfaceInfo(NetworkInterface& netif);
+
+  size_t
+  getInterfaceMtu(const std::string& ifName);
+
+  static void
+  onConfigChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, void* context);
+
+  void
+  onConfigChanged(CFArrayRef changedKeys);
+
 private:
   NetworkMonitor& m_nm;
+  std::map<std::string /*ifname*/, shared_ptr<NetworkInterface>> m_interfaces; ///< interface map
 
   Scheduler m_scheduler;
   scheduler::ScopedEventId m_cfLoopEvent;
+
+  SCDynamicStoreContext m_context;
+  CFReleaser<SCDynamicStoreRef> m_scStore;
+  CFReleaser<CFRunLoopSourceRef> m_loopSource;
+
+  boost::asio::ip::udp::socket m_nullUdpSocket;
 };
 
 } // namespace util

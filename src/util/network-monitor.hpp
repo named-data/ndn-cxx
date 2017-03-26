@@ -49,11 +49,9 @@ class NetworkInterface;
  *
  * @note Implementation of this class is platform dependent and not all supported platforms
  *       are supported:
- *       - OS X: CFNotificationCenterAddObserver (incomplete)
+ *       - OS X: SystemConfiguration and CFNotificationCenterAddObserver notifications (no
+ *         notification on MTU change)
  *       - Linux: rtnetlink notifications
- *
- * @todo macOS implementation needs to be updated to emit the new signals and keep track of
- *       interfaces (links) and addresses
  */
 class NetworkMonitor : noncopyable
 {

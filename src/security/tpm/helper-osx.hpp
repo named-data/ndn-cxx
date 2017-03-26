@@ -32,8 +32,6 @@
 #include <Security/Security.h>
 
 namespace ndn {
-namespace security {
-namespace tpm {
 
 /**
  * @brief Helper class to wrap CoreFoundation object pointers
@@ -145,10 +143,14 @@ private:
   T m_typeRef;
 };
 
-typedef CFReleaser<SecKeyRef> KeyRefOsx;
+namespace security {
+namespace tpm {
+
+using KeyRefOsx = CFReleaser<SecKeyRef>;
 
 } // namespace tpm
 } // namespace security
+
 } // namespace ndn
 
 #endif // NDN_SECURITY_TPM_HELPER_OSX_HPP
