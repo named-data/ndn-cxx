@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,19 +19,18 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_LP_DETAIL_FIELD_DECL_HPP
-#define NDN_CXX_LP_DETAIL_FIELD_DECL_HPP
+#ifndef NDN_CXX_LP_FIELD_DECL_HPP
+#define NDN_CXX_LP_FIELD_DECL_HPP
 
-#include "../field.hpp"
-#include "../tlv.hpp"
+#include "field.hpp"
+#include "tlv.hpp"
 
-#include "../../encoding/block-helpers.hpp"
-#include "../../util/concepts.hpp"
+#include "../encoding/block-helpers.hpp"
+#include "../util/concepts.hpp"
 #include <boost/concept/requires.hpp>
 
 namespace ndn {
 namespace lp {
-namespace detail {
 
 template<typename TlvType, typename T>
 struct DecodeHelper
@@ -140,8 +139,7 @@ public:
   }
 };
 
-} // namespace detail
 } // namespace lp
 } // namespace ndn
 
-#endif // NDN_CXX_LP_DETAIL_FIELD_DECL_HPP
+#endif // NDN_CXX_LP_FIELD_DECL_HPP

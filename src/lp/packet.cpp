@@ -20,7 +20,7 @@
  */
 
 #include "packet.hpp"
-#include "detail/field-info.hpp"
+#include "field-info.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -104,9 +104,9 @@ Packet::wireDecode(const Block& wire)
   wire.parse();
 
   bool isFirst = true;
-  detail::FieldInfo prev;
+  FieldInfo prev;
   for (const Block& element : wire.elements()) {
-    detail::FieldInfo info(element.type());
+    FieldInfo info(element.type());
 
     if (!info.isRecognized && !info.canIgnore) {
       BOOST_THROW_EXCEPTION(Error("unrecognized field " + to_string(element.type()) + " cannot be ignored"));
@@ -117,7 +117,7 @@ Packet::wireDecode(const Block& wire)
         BOOST_THROW_EXCEPTION(Error("non-repeatable field " + to_string(element.type()) + " cannot be repeated"));
       }
 
-      else if (info.tlvType != prev.tlvType && !detail::compareFieldSortOrder(prev, info)) {
+      else if (info.tlvType != prev.tlvType && !compareFieldSortOrder(prev, info)) {
         BOOST_THROW_EXCEPTION(Error("fields are not in correct sort order"));
       }
     }
@@ -132,9 +132,9 @@ Packet::wireDecode(const Block& wire)
 bool
 Packet::comparePos(uint64_t first, const Block& second)
 {
-  detail::FieldInfo firstInfo(first);
-  detail::FieldInfo secondInfo(second.type());
-  return detail::compareFieldSortOrder(firstInfo, secondInfo);
+  FieldInfo firstInfo(first);
+  FieldInfo secondInfo(second.type());
+  return compareFieldSortOrder(firstInfo, secondInfo);
 }
 
 } // namespace lp

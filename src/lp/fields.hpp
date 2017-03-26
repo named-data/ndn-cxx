@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_LP_FIELDS_HPP
 #define NDN_CXX_LP_FIELDS_HPP
 
-#include "detail/field-decl.hpp"
+#include "field-decl.hpp"
 
 #include "sequence.hpp"
 #include "cache-policy.hpp"
@@ -33,64 +33,64 @@
 namespace ndn {
 namespace lp {
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          Sequence,
-                          tlv::Sequence> SequenceField;
+typedef FieldDecl<field_location_tags::Header,
+                  Sequence,
+                  tlv::Sequence> SequenceField;
 BOOST_CONCEPT_ASSERT((Field<SequenceField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          uint64_t,
-                          tlv::FragIndex> FragIndexField;
+typedef FieldDecl<field_location_tags::Header,
+                  uint64_t,
+                  tlv::FragIndex> FragIndexField;
 BOOST_CONCEPT_ASSERT((Field<FragIndexField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          uint64_t,
-                          tlv::FragCount> FragCountField;
+typedef FieldDecl<field_location_tags::Header,
+                  uint64_t,
+                  tlv::FragCount> FragCountField;
 BOOST_CONCEPT_ASSERT((Field<FragCountField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          NackHeader,
-                          tlv::Nack> NackField;
+typedef FieldDecl<field_location_tags::Header,
+                  NackHeader,
+                  tlv::Nack> NackField;
 BOOST_CONCEPT_ASSERT((Field<NackField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          uint64_t,
-                          tlv::NextHopFaceId> NextHopFaceIdField;
+typedef FieldDecl<field_location_tags::Header,
+                  uint64_t,
+                  tlv::NextHopFaceId> NextHopFaceIdField;
 BOOST_CONCEPT_ASSERT((Field<NextHopFaceIdField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          CachePolicy,
-                          tlv::CachePolicy> CachePolicyField;
+typedef FieldDecl<field_location_tags::Header,
+                  CachePolicy,
+                  tlv::CachePolicy> CachePolicyField;
 BOOST_CONCEPT_ASSERT((Field<CachePolicyField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          uint64_t,
-                          tlv::IncomingFaceId> IncomingFaceIdField;
+typedef FieldDecl<field_location_tags::Header,
+                  uint64_t,
+                  tlv::IncomingFaceId> IncomingFaceIdField;
 BOOST_CONCEPT_ASSERT((Field<IncomingFaceIdField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          uint64_t,
-                          tlv::CongestionMark> CongestionMarkField;
+typedef FieldDecl<field_location_tags::Header,
+                  uint64_t,
+                  tlv::CongestionMark> CongestionMarkField;
 BOOST_CONCEPT_ASSERT((Field<CongestionMarkField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          Sequence,
-                          tlv::Ack,
-                          true> AckField;
+typedef FieldDecl<field_location_tags::Header,
+                  Sequence,
+                  tlv::Ack,
+                  true> AckField;
 BOOST_CONCEPT_ASSERT((Field<AckField>));
 
-typedef detail::FieldDecl<field_location_tags::Header,
-                          Sequence,
-                          tlv::TxSequence> TxSequenceField;
+typedef FieldDecl<field_location_tags::Header,
+                  Sequence,
+                  tlv::TxSequence> TxSequenceField;
 BOOST_CONCEPT_ASSERT((Field<TxSequenceField>));
 
 /**
  * The value of the wire encoded field is the data between the provided iterators. During
  * encoding, the data is copied from the Buffer into the wire buffer.
  */
-typedef detail::FieldDecl<field_location_tags::Fragment,
-                          std::pair<Buffer::const_iterator, Buffer::const_iterator>,
-                          tlv::Fragment> FragmentField;
+typedef FieldDecl<field_location_tags::Fragment,
+                  std::pair<Buffer::const_iterator, Buffer::const_iterator>,
+                  tlv::Fragment> FragmentField;
 BOOST_CONCEPT_ASSERT((Field<FragmentField>));
 
 /**
