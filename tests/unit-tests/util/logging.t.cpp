@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,6 +29,8 @@
 namespace ndn {
 namespace util {
 namespace tests {
+
+NDN_LOG_INIT(ndn.util.tests.Logging);
 
 using namespace ndn::tests;
 using boost::test_tools::output_test_stream;
@@ -89,6 +91,14 @@ private:
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_FIXTURE_TEST_SUITE(TestLogging, LoggingFixture)
+
+BOOST_AUTO_TEST_CASE(GetLoggerNames)
+{
+  NDN_LOG_TRACE("GetLoggerNames"); // to avoid unused function warning
+  std::set<std::string> names = Logging::getLoggerNames();
+  BOOST_CHECK_GT(names.size(), 0);
+  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Logging"), 1);
+}
 
 BOOST_AUTO_TEST_SUITE(Severity)
 

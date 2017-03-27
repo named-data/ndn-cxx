@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,8 @@
 #include "logger.hpp"
 
 #include <boost/log/expressions.hpp>
+#include <boost/range/algorithm/copy.hpp>
+#include <boost/range/adaptor/map.hpp>
 #include <cstdlib>
 #include <fstream>
 
@@ -64,6 +66,16 @@ Logging::addLoggerImpl(Logger& logger)
   }
   LogLevel level = levelIt == m_enabledLevel.end() ? INITIAL_DEFAULT_LEVEL : levelIt->second;
   logger.setLevel(level);
+}
+
+std::set<std::string>
+Logging::getLoggerNamesImpl()
+{
+  std::lock_guard<std::mutex> lock(m_mutex);
+
+  std::set<std::string> loggerNames;
+  boost::copy(m_loggers | boost::adaptors::map_keys, std::inserter(loggerNames, loggerNames.end()));
+  return loggerNames;
 }
 
 #ifdef NDN_CXX_HAVE_TESTS

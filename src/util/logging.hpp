@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,6 +51,11 @@ public:
    */
   static void
   addLogger(Logger& logger);
+
+  /** \brief get list of names of all registered loggers
+   */
+  static std::set<std::string>
+  getLoggerNames();
 
   /** \brief set severity level
    *  \param moduleName logger name, or "*" for default level
@@ -111,6 +116,9 @@ private:
   void
   addLoggerImpl(Logger& logger);
 
+  std::set<std::string>
+  getLoggerNamesImpl();
+
   void
   setLevelImpl(const std::string& moduleName, LogLevel level);
 
@@ -158,6 +166,12 @@ inline void
 Logging::addLogger(Logger& logger)
 {
   get().addLoggerImpl(logger);
+}
+
+inline std::set<std::string>
+Logging::getLoggerNames()
+{
+  return get().getLoggerNamesImpl();
 }
 
 inline void
