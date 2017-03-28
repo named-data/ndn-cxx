@@ -29,6 +29,8 @@
 #include "util/network-interface.hpp"
 #include "util/time.hpp"
 
+#include "util/detail/link-type-helper.hpp"
+
 #include "boost-test.hpp"
 
 #include <boost/asio/io_service.hpp>
@@ -70,10 +72,11 @@ BOOST_AUTO_TEST_CASE(Signals)
 
   monitor.onInterfaceAdded.connect([] (const shared_ptr<NetworkInterface>& ni) {
     logEvent(ni) << "onInterfaceAdded\n" << *ni;
+    logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << "\n";
 
     ni->onAddressAdded.connect([ni] (const NetworkAddress& address) {
       logEvent(ni) << "onAddressAdded " << address << std::endl;
-    });
+      });
 
     ni->onAddressRemoved.connect([ni] (const NetworkAddress& address) {
       logEvent(ni) << "onAddressRemoved " << address << std::endl;
@@ -81,6 +84,7 @@ BOOST_AUTO_TEST_CASE(Signals)
 
     ni->onStateChanged.connect([ni] (InterfaceState oldState, InterfaceState newState) {
       logEvent(ni) << "onStateChanged " << oldState << " -> " << newState << std::endl;
+      logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << "\n";
     });
 
     ni->onMtuChanged.connect([ni] (uint32_t oldMtu, uint32_t newMtu) {

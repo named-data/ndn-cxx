@@ -34,12 +34,16 @@ def check_osx_frameworks(conf, *k, **kw):
                            use='OSX_COREFOUNDATION', fragment=OSX_SYSTEMCONFIGURATION_CODE,
                            mandatory=True)
 
+            conf.check_cxx(framework_name='Foundation', uselib_store='OSX_FOUNDATION',
+                           mandatory=True, compile_filename='test.mm')
+            conf.check_cxx(framework_name='CoreWLAN', uselib_store='OSX_COREWLAN',
+                           use="OSX_FOUNDATION", mandatory=True, compile_filename='test.mm')
+
             conf.define('HAVE_OSX_FRAMEWORKS', 1)
             conf.env['HAVE_OSX_FRAMEWORKS'] = True
         except:
-            Logs.warn("Compiling on OSX, but CoreFoundation, CoreServices, Security, or SystemConfiguration " +
-                      "framework is not functional.")
-            Logs.warn("The frameworks are known to work only with the Apple clang compiler")
+            Logs.warn("Compiling on macOS, but required framework(s) is(are) not functional.")
+            Logs.warn("Note that the frameworks are known to work only with the Apple clang compiler.")
 
 @TaskGen.extension('.mm')
 def m_hook(self, node):

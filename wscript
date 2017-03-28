@@ -166,7 +166,7 @@ def build(bld):
             target="ndn-cxx-mm",
             name="ndn-cxx-mm",
             source=bld.path.ant_glob(['src/**/*-osx.mm']),
-            use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION',
+            use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
             includes=". src")
 
     libndn_cxx = dict(
@@ -184,7 +184,7 @@ def build(bld):
 
     if bld.env['HAVE_OSX_FRAMEWORKS']:
         libndn_cxx['source'] += bld.path.ant_glob('src/**/*-osx.cpp')
-        libndn_cxx['use'] += " OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION"
+        libndn_cxx['use'] += " OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN"
 
     if bld.env['HAVE_RTNETLINK']:
         libndn_cxx['source'] += bld.path.ant_glob('src/**/*-rtnl.cpp')
@@ -222,7 +222,7 @@ def build(bld):
 
     EXTRA_FRAMEWORKS = ""
     if bld.env['HAVE_OSX_FRAMEWORKS']:
-        EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework CoreServices -framework Security -framework SystemConfiguration"
+        EXTRA_FRAMEWORKS = "-framework CoreFoundation -framework CoreServices -framework Security -framework SystemConfiguration -framework Foundation -framework CoreWLAN"
 
     def uniq(alist):
         seen = set()
