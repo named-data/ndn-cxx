@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-from waflib import Logs, Utils
+from waflib import Logs, Utils, TaskGen
 from waflib.Configure import conf
 
 OSX_SECURITY_CODE = '''
@@ -40,3 +40,8 @@ def check_osx_frameworks(conf, *k, **kw):
             Logs.warn("Compiling on OSX, but CoreFoundation, CoreServices, Security, or SystemConfiguration " +
                       "framework is not functional.")
             Logs.warn("The frameworks are known to work only with the Apple clang compiler")
+
+@TaskGen.extension('.mm')
+def m_hook(self, node):
+    """Alias .mm files to be compiled the same as .cpp files, gcc/clang will do the right thing."""
+    return self.create_compiled_task('cxx', node)

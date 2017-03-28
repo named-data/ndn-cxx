@@ -160,6 +160,15 @@ def build(bld):
         VERSION_MINOR=VERSION_SPLIT[1],
         VERSION_PATCH=VERSION_SPLIT[2])
 
+    if bld.env['HAVE_OSX_FRAMEWORKS']:
+        # Need to disable precompiled headers for Objective-C++ code
+        bld(features=['cxx'],
+            target="ndn-cxx-mm",
+            name="ndn-cxx-mm",
+            source=bld.path.ant_glob(['src/**/*-osx.mm']),
+            use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION',
+            includes=". src")
+
     libndn_cxx = dict(
         target="ndn-cxx",
         name="ndn-cxx",
@@ -168,7 +177,7 @@ def build(bld):
                                        'src/**/*-rtnl.cpp',
                                        'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
-        use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD',
+        use='version ndn-cxx-mm BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}')
