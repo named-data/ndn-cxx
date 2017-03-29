@@ -37,6 +37,7 @@ enum ControlParameterField {
   CONTROL_PARAMETER_NAME,
   CONTROL_PARAMETER_FACE_ID,
   CONTROL_PARAMETER_URI,
+  CONTROL_PARAMETER_LOCAL_URI,
   CONTROL_PARAMETER_LOCAL_CONTROL_FEATURE,
   CONTROL_PARAMETER_ORIGIN,
   CONTROL_PARAMETER_COST,
@@ -52,6 +53,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "Name",
   "FaceId",
   "Uri",
+  "LocalUri",
   "LocalControlFeature",
   "Origin",
   "Cost",
@@ -74,7 +76,7 @@ enum LocalControlFeature {
 /**
  * \ingroup management
  * \brief represents parameters in a ControlCommand request or response
- * \sa http://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
  * \details This type is copyable because it's an abstraction of a TLV type.
  */
 class ControlParameters : public mgmt::ControlParameters
@@ -193,6 +195,36 @@ public: // getters & setters
   {
     m_wire.reset();
     m_hasFields[CONTROL_PARAMETER_URI] = false;
+    return *this;
+  }
+
+  bool
+  hasLocalUri() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_LOCAL_URI];
+  }
+
+  const std::string&
+  getLocalUri() const
+  {
+    BOOST_ASSERT(this->hasLocalUri());
+    return m_localUri;
+  }
+
+  ControlParameters&
+  setLocalUri(const std::string& localUri)
+  {
+    m_wire.reset();
+    m_localUri = localUri;
+    m_hasFields[CONTROL_PARAMETER_LOCAL_URI] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetLocalUri()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_LOCAL_URI] = false;
     return *this;
   }
 
@@ -492,6 +524,7 @@ private: // fields
   Name                m_name;
   uint64_t            m_faceId;
   std::string         m_uri;
+  std::string         m_localUri;
   LocalControlFeature m_localControlFeature;
   uint64_t            m_origin;
   uint64_t            m_cost;

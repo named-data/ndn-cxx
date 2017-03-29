@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,6 +35,7 @@ BOOST_AUTO_TEST_CASE(FaceOptions)
 {
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
+  parameters.setLocalUri("dev://eth0");
   parameters.setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
   parameters.setFlags(1);
   parameters.setMask(1);
@@ -42,6 +43,7 @@ BOOST_AUTO_TEST_CASE(FaceOptions)
 
   ControlParameters decoded(wire);
   BOOST_CHECK_EQUAL(decoded.getUri(), "tcp4://192.0.2.1:6363");
+  BOOST_CHECK_EQUAL(decoded.getLocalUri(), "dev://eth0");
   BOOST_CHECK_EQUAL(decoded.getFacePersistency(), ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
   BOOST_CHECK_EQUAL(decoded.getFlags(), 1);
   BOOST_CHECK_EQUAL(decoded.getMask(), 1);
@@ -68,6 +70,7 @@ BOOST_AUTO_TEST_CASE(FaceLocalControlOptions)
   BOOST_CHECK_EQUAL(decoded.hasName(), false);
   BOOST_CHECK_EQUAL(decoded.hasFaceId(), false);
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
+  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
   BOOST_CHECK_EQUAL(decoded.hasCost(), false);
   BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
@@ -91,6 +94,7 @@ BOOST_AUTO_TEST_CASE(FibOptions)
   BOOST_CHECK_EQUAL(decoded.getCost(), 555);
 
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
+  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalControlFeature(), false);
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
   BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
@@ -114,6 +118,7 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceOptions)
 
   BOOST_CHECK_EQUAL(decoded.hasFaceId(), false);
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
+  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalControlFeature(), false);
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
   BOOST_CHECK_EQUAL(decoded.hasCost(), false);
@@ -144,6 +149,7 @@ BOOST_AUTO_TEST_CASE(RibOptions)
   BOOST_CHECK_EQUAL(decoded.getExpirationPeriod(), time::milliseconds(1800000));
 
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
+  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalControlFeature(), false);
   BOOST_CHECK_EQUAL(decoded.hasMask(), false);
   BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
