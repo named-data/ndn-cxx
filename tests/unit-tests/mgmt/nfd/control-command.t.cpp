@@ -53,6 +53,7 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
 
   ControlParameters p4;
   p4.setUri("tcp4://192.0.2.1")
+    .setLocalUri("dev://eth0")
     .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
     .setFlags(0x3)
     .setMask(0x1);

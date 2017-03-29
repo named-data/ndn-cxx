@@ -96,6 +96,7 @@ FaceCreateCommand::FaceCreateCommand()
 {
   m_requestValidator
     .required(CONTROL_PARAMETER_URI)
+    .optional(CONTROL_PARAMETER_LOCAL_URI)
     .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
     .optional(CONTROL_PARAMETER_FLAGS)
     .optional(CONTROL_PARAMETER_MASK);
