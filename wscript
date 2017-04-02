@@ -77,24 +77,19 @@ def configure(conf):
 
     conf.find_program('sh', var='SH', mandatory=True)
 
-    conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD',
-                   mandatory=False)
+    conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
-    conf.check_cxx(msg='Checking for function getpass', mandatory=False,
-                   define_name='HAVE_GETPASS', fragment='''
-#include <unistd.h>
-int
-main(int, char**)
-{
-  char* pass = getpass("test prompt");
-  (void)(pass);
-  return 0;
-}
-''')
+    conf.check_cxx(function_name='getpass', header_name='unistd.h', mandatory=False)
 
-    conf.check_cxx(msg='Checking for rtnetlink', mandatory=False,
-                   define_name='HAVE_RTNETLINK',
-                   header_name=['netinet/in.h', 'linux/netlink.h', 'linux/rtnetlink.h', 'net/if.h'])
+    if conf.check_cxx(msg='Checking for rtnetlink', define_name='HAVE_RTNETLINK', mandatory=False,
+                      header_name=['linux/if_addr.h', 'linux/if_link.h',
+                                   'linux/netlink.h', 'linux/rtnetlink.h']):
+        conf.env['HAVE_RTNETLINK'] = True
+        conf.check_cxx(msg='Checking for IFA_FLAGS', define_name='HAVE_IFA_FLAGS', mandatory=False,
+                       fragment='''
+                       #include <linux/if_addr.h>
+                       int main() { return IFA_FLAGS; }
+                       ''')
 
     conf.check_osx_security(mandatory=False)
 
@@ -167,12 +162,16 @@ def build(bld):
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
                                  excl=['src/security/**/*-osx.cpp',
+                                       'src/**/*-rtnl.cpp',
                                        'src/**/*-sqlite3.cpp']),
         headers='src/common-pch.hpp',
         use='version BOOST CRYPTOPP OPENSSL SQLITE3 RT PTHREAD',
         includes=". src",
         export_includes="src",
         install_path='${LIBDIR}')
+
+    if bld.env['HAVE_RTNETLINK']:
+        libndn_cxx['source'] += bld.path.ant_glob('src/**/*-rtnl.cpp')
 
     if bld.env['HAVE_OSX_SECURITY']:
         libndn_cxx['source'] += bld.path.ant_glob('src/security/**/*-osx.cpp')

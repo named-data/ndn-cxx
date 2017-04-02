@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -17,34 +17,97 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
 #ifndef NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP
 #define NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP
 
+#include "ndn-cxx-config.hpp"
 #include "../network-monitor.hpp"
 
+#ifndef NDN_CXX_HAVE_RTNETLINK
+#error "This file should not be compiled ..."
+#endif
+
 #include <boost/asio/posix/stream_descriptor.hpp>
+
+#include <array>
+#include <map>
+
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <linux/if_addr.h>
+#include <linux/if_link.h>
 
 namespace ndn {
 namespace util {
 
-const size_t NETLINK_BUFFER_SIZE = 4096;
-
 class NetworkMonitor::Impl
 {
 public:
+  /** \brief initialize netlink socket and start enumerating interfaces
+   */
   Impl(NetworkMonitor& nm, boost::asio::io_service& io);
 
+  ~Impl();
+
+  shared_ptr<NetworkInterface>
+  getNetworkInterface(const std::string& ifname) const;
+
+  std::vector<shared_ptr<NetworkInterface>>
+  listNetworkInterfaces() const;
+
 private:
+  struct RtnlRequest
+  {
+    nlmsghdr nlh;
+    ifinfomsg ifi;
+    rtattr rta __attribute__((aligned(NLMSG_ALIGNTO))); // rtattr has to be aligned
+    uint32_t rtext;                                     // space for IFLA_EXT_MASK
+  };
+
+  bool
+  isEnumerating() const;
+
   void
-  onReceiveRtNetlink(const boost::system::error_code& error, size_t nBytesReceived);
+  initSocket();
+
+  void
+  sendDumpRequest(uint16_t nlmsgType);
+
+  void
+  asyncRead();
+
+  void
+  handleRead(const boost::system::error_code& error, size_t nBytesReceived,
+             const shared_ptr<boost::asio::posix::stream_descriptor>& socket);
+
+  void
+  parseNetlinkMessage(const nlmsghdr* nlh, size_t len);
+
+  void
+  parseLinkMessage(const nlmsghdr* nlh, const ifinfomsg* ifi);
+
+  void
+  parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* ifa);
+
+  void
+  parseRouteMessage(const nlmsghdr* nlh, const rtmsg* rtm);
+
+  static void
+  updateInterfaceState(NetworkInterface& interface, uint8_t operState);
 
 private:
   NetworkMonitor& m_nm;
-
-  uint8_t m_buffer[NETLINK_BUFFER_SIZE];
-  boost::asio::posix::stream_descriptor m_socket;
+  std::map<int /*ifindex*/, shared_ptr<NetworkInterface>> m_interfaces; ///< interface map
+  std::array<uint8_t, 16384> m_buffer; ///< holds netlink messages received from the kernel
+  shared_ptr<boost::asio::posix::stream_descriptor> m_socket; ///< the netlink socket
+  uint32_t m_pid; ///< our port ID (unicast address for netlink sockets)
+  uint32_t m_sequenceNo; ///< sequence number of the last netlink request sent to the kernel
+  bool m_isEnumeratingLinks; ///< true if a dump of all links is in progress
+  bool m_isEnumeratingAddresses; ///< true if a dump of all addresses is in progress
 };
 
 } // namespace util

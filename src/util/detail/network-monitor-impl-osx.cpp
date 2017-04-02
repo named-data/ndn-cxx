@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -55,6 +55,7 @@
 #ifdef NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H
 
 #include "network-monitor-impl-osx.hpp"
+#include "../network-interface.hpp"
 
 namespace ndn {
 namespace util {
@@ -93,11 +94,23 @@ NetworkMonitor::Impl::~Impl()
                                           static_cast<void*>(this));
 }
 
+shared_ptr<NetworkInterface>
+NetworkMonitor::Impl::getNetworkInterface(const std::string& ifname) const
+{
+  return nullptr;
+}
+
+std::vector<shared_ptr<NetworkInterface>>
+NetworkMonitor::Impl::listNetworkInterfaces() const
+{
+  return {};
+}
+
 void
 NetworkMonitor::Impl::afterNotificationCenterEvent(CFNotificationCenterRef center,
-                                                   void *observer,
+                                                   void* observer,
                                                    CFStringRef name,
-                                                   const void *object,
+                                                   const void* object,
                                                    CFDictionaryRef userInfo)
 {
   static_cast<Impl*>(observer)->m_nm.onNetworkStateChanged();

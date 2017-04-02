@@ -18,56 +18,42 @@
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  *
- * @author Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-monitor.hpp"
-#include "ndn-cxx-config.hpp"
-
-#if defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
-#include "detail/network-monitor-impl-osx.hpp"
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#else
+#include "network-address.hpp"
 
 namespace ndn {
 namespace util {
 
-class NetworkMonitor::Impl
+std::ostream&
+operator<<(std::ostream& os, AddressScope scope)
 {
-public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  {
-    BOOST_THROW_EXCEPTION(Error("Network monitoring is not supported on this platform"));
+  switch (scope) {
+    case AddressScope::NOWHERE:
+      return os << "nowhere";
+    case AddressScope::HOST:
+      return os << "host";
+    case AddressScope::LINK:
+      return os << "link";
+    case AddressScope::GLOBAL:
+      return os << "global";
   }
-};
+  return os;
+}
 
-} // namespace util
-} // namespace ndn
-
-#endif
-
-namespace ndn {
-namespace util {
-
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(make_unique<Impl>(*this, io))
+NetworkAddress::NetworkAddress()
+  : m_family(AddressFamily::UNSPECIFIED)
+  , m_flags(0)
+  , m_scope(AddressScope::NOWHERE)
+  , m_prefixLength(0)
 {
 }
 
-NetworkMonitor::~NetworkMonitor() = default;
-
-shared_ptr<NetworkInterface>
-NetworkMonitor::getNetworkInterface(const std::string& ifname) const
+std::ostream&
+operator<<(std::ostream& os, const NetworkAddress& addr)
 {
-  return m_impl->getNetworkInterface(ifname);
-}
-
-std::vector<shared_ptr<NetworkInterface>>
-NetworkMonitor::listNetworkInterfaces() const
-{
-  return m_impl->listNetworkInterfaces();
+  return os << addr.getIp() << '/' << static_cast<unsigned int>(addr.getPrefixLength());
 }
 
 } // namespace util

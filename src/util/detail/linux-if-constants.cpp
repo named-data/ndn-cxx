@@ -18,57 +18,34 @@
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  *
- * @author Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-monitor.hpp"
-#include "ndn-cxx-config.hpp"
+#ifdef __linux__
 
-#if defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
-#include "detail/network-monitor-impl-osx.hpp"
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#else
+#include "linux-if-constants.hpp"
+
+#include <sys/socket.h>
+#include <linux/if.h>
 
 namespace ndn {
 namespace util {
+namespace linux_if {
 
-class NetworkMonitor::Impl
-{
-public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  {
-    BOOST_THROW_EXCEPTION(Error("Network monitoring is not supported on this platform"));
-  }
-};
+const uint32_t FLAG_LOWER_UP = IFF_LOWER_UP;
+const uint32_t FLAG_DORMANT  = IFF_DORMANT;
+const uint32_t FLAG_ECHO     = IFF_ECHO;
 
+const uint8_t OPER_STATE_UNKNOWN        = IF_OPER_UNKNOWN;
+const uint8_t OPER_STATE_NOTPRESENT     = IF_OPER_NOTPRESENT;
+const uint8_t OPER_STATE_DOWN           = IF_OPER_DOWN;
+const uint8_t OPER_STATE_LOWERLAYERDOWN = IF_OPER_LOWERLAYERDOWN;
+const uint8_t OPER_STATE_TESTING        = IF_OPER_TESTING;
+const uint8_t OPER_STATE_DORMANT        = IF_OPER_DORMANT;
+const uint8_t OPER_STATE_UP             = IF_OPER_UP;
+
+} // namespace linux_if
 } // namespace util
 } // namespace ndn
 
-#endif
-
-namespace ndn {
-namespace util {
-
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(make_unique<Impl>(*this, io))
-{
-}
-
-NetworkMonitor::~NetworkMonitor() = default;
-
-shared_ptr<NetworkInterface>
-NetworkMonitor::getNetworkInterface(const std::string& ifname) const
-{
-  return m_impl->getNetworkInterface(ifname);
-}
-
-std::vector<shared_ptr<NetworkInterface>>
-NetworkMonitor::listNetworkInterfaces() const
-{
-  return m_impl->listNetworkInterfaces();
-}
-
-} // namespace util
-} // namespace ndn
+#endif // __linux__

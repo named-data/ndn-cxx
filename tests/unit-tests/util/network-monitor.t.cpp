@@ -17,58 +17,51 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Alexander Afanasyev <alexander.afanasyev@ucla.edu>
- * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-monitor.hpp"
-#include "ndn-cxx-config.hpp"
+#include "util/network-monitor.hpp"
 
-#if defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
-#include "detail/network-monitor-impl-osx.hpp"
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#else
+#include "boost-test.hpp"
+#include <boost/asio/io_service.hpp>
 
 namespace ndn {
 namespace util {
+namespace tests {
 
-class NetworkMonitor::Impl
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
+
+BOOST_AUTO_TEST_CASE(DestructWithoutRun)
 {
-public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  {
-    BOOST_THROW_EXCEPTION(Error("Network monitoring is not supported on this platform"));
-  }
-};
+  boost::asio::io_service io;
+  auto nm = make_unique<NetworkMonitor>(io);
+  nm.reset();
+  BOOST_CHECK(true); // if we got this far, the test passed
+}
 
-} // namespace util
-} // namespace ndn
+BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
+{
+#ifdef __linux__
+  boost::asio::io_service io;
+  auto nm = make_unique<NetworkMonitor>(io);
 
+  nm->onInterfaceAdded.connect([&] (const shared_ptr<NetworkInterface>&) {
+    io.post([&] { nm.reset(); });
+  });
+  nm->onEnumerationCompleted.connect([&] {
+    BOOST_CHECK_EQUAL(nm->listNetworkInterfaces().size(), 0);
+    // make sure the test case terminates even if we have zero interfaces
+    io.post([&] { nm.reset(); });
+  });
+
+  io.run();
 #endif
-
-namespace ndn {
-namespace util {
-
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(make_unique<Impl>(*this, io))
-{
+  BOOST_CHECK(true); // if we got this far, the test passed
 }
 
-NetworkMonitor::~NetworkMonitor() = default;
+BOOST_AUTO_TEST_SUITE_END() // TestNetworkMonitor
+BOOST_AUTO_TEST_SUITE_END() // Util
 
-shared_ptr<NetworkInterface>
-NetworkMonitor::getNetworkInterface(const std::string& ifname) const
-{
-  return m_impl->getNetworkInterface(ifname);
-}
-
-std::vector<shared_ptr<NetworkInterface>>
-NetworkMonitor::listNetworkInterfaces() const
-{
-  return m_impl->listNetworkInterfaces();
-}
-
+} // namespace tests
 } // namespace util
 } // namespace ndn

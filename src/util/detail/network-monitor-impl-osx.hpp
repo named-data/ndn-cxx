@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,12 @@
 #ifndef NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
 #define NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
 
+#include "ndn-cxx-config.hpp"
 #include "../network-monitor.hpp"
+
+#ifndef NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H
+#error "This file should not be compiled ..."
+#endif
 
 #include "../scheduler.hpp"
 #include "../scheduler-scoped-event-id.hpp"
@@ -40,11 +45,17 @@ public:
 
   ~Impl();
 
+  shared_ptr<NetworkInterface>
+  getNetworkInterface(const std::string& ifname) const;
+
+  std::vector<shared_ptr<NetworkInterface>>
+  listNetworkInterfaces() const;
+
   static void
   afterNotificationCenterEvent(CFNotificationCenterRef center,
-                               void *observer,
+                               void* observer,
                                CFStringRef name,
-                               const void *object,
+                               const void* object,
                                CFDictionaryRef userInfo);
 
 private:
