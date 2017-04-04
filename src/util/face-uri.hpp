@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014-2016, Regents of the University of California,
- *                          Arizona Board of Regents,
- *                          Colorado State University,
- *                          University Pierre & Marie Curie, Sorbonne University,
- *                          Washington University in St. Louis,
- *                          Beijing Institute of Technology,
- *                          The University of Memphis.
+ * Copyright (c) 2013-2017 Regents of the University of California,
+ *                         Arizona Board of Regents,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University,
+ *                         Washington University in St. Louis,
+ *                         Beijing Institute of Technology,
+ *                         The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,7 @@ class Address;
 } // namespace ethernet
 
 /** \brief represents the underlying protocol and address used by a Face
- *  \sa http://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#FaceUri
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#FaceUri
  */
 class FaceUri
 {
@@ -181,7 +181,7 @@ public: // canonical FaceUri
   canonize(const CanonizeSuccessCallback& onSuccess,
            const CanonizeFailureCallback& onFailure,
            boost::asio::io_service& io,
-           const time::nanoseconds& timeout) const;
+           time::nanoseconds timeout) const;
 
 private:
   std::string m_scheme;

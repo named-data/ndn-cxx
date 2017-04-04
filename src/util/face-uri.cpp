@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014-2017, Regents of the University of California,
- *                          Arizona Board of Regents,
- *                          Colorado State University,
- *                          University Pierre & Marie Curie, Sorbonne University,
- *                          Washington University in St. Louis,
- *                          Beijing Institute of Technology,
- *                          The University of Memphis.
+ * Copyright (c) 2013-2017 Regents of the University of California,
+ *                         Arizona Board of Regents,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University,
+ *                         Washington University in St. Louis,
+ *                         Beijing Institute of Technology,
+ *                         The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -233,7 +233,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, const time::nanoseconds& timeout) const = 0;
+           boost::asio::io_service& io, time::nanoseconds timeout) const = 0;
 };
 
 template<typename Protocol>
@@ -275,7 +275,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, const time::nanoseconds& timeout) const override
+           boost::asio::io_service& io, time::nanoseconds timeout) const override
   {
     if (this->isCanonical(faceUri)) {
       onSuccess(faceUri);
@@ -433,7 +433,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, const time::nanoseconds& timeout) const override
+           boost::asio::io_service& io, time::nanoseconds timeout) const override
   {
     auto addr = ethernet::Address::fromString(faceUri.getHost());
     if (addr.isNull()) {
@@ -441,6 +441,46 @@ public:
     }
 
     FaceUri canonicalUri(addr);
+    BOOST_ASSERT(canonicalUri.isCanonical());
+    onSuccess(canonicalUri);
+  }
+};
+
+class DevCanonizeProvider : public CanonizeProvider
+{
+public:
+  std::set<std::string>
+  getSchemes() const override
+  {
+    return {"dev"};
+  }
+
+  bool
+  isCanonical(const FaceUri& faceUri) const override
+  {
+    return !faceUri.getHost().empty() && faceUri.getPort().empty() && faceUri.getPath().empty();
+  }
+
+  void
+  canonize(const FaceUri& faceUri,
+           const FaceUri::CanonizeSuccessCallback& onSuccess,
+           const FaceUri::CanonizeFailureCallback& onFailure,
+           boost::asio::io_service& io, time::nanoseconds timeout) const override
+  {
+    if (faceUri.getHost().empty()) {
+      onFailure("network interface name is missing");
+      return;
+    }
+    if (!faceUri.getPort().empty()) {
+      onFailure("port number is not allowed");
+      return;
+    }
+    if (!faceUri.getPath().empty() && faceUri.getPath() != "/") { // permit trailing slash only
+      onFailure("path is not allowed");
+      return;
+    }
+
+    FaceUri canonicalUri = FaceUri::fromDev(faceUri.getHost());
     BOOST_ASSERT(canonicalUri.isCanonical());
     onSuccess(canonicalUri);
   }
@@ -471,7 +511,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, const time::nanoseconds& timeout) const override
+           boost::asio::io_service& io, time::nanoseconds timeout) const override
   {
     if (this->isCanonical(faceUri)) {
       onSuccess(faceUri);
@@ -485,6 +525,7 @@ public:
 using CanonizeProviders = boost::mpl::vector<UdpCanonizeProvider*,
                                              TcpCanonizeProvider*,
                                              EtherCanonizeProvider*,
+                                             DevCanonizeProvider*,
                                              UdpDevCanonizeProvider*>;
 using CanonizeProviderTable = std::map<std::string, shared_ptr<CanonizeProvider>>;
 
@@ -549,7 +590,7 @@ FaceUri::isCanonical() const
 void
 FaceUri::canonize(const CanonizeSuccessCallback& onSuccess,
                   const CanonizeFailureCallback& onFailure,
-                  boost::asio::io_service& io, const time::nanoseconds& timeout) const
+                  boost::asio::io_service& io, time::nanoseconds timeout) const
 {
   const CanonizeProvider* cp = getCanonizeProvider(this->getScheme());
   if (cp == nullptr) {

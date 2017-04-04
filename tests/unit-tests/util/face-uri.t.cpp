@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014-2016, Regents of the University of California,
- *                          Arizona Board of Regents,
- *                          Colorado State University,
- *                          University Pierre & Marie Curie, Sorbonne University,
- *                          Washington University in St. Louis,
- *                          Beijing Institute of Technology,
- *                          The University of Memphis.
+ * Copyright (c) 2013-2017 Regents of the University of California,
+ *                         Arizona Board of Regents,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University,
+ *                         Washington University in St. Louis,
+ *                         Beijing Institute of Technology,
+ *                         The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -401,6 +401,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeEther, CanonizeFixture)
   runTests();
 }
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(ParseDev, 1)
 BOOST_AUTO_TEST_CASE(ParseDev)
 {
   FaceUri uri;
@@ -411,9 +412,33 @@ BOOST_AUTO_TEST_CASE(ParseDev)
   BOOST_CHECK_EQUAL(uri.getPort(), "");
   BOOST_CHECK_EQUAL(uri.getPath(), "");
 
+  BOOST_CHECK_EQUAL(uri.parse("dev://eth0:8888"), false); // Bug #3896
+
   std::string ifname = "en1";
-  BOOST_REQUIRE_NO_THROW(FaceUri::fromDev(ifname));
-  BOOST_CHECK_EQUAL(FaceUri::fromDev(ifname).toString(), "dev://en1");
+  BOOST_REQUIRE_NO_THROW(uri = FaceUri::fromDev(ifname));
+  BOOST_CHECK_EQUAL(uri.toString(), "dev://en1");
+}
+
+BOOST_AUTO_TEST_CASE(IsCanonicalDev)
+{
+  BOOST_CHECK_EQUAL(FaceUri::canCanonize("dev"), true);
+
+  BOOST_CHECK_EQUAL(FaceUri("dev://eth0").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("dev://").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("dev://eth0:8888").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("dev://eth0/").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("dev://eth0/A").isCanonical(), false);
+}
+
+BOOST_FIXTURE_TEST_CASE(CanonizeDev, CanonizeFixture)
+{
+  addTest("dev://eth0", true, "dev://eth0");
+  addTest("dev://", false, "");
+  addTest("dev://eth0:8888", false, "");
+  addTest("dev://eth0/", true, "dev://eth0");
+  addTest("dev://eth0/A", false, "");
+
+  runTests();
 }
 
 BOOST_AUTO_TEST_CASE(ParseUdpDev)
@@ -496,19 +521,16 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUnsupported, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("null"), false);
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("unix"), false);
   BOOST_CHECK_EQUAL(FaceUri::canCanonize("fd"), false);
-  BOOST_CHECK_EQUAL(FaceUri::canCanonize("dev"), false);
 
   BOOST_CHECK_EQUAL(FaceUri("internal://").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("null://").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("unix:///var/run/nfd.sock").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("fd://0").isCanonical(), false);
-  BOOST_CHECK_EQUAL(FaceUri("dev://eth1").isCanonical(), false);
 
   addTest("internal://", false, "");
   addTest("null://", false, "");
   addTest("unix:///var/run/nfd.sock", false, "");
   addTest("fd://0", false, "");
-  addTest("dev://eth1", false, "");
 
   runTests();
 }
