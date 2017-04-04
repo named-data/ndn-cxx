@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -72,10 +72,10 @@ enum {
 
   // ForwarderStatus and FaceStatus counters
   NInInterests  = 144,
-  NInDatas      = 145,
+  NInData       = 145,
   NInNacks      = 151,
   NOutInterests = 146,
-  NOutDatas     = 147,
+  NOutData      = 147,
   NOutNacks     = 152,
   NInBytes      = 148,
   NOutBytes     = 149,
@@ -90,8 +90,10 @@ enum {
   // RIB Management
   RibEntry = 128,
   Route    = 129
-
 };
+
+DEPRECATED() constexpr auto NInDatas = NInData;
+DEPRECATED() constexpr auto NOutDatas = NOutData;
 
 enum {
   // Local Control Header

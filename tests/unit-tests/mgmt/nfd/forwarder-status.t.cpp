@@ -45,10 +45,10 @@ makeForwarderStatus()
       .setNMeasurementsEntries(1771725298)
       .setNCsEntries(1264968688)
       .setNInInterests(612811615)
-      .setNInDatas(1843576050)
+      .setNInData(1843576050)
       .setNInNacks(1234)
       .setNOutInterests(952144445)
-      .setNOutDatas(138198826)
+      .setNOutData(138198826)
       .setNOutNacks(4321);
 }
 

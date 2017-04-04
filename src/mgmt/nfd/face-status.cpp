@@ -54,30 +54,18 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::Flags, m_flags);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NOutBytes, m_nOutBytes);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NInBytes, m_nInBytes);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NOutNacks, m_nOutNacks);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NOutDatas, m_nOutData);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NOutInterests, m_nOutInterests);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NInNacks, m_nInNacks);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NInDatas, m_nInData);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::NInInterests, m_nInInterests);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::LinkType, m_linkType);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FacePersistency, m_facePersistency);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceScope, m_faceScope);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutBytes, m_nOutBytes);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInBytes, m_nInBytes);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutNacks, m_nOutNacks);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutData, m_nOutData);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutInterests, m_nOutInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInNacks, m_nInNacks);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInData, m_nInData);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInInterests, m_nInInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::LinkType, m_linkType);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FacePersistency, m_facePersistency);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceScope, m_faceScope);
   if (m_expirationPeriod) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
                    tlv::nfd::ExpirationPeriod, static_cast<uint64_t>(m_expirationPeriod->count()));
@@ -190,12 +178,12 @@ FaceStatus::wireDecode(const Block& block)
     BOOST_THROW_EXCEPTION(Error("missing required NInInterests field"));
   }
 
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInDatas) {
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInData) {
     m_nInData = readNonNegativeInteger(*val);
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NInDatas field"));
+    BOOST_THROW_EXCEPTION(Error("missing required NInData field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInNacks) {
@@ -214,12 +202,12 @@ FaceStatus::wireDecode(const Block& block)
     BOOST_THROW_EXCEPTION(Error("missing required NOutInterests field"));
   }
 
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutDatas) {
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutData) {
     m_nOutData = readNonNegativeInteger(*val);
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NOutDatas field"));
+    BOOST_THROW_EXCEPTION(Error("missing required NOutData field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutNacks) {
@@ -280,7 +268,7 @@ FaceStatus::setNInInterests(uint64_t nInInterests)
 }
 
 FaceStatus&
-FaceStatus::setNInDatas(uint64_t nInData)
+FaceStatus::setNInData(uint64_t nInData)
 {
   m_wire.reset();
   m_nInData = nInData;
@@ -304,7 +292,7 @@ FaceStatus::setNOutInterests(uint64_t nOutInterests)
 }
 
 FaceStatus&
-FaceStatus::setNOutDatas(uint64_t nOutData)
+FaceStatus::setNOutData(uint64_t nOutData)
 {
   m_wire.reset();
   m_nOutData = nOutData;
@@ -348,10 +336,10 @@ operator==(const FaceStatus& a, const FaceStatus& b)
       a.hasExpirationPeriod() == b.hasExpirationPeriod() &&
       (!a.hasExpirationPeriod() || a.getExpirationPeriod() == b.getExpirationPeriod()) &&
       a.getNInInterests() == b.getNInInterests() &&
-      a.getNInDatas() == b.getNInDatas() &&
+      a.getNInData() == b.getNInData() &&
       a.getNInNacks() == b.getNInNacks() &&
       a.getNOutInterests() == b.getNOutInterests() &&
-      a.getNOutDatas() == b.getNOutDatas() &&
+      a.getNOutData() == b.getNOutData() &&
       a.getNOutNacks() == b.getNOutNacks() &&
       a.getNInBytes() == b.getNInBytes() &&
       a.getNOutBytes() == b.getNOutBytes();
@@ -377,8 +365,8 @@ operator<<(std::ostream& os, const FaceStatus& status)
      << "     Flags: " << AsHex{status.getFlags()} << ",\n"
      << "     Counters: {Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"
-     << "                Data: {in: " << status.getNInDatas() << ", "
-     << "out: " << status.getNOutDatas() << "},\n"
+     << "                Data: {in: " << status.getNInData() << ", "
+     << "out: " << status.getNOutData() << "},\n"
      << "                Nacks: {in: " << status.getNInNacks() << ", "
      << "out: " << status.getNOutNacks() << "},\n"
      << "                bytes: {in: " << status.getNInBytes() << ", "

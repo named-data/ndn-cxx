@@ -156,13 +156,27 @@ public: // getters & setters
   setNInInterests(uint64_t nInInterests);
 
   uint64_t
-  getNInDatas() const
+  getNInData() const
   {
-    return m_nInDatas;
+    return m_nInData;
+  }
+
+  DEPRECATED(
+  uint64_t
+  getNInDatas() const)
+  {
+    return getNInData();
   }
 
   ForwarderStatus&
-  setNInDatas(uint64_t nInDatas);
+  setNInData(uint64_t nInData);
+
+  DEPRECATED(
+  ForwarderStatus&
+  setNInDatas(uint64_t nInData))
+  {
+    return setNInData(nInData);
+  }
 
   uint64_t
   getNInNacks() const
@@ -183,13 +197,27 @@ public: // getters & setters
   setNOutInterests(uint64_t nOutInterests);
 
   uint64_t
-  getNOutDatas() const
+  getNOutData() const
   {
-    return m_nOutDatas;
+    return m_nOutData;
+  }
+
+  DEPRECATED(
+  uint64_t
+  getNOutDatas() const)
+  {
+    return getNOutData();
   }
 
   ForwarderStatus&
-  setNOutDatas(uint64_t nOutDatas);
+  setNOutData(uint64_t nOutData);
+
+  DEPRECATED(
+  ForwarderStatus&
+  setNOutDatas(uint64_t nOutData))
+  {
+    return setNOutData(nOutData);
+  }
 
   uint64_t
   getNOutNacks() const
@@ -210,10 +238,10 @@ private:
   size_t m_nMeasurementsEntries;
   size_t m_nCsEntries;
   uint64_t m_nInInterests;
-  uint64_t m_nInDatas;
+  uint64_t m_nInData;
   uint64_t m_nInNacks;
   uint64_t m_nOutInterests;
-  uint64_t m_nOutDatas;
+  uint64_t m_nOutData;
   uint64_t m_nOutNacks;
 
   mutable Block m_wire;

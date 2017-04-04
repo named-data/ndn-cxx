@@ -37,10 +37,10 @@ ForwarderStatus::ForwarderStatus()
   , m_nMeasurementsEntries(0)
   , m_nCsEntries(0)
   , m_nInInterests(0)
-  , m_nInDatas(0)
+  , m_nInData(0)
   , m_nInNacks(0)
   , m_nOutInterests(0)
-  , m_nOutDatas(0)
+  , m_nOutData(0)
   , m_nOutNacks(0)
 {
 }
@@ -56,28 +56,17 @@ ForwarderStatus::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutNacks,
-                                                m_nOutNacks);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutDatas,
-                                                m_nOutDatas);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutInterests,
-                                                m_nOutInterests);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInNacks,
-                                                m_nInNacks);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInDatas,
-                                                m_nInDatas);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInInterests,
-                                                m_nInInterests);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NCsEntries,
-                                                m_nCsEntries);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NMeasurementsEntries,
-                                                m_nMeasurementsEntries);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NPitEntries,
-                                                m_nPitEntries);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NFibEntries,
-                                                m_nFibEntries);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NNameTreeEntries,
-                                                m_nNameTreeEntries);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutNacks, m_nOutNacks);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutData, m_nOutData);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutInterests, m_nOutInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInNacks, m_nInNacks);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInData, m_nInData);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInInterests, m_nInInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NCsEntries, m_nCsEntries);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NMeasurementsEntries, m_nMeasurementsEntries);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NPitEntries, m_nPitEntries);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NFibEntries, m_nFibEntries);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NNameTreeEntries, m_nNameTreeEntries);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::CurrentTimestamp,
                                                 time::toUnixTimestamp(m_currentTimestamp).count());
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::StartTimestamp,
@@ -195,12 +184,12 @@ ForwarderStatus::wireDecode(const Block& block)
     BOOST_THROW_EXCEPTION(Error("missing required NInInterests field"));
   }
 
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInDatas) {
-    m_nInDatas = static_cast<uint64_t>(readNonNegativeInteger(*val));
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInData) {
+    m_nInData = static_cast<uint64_t>(readNonNegativeInteger(*val));
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NInDatas field"));
+    BOOST_THROW_EXCEPTION(Error("missing required NInData field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInNacks) {
@@ -219,12 +208,12 @@ ForwarderStatus::wireDecode(const Block& block)
     BOOST_THROW_EXCEPTION(Error("missing required NOutInterests field"));
   }
 
-  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutDatas) {
-    m_nOutDatas = static_cast<uint64_t>(readNonNegativeInteger(*val));
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutData) {
+    m_nOutData = static_cast<uint64_t>(readNonNegativeInteger(*val));
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NOutDatas field"));
+    BOOST_THROW_EXCEPTION(Error("missing required NOutData field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutNacks) {
@@ -232,7 +221,7 @@ ForwarderStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NInNacks field"));
+    BOOST_THROW_EXCEPTION(Error("missing required NOutNacks field"));
   }
 }
 
@@ -309,10 +298,10 @@ ForwarderStatus::setNInInterests(uint64_t nInInterests)
 }
 
 ForwarderStatus&
-ForwarderStatus::setNInDatas(uint64_t nInDatas)
+ForwarderStatus::setNInData(uint64_t nInData)
 {
   m_wire.reset();
-  m_nInDatas = nInDatas;
+  m_nInData = nInData;
   return *this;
 }
 
@@ -333,10 +322,10 @@ ForwarderStatus::setNOutInterests(uint64_t nOutInterests)
 }
 
 ForwarderStatus&
-ForwarderStatus::setNOutDatas(uint64_t nOutDatas)
+ForwarderStatus::setNOutData(uint64_t nOutData)
 {
   m_wire.reset();
-  m_nOutDatas = nOutDatas;
+  m_nOutData = nOutData;
   return *this;
 }
 
@@ -360,10 +349,10 @@ operator==(const ForwarderStatus& a, const ForwarderStatus& b)
       a.getNMeasurementsEntries() == b.getNMeasurementsEntries() &&
       a.getNCsEntries() == b.getNCsEntries() &&
       a.getNInInterests() == b.getNInInterests() &&
-      a.getNInDatas() == b.getNInDatas() &&
+      a.getNInData() == b.getNInData() &&
       a.getNInNacks() == b.getNInNacks() &&
       a.getNOutInterests() == b.getNOutInterests() &&
-      a.getNOutDatas() == b.getNOutDatas() &&
+      a.getNOutData() == b.getNOutData() &&
       a.getNOutNacks() == b.getNOutNacks();
 }
 
@@ -380,8 +369,8 @@ operator<<(std::ostream& os, const ForwarderStatus& status)
      << "                         CsEntries: " << status.getNCsEntries() << ",\n"
      << "                         Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"
-     << "                         Data: {in: " << status.getNInDatas() << ", "
-     << "out: " << status.getNOutDatas() << "},\n"
+     << "                         Data: {in: " << status.getNInData() << ", "
+     << "out: " << status.getNOutData() << "},\n"
      << "                         Nacks: {in: " << status.getNInNacks() << ", "
      << "out: " << status.getNOutNacks() << "}}\n"
      << "              )";
