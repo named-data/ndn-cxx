@@ -67,6 +67,47 @@ BOOST_AUTO_TEST_CASE(PrintFaceEventKind)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<FaceEventKind>(175)), "175");
 }
 
+BOOST_AUTO_TEST_CASE(ParseRouteOrigin)
+{
+  auto expectSuccess = [] (const std::string& input, RouteOrigin expected) {
+    std::istringstream is(input);
+    RouteOrigin routeOrigin;
+    is >> routeOrigin;
+
+    BOOST_TEST_MESSAGE("parsing " << input);
+    BOOST_CHECK_EQUAL(routeOrigin, expected);
+  };
+
+  auto expectFail = [] (const std::string& input) {
+    std::istringstream is(input);
+    RouteOrigin routeOrigin;
+    is >> routeOrigin;
+
+    BOOST_TEST_MESSAGE("parsing " << input);
+    BOOST_CHECK(is.fail());
+    BOOST_CHECK_EQUAL(routeOrigin, ROUTE_ORIGIN_NONE);
+  };
+
+  expectSuccess("none", ROUTE_ORIGIN_NONE);
+  expectSuccess("App", ROUTE_ORIGIN_APP);
+  expectSuccess("AutoReg", ROUTE_ORIGIN_AUTOREG);
+  expectSuccess("Client", ROUTE_ORIGIN_CLIENT);
+  expectSuccess("AutoConf", ROUTE_ORIGIN_AUTOCONF);
+  expectSuccess("NLSR", ROUTE_ORIGIN_NLSR);
+  expectSuccess("static", ROUTE_ORIGIN_STATIC);
+  expectSuccess("27", static_cast<RouteOrigin>(27));
+
+  expectSuccess(" app", ROUTE_ORIGIN_APP);
+  expectSuccess("app ", ROUTE_ORIGIN_APP);
+  expectSuccess(" app ", ROUTE_ORIGIN_APP);
+
+  expectFail("unrecognized");
+  expectFail("-1");
+  expectFail("0.1");
+  expectFail("65537");
+  expectFail("");
+}
+
 BOOST_AUTO_TEST_CASE(PrintRouteOrigin)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_NONE), "none");

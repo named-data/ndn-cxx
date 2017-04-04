@@ -22,6 +22,9 @@
 #include "nfd-constants.hpp"
 #include "util/string-helper.hpp"
 
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <istream>
 #include <map>
 #include <ostream>
 
@@ -90,6 +93,53 @@ operator<<(std::ostream& os, FaceEventKind faceEventKind)
       return os << "down";
   }
   return os << static_cast<unsigned>(faceEventKind);
+}
+
+std::istream&
+operator>>(std::istream& is, RouteOrigin& routeOrigin)
+{
+  using boost::algorithm::iequals;
+
+  std::string s;
+  is >> s;
+
+  if (iequals(s, "none"))
+    routeOrigin = ROUTE_ORIGIN_NONE;
+  else if (iequals(s, "app"))
+    routeOrigin = ROUTE_ORIGIN_APP;
+  else if (iequals(s, "autoreg"))
+    routeOrigin = ROUTE_ORIGIN_AUTOREG;
+  else if (iequals(s, "client"))
+    routeOrigin = ROUTE_ORIGIN_CLIENT;
+  else if (iequals(s, "autoconf"))
+    routeOrigin = ROUTE_ORIGIN_AUTOCONF;
+  else if (iequals(s, "nlsr"))
+    routeOrigin = ROUTE_ORIGIN_NLSR;
+  else if (iequals(s, "static"))
+    routeOrigin = ROUTE_ORIGIN_STATIC;
+  else {
+    // To reject negative numbers, we parse as a wider signed type, and compare with the range.
+    static_assert(std::numeric_limits<std::underlying_type<RouteOrigin>::type>::max() <=
+                  std::numeric_limits<int>::max(), "");
+
+    int v = -1;
+    try {
+      v = boost::lexical_cast<int>(s);
+    }
+    catch (const boost::bad_lexical_cast&) {
+    }
+
+    if (v >= std::numeric_limits<std::underlying_type<RouteOrigin>::type>::min() &&
+        v <= std::numeric_limits<std::underlying_type<RouteOrigin>::type>::max()) {
+      routeOrigin = static_cast<RouteOrigin>(v);
+    }
+    else {
+      routeOrigin = ROUTE_ORIGIN_NONE;
+      is.setstate(std::ios::failbit);
+    }
+  }
+
+  return is;
 }
 
 std::ostream&

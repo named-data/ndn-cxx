@@ -95,6 +95,14 @@ enum RouteOrigin : uint16_t {
   ROUTE_ORIGIN_STATIC   = 255,
 };
 
+/** \brief extract RouteOrigin from stream
+ *  \post if the first token in \p contains a valid RouteOrigin as string or numeric value, it is
+ *        extracted into \p routeOrigin ; otherwise, \p routeOrigin is set to \p ROUTE_ORIGIN_NONE ,
+ *        and failbit is set on \p is
+ */
+std::istream&
+operator>>(std::istream& is, RouteOrigin& routeOrigin);
+
 std::ostream&
 operator<<(std::ostream& os, RouteOrigin routeOrigin);
 
