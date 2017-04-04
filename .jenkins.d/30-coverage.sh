@@ -15,8 +15,9 @@ if [[ $JOB_NAME == *"code-coverage" ]]; then
 
     # Generate also a detailed HTML output, but using lcov (better results)
     lcov --quiet \
-         --capture --no-external \
+         --capture \
          --directory . \
+         --no-external \
          --rc lcov_branch_coverage=1 \
          --output-file build/coverage-with-tests.info
 
@@ -25,8 +26,11 @@ if [[ $JOB_NAME == *"code-coverage" ]]; then
          --rc lcov_branch_coverage=1 \
          --output-file build/coverage.info
 
-    genhtml --legend \
-            --rc genhtml_branch_coverage=1 \
-            build/coverage.info \
-            --output-directory build/coverage
+    genhtml --branch-coverage \
+            --demangle-cpp \
+            --frames \
+            --legend \
+            --output-directory build/coverage \
+            --title "ndn-cxx unit tests" \
+            build/coverage.info
 fi
