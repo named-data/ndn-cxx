@@ -42,7 +42,8 @@ enum {
   CachePolicyType = 821,
   IncomingFaceId = 817,
   CongestionMark = 832,
-  Ack = 836
+  Ack = 836,
+  TxSequence = 840
 };
 
 enum {

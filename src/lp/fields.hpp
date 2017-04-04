@@ -79,6 +79,11 @@ typedef detail::FieldDecl<field_location_tags::Header,
                           true> AckField;
 BOOST_CONCEPT_ASSERT((Field<AckField>));
 
+typedef detail::FieldDecl<field_location_tags::Header,
+                          Sequence,
+                          tlv::TxSequence> TxSequenceField;
+BOOST_CONCEPT_ASSERT((Field<TxSequenceField>));
+
 /**
  * The value of the wire encoded field is the data between the provided iterators. During
  * encoding, the data is copied from the Buffer into the wire buffer.
@@ -101,7 +106,8 @@ typedef boost::mpl::set<
   CachePolicyField,
   IncomingFaceIdField,
   CongestionMarkField,
-  AckField
+  AckField,
+  TxSequenceField
   > FieldSet;
 
 } // namespace lp
