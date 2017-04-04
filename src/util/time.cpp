@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2014 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -130,16 +130,20 @@ std::string
 toIsoString(const system_clock::TimePoint& timePoint)
 {
   namespace bpt = boost::posix_time;
-  bpt::ptime ptime = bpt::from_time_t(system_clock::to_time_t(timePoint));
+  static bpt::ptime epoch(boost::gregorian::date(1970, 1, 1));
 
-  uint64_t micro = duration_cast<microseconds>(timePoint - getUnixEpoch()).count() % 1000000;
-  if (micro > 0)
-    {
-      ptime += bpt::microseconds(micro);
-      return bpt::to_iso_string(ptime);
-    }
-  else
-    return bpt::to_iso_string(ptime);
+#ifdef BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
+  using BptResolutionUnit = nanoseconds;
+#else
+  using BptResolutionUnit = microseconds;
+#endif
+  constexpr auto unitsPerHour = duration_cast<BptResolutionUnit>(hours(1)).count();
+
+  auto sinceEpoch = duration_cast<BptResolutionUnit>(timePoint - getUnixEpoch()).count();
+  bpt::ptime ptime = epoch + bpt::time_duration(sinceEpoch / unitsPerHour, 0, 0,
+                                                sinceEpoch % unitsPerHour);
+
+  return bpt::to_iso_string(ptime);
 }
 
 

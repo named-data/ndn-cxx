@@ -81,7 +81,6 @@ BOOST_AUTO_TEST_CASE(Abs)
   BOOST_CHECK_EQUAL(abs(milliseconds(-15583)), milliseconds(15583));
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(LargeDates, 1)
 BOOST_AUTO_TEST_CASE(LargeDates)
 {
   system_clock::TimePoint value = fromUnixTimestamp(milliseconds(1390966967032LL));
