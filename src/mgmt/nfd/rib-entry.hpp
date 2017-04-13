@@ -66,17 +66,14 @@ public:
   Route&
   setFaceId(uint64_t faceId);
 
-  uint64_t
+  RouteOrigin
   getOrigin() const
   {
     return m_origin;
   }
 
-  /** @brief set Origin
-   *  @param origin a code defined in ndn::nfd::RouteOrigin
-   */
   Route&
-  setOrigin(uint64_t origin);
+  setOrigin(RouteOrigin origin);
 
   uint64_t
   getCost() const
@@ -93,9 +90,6 @@ public:
     return m_flags;
   }
 
-  /** @brief set route inheritance flags
-   *  @param flags a bitwise OR'ed code from ndn::nfd::RouteFlags
-   */
   Route&
   setFlags(uint64_t flags);
 
@@ -129,7 +123,7 @@ public:
 
 private:
   uint64_t m_faceId;
-  uint64_t m_origin;
+  RouteOrigin m_origin;
   uint64_t m_cost;
   uint64_t m_flags;
   optional<time::milliseconds> m_expirationPeriod;

@@ -37,9 +37,9 @@ makeRoute()
 {
   return Route()
       .setFaceId(1)
-      .setOrigin(128)
+      .setOrigin(ROUTE_ORIGIN_NLSR)
       .setCost(100)
-      .setFlags(ndn::nfd::ROUTE_FLAG_CAPTURE);
+      .setFlags(ROUTE_FLAG_CAPTURE);
 }
 
 static RibEntry
@@ -125,9 +125,9 @@ BOOST_AUTO_TEST_CASE(RibEntryEncode)
   RibEntry entry1 = makeRibEntry();
   entry1.addRoute(Route()
                   .setFaceId(2)
-                  .setOrigin(0)
+                  .setOrigin(ROUTE_ORIGIN_APP)
                   .setCost(32)
-                  .setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT)
+                  .setFlags(ROUTE_FLAG_CHILD_INHERIT)
                   .setExpirationPeriod(time::seconds(5)));
   const Block& wire = entry1.wireEncode();
 
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(Print)
 {
   Route route;
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(route),
-                    "Route(FaceId: 0, Origin: 0, Cost: 0, Flags: 0x1, ExpirationPeriod: infinite)");
+                    "Route(FaceId: 0, Origin: app, Cost: 0, Flags: 0x1, ExpirationPeriod: infinite)");
 
   RibEntry entry;
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(entry),
@@ -219,14 +219,14 @@ BOOST_AUTO_TEST_CASE(Print)
   entry = makeRibEntry();
   entry.addRoute(Route()
                  .setFaceId(2)
-                 .setOrigin(0)
+                 .setOrigin(ROUTE_ORIGIN_STATIC)
                  .setCost(32)
-                 .setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT));
+                 .setFlags(ROUTE_FLAG_CHILD_INHERIT));
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(entry),
                     "RibEntry(Prefix: /hello/world,\n"
-                    "         Routes: [Route(FaceId: 1, Origin: 128, Cost: 100, Flags: 0x2, "
+                    "         Routes: [Route(FaceId: 1, Origin: nlsr, Cost: 100, Flags: 0x2, "
                     "ExpirationPeriod: 10000 milliseconds),\n"
-                    "                  Route(FaceId: 2, Origin: 0, Cost: 32, Flags: 0x1, "
+                    "                  Route(FaceId: 2, Origin: static, Cost: 32, Flags: 0x1, "
                     "ExpirationPeriod: infinite)]\n"
                     "         )");
 }

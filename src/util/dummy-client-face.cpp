@@ -199,7 +199,7 @@ DummyClientFace::enableRegistrationReply()
 
     nfd::ControlParameters params(interest.getName().get(-5).blockFromValue());
     params.setFaceId(1);
-    params.setOrigin(0);
+    params.setOrigin(nfd::ROUTE_ORIGIN_APP);
     if (interest.getName().get(3) == name::Component("register")) {
       params.setCost(0);
     }

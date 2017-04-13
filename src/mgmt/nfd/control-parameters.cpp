@@ -169,7 +169,7 @@ ControlParameters::wireDecode(const Block& block)
   val = m_wire.find(tlv::nfd::Origin);
   m_hasFields[CONTROL_PARAMETER_ORIGIN] = val != m_wire.elements_end();
   if (this->hasOrigin()) {
-    m_origin = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_origin = static_cast<RouteOrigin>(readNonNegativeInteger(*val));
   }
 
   val = m_wire.find(tlv::nfd::Cost);

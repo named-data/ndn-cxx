@@ -133,17 +133,17 @@ BOOST_AUTO_TEST_CASE(RibOptions)
   ControlParameters parameters;
   parameters.setName("ndn:/example")
             .setFaceId(4)
-            .setOrigin(128)
+            .setOrigin(ROUTE_ORIGIN_NLSR)
             .setCost(6)
             .setFlags(0x01)
-            .setExpirationPeriod(time::milliseconds(1800000));
+            .setExpirationPeriod(time::minutes(30));
 
   Block wire = parameters.wireEncode();
 
   ControlParameters decoded(wire);
   BOOST_CHECK_EQUAL(decoded.getName(), Name("ndn:/example"));
   BOOST_CHECK_EQUAL(decoded.getFaceId(), 4);
-  BOOST_CHECK_EQUAL(decoded.getOrigin(), 128);
+  BOOST_CHECK_EQUAL(decoded.getOrigin(), ROUTE_ORIGIN_NLSR);
   BOOST_CHECK_EQUAL(decoded.getCost(), 6);
   BOOST_CHECK_EQUAL(decoded.getFlags(), 0x01);
   BOOST_CHECK_EQUAL(decoded.getExpirationPeriod(), time::milliseconds(1800000));

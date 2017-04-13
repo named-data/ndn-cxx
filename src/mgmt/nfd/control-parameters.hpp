@@ -276,7 +276,7 @@ public: // getters & setters
     return m_hasFields[CONTROL_PARAMETER_ORIGIN];
   }
 
-  uint64_t
+  RouteOrigin
   getOrigin() const
   {
     BOOST_ASSERT(this->hasOrigin());
@@ -284,7 +284,7 @@ public: // getters & setters
   }
 
   ControlParameters&
-  setOrigin(uint64_t origin)
+  setOrigin(RouteOrigin origin)
   {
     m_wire.reset();
     m_origin = origin;
@@ -526,7 +526,7 @@ private: // fields
   std::string         m_uri;
   std::string         m_localUri;
   LocalControlFeature m_localControlFeature;
-  uint64_t            m_origin;
+  RouteOrigin         m_origin;
   uint64_t            m_cost;
   uint64_t            m_flags;
   uint64_t            m_mask;

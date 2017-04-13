@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE(RibRegister)
 
   command.applyDefaultsToRequest(p1);
   BOOST_REQUIRE(p1.hasOrigin());
-  BOOST_CHECK_EQUAL(p1.getOrigin(), static_cast<uint64_t>(ROUTE_ORIGIN_APP));
+  BOOST_CHECK_EQUAL(p1.getOrigin(), ROUTE_ORIGIN_APP);
   BOOST_REQUIRE(p1.hasCost());
   BOOST_CHECK_EQUAL(p1.getCost(), 0);
   BOOST_REQUIRE(p1.hasFlags());

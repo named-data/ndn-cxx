@@ -36,7 +36,7 @@ BOOST_CONCEPT_ASSERT((StatusDatasetItem<RibEntry>));
 
 Route::Route()
   : m_faceId(INVALID_FACE_ID)
-  , m_origin(0)
+  , m_origin(ROUTE_ORIGIN_APP)
   , m_cost(0)
   , m_flags(ROUTE_FLAG_CHILD_INHERIT)
 {
@@ -56,7 +56,7 @@ Route::setFaceId(uint64_t faceId)
 }
 
 Route&
-Route::setOrigin(uint64_t origin)
+Route::setOrigin(RouteOrigin origin)
 {
   m_origin = origin;
   m_wire.reset();
@@ -159,7 +159,7 @@ Route::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Origin) {
-    m_origin = readNonNegativeInteger(*val);
+    m_origin = static_cast<RouteOrigin>(readNonNegativeInteger(*val));
     ++val;
   }
   else {
