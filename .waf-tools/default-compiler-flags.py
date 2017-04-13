@@ -101,6 +101,7 @@ class GccBasicFlags(CompilerFlags):
     def getDebugFlags(self, conf):
         flags = super(GccBasicFlags, self).getDebugFlags(conf)
         flags['CXXFLAGS'] += ['-O0',
+                              '-Og', # gcc >= 4.8, clang >= 4.0
                               '-g3',
                               '-pedantic',
                               '-Wall',
@@ -142,9 +143,7 @@ class GccFlags(GccBasicFlags):
         version = tuple(int(i) for i in conf.env['CC_VERSION'])
         if version < (5, 1, 0):
             flags['CXXFLAGS'] += ['-Wno-missing-field-initializers']
-        flags['CXXFLAGS'] += ['-Og', # gcc >= 4.8
-                              '-fdiagnostics-color', # gcc >= 4.9
-                              ]
+        flags['CXXFLAGS'] += ['-fdiagnostics-color'] # gcc >= 4.9
         return flags
 
     def getOptimizedFlags(self, conf):
