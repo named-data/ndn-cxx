@@ -60,10 +60,13 @@ BOOST_AUTO_TEST_CASE(FaceCreate)
   BOOST_CHECK_NO_THROW(command.validateRequest(p4));
 
   ControlParameters p5;
-  p5.setUri("tcp4://192.0.2.1")
-    .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
+  p5.setFaceId(27518)
+    .setUri("tcp4://192.0.2.1:6363")
+    .setLocalUri("tcp4://192.0.2.2:32114")
+    .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
     .setFlags(0x1);
   BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
+  BOOST_CHECK_NO_THROW(command.validateResponse(p5));
 
   p4.unsetFacePersistency();
   BOOST_CHECK_NO_THROW(command.validateRequest(p4));
