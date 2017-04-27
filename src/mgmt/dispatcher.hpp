@@ -291,7 +291,7 @@ private:
   typedef std::function<void(const std::string& requester,
                              const Name& prefix,
                              const Interest& interest,
-                             const ControlParameters*)> AuthorizationAcceptedCallback;
+                             const shared_ptr<ControlParameters>&)> AuthorizationAcceptedCallback;
 
   typedef std::function<void(RejectReply act,
                              const Interest& interest)> AuthorizationRejectedCallback;
@@ -399,7 +399,7 @@ private:
   processAuthorizedControlCommandInterest(const std::string& requester,
                                           const Name& prefix,
                                           const Interest& interest,
-                                          const ControlParameters* parameters,
+                                          const shared_ptr<ControlParameters>& parameters,
                                           const ValidateParameters& validate,
                                           const ControlCommandHandler& handler);
 
@@ -484,11 +484,11 @@ Dispatcher::addControlCommand(const PartialName& relPrefix,
                               const ControlCommandHandler& handler)
 {
   if (!m_topLevelPrefixes.empty()) {
-    throw std::domain_error("one or more top-level prefix has been added");
+    BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));
   }
 
   if (isOverlappedWithOthers(relPrefix)) {
-    throw std::out_of_range("relPrefix overlaps with another relPrefix");
+    BOOST_THROW_EXCEPTION(std::out_of_range("relPrefix overlaps with another relPrefix"));
   }
 
   ControlParametersParser parser =

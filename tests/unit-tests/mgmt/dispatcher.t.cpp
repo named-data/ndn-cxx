@@ -34,9 +34,6 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_AUTO_TEST_SUITE(Mgmt)
-BOOST_AUTO_TEST_SUITE(TestDispatcher)
-
 class DispatcherFixture : public IdentityManagementV1TimeFixture
 {
 public:
@@ -62,17 +59,17 @@ public:
     wireDecode(wire);
   }
 
-  virtual Block
+  Block
   wireEncode() const final
   {
     return Block(128);
   }
 
-  virtual void
+  void
   wireDecode(const Block& wire) final
   {
     if (wire.type() != 128)
-      throw tlv::Error("Expecting TLV type 128");
+      BOOST_THROW_EXCEPTION(tlv::Error("Expecting TLV type 128"));
   }
 };
 
@@ -98,7 +95,10 @@ makeTestAuthorization()
   };
 }
 
-BOOST_FIXTURE_TEST_CASE(Basic, DispatcherFixture)
+BOOST_AUTO_TEST_SUITE(Mgmt)
+BOOST_FIXTURE_TEST_SUITE(TestDispatcher, DispatcherFixture)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
   BOOST_CHECK_NO_THROW(dispatcher
                          .addControlCommand<VoidParameters>("test/1", makeAcceptAllAuthorization(),
@@ -145,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE(Basic, DispatcherFixture)
   BOOST_CHECK_THROW(dispatcher.addNotificationStream("stream/3"), std::domain_error);
 }
 
-BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
+BOOST_AUTO_TEST_CASE(AddRemoveTopPrefix)
 {
   std::map<std::string, size_t> nCallbackCalled;
   dispatcher
@@ -205,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(AddRemoveTopPrefix, DispatcherFixture)
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 4);
 }
 
-BOOST_FIXTURE_TEST_CASE(ControlCommand, DispatcherFixture)
+BOOST_AUTO_TEST_CASE(ControlCommand)
 {
   size_t nCallbackCalled = 0;
   dispatcher
@@ -237,7 +237,73 @@ BOOST_FIXTURE_TEST_CASE(ControlCommand, DispatcherFixture)
   BOOST_CHECK_EQUAL(nCallbackCalled, 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
+class StatefulParameters : public mgmt::ControlParameters
+{
+public:
+  explicit
+  StatefulParameters(const Block& wire)
+  {
+    wireDecode(wire);
+  }
+
+  Block
+  wireEncode() const final
+  {
+    return Block();
+  }
+
+  void
+  wireDecode(const Block& wire) final
+  {
+    m_state = EXPECTED_STATE;
+  }
+
+  bool
+  check() const
+  {
+    return m_state == EXPECTED_STATE;
+  }
+
+private:
+  static constexpr int EXPECTED_STATE = 12602;
+  int m_state = 0;
+};
+
+BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization) // Bug 4059
+{
+  AcceptContinuation authorizationAccept;
+  auto authorization =
+    [&authorizationAccept] (const Name& prefix, const Interest& interest, const ControlParameters* params,
+        AcceptContinuation accept, RejectContinuation reject) {
+      authorizationAccept = accept;
+    };
+
+  auto validateParameters =
+    [] (const ControlParameters& params) {
+      return dynamic_cast<const StatefulParameters&>(params).check();
+    };
+
+  size_t nCallbackCalled = 0;
+  dispatcher
+    .addControlCommand<StatefulParameters>("test",
+                                           authorization,
+                                           validateParameters,
+                                           bind([&nCallbackCalled] { ++nCallbackCalled; }));
+
+  dispatcher.addTopPrefix("/root");
+  advanceClocks(time::milliseconds(1));
+
+  face.receive(*makeInterest("/root/test/%80%00"));
+  BOOST_CHECK_EQUAL(nCallbackCalled, 0);
+  BOOST_REQUIRE(authorizationAccept != nullptr);
+
+  advanceClocks(time::milliseconds(1));
+  authorizationAccept("");
+  advanceClocks(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(nCallbackCalled, 1);
+}
+
+BOOST_AUTO_TEST_CASE(StatusDataset)
 {
   static Block smallBlock("\x81\x01\0x01", 3);
   static Block largeBlock = [] () -> Block {
@@ -369,7 +435,7 @@ BOOST_FIXTURE_TEST_CASE(StatusDataset, DispatcherFixture)
   BOOST_CHECK_EQUAL(storage.size(), 0); // the nack packet will not be inserted into the in-memory storage
 }
 
-BOOST_FIXTURE_TEST_CASE(NotificationStream, DispatcherFixture)
+BOOST_AUTO_TEST_CASE(NotificationStream)
 {
   static Block block("\x82\x01\x02", 3);
 

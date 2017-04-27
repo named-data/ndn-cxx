@@ -218,7 +218,7 @@ Dispatcher::processControlCommandInterest(const Name& prefix,
     return;
   }
 
-  AcceptContinuation accept = bind(accepted, _1, prefix, interest, parameters.get());
+  AcceptContinuation accept = bind(accepted, _1, prefix, interest, parameters);
   RejectContinuation reject = bind(rejected, _1, interest);
   authorization(prefix, interest, parameters.get(), accept, reject);
 }
@@ -227,7 +227,7 @@ void
 Dispatcher::processAuthorizedControlCommandInterest(const std::string& requester,
                                                     const Name& prefix,
                                                     const Interest& interest,
-                                                    const ControlParameters* parameters,
+                                                    const shared_ptr<ControlParameters>& parameters,
                                                     const ValidateParameters& validateParams,
                                                     const ControlCommandHandler& handler)
 {
