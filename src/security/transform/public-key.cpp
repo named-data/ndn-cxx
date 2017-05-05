@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -195,7 +195,7 @@ PublicKey::rsaEncrypt(const uint8_t* plainText, size_t plainLen) const
   auto out = make_shared<Buffer>(outlen);
 
   if (EVP_PKEY_encrypt(ctx.get(), out->buf(), &outlen, plainText, plainLen) <= 0)
-    BOOST_THROW_EXCEPTION(Error("Failed to decrypt cipher text"));
+    BOOST_THROW_EXCEPTION(Error("Failed to encrypt plaintext"));
 
   out->resize(outlen);
   return out;
