@@ -31,66 +31,75 @@ BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(Nfd)
 BOOST_AUTO_TEST_SUITE(TestControlCommand)
 
-BOOST_AUTO_TEST_CASE(FaceCreate)
+BOOST_AUTO_TEST_CASE(FaceCreateRequest)
 {
   FaceCreateCommand command;
 
+  // good with required fields only
   ControlParameters p1;
-  p1.setUri("tcp4://192.0.2.1")
-    .setFaceId(4);
-  BOOST_CHECK_THROW(command.validateRequest(p1), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
+  p1.setUri("tcp4://192.0.2.1:6363");
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
+  BOOST_CHECK(Name("/PREFIX/faces/create").isPrefixOf(command.getRequestName("/PREFIX", p1)));
 
-  ControlParameters p2;
-  p2.setName("ndn:/example");
-  BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
-
-  ControlParameters p3;
-  p3.setUri("tcp4://192.0.2.1")
-    .setFaceId(INVALID_FACE_ID);
-  BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
-
-  ControlParameters p4;
-  p4.setUri("tcp4://192.0.2.1")
-    .setLocalUri("dev://eth0")
-    .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
+  // good with optional fields
+  ControlParameters p2(p1);
+  p2.setLocalUri("tcp4://192.0.2.2:32114")
+    .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
     .setFlags(0x3)
     .setMask(0x1);
-  BOOST_CHECK_NO_THROW(command.validateRequest(p4));
+  BOOST_CHECK_NO_THROW(command.validateRequest(p1));
 
-  ControlParameters p5;
-  p5.setFaceId(27518)
+  // Uri is required
+  ControlParameters p3;
+  BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
+
+  // Name is forbidden
+  ControlParameters p4(p1);
+  p4.setName("/example");
+  BOOST_CHECK_THROW(command.validateRequest(p4), ControlCommand::ArgumentError);
+
+  // Flags and Mask must be specified together
+  ControlParameters p5(p1);
+  p5.setFlags(0x3);
+  BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
+
+  ControlParameters p6(p1);
+  p6.setMask(0x1);
+  BOOST_CHECK_THROW(command.validateRequest(p6), ControlCommand::ArgumentError);
+}
+
+BOOST_AUTO_TEST_CASE(FaceCreateResponse)
+{
+  FaceCreateCommand command;
+
+  // good
+  ControlParameters p1;
+  p1.setFaceId(3208)
     .setUri("tcp4://192.0.2.1:6363")
     .setLocalUri("tcp4://192.0.2.2:32114")
     .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
-    .setFlags(0x1);
-  BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
-  BOOST_CHECK_NO_THROW(command.validateResponse(p5));
+    .setFlags(0x3);
+  BOOST_CHECK_NO_THROW(command.validateResponse(p1));
 
-  p4.unsetFacePersistency();
-  BOOST_CHECK_NO_THROW(command.validateRequest(p4));
-  command.applyDefaultsToRequest(p4);
-  BOOST_REQUIRE(p4.hasFacePersistency());
-  BOOST_CHECK_EQUAL(p4.getFacePersistency(), FACE_PERSISTENCY_PERSISTENT);
+  // Name is forbidden
+  ControlParameters p2(p1);
+  p2.setName("/example");
+  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
-  ControlParameters p6;
-  p6.setFaceId(4)
-    .setUri("tcp4://192.0.2.1")
-    .setFacePersistency(FACE_PERSISTENCY_PERSISTENT);
-  BOOST_CHECK_NO_THROW(command.validateResponse(p6));
+  // Mask is forbidden
+  ControlParameters p3(p1);
+  p3.setMask(0x1);
+  BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
 
-  ControlParameters p7;
-  p7.setUri("tcp4://192.0.2.1:6363");
-  Name n7;
-  BOOST_CHECK_NO_THROW(n7 = command.getRequestName("/PREFIX", p7));
-  BOOST_CHECK(Name("ndn:/PREFIX/faces/create").isPrefixOf(n7));
+  // FaceId must be valid
+  ControlParameters p4(p1);
+  p4.setFaceId(INVALID_FACE_ID);
+  BOOST_CHECK_THROW(command.validateResponse(p4), ControlCommand::ArgumentError);
 
-  ControlParameters p8;
-  p8.setFaceId(5)
-    .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
-    .setFlags(0x2);
-  BOOST_CHECK_NO_THROW(command.validateResponse(p8));
+  // LocalUri is required
+  ControlParameters p5(p1);
+  p5.unsetLocalUri();
+  BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
 }
 
 BOOST_AUTO_TEST_CASE(FaceUpdate)

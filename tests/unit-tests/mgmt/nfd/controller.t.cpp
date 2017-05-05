@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,6 +44,15 @@ protected:
   {
   }
 
+  void
+  respond(const ControlResponse& responsePayload)
+  {
+    auto responseData = makeData(face.sentInterests.at(0).getName());
+    responseData->setContent(responsePayload.wireEncode());
+    face.receive(*responseData);
+    this->advanceClocks(time::milliseconds(1));
+  }
+
 private:
   void
   succeed(const ControlParameters& parameters)
@@ -61,13 +70,24 @@ protected:
 // StatusDataset functionality is tested in nfd-status-dataset.t.cpp
 BOOST_FIXTURE_TEST_SUITE(TestController, CommandFixture)
 
+static ControlParameters
+makeFaceCreateResponse()
+{
+  ControlParameters resp;
+  resp.setFaceId(22)
+      .setUri("tcp4://192.0.2.1:6363")
+      .setLocalUri("tcp4://192.0.2.2:10847")
+      .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
+      .setFlags(0x7);
+  return resp;
+}
+
 BOOST_AUTO_TEST_CASE(Success)
 {
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
-  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, commandFailCallback));
+  controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -84,18 +104,10 @@ BOOST_AUTO_TEST_CASE(Success)
   BOOST_CHECK_EQUAL(request.getUri(), parameters.getUri());
   BOOST_CHECK_EQUAL(requestInterest.getInterestLifetime(), CommandOptions::DEFAULT_TIMEOUT);
 
-  ControlParameters responseBody;
-  responseBody.setUri("tcp4://192.0.2.1:6363")
-              .setFaceId(22)
-              .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  ControlParameters responseBody = makeFaceCreateResponse();
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
-
-  auto responseData = makeData(requestInterest.getName());
-  responseData->setContent(responsePayload.wireEncode());
-  face.receive(*responseData);
-
-  this->advanceClocks(time::milliseconds(1));
+  this->respond(responsePayload);
 
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
   BOOST_REQUIRE_EQUAL(succeeds.size(), 1);
@@ -111,21 +123,10 @@ BOOST_AUTO_TEST_CASE(SuccessNoCallback)
   controller.start<FaceCreateCommand>(parameters, nullptr, commandFailCallback);
   this->advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
-  const Interest& requestInterest = face.sentInterests[0];
-
-  ControlParameters responseBody;
-  responseBody.setUri("tcp4://192.0.2.1:6363")
-              .setFaceId(22)
-              .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  ControlParameters responseBody = makeFaceCreateResponse();
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
-
-  auto responseData = makeData(requestInterest.getName());
-  responseData->setContent(responsePayload.wireEncode());
-  face.receive(*responseData);
-
-  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(1)));
+  this->respond(responsePayload);
 
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
 }
@@ -139,16 +140,14 @@ BOOST_AUTO_TEST_CASE(OptionsPrefix)
   CommandOptions options;
   options.setPrefix("/localhop/net/example/router1/nfd");
 
-  BOOST_CHECK_NO_THROW(controller.start<RibRegisterCommand>(
-                         parameters, succeedCallback, commandFailCallback, options));
+  controller.start<RibRegisterCommand>(parameters, succeedCallback, commandFailCallback, options);
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
 
   FaceCreateCommand command;
-  BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(
-              requestInterest.getName()));
+  BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(requestInterest.getName()));
 }
 
 BOOST_AUTO_TEST_CASE(InvalidRequest)
@@ -169,24 +168,13 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
-  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, commandFailCallback));
+  controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
   this->advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
-  const Interest& requestInterest = face.sentInterests[0];
-
-  ControlParameters responseBody;
-  responseBody.setUri("tcp4://192.0.2.1:6363")
-              .setFaceId(22)
-              .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
+  ControlParameters responseBody = makeFaceCreateResponse();
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
-
-  auto responseData = makeData(requestInterest.getName());
-  responseData->setContent(responsePayload.wireEncode());
-  face.receive(*responseData);
-  this->advanceClocks(time::milliseconds(1));
+  this->respond(responsePayload);
 
   BOOST_CHECK_EQUAL(succeeds.size(), 0);
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
@@ -198,19 +186,11 @@ BOOST_AUTO_TEST_CASE(ErrorCode)
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
-  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, commandFailCallback));
+  controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
   this->advanceClocks(time::milliseconds(1));
-
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
-  const Interest& requestInterest = face.sentInterests[0];
 
   ControlResponse responsePayload(401, "Not Authenticated");
-
-  auto responseData = makeData(requestInterest.getName());
-  responseData->setContent(responsePayload.wireEncode());
-  face.receive(*responseData);
-  this->advanceClocks(time::milliseconds(1));
+  this->respond(responsePayload);
 
   BOOST_CHECK_EQUAL(succeeds.size(), 0);
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
@@ -222,24 +202,15 @@ BOOST_AUTO_TEST_CASE(InvalidResponse)
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
-  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, commandFailCallback));
+  controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
   this->advanceClocks(time::milliseconds(1));
 
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
-  const Interest& requestInterest = face.sentInterests[0];
-
-  ControlParameters responseBody;
-  responseBody.setUri("tcp4://192.0.2.1:6363")
+  ControlParameters responseBody = makeFaceCreateResponse();
+  responseBody.unsetFaceId() // FaceId is missing
               .setName("ndn:/should-not-have-this-field");
-  // FaceId is missing
   ControlResponse responsePayload(201, "created");
   responsePayload.setBody(responseBody.wireEncode());
-
-  auto responseData = makeData(requestInterest.getName());
-  responseData->setContent(responsePayload.wireEncode());
-  face.receive(*responseData);
-  this->advanceClocks(time::milliseconds(1));
+  this->respond(responsePayload);
 
   BOOST_CHECK_EQUAL(succeeds.size(), 0);
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
@@ -250,8 +221,7 @@ BOOST_AUTO_TEST_CASE(Nack)
   ControlParameters parameters;
   parameters.setUri("tcp4://192.0.2.1:6363");
 
-  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, commandFailCallback));
+  controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
   this->advanceClocks(time::milliseconds(1));
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -273,9 +243,9 @@ BOOST_AUTO_TEST_CASE(Timeout)
   CommandOptions options;
   options.setTimeout(time::milliseconds(50));
 
-  BOOST_CHECK_NO_THROW(controller.start<FaceCreateCommand>(
-                         parameters, succeedCallback, commandFailCallback, options));
-  this->advanceClocks(time::milliseconds(1), 101); // Face's PIT granularity is 100ms
+  controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback, options);
+  this->advanceClocks(time::milliseconds(1)); // express Interest
+  this->advanceClocks(time::milliseconds(51)); // timeout
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_TIMEOUT);
@@ -290,8 +260,8 @@ BOOST_AUTO_TEST_CASE(FailureNoCallback)
   options.setTimeout(time::milliseconds(50));
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, nullptr, options);
-  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(100), 10));
-  // timeout
+  this->advanceClocks(time::milliseconds(1)); // express Interest
+  this->advanceClocks(time::milliseconds(51)); // timeout
 
   BOOST_CHECK_EQUAL(succeeds.size(), 0);
 }
