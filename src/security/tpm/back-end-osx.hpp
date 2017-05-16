@@ -143,7 +143,7 @@ private: // inherited from tpm::BackEnd
 
 private:
   class Impl;
-  unique_ptr<Impl> m_impl;
+  const unique_ptr<Impl> m_impl;
 };
 
 } // namespace tpm

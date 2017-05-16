@@ -22,11 +22,11 @@
 #ifndef NDN_SECURITY_TPM_TPM_HPP
 #define NDN_SECURITY_TPM_TPM_HPP
 
-#include "../../common.hpp"
 #include "../security-common.hpp"
 #include "../../name.hpp"
 #include "../key-params.hpp"
 #include "key-handle.hpp"
+
 #include <unordered_map>
 
 namespace ndn {
@@ -154,12 +154,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    */
   Tpm(const std::string& scheme, const std::string& location, unique_ptr<BackEnd> impl);
 
-  BackEnd*
-  getBackEnd()
-  {
-    return m_backEnd.get();
-  }
-
   /**
    * @brief Create key for @p identityName according to @p params.
    *
@@ -189,7 +183,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @throw BackEnd::Error the key does not exist or it cannot be exported.
    */
   ConstBufferPtr
-  exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen);
+  exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const;
 
   /**
    * @brief Import a private key.
@@ -231,7 +225,7 @@ private:
 
   mutable std::unordered_map<Name, unique_ptr<KeyHandle>> m_keys;
 
-  unique_ptr<BackEnd> m_backEnd;
+  const unique_ptr<BackEnd> m_backEnd;
 
   friend class v2::KeyChain;
 };

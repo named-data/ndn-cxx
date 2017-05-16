@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,7 +38,7 @@ class BackEndWrapperFile
 public:
   BackEndWrapperFile()
     : m_tmpPath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "TpmFileTest")
-    , m_impl(new BackEndFile(m_tmpPath.string()))
+    , m_impl(make_unique<BackEndFile>(m_tmpPath.string()))
   {
   }
 
@@ -60,8 +60,8 @@ public:
   }
 
 private:
-  boost::filesystem::path m_tmpPath;
-  unique_ptr<BackEnd> m_impl;
+  const boost::filesystem::path m_tmpPath;
+  const unique_ptr<BackEnd> m_impl;
 };
 
 } // namespace tests

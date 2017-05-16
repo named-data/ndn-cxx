@@ -133,13 +133,14 @@ Tpm::unlockTpm(const char* password, size_t passwordLength) const
 }
 
 ConstBufferPtr
-Tpm::exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen)
+Tpm::exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const
 {
   return m_backEnd->exportKey(keyName, pw, pwLen);
 }
 
 bool
-Tpm::importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen)
+Tpm::importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
+                      const char* pw, size_t pwLen)
 {
   try {
     m_backEnd->importKey(keyName, pkcs8, pkcs8Len, pw, pwLen);

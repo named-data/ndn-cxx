@@ -108,7 +108,7 @@ public: // signals
   Signal<NetworkMonitor> onNetworkStateChanged;
 
 private:
-  std::unique_ptr<Impl> m_impl;
+  const unique_ptr<Impl> m_impl;
 };
 
 } // namespace util

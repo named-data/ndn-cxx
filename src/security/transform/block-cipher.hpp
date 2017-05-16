@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -86,7 +86,6 @@ private:
   isConverterEmpty() const;
 
 private:
-
   void
   initializeAesCbc(const uint8_t* key, size_t keyLen,
                    const uint8_t* iv, size_t ivLen,
@@ -94,7 +93,7 @@ private:
 
 private:
   class Impl;
-  unique_ptr<Impl> m_impl;
+  const unique_ptr<Impl> m_impl;
 };
 
 unique_ptr<Transform>

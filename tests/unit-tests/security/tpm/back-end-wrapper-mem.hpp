@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,8 +36,8 @@ class BackEndWrapperMem
 {
 public:
   BackEndWrapperMem()
+    : m_impl(make_unique<BackEndMem>())
   {
-    m_impl = unique_ptr<BackEnd>(new BackEndMem);
   }
 
   BackEnd&
@@ -53,7 +53,7 @@ public:
   }
 
 private:
-  unique_ptr<BackEnd> m_impl;
+  const unique_ptr<BackEnd> m_impl;
 };
 
 } // namespace tests
