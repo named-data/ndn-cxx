@@ -81,7 +81,7 @@ public:
   getTpmLocator() const;
 
   /**
-   * @brief Check if a private key exist
+   * @brief Check if a private key exists.
    *
    * @param keyName The key name
    * @return true if the key exists
@@ -90,55 +90,55 @@ public:
   hasKey(const Name& keyName) const;
 
   /**
-   * @return The public portion of an asymmetric key with name @p name
-   *         or nullptr if the key does not exist
+   * @return The public portion of an asymmetric key with name @p keyName,
+   *         or nullptr if the key does not exist,
    *
-   * The public key is in PKCS#8 format
+   * The public key is in PKCS#8 format.
    */
   ConstBufferPtr
   getPublicKey(const Name& keyName) const;
 
   /**
-   * @brief Sign blob using key with name @p keyName with digest @p digestAlgorithm.
+   * @brief Sign blob using the key with name @p keyName and using the digest @p digestAlgorithm.
    *
-   * @return The signature, or nullptr if the key does not exist
+   * @return The signature, or nullptr if the key does not exist.
    */
   ConstBufferPtr
   sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
 
   /**
-   * @brief Decrypt blob using key with name @p keyName.
+   * @brief Decrypt blob using the key with name @p keyName.
    *
-   * @return The signature, or nullptr if the key does not exist
+   * @return The decrypted data, or nullptr if the key does not exist.
    */
   ConstBufferPtr
   decrypt(const uint8_t* buf, size_t size, const Name& keyName) const;
 
 public: // Management
   /**
-   * @brief Check if TPM is in terminal mode
+   * @brief Check if the TPM is in terminal mode.
    */
   bool
   isTerminalMode() const;
 
   /**
-   * @brief Set the terminal mode of TPM.
+   * @brief Set the terminal mode of the TPM.
    *
-   * In terminal mode, TPM will not ask user permission from GUI.
+   * When in terminal mode, the TPM will not ask user permission from GUI.
    */
   void
   setTerminalMode(bool isTerminal) const;
 
   /**
-   * @return True if TPM is locked, otherwise false
+   * @return true if the TPM is locked, otherwise false.
    */
   bool
   isTpmLocked() const;
 
   /**
-   * @brief Unlock TPM
+   * @brief Unlock the TPM.
    *
-   * @param password       The password to unlock TPM
+   * @param password The password to unlock the TPM.
    * @param passwordLength The password size.
    */
   bool
@@ -146,7 +146,7 @@ public: // Management
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /*
-   * @brief Create a new TPM instance with the specified @p location
+   * @brief Create a new TPM instance with the specified @p location.
    *
    * @param scheme The scheme for the TPM
    * @param location The location for the TPM
@@ -165,8 +165,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    *
    * The created key is named as: /<identityName>/[keyId]/KEY
    *
-   * @return the key name
-   * @throw Tpm::Error the key has already existed or the params is invalid
+   * @return The key name.
+   * @throw Tpm::Error the key already exists or @p params is invalid.
    */
   Name
   createKey(const Name& identityName, const KeyParams& params);
@@ -178,35 +178,35 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   deleteKey(const Name& keyName);
 
   /**
-   * @brief Export a private key
+   * @brief Export a private key.
    *
-   * This method will export the private key in encrypted PKCS #8 format if the key exists.
+   * Export a private key in encrypted PKCS #8 format.
    *
-   * @param keyName  The private key name
+   * @param keyName The private key name
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
-   * @return The encoded private key wrapper or an empty block if the key cannot be exported.
+   * @return The encoded private key wrapper.
+   * @throw BackEnd::Error the key does not exist or it cannot be exported.
    */
   ConstBufferPtr
   exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen);
 
   /**
-   * @brief Import a private key
+   * @brief Import a private key.
    *
    * @param keyName The private key name
    * @param pkcs8 The private key wrapper
    * @param pkcs8Len The length of the private key wrapper
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
-   * @return false if importing fails
+   * @return true if the operation is successful, false otherwise.
    */
   bool
-  importPrivateKey(const Name& keyName,
-                   const uint8_t* pkcs8, size_t pkcs8Len,
+  importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
                    const char* pw, size_t pwLen);
 
   /**
-   * @brief Clear the key cache
+   * @brief Clear the key cache.
    *
    * An empty cache can force Tpm to do key lookup in back-end.
    */
@@ -218,7 +218,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 
 private:
   /**
-   * @brief Internal KeyHandle lookup
+   * @brief Internal KeyHandle lookup.
    *
    * @return A pointer to the handle of key @p keyName if it exists, otherwise nullptr.
    */
