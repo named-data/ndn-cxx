@@ -29,15 +29,15 @@ namespace security {
 namespace pib {
 namespace detail {
 
-KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> impl)
+KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> pibImpl)
   : m_identity(v2::extractIdentityFromKeyName(keyName))
   , m_keyName(keyName)
   , m_key(key, keyLen)
+  , m_pib(std::move(pibImpl))
+  , m_certificates(keyName, m_pib)
   , m_isDefaultCertificateLoaded(false)
-  , m_certificates(keyName, impl)
-  , m_impl(impl)
 {
-  BOOST_ASSERT(impl != nullptr);
+  BOOST_ASSERT(m_pib != nullptr);
 
   transform::PublicKey publicKey;
   try {
@@ -48,19 +48,19 @@ KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_
   }
   m_keyType = publicKey.getKeyType();
 
-  m_impl->addKey(m_identity, m_keyName, key, keyLen);
+  m_pib->addKey(m_identity, m_keyName, key, keyLen);
 }
 
-KeyImpl::KeyImpl(const Name& keyName, shared_ptr<PibImpl> impl)
+KeyImpl::KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl)
   : m_identity(v2::extractIdentityFromKeyName(keyName))
   , m_keyName(keyName)
+  , m_pib(std::move(pibImpl))
+  , m_certificates(keyName, m_pib)
   , m_isDefaultCertificateLoaded(false)
-  , m_certificates(keyName, impl)
-  , m_impl(impl)
 {
-  BOOST_ASSERT(impl != nullptr);
+  BOOST_ASSERT(m_pib != nullptr);
 
-  m_key = m_impl->getKeyBits(m_keyName);
+  m_key = m_pib->getKeyBits(m_keyName);
 
   transform::PublicKey key;
   key.loadPkcs8(m_key.buf(), m_key.size());
@@ -89,7 +89,6 @@ v2::Certificate
 KeyImpl::getCertificate(const Name& certName) const
 {
   BOOST_ASSERT(m_certificates.isConsistent());
-
   return m_certificates.get(certName);
 }
 
@@ -97,7 +96,6 @@ const CertificateContainer&
 KeyImpl::getCertificates() const
 {
   BOOST_ASSERT(m_certificates.isConsistent());
-
   return m_certificates;
 }
 
@@ -107,7 +105,7 @@ KeyImpl::setDefaultCertificate(const Name& certName)
   BOOST_ASSERT(m_certificates.isConsistent());
 
   m_defaultCertificate = m_certificates.get(certName);
-  m_impl->setDefaultCertificateOfKey(m_keyName, certName);
+  m_pib->setDefaultCertificateOfKey(m_keyName, certName);
   m_isDefaultCertificateLoaded = true;
   return m_defaultCertificate;
 }
@@ -125,11 +123,10 @@ KeyImpl::getDefaultCertificate() const
   BOOST_ASSERT(m_certificates.isConsistent());
 
   if (!m_isDefaultCertificateLoaded) {
-    m_defaultCertificate = m_impl->getDefaultCertificateOfKey(m_keyName);
+    m_defaultCertificate = m_pib->getDefaultCertificateOfKey(m_keyName);
     m_isDefaultCertificateLoaded = true;
   }
-
-  BOOST_ASSERT(m_impl->getDefaultCertificateOfKey(m_keyName).wireEncode() == m_defaultCertificate.wireEncode());
+  BOOST_ASSERT(m_pib->getDefaultCertificateOfKey(m_keyName).wireEncode() == m_defaultCertificate.wireEncode());
 
   return m_defaultCertificate;
 }

@@ -47,13 +47,15 @@ public:
    * @brief Create an Identity with @p identityName.
    *
    * @param identityName The name of the Identity.
-   * @param impl The PIB backend implementation.
+   * @param pibImpl The PIB backend implementation.
    * @param needInit If true, create the identity in backend when the identity does not exist.
    *                 Otherwise, throw Pib::Error when the identity does not exist.
    */
-  IdentityImpl(const Name& identityName, shared_ptr<PibImpl> impl, bool needInit = false);
+  IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl, bool needInit = false);
 
-  /// @brief Get the name of the identity.
+  /**
+   * @brief Get the name of the identity.
+   */
   const Name&
   getName() const
   {
@@ -122,12 +124,11 @@ public:
 private:
   Name m_name;
 
+  shared_ptr<PibImpl> m_pib;
+
+  KeyContainer m_keys;
   mutable bool m_isDefaultKeyLoaded;
   mutable Key m_defaultKey;
-
-  mutable KeyContainer m_keys;
-
-  shared_ptr<PibImpl> m_impl;
 };
 
 } // namespace detail

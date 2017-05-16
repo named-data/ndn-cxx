@@ -71,7 +71,7 @@ KeyContainer::const_iterator::operator==(const const_iterator& other)
   bool isOtherEnd = other.m_container == nullptr || other.m_it == other.m_container->m_keyNames.end();
   return ((isThisEnd || isOtherEnd) ?
           (isThisEnd == isOtherEnd) :
-          m_container->m_impl == other.m_container->m_impl && m_it == other.m_it);
+          m_container->m_pib == other.m_container->m_pib && m_it == other.m_it);
 }
 
 bool
@@ -80,12 +80,12 @@ KeyContainer::const_iterator::operator!=(const const_iterator& other)
   return !(*this == other);
 }
 
-KeyContainer::KeyContainer(const Name& identity, shared_ptr<PibImpl> impl)
+KeyContainer::KeyContainer(const Name& identity, shared_ptr<PibImpl> pibImpl)
   : m_identity(identity)
-  , m_impl(impl)
+  , m_pib(std::move(pibImpl))
 {
-  BOOST_ASSERT(impl != nullptr);
-  m_keyNames = impl->getKeysOfIdentity(identity);
+  BOOST_ASSERT(m_pib != nullptr);
+  m_keyNames = m_pib->getKeysOfIdentity(identity);
 }
 
 KeyContainer::const_iterator
@@ -121,7 +121,7 @@ KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
   }
 
   m_keyNames.insert(keyName);
-  m_keys[keyName] = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, key, keyLen, m_impl));
+  m_keys[keyName] = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, key, keyLen, m_pib));
 
   return get(keyName);
 }
@@ -136,7 +136,7 @@ KeyContainer::remove(const Name& keyName)
 
   m_keyNames.erase(keyName);
   m_keys.erase(keyName);
-  m_impl->removeKey(keyName);
+  m_pib->removeKey(keyName);
 }
 
 Key
@@ -154,7 +154,7 @@ KeyContainer::get(const Name& keyName) const
     key = it->second;
   }
   else {
-    key = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, m_impl));
+    key = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, m_pib));
     m_keys[keyName] = key;
   }
 
@@ -164,7 +164,7 @@ KeyContainer::get(const Name& keyName) const
 bool
 KeyContainer::isConsistent() const
 {
-  return m_keyNames == m_impl->getKeysOfIdentity(m_identity);
+  return m_keyNames == m_pib->getKeysOfIdentity(m_identity);
 }
 
 } // namespace pib

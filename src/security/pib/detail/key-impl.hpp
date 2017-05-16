@@ -22,9 +22,8 @@
 #ifndef NDN_SECURITY_PIB_DETAIL_KEY_IMPL_HPP
 #define NDN_SECURITY_PIB_DETAIL_KEY_IMPL_HPP
 
-#include "../../../data.hpp"
-#include "../certificate-container.hpp"
 #include "../../security-common.hpp"
+#include "../certificate-container.hpp"
 
 namespace ndn {
 namespace security {
@@ -53,21 +52,23 @@ public:
    * @param keyName The name of the key.
    * @param key The public key to add.
    * @param keyLen The length of the key.
-   * @param impl The Pib backend implementation.
+   * @param pibImpl The Pib backend implementation.
    * @throw Pib::Error a key with the same @p keyName already exists.
    */
-  KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> impl);
+  KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> pibImpl);
 
   /**
    * @brief Create a KeyImpl with @p keyName.
    *
    * @param keyName The name of the key.
-   * @param impl The Pib backend implementation.
+   * @param pibImpl The Pib backend implementation.
    * @throw Pib::Error the key does not exist.
    */
-  KeyImpl(const Name& keyName, shared_ptr<PibImpl> impl);
+  KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl);
 
-  /// @brief Get the name of the key.
+  /**
+   * @brief Get the name of the key.
+   */
   const Name&
   getName() const
   {
@@ -130,7 +131,9 @@ public:
   v2::Certificate
   getCertificate(const Name& certName) const;
 
-  /// @brief Get all the certificates for this key.
+  /**
+   * @brief Get all the certificates for this key.
+   */
   const CertificateContainer&
   getCertificates() const;
 
@@ -165,12 +168,11 @@ private:
   Buffer m_key;
   KeyType m_keyType;
 
-  mutable bool m_isDefaultCertificateLoaded;
-  mutable v2::Certificate m_defaultCertificate;
+  shared_ptr<PibImpl> m_pib;
 
   CertificateContainer m_certificates;
-
-  shared_ptr<PibImpl> m_impl;
+  mutable bool m_isDefaultCertificateLoaded;
+  mutable v2::Certificate m_defaultCertificate;
 };
 
 } // namespace detail

@@ -22,9 +22,10 @@
 #ifndef NDN_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP
 #define NDN_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP
 
+#include "../v2/certificate.hpp"
+
 #include <set>
 #include <unordered_map>
-#include "../v2/certificate.hpp"
 
 namespace ndn {
 namespace security {
@@ -114,7 +115,6 @@ public:
 
   /**
    * @brief Check if the container is consistent with the backend storage
-   *
    * @note this method is heavyweight and should be used in debugging mode only.
    */
   bool
@@ -123,9 +123,9 @@ public:
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
    * @brief Create certificate container for a key with @p keyName
-   * @param impl The PIB backend implementation.
+   * @param pibImpl The PIB backend implementation.
    */
-  CertificateContainer(const Name& keyName, shared_ptr<PibImpl> impl);
+  CertificateContainer(const Name& keyName, shared_ptr<PibImpl> pibImpl);
 
   const std::set<Name>&
   getCertNames() const
@@ -145,7 +145,7 @@ private:
   /// @brief Cache of loaded certificates
   mutable std::unordered_map<Name, v2::Certificate> m_certs;
 
-  shared_ptr<PibImpl> m_impl;
+  shared_ptr<PibImpl> m_pib;
 
   friend class detail::KeyImpl;
 };

@@ -71,7 +71,7 @@ CertificateContainer::const_iterator::operator==(const const_iterator& other) co
   bool isOtherEnd = other.m_container == nullptr || other.m_it == other.m_container->m_certNames.end();
   return ((isThisEnd || isOtherEnd) ?
           (isThisEnd == isOtherEnd) :
-          m_container->m_impl == other.m_container->m_impl && m_it == other.m_it);
+          m_container->m_pib == other.m_container->m_pib && m_it == other.m_it);
 }
 
 bool
@@ -80,12 +80,12 @@ CertificateContainer::const_iterator::operator!=(const const_iterator& other) co
   return !(*this == other);
 }
 
-CertificateContainer::CertificateContainer(const Name& keyName, shared_ptr<PibImpl> impl)
+CertificateContainer::CertificateContainer(const Name& keyName, shared_ptr<PibImpl> pibImpl)
   : m_keyName(keyName)
-  , m_impl(impl)
+  , m_pib(std::move(pibImpl))
 {
-  BOOST_ASSERT(impl != nullptr);
-  m_certNames = impl->getCertificatesOfKey(keyName);
+  BOOST_ASSERT(m_pib != nullptr);
+  m_certNames = m_pib->getCertificatesOfKey(keyName);
 }
 
 CertificateContainer::const_iterator
@@ -122,7 +122,7 @@ CertificateContainer::add(const v2::Certificate& certificate)
   const Name& certName = certificate.getName();
   m_certNames.insert(certName);
   m_certs[certName] = certificate;
-  m_impl->addCertificate(certificate);
+  m_pib->addCertificate(certificate);
 }
 
 void
@@ -136,7 +136,7 @@ CertificateContainer::remove(const Name& certName)
 
   m_certNames.erase(certName);
   m_certs.erase(certName);
-  m_impl->removeCertificate(certName);
+  m_pib->removeCertificate(certName);
 }
 
 v2::Certificate
@@ -153,14 +153,14 @@ CertificateContainer::get(const Name& certName) const
                                                 "is invalid or does not match key name"));
   }
 
-  m_certs[certName] = m_impl->getCertificate(certName);
+  m_certs[certName] = m_pib->getCertificate(certName);
   return m_certs[certName];
 }
 
 bool
 CertificateContainer::isConsistent() const
 {
-  return m_certNames == m_impl->getCertificatesOfKey(m_keyName);
+  return m_certNames == m_pib->getCertificatesOfKey(m_keyName);
 }
 
 } // namespace pib

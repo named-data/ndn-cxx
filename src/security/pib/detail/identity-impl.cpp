@@ -28,18 +28,18 @@ namespace security {
 namespace pib {
 namespace detail {
 
-IdentityImpl::IdentityImpl(const Name& identityName, shared_ptr<PibImpl> impl, bool needInit)
+IdentityImpl::IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl, bool needInit)
   : m_name(identityName)
+  , m_pib(std::move(pibImpl))
+  , m_keys(identityName, m_pib)
   , m_isDefaultKeyLoaded(false)
-  , m_keys(identityName, impl)
-  , m_impl(impl)
 {
-  BOOST_ASSERT(impl != nullptr);
+  BOOST_ASSERT(m_pib != nullptr);
 
   if (needInit) {
-    m_impl->addIdentity(m_name);
+    m_pib->addIdentity(m_name);
   }
-  else if (!m_impl->hasIdentity(m_name)) {
+  else if (!m_pib->hasIdentity(m_name)) {
     BOOST_THROW_EXCEPTION(Pib::Error("Identity " + m_name.toUri() + " does not exist"));
   }
 }
@@ -48,7 +48,6 @@ Key
 IdentityImpl::addKey(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
   BOOST_ASSERT(m_keys.isConsistent());
-
   return m_keys.add(key, keyLen, keyName);
 }
 
@@ -67,7 +66,6 @@ Key
 IdentityImpl::getKey(const Name& keyName) const
 {
   BOOST_ASSERT(m_keys.isConsistent());
-
   return m_keys.get(keyName);
 }
 
@@ -75,7 +73,6 @@ const KeyContainer&
 IdentityImpl::getKeys() const
 {
   BOOST_ASSERT(m_keys.isConsistent());
-
   return m_keys;
 }
 
@@ -86,7 +83,7 @@ IdentityImpl::setDefaultKey(const Name& keyName)
 
   m_defaultKey = m_keys.get(keyName);
   m_isDefaultKeyLoaded = true;
-  m_impl->setDefaultKeyOfIdentity(m_name, keyName);
+  m_pib->setDefaultKeyOfIdentity(m_name, keyName);
   return m_defaultKey;
 }
 
@@ -103,11 +100,10 @@ IdentityImpl::getDefaultKey() const
   BOOST_ASSERT(m_keys.isConsistent());
 
   if (!m_isDefaultKeyLoaded) {
-    m_defaultKey = m_keys.get(m_impl->getDefaultKeyOfIdentity(m_name));
+    m_defaultKey = m_keys.get(m_pib->getDefaultKeyOfIdentity(m_name));
     m_isDefaultKeyLoaded = true;
   }
-
-  BOOST_ASSERT(m_impl->getDefaultKeyOfIdentity(m_name) == m_defaultKey.getName());
+  BOOST_ASSERT(m_pib->getDefaultKeyOfIdentity(m_name) == m_defaultKey.getName());
 
   return m_defaultKey;
 }

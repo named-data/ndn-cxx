@@ -22,9 +22,10 @@
 #ifndef NDN_SECURITY_PIB_KEY_CONTAINER_HPP
 #define NDN_SECURITY_PIB_KEY_CONTAINER_HPP
 
+#include "key.hpp"
+
 #include <set>
 #include <unordered_map>
-#include "key.hpp"
 
 namespace ndn {
 namespace security {
@@ -126,9 +127,9 @@ public:
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
    * @brief Create key container for @p identity
-   * @param impl The PIB backend implementation.
+   * @param pibImpl The PIB backend implementation.
    */
-  KeyContainer(const Name& identity, shared_ptr<PibImpl> impl);
+  KeyContainer(const Name& identity, shared_ptr<PibImpl> pibImpl);
 
   const std::set<Name>&
   getKeyNames() const
@@ -148,7 +149,8 @@ private:
   /// @brief Cache of loaded detail::KeyImpl.
   mutable std::unordered_map<Name, shared_ptr<detail::KeyImpl>> m_keys;
 
-  shared_ptr<PibImpl> m_impl;
+  shared_ptr<PibImpl> m_pib;
+
   friend class detail::IdentityImpl;
 };
 
