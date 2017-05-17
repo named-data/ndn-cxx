@@ -36,14 +36,14 @@ static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
 Interest::Interest()
-  : m_interestLifetime(time::milliseconds::min())
+  : m_interestLifetime(DEFAULT_INTEREST_LIFETIME)
   , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
 }
 
 Interest::Interest(const Name& name)
   : m_name(name)
-  , m_interestLifetime(time::milliseconds::min())
+  , m_interestLifetime(DEFAULT_INTEREST_LIFETIME)
   , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
 }
@@ -222,6 +222,17 @@ Interest::matchesInterest(const Interest& other) const
           this->getSelectors() == other.getSelectors());
 }
 
+Interest&
+Interest::setInterestLifetime(time::milliseconds interestLifetime)
+{
+  if (interestLifetime < time::milliseconds::zero()) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
+  }
+  m_interestLifetime = interestLifetime;
+  m_wire.reset();
+  return *this;
+}
+
 template<encoding::Tag TAG>
 size_t
 Interest::wireEncode(EncodingImpl<TAG>& encoder) const
@@ -251,23 +262,20 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // InterestLifetime
-  if (getInterestLifetime() >= time::milliseconds::zero() &&
-      getInterestLifetime() != DEFAULT_INTEREST_LIFETIME)
-    {
-      totalLength += prependNonNegativeIntegerBlock(encoder,
-                                                    tlv::InterestLifetime,
-                                                    getInterestLifetime().count());
-    }
+  if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
+    totalLength += prependNonNegativeIntegerBlock(encoder,
+                                                  tlv::InterestLifetime,
+                                                  getInterestLifetime().count());
+  }
 
   // Nonce
   getNonce(); // to ensure that Nonce is properly set
   totalLength += encoder.prependBlock(m_nonce);
 
   // Selectors
-  if (hasSelectors())
-    {
-      totalLength += getSelectors().wireEncode(encoder);
-    }
+  if (hasSelectors()) {
+    totalLength += getSelectors().wireEncode(encoder);
+  }
 
   // Name
   totalLength += getName().wireEncode(encoder);
@@ -469,7 +477,7 @@ operator<<(std::ostream& os, const Interest& interest)
     os << delim << "ndn.MaxSuffixComponents=" << interest.getMaxSuffixComponents();
     delim = '&';
   }
-  if (interest.getChildSelector() >= 0) {
+  if (interest.getChildSelector() != DEFAULT_CHILD_SELECTOR) {
     os << delim << "ndn.ChildSelector=" << interest.getChildSelector();
     delim = '&';
   }
@@ -477,8 +485,7 @@ operator<<(std::ostream& os, const Interest& interest)
     os << delim << "ndn.MustBeFresh=" << interest.getMustBeFresh();
     delim = '&';
   }
-  if (interest.getInterestLifetime() >= time::milliseconds::zero()
-      && interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
+  if (interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
     os << delim << "ndn.InterestLifetime=" << interest.getInterestLifetime().count();
     delim = '&';
   }

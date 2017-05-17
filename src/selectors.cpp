@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@ static_assert(std::is_base_of<tlv::Error, Selectors::Error>::value,
 Selectors::Selectors()
   : m_minSuffixComponents(-1)
   , m_maxSuffixComponents(-1)
-  , m_childSelector(-1)
+  , m_childSelector(DEFAULT_CHILD_SELECTOR)
   , m_mustBeFresh(false)
 {
 }
@@ -78,7 +78,7 @@ Selectors::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // ChildSelector
-  if (getChildSelector() >= 0) {
+  if (getChildSelector() != DEFAULT_CHILD_SELECTOR) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::ChildSelector, getChildSelector());
   }
 
@@ -171,6 +171,9 @@ Selectors::wireDecode(const Block& wire)
   if (val != m_wire.elements_end()) {
     m_childSelector = readNonNegativeInteger(*val);
   }
+  else {
+    m_childSelector = DEFAULT_CHILD_SELECTOR;
+  }
 
   // MustBeFresh
   val = m_wire.find(tlv::MustBeFresh);
@@ -214,6 +217,9 @@ Selectors::setExclude(const Exclude& exclude)
 Selectors&
 Selectors::setChildSelector(int childSelector)
 {
+  if (childSelector != 0 && childSelector != 1) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("ChildSelector must be 0 or 1"));
+  }
   m_childSelector = childSelector;
   m_wire.reset();
   return *this;

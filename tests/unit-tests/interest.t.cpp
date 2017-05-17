@@ -543,6 +543,114 @@ const uint8_t InterestWithLinkNonDecreasingOrder[] = {
           0x01
 };
 
+BOOST_AUTO_TEST_CASE(DefaultValues)
+{
+  Interest i;
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK(!i.hasSelectedDelegation());
+}
+
+BOOST_AUTO_TEST_CASE(EncodeChildSelector)
+{
+  Interest i;
+  i.setName("/local/ndn/prefix");
+  i.setNonce(1);
+  BOOST_CHECK_EQUAL(i.getChildSelector(), 0);
+  BOOST_CHECK_THROW(i.setChildSelector(-1), std::invalid_argument);
+  BOOST_CHECK_THROW(i.setChildSelector(2), std::invalid_argument);
+  BOOST_CHECK_NO_THROW(i.setChildSelector(1));
+  BOOST_CHECK_EQUAL(i.getChildSelector(), 1);
+  BOOST_CHECK_NO_THROW(i.setChildSelector(0));
+  BOOST_CHECK_EQUAL(i.getChildSelector(), 0);
+
+  const uint8_t expectedDefault[] = {
+    0x05, 0x1e, // MetaInfo
+          0x07, 0x14, // Name
+                0x08, 0x5, // NameComponent
+                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
+                0x08, 0x3, // NameComponent
+                      0x6e, 0x64, 0x6e,
+                0x08, 0x6, // NameComponent
+                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
+          0x09, 0x00, // Selectors
+          0x0a, 0x04, // Nonce
+                0x01, 0x00, 0x00, 0x00, // 1
+  };
+
+  BOOST_CHECK_EQUAL_COLLECTIONS(i.wireEncode().begin(), i.wireEncode().end(),
+                                expectedDefault, expectedDefault + sizeof(expectedDefault));
+
+  const uint8_t expected1[] = {
+    0x05, 0x21, // MetaInfo
+          0x07, 0x14, // Name
+                0x08, 0x5, // NameComponent
+                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
+                0x08, 0x3, // NameComponent
+                      0x6e, 0x64, 0x6e,
+                0x08, 0x6, // NameComponent
+                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
+          0x09, 0x03, // Selectors
+                0x11, 0x01, // ChildSelector
+                      0x01, // 1
+          0x0a, 0x04, // Nonce
+                0x01, 0x00, 0x00, 0x00, // 1
+  };
+
+  i.setChildSelector(1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(i.wireEncode().begin(), i.wireEncode().end(),
+                                expected1, expected1 + sizeof(expected1));
+}
+
+BOOST_AUTO_TEST_CASE(EncodeInterestLifetime)
+{
+  Interest i;
+  i.setName("/local/ndn/prefix");
+  i.setNonce(1);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK_THROW(i.setInterestLifetime(time::milliseconds(-1)), std::invalid_argument);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK_NO_THROW(i.setInterestLifetime(time::milliseconds(1)));
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(1));
+  BOOST_CHECK_NO_THROW(i.setInterestLifetime(DEFAULT_INTEREST_LIFETIME));
+
+  const uint8_t expectedDefault[] = {
+    0x05, 0x1e, // MetaInfo
+          0x07, 0x14, // Name
+                0x08, 0x5, // NameComponent
+                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
+                0x08, 0x3, // NameComponent
+                      0x6e, 0x64, 0x6e,
+                0x08, 0x6, // NameComponent
+                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
+          0x09, 0x00, // Selectors
+          0x0a, 0x04, // Nonce
+                0x01, 0x00, 0x00, 0x00, // 1
+  };
+
+  BOOST_CHECK_EQUAL_COLLECTIONS(i.wireEncode().begin(), i.wireEncode().end(),
+                                expectedDefault, expectedDefault + sizeof(expectedDefault));
+
+  const uint8_t expected1000ms[] = {
+    0x05, 0x22, // MetaInfo
+          0x07, 0x14, // Name
+                0x08, 0x5, // NameComponent
+                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
+                0x08, 0x3, // NameComponent
+                      0x6e, 0x64, 0x6e,
+                0x08, 0x6, // NameComponent
+                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
+          0x09, 0x00, // Selectors
+          0x0a, 0x04, // Nonce
+                0x01, 0x00, 0x00, 0x00, // 1
+          0x0c, 0x02, // InterestLifetime
+                0x03, 0xe8
+  };
+
+  BOOST_CHECK_NO_THROW(i.setInterestLifetime(time::milliseconds(1000)));
+  BOOST_CHECK_EQUAL_COLLECTIONS(i.wireEncode().begin(), i.wireEncode().end(),
+                                expected1000ms, expected1000ms + sizeof(expected1000ms));
+}
+
 BOOST_AUTO_TEST_CASE(InterestEqualityChecks)
 {
   // Interest ::= INTEREST-TYPE TLV-LENGTH
@@ -959,7 +1067,7 @@ BOOST_AUTO_TEST_CASE(Encode)
   i.setNonce(1);
 
   BOOST_CHECK_EQUAL(i.hasWire(), false);
-  const Block &wire = i.wireEncode();
+  const Block& wire = i.wireEncode();
   BOOST_CHECK_EQUAL(i.hasWire(), true);
 
   BOOST_CHECK_EQUAL_COLLECTIONS(Interest1, Interest1 + sizeof(Interest1),

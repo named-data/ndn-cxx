@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,8 @@
 #include "exclude.hpp"
 
 namespace ndn {
+
+const int DEFAULT_CHILD_SELECTOR = 0;
 
 /**
  * @brief Abstraction implementing Interest selectors
@@ -117,6 +119,10 @@ public: // getters & setters
     return m_childSelector;
   }
 
+  /**
+   * @brief set ChildSelector
+   * @throw std::invalid_argument ChildSelector not 0 or 1
+   */
   Selectors&
   setChildSelector(int childSelector);
 

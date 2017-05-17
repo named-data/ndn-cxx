@@ -193,6 +193,56 @@ BOOST_AUTO_TEST_CASE(AppMetaInfoTypeRange)
   BOOST_CHECK_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(253, 1000)), MetaInfo::Error);
 }
 
+BOOST_AUTO_TEST_CASE(EncodeDecodeFreshnessPeriod)
+{
+  const uint8_t expectedDefault[] = {
+    0x14, 0x00, // MetaInfo
+  };
+
+  const uint8_t expected1000ms[] = {
+    0x14, 0x04, // MetaInfo
+          0x19, 0x02, // FreshnessPeriod
+                0x03, 0xe8 // 1000ms
+  };
+
+  MetaInfo info;
+  BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
+                                expectedDefault, expectedDefault + sizeof(expectedDefault));
+
+  info.setFreshnessPeriod(time::milliseconds::zero());
+  BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
+                                expectedDefault, expectedDefault + sizeof(expectedDefault));
+
+  info.setFreshnessPeriod(time::milliseconds(1000));
+  BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
+                                expected1000ms, expected1000ms + sizeof(expected1000ms));
+
+  const uint8_t inputDefault[] = {
+    0x14, 0x03, // MetaInfo
+          0x19, 0x01, // FreshnessPeriod
+                0x00  // 0ms
+  };
+
+  const uint8_t input2000ms[] = {
+    0x14, 0x04, // MetaInfo
+          0x19, 0x02, // FreshnessPeriod
+                0x07, 0xd0 // 2000ms
+  };
+
+  Block inputDefaultBlock(inputDefault, sizeof(inputDefault));
+  BOOST_CHECK_NO_THROW(info.wireDecode(inputDefaultBlock));
+  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds::zero());
+
+  Block input2000msBlock(input2000ms, sizeof(input2000ms));
+  BOOST_CHECK_NO_THROW(info.wireDecode(input2000msBlock));
+  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds(2000));
+
+  BOOST_CHECK_NO_THROW(info.setFreshnessPeriod(time::milliseconds(10000)));
+  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds(10000));
+  BOOST_CHECK_THROW(info.setFreshnessPeriod(time::milliseconds(-1)), std::invalid_argument);
+  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds(10000));
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestMetaInfo
 
 } // namespace tests

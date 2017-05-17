@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ static_assert(std::is_base_of<tlv::Error, MetaInfo::Error>::value,
 
 MetaInfo::MetaInfo()
   : m_type(tlv::ContentType_Blob)
-  , m_freshnessPeriod(-1)
+  , m_freshnessPeriod(DEFAULT_FRESHNESS_PERIOD)
 {
 }
 
@@ -52,8 +52,11 @@ MetaInfo::setType(uint32_t type)
 }
 
 MetaInfo&
-MetaInfo::setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
+MetaInfo::setFreshnessPeriod(time::milliseconds freshnessPeriod)
 {
+  if (freshnessPeriod < time::milliseconds::zero()) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("FreshnessPeriod must be >= 0"));
+  }
   m_wire.reset();
   m_freshnessPeriod = freshnessPeriod;
   return *this;
@@ -143,23 +146,20 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // FinalBlockId
-  if (!m_finalBlockId.empty())
-    {
-      totalLength += prependNestedBlock(encoder, tlv::FinalBlockId, m_finalBlockId);
-    }
+  if (!m_finalBlockId.empty()) {
+    totalLength += prependNestedBlock(encoder, tlv::FinalBlockId, m_finalBlockId);
+  }
 
   // FreshnessPeriod
-  if (m_freshnessPeriod >= time::milliseconds::zero())
-    {
-      totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod,
-                                                    m_freshnessPeriod.count());
-    }
+  if (m_freshnessPeriod != DEFAULT_FRESHNESS_PERIOD) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod,
+                                                  m_freshnessPeriod.count());
+  }
 
   // ContentType
-  if (m_type != tlv::ContentType_Blob)
-    {
-      totalLength += prependNonNegativeIntegerBlock(encoder, tlv::ContentType, m_type);
-    }
+  if (m_type != tlv::ContentType_Blob) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::ContentType, m_type);
+  }
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::MetaInfo);
@@ -218,7 +218,7 @@ MetaInfo::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    m_freshnessPeriod = time::milliseconds::min();
+    m_freshnessPeriod = DEFAULT_FRESHNESS_PERIOD;
   }
 
   // FinalBlockId
@@ -248,7 +248,7 @@ operator<<(std::ostream& os, const MetaInfo& info)
   os << "ContentType: " << info.getType();
 
   // FreshnessPeriod
-  if (info.getFreshnessPeriod() >= time::milliseconds::zero()) {
+  if (info.getFreshnessPeriod() > time::milliseconds::zero()) {
     os << ", FreshnessPeriod: " << info.getFreshnessPeriod();
   }
 

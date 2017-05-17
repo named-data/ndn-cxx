@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,6 +30,8 @@
 #include <list>
 
 namespace ndn {
+
+const time::milliseconds DEFAULT_FRESHNESS_PERIOD = time::milliseconds::zero();
 
 /**
  * An MetaInfo holds the meta info which is signed inside the data packet.
@@ -97,8 +99,11 @@ public: // getter/setter
   const time::milliseconds&
   getFreshnessPeriod() const;
 
+  /** @brief set FreshnessPeriod
+   *  @throw std::invalid_argument specified FreshnessPeriod is < 0
+   */
   MetaInfo&
-  setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
+  setFreshnessPeriod(time::milliseconds freshnessPeriod);
 
   const name::Component&
   getFinalBlockId() const;

@@ -242,13 +242,12 @@ public: // Name and guiders
     return m_interestLifetime;
   }
 
+  /**
+   * @brief Set Interest's lifetime
+   * @throw std::invalid_argument specified lifetime is < 0
+   */
   Interest&
-  setInterestLifetime(const time::milliseconds& interestLifetime)
-  {
-    m_interestLifetime = interestLifetime;
-    m_wire.reset();
-    return *this;
-  }
+  setInterestLifetime(time::milliseconds interestLifetime);
 
   /** @brief Check if Nonce set
    */
