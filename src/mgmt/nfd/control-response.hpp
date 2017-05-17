@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,17 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
-#define NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
+#ifndef NDN_MGMT_NFD_CONTROL_RESPONSE_HPP
+#define NDN_MGMT_NFD_CONTROL_RESPONSE_HPP
 
-#include "../dispatcher.hpp"
+#include "../control-response.hpp"
 
 namespace ndn {
 namespace nfd {
 
-typedef ndn::mgmt::ControlResponse ControlResponse;
+using ControlResponse = mgmt::ControlResponse;
 
 } // namespace nfd
 } // namespace ndn
 
-#endif // NDN_MANAGEMENT_CONTROL_RESPONSE_HPP
+#endif // NDN_MGMT_NFD_CONTROL_RESPONSE_HPP
