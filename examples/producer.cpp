@@ -39,10 +39,13 @@ public:
   void
   run()
   {
-    m_face.setInterestFilter("/example/testApp",
+	InterestFilter Filter("/example/testApp");
+    m_face.setInterestFilter(Filter,
                              bind(&Producer::onInterest, this, _1, _2),
                              RegisterPrefixSuccessCallback(),
-                             bind(&Producer::onRegisterFailed, this, _1, _2));
+                             bind(&Producer::onRegisterFailed, this, _1, _2),
+							 IdentityCertificate(),
+							 nfd::ROUTE_FLAG_CHILD_INHERIT);
     m_face.processEvents();
   }
 
