@@ -175,16 +175,18 @@ operator<<(std::ostream& os, const NetworkInterface& netif)
   os << "<";
 #define PRINT_IFF(flag) printFlag(os, flags, IFF_##flag, #flag)
   PRINT_IFF(UP);
+  PRINT_IFF(BROADCAST);
   PRINT_IFF(DEBUG);
   PRINT_IFF(LOOPBACK);
   PRINT_IFF(POINTOPOINT);
-  PRINT_IFF(BROADCAST);
-  PRINT_IFF(MULTICAST);
+#if defined(IFF_NOTRAILERS)
   PRINT_IFF(NOTRAILERS);
+#endif
   PRINT_IFF(RUNNING);
   PRINT_IFF(NOARP);
   PRINT_IFF(PROMISC);
   PRINT_IFF(ALLMULTI);
+  PRINT_IFF(MULTICAST);
 #if defined(__linux__)
   PRINT_IFF(MASTER);
   PRINT_IFF(SLAVE);
@@ -194,7 +196,17 @@ operator<<(std::ostream& os, const NetworkInterface& netif)
 #elif defined(__APPLE__) || defined(__FreeBSD__)
   PRINT_IFF(OACTIVE);
   PRINT_IFF(SIMPLEX);
-  PRINT_IFF(ALTPHYS);
+  PRINT_IFF(LINK0);
+  PRINT_IFF(LINK1);
+  PRINT_IFF(LINK2);
+#endif
+#if defined(__FreeBSD__)
+  PRINT_IFF(CANTCONFIG);
+  PRINT_IFF(PPROMISC);
+  PRINT_IFF(MONITOR);
+  PRINT_IFF(STATICARP);
+  PRINT_IFF(DYING);
+  PRINT_IFF(RENAMING);
 #endif
 #undef PRINT_IFF
 #if defined(__linux__)
