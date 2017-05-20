@@ -33,15 +33,17 @@ BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
 
 BOOST_AUTO_TEST_CASE(DestructWithoutRun)
 {
+#if defined(NDN_CXX_HAVE_RTNETLINK) || defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
   boost::asio::io_service io;
   auto nm = make_unique<NetworkMonitor>(io);
   nm.reset();
+#endif
   BOOST_CHECK(true); // if we got this far, the test passed
 }
 
 BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
 {
-#ifdef __linux__
+#ifdef NDN_CXX_HAVE_RTNETLINK
   boost::asio::io_service io;
   auto nm = make_unique<NetworkMonitor>(io);
 

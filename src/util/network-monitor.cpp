@@ -37,9 +37,21 @@ namespace util {
 class NetworkMonitor::Impl
 {
 public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
+  Impl(NetworkMonitor&, boost::asio::io_service&)
   {
     BOOST_THROW_EXCEPTION(Error("Network monitoring is not supported on this platform"));
+  }
+
+  shared_ptr<NetworkInterface>
+  getNetworkInterface(const std::string&) const
+  {
+    return {};
+  }
+
+  std::vector<shared_ptr<NetworkInterface>>
+  listNetworkInterfaces() const
+  {
+    return {};
   }
 };
 
