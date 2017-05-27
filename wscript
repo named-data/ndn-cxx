@@ -109,8 +109,11 @@ def configure(conf):
     if conf.env.BOOST_VERSION_NUMBER < 105400:
         Logs.error("Minimum required boost version is 1.54.0")
         Logs.error("Please upgrade your distribution or install custom boost libraries" +
-                    " (https://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)")
+                   " (https://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)")
         return
+
+    if conf.env['CXX_NAME'] == 'clang' and conf.env.BOOST_VERSION_NUMBER < 105800:
+        conf.env.append_value('DEFINES', 'BOOST_ASIO_HAS_STD_ARRAY=1') # Bug #4096
 
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)
