@@ -282,24 +282,37 @@ public:
       return;
     }
 
-    dns::AddressSelector addressSelector;
-    if (faceUri.getScheme() == m_v4Scheme) {
-      addressSelector = dns::Ipv4Only();
-    }
-    else if (faceUri.getScheme() == m_v6Scheme) {
-      addressSelector = dns::Ipv6Only();
-    }
-    else {
-      BOOST_ASSERT(faceUri.getScheme() == m_baseScheme);
-      addressSelector = dns::AnyAddress();
-    }
-
     // make a copy because caller may modify faceUri
     auto uri = make_shared<FaceUri>(faceUri);
-    dns::asyncResolve(faceUri.getHost(),
-      bind(&IpHostCanonizeProvider<Protocol>::onDnsSuccess, this, uri, onSuccess, onFailure, _1),
-      bind(&IpHostCanonizeProvider<Protocol>::onDnsFailure, this, uri, onFailure, _1),
-      io, addressSelector, timeout);
+    boost::system::error_code ec;
+    auto ipAddress = boost::asio::ip::address::from_string(faceUri.getHost(), ec);
+    if (!ec) {
+      // No need to resolve IP address if host is already an IP
+      if ((faceUri.getScheme() == m_v4Scheme && !ipAddress.is_v4()) ||
+          (faceUri.getScheme() == m_v6Scheme && !ipAddress.is_v6())) {
+        return onFailure("IPv4/v6 mismatch");
+      }
+
+      onDnsSuccess(uri, onSuccess, onFailure, ipAddress);
+    }
+    else {
+      dns::AddressSelector addressSelector;
+      if (faceUri.getScheme() == m_v4Scheme) {
+        addressSelector = dns::Ipv4Only();
+      }
+      else if (faceUri.getScheme() == m_v6Scheme) {
+        addressSelector = dns::Ipv6Only();
+      }
+      else {
+        BOOST_ASSERT(faceUri.getScheme() == m_baseScheme);
+        addressSelector = dns::AnyAddress();
+      }
+
+      dns::asyncResolve(faceUri.getHost(),
+        bind(&IpHostCanonizeProvider<Protocol>::onDnsSuccess, this, uri, onSuccess, onFailure, _1),
+        bind(&IpHostCanonizeProvider<Protocol>::onDnsFailure, this, uri, onFailure, _1),
+        io, addressSelector, timeout);
+    }
   }
 
 protected:

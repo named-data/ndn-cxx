@@ -181,10 +181,13 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("udp4://192.0.2.1:6363/").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp6://[2001:db8::1]:6363").isCanonical(), true);
   BOOST_CHECK_EQUAL(FaceUri("udp6://[2001:db8::01]:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp://[2001:db8::1]:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp4://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp6://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp4://224.0.23.170:56363").isCanonical(), true);
+  BOOST_CHECK_EQUAL(FaceUri("udp4://[2001:db8::1]:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("udp6://192.0.2.1:6363").isCanonical(), false);
 }
 
 BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeUdpV4, 1)
@@ -209,6 +212,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
   addTest("udp4://224.0.23.170", true, "udp4://224.0.23.170:56363");
   addTest("udp4://all-routers.mcast.net:56363", true, "udp4://224.0.0.2:56363");
 
+  // IPv6 used with udp4 protocol - not canonical
+  addTest("udp4://[2001:db8::1]:6363", false, "");
+
   runTests();
 }
 
@@ -232,6 +238,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
   // IPv6 multicast
   addTest("udp6://[ff02::2]:56363", true, "udp6://[ff02::2]:56363");
   addTest("udp6://[ff02::2]", true, "udp6://[ff02::2]:56363");
+
+  // IPv4 used with udp6 protocol - not canonical
+  addTest("udp6://192.0.2.1:6363", false, "");
 
   runTests();
 }
@@ -275,10 +284,13 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("tcp4://192.0.2.1:6363/").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp6://[2001:db8::1]:6363").isCanonical(), true);
   BOOST_CHECK_EQUAL(FaceUri("tcp6://[2001:db8::01]:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp://[2001:db8::1]:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp4://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp6://example.net:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp4://224.0.23.170:56363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp4://[2001:db8::1]:6363").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("tcp6://192.0.2.1:6363").isCanonical(), false);
 }
 
 BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeTcpV4, 1)
@@ -303,6 +315,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
   addTest("tcp4://224.0.23.170", false, "");
   addTest("tcp4://all-routers.mcast.net:56363", false, "");
 
+  // IPv6 used with tcp4 protocol - not canonical
+  addTest("tcp4://[2001:db8::1]:6363", false, "");
+
   runTests();
 }
 
@@ -326,6 +341,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
   // IPv6 multicast
   addTest("tcp6://[ff02::2]:56363", false, "");
   addTest("tcp6://[ff02::2]", false, "");
+
+  // IPv4 used with tcp6 protocol - not canonical
+  addTest("tcp6://192.0.2.1:6363", false, "");
 
   runTests();
 }
