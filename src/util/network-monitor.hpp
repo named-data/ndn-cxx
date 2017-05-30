@@ -82,6 +82,26 @@ public:
 
   ~NetworkMonitor();
 
+  enum Capability : uint32_t {
+    /// NetworkMonitor is not supported and is a no-op
+    CAP_NONE = 0,
+    /// listNetworkInterfaces() and getNetworkInterface() are supported
+    CAP_ENUM = 1 << 0,
+    /// NetworkMonitor onInterfaceAdded and onInterfaceRemoved signals are supported
+    CAP_IF_ADD_REMOVE = 1 << 1,
+    /// NetworkInterface onStateChanged signal is supported
+    CAP_STATE_CHANGE = 1 << 2,
+    /// NetworkInterface onMtuChanged signal is supported
+    CAP_MTU_CHANGE = 1 << 3,
+    /// NetworkInterface onAddressAdded and onAddressRemoved signals are supported
+    CAP_ADDR_ADD_REMOVE = 1 << 4
+  };
+
+  /** \return bitwise OR'ed \p Capability supported on current platform
+   */
+  uint32_t
+  getCapabilities() const;
+
   shared_ptr<NetworkInterface>
   getNetworkInterface(const std::string& ifname) const;
 

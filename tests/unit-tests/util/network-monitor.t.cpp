@@ -31,21 +31,27 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
 
+#define NM_REQUIRE_CAP(capability) \
+  do { \
+    if ((nm->getCapabilities() & NetworkMonitor::CAP_ ## capability) == 0) { \
+      BOOST_WARN_MESSAGE(false, "skipping assertions that require " #capability " capability"); \
+      return; \
+    } \
+  } while (false)
+
 BOOST_AUTO_TEST_CASE(DestructWithoutRun)
 {
-#if defined(NDN_CXX_HAVE_RTNETLINK) || defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
   boost::asio::io_service io;
   auto nm = make_unique<NetworkMonitor>(io);
   nm.reset();
-#endif
   BOOST_CHECK(true); // if we got this far, the test passed
 }
 
 BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
 {
-#ifdef NDN_CXX_HAVE_RTNETLINK
   boost::asio::io_service io;
   auto nm = make_unique<NetworkMonitor>(io);
+  NM_REQUIRE_CAP(ENUM);
 
   nm->onInterfaceAdded.connect([&] (const shared_ptr<NetworkInterface>&) {
     io.post([&] { nm.reset(); });
@@ -57,7 +63,6 @@ BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
   });
 
   io.run();
-#endif
   BOOST_CHECK(true); // if we got this far, the test passed
 }
 

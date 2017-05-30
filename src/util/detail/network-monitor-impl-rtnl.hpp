@@ -53,6 +53,16 @@ public:
 
   ~Impl();
 
+  uint32_t
+  getCapabilities() const
+  {
+    return NetworkMonitor::CAP_ENUM |
+           NetworkMonitor::CAP_IF_ADD_REMOVE |
+           NetworkMonitor::CAP_STATE_CHANGE |
+           NetworkMonitor::CAP_MTU_CHANGE |
+           NetworkMonitor::CAP_ADDR_ADD_REMOVE;
+  }
+
   shared_ptr<NetworkInterface>
   getNetworkInterface(const std::string& ifname) const;
 

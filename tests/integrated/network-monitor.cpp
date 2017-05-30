@@ -55,6 +55,8 @@ BOOST_AUTO_TEST_CASE(Signals)
   boost::asio::io_service io;
   NetworkMonitor monitor(io);
 
+  std::cout << "capabilities=" << monitor.getCapabilities() << std::endl;
+
   monitor.onNetworkStateChanged.connect([] {
     logEvent() << "onNetworkStateChanged" << std::endl;
   });

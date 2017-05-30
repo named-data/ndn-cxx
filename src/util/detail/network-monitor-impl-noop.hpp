@@ -18,48 +18,44 @@
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  *
- * @author Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-monitor.hpp"
-#include "ndn-cxx-config.hpp"
+#ifndef NDN_UTIL_NETWORK_MONITOR_IMPL_NOOP_HPP
+#define NDN_UTIL_NETWORK_MONITOR_IMPL_NOOP_HPP
 
-#if defined(NDN_CXX_HAVE_COREFOUNDATION_COREFOUNDATION_H)
-#include "detail/network-monitor-impl-osx.hpp"
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#else
-#include "detail/network-monitor-impl-noop.hpp"
-#endif
+#include "../network-monitor.hpp"
 
 namespace ndn {
 namespace util {
 
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(make_unique<Impl>(*this, io))
+class NetworkMonitor::Impl
 {
-}
+public:
+  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
+  {
+  }
 
-NetworkMonitor::~NetworkMonitor() = default;
+  uint32_t
+  getCapabilities() const
+  {
+    return NetworkMonitor::CAP_NONE;
+  }
 
-uint32_t
-NetworkMonitor::getCapabilities() const
-{
-  return m_impl->getCapabilities();
-}
+  shared_ptr<NetworkInterface>
+  getNetworkInterface(const std::string&) const
+  {
+    return {};
+  }
 
-shared_ptr<NetworkInterface>
-NetworkMonitor::getNetworkInterface(const std::string& ifname) const
-{
-  return m_impl->getNetworkInterface(ifname);
-}
-
-std::vector<shared_ptr<NetworkInterface>>
-NetworkMonitor::listNetworkInterfaces() const
-{
-  return m_impl->listNetworkInterfaces();
-}
+  std::vector<shared_ptr<NetworkInterface>>
+  listNetworkInterfaces() const
+  {
+    return {};
+  }
+};
 
 } // namespace util
 } // namespace ndn
+
+#endif // NDN_UTIL_NETWORK_MONITOR_IMPL_NOOP_HPP
