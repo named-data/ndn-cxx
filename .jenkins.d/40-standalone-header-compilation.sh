@@ -6,37 +6,29 @@
 # (similar to running all test cases), instead of failing at the first error.
 
 CXX=${CXX:-g++}
+STD=-std=c++11
+CXXFLAGS="-O2 -Wall -Wno-unused-local-typedef $(pkg-config --cflags libndn-cxx)"
+INCLUDEDIR="$(pkg-config --variable=includedir libndn-cxx)"/ndn-cxx
 
-STD=
-if $CXX -xc++ /dev/null -o /dev/null -c -std=c++11 &>/dev/null; then
-  STD=-std=c++11
-elif $CXX  -xc++ /dev/null -o /dev/null -c -std=c++0x &>/dev/null; then
-  STD=-std=c++0x
-fi
+echo "Using: $CXX $STD $CXXFLAGS"
 
-STDLIB=
-if $CXX -xc++ /dev/null -o /dev/null -c $STD -stdlib=libc++ &>/dev/null; then
-  STDLIB=-stdlib=libc++
-fi
-
-echo 'Compiler flags:' $CXX $STD $STDLIB
-
-INCLUDEDIR=/usr/local/include/ndn-cxx
 NCHECKED=0
 NERRORS=0
 while IFS= read -r -d '' H; do
-  echo 'Verifying standalone header compilation for' $H
-  $CXX -xc++ "$INCLUDEDIR/$H" -o /dev/null -c $STD $STDLIB $(pkg-config --cflags libndn-cxx)
+  echo "Verifying standalone header compilation for ${H#${INCLUDEDIR}/}"
+  "$CXX" -xc++ $STD $CXXFLAGS -c -o /dev/null "$H"
   [[ $? -eq 0 ]] || ((NERRORS++))
   ((NCHECKED++))
-done < <(cd "$INCLUDEDIR" && find * -name '*.hpp' -type f -print0 2>/dev/null)
+done < <(find "$INCLUDEDIR" -name '*.hpp' -type f -print0 2>/dev/null)
 
 if [[ $NCHECKED -eq 0 ]]; then
   echo 'No header found. Is ndn-cxx installed?'
   exit 1
+else
+  echo "$NCHECKED headers checked."
 fi
 
 if [[ $NERRORS -gt 0 ]]; then
-  echo $NERRORS 'headers cannot compile on its own'
+  echo "$NERRORS headers could not be compiled."
   exit 1
 fi
