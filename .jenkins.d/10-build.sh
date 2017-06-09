@@ -6,9 +6,10 @@ source "$JDIR"/util.sh
 
 set -x
 
-sudo rm -Rf /usr/local/include/ndn-cxx
+sudo rm -f /usr/local/bin/ndnsec*
+sudo rm -fr /usr/local/include/ndn-cxx
 sudo rm -f /usr/local/lib/libndn-cxx*
-sudo rm -f /usr/local/lib/pkgconfig/libndn-cxx*
+sudo rm -f /usr/local/lib/pkgconfig/libndn-cxx.pc
 
 # Cleanup
 sudo ./waf -j1 --color=yes distclean
@@ -32,7 +33,7 @@ fi
 # Configure/build shared library in debug mode with tests/examples and without precompiled headers
 if [[ $JOB_NAME == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
-elif ! has OSX-10.9 $NODE_LABELS && ! has OSX-10.11 $NODE_LABELS; then
+elif [[ -n $BUILD_WITH_ASAN || -z $TRAVIS ]]; then
     ASAN="--with-sanitizer=address"
 fi
 ./waf -j1 --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples --without-pch $COVERAGE $ASAN
