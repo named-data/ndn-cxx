@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -58,16 +58,15 @@ public:
   getLoggerNames();
 
   /** \brief set severity level
-   *  \param moduleName logger name, or "*" for default level
+   *  \param prefix logger prefix; this can be a specific logger name, a general prefix like ndn.a.*
+   *   to apply a setting for all modules that contain this prefix, or "*" for all modules
    *  \param level minimum severity level
    *
    *  Log messages are output only if its severity is greater than the set minimum severity level.
    *  Initial default severity level is \p LogLevel::NONE which enables FATAL only.
-   *
-   *  Changing the default level overwrites individual settings.
    */
   static void
-  setLevel(const std::string& moduleName, LogLevel level);
+  setLevel(const std::string& prefix, LogLevel level);
 
   /** \brief set severity levels with a config string
    *  \param config colon-separate key=value pairs
@@ -117,13 +116,25 @@ private:
   addLoggerImpl(Logger& logger);
 
   std::set<std::string>
-  getLoggerNamesImpl();
+  getLoggerNamesImpl() const;
+
+  /**
+   * \brief finds the appropriate LogLevel for a logger
+   * \param moduleName name of logger
+   *
+   * This searches m_enabledLevel map to determine which LogLevel is appropriate for
+   * the incoming logger. It looks for the most specific prefix and broadens its
+   * prefix scope if a setting is not found. For example, when an incoming logger
+   * name is "ndn.a.b", it will search for "ndn.a.b" first. If this prefix is not
+   * contained in m_enabledLevel, it will search for "ndn.a.*", then "ndn.*", and
+   * finally "*". It defaults to INITIAL_DEFAULT_LEVEL if a matching prefix is not
+   * found.
+   */
+  LogLevel
+  findLevel(const std::string& moduleName) const;
 
   void
-  setLevelImpl(const std::string& moduleName, LogLevel level);
-
-  void
-  setDefaultLevel(LogLevel level);
+  setLevelImpl(const std::string& prefix, LogLevel level);
 
   void
   setLevelImpl(const std::string& config);
@@ -142,19 +153,22 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   bool
   removeLogger(Logger& logger);
 
-  std::string
-  getLevels() const;
-
   void
   resetLevels();
 
   shared_ptr<std::ostream>
-  getDestination();
+  getDestination() const;
+
+  void
+  setLevelImpl(const std::unordered_map<std::string, LogLevel>& prefixRules);
+
+  const std::unordered_map<std::string, LogLevel>&
+  getLevels() const;
 #endif // NDN_CXX_HAVE_TESTS
 
 private:
-  std::mutex m_mutex;
-  std::unordered_map<std::string, LogLevel> m_enabledLevel; ///< moduleName => minimum level
+  mutable std::mutex m_mutex;
+  std::unordered_map<std::string, LogLevel> m_enabledLevel; ///< module prefix => minimum level
   std::unordered_multimap<std::string, Logger*> m_loggers; ///< moduleName => logger
 
   shared_ptr<std::ostream> m_destination;
@@ -175,9 +189,9 @@ Logging::getLoggerNames()
 }
 
 inline void
-Logging::setLevel(const std::string& moduleName, LogLevel level)
+Logging::setLevel(const std::string& prefix, LogLevel level)
 {
-  get().setLevelImpl(moduleName, level);
+  get().setLevelImpl(prefix, level);
 }
 
 inline void
@@ -189,7 +203,7 @@ Logging::setLevel(const std::string& config)
 inline void
 Logging::setDestination(shared_ptr<std::ostream> os)
 {
-  get().setDestinationImpl(os);
+  get().setDestinationImpl(std::move(os));
 }
 
 inline void
@@ -197,7 +211,6 @@ Logging::flush()
 {
   get().flushImpl();
 }
-
 
 } // namespace util
 } // namespace ndn

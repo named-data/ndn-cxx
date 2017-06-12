@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -21,10 +21,10 @@
 
 #include "util/logging.hpp"
 #include "util/logger.hpp"
+#include "../unit-test-time-fixture.hpp"
 
 #include "boost-test.hpp"
 #include <boost/test/output_test_stream.hpp>
-#include "../unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace util {
@@ -42,9 +42,11 @@ void
 logFromModule2();
 
 void
+logFromFilterModule();
+
+static void
 logFromNewLogger(const std::string& moduleName)
 {
-  // clang complains -Wreturn-stack-address on OSX-10.9 if Logger is allocated on stack
   auto loggerPtr = make_unique<Logger>(moduleName);
   Logger& logger = *loggerPtr;
 
@@ -67,7 +69,7 @@ class LoggingFixture : public UnitTestTimeFixture
 protected:
   explicit
   LoggingFixture()
-    : m_oldLevels(Logging::get().getLevels())
+    : m_oldEnabledLevel(Logging::get().getLevels())
     , m_oldDestination(Logging::get().getDestination())
   {
     this->systemClock->setNow(LOG_SYSTIME);
@@ -77,7 +79,7 @@ protected:
 
   ~LoggingFixture()
   {
-    Logging::setLevel(m_oldLevels);
+    Logging::get().setLevelImpl(m_oldEnabledLevel);
     Logging::setDestination(m_oldDestination);
   }
 
@@ -85,7 +87,7 @@ protected:
   output_test_stream os;
 
 private:
-  std::string m_oldLevels;
+  std::unordered_map<std::string, LogLevel> m_oldEnabledLevel;
   shared_ptr<std::ostream> m_oldDestination;
 };
 
@@ -291,7 +293,8 @@ BOOST_AUTO_TEST_SUITE(SeverityConfig)
 BOOST_AUTO_TEST_CASE(SetEmpty)
 {
   Logging::setLevel("");
-  BOOST_CHECK_EQUAL(Logging::get().getLevels(), "");
+  const auto& prefixMap = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(prefixMap.size(), 0);
   logFromModule1();
   logFromModule2();
 
@@ -305,7 +308,10 @@ BOOST_AUTO_TEST_CASE(SetEmpty)
 BOOST_AUTO_TEST_CASE(SetDefault)
 {
   Logging::setLevel("*=WARN");
-  BOOST_CHECK_EQUAL(Logging::get().getLevels(), "*=WARN");
+  const auto& prefixMap = Logging::get().getLevels();
+  // "*" is treated as "" internally
+  BOOST_CHECK_EQUAL(prefixMap.size(), 1);
+  BOOST_CHECK_EQUAL(prefixMap.at(""), LogLevel::WARN);
   logFromModule1();
   logFromModule2();
 
@@ -323,7 +329,9 @@ BOOST_AUTO_TEST_CASE(SetDefault)
 BOOST_AUTO_TEST_CASE(SetModule)
 {
   Logging::setLevel("Module1=ERROR");
-  BOOST_CHECK_EQUAL(Logging::get().getLevels(), "Module1=ERROR");
+  const auto& prefixMap = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(prefixMap.size(), 1);
+  BOOST_CHECK_EQUAL(prefixMap.at("Module1"), LogLevel::ERROR);
   logFromModule1();
   logFromModule2();
 
@@ -338,7 +346,11 @@ BOOST_AUTO_TEST_CASE(SetModule)
 BOOST_AUTO_TEST_CASE(SetOverride)
 {
   Logging::setLevel("*=WARN:Module2=DEBUG");
-  BOOST_CHECK_EQUAL(Logging::get().getLevels(), "*=WARN:Module2=DEBUG");
+  const auto& prefixMap = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(prefixMap.size(), 2);
+  // "*" is treated as "" internally
+  BOOST_CHECK_EQUAL(prefixMap.at(""), LogLevel::WARN);
+  BOOST_CHECK_EQUAL(prefixMap.at("Module2"), LogLevel::DEBUG);
   logFromModule1();
   logFromModule2();
 
@@ -359,7 +371,11 @@ BOOST_AUTO_TEST_CASE(SetTwice)
 {
   Logging::setLevel("*=WARN");
   Logging::setLevel("Module2=DEBUG");
-  BOOST_CHECK_EQUAL(Logging::get().getLevels(), "*=WARN:Module2=DEBUG");
+  const auto& prefixMap = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(prefixMap.size(), 2);
+  // "*" is treated as "" internally
+  BOOST_CHECK_EQUAL(prefixMap.at(""), LogLevel::WARN);
+  BOOST_CHECK_EQUAL(prefixMap.at("Module2"), LogLevel::DEBUG);
   logFromModule1();
   logFromModule2();
 
@@ -380,7 +396,10 @@ BOOST_AUTO_TEST_CASE(Reset)
 {
   Logging::setLevel("Module2=DEBUG");
   Logging::setLevel("*=ERROR");
-  BOOST_CHECK_EQUAL(Logging::get().getLevels(), "*=ERROR");
+  const auto& prefixMap = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(prefixMap.size(), 1);
+  // "*" is treated as "" internally
+  BOOST_CHECK_EQUAL(prefixMap.at(""), LogLevel::ERROR);
   logFromModule1();
   logFromModule2();
 
@@ -397,6 +416,74 @@ BOOST_AUTO_TEST_CASE(Malformed)
 {
   BOOST_CHECK_THROW(Logging::setLevel("Module1=INVALID-LEVEL"), std::invalid_argument);
   BOOST_CHECK_THROW(Logging::setLevel("Module1-MISSING-EQUAL-SIGN"), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(SetFilter)
+{
+  Logging::setLevel("*=FATAL:fm.*=DEBUG");
+  const auto& prefixMap = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(prefixMap.size(), 2);
+  // "*" is treated as "" internally
+  BOOST_CHECK_EQUAL(prefixMap.at(""), LogLevel::FATAL);
+  // "name.*" is treated as "name." internally
+  BOOST_CHECK_EQUAL(prefixMap.at("fm."), LogLevel::DEBUG);
+  logFromModule1();
+  logFromFilterModule();
+
+  Logging::flush();
+  BOOST_CHECK(os.is_equal(
+    LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
+    LOG_SYSTIME_STR + " DEBUG: [fm.FilterModule] debugFM\n" +
+    LOG_SYSTIME_STR + " INFO: [fm.FilterModule] infoFM\n" +
+    LOG_SYSTIME_STR + " WARNING: [fm.FilterModule] warnFM\n" +
+    LOG_SYSTIME_STR + " ERROR: [fm.FilterModule] errorFM\n" +
+    LOG_SYSTIME_STR + " FATAL: [fm.FilterModule] fatalFM\n"
+    ));
+}
+
+BOOST_AUTO_TEST_CASE(SetOverrideFilter)
+{
+  Logging::setLevel("*=FATAL:fm.FilterModule=DEBUG");
+  Logging::setLevel("fm.*", LogLevel::INFO);
+  const auto& prefixMap = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(prefixMap.size(), 2);
+  // "*" is treated as "" internally
+  BOOST_CHECK_EQUAL(prefixMap.at(""), LogLevel::FATAL);
+  // "name.*" is treated as "name." internally
+  BOOST_CHECK_EQUAL(prefixMap.at("fm."), LogLevel::INFO);
+  logFromModule1();
+  logFromFilterModule();
+
+  Logging::flush();
+  BOOST_CHECK(os.is_equal(
+    LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
+    LOG_SYSTIME_STR + " INFO: [fm.FilterModule] infoFM\n" +
+    LOG_SYSTIME_STR + " WARNING: [fm.FilterModule] warnFM\n" +
+    LOG_SYSTIME_STR + " ERROR: [fm.FilterModule] errorFM\n" +
+    LOG_SYSTIME_STR + " FATAL: [fm.FilterModule] fatalFM\n"
+    ));
+}
+
+BOOST_AUTO_TEST_CASE(FindPrefixRule)
+{
+  Logging::setLevel("*=FATAL:fm.a.*=ERROR:fm.a.b=INFO");
+  logFromNewLogger("fm.a.b");
+  logFromNewLogger("fm.a.b.c");
+  logFromNewLogger("fm.a.b.d");
+  logFromNewLogger("fm.b");
+
+  Logging::flush();
+  BOOST_CHECK(os.is_equal(
+    LOG_SYSTIME_STR + " INFO: [fm.a.b] infofm.a.b\n" +
+    LOG_SYSTIME_STR + " WARNING: [fm.a.b] warnfm.a.b\n" +
+    LOG_SYSTIME_STR + " ERROR: [fm.a.b] errorfm.a.b\n" +
+    LOG_SYSTIME_STR + " FATAL: [fm.a.b] fatalfm.a.b\n" +
+    LOG_SYSTIME_STR + " ERROR: [fm.a.b.c] errorfm.a.b.c\n" +
+    LOG_SYSTIME_STR + " FATAL: [fm.a.b.c] fatalfm.a.b.c\n" +
+    LOG_SYSTIME_STR + " ERROR: [fm.a.b.d] errorfm.a.b.d\n" +
+    LOG_SYSTIME_STR + " FATAL: [fm.a.b.d] fatalfm.a.b.d\n" +
+    LOG_SYSTIME_STR + " FATAL: [fm.b] fatalfm.b\n"
+    ));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // SeverityConfig

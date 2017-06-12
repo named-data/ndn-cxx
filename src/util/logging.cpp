@@ -25,6 +25,7 @@
 #include <boost/log/expressions.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/range/iterator_range.hpp>
 
 #include <cstdlib>
 #include <iostream>
@@ -65,24 +66,56 @@ Logging::addLoggerImpl(Logger& logger)
   std::lock_guard<std::mutex> lock(m_mutex);
 
   const std::string& moduleName = logger.getModuleName();
-  m_loggers.insert({moduleName, &logger});
+  m_loggers.emplace(moduleName, &logger);
 
-  auto levelIt = m_enabledLevel.find(moduleName);
-  if (levelIt == m_enabledLevel.end()) {
-    levelIt = m_enabledLevel.find("*");
-  }
-  LogLevel level = levelIt == m_enabledLevel.end() ? INITIAL_DEFAULT_LEVEL : levelIt->second;
+  LogLevel level = findLevel(moduleName);
   logger.setLevel(level);
 }
 
 std::set<std::string>
-Logging::getLoggerNamesImpl()
+Logging::getLoggerNamesImpl() const
 {
   std::lock_guard<std::mutex> lock(m_mutex);
 
   std::set<std::string> loggerNames;
   boost::copy(m_loggers | boost::adaptors::map_keys, std::inserter(loggerNames, loggerNames.end()));
   return loggerNames;
+}
+
+LogLevel
+Logging::findLevel(const std::string& moduleName) const
+{
+  std::string mn = moduleName;
+  while (!mn.empty()) {
+    auto it = m_enabledLevel.find(mn);
+    if (it != m_enabledLevel.end()) {
+      return it->second;
+    }
+    size_t pos = mn.find_last_of('.');
+    if (pos < mn.size() - 1) {
+      mn = mn.substr(0, pos + 1);
+    }
+    else if (pos == mn.size() - 1) {
+      mn.pop_back();
+      pos = mn.find_last_of('.');
+      if (pos != std::string::npos) {
+        mn = mn.substr(0, pos + 1);
+      }
+      else {
+        mn = "";
+      }
+    }
+    else {
+      mn = "";
+    }
+  }
+  auto it = m_enabledLevel.find(mn);
+  if (it != m_enabledLevel.end()) {
+    return it->second;
+  }
+  else {
+    return INITIAL_DEFAULT_LEVEL;
+  }
 }
 
 #ifdef NDN_CXX_HAVE_TESTS
@@ -102,30 +135,38 @@ Logging::removeLogger(Logger& logger)
 #endif // NDN_CXX_HAVE_TESTS
 
 void
-Logging::setLevelImpl(const std::string& moduleName, LogLevel level)
+Logging::setLevelImpl(const std::string& prefix, LogLevel level)
 {
   std::lock_guard<std::mutex> lock(m_mutex);
 
-  if (moduleName == "*") {
-    this->setDefaultLevel(level);
-    return;
+  if (prefix.empty() || prefix.back() == '*') {
+    std::string p = prefix;
+    if (!p.empty()) {
+      p.pop_back();
+    }
+
+    for (auto i = m_enabledLevel.begin(); i != m_enabledLevel.end();) {
+      if (i->first.compare(0, p.size(), p) == 0) {
+        i = m_enabledLevel.erase(i);
+      }
+      else {
+        ++i;
+      }
+    }
+    m_enabledLevel[p] = level;
+
+    for (auto&& it : m_loggers) {
+      if (it.first.compare(0, p.size(), p) == 0) {
+        it.second->setLevel(level);
+      }
+    }
   }
-
-  m_enabledLevel[moduleName] = level;
-  auto range = m_loggers.equal_range(moduleName);
-  for (auto i = range.first; i != range.second; ++i) {
-    i->second->setLevel(level);
-  }
-}
-
-void
-Logging::setDefaultLevel(LogLevel level)
-{
-  m_enabledLevel.clear();
-  m_enabledLevel["*"] = level;
-
-  for (auto i = m_loggers.begin(); i != m_loggers.end(); ++i) {
-    i->second->setLevel(level);
+  else {
+    m_enabledLevel[prefix] = level;
+    auto range = boost::make_iterator_range(m_loggers.equal_range(prefix));
+    for (auto&& it : range) {
+      it.second->setLevel(level);
+    }
   }
 }
 
@@ -141,43 +182,16 @@ Logging::setLevelImpl(const std::string& config)
     }
 
     std::string moduleName = configModule.substr(0, ind);
-    LogLevel level = parseLogLevel(configModule.substr(ind+1));
-
+    LogLevel level = parseLogLevel(configModule.substr(ind + 1));
     this->setLevelImpl(moduleName, level);
   }
 }
 
 #ifdef NDN_CXX_HAVE_TESTS
-std::string
-Logging::getLevels() const
-{
-  std::ostringstream os;
-
-  auto defaultLevelIt = m_enabledLevel.find("*");
-  if (defaultLevelIt != m_enabledLevel.end()) {
-    os << "*=" << defaultLevelIt->second << ':';
-  }
-
-  for (auto it = m_enabledLevel.begin(); it != m_enabledLevel.end(); ++it) {
-    if (it->first == "*") {
-      continue;
-    }
-    os << it->first << '=' << it->second << ':';
-  }
-
-  std::string s = os.str();
-  if (!s.empty()) {
-    s.pop_back(); // delete last ':'
-  }
-  return s;
-}
-#endif // NDN_CXX_HAVE_TESTS
-
-#ifdef NDN_CXX_HAVE_TESTS
 void
 Logging::resetLevels()
 {
-  this->setDefaultLevel(INITIAL_DEFAULT_LEVEL);
+  this->setLevelImpl("*", INITIAL_DEFAULT_LEVEL);
   m_enabledLevel.clear();
 }
 #endif // NDN_CXX_HAVE_TESTS
@@ -193,11 +207,11 @@ Logging::setDestinationImpl(shared_ptr<std::ostream> os)
 {
   std::lock_guard<std::mutex> lock(m_mutex);
 
-  m_destination = os;
+  m_destination = std::move(os);
 
   auto backend = boost::make_shared<boost::log::sinks::text_ostream_backend>();
   backend->auto_flush(true);
-  backend->add_stream(boost::shared_ptr<std::ostream>(os.get(), bind([]{})));
+  backend->add_stream(boost::shared_ptr<std::ostream>(m_destination.get(), bind([]{})));
 
   if (m_sink != nullptr) {
     boost::log::core::get()->remove_sink(m_sink);
@@ -212,9 +226,24 @@ Logging::setDestinationImpl(shared_ptr<std::ostream> os)
 
 #ifdef NDN_CXX_HAVE_TESTS
 shared_ptr<std::ostream>
-Logging::getDestination()
+Logging::getDestination() const
 {
   return m_destination;
+}
+
+void
+Logging::setLevelImpl(const std::unordered_map<std::string, LogLevel>& prefixRules)
+{
+  resetLevels();
+  for (const auto& rule : prefixRules) {
+    setLevelImpl(rule.first, rule.second);
+  }
+}
+
+const std::unordered_map<std::string, LogLevel>&
+Logging::getLevels() const
+{
+  return m_enabledLevel;
 }
 #endif // NDN_CXX_HAVE_TESTS
 

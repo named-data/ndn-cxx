@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -25,7 +25,7 @@
 #include "time.hpp"
 
 #include <cinttypes>
-#include <stdio.h>
+#include <cstring>
 
 namespace ndn {
 namespace util {
@@ -78,9 +78,33 @@ parseLogLevel(const std::string& s)
   BOOST_THROW_EXCEPTION(std::invalid_argument("unrecognized log level '" + s + "'"));
 }
 
+/**
+ * \brief checks if incoming logger name meets criteria
+ * \param name name of logger
+ */
+static bool
+isValidLoggerName(const std::string& name)
+{
+  // acceptable characters for Logger name
+  const char* okChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~#%_<>.-";
+  if (std::strspn(name.c_str(), okChars) != name.size()) {
+    return false;
+  }
+  if (name.empty() || name.front() == '.' || name.back() == '.') {
+    return false;
+  }
+  if (name.find("..") != std::string::npos) {
+    return false;
+  }
+  return true;
+}
+
 Logger::Logger(const std::string& name)
   : m_moduleName(name)
 {
+  if (!isValidLoggerName(name)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name " + name + " is invalid"));
+  }
   this->setLevel(LogLevel::NONE);
   Logging::addLogger(*this);
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,6 +93,10 @@ private:
 };
 
 /** \brief declare a log module
+ *
+ *  \note Logger name is restricted to alphanumeric characters and a select set of
+ *  symbols: `~`, `#`, `%`, `_`, `<`, `>`, `.`, `-`
+ *  A logger name must not start or end with `.` or contain consecutive `.`
  */
 #define NDN_LOG_INIT(name) \
   namespace { \
