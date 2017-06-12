@@ -289,7 +289,7 @@ KeyChain::deleteKey(const Identity& identity, const Key& key)
   Name keyName = key.getName();
   if (identity.getName() != key.getIdentity()) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
-                                                "does match key `" + keyName.toUri() + "`"));
+                                                "does not match key `" + keyName.toUri() + "`"));
   }
 
   identity.removeKey(keyName);
@@ -304,7 +304,7 @@ KeyChain::setDefaultKey(const Identity& identity, const Key& key)
 
   if (identity.getName() != key.getIdentity())
     BOOST_THROW_EXCEPTION(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
-                                                "does match key `" + key.getName().toUri() + "`"));
+                                                "does not match key `" + key.getName().toUri() + "`"));
 
   identity.setDefaultKey(key.getName());
 }
@@ -318,7 +318,7 @@ KeyChain::addCertificate(const Key& key, const Certificate& certificate)
       !std::equal(certificate.getContent().value_begin(), certificate.getContent().value_end(),
                   key.getPublicKey().begin()))
     BOOST_THROW_EXCEPTION(std::invalid_argument("Key `" + key.getName().toUri() + "` "
-                                                "does match certificate `" + certificate.getName().toUri() + "`"));
+                                                "does not match certificate `" + certificate.getName().toUri() + "`"));
 
   key.addCertificate(certificate);
 }
