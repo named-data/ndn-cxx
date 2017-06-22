@@ -65,6 +65,7 @@ enum {
   Nonce         = 10,
   // <Unassigned> = 11,
   InterestLifetime          = 12,
+  ForwardingHint            = 30,
   MinSuffixComponents       = 13,
   MaxSuffixComponents       = 14,
   PublisherPublicKeyLocator = 15,
