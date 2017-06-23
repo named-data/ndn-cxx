@@ -138,6 +138,22 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   unique_ptr<ValidationPolicy> m_innerPolicy;
 };
 
+/** \brief extract KeyLocator.Name from Data
+ *
+ *  Data must contain a KeyLocator of Name type.
+ *  Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR error.
+ */
+Name
+getKeyLocatorName(const Data& data, ValidationState& state);
+
+/** \brief extract KeyLocator.Name from signed Interest
+ *
+ *  Interest must have SignatureInfo and contain a KeyLocator of Name type.
+ *  Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR error.
+ */
+Name
+getKeyLocatorName(const Interest& interest, ValidationState& state);
+
 } // namespace v2
 } // namespace security
 } // namespace ndn

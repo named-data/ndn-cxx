@@ -34,14 +34,14 @@ NDN_LOG_INIT(ndn.security.v2.ValidationState);
 #define NDN_LOG_TRACE_DEPTH(x) NDN_LOG_TRACE(std::string(this->getDepth() + 1, '>') << " " << x)
 
 ValidationState::ValidationState()
-  : m_hasOutcome(false)
+  : m_outcome(boost::logic::indeterminate)
 {
 }
 
 ValidationState::~ValidationState()
 {
   NDN_LOG_TRACE(__func__);
-  BOOST_ASSERT(m_hasOutcome);
+  BOOST_ASSERT(!boost::logic::indeterminate(m_outcome));
 }
 
 size_t
@@ -98,7 +98,7 @@ DataValidationState::DataValidationState(const Data& data,
 
 DataValidationState::~DataValidationState()
 {
-  if (!m_hasOutcome) {
+  if (boost::logic::indeterminate(m_outcome)) {
     this->fail({ValidationError::Code::IMPLEMENTATION_ERROR,
                 "Validator/policy did not invoke success or failure callback"});
   }
@@ -110,8 +110,8 @@ DataValidationState::verifyOriginalPacket(const Certificate& trustedCert)
   if (verifySignature(m_data, trustedCert)) {
     NDN_LOG_TRACE_DEPTH("OK signature for data `" << m_data.getName() << "`");
     m_successCb(m_data);
-    BOOST_ASSERT(!m_hasOutcome);
-    m_hasOutcome = true;
+    BOOST_ASSERT(boost::logic::indeterminate(m_outcome));
+    m_outcome = true;
   }
   else {
     this->fail({ValidationError::Code::INVALID_SIGNATURE, "Invalid signature of data `" +
@@ -124,8 +124,8 @@ DataValidationState::bypassValidation()
 {
   NDN_LOG_TRACE_DEPTH("Signature verification bypassed for data `" << m_data.getName() << "`");
   m_successCb(m_data);
-  BOOST_ASSERT(!m_hasOutcome);
-  m_hasOutcome = true;
+  BOOST_ASSERT(boost::logic::indeterminate(m_outcome));
+  m_outcome = true;
 }
 
 void
@@ -133,8 +133,8 @@ DataValidationState::fail(const ValidationError& error)
 {
   NDN_LOG_DEBUG_DEPTH(error);
   m_failureCb(m_data, error);
-  BOOST_ASSERT(!m_hasOutcome);
-  m_hasOutcome = true;
+  BOOST_ASSERT(boost::logic::indeterminate(m_outcome));
+  m_outcome = false;
 }
 
 const Data&
@@ -158,7 +158,7 @@ InterestValidationState::InterestValidationState(const Interest& interest,
 
 InterestValidationState::~InterestValidationState()
 {
-  if (!m_hasOutcome) {
+  if (boost::logic::indeterminate(m_outcome)) {
     this->fail({ValidationError::Code::IMPLEMENTATION_ERROR,
                 "Validator/policy did not invoke success or failure callback"});
   }
@@ -170,8 +170,8 @@ InterestValidationState::verifyOriginalPacket(const Certificate& trustedCert)
   if (verifySignature(m_interest, trustedCert)) {
     NDN_LOG_TRACE_DEPTH("OK signature for interest `" << m_interest.getName() << "`");
     this->afterSuccess(m_interest);
-    BOOST_ASSERT(!m_hasOutcome);
-    m_hasOutcome = true;
+    BOOST_ASSERT(boost::logic::indeterminate(m_outcome));
+    m_outcome = true;
   }
   else {
     this->fail({ValidationError::Code::INVALID_SIGNATURE, "Invalid signature of interest `" +
@@ -184,8 +184,8 @@ InterestValidationState::bypassValidation()
 {
   NDN_LOG_TRACE_DEPTH("Signature verification bypassed for interest `" << m_interest.getName() << "`");
   this->afterSuccess(m_interest);
-  BOOST_ASSERT(!m_hasOutcome);
-  m_hasOutcome = true;
+  BOOST_ASSERT(boost::logic::indeterminate(m_outcome));
+  m_outcome = true;
 }
 
 void
@@ -193,8 +193,8 @@ InterestValidationState::fail(const ValidationError& error)
 {
   NDN_LOG_DEBUG_DEPTH(error);
   m_failureCb(m_interest, error);
-  BOOST_ASSERT(!m_hasOutcome);
-  m_hasOutcome = true;
+  BOOST_ASSERT(boost::logic::indeterminate(m_outcome));
+  m_outcome = false;
 }
 
 const Interest&

@@ -27,8 +27,9 @@
 #include "certificate.hpp"
 #include "../../util/signal.hpp"
 
-#include <unordered_set>
 #include <list>
+#include <unordered_set>
+#include <boost/logic/tribool.hpp>
 
 namespace ndn {
 namespace security {
@@ -64,6 +65,12 @@ public:
 
   virtual
   ~ValidationState();
+
+  boost::logic::tribool
+  getOutcome() const
+  {
+    return m_outcome;
+  }
 
   /**
    * @brief Call the failure callback
@@ -129,7 +136,7 @@ private: // Interface intended to be used only by Validator class
   verifyCertificateChain(const Certificate& trustedCert);
 
 protected:
-  bool m_hasOutcome;
+  boost::logic::tribool m_outcome;
 
 private:
   std::unordered_set<Name> m_seenCertificateNames;

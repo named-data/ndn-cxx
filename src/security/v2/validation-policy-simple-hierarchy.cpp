@@ -29,19 +29,17 @@ void
 ValidationPolicySimpleHierarchy::checkPolicy(const Data& data, const shared_ptr<ValidationState>& state,
                                              const ValidationContinuation& continueValidation)
 {
-  if (!data.getSignature().hasKeyLocator()) {
-    return state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Required key locator is missing"});
+  Name klName = getKeyLocatorName(data, *state);
+  if (!state->getOutcome()) { // already failed
+    return;
   }
-  const KeyLocator& locator = data.getSignature().getKeyLocator();
-  if (locator.getType() != KeyLocator::KeyLocator_Name) {
-    return state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Key locator not Name"});
-  }
-  if (locator.getName().getPrefix(-2).isPrefixOf(data.getName())) {
-    continueValidation(make_shared<CertificateRequest>(Interest(locator.getName())), state);
+
+  if (klName.getPrefix(-2).isPrefixOf(data.getName())) {
+    continueValidation(make_shared<CertificateRequest>(Interest(klName)), state);
   }
   else {
     state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Data signing policy violation for " +
-                 data.getName().toUri() + " by " + locator.getName().toUri()});
+                 data.getName().toUri() + " by " + klName.toUri()});
   }
 }
 
@@ -49,27 +47,17 @@ void
 ValidationPolicySimpleHierarchy::checkPolicy(const Interest& interest, const shared_ptr<ValidationState>& state,
                                              const ValidationContinuation& continueValidation)
 {
-  SignatureInfo info;
-  try {
-    info.wireDecode(interest.getName().at(signed_interest::POS_SIG_INFO).blockFromValue());
+  Name klName = getKeyLocatorName(interest, *state);
+  if (!state->getOutcome()) { // already failed
+    return;
   }
-  catch (const tlv::Error& e) {
-    return state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Invalid signed interest (" +
-                        std::string(e.what()) + ")"});
-  }
-  if (!info.hasKeyLocator()) {
-    return state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Required key locator is missing"});
-  }
-  const KeyLocator& locator = info.getKeyLocator();
-  if (locator.getType() != KeyLocator::KeyLocator_Name) {
-    return state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Key locator not Name"});
-  }
-  if (locator.getName().getPrefix(-2).isPrefixOf(interest.getName())) {
-    continueValidation(make_shared<CertificateRequest>(Interest(locator.getName())), state);
+
+  if (klName.getPrefix(-2).isPrefixOf(interest.getName())) {
+    continueValidation(make_shared<CertificateRequest>(Interest(klName)), state);
   }
   else {
     state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Interest signing policy violation for " +
-                 interest.getName().toUri() + " by " + locator.getName().toUri()});
+                 interest.getName().toUri() + " by " + klName.toUri()});
   }
 }
 

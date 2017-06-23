@@ -95,30 +95,12 @@ ValidationPolicyCommandInterest::parseCommandInterest(const Interest& interest,
     return std::make_tuple(false, Name(), 0);
   }
 
-  SignatureInfo sig;
-  try {
-    sig.wireDecode(name[signed_interest::POS_SIG_INFO].blockFromValue());
-  }
-  catch (const tlv::Error&) {
-    state->fail({ValidationError::POLICY_ERROR, "Command interest `" +
-                 interest.getName().toUri() + "` does not include SignatureInfo component"});
+  Name klName = getKeyLocatorName(interest, *state);
+  if (!state->getOutcome()) { // already failed
     return std::make_tuple(false, Name(), 0);
   }
 
-  if (!sig.hasKeyLocator()) {
-    state->fail({ValidationError::INVALID_KEY_LOCATOR, "Command interest `" +
-                 interest.getName().toUri() + "` does not include KeyLocator"});
-    return std::make_tuple(false, Name(), 0);
-  }
-
-  const KeyLocator& keyLocator = sig.getKeyLocator();
-  if (keyLocator.getType() != KeyLocator::KeyLocator_Name) {
-    state->fail({ValidationError::INVALID_KEY_LOCATOR, "Command interest `" +
-                 interest.getName().toUri() + "` KeyLocator type is not Name"});
-    return std::make_tuple(false, Name(), 0);
-  }
-
-  return std::make_tuple(true, keyLocator.getName(), timestampComp.toNumber());
+  return std::make_tuple(true, klName, timestampComp.toNumber());
 }
 
 bool
