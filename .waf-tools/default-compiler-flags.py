@@ -8,9 +8,18 @@ def options(opt):
 
 def configure(conf):
     cxx = conf.env['CXX_NAME'] # CXX_NAME represents generic name of the compiler
+    ccver = tuple(int(i) for i in conf.env['CC_VERSION'])
     if cxx == 'gcc':
+        if ccver < (4, 8, 2):
+            conf.fatal('The version of gcc you are using (%s) is too old.\n'
+                       'The minimum supported gcc version is 4.8.2.' %
+                       '.'.join(conf.env['CC_VERSION']))
         flags = GccFlags()
     elif cxx == 'clang':
+        if ccver < (3, 4, 0):
+            conf.fatal('The version of clang you are using (%s) is too old.\n'
+                       'The minimum supported clang version is 3.4.0.' %
+                       '.'.join(conf.env['CC_VERSION']))
         flags = ClangFlags()
     else:
         flags = CompilerFlags()
@@ -98,6 +107,11 @@ class GccBasicFlags(CompilerFlags):
     """
     This class defines basic flags that work for both gcc and clang compilers
     """
+    def getGeneralFlags(self, conf):
+        flags = super(GccBasicFlags, self).getGeneralFlags(conf)
+        flags['CXXFLAGS'] += ['-std=c++11']
+        return flags
+
     def getDebugFlags(self, conf):
         flags = super(GccBasicFlags, self).getDebugFlags(conf)
         flags['CXXFLAGS'] += ['-O0',
@@ -129,17 +143,6 @@ class GccBasicFlags(CompilerFlags):
         return flags
 
 class GccFlags(GccBasicFlags):
-    def getGeneralFlags(self, conf):
-        flags = super(GccFlags, self).getGeneralFlags(conf)
-        version = tuple(int(i) for i in conf.env['CC_VERSION'])
-        if version < (4, 8, 2):
-            conf.fatal('The version of gcc you are using (%s) is too old.\n' %
-                       '.'.join(conf.env['CC_VERSION']) +
-                       'The minimum supported gcc version is 4.8.2.')
-        else:
-            flags['CXXFLAGS'] += ['-std=c++11']
-        return flags
-
     def getDebugFlags(self, conf):
         flags = super(GccFlags, self).getDebugFlags(conf)
         version = tuple(int(i) for i in conf.env['CC_VERSION'])
@@ -159,7 +162,6 @@ class GccFlags(GccBasicFlags):
 class ClangFlags(GccBasicFlags):
     def getGeneralFlags(self, conf):
         flags = super(ClangFlags, self).getGeneralFlags(conf)
-        flags['CXXFLAGS'] += ['-std=c++11']
         if Utils.unversioned_sys_platform() == 'darwin':
             flags['CXXFLAGS'] += ['-stdlib=libc++']
             flags['LINKFLAGS'] += ['-stdlib=libc++']
