@@ -4,7 +4,7 @@ from waflib import Logs, Configure, Utils
 
 def options(opt):
     opt.add_option('--debug', '--with-debug', action='store_true', default=False, dest='debug',
-                   help='''Compile in debugging mode without optimizations (-O0 or -Og)''')
+                   help='''Compile in debugging mode with minimal optimizations (-O0 or -Og)''')
 
 def configure(conf):
     cxx = conf.env['CXX_NAME'] # CXX_NAME represents generic name of the compiler
@@ -112,6 +112,7 @@ class GccBasicFlags(CompilerFlags):
                               '-Wno-error=maybe-uninitialized', # Bug #1615
                               '-Wno-error=deprecated-declarations', # Bug #3795
                               ]
+        flags['LINKFLAGS'] += ['-fuse-ld=gold', '-Wl,-O1']
         return flags
 
     def getOptimizedFlags(self, conf):
@@ -124,6 +125,7 @@ class GccBasicFlags(CompilerFlags):
                               '-Wnon-virtual-dtor',
                               '-Wno-unused-parameter',
                               ]
+        flags['LINKFLAGS'] += ['-fuse-ld=gold', '-Wl,-O1']
         return flags
 
 class GccFlags(GccBasicFlags):
