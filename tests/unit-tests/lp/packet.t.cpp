@@ -125,9 +125,13 @@ BOOST_AUTO_TEST_CASE(EncodeSortOrder)
   BOOST_CHECK_NO_THROW(packet.add<FragmentField>(std::make_pair(frag.begin(), frag.end())));
   BOOST_CHECK_NO_THROW(packet.add<FragIndexField>(0));
   BOOST_CHECK_NO_THROW(packet.add<AckField>(2));
+  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
   BOOST_CHECK_NO_THROW(packet.add<FragCountField>(1));
+  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
   BOOST_CHECK_NO_THROW(packet.add<AckField>(4));
+  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
   BOOST_CHECK_NO_THROW(packet.add<AckField>(3));
+  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
   Block wire;
   BOOST_REQUIRE_NO_THROW(wire = packet.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),

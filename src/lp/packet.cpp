@@ -37,54 +37,17 @@ Packet::Packet(const Block& wire)
   wireDecode(wire);
 }
 
-template<encoding::Tag TAG>
-size_t
-Packet::wireEncode(EncodingImpl<TAG>& encoder) const
-{
-  if (m_wire.hasWire()) {
-    return m_wire.size();
-  }
-
-  size_t length = 0;
-
-  for (const Block& element : boost::adaptors::reverse(m_wire.elements())) {
-    length += encoder.prependBlock(element);
-  }
-
-  length += encoder.prependVarNumber(length);
-  length += encoder.prependVarNumber(tlv::LpPacket);
-
-  return length;
-}
-
-template size_t
-Packet::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-Packet::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
-
 Block
 Packet::wireEncode() const
 {
-  if (m_wire.hasWire()) {
-    return m_wire;
-  }
-
   // If no header or trailer, return bare network packet
   Block::element_container elements = m_wire.elements();
   if (elements.size() == 1 && elements.front().type() == FragmentField::TlvType::value) {
     elements.front().parse();
-    elements.front().elements().front().parse();
     return elements.front().elements().front();
   }
 
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  m_wire = buffer.block();
+  m_wire.encode();
   return m_wire;
 }
 

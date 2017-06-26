@@ -46,13 +46,6 @@ public:
   Packet(const Block& wire);
 
   /**
-   * \brief append packet to encoder
-   */
-  template<encoding::Tag TAG>
-  size_t
-  wireEncode(EncodingImpl<TAG>& encoder) const;
-
-  /**
    * \brief encode packet into wire format
    */
   Block
@@ -84,8 +77,6 @@ public: // field access
   size_t
   count() const
   {
-    m_wire.parse();
-
     return std::count_if(m_wire.elements_begin(), m_wire.elements_end(),
                          [] (const Block& block) {
                            return block.type() == FIELD::TlvType::value; });
@@ -99,8 +90,6 @@ public: // field access
   typename FIELD::ValueType
   get(size_t index = 0) const
   {
-    m_wire.parse();
-
     size_t count = 0;
     for (const Block& element : m_wire.elements()) {
       if (element.type() != FIELD::TlvType::value) {
@@ -122,8 +111,6 @@ public: // field access
   list() const
   {
     std::vector<typename FIELD::ValueType> output;
-
-    m_wire.parse();
 
     for (const Block& element : m_wire.elements()) {
       if (element.type() != FIELD::TlvType::value) {
@@ -180,11 +167,8 @@ public: // field access
   Packet&
   remove(size_t index = 0)
   {
-    m_wire.parse();
-
     size_t count = 0;
-    for (Block::element_const_iterator it = m_wire.elements_begin(); it != m_wire.elements_end();
-         ++it) {
+    for (auto it = m_wire.elements_begin(); it != m_wire.elements_end(); ++it) {
       if (it->type() == FIELD::TlvType::value) {
         if (count == index) {
           m_wire.erase(it);
@@ -204,7 +188,6 @@ public: // field access
   Packet&
   clear()
   {
-    m_wire.parse();
     m_wire.remove(FIELD::TlvType::value);
     return *this;
   }
