@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,13 +23,14 @@
 #define NDN_LINK_HPP
 
 #include "data.hpp"
+#include "delegation-list.hpp"
 #include <set>
 
 namespace ndn {
 
 const size_t INVALID_SELECTED_DELEGATION_INDEX = std::numeric_limits<size_t>::max();
 
-/** @brief represents a Link instance
+/** @brief represents a Link object
  */
 class Link : public Data
 {
@@ -44,139 +45,142 @@ public:
     }
   };
 
-  // The ordering is based on the preference number and needs to be preserved
-  typedef std::set<std::pair<uint32_t, Name>> DelegationSet;
-
-  /**
-   * @brief Create an empty Link object
+  /** @brief Create an empty Link object
    *
-   * Note that in certain contexts that use Link::shared_from_this(), Link must be
-   * created using `make_shared`:
+   *  Note that in certain contexts that use Link::shared_from_this(), Link must be
+   *  created using `make_shared`:
    *
-   *     shared_ptr<Link> linkObject = make_shared<Link>();
-   *
-   * Otherwise, Link::shared_from_this() will throw std::bad_weak_ptr.
+   *      shared_ptr<Link> linkObject = make_shared<Link>();
    */
-  Link() = default;
+  Link();
 
-  /**
-   * @brief Create a Link object from a Block
+  /** @brief Decode a Link object from a Block
+   *  @param wire a TLV block
+   *  @param wantSort if false, relative order among delegations is preserved
    *
-   * Note that in certain contexts that use Link::shared_from_this(), Link must be
-   * created using `make_shared`:
+   *  Note that in certain contexts that use Link::shared_from_this(), Link must be
+   *  created using `make_shared`:
    *
-   *     shared_ptr<Link> linkObject = make_shared<Link>(block);
-   *
-   * Otherwise, Link::shared_from_this() will throw std::bad_weak_ptr.
+   *      shared_ptr<Link> linkObject = make_shared<Link>(block);
    */
   explicit
-  Link(const Block& block);
+  Link(const Block& wire, bool wantSort = true);
 
-  /**
-   * @brief Create a Link object with the given name
+  /** @brief Create a Link object with the given name and delegations
+   *  @param name A reference to the name of the redirected namespace
+   *  @param dels Delegations in payload
    *
-   * @param name A reference to the name of the redirected namespace
+   *  Note that in certain contexts that use Link::shared_from_this(), Link must be
+   *  created using `make_shared`:
    *
-   * Note that in certain contexts that use Link::shared_from_this(), Link must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Link> link = make_shared<Link>(name);
-   *
-   * Otherwise, Link::shared_from_this() will throw std::bad_weak_ptr.
+   *      shared_ptr<Link> link = make_shared<Link>(name, dels);
    */
   explicit
-  Link(const Name& name);
+  Link(const Name& name, std::initializer_list<Delegation> dels = {});
 
- /**
-   * @brief Create a Link object with the given name and pairs of <Preference, Name>
-   *
-   * @param name A reference to the name of the redirected namespace
-   * @param links A reference to the list of pairs of the redirected namespace
-   * along with its priority
-   *
-   * Note that in certain contexts that use Link::shared_from_this(), Link must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Link> link = make_shared<Link>(name, links);
-   *
-   * Otherwise, Link::shared_from_this() will throw std::bad_weak_ptr.
+  /** @brief Decode from the wire format
+   *  @param wire a TLV block
+   *  @param wantSort if false, relative order among delegations is preserved
    */
-  Link(const Name& name, std::initializer_list<std::pair<uint32_t, Name>> links);
+  void
+  wireDecode(const Block& wire, bool wantSort = true);
 
-  /**
-   * @brief Add a delegation in the format of <Name, Preference>
-   * @param preference The preference of the delegation to be added
-   * @param name The name of the delegation to be added
-   * @note If a delegation with @p name exists, its preference will be updated
+  /** @brief Get the delegations
+   */
+  const DelegationList&
+  getDelegationList() const
+  {
+    return m_delList;
+  }
+
+  /** @brief Set the delegations
+   *  @note This is more efficient than multiple addDelegation and removeDelegation invocations.
+   */
+  void
+  setDelegationList(const DelegationList& dels);
+
+  /** @brief Add a delegation in the format of <Name, Preference>
+   *  @param preference The preference of the delegation to be added
+   *  @param name The name of the delegation to be added
+   *  @note If a delegation with @p name exists, its preference will be updated
    */
   void
   addDelegation(uint32_t preference, const Name& name);
 
-  /**
-   * @brief Remove a delegation whose name is @p name
-   * @param name The name of the delegation to be removed
-   * @return true if delegation is removed, otherwise false
+  /** @brief Remove a delegation whose name is @p name
+   *  @param name The name of the delegation to be removed
+   *  @return true if delegation is removed, otherwise false
    */
   bool
   removeDelegation(const Name& name);
 
-  /**
-   * @brief Get the pairs of <Name, Preference>
-   * @return a set of delegations
-   */
-  const DelegationSet&
-  getDelegations() const;
+public: // deprecated APIs
+  using DelegationSet = std::set<std::pair<uint32_t, Name>>;
+  using DelegationTuple = std::tuple<uint32_t, Name>;
 
-  /**
-   * @brief Decode from the wire format
-   * @warning This method does not preserve the relative order between delegations.
-   *     To get a delegation by index, use @p getDelegationFromWire method.
+  class PairInitializerListHelper
+  {
+  public:
+    PairInitializerListHelper(std::initializer_list<std::pair<uint32_t, Name>> dels);
+
+  private:
+    DelegationList m_delList;
+    friend class Link;
+  };
+
+  /** @brief Create a Link object with the given name and delegations
+   *  @param name A reference to the name of the redirected namespace
+   *  @param dels Delegations in payload
+   *  @deprecated use Link(const Name&, std::initializer_list<Delegation>)
+   *  @note This overload is selected only if the caller explicitly passes
+   *        std::initializer_list<std::pair<uint32_t, Name>> to Link constructor;
+   *        otherwise, Link(const Name&, std::initializer_list<Delegation>) is preferred.
    */
-  void
-  wireDecode(const Block& wire);
+  DEPRECATED(
+  Link(const Name& name, PairInitializerListHelper dels));
+
+  /** @deprecated use getDelegationList()
+   */
+  DEPRECATED(
+  const DelegationSet&
+  getDelegations() const);
 
   /** @brief gets the delegation at @p index from @p block
    *  @param block wire format of a Link object
    *  @param index 0-based index of a delegation in the Link object
    *  @return delegation preference and name
    *  @throw std::out_of_range index is out of range
+   *  @deprecated use Link(block, false).getDelegationList().at(index)
    */
-  static std::tuple<uint32_t, Name>
-  getDelegationFromWire(const Block& block, size_t index);
+  DEPRECATED(
+  static DelegationTuple
+  getDelegationFromWire(const Block& block, size_t index));
 
   /** @brief finds index of a delegation with @p delegationName from @p block
    *  @param block wire format of a Link object
    *  @param delegationName delegation name in the Link object
    *  @return 0-based index of the first delegation with @p delegationName ,
    *          or -1 if no such delegation exists
+   *  @deprecated find within Link(block, false).getDelegationList()
    */
+  DEPRECATED(
   static ssize_t
-  findDelegationFromWire(const Block& block, const Name& delegationName);
+  findDelegationFromWire(const Block& block, const Name& delegationName));
 
-  static ssize_t
-  countDelegationsFromWire(const Block& block);
-
-protected:
-  /** @brief prepend Link object as a Content block to the encoder
-   *
-   *  The outermost Content element is not part of Link object structure.
+  /** @deprecated use Link(block, false).getDelegationList().size()
    */
-  template<encoding::Tag TAG>
-  size_t
-  encodeContent(EncodingImpl<TAG>& encoder) const;
+  DEPRECATED(
+  static ssize_t
+  countDelegationsFromWire(const Block& block));
 
+private:
   void
   encodeContent();
 
-  void
-  decodeContent();
-
 private:
-  bool
-  removeDelegationNoEncode(const Name& name);
-
-private:
-  DelegationSet m_delegations;
+  DelegationList m_delList;
+  mutable bool m_isDelSetDirty = false;
+  mutable DelegationSet m_delSet;
 };
 
 } // namespace ndn

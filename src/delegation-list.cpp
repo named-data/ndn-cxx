@@ -42,6 +42,14 @@ DelegationList::DelegationList()
 {
 }
 
+DelegationList::DelegationList(std::initializer_list<Delegation> dels)
+  : m_isSorted(true)
+{
+  for (const Delegation& del : dels) {
+    this->insert(del, INS_REPLACE);
+  }
+}
+
 DelegationList::DelegationList(const Block& block, bool wantSort)
 {
   this->wireDecode(block, wantSort);

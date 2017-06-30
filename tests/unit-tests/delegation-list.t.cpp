@@ -181,8 +181,7 @@ BOOST_AUTO_TEST_CASE(InsertSimple)
 
 BOOST_AUTO_TEST_CASE(InsertReplace)
 {
-  DelegationList dl;
-  dl.insert(2, "/A");
+  DelegationList dl({{2, "/A"}});
   dl.insert(Delegation{1, "/A"}, DelegationList::INS_REPLACE);
   BOOST_CHECK_EQUAL(dl.size(), 1);
   BOOST_CHECK_EQUAL(dl.at(0).preference, 1);
@@ -195,8 +194,7 @@ BOOST_AUTO_TEST_CASE(InsertReplace)
 
 BOOST_AUTO_TEST_CASE(InsertAppend)
 {
-  DelegationList dl;
-  dl.insert(2, "/A");
+  DelegationList dl({{2, "/A"}});
   dl.insert(Delegation{1, "/A"}, DelegationList::INS_APPEND);
   BOOST_CHECK_EQUAL(dl.size(), 2);
   BOOST_CHECK_EQUAL(dl.at(0).preference, 1);
@@ -209,8 +207,7 @@ BOOST_AUTO_TEST_CASE(InsertAppend)
 
 BOOST_AUTO_TEST_CASE(InsertSkip)
 {
-  DelegationList dl;
-  dl.insert(2, "/A");
+  DelegationList dl({{2, "/A"}});
   dl.insert(Delegation{1, "/A"}, DelegationList::INS_SKIP);
   BOOST_CHECK_EQUAL(dl.size(), 1);
   BOOST_CHECK_EQUAL(dl.at(0).preference, 2);

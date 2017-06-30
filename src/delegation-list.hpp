@@ -23,6 +23,7 @@
 #define NDN_DELEGATION_LIST_HPP
 
 #include "delegation.hpp"
+#include <initializer_list>
 
 namespace ndn {
 
@@ -47,6 +48,13 @@ public:
   /** \brief construct an empty DelegationList
    */
   DelegationList();
+
+  /** \brief construct a sorted DelegationList with specified delegations
+   *
+   *  This is equivalent to inserting each delegation into an empty DelegationList with INS_REPLACE
+   *  conflict resolution.
+   */
+  DelegationList(std::initializer_list<Delegation> dels);
 
   /** \brief decode a DelegationList
    *  \sa wireDecode
