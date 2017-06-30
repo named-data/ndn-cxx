@@ -27,7 +27,6 @@
 
 #include "face-uri.hpp"
 #include "dns.hpp"
-#include "ethernet.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
@@ -36,7 +35,6 @@
 #include <set>
 
 namespace ndn {
-namespace util {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceUri>));
 
@@ -621,5 +619,4 @@ FaceUri::canonize(const CanonizeSuccessCallback& onSuccess,
                io, timeout);
 }
 
-} // namespace util
 } // namespace ndn

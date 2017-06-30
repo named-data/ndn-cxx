@@ -17,49 +17,44 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "link-type-helper.hpp"
-
-#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#error "This file should not be compiled ..."
-#endif
-
-#import <Foundation/Foundation.h>
-#import <CoreWLAN/CoreWLAN.h>
-#import <CoreWLAN/CWInterface.h>
-#import <CoreWLAN/CWWiFiClient.h>
+#include "network-address.hpp"
 
 namespace ndn {
-namespace util {
-namespace detail {
+namespace net {
 
-ndn::nfd::LinkType
-getLinkType(const std::string& ifName)
+std::ostream&
+operator<<(std::ostream& os, AddressScope scope)
 {
-  @autoreleasepool {
-    NSString* interfaceName = [NSString stringWithCString:ifName.c_str()
-                                                 encoding:[NSString defaultCStringEncoding]];
-
-    CWWiFiClient* wifiInterface = [CWWiFiClient sharedWiFiClient];
-    if (wifiInterface == nullptr) {
-      return nfd::LINK_TYPE_NONE;
-    }
-
-    CWInterface* airport = [wifiInterface interfaceWithName:interfaceName];
-    if (airport == nullptr) {
-      return nfd::LINK_TYPE_NONE;
-    }
-
-    if ([airport interfaceMode] == kCWInterfaceModeIBSS) {
-      return nfd::LINK_TYPE_AD_HOC;
-    }
-    else {
-      return nfd::LINK_TYPE_MULTI_ACCESS;
-    }
+  switch (scope) {
+    case AddressScope::NOWHERE:
+      return os << "nowhere";
+    case AddressScope::HOST:
+      return os << "host";
+    case AddressScope::LINK:
+      return os << "link";
+    case AddressScope::GLOBAL:
+      return os << "global";
   }
+  return os;
 }
 
-} // namespace detail
-} // namespace util
+NetworkAddress::NetworkAddress()
+  : m_family(AddressFamily::UNSPECIFIED)
+  , m_flags(0)
+  , m_scope(AddressScope::NOWHERE)
+  , m_prefixLength(0)
+{
+}
+
+std::ostream&
+operator<<(std::ostream& os, const NetworkAddress& addr)
+{
+  return os << addr.getIp() << '/' << static_cast<unsigned int>(addr.getPrefixLength());
+}
+
+} // namespace net
 } // namespace ndn

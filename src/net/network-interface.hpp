@@ -21,18 +21,18 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_UTIL_NETWORK_INTERFACE_HPP
-#define NDN_UTIL_NETWORK_INTERFACE_HPP
+#ifndef NDN_NET_NETWORK_INTERFACE_HPP
+#define NDN_NET_NETWORK_INTERFACE_HPP
 
 #include "ethernet.hpp"
 #include "network-address.hpp"
 #include "network-monitor.hpp"
-#include "signal.hpp"
+#include "../util/signal.hpp"
 
 #include <set>
 
 namespace ndn {
-namespace util {
+namespace net {
 
 /** @brief Indicates the hardware type of a network interface
  */
@@ -72,19 +72,19 @@ class NetworkInterface
 public: // signals
   /** @brief Fires when interface state changes
    */
-  Signal<NetworkInterface, InterfaceState /*old*/, InterfaceState /*new*/> onStateChanged;
+  util::Signal<NetworkInterface, InterfaceState /*old*/, InterfaceState /*new*/> onStateChanged;
 
   /** @brief Fires when interface mtu changes
    */
-  Signal<NetworkInterface, uint32_t /*old*/, uint32_t /*new*/> onMtuChanged;
+  util::Signal<NetworkInterface, uint32_t /*old*/, uint32_t /*new*/> onMtuChanged;
 
   /** @brief Fires when a network-layer address is added to the interface
    */
-  Signal<NetworkInterface, NetworkAddress> onAddressAdded;
+  util::Signal<NetworkInterface, NetworkAddress> onAddressAdded;
 
   /** @brief Fires when a network-layer address is removed from the interface
    */
-  Signal<NetworkInterface, NetworkAddress> onAddressRemoved;
+  util::Signal<NetworkInterface, NetworkAddress> onAddressRemoved;
 
 public: // getters
   /** @brief Returns an opaque ID that uniquely identifies the interface on the system
@@ -250,7 +250,7 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const NetworkInterface& interface);
 
-} // namespace util
+} // namespace net
 } // namespace ndn
 
-#endif // NDN_UTIL_NETWORK_INTERFACE_HPP
+#endif // NDN_NET_NETWORK_INTERFACE_HPP

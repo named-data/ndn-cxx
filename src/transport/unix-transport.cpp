@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2016 Regents of the University of California.
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,7 @@
 #include "stream-transport-impl.hpp"
 
 #include "../face.hpp"
-#include "util/face-uri.hpp"
+#include "net/face-uri.hpp"
 
 namespace ndn {
 
@@ -47,7 +47,7 @@ UnixTransport::getSocketNameFromUri(const std::string& uriString)
   }
 
   try {
-    const util::FaceUri uri(uriString);
+    const FaceUri uri(uriString);
 
     if (uri.getScheme() != "unix") {
       BOOST_THROW_EXCEPTION(Error("Cannot create UnixTransport from \"" +
@@ -58,7 +58,7 @@ UnixTransport::getSocketNameFromUri(const std::string& uriString)
       path = uri.getPath();
     }
   }
-  catch (const util::FaceUri::Error& error) {
+  catch (const FaceUri::Error& error) {
     BOOST_THROW_EXCEPTION(Error(error.what()));
   }
 

@@ -29,7 +29,7 @@
 #include <linux/if.h>
 
 namespace ndn {
-namespace util {
+namespace net {
 namespace linux_if {
 
 const uint32_t FLAG_LOWER_UP = IFF_LOWER_UP;
@@ -45,7 +45,7 @@ const uint8_t OPER_STATE_DORMANT        = IF_OPER_DORMANT;
 const uint8_t OPER_STATE_UP             = IF_OPER_UP;
 
 } // namespace linux_if
-} // namespace util
+} // namespace net
 } // namespace ndn
 
 #endif // __linux__

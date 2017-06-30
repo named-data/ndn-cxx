@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
-#define NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
+#ifndef NDN_NET_NETWORK_MONITOR_IMPL_OSX_HPP
+#define NDN_NET_NETWORK_MONITOR_IMPL_OSX_HPP
 
 #include "ndn-cxx-config.hpp"
 #include "../network-monitor.hpp"
@@ -30,9 +30,9 @@
 #endif
 
 #include "../network-interface.hpp"
-#include "../scheduler.hpp"
-#include "../scheduler-scoped-event-id.hpp"
 #include "../../security/tpm/helper-osx.hpp"
+#include "../../util/scheduler.hpp"
+#include "../../util/scheduler-scoped-event-id.hpp"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SystemConfiguration.h>
@@ -40,7 +40,7 @@
 #include <boost/asio/ip/udp.hpp>
 
 namespace ndn {
-namespace util {
+namespace net {
 
 class NetworkMonitor::Impl
 {
@@ -104,8 +104,8 @@ private:
   NetworkMonitor& m_nm;
   std::map<std::string /*ifname*/, shared_ptr<NetworkInterface>> m_interfaces; ///< interface map
 
-  Scheduler m_scheduler;
-  scheduler::ScopedEventId m_cfLoopEvent;
+  util::Scheduler m_scheduler;
+  util::scheduler::ScopedEventId m_cfLoopEvent;
 
   SCDynamicStoreContext m_context;
   CFReleaser<SCDynamicStoreRef> m_scStore;
@@ -114,7 +114,7 @@ private:
   boost::asio::ip::udp::socket m_nullUdpSocket;
 };
 
-} // namespace util
+} // namespace net
 } // namespace ndn
 
-#endif // NDN_UTIL_NETWORK_MONITOR_IMPL_OSX_HPP
+#endif // NDN_NET_NETWORK_MONITOR_IMPL_OSX_HPP

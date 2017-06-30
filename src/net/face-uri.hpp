@@ -25,22 +25,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_FACE_URI_HPP
-#define NDN_UTIL_FACE_URI_HPP
+#ifndef NDN_NET_FACE_URI_HPP
+#define NDN_NET_FACE_URI_HPP
 
-#include "../common.hpp"
-#include "time.hpp"
+#include "ethernet.hpp"
+#include "../util/time.hpp"
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
 
 namespace ndn {
-namespace util {
-
-namespace ethernet {
-class Address;
-} // namespace ethernet
 
 /** \brief represents the underlying protocol and address used by a Face
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#FaceUri
@@ -197,7 +192,6 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const FaceUri& uri);
 
-} // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_FACE_URI_HPP
+#endif // NDN_NET_FACE_URI_HPP

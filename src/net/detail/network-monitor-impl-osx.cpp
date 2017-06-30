@@ -54,7 +54,7 @@
 
 #include "network-monitor-impl-osx.hpp"
 #include "../../name.hpp"
-#include "../logger.hpp"
+#include "../../util/logger.hpp"
 #include "../network-address.hpp"
 
 #include <ifaddrs.h>       // for getifaddrs()
@@ -66,7 +66,7 @@
 #include <boost/asio.hpp>
 
 namespace ndn {
-namespace util {
+namespace net {
 
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
@@ -449,5 +449,5 @@ NetworkMonitor::Impl::onConfigChanged(CFArrayRef changedKeys)
   }
 }
 
-} // namespace util
+} // namespace net
 } // namespace ndn

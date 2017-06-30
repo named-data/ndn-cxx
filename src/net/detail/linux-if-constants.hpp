@@ -18,48 +18,41 @@
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  *
- * @author Alexander Afanasyev <alexander.afanasyev@ucla.edu>
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-monitor.hpp"
-#include "ndn-cxx-config.hpp"
+#ifndef NDN_NET_LINUX_IF_CONSTANTS_HPP
+#define NDN_NET_LINUX_IF_CONSTANTS_HPP
+#ifdef __linux__
 
-#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
-#include "detail/network-monitor-impl-osx.hpp"
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#else
-#include "detail/network-monitor-impl-noop.hpp"
-#endif
+#include <cstdint>
 
 namespace ndn {
-namespace util {
+namespace net {
+namespace linux_if {
 
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(make_unique<Impl>(*this, io))
-{
-}
+// linux/if.h and net/if.h cannot be (directly or indirectly) included in the
+// same translation unit because they contain duplicate declarations, therefore
+// we have to resort to this workaround when we need to include both linux/if.h
+// and any other headers that pull in net/if.h (e.g. boost/asio.hpp)
 
-NetworkMonitor::~NetworkMonitor() = default;
+// net_device_flags missing from <net/if.h>
+extern const uint32_t FLAG_LOWER_UP;
+extern const uint32_t FLAG_DORMANT;
+extern const uint32_t FLAG_ECHO;
 
-uint32_t
-NetworkMonitor::getCapabilities() const
-{
-  return m_impl->getCapabilities();
-}
+// RFC 2863 operational status
+extern const uint8_t OPER_STATE_UNKNOWN;
+extern const uint8_t OPER_STATE_NOTPRESENT;
+extern const uint8_t OPER_STATE_DOWN;
+extern const uint8_t OPER_STATE_LOWERLAYERDOWN;
+extern const uint8_t OPER_STATE_TESTING;
+extern const uint8_t OPER_STATE_DORMANT;
+extern const uint8_t OPER_STATE_UP;
 
-shared_ptr<NetworkInterface>
-NetworkMonitor::getNetworkInterface(const std::string& ifname) const
-{
-  return m_impl->getNetworkInterface(ifname);
-}
-
-std::vector<shared_ptr<NetworkInterface>>
-NetworkMonitor::listNetworkInterfaces() const
-{
-  return m_impl->listNetworkInterfaces();
-}
-
-} // namespace util
+} // namespace linux_if
+} // namespace net
 } // namespace ndn
+
+#endif // __linux__
+#endif // NDN_NET_LINUX_IF_CONSTANTS_HPP

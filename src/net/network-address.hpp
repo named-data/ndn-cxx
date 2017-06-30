@@ -21,15 +21,15 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_UTIL_NETWORK_ADDRESS_HPP
-#define NDN_UTIL_NETWORK_ADDRESS_HPP
+#ifndef NDN_NET_NETWORK_ADDRESS_HPP
+#define NDN_NET_NETWORK_ADDRESS_HPP
 
 #include "network-monitor.hpp"
 
 #include <boost/asio/ip/address.hpp>
 
 namespace ndn {
-namespace util {
+namespace net {
 
 enum class AddressFamily {
   UNSPECIFIED,
@@ -124,7 +124,7 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const NetworkAddress& address);
 
-} // namespace util
+} // namespace net
 } // namespace ndn
 
-#endif // NDN_UTIL_NETWORK_ADDRESS_HPP
+#endif // NDN_NET_NETWORK_ADDRESS_HPP

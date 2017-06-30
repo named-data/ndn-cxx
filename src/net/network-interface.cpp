@@ -23,15 +23,15 @@
 
 #include "network-interface.hpp"
 #include "detail/linux-if-constants.hpp"
-#include "logger.hpp"
-#include "string-helper.hpp"
+#include "../util/logger.hpp"
+#include "../util/string-helper.hpp"
 
 #include <net/if.h>
 
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
 namespace ndn {
-namespace util {
+namespace net {
 
 NetworkInterface::NetworkInterface()
   : m_index(0)
@@ -236,5 +236,5 @@ operator<<(std::ostream& os, const NetworkInterface& netif)
   return os;
 }
 
-} // namespace util
+} // namespace net
 } // namespace ndn

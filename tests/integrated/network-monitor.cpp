@@ -23,13 +23,13 @@
 #define BOOST_TEST_DYN_LINK 1
 #define BOOST_TEST_MODULE ndn-cxx Integrated Tests (Network Monitor)
 
-#include "util/network-monitor.hpp"
+#include "net/network-monitor.hpp"
 
-#include "util/network-address.hpp"
-#include "util/network-interface.hpp"
+#include "net/network-address.hpp"
+#include "net/network-interface.hpp"
 #include "util/time.hpp"
 
-#include "util/detail/link-type-helper.hpp"
+#include "net/detail/link-type-helper.hpp"
 
 #include "boost-test.hpp"
 
@@ -37,10 +37,9 @@
 #include <iostream>
 
 namespace ndn {
-namespace util {
+namespace net {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
 
 static std::ostream&
@@ -100,8 +99,7 @@ BOOST_AUTO_TEST_CASE(Signals)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestNetworkMonitor
-BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
-} // namespace util
+} // namespace net
 } // namespace ndn

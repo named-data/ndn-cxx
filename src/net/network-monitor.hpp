@@ -22,10 +22,10 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_UTIL_NETWORK_MONITOR_HPP
-#define NDN_UTIL_NETWORK_MONITOR_HPP
+#ifndef NDN_NET_NETWORK_MONITOR_HPP
+#define NDN_NET_NETWORK_MONITOR_HPP
 
-#include "signal.hpp"
+#include "../util/signal.hpp"
 
 #include <vector>
 
@@ -37,7 +37,7 @@ class io_service;
 } // namespace boost
 
 namespace ndn {
-namespace util {
+namespace net {
 
 class NetworkInterface;
 
@@ -109,27 +109,27 @@ public:
 public: // signals
   /** @brief Fires when network interfaces enumeration is complete
    */
-  Signal<NetworkMonitor> onEnumerationCompleted;
+  util::Signal<NetworkMonitor> onEnumerationCompleted;
 
   /** @brief Fires when a new interface is added
    */
-  Signal<NetworkMonitor, shared_ptr<NetworkInterface>> onInterfaceAdded;
+  util::Signal<NetworkMonitor, shared_ptr<NetworkInterface>> onInterfaceAdded;
 
   /**
    * @brief Fires when an interface is removed
    * @note The NetworkInterface object is no longer present in the network
    *       interfaces map when the signal is emitted
    */
-  Signal<NetworkMonitor, shared_ptr<NetworkInterface>> onInterfaceRemoved;
+  util::Signal<NetworkMonitor, shared_ptr<NetworkInterface>> onInterfaceRemoved;
 
   // only for backward compatibility
-  Signal<NetworkMonitor> onNetworkStateChanged;
+  util::Signal<NetworkMonitor> onNetworkStateChanged;
 
 private:
   const unique_ptr<Impl> m_impl;
 };
 
-} // namespace util
+} // namespace net
 } // namespace ndn
 
-#endif // NDN_UTIL_NETWORK_MONITOR_HPP
+#endif // NDN_NET_NETWORK_MONITOR_HPP

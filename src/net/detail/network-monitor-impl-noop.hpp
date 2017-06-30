@@ -17,25 +17,45 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_UTIL_DETAIL_LINK_TYPE_HELPER_HPP
-#define NDN_UTIL_DETAIL_LINK_TYPE_HELPER_HPP
+#ifndef NDN_NET_NETWORK_MONITOR_IMPL_NOOP_HPP
+#define NDN_NET_NETWORK_MONITOR_IMPL_NOOP_HPP
 
-#include "../../encoding/nfd-constants.hpp"
+#include "../network-monitor.hpp"
 
 namespace ndn {
-namespace util {
-namespace detail {
+namespace net {
 
-/**
- * @brief Obtain information about WiFi link type
- */
-ndn::nfd::LinkType
-getLinkType(const std::string& ifName);
+class NetworkMonitor::Impl
+{
+public:
+  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
+  {
+  }
 
-} // namespace detail
-} // namespace util
+  uint32_t
+  getCapabilities() const
+  {
+    return NetworkMonitor::CAP_NONE;
+  }
+
+  shared_ptr<NetworkInterface>
+  getNetworkInterface(const std::string&) const
+  {
+    return {};
+  }
+
+  std::vector<shared_ptr<NetworkInterface>>
+  listNetworkInterfaces() const
+  {
+    return {};
+  }
+};
+
+} // namespace net
 } // namespace ndn
 
-#endif // NDN_UTIL_DETAIL_LINK_TYPE_HELPER_HPP
+#endif // NDN_NET_NETWORK_MONITOR_IMPL_NOOP_HPP

@@ -23,10 +23,10 @@
 #include "detail/face-impl.hpp"
 
 #include "encoding/tlv.hpp"
+#include "net/face-uri.hpp"
 #include "security/signing-helpers.hpp"
 #include "util/time.hpp"
 #include "util/random.hpp"
-#include "util/face-uri.hpp"
 
 // A callback scheduled through io.post and io.dispatch may be invoked after the face
 // is destructed. To prevent this situation, these macros captures Face::m_impl as weak_ptr,
@@ -117,7 +117,7 @@ Face::makeDefaultTransport()
 
   std::string protocol;
   try {
-    util::FaceUri uri(transportUri);
+    FaceUri uri(transportUri);
     protocol = uri.getScheme();
 
     if (protocol == "unix") {
@@ -133,7 +133,7 @@ Face::makeDefaultTransport()
   catch (const Transport::Error& error) {
     BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
   }
-  catch (const util::FaceUri::Error& error) {
+  catch (const FaceUri::Error& error) {
     BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
   }
 }

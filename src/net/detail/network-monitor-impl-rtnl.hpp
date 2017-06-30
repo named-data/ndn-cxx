@@ -21,8 +21,8 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP
-#define NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP
+#ifndef NDN_NET_NETWORK_MONITOR_IMPL_RTNL_HPP
+#define NDN_NET_NETWORK_MONITOR_IMPL_RTNL_HPP
 
 #include "ndn-cxx-config.hpp"
 #include "../network-monitor.hpp"
@@ -42,7 +42,7 @@
 #include <linux/if_link.h>
 
 namespace ndn {
-namespace util {
+namespace net {
 
 class NetworkMonitor::Impl
 {
@@ -120,7 +120,7 @@ private:
   bool m_isEnumeratingAddresses; ///< true if a dump of all addresses is in progress
 };
 
-} // namespace util
+} // namespace net
 } // namespace ndn
 
-#endif // NDN_UTIL_NETWORK_MONITOR_IMPL_RTNL_HPP
+#endif // NDN_NET_NETWORK_MONITOR_IMPL_RTNL_HPP

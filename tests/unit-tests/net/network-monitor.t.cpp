@@ -19,16 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/network-monitor.hpp"
+#include "net/network-monitor.hpp"
 
 #include "boost-test.hpp"
 #include <boost/asio/io_service.hpp>
 
 namespace ndn {
-namespace util {
+namespace net {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
 
 #define NM_REQUIRE_CAP(capability) \
@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestNetworkMonitor
-BOOST_AUTO_TEST_SUITE_END() // Util
+BOOST_AUTO_TEST_SUITE_END() // Net
 
 } // namespace tests
-} // namespace util
+} // namespace net
 } // namespace ndn

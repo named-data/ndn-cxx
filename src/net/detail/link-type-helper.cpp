@@ -17,44 +17,27 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-address.hpp"
+#include "link-type-helper.hpp"
+#include "ndn-cxx-config.hpp"
+
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
+// implemented in link-type-helper-osx.mm
+#else
 
 namespace ndn {
-namespace util {
+namespace net {
+namespace detail {
 
-std::ostream&
-operator<<(std::ostream& os, AddressScope scope)
+ndn::nfd::LinkType
+getLinkType(const std::string& ifName)
 {
-  switch (scope) {
-    case AddressScope::NOWHERE:
-      return os << "nowhere";
-    case AddressScope::HOST:
-      return os << "host";
-    case AddressScope::LINK:
-      return os << "link";
-    case AddressScope::GLOBAL:
-      return os << "global";
-  }
-  return os;
+  return nfd::LINK_TYPE_NONE;
 }
 
-NetworkAddress::NetworkAddress()
-  : m_family(AddressFamily::UNSPECIFIED)
-  , m_flags(0)
-  , m_scope(AddressScope::NOWHERE)
-  , m_prefixLength(0)
-{
-}
-
-std::ostream&
-operator<<(std::ostream& os, const NetworkAddress& addr)
-{
-  return os << addr.getIp() << '/' << static_cast<unsigned int>(addr.getPrefixLength());
-}
-
-} // namespace util
+} // namespace detail
+} // namespace net
 } // namespace ndn
+
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS

@@ -1,12 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014 Regents of the University of California,
- *                    Arizona Board of Regents,
- *                    Colorado State University,
- *                    University Pierre & Marie Curie, Sorbonne University,
- *                    Washington University in St. Louis,
- *                    Beijing Institute of Technology,
- *                    The University of Memphis.
+ * Copyright (c) 2014-2017 Regents of the University of California,
+ *                         Arizona Board of Regents,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University,
+ *                         Washington University in St. Louis,
+ *                         Beijing Institute of Technology,
+ *                         The University of Memphis.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_ETHERNET_HPP
-#define NDN_UTIL_ETHERNET_HPP
+#ifndef NDN_NET_ETHERNET_HPP
+#define NDN_NET_ETHERNET_HPP
 
 #include <array>
 #include <cstdint>
@@ -34,7 +34,6 @@
 #include <string>
 
 namespace ndn {
-namespace util {
 namespace ethernet {
 
 const uint16_t ETHERTYPE_NDN = 0x8624;
@@ -109,19 +108,18 @@ std::ostream&
 operator<<(std::ostream& o, const Address& a);
 
 } // namespace ethernet
-} // namespace util
 } // namespace ndn
 
 namespace std {
 
 // specialize std::hash<> for ethernet::Address
 template<>
-struct hash<ndn::util::ethernet::Address>
+struct hash<ndn::ethernet::Address>
 {
   size_t
-  operator()(const ndn::util::ethernet::Address& a) const noexcept;
+  operator()(const ndn::ethernet::Address& a) const noexcept;
 };
 
 } // namespace std
 
-#endif // NDN_UTIL_ETHERNET_HPP
+#endif // NDN_NET_ETHERNET_HPP

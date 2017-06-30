@@ -25,19 +25,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/face-uri.hpp"
-#include "util/ethernet.hpp"
+#include "net/face-uri.hpp"
 
 #include "boost-test.hpp"
-#include "../network-configuration-detector.hpp"
+#include "network-configuration-detector.hpp"
 
 namespace ndn {
-namespace util {
 namespace tests {
 
-using ndn::tests::NetworkConfigurationDetector;
-
-BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestFaceUri)
 
 class CanonizeFixture : noncopyable
@@ -566,8 +562,7 @@ BOOST_AUTO_TEST_CASE(Bug1635)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestFaceUri
-BOOST_AUTO_TEST_SUITE_END() // Util
+BOOST_AUTO_TEST_SUITE_END() // Net
 
 } // namespace tests
-} // namespace util
 } // namespace ndn

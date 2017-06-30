@@ -20,24 +20,46 @@
  */
 
 #include "link-type-helper.hpp"
-#include "ndn-cxx-config.hpp"
 
-#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
-// implemented in link-type-helper-osx.mm
-#else
+#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
+#error "This file should not be compiled ..."
+#endif
+
+#import <Foundation/Foundation.h>
+#import <CoreWLAN/CoreWLAN.h>
+#import <CoreWLAN/CWInterface.h>
+#import <CoreWLAN/CWWiFiClient.h>
 
 namespace ndn {
-namespace util {
+namespace net {
 namespace detail {
 
 ndn::nfd::LinkType
 getLinkType(const std::string& ifName)
 {
-  return nfd::LINK_TYPE_NONE;
+  @autoreleasepool {
+    NSString* interfaceName = [NSString stringWithCString:ifName.c_str()
+                                                 encoding:[NSString defaultCStringEncoding]];
+
+    CWWiFiClient* wifiInterface = [CWWiFiClient sharedWiFiClient];
+    if (wifiInterface == nullptr) {
+      return nfd::LINK_TYPE_NONE;
+    }
+
+    CWInterface* airport = [wifiInterface interfaceWithName:interfaceName];
+    if (airport == nullptr) {
+      return nfd::LINK_TYPE_NONE;
+    }
+
+    if ([airport interfaceMode] == kCWInterfaceModeIBSS) {
+      return nfd::LINK_TYPE_AD_HOC;
+    }
+    else {
+      return nfd::LINK_TYPE_MULTI_ACCESS;
+    }
+  }
 }
 
 } // namespace detail
-} // namespace util
+} // namespace net
 } // namespace ndn
-
-#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS

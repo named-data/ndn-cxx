@@ -33,7 +33,6 @@
 #include <ostream>
 
 namespace ndn {
-namespace util {
 namespace ethernet {
 
 Address::Address()
@@ -139,11 +138,10 @@ operator<<(std::ostream& o, const Address& a)
 }
 
 } // namespace ethernet
-} // namespace util
 } // namespace ndn
 
 std::size_t
-std::hash<ndn::util::ethernet::Address>::operator()(const ndn::util::ethernet::Address& a) const noexcept
+std::hash<ndn::ethernet::Address>::operator()(const ndn::ethernet::Address& a) const noexcept
 {
   return boost::hash_range(a.cbegin(), a.cend());
 }

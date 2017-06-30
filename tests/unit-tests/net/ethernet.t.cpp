@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014-2016 Regents of the University of California,
+ * Copyright (c) 2014-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -25,15 +25,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/ethernet.hpp"
+#include "net/ethernet.hpp"
 
 #include "boost-test.hpp"
 
 namespace ndn {
-namespace util {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestEthernet)
 
 BOOST_AUTO_TEST_CASE(Basic)
@@ -112,8 +111,7 @@ BOOST_AUTO_TEST_CASE(StdHash)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestEthernet
-BOOST_AUTO_TEST_SUITE_END() // Util
+BOOST_AUTO_TEST_SUITE_END() // Net
 
 } // namespace tests
-} // namespace util
 } // namespace ndn

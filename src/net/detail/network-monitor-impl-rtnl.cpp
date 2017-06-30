@@ -23,10 +23,10 @@
 
 #include "network-monitor-impl-rtnl.hpp"
 #include "linux-if-constants.hpp"
-#include "../logger.hpp"
 #include "../network-address.hpp"
 #include "../network-interface.hpp"
-#include "../time.hpp"
+#include "../../util/logger.hpp"
+#include "../../util/time.hpp"
 
 #include <boost/asio/write.hpp>
 
@@ -38,7 +38,7 @@
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
 namespace ndn {
-namespace util {
+namespace net {
 
 NetworkMonitor::Impl::Impl(NetworkMonitor& nm, boost::asio::io_service& io)
   : m_nm(nm)
@@ -506,5 +506,5 @@ NetworkMonitor::Impl::updateInterfaceState(NetworkInterface& interface, uint8_t 
   }
 }
 
-} // namespace util
+} // namespace net
 } // namespace ndn
