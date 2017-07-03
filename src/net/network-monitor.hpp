@@ -25,11 +25,9 @@
 #ifndef NDN_NET_NETWORK_MONITOR_HPP
 #define NDN_NET_NETWORK_MONITOR_HPP
 
-#include "../util/signal.hpp"
-
+#include "network-interface.hpp"
 #include <vector>
 
-// forward declaration
 namespace boost {
 namespace asio {
 class io_service;
@@ -39,7 +37,7 @@ class io_service;
 namespace ndn {
 namespace net {
 
-class NetworkInterface;
+class NetworkMonitorImpl;
 
 /**
  * @brief Network interfaces monitor
@@ -66,19 +64,15 @@ public:
     }
   };
 
-  class Impl;
-
   /**
    * @brief Construct instance, request enumeration of all network interfaces, and start
    *        monitoring for network state changes
    *
    * @param io io_service thread that will dispatch events
-   * @throw Error when network monitoring is not supported or there is an error starting monitoring
+   * @throw Error error starting monitoring
    */
   explicit
   NetworkMonitor(boost::asio::io_service& io);
-
-  ~NetworkMonitor();
 
   enum Capability : uint32_t {
     /// NetworkMonitor is not supported and is a no-op
@@ -100,33 +94,77 @@ public:
   uint32_t
   getCapabilities() const;
 
-  shared_ptr<NetworkInterface>
+  shared_ptr<const NetworkInterface>
   getNetworkInterface(const std::string& ifname) const;
 
-  std::vector<shared_ptr<NetworkInterface>>
+  std::vector<shared_ptr<const NetworkInterface>>
   listNetworkInterfaces() const;
+
+protected:
+  explicit
+  NetworkMonitor(unique_ptr<NetworkMonitorImpl> impl);
+
+  NetworkMonitorImpl&
+  getImpl()
+  {
+    return *m_impl;
+  }
+
+private:
+  const unique_ptr<NetworkMonitorImpl> m_impl;
+  // Intentional violation of code-style rule 1.4: m_impl must be assigned before its signals can
+  // be assigned to references below.
 
 public: // signals
   /** @brief Fires when network interfaces enumeration is complete
    */
-  util::Signal<NetworkMonitor> onEnumerationCompleted;
+  util::Signal<NetworkMonitorImpl>& onEnumerationCompleted;
 
   /** @brief Fires when a new interface is added
    */
-  util::Signal<NetworkMonitor, shared_ptr<NetworkInterface>> onInterfaceAdded;
+  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceAdded;
 
   /**
    * @brief Fires when an interface is removed
    * @note The NetworkInterface object is no longer present in the network
    *       interfaces map when the signal is emitted
    */
-  util::Signal<NetworkMonitor, shared_ptr<NetworkInterface>> onInterfaceRemoved;
+  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceRemoved;
 
   // only for backward compatibility
-  util::Signal<NetworkMonitor> onNetworkStateChanged;
+  util::Signal<NetworkMonitorImpl>& onNetworkStateChanged;
+};
 
-private:
-  const unique_ptr<Impl> m_impl;
+class NetworkMonitorImpl : noncopyable
+{
+public:
+  virtual
+  ~NetworkMonitorImpl() = default;
+
+  virtual uint32_t
+  getCapabilities() const = 0;
+
+  virtual shared_ptr<const NetworkInterface>
+  getNetworkInterface(const std::string&) const = 0;
+
+  virtual std::vector<shared_ptr<const NetworkInterface>>
+  listNetworkInterfaces() const = 0;
+
+protected:
+  static shared_ptr<NetworkInterface>
+  makeNetworkInterface();
+
+public:
+  util::Signal<NetworkMonitorImpl> onEnumerationCompleted;
+  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>> onInterfaceAdded;
+  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>> onInterfaceRemoved;
+  util::Signal<NetworkMonitorImpl> onNetworkStateChanged;
+
+protected:
+  DECLARE_SIGNAL_EMIT(onEnumerationCompleted)
+  DECLARE_SIGNAL_EMIT(onInterfaceAdded)
+  DECLARE_SIGNAL_EMIT(onInterfaceRemoved)
+  DECLARE_SIGNAL_EMIT(onNetworkStateChanged)
 };
 
 } // namespace net

@@ -40,9 +40,8 @@ NDN_LOG_INIT(ndn.NetworkMonitor);
 namespace ndn {
 namespace net {
 
-NetworkMonitor::Impl::Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  : m_nm(nm)
-  , m_socket(make_shared<boost::asio::posix::stream_descriptor>(io))
+NetworkMonitorImplRtnl::NetworkMonitorImplRtnl(boost::asio::io_service& io)
+  : m_socket(make_shared<boost::asio::posix::stream_descriptor>(io))
   , m_pid(0)
   , m_sequenceNo(static_cast<uint32_t>(time::system_clock::now().time_since_epoch().count()))
   , m_isEnumeratingLinks(false)
@@ -56,14 +55,14 @@ NetworkMonitor::Impl::Impl(NetworkMonitor& nm, boost::asio::io_service& io)
   m_isEnumeratingLinks = true;
 }
 
-NetworkMonitor::Impl::~Impl()
+NetworkMonitorImplRtnl::~NetworkMonitorImplRtnl()
 {
   boost::system::error_code error;
   m_socket->close(error);
 }
 
-shared_ptr<NetworkInterface>
-NetworkMonitor::Impl::getNetworkInterface(const std::string& ifname) const
+shared_ptr<const NetworkInterface>
+NetworkMonitorImplRtnl::getNetworkInterface(const std::string& ifname) const
 {
   for (const auto& e : m_interfaces) {
     if (e.second->getName() == ifname)
@@ -72,10 +71,10 @@ NetworkMonitor::Impl::getNetworkInterface(const std::string& ifname) const
   return nullptr;
 }
 
-std::vector<shared_ptr<NetworkInterface>>
-NetworkMonitor::Impl::listNetworkInterfaces() const
+std::vector<shared_ptr<const NetworkInterface>>
+NetworkMonitorImplRtnl::listNetworkInterfaces() const
 {
-  std::vector<shared_ptr<NetworkInterface>> v;
+  std::vector<shared_ptr<const NetworkInterface>> v;
   v.reserve(m_interfaces.size());
 
   for (const auto& e : m_interfaces) {
@@ -85,13 +84,13 @@ NetworkMonitor::Impl::listNetworkInterfaces() const
 }
 
 bool
-NetworkMonitor::Impl::isEnumerating() const
+NetworkMonitorImplRtnl::isEnumerating() const
 {
   return m_isEnumeratingLinks || m_isEnumeratingAddresses;
 }
 
 void
-NetworkMonitor::Impl::initSocket()
+NetworkMonitorImplRtnl::initSocket()
 {
   NDN_LOG_TRACE("creating netlink socket");
 
@@ -129,7 +128,7 @@ NetworkMonitor::Impl::initSocket()
 }
 
 void
-NetworkMonitor::Impl::sendDumpRequest(uint16_t nlmsgType)
+NetworkMonitorImplRtnl::sendDumpRequest(uint16_t nlmsgType)
 {
   auto request = make_shared<RtnlRequest>();
   request->nlh.nlmsg_len = sizeof(RtnlRequest);
@@ -217,14 +216,14 @@ ifaScopeToAddressScope(uint8_t scope)
 }
 
 void
-NetworkMonitor::Impl::asyncRead()
+NetworkMonitorImplRtnl::asyncRead()
 {
   m_socket->async_read_some(boost::asio::buffer(m_buffer),
-                            bind(&Impl::handleRead, this, _1, _2, m_socket));
+                            bind(&NetworkMonitorImplRtnl::handleRead, this, _1, _2, m_socket));
 }
 
 void
-NetworkMonitor::Impl::handleRead(const boost::system::error_code& error, size_t nBytesRead,
+NetworkMonitorImplRtnl::handleRead(const boost::system::error_code& error, size_t nBytesRead,
                                  const shared_ptr<boost::asio::posix::stream_descriptor>& socket)
 {
   if (!socket->is_open() ||
@@ -252,7 +251,7 @@ NetworkMonitor::Impl::handleRead(const boost::system::error_code& error, size_t 
 }
 
 void
-NetworkMonitor::Impl::parseNetlinkMessage(const nlmsghdr* nlh, size_t len)
+NetworkMonitorImplRtnl::parseNetlinkMessage(const nlmsghdr* nlh, size_t len)
 {
   while (NLMSG_OK(nlh, len)) {
     NDN_LOG_TRACE("parsing " << (nlh->nlmsg_flags & NLM_F_MULTI ? "multi-part " : "") <<
@@ -275,21 +274,21 @@ NetworkMonitor::Impl::parseNetlinkMessage(const nlmsghdr* nlh, size_t len)
       case RTM_DELLINK:
         parseLinkMessage(nlh, reinterpret_cast<const ifinfomsg*>(NLMSG_DATA(nlh)));
         if (!isEnumerating())
-          m_nm.onNetworkStateChanged(); // backward compat
+          this->emitSignal(onNetworkStateChanged); // backward compat
         break;
 
       case RTM_NEWADDR:
       case RTM_DELADDR:
         parseAddressMessage(nlh, reinterpret_cast<const ifaddrmsg*>(NLMSG_DATA(nlh)));
         if (!isEnumerating())
-          m_nm.onNetworkStateChanged(); // backward compat
+          this->emitSignal(onNetworkStateChanged); // backward compat
         break;
 
       case RTM_NEWROUTE:
       case RTM_DELROUTE:
         parseRouteMessage(nlh, reinterpret_cast<const rtmsg*>(NLMSG_DATA(nlh)));
         if (!isEnumerating())
-          m_nm.onNetworkStateChanged(); // backward compat
+          this->emitSignal(onNetworkStateChanged); // backward compat
         break;
 
       case NLMSG_ERROR: {
@@ -320,12 +319,12 @@ NetworkMonitor::Impl::parseNetlinkMessage(const nlmsghdr* nlh, size_t len)
     m_isEnumeratingAddresses = false;
     // TODO: enumerate routes
     NDN_LOG_DEBUG("enumeration complete");
-    m_nm.onEnumerationCompleted();
+    this->emitSignal(onEnumerationCompleted);
   }
 }
 
 void
-NetworkMonitor::Impl::parseLinkMessage(const nlmsghdr* nlh, const ifinfomsg* ifi)
+NetworkMonitorImplRtnl::parseLinkMessage(const nlmsghdr* nlh, const ifinfomsg* ifi)
 {
   if (ifiTypeToInterfaceType(ifi->ifi_type) == InterfaceType::UNKNOWN) {
     NDN_LOG_DEBUG("unhandled interface type " << ifi->ifi_type);
@@ -344,14 +343,13 @@ NetworkMonitor::Impl::parseLinkMessage(const nlmsghdr* nlh, const ifinfomsg* ifi
     if (interface != nullptr) {
       NDN_LOG_DEBUG("removing interface " << interface->getName());
       m_interfaces.erase(it);
-      m_nm.onInterfaceRemoved(interface);
+      this->emitSignal(onInterfaceRemoved, interface);
     }
     return;
   }
 
   if (interface == nullptr) {
-    // cannot use make_shared because NetworkInterface constructor is private
-    interface.reset(new NetworkInterface);
+    interface = makeNetworkInterface();
     interface->setIndex(ifi->ifi_index);
   }
   interface->setType(ifiTypeToInterfaceType(ifi->ifi_type));
@@ -405,12 +403,12 @@ NetworkMonitor::Impl::parseLinkMessage(const nlmsghdr* nlh, const ifinfomsg* ifi
   if (it == m_interfaces.end()) {
     NDN_LOG_DEBUG("adding interface " << interface->getName());
     m_interfaces[interface->getIndex()] = interface;
-    m_nm.onInterfaceAdded(interface);
+    this->emitSignal(onInterfaceAdded, interface);
   }
 }
 
 void
-NetworkMonitor::Impl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* ifa)
+NetworkMonitorImplRtnl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* ifa)
 {
   auto it = m_interfaces.find(ifa->ifa_index);
   if (it == m_interfaces.end()) {
@@ -422,13 +420,8 @@ NetworkMonitor::Impl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* 
   BOOST_ASSERT(interface != nullptr);
 
   namespace ip = boost::asio::ip;
-
-  NetworkAddress address;
-  address.m_family = ifaFamilyToAddressFamily(ifa->ifa_family);
-  BOOST_ASSERT(address.m_family != AddressFamily::UNSPECIFIED);
-  address.m_prefixLength = ifa->ifa_prefixlen;
-  address.m_flags = ifa->ifa_flags; // will be overridden by IFA_FLAGS below, if the attribute is present
-  address.m_scope = ifaScopeToAddressScope(ifa->ifa_scope);
+  ip::address ipAddr, broadcast;
+  uint32_t flags = ifa->ifa_flags; // will be overridden by IFA_FLAGS if the attribute is present
 
   const rtattr* rta = reinterpret_cast<const rtattr*>(IFA_RTA(ifa));
   size_t rtaTotalLen = IFA_PAYLOAD(nlh);
@@ -442,7 +435,7 @@ NetworkMonitor::Impl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* 
         if (ifa->ifa_family == AF_INET && attrLen == sizeof(ip::address_v4::bytes_type)) {
           ip::address_v4::bytes_type bytes;
           std::copy_n(attrData, bytes.size(), bytes.begin());
-          address.m_ip = ip::address_v4(bytes);
+          ipAddr = ip::address_v4(bytes);
         }
         break;
 
@@ -450,7 +443,7 @@ NetworkMonitor::Impl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* 
         if (ifa->ifa_family == AF_INET6 && attrLen == sizeof(ip::address_v6::bytes_type)) {
           ip::address_v6::bytes_type bytes;
           std::copy_n(attrData, bytes.size(), bytes.begin());
-          address.m_ip = ip::address_v6(bytes);
+          ipAddr = ip::address_v6(bytes);
         }
         break;
 
@@ -458,20 +451,29 @@ NetworkMonitor::Impl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* 
         if (ifa->ifa_family == AF_INET && attrLen == sizeof(ip::address_v4::bytes_type)) {
           ip::address_v4::bytes_type bytes;
           std::copy_n(attrData, bytes.size(), bytes.begin());
-          address.m_broadcast = ip::address_v4(bytes);
+          broadcast = ip::address_v4(bytes);
         }
         break;
 
 #ifdef NDN_CXX_HAVE_IFA_FLAGS
       case IFA_FLAGS:
         if (attrLen == sizeof(uint32_t))
-          address.m_flags = *(reinterpret_cast<const uint32_t*>(attrData));
+          flags = *(reinterpret_cast<const uint32_t*>(attrData));
         break;
 #endif // NDN_CXX_HAVE_IFA_FLAGS
     }
 
     rta = RTA_NEXT(rta, rtaTotalLen);
   }
+
+  NetworkAddress address(
+    ifaFamilyToAddressFamily(ifa->ifa_family),
+    ipAddr,
+    broadcast,
+    ifa->ifa_prefixlen,
+    ifaScopeToAddressScope(ifa->ifa_scope),
+    flags);
+  BOOST_ASSERT(address.getFamily() != AddressFamily::UNSPECIFIED);
 
   if (nlh->nlmsg_type == RTM_NEWADDR)
     interface->addNetworkAddress(address);
@@ -480,13 +482,13 @@ NetworkMonitor::Impl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* 
 }
 
 void
-NetworkMonitor::Impl::parseRouteMessage(const nlmsghdr* nlh, const rtmsg* rtm)
+NetworkMonitorImplRtnl::parseRouteMessage(const nlmsghdr* nlh, const rtmsg* rtm)
 {
   // TODO
 }
 
 void
-NetworkMonitor::Impl::updateInterfaceState(NetworkInterface& interface, uint8_t operState)
+NetworkMonitorImplRtnl::updateInterfaceState(NetworkInterface& interface, uint8_t operState)
 {
   if (operState == linux_if::OPER_STATE_UP) {
     interface.setState(InterfaceState::RUNNING);

@@ -29,27 +29,26 @@
 namespace ndn {
 namespace net {
 
-class NetworkMonitor::Impl
+class NetworkMonitorImplNoop : public NetworkMonitorImpl
 {
 public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  {
-  }
+  explicit
+  NetworkMonitorImplNoop(boost::asio::io_service& io) = default;
 
   uint32_t
-  getCapabilities() const
+  getCapabilities() const final
   {
     return NetworkMonitor::CAP_NONE;
   }
 
-  shared_ptr<NetworkInterface>
-  getNetworkInterface(const std::string&) const
+  shared_ptr<const NetworkInterface>
+  getNetworkInterface(const std::string&) const final
   {
     return {};
   }
 
-  std::vector<shared_ptr<NetworkInterface>>
-  listNetworkInterfaces() const
+  std::vector<shared_ptr<const NetworkInterface>>
+  listNetworkInterfaces() const final
   {
     return {};
   }

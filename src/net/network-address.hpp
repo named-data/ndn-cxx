@@ -24,8 +24,7 @@
 #ifndef NDN_NET_NETWORK_ADDRESS_HPP
 #define NDN_NET_NETWORK_ADDRESS_HPP
 
-#include "network-monitor.hpp"
-
+#include "../common.hpp"
 #include <boost/asio/ip/address.hpp>
 
 namespace ndn {
@@ -52,7 +51,14 @@ operator<<(std::ostream& os, AddressScope scope);
  */
 class NetworkAddress
 {
-public: // getters
+public:
+  NetworkAddress(AddressFamily family,
+                 boost::asio::ip::address ip,
+                 boost::asio::ip::address broadcast,
+                 uint8_t prefixLength,
+                 AddressScope scope,
+                 uint32_t flags);
+
   /** @brief Returns the address family
    */
   AddressFamily
@@ -77,12 +83,12 @@ public: // getters
     return m_broadcast;
   }
 
-  /** @brief Returns a bitset of platform-specific flags enabled on the address
+  /** @brief Returns the prefix length
    */
-  uint32_t
-  getFlags() const
+  uint8_t
+  getPrefixLength() const
   {
-    return m_flags;
+    return m_prefixLength;
   }
 
   /** @brief Returns the address scope
@@ -93,12 +99,12 @@ public: // getters
     return m_scope;
   }
 
-  /** @brief Returns the prefix length
+  /** @brief Returns a bitset of platform-specific flags enabled on the address
    */
-  uint8_t
-  getPrefixLength() const
+  uint32_t
+  getFlags() const
   {
-    return m_prefixLength;
+    return m_flags;
   }
 
   friend bool
@@ -107,18 +113,13 @@ public: // getters
     return a.m_ip < b.m_ip;
   }
 
-private: // constructor
-  NetworkAddress();
-
 private:
-  friend class NetworkMonitor::Impl;
-
   AddressFamily m_family;
   boost::asio::ip::address m_ip;
   boost::asio::ip::address m_broadcast;
-  uint32_t m_flags; // IFA_F_* in if_addr.h
-  AddressScope m_scope;
   uint8_t m_prefixLength;
+  AddressScope m_scope;
+  uint32_t m_flags; // IFA_F_* in if_addr.h
 };
 
 std::ostream&

@@ -26,9 +26,7 @@
 
 #include "ethernet.hpp"
 #include "network-address.hpp"
-#include "network-monitor.hpp"
 #include "../util/signal.hpp"
-
 #include <set>
 
 namespace ndn {
@@ -69,22 +67,22 @@ operator<<(std::ostream& os, InterfaceState state);
  */
 class NetworkInterface
 {
-public: // signals
+public: // signals, marked 'mutable' so they can be connected on 'const NetworkInterface'
   /** @brief Fires when interface state changes
    */
-  util::Signal<NetworkInterface, InterfaceState /*old*/, InterfaceState /*new*/> onStateChanged;
+  mutable util::Signal<NetworkInterface, InterfaceState /*old*/, InterfaceState /*new*/> onStateChanged;
 
   /** @brief Fires when interface mtu changes
    */
-  util::Signal<NetworkInterface, uint32_t /*old*/, uint32_t /*new*/> onMtuChanged;
+  mutable util::Signal<NetworkInterface, uint32_t /*old*/, uint32_t /*new*/> onMtuChanged;
 
   /** @brief Fires when a network-layer address is added to the interface
    */
-  util::Signal<NetworkInterface, NetworkAddress> onAddressAdded;
+  mutable util::Signal<NetworkInterface, NetworkAddress> onAddressAdded;
 
   /** @brief Fires when a network-layer address is removed from the interface
    */
-  util::Signal<NetworkInterface, NetworkAddress> onAddressRemoved;
+  mutable util::Signal<NetworkInterface, NetworkAddress> onAddressRemoved;
 
 public: // getters
   /** @brief Returns an opaque ID that uniquely identifies the interface on the system
@@ -199,10 +197,7 @@ public: // getters
     return (m_flags & IFF_UP) != 0;
   }
 
-private: // constructor
-  NetworkInterface();
-
-private: // modifiers
+public: // modifiers: they update information on this instance, but do not change netif in the OS
   bool
   addNetworkAddress(const NetworkAddress& address);
 
@@ -233,9 +228,10 @@ private: // modifiers
   void
   setEthernetBroadcastAddress(const ethernet::Address& address);
 
-private:
-  friend class NetworkMonitor::Impl;
+private: // constructor
+  NetworkInterface(); // accessible through NetworkMonitorImpl::makeNetworkInterface
 
+private:
   int m_index;
   std::string m_name;
   InterfaceType m_type;
@@ -245,6 +241,8 @@ private:
   ethernet::Address m_etherAddress;
   ethernet::Address m_etherBrdAddress;
   std::set<NetworkAddress> m_netAddresses;
+
+  friend class NetworkMonitorImpl;
 };
 
 std::ostream&

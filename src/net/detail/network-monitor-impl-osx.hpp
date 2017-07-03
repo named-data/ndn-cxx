@@ -29,7 +29,6 @@
 #error "This file should not be compiled ..."
 #endif
 
-#include "../network-interface.hpp"
 #include "../../security/tpm/helper-osx.hpp"
 #include "../../util/scheduler.hpp"
 #include "../../util/scheduler-scoped-event-id.hpp"
@@ -42,25 +41,29 @@
 namespace ndn {
 namespace net {
 
-class NetworkMonitor::Impl
+class NetworkMonitorImplOsx : public NetworkMonitorImpl
 {
 public:
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io);
+  using Error = NetworkMonitor::Error;
 
-  ~Impl();
+  NetworkMonitorImplOsx(boost::asio::io_service& io);
+
+  ~NetworkMonitorImplOsx();
 
   uint32_t
-  getCapabilities() const
+  getCapabilities() const final
   {
-    return NetworkMonitor::CAP_ENUM | NetworkMonitor::CAP_IF_ADD_REMOVE |
-      NetworkMonitor::CAP_STATE_CHANGE | NetworkMonitor::CAP_ADDR_ADD_REMOVE;
+    return NetworkMonitor::CAP_ENUM |
+           NetworkMonitor::CAP_IF_ADD_REMOVE |
+           NetworkMonitor::CAP_STATE_CHANGE |
+           NetworkMonitor::CAP_ADDR_ADD_REMOVE;
   }
 
-  shared_ptr<NetworkInterface>
-  getNetworkInterface(const std::string& ifname) const;
+  shared_ptr<const NetworkInterface>
+  getNetworkInterface(const std::string& ifname) const final;
 
-  std::vector<shared_ptr<NetworkInterface>>
-  listNetworkInterfaces() const;
+  std::vector<shared_ptr<const NetworkInterface>>
+  listNetworkInterfaces() const final;
 
   static void
   afterNotificationCenterEvent(CFNotificationCenterRef center,
@@ -101,8 +104,7 @@ private:
   onConfigChanged(CFArrayRef changedKeys);
 
 private:
-  NetworkMonitor& m_nm;
-  std::map<std::string /*ifname*/, shared_ptr<NetworkInterface>> m_interfaces; ///< interface map
+  std::map<std::string, shared_ptr<NetworkInterface>> m_interfaces; ///< ifname => interface
 
   util::Scheduler m_scheduler;
   util::scheduler::ScopedEventId m_cfLoopEvent;

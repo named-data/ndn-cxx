@@ -70,13 +70,12 @@ namespace net {
 
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
-NetworkMonitor::Impl::Impl(NetworkMonitor& nm, boost::asio::io_service& io)
-  : m_nm(nm)
-  , m_scheduler(io)
+NetworkMonitorImplOsx::NetworkMonitorImplOsx(boost::asio::io_service& io)
+  : m_scheduler(io)
   , m_cfLoopEvent(m_scheduler)
   , m_context{0, this, nullptr, nullptr, nullptr}
   , m_scStore(SCDynamicStoreCreate(nullptr, CFSTR("net.named-data.ndn-cxx.NetworkMonitor"),
-                                   &Impl::onConfigChanged, &m_context))
+                                   &NetworkMonitorImplOsx::onConfigChanged, &m_context))
   , m_loopSource(SCDynamicStoreCreateRunLoopSource(nullptr, m_scStore.get(), 0))
   , m_nullUdpSocket(io, boost::asio::ip::udp::v4())
 
@@ -89,7 +88,7 @@ NetworkMonitor::Impl::Impl(NetworkMonitor& nm, boost::asio::io_service& io)
   //
   CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(),
                                   static_cast<void*>(this),
-                                  &Impl::afterNotificationCenterEvent,
+                                  &NetworkMonitorImplOsx::afterNotificationCenterEvent,
                                   CFSTR("com.apple.system.config.network_change"),
                                   nullptr, // object to observe
                                   CFNotificationSuspensionBehaviorDeliverImmediately);
@@ -116,7 +115,7 @@ NetworkMonitor::Impl::Impl(NetworkMonitor& nm, boost::asio::io_service& io)
   SCDynamicStoreSetNotificationKeys(m_scStore.get(), nullptr, patterns);
 }
 
-NetworkMonitor::Impl::~Impl()
+NetworkMonitorImplOsx::~NetworkMonitorImplOsx()
 {
   CFRunLoopRemoveSource(CFRunLoopGetCurrent(), m_loopSource.get(), kCFRunLoopDefaultMode);
 
@@ -124,22 +123,17 @@ NetworkMonitor::Impl::~Impl()
                                           static_cast<void*>(this));
 }
 
-shared_ptr<NetworkInterface>
-NetworkMonitor::Impl::getNetworkInterface(const std::string& ifname) const
+shared_ptr<const NetworkInterface>
+NetworkMonitorImplOsx::getNetworkInterface(const std::string& ifname) const
 {
   auto it = m_interfaces.find(ifname);
-  if (it != m_interfaces.end()) {
-    return it->second;
-  }
-  else {
-    return nullptr;
-  }
+  return it == m_interfaces.end() ? nullptr : it->second;
 }
 
-std::vector<shared_ptr<NetworkInterface>>
-NetworkMonitor::Impl::listNetworkInterfaces() const
+std::vector<shared_ptr<const NetworkInterface>>
+NetworkMonitorImplOsx::listNetworkInterfaces() const
 {
-  std::vector<shared_ptr<NetworkInterface>> v;
+  std::vector<shared_ptr<const NetworkInterface>> v;
   v.reserve(m_interfaces.size());
 
   for (const auto& e : m_interfaces) {
@@ -149,24 +143,24 @@ NetworkMonitor::Impl::listNetworkInterfaces() const
 }
 
 void
-NetworkMonitor::Impl::afterNotificationCenterEvent(CFNotificationCenterRef center,
-                                                   void* observer,
-                                                   CFStringRef name,
-                                                   const void* object,
-                                                   CFDictionaryRef userInfo)
+NetworkMonitorImplOsx::afterNotificationCenterEvent(CFNotificationCenterRef center,
+                                                    void* observer,
+                                                    CFStringRef name,
+                                                    const void* object,
+                                                    CFDictionaryRef userInfo)
 {
-  static_cast<Impl*>(observer)->m_nm.onNetworkStateChanged();
+  static_cast<NetworkMonitorImplOsx*>(observer)->emitSignal(onNetworkStateChanged);
 }
 
 void
-NetworkMonitor::Impl::scheduleCfLoop()
+NetworkMonitorImplOsx::scheduleCfLoop()
 {
   // poll each second for new events
-  m_cfLoopEvent = m_scheduler.scheduleEvent(time::seconds(1), bind(&Impl::pollCfLoop, this));
+  m_cfLoopEvent = m_scheduler.scheduleEvent(time::seconds(1), [this] { pollCfLoop(); });
 }
 
 void
-NetworkMonitor::Impl::pollCfLoop()
+NetworkMonitorImplOsx::pollCfLoop()
 {
   // this should dispatch ready events and exit
   CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true);
@@ -175,10 +169,9 @@ NetworkMonitor::Impl::pollCfLoop()
 }
 
 void
-NetworkMonitor::Impl::addNewInterface(const std::string& ifName)
+NetworkMonitorImplOsx::addNewInterface(const std::string& ifName)
 {
-  shared_ptr<NetworkInterface> interface(new NetworkInterface);
-
+  shared_ptr<NetworkInterface> interface = makeNetworkInterface();
   interface->setName(ifName);
   interface->setState(getInterfaceState(interface->getName()));
   updateInterfaceInfo(*interface);
@@ -189,16 +182,16 @@ NetworkMonitor::Impl::addNewInterface(const std::string& ifName)
 
   NDN_LOG_DEBUG("adding interface " << interface->getName());
   m_interfaces.insert(make_pair(interface->getName(), interface));
-  m_nm.onInterfaceAdded(interface);
+  this->emitSignal(onInterfaceAdded, interface);
 }
 
 void
-NetworkMonitor::Impl::enumerateInterfaces()
+NetworkMonitorImplOsx::enumerateInterfaces()
 {
   for (const auto& ifName : getInterfaceNames()) {
     addNewInterface(ifName);
   }
-  m_nm.onEnumerationCompleted();
+  this->emitSignal(onEnumerationCompleted);
 }
 
 static std::string
@@ -209,18 +202,19 @@ convertToStdString(CFStringRef cfString)
     return cStr;
   }
 
-  size_t stringSize =  CFStringGetLength(cfString);
+  size_t stringSize = CFStringGetLength(cfString);
   char* buffer = new char[stringSize + 1];
   CFStringGetCString(cfString, buffer, sizeof(buffer), kCFStringEncodingASCII);
   std::string retval = buffer;
-  delete [] buffer;
+  delete[] buffer;
   return retval;
 }
 
 std::set<std::string>
-NetworkMonitor::Impl::getInterfaceNames()
+NetworkMonitorImplOsx::getInterfaceNames()
 {
-  CFReleaser<CFDictionaryRef> dict = (CFDictionaryRef)SCDynamicStoreCopyValue(m_scStore.get(), CFSTR("State:/Network/Interface"));
+  CFReleaser<CFDictionaryRef> dict =
+    (CFDictionaryRef)SCDynamicStoreCopyValue(m_scStore.get(), CFSTR("State:/Network/Interface"));
   CFArrayRef interfaces = (CFArrayRef)CFDictionaryGetValue(dict.get(), CFSTR("Interfaces"));
 
   std::set<std::string> ifNames;
@@ -233,11 +227,11 @@ NetworkMonitor::Impl::getInterfaceNames()
 }
 
 InterfaceState
-NetworkMonitor::Impl::getInterfaceState(const std::string& ifName)
+NetworkMonitorImplOsx::getInterfaceState(const std::string& ifName)
 {
-  CFReleaser<CFStringRef> linkName = CFStringCreateWithCString(nullptr,
-                                                               ("State:/Network/Interface/" + ifName + "/Link").c_str(),
-                                                               kCFStringEncodingASCII);
+  CFReleaser<CFStringRef> linkName =
+    CFStringCreateWithCString(nullptr, ("State:/Network/Interface/" + ifName + "/Link").c_str(),
+                              kCFStringEncodingASCII);
 
   CFReleaser<CFDictionaryRef> dict = (CFDictionaryRef)SCDynamicStoreCopyValue(m_scStore.get(), linkName.get());
   if (dict.get() == nullptr) {
@@ -252,8 +246,22 @@ NetworkMonitor::Impl::getInterfaceState(const std::string& ifName)
   return CFBooleanGetValue(isActive) ? InterfaceState::RUNNING : InterfaceState::DOWN;
 }
 
+template<typename AddressBytes>
+static uint8_t
+computePrefixLength(const AddressBytes& mask)
+{
+  uint8_t prefixLength = 0;
+  for (auto byte : mask) {
+    while (byte != 0) {
+      ++prefixLength;
+      byte <<= 1;
+    }
+  }
+  return prefixLength;
+}
+
 void
-NetworkMonitor::Impl::updateInterfaceInfo(NetworkInterface& netif)
+NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif)
 {
   ifaddrs* ifa_list = nullptr;
   if (::getifaddrs(&ifa_list) < 0) {
@@ -271,48 +279,38 @@ NetworkMonitor::Impl::updateInterfaceInfo(NetworkInterface& netif)
     if (ifa->ifa_addr == nullptr)
       continue;
 
-    NetworkAddress address;
+    namespace ip = boost::asio::ip;
+    AddressFamily addressFamily = AddressFamily::UNSPECIFIED;
+    ip::address ipAddr, broadcast;
+    uint8_t prefixLength = 0;
+
 
     switch (ifa->ifa_addr->sa_family) {
       case AF_INET: {
-        address.m_family = AddressFamily::V4;
+        addressFamily = AddressFamily::V4;
 
         const sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
-        boost::asio::ip::address_v4::bytes_type bytes;
+        ip::address_v4::bytes_type bytes;
         std::copy_n(reinterpret_cast<const unsigned char*>(&sin->sin_addr), bytes.size(), bytes.begin());
-        address.m_ip = boost::asio::ip::address_v4(bytes);
+        ipAddr = ip::address_v4(bytes);
 
         const sockaddr_in* sinMask = reinterpret_cast<sockaddr_in*>(ifa->ifa_netmask);
         std::copy_n(reinterpret_cast<const unsigned char*>(&sinMask->sin_addr), bytes.size(), bytes.begin());
-        uint8_t mask = 0;
-        for (auto byte : bytes) {
-          while (byte != 0) {
-            ++mask;
-            byte <<= 1;
-          }
-        }
-        address.m_prefixLength = mask;
+        prefixLength = computePrefixLength(bytes);
         break;
       }
 
       case AF_INET6: {
-        address.m_family = AddressFamily::V6;
+        addressFamily = AddressFamily::V6;
 
         const sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
-        boost::asio::ip::address_v6::bytes_type bytes;
+        ip::address_v6::bytes_type bytes;
         std::copy_n(reinterpret_cast<const unsigned char*>(&sin6->sin6_addr), bytes.size(), bytes.begin());
-        address.m_ip = boost::asio::ip::address_v6(bytes);
+        ipAddr = ip::address_v6(bytes);
 
         const sockaddr_in6* sinMask = reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask);
         std::copy_n(reinterpret_cast<const unsigned char*>(&sinMask->sin6_addr), bytes.size(), bytes.begin());
-        uint8_t mask = 0;
-        for (auto byte : bytes) {
-          while (byte != 0) {
-            ++mask;
-            byte <<= 1;
-          }
-        }
-        address.m_prefixLength = mask;
+        prefixLength = computePrefixLength(bytes);
         break;
       }
 
@@ -339,24 +337,26 @@ NetworkMonitor::Impl::updateInterfaceInfo(NetworkInterface& netif)
 
     if (netif.canBroadcast() && ifa->ifa_broadaddr != nullptr) {
       const sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_broadaddr);
-      boost::asio::ip::address_v4::bytes_type bytes;
+      ip::address_v4::bytes_type bytes;
       std::copy_n(reinterpret_cast<const unsigned char*>(&sin->sin_addr), bytes.size(), bytes.begin());
-      address.m_broadcast = boost::asio::ip::address_v4(bytes);
-      NDN_LOG_TRACE(netif.getName() << ": set IPv4 broadcast address " << address.m_broadcast);
+      broadcast = ip::address_v4(bytes);
+      NDN_LOG_TRACE(netif.getName() << ": set IPv4 broadcast address " << broadcast);
     }
 
     if (netif.canBroadcast()) {
       netif.setEthernetBroadcastAddress(ethernet::getBroadcastAddress());
     }
 
-    netif.addNetworkAddress(address);
+    netif.addNetworkAddress(NetworkAddress(addressFamily, ipAddr, broadcast, prefixLength,
+                                           AddressScope::NOWHERE, 0));
+    ///\todo #3817 extract AddressScope from OS
   }
 
   ::freeifaddrs(ifa_list);
 }
 
 size_t
-NetworkMonitor::Impl::getInterfaceMtu(const std::string& ifName)
+NetworkMonitorImplOsx::getInterfaceMtu(const std::string& ifName)
 {
   ifreq ifr{};
   std::strncpy(ifr.ifr_name, ifName.c_str(), sizeof(ifr.ifr_name) - 1);
@@ -370,13 +370,13 @@ NetworkMonitor::Impl::getInterfaceMtu(const std::string& ifName)
 }
 
 void
-NetworkMonitor::Impl::onConfigChanged(SCDynamicStoreRef m_scStore, CFArrayRef changedKeys, void* context)
+NetworkMonitorImplOsx::onConfigChanged(SCDynamicStoreRef m_scStore, CFArrayRef changedKeys, void* context)
 {
-  static_cast<Impl*>(context)->onConfigChanged(changedKeys);
+  static_cast<NetworkMonitorImplOsx*>(context)->onConfigChanged(changedKeys);
 }
 
 void
-NetworkMonitor::Impl::onConfigChanged(CFArrayRef changedKeys)
+NetworkMonitorImplOsx::onConfigChanged(CFArrayRef changedKeys)
 {
   size_t count = CFArrayGetCount(changedKeys);
   for (size_t i = 0; i != count; ++i) {
@@ -396,7 +396,7 @@ NetworkMonitor::Impl::onConfigChanged(CFArrayRef changedKeys)
       NDN_LOG_DEBUG("removing interface " << ifName);
       shared_ptr<NetworkInterface> removedInterface = ifIt->second;
       m_interfaces.erase(ifIt);
-      m_nm.onInterfaceRemoved(removedInterface);
+      this->emitSignal(onInterfaceRemoved, removedInterface);
     };
 
     if (key.at(-1).toUri() == "Link") {
@@ -416,17 +416,17 @@ NetworkMonitor::Impl::onConfigChanged(CFArrayRef changedKeys)
     }
 
     if (key.at(-1).toUri() == "IPv4" || key.at(-1).toUri() == "IPv6") {
-      NetworkInterface updatedInterface;
-      updatedInterface.setName(ifName);
-      updateInterfaceInfo(updatedInterface);
-      if (updatedInterface.getType() == InterfaceType::UNKNOWN) {
+      shared_ptr<NetworkInterface> updatedInterface = makeNetworkInterface();
+      updatedInterface->setName(ifName);
+      updateInterfaceInfo(*updatedInterface);
+      if (updatedInterface->getType() == InterfaceType::UNKNOWN) {
         // somehow, type of interface changed to unknown
         NDN_LOG_DEBUG("Removing " << ifName << " because it changed to unhandled interface type");
         removeInterface();
         return;
       }
 
-      const auto& newAddrs = updatedInterface.getNetworkAddresses();
+      const auto& newAddrs = updatedInterface->getNetworkAddresses();
       const auto& oldAddrs = netif.getNetworkAddresses();
 
       std::set<NetworkAddress> added;

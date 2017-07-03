@@ -27,21 +27,31 @@
 
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
 #include "detail/network-monitor-impl-osx.hpp"
+#define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplOsx
 #elif defined(NDN_CXX_HAVE_RTNETLINK)
 #include "detail/network-monitor-impl-rtnl.hpp"
+#define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplRtnl
 #else
 #include "detail/network-monitor-impl-noop.hpp"
+#define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNoop
 #endif
 
 namespace ndn {
 namespace net {
 
 NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : m_impl(make_unique<Impl>(*this, io))
+  : NetworkMonitor(make_unique<NETWORK_MONITOR_IMPL_TYPE>(io))
 {
 }
 
-NetworkMonitor::~NetworkMonitor() = default;
+NetworkMonitor::NetworkMonitor(unique_ptr<NetworkMonitorImpl> impl)
+  : m_impl(std::move(impl))
+  , onEnumerationCompleted(m_impl->onEnumerationCompleted)
+  , onInterfaceAdded(m_impl->onInterfaceAdded)
+  , onInterfaceRemoved(m_impl->onInterfaceRemoved)
+  , onNetworkStateChanged(m_impl->onNetworkStateChanged)
+{
+}
 
 uint32_t
 NetworkMonitor::getCapabilities() const
@@ -49,16 +59,23 @@ NetworkMonitor::getCapabilities() const
   return m_impl->getCapabilities();
 }
 
-shared_ptr<NetworkInterface>
+shared_ptr<const NetworkInterface>
 NetworkMonitor::getNetworkInterface(const std::string& ifname) const
 {
   return m_impl->getNetworkInterface(ifname);
 }
 
-std::vector<shared_ptr<NetworkInterface>>
+std::vector<shared_ptr<const NetworkInterface>>
 NetworkMonitor::listNetworkInterfaces() const
 {
   return m_impl->listNetworkInterfaces();
+}
+
+shared_ptr<NetworkInterface>
+NetworkMonitorImpl::makeNetworkInterface()
+{
+  // cannot use make_shared because NetworkInterface constructor is private
+  return shared_ptr<NetworkInterface>(new NetworkInterface);
 }
 
 } // namespace net

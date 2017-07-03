@@ -42,11 +42,18 @@ operator<<(std::ostream& os, AddressScope scope)
   return os;
 }
 
-NetworkAddress::NetworkAddress()
-  : m_family(AddressFamily::UNSPECIFIED)
-  , m_flags(0)
-  , m_scope(AddressScope::NOWHERE)
-  , m_prefixLength(0)
+NetworkAddress::NetworkAddress(AddressFamily family,
+                               boost::asio::ip::address ip,
+                               boost::asio::ip::address broadcast,
+                               uint8_t prefixLength,
+                               AddressScope scope,
+                               uint32_t flags)
+  : m_family(family)
+  , m_ip(ip)
+  , m_broadcast(broadcast)
+  , m_prefixLength(prefixLength)
+  , m_scope(scope)
+  , m_flags(flags)
 {
 }
 

@@ -43,7 +43,7 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
 
 static std::ostream&
-logEvent(const shared_ptr<NetworkInterface>& ni = nullptr, std::ostream& os = std::cout)
+logEvent(const shared_ptr<const NetworkInterface>& ni = nullptr, std::ostream& os = std::cout)
 {
   os << '[' << time::toIsoString(time::system_clock::now()) << "] ";
   if (ni != nullptr)
@@ -69,13 +69,13 @@ BOOST_AUTO_TEST_CASE(Signals)
     }
   });
 
-  monitor.onInterfaceAdded.connect([] (const shared_ptr<NetworkInterface>& ni) {
+  monitor.onInterfaceAdded.connect([] (const shared_ptr<const NetworkInterface>& ni) {
     logEvent(ni) << "onInterfaceAdded\n" << *ni;
     logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << "\n";
 
     ni->onAddressAdded.connect([ni] (const NetworkAddress& address) {
       logEvent(ni) << "onAddressAdded " << address << std::endl;
-      });
+    });
 
     ni->onAddressRemoved.connect([ni] (const NetworkAddress& address) {
       logEvent(ni) << "onAddressRemoved " << address << std::endl;
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(Signals)
     });
   }); // monitor.onInterfaceAdded.connect
 
-  monitor.onInterfaceRemoved.connect([] (const shared_ptr<NetworkInterface>& ni) {
+  monitor.onInterfaceRemoved.connect([] (const shared_ptr<const NetworkInterface>& ni) {
     logEvent(ni) << "onInterfaceRemoved" << std::endl;
   });
 

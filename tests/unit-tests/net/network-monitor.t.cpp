@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
   auto nm = make_unique<NetworkMonitor>(io);
   NM_REQUIRE_CAP(ENUM);
 
-  nm->onInterfaceAdded.connect([&] (const shared_ptr<NetworkInterface>&) {
+  nm->onInterfaceAdded.connect([&] (const shared_ptr<const NetworkInterface>&) {
     io.post([&] { nm.reset(); });
   });
   nm->onEnumerationCompleted.connect([&] {

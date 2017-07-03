@@ -44,17 +44,20 @@
 namespace ndn {
 namespace net {
 
-class NetworkMonitor::Impl
+class NetworkMonitorImplRtnl : public NetworkMonitorImpl
 {
 public:
+  using Error = NetworkMonitor::Error;
+
   /** \brief initialize netlink socket and start enumerating interfaces
    */
-  Impl(NetworkMonitor& nm, boost::asio::io_service& io);
+  explicit
+  NetworkMonitorImplRtnl(boost::asio::io_service& io);
 
-  ~Impl();
+  ~NetworkMonitorImplRtnl();
 
   uint32_t
-  getCapabilities() const
+  getCapabilities() const final
   {
     return NetworkMonitor::CAP_ENUM |
            NetworkMonitor::CAP_IF_ADD_REMOVE |
@@ -63,11 +66,11 @@ public:
            NetworkMonitor::CAP_ADDR_ADD_REMOVE;
   }
 
-  shared_ptr<NetworkInterface>
-  getNetworkInterface(const std::string& ifname) const;
+  shared_ptr<const NetworkInterface>
+  getNetworkInterface(const std::string& ifname) const final;
 
-  std::vector<shared_ptr<NetworkInterface>>
-  listNetworkInterfaces() const;
+  std::vector<shared_ptr<const NetworkInterface>>
+  listNetworkInterfaces() const final;
 
 private:
   struct RtnlRequest
@@ -110,9 +113,8 @@ private:
   updateInterfaceState(NetworkInterface& interface, uint8_t operState);
 
 private:
-  NetworkMonitor& m_nm;
-  std::map<int /*ifindex*/, shared_ptr<NetworkInterface>> m_interfaces; ///< interface map
-  std::array<uint8_t, 16384> m_buffer; ///< holds netlink messages received from the kernel
+  std::map<int, shared_ptr<NetworkInterface>> m_interfaces; ///< ifindex => interface
+  std::array<uint8_t, 16384> m_buffer; ///< netlink messages received from the kernel
   shared_ptr<boost::asio::posix::stream_descriptor> m_socket; ///< the netlink socket
   uint32_t m_pid; ///< our port ID (unicast address for netlink sockets)
   uint32_t m_sequenceNo; ///< sequence number of the last netlink request sent to the kernel
