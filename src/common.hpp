@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -21,8 +21,8 @@
 
 /** \file
  *  \brief import common constructs for ndn-cxx library internal use
- *  \warning This file is implementation detail of ndn-cxx library.
- *           Aliases imported in this file SHOULD NOT be used outside of ndn-cxx.
+ *  \warning This file is an implementation detail of ndn-cxx library.
+ *           Aliases imported in this file MUST NOT be used outside of ndn-cxx.
  */
 
 #ifndef NDN_COMMON_HPP
@@ -92,8 +92,10 @@ using std::cref;
 
 } // namespace ndn
 
-// Bug 2109 workaround
 using namespace std::placeholders;
+
+/// \cond
+// Bug 2109 workaround
 #define BOOST_BIND_NO_PLACEHOLDERS
 #include <boost/is_placeholder.hpp>
 namespace boost {
@@ -116,6 +118,7 @@ NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(8)
 NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(9)
 #undef NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER
 } // namespace boost
+/// \endcond
 
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>

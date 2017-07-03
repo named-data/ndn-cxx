@@ -309,7 +309,7 @@ def doxygen(bld):
             GOOGLE_ANALYTICS=os.getenv('GOOGLE_ANALYTICS', ""))
 
         bld(features="doxygen",
-            doxyfile='docs/doxygen.conf',
+            doxyfile="docs/doxygen.conf",
             use="doxygen-conf")
 
 def sphinx(bld):
