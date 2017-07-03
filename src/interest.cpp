@@ -188,7 +188,7 @@ Interest::matchesData(const Data& data) const
       //     excludes some digests - fullName required
       // But Interests that contain the exact Data Name before digest and also
       // contain Exclude filter is too rare to optimize for, so we request
-      // fullName no mater what's in the Exclude filter.
+      // fullName no matter what's in the Exclude filter.
     }
     else {
       // component to exclude is not the digest

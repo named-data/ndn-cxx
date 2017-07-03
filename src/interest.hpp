@@ -203,8 +203,6 @@ public: // matching
    * This method considers Name, MinSuffixComponents, MaxSuffixComponents,
    * PublisherPublicKeyLocator, and Exclude.
    * This method does not consider ChildSelector and MustBeFresh.
-   *
-   * @todo recognize implicit digest component
    */
   bool
   matchesData(const Data& data) const;
