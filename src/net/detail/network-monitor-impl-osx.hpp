@@ -29,7 +29,7 @@
 #error "This file should not be compiled ..."
 #endif
 
-#include "../../security/tpm/helper-osx.hpp"
+#include "../../util/cf-releaser-osx.hpp"
 #include "../../util/scheduler.hpp"
 #include "../../util/scheduler-scoped-event-id.hpp"
 
@@ -110,8 +110,8 @@ private:
   util::scheduler::ScopedEventId m_cfLoopEvent;
 
   SCDynamicStoreContext m_context;
-  CFReleaser<SCDynamicStoreRef> m_scStore;
-  CFReleaser<CFRunLoopSourceRef> m_loopSource;
+  util::CFReleaser<SCDynamicStoreRef> m_scStore;
+  util::CFReleaser<CFRunLoopSourceRef> m_loopSource;
 
   boost::asio::ip::udp::socket m_nullUdpSocket;
 };

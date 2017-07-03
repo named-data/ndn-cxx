@@ -23,7 +23,7 @@
 #define NDN_SECURITY_TPM_BACK_END_OSX_HPP
 
 #include "back-end.hpp"
-#include "helper-osx.hpp"
+#include "key-ref-osx.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be compiled ..."

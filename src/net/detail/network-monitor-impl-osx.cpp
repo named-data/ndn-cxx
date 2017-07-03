@@ -68,6 +68,8 @@
 namespace ndn {
 namespace net {
 
+using util::CFReleaser;
+
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
 NetworkMonitorImplOsx::NetworkMonitorImplOsx(boost::asio::io_service& io)

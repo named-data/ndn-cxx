@@ -21,7 +21,6 @@
 
 #include "back-end-osx.hpp"
 #include "key-handle-osx.hpp"
-#include "helper-osx.hpp"
 #include "../transform/private-key.hpp"
 #include "tpm.hpp"
 
@@ -33,6 +32,8 @@
 namespace ndn {
 namespace security {
 namespace tpm {
+
+using util::CFReleaser;
 
 class BackEndOsx::Impl
 {

@@ -19,19 +19,19 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_HELPER_OSX_HPP
-#define NDN_SECURITY_TPM_HELPER_OSX_HPP
+#ifndef NDN_UTIL_CF_RELEASER_OSX_HPP
+#define NDN_UTIL_CF_RELEASER_OSX_HPP
 
-#include "../../common.hpp"
+#include "../common.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be included ..."
 #endif
 
 #include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
 
 namespace ndn {
+namespace util {
 
 /**
  * @brief Helper class to wrap CoreFoundation object pointers
@@ -41,6 +41,9 @@ namespace ndn {
  *
  * Original implementation by Christopher Hunt and it was borrowed from
  * http://www.cocoabuilder.com/archive/cocoa/130776-auto-cfrelease-and.html
+ *
+ * @note The filename cf-releaser-osx.hpp is an intentional violation of code-style rule 2.1.
+ *       Having '-osx' suffix is necessary to prevent installation on non-macOS platforms.
  */
 template<class T>
 class CFReleaser
@@ -109,9 +112,7 @@ public: // Access
     return m_typeRef != nullptr;
   }
 
-  ///////////////////
-  // Miscellaneous //
-
+public: // Miscellaneous
   void
   retain(const T& typeRef)
   {
@@ -143,14 +144,7 @@ private:
   T m_typeRef;
 };
 
-namespace security {
-namespace tpm {
-
-using KeyRefOsx = CFReleaser<SecKeyRef>;
-
-} // namespace tpm
-} // namespace security
-
+} // namespace util
 } // namespace ndn
 
-#endif // NDN_SECURITY_TPM_HELPER_OSX_HPP
+#endif // NDN_UTIL_CF_RELEASER_OSX_HPP

@@ -19,58 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
-#define NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
+#ifndef NDN_SECURITY_TPM_KEY_REF_OSX_HPP
+#define NDN_SECURITY_TPM_KEY_REF_OSX_HPP
 
-#include "key-handle.hpp"
-#include "key-ref-osx.hpp"
-
-#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#error "This file should not be compiled ..."
-#endif
+#include "../../util/cf-releaser-osx.hpp"
+#include <Security/Security.h>
 
 namespace ndn {
 namespace security {
 namespace tpm {
 
-class BackEndOsx;
-
-/**
- * @brief Abstraction of TPM key handle used by the TPM based on OS X Keychain Service.
- */
-class KeyHandleOsx : public KeyHandle
-{
-public:
-  class Error : public KeyHandle::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : KeyHandle::Error(what)
-    {
-    }
-  };
-
-public:
-  KeyHandleOsx(const BackEndOsx& impl, const KeyRefOsx& key);
-
-private:
-  ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const final;
-
-  ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
-
-  ConstBufferPtr
-  doDerivePublicKey() const final;
-
-private:
-  const BackEndOsx& m_impl;
-  KeyRefOsx m_key;
-};
+using KeyRefOsx = util::CFReleaser<SecKeyRef>;
 
 } // namespace tpm
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
+#endif // NDN_SECURITY_TPM_KEY_REF_OSX_HPP
