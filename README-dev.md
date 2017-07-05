@@ -15,7 +15,7 @@ you are choosing LGPL 3.0, please use the following license boilerplate in all `
 
 
     /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-    /**
+    /*
      * Copyright (c) [Year(s)] [Copyright Holder].
      *
      * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).

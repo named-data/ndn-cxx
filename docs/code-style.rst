@@ -1021,7 +1021,7 @@ the alternative structured counterpart is proven to be less readable.
     always start with an upper case letter and end with a period.
 
     However, method and class documentation comments should use ``/** */`` style for
-    Doxygen, JavaDoc and JSDoc.
+    Doxygen, JavaDoc and JSDoc. License boilerplate should use ``/* */`` style.
 
 3.26. Comments should be included relative to their position in the code.
 
