@@ -544,57 +544,6 @@ BOOST_AUTO_TEST_CASE(DefaultValues)
   BOOST_CHECK(!i.hasSelectedDelegation());
 }
 
-BOOST_AUTO_TEST_CASE(EncodeChildSelector)
-{
-  Interest i;
-  i.setName("/local/ndn/prefix");
-  i.setNonce(1);
-  BOOST_CHECK_EQUAL(i.getChildSelector(), 0);
-  BOOST_CHECK_THROW(i.setChildSelector(-1), std::invalid_argument);
-  BOOST_CHECK_THROW(i.setChildSelector(2), std::invalid_argument);
-  BOOST_CHECK_NO_THROW(i.setChildSelector(1));
-  BOOST_CHECK_EQUAL(i.getChildSelector(), 1);
-  BOOST_CHECK_NO_THROW(i.setChildSelector(0));
-  BOOST_CHECK_EQUAL(i.getChildSelector(), 0);
-
-  const uint8_t expectedDefault[] = {
-    0x05, 0x1e, // MetaInfo
-          0x07, 0x14, // Name
-                0x08, 0x5, // NameComponent
-                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
-                0x08, 0x3, // NameComponent
-                      0x6e, 0x64, 0x6e,
-                0x08, 0x6, // NameComponent
-                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
-          0x09, 0x00, // Selectors
-          0x0a, 0x04, // Nonce
-                0x01, 0x00, 0x00, 0x00, // 1
-  };
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(i.wireEncode().begin(), i.wireEncode().end(),
-                                expectedDefault, expectedDefault + sizeof(expectedDefault));
-
-  const uint8_t expected1[] = {
-    0x05, 0x21, // MetaInfo
-          0x07, 0x14, // Name
-                0x08, 0x5, // NameComponent
-                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
-                0x08, 0x3, // NameComponent
-                      0x6e, 0x64, 0x6e,
-                0x08, 0x6, // NameComponent
-                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
-          0x09, 0x03, // Selectors
-                0x11, 0x01, // ChildSelector
-                      0x01, // 1
-          0x0a, 0x04, // Nonce
-                0x01, 0x00, 0x00, 0x00, // 1
-  };
-
-  i.setChildSelector(1);
-  BOOST_CHECK_EQUAL_COLLECTIONS(i.wireEncode().begin(), i.wireEncode().end(),
-                                expected1, expected1 + sizeof(expected1));
-}
-
 BOOST_AUTO_TEST_CASE(EncodeInterestLifetime)
 {
   Interest i;
@@ -608,7 +557,7 @@ BOOST_AUTO_TEST_CASE(EncodeInterestLifetime)
   BOOST_CHECK_NO_THROW(i.setInterestLifetime(DEFAULT_INTEREST_LIFETIME));
 
   const uint8_t expectedDefault[] = {
-    0x05, 0x1e, // MetaInfo
+    0x05, 0x1c, // Interest
           0x07, 0x14, // Name
                 0x08, 0x5, // NameComponent
                       0x6c, 0x6f, 0x63, 0x61, 0x6c,
@@ -616,7 +565,6 @@ BOOST_AUTO_TEST_CASE(EncodeInterestLifetime)
                       0x6e, 0x64, 0x6e,
                 0x08, 0x6, // NameComponent
                       0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
-          0x09, 0x00, // Selectors
           0x0a, 0x04, // Nonce
                 0x01, 0x00, 0x00, 0x00, // 1
   };
@@ -625,7 +573,7 @@ BOOST_AUTO_TEST_CASE(EncodeInterestLifetime)
                                 expectedDefault, expectedDefault + sizeof(expectedDefault));
 
   const uint8_t expected1000ms[] = {
-    0x05, 0x22, // MetaInfo
+    0x05, 0x20, // Interest
           0x07, 0x14, // Name
                 0x08, 0x5, // NameComponent
                       0x6c, 0x6f, 0x63, 0x61, 0x6c,
@@ -633,7 +581,6 @@ BOOST_AUTO_TEST_CASE(EncodeInterestLifetime)
                       0x6e, 0x64, 0x6e,
                 0x08, 0x6, // NameComponent
                       0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
-          0x09, 0x00, // Selectors
           0x0a, 0x04, // Nonce
                 0x01, 0x00, 0x00, 0x00, // 1
           0x0c, 0x02, // InterestLifetime
@@ -722,80 +669,6 @@ BOOST_AUTO_TEST_CASE(InterestEqualityChecks)
   BOOST_CHECK_EQUAL(a != b, true);
 
   b.setSelectedDelegation(Name("/local"));
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-}
-
-BOOST_AUTO_TEST_CASE(SelectorsEqualityChecks)
-{
-  // Selectors ::= SELECTORS-TYPE TLV-LENGTH
-  //                 MinSuffixComponents?
-  //                 MaxSuffixComponents?
-  //                 PublisherPublicKeyLocator?
-  //                 Exclude?
-  //                 ChildSelector?
-  //                 MustBeFresh?
-
-  Selectors a;
-  Selectors b;
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // MinSuffixComponents
-  a.setMinSuffixComponents(1);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setMinSuffixComponents(2);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setMinSuffixComponents(1);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // MaxSuffixComponents
-  a.setMaxSuffixComponents(10);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setMaxSuffixComponents(10);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // PublisherPublicKeyLocator
-  a.setPublisherPublicKeyLocator(KeyLocator("/key/Locator/name"));
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setPublisherPublicKeyLocator(KeyLocator("/key/Locator/name"));
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // Exclude
-  a.setExclude(Exclude().excludeOne(name::Component("exclude")));
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setExclude(Exclude().excludeOne(name::Component("exclude")));
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // ChildSelector
-  a.setChildSelector(1);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setChildSelector(1);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // MustBeFresh
-  a.setMustBeFresh(true);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setMustBeFresh(true);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 }

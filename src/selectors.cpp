@@ -52,7 +52,7 @@ Selectors::empty() const
          m_maxSuffixComponents < 0 &&
          m_publisherPublicKeyLocator.empty() &&
          m_exclude.empty() &&
-         m_childSelector < 0 &&
+         m_childSelector == DEFAULT_CHILD_SELECTOR &&
          !m_mustBeFresh;
 }
 
