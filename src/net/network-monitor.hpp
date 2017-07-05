@@ -40,16 +40,16 @@ namespace net {
 class NetworkMonitorImpl;
 
 /**
- * @brief Network interfaces monitor
+ * @brief Network interface monitor
  *
  * Maintains an up-to-date view of every system network interface and notifies when an interface
  * is added or removed.
  *
- * @note Implementation of this class is platform dependent and not all supported platforms
- *       are supported:
- *       - OS X: SystemConfiguration and CFNotificationCenterAddObserver notifications (no
- *         notification on MTU change)
- *       - Linux: rtnetlink notifications
+ * @note The implementation of this class is highly platform dependent, and not all platform
+ *       backends provide all the features. On macOS, @e SystemConfiguration and
+ *       @e CFNotificationCenterAddObserver are used (notification of MTU change is not supported).
+ *       On Linux, @e rtnetlink notifications from the kernel are used. See getCapabilities() for
+ *       the detailed set of capabilities supported by the platform backend currently in use.
  */
 class NetworkMonitor : noncopyable
 {
@@ -68,7 +68,7 @@ public:
    * @brief Construct instance, request enumeration of all network interfaces, and start
    *        monitoring for network state changes
    *
-   * @param io io_service thread that will dispatch events
+   * @param io io_service instance that will dispatch events
    * @throw Error error starting monitoring
    */
   explicit
@@ -89,14 +89,19 @@ public:
     CAP_ADDR_ADD_REMOVE = 1 << 4
   };
 
-  /** \return bitwise OR'ed \p Capability supported on current platform
-   */
+  /// Returns a bitwise OR'ed set of @ref Capability flags supported on the current platform
   uint32_t
   getCapabilities() const;
 
+  /// Returns the NetworkInterface with the given name, or @c nullptr if it does not exist
   shared_ptr<const NetworkInterface>
   getNetworkInterface(const std::string& ifname) const;
 
+  /**
+   * @brief Lists all network interfaces currently available on the system
+   * @warning May return incomplete results if called before the
+   *          #onEnumerationCompleted signal has been emitted.
+   */
   std::vector<shared_ptr<const NetworkInterface>>
   listNetworkInterfaces() const;
 
@@ -116,22 +121,20 @@ private:
   // be assigned to references below.
 
 public: // signals
-  /** @brief Fires when network interfaces enumeration is complete
-   */
+  /// Fires when network interfaces enumeration is complete
   util::Signal<NetworkMonitorImpl>& onEnumerationCompleted;
 
-  /** @brief Fires when a new interface is added
-   */
+  /// Fires when a new interface is added
   util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceAdded;
 
   /**
    * @brief Fires when an interface is removed
-   * @note The NetworkInterface object is no longer present in the network
-   *       interfaces map when the signal is emitted
+   * @note The NetworkInterface object is no longer present in the internal list of
+   *       network interfaces when this signal is emitted.
    */
   util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceRemoved;
 
-  // only for backward compatibility
+  /// @deprecated Only for backward compatibility
   util::Signal<NetworkMonitorImpl>& onNetworkStateChanged;
 };
 
