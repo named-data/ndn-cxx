@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -168,7 +168,8 @@ BOOST_AUTO_TEST_CASE(Unix)
     veryLongName.append("0123456789");
   }
 
-  BOOST_CHECK_THROW(face.expressInterest(veryLongName, nullptr, nullptr, nullptr), Face::Error);
+  BOOST_CHECK_THROW(face.expressInterest(Interest(veryLongName), nullptr, nullptr, nullptr),
+                    Face::Error);
 
   shared_ptr<Data> data = make_shared<Data>(veryLongName);
   data->setContent(reinterpret_cast<const uint8_t*>("01234567890"), 10);
@@ -547,12 +548,12 @@ BOOST_FIXTURE_TEST_CASE(SetRegexFilterAndRegister, FacesFixture3)
 BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress) // Bug #3136
 {
   Face face;
-  face.expressInterest(Name("/Hello/World/!"), nullptr, nullptr, nullptr);
+  face.expressInterest(Interest("/Hello/World/!"), nullptr, nullptr, nullptr);
   BOOST_REQUIRE_NO_THROW(face.processEvents(time::seconds(1)));
 
-  face.expressInterest(Name("/Bye/World/1"), nullptr, nullptr, nullptr);
-  face.expressInterest(Name("/Bye/World/2"), nullptr, nullptr, nullptr);
-  face.expressInterest(Name("/Bye/World/3"), nullptr, nullptr, nullptr);
+  face.expressInterest(Interest("/Bye/World/1"), nullptr, nullptr, nullptr);
+  face.expressInterest(Interest("/Bye/World/2"), nullptr, nullptr, nullptr);
+  face.expressInterest(Interest("/Bye/World/3"), nullptr, nullptr, nullptr);
   face.shutdown();
 
   BOOST_REQUIRE_NO_THROW(face.processEvents(time::seconds(1)));

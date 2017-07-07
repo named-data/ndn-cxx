@@ -53,11 +53,11 @@ public:
   };
 
   /** @brief Create a new Interest with the given name and interest lifetime
-   *  @note This constructor allows implicit conversion from Name.
    *  @throw std::invalid_argument InterestLifetime is negative
    *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
    *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
    */
+  explicit
   Interest(const Name& name = Name(), time::milliseconds interestLifetime = DEFAULT_INTEREST_LIFETIME);
 
   /** @brief Create from wire encoding
