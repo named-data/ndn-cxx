@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -278,17 +278,18 @@ BOOST_AUTO_TEST_SUITE(NonNegativeInteger)
 
 static const uint8_t BUFFER[] = {
   0x01, // 1
-  0x01, 0x01, // 257
-  0x01, 0x01, 0x01, 0x01, // 16843009LL
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 // 72340172838076673LL
+  0xff, // 255
+  0x01, 0x02, // 258
+  0x01, 0x01, 0x01, 0x02, // 16843010LL
+  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02 // 72340172838076674LL
 };
 
 BOOST_AUTO_TEST_CASE(SizeOf)
 {
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(1), 1);
-  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(252), 1);
-  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(253), 2);
-  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(257), 2);
+  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(253), 1);
+  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(255), 1);
+  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(256), 2);
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(65536), 4);
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(16843009LL), 4);
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(4294967296LL), 8);
@@ -300,103 +301,99 @@ BOOST_AUTO_TEST_CASE(Write)
   std::ostringstream os;
 
   writeNonNegativeInteger(os, 1);
-  writeNonNegativeInteger(os, 257);
-  writeNonNegativeInteger(os, 16843009LL);
-  writeNonNegativeInteger(os, 72340172838076673LL);
+  writeNonNegativeInteger(os, 255);
+  writeNonNegativeInteger(os, 258);
+  writeNonNegativeInteger(os, 16843010LL);
+  writeNonNegativeInteger(os, 72340172838076674LL);
 
   std::string buffer = os.str();
   const uint8_t* actual = reinterpret_cast<const uint8_t*>(buffer.c_str());
 
-  BOOST_CHECK_EQUAL(buffer.size(), sizeof(BUFFER));
   BOOST_CHECK_EQUAL_COLLECTIONS(BUFFER, BUFFER + sizeof(BUFFER),
                                 actual, actual + sizeof(BUFFER));
 }
 
 BOOST_AUTO_TEST_CASE(ReadFromBuffer)
 {
-  const uint8_t* begin;
-  uint64_t value;
+  const uint8_t* begin = nullptr;
 
   begin = BUFFER;
-  BOOST_CHECK_THROW(value = readNonNegativeInteger(1, begin, begin + 0), Error);
-  BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(1, begin, begin + 1));
-  BOOST_CHECK_EQUAL(value, 1);
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(1, begin, begin + 1), 1);
+  BOOST_CHECK_EQUAL(begin, BUFFER + 1);
 
   begin = BUFFER + 1;
-  BOOST_CHECK_THROW(value = readNonNegativeInteger(2, begin, begin + 1), Error);
-  BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(2, begin, begin + 2));
-  BOOST_CHECK_EQUAL(value, 257);
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(1, begin, begin + 1), 255);
+  BOOST_CHECK_EQUAL(begin, BUFFER + 2);
 
-  begin = BUFFER + 3;
-  BOOST_CHECK_THROW(value = readNonNegativeInteger(4, begin, begin + 3), Error);
-  BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(4, begin, begin + 4));
-  BOOST_CHECK_EQUAL(value, 16843009LL);
+  begin = BUFFER + 2;
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(2, begin, begin + 2), 258);
+  BOOST_CHECK_EQUAL(begin, BUFFER + 4);
 
-  begin = BUFFER + 7;
-  BOOST_CHECK_THROW(value = readNonNegativeInteger(8, begin, begin + 7), Error);
-  BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(8, begin, begin + 8));
-  BOOST_CHECK_EQUAL(value, 72340172838076673LL);
+  begin = BUFFER + 4;
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(4, begin, begin + 4), 16843010LL);
+  BOOST_CHECK_EQUAL(begin, BUFFER + 8);
 
+  begin = BUFFER + 8;
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(8, begin, begin + 8), 72340172838076674LL);
+  BOOST_CHECK_EQUAL(begin, BUFFER + 16);
+
+  // invalid size
   begin = BUFFER;
-  BOOST_CHECK_THROW(value = readNonNegativeInteger(3, begin, begin + 3), Error);
+  BOOST_CHECK_THROW(readNonNegativeInteger(3, begin, begin + 3), Error);
+
+  // available buffer smaller than size
+  begin = BUFFER;
+  BOOST_CHECK_THROW(readNonNegativeInteger(1, begin, begin + 0), Error);
+  begin = BUFFER;
+  BOOST_CHECK_THROW(readNonNegativeInteger(2, begin, begin + 1), Error);
+  begin = BUFFER;
+  BOOST_CHECK_THROW(readNonNegativeInteger(4, begin, begin + 3), Error);
+  begin = BUFFER;
+  BOOST_CHECK_THROW(readNonNegativeInteger(8, begin, begin + 7), Error);
 }
 
 BOOST_AUTO_TEST_CASE(ReadFromStream)
 {
   Iterator end; // end of stream
-  uint64_t value;
+
+  {
+    ArrayStream stream(reinterpret_cast<const char*>(BUFFER), sizeof(BUFFER));
+    Iterator begin(stream);
+    BOOST_CHECK_EQUAL(readNonNegativeInteger(1, begin, end), 1);
+    BOOST_CHECK_EQUAL(readNonNegativeInteger(1, begin, end), 255);
+    BOOST_CHECK_EQUAL(readNonNegativeInteger(2, begin, end), 258);
+    BOOST_CHECK_EQUAL(readNonNegativeInteger(4, begin, end), 16843010LL);
+    BOOST_CHECK_EQUAL(readNonNegativeInteger(8, begin, end), 72340172838076674LL);
+    BOOST_CHECK(begin == end);
+  }
+
+  // invalid size
+  {
+    ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 3);
+    Iterator begin(stream);
+    BOOST_CHECK_THROW(readNonNegativeInteger(3, begin, end), Error);
+  }
+
+  // available buffer smaller than size
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 0);
     Iterator begin(stream);
-    BOOST_CHECK_THROW(value = readNonNegativeInteger(1, begin, end), Error);
+    BOOST_CHECK_THROW(readNonNegativeInteger(1, begin, end), Error);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 1);
     Iterator begin(stream);
-    BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(1, begin, end));
-    BOOST_CHECK_EQUAL(value, 1);
+    BOOST_CHECK_THROW(readNonNegativeInteger(2, begin, end), Error);
   }
-
-  {
-    ArrayStream stream(reinterpret_cast<const char*>(BUFFER + 1), 1);
-    Iterator begin(stream);
-    BOOST_CHECK_THROW(value = readNonNegativeInteger(2, begin, end), Error);
-  }
-  {
-    ArrayStream stream(reinterpret_cast<const char*>(BUFFER + 1), 2);
-    Iterator begin(stream);
-    BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(2, begin, end));
-    BOOST_CHECK_EQUAL(value, 257);
-  }
-
-  {
-    ArrayStream stream(reinterpret_cast<const char*>(BUFFER + 3), 3);
-    Iterator begin(stream);
-    BOOST_CHECK_THROW(value = readNonNegativeInteger(4, begin, end), Error);
-  }
-  {
-    ArrayStream stream(reinterpret_cast<const char*>(BUFFER + 3), 4);
-    Iterator begin(stream);
-    BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(4, begin, end));
-    BOOST_CHECK_EQUAL(value, 16843009LL);
-  }
-
-  {
-    ArrayStream stream(reinterpret_cast<const char*>(BUFFER + 7), 7);
-    Iterator begin(stream);
-    BOOST_CHECK_THROW(value = readNonNegativeInteger(8, begin, end), Error);
-  }
-  {
-    ArrayStream stream(reinterpret_cast<const char*>(BUFFER + 7), 8);
-    Iterator begin(stream);
-    BOOST_CHECK_NO_THROW(value = readNonNegativeInteger(8, begin, end));
-    BOOST_CHECK_EQUAL(value, 72340172838076673LL);
-  }
-
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 3);
     Iterator begin(stream);
-    BOOST_CHECK_THROW(value = readNonNegativeInteger(3, begin, end), Error);
+    BOOST_CHECK_THROW(readNonNegativeInteger(4, begin, end), Error);
+  }
+  {
+    ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 7);
+    Iterator begin(stream);
+    BOOST_CHECK_THROW(readNonNegativeInteger(8, begin, end), Error);
   }
 }
 
@@ -419,8 +416,7 @@ BOOST_AUTO_TEST_CASE(PrintSignatureTypeValue)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "Unknown Signature Type");
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestTlv
-
+BOOST_AUTO_TEST_SUITE_END() // PrintHelpers
 
 BOOST_AUTO_TEST_SUITE_END() // TestTlv
 BOOST_AUTO_TEST_SUITE_END() // Encoding
