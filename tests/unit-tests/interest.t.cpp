@@ -355,6 +355,18 @@ BOOST_AUTO_TEST_CASE(SetInterestLifetime)
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(1));
 }
 
+BOOST_AUTO_TEST_CASE(ModifyForwardingHint)
+{
+  Interest i;
+  i.setForwardingHint({{1, "/A"}});
+  i.wireEncode();
+  BOOST_CHECK(i.hasWire());
+
+  i.modifyForwardingHint([] (DelegationList& fh) { fh.insert(2, "/B"); });
+  BOOST_CHECK(!i.hasWire());
+  BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{1, "/A"}, {2, "/B"}}));
+}
+
 // ---- operators ----
 
 BOOST_AUTO_TEST_CASE(Equality)

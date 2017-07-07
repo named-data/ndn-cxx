@@ -205,6 +205,25 @@ public: // Name, Nonce, and Guiders
   Interest&
   setForwardingHint(const DelegationList& value);
 
+  /** @brief modify ForwardingHint in-place
+   *  @tparam Modifier a unary function that accepts DelegationList&
+   *
+   *  This is equivalent to, but more efficient (avoids copying) than:
+   *  @code
+   *  auto fh = interest.getForwardingHint();
+   *  modifier(fh);
+   *  interest.setForwardingHint(fh);
+   *  @endcode
+   */
+  template<typename Modifier>
+  Interest&
+  modifyForwardingHint(const Modifier& modifier)
+  {
+    modifier(m_forwardingHint);
+    m_wire.reset();
+    return *this;
+  }
+
 public: // Selectors
   /**
    * @return true if Interest has any selector present
