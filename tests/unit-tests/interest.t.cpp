@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeBasic)
 BOOST_AUTO_TEST_CASE(EncodeDecodeFull)
 {
   const uint8_t WIRE[] = {
-    0x05, 0x25, // Interest
+    0x05, 0x31, // Interest
           0x07, 0x14, // Name
                 0x08, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, // NameComponent
                 0x08, 0x03, 0x6e, 0x64, 0x6e, // NameComponent
@@ -83,15 +83,19 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeFull)
           0x0a, 0x04, // Nonce
                 0x01, 0x00, 0x00, 0x00,
           0x0c, 0x02, // InterestLifetime
-                0x03, 0xe8
+                0x03, 0xe8,
+          0x1e, 0x0a, // ForwardingHint
+                0x1f, 0x08, // Delegation
+                      0x1e, 0x01, 0x01, // Preference=1
+                      0x07, 0x03, 0x08, 0x01, 0x41 // Name=/A
   };
-  ///\todo #4055 ForwardingHint
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
   i1.setMinSuffixComponents(1);
   i1.setNonce(1);
   i1.setInterestLifetime(time::milliseconds(1000));
+  i1.setForwardingHint({{1, "/A"}});
   Block wire1 = i1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
 
@@ -100,6 +104,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeFull)
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), 1);
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), time::milliseconds(1000));
+  BOOST_CHECK_EQUAL(i2.getForwardingHint(), DelegationList({{1, "/A"}}));
 
   BOOST_CHECK_EQUAL(i1, i2);
 }

@@ -22,6 +22,7 @@
 #ifndef NDN_INTEREST_HPP
 #define NDN_INTEREST_HPP
 
+#include "delegation-list.hpp"
 #include "link.hpp"
 #include "name.hpp"
 #include "selectors.hpp"
@@ -194,6 +195,15 @@ public: // Name, Nonce, and Guiders
    */
   Interest&
   setInterestLifetime(time::milliseconds interestLifetime);
+
+  const DelegationList&
+  getForwardingHint() const
+  {
+    return m_forwardingHint;
+  }
+
+  Interest&
+  setForwardingHint(const DelegationList& value);
 
 public: // Selectors
   /**
@@ -379,6 +389,7 @@ private:
   Selectors m_selectors;
   mutable Block m_nonce;
   time::milliseconds m_interestLifetime;
+  DelegationList m_forwardingHint;
 
   mutable Block m_link;
   mutable shared_ptr<Link> m_linkCached;

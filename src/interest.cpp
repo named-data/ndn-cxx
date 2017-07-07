@@ -63,6 +63,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   //                Selectors?
   //                Nonce
   //                InterestLifetime?
+  //                ForwardingHint?
   //                Link?
   //                SelectedDelegation?
 
@@ -79,6 +80,11 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   }
   else {
     BOOST_ASSERT(!hasSelectedDelegation());
+  }
+
+  // ForwardingHint
+  if (m_forwardingHint.size() > 0) {
+    totalLength += m_forwardingHint.wireEncode(encoder);
   }
 
   // InterestLifetime
@@ -159,6 +165,15 @@ Interest::wireDecode(const Block& wire)
   }
   else {
     m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
+  }
+
+  // ForwardingHint
+  val = m_wire.find(tlv::ForwardingHint);
+  if (val != m_wire.elements_end()) {
+    m_forwardingHint.wireDecode(*val, false);
+  }
+  else {
+    m_forwardingHint = DelegationList();
   }
 
   // Link
@@ -363,6 +378,14 @@ Interest::setInterestLifetime(time::milliseconds interestLifetime)
     BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
   }
   m_interestLifetime = interestLifetime;
+  m_wire.reset();
+  return *this;
+}
+
+Interest&
+Interest::setForwardingHint(const DelegationList& value)
+{
+  m_forwardingHint = value;
   m_wire.reset();
   return *this;
 }
