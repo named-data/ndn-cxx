@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -104,7 +104,8 @@ public:
   class Error : public std::runtime_error
   {
   public:
-    Error() : std::runtime_error("Cannot reduce the capacity of the in-memory storage!")
+    Error()
+      : std::runtime_error("Cannot reduce the capacity of the in-memory storage!")
     {
     }
   };
@@ -130,7 +131,7 @@ public:
 
   /** @brief Inserts a Data packet
    *
-   *  @param data the packet to insert
+   *  @param data the packet to insert, must be signed and have wire encoding
    *  @param mustBeFreshProcessingWindow Beyond this time period after the data is inserted, the
    *         data can only be used to answer interest without MustBeFresh selector.
    *
