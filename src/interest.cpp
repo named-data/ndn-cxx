@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -35,24 +35,14 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
 static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
-Interest::Interest()
-  : m_interestLifetime(DEFAULT_INTEREST_LIFETIME)
-  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
-{
-}
-
-Interest::Interest(const Name& name)
-  : m_name(name)
-  , m_interestLifetime(DEFAULT_INTEREST_LIFETIME)
-  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
-{
-}
-
-Interest::Interest(const Name& name, const time::milliseconds& interestLifetime)
+Interest::Interest(const Name& name, time::milliseconds interestLifetime)
   : m_name(name)
   , m_interestLifetime(interestLifetime)
   , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
+  if (interestLifetime < time::milliseconds::zero()) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
+  }
 }
 
 Interest::Interest(const Block& wire)
@@ -60,48 +50,147 @@ Interest::Interest(const Block& wire)
   wireDecode(wire);
 }
 
-uint32_t
-Interest::getNonce() const
-{
-  if (!m_nonce.hasWire())
-    const_cast<Interest*>(this)->setNonce(random::generateWord32());
+// ---- encode and decode ----
 
-  if (m_nonce.value_size() == sizeof(uint32_t))
-    return *reinterpret_cast<const uint32_t*>(m_nonce.value());
-  else {
-    // for compatibility reasons.  Should be removed eventually
-    return readNonNegativeInteger(m_nonce);
+template<encoding::Tag TAG>
+size_t
+Interest::wireEncode(EncodingImpl<TAG>& encoder) const
+{
+  size_t totalLength = 0;
+
+  // Interest ::= INTEREST-TYPE TLV-LENGTH
+  //                Name
+  //                Selectors?
+  //                Nonce
+  //                InterestLifetime?
+  //                Link?
+  //                SelectedDelegation?
+
+  // (reverse encoding)
+
+  // Link and SelectedDelegation
+  if (hasLink()) {
+    if (hasSelectedDelegation()) {
+      totalLength += prependNonNegativeIntegerBlock(encoder,
+                                                    tlv::SelectedDelegation,
+                                                    m_selectedDelegationIndex);
+    }
+    totalLength += encoder.prependBlock(m_link);
   }
+  else {
+    BOOST_ASSERT(!hasSelectedDelegation());
+  }
+
+  // InterestLifetime
+  if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
+    totalLength += prependNonNegativeIntegerBlock(encoder,
+                                                  tlv::InterestLifetime,
+                                                  getInterestLifetime().count());
+  }
+
+  // Nonce
+  getNonce(); // to ensure that Nonce is properly set
+  totalLength += encoder.prependBlock(m_nonce);
+
+  // Selectors
+  if (hasSelectors()) {
+    totalLength += getSelectors().wireEncode(encoder);
+  }
+
+  // Name
+  totalLength += getName().wireEncode(encoder);
+
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::Interest);
+  return totalLength;
 }
 
-Interest&
-Interest::setNonce(uint32_t nonce)
+template size_t
+Interest::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
+
+template size_t
+Interest::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+
+const Block&
+Interest::wireEncode() const
 {
-  if (m_wire.hasWire() && m_nonce.value_size() == sizeof(uint32_t)) {
-    std::memcpy(const_cast<uint8_t*>(m_nonce.value()), &nonce, sizeof(nonce));
-  }
-  else {
-    m_nonce = makeBinaryBlock(tlv::Nonce,
-                              reinterpret_cast<const uint8_t*>(&nonce),
-                              sizeof(nonce));
-    m_wire.reset();
-  }
-  return *this;
+  if (m_wire.hasWire())
+    return m_wire;
+
+  EncodingEstimator estimator;
+  size_t estimatedSize = wireEncode(estimator);
+
+  EncodingBuffer buffer(estimatedSize, 0);
+  wireEncode(buffer);
+
+  // to ensure that Nonce block points to the right memory location
+  const_cast<Interest*>(this)->wireDecode(buffer.block());
+
+  return m_wire;
 }
 
 void
-Interest::refreshNonce()
+Interest::wireDecode(const Block& wire)
 {
-  if (!hasNonce())
-    return;
+  m_wire = wire;
+  m_wire.parse();
 
-  uint32_t oldNonce = getNonce();
-  uint32_t newNonce = oldNonce;
-  while (newNonce == oldNonce)
-    newNonce = random::generateWord32();
+  if (m_wire.type() != tlv::Interest)
+    BOOST_THROW_EXCEPTION(Error("Unexpected TLV number when decoding Interest"));
 
-  setNonce(newNonce);
+  // Name
+  m_name.wireDecode(m_wire.get(tlv::Name));
+
+  // Selectors
+  Block::element_const_iterator val = m_wire.find(tlv::Selectors);
+  if (val != m_wire.elements_end()) {
+    m_selectors.wireDecode(*val);
+  }
+  else
+    m_selectors = Selectors();
+
+  // Nonce
+  m_nonce = m_wire.get(tlv::Nonce);
+
+  // InterestLifetime
+  val = m_wire.find(tlv::InterestLifetime);
+  if (val != m_wire.elements_end()) {
+    m_interestLifetime = time::milliseconds(readNonNegativeInteger(*val));
+  }
+  else {
+    m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
+  }
+
+  // Link
+  m_linkCached.reset();
+  val = m_wire.find(tlv::Data);
+  if (val != m_wire.elements_end()) {
+    m_link = (*val);
+  }
+  else {
+    m_link = Block();
+  }
+
+  // SelectedDelegation
+  val = m_wire.find(tlv::SelectedDelegation);
+  if (val != m_wire.elements_end()) {
+    if (!this->hasLink()) {
+      BOOST_THROW_EXCEPTION(Error("Interest contains SelectedDelegation, but no LINK object"));
+    }
+    uint64_t selectedDelegation = readNonNegativeInteger(*val);
+    if (selectedDelegation < uint64_t(Link::countDelegationsFromWire(m_link))) {
+      m_selectedDelegationIndex = static_cast<size_t>(selectedDelegation);
+    }
+    else {
+      BOOST_THROW_EXCEPTION(Error("Invalid selected delegation index when decoding Interest"));
+    }
+  }
+  else {
+    m_selectedDelegationIndex = INVALID_SELECTED_DELEGATION_INDEX;
+  }
 }
+
+// ---- matching ----
 
 bool
 Interest::matchesName(const Name& name) const
@@ -222,6 +311,51 @@ Interest::matchesInterest(const Interest& other) const
           this->getSelectors() == other.getSelectors());
 }
 
+// ---- field accessors ----
+
+uint32_t
+Interest::getNonce() const
+{
+  if (!m_nonce.hasWire())
+    const_cast<Interest*>(this)->setNonce(random::generateWord32());
+
+  if (m_nonce.value_size() == sizeof(uint32_t))
+    return *reinterpret_cast<const uint32_t*>(m_nonce.value());
+  else {
+    // for compatibility reasons.  Should be removed eventually
+    return readNonNegativeInteger(m_nonce);
+  }
+}
+
+Interest&
+Interest::setNonce(uint32_t nonce)
+{
+  if (m_wire.hasWire() && m_nonce.value_size() == sizeof(uint32_t)) {
+    std::memcpy(const_cast<uint8_t*>(m_nonce.value()), &nonce, sizeof(nonce));
+  }
+  else {
+    m_nonce = makeBinaryBlock(tlv::Nonce,
+                              reinterpret_cast<const uint8_t*>(&nonce),
+                              sizeof(nonce));
+    m_wire.reset();
+  }
+  return *this;
+}
+
+void
+Interest::refreshNonce()
+{
+  if (!hasNonce())
+    return;
+
+  uint32_t oldNonce = getNonce();
+  uint32_t newNonce = oldNonce;
+  while (newNonce == oldNonce)
+    newNonce = random::generateWord32();
+
+  setNonce(newNonce);
+}
+
 Interest&
 Interest::setInterestLifetime(time::milliseconds interestLifetime)
 {
@@ -231,151 +365,6 @@ Interest::setInterestLifetime(time::milliseconds interestLifetime)
   m_interestLifetime = interestLifetime;
   m_wire.reset();
   return *this;
-}
-
-template<encoding::Tag TAG>
-size_t
-Interest::wireEncode(EncodingImpl<TAG>& encoder) const
-{
-  size_t totalLength = 0;
-
-  // Interest ::= INTEREST-TYPE TLV-LENGTH
-  //                Name
-  //                Selectors?
-  //                Nonce
-  //                InterestLifetime?
-  //                Link?
-  //                SelectedDelegation?
-
-  // (reverse encoding)
-
-  if (hasLink()) {
-    if (hasSelectedDelegation()) {
-      totalLength += prependNonNegativeIntegerBlock(encoder,
-                                                    tlv::SelectedDelegation,
-                                                    m_selectedDelegationIndex);
-    }
-    totalLength += encoder.prependBlock(m_link);
-  }
-  else {
-    BOOST_ASSERT(!hasSelectedDelegation());
-  }
-
-  // InterestLifetime
-  if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                                                  tlv::InterestLifetime,
-                                                  getInterestLifetime().count());
-  }
-
-  // Nonce
-  getNonce(); // to ensure that Nonce is properly set
-  totalLength += encoder.prependBlock(m_nonce);
-
-  // Selectors
-  if (hasSelectors()) {
-    totalLength += getSelectors().wireEncode(encoder);
-  }
-
-  // Name
-  totalLength += getName().wireEncode(encoder);
-
-  totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(tlv::Interest);
-  return totalLength;
-}
-
-template size_t
-Interest::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-Interest::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
-
-const Block&
-Interest::wireEncode() const
-{
-  if (m_wire.hasWire())
-    return m_wire;
-
-  EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
-
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
-
-  // to ensure that Nonce block points to the right memory location
-  const_cast<Interest*>(this)->wireDecode(buffer.block());
-
-  return m_wire;
-}
-
-void
-Interest::wireDecode(const Block& wire)
-{
-  m_wire = wire;
-  m_wire.parse();
-
-  // Interest ::= INTEREST-TYPE TLV-LENGTH
-  //                Name
-  //                Selectors?
-  //                Nonce
-  //                InterestLifetime?
-  //                Link?
-  //                SelectedDelegation?
-
-  if (m_wire.type() != tlv::Interest)
-    BOOST_THROW_EXCEPTION(Error("Unexpected TLV number when decoding Interest"));
-
-  // Name
-  m_name.wireDecode(m_wire.get(tlv::Name));
-
-  // Selectors
-  Block::element_const_iterator val = m_wire.find(tlv::Selectors);
-  if (val != m_wire.elements_end()) {
-    m_selectors.wireDecode(*val);
-  }
-  else
-    m_selectors = Selectors();
-
-  // Nonce
-  m_nonce = m_wire.get(tlv::Nonce);
-
-  // InterestLifetime
-  val = m_wire.find(tlv::InterestLifetime);
-  if (val != m_wire.elements_end()) {
-    m_interestLifetime = time::milliseconds(readNonNegativeInteger(*val));
-  }
-  else {
-    m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
-  }
-
-  // Link object
-  m_linkCached.reset();
-  val = m_wire.find(tlv::Data);
-  if (val != m_wire.elements_end()) {
-    m_link = (*val);
-  }
-  else {
-    m_link = Block();
-  }
-
-  // SelectedDelegation
-  val = m_wire.find(tlv::SelectedDelegation);
-  if (val != m_wire.elements_end()) {
-    if (!this->hasLink()) {
-      BOOST_THROW_EXCEPTION(Error("Interest contains SelectedDelegation, but no LINK object"));
-    }
-    uint64_t selectedDelegation = readNonNegativeInteger(*val);
-    if (selectedDelegation < uint64_t(Link::countDelegationsFromWire(m_link))) {
-      m_selectedDelegationIndex = static_cast<size_t>(selectedDelegation);
-    }
-    else {
-      BOOST_THROW_EXCEPTION(Error("Invalid selected delegation index when decoding Interest"));
-    }
-  }
-  else {
-    m_selectedDelegationIndex = INVALID_SELECTED_DELEGATION_INDEX;
-  }
 }
 
 bool
@@ -461,6 +450,8 @@ Interest::unsetSelectedDelegation()
   m_selectedDelegationIndex = INVALID_SELECTED_DELEGATION_INDEX;
   m_wire.reset();
 }
+
+// ---- operators ----
 
 std::ostream&
 operator<<(std::ostream& os, const Interest& interest)

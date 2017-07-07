@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,11 +22,11 @@
 #ifndef NDN_INTEREST_HPP
 #define NDN_INTEREST_HPP
 
+#include "link.hpp"
 #include "name.hpp"
 #include "selectors.hpp"
-#include "util/time.hpp"
 #include "tag-host.hpp"
-#include "link.hpp"
+#include "util/time.hpp"
 
 namespace ndn {
 
@@ -52,31 +52,17 @@ public:
     }
   };
 
-  /** @brief Create a new Interest with an empty name (`ndn:/`)
-   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
-   */
-  Interest();
-
-  /** @brief Create a new Interest with the given name
-   *  @param name The name for the interest.
-   *  @note This constructor allows implicit conversion from Name.
-   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
-   */
-  Interest(const Name& name);
-
   /** @brief Create a new Interest with the given name and interest lifetime
-   *  @param name             The name for the interest.
-   *  @param interestLifetime The interest lifetime in time::milliseconds, or -1 for none.
+   *  @note This constructor allows implicit conversion from Name.
+   *  @throw std::invalid_argument InterestLifetime is negative
    *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
+   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
    */
-  Interest(const Name& name, const time::milliseconds& interestLifetime);
+  Interest(const Name& name = Name(), time::milliseconds interestLifetime = DEFAULT_INTEREST_LIFETIME);
 
   /** @brief Create from wire encoding
    *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
+   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
    */
   explicit
   Interest(const Block& wire);
@@ -118,77 +104,6 @@ public:
   std::string
   toUri() const;
 
-public: // Link and forwarding hint
-  /**
-   * @brief Check whether the Interest contains a Link object
-   * @return True if there is a link object, otherwise false
-   */
-  bool
-  hasLink() const;
-
-  /**
-   * @brief Get the link object for this interest
-   * @return The link object if there is one contained in this interest
-   * @throws Interest::Error if there is no link object contained in the interest
-   * @throws tlv::Error if the incorporated link object is malformed
-   */
-  const Link&
-  getLink() const;
-
-  /**
-   * @brief Set the link object for this interest
-   * @param link The link object that will be included in this interest (in wire format)
-   * @post !hasSelectedDelegation()
-   */
-  void
-  setLink(const Block& link);
-
-  /**
-   * @brief Delete the link object for this interest
-   * @post !hasLink()
-   */
-  void
-  unsetLink();
-
-  /**
-   * @brief Check whether the Interest includes a selected delegation
-   * @return True if there is a selected delegation, otherwise false
-   */
-  bool
-  hasSelectedDelegation() const;
-
-  /**
-   * @brief Get the name of the selected delegation
-   * @return The name of the selected delegation
-   * @throw Error SelectedDelegation is not set.
-   */
-  Name
-  getSelectedDelegation() const;
-
-  /**
-   * @brief Set the selected delegation
-   * @param delegationName The name of the selected delegation
-   * @throw Error Link is not set.
-   * @throw std::invalid_argument @p delegationName does not exist in Link.
-   */
-  void
-  setSelectedDelegation(const Name& delegationName);
-
-  /**
-   * @brief Set the selected delegation
-   * @param delegationIndex The index of the selected delegation
-   * @throw Error Link is not set.
-   * @throw std::out_of_range @p delegationIndex is out of bound in Link.
-   */
-  void
-  setSelectedDelegation(size_t delegationIndex);
-
-   /**
-   * @brief Unset the selected delegation
-   */
-  void
-  unsetSelectedDelegation();
-
 public: // matching
   /** @brief Check if Interest, including selectors, matches the given @p name
    *  @param name The name to be matched. If this is a Data name, it shall contain the
@@ -219,7 +134,7 @@ public: // matching
   bool
   matchesInterest(const Interest& other) const;
 
-public: // Name and guiders
+public: // Name, Nonce, and Guiders
   const Name&
   getName() const
   {
@@ -233,19 +148,6 @@ public: // Name and guiders
     m_wire.reset();
     return *this;
   }
-
-  const time::milliseconds&
-  getInterestLifetime() const
-  {
-    return m_interestLifetime;
-  }
-
-  /**
-   * @brief Set Interest's lifetime
-   * @throw std::invalid_argument specified lifetime is < 0
-   */
-  Interest&
-  setInterestLifetime(time::milliseconds interestLifetime);
 
   /** @brief Check if Nonce set
    */
@@ -279,6 +181,19 @@ public: // Name and guiders
    */
   void
   refreshNonce();
+
+  time::milliseconds
+  getInterestLifetime() const
+  {
+    return m_interestLifetime;
+  }
+
+  /**
+   * @brief Set Interest's lifetime
+   * @throw std::invalid_argument specified lifetime is < 0
+   */
+  Interest&
+  setInterestLifetime(time::milliseconds interestLifetime);
 
 public: // Selectors
   /**
@@ -388,18 +303,76 @@ public: // Selectors
     return *this;
   }
 
-public: // EqualityComparable concept
+public: // Link and SelectedDelegation
+  /**
+   * @brief Check whether the Interest contains a Link object
+   * @return True if there is a link object, otherwise false
+   */
   bool
-  operator==(const Interest& other) const
-  {
-    return wireEncode() == other.wireEncode();
-  }
+  hasLink() const;
 
+  /**
+   * @brief Get the link object for this interest
+   * @return The link object if there is one contained in this interest
+   * @throws Interest::Error if there is no link object contained in the interest
+   * @throws tlv::Error if the incorporated link object is malformed
+   */
+  const Link&
+  getLink() const;
+
+  /**
+   * @brief Set the link object for this interest
+   * @param link The link object that will be included in this interest (in wire format)
+   * @post !hasSelectedDelegation()
+   */
+  void
+  setLink(const Block& link);
+
+  /**
+   * @brief Delete the link object for this interest
+   * @post !hasLink()
+   */
+  void
+  unsetLink();
+
+  /**
+   * @brief Check whether the Interest includes a selected delegation
+   * @return True if there is a selected delegation, otherwise false
+   */
   bool
-  operator!=(const Interest& other) const
-  {
-    return !(*this == other);
-  }
+  hasSelectedDelegation() const;
+
+  /**
+   * @brief Get the name of the selected delegation
+   * @return The name of the selected delegation
+   * @throw Error SelectedDelegation is not set.
+   */
+  Name
+  getSelectedDelegation() const;
+
+  /**
+   * @brief Set the selected delegation
+   * @param delegationName The name of the selected delegation
+   * @throw Error Link is not set.
+   * @throw std::invalid_argument @p delegationName does not exist in Link.
+   */
+  void
+  setSelectedDelegation(const Name& delegationName);
+
+  /**
+   * @brief Set the selected delegation
+   * @param delegationIndex The index of the selected delegation
+   * @throw Error Link is not set.
+   * @throw std::out_of_range @p delegationIndex is out of bound in Link.
+   */
+  void
+  setSelectedDelegation(size_t delegationIndex);
+
+  /**
+   * @brief Unset the selected delegation
+   */
+  void
+  unsetSelectedDelegation();
 
 private:
   Name m_name;
@@ -422,6 +395,18 @@ Interest::toUri() const
   std::ostringstream os;
   os << *this;
   return os.str();
+}
+
+inline bool
+operator==(const Interest& lhs, const Interest& rhs)
+{
+  return lhs.wireEncode() == rhs.wireEncode();
+}
+
+inline bool
+operator!=(const Interest& lhs, const Interest& rhs)
+{
+  return !(lhs == rhs);
 }
 
 } // namespace ndn
