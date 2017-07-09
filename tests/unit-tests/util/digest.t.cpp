@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "util/digest.hpp"
-#include "util/crypto.hpp"
 #include "util/string-helper.hpp"
 
 #include "boost-test.hpp"
@@ -30,65 +29,47 @@ namespace util {
 namespace test {
 
 BOOST_AUTO_TEST_SUITE(Util)
-BOOST_AUTO_TEST_SUITE(TestDigest)
+BOOST_AUTO_TEST_SUITE(TestSha256)
 
-BOOST_AUTO_TEST_CASE(Sha256Digest)
+BOOST_AUTO_TEST_CASE(Basic)
 {
-  uint8_t origin[4] = {0x01, 0x02, 0x03, 0x04};
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 4);
+  const uint8_t origin[] = {0x01, 0x02, 0x03, 0x04};
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, sizeof(origin));
 
   Sha256 statefulSha256;
+  BOOST_CHECK_EQUAL(statefulSha256.empty(), true);
+
   statefulSha256.update(origin, 1);
   statefulSha256.update(origin + 1, 1);
   statefulSha256.update(origin + 2, 1);
   statefulSha256.update(origin + 3, 1);
   ConstBufferPtr digest2 = statefulSha256.computeDigest();
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
-}
-
-BOOST_AUTO_TEST_CASE(Compute)
-{
-  std::string input = "Hello, World!";
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<const uint8_t*>(input.data()),
-                                                       input.size());
-
-  Sha256 hashObject;
-  hashObject << input;
-  BOOST_CHECK_EQUAL(hashObject.toString(), "DFFD6021BB2BD5B0AF676290809EC3A53191DD81C7F70A4B28688A362182986F");
-  ConstBufferPtr digest2 = hashObject.computeDigest();
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
-
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(), digest1->buf() + digest1->size(),
+                                digest2->buf(), digest2->buf() + digest2->size());
 }
 
 BOOST_AUTO_TEST_CASE(ConstructFromStream)
 {
-  std::string input = "Hello, World!";
+  const std::string input = "Hello, World!";
   ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<const uint8_t*>(input.data()),
                                                        input.size());
 
   std::istringstream is(input);
-  Sha256 hashObject(is);
-  BOOST_CHECK_EQUAL(hashObject.toString(), "DFFD6021BB2BD5B0AF676290809EC3A53191DD81C7F70A4B28688A362182986F");
-  ConstBufferPtr digest2 = hashObject.computeDigest();
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
+  Sha256 sha(is);
+  BOOST_CHECK_EQUAL(sha.empty(), false);
+  BOOST_CHECK_EQUAL(sha.toString(), "DFFD6021BB2BD5B0AF676290809EC3A53191DD81C7F70A4B28688A362182986F");
+
+  ConstBufferPtr digest2 = sha.computeDigest();
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(), digest1->buf() + digest1->size(),
+                                digest2->buf(), digest2->buf() + digest2->size());
 }
 
 BOOST_AUTO_TEST_CASE(Compare)
 {
-  uint8_t origin[4] = {0x01, 0x02, 0x03, 0x04};
+  const uint8_t origin[] = {0x01, 0x02, 0x03, 0x04};
 
   Sha256 digest;
-  digest.update(origin, 4);
+  digest.update(origin, sizeof(origin));
   digest.computeDigest();
 
   Sha256 digest2;
@@ -98,51 +79,46 @@ BOOST_AUTO_TEST_CASE(Compare)
   digest2.update(origin + 3, 1);
   digest2.computeDigest();
 
-  BOOST_CHECK(digest == digest2);
+  BOOST_CHECK_EQUAL(digest == digest2, true);
   BOOST_CHECK_EQUAL(digest != digest2, false);
 }
 
-BOOST_AUTO_TEST_CASE(OperatorDigest)
+BOOST_AUTO_TEST_CASE(InsertionOperatorSha256)
 {
-  uint8_t origin[32] = {0x94, 0xEE, 0x05, 0x93, 0x35, 0xE5, 0x87, 0xE5,
-                        0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
-                        0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
-                        0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 32);
+  const uint8_t origin[] = {0x94, 0xEE, 0x05, 0x93, 0x35, 0xE5, 0x87, 0xE5,
+                            0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
+                            0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
+                            0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, sizeof(origin));
 
-  std::string str("TEST");
-  Sha256 metaDigest;
-  metaDigest << str;
+  Sha256 innerDigest;
+  innerDigest << "TEST";
 
   Sha256 statefulSha256;
-  statefulSha256 << metaDigest;
+  statefulSha256 << innerDigest;
   ConstBufferPtr digest2 = statefulSha256.computeDigest();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(), digest1->buf() + digest1->size(),
+                                digest2->buf(), digest2->buf() + digest2->size());
 }
 
-BOOST_AUTO_TEST_CASE(OperatorString)
+BOOST_AUTO_TEST_CASE(InsertionOperatorString)
 {
-  uint8_t origin[4] = {0x54, 0x45, 0x53, 0x54};
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 4);
+  const std::string str = "Hello, World!";
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<const uint8_t*>(str.data()),
+                                                       str.size());
 
-  std::string str("TEST");
   Sha256 statefulSha256;
   statefulSha256 << str;
   ConstBufferPtr digest2 = statefulSha256.computeDigest();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(), digest1->buf() + digest1->size(),
+                                digest2->buf(), digest2->buf() + digest2->size());
 }
 
-BOOST_AUTO_TEST_CASE(OperatorBlock)
+BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
 {
-  uint8_t origin[] = {
+  const uint8_t origin[] = {
     0x16, 0x1b, // SignatureInfo
       0x1b, 0x01, // SignatureType
         0x01, // Sha256WithRsa
@@ -162,16 +138,15 @@ BOOST_AUTO_TEST_CASE(OperatorBlock)
   statefulSha256 << block;
   ConstBufferPtr digest2 = statefulSha256.computeDigest();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(), digest1->buf() + digest1->size(),
+                                digest2->buf(), digest2->buf() + digest2->size());
 }
 
-BOOST_AUTO_TEST_CASE(OperatorUint64t)
+BOOST_AUTO_TEST_CASE(InsertionOperatorUint64t)
 {
-  uint64_t origin[4] = {1, 2, 3, 4};
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<uint8_t*>(origin), 32);
+  const uint64_t origin[] = {1, 2, 3, 4};
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(reinterpret_cast<const uint8_t*>(origin),
+                                                       sizeof(origin));
 
   Sha256 statefulSha256;
   statefulSha256 << origin[0];
@@ -180,61 +155,58 @@ BOOST_AUTO_TEST_CASE(OperatorUint64t)
   statefulSha256 << origin[3];
   ConstBufferPtr digest2 = statefulSha256.computeDigest();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(), digest1->buf() + digest1->size(),
+                                digest2->buf(), digest2->buf() + digest2->size());
+}
+
+BOOST_AUTO_TEST_CASE(Reset)
+{
+  Sha256 sha;
+  BOOST_CHECK_EQUAL(sha.empty(), true);
+
+  sha << 42;
+  BOOST_CHECK_EQUAL(sha.empty(), false);
+
+  sha.computeDigest(); // finalize
+  sha.reset();
+  BOOST_CHECK_EQUAL(sha.empty(), true);
+  BOOST_CHECK_NO_THROW(sha << 42);
 }
 
 BOOST_AUTO_TEST_CASE(Error)
 {
-  uint64_t origin = 256;
-
-  Sha256 digest;
-  BOOST_CHECK(digest.empty());
-
-  digest << origin;
-
-  BOOST_CHECK_NO_THROW(digest.computeDigest());
-  BOOST_CHECK_THROW(digest << origin, Sha256::Error);
-
-  digest.reset();
+  Sha256 sha;
+  sha << 42;
+  sha.computeDigest(); // finalize
+  BOOST_CHECK_THROW(sha << 42, Sha256::Error);
 }
 
-BOOST_AUTO_TEST_CASE(ComputeDigest)
+BOOST_AUTO_TEST_CASE(StaticComputeDigest)
 {
-  uint8_t origin[4] = {0x01, 0x02, 0x03, 0x04};
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, 4);
-
-  ConstBufferPtr digest2 = Sha256::computeDigest(origin, 4);
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(),
-                                digest1->buf() + digest1->size(),
-                                digest2->buf(),
-                                digest2->buf() + digest2->size());
+  const uint8_t origin[] = {0x01, 0x02, 0x03, 0x04};
+  ConstBufferPtr digest1 = crypto::computeSha256Digest(origin, sizeof(origin));
+  ConstBufferPtr digest2 = Sha256::computeDigest(origin, sizeof(origin));
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest1->buf(), digest1->buf() + digest1->size(),
+                                digest2->buf(), digest2->buf() + digest2->size());
 }
 
 BOOST_AUTO_TEST_CASE(Print)
 {
-  uint8_t origin[32] = {0x94, 0xEE, 0x05, 0x93, 0x35, 0xE5, 0x87, 0xE5,
-                        0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
-                        0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
-                        0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
+  const uint8_t origin[] = {0x94, 0xEE, 0x05, 0x93, 0x35, 0xE5, 0x87, 0xE5,
+                            0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
+                            0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
+                            0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
+  std::string hexString = toHex(origin, sizeof(origin));
 
-  std::string hexString = toHex(origin, 32);
-
-  std::string str("TEST");
   Sha256 digest;
-  digest << str;
-
+  digest << "TEST";
   std::ostringstream os;
   os << digest;
-
   BOOST_CHECK_EQUAL(os.str(), hexString);
   BOOST_CHECK_EQUAL(digest.toString(), hexString);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestDigest
+BOOST_AUTO_TEST_SUITE_END() // TestSha256
 BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace test
