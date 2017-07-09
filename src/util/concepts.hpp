@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2014-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
@@ -85,24 +85,6 @@ public:
     Block block;
     X j(block);
     j.wireDecode(block);
-  }
-};
-
-/** \brief a concept check for CryptoPP hash algorithm
- */
-template<class X>
-class Hashable
-{
-public:
-  BOOST_CONCEPT_USAGE(Hashable)
-  {
-    X hash;
-    uint8_t* buf = 0;
-    size_t size = hash.DigestSize();
-
-    hash.Update(buf, size);
-    hash.Final(buf);
-    hash.Restart();
   }
 };
 
