@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -68,6 +68,7 @@ operator<<(std::ostream& os, LinkType linkType);
  */
 enum FaceFlagBit {
   BIT_LOCAL_FIELDS_ENABLED = 0, ///< controls whether local fields are enabled on a face
+  BIT_LP_RELIABILITY_ENABLED = 1, ///< controls whether the link reliability feature is enabled on a face
 };
 
 /** \ingroup management
