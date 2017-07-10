@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -21,8 +21,6 @@
 
 #include "meta-info.hpp"
 #include "data.hpp"
-#include "security/v1/cryptopp.hpp"
-#include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
 
@@ -122,9 +120,8 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
   for (int i = 0; i < 5; i++) {
     uint32_t type = 128 + i * 10;
     info1.addAppMetaInfo(makeNonNegativeIntegerBlock(type, ints[i]));
-    const std::string& s = ss[i];
     type += 5;
-    info1.addAppMetaInfo(makeStringBlock(type, s));
+    info1.addAppMetaInfo(makeStringBlock(type, ss[i]));
   }
 
   BOOST_CHECK(info1.findAppMetaInfo(252) == 0);

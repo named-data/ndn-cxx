@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,8 +20,13 @@
  */
 
 #include "data.hpp"
-#include "security/v1/cryptopp.hpp"
 #include "encoding/buffer-stream.hpp"
+#include "security/transform/private-key.hpp"
+#include "security/transform/public-key.hpp"
+#include "security/transform/signer-filter.hpp"
+#include "security/transform/step-source.hpp"
+#include "security/transform/stream-sink.hpp"
+#include "security/verification-helpers.hpp"
 
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
@@ -202,72 +207,55 @@ BOOST_AUTO_TEST_CASE(SignatureEqualityChecks)
 
 class TestDataFixture
 {
-public:
+protected:
   TestDataFixture()
   {
-    CryptoPP::StringSource source(DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER), true);
-    privateKey_.Load(source);
-    publicKey_ = privateKey_;
+    m_privKey.loadPkcs1(DEFAULT_PRIVATE_KEY_DER, sizeof(DEFAULT_PRIVATE_KEY_DER));
+    auto buf = m_privKey.derivePublicKey();
+    m_pubKey.loadPkcs8(buf->data(), buf->size());
   }
 
 protected:
-  CryptoPP::AutoSeededRandomPool rng_;
-  CryptoPP::RSA::PrivateKey privateKey_;
-  CryptoPP::RSA::PublicKey  publicKey_;
+  security::transform::PrivateKey m_privKey;
+  security::transform::PublicKey m_pubKey;
 };
 
 BOOST_FIXTURE_TEST_CASE(Decode, TestDataFixture)
 {
   Block dataBlock(Data1, sizeof(Data1));
+  Data d(dataBlock);
 
-  ndn::Data d;
-  BOOST_REQUIRE_NO_THROW(d.wireDecode(dataBlock));
+  BOOST_CHECK_EQUAL(d.getName().toUri(), "/local/ndn/prefix");
+  BOOST_CHECK_EQUAL(d.getContentType(), static_cast<uint32_t>(tlv::ContentType_Blob));
+  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), time::seconds(10));
+  BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
+                                d.getContent().value_size()), "SUCCESS!");
+  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::SignatureSha256WithRsa);
 
-  BOOST_REQUIRE_EQUAL(d.getName().toUri(), "/local/ndn/prefix");
-  BOOST_REQUIRE_EQUAL(d.getContentType(), static_cast<uint32_t>(tlv::ContentType_Blob));
-  BOOST_REQUIRE_EQUAL(d.getFreshnessPeriod(), time::seconds(10));
-
-  BOOST_REQUIRE_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
-                                  d.getContent().value_size()), "SUCCESS!");
-
-  BOOST_REQUIRE_EQUAL(d.getSignature().getType(), tlv::SignatureSha256WithRsa);
-  ndn::Block block = d.getSignature().getInfo();
+  Block block = d.getSignature().getInfo();
   block.parse();
-  KeyLocator keyLocator;
-  BOOST_REQUIRE_NO_THROW(keyLocator.wireDecode(block.get(tlv::KeyLocator)));
+  KeyLocator keyLocator(block.get(tlv::KeyLocator));
+  BOOST_CHECK_EQUAL(keyLocator.getName().toUri(), "/test/key/locator");
 
-  BOOST_REQUIRE_EQUAL(keyLocator.getName().toUri(), "/test/key/locator");
-
-  using namespace CryptoPP;
-  RSASS<PKCS1v15, SHA256>::Verifier verifier(publicKey_);
-  bool signatureVerified = verifier.VerifyMessage(d.wireEncode().value(),
-                                                  d.wireEncode().value_size() -
-                                                    d.getSignature().getValue().size(),
-                                                  d.getSignature().getValue().value(),
-                                                  d.getSignature().getValue().value_size());
-  BOOST_REQUIRE_EQUAL(signatureVerified, true);
+  BOOST_CHECK(security::verifySignature(d, m_pubKey));
 }
 
 BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
 {
   // manual data packet creation for now
 
-  ndn::Data d(ndn::Name("/local/ndn/prefix"));
+  Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(time::seconds(10));
-
   d.setContent(Content1, sizeof(Content1));
 
   Block signatureInfo(tlv::SignatureInfo);
   // SignatureType
-  {
-    signatureInfo.push_back(makeNonNegativeIntegerBlock(tlv::SignatureType, tlv::SignatureSha256WithRsa));
-  }
+  signatureInfo.push_back(makeNonNegativeIntegerBlock(tlv::SignatureType, tlv::SignatureSha256WithRsa));
   // KeyLocator
   {
     KeyLocator keyLocator;
     keyLocator.setName("/test/key/locator");
-
     signatureInfo.push_back(keyLocator.wireEncode());
   }
   signatureInfo.encode();
@@ -276,39 +264,34 @@ BOOST_FIXTURE_TEST_CASE(Encode, TestDataFixture)
   OBufferStream os;
   tlv::writeVarNumber(os, tlv::SignatureValue);
 
-  using namespace CryptoPP;
+  OBufferStream sig;
+  {
+    namespace tr = security::transform;
 
-  RSASS<PKCS1v15, SHA256>::Signer signer(privateKey_);
+    tr::StepSource input;
+    input >> tr::signerFilter(DigestAlgorithm::SHA256, m_privKey) >> tr::streamSink(sig);
 
-  PK_MessageAccumulator* hash = signer.NewSignatureAccumulator(rng_);
-  hash->Update(d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
-  hash->Update(d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
-  hash->Update(d.getContent().              wire(), d.getContent().              size());
-  hash->Update(signatureInfo.               wire(), signatureInfo.               size());
+    input.write(d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
+    input.write(d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
+    input.write(d.getContent().              wire(), d.getContent().              size());
+    input.write(signatureInfo.               wire(), signatureInfo.               size());
+    input.end();
+  }
+  auto buf = sig.buf();
+  tlv::writeVarNumber(os, buf->size());
+  os.write(reinterpret_cast<const char*>(buf->data()), buf->size());
 
-  size_t length = signer.MaxSignatureLength();
-  SecByteBlock buf(length);
-  signer.Sign(rng_, hash, buf);
-
-  tlv::writeVarNumber(os, buf.size());
-  os.write(reinterpret_cast<const char *>(buf.BytePtr()), buf.size());
-
-  ndn::Block signatureValue(Block(os.buf()));
-
+  Block signatureValue(os.buf());
   Signature signature(signatureInfo, signatureValue);
-
   d.setSignature(signature);
 
-  Block dataBlock;
-  BOOST_REQUIRE_NO_THROW(dataBlock = d.wireEncode());
+  Block dataBlock(d.wireEncode());
+  BOOST_CHECK_EQUAL_COLLECTIONS(Data1, Data1 + sizeof(Data1),
+                                dataBlock.begin(), dataBlock.end());
 
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(Data1, Data1+sizeof(Data1),
-                                  dataBlock.begin(), dataBlock.end());
-
-  std::ostringstream strStream;
-  BOOST_CHECK_NO_THROW(strStream << d);
-
-  BOOST_CHECK_EQUAL(strStream.str(),
+  std::ostringstream ss;
+  ss << d;
+  BOOST_CHECK_EQUAL(ss.str(),
                     "Name: /local/ndn/prefix\n"
                     "MetaInfo: ContentType: 0, FreshnessPeriod: 10000 milliseconds\n"
                     "Content: (size: 8)\n"
@@ -319,7 +302,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
 {
   // Encoding pipeline
 
-  ndn::Data d(ndn::Name("/local/ndn/prefix"));
+  Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(time::seconds(10));
 
