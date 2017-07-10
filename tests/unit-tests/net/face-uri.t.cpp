@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
@@ -28,6 +28,7 @@
 #include "net/face-uri.hpp"
 
 #include "boost-test.hpp"
+#include "collect-netifs.hpp"
 #include "network-configuration-detector.hpp"
 
 namespace ndn {
@@ -163,6 +164,15 @@ BOOST_AUTO_TEST_CASE(ParseUdp)
   ip::udp::endpoint endpoint6(ip::address_v6::from_string("2001:DB8::1"), 7777);
   BOOST_REQUIRE_NO_THROW(FaceUri(endpoint6));
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "udp6://[2001:db8::1]:7777");
+
+  BOOST_CHECK(uri.parse("udp6://[fe80::1%25eth1]:6363"));
+  BOOST_CHECK_EQUAL(uri.getHost(), "fe80::1%25eth1");
+
+  BOOST_CHECK(uri.parse("udp6://[fe80::1%eth1]:6363"));
+  BOOST_CHECK_EQUAL(uri.getHost(), "fe80::1%eth1");
+
+  BOOST_CHECK(uri.parse("udp6://[fe80::1%1]:6363"));
+  BOOST_CHECK(uri.parse("udp6://[fe80::1%eth1]"));
 }
 
 BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
@@ -184,6 +194,18 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("udp4://224.0.23.170:56363").isCanonical(), true);
   BOOST_CHECK_EQUAL(FaceUri("udp4://[2001:db8::1]:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp6://192.0.2.1:6363").isCanonical(), false);
+
+  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
+  if (!networkInterfaces.empty()) {
+    const auto& netif = networkInterfaces.front();
+    auto name = netif->getName();
+    auto index = to_string(netif->getIndex());
+
+    BOOST_CHECK_EQUAL(FaceUri("udp6://[fe80::1%" + name + "]:6363").isCanonical(), true);
+    BOOST_CHECK_EQUAL(FaceUri("udp6://[fe80::1%" + index + "]:6363").isCanonical(), false);
+    BOOST_CHECK_EQUAL(FaceUri("udp6://[fe80::1%" + name + "]").isCanonical(), false);
+    BOOST_CHECK_EQUAL(FaceUri("udp6://[fe80::1068:dddb:fe26:fe3f%25en0]:6363").isCanonical(), false);
+  }
 }
 
 BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeUdpV4, 1)
@@ -238,6 +260,19 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
   // IPv4 used with udp6 protocol - not canonical
   addTest("udp6://192.0.2.1:6363", false, "");
 
+  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
+  if (!networkInterfaces.empty()) {
+    const auto& netif = networkInterfaces.front();
+    auto name = netif->getName();
+    auto index = to_string(netif->getIndex());
+
+    addTest("udp6://[fe80::1068:dddb:fe26:fe3f%25" + name + "]:6363", true,
+            "udp6://[fe80::1068:dddb:fe26:fe3f%" + name + "]:6363");
+
+    addTest("udp6://[fe80::1068:dddb:fe26:fe3f%" + index + "]:6363", true,
+            "udp6://[fe80::1068:dddb:fe26:fe3f%" + name + "]:6363");
+  }
+
   runTests();
 }
 
@@ -266,6 +301,15 @@ BOOST_AUTO_TEST_CASE(ParseTcp)
   ip::tcp::endpoint endpoint6(ip::address_v6::from_string("2001:DB8::1"), 7777);
   BOOST_REQUIRE_NO_THROW(FaceUri(endpoint6));
   BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "tcp6://[2001:db8::1]:7777");
+
+  BOOST_CHECK(uri.parse("tcp6://[fe80::1%25eth1]:6363"));
+  BOOST_CHECK_EQUAL(uri.getHost(), "fe80::1%25eth1");
+
+  BOOST_CHECK(uri.parse("tcp6://[fe80::1%eth1]:6363"));
+  BOOST_CHECK_EQUAL(uri.getHost(), "fe80::1%eth1");
+
+  BOOST_CHECK(uri.parse("tcp6://[fe80::1%1]:6363"));
+  BOOST_CHECK(uri.parse("tcp6://[fe80::1%eth1]"));
 }
 
 BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
@@ -287,6 +331,18 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("tcp4://224.0.23.170:56363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp4://[2001:db8::1]:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp6://192.0.2.1:6363").isCanonical(), false);
+
+  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
+  if (!networkInterfaces.empty()) {
+    const auto& netif = networkInterfaces.front();
+    auto name = netif->getName();
+    auto index = to_string(netif->getIndex());
+
+    BOOST_CHECK_EQUAL(FaceUri("tcp6://[fe80::1%" + name + "]:6363").isCanonical(), true);
+    BOOST_CHECK_EQUAL(FaceUri("tcp6://[fe80::1%" + index + "]:6363").isCanonical(), false);
+    BOOST_CHECK_EQUAL(FaceUri("tcp6://[fe80::1%" + name + "]").isCanonical(), false);
+    BOOST_CHECK_EQUAL(FaceUri("tcp6://[fe80::1068:dddb:fe26:fe3f%25en0]:6363").isCanonical(), false);
+  }
 }
 
 BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeTcpV4, 1)
@@ -313,6 +369,19 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
 
   // IPv6 used with tcp4 protocol - not canonical
   addTest("tcp4://[2001:db8::1]:6363", false, "");
+
+  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
+  if (!networkInterfaces.empty()) {
+    const auto& netif = networkInterfaces.front();
+    auto name = netif->getName();
+    auto index = to_string(netif->getIndex());
+
+    addTest("tcp6://[fe80::1068:dddb:fe26:fe3f%25" + name + "]:6363", true,
+            "tcp6://[fe80::1068:dddb:fe26:fe3f%" + name + "]:6363");
+
+    addTest("tcp6://[fe80::1068:dddb:fe26:fe3f%" + index + "]:6363", true,
+            "tcp6://[fe80::1068:dddb:fe26:fe3f%" + name + "]:6363");
+  }
 
   runTests();
 }

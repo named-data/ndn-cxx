@@ -26,8 +26,12 @@
  */
 
 #include "face-uri.hpp"
-#include "dns.hpp"
 
+#include "address-converter.hpp"
+#include "dns.hpp"
+#include "util/string-helper.hpp"
+
+#include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
@@ -74,6 +78,9 @@ FaceUri::parse(const std::string& uri)
   const std::string& authority = protocolMatch[3];
   m_path = protocolMatch[4];
 
+  // pattern for IPv6 link local address enclosed in [ ], with optional port number
+  static const boost::regex v6LinkLocalExp("^\\[([a-fA-F0-9:]+)%([a-zA-Z0-9]+)\\]"
+                                           "(?:\\:(\\d+))?$");
   // pattern for IPv6 address enclosed in [ ], with optional port number
   static const boost::regex v6Exp("^\\[([a-fA-F0-9:]+)\\](?:\\:(\\d+))?$");
   // pattern for Ethernet address in standard hex-digits-and-colons notation
@@ -88,6 +95,13 @@ FaceUri::parse(const std::string& uri)
   }
   else {
     boost::smatch match;
+    if (boost::regex_match(authority, match, v6LinkLocalExp)) {
+      m_isV6 = true;
+      m_host = match[1] + "%" + match[2];
+      m_port = match[3];
+      return true;
+    }
+
     m_isV6 = boost::regex_match(authority, match, v6Exp);
     if (m_isV6 ||
         boost::regex_match(authority, match, etherExp) ||
@@ -256,18 +270,43 @@ public:
     }
 
     boost::system::error_code ec;
-    boost::asio::ip::address addr;
-    if (faceUri.getScheme() == m_v4Scheme) {
-      addr = boost::asio::ip::address_v4::from_string(faceUri.getHost(), ec);
-    }
-    else if (faceUri.getScheme() == m_v6Scheme) {
-      addr = boost::asio::ip::address_v6::from_string(faceUri.getHost(), ec);
-    }
-    else {
+    auto addr = ip::addressFromString(unescapeHost(faceUri.getHost()), ec);
+    if (ec) {
       return false;
     }
 
-    return !ec && addr.to_string() == faceUri.getHost() && checkAddress(addr).first;
+    bool hasCorrectScheme = (faceUri.getScheme() == m_v4Scheme && addr.is_v4()) ||
+                            (faceUri.getScheme() == m_v6Scheme && addr.is_v6());
+    if (!hasCorrectScheme) {
+      return false;
+    }
+
+    auto checkAddressWithUri = [] (const boost::asio::ip::address& addr,
+                                   const FaceUri& faceUri) -> bool {
+      if (addr.is_v4() || !addr.to_v6().is_link_local()) {
+        return addr.to_string() == faceUri.getHost();
+      }
+
+      std::vector<std::string> addrFields, faceUriFields;
+      std::string addrString = addr.to_string();
+      std::string faceUriString = faceUri.getHost();
+
+      boost::algorithm::split(addrFields, addrString, boost::is_any_of("%"));
+      boost::algorithm::split(faceUriFields, faceUriString, boost::is_any_of("%"));
+      if (addrFields.size() != 2 || faceUriFields.size() != 2) {
+        return false;
+      }
+
+      if (faceUriFields[1].size() > 2 && faceUriFields[1].compare(0, 2, "25") == 0) {
+        // %25... is accepted, but not a canonical form
+        return false;
+      }
+
+      return addrFields[0] == faceUriFields[0] &&
+             addrFields[1] == faceUriFields[1];
+    };
+
+    return checkAddressWithUri(addr, faceUri) && checkAddress(addr).first;
   }
 
   void
@@ -284,7 +323,7 @@ public:
     // make a copy because caller may modify faceUri
     auto uri = make_shared<FaceUri>(faceUri);
     boost::system::error_code ec;
-    auto ipAddress = boost::asio::ip::address::from_string(faceUri.getHost(), ec);
+    auto ipAddress = ip::addressFromString(unescapeHost(faceUri.getHost()), ec);
     if (!ec) {
       // No need to resolve IP address if host is already an IP
       if ((faceUri.getScheme() == m_v4Scheme && !ipAddress.is_v4()) ||
@@ -307,7 +346,7 @@ public:
         addressSelector = dns::AnyAddress();
       }
 
-      dns::asyncResolve(faceUri.getHost(),
+      dns::asyncResolve(unescapeHost(faceUri.getHost()),
         bind(&IpHostCanonizeProvider<Protocol>::onDnsSuccess, this, uri, onSuccess, onFailure, _1),
         bind(&IpHostCanonizeProvider<Protocol>::onDnsFailure, this, uri, onFailure, _1),
         io, addressSelector, timeout);
@@ -375,6 +414,16 @@ private:
   checkAddress(const dns::IpAddress& ipAddress) const
   {
     return {true, ""};
+  }
+
+  static std::string
+  unescapeHost(std::string host)
+  {
+    auto escapePos = host.find("%25");
+    if (escapePos != std::string::npos && escapePos < host.size() - 3) {
+      host = unescape(host);
+    }
+    return host;
   }
 
 private:
