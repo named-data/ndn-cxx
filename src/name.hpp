@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,7 @@ typedef Name PartialName;
 /**
  * @brief Name abstraction to represent an absolute name
  */
-class Name : public enable_shared_from_this<Name>
+class Name
 {
 public:
   /**
@@ -632,4 +632,4 @@ struct hash<ndn::Name>
 
 } // namespace std
 
-#endif
+#endif // NDN_NAME_HPP
