@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "name-component.hpp"
+#include "name.hpp"
 
 #include "boost-test.hpp"
 #include <boost/mpl/vector.hpp>
@@ -204,6 +205,149 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FourOctets, T, ContainerTypes)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // CreateFromIterators
+
+BOOST_AUTO_TEST_SUITE(NamingConvention)
+
+template<typename ArgType>
+struct ConventionTest
+{
+  function<name::Component(ArgType)> makeComponent;
+  function<ArgType(const name::Component&)> getValue;
+  function<Name&(Name&, ArgType)> append;
+  Name expected;
+  ArgType value;
+  function<bool(const name::Component&)> isComponent;
+};
+
+class NumberWithMarker
+{
+public:
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {bind(&name::Component::fromNumberWithMarker, 0xAA, _1),
+            bind(&name::Component::toNumberWithMarker, _1, 0xAA),
+            bind(&Name::appendNumberWithMarker, _1, 0xAA, _2),
+            Name("/%AA%03%E8"),
+            1000,
+            bind(&name::Component::isNumberWithMarker, _1, 0xAA)};
+  }
+};
+
+class Segment
+{
+public:
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&name::Component::fromSegment,
+            bind(&name::Component::toSegment, _1),
+            bind(&Name::appendSegment, _1, _2),
+            Name("/%00%27%10"),
+            10000,
+            bind(&name::Component::isSegment, _1)};
+  }
+};
+
+class SegmentOffset
+{
+public:
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&name::Component::fromSegmentOffset,
+            bind(&name::Component::toSegmentOffset, _1),
+            bind(&Name::appendSegmentOffset, _1, _2),
+            Name("/%FB%00%01%86%A0"),
+            100000,
+            bind(&name::Component::isSegmentOffset, _1)};
+  }
+};
+
+class Version
+{
+public:
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&name::Component::fromVersion,
+            bind(&name::Component::toVersion, _1),
+            [] (Name& name, uint64_t version) -> Name& { return name.appendVersion(version); },
+            Name("/%FD%00%0FB%40"),
+            1000000,
+            bind(&name::Component::isVersion, _1)};
+  }
+};
+
+class Timestamp
+{
+public:
+  ConventionTest<time::system_clock::TimePoint>
+  operator()() const
+  {
+    return {&name::Component::fromTimestamp,
+            bind(&name::Component::toTimestamp, _1),
+            [] (Name& name, time::system_clock::TimePoint t) -> Name& { return name.appendTimestamp(t); },
+            Name("/%FC%00%04%7BE%E3%1B%00%00"),
+            time::getUnixEpoch() + time::days(14600), // 40 years
+            bind(&name::Component::isTimestamp, _1)};
+  }
+};
+
+class SequenceNumber
+{
+public:
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&name::Component::fromSequenceNumber,
+            bind(&name::Component::toSequenceNumber, _1),
+            bind(&Name::appendSequenceNumber, _1, _2),
+            Name("/%FE%00%98%96%80"),
+            10000000,
+            bind(&name::Component::isSequenceNumber, _1)};
+  }
+};
+
+using ConventionTests = boost::mpl::vector<
+  NumberWithMarker,
+  Segment,
+  SegmentOffset,
+  Version,
+  Timestamp,
+  SequenceNumber
+>;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(Convention, T, ConventionTests)
+{
+  name::Component invalidComponent1;
+  name::Component invalidComponent2("1234567890");
+
+  auto test = T()();
+
+  const Name& expected = test.expected;
+  BOOST_TEST_MESSAGE("Check " << expected[0].toUri());
+
+  BOOST_CHECK_EQUAL(expected[0].isGeneric(), true);
+
+  name::Component actualComponent = test.makeComponent(test.value);
+  BOOST_CHECK_EQUAL(actualComponent, expected[0]);
+
+  Name actualName;
+  test.append(actualName, test.value);
+  BOOST_CHECK_EQUAL(actualName, expected);
+
+  BOOST_CHECK_EQUAL(test.isComponent(expected[0]), true);
+  BOOST_CHECK_EQUAL(test.getValue(expected[0]), test.value);
+
+  BOOST_CHECK_EQUAL(test.isComponent(invalidComponent1), false);
+  BOOST_CHECK_EQUAL(test.isComponent(invalidComponent2), false);
+
+  BOOST_CHECK_THROW(test.getValue(invalidComponent1), name::Component::Error);
+  BOOST_CHECK_THROW(test.getValue(invalidComponent2), name::Component::Error);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // NamingConvention
 
 BOOST_AUTO_TEST_SUITE_END() // TestNameComponent
 
