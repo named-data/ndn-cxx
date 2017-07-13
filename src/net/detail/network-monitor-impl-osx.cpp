@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -271,9 +271,8 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif)
   }
 
   for (ifaddrs* ifa = ifa_list; ifa != nullptr; ifa = ifa->ifa_next) {
-    if (ifa->ifa_name != netif.getName()) {
+    if (ifa->ifa_name != netif.getName())
       continue;
-    }
 
     netif.setFlags(ifa->ifa_flags);
     netif.setMtu(getInterfaceMtu(netif.getName()));
@@ -282,14 +281,13 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif)
       continue;
 
     namespace ip = boost::asio::ip;
-    AddressFamily addressFamily = AddressFamily::UNSPECIFIED;
-    ip::address ipAddr, broadcast;
+    AddressFamily addrFamily = AddressFamily::UNSPECIFIED;
+    ip::address ipAddr, broadcastAddr;
     uint8_t prefixLength = 0;
-
 
     switch (ifa->ifa_addr->sa_family) {
       case AF_INET: {
-        addressFamily = AddressFamily::V4;
+        addrFamily = AddressFamily::V4;
 
         const sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
         ip::address_v4::bytes_type bytes;
@@ -303,7 +301,7 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif)
       }
 
       case AF_INET6: {
-        addressFamily = AddressFamily::V6;
+        addrFamily = AddressFamily::V6;
 
         const sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
         ip::address_v6::bytes_type bytes;
@@ -319,6 +317,7 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif)
       case AF_LINK: {
         const sockaddr_dl* sdl = reinterpret_cast<sockaddr_dl*>(ifa->ifa_addr);
         netif.setIndex(sdl->sdl_index);
+
         if (sdl->sdl_type == IFT_ETHER && sdl->sdl_alen == ethernet::ADDR_LEN) {
           netif.setType(InterfaceType::ETHERNET);
           netif.setEthernetAddress(ethernet::Address(reinterpret_cast<uint8_t*>(LLADDR(sdl))));
@@ -332,26 +331,30 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif)
         }
         break;
       }
-
-      default:
-        continue;
-    }
-
-    if (netif.canBroadcast() && ifa->ifa_broadaddr != nullptr) {
-      const sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_broadaddr);
-      ip::address_v4::bytes_type bytes;
-      std::copy_n(reinterpret_cast<const unsigned char*>(&sin->sin_addr), bytes.size(), bytes.begin());
-      broadcast = ip::address_v4(bytes);
-      NDN_LOG_TRACE(netif.getName() << ": set IPv4 broadcast address " << broadcast);
     }
 
     if (netif.canBroadcast()) {
       netif.setEthernetBroadcastAddress(ethernet::getBroadcastAddress());
+
+      if (addrFamily == AddressFamily::V4 && ifa->ifa_broadaddr != nullptr) {
+        const sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_broadaddr);
+        ip::address_v4::bytes_type bytes;
+        std::copy_n(reinterpret_cast<const unsigned char*>(&sin->sin_addr), bytes.size(), bytes.begin());
+        broadcastAddr = ip::address_v4(bytes);
+        NDN_LOG_TRACE(netif.getName() << ": set IPv4 broadcast address " << broadcastAddr);
+      }
     }
 
-    netif.addNetworkAddress(NetworkAddress(addressFamily, ipAddr, broadcast, prefixLength,
-                                           AddressScope::NOWHERE, 0));
-    ///\todo #3817 extract AddressScope from OS
+    AddressScope scope = AddressScope::GLOBAL;
+    if (ipAddr.is_loopback()) {
+      scope = AddressScope::HOST;
+    }
+    else if ((ipAddr.is_v4() && (ipAddr.to_v4().to_ulong() & 0xFFFF0000) == 0xA9FE0000) ||
+             (ipAddr.is_v6() && ipAddr.to_v6().is_link_local())) {
+      scope = AddressScope::LINK;
+    }
+
+    netif.addNetworkAddress(NetworkAddress(addrFamily, ipAddr, broadcastAddr, prefixLength, scope, 0));
   }
 
   ::freeifaddrs(ifa_list);
