@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -32,9 +32,7 @@
 #include "../signature-sha256-with-ecdsa.hpp"
 #include "../digest-sha256.hpp"
 #include "../signing-info.hpp"
-
 #include "../../interest.hpp"
-#include "../../util/crypto.hpp"
 #include "../../util/random.hpp"
 #include <initializer_list>
 
@@ -132,7 +130,7 @@ public:
   /**
    * @brief KeyChain constructor
    *
-   * @sa  http://redmine.named-data.net/issues/2260
+   * @sa  https://redmine.named-data.net/issues/2260
    *
    * @param pibLocator PIB locator
    * @param tpmLocator TPM locator

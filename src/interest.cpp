@@ -21,7 +21,6 @@
 
 #include "interest.hpp"
 #include "util/random.hpp"
-#include "util/crypto.hpp"
 #include "data.hpp"
 
 #include <cstring>

@@ -29,6 +29,8 @@
 namespace ndn {
 namespace util {
 
+const size_t Sha256::DIGEST_SIZE;
+
 Sha256::Sha256()
 {
   reset();
@@ -128,6 +130,14 @@ Sha256::toString()
 {
   auto buf = computeDigest();
   return toHex(*buf);
+}
+
+ConstBufferPtr
+Sha256::computeDigest(const uint8_t* buffer, size_t size)
+{
+  Sha256 sha256;
+  sha256.update(buffer, size);
+  return sha256.computeDigest();
 }
 
 std::ostream&

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,6 @@
 
 #include "in-memory-storage.hpp"
 #include "in-memory-storage-entry.hpp"
-
-#include "crypto.hpp"
 
 #include "../security/signature-sha256-with-rsa.hpp"
 
@@ -423,9 +421,7 @@ InMemoryStorage::end() const
 {
   Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().end();
 
-  const Data* ptr = NULL;
-
-  return const_iterator(ptr, &m_cache, it);
+  return const_iterator(nullptr, &m_cache, it);
 }
 
 void

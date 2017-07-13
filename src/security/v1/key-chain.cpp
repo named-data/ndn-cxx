@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -24,8 +24,8 @@
 #include "key-chain.hpp"
 #include "../signing-helpers.hpp"
 
-#include "../../util/random.hpp"
 #include "../../util/config-file.hpp"
+#include "../../util/digest.hpp"
 
 #include "sec-public-info-sqlite3.hpp"
 
@@ -755,7 +755,7 @@ KeyChain::pureSign(const uint8_t* buf, size_t size,
                    const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
   if (keyName == SigningInfo::getDigestSha256Identity())
-    return Block(tlv::SignatureValue, crypto::computeSha256Digest(buf, size));
+    return Block(tlv::SignatureValue, util::Sha256::computeDigest(buf, size));
 
   return m_tpm->signInTpm(buf, size, keyName, digestAlgorithm);
 }
@@ -790,7 +790,7 @@ KeyChain::signWithSha256(Interest& interest)
     .append(sig.getInfo());                                        // signatureInfo
 
   Block sigValue(tlv::SignatureValue,
-                 crypto::computeSha256Digest(signedName.wireEncode().value(),
+                 util::Sha256::computeDigest(signedName.wireEncode().value(),
                                              signedName.wireEncode().value_size()));
 
   sigValue.encode();

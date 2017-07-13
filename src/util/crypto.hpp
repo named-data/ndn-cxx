@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,14 +22,21 @@
 #ifndef NDN_UTIL_CRYPTO_HPP
 #define NDN_UTIL_CRYPTO_HPP
 
-#include "../common.hpp"
-#include "../encoding/buffer.hpp"
+/**
+ * @file
+ * @deprecated use <ndn-cxx/util/digest.hpp>
+ */
+
+#include "digest.hpp"
 
 namespace ndn {
 namespace crypto {
 
-/// @brief number of octets in a SHA256 digest
-const size_t SHA256_DIGEST_SIZE = 32;
+/**
+ * @brief number of octets in a SHA256 digest
+ * @deprecated use ndn::util::Sha256::DIGEST_SIZE
+ */
+DEPRECATED(const size_t SHA256_DIGEST_SIZE) = util::Sha256::DIGEST_SIZE;
 
 /**
  * @brief Compute the SHA-256 digest of data.
@@ -37,9 +44,15 @@ const size_t SHA256_DIGEST_SIZE = 32;
  * @param data Pointer to the input byte array.
  * @param dataLength The length of data.
  * @return A pointer to a buffer of SHA256_DIGEST_SIZE bytes.
+ *
+ * @deprecated use ndn::util::Sha256::computeDigest()
  */
-ConstBufferPtr
-computeSha256Digest(const uint8_t* data, size_t dataLength);
+DEPRECATED()
+inline ConstBufferPtr
+computeSha256Digest(const uint8_t* data, size_t dataLength)
+{
+  return util::Sha256::computeDigest(data, dataLength);
+}
 
 } // namespace crypto
 } // namespace ndn

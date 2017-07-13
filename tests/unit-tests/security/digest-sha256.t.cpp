@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -21,6 +21,7 @@
 
 #include "security/digest-sha256.hpp"
 #include "security/validator.hpp"
+#include "util/digest.hpp"
 #include "util/string-helper.hpp"
 
 #include "identity-management-fixture.hpp"
@@ -35,7 +36,7 @@ BOOST_FIXTURE_TEST_SUITE(TestDigestSha256, IdentityManagementFixture)
 BOOST_AUTO_TEST_CASE(Sha256)
 {
   char content[6] = "1234\n";
-  ConstBufferPtr buf = crypto::computeSha256Digest(reinterpret_cast<uint8_t*>(content), 5);
+  ConstBufferPtr buf = util::Sha256::computeDigest(reinterpret_cast<uint8_t*>(content), 5);
 
   BOOST_CHECK_EQUAL(toHex(buf->buf(), buf->size(), false),
                     "a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");

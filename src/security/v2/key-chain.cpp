@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,6 +22,7 @@
 #include "key-chain.hpp"
 
 #include "../../util/config-file.hpp"
+#include "../../util/digest.hpp"
 #include "../../util/logger.hpp"
 
 #include "../pib/pib-sqlite3.hpp"
@@ -39,7 +40,6 @@
 #include "../transform/private-key.hpp"
 #include "../transform/verifier-filter.hpp"
 #include "../../encoding/buffer-stream.hpp"
-#include "../../util/crypto.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -685,7 +685,7 @@ KeyChain::sign(const uint8_t* buf, size_t size,
                const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
   if (keyName == SigningInfo::getDigestSha256Identity())
-    return Block(tlv::SignatureValue, crypto::computeSha256Digest(buf, size));
+    return Block(tlv::SignatureValue, util::Sha256::computeDigest(buf, size));
 
   return Block(tlv::SignatureValue, m_tpm->sign(buf, size, keyName, digestAlgorithm));
 }

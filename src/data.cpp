@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,7 @@
 
 #include "data.hpp"
 #include "encoding/block-helpers.hpp"
-#include "util/crypto.hpp"
+#include "util/digest.hpp"
 
 namespace ndn {
 
@@ -184,7 +184,7 @@ Data::getFullName() const
                                   "(e.g., not signed)"));
     }
     m_fullName = m_name;
-    m_fullName.appendImplicitSha256Digest(crypto::computeSha256Digest(m_wire.wire(), m_wire.size()));
+    m_fullName.appendImplicitSha256Digest(util::Sha256::computeDigest(m_wire.wire(), m_wire.size()));
   }
 
   return m_fullName;

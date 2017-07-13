@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -23,7 +23,7 @@
 #include "util/in-memory-storage-fifo.hpp"
 #include "util/in-memory-storage-lfu.hpp"
 #include "util/in-memory-storage-lru.hpp"
-#include "util/crypto.hpp"
+#include "util/digest.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
 
 #include "boost-test.hpp"
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(DigestCalculation, T, InMemoryStorages)
 {
   shared_ptr<Data> data = makeData("/digest/compute");
 
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(data->wireEncode().wire(), data->wireEncode().size());
+  ConstBufferPtr digest1 = Sha256::computeDigest(data->wireEncode().wire(), data->wireEncode().size());
   BOOST_CHECK_EQUAL(digest1->size(), 32);
 
   InMemoryStorageEntry entry;
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
   shared_ptr<Data> data7 = makeData("/c/c/1");
   ims.insert(*data7);
 
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(data->wireEncode().wire(), data->wireEncode().size());
+  ConstBufferPtr digest1 = Sha256::computeDigest(data->wireEncode().wire(), data->wireEncode().size());
 
   Name name("/a");
   ims.erase(name);
@@ -393,7 +393,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
   shared_ptr<Data> data3 = makeData("/z/z/z");
   ims.insert(*data3);
 
-  ConstBufferPtr digest1 = crypto::computeSha256Digest(data->wireEncode().wire(), data->wireEncode().size());
+  ConstBufferPtr digest1 = Sha256::computeDigest(data->wireEncode().wire(), data->wireEncode().size());
 
   shared_ptr<Interest> interest = makeInterest("");
   interest->setName(Name(name).appendImplicitSha256Digest(digest1->buf(), digest1->size()));
@@ -928,9 +928,9 @@ BOOST_AUTO_TEST_CASE(DigestExclude)
   Name n2 = insert(2, "ndn:/A");
   insert(3, "ndn:/A/B");
 
-  uint8_t digest00[crypto::SHA256_DIGEST_SIZE];
+  uint8_t digest00[Sha256::DIGEST_SIZE];
   std::fill_n(digest00, sizeof(digest00), 0x00);
-  uint8_t digestFF[crypto::SHA256_DIGEST_SIZE];
+  uint8_t digestFF[Sha256::DIGEST_SIZE];
   std::fill_n(digestFF, sizeof(digestFF), 0xFF);
 
   Exclude excludeDigest;

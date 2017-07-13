@@ -22,7 +22,6 @@
 #ifndef NDN_UTIL_DIGEST_HPP
 #define NDN_UTIL_DIGEST_HPP
 
-#include "crypto.hpp"
 #include "../encoding/block.hpp"
 #include "../encoding/buffer-stream.hpp"
 #include "../security/transform/step-source.hpp"
@@ -54,6 +53,11 @@ public:
     {
     }
   };
+
+  /**
+   * @brief Length in bytes of a SHA-256 digest.
+   */
+  static const size_t DIGEST_SIZE = 32;
 
   /**
    * @brief Create an empty SHA-256 digest.
@@ -156,16 +160,13 @@ public:
   toString();
 
   /**
-   * @brief Compute a one-time SHA-256 digest.
+   * @brief Stateless SHA-256 digest calculation.
    * @param buffer the input buffer
    * @param size the size of the input buffer
    * @return SHA-256 digest of the input buffer
    */
   static ConstBufferPtr
-  computeDigest(const uint8_t* buffer, size_t size)
-  {
-    return crypto::computeSha256Digest(buffer, size);
-  }
+  computeDigest(const uint8_t* buffer, size_t size);
 
 private:
   unique_ptr<security::transform::StepSource> m_input;

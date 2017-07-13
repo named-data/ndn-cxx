@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,7 @@
  */
 
 #include "exclude.hpp"
-#include "util/crypto.hpp"
+#include "util/digest.hpp"
 
 #include "boost-test.hpp"
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(One)
 
 BOOST_AUTO_TEST_CASE(Before)
 {
-  // based on http://redmine.named-data.net/issues/1158
+  // based on https://redmine.named-data.net/issues/1158
   ndn::Exclude e;
   BOOST_REQUIRE_NO_THROW(e.excludeBefore(name::Component("PuQxMaf91")));
 
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_SUITE_END() // GenericComponent
 
 BOOST_AUTO_TEST_SUITE(ImplicitDigest) // exclude ImplicitSha256DigestComponent
 
-/** \brief make a name::Component with an octet repeated crypto::SHA256_DIGEST_SIZE times
+/** \brief make a name::Component with an octet repeated util::Sha256::DIGEST_SIZE times
  *  \param octet the octet to fill the component
  *  \param isDigest whether to make an ImplicitSha256DigestComponent or a generic NameComponent
  *  \param lastOctet if non-negative, set the last octet to a different value
@@ -245,10 +245,10 @@ BOOST_AUTO_TEST_SUITE(ImplicitDigest) // exclude ImplicitSha256DigestComponent
 static name::Component
 makeComponent(uint8_t octet, bool isDigest, int lastOctet = -1)
 {
-  uint8_t wire[crypto::SHA256_DIGEST_SIZE];
+  uint8_t wire[util::Sha256::DIGEST_SIZE];
   std::memset(wire, octet, sizeof(wire));
   if (lastOctet >= 0) {
-    wire[crypto::SHA256_DIGEST_SIZE - 1] = static_cast<uint8_t>(lastOctet);
+    wire[util::Sha256::DIGEST_SIZE - 1] = static_cast<uint8_t>(lastOctet);
   }
 
   if (isDigest) {

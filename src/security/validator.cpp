@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,7 +20,7 @@
  */
 
 #include "validator.hpp"
-#include "../util/crypto.hpp"
+#include "../util/digest.hpp"
 #include "../lp/tags.hpp"
 
 #include "v1/cryptopp.hpp"
@@ -234,21 +234,20 @@ bool
 Validator::verifySignature(const uint8_t* buf, const size_t size, const DigestSha256& sig)
 {
   try {
-    ConstBufferPtr buffer = crypto::computeSha256Digest(buf, size);
+    ConstBufferPtr buffer = util::Sha256::computeDigest(buf, size);
     const Block& sigValue = sig.getValue();
 
-    if (buffer != nullptr &&
-        buffer->size() == sigValue.value_size() &&
-        buffer->size() == crypto::SHA256_DIGEST_SIZE) {
+    if (buffer->size() == sigValue.value_size() &&
+        buffer->size() == util::Sha256::DIGEST_SIZE) {
       const uint8_t* p1 = buffer->buf();
       const uint8_t* p2 = sigValue.value();
 
-      return 0 == memcmp(p1, p2, crypto::SHA256_DIGEST_SIZE);
+      return 0 == memcmp(p1, p2, util::Sha256::DIGEST_SIZE);
     }
     else
       return false;
   }
-  catch (const CryptoPP::Exception& e) {
+  catch (const util::Sha256::Error&) {
     return false;
   }
 }

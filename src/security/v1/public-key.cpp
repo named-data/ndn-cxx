@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -25,7 +25,7 @@
 #include "public-key.hpp"
 
 #include "../../encoding/oid.hpp"
-#include "../../util/crypto.hpp"
+#include "../../util/digest.hpp"
 #include "cryptopp.hpp"
 
 namespace ndn {
@@ -53,7 +53,7 @@ PublicKey::computeDigest() const
   if (m_digest.hasWire())
     return m_digest;
   else {
-    m_digest = Block(tlv::KeyDigest, crypto::computeSha256Digest(m_key.buf(), m_key.size()));
+    m_digest = Block(tlv::KeyDigest, util::Sha256::computeDigest(m_key.buf(), m_key.size()));
     m_digest.encode();
     return m_digest;
   }
@@ -119,7 +119,7 @@ PublicKey::decode(CryptoPP::BufferedTransformation& in)
 
       m_key.assign(out.begin(), out.end());
     }
-  catch (CryptoPP::BERDecodeErr& err)
+  catch (const CryptoPP::BERDecodeErr& err)
     {
       m_type = KeyType::NONE;
       BOOST_THROW_EXCEPTION(Error("PublicKey decoding error"));
