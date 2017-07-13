@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -81,7 +81,7 @@ public:
   wireDecode(const Block& block, bool wantSort = true);
 
   bool
-  isSorted() const
+  isSorted() const noexcept
   {
     return m_isSorted;
   }
@@ -89,19 +89,25 @@ public:
   using const_iterator = std::vector<Delegation>::const_iterator;
 
   const_iterator
-  begin() const
+  begin() const noexcept
   {
     return m_dels.begin();
   }
 
   const_iterator
-  end() const
+  end() const noexcept
   {
     return m_dels.end();
   }
 
+  bool
+  empty() const noexcept
+  {
+    return m_dels.empty();
+  }
+
   size_t
-  size() const
+  size() const noexcept
   {
     return m_dels.size();
   }

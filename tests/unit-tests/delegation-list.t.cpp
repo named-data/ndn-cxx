@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -170,7 +170,9 @@ BOOST_AUTO_TEST_SUITE(InsertEncode)
 BOOST_AUTO_TEST_CASE(InsertSimple)
 {
   DelegationList dl;
+  BOOST_CHECK_EQUAL(dl.empty(), true);
   dl.insert(2, "/A");
+  BOOST_CHECK_EQUAL(dl.empty(), false);
   dl.insert(1, "/B");
   BOOST_CHECK_EQUAL(dl.size(), 2);
 
