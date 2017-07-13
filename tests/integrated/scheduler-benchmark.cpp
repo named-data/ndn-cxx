@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,11 +26,14 @@
 #include "util/scheduler.hpp"
 
 #include "boost-test.hpp"
+#include "timed-execute.hpp"
 
 namespace ndn {
 namespace util {
 namespace scheduler {
 namespace tests {
+
+using namespace ndn::tests;
 
 BOOST_AUTO_TEST_CASE(ScheduleCancel)
 {
@@ -40,18 +43,20 @@ BOOST_AUTO_TEST_CASE(ScheduleCancel)
   const int nEvents = 1000000;
   std::vector<EventId> eventIds(nEvents);
 
-  time::steady_clock::TimePoint t1 = time::steady_clock::now();
-  for (int i = 0; i < nEvents; ++i) {
-    eventIds[i] = sched.scheduleEvent(time::seconds(1), []{});
-  }
-  time::steady_clock::TimePoint t2 = time::steady_clock::now();
-  for (int i = 0; i < nEvents; ++i) {
-    sched.cancelEvent(eventIds[i]);
-  }
-  time::steady_clock::TimePoint t3 = time::steady_clock::now();
+  auto d1 = timedExecute([&] {
+    for (int i = 0; i < nEvents; ++i) {
+      eventIds[i] = sched.scheduleEvent(time::seconds(1), []{});
+    }
+  });
 
-  BOOST_TEST_MESSAGE("schedule " << nEvents << " events: " << (t2 - t1));
-  BOOST_TEST_MESSAGE("cancel " << nEvents << " events: " << (t3 - t2));
+  auto d2 = timedExecute([&] {
+    for (int i = 0; i < nEvents; ++i) {
+      sched.cancelEvent(eventIds[i]);
+    }
+  });
+
+  std::cout << "schedule " << nEvents << " events: " << d1 << std::endl;
+  std::cout << "cancel " << nEvents << " events: " << d2 << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(Execute)
@@ -79,7 +84,7 @@ BOOST_AUTO_TEST_CASE(Execute)
   io.run();
 
   BOOST_REQUIRE_EQUAL(nExpired, nEvents);
-  BOOST_TEST_MESSAGE("execute " << nEvents << " events: " << (t2 - t1));
+  std::cout << "execute " << nEvents << " events: " << (t2 - t1) << std::endl;
 }
 
 } // namespace tests
