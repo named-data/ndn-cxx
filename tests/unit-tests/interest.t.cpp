@@ -200,6 +200,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
 
   Data data("ndn:/A/D");
   SignatureSha256WithRsa signature(KeyLocator("ndn:/B"));
+  signature.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
   data.setSignature(signature);
   data.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data), true);
@@ -224,6 +225,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
 
   Data data3 = data;
   SignatureSha256WithRsa signature3(KeyLocator("ndn:/G")); // violates PublisherPublicKeyLocator
+  signature3.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
   data3.setSignature(signature3);
   data3.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data3), false);
@@ -234,6 +236,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
 
   Data data4 = data;
   DigestSha256 signature4; // violates PublisherPublicKeyLocator
+  signature4.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
   data4.setSignature(signature4);
   data4.wireEncode();
   BOOST_CHECK_EQUAL(interest.matchesData(data4), false);
@@ -260,7 +263,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   data7.setName("ndn:/A/B");
   data7.wireEncode();
 
-  Interest interest7("/A/B/sha256digest=D548DECEFC4B880720DC9257A8D815E9DF4465E63742EE55C29133055DAA67C2");
+  Interest interest7("/A/B/sha256digest=54008e240a7eea2714a161dfddf0dd6ced223b3856e9da96792151e180f3b128");
   BOOST_CHECK_EQUAL(interest7.matchesData(data7), true);
 
   Interest interest7b("/A/B/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");

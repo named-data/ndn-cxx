@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,9 +43,9 @@ namespace ndn {
 class Block
 {
 public:
-  typedef std::vector<Block>                 element_container;
-  typedef element_container::iterator        element_iterator;
-  typedef element_container::const_iterator  element_const_iterator;
+  using element_container      = std::vector<Block>;
+  using element_iterator       = element_container::iterator;
+  using element_const_iterator = element_container::const_iterator;
 
   class Error : public tlv::Error
   {
@@ -62,286 +62,366 @@ public: // constructor, creation, assignment
    */
   Block();
 
-  /** @brief Create a Block based on EncodingBuffer object
+  /** @brief Parse Block from an EncodingBuffer
+   *  @param buffer an EncodingBuffer containing one TLV element
+   *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
    */
   explicit
   Block(const EncodingBuffer& buffer);
 
-  /** @brief Create a Block from the raw buffer with Type-Length parsing
+  /** @brief Parse Block from a wire Buffer
+   *  @param buffer a Buffer containing one TLV element
+   *  @note This constructor takes shared ownership of @p buffer.
+   *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
    */
   explicit
   Block(const ConstBufferPtr& buffer);
 
-  /** @brief Create a Block from a buffer, directly specifying boundaries
-   *         of the block within the buffer
-   *
-   *  This overload will automatically detect type and position of the value within the block
+  /** @brief Parse Block within boundaries of a wire Buffer
+   *  @param buffer a Buffer containing an TLV element at [@p begin,@p end)
+   *  @param begin begin position of the TLV element within @p buffer
+   *  @param end end position of the TLV element within @p buffer
+   *  @param verifyLength if true, check TLV-LENGTH equals size of TLV-VALUE
+   *  @throw std::invalid_argument @p buffer is empty, or [@p begin,@p end) range are not within @p buffer
+   *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
+   *  @note This overload automatically detects TLV-TYPE and position of TLV-VALUE.
    */
-  Block(const ConstBufferPtr& buffer,
-        const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
+  Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_iterator end,
         bool verifyLength = true);
 
-  /** @brief Create a Block from existing block (reusing the underlying buffer), directly
-   *         specifying boundaries of the block within the buffer
-   *
-   *  This overload will automatically detect type and position of the value within the block
+  /** @brief Parse Block within boundaries of an existing Block, reusing underlying wire Buffer
+   *  @param block a Block whose buffer contains an TLV element at [@p begin,@p end)
+   *  @param begin begin position of the TLV element within @p block
+   *  @param end end position of the TLV element within @p block
+   *  @param verifyLength if true, check TLV-LENGTH equals size of TLV-VALUE
+   *  @throw std::invalid_argument [@p begin,@p end) range are not within @p block
+   *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
    */
-  Block(const Block& block,
-        const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
+  Block(const Block& block, Buffer::const_iterator begin, Buffer::const_iterator end,
         bool verifyLength = true);
 
-  /** @brief Create a Block from the raw buffer with Type-Length parsing
+  /** @brief Create a Block from a wire Buffer without parsing
+   *  @param buffer a Buffer containing an TLV element at [@p begin,@p end)
+   *  @param type TLV-TYPE
+   *  @param begin begin position of the TLV element within @p buffer
+   *  @param end end position of the TLV element within @p buffer
+   *  @param valueBegin begin position of TLV-VALUE within @p buffer
+   *  @param valueEnd end position of TLV-VALUE within @p buffer
    */
-  Block(const uint8_t* buffer, size_t maxlength);
+  Block(ConstBufferPtr buffer, uint32_t type,
+        Buffer::const_iterator begin, Buffer::const_iterator end,
+        Buffer::const_iterator valueBegin, Buffer::const_iterator valueEnd);
 
-  /** @brief Create a Block from the raw buffer with Type-Length parsing
+  /** @brief Parse Block from a raw buffer
+   *  @param buf pointer to the first octet of an TLV element
+   *  @param bufSize size of the raw buffer; may be more than size of the TLV element
+   *  @throw tlv::Error Type-Length parsing fails, or size of TLV-VALUE exceeds @p bufSize
+   *  @note This overload copies the TLV element into an internal wire buffer.
    */
-  Block(const void* buffer, size_t maxlength);
+  Block(const uint8_t* buf, size_t bufSize);
 
-  /** @brief Create a Block from the wire buffer (no parsing)
-   *
-   *  This overload does not do any parsing
+  /** @brief Parse Block from a raw buffer
+   *  @deprecated use Block(const uint8_t*, size_t)
    */
-  Block(const ConstBufferPtr& wire,
-        uint32_t type,
-        const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
-        const Buffer::const_iterator& valueBegin, const Buffer::const_iterator& valueEnd);
+  Block(const void* buf, size_t bufSize);
 
-  /** @brief Create Block of a specific type with empty wire buffer
+  /** @brief Create an empty Block with specified TLV-TYPE
+   *  @param type TLV-TYPE
    */
   explicit
   Block(uint32_t type);
 
-  /** @brief Create a Block of a specific type with the specified value
-   *
-   *  The underlying buffer holds only value Additional operations are needed
-   *  to construct wire encoding, one need to prepend the wire buffer with type
-   *  and value-length VAR-NUMBERs
+  /** @brief Create a Block with specified TLV-TYPE and TLV-VALUE
+   *  @param type TLV-TYPE
+   *  @param value a Buffer containing the TLV-VALUE
    */
-  Block(uint32_t type, const ConstBufferPtr& value);
+  Block(uint32_t type, ConstBufferPtr value);
 
-  /** @brief Create a nested Block of a specific type with the specified value
-   *
-   *  The underlying buffer holds only value. Additional operations are needed
-   *  to construct wire encoding, one need to prepend the wire buffer with type
-   *  and value-length VAR-NUMBERs
+  /** @brief Create a Block with specified TLV-TYPE and TLV-VALUE
+   *  @param type TLV-TYPE
+   *  @param value a Block to be nested as TLV-VALUE
    */
   Block(uint32_t type, const Block& value);
 
-  /** @brief Create a Block from an input stream
+  /** @brief Parse Block from an input stream
    */
   static Block
   fromStream(std::istream& is);
 
-  /** @brief Try to construct block from Buffer
-   *  @param buffer the buffer to construct block from
-   *  @note buffer is passed by value because the constructed block
-   *        takes shared ownership of the buffer
-   *  @param offset offset from beginning of \p buffer to construct Block from
-   *
-   *  This method does not throw upon decoding error.
-   *  This method does not copy the bytes.
-   *
-   *  @return true and the Block, if Block is successfully created; otherwise false
+  /** @brief Try to parse Block from a wire buffer
+   *  @param buffer a Buffer containing an TLV element at offset @p offset
+   *  @param offset begin position of the TLV element within @p buffer
+   *  @note This function does not throw exceptions upon decoding failure.
+   *  @return true and the Block if parsing succeeds; otherwise false
    */
   static std::tuple<bool, Block>
   fromBuffer(ConstBufferPtr buffer, size_t offset);
 
-  /** @brief Try to construct block from raw buffer
-   *  @param buffer the raw buffer to copy bytes from
-   *  @param maxSize the maximum size of constructed block;
-   *                 @p buffer must have a size of at least @p maxSize
-   *
-   *  This method does not throw upon decoding error.
-   *  This method copies the bytes into a new Buffer.
-   *
-   *  @return true and the Block, if Block is successfully created; otherwise false
+  /** @brief Try to parse Block from a raw buffer
+   *  @param buf pointer to the first octet of an TLV element
+   *  @param bufSize size of the raw buffer; may be more than size of the TLV element
+   *  @note This function does not throw exceptions upon decoding failure.
+   *  @note This overload copies the TLV element into an internal wire buffer.
+   *  @return true and the Block if parsing succeeds; otherwise false
    */
   static std::tuple<bool, Block>
-  fromBuffer(const uint8_t* buffer, size_t maxSize);
+  fromBuffer(const uint8_t* buf, size_t bufSize);
 
 public: // wire format
   /** @brief Check if the Block is empty
+   *
+   *  A Block is "empty" only if it is default-constructed. A Block with zero-length TLV-VALUE is
+   *  not considered empty.
    */
   bool
-  empty() const;
+  empty() const
+  {
+    return m_type == std::numeric_limits<uint32_t>::max();
+  }
 
   /** @brief Check if the Block has fully encoded wire
+   *
+   *  A Block has fully encoded wire if the underlying buffer exists and contains full
+   *  Type-Length-Value instead of just TLV-VALUE field.
    */
   bool
   hasWire() const;
 
   /** @brief Reset wire buffer of the element
+   *  @post empty() == true
    */
   void
   reset();
 
-  /** @brief Reset wire buffer but keep sub elements (if any)
+  /** @brief Reset wire buffer but keep TLV-TYPE and sub elements (if any)
+   *  @post hasWire() == false
+   *  @post hasValue() == false
    */
   void
   resetWire();
 
+  /** @brief Get begin iterator of encoded wire
+   *  @pre hasWire() == true
+   */
   Buffer::const_iterator
   begin() const;
 
+  /** @brief Get end iterator of encoded wire
+   *  @pre hasWire() == true
+   */
   Buffer::const_iterator
   end() const;
 
+  /** @brief Get pointer to encoded wire
+   *  @pre hasWire() == true
+   */
   const uint8_t*
   wire() const;
 
+  /** @brief Get size of encoded wire, including Type-Length-Value
+   *  @pre empty() == false
+   */
   size_t
   size() const;
 
-public: // type and value
-  uint32_t
-  type() const;
+  /** @brief Get underlying buffer
+   */
+  shared_ptr<const Buffer>
+  getBuffer() const
+  {
+    return m_buffer;
+  }
 
-  /** @brief Check if the Block has value block (no type and length are encoded)
+public: // type and value
+  /** @brief Get TLV-TYPE
+   */
+  uint32_t
+  type() const
+  {
+    return m_type;
+  }
+
+  /** @brief Get begin iterator of TLV-VALUE
+   *
+   *  This property reflects whether the underlying buffer contains TLV-VALUE. If this is false,
+   *  TLV-VALUE has zero-length. If this is true, TLV-VALUE may be zero-length.
    */
   bool
-  hasValue() const;
+  hasValue() const
+  {
+    return m_buffer != nullptr;
+  }
 
+  /** @brief Get begin iterator of TLV-VALUE
+   *  @pre hasValue() == true
+   */
   Buffer::const_iterator
-  value_begin() const;
+  value_begin() const
+  {
+    return m_valueBegin;
+  }
 
+  /** @brief Get end iterator of TLV-VALUE
+   *  @pre hasValue() == true
+   */
   Buffer::const_iterator
-  value_end() const;
+  value_end() const
+  {
+    return m_valueEnd;
+  }
 
+  /** @brief Get pointer to TLV-VALUE
+   */
   const uint8_t*
   value() const;
 
+  /** @brief Get size of TLV-VALUE aka TLV-LENGTH
+   */
   size_t
   value_size() const;
-
-public: // sub elements
-  /** @brief Parse wire buffer into subblocks
-   *
-   *  This method is not really const, but it does not modify any data.  It simply
-   *  parses contents of the buffer into subblocks
-   */
-  void
-  parse() const;
-
-  /** @brief Encode subblocks into wire buffer
-   */
-  void
-  encode();
-
-  /** @brief Get the first subelement of the requested type
-   */
-  const Block&
-  get(uint32_t type) const;
-
-  element_const_iterator
-  find(uint32_t type) const;
-
-  /**
-   * @brief remove all subelements of \p type
-   * @param type TLV-TYPE of subelements to remove
-   * @pre parse() has been invoked
-   */
-  void
-  remove(uint32_t type);
-
-  element_iterator
-  erase(element_const_iterator position);
-
-  element_iterator
-  erase(element_const_iterator first, element_const_iterator last);
-
-  void
-  push_back(const Block& element);
-
-  /**
-   * @brief insert Insert a new element in a specific position
-   * @param pos Position to insert the new element
-   * @param element Element to be inserted
-   * @return An iterator that points to the first of the newly inserted elements.
-   */
-  element_iterator
-  insert(element_const_iterator pos, const Block& element);
-
-  /** @brief Get all subelements
-   */
-  const element_container&
-  elements() const;
-
-  element_const_iterator
-  elements_begin() const;
-
-  element_const_iterator
-  elements_end() const;
-
-  size_t
-  elements_size() const;
 
   Block
   blockFromValue() const;
 
-  /**
-   * @brief Get underlying buffer
+public: // sub elements
+  /** @brief Parse TLV-VALUE into sub elements
+   *  @post elements() reflects sub elements found in TLV-VALUE
+   *  @throw tlv::Error TLV-VALUE is not a sequence of TLV elements
+   *  @note This method does not perform recursive parsing.
+   *  @note This method has no effect if elements() is already populated.
+   *  @note This method is not really const, but it does not modify any data.
    */
-  shared_ptr<const Buffer>
-  getBuffer() const;
+  void
+  parse() const;
 
-public: // EqualityComparable concept
-  bool
-  operator==(const Block& other) const;
+  /** @brief Encode sub elements into TLV-VALUE
+   *  @post TLV-VALUE contains sub elements from elements()
+   */
+  void
+  encode();
 
-  bool
-  operator!=(const Block& other) const;
+  /** @brief Get the first sub element of specified TLV-TYPE
+   *  @pre parse() has been executed
+   *  @throw Error sub element of @p type does not exist
+   */
+  const Block&
+  get(uint32_t type) const;
 
-public: // ConvertibleToConstBuffer
+  /** @brief Find the first sub element of specified TLV-TYPE
+   *  @pre parse() has been executed
+   *  @return iterator in elements() to the found sub element, otherwise elements_end()
+   */
+  element_const_iterator
+  find(uint32_t type) const;
+
+  /** @brief Remove all sub elements of specified TLV-TYPE
+   *  @pre parse() has been executed
+   *  @post find(type) == elements_end()
+   */
+  void
+  remove(uint32_t type);
+
+  /** @brief Erase a sub element
+   */
+  element_iterator
+  erase(element_const_iterator position);
+
+  /** @brief Erase a range of sub elements
+   */
+  element_iterator
+  erase(element_const_iterator first, element_const_iterator last);
+
+  /** @brief Append a sub element
+   */
+  void
+  push_back(const Block& element);
+
+  /** @brief Insert a sub element
+   *  @param pos position of new sub element
+   *  @param element new sub element
+   *  @return iterator in elements() to the new sub element
+   */
+  element_iterator
+  insert(element_const_iterator pos, const Block& element);
+
+  /** @brief Get container of sub elements
+   *  @pre parse() has been executed
+   */
+  const element_container&
+  elements() const
+  {
+    return m_elements;
+  }
+
+  /** @brief Equivalent to elements().begin()
+   */
+  element_const_iterator
+  elements_begin() const
+  {
+    return m_elements.begin();
+  }
+
+  /** @brief Equivalent to elements().end()
+   */
+  element_const_iterator
+  elements_end() const
+  {
+    return m_elements.end();
+  }
+
+  /** @brief Equivalent to elements().size()
+   */
+  size_t
+  elements_size() const
+  {
+    return m_elements.size();
+  }
+
+public: // misc
+  /** @brief Implicit conversion to const_buffer
+   */
   operator boost::asio::const_buffer() const;
 
 protected:
+  /** @brief underlying buffer storing TLV-VALUE and possibly TLV-TYPE and TLV-LENGTH fields
+   *
+   *  If m_buffer is nullptr, this is an empty Block with TLV-TYPE given in m_type.
+   *  Otherwise,
+   *  - [m_valueBegin, m_valueEnd) point to TLV-VALUE within m_buffer.
+   *  - If m_begin != m_end, [m_begin,m_end) point to Type-Length-Value of this Block within m_buffer.
+   *    Otherwise, m_buffer does not contain TLV-TYPE and TLV-LENGTH fields.
+   */
   shared_ptr<const Buffer> m_buffer;
+  Buffer::const_iterator m_begin; ///< @sa m_buffer
+  Buffer::const_iterator m_end; ///< @sa m_buffer
 
-  uint32_t m_type;
+  Buffer::const_iterator m_valueBegin; ///< @sa m_buffer
+  Buffer::const_iterator m_valueEnd; ///< @sa m_buffer
 
-  Buffer::const_iterator m_begin;
-  Buffer::const_iterator m_end;
+  uint32_t m_type; ///< TLV-TYPE
+
+  /** @brief total size including Type-Length-Value
+   *
+   *  This field is valid only if empty() is false.
+   */
   uint32_t m_size;
 
-  Buffer::const_iterator m_value_begin;
-  Buffer::const_iterator m_value_end;
-
-  mutable element_container m_subBlocks;
+  /** @brief sub elements
+   *
+   *  This field is valid only if parse() has been executed.
+   */
+  mutable element_container m_elements;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+/** @brief Compare whether two Blocks have same TLV-TYPE, TLV-LENGTH, and TLV-VALUE
+ */
+bool
+operator==(const Block& lhs, const Block& rhs);
 
-inline shared_ptr<const Buffer>
-Block::getBuffer() const
+inline bool
+operator!=(const Block& lhs, const Block& rhs)
 {
-  return m_buffer;
-}
-
-inline uint32_t
-Block::type() const
-{
-  return m_type;
-}
-
-inline Buffer::const_iterator
-Block::value_begin() const
-{
-  return m_value_begin;
-}
-
-inline Buffer::const_iterator
-Block::value_end() const
-{
-  return m_value_end;
-}
-
-inline const Block::element_container&
-Block::elements() const
-{
-  return m_subBlocks;
+  return !(lhs == rhs);
 }
 
 } // namespace ndn

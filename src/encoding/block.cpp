@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,9 @@
 
 #include "block.hpp"
 #include "block-helpers.hpp"
-
-#include "tlv.hpp"
-#include "encoding-buffer.hpp"
 #include "buffer-stream.hpp"
+#include "encoding-buffer.hpp"
+#include "tlv.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/asio/buffer.hpp>
@@ -45,176 +44,122 @@ static_assert(std::is_nothrow_move_assignable<Block>::value,
 
 const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = MAX_NDN_PACKET_SIZE;
 
+// ---- constructor, creation, assignment ----
+
 Block::Block()
   : m_type(std::numeric_limits<uint32_t>::max())
+  , m_size(0)
 {
 }
 
 Block::Block(const EncodingBuffer& buffer)
-  : m_buffer(const_cast<EncodingBuffer&>(buffer).getBuffer())
-  , m_begin(buffer.begin())
-  , m_end(buffer.end())
-  , m_size(m_end - m_begin)
-{
-  m_value_begin = m_begin;
-  m_value_end   = m_end;
-
-  m_type = tlv::readType(m_value_begin, m_value_end);
-  uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
-  if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
-    {
-      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
-    }
-}
-
-Block::Block(const ConstBufferPtr& wire,
-             uint32_t type,
-             const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
-             const Buffer::const_iterator& valueBegin, const Buffer::const_iterator& valueEnd)
-  : m_buffer(wire)
-  , m_type(type)
-  , m_begin(begin)
-  , m_end(end)
-  , m_size(m_end - m_begin)
-  , m_value_begin(valueBegin)
-  , m_value_end(valueEnd)
+  : Block(const_cast<EncodingBuffer&>(buffer).getBuffer(), buffer.begin(), buffer.end(), true)
 {
 }
 
 Block::Block(const ConstBufferPtr& buffer)
-  : m_buffer(buffer)
-  , m_begin(m_buffer->begin())
-  , m_end(m_buffer->end())
-  , m_size(m_end - m_begin)
+  : Block(buffer, buffer->begin(), buffer->end(), true)
 {
-  m_value_begin = m_begin;
-  m_value_end   = m_end;
-
-  m_type = tlv::readType(m_value_begin, m_value_end);
-
-  uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
-  if (length != static_cast<uint64_t>(m_value_end - m_value_begin))
-    {
-      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
-    }
 }
 
-Block::Block(const ConstBufferPtr& buffer,
-             const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
-             bool verifyLength/* = true*/)
-  : m_buffer(buffer)
+Block::Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_iterator end,
+             bool verifyLength)
+  : m_buffer(std::move(buffer))
   , m_begin(begin)
   , m_end(end)
+  , m_valueBegin(m_begin)
+  , m_valueEnd(m_end)
   , m_size(m_end - m_begin)
 {
-  m_value_begin = m_begin;
-  m_value_end   = m_end;
+  if (m_buffer->size() == 0) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("buffer is empty"));
+  }
 
-  m_type = tlv::readType(m_value_begin, m_value_end);
-  uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
-  if (verifyLength) {
-    if (length != static_cast<uint64_t>(std::distance(m_value_begin, m_value_end))) {
-      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
-    }
+  const uint8_t* bufferBegin = &m_buffer->front();
+  const uint8_t* bufferEnd = bufferBegin + m_buffer->size();
+  if (&*begin < bufferBegin || &*begin > bufferEnd ||
+      &*end   < bufferBegin || &*end   > bufferEnd) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("begin/end iterators points out of the buffer"));
+  }
+
+  m_type = tlv::readType(m_valueBegin, m_valueEnd);
+  uint64_t length = tlv::readVarNumber(m_valueBegin, m_valueEnd);
+  // m_valueBegin now points to TLV-VALUE
+
+  if (verifyLength && length != static_cast<uint64_t>(m_valueEnd - m_valueBegin)) {
+    BOOST_THROW_EXCEPTION(Error("TLV-LENGTH doesn't match buffer size"));
   }
 }
 
-Block::Block(const Block& block,
-             const Buffer::const_iterator& begin, const Buffer::const_iterator& end,
-             bool verifyLength/* = true*/)
-  : m_buffer(block.m_buffer)
+Block::Block(const Block& block, Buffer::const_iterator begin, Buffer::const_iterator end,
+             bool verifyLength)
+  : Block(block.m_buffer, begin, end, verifyLength)
+{
+}
+
+Block::Block(ConstBufferPtr buffer, uint32_t type,
+             Buffer::const_iterator begin, Buffer::const_iterator end,
+             Buffer::const_iterator valueBegin, Buffer::const_iterator valueEnd)
+  : m_buffer(std::move(buffer))
   , m_begin(begin)
   , m_end(end)
+  , m_valueBegin(valueBegin)
+  , m_valueEnd(valueEnd)
+  , m_type(type)
   , m_size(m_end - m_begin)
 {
-  if (!(m_buffer->begin() <= begin && begin <= m_buffer->end()) ||
-      !(m_buffer->begin() <= end   && end   <= m_buffer->end())) {
-    BOOST_THROW_EXCEPTION(Error("begin/end iterators do not point to the underlying buffer of the block"));
-  }
-
-  m_value_begin = m_begin;
-  m_value_end   = m_end;
-
-  m_type = tlv::readType(m_value_begin, m_value_end);
-  uint64_t length = tlv::readVarNumber(m_value_begin, m_value_end);
-  if (verifyLength) {
-    if (length != static_cast<uint64_t>(std::distance(m_value_begin, m_value_end))) {
-      BOOST_THROW_EXCEPTION(tlv::Error("TLV length doesn't match buffer length"));
-    }
-  }
 }
 
-Block::Block(const uint8_t* buffer, size_t maxlength)
+Block::Block(const uint8_t* buf, size_t bufSize)
 {
-  const uint8_t*  tmp_begin = buffer;
-  const uint8_t*  tmp_end   = buffer + maxlength;
+  const uint8_t* pos = buf;
+  const uint8_t* const end = buf + bufSize;
 
-  m_type = tlv::readType(tmp_begin, tmp_end);
-  uint64_t length = tlv::readVarNumber(tmp_begin, tmp_end);
+  m_type = tlv::readType(pos, end);
+  uint64_t length = tlv::readVarNumber(pos, end);
+  // pos now points to TLV-VALUE
 
-  if (length > static_cast<uint64_t>(tmp_end - tmp_begin))
-    {
-      BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
-    }
+  if (length > static_cast<uint64_t>(end - pos)) {
+    BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
+  }
+  size_t typeLengthSize = pos - buf;
+  m_size = typeLengthSize + length;
 
-  m_buffer = make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
-
+  m_buffer = make_shared<Buffer>(buf, m_size);
   m_begin = m_buffer->begin();
-  m_end = m_buffer->end();
-  m_size = m_end - m_begin;
-
-  m_value_begin = m_buffer->begin() + (tmp_begin - buffer);
-  m_value_end   = m_buffer->end();
+  m_end = m_valueEnd = m_buffer->end();
+  m_valueBegin = m_begin + typeLengthSize;
 }
 
-Block::Block(const void* bufferX, size_t maxlength)
+Block::Block(const void* buf, size_t bufSize)
+  : Block(reinterpret_cast<const uint8_t*>(buf), bufSize)
 {
-  const uint8_t* buffer = reinterpret_cast<const uint8_t*>(bufferX);
-
-  const uint8_t* tmp_begin = buffer;
-  const uint8_t* tmp_end   = buffer + maxlength;
-
-  m_type = tlv::readType(tmp_begin, tmp_end);
-  uint64_t length = tlv::readVarNumber(tmp_begin, tmp_end);
-
-  if (length > static_cast<uint64_t>(tmp_end - tmp_begin))
-    {
-      BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
-    }
-
-  m_buffer = make_shared<Buffer>(buffer, (tmp_begin - buffer) + length);
-
-  m_begin = m_buffer->begin();
-  m_end = m_buffer->end();
-  m_size = m_end - m_begin;
-
-  m_value_begin = m_buffer->begin() + (tmp_begin - buffer);
-  m_value_end   = m_buffer->end();
 }
 
 Block::Block(uint32_t type)
   : m_type(type)
+  , m_size(tlv::sizeOfVarNumber(m_type) + tlv::sizeOfVarNumber(0))
 {
 }
 
-Block::Block(uint32_t type, const ConstBufferPtr& value)
-  : m_buffer(value)
-  , m_type(type)
+Block::Block(uint32_t type, ConstBufferPtr value)
+  : m_buffer(std::move(value))
   , m_begin(m_buffer->end())
   , m_end(m_buffer->end())
-  , m_value_begin(m_buffer->begin())
-  , m_value_end(m_buffer->end())
+  , m_valueBegin(m_buffer->begin())
+  , m_valueEnd(m_buffer->end())
+  , m_type(type)
 {
   m_size = tlv::sizeOfVarNumber(m_type) + tlv::sizeOfVarNumber(value_size()) + value_size();
 }
 
 Block::Block(uint32_t type, const Block& value)
   : m_buffer(value.m_buffer)
-  , m_type(type)
   , m_begin(m_buffer->end())
   , m_end(m_buffer->end())
-  , m_value_begin(value.begin())
-  , m_value_end(value.end())
+  , m_valueBegin(value.begin())
+  , m_valueEnd(value.end())
+  , m_type(type)
 {
   m_size = tlv::sizeOfVarNumber(m_type) + tlv::sizeOfVarNumber(value_size()) + value_size();
 }
@@ -229,11 +174,13 @@ Block::fromStream(std::istream& is)
   uint64_t length = tlv::readVarNumber(begin, end);
 
   if (length == 0) {
-    return makeEmptyBlock(type);
+    // XXX An extra octet is incorrectly consumed from istream (#4180)
+    return Block(type);
   }
 
-  if (length > MAX_SIZE_OF_BLOCK_FROM_STREAM)
-    BOOST_THROW_EXCEPTION(tlv::Error("Length of block from stream is too large"));
+  if (length > MAX_SIZE_OF_BLOCK_FROM_STREAM) {
+    BOOST_THROW_EXCEPTION(tlv::Error("TLV-LENGTH from stream exceeds limit"));
+  }
 
   // We may still have some problem here, if some exception happens,
   // we may completely lose all the bytes extracted from the stream.
@@ -252,225 +199,78 @@ Block::fromStream(std::istream& is)
 std::tuple<bool, Block>
 Block::fromBuffer(ConstBufferPtr buffer, size_t offset)
 {
-  Buffer::const_iterator tempBegin = buffer->begin() + offset;
+  const Buffer::const_iterator begin = buffer->begin() + offset;
+  Buffer::const_iterator pos = begin;
 
-  uint32_t type;
-  bool isOk = tlv::readType(tempBegin, buffer->end(), type);
-  if (!isOk)
+  uint32_t type = 0;
+  bool isOk = tlv::readType(pos, buffer->end(), type);
+  if (!isOk) {
     return std::make_tuple(false, Block());
-
-  uint64_t length;
-  isOk = tlv::readVarNumber(tempBegin, buffer->end(), length);
-  if (!isOk)
+  }
+  uint64_t length = 0;
+  isOk = tlv::readVarNumber(pos, buffer->end(), length);
+  if (!isOk) {
     return std::make_tuple(false, Block());
+  }
+  // pos now points to TLV-VALUE
 
-  if (length > static_cast<uint64_t>(buffer->end() - tempBegin))
+  if (length > static_cast<uint64_t>(buffer->end() - pos)) {
     return std::make_tuple(false, Block());
+  }
 
-  return std::make_tuple(true, Block(buffer, type,
-                                     buffer->begin() + offset, tempBegin + length,
-                                     tempBegin, tempBegin + length));
+  return std::make_tuple(true, Block(buffer, type, begin, pos + length, pos, pos + length));
 }
 
 std::tuple<bool, Block>
-Block::fromBuffer(const uint8_t* buffer, size_t maxSize)
+Block::fromBuffer(const uint8_t* buf, size_t bufSize)
 {
-  const uint8_t* tempBegin = buffer;
-  const uint8_t* tempEnd = buffer + maxSize;
+  const uint8_t* pos = buf;
+  const uint8_t* const end = buf + bufSize;
 
   uint32_t type = 0;
-  bool isOk = tlv::readType(tempBegin, tempEnd, type);
-  if (!isOk)
+  bool isOk = tlv::readType(pos, end, type);
+  if (!isOk) {
     return std::make_tuple(false, Block());
-
-  uint64_t length;
-  isOk = tlv::readVarNumber(tempBegin, tempEnd, length);
-  if (!isOk)
+  }
+  uint64_t length = 0;
+  isOk = tlv::readVarNumber(pos, end, length);
+  if (!isOk) {
     return std::make_tuple(false, Block());
+  }
+  // pos now points to TLV-VALUE
 
-  if (length > static_cast<uint64_t>(tempEnd - tempBegin))
+  if (length > static_cast<uint64_t>(end - pos)) {
     return std::make_tuple(false, Block());
+  }
 
-  BufferPtr sharedBuffer = make_shared<Buffer>(buffer, tempBegin + length);
-  return std::make_tuple(true,
-         Block(sharedBuffer, type,
-               sharedBuffer->begin(), sharedBuffer->end(),
-               sharedBuffer->begin() + (tempBegin - buffer), sharedBuffer->end()));
+  size_t typeLengthSize = pos - buf;
+  auto b = make_shared<Buffer>(buf, pos + length);
+  return std::make_tuple(true, Block(b, type, b->begin(), b->end(),
+                                     b->begin() + typeLengthSize, b->end()));
+}
+
+// ---- wire format ----
+
+bool
+Block::hasWire() const
+{
+  return m_buffer != nullptr && m_begin != m_end;
 }
 
 void
 Block::reset()
 {
-  m_buffer.reset(); // reset of the shared_ptr
-  m_subBlocks.clear(); // remove all parsed subelements
+  this->resetWire();
 
   m_type = std::numeric_limits<uint32_t>::max();
-  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
+  m_elements.clear();
 }
 
 void
 Block::resetWire()
 {
-  m_buffer.reset(); // reset of the shared_ptr
-  // keep subblocks
-
-  // keep type
-  m_begin = m_end = m_value_begin = m_value_end = Buffer::const_iterator();
-}
-
-void
-Block::parse() const
-{
-  if (!m_subBlocks.empty() || value_size() == 0)
-    return;
-
-  Buffer::const_iterator begin = value_begin();
-  Buffer::const_iterator end = value_end();
-
-  while (begin != end)
-    {
-      Buffer::const_iterator element_begin = begin;
-
-      uint32_t type = tlv::readType(begin, end);
-      uint64_t length = tlv::readVarNumber(begin, end);
-
-      if (length > static_cast<uint64_t>(end - begin))
-        {
-          m_subBlocks.clear();
-          BOOST_THROW_EXCEPTION(tlv::Error("TLV length exceeds buffer length"));
-        }
-      Buffer::const_iterator element_end = begin + length;
-
-      m_subBlocks.push_back(Block(m_buffer,
-                                  type,
-                                  element_begin, element_end,
-                                  begin, element_end));
-
-      begin = element_end;
-      // don't do recursive parsing, just the top level
-    }
-}
-
-void
-Block::encode()
-{
-  if (hasWire())
-    return;
-
-  OBufferStream os;
-  tlv::writeVarNumber(os, type());
-
-  if (hasValue())
-    {
-      tlv::writeVarNumber(os, value_size());
-      os.write(reinterpret_cast<const char*>(value()), value_size());
-    }
-  else if (m_subBlocks.size() == 0)
-    {
-      tlv::writeVarNumber(os, 0);
-    }
-  else
-    {
-      size_t valueSize = 0;
-      for (element_const_iterator i = m_subBlocks.begin(); i != m_subBlocks.end(); ++i) {
-        valueSize += i->size();
-      }
-
-      tlv::writeVarNumber(os, valueSize);
-
-      for (element_const_iterator i = m_subBlocks.begin(); i != m_subBlocks.end(); ++i) {
-        if (i->hasWire())
-          os.write(reinterpret_cast<const char*>(i->wire()), i->size());
-        else if (i->hasValue()) {
-          tlv::writeVarNumber(os, i->type());
-          tlv::writeVarNumber(os, i->value_size());
-          os.write(reinterpret_cast<const char*>(i->value()), i->value_size());
-        }
-        else
-          BOOST_THROW_EXCEPTION(Error("Underlying value buffer is empty"));
-      }
-    }
-
-  // now assign correct block
-
-  m_buffer = os.buf();
-  m_begin = m_buffer->begin();
-  m_end   = m_buffer->end();
-  m_size  = m_end - m_begin;
-
-  m_value_begin = m_buffer->begin();
-  m_value_end   = m_buffer->end();
-
-  tlv::readType(m_value_begin, m_value_end);
-  tlv::readVarNumber(m_value_begin, m_value_end);
-}
-
-const Block&
-Block::get(uint32_t type) const
-{
-  element_const_iterator it = this->find(type);
-  if (it != m_subBlocks.end())
-    return *it;
-
-  BOOST_THROW_EXCEPTION(Error("(Block::get) Requested a non-existed type [" +
-                              boost::lexical_cast<std::string>(type) + "] from Block"));
-}
-
-Block::element_const_iterator
-Block::find(uint32_t type) const
-{
-  return std::find_if(m_subBlocks.begin(), m_subBlocks.end(),
-                      [type] (const Block& subBlock) { return subBlock.type() == type; });
-}
-
-void
-Block::remove(uint32_t type)
-{
-  resetWire();
-
-  auto it = std::remove_if(m_subBlocks.begin(), m_subBlocks.end(),
-                           [type] (const Block& subBlock) { return subBlock.type() == type; });
-  m_subBlocks.resize(it - m_subBlocks.begin());
-}
-
-Block
-Block::blockFromValue() const
-{
-  if (value_size() == 0)
-    BOOST_THROW_EXCEPTION(Error("Underlying value buffer is empty"));
-
-  Buffer::const_iterator begin = value_begin(),
-                         end = value_end();
-
-  Buffer::const_iterator element_begin = begin;
-
-  uint32_t type = tlv::readType(begin, end);
-  uint64_t length = tlv::readVarNumber(begin, end);
-
-  if (length != static_cast<uint64_t>(end - begin))
-    BOOST_THROW_EXCEPTION(tlv::Error("TLV length mismatches buffer length"));
-
-  return Block(m_buffer,
-               type,
-               element_begin, end,
-               begin, end);
-}
-
-Block::operator boost::asio::const_buffer() const
-{
-  return boost::asio::const_buffer(wire(), size());
-}
-
-bool
-Block::empty() const
-{
-  return m_type == std::numeric_limits<uint32_t>::max();
-}
-
-bool
-Block::hasWire() const
-{
-  return m_buffer && (m_begin != m_end);
+  m_buffer.reset(); // discard underlying buffer by resetting shared_ptr
+  m_begin = m_end = m_valueBegin = m_valueEnd = Buffer::const_iterator();
 }
 
 Buffer::const_iterator
@@ -495,7 +295,7 @@ const uint8_t*
 Block::wire() const
 {
   if (!hasWire())
-    BOOST_THROW_EXCEPTION(Error("(Block::wire) Underlying wire buffer is empty"));
+    BOOST_THROW_EXCEPTION(Error("Underlying wire buffer is empty"));
 
   return &*m_begin;
 }
@@ -503,35 +303,144 @@ Block::wire() const
 size_t
 Block::size() const
 {
-  if (hasWire() || hasValue()) {
-    return m_size;
-  }
-  else
+  if (empty()) {
     BOOST_THROW_EXCEPTION(Error("Block size cannot be determined (undefined block size)"));
+  }
+
+  return m_size;
 }
 
-bool
-Block::hasValue() const
-{
-  return static_cast<bool>(m_buffer);
-}
+// ---- value ----
 
 const uint8_t*
 Block::value() const
 {
-  if (!hasValue())
-    return 0;
-
-  return &*m_value_begin;
+  return hasValue() ? &*m_valueBegin : nullptr;
 }
 
 size_t
 Block::value_size() const
 {
-  if (!hasValue())
-    return 0;
+  return hasValue() ? m_valueEnd - m_valueBegin : 0;
+}
 
-  return m_value_end - m_value_begin;
+Block
+Block::blockFromValue() const
+{
+  if (!hasValue())
+    BOOST_THROW_EXCEPTION(Error("Block has no TLV-VALUE"));
+
+  return Block(*this, m_valueBegin, m_valueEnd, true);
+}
+
+// ---- sub elements ----
+
+void
+Block::parse() const
+{
+  if (!m_elements.empty() || value_size() == 0)
+    return;
+
+  Buffer::const_iterator begin = value_begin();
+  Buffer::const_iterator end = value_end();
+
+  while (begin != end) {
+    Buffer::const_iterator pos = begin;
+
+    uint32_t type = tlv::readType(pos, end);
+    uint64_t length = tlv::readVarNumber(pos, end);
+    if (length > static_cast<uint64_t>(end - pos)) {
+      m_elements.clear();
+      BOOST_THROW_EXCEPTION(Error("TLV-LENGTH of sub-element of type " + to_string(type) +
+                                  " exceeds TLV-VALUE boundary of parent block"));
+    }
+    // pos now points to TLV-VALUE of sub element
+
+    Buffer::const_iterator subEnd = pos + length;
+    m_elements.emplace_back(m_buffer, type, begin, subEnd, pos, subEnd);
+
+    begin = subEnd;
+  }
+}
+
+void
+Block::encode()
+{
+  if (hasWire())
+    return;
+
+  OBufferStream os;
+  tlv::writeVarNumber(os, type());
+
+  if (hasValue()) {
+    tlv::writeVarNumber(os, value_size());
+    os.write(reinterpret_cast<const char*>(value()), value_size());
+  }
+  else if (m_elements.size() == 0) {
+    tlv::writeVarNumber(os, 0);
+  }
+  else {
+    size_t valueSize = 0;
+    for (element_const_iterator i = m_elements.begin(); i != m_elements.end(); ++i) {
+      valueSize += i->size();
+    }
+
+    tlv::writeVarNumber(os, valueSize);
+
+    for (element_const_iterator i = m_elements.begin(); i != m_elements.end(); ++i) {
+      if (i->hasWire())
+        os.write(reinterpret_cast<const char*>(i->wire()), i->size());
+      else if (i->hasValue()) {
+        tlv::writeVarNumber(os, i->type());
+        tlv::writeVarNumber(os, i->value_size());
+        os.write(reinterpret_cast<const char*>(i->value()), i->value_size());
+      }
+      else
+        BOOST_THROW_EXCEPTION(Error("Underlying value buffer is empty"));
+    }
+  }
+
+  // now assign correct block
+
+  m_buffer = os.buf();
+  m_begin = m_buffer->begin();
+  m_end   = m_buffer->end();
+  m_size  = m_end - m_begin;
+
+  m_valueBegin = m_buffer->begin();
+  m_valueEnd   = m_buffer->end();
+
+  tlv::readType(m_valueBegin, m_valueEnd);
+  tlv::readVarNumber(m_valueBegin, m_valueEnd);
+}
+
+const Block&
+Block::get(uint32_t type) const
+{
+  auto it = this->find(type);
+  if (it != m_elements.end()) {
+    return *it;
+  }
+
+  BOOST_THROW_EXCEPTION(Error("No sub-element of type " + to_string(type) +
+                              " is found in block of type " + to_string(m_type)));
+}
+
+Block::element_const_iterator
+Block::find(uint32_t type) const
+{
+  return std::find_if(m_elements.begin(), m_elements.end(),
+                      [type] (const Block& subBlock) { return subBlock.type() == type; });
+}
+
+void
+Block::remove(uint32_t type)
+{
+  resetWire();
+
+  auto it = std::remove_if(m_elements.begin(), m_elements.end(),
+                           [type] (const Block& subBlock) { return subBlock.type() == type; });
+  m_elements.resize(it - m_elements.begin());
 }
 
 Block::element_iterator
@@ -540,11 +449,11 @@ Block::erase(Block::element_const_iterator position)
   resetWire();
 
 #ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
-  return m_subBlocks.erase(position);
+  return m_elements.erase(position);
 #else
-  element_iterator it = m_subBlocks.begin();
-  std::advance(it, std::distance(m_subBlocks.cbegin(), position));
-  return m_subBlocks.erase(it);
+  element_iterator it = m_elements.begin();
+  std::advance(it, std::distance(m_elements.cbegin(), position));
+  return m_elements.erase(it);
 #endif
 }
 
@@ -554,13 +463,13 @@ Block::erase(Block::element_const_iterator first, Block::element_const_iterator 
   resetWire();
 
 #ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
-  return m_subBlocks.erase(first, last);
+  return m_elements.erase(first, last);
 #else
-  element_iterator itStart = m_subBlocks.begin();
-  element_iterator itEnd = m_subBlocks.begin();
-  std::advance(itStart, std::distance(m_subBlocks.cbegin(), first));
-  std::advance(itEnd, std::distance(m_subBlocks.cbegin(), last));
-  return m_subBlocks.erase(itStart, itEnd);
+  element_iterator itStart = m_elements.begin();
+  element_iterator itEnd = m_elements.begin();
+  std::advance(itStart, std::distance(m_elements.cbegin(), first));
+  std::advance(itEnd, std::distance(m_elements.cbegin(), last));
+  return m_elements.erase(itStart, itEnd);
 #endif
 }
 
@@ -568,7 +477,7 @@ void
 Block::push_back(const Block& element)
 {
   resetWire();
-  m_subBlocks.push_back(element);
+  m_elements.push_back(element);
 }
 
 Block::element_iterator
@@ -577,43 +486,27 @@ Block::insert(Block::element_const_iterator pos, const Block& element)
   resetWire();
 
 #ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
-  return m_subBlocks.insert(pos, element);
+  return m_elements.insert(pos, element);
 #else
-  element_iterator it = m_subBlocks.begin();
-  std::advance(it, std::distance(m_subBlocks.cbegin(), pos));
-  return m_subBlocks.insert(it, element);
+  element_iterator it = m_elements.begin();
+  std::advance(it, std::distance(m_elements.cbegin(), pos));
+  return m_elements.insert(it, element);
 #endif
 }
 
-Block::element_const_iterator
-Block::elements_begin() const
-{
-  return m_subBlocks.begin();
-}
+// ---- misc ----
 
-Block::element_const_iterator
-Block::elements_end() const
+Block::operator boost::asio::const_buffer() const
 {
-  return m_subBlocks.end();
-}
-
-size_t
-Block::elements_size() const
-{
-  return m_subBlocks.size();
+  return boost::asio::const_buffer(wire(), size());
 }
 
 bool
-Block::operator!=(const Block& other) const
+operator==(const Block& lhs, const Block& rhs)
 {
-  return !this->operator==(other);
-}
-
-bool
-Block::operator==(const Block& other) const
-{
-  return this->size() == other.size() &&
-         std::equal(this->begin(), this->end(), other.begin());
+  return lhs.type() == rhs.type() &&
+         lhs.value_size() == rhs.value_size() &&
+         ::memcmp(lhs.value(), rhs.value(), lhs.value_size()) == 0;
 }
 
 } // namespace ndn
