@@ -63,7 +63,9 @@
 #include <net/if_dl.h>     // for struct sockaddr_dl
 #include <net/if_types.h>  // for IFT_* constants
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/udp.hpp>
 
 namespace ndn {
 namespace net {
@@ -197,19 +199,23 @@ NetworkMonitorImplOsx::enumerateInterfaces()
 }
 
 static std::string
-convertToStdString(CFStringRef cfString)
+convertToStdString(CFStringRef cfStr)
 {
-  const char* cStr = CFStringGetCStringPtr(cfString, kCFStringEncodingASCII);
+  const char* cStr = CFStringGetCStringPtr(cfStr, kCFStringEncodingASCII);
   if (cStr != nullptr) {
+    // fast path
     return cStr;
   }
 
-  size_t stringSize = CFStringGetLength(cfString);
-  char* buffer = new char[stringSize + 1];
-  CFStringGetCString(cfString, buffer, sizeof(buffer), kCFStringEncodingASCII);
-  std::string retval = buffer;
-  delete[] buffer;
-  return retval;
+  // reserve space for the string + null terminator
+  std::string str(CFStringGetLength(cfStr) + 1, '\0');
+  if (!CFStringGetCString(cfStr, &str.front(), str.size(), kCFStringEncodingASCII)) {
+    BOOST_THROW_EXCEPTION(NetworkMonitorImplOsx::Error("CFString conversion failed"));
+  }
+
+  // drop the null terminator, std::string doesn't need it
+  str.pop_back();
+  return str;
 }
 
 std::set<std::string>

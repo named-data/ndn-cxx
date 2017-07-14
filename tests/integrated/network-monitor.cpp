@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -27,9 +27,9 @@
 
 #include "net/network-address.hpp"
 #include "net/network-interface.hpp"
-#include "util/time.hpp"
-
 #include "net/detail/link-type-helper.hpp"
+#include "util/string-helper.hpp"
+#include "util/time.hpp"
 
 #include "boost-test.hpp"
 
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(Signals)
   boost::asio::io_service io;
   NetworkMonitor monitor(io);
 
-  std::cout << "capabilities=" << monitor.getCapabilities() << std::endl;
+  std::cout << "capabilities=" << AsHex{monitor.getCapabilities()} << std::endl;
 
   monitor.onNetworkStateChanged.connect([] {
     logEvent() << "onNetworkStateChanged" << std::endl;
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(Signals)
 
   monitor.onInterfaceAdded.connect([] (const shared_ptr<const NetworkInterface>& ni) {
     logEvent(ni) << "onInterfaceAdded\n" << *ni;
-    logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << "\n";
+    logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << std::endl;
 
     ni->onAddressAdded.connect([ni] (const NetworkAddress& address) {
       logEvent(ni) << "onAddressAdded " << address << std::endl;
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(Signals)
 
     ni->onStateChanged.connect([ni] (InterfaceState oldState, InterfaceState newState) {
       logEvent(ni) << "onStateChanged " << oldState << " -> " << newState << std::endl;
-      logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << "\n";
+      logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << std::endl;
     });
 
     ni->onMtuChanged.connect([ni] (uint32_t oldMtu, uint32_t newMtu) {
