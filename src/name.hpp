@@ -27,7 +27,7 @@
 #define NDN_NAME_HPP
 
 #include "name-component.hpp"
-#include <boost/iterator/reverse_iterator.hpp>
+#include <iterator>
 
 namespace ndn {
 
@@ -59,13 +59,13 @@ public: // nested types
   using value_type             = Component;
   using allocator_type         = void;
   using reference              = Component&;
-  using const_reference        = const Component;
+  using const_reference        = const Component&;
   using pointer                = Component*;
   using const_pointer          = const Component*;
-  using iterator               = Component*;
+  using iterator               = const Component*; // disallow modifying via iterator
   using const_iterator         = const Component*;
-  using reverse_iterator       = boost::reverse_iterator<iterator>;
-  using const_reverse_iterator = boost::reverse_iterator<const_iterator>;
+  using reverse_iterator       = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
   using difference_type        = component_container::difference_type;
   using size_type              = component_container::size_type;
 
@@ -534,7 +534,7 @@ public: // algorithms
           const Name& other, size_t pos2 = 0, size_t count2 = npos) const;
 
 public:
-  /** \brief indicates "until the end" in getSubName and compare
+  /** @brief indicates "until the end" in getSubName and compare
    */
   static const size_t npos;
 

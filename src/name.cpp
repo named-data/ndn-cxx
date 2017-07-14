@@ -32,6 +32,8 @@
 #include <sstream>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/functional/hash.hpp>
+#include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/concepts.hpp>
 
 namespace ndn {
 
@@ -39,6 +41,11 @@ BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Name>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Name>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Name>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Name>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::reverse_iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_reverse_iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<Name>));
 static_assert(std::is_base_of<tlv::Error, Name::Error>::value,
               "Name::Error must inherit from tlv::Error");
 
@@ -52,8 +59,8 @@ Name::Name()
 }
 
 Name::Name(const Block& wire)
+  : m_wire(wire)
 {
-  m_wire = wire;
   m_wire.parse();
 }
 
@@ -124,9 +131,8 @@ size_t
 Name::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
-
-  for (const_reverse_iterator i = rbegin(); i != rend(); ++i) {
-    totalLength += i->wireEncode(encoder);
+  for (const Component& comp : *this | boost::adaptors::reversed) {
+    totalLength += comp.wireEncode(encoder);
   }
 
   totalLength += encoder.prependVarNumber(totalLength);
