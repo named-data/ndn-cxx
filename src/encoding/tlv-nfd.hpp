@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -94,15 +94,6 @@ enum {
 
 DEPRECATED() constexpr auto NInDatas = NInData;
 DEPRECATED() constexpr auto NOutDatas = NOutData;
-
-enum {
-  // Local Control Header
-  LocalControlHeader = 80,
-  IncomingFaceId     = 81,
-  NextHopFaceId      = 82,
-  CachingPolicy      = 83,
-  NoCache            = 96
-};
 
 } // namespace nfd
 } // namespace tlv
