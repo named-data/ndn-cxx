@@ -23,6 +23,7 @@
 
 #include "boost-test.hpp"
 
+#include <boost/concept_archetype.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
 #include <boost/lexical_cast.hpp>
@@ -35,16 +36,67 @@ BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestTlv)
 
 using ArrayStream = boost::iostreams::stream<boost::iostreams::array_source>;
-using Iterator = std::istream_iterator<uint8_t>;
+using StreamIterator = std::istream_iterator<uint8_t>;
+
+#define ASSERT_READ_NUMBER_IS_FAST(T) \
+  static_assert(std::is_base_of<detail::ReadNumberFast<T>, detail::ReadNumber<T>>::value, \
+                # T " should use ReadNumberFast")
+#define ASSERT_READ_NUMBER_IS_SLOW(T) \
+  static_assert(std::is_base_of<detail::ReadNumberSlow<T>, detail::ReadNumber<T>>::value, \
+                # T " should use ReadNumberSlow")
+
+ASSERT_READ_NUMBER_IS_FAST(const uint8_t*);
+ASSERT_READ_NUMBER_IS_FAST(uint8_t*);
+ASSERT_READ_NUMBER_IS_FAST(int8_t*);
+ASSERT_READ_NUMBER_IS_FAST(char*);
+ASSERT_READ_NUMBER_IS_FAST(unsigned char*);
+ASSERT_READ_NUMBER_IS_FAST(signed char*);
+ASSERT_READ_NUMBER_IS_FAST(const uint8_t[]);
+ASSERT_READ_NUMBER_IS_FAST(uint8_t[]);
+ASSERT_READ_NUMBER_IS_FAST(const uint8_t[12]);
+ASSERT_READ_NUMBER_IS_FAST(uint8_t[12]);
+using Uint8Array = std::array<uint8_t, 87>;
+ASSERT_READ_NUMBER_IS_FAST(Uint8Array::const_iterator);
+ASSERT_READ_NUMBER_IS_FAST(Uint8Array::iterator);
+using CharArray = std::array<char, 87>;
+ASSERT_READ_NUMBER_IS_FAST(CharArray::iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::string::const_iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::string::iterator);
+ASSERT_READ_NUMBER_IS_FAST(Buffer::const_iterator);
+ASSERT_READ_NUMBER_IS_FAST(Buffer::iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::vector<uint8_t>::const_iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::vector<uint8_t>::iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::vector<int8_t>::iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::vector<char>::iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::vector<unsigned char>::iterator);
+ASSERT_READ_NUMBER_IS_FAST(std::vector<signed char>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(std::vector<bool>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint16_t>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint32_t>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint64_t>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(std::list<uint8_t>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(StreamIterator);
 
 BOOST_AUTO_TEST_SUITE(VarNumber)
+
+// This check ensures readVarNumber and readType only require InputIterator concept and nothing
+// more. This function should compile, but should never be executed.
+void
+checkArchetype()
+{
+  boost::input_iterator_archetype<uint8_t> begin, end;
+  uint64_t number = readVarNumber(begin, end);
+  uint32_t type = readType(begin, end);;
+  readVarNumber(begin, end, number);
+  readType(begin, end, type);
+}
 
 static const uint8_t BUFFER[] = {
   0x01, // == 1
   0xfc, // == 252
   0xfd, 0x00, 0xfd, // == 253
   0xfe, 0x00, 0x01, 0x00, 0x00, // == 65536
-  0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 // == 4294967296LL
+  0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 // == 4294967296
 };
 
 BOOST_AUTO_TEST_CASE(SizeOf)
@@ -53,7 +105,7 @@ BOOST_AUTO_TEST_CASE(SizeOf)
   BOOST_CHECK_EQUAL(sizeOfVarNumber(252), 1);
   BOOST_CHECK_EQUAL(sizeOfVarNumber(253), 3);
   BOOST_CHECK_EQUAL(sizeOfVarNumber(65536), 5);
-  BOOST_CHECK_EQUAL(sizeOfVarNumber(4294967296LL), 9);
+  BOOST_CHECK_EQUAL(sizeOfVarNumber(4294967296), 9);
 }
 
 BOOST_AUTO_TEST_CASE(Write)
@@ -64,7 +116,7 @@ BOOST_AUTO_TEST_CASE(Write)
   writeVarNumber(os, 252);
   writeVarNumber(os, 253);
   writeVarNumber(os, 65536);
-  writeVarNumber(os, 4294967296LL);
+  writeVarNumber(os, 4294967296);
 
   std::string buffer = os.str();
   const uint8_t* actual = reinterpret_cast<const uint8_t*>(buffer.c_str());
@@ -138,137 +190,137 @@ BOOST_AUTO_TEST_CASE(ReadFromBuffer)
   BOOST_CHECK_EQUAL(readVarNumber(begin, begin + 9, value), true);
   begin = BUFFER + 10;
   BOOST_CHECK_NO_THROW(readVarNumber(begin, begin + 9));
-  BOOST_CHECK_EQUAL(value, 4294967296LL);
+  BOOST_CHECK_EQUAL(value, 4294967296);
 }
 
 BOOST_AUTO_TEST_CASE(ReadFromStream)
 {
-  Iterator end; // end of stream
+  StreamIterator end; // end of stream
   uint64_t value;
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), true);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_NO_THROW(readVarNumber(begin, end));
     BOOST_CHECK_EQUAL(value, 1);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 1, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), true);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 1, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_NO_THROW(readVarNumber(begin, end));
     BOOST_CHECK_EQUAL(value, 252);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 2, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), false);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 2, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readVarNumber(begin, end), Error);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 2, 2);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), false);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 2, 2);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readVarNumber(begin, end), Error);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 2, 3);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), true);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 2, 3);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_NO_THROW(readVarNumber(begin, end));
     BOOST_CHECK_EQUAL(value, 253);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 5, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), false);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 5, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readVarNumber(begin, end), Error);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 5, 4);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), false);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 5, 4);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readVarNumber(begin, end), Error);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 5, 5);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), true);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 5, 5);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_NO_THROW(readVarNumber(begin, end));
     BOOST_CHECK_EQUAL(value, 65536);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 10, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), false);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 10, 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readVarNumber(begin, end), Error);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 10, 8);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), false);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 10, 8);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readVarNumber(begin, end), Error);
   }
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 10, 9);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readVarNumber(begin, end, value), true);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER) + 10, 9);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_NO_THROW(readVarNumber(begin, end));
-    BOOST_CHECK_EQUAL(value, 4294967296LL);
+    BOOST_CHECK_EQUAL(value, 4294967296);
   }
 }
 
@@ -276,12 +328,21 @@ BOOST_AUTO_TEST_SUITE_END() // VarNumber
 
 BOOST_AUTO_TEST_SUITE(NonNegativeInteger)
 
+// This check ensures readNonNegativeInteger only requires InputIterator concept and nothing more.
+// This function should compile, but should never be executed.
+void
+checkArchetype()
+{
+  boost::input_iterator_archetype<uint8_t> begin, end;
+  readNonNegativeInteger(0, begin, end);
+}
+
 static const uint8_t BUFFER[] = {
   0x01, // 1
   0xff, // 255
   0x01, 0x02, // 258
-  0x01, 0x01, 0x01, 0x02, // 16843010LL
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02 // 72340172838076674LL
+  0x01, 0x01, 0x01, 0x02, // 16843010
+  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02 // 72340172838076674
 };
 
 BOOST_AUTO_TEST_CASE(SizeOf)
@@ -291,9 +352,9 @@ BOOST_AUTO_TEST_CASE(SizeOf)
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(255), 1);
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(256), 2);
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(65536), 4);
-  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(16843009LL), 4);
-  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(4294967296LL), 8);
-  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(72340172838076673LL), 8);
+  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(16843009), 4);
+  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(4294967296), 8);
+  BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(72340172838076673), 8);
 }
 
 BOOST_AUTO_TEST_CASE(Write)
@@ -303,8 +364,8 @@ BOOST_AUTO_TEST_CASE(Write)
   writeNonNegativeInteger(os, 1);
   writeNonNegativeInteger(os, 255);
   writeNonNegativeInteger(os, 258);
-  writeNonNegativeInteger(os, 16843010LL);
-  writeNonNegativeInteger(os, 72340172838076674LL);
+  writeNonNegativeInteger(os, 16843010);
+  writeNonNegativeInteger(os, 72340172838076674);
 
   std::string buffer = os.str();
   const uint8_t* actual = reinterpret_cast<const uint8_t*>(buffer.c_str());
@@ -330,11 +391,11 @@ BOOST_AUTO_TEST_CASE(ReadFromBuffer)
   BOOST_CHECK_EQUAL(begin, BUFFER + 4);
 
   begin = BUFFER + 4;
-  BOOST_CHECK_EQUAL(readNonNegativeInteger(4, begin, begin + 4), 16843010LL);
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(4, begin, begin + 4), 16843010);
   BOOST_CHECK_EQUAL(begin, BUFFER + 8);
 
   begin = BUFFER + 8;
-  BOOST_CHECK_EQUAL(readNonNegativeInteger(8, begin, begin + 8), 72340172838076674LL);
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(8, begin, begin + 8), 72340172838076674);
   BOOST_CHECK_EQUAL(begin, BUFFER + 16);
 
   // invalid size
@@ -354,45 +415,45 @@ BOOST_AUTO_TEST_CASE(ReadFromBuffer)
 
 BOOST_AUTO_TEST_CASE(ReadFromStream)
 {
-  Iterator end; // end of stream
+  StreamIterator end; // end of stream
 
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), sizeof(BUFFER));
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_EQUAL(readNonNegativeInteger(1, begin, end), 1);
     BOOST_CHECK_EQUAL(readNonNegativeInteger(1, begin, end), 255);
     BOOST_CHECK_EQUAL(readNonNegativeInteger(2, begin, end), 258);
-    BOOST_CHECK_EQUAL(readNonNegativeInteger(4, begin, end), 16843010LL);
-    BOOST_CHECK_EQUAL(readNonNegativeInteger(8, begin, end), 72340172838076674LL);
+    BOOST_CHECK_EQUAL(readNonNegativeInteger(4, begin, end), 16843010);
+    BOOST_CHECK_EQUAL(readNonNegativeInteger(8, begin, end), 72340172838076674);
     BOOST_CHECK(begin == end);
   }
 
   // invalid size
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 3);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readNonNegativeInteger(3, begin, end), Error);
   }
 
   // available buffer smaller than size
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 0);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readNonNegativeInteger(1, begin, end), Error);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 1);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readNonNegativeInteger(2, begin, end), Error);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 3);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readNonNegativeInteger(4, begin, end), Error);
   }
   {
     ArrayStream stream(reinterpret_cast<const char*>(BUFFER), 7);
-    Iterator begin(stream);
+    StreamIterator begin(stream);
     BOOST_CHECK_THROW(readNonNegativeInteger(8, begin, end), Error);
   }
 }
