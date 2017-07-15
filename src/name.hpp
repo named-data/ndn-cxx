@@ -221,8 +221,7 @@ public: // iterators
   const_iterator
   begin() const
   {
-    // XXX This triggers undefined behavior if name is empty (#4181)
-    return reinterpret_cast<const_iterator>(&*m_wire.elements().begin());
+    return reinterpret_cast<const_iterator>(m_wire.elements().data());
   }
 
   /** @brief End iterator
@@ -230,8 +229,7 @@ public: // iterators
   const_iterator
   end() const
   {
-    // XXX This triggers undefined behavior if name is empty (#4181)
-    return reinterpret_cast<const_iterator>(&*m_wire.elements().end());
+    return reinterpret_cast<const_iterator>(m_wire.elements().data() + m_wire.elements().size());
   }
 
   /** @brief Reverse begin iterator
