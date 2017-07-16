@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,6 +20,7 @@
  */
 
 #include "scheduler.hpp"
+#include "detail/monotonic-deadline-timer.hpp"
 #include <boost/scope_exit.hpp>
 
 namespace ndn {
@@ -75,13 +76,15 @@ EventQueueCompare::operator()(const shared_ptr<EventInfo>& a, const shared_ptr<E
 }
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_deadlineTimer(ioService)
+  : m_deadlineTimer(make_unique<detail::MonotonicDeadlineTimer>(ioService))
   , m_isEventExecuting(false)
 {
 }
 
+Scheduler::~Scheduler() = default;
+
 EventId
-Scheduler::scheduleEvent(const time::nanoseconds& after, const EventCallback& callback)
+Scheduler::scheduleEvent(time::nanoseconds after, const EventCallback& callback)
 {
   BOOST_ASSERT(callback != nullptr);
 
@@ -105,7 +108,7 @@ Scheduler::cancelEvent(const EventId& eventId)
   }
 
   if (info->queueIt == m_queue.begin()) {
-    m_deadlineTimer.cancel();
+    m_deadlineTimer->cancel();
   }
   m_queue.erase(info->queueIt);
 
@@ -118,15 +121,15 @@ void
 Scheduler::cancelAllEvents()
 {
   m_queue.clear();
-  m_deadlineTimer.cancel();
+  m_deadlineTimer->cancel();
 }
 
 void
 Scheduler::scheduleNext()
 {
   if (!m_queue.empty()) {
-    m_deadlineTimer.expires_from_now((*m_queue.begin())->expiresFromNow());
-    m_deadlineTimer.async_wait(bind(&Scheduler::executeEvent, this, _1));
+    m_deadlineTimer->expires_from_now((*m_queue.begin())->expiresFromNow());
+    m_deadlineTimer->async_wait(bind(&Scheduler::executeEvent, this, _1));
   }
 }
 

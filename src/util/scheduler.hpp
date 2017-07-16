@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,19 +22,23 @@
 #ifndef NDN_UTIL_SCHEDULER_HPP
 #define NDN_UTIL_SCHEDULER_HPP
 
-#include "../common.hpp"
-#include "monotonic_deadline_timer.hpp"
-
+#include "time.hpp"
 #include <set>
+#include <boost/asio/io_service.hpp>
 
 namespace ndn {
 namespace util {
+
+namespace detail {
+class MonotonicDeadlineTimer;
+} // namespace detail
+
 namespace scheduler {
 
 /**
  * \brief Function to be invoked when a scheduled event expires
  */
-typedef function<void()> EventCallback;
+using EventCallback = std::function<void()>;
 
 /**
  * \brief Stores internal information about a scheduled event
@@ -119,7 +123,7 @@ public:
   operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const;
 };
 
-typedef std::multiset<shared_ptr<EventInfo>, EventQueueCompare> EventQueue;
+using EventQueue = std::multiset<shared_ptr<EventInfo>, EventQueueCompare>;
 
 /**
  * \brief Generic scheduler
@@ -130,12 +134,14 @@ public:
   explicit
   Scheduler(boost::asio::io_service& ioService);
 
+  ~Scheduler();
+
   /**
    * \brief Schedule a one-time event after the specified delay
    * \return EventId that can be used to cancel the scheduled event
    */
   EventId
-  scheduleEvent(const time::nanoseconds& after, const EventCallback& callback);
+  scheduleEvent(time::nanoseconds after, const EventCallback& callback);
 
   /**
    * \brief Cancel a scheduled event
@@ -166,7 +172,7 @@ private:
   executeEvent(const boost::system::error_code& code);
 
 private:
-  monotonic_deadline_timer m_deadlineTimer;
+  unique_ptr<detail::MonotonicDeadlineTimer> m_deadlineTimer;
   EventQueue m_queue;
   bool m_isEventExecuting;
 };

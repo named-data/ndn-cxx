@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,12 +23,12 @@
  * This code is based on https://svn.boost.org/trac/boost/attachment/ticket/3504/MonotonicDeadlineTimer.h
  */
 
-#ifndef NDN_UTIL_MONOTONIC_DEADLINE_TIMER_HPP
-#define NDN_UTIL_MONOTONIC_DEADLINE_TIMER_HPP
+#ifndef NDN_UTIL_DETAIL_MONOTONIC_DEADLINE_TIMER_HPP
+#define NDN_UTIL_DETAIL_MONOTONIC_DEADLINE_TIMER_HPP
 
-#include "time.hpp"
-
+#include "../time.hpp"
 #include <boost/asio/basic_deadline_timer.hpp>
+#include <boost/asio/io_service.hpp>
 
 namespace boost {
 namespace asio {
@@ -36,8 +36,8 @@ namespace asio {
 template<>
 struct time_traits<ndn::time::steady_clock>
 {
-  typedef ndn::time::steady_clock::TimePoint time_type;
-  typedef ndn::time::steady_clock::Duration  duration_type;
+  using time_type     = ndn::time::steady_clock::TimePoint;
+  using duration_type = ndn::time::steady_clock::Duration;
 
   static time_type
   now()
@@ -74,9 +74,20 @@ struct time_traits<ndn::time::steady_clock>
 } // namespace boost
 
 namespace ndn {
+namespace util {
+namespace detail {
 
-typedef boost::asio::basic_deadline_timer<time::steady_clock> monotonic_deadline_timer;
+class MonotonicDeadlineTimer : public boost::asio::basic_deadline_timer<time::steady_clock>
+{
+public:
+  MonotonicDeadlineTimer(boost::asio::io_service& ioService)
+    : boost::asio::basic_deadline_timer<time::steady_clock>(ioService)
+  {
+  }
+};
 
+} // namespace detail
+} // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_MONOTONIC_DEADLINE_TIMER_HPP
+#endif // NDN_UTIL_DETAIL_MONOTONIC_DEADLINE_TIMER_HPP
