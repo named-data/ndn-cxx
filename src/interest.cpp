@@ -333,8 +333,11 @@ Interest::getNonce() const
   if (!m_nonce.hasWire())
     const_cast<Interest*>(this)->setNonce(random::generateWord32());
 
-  if (m_nonce.value_size() == sizeof(uint32_t))
-    return *reinterpret_cast<const uint32_t*>(m_nonce.value());
+  if (m_nonce.value_size() == sizeof(uint32_t)) {
+    uint32_t nonce = 0;
+    std::memcpy(&nonce, m_nonce.value(), sizeof(uint32_t));
+    return nonce;
+  }
   else {
     // for compatibility reasons.  Should be removed eventually
     return readNonNegativeInteger(m_nonce);
