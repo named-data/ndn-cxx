@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -41,6 +41,8 @@
 namespace ndn {
 namespace net {
 
+class IfAddrs;
+
 class NetworkMonitorImplOsx : public NetworkMonitorImpl
 {
 public:
@@ -65,37 +67,32 @@ public:
   std::vector<shared_ptr<const NetworkInterface>>
   listNetworkInterfaces() const final;
 
+private:
   static void
-  afterNotificationCenterEvent(CFNotificationCenterRef center,
-                               void* observer,
-                               CFStringRef name,
-                               const void* object,
+  afterNotificationCenterEvent(CFNotificationCenterRef center, void* observer,
+                               CFStringRef name, const void* object,
                                CFDictionaryRef userInfo);
 
-private:
   void
   scheduleCfLoop();
-
-  void
-  pollCfLoop();
-
-  void
-  addNewInterface(const std::string& ifName);
 
   void
   enumerateInterfaces();
 
   std::set<std::string>
-  getInterfaceNames();
-
-  InterfaceState
-  getInterfaceState(const std::string& ifName);
+  getInterfaceNames() const;
 
   void
-  updateInterfaceInfo(NetworkInterface& netif);
+  addNewInterface(const std::string& ifName, const IfAddrs& ifaList);
+
+  InterfaceState
+  getInterfaceState(const std::string& ifName) const;
 
   size_t
   getInterfaceMtu(const std::string& ifName);
+
+  void
+  updateInterfaceInfo(NetworkInterface& netif, const IfAddrs& ifaList);
 
   static void
   onConfigChanged(SCDynamicStoreRef store, CFArrayRef changedKeys, void* context);
