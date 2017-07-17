@@ -27,11 +27,11 @@
 #include "encoding-buffer.hpp"
 #include "tlv.hpp"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/asio/buffer.hpp>
 
 namespace ndn {
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Block>));
 #if NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 static_assert(std::is_nothrow_move_constructible<Block>::value,
               "Block must be MoveConstructible with noexcept");

@@ -21,12 +21,10 @@
 
 #include "encoding/block.hpp"
 #include "encoding/block-helpers.hpp"
-#include "encoding/encoding-buffer.hpp"
 
 #include "boost-test.hpp"
-
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
+#include <cstring>
+#include <sstream>
 
 namespace ndn {
 namespace tests {
@@ -34,144 +32,48 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestBlock)
 
-class BasicBlockFixture
-{
-public:
-  EncodingBuffer buffer;
-  EncodingEstimator estimator;
+BOOST_AUTO_TEST_SUITE(Construction)
+
+static const uint8_t TEST_BUFFER[] = {
+  0x00, 0x01, 0xfa, // ok
+  0x01, 0x01, 0xfb, // ok
+  0x03, 0x02, 0xff // bad: TLV-LENGTH is 2 but there's only 1-octet TLV-VALUE
 };
 
-BOOST_FIXTURE_TEST_SUITE(Basic, BasicBlockFixture)
-
-BOOST_AUTO_TEST_CASE(VarNumberOneByte1)
+BOOST_AUTO_TEST_CASE(Empty)
 {
-  size_t s1 = buffer.prependVarNumber(252);
-  size_t s2 = estimator.prependVarNumber(252);
-  BOOST_CHECK_EQUAL(buffer.size(), 1);
-  BOOST_CHECK_EQUAL(s1, 1);
-  BOOST_CHECK_EQUAL(s2, 1);
+  Block b;
+  BOOST_CHECK_EQUAL(b.empty(), true);
 }
 
-BOOST_AUTO_TEST_CASE(VarNumberOneByte2)
+BOOST_AUTO_TEST_CASE(FromEncodingBuffer)
 {
-  size_t s1 = buffer.prependVarNumber(253);
-  size_t s2 = estimator.prependVarNumber(253);
-  BOOST_CHECK_EQUAL(buffer.size(), 3);
-  BOOST_CHECK_EQUAL(s1, 3);
-  BOOST_CHECK_EQUAL(s2, 3);
+  const uint8_t VALUE[4] = {0x11, 0x12, 0x13, 0x14};
+
+  EncodingBuffer encoder;
+  size_t length = encoder.prependByteArray(VALUE, sizeof(VALUE));
+  encoder.prependVarNumber(length);
+  encoder.prependVarNumber(0xe0);
+
+  Block b = encoder.block();
+  BOOST_CHECK_EQUAL(b.type(), 0xe0);
+  BOOST_CHECK_EQUAL(b.value_size(), sizeof(VALUE));
+  BOOST_CHECK_EQUAL_COLLECTIONS(b.value_begin(), b.value_end(),
+                                VALUE, VALUE + sizeof(VALUE));
+
+  b = Block(encoder);
+  BOOST_CHECK_EQUAL(b.type(), 0xe0);
+  BOOST_CHECK_EQUAL(b.value_size(), sizeof(VALUE));
+  BOOST_CHECK_EQUAL_COLLECTIONS(b.value_begin(), b.value_end(),
+                                VALUE, VALUE + sizeof(VALUE));
 }
 
-BOOST_AUTO_TEST_CASE(VarNumberThreeBytes1)
+BOOST_AUTO_TEST_CASE(FromEmptyEncodingBuffer)
 {
-  size_t s1 = buffer.prependVarNumber(255);
-  size_t s2 = estimator.prependVarNumber(255);
-  BOOST_CHECK_EQUAL(buffer.size(), 3);
-  BOOST_CHECK_EQUAL(s1, 3);
-  BOOST_CHECK_EQUAL(s2, 3);
+  EncodingBuffer encoder;
+  Block b;
+  BOOST_CHECK_THROW(b = Block(encoder), tlv::Error);
 }
-
-BOOST_AUTO_TEST_CASE(VarNumberThreeBytes2)
-{
-  size_t s1 = buffer.prependVarNumber(65535);
-  size_t s2 = estimator.prependVarNumber(65535);
-  BOOST_CHECK_EQUAL(buffer.size(), 3);
-  BOOST_CHECK_EQUAL(s1, 3);
-  BOOST_CHECK_EQUAL(s2, 3);
-}
-
-BOOST_AUTO_TEST_CASE(VarNumberFiveBytes1)
-{
-  size_t s1 = buffer.prependVarNumber(65536);
-  size_t s2 = estimator.prependVarNumber(65536);
-  BOOST_CHECK_EQUAL(buffer.size(), 5);
-  BOOST_CHECK_EQUAL(s1, 5);
-  BOOST_CHECK_EQUAL(s2, 5);
-}
-
-BOOST_AUTO_TEST_CASE(VarNumberFiveBytes2)
-{
-  size_t s1 = buffer.prependVarNumber(4294967295LL);
-  size_t s2 = estimator.prependVarNumber(4294967295LL);
-  BOOST_CHECK_EQUAL(buffer.size(), 5);
-  BOOST_CHECK_EQUAL(s1, 5);
-  BOOST_CHECK_EQUAL(s2, 5);
-}
-
-BOOST_AUTO_TEST_CASE(VarNumberNineBytes)
-{
-  size_t s1 = buffer.prependVarNumber(4294967296LL);
-  size_t s2 = estimator.prependVarNumber(4294967296LL);
-  BOOST_CHECK_EQUAL(buffer.size(), 9);
-  BOOST_CHECK_EQUAL(s1, 9);
-  BOOST_CHECK_EQUAL(s2, 9);
-}
-
-BOOST_AUTO_TEST_CASE(NonNegativeNumberOneByte1)
-{
-  size_t s1 = buffer.prependNonNegativeInteger(252);
-  size_t s2 = estimator.prependNonNegativeInteger(252);
-  BOOST_CHECK_EQUAL(buffer.size(), 1);
-  BOOST_CHECK_EQUAL(s1, 1);
-  BOOST_CHECK_EQUAL(s2, 1);
-}
-
-BOOST_AUTO_TEST_CASE(NonNegativeNumberOneByte2)
-{
-  size_t s1 = buffer.prependNonNegativeInteger(255);
-  size_t s2 = estimator.prependNonNegativeInteger(255);
-  BOOST_CHECK_EQUAL(buffer.size(), 1);
-  BOOST_CHECK_EQUAL(s1, 1);
-  BOOST_CHECK_EQUAL(s2, 1);
-}
-
-BOOST_AUTO_TEST_CASE(NonNegativeNumberTwoBytes1)
-{
-  size_t s1 = buffer.prependNonNegativeInteger(256);
-  size_t s2 = estimator.prependNonNegativeInteger(256);
-  BOOST_CHECK_EQUAL(buffer.size(), 2);
-  BOOST_CHECK_EQUAL(s1, 2);
-  BOOST_CHECK_EQUAL(s2, 2);
-}
-
-BOOST_AUTO_TEST_CASE(NonNegativeNumberTwoBytes2)
-{
-  size_t s1 = buffer.prependNonNegativeInteger(65535);
-  size_t s2 = estimator.prependNonNegativeInteger(65535);
-  BOOST_CHECK_EQUAL(buffer.size(), 2);
-  BOOST_CHECK_EQUAL(s1, 2);
-  BOOST_CHECK_EQUAL(s2, 2);
-}
-
-BOOST_AUTO_TEST_CASE(NonNegativeNumberFourBytes1)
-{
-  size_t s1 = buffer.prependNonNegativeInteger(65536);
-  size_t s2 = estimator.prependNonNegativeInteger(65536);
-  BOOST_CHECK_EQUAL(buffer.size(), 4);
-  BOOST_CHECK_EQUAL(s1, 4);
-  BOOST_CHECK_EQUAL(s2, 4);
-}
-
-BOOST_AUTO_TEST_CASE(NonNegativeNumberFourBytes2)
-{
-  size_t s1 = buffer.prependNonNegativeInteger(4294967295LL);
-  size_t s2 = estimator.prependNonNegativeInteger(4294967295LL);
-  BOOST_CHECK_EQUAL(buffer.size(), 4);
-  BOOST_CHECK_EQUAL(s1, 4);
-  BOOST_CHECK_EQUAL(s2, 4);
-}
-
-BOOST_AUTO_TEST_CASE(NonNegativeNumberEightBytes)
-{
-  size_t s1 = buffer.prependNonNegativeInteger(4294967296LL);
-  size_t s2 = estimator.prependNonNegativeInteger(4294967296LL);
-  BOOST_CHECK_EQUAL(buffer.size(), 8);
-  BOOST_CHECK_EQUAL(s1, 8);
-  BOOST_CHECK_EQUAL(s2, 8);
-}
-
-BOOST_AUTO_TEST_SUITE_END() // Basic
-
-BOOST_AUTO_TEST_SUITE(Construction)
 
 BOOST_AUTO_TEST_CASE(FromBlock)
 {
@@ -194,183 +96,85 @@ BOOST_AUTO_TEST_CASE(FromBlock)
 
 BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyOriginal)
 {
-  static uint8_t buffer[] = {
+  const uint8_t BUFFER[] = {
     0x05, 0x0b, 0x07, 0x03, 0x01, 0x02, 0x03, 0x0a, 0x04, 0x04, 0x05, 0x06, 0x07,
   };
 
-  Block block1(buffer, sizeof(buffer));
+  Block b1(BUFFER, sizeof(BUFFER));
 
-  Block block2(block1, block1.begin(), block1.end());
-  auto buf2 = block2.getBuffer();
+  Block b2(b1, b1.begin(), b1.end());
+  auto buf2 = b2.getBuffer();
 
-  block1.parse();
-  block1.remove(tlv::Name);
-  block1.encode();
+  b1.parse();
+  b1.remove(tlv::Name);
+  b1.encode();
 
-  block2.parse();
+  b2.parse();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(block2.begin(), block2.end(), buffer, buffer + sizeof(buffer));
-  BOOST_CHECK_EQUAL(buf2, block2.getBuffer());
+  BOOST_CHECK_EQUAL_COLLECTIONS(b2.begin(), b2.end(), BUFFER, BUFFER + sizeof(BUFFER));
+  BOOST_CHECK_EQUAL(buf2, b2.getBuffer());
 }
 
 BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyCopy)
 {
-  static uint8_t buffer[] = {
+  const uint8_t BUFFER[] = {
     0x05, 0x0b, 0x07, 0x03, 0x01, 0x02, 0x03, 0x0a, 0x04, 0x04, 0x05, 0x06, 0x07,
   };
 
-  Block block1(buffer, sizeof(buffer));
-  auto buf1 = block1.getBuffer();
+  Block b1(BUFFER, sizeof(BUFFER));
+  auto buf1 = b1.getBuffer();
 
-  Block block2(block1, block1.begin(), block1.end());
+  Block b2(b1, b1.begin(), b1.end());
 
-  block2.parse();
-  block2.remove(tlv::Name);
-  block2.encode();
+  b2.parse();
+  b2.remove(tlv::Name);
+  b2.encode();
 
-  block1.parse();
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(block1.begin(), block1.end(), buffer, buffer + sizeof(buffer));
-  BOOST_CHECK_EQUAL(buf1, block1.getBuffer());
+  b1.parse();
+  BOOST_CHECK_EQUAL_COLLECTIONS(b1.begin(), b1.end(), BUFFER, BUFFER + sizeof(BUFFER));
+  BOOST_CHECK_EQUAL(buf1, b1.getBuffer());
 }
 
-BOOST_AUTO_TEST_CASE(FromEncodingBuffer)
+BOOST_AUTO_TEST_CASE(FromType)
 {
-  uint8_t value[4];
+  Block b1(4);
+  BOOST_CHECK_EQUAL(b1.empty(), false);
+  BOOST_CHECK_EQUAL(b1.type(), 4);
+  BOOST_CHECK_EQUAL(b1.size(), 2); // 1-octet TLV-TYPE and 1-octet TLV-LENGTH
+  BOOST_CHECK_EQUAL(b1.value_size(), 0);
 
-  EncodingBuffer buffer;
-  size_t length = buffer.prependByteArray(value, sizeof(value));
-  buffer.prependVarNumber(length);
-  buffer.prependVarNumber(0xe0);
-
-  Block block;
-  BOOST_REQUIRE_NO_THROW(block = buffer.block());
-  BOOST_CHECK_EQUAL(block.type(), 0xe0);
-  BOOST_CHECK_EQUAL(block.value_size(), sizeof(value));
-
-  BOOST_REQUIRE_NO_THROW(block = Block(buffer));
-  BOOST_CHECK_EQUAL(block.type(), 0xe0);
-  BOOST_CHECK_EQUAL(block.value_size(), sizeof(value));
-}
-
-BOOST_AUTO_TEST_CASE(ToEncodingBuffer)
-{
-  shared_ptr<Buffer> buf = make_shared<Buffer>(10);
-  for (int i = 0; i < 10; i++)
-    (*buf)[i] = i;
-
-  Block block(0xab, buf);
-  block.encode();
-
-  {
-    BOOST_REQUIRE_NO_THROW(EncodingBuffer(block));
-    EncodingBuffer buffer(block);
-    BOOST_CHECK_EQUAL(buffer.size(), 12);
-    BOOST_CHECK_EQUAL(buffer.capacity(), 12);
-  }
-
-  (*buf)[1] = 0xe0;
-  (*buf)[2] = 2;
-  BOOST_REQUIRE_NO_THROW(block = Block(buf, buf->begin() + 1, buf->begin() + 5));
-  BOOST_CHECK_EQUAL(block.type(), 0xe0);
-
-  {
-    BOOST_REQUIRE_NO_THROW(EncodingBuffer(block));
-    EncodingBuffer buffer(block);
-    BOOST_CHECK_EQUAL(buffer.size(), 4);
-    BOOST_CHECK_EQUAL(buffer.capacity(), 10);
-  }
-}
-
-BOOST_AUTO_TEST_CASE(FromBuffer)
-{
-  const uint8_t TEST_BUFFER[] = {0x00, 0x01, 0xfa, // ok
-                                 0x01, 0x01, 0xfb, // ok
-                                 0x03, 0x02, 0xff}; // not ok
-  BufferPtr buffer(new Buffer(TEST_BUFFER, sizeof(TEST_BUFFER)));
-
-  // using BufferPtr (avoids memory copy)
-  size_t offset = 0;
-  bool isOk = false;
-  Block testBlock;
-  std::tie(isOk, testBlock) = Block::fromBuffer(buffer, offset);
-  BOOST_CHECK(isOk);
-  BOOST_CHECK_EQUAL(testBlock.type(), 0);
-  BOOST_CHECK_EQUAL(testBlock.size(), 3);
-  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
-  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x00);
-  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
-  offset += testBlock.size();
-
-  std::tie(isOk, testBlock) = Block::fromBuffer(buffer, offset);
-  BOOST_CHECK(isOk);
-  BOOST_CHECK_EQUAL(testBlock.type(), 1);
-  BOOST_CHECK_EQUAL(testBlock.size(), 3);
-  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
-  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x01);
-  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
-  offset += testBlock.size();
-
-  std::tie(isOk, testBlock) = Block::fromBuffer(buffer, offset);
-  BOOST_CHECK(!isOk);
-
-  // just buffer, copies memory
-  offset = 0;
-  std::tie(isOk, testBlock) = Block::fromBuffer(TEST_BUFFER + offset,
-                                                sizeof(TEST_BUFFER) - offset);
-  BOOST_CHECK(isOk);
-  BOOST_CHECK_EQUAL(testBlock.type(), 0);
-  BOOST_CHECK_EQUAL(testBlock.size(), 3);
-  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
-  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x00);
-  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
-  offset += testBlock.size();
-
-  std::tie(isOk, testBlock) = Block::fromBuffer(TEST_BUFFER + offset,
-                                                sizeof(TEST_BUFFER) - offset);
-  BOOST_CHECK(isOk);
-  BOOST_CHECK_EQUAL(testBlock.type(), 1);
-  BOOST_CHECK_EQUAL(testBlock.size(), 3);
-  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
-  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x01);
-  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
-  offset += testBlock.size();
-
-  std::tie(isOk, testBlock) = Block::fromBuffer(TEST_BUFFER + offset,
-                                                sizeof(TEST_BUFFER) - offset);
-  BOOST_CHECK(!isOk);
+  Block b2(258);
+  BOOST_CHECK_EQUAL(b2.type(), 258);
+  BOOST_CHECK_EQUAL(b2.size(), 4); // 3-octet TLV-TYPE and 1-octet TLV-LENGTH
+  BOOST_CHECK_EQUAL(b2.value_size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(FromStream)
 {
-  const uint8_t TEST_BUFFER[] = {0x00, 0x01, 0xfa, // ok
-                                 0x01, 0x01, 0xfb, // ok
-                                 0x03, 0x02, 0xff}; // not ok
+  std::stringstream stream;
+  stream.write(reinterpret_cast<const char*>(TEST_BUFFER), sizeof(TEST_BUFFER));
+  stream.seekg(0);
 
-  typedef boost::iostreams::stream<boost::iostreams::array_source> ArrayStream;
-  ArrayStream stream(reinterpret_cast<const char*>(TEST_BUFFER), sizeof(TEST_BUFFER));
+  Block b = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b.type(), 0);
+  BOOST_CHECK_EQUAL(b.size(), 3);
+  BOOST_CHECK_EQUAL(b.value_size(), 1);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*b.value(), 0xfa);
 
-  Block testBlock;
-  BOOST_REQUIRE_NO_THROW(testBlock = Block::fromStream(stream));
-  BOOST_CHECK_EQUAL(testBlock.type(), 0);
-  BOOST_CHECK_EQUAL(testBlock.size(), 3);
-  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
-  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x00);
-  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfa);
-
-  BOOST_REQUIRE_NO_THROW(testBlock = Block::fromStream(stream));
-  BOOST_CHECK_EQUAL(testBlock.type(), 1);
-  BOOST_CHECK_EQUAL(testBlock.size(), 3);
-  BOOST_CHECK_EQUAL(testBlock.value_size(), 1);
-  BOOST_CHECK_EQUAL(*testBlock.wire(),  0x01);
-  BOOST_CHECK_EQUAL(*testBlock.value(), 0xfb);
+  b = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b.type(), 1);
+  BOOST_CHECK_EQUAL(b.size(), 3);
+  BOOST_CHECK_EQUAL(b.value_size(), 1);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x01);
+  BOOST_CHECK_EQUAL(*b.value(), 0xfb);
 
   BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(FromStreamWhitespace) // Bug 2728
 {
-  uint8_t PACKET[] = {
+  const uint8_t PACKET[] = {
     0x06, 0x20, // Data
           0x07, 0x11, // Name
                 0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f, // NameComponent 'hello'
@@ -379,8 +183,8 @@ BOOST_AUTO_TEST_CASE(FromStreamWhitespace) // Bug 2728
           0x14, 0x00, // MetaInfo empty
           0x15, 0x00, // Content empty
           0x16, 0x05, // SignatureInfo
-                 0x1b, 0x01, 0x01, // SignatureType RSA
-                 0x1c, 0x00, // KeyLocator empty
+                0x1b, 0x01, 0x01, // SignatureType RSA
+                0x1c, 0x00, // KeyLocator empty
           0x17, 0x00 // SignatureValue empty
   };
   // TLV-LENGTH of <Data> is 0x20 which happens to be ASCII whitespace
@@ -389,44 +193,117 @@ BOOST_AUTO_TEST_CASE(FromStreamWhitespace) // Bug 2728
   stream.write(reinterpret_cast<const char*>(PACKET), sizeof(PACKET));
   stream.seekg(0);
 
-  Block block = Block::fromStream(stream);
-  BOOST_CHECK_NO_THROW(block.parse());
+  Block b = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b.type(), 6);
+  BOOST_CHECK_EQUAL(b.value_size(), 32);
+  b.parse();
 }
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(FromStreamZeroLength, 1)
 BOOST_AUTO_TEST_CASE(FromStreamZeroLength) // Bug 2729
 {
-  uint8_t BUFFER[] = { 0x07, 0x00 }; // TLV-LENGTH is zero
+  const uint8_t BUFFER[] = {0x07, 0x00, // TLV-LENGTH is zero
+                      0x09, 0x01, 0x01};
 
   std::stringstream stream;
   stream.write(reinterpret_cast<const char*>(BUFFER), sizeof(BUFFER));
   stream.seekg(0);
 
-  Block block;
-  BOOST_CHECK_NO_THROW(block = Block::fromStream(stream));
-  BOOST_CHECK_EQUAL(block.type(), 0x07);
-  BOOST_CHECK_EQUAL(block.value_size(), 0);
+  Block b = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b.type(), 0x07);
+  BOOST_CHECK_EQUAL(b.value_size(), 0);
+
+  BOOST_CHECK_NO_THROW(b = Block::fromStream(stream)); // expected failure Bug 4180
+}
+
+BOOST_AUTO_TEST_CASE(FromWireBuffer)
+{
+  ConstBufferPtr buffer = make_shared<Buffer>(TEST_BUFFER, sizeof(TEST_BUFFER));
+
+  size_t offset = 0;
+  bool isOk = false;
+  Block b;
+  std::tie(isOk, b) = Block::fromBuffer(buffer, offset);
+  BOOST_CHECK(isOk);
+  BOOST_CHECK_EQUAL(b.type(), 0);
+  BOOST_CHECK_EQUAL(b.size(), 3);
+  BOOST_CHECK_EQUAL(b.value_size(), 1);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*b.value(), 0xfa);
+  offset += b.size();
+
+  std::tie(isOk, b) = Block::fromBuffer(buffer, offset);
+  BOOST_CHECK(isOk);
+  BOOST_CHECK_EQUAL(b.type(), 1);
+  BOOST_CHECK_EQUAL(b.size(), 3);
+  BOOST_CHECK_EQUAL(b.value_size(), 1);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x01);
+  BOOST_CHECK_EQUAL(*b.value(), 0xfb);
+  offset += b.size();
+
+  std::tie(isOk, b) = Block::fromBuffer(buffer, offset);
+  BOOST_CHECK(!isOk);
+}
+
+BOOST_AUTO_TEST_CASE(FromRawBuffer)
+{
+  size_t offset = 0;
+  bool isOk = false;
+  Block b;
+  std::tie(isOk, b) = Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset);
+  BOOST_CHECK(isOk);
+  BOOST_CHECK_EQUAL(b.type(), 0);
+  BOOST_CHECK_EQUAL(b.size(), 3);
+  BOOST_CHECK_EQUAL(b.value_size(), 1);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*b.value(), 0xfa);
+  offset += b.size();
+
+  std::tie(isOk, b) = Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset);
+  BOOST_CHECK(isOk);
+  BOOST_CHECK_EQUAL(b.type(), 1);
+  BOOST_CHECK_EQUAL(b.size(), 3);
+  BOOST_CHECK_EQUAL(b.value_size(), 1);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x01);
+  BOOST_CHECK_EQUAL(*b.value(), 0xfb);
+  offset += b.size();
+
+  std::tie(isOk, b) = Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset);
+  BOOST_CHECK(!isOk);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Construction
 
-BOOST_AUTO_TEST_CASE(Equality)
+BOOST_AUTO_TEST_SUITE(SubElements)
+
+BOOST_AUTO_TEST_CASE(Parse)
 {
-  BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Block>));
+  const uint8_t PACKET[] = {
+    0x06, 0x20, // Data
+          0x07, 0x11, // Name
+                0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f, // NameComponent 'hello'
+                0x08, 0x01, 0x31, // NameComponent '1'
+                0x08, 0x05, 0x77, 0x6f, 0x72, 0x6c, 0x64, // NameComponent 'world'
+          0x14, 0x00, // MetaInfo empty
+          0x15, 0x00, // Content empty
+          0x16, 0x05, // SignatureInfo
+                0x1b, 0x01, 0x01, // SignatureType RSA
+                0x1c, 0x00, // KeyLocator empty
+          0x17, 0x00 // SignatureValue empty
+  };
 
-  Block a("\x08\x00", 2);
-  Block b("\x08\x00", 2);;
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
+  Block data(PACKET, sizeof(PACKET));
+  data.parse();
 
-  Block c("\x06\x00", 2);
-  Block d("\x08\x00", 2);;
-  BOOST_CHECK_EQUAL(c == d, false);
-  BOOST_CHECK_EQUAL(c != d, true);
+  BOOST_CHECK_EQUAL(data.elements_size(), 5);
+  BOOST_CHECK_EQUAL(data.elements().at(0).type(), 0x07);
+  BOOST_CHECK_EQUAL(data.elements().at(0).elements().size(), 0); // parse is not recursive
 
-  Block e("\x06\x00", 2);
-  Block f("\x06\x01\xcc", 3);;
-  BOOST_CHECK_EQUAL(e == f, false);
-  BOOST_CHECK_EQUAL(e != f, true);
+  BOOST_CHECK(data.get(0x15) == data.elements().at(2));
+  BOOST_CHECK_THROW(data.get(0x01), Block::Error);
+
+  BOOST_CHECK(data.find(0x15) == data.elements_begin() + 2);
+  BOOST_CHECK(data.find(0x01) == data.elements_end());
 }
 
 BOOST_AUTO_TEST_CASE(InsertBeginning)
@@ -485,7 +362,7 @@ BOOST_AUTO_TEST_CASE(InsertMiddle)
   Block::element_const_iterator it = masterBlock.find(tlv::NameComponent);
   BOOST_CHECK_EQUAL(*it == firstBlock, true);
 
-  it = masterBlock.insert(it+1, secondBlock);
+  it = masterBlock.insert(it + 1, secondBlock);
 
   BOOST_CHECK_EQUAL(*it == secondBlock, true);
   BOOST_CHECK_EQUAL(*(it + 1) == thirdBlock, true);
@@ -565,6 +442,26 @@ BOOST_AUTO_TEST_CASE(Remove)
   BOOST_CHECK_EQUAL(123, readNonNegativeInteger(elements[0]));
   BOOST_CHECK_EQUAL(tlv::Name, elements[1].type());
   BOOST_CHECK(readString(elements[1]).compare("ndn:/test-prefix") == 0);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // SubElements
+
+BOOST_AUTO_TEST_CASE(Equality)
+{
+  Block a("\x08\x00", 2);
+  Block b("\x08\x00", 2);;
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
+  Block c("\x06\x00", 2);
+  Block d("\x08\x00", 2);;
+  BOOST_CHECK_EQUAL(c == d, false);
+  BOOST_CHECK_EQUAL(c != d, true);
+
+  Block e("\x06\x00", 2);
+  Block f("\x06\x01\xcc", 3);;
+  BOOST_CHECK_EQUAL(e == f, false);
+  BOOST_CHECK_EQUAL(e != f, true);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlock
