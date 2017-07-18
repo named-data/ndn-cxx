@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,16 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_IN_MEMORY_STORAGE_PERSISTENT_HPP
-#define NDN_UTIL_IN_MEMORY_STORAGE_PERSISTENT_HPP
+#ifndef NDN_IMS_IN_MEMORY_STORAGE_PERSISTENT_HPP
+#define NDN_IMS_IN_MEMORY_STORAGE_PERSISTENT_HPP
 
 #include "in-memory-storage.hpp"
 
 namespace ndn {
-namespace util {
 
 /** @brief Provides application cache with persistent storage, of which no replacement policy will
- *  be employed. Entries will only be deleted by explicitly application control.
+ *  be employed. Entries will only be deleted by explicit application control.
  */
 class InMemoryStoragePersistent : public InMemoryStorage
 {
@@ -49,7 +48,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   evictItem() override;
 };
 
-} // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_IN_MEMORY_STORAGE_PERSISTENT_HPP
+#endif // NDN_IMS_IN_MEMORY_STORAGE_PERSISTENT_HPP

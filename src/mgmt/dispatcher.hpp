@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -23,9 +23,9 @@
 #define NDN_MGMT_DISPATCHER_HPP
 
 #include "../face.hpp"
-#include "../security/key-chain.hpp"
 #include "../encoding/block.hpp"
-#include "../util/in-memory-storage-fifo.hpp"
+#include "../security/key-chain.hpp"
+#include "../ims/in-memory-storage-fifo.hpp"
 #include "control-response.hpp"
 #include "control-parameters.hpp"
 #include "status-dataset-context.hpp"
@@ -473,7 +473,7 @@ private:
   std::unordered_map<Name, uint64_t> m_streams;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  util::InMemoryStorageFifo m_storage;
+  InMemoryStorageFifo m_storage;
 };
 
 template<typename CP>

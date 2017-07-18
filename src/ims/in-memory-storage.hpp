@@ -19,34 +19,29 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_IN_MEMORY_STORAGE_HPP
-#define NDN_UTIL_IN_MEMORY_STORAGE_HPP
+#ifndef NDN_IMS_IN_MEMORY_STORAGE_HPP
+#define NDN_IMS_IN_MEMORY_STORAGE_HPP
 
-#include "../common.hpp"
-#include "../interest.hpp"
-#include "../data.hpp"
-#include "scheduler.hpp"
 #include "in-memory-storage-entry.hpp"
 
-#include <boost/multi_index/member.hpp>
+#include <iterator>
+#include <stack>
+
 #include <boost/multi_index_container.hpp>
-#include <boost/multi_index/ordered_index.hpp>
-#include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/identity.hpp>
 #include <boost/multi_index/mem_fun.hpp>
-
-#include <stack>
-#include <iterator>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
 
 namespace ndn {
-namespace util {
 
 /** @brief Represents in-memory storage
  */
 class InMemoryStorage : noncopyable
 {
 public:
-  //multi_index_container to implement storage
+  // multi_index_container to implement storage
   class byFullName;
 
   typedef boost::multi_index_container<
@@ -341,7 +336,6 @@ private:
   unique_ptr<Scheduler> m_scheduler;
 };
 
-} // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_IN_MEMORY_STORAGE_HPP
+#endif // NDN_IMS_IN_MEMORY_STORAGE_HPP

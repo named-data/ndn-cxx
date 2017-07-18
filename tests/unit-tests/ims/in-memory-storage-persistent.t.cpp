@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,26 +19,47 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "in-memory-storage-persistent.hpp"
+#include "ims/in-memory-storage-persistent.hpp"
+
+#include "boost-test.hpp"
+#include "../make-interest-data.hpp"
 
 namespace ndn {
-namespace util {
+namespace tests {
 
-InMemoryStoragePersistent::InMemoryStoragePersistent()
-  : InMemoryStorage()
+using namespace ndn::tests;
+
+BOOST_AUTO_TEST_SUITE(Ims)
+BOOST_AUTO_TEST_SUITE(TestInMemoryStoragePersistent)
+
+BOOST_AUTO_TEST_CASE(GetLimit)
 {
+  InMemoryStoragePersistent ims;
+
+  BOOST_CHECK_EQUAL(ims.getLimit(), -1);
 }
 
-InMemoryStoragePersistent::InMemoryStoragePersistent(boost::asio::io_service& ioService)
-  : InMemoryStorage(ioService)
+BOOST_AUTO_TEST_CASE(InsertAndDouble)
 {
+  InMemoryStoragePersistent ims;
+
+  for(int i = 0; i < 11; i++) {
+    std::ostringstream convert;
+    convert << i;
+    Name name("/" + convert.str());
+    shared_ptr<Data> data = makeData(name);
+    data->setFreshnessPeriod(time::milliseconds(5000));
+    signData(data);
+    ims.insert(*data);
+  }
+
+  BOOST_CHECK_EQUAL(ims.size(), 11);
+
+  BOOST_CHECK_EQUAL(ims.getCapacity(), 20);
 }
 
-bool
-InMemoryStoragePersistent::evictItem()
-{
-  return false;
-}
+BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStoragePersistent
+BOOST_AUTO_TEST_SUITE_END() // Ims
 
-} // namespace util
+} // namespace tests
 } // namespace ndn

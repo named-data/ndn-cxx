@@ -22,10 +22,7 @@
 #include "in-memory-storage.hpp"
 #include "in-memory-storage-entry.hpp"
 
-#include "../security/signature-sha256-with-rsa.hpp"
-
 namespace ndn {
-namespace util {
 
 const time::milliseconds InMemoryStorage::INFINITE_WINDOW(-1);
 const time::milliseconds InMemoryStorage::ZERO_WINDOW(0);
@@ -189,7 +186,7 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
   m_nPackets++;
   entry->setData(data);
   if (m_scheduler != nullptr && mustBeFreshProcessingWindow > ZERO_WINDOW) {
-    auto eventId = make_unique<scheduler::ScopedEventId>(*m_scheduler);
+    auto eventId = make_unique<util::scheduler::ScopedEventId>(*m_scheduler);
     *eventId = m_scheduler->scheduleEvent(mustBeFreshProcessingWindow,
                                           bind(&InMemoryStorageEntry::markStale, entry));
     entry->setMarkStaleEventId(std::move(eventId));
@@ -449,5 +446,4 @@ InMemoryStorage::printCache(std::ostream& os) const
     os << (*it)->getFullName() << std::endl;
 }
 
-} // namespace util
 } // namespace ndn

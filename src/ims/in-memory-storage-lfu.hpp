@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,19 +19,18 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_IN_MEMORY_STORAGE_LFU_HPP
-#define NDN_UTIL_IN_MEMORY_STORAGE_LFU_HPP
+#ifndef NDN_IMS_IN_MEMORY_STORAGE_LFU_HPP
+#define NDN_IMS_IN_MEMORY_STORAGE_LFU_HPP
 
 #include "in-memory-storage.hpp"
 
-#include <boost/multi_index/member.hpp>
 #include <boost/multi_index_container.hpp>
-#include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/identity.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 
 namespace ndn {
-namespace util {
 
 /** @brief Provides an in-memory storage with Least Frequently Used (LFU) replacement policy.
  *  @note The frequency right now is usage count.
@@ -88,7 +87,7 @@ private:
   }
 
 private:
-  //multi_index_container to implement LFU
+  // multi_index_container to implement LFU
   class byFrequency;
   class byEntity;
 
@@ -115,7 +114,6 @@ private:
   CleanupIndex m_cleanupIndex;
 };
 
-} // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_IN_MEMORY_STORAGE_LFU_HPP
+#endif // NDN_IMS_IN_MEMORY_STORAGE_LFU_HPP

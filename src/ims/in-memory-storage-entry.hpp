@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,23 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_IN_MEMORY_STORAGE_ENTRY_HPP
-#define NDN_UTIL_IN_MEMORY_STORAGE_ENTRY_HPP
+#ifndef NDN_IMS_IN_MEMORY_STORAGE_ENTRY_HPP
+#define NDN_IMS_IN_MEMORY_STORAGE_ENTRY_HPP
 
-#include "../common.hpp"
-#include "../interest.hpp"
 #include "../data.hpp"
-#include "scheduler-scoped-event-id.hpp"
+#include "../interest.hpp"
+#include "../util/scheduler-scoped-event-id.hpp"
 
 namespace ndn {
-namespace util {
 
- /** @brief Represents an in-memory storage entry
+/** @brief Represents an in-memory storage entry
  */
 class InMemoryStorageEntry : noncopyable
 {
 public:
-
   /** @brief Create an entry
    */
   InMemoryStorageEntry();
@@ -62,7 +59,6 @@ public:
     return m_dataPacket->getFullName();
   }
 
-
   /** @brief Returns the Data packet stored in the in-memory storage entry
    */
   const Data&
@@ -70,7 +66,6 @@ public:
   {
     return *m_dataPacket;
   }
-
 
   /** @brief Changes the content of in-memory storage entry
    *
@@ -82,7 +77,7 @@ public:
   /** @brief Set eventId for the markStale event.
    */
   void
-  setMarkStaleEventId(unique_ptr<scheduler::ScopedEventId>&& eventId);
+  setMarkStaleEventId(unique_ptr<util::scheduler::ScopedEventId> eventId);
 
   /** @brief Disable the data from satisfying interest with MustBeFresh
    */
@@ -101,10 +96,9 @@ private:
   shared_ptr<const Data> m_dataPacket;
 
   bool m_isFresh;
-  unique_ptr<scheduler::ScopedEventId> m_markStaleEventId;
+  unique_ptr<util::scheduler::ScopedEventId> m_markStaleEventId;
 };
 
-} // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_IN_MEMORY_STORAGE_ENTRY_HPP
+#endif // NDN_IMS_IN_MEMORY_STORAGE_ENTRY_HPP

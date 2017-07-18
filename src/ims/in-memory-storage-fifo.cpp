@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,38 +19,34 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "in-memory-storage-lfu.hpp"
+#include "in-memory-storage-fifo.hpp"
 
 namespace ndn {
-namespace util {
 
-InMemoryStorageLfu::InMemoryStorageLfu(size_t limit)
+InMemoryStorageFifo::InMemoryStorageFifo(size_t limit)
   : InMemoryStorage(limit)
 {
 }
 
-InMemoryStorageLfu::InMemoryStorageLfu(boost::asio::io_service& ioService, size_t limit)
+InMemoryStorageFifo::InMemoryStorageFifo(boost::asio::io_service& ioService, size_t limit)
   : InMemoryStorage(ioService, limit)
 {
 }
 
 void
-InMemoryStorageLfu::afterInsert(InMemoryStorageEntry* entry)
+InMemoryStorageFifo::afterInsert(InMemoryStorageEntry* entry)
 {
   BOOST_ASSERT(m_cleanupIndex.size() <= size());
-  CleanupEntry cleanupEntry;
-  cleanupEntry.entry = entry;
-  cleanupEntry.frequency = 0;
-  m_cleanupIndex.insert(cleanupEntry);
+  m_cleanupIndex.insert(entry);
 }
 
 bool
-InMemoryStorageLfu::evictItem()
+InMemoryStorageFifo::evictItem()
 {
-  if (!m_cleanupIndex.get<byFrequency>().empty()) {
-    CleanupIndex::index<byFrequency>::type::iterator it = m_cleanupIndex.get<byFrequency>().begin();
-    eraseImpl(((*it).entry)->getFullName());
-    m_cleanupIndex.get<byFrequency>().erase(it);
+  if (!m_cleanupIndex.get<byArrival>().empty()) {
+    CleanupIndex::index<byArrival>::type::iterator it = m_cleanupIndex.get<byArrival>().begin();
+    eraseImpl((*it)->getFullName());
+    m_cleanupIndex.get<byArrival>().erase(it);
     return true;
   }
 
@@ -58,19 +54,11 @@ InMemoryStorageLfu::evictItem()
 }
 
 void
-InMemoryStorageLfu::beforeErase(InMemoryStorageEntry* entry)
+InMemoryStorageFifo::beforeErase(InMemoryStorageEntry* entry)
 {
   CleanupIndex::index<byEntity>::type::iterator it = m_cleanupIndex.get<byEntity>().find(entry);
   if (it != m_cleanupIndex.get<byEntity>().end())
     m_cleanupIndex.get<byEntity>().erase(it);
 }
 
-void
-InMemoryStorageLfu::afterAccess(InMemoryStorageEntry* entry)
-{
-  CleanupIndex::index<byEntity>::type::iterator it = m_cleanupIndex.get<byEntity>().find(entry);
-  m_cleanupIndex.get<byEntity>().modify(it, &incrementFrequency);
-}
-
-} // namespace util
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,44 +19,34 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_IN_MEMORY_STORAGE_LRU_HPP
-#define NDN_UTIL_IN_MEMORY_STORAGE_LRU_HPP
+#ifndef NDN_IMS_IN_MEMORY_STORAGE_FIFO_HPP
+#define NDN_IMS_IN_MEMORY_STORAGE_FIFO_HPP
 
 #include "in-memory-storage.hpp"
 
-#include <boost/multi_index/member.hpp>
 #include <boost/multi_index_container.hpp>
-#include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/identity.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
 
 namespace ndn {
-namespace util {
 
-/** @brief Provides in-memory storage employing LRU replacement policy, of which the least
- *  recently used entry will be evict first.
+/** @brief Provides in-memory storage employing First-In-First-Out (FIFO) replacement policy.
  */
-class InMemoryStorageLru : public InMemoryStorage
+class InMemoryStorageFifo : public InMemoryStorage
 {
 public:
   explicit
-  InMemoryStorageLru(size_t limit = 10);
+  InMemoryStorageFifo(size_t limit = 10);
 
-  InMemoryStorageLru(boost::asio::io_service& ioService, size_t limit = 10);
+  explicit
+  InMemoryStorageFifo(boost::asio::io_service& ioService, size_t limit = 10);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
-  /** @brief Removes one Data packet from in-memory storage based on LRU, i.e. evict the least
-   *  recently accessed Data packet
+  /** @brief Removes one Data packet from in-memory storage based on FIFO
    *  @return{ whether the Data was removed }
    */
   bool
   evictItem() override;
-
-  /** @brief Update the entry when the entry is returned by the find() function,
-   *  update the last used time according to LRU
-   */
-  void
-  afterAccess(InMemoryStorageEntry* entry) override;
 
   /** @brief Update the entry after a entry is successfully inserted, add it to the cleanupIndex
    */
@@ -70,8 +60,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   beforeErase(InMemoryStorageEntry* entry) override;
 
 private:
-  //multi_index_container to implement LRU
-  class byUsedTime;
+  // multi_index_container to implement FIFO
+  class byArrival;
   class byEntity;
 
   typedef boost::multi_index_container<
@@ -84,9 +74,9 @@ private:
         boost::multi_index::identity<InMemoryStorageEntry*>
       >,
 
-      // by last used time (LRU)
+      // by arrival (FIFO)
       boost::multi_index::sequenced<
-        boost::multi_index::tag<byUsedTime>
+        boost::multi_index::tag<byArrival>
       >
 
     >
@@ -95,7 +85,6 @@ private:
   CleanupIndex m_cleanupIndex;
 };
 
-} // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_IN_MEMORY_STORAGE_LRU_HPP
+#endif // NDN_IMS_IN_MEMORY_STORAGE_FIFO_HPP

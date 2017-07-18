@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -19,20 +19,18 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/in-memory-storage-lfu.hpp"
+#include "ims/in-memory-storage-lfu.hpp"
 
 #include "boost-test.hpp"
 #include "../make-interest-data.hpp"
 
 namespace ndn {
-namespace util {
 namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_AUTO_TEST_SUITE(Util)
-BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
-BOOST_AUTO_TEST_SUITE(Lfu)
+BOOST_AUTO_TEST_SUITE(Ims)
+BOOST_AUTO_TEST_SUITE(TestInMemoryStorageLfu)
 
 BOOST_AUTO_TEST_CASE(FrequencyQueue)
 {
@@ -130,10 +128,8 @@ BOOST_AUTO_TEST_CASE(FrequencyQueue2)
   BOOST_CHECK_EQUAL(found3->getName(), name3);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // Lfu
-BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStorage
-BOOST_AUTO_TEST_SUITE_END() // Util
+BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStorageLfu
+BOOST_AUTO_TEST_SUITE_END() // Ims
 
 } // namespace tests
-} // namespace util
 } // namespace ndn

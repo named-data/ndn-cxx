@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -19,51 +19,39 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/in-memory-storage-persistent.hpp"
-
-#include "boost-test.hpp"
-#include "../make-interest-data.hpp"
+#include "in-memory-storage-entry.hpp"
 
 namespace ndn {
-namespace util {
-namespace tests {
 
-using namespace ndn::tests;
-
-BOOST_AUTO_TEST_SUITE(Util)
-BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
-BOOST_AUTO_TEST_SUITE(Persistent)
-
-BOOST_AUTO_TEST_CASE(GetLimit)
+InMemoryStorageEntry::InMemoryStorageEntry()
+  : m_isFresh(true)
 {
-  InMemoryStoragePersistent ims;
-
-  BOOST_CHECK_EQUAL(ims.getLimit(), -1);
 }
 
-BOOST_AUTO_TEST_CASE(InsertAndDouble)
+void
+InMemoryStorageEntry::release()
 {
-  InMemoryStoragePersistent ims;
-
-  for(int i = 0; i < 11; i++) {
-    std::ostringstream convert;
-    convert << i;
-    Name name("/" + convert.str());
-    shared_ptr<Data> data = makeData(name);
-    data->setFreshnessPeriod(time::milliseconds(5000));
-    signData(data);
-    ims.insert(*data);
-  }
-
-  BOOST_CHECK_EQUAL(ims.size(), 11);
-
-  BOOST_CHECK_EQUAL(ims.getCapacity(), 20);
+  m_dataPacket.reset();
+  m_markStaleEventId.reset();
 }
 
-BOOST_AUTO_TEST_SUITE_END() // Persistent
-BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStorage
-BOOST_AUTO_TEST_SUITE_END() // Util
+void
+InMemoryStorageEntry::setData(const Data& data)
+{
+  m_dataPacket = data.shared_from_this();
+  m_isFresh = true;
+}
 
-} // namespace tests
-} // namespace util
+void
+InMemoryStorageEntry::setMarkStaleEventId(unique_ptr<util::scheduler::ScopedEventId> markStaleEventId)
+{
+  m_markStaleEventId = std::move(markStaleEventId);
+}
+
+void
+InMemoryStorageEntry::markStale()
+{
+  m_isFresh = false;
+}
+
 } // namespace ndn
