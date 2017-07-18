@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_EXCLUDE_H
-#define NDN_EXCLUDE_H
+#ifndef NDN_EXCLUDE_HPP
+#define NDN_EXCLUDE_HPP
 
 #include "name-component.hpp"
 #include "encoding/encoding-buffer.hpp"
@@ -177,6 +177,10 @@ public: // enumeration API
   class Range
   {
   public:
+    Range();
+
+    Range(bool fromInfinity, const name::Component& from, bool toInfinity, const name::Component& to);
+
     /**
      * @retval true A single component is excluded
      * @retval false A range of more than one components are excluded
@@ -365,4 +369,4 @@ Exclude::const_iterator::operator!=(const const_iterator& other) const
 
 } // namespace ndn
 
-#endif // NDN_EXCLUDE_H
+#endif // NDN_EXCLUDE_HPP

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -52,6 +52,20 @@ operator>(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b
 {
   return a.isNegInf < b.isNegInf ||
          (a.isNegInf == b.isNegInf && a.component > b.component);
+}
+
+Exclude::Range::Range()
+  : fromInfinity(false)
+  , toInfinity(false)
+{
+}
+
+Exclude::Range::Range(bool fromInfinity, const name::Component& from, bool toInfinity, const name::Component& to)
+  : fromInfinity(fromInfinity)
+  , from(from)
+  , toInfinity(toInfinity)
+  , to(to)
+{
 }
 
 bool
