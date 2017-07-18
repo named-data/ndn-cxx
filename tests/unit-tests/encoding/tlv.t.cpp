@@ -23,6 +23,9 @@
 
 #include "boost-test.hpp"
 
+#include <array>
+#include <deque>
+#include <list>
 #include <boost/concept_archetype.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
@@ -74,6 +77,7 @@ ASSERT_READ_NUMBER_IS_SLOW(std::vector<bool>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint16_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint32_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint64_t>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(std::deque<uint8_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::list<uint8_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(StreamIterator);
 

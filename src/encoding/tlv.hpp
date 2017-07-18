@@ -26,8 +26,9 @@
 #include "endian.hpp"
 
 #include <cstring>
-#include <iostream>
 #include <iterator>
+#include <ostream>
+#include <type_traits>
 
 namespace ndn {
 
@@ -70,22 +71,22 @@ enum {
   MinSuffixComponents       = 13,
   MaxSuffixComponents       = 14,
   PublisherPublicKeyLocator = 15,
-  Exclude       = 16,
-  ChildSelector = 17,
-  MustBeFresh   = 18,
-  Any           = 19,
-  MetaInfo      = 20,
-  Content       = 21,
-  SignatureInfo = 22,
+  Exclude         = 16,
+  ChildSelector   = 17,
+  MustBeFresh     = 18,
+  Any             = 19,
+  MetaInfo        = 20,
+  Content         = 21,
+  SignatureInfo   = 22,
   SignatureValue  = 23,
   ContentType     = 24,
   FreshnessPeriod = 25,
-  FinalBlockId  = 26,
-  SignatureType = 27,
-  KeyLocator    = 28,
-  KeyDigest     = 29,
-  LinkPreference = 30,
-  LinkDelegation = 31,
+  FinalBlockId    = 26,
+  SignatureType   = 27,
+  KeyLocator      = 28,
+  KeyDigest       = 29,
+  LinkPreference  = 30,
+  LinkDelegation  = 31,
   SelectedDelegation = 32,
 
   AppPrivateBlock1 = 128,
@@ -248,7 +249,7 @@ writeNonNegativeInteger(std::ostream& os, uint64_t integer);
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 
-// Inline implementations
+// Inline definitions
 
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
@@ -336,11 +337,8 @@ shouldSelectContiguousReadNumber()
   return (std::is_convertible<DecayedIterator, const ValueType*>::value ||
           std::is_convertible<DecayedIterator, typename std::basic_string<ValueType>::const_iterator>::value ||
           std::is_convertible<DecayedIterator, typename std::vector<ValueType>::const_iterator>::value) &&
-         (std::is_same<ValueType, uint8_t>::value ||
-          std::is_same<ValueType, int8_t>::value ||
-          std::is_same<ValueType, char>::value ||
-          std::is_same<ValueType, unsigned char>::value ||
-          std::is_same<ValueType, signed char>::value);
+         sizeof(ValueType) == 1 &&
+         !std::is_same<ValueType, bool>::value;
 }
 
 template<typename Iterator>
