@@ -155,20 +155,17 @@ public: // Name, Nonce, and Guiders
   bool
   hasNonce() const
   {
-    return m_nonce.hasWire();
+    return static_cast<bool>(m_nonce);
   }
 
-  /** @brief Get Interest's nonce
+  /** @brief Get nonce
    *
    *  If nonce was not set before this call, it will be automatically assigned to a random value
    */
   uint32_t
   getNonce() const;
 
-  /** @brief Set Interest's nonce
-   *
-   *  If wire format already exists, this call simply replaces nonce in the
-   *  existing wire format, without resetting and recreating it.
+  /** @brief Set nonce
    */
   Interest&
   setNonce(uint32_t nonce);
@@ -406,7 +403,7 @@ public: // Link and SelectedDelegation
 private:
   Name m_name;
   Selectors m_selectors;
-  mutable Block m_nonce;
+  mutable optional<uint32_t> m_nonce;
   time::milliseconds m_interestLifetime;
   DelegationList m_forwardingHint;
 

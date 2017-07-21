@@ -94,8 +94,10 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // Nonce
-  getNonce(); // to ensure that Nonce is properly set
-  totalLength += encoder.prependBlock(m_nonce);
+  uint32_t nonce = this->getNonce(); // assigns random Nonce if needed
+  totalLength += encoder.prependByteArray(reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
+  totalLength += encoder.prependVarNumber(sizeof(nonce));
+  totalLength += encoder.prependVarNumber(tlv::Nonce);
 
   // Selectors
   if (hasSelectors()) {
@@ -128,7 +130,7 @@ Interest::wireEncode() const
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
-  // to ensure that Nonce block points to the right memory location
+  // to ensure that Link block points to the right memory location
   const_cast<Interest*>(this)->wireDecode(buffer.block());
 
   return m_wire;
@@ -155,7 +157,16 @@ Interest::wireDecode(const Block& wire)
     m_selectors = Selectors();
 
   // Nonce
-  m_nonce = m_wire.get(tlv::Nonce);
+  val = m_wire.find(tlv::Nonce);
+  if (val == m_wire.elements_end()) {
+    BOOST_THROW_EXCEPTION(Error("Nonce element is missing"));
+  }
+  uint32_t nonce = 0;
+  if (val->value_size() != sizeof(nonce)) {
+    BOOST_THROW_EXCEPTION(Error("Nonce element is malformed"));
+  }
+  std::memcpy(&nonce, val->value(), sizeof(nonce));
+  m_nonce = nonce;
 
   // InterestLifetime
   val = m_wire.find(tlv::InterestLifetime);
@@ -320,7 +331,7 @@ Interest::matchesData(const Data& data) const
 bool
 Interest::matchesInterest(const Interest& other) const
 {
-  /// @todo #3162 match Link field
+  /// @todo #3162 match ForwardingHint field
   return (this->getName() == other.getName() &&
           this->getSelectors() == other.getSelectors());
 }
@@ -330,32 +341,17 @@ Interest::matchesInterest(const Interest& other) const
 uint32_t
 Interest::getNonce() const
 {
-  if (!m_nonce.hasWire())
-    const_cast<Interest*>(this)->setNonce(random::generateWord32());
-
-  if (m_nonce.value_size() == sizeof(uint32_t)) {
-    uint32_t nonce = 0;
-    std::memcpy(&nonce, m_nonce.value(), sizeof(uint32_t));
-    return nonce;
+  if (!m_nonce) {
+    m_nonce = random::generateWord32();
   }
-  else {
-    // for compatibility reasons.  Should be removed eventually
-    return readNonNegativeInteger(m_nonce);
-  }
+  return *m_nonce;
 }
 
 Interest&
 Interest::setNonce(uint32_t nonce)
 {
-  if (m_wire.hasWire() && m_nonce.value_size() == sizeof(uint32_t)) {
-    std::memcpy(const_cast<uint8_t*>(m_nonce.value()), &nonce, sizeof(nonce));
-  }
-  else {
-    m_nonce = makeBinaryBlock(tlv::Nonce,
-                              reinterpret_cast<const uint8_t*>(&nonce),
-                              sizeof(nonce));
-    m_wire.reset();
-  }
+  m_nonce = nonce;
+  m_wire.reset();
   return *this;
 }
 

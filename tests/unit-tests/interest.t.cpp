@@ -39,6 +39,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   Interest i;
   BOOST_CHECK_EQUAL(i.getName(), "/");
   BOOST_CHECK(i.getSelectors().empty());
+  BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK_EQUAL(i.hasLink(), false);
   BOOST_CHECK(!i.hasSelectedDelegation());
@@ -187,6 +188,37 @@ BOOST_AUTO_TEST_CASE(WireDecodeReset) // checks wireDecode resets all fields
   BOOST_CHECK_EQUAL(i2.hasSelectedDelegation(), false);
 }
 
+BOOST_AUTO_TEST_CASE(DecodeNoName)
+{
+  Block b(tlv::Interest);
+  b.push_back(makeBinaryBlock(tlv::Nonce, "FISH", 4));
+  b.encode();
+
+  Interest i;
+  BOOST_CHECK_THROW(i.wireDecode(b), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(DecodeNoNonce)
+{
+  Block b(tlv::Interest);
+  b.push_back(Name("/YvzNKtPWh").wireEncode());
+  b.encode();
+
+  Interest i;
+  BOOST_CHECK_THROW(i.wireDecode(b), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(DecodeBadNonce)
+{
+  Block b(tlv::Interest);
+  b.push_back(Name("/BJzEHVxDJ").wireEncode());
+  b.push_back(makeBinaryBlock(tlv::Nonce, "SKY", 3));
+  b.encode();
+
+  Interest i;
+  BOOST_CHECK_THROW(i.wireDecode(b), tlv::Error);
+}
+
 // ---- matching ----
 
 BOOST_AUTO_TEST_CASE(MatchesData)
@@ -310,22 +342,41 @@ BOOST_AUTO_TEST_CASE(MatchesInterest)
 
 BOOST_AUTO_TEST_CASE(GetNonce)
 {
-  unique_ptr<Interest> i;
+  unique_ptr<Interest> i1, i2;
 
-  // getNonce automatically assigns a random Nonce, which could be zero.
-  // But it's unlikely to get 100 zeros in a row.
-  uint32_t nonce = 0;
+  // getNonce automatically assigns a random Nonce.
+  // It's possible to assign the same Nonce to two Interest, but it's unlikely to get 100 pairs of
+  // same Nonces in a row.
   int nIterations = 0;
+  uint32_t nonce1 = 0, nonce2 = 0;
   do {
-    i = make_unique<Interest>();
-    nonce = i->getNonce();
+    i1 = make_unique<Interest>();
+    nonce1 = i1->getNonce();
+    i2 = make_unique<Interest>();
+    nonce2 = i2->getNonce();
   }
-  while (nonce == 0 && ++nIterations < 100);
-  BOOST_CHECK_NE(nonce, 0);
-  BOOST_CHECK(i->hasNonce());
+  while (nonce1 == nonce2 && ++nIterations < 100);
+  BOOST_CHECK_NE(nonce1, nonce2);
+  BOOST_CHECK(i1->hasNonce());
+  BOOST_CHECK(i2->hasNonce());
 
   // Once a Nonce is assigned, it should not change.
-  BOOST_CHECK_EQUAL(i->getNonce(), nonce);
+  BOOST_CHECK_EQUAL(i1->getNonce(), nonce1);
+}
+
+BOOST_AUTO_TEST_CASE(SetNonce)
+{
+  Interest i1("/A");
+  i1.setNonce(1);
+  i1.wireEncode();
+  BOOST_CHECK_EQUAL(i1.getNonce(), 1);
+
+  Interest i2(i1);
+  BOOST_CHECK_EQUAL(i2.getNonce(), 1);
+
+  i2.setNonce(2);
+  BOOST_CHECK_EQUAL(i2.getNonce(), 2);
+  BOOST_CHECK_EQUAL(i1.getNonce(), 1); // should not affect i1 Nonce (Bug #4168)
 }
 
 BOOST_AUTO_TEST_CASE(RefreshNonce)
