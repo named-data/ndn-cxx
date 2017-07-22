@@ -22,7 +22,6 @@
  */
 
 #include "block.hpp"
-#include "block-helpers.hpp"
 #include "buffer-stream.hpp"
 #include "encoding-buffer.hpp"
 #include "tlv.hpp"
@@ -120,7 +119,7 @@ Block::Block(const uint8_t* buf, size_t bufSize)
   // pos now points to TLV-VALUE
 
   if (length > static_cast<uint64_t>(end - pos)) {
-    BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
+    BOOST_THROW_EXCEPTION(Error("Not enough bytes in the buffer to fully parse TLV"));
   }
   size_t typeLengthSize = pos - buf;
   m_size = typeLengthSize + length;
@@ -172,28 +171,28 @@ Block::fromStream(std::istream& is)
 
   uint32_t type = tlv::readType(begin, end);
   uint64_t length = tlv::readVarNumber(begin, end);
-
-  if (length == 0) {
-    // XXX An extra octet is incorrectly consumed from istream (#4180)
-    return Block(type);
+  if (begin != end) {
+    is.putback(*begin);
   }
 
-  if (length > MAX_SIZE_OF_BLOCK_FROM_STREAM) {
-    BOOST_THROW_EXCEPTION(tlv::Error("TLV-LENGTH from stream exceeds limit"));
+  size_t tlSize = tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(length);
+  if (tlSize + length > MAX_SIZE_OF_BLOCK_FROM_STREAM) {
+    BOOST_THROW_EXCEPTION(Error("TLV-LENGTH from stream exceeds limit"));
   }
 
-  // We may still have some problem here, if some exception happens,
-  // we may completely lose all the bytes extracted from the stream.
-
-  char buf[MAX_SIZE_OF_BLOCK_FROM_STREAM];
-  buf[0] = *begin;
-  is.read(buf + 1, length - 1);
-
-  if (length != static_cast<uint64_t>(is.gcount()) + 1) {
-    BOOST_THROW_EXCEPTION(tlv::Error("Not enough data in the buffer to fully parse TLV"));
+  EncodingBuffer eb(tlSize + length, length);
+  uint8_t* valueBuf = eb.buf();
+  is.read(reinterpret_cast<char*>(valueBuf), length);
+  if (length != static_cast<uint64_t>(is.gcount())) {
+    BOOST_THROW_EXCEPTION(Error("Not enough bytes from stream to fully parse TLV"));
   }
 
-  return makeBinaryBlock(type, buf, length);
+  eb.prependVarNumber(length);
+  eb.prependVarNumber(type);
+
+  // TLV-VALUE is directly written into eb.buf(), eb.end() is not incremented, but eb.getBuffer()
+  // has the correct layout.
+  return Block(eb.getBuffer());
 }
 
 std::tuple<bool, Block>

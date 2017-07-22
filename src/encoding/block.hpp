@@ -38,7 +38,8 @@ class const_buffer;
 
 namespace ndn {
 
-/** @brief Class representing a wire element of NDN-TLV packet format
+/** @brief Represents a TLV element of NDN packet format
+ *  @sa https://named-data.net/doc/ndn-tlv/tlv.html
  */
 class Block
 {
@@ -144,6 +145,8 @@ public: // constructor, creation, assignment
   Block(uint32_t type, const Block& value);
 
   /** @brief Parse Block from an input stream
+   *  @throw tlv::Error TLV-LENGTH is zero or exceeds upper bound
+   *  @warning If decoding fails, bytes are still consumed from the input stream.
    */
   static Block
   fromStream(std::istream& is);

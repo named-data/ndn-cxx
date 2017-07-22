@@ -199,21 +199,46 @@ BOOST_AUTO_TEST_CASE(FromStreamWhitespace) // Bug 2728
   b.parse();
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(FromStreamZeroLength, 1)
-BOOST_AUTO_TEST_CASE(FromStreamZeroLength) // Bug 2729
+BOOST_AUTO_TEST_CASE(FromStreamZeroLength)
 {
-  const uint8_t BUFFER[] = {0x07, 0x00, // TLV-LENGTH is zero
-                      0x09, 0x01, 0x01};
+  const uint8_t BUFFER[] = {0x70, 0x00,
+                            0x71, 0x03, 0x86, 0x11, 0x24,
+                            0x72, 0x00};
 
   std::stringstream stream;
   stream.write(reinterpret_cast<const char*>(BUFFER), sizeof(BUFFER));
   stream.seekg(0);
 
-  Block b = Block::fromStream(stream);
-  BOOST_CHECK_EQUAL(b.type(), 0x07);
-  BOOST_CHECK_EQUAL(b.value_size(), 0);
+  Block b1 = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b1.type(), 0x70);
+  BOOST_CHECK_EQUAL(b1.value_size(), 0);
 
-  BOOST_CHECK_NO_THROW(b = Block::fromStream(stream)); // expected failure Bug 4180
+  Block b2 = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b2.type(), 0x71);
+  BOOST_CHECK_EQUAL(b2.value_size(), 3);
+  const uint8_t EXPECTED_VALUE2[] = {0x86, 0x11, 0x24};
+  BOOST_CHECK_EQUAL_COLLECTIONS(b2.value_begin(), b2.value_end(),
+                                EXPECTED_VALUE2, EXPECTED_VALUE2 + sizeof(EXPECTED_VALUE2));
+
+  Block b3 = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b3.type(), 0x72);
+  BOOST_CHECK_EQUAL(b3.value_size(), 0);
+
+  BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(FromStreamPacketTooLarge)
+{
+  const uint8_t BUFFER[] = {0x07, 0xfe, 0x00, 0x01, 0x00, 0x00};
+
+  std::stringstream stream;
+  stream.write(reinterpret_cast<const char*>(BUFFER), sizeof(BUFFER));
+  for (int i = 0; i < 0x10000; ++i) {
+    stream.put('\0');
+  }
+  stream.seekg(0);
+
+  BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(FromWireBuffer)
