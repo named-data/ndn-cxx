@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,17 +22,15 @@
 #ifndef NDN_DATA_HPP
 #define NDN_DATA_HPP
 
-#include "name.hpp"
-#include "encoding/block.hpp"
-
-#include "signature.hpp"
 #include "meta-info.hpp"
-#include "key-locator.hpp"
+#include "name.hpp"
+#include "signature.hpp"
 #include "tag-host.hpp"
+#include "encoding/block.hpp"
 
 namespace ndn {
 
-/** @brief represents a Data packet
+/** @brief Represents a Data packet
  */
 class Data : public TagHost, public enable_shared_from_this<Data>
 {
@@ -47,75 +45,37 @@ public:
     }
   };
 
-  /**
-   * @brief Create an empty Data object
-   *
-   * Note that in certain contexts that use Data::shared_from_this(), Data must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Data> data = make_shared<Data>();
-   *
-   * Otherwise, Data::shared_from_this() will throw an exception.
+  /** @brief Create a new Data with the given name and empty Content
+   *  @warning In certain contexts that use Data::shared_from_this(), Data must be created
+   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
    */
-  Data();
+  Data(const Name& name = Name());
 
-  /**
-   * @brief Create a new Data object with the given name
-   *
-   * @param name A reference to the name
-   *
-   * Note that in certain contexts that use Data::shared_from_this(), Data must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Data> data = make_shared<Data>(name);
-   *
-   * Otherwise, Data::shared_from_this() will throw an exception.
-   */
-  Data(const Name& name);
-
-  /**
-   * @brief Create a new Data object from wire encoding
-   *
-   * Note that in certain contexts that use Data::shared_from_this(), Data must be
-   * created using `make_shared`:
-   *
-   *     shared_ptr<Data> data = make_shared<Data>(wire);
-   *
-   * Otherwise, Data::shared_from_this() will throw an exception.
+  /** @brief Create from wire encoding
+   *  @warning In certain contexts that use Data::shared_from_this(), Data must be created
+   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
    */
   explicit
   Data(const Block& wire);
 
-  /**
-   * @brief Fast encoding or block size estimation
-   *
-   * @param encoder                 EncodingEstimator or EncodingBuffer instance
-   * @param wantUnsignedPortionOnly Request only unsigned portion to be encoded in block.
-   *                                If true, only Name, MetaInfo, Content, and SignatureInfo
-   *                                blocks will be encoded into the block. Note that there
-   *                                will be no outer TLV header of the Data packet.
+  /** @brief Fast encoding or block size estimation
+   *  @param encoder EncodingEstimator or EncodingBuffer instance
+   *  @param wantUnsignedPortionOnly If true, only prepends Name, MetaInfo, Content, and
+   *         SignatureInfo to @p encoder, but omit SignatureValue and outmost Type-Length of Data
+   *         element. This is intended to be used with wireEncode(encoder, signatureValue).
+   *  @throw Error SignatureBits are not provided and wantUnsignedPortionOnly is false.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly = false) const;
 
-  /**
-   * @brief Encode to a wire format
-   */
-  const Block&
-  wireEncode() const;
-
-  /**
-   * @brief Finalize Data packet encoding with the specified SignatureValue
+  /** @brief Finalize Data packet encoding with the specified SignatureValue
+   *  @param encoder EncodingBuffer containing Name, MetaInfo, Content, and SignatureInfo, but
+   *                 without SignatureValue or outmost Type-Length of Data element
+   *  @param signatureValue SignatureValue element
    *
-   * @param encoder        EncodingBuffer instance, containing Name, MetaInfo, Content, and
-   *                       SignatureInfo (without outer TLV header of the Data packet).
-   * @param signatureValue SignatureValue block to be added to Data packet to finalize
-   *                       the wire encoding
-   *
-   * This method is intended to be used in concert with Data::wireEncode(EncodingBuffer&, true)
-   * method to optimize Data packet wire format creation:
-   *
+   *  This method is intended to be used in concert with Data::wireEncode(encoder, true)
+   *  @code
    *     Data data;
    *     ...
    *     EncodingBuffer encoder;
@@ -123,233 +83,175 @@ public:
    *     ...
    *     Block signatureValue = <sign_over_unsigned_portion>(encoder.buf(), encoder.size());
    *     data.wireEncode(encoder, signatureValue)
+   *  @endcode
    */
   const Block&
   wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const;
 
-  /**
-   * @brief Decode from the wire format
+  /** @brief Encode to a wire format
+   */
+  const Block&
+  wireEncode() const;
+
+  /** @brief Decode from the wire format
    */
   void
   wireDecode(const Block& wire);
 
-  /**
-   * @brief Check if Data is already has wire encoding
+  /** @brief Check if already has wire
    */
   bool
-  hasWire() const;
+  hasWire() const
+  {
+    return m_wire.hasWire();
+  }
 
-  ////////////////////////////////////////////////////////////////////
-
-  /**
-   * @brief Get name of the Data packet
-   */
-  const Name&
-  getName() const;
-
-  /**
-   * @brief Set name to a copy of the given Name
-   *
-   * @return This Data so that you can chain calls to update values
-   */
-  Data&
-  setName(const Name& name);
-
-  //
-
-  /**
-   * @brief Get full name of Data packet, including the implicit digest
-   *
-   * @throws Error if Data packet doesn't have a full name yet (wire encoding has not been
-   *         yet created)
+  /** @brief Get full name including implicit digest
+   *  @pre hasWire() == true; i.e. wireEncode() must have been called
+   *  @throw Error Data has no wire encoding
    */
   const Name&
   getFullName() const;
 
-  /**
-   * @brief Get MetaInfo block from Data packet
+public: // Data fields
+  /** @brief Get name
+   */
+  const Name&
+  getName() const
+  {
+    return m_name;
+  }
+
+  /** @brief Set name
+   *  @return a reference to this Data, to allow chaining
+   */
+  Data&
+  setName(const Name& name);
+
+  /** @brief Get MetaInfo
    */
   const MetaInfo&
-  getMetaInfo() const;
+  getMetaInfo() const
+  {
+    return m_metaInfo;
+  }
 
-  /**
-   * @brief Set metaInfo to a copy of the given MetaInfo
-   *
-   * @return This Data so that you can chain calls to update values.
+  /** @brief Set MetaInfo
+   *  @return a reference to this Data, to allow chaining
    */
   Data&
   setMetaInfo(const MetaInfo& metaInfo);
 
-  //
-
-  ///////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////
-  // MetaInfo proxy methods
-
-  uint32_t
-  getContentType() const;
-
-  Data&
-  setContentType(uint32_t type);
-
-  //
-
-  const time::milliseconds&
-  getFreshnessPeriod() const;
-
-  Data&
-  setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
-
-  //
-
-  const name::Component&
-  getFinalBlockId() const;
-
-  Data&
-  setFinalBlockId(const name::Component& finalBlockId);
-
-  //
-  ///////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////
-
-  /**
-   * @brief Get content Block
+  /** @brief Get Content
    *
-   * To access content value, one can use value()/value_size() or
-   * value_begin()/value_end() methods of the Block class
+   *  The Content value is accessible through value()/value_size() or value_begin()/value_end()
+   *  methods of the Block class.
    */
   const Block&
   getContent() const;
 
-  /**
-   * @brief Set the content from the buffer (buffer will be copied)
+  /** @brief Set Content from a block
    *
-   * @param buffer Pointer to first byte of the buffer
-   * @param bufferSize Size of the buffer
+   *  If block's TLV-TYPE is Content, it will be used directly as Data's Content element.
+   *  If block's TLV-TYPE is not Content, it will be nested into a Content element.
    *
-   * @return This Data so that you can chain calls to update values.
-   */
-  Data&
-  setContent(const uint8_t* buffer, size_t bufferSize);
-
-  /**
-   * @brief Set the content from the block
-   *
-   * Depending on type of the supplied block, there are two cases:
-   *
-   * - if block.type() == tlv::Content, then block will be used directly as Data packet's
-   *   content (no extra copying)
-   *
-   * - if block.type() != tlv::Content, then this method will create a new Block with type
-   *   tlv::Content and put block as a nested element in the content Block.
-   *
-   * @param block The Block containing the content to assign
-   *
-   * @return This Data so that you can chain calls to update values.
+   *  @return a reference to this Data, to allow chaining
    */
   Data&
   setContent(const Block& block);
 
-  /**
-   * @brief Set the content from the pointer to immutable buffer
-   *
-   * This method will create a Block with tlv::Content and set contentValue as a payload
-   * for this block.  Note that this method is very different from setContent(const
-   * Block&), since it does not require that payload should be a valid TLV element.
-   *
-   * @param contentValue The pointer to immutable buffer containing the content to assign
-   *
-   * @return This Data so that you can chain calls to update values.
+  /** @brief Copy Content value from raw buffer
+   *  @param value pointer to the first octet of the value
+   *  @param valueSize size of the raw buffer
+   *  @return a reference to this Data, to allow chaining
    */
   Data&
-  setContent(const ConstBufferPtr& contentValue);
+  setContent(const uint8_t* value, size_t valueSize);
 
-  //
+  /** @brief Set Content from wire buffer
+   *  @param value Content value, which does not need to be a TLV element
+   *  @return a reference to this Data, to allow chaining
+   */
+  Data&
+  setContent(const ConstBufferPtr& value);
 
+  /** @brief Get Signature
+   */
   const Signature&
-  getSignature() const;
+  getSignature() const
+  {
+    return m_signature;
+  }
 
-  /**
-   * @brief Set the signature to a copy of the given signature.
-   * @param signature The signature object which is cloned.
+  /** @brief Set Signature
+   *  @return a reference to this Data, to allow chaining
    */
   Data&
   setSignature(const Signature& signature);
 
+  /** @brief Set SignatureValue
+   *  @return a reference to this Data, to allow chaining
+   */
   Data&
   setSignatureValue(const Block& value);
 
-public: // EqualityComparable concept
-  bool
-  operator==(const Data& other) const;
+public: // MetaInfo fields
+  uint32_t
+  getContentType() const
+  {
+    return m_metaInfo.getType();
+  }
 
-  bool
-  operator!=(const Data& other) const;
+  Data&
+  setContentType(uint32_t type);
+
+  const time::milliseconds&
+  getFreshnessPeriod() const
+  {
+    return m_metaInfo.getFreshnessPeriod();
+  }
+
+  Data&
+  setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
+
+  const name::Component&
+  getFinalBlockId() const
+  {
+    return m_metaInfo.getFinalBlockId();
+  }
+
+  Data&
+  setFinalBlockId(const name::Component& finalBlockId);
 
 protected:
-  /**
-   * @brief Clear the wire encoding.
+  /** @brief Clear wire encoding and cached FullName
+   *  @note This does not clear the SignatureValue.
    */
   void
-  onChanged();
+  resetWire();
 
 private:
   Name m_name;
   MetaInfo m_metaInfo;
-  mutable Block m_content;
+  Block m_content;
   Signature m_signature;
 
   mutable Block m_wire;
-  mutable Name m_fullName;
+  mutable Name m_fullName; ///< cached FullName computed from m_wire
 };
 
 std::ostream&
 operator<<(std::ostream& os, const Data& data);
 
+bool
+operator==(const Data& lhs, const Data& rhs);
+
 inline bool
-Data::hasWire() const
+operator!=(const Data& lhs, const Data& rhs)
 {
-  return m_wire.hasWire();
-}
-
-inline const Name&
-Data::getName() const
-{
-  return m_name;
-}
-
-inline const MetaInfo&
-Data::getMetaInfo() const
-{
-  return m_metaInfo;
-}
-
-inline uint32_t
-Data::getContentType() const
-{
-  return m_metaInfo.getType();
-}
-
-inline const time::milliseconds&
-Data::getFreshnessPeriod() const
-{
-  return m_metaInfo.getFreshnessPeriod();
-}
-
-inline const name::Component&
-Data::getFinalBlockId() const
-{
-  return m_metaInfo.getFinalBlockId();
-}
-
-inline const Signature&
-Data::getSignature() const
-{
-  return m_signature;
+  return !(lhs == rhs);
 }
 
 } // namespace ndn
 
-#endif
+#endif // NDN_DATA_HPP

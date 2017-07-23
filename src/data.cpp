@@ -32,13 +32,9 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Data>));
 static_assert(std::is_base_of<tlv::Error, Data::Error>::value,
               "Data::Error must inherit from tlv::Error");
 
-Data::Data()
-  : m_content(tlv::Content) // empty content
-{
-}
-
 Data::Data(const Name& name)
   : m_name(name)
+  , m_content(tlv::Content)
 {
 }
 
@@ -49,28 +45,24 @@ Data::Data(const Block& wire)
 
 template<encoding::Tag TAG>
 size_t
-Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) const
+Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
 {
-  size_t totalLength = 0;
-
   // Data ::= DATA-TLV TLV-LENGTH
   //            Name
   //            MetaInfo
   //            Content
-  //            Signature
+  //            SignatureInfo
+  //            SignatureValue
 
-  // (reverse encoding)
+  size_t totalLength = 0;
 
-  if (!unsignedPortion && !m_signature)
-    {
-      BOOST_THROW_EXCEPTION(Error("Requested wire format, but data packet has not been signed yet"));
+  // SignatureValue
+  if (!wantUnsignedPortionOnly) {
+    if (!m_signature) {
+      BOOST_THROW_EXCEPTION(Error("Requested wire format, but Data has not been signed"));
     }
-
-  if (!unsignedPortion)
-    {
-      // SignatureValue
-      totalLength += encoder.prependBlock(m_signature.getValue());
-    }
+    totalLength += encoder.prependBlock(m_signature.getValue());
+  }
 
   // SignatureInfo
   totalLength += encoder.prependBlock(m_signature.getInfo());
@@ -84,23 +76,20 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) c
   // Name
   totalLength += getName().wireEncode(encoder);
 
-  if (!unsignedPortion)
-    {
-      totalLength += encoder.prependVarNumber(totalLength);
-      totalLength += encoder.prependVarNumber(tlv::Data);
-    }
+  if (!wantUnsignedPortionOnly) {
+    totalLength += encoder.prependVarNumber(totalLength);
+    totalLength += encoder.prependVarNumber(tlv::Data);
+  }
   return totalLength;
 }
 
-
 template size_t
 Data::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder,
-                                       bool unsignedPortion) const;
+                                       bool wantUnsignedPortionOnly) const;
 
 template size_t
 Data::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder,
-                                         bool unsignedPortion) const;
-
+                                         bool wantUnsignedPortionOnly) const;
 
 const Block&
 Data::wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const
@@ -138,12 +127,6 @@ Data::wireDecode(const Block& wire)
   m_wire = wire;
   m_wire.parse();
 
-  // Data ::= DATA-TLV TLV-LENGTH
-  //            Name
-  //            MetaInfo
-  //            Content
-  //            Signature
-
   // Name
   m_name.wireDecode(m_wire.get(tlv::Name));
 
@@ -153,26 +136,14 @@ Data::wireDecode(const Block& wire)
   // Content
   m_content = m_wire.get(tlv::Content);
 
-  ///////////////
-  // Signature //
-  ///////////////
-
   // SignatureInfo
   m_signature.setInfo(m_wire.get(tlv::SignatureInfo));
 
   // SignatureValue
   Block::element_const_iterator val = m_wire.find(tlv::SignatureValue);
-  if (val != m_wire.elements_end())
+  if (val != m_wire.elements_end()) {
     m_signature.setValue(*val);
-}
-
-Data&
-Data::setName(const Name& name)
-{
-  onChanged();
-  m_name = name;
-
-  return *this;
+  }
 }
 
 const Name&
@@ -180,8 +151,7 @@ Data::getFullName() const
 {
   if (m_fullName.empty()) {
     if (!m_wire.hasWire()) {
-      BOOST_THROW_EXCEPTION(Error("Full name requested, but Data packet does not have wire format "
-                                  "(e.g., not signed)"));
+      BOOST_THROW_EXCEPTION(Error("Cannot compute full name because Data has no wire encoding (not signed)"));
     }
     m_fullName = m_name;
     m_fullName.appendImplicitSha256Digest(util::Sha256::computeDigest(m_wire.wire(), m_wire.size()));
@@ -190,130 +160,116 @@ Data::getFullName() const
   return m_fullName;
 }
 
+void
+Data::resetWire()
+{
+  m_wire.reset();
+  m_fullName.clear();
+}
+
+Data&
+Data::setName(const Name& name)
+{
+  resetWire();
+  m_name = name;
+  return *this;
+}
+
 Data&
 Data::setMetaInfo(const MetaInfo& metaInfo)
 {
-  onChanged();
+  resetWire();
   m_metaInfo = metaInfo;
-
-  return *this;
-}
-
-Data&
-Data::setContentType(uint32_t type)
-{
-  onChanged();
-  m_metaInfo.setType(type);
-
-  return *this;
-}
-
-Data&
-Data::setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
-{
-  onChanged();
-  m_metaInfo.setFreshnessPeriod(freshnessPeriod);
-
-  return *this;
-}
-
-Data&
-Data::setFinalBlockId(const name::Component& finalBlockId)
-{
-  onChanged();
-  m_metaInfo.setFinalBlockId(finalBlockId);
-
   return *this;
 }
 
 const Block&
 Data::getContent() const
 {
-  if (m_content.empty())
-    m_content = makeEmptyBlock(tlv::Content);
-
-  if (!m_content.hasWire())
-    m_content.encode();
+  if (!m_content.hasWire()) {
+    const_cast<Block&>(m_content).encode();
+  }
   return m_content;
 }
 
 Data&
-Data::setContent(const uint8_t* content, size_t contentLength)
+Data::setContent(const Block& block)
 {
-  onChanged();
+  resetWire();
 
-  m_content = makeBinaryBlock(tlv::Content, content, contentLength);
-
-  return *this;
-}
-
-Data&
-Data::setContent(const ConstBufferPtr& contentValue)
-{
-  onChanged();
-
-  m_content = Block(tlv::Content, contentValue); // not a real wire encoding yet
-
-  return *this;
-}
-
-Data&
-Data::setContent(const Block& content)
-{
-  onChanged();
-
-  if (content.type() == tlv::Content)
-    m_content = content;
+  if (block.type() == tlv::Content) {
+    m_content = block;
+  }
   else {
-    m_content = Block(tlv::Content, content);
+    m_content = Block(tlv::Content, block);
   }
 
   return *this;
 }
 
 Data&
+Data::setContent(const uint8_t* value, size_t valueSize)
+{
+  resetWire();
+  m_content = makeBinaryBlock(tlv::Content, value, valueSize);
+  return *this;
+}
+
+Data&
+Data::setContent(const ConstBufferPtr& value)
+{
+  resetWire();
+  m_content = Block(tlv::Content, value);
+  return *this;
+}
+
+Data&
 Data::setSignature(const Signature& signature)
 {
-  onChanged();
+  resetWire();
   m_signature = signature;
-
   return *this;
 }
 
 Data&
 Data::setSignatureValue(const Block& value)
 {
-  onChanged();
+  resetWire();
   m_signature.setValue(value);
-
   return *this;
 }
 
-void
-Data::onChanged()
+Data&
+Data::setContentType(uint32_t type)
 {
-  // The values have changed, so the wire format is invalidated
+  resetWire();
+  m_metaInfo.setType(type);
+  return *this;
+}
 
-  // !!!Note!!! Signature is not invalidated and it is responsibility of
-  // the application to do proper re-signing if necessary
+Data&
+Data::setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
+{
+  resetWire();
+  m_metaInfo.setFreshnessPeriod(freshnessPeriod);
+  return *this;
+}
 
-  m_wire.reset();
-  m_fullName.clear();
+Data&
+Data::setFinalBlockId(const name::Component& finalBlockId)
+{
+  resetWire();
+  m_metaInfo.setFinalBlockId(finalBlockId);
+  return *this;
 }
 
 bool
-Data::operator==(const Data& other) const
+operator==(const Data& lhs, const Data& rhs)
 {
-  return getName() == other.getName() &&
-    getMetaInfo() == other.getMetaInfo() &&
-    getContent() == other.getContent() &&
-    getSignature() == other.getSignature();
-}
-
-bool
-Data::operator!=(const Data& other) const
-{
-  return !(*this == other);
+  return lhs.getName() == rhs.getName() &&
+         lhs.getMetaInfo() == rhs.getMetaInfo() &&
+         lhs.getContent() == rhs.getContent() &&
+         lhs.getSignature() == rhs.getSignature();
 }
 
 std::ostream&
@@ -322,8 +278,8 @@ operator<<(std::ostream& os, const Data& data)
   os << "Name: " << data.getName() << "\n";
   os << "MetaInfo: " << data.getMetaInfo() << "\n";
   os << "Content: (size: " << data.getContent().value_size() << ")\n";
-  os << "Signature: (type: " << data.getSignature().getType() <<
-    ", value_length: "<< data.getSignature().getValue().value_size() << ")";
+  os << "Signature: (type: " << data.getSignature().getType()
+     << ", value_length: "<< data.getSignature().getValue().value_size() << ")";
   os << std::endl;
 
   return os;
