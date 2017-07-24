@@ -49,6 +49,7 @@ public:
    *  @warning In certain contexts that use Data::shared_from_this(), Data must be created
    *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
    */
+  explicit
   Data(const Name& name = Name());
 
   /** @brief Create from wire encoding
