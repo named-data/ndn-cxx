@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -53,9 +53,10 @@ public:
   /**
    * @brief Callback for application to handle password input
    *
-   * Password should be stored in @p buf and should not be longer than @p size.  It is
-   * recommended to ask the user to verify the passphrase if @p shouldConfirm is true, e.g., by
-   * prompting for the password twice.
+   * The password must be written to @p buf and must not be longer than @p bufSize chars.
+   * It is recommended to ask the user to verify the password if @p shouldConfirm is true,
+   * e.g., by prompting for it twice. The callback must return the number of characters
+   * in the password or 0 if an error occurred.
    */
   typedef function<int(char* buf, size_t bufSize, bool shouldConfirm)> PasswordCallback;
 

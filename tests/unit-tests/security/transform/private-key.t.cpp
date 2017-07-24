@@ -25,7 +25,7 @@
 #include "encoding/buffer-stream.hpp"
 
 #include "boost-test.hpp"
-#include <boost/mpl/list.hpp>
+#include <boost/mpl/vector.hpp>
 
 #include <sstream>
 
@@ -158,27 +158,25 @@ public:
   std::string publicKeyPkcs8;
 };
 
-typedef boost::mpl::list<RsaKeyTestData,
-                         EcKeyTestData> KeyTestDataSets;
+using KeyTestDataSets = boost::mpl::vector<RsaKeyTestData, EcKeyTestData>;
 
-void
+static void
 checkPkcs8Encoding(ConstBufferPtr encoding, const std::string& password, ConstBufferPtr pkcs1)
 {
   PrivateKey sKey;
-  BOOST_REQUIRE_NO_THROW(sKey.loadPkcs8(encoding->buf(), encoding->size(),
-                                        password.c_str(), password.size()));
+  sKey.loadPkcs8(encoding->buf(), encoding->size(), password.c_str(), password.size());
   OBufferStream os;
-  BOOST_REQUIRE_NO_THROW(sKey.savePkcs1(os));
+  sKey.savePkcs1(os);
   ConstBufferPtr keyPkcs1Str = os.buf();
-  BOOST_CHECK_EQUAL_COLLECTIONS(pkcs1->begin(), pkcs1->end(), keyPkcs1Str->begin(), keyPkcs1Str->end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(pkcs1->begin(), pkcs1->end(),
+                                keyPkcs1Str->begin(), keyPkcs1Str->end());
 }
 
-void
+static void
 checkPkcs8Base64Encoding(ConstBufferPtr encoding, const std::string& password, ConstBufferPtr pkcs1)
 {
   OBufferStream os;
   bufferSource(*encoding) >> base64Decode() >> streamSink(os);
-
   checkPkcs8Encoding(os.buf(), password, pkcs1);
 }
 
@@ -195,7 +193,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   const uint8_t* sKeyPkcs1 = sKeyPkcs1Buf->buf();
   size_t sKeyPkcs1Len = sKeyPkcs1Buf->size();
 
-  // load key in base64 encoded pkcs1 format
+  // load key in base64-encoded pkcs1 format
   PrivateKey sKey;
   BOOST_REQUIRE_NO_THROW(sKey.loadPkcs1Base64(sKeyPkcs1Base64, sKeyPkcs1Base64Len));
 
@@ -212,7 +210,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   PrivateKey sKey4;
   BOOST_REQUIRE_NO_THROW(sKey4.loadPkcs1(ss4));
 
-  // save key in base64 encoded pkcs1 format
+  // save key in base64-encoded pkcs1 format
   OBufferStream os2;
   BOOST_REQUIRE_NO_THROW(sKey.savePkcs1Base64(os2));
   ConstBufferPtr keyPkcs1Base64Str = os2.buf();
@@ -239,13 +237,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
 
   std::string password("password");
   std::string wrongpw("wrongpw");
-  auto pwCallback = [&] (char* buf, size_t size, int rwflag) -> int {
+  auto pwCallback = [&password] (char* buf, size_t size, int) -> int {
+    BOOST_REQUIRE_LE(password.size(), size);
     std::copy(password.begin(), password.end(), buf);
-    return password.size();
+    return static_cast<int>(password.size());
   };
 
-
-  // load key in base64 encoded pkcs8 format
+  // load key in base64-encoded pkcs8 format
   PrivateKey sKey5;
   BOOST_REQUIRE_NO_THROW(sKey5.loadPkcs8Base64(sKeyPkcs8Base64, sKeyPkcs8Base64Len,
                                                password.c_str(), password.size()));
@@ -281,10 +279,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
 
   // load key using wrong password, Error is expected.
   PrivateKey sKey13;
-  BOOST_REQUIRE_THROW(sKey13.loadPkcs8Base64(sKeyPkcs8Base64, sKeyPkcs8Base64Len, wrongpw.c_str(), wrongpw.size()),
-                      PrivateKey::Error);
+  BOOST_CHECK_THROW(sKey13.loadPkcs8Base64(sKeyPkcs8Base64, sKeyPkcs8Base64Len,
+                                           wrongpw.c_str(), wrongpw.size()),
+                    PrivateKey::Error);
 
-  // save key in base64 encoded pkcs8 format
+  // save key in base64-encoded pkcs8 format
   OBufferStream os14;
   BOOST_REQUIRE_NO_THROW(sKey.savePkcs8Base64(os14, password.c_str(), password.size()));
   ConstBufferPtr encoded14 = os14.buf();
@@ -377,10 +376,9 @@ BOOST_AUTO_TEST_CASE(RsaEncryption)
                                 decryptText->begin(), decryptText->end());
 }
 
-typedef boost::mpl::list<RsaKeyParams,
-                         EcKeyParams> TestKeyParams;
+using KeyParams = boost::mpl::vector<RsaKeyParams, EcKeyParams>;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, TestKeyParams)
+BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyParams)
 {
   BOOST_REQUIRE_NO_THROW(generatePrivateKey(T()));
 
@@ -389,8 +387,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, TestKeyParams)
   ConstBufferPtr pKeyBits = sKey->derivePublicKey();
   pKey.loadPkcs8(pKeyBits->buf(), pKeyBits->size());
 
-  uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
-
+  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
   OBufferStream os;
   BOOST_REQUIRE_NO_THROW(bufferSource(data, sizeof(data)) >>
                          signerFilter(DigestAlgorithm::SHA256, *sKey) >>
@@ -401,9 +398,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, TestKeyParams)
   BOOST_REQUIRE_NO_THROW(bufferSource(data, sizeof(data)) >>
                          verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >>
                          boolSink(result));
-
   BOOST_CHECK(result);
-
 
   unique_ptr<PrivateKey> sKey2 = generatePrivateKey(T());
 

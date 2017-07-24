@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -40,6 +40,18 @@
 namespace ndn {
 namespace security {
 namespace transform {
+
+static void
+opensslInitAlgorithms()
+{
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+  static bool isInitialized = false;
+  if (!isInitialized) {
+    OpenSSL_add_all_algorithms();
+    isInitialized = true;
+  }
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
+}
 
 class PrivateKey::Impl
 {
@@ -104,6 +116,7 @@ void
 PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, const char* pw, size_t pwLen)
 {
   BOOST_ASSERT(std::strlen(pw) == pwLen);
+  opensslInitAlgorithms();
 
   detail::Bio mem(BIO_s_mem());
   BIO_write(mem.get(), buf, size);
@@ -116,14 +129,16 @@ PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, const char* pw, size_t pw
 static inline int
 passwordCallback(char* buf, int size, int rwflag, void* u)
 {
+  BOOST_ASSERT(size >= 0);
   auto cb = reinterpret_cast<PrivateKey::PasswordCallback*>(u);
-  return (*cb)(buf, size, rwflag);
+  return (*cb)(buf, static_cast<size_t>(size), rwflag);
 }
 
 void
 PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, PasswordCallback pwCallback)
 {
-  OpenSSL_add_all_algorithms();
+  opensslInitAlgorithms();
+
   detail::Bio mem(BIO_s_mem());
   BIO_write(mem.get(), buf, size);
 
@@ -246,10 +261,10 @@ PrivateKey::decrypt(const uint8_t* cipherText, size_t cipherLen) const
 #else
   switch (EVP_PKEY_base_id(m_impl->key)) {
 #endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
-  case EVP_PKEY_RSA:
-    return rsaDecrypt(cipherText, cipherLen);
-  default:
-    BOOST_THROW_EXCEPTION(Error("Decryption is not supported for this key type"));
+    case EVP_PKEY_RSA:
+      return rsaDecrypt(cipherText, cipherLen);
+    default:
+      BOOST_THROW_EXCEPTION(Error("Decryption is not supported for this key type"));
   }
 }
 
@@ -263,8 +278,8 @@ ConstBufferPtr
 PrivateKey::toPkcs1() const
 {
   ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
+  opensslInitAlgorithms();
 
-  OpenSSL_add_all_algorithms();
   detail::Bio mem(BIO_s_mem());
   int ret = i2d_PrivateKey_bio(mem.get(), m_impl->key);
   if (ret != 1)
@@ -280,11 +295,10 @@ PrivateKey::toPkcs1() const
 ConstBufferPtr
 PrivateKey::toPkcs8(const char* pw, size_t pwLen) const
 {
-  ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
-
   BOOST_ASSERT(std::strlen(pw) == pwLen);
+  ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
+  opensslInitAlgorithms();
 
-  OpenSSL_add_all_algorithms();
   detail::Bio mem(BIO_s_mem());
   int ret = i2d_PKCS8PrivateKey_bio(mem.get(), m_impl->key, EVP_des_cbc(),
                                     const_cast<char*>(pw), pwLen, nullptr, nullptr);
@@ -302,8 +316,8 @@ ConstBufferPtr
 PrivateKey::toPkcs8(PasswordCallback pwCallback) const
 {
   ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
+  opensslInitAlgorithms();
 
-  OpenSSL_add_all_algorithms();
   detail::Bio mem(BIO_s_mem());
   int ret = i2d_PKCS8PrivateKey_bio(mem.get(), m_impl->key, EVP_des_cbc(),
                                     nullptr, 0,
