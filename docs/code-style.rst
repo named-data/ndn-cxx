@@ -784,20 +784,19 @@ system and other external libraries should be included in ``<angle brackets>``.
 
         #include "util/random.hpp"
 
-3.4. Include statements should be sorted and grouped. Sorted by their hierarchical position
-in the system with low level files included first. Leave an empty line between groups
-of include statements.
+3.4. Include statements should be grouped. Same-project headers should be included first.
+Leave an empty line between groups of include statements. Sorted alphabetically within a group.
 
     .. code-block:: c++
+
+        #include "detail/pending-interest.hpp"
+        #include "util/random.hpp"
 
         #include <fstream>
         #include <iomanip>
 
         #include <boost/lexical_cast.hpp>
         #include <boost/regex.hpp>
-
-        #include "detail/pending-interest.hpp"
-        #include "util/random.hpp"
 
 
 3.5. Types that are local to one file only can be declared inside that file.
