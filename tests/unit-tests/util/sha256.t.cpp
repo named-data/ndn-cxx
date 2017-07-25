@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/digest.hpp"
+#include "util/sha256.hpp"
 #include "util/string-helper.hpp"
 #include "encoding/endian.hpp"
 

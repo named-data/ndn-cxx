@@ -21,7 +21,7 @@
 
 #include "security/digest-sha256.hpp"
 #include "security/validator.hpp"
-#include "util/digest.hpp"
+#include "util/sha256.hpp"
 #include "util/string-helper.hpp"
 
 #include "identity-management-fixture.hpp"

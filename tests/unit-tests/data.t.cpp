@@ -27,7 +27,7 @@
 #include "security/transform/step-source.hpp"
 #include "security/transform/stream-sink.hpp"
 #include "security/verification-helpers.hpp"
-#include "util/digest.hpp"
+#include "util/sha256.hpp"
 
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"

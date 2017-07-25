@@ -20,7 +20,7 @@
  */
 
 #include "exclude.hpp"
-#include "util/digest.hpp"
+#include "util/sha256.hpp"
 
 #include "boost-test.hpp"
 

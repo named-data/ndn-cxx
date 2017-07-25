@@ -25,7 +25,7 @@
 #include "../signing-helpers.hpp"
 
 #include "../../util/config-file.hpp"
-#include "../../util/digest.hpp"
+#include "../../util/sha256.hpp"
 
 #include "sec-public-info-sqlite3.hpp"
 

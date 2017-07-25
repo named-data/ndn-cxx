@@ -20,8 +20,8 @@
  */
 
 #include "validator.hpp"
-#include "../util/digest.hpp"
 #include "../lp/tags.hpp"
+#include "../util/sha256.hpp"
 
 #include "v1/cryptopp.hpp"
 

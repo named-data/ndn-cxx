@@ -21,7 +21,7 @@
 
 #include "data.hpp"
 #include "encoding/block-helpers.hpp"
-#include "util/digest.hpp"
+#include "util/sha256.hpp"
 
 namespace ndn {
 

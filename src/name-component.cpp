@@ -27,7 +27,7 @@
 
 #include "encoding/block-helpers.hpp"
 #include "encoding/encoding-buffer.hpp"
-#include "util/digest.hpp"
+#include "util/sha256.hpp"
 #include "util/string-helper.hpp"
 
 #include <boost/algorithm/string/trim.hpp>

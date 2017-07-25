@@ -25,7 +25,7 @@
 #include "ims/in-memory-storage-lru.hpp"
 #include "ims/in-memory-storage-persistent.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
-#include "util/digest.hpp"
+#include "util/sha256.hpp"
 
 #include "boost-test.hpp"
 #include "../make-interest-data.hpp"

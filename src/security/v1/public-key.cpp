@@ -25,7 +25,7 @@
 #include "public-key.hpp"
 
 #include "../../encoding/oid.hpp"
-#include "../../util/digest.hpp"
+#include "../../util/sha256.hpp"
 #include "cryptopp.hpp"
 
 namespace ndn {

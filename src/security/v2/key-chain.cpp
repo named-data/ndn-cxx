@@ -22,8 +22,8 @@
 #include "key-chain.hpp"
 
 #include "../../util/config-file.hpp"
-#include "../../util/digest.hpp"
 #include "../../util/logger.hpp"
+#include "../../util/sha256.hpp"
 
 #include "../pib/pib-sqlite3.hpp"
 #include "../pib/pib-memory.hpp"

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_DIGEST_HPP
-#define NDN_UTIL_DIGEST_HPP
+#ifndef NDN_UTIL_SHA256_HPP
+#define NDN_UTIL_SHA256_HPP
 
 #include "../encoding/block.hpp"
 #include "../encoding/buffer-stream.hpp"
@@ -181,4 +181,4 @@ operator<<(std::ostream& os, Sha256& digest);
 } // namespace util
 } // namespace ndn
 
-#endif // NDN_UTIL_DIGEST_HPP
+#endif // NDN_UTIL_SHA256_HPP

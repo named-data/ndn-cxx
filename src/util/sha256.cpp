@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "digest.hpp"
+#include "sha256.hpp"
 #include "string-helper.hpp"
 #include "../security/detail/openssl.hpp"
 #include "../security/transform/digest-filter.hpp"
