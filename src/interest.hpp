@@ -23,7 +23,6 @@
 #define NDN_INTEREST_HPP
 
 #include "delegation-list.hpp"
-#include "link.hpp"
 #include "name.hpp"
 #include "selectors.hpp"
 #include "tag-host.hpp"
@@ -329,77 +328,6 @@ public: // Selectors
     return *this;
   }
 
-public: // Link and SelectedDelegation
-  /**
-   * @brief Check whether the Interest contains a Link object
-   * @return True if there is a link object, otherwise false
-   */
-  bool
-  hasLink() const;
-
-  /**
-   * @brief Get the link object for this interest
-   * @return The link object if there is one contained in this interest
-   * @throws Interest::Error if there is no link object contained in the interest
-   * @throws tlv::Error if the incorporated link object is malformed
-   */
-  const Link&
-  getLink() const;
-
-  /**
-   * @brief Set the link object for this interest
-   * @param link The link object that will be included in this interest (in wire format)
-   * @post !hasSelectedDelegation()
-   */
-  void
-  setLink(const Block& link);
-
-  /**
-   * @brief Delete the link object for this interest
-   * @post !hasLink()
-   */
-  void
-  unsetLink();
-
-  /**
-   * @brief Check whether the Interest includes a selected delegation
-   * @return True if there is a selected delegation, otherwise false
-   */
-  bool
-  hasSelectedDelegation() const;
-
-  /**
-   * @brief Get the name of the selected delegation
-   * @return The name of the selected delegation
-   * @throw Error SelectedDelegation is not set.
-   */
-  Name
-  getSelectedDelegation() const;
-
-  /**
-   * @brief Set the selected delegation
-   * @param delegationName The name of the selected delegation
-   * @throw Error Link is not set.
-   * @throw std::invalid_argument @p delegationName does not exist in Link.
-   */
-  void
-  setSelectedDelegation(const Name& delegationName);
-
-  /**
-   * @brief Set the selected delegation
-   * @param delegationIndex The index of the selected delegation
-   * @throw Error Link is not set.
-   * @throw std::out_of_range @p delegationIndex is out of bound in Link.
-   */
-  void
-  setSelectedDelegation(size_t delegationIndex);
-
-  /**
-   * @brief Unset the selected delegation
-   */
-  void
-  unsetSelectedDelegation();
-
 private:
   Name m_name;
   Selectors m_selectors;
@@ -407,9 +335,6 @@ private:
   time::milliseconds m_interestLifetime;
   DelegationList m_forwardingHint;
 
-  mutable Block m_link;
-  mutable shared_ptr<Link> m_linkCached;
-  size_t m_selectedDelegationIndex;
   mutable Block m_wire;
 };
 

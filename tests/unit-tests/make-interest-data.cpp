@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,14 +50,6 @@ signData(Data& data)
   data.setSignature(fakeSignature);
   data.wireEncode();
   return data;
-}
-
-shared_ptr<Link>
-makeLink(const Name& name, std::initializer_list<std::pair<uint32_t, Name>> delegations)
-{
-  auto link = make_shared<Link>(name, delegations);
-  signData(link);
-  return link;
 }
 
 lp::Nack

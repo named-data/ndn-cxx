@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,13 +58,6 @@ signData(shared_ptr<Data> data)
   signData(*data);
   return data;
 }
-
-/** \brief create a Link object with fake signature
- *  \note Link may be modified afterwards without losing the fake signature.
- *        If a real signature is desired, sign again with KeyChain.
- */
-shared_ptr<Link>
-makeLink(const Name& name, std::initializer_list<std::pair<uint32_t, Name>> delegations);
 
 /** \brief create a Nack
  *  \param interest Interest
