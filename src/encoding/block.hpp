@@ -385,6 +385,19 @@ public: // misc
    */
   operator boost::asio::const_buffer() const;
 
+private:
+  /** @brief Estimate Block size as if sub elements are encoded into TLV-VALUE
+   */
+  size_t
+  encode(EncodingEstimator& estimator) const;
+
+  /** @brief Encode sub elements into TLV-VALUE and prepend Block to encoder
+   *  @post TLV-VALUE contains sub elements from elements()
+   *  @post internal buffer and iterators point to Encoder's buffer
+   */
+  size_t
+  encode(EncodingBuffer& encoder);
+
 protected:
   /** @brief underlying buffer storing TLV-VALUE and possibly TLV-TYPE and TLV-LENGTH fields
    *

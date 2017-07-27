@@ -27,6 +27,7 @@
 #include "tlv.hpp"
 
 #include <boost/asio/buffer.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 
@@ -368,49 +369,52 @@ Block::encode()
   if (hasWire())
     return;
 
-  OBufferStream os;
-  tlv::writeVarNumber(os, type());
+  EncodingEstimator estimator;
+  size_t estimatedSize = encode(estimator);
 
+  EncodingBuffer buffer(estimatedSize, 0);
+  encode(buffer);
+}
+
+size_t
+Block::encode(EncodingEstimator& estimator) const
+{
   if (hasValue()) {
-    tlv::writeVarNumber(os, value_size());
-    os.write(reinterpret_cast<const char*>(value()), value_size());
+    return m_size;
   }
-  else if (m_elements.size() == 0) {
-    tlv::writeVarNumber(os, 0);
+
+  size_t len = 0;
+  for (const Block& element : m_elements | boost::adaptors::reversed) {
+    len += element.encode(estimator);
+  }
+  len += estimator.prependVarNumber(len);
+  len += estimator.prependVarNumber(m_type);
+  return len;
+}
+
+size_t
+Block::encode(EncodingBuffer& encoder)
+{
+  size_t len = 0;
+  m_end = encoder.begin();
+  if (hasValue()) {
+    len += encoder.prependRange(m_valueBegin, m_valueEnd);
   }
   else {
-    size_t valueSize = 0;
-    for (element_const_iterator i = m_elements.begin(); i != m_elements.end(); ++i) {
-      valueSize += i->size();
-    }
-
-    tlv::writeVarNumber(os, valueSize);
-
-    for (element_const_iterator i = m_elements.begin(); i != m_elements.end(); ++i) {
-      if (i->hasWire())
-        os.write(reinterpret_cast<const char*>(i->wire()), i->size());
-      else if (i->hasValue()) {
-        tlv::writeVarNumber(os, i->type());
-        tlv::writeVarNumber(os, i->value_size());
-        os.write(reinterpret_cast<const char*>(i->value()), i->value_size());
-      }
-      else
-        BOOST_THROW_EXCEPTION(Error("Underlying value buffer is empty"));
+    for (Block& element : m_elements | boost::adaptors::reversed) {
+      len += element.encode(encoder);
     }
   }
+  m_valueEnd = m_end;
+  m_valueBegin = encoder.begin();
 
-  // now assign correct block
+  len += encoder.prependVarNumber(len);
+  len += encoder.prependVarNumber(m_type);
+  m_begin = encoder.begin();
 
-  m_buffer = os.buf();
-  m_begin = m_buffer->begin();
-  m_end   = m_buffer->end();
-  m_size  = m_end - m_begin;
-
-  m_valueBegin = m_buffer->begin();
-  m_valueEnd   = m_buffer->end();
-
-  tlv::readType(m_valueBegin, m_valueEnd);
-  tlv::readVarNumber(m_valueBegin, m_valueEnd);
+  m_buffer = encoder.getBuffer();
+  m_size = len;
+  return len;
 }
 
 const Block&
