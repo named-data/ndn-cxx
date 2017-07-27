@@ -733,7 +733,9 @@ protected:
     if (content.value_size() != sizeof(uint32_t)) {
       return 0;
     }
-    return *reinterpret_cast<const uint32_t*>(content.value());
+    uint32_t id = 0;
+    std::memcpy(&id, content.value(), sizeof(id));
+    return id;
   }
 
 protected:
