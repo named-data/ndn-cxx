@@ -57,6 +57,9 @@ public:
   }
 };
 
+/** @brief TLV-TYPE numbers defined in NDN Packet Format
+ *  @sa https://named-data.net/doc/ndn-tlv/types.html
+ */
 enum {
   Interest      = 5,
   Data          = 6,
@@ -103,11 +106,10 @@ enum SignatureTypeValue {
 std::ostream&
 operator<<(std::ostream& os, const SignatureTypeValue& signatureType);
 
-/** @brief TLV codes for SignatureInfo features
+/** @brief TLV-TYPE numbers for SignatureInfo features
  *  @sa docs/tutorials/certificate-format.rst
  */
 enum {
-  // SignatureInfo TLVs
   ValidityPeriod = 253,
   NotBefore = 254,
   NotAfter = 255,
@@ -404,7 +406,7 @@ readType(Iterator& begin, const Iterator& end)
 {
   uint64_t type = readVarNumber(begin, end);
   if (type > std::numeric_limits<uint32_t>::max()) {
-    BOOST_THROW_EXCEPTION(Error("TLV-TYPE code exceeds allowed maximum"));
+    BOOST_THROW_EXCEPTION(Error("TLV-TYPE number exceeds allowed maximum"));
   }
 
   return static_cast<uint32_t>(type);

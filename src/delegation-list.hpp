@@ -64,7 +64,7 @@ public:
 
   /** \brief encode into wire format
    *  \param encoder either an EncodingBuffer or an EncodingEstimator
-   *  \param type TLV-TYPE code, either Content (for \p Link) or ForwardingHint
+   *  \param type TLV-TYPE number, either Content (for \p Link) or ForwardingHint
    *  \throw std::invalid_argument \p type is invalid
    *  \throw Error there is no Delegation
    */
