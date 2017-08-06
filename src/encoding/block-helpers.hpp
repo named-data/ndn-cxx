@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,89 +31,118 @@
 namespace ndn {
 namespace encoding {
 
-/**
- * @brief Helper to prepend TLV block type @p type containing non-negative integer @p value
- * @see makeNonNegativeIntegerBlock, readNonNegativeInteger
+/** @brief Prepend a TLV element containing a non-negative integer
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number
+ *  @param value non-negative integer value
+ *  @sa makeNonNegativeIntegerBlock, readNonNegativeInteger
  */
 template<Tag TAG>
 size_t
 prependNonNegativeIntegerBlock(EncodingImpl<TAG>& encoder, uint32_t type, uint64_t value);
 
-/**
- * @brief Create a TLV block type @p type containing non-negative integer @p value
- * @see prependNonNegativeIntegerBlock, readNonNegativeInteger
+extern template size_t
+prependNonNegativeIntegerBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, uint64_t);
+
+extern template size_t
+prependNonNegativeIntegerBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, uint64_t);
+
+/** @brief Create a TLV block containing a non-negative integer
+ *  @param type TLV-TYPE number
+ *  @param value non-negative integer value
+ *  @sa prependNonNegativeIntegerBlock, readNonNegativeInteger
  */
 Block
 makeNonNegativeIntegerBlock(uint32_t type, uint64_t value);
 
-/**
- * @brief Helper to read a non-negative integer from a block
- * @see prependNonNegativeIntegerBlock, makeNonNegativeIntegerBlock
- * @throw tlv::Error if block does not contain a valid nonNegativeInteger
+/** @brief Read a non-negative integer from a TLV element
+ *  @param block the TLV element
+ *  @throw tlv::Error block does not contain a non-negative integer
+ *  @sa prependNonNegativeIntegerBlock, makeNonNegativeIntegerBlock
  */
 uint64_t
 readNonNegativeInteger(const Block& block);
 
-////////
-
-/**
- * @brief Helper to prepend TLV block type @p type containing no value (i.e., a boolean block)
- * @see makeEmptyBlock
+/** @brief Prepend an empty TLV element
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number
+ *  @details The TLV element has zero-length TLV-VALUE.
+ *  @sa makeEmptyBlock
  */
 template<Tag TAG>
 size_t
 prependEmptyBlock(EncodingImpl<TAG>& encoder, uint32_t type);
 
-/**
- * @brief Create a TLV block type @p type containing no value (i.e., a boolean block)
- * @see prependEmptyBlock
+extern template size_t
+prependEmptyBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t);
+
+extern template size_t
+prependEmptyBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t);
+
+/** @brief Create an empty TLV block
+ *  @param type TLV-TYPE number
+ *  @return A TLV block with zero-length TLV-VALUE
+ *  @sa prependEmptyBlock
  */
 Block
 makeEmptyBlock(uint32_t type);
 
-////////
-
-/**
- * @brief Helper to prepend TLV block type @p type with value from a string @p value
- * @see makeStringBlock, readString
+/** @brief Prepend a TLV element containing a string.
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number
+ *  @param value string value, may contain NUL octets
+ *  @sa makeStringBlock, readString
  */
 template<Tag TAG>
 size_t
 prependStringBlock(EncodingImpl<TAG>& encoder, uint32_t type, const std::string& value);
 
-/**
- * @brief Create a TLV block type @p type with value from a string @p value
- * @see prependStringBlock, readString
+extern template size_t
+prependStringBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, const std::string&);
+
+extern template size_t
+prependStringBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, const std::string&);
+
+/** @brief Create a TLV block containing a string.
+ *  @param type TLV-TYPE number
+ *  @param value string value, may contain NUL octets
+ *  @sa prependStringBlock, readString
  */
 Block
 makeStringBlock(uint32_t type, const std::string& value);
 
-/**
- * @brief Helper to read a string value from a block
- * @see prependStringBlock, makeStringBlock
+/** @brief Read TLV-VALUE of a TLV element as a string.
+ *  @param block the TLV element
+ *  @return a string, may contain NUL octets
+ *  @sa prependStringBlock, makeStringBlock
  */
 std::string
 readString(const Block& block);
 
-////////
-
-/**
- * @brief Create a TLV block type @p type with value from a buffer @p value of size @p length
+/** @brief Create a TLV block copying TLV-VALUE from raw buffer.
+ *  @param type TLV-TYPE number
+ *  @param value raw buffer as TLV-VALUE
+ *  @param length length of value buffer
+ *  @sa Encoder::prependByteArrayBlock
  */
 Block
 makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length);
 
-/**
- * @brief Create a TLV block type @p type with value from a buffer @p value of size @p length
+/** @brief Create a TLV block copying TLV-VALUE from raw buffer.
+ *  @param type TLV-TYPE number
+ *  @param value raw buffer as TLV-VALUE
+ *  @param length length of value buffer
+ *  @sa Encoder::prependByteArrayBlock
  */
 Block
 makeBinaryBlock(uint32_t type, const char* value, size_t length);
 
-/**
- * @brief Helper class template to create a data block when RandomAccessIterator is used
+namespace detail {
+
+/** @brief Create a binary block copying from RandomAccessIterator
  */
 template<class Iterator>
-class DataBlockFast
+class BinaryBlockFast
 {
 public:
   BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Iterator>));
@@ -136,11 +165,10 @@ public:
   }
 };
 
-/**
- * @brief Helper class template to create a data block when generic InputIterator is used
+/** @brief Create a binary block copying from generic InputIterator
  */
 template<class Iterator>
-class DataBlockSlow
+class BinaryBlockSlow
 {
 public:
   BOOST_CONCEPT_ASSERT((boost::InputIterator<Iterator>));
@@ -159,37 +187,39 @@ public:
   }
 };
 
-/**
- * @brief Free function to create a block given @p type and range [@p first, @p last) of bytes
- * @tparam Iterator iterator type satisfying at least InputIterator concept.  Implementation
- *                  is more optimal when the iterator type satisfies RandomAccessIterator concept
- *                  It is required that sizeof(std::iterator_traits<Iterator>::value_type) == 1.
+} // namespace detail
+
+/** @brief Create a TLV block copying TLV-VALUE from iterators.
+ *  @tparam Iterator an InputIterator dereferencable to an 1-octet type; faster implementation is
+ *                   available for RandomAccessIterator
+ *  @param type TLV-TYPE number
+ *  @param first begin iterator
+ *  @param last past-the-end iterator
  */
 template<class Iterator>
-inline Block
+Block
 makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 {
-  static_assert(sizeof(typename std::iterator_traits<Iterator>::value_type) == 1,
-                "Iterator should point only to char or unsigned char");
+  static_assert(sizeof(typename std::iterator_traits<Iterator>::value_type) == 1, "");
 
-  typedef typename boost::mpl::if_<
+  using BinaryBlockHelper = typename std::conditional<
     std::is_base_of<std::random_access_iterator_tag,
-                    typename std::iterator_traits<Iterator>::iterator_category>,
-    DataBlockFast<Iterator>,
-    DataBlockSlow<Iterator>>::type DataBlock;
+                    typename std::iterator_traits<Iterator>::iterator_category>::value,
+    detail::BinaryBlockFast<Iterator>,
+    detail::BinaryBlockSlow<Iterator>>::type;
 
-  return DataBlock::makeBlock(type, first, last);
+  return BinaryBlockHelper::makeBlock(type, first, last);
 }
 
-////////
-
-/**
- * @brief Prepend a TLV block of type @p type with WireEncodable @p value as a value
- * @tparam U type that satisfies WireEncodableWithEncodingBuffer concept
- * @see makeNestedBlock
+/** @brief Prepend a TLV element containing a nested TLV element.
+ *  @tparam U type that satisfies WireEncodableWithEncodingBuffer concept
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number for outer TLV element
+ *  @param value an object to be encoded as inner TLV element
+ *  @sa makeNestedBlock
  */
 template<Tag TAG, class U>
-inline size_t
+size_t
 prependNestedBlock(EncodingImpl<TAG>& encoder, uint32_t type, const U& value)
 {
   BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<U>));
@@ -202,13 +232,14 @@ prependNestedBlock(EncodingImpl<TAG>& encoder, uint32_t type, const U& value)
   return totalLength;
 }
 
-/**
- * @brief Create a TLV block of type @p type with WireEncodable @p value as a value
- * @tparam U type that satisfies WireEncodableWithEncodingBuffer concept
- * @see prependNestedBlock
+/** @brief Create a TLV block containing a nested TLV element.
+ *  @tparam U type that satisfies WireEncodableWithEncodingBuffer concept
+ *  @param type TLV-TYPE number for outer TLV element
+ *  @param value an object to be encoded as inner TLV element
+ *  @sa prependNestedBlock
  */
 template<class U>
-inline Block
+Block
 makeNestedBlock(uint32_t type, const U& value)
 {
   EncodingEstimator estimator;
