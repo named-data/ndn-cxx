@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,26 +22,34 @@
 #ifndef NDN_DETAIL_FACE_IMPL_HPP
 #define NDN_DETAIL_FACE_IMPL_HPP
 
-#include "../common.hpp"
 #include "../face.hpp"
-
-#include "registered-prefix.hpp"
-#include "pending-interest.hpp"
 #include "container-with-on-empty-signal.hpp"
-
-#include "../util/scheduler.hpp"
-#include "../util/config-file.hpp"
-#include "../util/signal.hpp"
-
-#include "../transport/transport.hpp"
-#include "../transport/unix-transport.hpp"
-#include "../transport/tcp-transport.hpp"
-
-#include "../mgmt/nfd/controller.hpp"
-#include "../mgmt/nfd/command-options.hpp"
-
+#include "pending-interest.hpp"
+#include "registered-prefix.hpp"
 #include "../lp/packet.hpp"
 #include "../lp/tags.hpp"
+#include "../mgmt/nfd/command-options.hpp"
+#include "../mgmt/nfd/controller.hpp"
+#include "../transport/tcp-transport.hpp"
+#include "../transport/unix-transport.hpp"
+#include "../util/config-file.hpp"
+#include "../util/logger.hpp"
+#include "../util/scheduler.hpp"
+#include "../util/signal.hpp"
+
+NDN_LOG_INIT(ndn.Face);
+// INFO level: prefix registration, etc.
+//
+// DEBUG level: packet logging.
+// Each log entry starts with a direction symbol ('<' denotes an outgoing packet, '>' denotes an
+// incoming packet) and a packet type symbol ('I' denotes an Interest, 'D' denotes a Data, 'N'
+// denotes a Nack). Interest is printed as its string representation, Data is printed as name only,
+// Nack is printed as the Interest followed by the Nack reason and delimited by a '~' symbol. A
+// log line about an incoming packet may be followed by zero or more lines about Interest matching
+// InterestFilter, Data satisfying Interest, or Nack rejecting Interest, which are also written at
+// DEBUG level.
+//
+// TRACE level: more detailed unstructured messages.
 
 namespace ndn {
 
@@ -122,6 +130,7 @@ public: // consumer
     for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
       if ((*entry)->getInterest()->matchesData(data)) {
         shared_ptr<PendingInterest> matchedEntry = *entry;
+        NDN_LOG_DEBUG("   satisfying " << *matchedEntry->getInterest());
         entry = m_pendingInterestTable.erase(entry);
         matchedEntry->invokeDataCallback(data);
       }
@@ -138,6 +147,7 @@ public: // consumer
       const Interest& pendingInterest = *(*entry)->getInterest();
       if (nack.getInterest().matchesInterest(pendingInterest)) {
         shared_ptr<PendingInterest> matchedEntry = *entry;
+        NDN_LOG_DEBUG("   nacking " << *matchedEntry->getInterest());
         entry = m_pendingInterestTable.erase(entry);
         matchedEntry->invokeNackCallback(nack);
       }
@@ -151,7 +161,8 @@ public: // producer
   void
   asyncSetInterestFilter(shared_ptr<InterestFilterRecord> interestFilterRecord)
   {
-    m_interestFilterTable.push_back(interestFilterRecord);
+    NDN_LOG_INFO("setting InterestFilter: " << interestFilterRecord->getFilter());
+    m_interestFilterTable.push_back(std::move(interestFilterRecord));
   }
 
   void
@@ -161,15 +172,17 @@ public: // producer
                                                    m_interestFilterTable.end(),
                                                    MatchInterestFilterId(interestFilterId));
     if (i != m_interestFilterTable.end()) {
+      NDN_LOG_INFO("unsetting InterestFilter: " << (*i)->getFilter());
       m_interestFilterTable.erase(i);
     }
   }
 
   void
-  processInterestFilters(Interest& interest)
+  processInterestFilters(const Interest& interest)
   {
     for (const auto& filter : m_interestFilterTable) {
       if (filter->doesMatch(interest.getName())) {
+        NDN_LOG_DEBUG("   matches " << filter->getFilter());
         filter->invokeInterestCallback(interest);
       }
     }
@@ -191,25 +204,29 @@ public: // prefix registration
                  uint64_t flags,
                  const nfd::CommandOptions& options)
   {
+    NDN_LOG_INFO("registering prefix: " << prefix);
+    auto record = make_shared<RegisteredPrefix>(prefix, filter, options);
+
     nfd::ControlParameters params;
     params.setName(prefix);
     params.setFlags(flags);
-
-    auto prefixToRegister = make_shared<RegisteredPrefix>(prefix, filter, options);
-
     m_face.m_nfdController->start<nfd::RibRegisterCommand>(
       params,
-      [=] (const nfd::ControlParameters&) { this->afterPrefixRegistered(prefixToRegister, onSuccess); },
-      [=] (const nfd::ControlResponse& resp) { onFailure(prefixToRegister->getPrefix(), resp.getText()); },
+      [=] (const nfd::ControlParameters&) { this->afterPrefixRegistered(record, onSuccess); },
+      [=] (const nfd::ControlResponse& resp) {
+        NDN_LOG_INFO("register prefix failed: " << record->getPrefix());
+        onFailure(record->getPrefix(), resp.getText());
+      },
       options);
 
-    return reinterpret_cast<const RegisteredPrefixId*>(prefixToRegister.get());
+    return reinterpret_cast<const RegisteredPrefixId*>(record.get());
   }
 
   void
   afterPrefixRegistered(shared_ptr<RegisteredPrefix> registeredPrefix,
                         const RegisterPrefixSuccessCallback& onSuccess)
   {
+    NDN_LOG_INFO("registered prefix: " << registeredPrefix->getPrefix());
     m_registeredPrefixTable.insert(registeredPrefix);
 
     if (registeredPrefix->getFilter() != nullptr) {
@@ -239,12 +256,17 @@ public: // prefix registration
         m_interestFilterTable.remove(filter);
       }
 
+      NDN_LOG_INFO("unregistering prefix: " << record.getPrefix());
+
       nfd::ControlParameters params;
       params.setName(record.getPrefix());
       m_face.m_nfdController->start<nfd::RibUnregisterCommand>(
         params,
         [=] (const nfd::ControlParameters&) { this->finalizeUnregisterPrefix(i, onSuccess); },
-        [=] (const nfd::ControlResponse& resp) { onFailure(resp.getText()); },
+        [=] (const nfd::ControlResponse& resp) {
+          NDN_LOG_INFO("unregister prefix failed: " << params.getName());
+          onFailure(resp.getText());
+        },
         record.getCommandOptions());
     }
     else {
@@ -260,6 +282,7 @@ public: // prefix registration
   finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item,
                            const UnregisterPrefixSuccessCallback& onSuccess)
   {
+    NDN_LOG_INFO("unregistered prefix: " << (*item)->getPrefix());
     m_registeredPrefixTable.erase(item);
 
     if (onSuccess != nullptr) {

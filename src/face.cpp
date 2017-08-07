@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -25,8 +25,10 @@
 #include "encoding/tlv.hpp"
 #include "net/face-uri.hpp"
 #include "security/signing-helpers.hpp"
-#include "util/time.hpp"
 #include "util/random.hpp"
+#include "util/time.hpp"
+
+// NDN_LOG_INIT(ndn.Face) is declared in face-impl.hpp
 
 // A callback scheduled through io.post and io.dispatch may be invoked after the face
 // is destructed. To prevent this situation, these macros captures Face::m_impl as weak_ptr,
@@ -174,6 +176,7 @@ Face::expressInterest(const Interest& interest,
   if (interestToExpress->wireEncode().size() > MAX_NDN_PACKET_SIZE) {
     BOOST_THROW_EXCEPTION(Error("Interest size exceeds maximum limit"));
   }
+  NDN_LOG_DEBUG("<I " << *interestToExpress); // interestToExpress is guaranteed to have nonce
 
   // If the same ioService thread, dispatch directly calls the method
   IO_CAPTURE_WEAK_IMPL(dispatch) {
@@ -233,6 +236,7 @@ Face::put(const Data& data)
   if (wire.size() > MAX_NDN_PACKET_SIZE)
     BOOST_THROW_EXCEPTION(Error("Data size exceeds maximum limit"));
 
+  NDN_LOG_DEBUG("<D " << data.getName());
   IO_CAPTURE_WEAK_IMPL(dispatch) {
     impl->asyncSend(wire);
   } IO_CAPTURE_WEAK_IMPL_END
@@ -256,6 +260,7 @@ Face::put(const lp::Nack& nack)
   if (wire.size() > MAX_NDN_PACKET_SIZE)
     BOOST_THROW_EXCEPTION(Error("Nack size exceeds maximum limit"));
 
+  NDN_LOG_DEBUG("<N " << nack.getInterest() << '~' << nack.getHeader().getReason());
   IO_CAPTURE_WEAK_IMPL(dispatch) {
     impl->asyncSend(wire);
   } IO_CAPTURE_WEAK_IMPL_END
@@ -431,10 +436,12 @@ Face::onReceiveElement(const Block& blockFromDaemon)
         auto nack = make_shared<lp::Nack>(std::move(*interest));
         nack->setHeader(lpPacket.get<lp::NackField>());
         extractLpLocalFields(*nack, lpPacket);
+        NDN_LOG_DEBUG(">N " << nack->getInterest() << '~' << nack->getHeader().getReason());
         m_impl->nackPendingInterests(*nack);
       }
       else {
         extractLpLocalFields(*interest, lpPacket);
+        NDN_LOG_DEBUG(">I " << *interest);
         m_impl->processInterestFilters(*interest);
       }
       break;
@@ -442,6 +449,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
     case tlv::Data: {
       auto data = make_shared<Data>(netPacket);
       extractLpLocalFields(*data, lpPacket);
+      NDN_LOG_DEBUG(">D " << data->getName());
       m_impl->satisfyPendingInterests(*data);
       break;
     }
