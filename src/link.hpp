@@ -24,7 +24,6 @@
 
 #include "data.hpp"
 #include "delegation-list.hpp"
-#include <set>
 
 namespace ndn {
 
@@ -112,73 +111,12 @@ public:
   bool
   removeDelegation(const Name& name);
 
-public: // deprecated APIs
-  using DelegationSet = std::set<std::pair<uint32_t, Name>>;
-  using DelegationTuple = std::tuple<uint32_t, Name>;
-
-  class PairInitializerListHelper
-  {
-  public:
-    PairInitializerListHelper(std::initializer_list<std::pair<uint32_t, Name>> dels);
-
-  private:
-    DelegationList m_delList;
-    friend class Link;
-  };
-
-  /** @brief Create a Link object with the given name and delegations
-   *  @param name A reference to the name of the redirected namespace
-   *  @param dels Delegations in payload
-   *  @deprecated use Link(const Name&, std::initializer_list<Delegation>)
-   *  @note This overload is selected only if the caller explicitly passes
-   *        std::initializer_list<std::pair<uint32_t, Name>> to Link constructor;
-   *        otherwise, Link(const Name&, std::initializer_list<Delegation>) is preferred.
-   */
-  DEPRECATED(
-  Link(const Name& name, PairInitializerListHelper dels));
-
-  /** @deprecated use getDelegationList()
-   */
-  DEPRECATED(
-  const DelegationSet&
-  getDelegations() const);
-
-  /** @brief gets the delegation at @p index from @p block
-   *  @param block wire format of a Link object
-   *  @param index 0-based index of a delegation in the Link object
-   *  @return delegation preference and name
-   *  @throw std::out_of_range index is out of range
-   *  @deprecated use Link(block, false).getDelegationList().at(index)
-   */
-  DEPRECATED(
-  static DelegationTuple
-  getDelegationFromWire(const Block& block, size_t index));
-
-  /** @brief finds index of a delegation with @p delegationName from @p block
-   *  @param block wire format of a Link object
-   *  @param delegationName delegation name in the Link object
-   *  @return 0-based index of the first delegation with @p delegationName ,
-   *          or -1 if no such delegation exists
-   *  @deprecated find within Link(block, false).getDelegationList()
-   */
-  DEPRECATED(
-  static ssize_t
-  findDelegationFromWire(const Block& block, const Name& delegationName));
-
-  /** @deprecated use Link(block, false).getDelegationList().size()
-   */
-  DEPRECATED(
-  static ssize_t
-  countDelegationsFromWire(const Block& block));
-
 private:
   void
   encodeContent();
 
 private:
   DelegationList m_delList;
-  mutable bool m_isDelSetDirty = false;
-  mutable DelegationSet m_delSet;
 };
 
 } // namespace ndn

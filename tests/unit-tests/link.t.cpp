@@ -172,46 +172,6 @@ BOOST_AUTO_TEST_CASE(RemoveDelegation)
 
 BOOST_AUTO_TEST_SUITE_END() // Modify
 
-BOOST_AUTO_TEST_SUITE(Deprecated)
-
-BOOST_AUTO_TEST_CASE(PairInitializerList)
-{
-  Link link("/test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  Link::DelegationSet ds = link.getDelegations();
-  BOOST_REQUIRE_EQUAL(ds.size(), 3);
-  BOOST_CHECK_EQUAL(ds.begin()->first, 10);
-  BOOST_CHECK_EQUAL(ds.begin()->second, "/test1");
-}
-
-BOOST_AUTO_TEST_CASE(DelegationSet)
-{
-  Link link("/test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  Link::DelegationSet ds = link.getDelegations();
-  BOOST_REQUIRE_EQUAL(ds.size(), 3);
-  BOOST_CHECK_EQUAL(ds.begin()->first, 10);
-  BOOST_CHECK_EQUAL(ds.begin()->second, "/test1");
-}
-
-BOOST_AUTO_TEST_CASE(FromWire)
-{
-  Block linkBlock(GOOD_LINK, sizeof(GOOD_LINK));
-
-  BOOST_CHECK_EQUAL(Link::countDelegationsFromWire(linkBlock), 2);
-
-  auto del0 = Link::getDelegationFromWire(linkBlock, 0);
-  BOOST_CHECK_EQUAL(std::get<0>(del0), 10);
-  BOOST_CHECK_EQUAL(std::get<1>(del0), "/local");
-  auto del1 = Link::getDelegationFromWire(linkBlock, 1);
-  BOOST_CHECK_EQUAL(std::get<0>(del1), 20);
-  BOOST_CHECK_EQUAL(std::get<1>(del1), "/ndn");
-  BOOST_CHECK_THROW(Link::getDelegationFromWire(linkBlock, 2), std::out_of_range);
-
-  BOOST_CHECK_EQUAL(Link::findDelegationFromWire(linkBlock, "/local"), 0);
-  BOOST_CHECK_EQUAL(Link::findDelegationFromWire(linkBlock, "/none"), -1);
-}
-
-BOOST_AUTO_TEST_SUITE_END() // Deprecated
-
 BOOST_AUTO_TEST_SUITE_END() // TestLink
 
 } // namespace tests
