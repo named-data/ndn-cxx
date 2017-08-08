@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,8 +20,8 @@
  */
 
 #include "face-query-filter.hpp"
-#include "encoding/tlv-nfd.hpp"
 #include "encoding/block-helpers.hpp"
+#include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
 
 namespace ndn {
@@ -62,18 +62,15 @@ FaceQueryFilter::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   if (hasLocalUri()) {
-    totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                   reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
+    totalLength += prependStringBlock(encoder, tlv::nfd::LocalUri, m_localUri);
   }
 
   if (hasRemoteUri()) {
-    totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
-                   reinterpret_cast<const uint8_t*>(m_remoteUri.data()), m_remoteUri.size());
+    totalLength += prependStringBlock(encoder, tlv::nfd::Uri, m_remoteUri);
   }
 
   if (hasUriScheme()) {
-    totalLength += encoder.prependByteArrayBlock(tlv::nfd::UriScheme,
-                   reinterpret_cast<const uint8_t*>(m_uriScheme.data()), m_uriScheme.size());
+    totalLength += prependStringBlock(encoder, tlv::nfd::UriScheme, m_uriScheme);
   }
 
   if (m_faceId) {
@@ -129,7 +126,7 @@ FaceQueryFilter::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::UriScheme) {
-    m_uriScheme.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_uriScheme = readString(*val);
     ++val;
   }
   else {
@@ -137,7 +134,7 @@ FaceQueryFilter::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
-    m_remoteUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_remoteUri = readString(*val);
     ++val;
   }
   else {
@@ -145,7 +142,7 @@ FaceQueryFilter::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
-    m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_localUri = readString(*val);
     ++val;
   }
   else {
@@ -153,7 +150,7 @@ FaceQueryFilter::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
-    m_faceScope = static_cast<FaceScope>(readNonNegativeInteger(*val));
+    m_faceScope = readNonNegativeIntegerAs<FaceScope>(*val);
     ++val;
   }
   else {
@@ -161,7 +158,7 @@ FaceQueryFilter::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
-    m_facePersistency = static_cast<FacePersistency>(readNonNegativeInteger(*val));
+    m_facePersistency = readNonNegativeIntegerAs<FacePersistency>(*val);
     ++val;
   }
   else {
@@ -169,7 +166,7 @@ FaceQueryFilter::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
-    m_linkType = static_cast<LinkType>(readNonNegativeInteger(*val));
+    m_linkType = readNonNegativeIntegerAs<LinkType>(*val);
     ++val;
   }
   else {

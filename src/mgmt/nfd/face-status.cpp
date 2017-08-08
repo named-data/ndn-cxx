@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -67,15 +67,12 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FacePersistency, m_facePersistency);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceScope, m_faceScope);
   if (m_expirationPeriod) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::ExpirationPeriod, static_cast<uint64_t>(m_expirationPeriod->count()));
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::ExpirationPeriod,
+                                                  m_expirationPeriod->count());
   }
-  totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
-  totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
-                 reinterpret_cast<const uint8_t*>(m_remoteUri.data()), m_remoteUri.size());
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceId, m_faceId);
+  totalLength += prependStringBlock(encoder, tlv::nfd::LocalUri, m_localUri);
+  totalLength += prependStringBlock(encoder, tlv::nfd::Uri, m_remoteUri);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceId, m_faceId);
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::nfd::FaceStatus);
@@ -123,7 +120,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
-    m_remoteUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_remoteUri = readString(*val);
     ++val;
   }
   else {
@@ -131,7 +128,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
-    m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_localUri = readString(*val);
     ++val;
   }
   else {
@@ -147,7 +144,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
-    m_faceScope = static_cast<FaceScope>(readNonNegativeInteger(*val));
+    m_faceScope = readNonNegativeIntegerAs<FaceScope>(*val);
     ++val;
   }
   else {
@@ -155,7 +152,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
-    m_facePersistency = static_cast<FacePersistency>(readNonNegativeInteger(*val));
+    m_facePersistency = readNonNegativeIntegerAs<FacePersistency>(*val);
     ++val;
   }
   else {
@@ -163,7 +160,7 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
-    m_linkType = static_cast<LinkType>(readNonNegativeInteger(*val));
+    m_linkType = readNonNegativeIntegerAs<LinkType>(*val);
     ++val;
   }
   else {

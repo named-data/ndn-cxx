@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,7 +20,7 @@
  */
 
 #include "channel-status.hpp"
-#include "encoding/encoding-buffer.hpp"
+#include "encoding/block-helpers.hpp"
 #include "encoding/tlv-nfd.hpp"
 #include "util/concepts.hpp"
 
@@ -41,10 +41,7 @@ size_t
 ChannelStatus::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
-
-  totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
-
+  totalLength += prependStringBlock(encoder, tlv::nfd::LocalUri, m_localUri);
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::nfd::ChannelStatus);
   return totalLength;
@@ -83,7 +80,7 @@ ChannelStatus::wireDecode(const Block& block)
   Block::element_const_iterator val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
-    m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_localUri = readString(*val);
     ++val;
   }
   else {

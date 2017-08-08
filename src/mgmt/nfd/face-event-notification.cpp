@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -47,22 +47,14 @@ FaceEventNotification::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::Flags, m_flags);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::LinkType, m_linkType);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FacePersistency, m_facePersistency);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceScope, m_faceScope);
-  totalLength += encoder.prependByteArrayBlock(tlv::nfd::LocalUri,
-                 reinterpret_cast<const uint8_t*>(m_localUri.data()), m_localUri.size());
-  totalLength += encoder.prependByteArrayBlock(tlv::nfd::Uri,
-                 reinterpret_cast<const uint8_t*>(m_remoteUri.data()), m_remoteUri.size());
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceId, m_faceId);
-  totalLength += prependNonNegativeIntegerBlock(encoder,
-                 tlv::nfd::FaceEventKind, m_kind);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::LinkType, m_linkType);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FacePersistency, m_facePersistency);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceScope, m_faceScope);
+  totalLength += prependStringBlock(encoder, tlv::nfd::LocalUri, m_localUri);
+  totalLength += prependStringBlock(encoder, tlv::nfd::Uri, m_remoteUri);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceId, m_faceId);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceEventKind, m_kind);
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::nfd::FaceEventNotification);
@@ -102,7 +94,7 @@ FaceEventNotification::wireDecode(const Block& block)
   Block::element_const_iterator val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceEventKind) {
-    m_kind = static_cast<FaceEventKind>(readNonNegativeInteger(*val));
+    m_kind = readNonNegativeIntegerAs<FaceEventKind>(*val);
     ++val;
   }
   else {
@@ -118,7 +110,7 @@ FaceEventNotification::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
-    m_remoteUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_remoteUri = readString(*val);
     ++val;
   }
   else {
@@ -126,7 +118,7 @@ FaceEventNotification::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
-    m_localUri.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_localUri = readString(*val);
     ++val;
   }
   else {
@@ -134,7 +126,7 @@ FaceEventNotification::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
-    m_faceScope = static_cast<FaceScope>(readNonNegativeInteger(*val));
+    m_faceScope = readNonNegativeIntegerAs<FaceScope>(*val);
     ++val;
   }
   else {
@@ -142,7 +134,7 @@ FaceEventNotification::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
-    m_facePersistency = static_cast<FacePersistency>(readNonNegativeInteger(*val));
+    m_facePersistency = readNonNegativeIntegerAs<FacePersistency>(*val);
     ++val;
   }
   else {
@@ -150,7 +142,7 @@ FaceEventNotification::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
-    m_linkType = static_cast<LinkType>(readNonNegativeInteger(*val));
+    m_linkType = readNonNegativeIntegerAs<LinkType>(*val);
     ++val;
   }
   else {

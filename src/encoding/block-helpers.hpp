@@ -63,6 +63,39 @@ makeNonNegativeIntegerBlock(uint32_t type, uint64_t value);
 uint64_t
 readNonNegativeInteger(const Block& block);
 
+/** @brief Read a non-negative integer from a TLV element and cast to the specified type
+ *  @tparam R result type, must be an integral type
+ *  @param block the TLV element
+ *  @throw tlv::Error block does not contain a valid non-negative integer or the number cannot be
+ *                    represented in R
+ */
+template<typename R>
+typename std::enable_if<std::is_integral<R>::value, R>::type
+readNonNegativeIntegerAs(const Block& block)
+{
+  uint64_t value = readNonNegativeInteger(block);
+  if (value > std::numeric_limits<R>::max()) {
+    BOOST_THROW_EXCEPTION(tlv::Error("Value in TLV element of type " + to_string(block.type()) +
+                          " is too large"));
+  }
+  return static_cast<R>(value);
+}
+
+/** @brief Read a non-negative integer from a TLV element and cast to the specified type
+ *  @tparam R result type, must be an enumeration type
+ *  @param block the TLV element
+ *  @throw tlv::Error block does not contain a valid non-negative integer or the number cannot be
+ *                    represented in R
+ *  @warning If R is an unscoped enum type, it must have a fixed underlying type. Otherwise, this
+ *           function may trigger unspecified behavior.
+ */
+template<typename R>
+typename std::enable_if<std::is_enum<R>::value, R>::type
+readNonNegativeIntegerAs(const Block& block)
+{
+  return static_cast<R>(readNonNegativeIntegerAs<typename std::underlying_type<R>::type>(block));
+}
+
 /** @brief Prepend an empty TLV element
  *  @param encoder an EncodingBuffer or EncodingEstimator
  *  @param type TLV-TYPE number
@@ -255,6 +288,7 @@ makeNestedBlock(uint32_t type, const U& value)
 
 using encoding::makeNonNegativeIntegerBlock;
 using encoding::readNonNegativeInteger;
+using encoding::readNonNegativeIntegerAs;
 using encoding::makeEmptyBlock;
 using encoding::makeStringBlock;
 using encoding::readString;

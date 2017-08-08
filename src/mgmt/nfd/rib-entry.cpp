@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -159,7 +159,7 @@ Route::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Origin) {
-    m_origin = static_cast<RouteOrigin>(readNonNegativeInteger(*val));
+    m_origin = readNonNegativeIntegerAs<RouteOrigin>(*val);
     ++val;
   }
   else {

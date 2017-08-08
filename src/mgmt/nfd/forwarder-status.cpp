@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -71,9 +71,7 @@ ForwarderStatus::wireEncode(EncodingImpl<TAG>& encoder) const
                                                 time::toUnixTimestamp(m_currentTimestamp).count());
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::StartTimestamp,
                                                 time::toUnixTimestamp(m_startTimestamp).count());
-  totalLength += encoder.prependByteArrayBlock(tlv::nfd::NfdVersion,
-                                               reinterpret_cast<const uint8_t*>(m_nfdVersion.data()),
-                                               m_nfdVersion.size());
+  totalLength += prependStringBlock(encoder, tlv::nfd::NfdVersion, m_nfdVersion);
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::Content);
@@ -113,7 +111,7 @@ ForwarderStatus::wireDecode(const Block& block)
   Block::element_const_iterator val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NfdVersion) {
-    m_nfdVersion.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+    m_nfdVersion = readString(*val);
     ++val;
   }
   else {
@@ -137,7 +135,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NNameTreeEntries) {
-    m_nNameTreeEntries = static_cast<size_t>(readNonNegativeInteger(*val));
+    m_nNameTreeEntries = readNonNegativeIntegerAs<size_t>(*val);
     ++val;
   }
   else {
@@ -145,7 +143,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NFibEntries) {
-    m_nFibEntries = static_cast<size_t>(readNonNegativeInteger(*val));
+    m_nFibEntries = readNonNegativeIntegerAs<size_t>(*val);
     ++val;
   }
   else {
@@ -153,7 +151,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NPitEntries) {
-    m_nPitEntries = static_cast<size_t>(readNonNegativeInteger(*val));
+    m_nPitEntries = readNonNegativeIntegerAs<size_t>(*val);
     ++val;
   }
   else {
@@ -161,7 +159,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NMeasurementsEntries) {
-    m_nMeasurementsEntries = static_cast<size_t>(readNonNegativeInteger(*val));
+    m_nMeasurementsEntries = readNonNegativeIntegerAs<size_t>(*val);
     ++val;
   }
   else {
@@ -169,7 +167,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NCsEntries) {
-    m_nCsEntries = static_cast<size_t>(readNonNegativeInteger(*val));
+    m_nCsEntries = readNonNegativeIntegerAs<size_t>(*val);
     ++val;
   }
   else {
@@ -177,7 +175,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
-    m_nInInterests = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nInInterests = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -185,7 +183,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInData) {
-    m_nInData = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nInData = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -193,7 +191,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInNacks) {
-    m_nInNacks = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nInNacks = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -201,7 +199,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutInterests) {
-    m_nOutInterests = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nOutInterests = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -209,7 +207,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutData) {
-    m_nOutData = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nOutData = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -217,7 +215,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutNacks) {
-    m_nOutNacks = static_cast<uint64_t>(readNonNegativeInteger(*val));
+    m_nOutNacks = readNonNegativeInteger(*val);
     ++val;
   }
   else {

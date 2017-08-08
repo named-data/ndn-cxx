@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,6 +31,26 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestBlockHelpers)
 
+enum E8 : uint8_t
+{
+  E8_NONE
+};
+
+enum class EC8 : uint8_t
+{
+  NONE
+};
+
+enum E16 : uint16_t
+{
+  E16_NONE
+};
+
+enum class EC16 : uint16_t
+{
+  NONE
+};
+
 BOOST_AUTO_TEST_CASE(NonNegativeInteger)
 {
   Block b = makeNonNegativeIntegerBlock(100, 1000);
@@ -39,6 +59,14 @@ BOOST_AUTO_TEST_CASE(NonNegativeInteger)
   BOOST_CHECK_EQUAL(readNonNegativeInteger(b), 1000);
 
   BOOST_CHECK_THROW(readNonNegativeInteger(Block()), tlv::Error);
+
+  BOOST_CHECK_THROW(readNonNegativeIntegerAs<uint8_t>(b), tlv::Error);
+  BOOST_CHECK_EQUAL(readNonNegativeIntegerAs<uint16_t>(b), 1000);
+  BOOST_CHECK_EQUAL(readNonNegativeIntegerAs<size_t>(b), 1000);
+  BOOST_CHECK_THROW(readNonNegativeIntegerAs<E8>(b), tlv::Error);
+  BOOST_CHECK_EQUAL(static_cast<uint16_t>(readNonNegativeIntegerAs<E16>(b)), 1000);
+  BOOST_CHECK_THROW(readNonNegativeIntegerAs<EC8>(b), tlv::Error);
+  BOOST_CHECK_EQUAL(static_cast<uint16_t>(readNonNegativeIntegerAs<EC16>(b)), 1000);
 }
 
 BOOST_AUTO_TEST_CASE(Empty)

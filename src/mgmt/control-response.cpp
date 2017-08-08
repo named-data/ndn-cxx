@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,8 +56,7 @@ ControlResponse::wireEncode() const
 
   m_wire = Block(tlv::nfd::ControlResponse);
   m_wire.push_back(makeNonNegativeIntegerBlock(tlv::nfd::StatusCode, m_code));
-
-  m_wire.push_back(makeBinaryBlock(tlv::nfd::StatusText, m_text.c_str(), m_text.size()));
+  m_wire.push_back(makeStringBlock(tlv::nfd::StatusText, m_text));
 
   if (m_body.hasWire()) {
     m_wire.push_back(m_body);
@@ -74,20 +73,19 @@ ControlResponse::wireDecode(const Block& wire)
   m_wire.parse();
 
   if (m_wire.type() != tlv::nfd::ControlResponse)
-    throw Error("Requested decoding of ControlResponse, but Block is of different type");
+    BOOST_THROW_EXCEPTION(Error("expected ControlResponse, got " + to_string(m_wire.type()) + " element"));
 
   Block::element_const_iterator val = m_wire.elements_begin();
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::StatusCode) {
-    throw Error("Incorrect ControlResponse format (StatusCode missing or not the first item)");
+    BOOST_THROW_EXCEPTION(Error("missing StatusCode sub-element"));
   }
-
   m_code = readNonNegativeInteger(*val);
   ++val;
 
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::StatusText) {
-    throw Error("Incorrect ControlResponse format (StatusText missing or not the second item)");
+    BOOST_THROW_EXCEPTION(Error("missing StatusText sub-element"));
   }
-  m_text.assign(reinterpret_cast<const char*>(val->value()), val->value_size());
+  m_text = readString(*val);
   ++val;
 
   if (val != m_wire.elements_end())
