@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -24,6 +24,10 @@
 
 #include "../face.hpp"
 #include "net/face-uri.hpp"
+#include "util/logger.hpp"
+
+NDN_LOG_INIT(ndn.UnixTransport);
+// DEBUG level: connect, close, pause, resume.
 
 namespace ndn {
 
@@ -32,9 +36,7 @@ UnixTransport::UnixTransport(const std::string& unixSocket)
 {
 }
 
-UnixTransport::~UnixTransport()
-{
-}
+UnixTransport::~UnixTransport() = default;
 
 std::string
 UnixTransport::getSocketNameFromUri(const std::string& uriString)
@@ -75,6 +77,8 @@ void
 UnixTransport::connect(boost::asio::io_service& ioService,
                        const ReceiveCallback& receiveCallback)
 {
+  NDN_LOG_DEBUG("connect path=" << m_unixSocket);
+
   if (m_impl == nullptr) {
     Transport::connect(ioService, receiveCallback);
 
@@ -102,6 +106,7 @@ void
 UnixTransport::close()
 {
   BOOST_ASSERT(m_impl != nullptr);
+  NDN_LOG_DEBUG("close");
   m_impl->close();
   m_impl.reset();
 }
@@ -110,6 +115,7 @@ void
 UnixTransport::pause()
 {
   if (m_impl != nullptr) {
+    NDN_LOG_DEBUG("pause");
     m_impl->pause();
   }
 }
@@ -118,6 +124,7 @@ void
 UnixTransport::resume()
 {
   BOOST_ASSERT(m_impl != nullptr);
+  NDN_LOG_DEBUG("resume");
   m_impl->resume();
 }
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,7 +68,7 @@ public:
   send(const Block& header, const Block& payload) override;
 
   /** \brief Create transport with parameters defined in URI
-   *  \throw Transport::Error if incorrect URI or unsupported protocol is specified
+   *  \throw Transport::Error incorrect URI or unsupported protocol is specified
    */
   static shared_ptr<UnixTransport>
   create(const std::string& uri);
@@ -80,8 +80,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 private:
   std::string m_unixSocket;
 
-  typedef StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol> Impl;
-  friend class StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol>;
+  using Impl = StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol>;
+  friend Impl;
   shared_ptr<Impl> m_impl;
 };
 
