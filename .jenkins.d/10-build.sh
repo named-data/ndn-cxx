@@ -12,7 +12,7 @@ sudo rm -f /usr/local/lib/libndn-cxx*
 sudo rm -f /usr/local/lib/pkgconfig/libndn-cxx.pc
 
 # Cleanup
-sudo ./waf -j1 --color=yes distclean
+sudo env "PATH=$PATH" ./waf -j1 --color=yes distclean
 
 if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
   # Configure/build static library in optimized mode with tests
@@ -20,14 +20,14 @@ if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
   ./waf -j1 --color=yes build
 
   # Cleanup
-  sudo ./waf -j1 --color=yes distclean
+  sudo env "PATH=$PATH" ./waf -j1 --color=yes distclean
 
   # Configure/build static and shared library in optimized mode without tests
   ./waf -j1 --color=yes configure --enable-static --enable-shared
   ./waf -j1 --color=yes build
 
   # Cleanup
-  sudo ./waf -j1 --color=yes distclean
+  sudo env "PATH=$PATH" ./waf -j1 --color=yes distclean
 fi
 
 # Configure/build shared library in debug mode with tests/examples and without precompiled headers
@@ -42,7 +42,7 @@ fi
 # (tests will be run against debug version)
 
 # Install
-sudo ./waf -j1 --color=yes install
+sudo env "PATH=$PATH" ./waf -j1 --color=yes install
 
 if has Linux $NODE_LABELS; then
     sudo ldconfig
