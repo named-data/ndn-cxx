@@ -29,3 +29,5 @@ Environment Variables Used in Build Scripts
   * empty: default build process
   * `code-coverage` (Linux OS is assumed): debug build with tests and code coverage analysis
   * `limited-build`: only a single debug build with tests
+
+- `WAF_JOBS`: number of parallel build jobs used by waf, defaults to 1.

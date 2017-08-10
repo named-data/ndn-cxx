@@ -12,22 +12,22 @@ sudo rm -f /usr/local/lib/libndn-cxx*
 sudo rm -f /usr/local/lib/pkgconfig/libndn-cxx.pc
 
 # Cleanup
-sudo env "PATH=$PATH" ./waf -j1 --color=yes distclean
+sudo env "PATH=$PATH" ./waf --color=yes distclean
 
 if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
   # Configure/build static library in optimized mode with tests
-  ./waf -j1 --color=yes configure --enable-static --disable-shared --with-tests
-  ./waf -j1 --color=yes build
+  ./waf --color=yes configure --enable-static --disable-shared --with-tests
+  ./waf --color=yes build -j${WAF_JOBS:-1}
 
   # Cleanup
-  sudo env "PATH=$PATH" ./waf -j1 --color=yes distclean
+  sudo env "PATH=$PATH" ./waf --color=yes distclean
 
   # Configure/build static and shared library in optimized mode without tests
-  ./waf -j1 --color=yes configure --enable-static --enable-shared
-  ./waf -j1 --color=yes build
+  ./waf --color=yes configure --enable-static --enable-shared
+  ./waf --color=yes build -j${WAF_JOBS:-1}
 
   # Cleanup
-  sudo env "PATH=$PATH" ./waf -j1 --color=yes distclean
+  sudo env "PATH=$PATH" ./waf --color=yes distclean
 fi
 
 # Configure/build shared library in debug mode with tests/examples and without precompiled headers
@@ -36,13 +36,13 @@ if [[ $JOB_NAME == *"code-coverage" ]]; then
 elif [[ -n $BUILD_WITH_ASAN || -z $TRAVIS ]]; then
     ASAN="--with-sanitizer=address"
 fi
-./waf -j1 --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples --without-pch $COVERAGE $ASAN
-./waf -j1 --color=yes build
+./waf --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples --without-pch $COVERAGE $ASAN
+./waf --color=yes build -j${WAF_JOBS:-1}
 
 # (tests will be run against debug version)
 
 # Install
-sudo env "PATH=$PATH" ./waf -j1 --color=yes install
+sudo env "PATH=$PATH" ./waf --color=yes install
 
 if has Linux $NODE_LABELS; then
     sudo ldconfig

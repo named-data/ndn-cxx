@@ -3,6 +3,7 @@ language: generic
 env:
   global:
     - JOB_NAME=limited-build
+    - WAF_JOBS=2
 
 matrix:
   include:
