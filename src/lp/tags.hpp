@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,7 @@
 #define NDN_CXX_LP_TAGS_HPP
 
 #include "cache-policy.hpp"
-#include "../tag-host.hpp"
+#include "../tag.hpp"
 
 namespace ndn {
 namespace lp {
@@ -52,7 +52,7 @@ typedef SimpleTag<CachePolicy, 12> CachePolicyTag;
 /** \class CongestionMarkTag
  *  \brief a packet tag for CongestionMark field
  *
- * This tag can be attached to Interest, Data, Nack.
+ *  This tag can be attached to Interest, Data, Nack.
  */
 typedef SimpleTag<uint64_t, 13> CongestionMarkTag;
 

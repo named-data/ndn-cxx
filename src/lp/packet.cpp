@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,12 +20,102 @@
  */
 
 #include "packet.hpp"
-#include "field-info.hpp"
+#include "fields.hpp"
 
+#include <boost/bind.hpp>
+#include <boost/mpl/for_each.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 namespace lp {
+
+namespace {
+
+template<typename TAG>
+int
+getLocationSortOrder();
+
+template<>
+int
+getLocationSortOrder<field_location_tags::Header>()
+{
+  return 1;
+}
+
+template<>
+int
+getLocationSortOrder<field_location_tags::Fragment>()
+{
+  return 2;
+}
+
+class FieldInfo
+{
+public:
+  FieldInfo();
+
+  explicit
+  FieldInfo(uint64_t tlv);
+
+public:
+  uint64_t tlvType;       ///< TLV-TYPE of the field; 0 if field does not exist
+  bool isRecognized;      ///< is this field known
+  bool canIgnore;         ///< can this unknown field be ignored
+  bool isRepeatable;      ///< is the field repeatable
+  int locationSortOrder;  ///< sort order of field_location_tag
+};
+
+class ExtractFieldInfo
+{
+public:
+  using result_type = void;
+
+  template<typename T>
+  void
+  operator()(FieldInfo* info, T) const
+  {
+    if (T::TlvType::value != info->tlvType) {
+      return;
+    }
+    info->isRecognized = true;
+    info->canIgnore = false;
+    info->isRepeatable = T::IsRepeatable::value;
+    info->locationSortOrder = getLocationSortOrder<typename T::FieldLocation>();
+  }
+};
+
+FieldInfo::FieldInfo()
+  : tlvType(0)
+  , isRecognized(false)
+  , canIgnore(false)
+  , isRepeatable(false)
+  , locationSortOrder(getLocationSortOrder<field_location_tags::Header>())
+{
+}
+
+FieldInfo::FieldInfo(uint64_t tlv)
+  : tlvType(tlv)
+  , isRecognized(false)
+  , canIgnore(false)
+  , isRepeatable(false)
+  , locationSortOrder(getLocationSortOrder<field_location_tags::Header>())
+{
+  boost::mpl::for_each<FieldSet>(boost::bind(ExtractFieldInfo(), this, _1));
+  if (!isRecognized) {
+    canIgnore = tlv::HEADER3_MIN <= tlvType &&
+                tlvType <= tlv::HEADER3_MAX &&
+                (tlvType & 0x03) == 0x00;
+  }
+}
+
+bool
+compareFieldSortOrder(const FieldInfo& first, const FieldInfo& second)
+{
+  return (first.locationSortOrder < second.locationSortOrder) ||
+         (first.locationSortOrder == second.locationSortOrder && first.tlvType < second.tlvType);
+}
+
+} // namespace
 
 Packet::Packet()
   : m_wire(Block(tlv::LpPacket))

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,11 +24,7 @@
 #ifndef NDN_CXX_LP_CACHE_POLICY_HPP
 #define NDN_CXX_LP_CACHE_POLICY_HPP
 
-#include "../common.hpp"
-#include "../tag.hpp"
 #include "../encoding/encoding-buffer.hpp"
-#include "../encoding/block-helpers.hpp"
-
 #include "tlv.hpp"
 
 namespace ndn {
