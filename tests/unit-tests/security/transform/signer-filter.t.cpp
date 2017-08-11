@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,11 +20,12 @@
  */
 
 #include "security/transform/signer-filter.hpp"
-#include "security/transform.hpp"
-#include "encoding/buffer-stream.hpp"
 
-// TODO: remove CryptoPP dependency
-#include "security/v1/cryptopp.hpp"
+#include "encoding/buffer-stream.hpp"
+#include "security/transform/base64-decode.hpp"
+#include "security/transform/buffer-source.hpp"
+#include "security/transform/stream-sink.hpp"
+#include "security/verification-helpers.hpp"
 
 #include "boost-test.hpp"
 
@@ -39,7 +40,7 @@ BOOST_AUTO_TEST_SUITE(TestSignerFilter)
 
 BOOST_AUTO_TEST_CASE(Rsa)
 {
-  std::string publicKeyPkcs8 =
+  const std::string publicKeyPkcs8 =
     "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw0WM1/WhAxyLtEqsiAJg\n"
     "WDZWuzkYpeYVdeeZcqRZzzfRgBQTsNozS5t4HnwTZhwwXbH7k3QN0kRTV826Xobw\n"
     "s3iigohnM9yTK+KKiayPhIAm/+5HGT6SgFJhYhqo1/upWdueojil6RP4/AgavHho\n"
@@ -47,8 +48,7 @@ BOOST_AUTO_TEST_CASE(Rsa)
     "ZwIL5PuE9BiO6I39cL9z7EK1SfZhOWvDe/qH7YhD/BHwcWit8FjRww1glwRVTJsA\n"
     "9rH58ynaAix0tcR/nBMRLUX+e3rURHg6UbSjJbdb9qmKM1fTGHKUzL/5pMG6uBU0\n"
     "ywIDAQAB\n";
-
-  std::string privateKeyPkcs1 =
+  const std::string privateKeyPkcs1 =
     "MIIEpAIBAAKCAQEAw0WM1/WhAxyLtEqsiAJgWDZWuzkYpeYVdeeZcqRZzzfRgBQT\n"
     "sNozS5t4HnwTZhwwXbH7k3QN0kRTV826Xobws3iigohnM9yTK+KKiayPhIAm/+5H\n"
     "GT6SgFJhYhqo1/upWdueojil6RP4/AgavHhopxlAVbk6G9VdVnlQcQ5Zv0OcGi73\n"
@@ -74,40 +74,25 @@ BOOST_AUTO_TEST_CASE(Rsa)
     "cuHICmsCgYAtFJ1idqMoHxES3mlRpf2JxyQudP3SCm2WpGmqVzhRYInqeatY5sUd\n"
     "lPLHm/p77RT7EyxQHTlwn8FJPuM/4ZH1rQd/vB+Y8qAtYJCexDMsbvLW+Js+VOvk\n"
     "jweEC0nrcL31j9mF0vz5E6tfRu4hhJ6L4yfWs0gSejskeVB/w8QY4g==\n";
-
-  uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
+  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
-  ConstBufferPtr publicKeyBuffer = os1.buf();
+  auto pubKey = os1.buf();
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.c_str()),
-                       privateKeyPkcs1.size());
+  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
 
-  OBufferStream os3;
-  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os3);
-  ConstBufferPtr sig = os3.buf();
+  OBufferStream os2;
+  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  auto sig = os2.buf();
 
-  // TODO: remove CryptoPP dependency
-  {
-    using namespace CryptoPP;
-
-    CryptoPP::RSA::PublicKey publicKey;
-
-    ByteQueue keyQueue1;
-    keyQueue1.LazyPut(publicKeyBuffer->buf(), publicKeyBuffer->size());
-    publicKey.Load(keyQueue1);
-
-    // For signature, openssl only support pkcs1v15 padding.
-    RSASS<PKCS1v15, CryptoPP::SHA256>::Verifier verifier(publicKey);
-    BOOST_CHECK(verifier.VerifyMessage(data, sizeof(data), sig->buf(), sig->size()));
-  }
+  BOOST_CHECK(verifySignature(data, sizeof(data), sig->buf(), sig->size(), pubKey->buf(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_CASE(Ecdsa)
 {
-  std::string privateKeyPkcs1 =
+  const std::string privateKeyPkcs1 =
     "MIIBaAIBAQQgRxwcbzK9RV6AHYFsDcykI86o3M/a1KlJn0z8PcLMBZOggfowgfcC\n"
     "AQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAAAAAAAAAAAAAA////////////////\n"
     "MFsEIP////8AAAABAAAAAAAAAAAAAAAA///////////////8BCBaxjXYqjqT57Pr\n"
@@ -116,8 +101,7 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
     "K84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA//////////+85vqtpxeehPO5ysL8\n"
     "YyVRAgEBoUQDQgAEaG4WJuDAt0QkEM4t29KDUdzkQlMPGrqWzkWhgt9OGnwc6O7A\n"
     "ZLPSrDyhwyrKS7XLRXml5DisQ93RvByll32y8A==\n";
-
-  std::string publicKeyPkcs8 =
+  const std::string publicKeyPkcs8 =
     "MIIBSzCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAA\n"
     "AAAAAAAAAAAA////////////////MFsEIP////8AAAABAAAAAAAAAAAAAAAA////\n"
     "///////////8BCBaxjXYqjqT57PrvVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMVAMSd\n"
@@ -125,38 +109,20 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
     "RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA\n"
     "//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABGhuFibgwLdEJBDOLdvSg1Hc\n"
     "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
-
-  uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
+  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
-  ConstBufferPtr publicKeyBuffer = os1.buf();
+  auto pubKey = os1.buf();
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.c_str()),
-                       privateKeyPkcs1.size());
+  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
 
-  OBufferStream os3;
-  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os3);
-  ConstBufferPtr sig = os3.buf();
+  OBufferStream os2;
+  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  auto sig = os2.buf();
 
-  // TODO: remove CryptoPP dependency
-  {
-    using namespace CryptoPP;
-
-    ECDSA<ECP, CryptoPP::SHA256>::PublicKey publicKey;
-    ByteQueue keyQueue1;
-    keyQueue1.LazyPut(publicKeyBuffer->buf(), publicKeyBuffer->size());
-    publicKey.Load(keyQueue1);
-
-    // For signature, openssl only support pkcs1v15 padding.
-    ECDSA<ECP, CryptoPP::SHA256>::Verifier verifier(publicKey);
-
-    uint8_t buffer[64];
-    size_t usedSize = DSAConvertSignatureFormat(buffer, sizeof(buffer), DSA_P1363,
-                                                sig->buf(), sig->size(), DSA_DER);
-    BOOST_CHECK(verifier.VerifyMessage(data, sizeof(data), buffer, usedSize));
-  }
+  BOOST_CHECK(verifySignature(data, sizeof(data), sig->buf(), sig->size(), pubKey->buf(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSignerFilter

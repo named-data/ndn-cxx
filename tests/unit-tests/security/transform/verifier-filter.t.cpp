@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,11 +20,13 @@
  */
 
 #include "security/transform/verifier-filter.hpp"
-#include "security/transform.hpp"
-#include "encoding/buffer-stream.hpp"
 
-// TODO: remove CryptoPP dependency
-#include "security/v1/cryptopp.hpp"
+#include "encoding/buffer-stream.hpp"
+#include "security/transform/base64-decode.hpp"
+#include "security/transform/bool-sink.hpp"
+#include "security/transform/buffer-source.hpp"
+#include "security/transform/signer-filter.hpp"
+#include "security/transform/stream-sink.hpp"
 
 #include "boost-test.hpp"
 
@@ -39,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(TestVerifierFilter)
 
 BOOST_AUTO_TEST_CASE(Rsa)
 {
-  std::string publicKeyPkcs8 =
+  const std::string publicKeyPkcs8 =
     "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw0WM1/WhAxyLtEqsiAJg\n"
     "WDZWuzkYpeYVdeeZcqRZzzfRgBQTsNozS5t4HnwTZhwwXbH7k3QN0kRTV826Xobw\n"
     "s3iigohnM9yTK+KKiayPhIAm/+5HGT6SgFJhYhqo1/upWdueojil6RP4/AgavHho\n"
@@ -47,8 +49,7 @@ BOOST_AUTO_TEST_CASE(Rsa)
     "ZwIL5PuE9BiO6I39cL9z7EK1SfZhOWvDe/qH7YhD/BHwcWit8FjRww1glwRVTJsA\n"
     "9rH58ynaAix0tcR/nBMRLUX+e3rURHg6UbSjJbdb9qmKM1fTGHKUzL/5pMG6uBU0\n"
     "ywIDAQAB\n";
-
-  std::string privateKeyPkcs8 =
+  const std::string privateKeyPkcs1 =
     "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDDRYzX9aEDHIu0\n"
     "SqyIAmBYNla7ORil5hV155lypFnPN9GAFBOw2jNLm3gefBNmHDBdsfuTdA3SRFNX\n"
     "zbpehvCzeKKCiGcz3JMr4oqJrI+EgCb/7kcZPpKAUmFiGqjX+6lZ256iOKXpE/j8\n"
@@ -75,47 +76,33 @@ BOOST_AUTO_TEST_CASE(Rsa)
     "/YnHJC50/dIKbZakaapXOFFgiep5q1jmxR2U8seb+nvtFPsTLFAdOXCfwUk+4z/h\n"
     "kfWtB3+8H5jyoC1gkJ7EMyxu8tb4mz5U6+SPB4QLSetwvfWP2YXS/PkTq19G7iGE\n"
     "novjJ9azSBJ6OyR5UH/DxBji\n";
-
-  uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
+  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
-  ConstBufferPtr publicKeyBuffer = os1.buf();
-
-  OBufferStream os2;
-  bufferSource(privateKeyPkcs8) >> base64Decode() >> streamSink(os2);
-  ConstBufferPtr privateKeyBuffer = os2.buf();
-
-  // TODO: remove CryptoPP dependency
-  ConstBufferPtr sig;
-  {
-    CryptoPP::RSA::PrivateKey privateKey;
-    CryptoPP::ByteQueue keyQueue;
-    keyQueue.LazyPut(privateKeyBuffer->buf(), privateKeyBuffer->size());
-    privateKey.Load(keyQueue);
-
-    CryptoPP::RSASS<CryptoPP::PKCS1v15, CryptoPP::SHA256>::Signer signer(privateKey);
-
-    CryptoPP::AutoSeededRandomPool rng;
-    OBufferStream os;
-    CryptoPP::StringSource(data, sizeof(data), true,
-                           new CryptoPP::SignerFilter(rng, signer, new CryptoPP::FileSink(os)));
-
-    sig = os.buf();
-  }
+  auto publicKeyBuffer = os1.buf();
 
   PublicKey pKey;
-  bool result = false;
   pKey.loadPkcs8(publicKeyBuffer->buf(), publicKeyBuffer->size());
+
+  PrivateKey sKey;
+  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
+
+  OBufferStream os2;
+  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  auto sig = os2.buf();
+
+  bool result = false;
   bufferSource(data, sizeof(data)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >> boolSink(result);
+    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >>
+    boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
 }
 
 BOOST_AUTO_TEST_CASE(Ecdsa)
 {
-  std::string privateKeyPkcs8 =
+  const std::string privateKeyPkcs1 =
     "MIIBeQIBADCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAAB\n"
     "AAAAAAAAAAAAAAAA////////////////MFsEIP////8AAAABAAAAAAAAAAAAAAAA\n"
     "///////////////8BCBaxjXYqjqT57PrvVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMV\n"
@@ -124,8 +111,7 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
     "AAAA//////////+85vqtpxeehPO5ysL8YyVRAgEBBG0wawIBAQQgRxwcbzK9RV6A\n"
     "HYFsDcykI86o3M/a1KlJn0z8PcLMBZOhRANCAARobhYm4MC3RCQQzi3b0oNR3ORC\n"
     "Uw8aupbORaGC304afBzo7sBks9KsPKHDKspLtctFeaXkOKxD3dG8HKWXfbLw\n";
-
-  std::string publicKeyPkcs8 =
+  const std::string publicKeyPkcs8 =
     "MIIBSzCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAA\n"
     "AAAAAAAAAAAA////////////////MFsEIP////8AAAABAAAAAAAAAAAAAAAA////\n"
     "///////////8BCBaxjXYqjqT57PrvVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMVAMSd\n"
@@ -133,43 +119,26 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
     "RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA\n"
     "//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABGhuFibgwLdEJBDOLdvSg1Hc\n"
     "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
-
-  uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
+  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
-  ConstBufferPtr publicKeyBuffer = os1.buf();
-
-  OBufferStream os2;
-  bufferSource(privateKeyPkcs8) >> base64Decode() >> streamSink(os2);
-  ConstBufferPtr privateKeyBuffer = os2.buf();
-
-  // TODO: remove CryptoPP dependency
-  ConstBufferPtr sig;
-  {
-    CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::PrivateKey privateKey;
-    CryptoPP::ByteQueue keyQueue;
-    keyQueue.LazyPut(privateKeyBuffer->buf(), privateKeyBuffer->size());
-    privateKey.Load(keyQueue);
-    CryptoPP::ECDSA<CryptoPP::ECP, CryptoPP::SHA256>::Signer signer(privateKey);
-
-    CryptoPP::AutoSeededRandomPool rng;
-    OBufferStream os;
-    CryptoPP::StringSource(data, sizeof(data), true,
-                           new CryptoPP::SignerFilter(rng, signer, new CryptoPP::FileSink(os)));
-
-    uint8_t buf[200];
-    size_t bufSize = DSAConvertSignatureFormat(buf, sizeof(buf), CryptoPP::DSA_DER,
-                                               os.buf()->buf(), os.buf()->size(),
-                                               CryptoPP::DSA_P1363);
-    sig = make_shared<Buffer>(buf, bufSize);
-  }
+  auto publicKeyBuffer = os1.buf();
 
   PublicKey pKey;
-  bool result = false;
   pKey.loadPkcs8(publicKeyBuffer->buf(), publicKeyBuffer->size());
+
+  PrivateKey sKey;
+  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
+
+  OBufferStream os2;
+  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  auto sig = os2.buf();
+
+  bool result = false;
   bufferSource(data, sizeof(data)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >> boolSink(result);
+    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >>
+    boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
 }
