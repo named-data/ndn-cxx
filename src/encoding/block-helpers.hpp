@@ -26,8 +26,6 @@
 #include "encoding-buffer.hpp"
 #include "../util/concepts.hpp"
 
-#include <iterator>
-
 namespace ndn {
 namespace encoding {
 
@@ -233,8 +231,6 @@ template<class Iterator>
 Block
 makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 {
-  static_assert(sizeof(typename std::iterator_traits<Iterator>::value_type) == 1, "");
-
   using BinaryBlockHelper = typename std::conditional<
     std::is_base_of<std::random_access_iterator_tag,
                     typename std::iterator_traits<Iterator>::iterator_category>::value,

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #ifndef NDN_ENCODING_ENCODER_HPP
 #define NDN_ENCODING_ENCODER_HPP
 
-#include "../common.hpp"
 #include "block.hpp"
 
 namespace ndn {
@@ -140,9 +139,9 @@ public: // common interface between Encoder and Estimator
   appendBlock(const Block& block);
 
 public: // unique interface to the Encoder
-  typedef Buffer::value_type value_type;
-  typedef Buffer::iterator iterator;
-  typedef Buffer::const_iterator const_iterator;
+  using value_type = Buffer::value_type;
+  using iterator = Buffer::iterator;
+  using const_iterator = Buffer::const_iterator;
 
   /**
    * @brief Create EncodingBlock from existing block
@@ -316,6 +315,9 @@ template<class Iterator>
 inline size_t
 Encoder::prependRange(Iterator first, Iterator last)
 {
+  using ValueType = typename std::iterator_traits<Iterator>::value_type;
+  static_assert(sizeof(ValueType) == 1 && !std::is_same<ValueType, bool>::value, "");
+
   size_t length = std::distance(first, last);
   reserveFront(length);
 
@@ -329,6 +331,9 @@ template<class Iterator>
 inline size_t
 Encoder::appendRange(Iterator first, Iterator last)
 {
+  using ValueType = typename std::iterator_traits<Iterator>::value_type;
+  static_assert(sizeof(ValueType) == 1 && !std::is_same<ValueType, bool>::value, "");
+
   size_t length = std::distance(first, last);
   reserveBack(length);
 
