@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -145,13 +145,13 @@ Selectors::wireDecode(const Block& wire)
   // MinSuffixComponents
   Block::element_const_iterator val = m_wire.find(tlv::MinSuffixComponents);
   if (val != m_wire.elements_end()) {
-    m_minSuffixComponents = readNonNegativeInteger(*val);
+    m_minSuffixComponents = readNonNegativeIntegerAs<int>(*val);
   }
 
   // MaxSuffixComponents
   val = m_wire.find(tlv::MaxSuffixComponents);
   if (val != m_wire.elements_end()) {
-    m_maxSuffixComponents = readNonNegativeInteger(*val);
+    m_maxSuffixComponents = readNonNegativeIntegerAs<int>(*val);
   }
 
   // PublisherPublicKeyLocator
@@ -169,7 +169,7 @@ Selectors::wireDecode(const Block& wire)
   // ChildSelector
   val = m_wire.find(tlv::ChildSelector);
   if (val != m_wire.elements_end()) {
-    m_childSelector = readNonNegativeInteger(*val);
+    m_childSelector = readNonNegativeIntegerAs<bool>(*val);
   }
   else {
     m_childSelector = DEFAULT_CHILD_SELECTOR;

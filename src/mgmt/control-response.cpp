@@ -79,7 +79,7 @@ ControlResponse::wireDecode(const Block& wire)
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::StatusCode) {
     BOOST_THROW_EXCEPTION(Error("missing StatusCode sub-element"));
   }
-  m_code = readNonNegativeInteger(*val);
+  m_code = readNonNegativeIntegerAs<uint32_t>(*val);
   ++val;
 
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::StatusText) {
