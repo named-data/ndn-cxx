@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -434,7 +434,7 @@ public: // IO routine
    * log/disregard all exceptions.
    */
   void
-  processEvents(const time::milliseconds& timeout = time::milliseconds::zero(),
+  processEvents(time::milliseconds timeout = time::milliseconds::zero(),
                 bool keepThread = false)
   {
     this->doProcessEvents(timeout, keepThread);
@@ -469,7 +469,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
 
 protected:
   virtual void
-  doProcessEvents(const time::milliseconds& timeout, bool keepThread);
+  doProcessEvents(time::milliseconds timeout, bool keepThread);
 
 private:
   /**

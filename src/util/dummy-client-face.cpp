@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -265,7 +265,7 @@ DummyClientFace::receive(const lp::Nack& nack)
 }
 
 void
-DummyClientFace::doProcessEvents(const time::milliseconds& timeout, bool keepThread)
+DummyClientFace::doProcessEvents(time::milliseconds timeout, bool keepThread)
 {
   if (m_processEventsOverride != nullptr) {
     m_processEventsOverride(timeout);
