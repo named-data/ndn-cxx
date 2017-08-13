@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2014 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,34 +22,29 @@
 #ifndef NDN_SECURITY_DIGEST_SHA256_HPP
 #define NDN_SECURITY_DIGEST_SHA256_HPP
 
-#include "../data.hpp"
-#include "../encoding/tlv.hpp"
+#include "../signature.hpp"
 
 namespace ndn {
 
-/**
- * Represent a SHA256 digest.
+/** @brief Represents a signature of DigestSha256 type
+ *
+ *  This signature type provides integrity protection using SHA-256 digest, but no provenance of a
+ *  Data packet or any kind of guarantee that packet is from the original source.
  */
 class DigestSha256 : public Signature
 {
 public:
-  class Error : public Signature::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : Signature::Error(what)
-    {
-    }
-  };
-
+  /** @brief Create empty DigestSha256 signature
+   */
   DigestSha256();
 
+  /** @brief Convert base Signature to DigestSha256 signature
+   *  @throw Signature::Error SignatureType is not DigestSha256
+   */
   explicit
   DigestSha256(const Signature& signature);
-
 };
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_DIGEST_SHA256_HPP
+#endif // NDN_SECURITY_DIGEST_SHA256_HPP

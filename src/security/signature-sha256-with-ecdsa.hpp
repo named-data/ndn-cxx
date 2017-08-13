@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2014 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,33 +26,32 @@
 
 namespace ndn {
 
-/**
- * represents a Sha256WithEcdsa signature.
+/** @brief Represents a signature of Sha256WithEcdsa type
+ *
+ *  This signature type provides integrity and provenance protection using an ECDSA signature over a
+ *  SHA-256 digest.
  */
 class SignatureSha256WithEcdsa : public Signature
 {
 public:
-  class Error : public Signature::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : Signature::Error(what)
-    {
-    }
-  };
-
+  /** @brief Create Sha256WithEcdsa signature with specified KeyLocator
+   */
   explicit
   SignatureSha256WithEcdsa(const KeyLocator& keyLocator = KeyLocator());
 
+  /** @brief Convert base Signature to Sha256WithEcdsa signature
+   *  @throw Signature::Error SignatureType is not Sha256WithEcdsa
+   */
   explicit
   SignatureSha256WithEcdsa(const Signature& signature);
 
 private:
+  /** @brief Prevent unsetting KeyLocator
+   */
   void
   unsetKeyLocator();
 };
 
 } // namespace ndn
 
-#endif //NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP
+#endif // NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP

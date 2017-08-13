@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@ DigestSha256::DigestSha256(const Signature& signature)
   : Signature(signature)
 {
   if (getType() != tlv::DigestSha256)
-    BOOST_THROW_EXCEPTION(Error("Incorrect signature type"));
+    BOOST_THROW_EXCEPTION(Error("Cannot construct DigestSha256 from SignatureType " + to_string(getType())));
 }
 
 } // namespace ndn

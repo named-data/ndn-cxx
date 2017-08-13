@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,7 @@ void
 Signature::setValue(const Block& value)
 {
   if (value.type() != tlv::SignatureValue) {
-    BOOST_THROW_EXCEPTION(Error("The supplied block is not SignatureValue"));
+    BOOST_THROW_EXCEPTION(Error("Expecting SignatureValue, but TLV-TYPE is " + to_string(value.type())));
   }
   m_value = value;
 }

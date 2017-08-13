@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,8 +22,6 @@
 #include "signature-info.hpp"
 #include "encoding/block-helpers.hpp"
 #include "util/concepts.hpp"
-
-#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 
@@ -58,93 +56,19 @@ SignatureInfo::SignatureInfo(const Block& block)
   wireDecode(block);
 }
 
-void
-SignatureInfo::setSignatureType(tlv::SignatureTypeValue type)
-{
-  m_wire.reset();
-  m_type = type;
-}
-
-void
-SignatureInfo::setKeyLocator(const KeyLocator& keyLocator)
-{
-  m_wire.reset();
-  m_keyLocator = keyLocator;
-  m_hasKeyLocator = true;
-}
-
-void
-SignatureInfo::unsetKeyLocator()
-{
-  m_wire.reset();
-  m_keyLocator = KeyLocator();
-  m_hasKeyLocator = false;
-}
-
-const KeyLocator&
-SignatureInfo::getKeyLocator() const
-{
-  if (m_hasKeyLocator)
-    return m_keyLocator;
-  else
-    BOOST_THROW_EXCEPTION(Error("KeyLocator does not exist"));
-}
-
-void
-SignatureInfo::setValidityPeriod(const security::ValidityPeriod& validityPeriod)
-{
-  unsetValidityPeriod();
-  m_otherTlvs.push_front(validityPeriod.wireEncode());
-}
-
-void
-SignatureInfo::unsetValidityPeriod()
-{
-  m_wire.reset();
-  if (!m_otherTlvs.empty() && m_otherTlvs.front().type() == tlv::ValidityPeriod) {
-    m_otherTlvs.erase(m_otherTlvs.begin());
-  }
-}
-
-security::ValidityPeriod
-SignatureInfo::getValidityPeriod() const
-{
-  if (m_otherTlvs.empty() || m_otherTlvs.front().type() != tlv::ValidityPeriod) {
-    BOOST_THROW_EXCEPTION(Error("SignatureInfo does not contain the requested ValidityPeriod field"));
-  }
-
-  return security::ValidityPeriod(m_otherTlvs.front());
-}
-
-void
-SignatureInfo::appendTypeSpecificTlv(const Block& block)
-{
-  m_wire.reset();
-  m_otherTlvs.push_back(block);
-}
-
-
-const Block&
-SignatureInfo::getTypeSpecificTlv(uint32_t type) const
-{
-  for (std::list<Block>::const_iterator i = m_otherTlvs.begin();
-       i != m_otherTlvs.end(); i++) {
-    if (i->type() == type)
-      return *i;
-  }
-
-  BOOST_THROW_EXCEPTION(Error("(SignatureInfo::getTypeSpecificTlv) Requested a non-existed type [" +
-                              boost::lexical_cast<std::string>(type) + "] from SignatureInfo"));
-}
-
 template<encoding::Tag TAG>
 size_t
 SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 {
+  // SignatureInfo ::= SIGNATURE-INFO-TLV TLV-LENGTH
+  //                     SignatureType
+  //                     KeyLocator?
+  //                     ValidityPeriod? (if present, stored as first item of m_otherTlvs)
+  //                     other SignatureType-specific sub-elements*
+
   size_t totalLength = 0;
 
-  for (std::list<Block>::const_reverse_iterator i = m_otherTlvs.rbegin();
-       i != m_otherTlvs.rend(); i++) {
+  for (auto i = m_otherTlvs.rbegin(); i != m_otherTlvs.rend(); i++) {
     totalLength += encoder.prependBlock(*i);
   }
 
@@ -163,7 +87,6 @@ SignatureInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTa
 
 template size_t
 SignatureInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
-
 
 const Block&
 SignatureInfo::wireEncode() const
@@ -184,50 +107,122 @@ SignatureInfo::wireEncode() const
 void
 SignatureInfo::wireDecode(const Block& wire)
 {
-  if (!wire.hasWire()) {
-    BOOST_THROW_EXCEPTION(Error("The supplied block does not contain wire format"));
-  }
-
   m_hasKeyLocator = false;
+  m_otherTlvs.clear();
 
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.type() != tlv::SignatureInfo)
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Name"));
+    BOOST_THROW_EXCEPTION(Error("Decoding SignatureInfo, but TLV-TYPE is " + to_string(m_wire.type())));
 
   Block::element_const_iterator it = m_wire.elements_begin();
 
   // the first block must be SignatureType
   if (it != m_wire.elements_end() && it->type() == tlv::SignatureType) {
     m_type = readNonNegativeInteger(*it);
-    it++;
+    ++it;
   }
   else
-    BOOST_THROW_EXCEPTION(Error("SignatureInfo does not have sub-TLV or the first sub-TLV is not "
-                                "SignatureType"));
+    BOOST_THROW_EXCEPTION(Error("Missing SignatureType in SignatureInfo"));
 
   // the second block could be KeyLocator
   if (it != m_wire.elements_end() && it->type() == tlv::KeyLocator) {
     m_keyLocator.wireDecode(*it);
     m_hasKeyLocator = true;
-    it++;
+    ++it;
   }
 
-  // Decode the rest of type-specific TLVs, if any
+  // store SignatureType-specific sub-elements, if any
   while (it != m_wire.elements_end()) {
     m_otherTlvs.push_back(*it);
-    it++;
+    ++it;
   }
 }
 
-bool
-SignatureInfo::operator==(const SignatureInfo& rhs) const
+void
+SignatureInfo::setSignatureType(tlv::SignatureTypeValue type)
 {
-  return (m_type == rhs.m_type &&
-          m_hasKeyLocator == rhs.m_hasKeyLocator &&
-          m_keyLocator == rhs.m_keyLocator &&
-          m_otherTlvs == rhs.m_otherTlvs);
+  m_wire.reset();
+  m_type = type;
+}
+
+const KeyLocator&
+SignatureInfo::getKeyLocator() const
+{
+  if (m_hasKeyLocator)
+    return m_keyLocator;
+  else
+    BOOST_THROW_EXCEPTION(Error("KeyLocator does not exist in SignatureInfo"));
+}
+
+void
+SignatureInfo::setKeyLocator(const KeyLocator& keyLocator)
+{
+  m_wire.reset();
+  m_keyLocator = keyLocator;
+  m_hasKeyLocator = true;
+}
+
+void
+SignatureInfo::unsetKeyLocator()
+{
+  m_wire.reset();
+  m_keyLocator = KeyLocator();
+  m_hasKeyLocator = false;
+}
+
+security::ValidityPeriod
+SignatureInfo::getValidityPeriod() const
+{
+  if (m_otherTlvs.empty() || m_otherTlvs.front().type() != tlv::ValidityPeriod) {
+    BOOST_THROW_EXCEPTION(Error("ValidityPeriod does not exist in SignatureInfo"));
+  }
+
+  return security::ValidityPeriod(m_otherTlvs.front());
+}
+
+void
+SignatureInfo::setValidityPeriod(const security::ValidityPeriod& validityPeriod)
+{
+  unsetValidityPeriod();
+  m_otherTlvs.push_front(validityPeriod.wireEncode());
+}
+
+void
+SignatureInfo::unsetValidityPeriod()
+{
+  if (!m_otherTlvs.empty() && m_otherTlvs.front().type() == tlv::ValidityPeriod) {
+    m_otherTlvs.pop_front();
+    m_wire.reset();
+  }
+}
+
+const Block&
+SignatureInfo::getTypeSpecificTlv(uint32_t type) const
+{
+  for (const Block& block : m_otherTlvs) {
+    if (block.type() == type)
+      return block;
+  }
+
+  BOOST_THROW_EXCEPTION(Error("TLV-TYPE " + to_string(type) + " sub-element does not exist in SignatureInfo"));
+}
+
+void
+SignatureInfo::appendTypeSpecificTlv(const Block& block)
+{
+  m_wire.reset();
+  m_otherTlvs.push_back(block);
+}
+
+bool
+operator==(const SignatureInfo& lhs, const SignatureInfo& rhs)
+{
+  return lhs.m_type == rhs.m_type &&
+         lhs.m_hasKeyLocator == rhs.m_hasKeyLocator &&
+         lhs.m_keyLocator == rhs.m_keyLocator &&
+         lhs.m_otherTlvs == rhs.m_otherTlvs;
 }
 
 std::ostream&
