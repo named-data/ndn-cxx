@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -34,24 +34,30 @@ BOOST_AUTO_TEST_CASE(FieldAccess)
 {
   Packet packet;
 
+  BOOST_CHECK(packet.empty());
   BOOST_CHECK(!packet.has<FragIndexField>());
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
-  BOOST_CHECK_NO_THROW(packet.set<FragIndexField>(1234));
+
+  packet.set<FragIndexField>(1234);
+  BOOST_CHECK(!packet.empty());
   BOOST_CHECK(packet.has<FragIndexField>());
   BOOST_CHECK_THROW(packet.add<FragIndexField>(5678), std::length_error);
   BOOST_CHECK_EQUAL(1, packet.count<FragIndexField>());
   BOOST_CHECK_EQUAL(1234, packet.get<FragIndexField>(0));
   BOOST_CHECK_THROW(packet.get<FragIndexField>(1), std::out_of_range);
   BOOST_CHECK_THROW(packet.remove<FragIndexField>(1), std::out_of_range);
-  BOOST_CHECK_NO_THROW(packet.remove<FragIndexField>(0));
+
+  packet.remove<FragIndexField>(0);
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
-  BOOST_CHECK_NO_THROW(packet.add<FragIndexField>(832));
-  std::vector<uint64_t> fragIndexes;
-  BOOST_REQUIRE_NO_THROW(fragIndexes = packet.list<FragIndexField>());
+
+  packet.add<FragIndexField>(832);
+  std::vector<uint64_t> fragIndexes = packet.list<FragIndexField>();
   BOOST_CHECK_EQUAL(1, fragIndexes.size());
   BOOST_CHECK_EQUAL(832, fragIndexes.at(0));
-  BOOST_CHECK_NO_THROW(packet.clear<FragIndexField>());
+
+  packet.clear<FragIndexField>();
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
+  BOOST_CHECK(packet.empty());
 }
 
 /// \todo test field access methods with a REPEATABLE field

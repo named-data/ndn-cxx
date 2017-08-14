@@ -30,9 +30,9 @@
 
 // NDN_LOG_INIT(ndn.Face) is declared in face-impl.hpp
 
-// A callback scheduled through io.post and io.dispatch may be invoked after the face
-// is destructed. To prevent this situation, these macros captures Face::m_impl as weak_ptr,
-// and skips callback execution if the face has been destructed.
+// A callback scheduled through io.post and io.dispatch may be invoked after the face is destructed.
+// To prevent this situation, use these macros to capture Face::m_impl as weak_ptr and skip callback
+// execution if the face has been destructed.
 #define IO_CAPTURE_WEAK_IMPL(OP) \
   { \
     weak_ptr<Impl> implWeak(m_impl); \
@@ -46,53 +46,63 @@
 
 namespace ndn {
 
+Face::OversizedPacketError::OversizedPacketError(char pktType, const Name& name, size_t wireSize)
+  : Error((pktType == 'I' ? "Interest " : pktType == 'D' ? "Data " : "Nack ") +
+          name.toUri() + " encodes into " + to_string(wireSize) + " octets, "
+          "exceeding the implementation limit of " + to_string(MAX_NDN_PACKET_SIZE) + " octets")
+  , pktType(pktType)
+  , name(name)
+  , wireSize(wireSize)
+{
+}
+
 Face::Face(shared_ptr<Transport> transport)
-  : m_internalIoService(new boost::asio::io_service())
+  : m_internalIoService(make_unique<boost::asio::io_service>())
   , m_ioService(*m_internalIoService)
-  , m_internalKeyChain(new KeyChain())
+  , m_internalKeyChain(make_unique<KeyChain>())
   , m_impl(make_shared<Impl>(*this))
 {
-  construct(transport, *m_internalKeyChain);
+  construct(std::move(transport), *m_internalKeyChain);
 }
 
 Face::Face(boost::asio::io_service& ioService)
   : m_ioService(ioService)
-  , m_internalKeyChain(new KeyChain())
+  , m_internalKeyChain(make_unique<KeyChain>())
   , m_impl(make_shared<Impl>(*this))
 {
   construct(nullptr, *m_internalKeyChain);
 }
 
 Face::Face(const std::string& host, const std::string& port)
-  : m_internalIoService(new boost::asio::io_service())
+  : m_internalIoService(make_unique<boost::asio::io_service>())
   , m_ioService(*m_internalIoService)
-  , m_internalKeyChain(new KeyChain())
+  , m_internalKeyChain(make_unique<KeyChain>())
   , m_impl(make_shared<Impl>(*this))
 {
   construct(make_shared<TcpTransport>(host, port), *m_internalKeyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
-  : m_internalIoService(new boost::asio::io_service())
+  : m_internalIoService(make_unique<boost::asio::io_service>())
   , m_ioService(*m_internalIoService)
   , m_impl(make_shared<Impl>(*this))
 {
-  construct(transport, keyChain);
+  construct(std::move(transport), keyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService)
   : m_ioService(ioService)
-  , m_internalKeyChain(new KeyChain())
+  , m_internalKeyChain(make_unique<KeyChain>())
   , m_impl(make_shared<Impl>(*this))
 {
-  construct(transport, *m_internalKeyChain);
+  construct(std::move(transport), *m_internalKeyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain)
   : m_ioService(ioService)
   , m_impl(make_shared<Impl>(*this))
 {
-  construct(transport, keyChain);
+  construct(std::move(transport), keyChain);
 }
 
 shared_ptr<Transport>
@@ -147,9 +157,9 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
     transport = makeDefaultTransport();
   }
   BOOST_ASSERT(transport != nullptr);
-  m_transport = transport;
+  m_transport = std::move(transport);
 
-  m_nfdController.reset(new nfd::Controller(*this, keyChain));
+  m_nfdController = make_unique<nfd::Controller>(*this, keyChain);
 
   IO_CAPTURE_WEAK_IMPL(post) {
     impl->ensureConnected(false);
@@ -170,20 +180,15 @@ Face::expressInterest(const Interest& interest,
                       const NackCallback& afterNacked,
                       const TimeoutCallback& afterTimeout)
 {
-  shared_ptr<Interest> interestToExpress = make_shared<Interest>(interest);
+  shared_ptr<Interest> interest2 = make_shared<Interest>(interest);
+  interest2->getNonce();
+  NDN_LOG_DEBUG("<I " << *interest2);
 
-  // Use `interestToExpress` to avoid wire format creation for the original Interest
-  if (interestToExpress->wireEncode().size() > MAX_NDN_PACKET_SIZE) {
-    BOOST_THROW_EXCEPTION(Error("Interest size exceeds maximum limit"));
-  }
-  NDN_LOG_DEBUG("<I " << *interestToExpress); // interestToExpress is guaranteed to have nonce
-
-  // If the same ioService thread, dispatch directly calls the method
   IO_CAPTURE_WEAK_IMPL(dispatch) {
-    impl->asyncExpressInterest(interestToExpress, afterSatisfied, afterNacked, afterTimeout);
+    impl->asyncExpressInterest(interest2, afterSatisfied, afterNacked, afterTimeout);
   } IO_CAPTURE_WEAK_IMPL_END
 
-  return reinterpret_cast<const PendingInterestId*>(interestToExpress.get());
+  return reinterpret_cast<const PendingInterestId*>(interest2.get());
 }
 
 void
@@ -209,60 +214,20 @@ Face::getNPendingInterests() const
 }
 
 void
-Face::put(const Data& data)
+Face::put(Data data)
 {
-  Block wire = data.wireEncode();
-
-  lp::Packet packet;
-  bool hasLpFields = false;
-
-  shared_ptr<lp::CachePolicyTag> cachePolicyTag = data.getTag<lp::CachePolicyTag>();
-  if (cachePolicyTag != nullptr) {
-    packet.add<lp::CachePolicyField>(*cachePolicyTag);
-    hasLpFields = true;
-  }
-
-  shared_ptr<lp::CongestionMarkTag> congestionMarkTag = data.getTag<lp::CongestionMarkTag>();
-  if (congestionMarkTag != nullptr) {
-    packet.add<lp::CongestionMarkField>(*congestionMarkTag);
-    hasLpFields = true;
-  }
-
-  if (hasLpFields) {
-    packet.add<lp::FragmentField>(std::make_pair(wire.begin(), wire.end()));
-    wire = packet.wireEncode();
-  }
-
-  if (wire.size() > MAX_NDN_PACKET_SIZE)
-    BOOST_THROW_EXCEPTION(Error("Data size exceeds maximum limit"));
-
   NDN_LOG_DEBUG("<D " << data.getName());
   IO_CAPTURE_WEAK_IMPL(dispatch) {
-    impl->asyncSend(wire);
+    impl->asyncPutData(data);
   } IO_CAPTURE_WEAK_IMPL_END
 }
 
 void
-Face::put(const lp::Nack& nack)
+Face::put(lp::Nack nack)
 {
-  lp::Packet packet;
-  packet.add<lp::NackField>(nack.getHeader());
-  const Block& interestWire = nack.getInterest().wireEncode();
-  packet.add<lp::FragmentField>(std::make_pair(interestWire.begin(), interestWire.end()));
-
-  shared_ptr<lp::CongestionMarkTag> congestionMarkTag = nack.getTag<lp::CongestionMarkTag>();
-  if (congestionMarkTag != nullptr) {
-    packet.add<lp::CongestionMarkField>(*congestionMarkTag);
-  }
-
-  Block wire = packet.wireEncode();
-
-  if (wire.size() > MAX_NDN_PACKET_SIZE)
-    BOOST_THROW_EXCEPTION(Error("Nack size exceeds maximum limit"));
-
   NDN_LOG_DEBUG("<N " << nack.getInterest() << '~' << nack.getHeader().getReason());
   IO_CAPTURE_WEAK_IMPL(dispatch) {
-    impl->asyncSend(wire);
+    impl->asyncPutNack(nack);
   } IO_CAPTURE_WEAK_IMPL_END
 }
 

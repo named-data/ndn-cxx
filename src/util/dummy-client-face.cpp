@@ -20,6 +20,7 @@
  */
 
 #include "dummy-client-face.hpp"
+#include "../detail/lp-field-tag.hpp"
 #include "../lp/packet.hpp"
 #include "../lp/tags.hpp"
 #include "../mgmt/nfd/controller.hpp"
@@ -215,16 +216,6 @@ DummyClientFace::enableRegistrationReply()
 
     this->getIoService().post([this, data] { this->receive(*data); });
   });
-}
-
-template<typename Field, typename Tag, typename Packet>
-static void
-addFieldFromTag(lp::Packet& lpPacket, const Packet& packet)
-{
-  shared_ptr<Tag> tag = static_cast<const TagHost&>(packet).getTag<Tag>();
-  if (tag != nullptr) {
-    lpPacket.add<Field>(*tag);
-  }
 }
 
 void

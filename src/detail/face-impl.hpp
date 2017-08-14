@@ -24,6 +24,7 @@
 
 #include "../face.hpp"
 #include "container-with-on-empty-signal.hpp"
+#include "lp-field-tag.hpp"
 #include "pending-interest.hpp"
 #include "registered-prefix.hpp"
 #include "../lp/packet.hpp"
@@ -53,15 +54,14 @@ NDN_LOG_INIT(ndn.Face);
 
 namespace ndn {
 
-/**
- * @brief implementation detail of Face
+/** @brief implementation detail of Face
  */
 class Face::Impl : noncopyable
 {
 public:
-  typedef ContainerWithOnEmptySignal<shared_ptr<PendingInterest>> PendingInterestTable;
-  typedef std::list<shared_ptr<InterestFilterRecord>> InterestFilterTable;
-  typedef ContainerWithOnEmptySignal<shared_ptr<RegisteredPrefix>> RegisteredPrefixTable;
+  using PendingInterestTable = ContainerWithOnEmptySignal<shared_ptr<PendingInterest>>;
+  using InterestFilterTable = std::list<shared_ptr<InterestFilterRecord>>;
+  using RegisteredPrefixTable = ContainerWithOnEmptySignal<shared_ptr<RegisteredPrefix>>;
 
   explicit
   Impl(Face& face)
@@ -94,22 +94,12 @@ public: // consumer
       interest, afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
     (*entry)->setDeleter([this, entry] { m_pendingInterestTable.erase(entry); });
 
-    lp::Packet packet;
+    lp::Packet lpPacket;
+    addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, *interest);
+    addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, *interest);
 
-    shared_ptr<lp::NextHopFaceIdTag> nextHopFaceIdTag = interest->getTag<lp::NextHopFaceIdTag>();
-    if (nextHopFaceIdTag != nullptr) {
-      packet.add<lp::NextHopFaceIdField>(*nextHopFaceIdTag);
-    }
-
-    shared_ptr<lp::CongestionMarkTag> congestionMarkTag = interest->getTag<lp::CongestionMarkTag>();
-    if (congestionMarkTag != nullptr) {
-      packet.add<lp::CongestionMarkField>(*congestionMarkTag);
-    }
-
-    packet.add<lp::FragmentField>(std::make_pair(interest->wireEncode().begin(),
-                                                 interest->wireEncode().end()));
-
-    m_face.m_transport->send(packet.wireEncode());
+    m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest->wireEncode(),
+                                            'I', interest->getName()));
   }
 
   void
@@ -189,10 +179,30 @@ public: // producer
   }
 
   void
-  asyncSend(const Block& wire)
+  asyncPutData(const Data& data)
   {
     this->ensureConnected(true);
-    m_face.m_transport->send(wire);
+
+    lp::Packet lpPacket;
+    addFieldFromTag<lp::CachePolicyField, lp::CachePolicyTag>(lpPacket, data);
+    addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, data);
+
+    m_face.m_transport->send(finishEncoding(std::move(lpPacket), data.wireEncode(),
+                                            'D', data.getName()));
+  }
+
+  void
+  asyncPutNack(const lp::Nack& nack)
+  {
+    this->ensureConnected(true);
+
+    lp::Packet lpPacket;
+    lpPacket.add<lp::NackField>(nack.getHeader());
+    addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
+
+    const Interest& interest = nack.getInterest();
+    m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest.wireEncode(),
+                                            'N', interest.getName()));
   }
 
 public: // prefix registration
@@ -312,6 +322,30 @@ public: // IO routine
         m_processEventsTimeoutEvent.cancel();
       }
     }
+  }
+
+private:
+  /** @brief Finish packet encoding
+   *  @param lpPacket NDNLP packet without FragmentField
+   *  @param wire wire encoding of Interest or Data
+   *  @param pktType packet type, 'I' for Interest, 'D' for Data, 'N' for Nack
+   *  @param name packet name
+   *  @return wire encoding of either NDNLP or bare network packet
+   *  @throw Face::OversizedPacketError wire encoding exceeds limit
+   */
+  Block
+  finishEncoding(lp::Packet&& lpPacket, Block wire, char pktType, const Name& name)
+  {
+    if (!lpPacket.empty()) {
+      lpPacket.add<lp::FragmentField>(std::make_pair(wire.begin(), wire.end()));
+      wire = lpPacket.wireEncode();
+    }
+
+    if (wire.size() > MAX_NDN_PACKET_SIZE) {
+      BOOST_THROW_EXCEPTION(Face::OversizedPacketError(pktType, name, wire.size()));
+    }
+
+    return wire;
   }
 
 private:

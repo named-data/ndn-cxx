@@ -150,9 +150,7 @@ BOOST_AUTO_TEST_CASE(Unix)
                        bind(&FacesFixture::onData, this),
                        bind(&FacesFixture::onNack, this),
                        bind(&FacesFixture::onTimeout, this));
-
-  BOOST_REQUIRE_NO_THROW(face.processEvents());
-
+  face.processEvents();
   BOOST_CHECK_EQUAL(nData, 1);
   BOOST_CHECK_EQUAL(nNacks, 0);
   BOOST_CHECK_EQUAL(nTimeouts, 0);
@@ -162,25 +160,29 @@ BOOST_AUTO_TEST_CASE(Unix)
                        bind(&FacesFixture::onData, this),
                        bind(&FacesFixture::onNack, this),
                        bind(&FacesFixture::onTimeout, this));
+  face.processEvents();
+  BOOST_CHECK_EQUAL(nData, 1);
+  BOOST_CHECK_EQUAL(nNacks, 0);
+  BOOST_CHECK_EQUAL(nTimeouts, 1);
 
   Name veryLongName;
   for (size_t i = 0; i <= MAX_NDN_PACKET_SIZE / 10; i++) {
     veryLongName.append("0123456789");
   }
 
-  BOOST_CHECK_THROW(face.expressInterest(Interest(veryLongName), nullptr, nullptr, nullptr),
-                    Face::Error);
+  BOOST_CHECK_THROW(do {
+    face.expressInterest(Interest(veryLongName), nullptr, nullptr, nullptr);
+    face.processEvents();
+  } while (false), Face::OversizedPacketError);
 
   shared_ptr<Data> data = make_shared<Data>(veryLongName);
   data->setContent(reinterpret_cast<const uint8_t*>("01234567890"), 10);
   m_keyChain.sign(*data);
-  BOOST_CHECK_THROW(face.put(*data), Face::Error);
+  BOOST_CHECK_THROW(do {
+    face.put(*data);
+    face.processEvents();
+  } while (false), Face::OversizedPacketError);
 
-  BOOST_REQUIRE_NO_THROW(face.processEvents());
-
-  BOOST_CHECK_EQUAL(nData, 1);
-  BOOST_CHECK_EQUAL(nNacks, 0);
-  BOOST_CHECK_EQUAL(nTimeouts, 1);
 }
 
 BOOST_AUTO_TEST_CASE(Tcp)

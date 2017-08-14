@@ -22,16 +22,14 @@
 #ifndef NDN_FACE_HPP
 #define NDN_FACE_HPP
 
-#include "common.hpp"
-
+#include "data.hpp"
 #include "name.hpp"
 #include "interest.hpp"
 #include "interest-filter.hpp"
-#include "data.hpp"
 #include "encoding/nfd-constants.hpp"
 #include "lp/nack.hpp"
-#include "security/signing-info.hpp"
 #include "security/key-chain.hpp"
+#include "security/signing-info.hpp"
 
 namespace boost {
 namespace asio {
@@ -107,6 +105,26 @@ public:
     }
   };
 
+  /**
+   * @brief Exception thrown when attempting to send a packet over size limit
+   */
+  class OversizedPacketError : public Error
+  {
+  public:
+    /**
+     * @brief Constructor
+     * @param pktType packet type, 'I' for Interest, 'D' for Data, 'N' for Nack
+     * @param name packet name
+     * @param wireSize wire encoding size
+     */
+    OversizedPacketError(char pktType, const Name& name, size_t wireSize);
+
+  public:
+    const char pktType;
+    const Name name;
+    const size_t wireSize;
+  };
+
 public: // constructors
   /**
    * @brief Create Face using given transport (or default transport if omitted)
@@ -115,7 +133,7 @@ public: // constructors
    *                  determined from a FaceUri in NDN_CLIENT_TRANSPORT environ,
    *                  a FaceUri in configuration file 'transport' key, or UnixTransport.
    *
-   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   * @throw ConfigFile::Error @p transport is nullptr, and the configuration file cannot be
    *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
@@ -170,7 +188,7 @@ public: // constructors
    *
    * @sa Face(shared_ptr<Transport>)
    *
-   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   * @throw ConfigFile::Error @p transport is nullptr, and the configuration file cannot be
    *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
@@ -185,7 +203,7 @@ public: // constructors
    * @sa Face(boost::asio::io_service&)
    * @sa Face(shared_ptr<Transport>)
    *
-   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   * @throw ConfigFile::Error @p transport is nullptr, and the configuration file cannot be
    *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
@@ -201,7 +219,7 @@ public: // constructors
    * @sa Face(boost::asio::io_service&)
    * @sa Face(shared_ptr<Transport>, KeyChain&)
    *
-   * @throw ConfigFile::Error if @p transport is nullptr, and the configuration file cannot be
+   * @throw ConfigFile::Error @p transport is nullptr, and the configuration file cannot be
    *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
@@ -219,6 +237,7 @@ public: // consumer
    * @param afterNacked function to be invoked if Network NACK is returned
    * @param afterTimeout function to be invoked if neither Data nor Network NACK
    *                     is returned within InterestLifetime
+   * @throw OversizedPacketError encoded Interest size exceeds MAX_NDN_PACKET_SIZE
    */
   const PendingInterestId*
   expressInterest(const Interest& interest,
@@ -387,29 +406,27 @@ public: // producer
                    const UnregisterPrefixSuccessCallback& onSuccess,
                    const UnregisterPrefixFailureCallback& onFailure);
 
-   /**
+  /**
    * @brief Publish data packet
+   * @param data the Data; a copy will be made, so that the caller is not required to
+   *             maintain the argument unchanged
    *
-   * This method can be called to satisfy the incoming Interest or to put Data packet into
-   * the cache of the local NDN forwarder.
+   * This method can be called to satisfy incoming Interests, or to add Data packet into the cache
+   * of the local NDN forwarder if forwarder is configured to accept unsolicited Data.
    *
-   * @param data Data packet to publish.  It is highly recommended to use Data packet that
-   *             was created using make_shared<Data>(...).  Otherwise, put() will make an
-   *             extra copy of the Data packet to ensure validity of published Data until
-   *             asynchronous put() operation finishes.
-   *
-   * @throw Error when Data size exceeds maximum limit (MAX_NDN_PACKET_SIZE)
+   * @throw OversizedPacketError encoded Data size exceeds MAX_NDN_PACKET_SIZE
    */
   void
-  put(const Data& data);
+  put(Data data);
 
   /**
-   * @brief sends a Network NACK
+   * @brief Send a network NACK
    * @param nack the Nack; a copy will be made, so that the caller is not required to
    *             maintain the argument unchanged
+   * @throw OversizedPacketError encoded Nack size exceeds MAX_NDN_PACKET_SIZE
    */
   void
-  put(const lp::Nack& nack);
+  put(lp::Nack nack);
 
 public: // IO routine
   /**
@@ -429,9 +446,11 @@ public: // IO routine
    * @param keepThread  Keep thread in a blocked state (in event processing), even when
    *                    there are no outstanding events (e.g., no Interest/Data is expected)
    *
-   * @throw This may throw an exception for reading data or in the callback for processing
+   * @note This may throw an exception for reading data or in the callback for processing
    * the data.  If you call this from an main event loop, you may want to catch and
    * log/disregard all exceptions.
+   *
+   * @throw OversizedPacketError encoded packet size exceeds MAX_NDN_PACKET_SIZE
    */
   void
   processEvents(time::milliseconds timeout = time::milliseconds::zero(),

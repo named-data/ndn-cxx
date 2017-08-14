@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -57,6 +57,16 @@ public:
    */
   void
   wireDecode(const Block& wire);
+
+  /**
+   * \retval true packet has no field
+   * \retval false packet has one or more fields
+   */
+  bool
+  empty() const
+  {
+    return m_wire.elements_size() == 0;
+  }
 
 public: // field access
   /**
