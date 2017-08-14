@@ -20,15 +20,15 @@
  */
 
 #include "util/segment-fetcher.hpp"
-#include "lp/nack-header.hpp"
 #include "data.hpp"
 #include "encoding/block.hpp"
+#include "lp/nack-header.hpp"
+#include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
-#include "util/dummy-client-face.hpp"
+#include "dummy-validator.hpp"
+#include "make-interest-data.hpp"
 #include "../identity-management-time-fixture.hpp"
-#include "../make-interest-data.hpp"
-#include "../../dummy-validator.hpp"
 
 namespace ndn {
 namespace util {

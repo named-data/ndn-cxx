@@ -13,10 +13,10 @@ def build(bld):
         use='ndn-cxx BOOST',
         includes='.')
 
-    # core modules that can be shared between unit and integrated tests
+    # core objects that can be shared between unit and integrated tests
     bld(features="cxx",
         target="boost-tests-base",
-        source="identity-management-fixture.cpp",
+        source=bld.path.ant_glob(['*.cpp'], excl=['main.cpp']),
         use='ndn-cxx tests-base BOOST',
         includes='.',
         install_path=None)

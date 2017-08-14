@@ -21,12 +21,12 @@
 
 #include "interest-filter.hpp"
 #include "data.hpp"
+#include "encoding/buffer-stream.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
 #include "security/digest-sha256.hpp"
-#include "encoding/buffer-stream.hpp"
+#include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
 
 namespace ndn {
 namespace tests {
@@ -50,6 +50,15 @@ BOOST_AUTO_TEST_CASE(Matching)
   BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>*").doesMatch("/a/b"), true);
   BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>+").doesMatch("/a/b"), false);
   BOOST_CHECK_EQUAL(InterestFilter("/a", "<b><>+").doesMatch("/a/b/c"), true);
+}
+
+BOOST_AUTO_TEST_CASE(RegexConvertToName)
+{
+  util::DummyClientFace face;
+  face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
+    [] (const Name&, const Interest&) { BOOST_ERROR("unexpected Interest"); });
+  face.processEvents(time::milliseconds(1));
+  BOOST_CHECK_THROW(face.receive(Interest("/Hello/World/a/b/c")), InterestFilter::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestInterestFilter

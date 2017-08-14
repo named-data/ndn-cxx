@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -20,21 +20,18 @@
  */
 
 #include "security/validator-config.hpp"
-
 #include "security/signing-helpers.hpp"
+#include "util/dummy-client-face.hpp"
 #include "util/io.hpp"
 #include "util/scheduler.hpp"
-#include "util/dummy-client-face.hpp"
-#include "lp/tags.hpp"
 #include "lp/nack.hpp"
+#include "lp/tags.hpp"
 
-#include <boost/asio.hpp>
-#include <boost/logic/tribool.hpp>
-
-#include "identity-management-fixture.hpp"
-#include "../identity-management-time-fixture.hpp"
-#include "../make-interest-data.hpp"
 #include "boost-test.hpp"
+#include "make-interest-data.hpp"
+#include "../identity-management-time-fixture.hpp"
+
+#include <boost/logic/tribool.hpp>
 
 namespace ndn {
 namespace security {

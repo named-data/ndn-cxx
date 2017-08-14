@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2014-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
@@ -26,12 +26,12 @@
  */
 
 #include "util/notification-subscriber.hpp"
-#include "simple-notification.hpp"
 #include "util/dummy-client-face.hpp"
 
-#include "../identity-management-time-fixture.hpp"
-#include "../make-interest-data.hpp"
 #include "boost-test.hpp"
+#include "make-interest-data.hpp"
+#include "simple-notification.hpp"
+#include "../identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace util {

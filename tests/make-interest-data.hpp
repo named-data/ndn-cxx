@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_MAKE_INTEREST_DATA_HPP
-#define NDN_TESTS_UNIT_TESTS_MAKE_INTEREST_DATA_HPP
+#ifndef NDN_TESTS_MAKE_INTEREST_DATA_HPP
+#define NDN_TESTS_MAKE_INTEREST_DATA_HPP
 
 #include "interest.hpp"
 #include "data.hpp"
@@ -101,4 +101,4 @@ setNameComponent(PKT& pkt, ssize_t index, const A& ...a)
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TESTS_MAKE_INTEREST_DATA_HPP
+#endif // NDN_TESTS_MAKE_INTEREST_DATA_HPP

@@ -24,9 +24,8 @@
 #include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
+#include "make-interest-data.hpp"
 #include "../identity-management-time-fixture.hpp"
-#include "../make-interest-data.hpp"
 
 namespace ndn {
 namespace mgmt {

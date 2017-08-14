@@ -22,7 +22,7 @@
 #include "ims/in-memory-storage-fifo.hpp"
 
 #include "boost-test.hpp"
-#include "../make-interest-data.hpp"
+#include "make-interest-data.hpp"
 
 namespace ndn {
 namespace tests {

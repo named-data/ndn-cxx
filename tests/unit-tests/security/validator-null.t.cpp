@@ -23,7 +23,7 @@
 
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
-#include "../make-interest-data.hpp"
+#include "make-interest-data.hpp"
 
 namespace ndn {
 namespace security {
