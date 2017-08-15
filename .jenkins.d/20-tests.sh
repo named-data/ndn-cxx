@@ -31,7 +31,6 @@ ut_log_args() {
 }
 
 ASAN_OPTIONS="color=always"
-ASAN_OPTIONS+=":detect_leaks=false"
 ASAN_OPTIONS+=":detect_stack_use_after_return=true"
 ASAN_OPTIONS+=":check_initialization_order=true"
 ASAN_OPTIONS+=":strict_init_order=true"
