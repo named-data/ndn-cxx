@@ -33,7 +33,6 @@ Required:
 
 -  ``python`` >= 2.6
 -  ``libsqlite3``
--  ``libcrypto++``
 -  OpenSSL >= 1.0.1
 -  ``pkg-config``
 -  Boost libraries >= 1.54
@@ -50,13 +49,13 @@ development tools and libraries, and ndn-cxx prerequisites.
 
        In a terminal, enter::
 
-           sudo port install pkgconfig boost sqlite3 libcryptopp openssl
+           sudo port install pkgconfig boost sqlite3 openssl
 
    * When using Homebrew
 
        In a terminal, enter::
 
-           brew install boost pkg-config cryptopp openssl
+           brew install boost openssl pkg-config
 
    .. note::
 
@@ -67,14 +66,14 @@ development tools and libraries, and ndn-cxx prerequisites.
 
     In a terminal, enter::
 
-        sudo apt-get install build-essential libcrypto++-dev libsqlite3-dev libboost-all-dev libssl-dev
+        sudo apt-get install build-essential libsqlite3-dev libboost-all-dev libssl-dev
 
 - Fedora
 
     In a terminal, enter::
 
         sudo yum install gcc-g++ git
-        sudo yum install sqlite-devel cryptopp-devel boost-devel openssl-devel
+        sudo yum install sqlite-devel boost-devel openssl-devel
 
 Optional:
 ~~~~~~~~~
