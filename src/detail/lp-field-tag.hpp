@@ -37,6 +37,15 @@ addFieldFromTag(lp::Packet& lpPacket, const Packet& packet)
   }
 }
 
+template<typename Tag, typename Field, typename Packet>
+void
+addTagFromField(Packet& packet, const lp::Packet& lpPacket)
+{
+  if (lpPacket.has<Field>()) {
+    packet.setTag(make_shared<Tag>(lpPacket.get<Field>()));
+  }
+}
+
 } // namespace ndn
 
 #endif // NDN_DETAIL_LP_FIELD_TAG_HPP

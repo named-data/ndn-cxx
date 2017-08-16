@@ -376,13 +376,8 @@ template<typename NetPkt>
 static void
 extractLpLocalFields(NetPkt& netPacket, const lp::Packet& lpPacket)
 {
-  if (lpPacket.has<lp::IncomingFaceIdField>()) {
-    netPacket.setTag(make_shared<lp::IncomingFaceIdTag>(lpPacket.get<lp::IncomingFaceIdField>()));
-  }
-
-  if (lpPacket.has<lp::CongestionMarkField>()) {
-    netPacket.setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
-  }
+  addTagFromField<lp::IncomingFaceIdTag, lp::IncomingFaceIdField>(netPacket, lpPacket);
+  addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(netPacket, lpPacket);
 }
 
 void

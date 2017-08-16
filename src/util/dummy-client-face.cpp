@@ -135,34 +135,19 @@ DummyClientFace::construct(const Options& options)
       if (lpPacket.has<lp::NackField>()) {
         shared_ptr<lp::Nack> nack = make_shared<lp::Nack>(std::move(*interest));
         nack->setHeader(lpPacket.get<lp::NackField>());
-        if (lpPacket.has<lp::NextHopFaceIdField>()) {
-          nack->setTag(make_shared<lp::NextHopFaceIdTag>(lpPacket.get<lp::NextHopFaceIdField>()));
-        }
-        if (lpPacket.has<lp::CongestionMarkField>()) {
-          nack->setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
-        }
+        addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(*nack, lpPacket);
         onSendNack(*nack);
       }
       else {
-        if (lpPacket.has<lp::NextHopFaceIdField>()) {
-          interest->setTag(make_shared<lp::NextHopFaceIdTag>(lpPacket.get<lp::NextHopFaceIdField>()));
-        }
-        if (lpPacket.has<lp::CongestionMarkField>()) {
-          interest->setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
-        }
+        addTagFromField<lp::NextHopFaceIdTag, lp::NextHopFaceIdField>(*interest, lpPacket);
+        addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(*interest, lpPacket);
         onSendInterest(*interest);
       }
     }
     else if (block.type() == tlv::Data) {
       shared_ptr<Data> data = make_shared<Data>(block);
-
-      if (lpPacket.has<lp::CachePolicyField>()) {
-        data->setTag(make_shared<lp::CachePolicyTag>(lpPacket.get<lp::CachePolicyField>()));
-      }
-      if (lpPacket.has<lp::CongestionMarkField>()) {
-        data->setTag(make_shared<lp::CongestionMarkTag>(lpPacket.get<lp::CongestionMarkField>()));
-      }
-
+      addTagFromField<lp::CachePolicyTag, lp::CachePolicyField>(*data, lpPacket);
+      addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(*data, lpPacket);
       onSendData(*data);
     }
   });
