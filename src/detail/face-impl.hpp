@@ -90,16 +90,17 @@ public: // consumer
   {
     this->ensureConnected(true);
 
+    const Interest& interest2 = *interest;
     auto entry = m_pendingInterestTable.insert(make_shared<PendingInterest>(
-      interest, afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
+      std::move(interest), afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
     (*entry)->setDeleter([this, entry] { m_pendingInterestTable.erase(entry); });
 
     lp::Packet lpPacket;
-    addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, *interest);
-    addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, *interest);
+    addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest2);
+    addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, interest2);
 
-    m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest->wireEncode(),
-                                            'I', interest->getName()));
+    m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest2.wireEncode(),
+                                            'I', interest2.getName()));
   }
 
   void
@@ -114,37 +115,62 @@ public: // consumer
     m_pendingInterestTable.clear();
   }
 
-  void
+  /** @return whether the Data should be sent to the forwarder, if it does not come from the forwarder
+   */
+  bool
   satisfyPendingInterests(const Data& data)
   {
+    bool hasAppMatch = false, hasForwarderMatch = false;
     for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
-      if ((*entry)->getInterest()->matchesData(data)) {
-        shared_ptr<PendingInterest> matchedEntry = *entry;
-        NDN_LOG_DEBUG("   satisfying " << *matchedEntry->getInterest());
-        entry = m_pendingInterestTable.erase(entry);
+      if (!(*entry)->getInterest()->matchesData(data)) {
+        ++entry;
+        continue;
+      }
+
+      shared_ptr<PendingInterest> matchedEntry = *entry;
+      NDN_LOG_DEBUG("   satisfying " << *matchedEntry->getInterest() <<
+                    " from " << matchedEntry->getOrigin());
+      entry = m_pendingInterestTable.erase(entry);
+
+      if (matchedEntry->getOrigin() == PendingInterestOrigin::APP) {
+        hasAppMatch = true;
         matchedEntry->invokeDataCallback(data);
       }
       else {
-        ++entry;
+        hasForwarderMatch = true;
       }
     }
+    // if Data matches no pending Interest record, it is sent to the forwarder as unsolicited Data
+    return hasForwarderMatch || !hasAppMatch;
   }
 
-  void
+  /** @return whether the Nack should be sent to the forwarder, if it does not come from the forwarder
+   */
+  bool
   nackPendingInterests(const lp::Nack& nack)
   {
+    bool shouldSendToForwarder = false;
     for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
-      const Interest& pendingInterest = *(*entry)->getInterest();
-      if (nack.getInterest().matchesInterest(pendingInterest)) {
-        shared_ptr<PendingInterest> matchedEntry = *entry;
-        NDN_LOG_DEBUG("   nacking " << *matchedEntry->getInterest());
-        entry = m_pendingInterestTable.erase(entry);
+      if (!nack.getInterest().matchesInterest(*(*entry)->getInterest())) {
+        ++entry;
+        continue;
+      }
+
+      shared_ptr<PendingInterest> matchedEntry = *entry;
+      NDN_LOG_DEBUG("   nacking " << *matchedEntry->getInterest() <<
+                    " from " << matchedEntry->getOrigin());
+      entry = m_pendingInterestTable.erase(entry);
+
+      // TODO #4228 record Nack on PendingInterest record, and send Nack only if all InterestFilters have Nacked
+
+      if (matchedEntry->getOrigin() == PendingInterestOrigin::APP) {
         matchedEntry->invokeNackCallback(nack);
       }
       else {
-        ++entry;
+        shouldSendToForwarder = true;
       }
     }
+    return shouldSendToForwarder;
   }
 
 public: // producer
@@ -168,12 +194,18 @@ public: // producer
   }
 
   void
-  processInterestFilters(const Interest& interest)
+  processIncomingInterest(shared_ptr<const Interest> interest)
   {
+    const Interest& interest2 = *interest;
+    auto entry = m_pendingInterestTable.insert(make_shared<PendingInterest>(
+      std::move(interest), ref(m_scheduler))).first;
+    (*entry)->setDeleter([this, entry] { m_pendingInterestTable.erase(entry); });
+
     for (const auto& filter : m_interestFilterTable) {
-      if (filter->doesMatch(interest.getName())) {
+      if (filter->doesMatch(interest2.getName())) {
         NDN_LOG_DEBUG("   matches " << filter->getFilter());
-        filter->invokeInterestCallback(interest);
+        filter->invokeInterestCallback(interest2);
+        // TODO #4228 record number of matched InterestFilters on PendingInterest record
       }
     }
   }
@@ -181,6 +213,11 @@ public: // producer
   void
   asyncPutData(const Data& data)
   {
+    bool shouldSendToForwarder = satisfyPendingInterests(data);
+    if (!shouldSendToForwarder) {
+      return;
+    }
+
     this->ensureConnected(true);
 
     lp::Packet lpPacket;
@@ -194,6 +231,11 @@ public: // producer
   void
   asyncPutNack(const lp::Nack& nack)
   {
+    bool shouldSendToForwarder = nackPendingInterests(nack);
+    if (!shouldSendToForwarder) {
+      return;
+    }
+
     this->ensureConnected(true);
 
     lp::Packet lpPacket;

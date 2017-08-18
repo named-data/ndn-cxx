@@ -402,7 +402,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
       else {
         extractLpLocalFields(*interest, lpPacket);
         NDN_LOG_DEBUG(">I " << *interest);
-        m_impl->processInterestFilters(*interest);
+        m_impl->processIncomingInterest(std::move(interest));
       }
       break;
     }

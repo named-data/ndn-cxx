@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,23 +22,45 @@
 #ifndef NDN_DETAIL_PENDING_INTEREST_HPP
 #define NDN_DETAIL_PENDING_INTEREST_HPP
 
-#include "../interest.hpp"
 #include "../data.hpp"
+#include "../interest.hpp"
 #include "../lp/nack.hpp"
 #include "../util/scheduler-scoped-event-id.hpp"
 
 namespace ndn {
 
 /**
- * @brief stores a pending Interest and associated callbacks
+ * @brief Indicates where a pending Interest came from
+ */
+enum class PendingInterestOrigin
+{
+  APP, ///< Interest was received from this app via Face::expressInterest API
+  FORWARDER ///< Interest was received from the forwarder via Transport
+};
+
+std::ostream&
+operator<<(std::ostream& os, PendingInterestOrigin origin)
+{
+  switch (origin) {
+    case PendingInterestOrigin::APP:
+      return os << "app";
+    case PendingInterestOrigin::FORWARDER:
+      return os << "forwarder";
+  }
+  BOOST_ASSERT(false);
+  return os;
+}
+
+/**
+ * @brief Stores a pending Interest and associated callbacks
  */
 class PendingInterest : noncopyable
 {
 public:
   /**
-   * @brief Construct a pending Interest record
+   * @brief Construct a pending Interest record for an Interest from Face::expressInterest
    *
-   * The timeout is set based on the current time and the Interest lifetime.
+   * The timeout is set based on the current time and InterestLifetime.
    * This class will invoke the timeout callback unless the record is deleted before timeout.
    *
    * @param interest the Interest
@@ -52,21 +74,32 @@ public:
                   const NackCallback& nackCallback,
                   const TimeoutCallback& timeoutCallback,
                   Scheduler& scheduler)
-    : m_interest(interest)
+    : m_interest(std::move(interest))
+    , m_origin(PendingInterestOrigin::APP)
     , m_dataCallback(dataCallback)
     , m_nackCallback(nackCallback)
     , m_timeoutCallback(timeoutCallback)
     , m_timeoutEvent(scheduler)
   {
-    m_timeoutEvent =
-      scheduler.scheduleEvent(m_interest->getInterestLifetime() > time::milliseconds::zero() ?
-                              m_interest->getInterestLifetime() :
-                              DEFAULT_INTEREST_LIFETIME,
-                              [=] { this->invokeTimeoutCallback(); });
+    scheduleTimeoutEvent(scheduler);
   }
 
   /**
-   * @return the Interest
+   * @brief Construct a pending Interest record for an Interest from NFD
+   *
+   * @param interest the Interest
+   * @param scheduler Scheduler for scheduling the timeout event
+   */
+  PendingInterest(shared_ptr<const Interest> interest, Scheduler& scheduler)
+    : m_interest(std::move(interest))
+    , m_origin(PendingInterestOrigin::FORWARDER)
+    , m_timeoutEvent(scheduler)
+  {
+    scheduleTimeoutEvent(scheduler);
+  }
+
+  /**
+   * @brief Get the Interest
    */
   shared_ptr<const Interest>
   getInterest() const
@@ -74,8 +107,14 @@ public:
     return m_interest;
   }
 
+  PendingInterestOrigin
+  getOrigin() const
+  {
+    return m_origin;
+  }
+
   /**
-   * @brief invokes the Data callback
+   * @brief Invoke the Data callback
    * @note This method does nothing if the Data callback is empty
    */
   void
@@ -87,7 +126,7 @@ public:
   }
 
   /**
-   * @brief invokes the Nack callback
+   * @brief Invoke the Nack callback
    * @note This method does nothing if the Nack callback is empty
    */
   void
@@ -108,8 +147,15 @@ public:
   }
 
 private:
+  void
+  scheduleTimeoutEvent(Scheduler& scheduler)
+  {
+    m_timeoutEvent = scheduler.scheduleEvent(m_interest->getInterestLifetime(),
+                                             [=] { this->invokeTimeoutCallback(); });
+  }
+
   /**
-   * @brief invokes the timeout callback (if non-empty) and the deleter
+   * @brief Invoke the timeout callback (if non-empty) and the deleter
    */
   void
   invokeTimeoutCallback()
@@ -124,6 +170,7 @@ private:
 
 private:
   shared_ptr<const Interest> m_interest;
+  PendingInterestOrigin m_origin;
   DataCallback m_dataCallback;
   NackCallback m_nackCallback;
   TimeoutCallback m_timeoutCallback;

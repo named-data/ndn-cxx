@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -329,18 +329,26 @@ BOOST_AUTO_TEST_CASE(PutNack)
 {
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0);
 
-  face.put(makeNack(Interest("/Hello/World", time::milliseconds(50)), lp::NackReason::NO_ROUTE));
-
+  face.put(makeNack("/unsolicited", 18645250, lp::NackReason::NO_ROUTE));
   advanceClocks(time::milliseconds(10));
-  BOOST_CHECK_EQUAL(face.sentNacks.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentNacks.size(), 0); // unsolicited Nack would not be sent
 
-  auto nack = makeNack(Interest("/another/prefix", time::milliseconds(50)), lp::NackReason::NO_ROUTE);
+  face.receive(*makeInterest("/Hello/World", 14247162));
+  face.receive(*makeInterest("/another/prefix", 92203002));
+  advanceClocks(time::milliseconds(10));
+
+  face.put(makeNack("/Hello/World", 14247162, lp::NackReason::DUPLICATE));
+  advanceClocks(time::milliseconds(10));
+  BOOST_REQUIRE_EQUAL(face.sentNacks.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentNacks[0].getReason(), lp::NackReason::DUPLICATE);
+  BOOST_CHECK(face.sentNacks[0].getTag<lp::CongestionMarkTag>() == nullptr);
+
+  auto nack = makeNack("/another/prefix", 92203002, lp::NackReason::NO_ROUTE);
   nack.setTag(make_shared<lp::CongestionMarkTag>(1));
   face.put(nack);
-
   advanceClocks(time::milliseconds(10));
   BOOST_REQUIRE_EQUAL(face.sentNacks.size(), 2);
-  BOOST_CHECK(face.sentNacks[0].getTag<lp::CongestionMarkTag>() == nullptr);
+  BOOST_CHECK_EQUAL(face.sentNacks[1].getReason(), lp::NackReason::NO_ROUTE);
   BOOST_CHECK(face.sentNacks[1].getTag<lp::CongestionMarkTag>() != nullptr);
 }
 
