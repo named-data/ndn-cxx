@@ -97,11 +97,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-Interest::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-Interest::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(Interest);
 
 const Block&
 Interest::wireEncode() const

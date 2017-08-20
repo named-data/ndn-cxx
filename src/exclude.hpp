@@ -132,7 +132,7 @@ public: // EqualityComparable concept
   bool
   operator!=(const Exclude& other) const;
 
-public: // interal storage
+public: // internal storage
   /**
    * @brief either a name::Component or "negative infinity"
    */
@@ -292,8 +292,7 @@ private:
   operator<<(std::ostream& os, const Exclude& name);
 };
 
-std::ostream&
-operator<<(std::ostream& os, const Exclude& name);
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Exclude);
 
 bool
 operator==(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b);
@@ -303,6 +302,9 @@ operator>(const Exclude::ExcludeComponent& a, const Exclude::ExcludeComponent& b
 
 std::ostream&
 operator<<(std::ostream& os, const Exclude::Range& range);
+
+std::ostream&
+operator<<(std::ostream& os, const Exclude& name);
 
 inline Exclude::const_iterator
 Exclude::begin() const

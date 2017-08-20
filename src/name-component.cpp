@@ -444,7 +444,6 @@ Component::getSuccessor() const
   return encoder.block();
 }
 
-
 template<encoding::Tag TAG>
 size_t
 Component::wireEncode(EncodingImpl<TAG>& encoder) const
@@ -457,11 +456,7 @@ Component::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-Component::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-Component::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(Component);
 
 const Block&
 Component::wireEncode() const

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -101,6 +101,9 @@ public: // CustomClock<BaseClock>
 private:
   nanoseconds m_currentTime;
 };
+
+extern template class UnitTestClock<system_clock>;
+extern template class UnitTestClock<steady_clock>;
 
 typedef UnitTestClock<system_clock> UnitTestSystemClock;
 typedef UnitTestClock<steady_clock> UnitTestSteadyClock;

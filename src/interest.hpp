@@ -338,6 +338,8 @@ private:
   mutable Block m_wire;
 };
 
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Interest);
+
 std::ostream&
 operator<<(std::ostream& os, const Interest& interest);
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,9 @@
  *
  * @author Zhiyi Zhang <dreamerbarrychang@gmail.com>
  */
+
 #include "safe-bag.hpp"
+#include "encoding/encoding-buffer.hpp"
 #include "encoding/tlv-security.hpp"
 #include "util/concepts.hpp"
 
@@ -74,11 +76,7 @@ SafeBag::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-SafeBag::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-SafeBag::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(SafeBag);
 
 const Block&
 SafeBag::wireEncode() const

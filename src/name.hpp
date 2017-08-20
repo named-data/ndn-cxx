@@ -540,6 +540,8 @@ private:
   mutable Block m_wire;
 };
 
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Name);
+
 inline bool
 operator==(const Name& lhs, const Name& rhs)
 {

@@ -103,6 +103,8 @@ private:
   mutable Block m_wire;
 };
 
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(CachePolicy);
+
 } // namespace lp
 } // namespace ndn
 

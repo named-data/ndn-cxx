@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,18 +61,13 @@ size_t
 NackHeader::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t length = 0;
-  length += prependNonNegativeIntegerBlock(encoder, tlv::NackReason,
-                                           static_cast<uint32_t>(m_reason));
+  length += prependNonNegativeIntegerBlock(encoder, tlv::NackReason, static_cast<uint32_t>(m_reason));
   length += encoder.prependVarNumber(length);
   length += encoder.prependVarNumber(tlv::Nack);
   return length;
 }
 
-template size_t
-NackHeader::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-NackHeader::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(NackHeader);
 
 const Block&
 NackHeader::wireEncode() const

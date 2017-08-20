@@ -241,6 +241,14 @@ private:
   mutable Name m_fullName; ///< cached FullName computed from m_wire
 };
 
+#ifndef DOXYGEN
+extern template size_t
+Data::wireEncode<encoding::EncoderTag>(EncodingBuffer&, bool) const;
+
+extern template size_t
+Data::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, bool) const;
+#endif
+
 std::ostream&
 operator<<(std::ostream& os, const Data& data);
 

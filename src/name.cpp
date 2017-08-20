@@ -140,11 +140,7 @@ Name::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-Name::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-Name::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(Name);
 
 const Block&
 Name::wireEncode() const

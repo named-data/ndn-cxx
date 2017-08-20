@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,14 +37,9 @@ class RegexPatternListMatcher : public RegexMatcher
 public:
   RegexPatternListMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager);
 
-  virtual
-  ~RegexPatternListMatcher()
-  {
-  };
-
 protected:
-  virtual void
-  compile();
+  void
+  compile() override;
 
 private:
   bool
@@ -55,9 +50,6 @@ private:
 
   int
   extractRepetition(size_t index);
-
-private:
-
 };
 
 } // namespace ndn
@@ -192,7 +184,6 @@ RegexPatternListMatcher::extractRepetition(size_t index)
     return index;
   }
 }
-
 
 } // namespace ndn
 

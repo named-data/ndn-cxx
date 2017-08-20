@@ -232,6 +232,14 @@ private:
   friend bool operator==(const DelegationList&, const DelegationList&);
 };
 
+#ifndef DOXYGEN
+extern template size_t
+DelegationList::wireEncode<encoding::EncoderTag>(EncodingBuffer&, uint32_t) const;
+
+extern template size_t
+DelegationList::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, uint32_t) const;
+#endif
+
 /** \brief compare whether two DelegationLists are equal
  *  \note Order matters! If two DelegationLists contain the same Delegations but at least one is
  *        unsorted, they may compare unequal if the Delegations appear in different order.

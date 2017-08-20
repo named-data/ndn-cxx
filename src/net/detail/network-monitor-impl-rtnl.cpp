@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -154,24 +154,24 @@ NetworkMonitorImplRtnl::sendDumpRequest(uint16_t nlmsgType)
 static const char*
 nlmsgTypeToString(uint16_t type)
 {
-#define NDN_NLMSG_STRING(x) case NLMSG_##x: return "<" #x ">"
-#define NDN_RTM_STRING(x) case RTM_##x: return "<" #x ">"
+#define NLMSG_STRINGIFY(x) case NLMSG_##x: return "<" #x ">"
+#define RTM_STRINGIFY(x) case RTM_##x: return "<" #x ">"
   switch (type) {
-    NDN_NLMSG_STRING(NOOP);
-    NDN_NLMSG_STRING(ERROR);
-    NDN_NLMSG_STRING(DONE);
-    NDN_NLMSG_STRING(OVERRUN);
-    NDN_RTM_STRING(NEWLINK);
-    NDN_RTM_STRING(DELLINK);
-    NDN_RTM_STRING(NEWADDR);
-    NDN_RTM_STRING(DELADDR);
-    NDN_RTM_STRING(NEWROUTE);
-    NDN_RTM_STRING(DELROUTE);
+    NLMSG_STRINGIFY(NOOP);
+    NLMSG_STRINGIFY(ERROR);
+    NLMSG_STRINGIFY(DONE);
+    NLMSG_STRINGIFY(OVERRUN);
+    RTM_STRINGIFY(NEWLINK);
+    RTM_STRINGIFY(DELLINK);
+    RTM_STRINGIFY(NEWADDR);
+    RTM_STRINGIFY(DELADDR);
+    RTM_STRINGIFY(NEWROUTE);
+    RTM_STRINGIFY(DELROUTE);
     default:
       return "";
   }
-#undef NDN_NLMSG_STRING
-#undef NDN_RTM_STRING
+#undef NLMSG_STRINGIFY
+#undef RTM_STRINGIFY
 }
 
 static InterfaceType

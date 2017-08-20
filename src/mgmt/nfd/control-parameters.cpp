@@ -92,11 +92,7 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-ControlParameters::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
-
-template size_t
-ControlParameters::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(ControlParameters);
 
 Block
 ControlParameters::wireEncode() const

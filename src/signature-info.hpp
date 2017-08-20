@@ -162,6 +162,8 @@ private:
   operator<<(std::ostream& os, const SignatureInfo& info);
 };
 
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(SignatureInfo);
+
 bool
 operator==(const SignatureInfo& lhs, const SignatureInfo& rhs);
 

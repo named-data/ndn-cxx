@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,11 +22,11 @@
 #ifndef NDN_META_INFO_HPP
 #define NDN_META_INFO_HPP
 
-#include "common.hpp"
 #include "encoding/block.hpp"
 #include "encoding/encoding-buffer.hpp"
-#include "util/time.hpp"
 #include "name-component.hpp"
+#include "util/time.hpp"
+
 #include <list>
 
 namespace ndn {
@@ -198,10 +198,10 @@ private:
   mutable Block m_wire;
 };
 
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(MetaInfo);
+
 std::ostream&
 operator<<(std::ostream& os, const MetaInfo& info);
-
-/////////////////////////////////////////////////////////////////////////
 
 inline uint32_t
 MetaInfo::getType() const

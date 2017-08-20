@@ -84,12 +84,10 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
 }
 
 template size_t
-Data::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder,
-                                       bool wantUnsignedPortionOnly) const;
+Data::wireEncode<encoding::EncoderTag>(EncodingBuffer&, bool) const;
 
 template size_t
-Data::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder,
-                                         bool wantUnsignedPortionOnly) const;
+Data::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, bool) const;
 
 const Block&
 Data::wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const

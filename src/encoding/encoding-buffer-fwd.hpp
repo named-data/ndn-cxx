@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,10 +22,12 @@
 #ifndef NDN_ENCODING_ENCODING_BUFFER_FWD_HPP
 #define NDN_ENCODING_ENCODING_BUFFER_FWD_HPP
 
+#include "../common.hpp"
+
 namespace ndn {
 namespace encoding {
 
-typedef bool Tag;
+using Tag = bool;
 
 /**
  * @brief Tag for EncodingImpl to indicate that Encoder is requested
@@ -44,8 +46,8 @@ static const Tag EstimatorTag = false;
 template<Tag TAG>
 class EncodingImpl;
 
-typedef EncodingImpl<EncoderTag> EncodingBuffer;
-typedef EncodingImpl<EstimatorTag> EncodingEstimator;
+using EncodingBuffer    = EncodingImpl<EncoderTag>;
+using EncodingEstimator = EncodingImpl<EstimatorTag>;
 
 } // namespace encoding
 
@@ -54,5 +56,17 @@ using encoding::EncodingBuffer;
 using encoding::EncodingEstimator;
 
 } // namespace ndn
+
+#define NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(ClassName) \
+  extern template size_t \
+  ClassName::wireEncode<::ndn::encoding::EncoderTag>(::ndn::EncodingBuffer&) const; \
+  extern template size_t \
+  ClassName::wireEncode<::ndn::encoding::EstimatorTag>(::ndn::EncodingEstimator&) const \
+
+#define NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(ClassName) \
+  template size_t \
+  ClassName::wireEncode<::ndn::encoding::EncoderTag>(::ndn::EncodingBuffer&) const; \
+  template size_t \
+  ClassName::wireEncode<::ndn::encoding::EstimatorTag>(::ndn::EncodingEstimator&) const \
 
 #endif // NDN_ENCODING_ENCODING_BUFFER_FWD_HPP

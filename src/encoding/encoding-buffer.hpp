@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #ifndef NDN_ENCODING_ENCODING_BUFFER_HPP
 #define NDN_ENCODING_ENCODING_BUFFER_HPP
 
-#include "../common.hpp"
 #include "encoding-buffer-fwd.hpp"
 #include "encoder.hpp"
 #include "estimator.hpp"
@@ -31,10 +30,10 @@ namespace ndn {
 namespace encoding {
 
 /**
- * @brief EncodingImpl specialization for real TLV encoding
+ * @brief EncodingImpl specialization for actual TLV encoding
  */
 template<>
-class EncodingImpl<EncoderTag> : public encoding::Encoder
+class EncodingImpl<EncoderTag> : public Encoder
 {
 public:
   explicit
@@ -51,10 +50,10 @@ public:
 };
 
 /**
- * @brief EncodingImpl specialization TLV size estimation
+ * @brief EncodingImpl specialization for TLV size estimation
  */
 template<>
-class EncodingImpl<EstimatorTag> : public encoding::Estimator
+class EncodingImpl<EstimatorTag> : public Estimator
 {
 public:
   explicit

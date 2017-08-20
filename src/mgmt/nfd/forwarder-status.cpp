@@ -78,11 +78,7 @@ ForwarderStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-ForwarderStatus::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
-
-template size_t
-ForwarderStatus::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(ForwarderStatus);
 
 const Block&
 ForwarderStatus::wireEncode() const

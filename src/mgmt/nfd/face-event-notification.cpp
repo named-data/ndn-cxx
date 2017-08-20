@@ -61,11 +61,7 @@ FaceEventNotification::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-FaceEventNotification::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
-
-template size_t
-FaceEventNotification::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(FaceEventNotification);
 
 const Block&
 FaceEventNotification::wireEncode() const

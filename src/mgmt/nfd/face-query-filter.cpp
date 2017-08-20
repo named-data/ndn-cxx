@@ -83,11 +83,7 @@ FaceQueryFilter::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-FaceQueryFilter::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
-
-template size_t
-FaceQueryFilter::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(FaceQueryFilter);
 
 const Block&
 FaceQueryFilter::wireEncode() const

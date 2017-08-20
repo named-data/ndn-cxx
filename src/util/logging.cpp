@@ -30,6 +30,11 @@
 #include <iostream>
 #include <sstream>
 
+// suppress warning caused by <boost/log/sinks/text_ostream_backend.hpp>
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wundefined-func-template"
+#endif
+
 namespace ndn {
 namespace util {
 

@@ -118,11 +118,7 @@ Route::wireEncode(EncodingImpl<TAG>& block) const
   return totalLength;
 }
 
-template size_t
-Route::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
-
-template size_t
-Route::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(Route);
 
 const Block&
 Route::wireEncode() const
@@ -269,11 +265,7 @@ RibEntry::wireEncode(EncodingImpl<TAG>& block) const
   return totalLength;
 }
 
-template size_t
-RibEntry::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& block) const;
-
-template size_t
-RibEntry::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& block) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(RibEntry);
 
 const Block&
 RibEntry::wireEncode() const

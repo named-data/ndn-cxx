@@ -2050,15 +2050,13 @@ INCLUDE_FILE_PATTERNS  =
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 PREDEFINED             = DOXYGEN \
-                         NDN_LOG_INIT \
-                         BOOST_CONCEPT_ASSERT \
+                         DEPRECATED(x)=x \
+                         NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(x)= \
+                         NDN_LOG_INIT(x)= \
                          PUBLIC_WITH_TESTS_ELSE_PROTECTED=protected \
                          PUBLIC_WITH_TESTS_ELSE_PRIVATE=private \
                          PROTECTED_WITH_TESTS_ELSE_PRIVATE=private \
-                         VIRTUAL_WITH_TESTS \
-                         NDN_CXX_KEYCHAIN_REGISTER_PIB \
-                         NDN_CXX_KEYCHAIN_REGISTER_TPM \
-                         DEPRECATED(x)=x
+                         VIRTUAL_WITH_TESTS=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

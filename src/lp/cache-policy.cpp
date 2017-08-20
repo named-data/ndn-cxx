@@ -59,19 +59,15 @@ CachePolicy::wireEncode(EncodingImpl<TAG>& encoder) const
   if (m_policy == CachePolicyType::NONE) {
     BOOST_THROW_EXCEPTION(Error("CachePolicyType must be set"));
   }
+
   size_t length = 0;
-  length += prependNonNegativeIntegerBlock(encoder, tlv::CachePolicyType,
-                                           static_cast<uint32_t>(m_policy));
+  length += prependNonNegativeIntegerBlock(encoder, tlv::CachePolicyType, static_cast<uint32_t>(m_policy));
   length += encoder.prependVarNumber(length);
   length += encoder.prependVarNumber(tlv::CachePolicy);
   return length;
 }
 
-template size_t
-CachePolicy::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-CachePolicy::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(CachePolicy);
 
 const Block&
 CachePolicy::wireEncode() const

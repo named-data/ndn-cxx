@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,7 +52,6 @@ public:
   typedef std::map<std::string, std::string>::const_iterator const_iterator;
 
 public:
-
   /**
    * @brief Create an empty AdditionalDescription
    */
@@ -109,7 +108,6 @@ public:
   wireDecode(const Block& wire);
 
 public: // EqualityComparable concept
-
   bool
   operator==(const AdditionalDescription& other) const;
 
@@ -117,11 +115,12 @@ public: // EqualityComparable concept
   operator!=(const AdditionalDescription& other) const;
 
 private:
-
   std::map<std::string, std::string> m_info;
 
   mutable Block m_wire;
 };
+
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(AdditionalDescription);
 
 std::ostream&
 operator<<(std::ostream& os, const AdditionalDescription& period);

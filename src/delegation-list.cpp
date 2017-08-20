@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -105,10 +105,10 @@ DelegationList::wireEncode(EncodingImpl<TAG>& encoder, uint32_t type) const
 }
 
 template size_t
-DelegationList::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&, uint32_t) const;
+DelegationList::wireEncode<encoding::EncoderTag>(EncodingBuffer&, uint32_t) const;
 
 template size_t
-DelegationList::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&, uint32_t) const;
+DelegationList::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, uint32_t) const;
 
 void
 DelegationList::wireDecode(const Block& block, bool wantSort)

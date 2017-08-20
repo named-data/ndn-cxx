@@ -47,11 +47,7 @@ ChannelStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-ChannelStatus::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>&) const;
-
-template size_t
-ChannelStatus::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>&) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(ChannelStatus);
 
 const Block&
 ChannelStatus::wireEncode() const

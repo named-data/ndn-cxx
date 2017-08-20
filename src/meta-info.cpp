@@ -152,8 +152,7 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 
   // FreshnessPeriod
   if (m_freshnessPeriod != DEFAULT_FRESHNESS_PERIOD) {
-    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod,
-                                                  m_freshnessPeriod.count());
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod, m_freshnessPeriod.count());
   }
 
   // ContentType
@@ -166,11 +165,7 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
   return totalLength;
 }
 
-template size_t
-MetaInfo::wireEncode<encoding::EncoderTag>(EncodingImpl<encoding::EncoderTag>& encoder) const;
-
-template size_t
-MetaInfo::wireEncode<encoding::EstimatorTag>(EncodingImpl<encoding::EstimatorTag>& encoder) const;
+NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(MetaInfo);
 
 const Block&
 MetaInfo::wireEncode() const
