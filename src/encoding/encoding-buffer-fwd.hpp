@@ -27,21 +27,10 @@
 namespace ndn {
 namespace encoding {
 
-using Tag = bool;
-
-/**
- * @brief Tag for EncodingImpl to indicate that Encoder is requested
- * Implementation of the tag may change to class. Use of true directly
- * as a template parameter is discouraged.
- */
-static const Tag EncoderTag = true;
-
-/**
- * @brief Tag for EncodingImpl to indicate that Estimator is requested
- * Implementation of the tag may change to class. Use of false directly
- * as a template parameter is discouraged.
- */
-static const Tag EstimatorTag = false;
+enum Tag {
+  EncoderTag   = true, ///< Tag for EncodingImpl to indicate that Encoder is requested
+  EstimatorTag = false ///< Tag for EncodingImpl to indicate that Estimator is requested
+};
 
 template<Tag TAG>
 class EncodingImpl;
