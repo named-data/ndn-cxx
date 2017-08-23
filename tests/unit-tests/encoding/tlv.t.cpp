@@ -26,6 +26,7 @@
 #include <array>
 #include <deque>
 #include <list>
+#include <sstream>
 #include <boost/concept_archetype.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>

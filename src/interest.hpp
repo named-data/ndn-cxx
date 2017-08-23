@@ -341,14 +341,6 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const Interest& interest);
 
-inline std::string
-Interest::toUri() const
-{
-  std::ostringstream os;
-  os << *this;
-  return os.str();
-}
-
 inline bool
 operator==(const Interest& lhs, const Interest& rhs)
 {

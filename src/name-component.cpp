@@ -31,6 +31,7 @@
 #include "util/string-helper.hpp"
 
 #include <boost/algorithm/string/trim.hpp>
+#include <sstream>
 
 namespace ndn {
 namespace name {

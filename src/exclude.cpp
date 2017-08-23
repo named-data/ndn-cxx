@@ -25,6 +25,7 @@
 #include "encoding/block-helpers.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <sstream>
 
 namespace ndn {
 

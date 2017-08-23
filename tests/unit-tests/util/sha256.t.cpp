@@ -25,6 +25,8 @@
 
 #include "boost-test.hpp"
 
+#include <sstream>
+
 namespace ndn {
 namespace util {
 namespace test {

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -23,10 +23,11 @@
 #include "security/transform.hpp"
 #include "security/key-params.hpp"
 #include "encoding/buffer-stream.hpp"
-#include <iostream>
 
-#include <boost/mpl/list.hpp>
 #include "boost-test.hpp"
+#include <boost/mpl/list.hpp>
+
+#include <sstream>
 
 namespace ndn {
 namespace security {

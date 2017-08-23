@@ -24,6 +24,7 @@
 #include "data.hpp"
 
 #include <cstring>
+#include <sstream>
 
 namespace ndn {
 
@@ -167,6 +168,14 @@ Interest::wireDecode(const Block& wire)
   else {
     m_forwardingHint = DelegationList();
   }
+}
+
+std::string
+Interest::toUri() const
+{
+  std::ostringstream os;
+  os << *this;
+  return os.str();
 }
 
 // ---- matching ----

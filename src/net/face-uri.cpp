@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
@@ -33,6 +33,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/regex.hpp>
 #include <set>
+#include <sstream>
 
 namespace ndn {
 

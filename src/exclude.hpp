@@ -27,7 +27,6 @@
 #include "name-component.hpp"
 #include "encoding/encoding-buffer.hpp"
 
-#include <sstream>
 #include <map>
 
 namespace ndn {
