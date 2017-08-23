@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,13 +24,14 @@
 // correct way to include ndn-cxx headers
 // #include <ndn-cxx/face.hpp>
 // #include <ndn-cxx/security/key-chain.hpp>
-
 #include "face.hpp"
 #include "security/key-chain.hpp"
 
+#include <iostream>
+
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
-// Additional nested namespace could be used to prevent/limit name contentions
+// Additional nested namespaces can be used to prevent/limit name conflicts
 namespace examples {
 
 class Producer : noncopyable

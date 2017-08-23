@@ -27,8 +27,11 @@
 
 #include "boost-test.hpp"
 #include "timed-execute.hpp"
+
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/vector_c.hpp>
+
+#include <iostream>
 
 namespace ndn {
 namespace tlv {

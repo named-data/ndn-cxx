@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -164,13 +164,13 @@ public:
       *m_store = *val;
   }
 
-#if BOOST_VERSION >= 105900
+#if (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106500)
   bool
   adjacent_tokens_only() const final
   {
     return false;
   }
-#endif // BOOST_VERSION >= 105900
+#endif // (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106500)
 
 private:
   T* m_store;

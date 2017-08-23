@@ -28,6 +28,8 @@
 #include "boost-test.hpp"
 #include "timed-execute.hpp"
 
+#include <iostream>
+
 namespace ndn {
 namespace util {
 namespace scheduler {
