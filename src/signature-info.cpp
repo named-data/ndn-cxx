@@ -60,6 +60,10 @@ template<encoding::Tag TAG>
 size_t
 SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 {
+  if (m_type == -1) {
+    BOOST_THROW_EXCEPTION(Error("Cannot encode invalid SignatureInfo"));
+  }
+
   // SignatureInfo ::= SIGNATURE-INFO-TLV TLV-LENGTH
   //                     SignatureType
   //                     KeyLocator?
@@ -114,15 +118,15 @@ SignatureInfo::wireDecode(const Block& wire)
 
   Block::element_const_iterator it = m_wire.elements_begin();
 
-  // the first block must be SignatureType
+  // the first sub-element must be SignatureType
   if (it != m_wire.elements_end() && it->type() == tlv::SignatureType) {
-    m_type = readNonNegativeInteger(*it);
+    m_type = readNonNegativeIntegerAs<int32_t>(*it);
     ++it;
   }
   else
     BOOST_THROW_EXCEPTION(Error("Missing SignatureType in SignatureInfo"));
 
-  // the second block could be KeyLocator
+  // the second sub-element could be KeyLocator
   if (it != m_wire.elements_end() && it->type() == tlv::KeyLocator) {
     m_keyLocator.wireDecode(*it);
     m_hasKeyLocator = true;

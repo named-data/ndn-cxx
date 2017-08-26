@@ -40,6 +40,15 @@ Signature::Signature(const SignatureInfo& info, const Block& value)
 {
 }
 
+tlv::SignatureTypeValue
+Signature::getType() const
+{
+  if (!*this) {
+    BOOST_THROW_EXCEPTION(Error("Signature is invalid"));
+  }
+  return static_cast<tlv::SignatureTypeValue>(m_info.getSignatureType());
+}
+
 void
 Signature::setInfo(const Block& info)
 {
@@ -53,6 +62,12 @@ Signature::setValue(const Block& value)
     BOOST_THROW_EXCEPTION(Error("Expecting SignatureValue, but TLV-TYPE is " + to_string(value.type())));
   }
   m_value = value;
+}
+
+bool
+operator==(const Signature& lhs, const Signature& rhs)
+{
+  return lhs.getSignatureInfo() == rhs.getSignatureInfo() && lhs.getValue() == rhs.getValue();
 }
 
 } // namespace ndn

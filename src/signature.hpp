@@ -109,12 +109,10 @@ public:
 
 public: // SignatureInfo fields
   /** @brief Get SignatureType
+   *  @throw Error signature is invalid
    */
-  uint32_t
-  getType() const
-  {
-    return m_info.getSignatureType();
-  }
+  tlv::SignatureTypeValue
+  getType() const;
 
   /** @brief Check if KeyLocator exists in SignatureInfo
    */
@@ -157,11 +155,8 @@ protected:
   mutable Block m_value;
 };
 
-inline bool
-operator==(const Signature& lhs, const Signature& rhs)
-{
-  return lhs.getInfo() == rhs.getInfo() && lhs.getValue() == rhs.getValue();
-}
+bool
+operator==(const Signature& lhs, const Signature& rhs);
 
 inline bool
 operator!=(const Signature& lhs, const Signature& rhs)

@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE(Print)
                     "Name: /local/ndn/prefix\n"
                     "MetaInfo: ContentType: 0, FreshnessPeriod: 10000 milliseconds\n"
                     "Content: (size: 8)\n"
-                    "Signature: (type: 1, value_length: 128)\n");
+                    "Signature: (type: SignatureSha256WithRsa, value_length: 128)\n");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestData

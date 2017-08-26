@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(BadSigInfo)
 BOOST_AUTO_TEST_CASE(MissingKeyLocator)
 {
   auto i1 = makeCommandInterest(identity);
-  SignatureInfo sigInfo;
+  SignatureInfo sigInfo(tlv::SignatureSha256WithRsa);
   setNameComponent(i1, command_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
   VALIDATE_FAILURE(i1, "Should fail (missing KeyLocator)");
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(BadKeyLocatorType)
   auto i1 = makeCommandInterest(identity);
   KeyLocator kl;
   kl.setKeyDigest(makeBinaryBlock(tlv::KeyDigest, "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD", 8));
-  SignatureInfo sigInfo;
+  SignatureInfo sigInfo(tlv::SignatureSha256WithRsa);
   sigInfo.setKeyLocator(kl);
   setNameComponent(i1, command_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(BadCertName)
   auto i1 = makeCommandInterest(identity);
   KeyLocator kl;
   kl.setName("/bad/cert/name");
-  SignatureInfo sigInfo;
+  SignatureInfo sigInfo(tlv::SignatureSha256WithRsa);
   sigInfo.setKeyLocator(kl);
   setNameComponent(i1, command_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
