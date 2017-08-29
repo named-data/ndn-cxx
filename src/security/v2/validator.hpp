@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -137,12 +137,24 @@ public: // anchor management
              time::nanoseconds refreshPeriod, bool isDir = false);
 
   /**
+   * @brief remove any previously loaded static or dynamic trust anchor
+   */
+  void
+  resetAnchors();
+
+  /**
    * @brief Cache verified @p cert a period of time (1 hour)
    *
    * @todo Add ability to customize time period
    */
   void
   cacheVerifiedCertificate(Certificate&& cert);
+
+  /**
+   * @brief Remove any cached verified certificates
+   */
+  void
+  resetVerifiedCertificates();
 
 private: // Common validator operations
   /**

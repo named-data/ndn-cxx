@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -96,6 +96,12 @@ public:
          time::nanoseconds refreshPeriod, bool isDir = false);
 
   /**
+   * @brief Remove all static or dynamic anchors
+   */
+  void
+  clear();
+
+  /**
    * @brief Search for certificate across all groups (longest prefix match)
    * @param keyName  Key name prefix for searching the certificate.
    * @return The found certificate, nullptr if not found.
@@ -155,6 +161,9 @@ private:
 
     void
     remove(const Name& certName) final;
+
+    void
+    clear();
   };
 
   using GroupContainer = boost::multi_index::multi_index_container<

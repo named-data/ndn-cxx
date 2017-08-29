@@ -86,14 +86,20 @@ BOOST_AUTO_TEST_CASE(FromFile)
 {
   validator.load(configFile);
   BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
-  BOOST_CHECK_THROW(validator.load(configFile), std::logic_error);
+
+  // should reload policy
+  validator.load(configFile);
+  BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
 }
 
 BOOST_AUTO_TEST_CASE(FromString)
 {
   validator.load(config, "config-file-from-string");
   BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
-  BOOST_CHECK_THROW(validator.load(configFile), std::logic_error);
+
+  // should reload policy
+  validator.load(config, "config-file-from-string");
+  BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
 }
 
 BOOST_AUTO_TEST_CASE(FromIstream)
@@ -101,14 +107,21 @@ BOOST_AUTO_TEST_CASE(FromIstream)
   std::istringstream is(config);
   validator.load(is, "config-file-from-istream");
   BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
-  BOOST_CHECK_THROW(validator.load(configFile), std::logic_error);
+
+  // should reload policy
+  std::istringstream is2(config);
+  validator.load(is2, "config-file-from-istream");
+  BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
 }
 
 BOOST_AUTO_TEST_CASE(FromSection)
 {
   validator.load(v2::validator_config::tests::makeSection(config), "config-file-from-section");
   BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
-  BOOST_CHECK_THROW(validator.load(configFile), std::logic_error);
+
+  // should reload policy
+  validator.load(v2::validator_config::tests::makeSection(config), "config-file-from-section");
+  BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Loads

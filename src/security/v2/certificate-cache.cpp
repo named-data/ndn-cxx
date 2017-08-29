@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -56,6 +56,12 @@ CertificateCache::insert(const Certificate& cert)
   NDN_LOG_DEBUG("Adding " << cert.getName() << ", will remove in "
                 << time::duration_cast<time::seconds>(removalTime - now));
   m_certs.insert(Entry(cert, removalTime));
+}
+
+void
+CertificateCache::clear()
+{
+  m_certs.clear();
 }
 
 const Certificate*

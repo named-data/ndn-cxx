@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -100,7 +100,6 @@ BOOST_AUTO_TEST_CASE(MalformedCert)
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
 }
 
-
 BOOST_AUTO_TEST_CASE(ExpiredCert)
 {
   Data expiredCert = subIdentity.getDefaultKey().getDefaultCertificate();
@@ -127,6 +126,15 @@ BOOST_AUTO_TEST_CASE(ExpiredCert)
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
 }
 
+BOOST_AUTO_TEST_CASE(ResetAnchors)
+{
+  validator.resetAnchors();
+
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+  VALIDATE_FAILURE(data, "Should fail, as no anchors configured");
+}
+
 BOOST_AUTO_TEST_CASE(TrustedCertCaching)
 {
   Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
@@ -147,6 +155,21 @@ BOOST_AUTO_TEST_CASE(TrustedCertCaching)
   VALIDATE_FAILURE(data, "Should try and fail to retrieve certs");
   BOOST_CHECK_GT(face.sentInterests.size(), 1);
   face.sentInterests.clear();
+}
+
+BOOST_AUTO_TEST_CASE(ResetVerifiedCertificates)
+{
+  Data data("/Security/V2/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+  VALIDATE_SUCCESS(data, "Should get accepted, as signed by the policy-compliant cert");
+
+  // reset anchors
+  validator.resetAnchors();
+  VALIDATE_SUCCESS(data, "Should get accepted, as signed by the cert in trusted cache");
+
+  // reset trusted cache
+  validator.resetVerifiedCertificates();
+  VALIDATE_FAILURE(data, "Should fail, as no trusted cache or anchors");
 }
 
 BOOST_AUTO_TEST_CASE(UntrustedCertCaching)

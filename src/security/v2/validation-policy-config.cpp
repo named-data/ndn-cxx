@@ -83,7 +83,12 @@ ValidationPolicyConfig::load(const ConfigSection& configSection,
                              const std::string& filename)
 {
   if (m_isConfigured) {
-    BOOST_THROW_EXCEPTION(std::logic_error("ValidationPolicyConfig can be configured only once"));
+    m_shouldBypass = false;
+    m_dataRules.clear();
+    m_interestRules.clear();
+
+    m_validator->resetAnchors();
+    m_validator->resetVerifiedCertificates();
   }
   m_isConfigured = true;
 

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -40,6 +40,12 @@ TrustAnchorContainer::AnchorContainer::remove(const Name& certName)
 }
 
 void
+TrustAnchorContainer::AnchorContainer::clear()
+{
+  AnchorContainerBase::clear();
+}
+
+void
 TrustAnchorContainer::insert(const std::string& groupId, Certificate&& cert)
 {
   auto group = m_groups.find(groupId);
@@ -62,6 +68,13 @@ TrustAnchorContainer::insert(const std::string& groupId, const boost::filesystem
   }
 
   m_groups.insert(make_shared<DynamicTrustAnchorGroup>(m_anchors, groupId, path, refreshPeriod, isDir));
+}
+
+void
+TrustAnchorContainer::clear()
+{
+  m_groups.clear();
+  m_anchors.clear();
 }
 
 const Certificate*

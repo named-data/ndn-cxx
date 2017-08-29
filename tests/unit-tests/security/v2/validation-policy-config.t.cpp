@@ -377,6 +377,66 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateInterest, Policy, InterestPolicies, Pol
   VALIDATE_FAILURE(packet, "Should fail, because subSelfSignedIdentity is not a trust anchor");
 }
 
+BOOST_FIXTURE_TEST_CASE(Reload, HierarchicalValidatorFixture<ValidationPolicyConfig>)
+{
+  BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
+  this->policy.load(R"CONF(
+      rule
+      {
+        id test-rule-data-id
+        for data
+        filter
+        {
+          type name
+          name /foo/bar
+          relation is-prefix-of
+        }
+        checker
+        {
+          type hierarchical
+          sig-type rsa-sha256
+        }
+      }
+      rule
+      {
+        id test-rule-interest-id
+        for interest
+        filter
+        {
+          type name
+          name /foo/bar
+          relation is-prefix-of
+        }
+        checker
+        {
+          type hierarchical
+          sig-type rsa-sha256
+        }
+      }
+      trust-anchor
+      {
+        type dir
+        dir keys
+        refresh 1h
+      }
+    )CONF", "test-config");
+  BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
+  BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, false);
+  BOOST_CHECK_EQUAL(this->policy.m_dataRules.size(), 1);
+  BOOST_CHECK_EQUAL(this->policy.m_interestRules.size(), 1);
+
+  this->policy.load(R"CONF(
+      trust-anchor
+      {
+        type any
+      }
+    )CONF", "test-config");
+  BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
+  BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, true);
+  BOOST_CHECK_EQUAL(this->policy.m_dataRules.size(), 0);
+  BOOST_CHECK_EQUAL(this->policy.m_interestRules.size(), 0);
+}
+
 using Packets = boost::mpl::vector<Interest, Data>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(TrustAnchorWildcard, Packet, Packets, ValidationPolicyConfigFixture<Packet>)
@@ -419,22 +479,22 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(TrustAnchorWildcard, Packet, Packets, Validatio
   VALIDATE_SUCCESS(packet, "Policy should accept everything");
 }
 
-using ReloadedPolicies = boost::mpl::vector<Refresh1h, Refresh1m, Refresh1s>;
+using RefreshPolicies = boost::mpl::vector<Refresh1h, Refresh1m, Refresh1s>;
 
 // Somehow, didn't work without this wrapper
-template<typename ReloadPolicy>
-class ReloadPolicyFixture : public LoadStringWithDirAnchor<Data, ReloadPolicy>
+template<typename RefreshPolicy>
+class RefreshPolicyFixture : public LoadStringWithDirAnchor<Data, RefreshPolicy>
 {
 public:
 };
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateReload, Reload, ReloadedPolicies, ReloadPolicyFixture<Reload>)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateRefresh, Refresh, RefreshPolicies, RefreshPolicyFixture<Refresh>)
 {
   using Packet = Data;
   Packet unsignedPacket("/Security/V2/ValidatorFixture/Sub1/Sub2/Packet");
 
   boost::filesystem::remove(this->path / "keys" / "identity.ndncert");
-  this->advanceClocks(Reload::getRefreshTime(), 3);
+  this->advanceClocks(Refresh::getRefreshTime(), 3);
 
   Packet packet = unsignedPacket;
   this->m_keyChain.sign(packet, signingByIdentity(this->identity));
