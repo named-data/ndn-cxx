@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -140,7 +140,7 @@ constructKeyName(const Name& identity, const name::Component& keyId)
 bool
 isValidKeyName(const Name& keyName)
 {
-  return (keyName.size() > Certificate::MIN_KEY_NAME_LENGTH &&
+  return (keyName.size() >= Certificate::MIN_KEY_NAME_LENGTH &&
           keyName.get(-Certificate::MIN_KEY_NAME_LENGTH) == Certificate::KEY_COMPONENT);
 }
 
