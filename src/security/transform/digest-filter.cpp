@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "digest-filter.hpp"
-#include "../../encoding/buffer.hpp"
 #include "../detail/openssl-helper.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -30,69 +29,65 @@ namespace security {
 namespace transform {
 
 /**
- * @brief The implementation class which contains the internal state of
- *        the digest calculator which includes openssl specific structures.
+ * Implementation class that contains the internal state of the
+ * digest calculator, including openssl-specific structures.
  */
 class DigestFilter::Impl
 {
 public:
-  Impl()
-    : m_md(BIO_new(BIO_f_md()))
-    , m_sink(BIO_new(BIO_s_null()))
+  Impl() noexcept
   {
-    BIO_push(m_md, m_sink);
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+    ctx = EVP_MD_CTX_create();
+#else
+    ctx = EVP_MD_CTX_new();
+#endif
   }
 
   ~Impl()
   {
-    BIO_free_all(m_md);
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+    EVP_MD_CTX_destroy(ctx);
+#else
+    EVP_MD_CTX_free(ctx);
+#endif
   }
 
 public:
-  BIO* m_md;
-  BIO* m_sink;
+  EVP_MD_CTX* ctx;
 };
 
+
 DigestFilter::DigestFilter(DigestAlgorithm algo)
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
   const EVP_MD* md = detail::toDigestEvpMd(algo);
-  if (md == nullptr) {
+  if (md == nullptr)
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
                                 boost::lexical_cast<std::string>(algo)));
-  }
 
-  if (!BIO_set_md(m_impl->m_md, md)) {
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest"+
+  if (EVP_DigestInit_ex(m_impl->ctx, md, nullptr) == 0)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot initialize digest " +
                                 boost::lexical_cast<std::string>(algo)));
-  }
 }
 
 size_t
 DigestFilter::convert(const uint8_t* buf, size_t size)
 {
-  int wLen = BIO_write(m_impl->m_md, buf, size);
+  if (EVP_DigestUpdate(m_impl->ctx, buf, size) == 0)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
 
-  if (wLen <= 0) { // fail to write data
-    if (!BIO_should_retry(m_impl->m_md)) {
-      // we haven't written everything but some error happens, and we cannot retry
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
-    }
-    return 0;
-  }
-  else { // update number of bytes written
-    return wLen;
-  }
+  return size;
 }
 
 void
 DigestFilter::finalize()
 {
   auto buffer = make_unique<OBuffer>(EVP_MAX_MD_SIZE);
+  unsigned int mdLen = 0;
 
-  int mdLen = BIO_gets(m_impl->m_md, reinterpret_cast<char*>(&(*buffer)[0]), EVP_MAX_MD_SIZE);
-  if (mdLen <= 0)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to compute digest"));
+  if (EVP_DigestFinal_ex(m_impl->ctx, buffer->data(), &mdLen) == 0)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to finalize digest"));
 
   buffer->erase(buffer->begin() + mdLen, buffer->end());
   setOutputBuffer(std::move(buffer));
