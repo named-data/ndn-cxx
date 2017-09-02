@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -85,13 +85,6 @@ ndnsec_cert_gen(int argc, char** argv)
     return 0;
   }
 
-  if (vm.count("subject-name") == 0) {
-    std::cerr << "ERROR: subject name must be specified" << std::endl
-              << std::endl
-              << description << std::endl;
-    return 1;
-  }
-
   security::v2::AdditionalDescription additionalDescription;
 
   for (const auto& info : infos) {
@@ -165,6 +158,9 @@ ndnsec_cert_gen(int argc, char** argv)
 
   SignatureInfo signatureInfo;
   signatureInfo.setValidityPeriod(security::ValidityPeriod(notBefore, notAfter));
+  if (!additionalDescription.empty()) {
+    signatureInfo.appendTypeSpecificTlv(additionalDescription.wireEncode());
+  }
 
   security::Identity identity;
   if (vm.count("sign-id") == 0) {

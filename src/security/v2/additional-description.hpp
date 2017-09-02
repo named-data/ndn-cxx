@@ -78,6 +78,12 @@ public:
     return m_info.size();
   }
 
+  bool
+  empty() const
+  {
+    return m_info.empty();
+  }
+
   iterator
   begin();
 
