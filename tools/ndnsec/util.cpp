@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -21,6 +21,8 @@
 
 #include "util.hpp"
 
+#include "security/detail/openssl.hpp"
+
 namespace ndn {
 namespace ndnsec {
 
@@ -28,38 +30,34 @@ bool
 getPassword(std::string& password, const std::string& prompt, bool shouldConfirm)
 {
 #ifdef NDN_CXX_HAVE_GETPASS
-  char* pw0 = nullptr;
-
-  pw0 = getpass(prompt.c_str());
-  if (!pw0)
+  char* pw0 = getpass(prompt.c_str());
+  if (!pw0 || strlen(pw0) == 0) {
     return false;
+  }
   std::string password1 = pw0;
-  memset(pw0, 0, strlen(pw0));
+  OPENSSL_cleanse(pw0, strlen(pw0));
 
   if (!shouldConfirm) {
+    password.swap(password1);
     return true;
   }
 
   pw0 = getpass("Confirm:");
   if (!pw0) {
-    char* pw1 = const_cast<char*>(password1.c_str());
-    memset(pw1, 0, password1.size());
+    OPENSSL_cleanse(&password1.front(), password1.size());
     return false;
   }
 
   bool isReady = false;
-
-  if (!password1.compare(pw0)) {
+  if (password1.size() == strlen(pw0) &&
+      CRYPTO_memcmp(password1.data(), pw0, password1.size()) == 0) {
     isReady = true;
     password.swap(password1);
   }
-
-  char* pw1 = const_cast<char*>(password1.c_str());
-  memset(pw1, 0, password1.size());
-  memset(pw0, 0, strlen(pw0));
-
-  if (password.empty())
-    return false;
+  else {
+    OPENSSL_cleanse(&password1.front(), password1.size());
+  }
+  OPENSSL_cleanse(pw0, strlen(pw0));
 
   return isReady;
 #else

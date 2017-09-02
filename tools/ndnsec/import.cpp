@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -68,7 +68,7 @@ ndnsec_import(int argc, char** argv)
       safeBag = io::load<security::SafeBag>(input);
 
     int count = 3;
-    while (!getPassword(importPassword, "Passphrase for the private key: ")) {
+    while (!getPassword(importPassword, "Passphrase for the private key: ", false)) {
       count--;
       if (count <= 0) {
         std::cerr << "ERROR: Fail to get password" << std::endl;
