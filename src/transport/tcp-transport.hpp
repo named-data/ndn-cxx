@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,8 +52,7 @@ public:
   ~TcpTransport() override;
 
   void
-  connect(boost::asio::io_service& ioService,
-          const ReceiveCallback& receiveCallback) override;
+  connect(boost::asio::io_service& ioService, const ReceiveCallback& receiveCallback) override;
 
   void
   close() override;
@@ -84,9 +83,9 @@ private:
   std::string m_host;
   std::string m_port;
 
-  typedef StreamTransportWithResolverImpl<TcpTransport, boost::asio::ip::tcp> Impl;
+  using Impl = StreamTransportWithResolverImpl<TcpTransport, boost::asio::ip::tcp>;
   friend class StreamTransportImpl<TcpTransport, boost::asio::ip::tcp>;
-  friend class StreamTransportWithResolverImpl<TcpTransport, boost::asio::ip::tcp>;
+  friend Impl;
   shared_ptr<Impl> m_impl;
 };
 

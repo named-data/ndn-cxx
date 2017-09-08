@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,7 +33,7 @@ template<typename BaseTransport, typename Protocol>
 class StreamTransportWithResolverImpl : public StreamTransportImpl<BaseTransport, Protocol>
 {
 public:
-  typedef StreamTransportWithResolverImpl<BaseTransport,Protocol> Impl;
+  using Impl = StreamTransportWithResolverImpl<BaseTransport,Protocol>;
 
   StreamTransportWithResolverImpl(BaseTransport& transport, boost::asio::io_service& ioService)
     : StreamTransportImpl<BaseTransport, Protocol>(transport, ioService)
@@ -54,7 +54,6 @@ public:
     this->m_connectTimer.expires_from_now(boost::posix_time::seconds(4));
     this->m_connectTimer.async_wait(bind(&Impl::connectTimeoutHandler, this->shared_from_this(), _1));
 
-    // typename boost::asio::ip::basic_resolver< Protocol > resolver;
     auto resolver = make_shared<typename Protocol::resolver>(ref(this->m_socket.get_io_service()));
     resolver->async_resolve(query, bind(&Impl::resolveHandler, this->shared_from_base(), _1, _2, resolver));
   }
@@ -75,7 +74,7 @@ protected:
     typename Protocol::resolver::iterator end;
     if (endpoint == end) {
       this->m_transport.close();
-      BOOST_THROW_EXCEPTION(Transport::Error(error, "Unable to resolve because host or port"));
+      BOOST_THROW_EXCEPTION(Transport::Error(error, "Unable to resolve host or port"));
     }
 
     this->m_socket.async_connect(*endpoint, bind(&Impl::connectHandler, this->shared_from_this(), _1));

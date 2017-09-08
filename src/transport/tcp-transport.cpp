@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,6 +22,10 @@
 #include "tcp-transport.hpp"
 #include "stream-transport-with-resolver-impl.hpp"
 #include "net/face-uri.hpp"
+#include "util/logger.hpp"
+
+NDN_LOG_INIT(ndn.TcpTransport);
+// DEBUG level: connect, close, pause, resume.
 
 namespace ndn {
 
@@ -77,6 +81,8 @@ void
 TcpTransport::connect(boost::asio::io_service& ioService,
                       const ReceiveCallback& receiveCallback)
 {
+  NDN_LOG_DEBUG("connect host=" << m_host << " port=" << m_port);
+
   if (m_impl == nullptr) {
     Transport::connect(ioService, receiveCallback);
 
@@ -105,6 +111,7 @@ void
 TcpTransport::close()
 {
   BOOST_ASSERT(m_impl != nullptr);
+  NDN_LOG_DEBUG("close");
   m_impl->close();
   m_impl.reset();
 }
@@ -113,6 +120,7 @@ void
 TcpTransport::pause()
 {
   if (m_impl != nullptr) {
+    NDN_LOG_DEBUG("pause");
     m_impl->pause();
   }
 }
@@ -121,6 +129,7 @@ void
 TcpTransport::resume()
 {
   BOOST_ASSERT(m_impl != nullptr);
+  NDN_LOG_DEBUG("resume");
   m_impl->resume();
 }
 
