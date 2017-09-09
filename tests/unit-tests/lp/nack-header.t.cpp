@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,6 +31,18 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Lp)
 BOOST_AUTO_TEST_SUITE(TestNackHeader)
+
+BOOST_AUTO_TEST_CASE(IsLessSevere)
+{
+  BOOST_CHECK_EQUAL(isLessSevere(NackReason::NONE, NackReason::NONE), false);
+  BOOST_CHECK_EQUAL(isLessSevere(NackReason::CONGESTION, NackReason::CONGESTION), false);
+
+  BOOST_CHECK_EQUAL(isLessSevere(NackReason::CONGESTION, NackReason::NONE), true);
+  BOOST_CHECK_EQUAL(isLessSevere(NackReason::NONE, NackReason::CONGESTION), false);
+
+  BOOST_CHECK_EQUAL(isLessSevere(NackReason::CONGESTION, NackReason::NO_ROUTE), true);
+  BOOST_CHECK_EQUAL(isLessSevere(NackReason::NO_ROUTE, NackReason::CONGESTION), false);
+}
 
 BOOST_AUTO_TEST_CASE(Encode)
 {

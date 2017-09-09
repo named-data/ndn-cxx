@@ -327,6 +327,9 @@ BOOST_AUTO_TEST_CASE(PutData)
 
 BOOST_AUTO_TEST_CASE(PutNack)
 {
+  face.setInterestFilter("/", bind([]{})); // register one Interest destination so that face can accept Nacks
+  advanceClocks(time::milliseconds(10));
+
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0);
 
   face.put(makeNack("/unsolicited", 18645250, lp::NackReason::NO_ROUTE));
@@ -350,6 +353,28 @@ BOOST_AUTO_TEST_CASE(PutNack)
   BOOST_REQUIRE_EQUAL(face.sentNacks.size(), 2);
   BOOST_CHECK_EQUAL(face.sentNacks[1].getReason(), lp::NackReason::NO_ROUTE);
   BOOST_CHECK(face.sentNacks[1].getTag<lp::CongestionMarkTag>() != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(PutMultipleNack)
+{
+  face.setInterestFilter("/", bind([]{}));
+  face.setInterestFilter("/", bind([]{})); // register two Interest destinations
+  advanceClocks(time::milliseconds(10));
+
+  face.receive(*makeInterest("/A", 14333271));
+  advanceClocks(time::milliseconds(10));
+
+  face.put(makeNack("/A", 14333271, lp::NackReason::CONGESTION)); // Nack from first destination
+  advanceClocks(time::milliseconds(10));
+  BOOST_CHECK_EQUAL(face.sentNacks.size(), 0); // should wait for Nacks from all destinations
+
+  face.put(makeNack("/A", 14333271, lp::NackReason::NO_ROUTE)); // Nack from second destination
+  advanceClocks(time::milliseconds(10));
+  BOOST_CHECK_EQUAL(face.sentNacks.size(), 1); // both destinations Nacked
+  BOOST_CHECK_EQUAL(face.sentNacks.at(0).getReason(), lp::NackReason::CONGESTION); // least severe reason
+
+  face.put(makeNack("/A", 14333271, lp::NackReason::DUPLICATE));
+  BOOST_CHECK_EQUAL(face.sentNacks.size(), 1); // additional Nacks are ignored
 }
 
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)

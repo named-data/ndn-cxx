@@ -91,9 +91,10 @@ public: // consumer
     this->ensureConnected(true);
 
     const Interest& interest2 = *interest;
-    auto entry = m_pendingInterestTable.insert(make_shared<PendingInterest>(
+    auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
       std::move(interest), afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
-    (*entry)->setDeleter([this, entry] { m_pendingInterestTable.erase(entry); });
+    PendingInterest& entry = **i;
+    entry.setDeleter([this, i] { m_pendingInterestTable.erase(i); });
 
     lp::Packet lpPacket;
     addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest2);
@@ -101,6 +102,7 @@ public: // consumer
 
     m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest2.wireEncode(),
                                             'I', interest2.getName()));
+    entry.recordForwarding();
   }
 
   void
@@ -121,20 +123,19 @@ public: // consumer
   satisfyPendingInterests(const Data& data)
   {
     bool hasAppMatch = false, hasForwarderMatch = false;
-    for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
-      if (!(*entry)->getInterest()->matchesData(data)) {
-        ++entry;
+    for (auto i = m_pendingInterestTable.begin(); i != m_pendingInterestTable.end(); ) {
+      shared_ptr<PendingInterest> entry = *i;
+      if (!entry->getInterest()->matchesData(data)) {
+        ++i;
         continue;
       }
 
-      shared_ptr<PendingInterest> matchedEntry = *entry;
-      NDN_LOG_DEBUG("   satisfying " << *matchedEntry->getInterest() <<
-                    " from " << matchedEntry->getOrigin());
-      entry = m_pendingInterestTable.erase(entry);
+      NDN_LOG_DEBUG("   satisfying " << *entry->getInterest() << " from " << entry->getOrigin());
+      i = m_pendingInterestTable.erase(i);
 
-      if (matchedEntry->getOrigin() == PendingInterestOrigin::APP) {
+      if (entry->getOrigin() == PendingInterestOrigin::APP) {
         hasAppMatch = true;
-        matchedEntry->invokeDataCallback(data);
+        entry->invokeDataCallback(data);
       }
       else {
         hasForwarderMatch = true;
@@ -144,33 +145,39 @@ public: // consumer
     return hasForwarderMatch || !hasAppMatch;
   }
 
-  /** @return whether the Nack should be sent to the forwarder, if it does not come from the forwarder
+  /** @return a Nack to be sent to the forwarder, or nullopt if no Nack should be sent
    */
-  bool
+  optional<lp::Nack>
   nackPendingInterests(const lp::Nack& nack)
   {
-    bool shouldSendToForwarder = false;
-    for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
-      if (!nack.getInterest().matchesInterest(*(*entry)->getInterest())) {
-        ++entry;
+    optional<lp::Nack> outNack;
+    for (auto i = m_pendingInterestTable.begin(); i != m_pendingInterestTable.end(); ) {
+      shared_ptr<PendingInterest> entry = *i;
+      if (!nack.getInterest().matchesInterest(*entry->getInterest())) {
+        ++i;
         continue;
       }
 
-      shared_ptr<PendingInterest> matchedEntry = *entry;
-      NDN_LOG_DEBUG("   nacking " << *matchedEntry->getInterest() <<
-                    " from " << matchedEntry->getOrigin());
-      entry = m_pendingInterestTable.erase(entry);
+      NDN_LOG_DEBUG("   nacking " << *entry->getInterest() << " from " << entry->getOrigin());
 
-      // TODO #4228 record Nack on PendingInterest record, and send Nack only if all InterestFilters have Nacked
+      optional<lp::Nack> outNack1 = entry->recordNack(nack);
+      if (!outNack1) {
+        ++i;
+        continue;
+      }
 
-      if (matchedEntry->getOrigin() == PendingInterestOrigin::APP) {
-        matchedEntry->invokeNackCallback(nack);
+      if (entry->getOrigin() == PendingInterestOrigin::APP) {
+        entry->invokeNackCallback(*outNack1);
       }
       else {
-        shouldSendToForwarder = true;
+        outNack = outNack1;
       }
+      i = m_pendingInterestTable.erase(i);
     }
-    return shouldSendToForwarder;
+    // send "least severe" Nack from any PendingInterest record originated from forwarder, because
+    // it is unimportant to consider Nack reason for the unlikely case when forwarder sends multiple
+    // Interests to an app in a short while
+    return outNack;
   }
 
 public: // producer
@@ -197,15 +204,16 @@ public: // producer
   processIncomingInterest(shared_ptr<const Interest> interest)
   {
     const Interest& interest2 = *interest;
-    auto entry = m_pendingInterestTable.insert(make_shared<PendingInterest>(
+    auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
       std::move(interest), ref(m_scheduler))).first;
-    (*entry)->setDeleter([this, entry] { m_pendingInterestTable.erase(entry); });
+    PendingInterest& entry = **i;
+    entry.setDeleter([this, i] { m_pendingInterestTable.erase(i); });
 
     for (const auto& filter : m_interestFilterTable) {
       if (filter->doesMatch(interest2.getName())) {
         NDN_LOG_DEBUG("   matches " << filter->getFilter());
         filter->invokeInterestCallback(interest2);
-        // TODO #4228 record number of matched InterestFilters on PendingInterest record
+        entry.recordForwarding();
       }
     }
   }
@@ -231,18 +239,18 @@ public: // producer
   void
   asyncPutNack(const lp::Nack& nack)
   {
-    bool shouldSendToForwarder = nackPendingInterests(nack);
-    if (!shouldSendToForwarder) {
+    optional<lp::Nack> outNack = nackPendingInterests(nack);
+    if (!outNack) {
       return;
     }
 
     this->ensureConnected(true);
 
     lp::Packet lpPacket;
-    lpPacket.add<lp::NackField>(nack.getHeader());
-    addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
+    lpPacket.add<lp::NackField>(outNack->getHeader());
+    addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, *outNack);
 
-    const Interest& interest = nack.getInterest();
+    const Interest& interest = outNack->getInterest();
     m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest.wireEncode(),
                                             'N', interest.getName()));
   }

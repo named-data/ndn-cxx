@@ -80,6 +80,7 @@ public:
     , m_nackCallback(nackCallback)
     , m_timeoutCallback(timeoutCallback)
     , m_timeoutEvent(scheduler)
+    , m_nNotNacked(0)
   {
     scheduleTimeoutEvent(scheduler);
   }
@@ -94,6 +95,7 @@ public:
     : m_interest(std::move(interest))
     , m_origin(PendingInterestOrigin::FORWARDER)
     , m_timeoutEvent(scheduler)
+    , m_nNotNacked(0)
   {
     scheduleTimeoutEvent(scheduler);
   }
@@ -111,6 +113,35 @@ public:
   getOrigin() const
   {
     return m_origin;
+  }
+
+  /**
+   * @brief Record that the Interest has been forwarded to one destination
+   *
+   * A "destination" could be either a local InterestFilter or the forwarder.
+   */
+  void
+  recordForwarding()
+  {
+    ++m_nNotNacked;
+  }
+
+  /**
+   * @brief Record an incoming Nack against a forwarded Interest
+   * @return least severe Nack if all destinations where the Interest was forwarded have Nacked;
+   *          otherwise, nullopt
+   */
+  optional<lp::Nack>
+  recordNack(const lp::Nack& nack)
+  {
+    --m_nNotNacked;
+    BOOST_ASSERT(m_nNotNacked >= 0);
+
+    if (!m_leastSevereNack || lp::isLessSevere(nack.getReason(), m_leastSevereNack->getReason())) {
+      m_leastSevereNack = nack;
+    }
+
+    return m_nNotNacked > 0 ? nullopt : m_leastSevereNack;
   }
 
   /**
@@ -175,6 +206,8 @@ private:
   NackCallback m_nackCallback;
   TimeoutCallback m_timeoutCallback;
   util::scheduler::ScopedEventId m_timeoutEvent;
+  int m_nNotNacked; ///< number of Interest destinations that have not Nacked
+  optional<lp::Nack> m_leastSevereNack;
   std::function<void()> m_deleter;
 };
 

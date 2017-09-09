@@ -46,6 +46,13 @@ enum class NackReason {
 std::ostream&
 operator<<(std::ostream& os, NackReason reason);
 
+/** \brief compare NackReason for severity
+ *
+ *  lp::NackReason::NONE is treated as most severe
+ */
+bool
+isLessSevere(lp::NackReason x, lp::NackReason y);
+
 /**
  * \brief represents a Network NACK header
  */
