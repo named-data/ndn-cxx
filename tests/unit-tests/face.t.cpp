@@ -325,6 +325,28 @@ BOOST_AUTO_TEST_CASE(PutData)
   BOOST_CHECK(face.sentData[1].getTag<lp::CongestionMarkTag>() != nullptr);
 }
 
+BOOST_AUTO_TEST_CASE(PutMultipleData)
+{
+  bool hasInterest1 = false;
+  // register two Interest destinations
+  face.setInterestFilter("/", bind([&] {
+    hasInterest1 = true;
+    // sending Data right away from the first destination, don't care whether Interest goes to second destination
+    face.put(*makeData("/A/B"));
+  }));
+  face.setInterestFilter("/", bind([]{}));
+  advanceClocks(time::milliseconds(10));
+
+  face.receive(*makeInterest("/A"));
+  advanceClocks(time::milliseconds(10));
+  BOOST_CHECK(hasInterest1);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData.at(0).getName(), "/A/B");
+
+  face.put(*makeData("/A/C"));
+  BOOST_CHECK_EQUAL(face.sentData.size(), 1); // additional Data are ignored
+}
+
 BOOST_AUTO_TEST_CASE(PutNack)
 {
   face.setInterestFilter("/", bind([]{})); // register one Interest destination so that face can accept Nacks
@@ -357,20 +379,27 @@ BOOST_AUTO_TEST_CASE(PutNack)
 
 BOOST_AUTO_TEST_CASE(PutMultipleNack)
 {
-  face.setInterestFilter("/", bind([]{}));
-  face.setInterestFilter("/", bind([]{})); // register two Interest destinations
+  bool hasInterest1 = false, hasInterest2 = false;
+  // register two Interest destinations
+  face.setInterestFilter("/", [&] (const InterestFilter&, const Interest& interest) {
+    hasInterest1 = true;
+    // sending Nack right away from the first destination, Interest should still go to second destination
+    face.put(makeNack(interest, lp::NackReason::CONGESTION));
+  });
+  face.setInterestFilter("/", bind([&] { hasInterest2 = true; }));
   advanceClocks(time::milliseconds(10));
 
   face.receive(*makeInterest("/A", 14333271));
   advanceClocks(time::milliseconds(10));
+  BOOST_CHECK(hasInterest1);
+  BOOST_CHECK(hasInterest2);
 
-  face.put(makeNack("/A", 14333271, lp::NackReason::CONGESTION)); // Nack from first destination
-  advanceClocks(time::milliseconds(10));
-  BOOST_CHECK_EQUAL(face.sentNacks.size(), 0); // should wait for Nacks from all destinations
+  // Nack from first destination is received, should wait for a response from the other destination
+  BOOST_CHECK_EQUAL(face.sentNacks.size(), 0);
 
   face.put(makeNack("/A", 14333271, lp::NackReason::NO_ROUTE)); // Nack from second destination
   advanceClocks(time::milliseconds(10));
-  BOOST_CHECK_EQUAL(face.sentNacks.size(), 1); // both destinations Nacked
+  BOOST_CHECK_EQUAL(face.sentNacks.size(), 1); // sending Nack after both destinations Nacked
   BOOST_CHECK_EQUAL(face.sentNacks.at(0).getReason(), lp::NackReason::CONGESTION); // least severe reason
 
   face.put(makeNack("/A", 14333271, lp::NackReason::DUPLICATE));

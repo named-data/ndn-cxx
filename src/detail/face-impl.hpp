@@ -100,9 +100,9 @@ public: // consumer
     addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest2);
     addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, interest2);
 
+    entry.recordForwarding();
     m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest2.wireEncode(),
                                             'I', interest2.getName()));
-    entry.recordForwarding();
   }
 
   void
@@ -206,14 +206,16 @@ public: // producer
     const Interest& interest2 = *interest;
     auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
       std::move(interest), ref(m_scheduler))).first;
-    PendingInterest& entry = **i;
-    entry.setDeleter([this, i] { m_pendingInterestTable.erase(i); });
+    // InterestCallback may put Data right away and delete the entry from PendingInterestTable.
+    // shared_ptr is retained to ensure PendingInterest instance is valid throughout the loop.
+    shared_ptr<PendingInterest> entry = *i;
+    entry->setDeleter([this, i] { m_pendingInterestTable.erase(i); });
 
     for (const auto& filter : m_interestFilterTable) {
       if (filter->doesMatch(interest2.getName())) {
         NDN_LOG_DEBUG("   matches " << filter->getFilter());
+        entry->recordForwarding();
         filter->invokeInterestCallback(interest2);
-        entry.recordForwarding();
       }
     }
   }
