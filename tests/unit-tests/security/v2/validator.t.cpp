@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(ExpiredCert)
       face.receive(expiredCert);
     }
     else {
-      processInterest(interest);
+      originalProcessInterest(interest);
     }
   };
 
