@@ -3,6 +3,7 @@ Manpages
 
 .. toctree::
     ndn-client.conf     <manpages/ndn-client.conf>
+    ndn-cxx logging     <manpages/ndn-log>
     manpages/ndnsec
     ndnsec-list         <manpages/ndnsec-list>
     ndnsec-get-default  <manpages/ndnsec-get-default>
