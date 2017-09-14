@@ -22,7 +22,6 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_PRIVATE_KEY_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_PRIVATE_KEY_HPP
 
-#include "public-key.hpp"
 #include "../../encoding/buffer.hpp"
 
 namespace ndn {
@@ -48,8 +47,6 @@ public:
     }
   };
 
-  friend class SignerFilter;
-
   /**
    * @brief Callback for application to handle password input
    *
@@ -62,9 +59,9 @@ public:
 
 public:
   /**
-   * @brief Create a private key instance
+   * @brief Create an empty private key instance
    *
-   * One must call loadXXXX(...) to load private key.
+   * One must call loadXXXX(...) to load a private key.
    */
   PrivateKey();
 
@@ -96,7 +93,6 @@ public:
 
   /**
    * @brief Load the private key in encrypted PKCS#8 format from a buffer @p buf with passphrase @p pw
-   *
    * @pre strlen(pw) == pwLen
    */
   void
@@ -113,7 +109,6 @@ public:
 
   /**
    * @brief Load the private key in encrypted PKCS#8 format from a stream @p is with passphrase @p pw
-   *
    * @pre strlen(pw) == pwLen
    */
   void
@@ -131,7 +126,6 @@ public:
   /**
    * @brief Load the private key in base64-encoded encrypted PKCS#8 format from a buffer @p buf
    *        with passphrase @p pw
-   *
    * @pre strlen(pw) == pwLen
    */
   void
@@ -149,7 +143,6 @@ public:
   /**
    * @brief Load the private key in base64-encoded encrypted PKCS#8 format from a stream @p is
    *        with passphrase @p pw
-   *
    * @pre strlen(pw) == pwLen
    */
   void
@@ -213,7 +206,7 @@ public:
   derivePublicKey() const;
 
   /**
-   * @return Plain text of @p cipherText decrypted using the private key.
+   * @return Plain text of @p cipherText decrypted using this private key.
    *
    * Only RSA encryption is supported for now.
    */
@@ -221,10 +214,12 @@ public:
   decrypt(const uint8_t* cipherText, size_t cipherLen) const;
 
 private:
+  friend class SignerFilter;
+
   /**
-   * @return A pointer to an EVP_PKEY instance.
+   * @return A pointer to an OpenSSL EVP_PKEY instance.
    *
-   * One need to explicitly cast the return value to EVP_PKEY*.
+   * The caller needs to explicitly cast the return value to `EVP_PKEY*`.
    */
   void*
   getEvpPkey() const;
@@ -243,17 +238,26 @@ private:
   rsaDecrypt(const uint8_t* cipherText, size_t cipherLen) const;
 
 private:
+  friend unique_ptr<PrivateKey> generatePrivateKey(const KeyParams&);
+
+  static unique_ptr<PrivateKey>
+  generateRsaKey(uint32_t keySize);
+
+  static unique_ptr<PrivateKey>
+  generateEcKey(uint32_t keySize);
+
+private:
   class Impl;
   const unique_ptr<Impl> m_impl;
 };
 
 /**
- * @brief generate a private key according to @p keyParams.
+ * @brief Generate a private key according to @p keyParams
  *
- * @note the public key can be derived from the private key
+ * @note The public key can be derived from the private key.
  *
- * @throw std::argument_error if the key type is not supported
- * @throw std::runtime_error when failing to generate the key
+ * @throw std::invalid_argument the specified key type is not supported
+ * @throw std::runtime_error    key generation fails
  */
 unique_ptr<PrivateKey>
 generatePrivateKey(const KeyParams& keyParams);

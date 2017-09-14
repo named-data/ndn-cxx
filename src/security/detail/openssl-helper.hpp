@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,8 @@
 #ifndef NDN_CXX_SECURITY_DETAIL_OPENSSL_HELPER_HPP
 #define NDN_CXX_SECURITY_DETAIL_OPENSSL_HELPER_HPP
 
-#include "../security-common.hpp"
 #include "openssl.hpp"
+#include "../security-common.hpp"
 
 namespace ndn {
 namespace security {
@@ -32,30 +32,7 @@ namespace detail {
 const EVP_MD*
 toDigestEvpMd(DigestAlgorithm algo);
 
-class EvpPkey
-{
-public:
-  EvpPkey();
-
-  ~EvpPkey();
-
-  EVP_PKEY*
-  get() const
-  {
-    return m_key;
-  }
-
-  EVP_PKEY**
-  operator&()
-  {
-    return &m_key;
-  }
-
-private:
-  EVP_PKEY* m_key;
-};
-
-class EvpPkeyCtx
+class EvpPkeyCtx : noncopyable
 {
 public:
   explicit
@@ -66,8 +43,7 @@ public:
 
   ~EvpPkeyCtx();
 
-  EVP_PKEY_CTX*
-  get() const
+  operator EVP_PKEY_CTX*() const
   {
     return m_ctx;
   }
@@ -76,23 +52,30 @@ private:
   EVP_PKEY_CTX* m_ctx;
 };
 
-class Bio
+class Bio : noncopyable
 {
 public:
-  explicit
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  Bio(BIO_METHOD* method);
+  using MethodPtr = BIO_METHOD*;
 #else
-  Bio(const BIO_METHOD* method);
+  using MethodPtr = const BIO_METHOD*;
 #endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
+
+  explicit
+  Bio(MethodPtr method);
 
   ~Bio();
 
-  BIO*
-  get() const
+  operator BIO*() const
   {
     return m_bio;
   }
+
+  bool
+  read(uint8_t* buf, size_t buflen) const noexcept;
+
+  bool
+  write(const uint8_t* buf, size_t buflen) noexcept;
 
 private:
   BIO* m_bio;

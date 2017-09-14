@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,26 +36,18 @@ toDigestEvpMd(DigestAlgorithm algo)
   }
 }
 
-EvpPkey::EvpPkey()
-  : m_key(nullptr)
-{
-}
-
-EvpPkey::~EvpPkey()
-{
-  EVP_PKEY_free(m_key);
-}
-
 EvpPkeyCtx::EvpPkeyCtx(EVP_PKEY* key)
   : m_ctx(EVP_PKEY_CTX_new(key, nullptr))
 {
-  BOOST_ASSERT(m_ctx != nullptr);
+  if (m_ctx == nullptr)
+    BOOST_THROW_EXCEPTION(std::runtime_error("EVP_PKEY_CTX creation failed"));
 }
 
 EvpPkeyCtx::EvpPkeyCtx(int id)
   : m_ctx(EVP_PKEY_CTX_new_id(id, nullptr))
 {
-  BOOST_ASSERT(m_ctx != nullptr);
+  if (m_ctx == nullptr)
+    BOOST_THROW_EXCEPTION(std::runtime_error("EVP_PKEY_CTX creation failed"));
 }
 
 EvpPkeyCtx::~EvpPkeyCtx()
@@ -63,19 +55,32 @@ EvpPkeyCtx::~EvpPkeyCtx()
   EVP_PKEY_CTX_free(m_ctx);
 }
 
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-Bio::Bio(BIO_METHOD* method)
-#else
-Bio::Bio(const BIO_METHOD* method)
-#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
+Bio::Bio(Bio::MethodPtr method)
   : m_bio(BIO_new(method))
 {
-  BOOST_ASSERT(m_bio != nullptr);
+  if (m_bio == nullptr)
+    BOOST_THROW_EXCEPTION(std::runtime_error("BIO creation failed"));
 }
 
 Bio::~Bio()
 {
   BIO_free_all(m_bio);
+}
+
+bool
+Bio::read(uint8_t* buf, size_t buflen) const noexcept
+{
+  BOOST_ASSERT(buflen <= std::numeric_limits<int>::max());
+  int n = BIO_read(m_bio, buf, static_cast<int>(buflen));
+  return n >= 0 && static_cast<size_t>(n) == buflen;
+}
+
+bool
+Bio::write(const uint8_t* buf, size_t buflen) noexcept
+{
+  BOOST_ASSERT(buflen <= std::numeric_limits<int>::max());
+  int n = BIO_write(m_bio, buf, static_cast<int>(buflen));
+  return n >= 0 && static_cast<size_t>(n) == buflen;
 }
 
 } // namespace detail

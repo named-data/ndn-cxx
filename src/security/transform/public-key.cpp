@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -141,15 +141,20 @@ PublicKey::encrypt(const uint8_t* plainText, size_t plainLen) const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
+  int keyType =
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  switch (EVP_PKEY_type(m_impl->key->type)) {
+    EVP_PKEY_type(m_impl->key->type);
 #else
-  switch (EVP_PKEY_base_id(m_impl->key)) {
+    EVP_PKEY_base_id(m_impl->key);
 #endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
-  case EVP_PKEY_RSA:
-    return rsaEncrypt(plainText, plainLen);
-  default:
-    BOOST_THROW_EXCEPTION(Error("Encryption is not supported for this key type"));
+
+  switch (keyType) {
+    case EVP_PKEY_NONE:
+      BOOST_THROW_EXCEPTION(Error("Failed to determine key type"));
+    case EVP_PKEY_RSA:
+      return rsaEncrypt(plainText, plainLen);
+    default:
+      BOOST_THROW_EXCEPTION(Error("Encryption is not supported for key type " + to_string(keyType)));
   }
 }
 
@@ -181,20 +186,20 @@ PublicKey::rsaEncrypt(const uint8_t* plainText, size_t plainLen) const
 {
   detail::EvpPkeyCtx ctx(m_impl->key);
 
-  if (EVP_PKEY_encrypt_init(ctx.get()) <= 0)
+  if (EVP_PKEY_encrypt_init(ctx) <= 0)
     BOOST_THROW_EXCEPTION(Error("Failed to initialize encryption context"));
 
-  if (EVP_PKEY_CTX_set_rsa_padding(ctx.get(), RSA_PKCS1_OAEP_PADDING) <= 0)
+  if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0)
     BOOST_THROW_EXCEPTION(Error("Failed to set padding"));
 
   size_t outlen = 0;
   // Determine buffer length
-  if (EVP_PKEY_encrypt(ctx.get(), nullptr, &outlen, plainText, plainLen) <= 0)
+  if (EVP_PKEY_encrypt(ctx, nullptr, &outlen, plainText, plainLen) <= 0)
     BOOST_THROW_EXCEPTION(Error("Failed to estimate output length"));
 
   auto out = make_shared<Buffer>(outlen);
 
-  if (EVP_PKEY_encrypt(ctx.get(), out->buf(), &outlen, plainText, plainLen) <= 0)
+  if (EVP_PKEY_encrypt(ctx, out->buf(), &outlen, plainText, plainLen) <= 0)
     BOOST_THROW_EXCEPTION(Error("Failed to encrypt plaintext"));
 
   out->resize(outlen);
