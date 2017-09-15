@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -114,7 +114,6 @@ BOOST_AUTO_TEST_CASE(KeyIdTypeInfo)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyIdType::RANDOM), "RANDOM");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<KeyIdType>(12345)), "12345");
 }
-
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyParams
 BOOST_AUTO_TEST_SUITE_END() // Security

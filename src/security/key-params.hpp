@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,9 +22,8 @@
 #ifndef NDN_SECURITY_KEY_PARAMS_HPP
 #define NDN_SECURITY_KEY_PARAMS_HPP
 
-#include "../common.hpp"
-#include "../name-component.hpp"
 #include "security-common.hpp"
+#include "../name-component.hpp"
 
 namespace ndn {
 
@@ -61,16 +60,16 @@ public:
     return m_keyIdType;
   }
 
-  void
-  setKeyId(const name::Component& keyId)
-  {
-    m_keyId = keyId;
-  }
-
   const name::Component&
   getKeyId() const
   {
     return m_keyId;
+  }
+
+  void
+  setKeyId(const name::Component& keyId)
+  {
+    m_keyId = keyId;
   }
 
 protected:
@@ -79,7 +78,7 @@ protected:
    *
    * @param keyType Type of the created key
    * @param keyIdType The method how the key id should be generated; must not be
-                      KeyIdType::USER_SPECIFIED
+   *                  KeyIdType::USER_SPECIFIED
    */
   KeyParams(KeyType keyType, KeyIdType keyIdType);
 
@@ -100,18 +99,20 @@ private:
 };
 
 
-/// @brief RsaKeyParamInfo is used to initialize a SimplePublicKeyParams template for RSA key.
+namespace detail {
+
+/// @brief RsaKeyParamInfo is used to instantiate SimplePublicKeyParams for RSA keys.
 class RsaKeyParamsInfo
 {
 public:
-  static KeyType
+  static constexpr KeyType
   getType()
   {
     return KeyType::RSA;
   }
 
   /**
-   * @brief check if @p size is qualified.
+   * @brief check if @p size is valid and supported for this key type.
    *
    * @throw KeyParams::Error if the key size is not supported.
    */
@@ -122,18 +123,18 @@ public:
   getDefaultSize();
 };
 
-/// @brief EcKeyParamInfo is used to initialize a SimplePublicKeyParams template for elliptic curve key.
+/// @brief EcKeyParamInfo is used to instantiate SimplePublicKeyParams for elliptic curve keys.
 class EcKeyParamsInfo
 {
 public:
-  static KeyType
+  static constexpr KeyType
   getType()
   {
     return KeyType::EC;
   }
 
   /**
-   * @brief check if @p size is qualified.
+   * @brief check if @p size is valid and supported for this key type.
    *
    * @throw KeyParams::Error if the key size is not supported.
    */
@@ -143,6 +144,8 @@ public:
   static uint32_t
   getDefaultSize();
 };
+
+} // namespace detail
 
 
 /// @brief SimplePublicKeyParams is a template for public keys with only one parameter: size.
@@ -197,23 +200,26 @@ private:
 };
 
 /// @brief RsaKeyParams carries parameters for RSA key.
-typedef SimplePublicKeyParams<RsaKeyParamsInfo> RsaKeyParams;
+typedef SimplePublicKeyParams<detail::RsaKeyParamsInfo> RsaKeyParams;
 
 /// @brief EcKeyParams carries parameters for EC key.
-typedef SimplePublicKeyParams<EcKeyParamsInfo> EcKeyParams;
+typedef SimplePublicKeyParams<detail::EcKeyParamsInfo> EcKeyParams;
 
-/// @brief AesKeyParamsInfo is used to initialize a SimpleSymmetricKeyParams template for AES key.
+
+namespace detail {
+
+/// @brief AesKeyParamsInfo is used to instantiate SimpleSymmetricKeyParams for AES keys.
 class AesKeyParamsInfo
 {
 public:
-  static KeyType
+  static constexpr KeyType
   getType()
   {
     return KeyType::AES;
   }
 
   /**
-   * @brief check if @p size is qualified.
+   * @brief check if @p size is valid and supported for this key type.
    *
    * @return KeyParams::Error if the key size is not supported.
    */
@@ -223,6 +229,9 @@ public:
   static uint32_t
   getDefaultSize();
 };
+
+} // namespace detail
+
 
 /// @brief SimpleSymmetricKeyParams is a template for symmetric keys with only one parameter: size.
 template<typename KeyParamsInfo>
@@ -275,7 +284,8 @@ private:
   uint32_t m_size;
 };
 
-typedef SimpleSymmetricKeyParams<AesKeyParamsInfo> AesKeyParams;
+/// @brief AesKeyParams carries parameters for AES key.
+typedef SimpleSymmetricKeyParams<detail::AesKeyParamsInfo> AesKeyParams;
 
 } // namespace ndn
 
