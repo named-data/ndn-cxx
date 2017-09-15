@@ -20,18 +20,24 @@
  */
 
 #include "public-key.hpp"
-#include "buffer-source.hpp"
-#include "stream-source.hpp"
-#include "base64-encode.hpp"
 #include "base64-decode.hpp"
+#include "base64-encode.hpp"
+#include "buffer-source.hpp"
 #include "stream-sink.hpp"
-#include "../../encoding/buffer-stream.hpp"
+#include "stream-source.hpp"
 #include "../detail/openssl-helper.hpp"
+#include "../../encoding/buffer-stream.hpp"
 
 #define ENSURE_PUBLIC_KEY_LOADED(key) \
   do { \
-    if (key == nullptr) \
+    if ((key) == nullptr) \
       BOOST_THROW_EXCEPTION(Error("Public key has not been loaded yet")); \
+  } while (false)
+
+#define ENSURE_PUBLIC_KEY_NOT_LOADED(key) \
+  do { \
+    if ((key) != nullptr) \
+      BOOST_THROW_EXCEPTION(Error("Public key has already been loaded")); \
   } while (false)
 
 namespace ndn {
@@ -41,7 +47,7 @@ namespace transform {
 class PublicKey::Impl
 {
 public:
-  Impl()
+  Impl() noexcept
     : key(nullptr)
   {
   }
@@ -56,7 +62,7 @@ public:
 };
 
 PublicKey::PublicKey()
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
 }
 
@@ -67,36 +73,37 @@ PublicKey::getKeyType() const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
+  int keyType =
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  switch (EVP_PKEY_type(m_impl->key->type)) {
+    EVP_PKEY_type(m_impl->key->type);
 #else
-  switch (EVP_PKEY_base_id(m_impl->key)) {
+    EVP_PKEY_base_id(m_impl->key);
 #endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
+
+  switch (keyType) {
   case EVP_PKEY_RSA:
     return KeyType::RSA;
   case EVP_PKEY_EC:
     return KeyType::EC;
   default:
-    BOOST_THROW_EXCEPTION(Error("Public key type is not recognized"));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized public key type"));
   }
 }
 
 void
 PublicKey::loadPkcs8(const uint8_t* buf, size_t size)
 {
-  m_impl->key = d2i_PUBKEY(nullptr, &buf, size);
+  ENSURE_PUBLIC_KEY_NOT_LOADED(m_impl->key);
 
-  ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
+  if (d2i_PUBKEY(&m_impl->key, &buf, static_cast<long>(size)) == nullptr)
+    BOOST_THROW_EXCEPTION(Error("Failed to load public key"));
 }
 
 void
 PublicKey::loadPkcs8(std::istream& is)
 {
   OBufferStream os;
-  {
-    using namespace transform;
-    streamSource(is) >> streamSink(os);
-  }
+  streamSource(is) >> streamSink(os);
   this->loadPkcs8(os.buf()->buf(), os.buf()->size());
 }
 
@@ -104,10 +111,7 @@ void
 PublicKey::loadPkcs8Base64(const uint8_t* buf, size_t size)
 {
   OBufferStream os;
-  {
-    using namespace transform;
-    bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  }
+  bufferSource(buf, size) >> base64Decode() >> streamSink(os);
   this->loadPkcs8(os.buf()->buf(), os.buf()->size());
 }
 
@@ -115,24 +119,19 @@ void
 PublicKey::loadPkcs8Base64(std::istream& is)
 {
   OBufferStream os;
-  {
-    using namespace transform;
-    streamSource(is) >> base64Decode() >> streamSink(os);
-  }
+  streamSource(is) >> base64Decode() >> streamSink(os);
   this->loadPkcs8(os.buf()->buf(), os.buf()->size());
 }
 
 void
 PublicKey::savePkcs8(std::ostream& os) const
 {
-  using namespace transform;
   bufferSource(*this->toPkcs8()) >> streamSink(os);
 }
 
 void
 PublicKey::savePkcs8Base64(std::ostream& os) const
 {
-  using namespace transform;
   bufferSource(*this->toPkcs8()) >> base64Encode() >> streamSink(os);
 }
 
@@ -171,9 +170,8 @@ PublicKey::toPkcs8() const
 
   uint8_t* pkcs8 = nullptr;
   int len = i2d_PUBKEY(m_impl->key, &pkcs8);
-
-  if (pkcs8 == nullptr)
-    BOOST_THROW_EXCEPTION(Error("Failed to convert to pkcs8 format"));
+  if (len < 0)
+    BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(pkcs8, len);
   OPENSSL_free(pkcs8);
@@ -198,7 +196,6 @@ PublicKey::rsaEncrypt(const uint8_t* plainText, size_t plainLen) const
     BOOST_THROW_EXCEPTION(Error("Failed to estimate output length"));
 
   auto out = make_shared<Buffer>(outlen);
-
   if (EVP_PKEY_encrypt(ctx, out->buf(), &outlen, plainText, plainLen) <= 0)
     BOOST_THROW_EXCEPTION(Error("Failed to encrypt plaintext"));
 

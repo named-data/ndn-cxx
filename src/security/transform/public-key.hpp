@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -29,8 +29,6 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-class VerifierFilter;
-
 /**
  * @brief Abstraction of public key in crypto transformation
  */
@@ -47,13 +45,11 @@ public:
     }
   };
 
-  friend class VerifierFilter;
-
 public:
   /**
-   * @brief Create a public key instance
+   * @brief Create an empty public key instance
    *
-   * One must call loadXXXX(...) to load public key.
+   * One must call loadXXXX(...) to load a public key.
    */
   PublicKey();
 
@@ -102,7 +98,7 @@ public:
   savePkcs8Base64(std::ostream& os) const;
 
   /**
-   * @return Cipher text of @p plainText encrypted using the public key.
+   * @return Cipher text of @p plainText encrypted using this public key.
    *
    * Only RSA encryption is supported for now.
    */
@@ -110,10 +106,12 @@ public:
   encrypt(const uint8_t* plainText, size_t plainLen) const;
 
 private:
+  friend class VerifierFilter;
+
   /**
-   * @return A pointer to an EVP_PKEY instance.
+   * @return A pointer to an OpenSSL EVP_PKEY instance.
    *
-   * One need to explicitly cast the return value to EVP_PKEY*.
+   * The caller needs to explicitly cast the return value to `EVP_PKEY*`.
    */
   void*
   getEvpPkey() const;
