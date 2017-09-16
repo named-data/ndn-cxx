@@ -73,20 +73,13 @@ PublicKey::getKeyType() const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
-  int keyType =
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    EVP_PKEY_type(m_impl->key->type);
-#else
-    EVP_PKEY_base_id(m_impl->key);
-#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
-
-  switch (keyType) {
+  switch (detail::getEvpPkeyType(m_impl->key)) {
   case EVP_PKEY_RSA:
     return KeyType::RSA;
   case EVP_PKEY_EC:
     return KeyType::EC;
   default:
-    BOOST_THROW_EXCEPTION(Error("Unrecognized public key type"));
+    return KeyType::NONE;
   }
 }
 
@@ -140,13 +133,7 @@ PublicKey::encrypt(const uint8_t* plainText, size_t plainLen) const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
-  int keyType =
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    EVP_PKEY_type(m_impl->key->type);
-#else
-    EVP_PKEY_base_id(m_impl->key);
-#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
-
+  int keyType = detail::getEvpPkeyType(m_impl->key);
   switch (keyType) {
     case EVP_PKEY_NONE:
       BOOST_THROW_EXCEPTION(Error("Failed to determine key type"));

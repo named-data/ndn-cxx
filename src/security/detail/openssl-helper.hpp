@@ -32,6 +32,9 @@ namespace detail {
 const EVP_MD*
 toDigestEvpMd(DigestAlgorithm algo);
 
+int
+getEvpPkeyType(EVP_PKEY* key);
+
 class EvpPkeyCtx : noncopyable
 {
 public:

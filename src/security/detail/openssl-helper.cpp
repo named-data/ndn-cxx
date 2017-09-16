@@ -36,6 +36,17 @@ toDigestEvpMd(DigestAlgorithm algo)
   }
 }
 
+int
+getEvpPkeyType(EVP_PKEY* key)
+{
+  return
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+    EVP_PKEY_type(key->type);
+#else
+    EVP_PKEY_base_id(key);
+#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
+}
+
 EvpPkeyCtx::EvpPkeyCtx(EVP_PKEY* key)
   : m_ctx(EVP_PKEY_CTX_new(key, nullptr))
 {
