@@ -61,7 +61,7 @@ public:
 DigestFilter::DigestFilter(DigestAlgorithm algo)
   : m_impl(make_unique<Impl>())
 {
-  const EVP_MD* md = detail::toDigestEvpMd(algo);
+  const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
   if (md == nullptr)
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
                                 boost::lexical_cast<std::string>(algo)));

@@ -30,7 +30,7 @@ namespace security {
 namespace detail {
 
 const EVP_MD*
-toDigestEvpMd(DigestAlgorithm algo);
+digestAlgorithmToEvpMd(DigestAlgorithm algo);
 
 int
 getEvpPkeyType(EVP_PKEY* key);

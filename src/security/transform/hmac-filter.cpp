@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,7 +74,7 @@ HmacFilter::HmacFilter(DigestAlgorithm algo, const uint8_t* key, size_t keyLen)
   BOOST_ASSERT(key != nullptr);
   BOOST_ASSERT(keyLen > 0);
 
-  const EVP_MD* algorithm = detail::toDigestEvpMd(algo);
+  const EVP_MD* algorithm = detail::digestAlgorithmToEvpMd(algo);
   if (algorithm == nullptr)
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm"));
 

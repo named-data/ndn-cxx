@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,8 +20,9 @@
  */
 
 #include "signer-filter.hpp"
-#include "../../encoding/buffer.hpp"
-#include "../detail/openssl.hpp"
+#include "../detail/openssl-helper.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace security {
@@ -53,16 +54,14 @@ public:
 SignerFilter::SignerFilter(DigestAlgorithm algo, const PrivateKey& key)
   : m_impl(new Impl(key))
 {
-  switch (algo) {
-    case DigestAlgorithm::SHA256: {
-      if (!BIO_set_md(m_impl->m_md, EVP_sha256()))
-        BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest"));
-      break;
-    }
+  const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
+  if (md == nullptr)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
+                                boost::lexical_cast<std::string>(algo)));
 
-    default:
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Digest algorithm is not supported"));
-  }
+  if (!BIO_set_md(m_impl->m_md, md))
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest " +
+                                boost::lexical_cast<std::string>(algo)));
 }
 
 size_t

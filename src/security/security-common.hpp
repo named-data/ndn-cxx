@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -23,8 +23,6 @@
 #define NDN_SECURITY_SECURITY_COMMON_HPP
 
 #include "../common.hpp"
-
-#define NDN_CXX_KEEP_SECURITY_V1_ALIASES
 
 namespace ndn {
 
@@ -75,17 +73,20 @@ enum class KeyIdType {
    *
    * This KeyId provides roughly uniqueness of the key names.
    */
-  RANDOM = 2
+  RANDOM = 2,
 };
 
 std::ostream&
 operator<<(std::ostream& os, KeyIdType keyIdType);
 
+/**
+ * @brief The type of a cryptographic key
+ */
 enum class KeyType {
-  NONE = 0,
-  RSA  = 1,
-  EC   = 2,
-  AES  = 128
+  NONE = 0,   ///< Unknown key type
+  RSA  = 1,   ///< RSA key, supports sign/verify and encrypt/decrypt operations
+  EC   = 2,   ///< Elliptic Curve key (e.g. for ECDSA), supports sign/verify operations
+  AES  = 128, ///< AES key, supports encrypt/decrypt operations
 };
 
 std::ostream&
@@ -95,7 +96,7 @@ enum class KeyClass {
   NONE,
   PUBLIC,
   PRIVATE,
-  SYMMETRIC
+  SYMMETRIC,
 };
 
 std::ostream&
@@ -103,7 +104,7 @@ operator<<(std::ostream& os, KeyClass keyClass);
 
 enum class DigestAlgorithm {
   NONE   = 0,
-  SHA256 = 1
+  SHA256 = 1,
 };
 
 std::ostream&
@@ -111,7 +112,7 @@ operator<<(std::ostream& os, DigestAlgorithm algorithm);
 
 enum class BlockCipherAlgorithm {
   NONE,
-  AES_CBC
+  AES_CBC,
 };
 
 std::ostream&
@@ -119,7 +120,7 @@ operator<<(std::ostream& os, BlockCipherAlgorithm algorithm);
 
 enum class CipherOperator {
   DECRYPT = 0,
-  ENCRYPT = 1
+  ENCRYPT = 1,
 };
 
 std::ostream&
@@ -128,7 +129,7 @@ operator<<(std::ostream& os, CipherOperator op);
 enum class AclType {
   NONE,
   PUBLIC,
-  PRIVATE
+  PRIVATE,
 };
 
 std::ostream&

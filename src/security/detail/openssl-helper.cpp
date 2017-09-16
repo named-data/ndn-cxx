@@ -26,7 +26,7 @@ namespace security {
 namespace detail {
 
 const EVP_MD*
-toDigestEvpMd(DigestAlgorithm algo)
+digestAlgorithmToEvpMd(DigestAlgorithm algo)
 {
   switch (algo) {
   case DigestAlgorithm::SHA256:
