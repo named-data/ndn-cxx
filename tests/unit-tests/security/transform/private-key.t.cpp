@@ -295,6 +295,7 @@ BOOST_AUTO_TEST_CASE(RsaDecryption)
   PrivateKey sKey;
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(dataSet.privateKeyPkcs1.c_str()),
                        dataSet.privateKeyPkcs1.size());
+  BOOST_CHECK_EQUAL(sKey.getKeyType(), KeyType::RSA);
 
   const uint8_t plainText[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
@@ -320,10 +321,12 @@ BOOST_AUTO_TEST_CASE(RsaEncryptDecrypt)
   PublicKey pKey;
   pKey.loadPkcs8Base64(reinterpret_cast<const uint8_t*>(dataSet.publicKeyPkcs8.c_str()),
                        dataSet.publicKeyPkcs8.size());
+  BOOST_CHECK_EQUAL(pKey.getKeyType(), KeyType::RSA);
 
   PrivateKey sKey;
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(dataSet.privateKeyPkcs1.c_str()),
                        dataSet.privateKeyPkcs1.size());
+  BOOST_CHECK_EQUAL(sKey.getKeyType(), KeyType::RSA);
 
   const uint8_t plainText[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
@@ -340,6 +343,7 @@ BOOST_AUTO_TEST_CASE(UnsupportedEcDecryption)
   PrivateKey sKey;
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(dataSet.privateKeyPkcs1.c_str()),
                        dataSet.privateKeyPkcs1.size());
+  BOOST_CHECK_EQUAL(sKey.getKeyType(), KeyType::EC);
 
   OBufferStream os;
   bufferSource("Y2lhbyFob2xhIWhlbGxvIQ==") >> base64Decode() >> streamSink(os);

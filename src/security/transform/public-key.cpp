@@ -71,7 +71,8 @@ PublicKey::~PublicKey() = default;
 KeyType
 PublicKey::getKeyType() const
 {
-  ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
+  if (!m_impl->key)
+    return KeyType::NONE;
 
   switch (detail::getEvpPkeyType(m_impl->key)) {
   case EVP_PKEY_RSA:

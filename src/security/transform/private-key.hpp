@@ -22,6 +22,7 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_PRIVATE_KEY_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_PRIVATE_KEY_HPP
 
+#include "../security-common.hpp"
 #include "../../encoding/buffer.hpp"
 
 namespace ndn {
@@ -66,6 +67,12 @@ public:
   PrivateKey();
 
   ~PrivateKey();
+
+  /**
+   * @brief Get the type of the private key
+   */
+  KeyType
+  getKeyType() const;
 
   /**
    * @brief Load the private key in PKCS#1 format from a buffer @p buf

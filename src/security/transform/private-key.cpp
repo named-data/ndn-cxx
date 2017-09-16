@@ -84,6 +84,22 @@ PrivateKey::PrivateKey()
 
 PrivateKey::~PrivateKey() = default;
 
+KeyType
+PrivateKey::getKeyType() const
+{
+  if (!m_impl->key)
+    return KeyType::NONE;
+
+  switch (detail::getEvpPkeyType(m_impl->key)) {
+  case EVP_PKEY_RSA:
+    return KeyType::RSA;
+  case EVP_PKEY_EC:
+    return KeyType::EC;
+  default:
+    return KeyType::NONE;
+  }
+}
+
 void
 PrivateKey::loadPkcs1(const uint8_t* buf, size_t size)
 {

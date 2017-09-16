@@ -24,6 +24,7 @@
 #include "encoding/buffer-stream.hpp"
 #include "security/transform/base64-decode.hpp"
 #include "security/transform/buffer-source.hpp"
+#include "security/transform/private-key.hpp"
 #include "security/transform/stream-sink.hpp"
 #include "security/verification-helpers.hpp"
 
@@ -83,6 +84,8 @@ BOOST_AUTO_TEST_CASE(Rsa)
   PrivateKey sKey;
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
 
+  BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, sKey), Error);
+
   OBufferStream os2;
   bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
@@ -118,11 +121,19 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   PrivateKey sKey;
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
 
+  BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, sKey), Error);
+
   OBufferStream os2;
   bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
   BOOST_CHECK(verifySignature(data, sizeof(data), sig->buf(), sig->size(), pubKey->buf(), pubKey->size()));
+}
+
+BOOST_AUTO_TEST_CASE(InvalidKey)
+{
+  PrivateKey sKey;
+  BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::SHA256, sKey), Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSignerFilter

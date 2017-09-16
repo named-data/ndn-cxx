@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -23,12 +23,13 @@
 #define NDN_CXX_SECURITY_TRANSFORM_SIGNER_FILTER_HPP
 
 #include "transform-base.hpp"
-#include "private-key.hpp"
 #include "../security-common.hpp"
 
 namespace ndn {
 namespace security {
 namespace transform {
+
+class PrivateKey;
 
 /**
  * @brief The module to sign data.
@@ -37,9 +38,11 @@ class SignerFilter : public Transform
 {
 public:
   /**
-   * @brief Create a signer module to generate signature using algorithm @p algo and @p key
+   * @brief Create a module to sign using digest algorithm @p algo and private key @p key
    */
   SignerFilter(DigestAlgorithm algo, const PrivateKey& key);
+
+  ~SignerFilter();
 
 private:
   /**

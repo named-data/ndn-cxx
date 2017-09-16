@@ -20,6 +20,7 @@
  */
 
 #include "signer-filter.hpp"
+#include "private-key.hpp"
 #include "../detail/openssl-helper.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -31,66 +32,65 @@ namespace transform {
 class SignerFilter::Impl
 {
 public:
-  Impl(const PrivateKey& key)
-    : m_key(key)
-    , m_md(BIO_new(BIO_f_md()))
-    , m_sink(BIO_new(BIO_s_null()))
+  Impl() noexcept
   {
-    BIO_push(m_md, m_sink);
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+    ctx = EVP_MD_CTX_create();
+#else
+    ctx = EVP_MD_CTX_new();
+#endif
   }
 
   ~Impl()
   {
-    BIO_free_all(m_md);
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+    EVP_MD_CTX_destroy(ctx);
+#else
+    EVP_MD_CTX_free(ctx);
+#endif
   }
 
 public:
-  const PrivateKey& m_key;
-
-  BIO* m_md;
-  BIO* m_sink;
+  EVP_MD_CTX* ctx;
 };
 
+
 SignerFilter::SignerFilter(DigestAlgorithm algo, const PrivateKey& key)
-  : m_impl(new Impl(key))
+  : m_impl(make_unique<Impl>())
 {
   const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
   if (md == nullptr)
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
                                 boost::lexical_cast<std::string>(algo)));
 
-  if (!BIO_set_md(m_impl->m_md, md))
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest " +
-                                boost::lexical_cast<std::string>(algo)));
+  if (EVP_DigestSignInit(m_impl->ctx, nullptr, md, nullptr,
+                         reinterpret_cast<EVP_PKEY*>(key.getEvpPkey())) != 1)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to initialize signing context with " +
+                                boost::lexical_cast<std::string>(algo) + " digest and " +
+                                boost::lexical_cast<std::string>(key.getKeyType()) + " key"));
 }
+
+SignerFilter::~SignerFilter() = default;
 
 size_t
 SignerFilter::convert(const uint8_t* buf, size_t size)
 {
-  int wLen = BIO_write(m_impl->m_md, buf, size);
+  if (EVP_DigestSignUpdate(m_impl->ctx, buf, size) != 1)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
 
-  if (wLen <= 0) { // fail to write data
-    if (!BIO_should_retry(m_impl->m_md)) {
-      // we haven't written everything but some error happens, and we cannot retry
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
-    }
-    return 0;
-  }
-  else { // update number of bytes written
-    return wLen;
-  }
+  return size;
 }
 
 void
 SignerFilter::finalize()
 {
-  EVP_PKEY* key = reinterpret_cast<EVP_PKEY*>(m_impl->m_key.getEvpPkey());
-  auto buffer = make_unique<OBuffer>(EVP_PKEY_size(key));
-  unsigned int sigLen = 0;
+  size_t sigLen = 0;
+  if (EVP_DigestSignFinal(m_impl->ctx, nullptr, &sigLen) != 1)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to estimate buffer length"));
 
-  EVP_MD_CTX* ctx = nullptr;
-  BIO_get_md_ctx(m_impl->m_md, &ctx);
-  EVP_SignFinal(ctx, &(*buffer)[0], &sigLen, key); // should be ok, enough space is allocated in buffer
+  auto buffer = make_unique<OBuffer>(sigLen);
+  if (EVP_DigestSignFinal(m_impl->ctx, buffer->data(), &sigLen) != 1)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to finalize signature"));
 
   buffer->erase(buffer->begin() + sigLen, buffer->end());
   setOutputBuffer(std::move(buffer));

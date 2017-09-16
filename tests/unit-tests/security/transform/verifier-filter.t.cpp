@@ -25,6 +25,7 @@
 #include "security/transform/base64-decode.hpp"
 #include "security/transform/bool-sink.hpp"
 #include "security/transform/buffer-source.hpp"
+#include "security/transform/private-key.hpp"
 #include "security/transform/signer-filter.hpp"
 #include "security/transform/stream-sink.hpp"
 
