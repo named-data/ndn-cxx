@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -34,9 +34,10 @@
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #include "back-end-wrapper-osx.hpp"
 #endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
+
 #include "boost-test.hpp"
 
-#include <boost/mpl/list.hpp>
+#include <boost/mpl/vector.hpp>
 #include <set>
 
 namespace ndn {
@@ -50,13 +51,12 @@ BOOST_AUTO_TEST_SUITE(TestBackEnd)
 
 using tpm::Tpm;
 
-typedef boost::mpl::list<
+using TestBackEnds = boost::mpl::vector<
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
   BackEndWrapperOsx,
 #endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
   BackEndWrapperMem,
-  BackEndWrapperFile
-  > TestBackEnds;
+  BackEndWrapperFile>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(KeyManagement, T, TestBackEnds)
 {
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
 {
-  std::string privateKeyPkcs1 =
+  const std::string privateKeyPkcs1 =
     "MIIEpAIBAAKCAQEAw0WM1/WhAxyLtEqsiAJgWDZWuzkYpeYVdeeZcqRZzzfRgBQT\n"
     "sNozS5t4HnwTZhwwXbH7k3QN0kRTV826Xobws3iigohnM9yTK+KKiayPhIAm/+5H\n"
     "GT6SgFJhYhqo1/upWdueojil6RP4/AgavHhopxlAVbk6G9VdVnlQcQ5Zv0OcGi73\n"
@@ -208,23 +208,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
   BackEnd& tpm = wrapper.getTpm();
 
   Name keyName("/Test/KeyName/KEY/1");
-
   tpm.deleteKey(keyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
 
   transform::PrivateKey sKey;
-  BOOST_REQUIRE_NO_THROW(sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.c_str()),
-                                              privateKeyPkcs1.size()));
+  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.c_str()), privateKeyPkcs1.size());
 
   std::string password("password");
-
   OBufferStream os;
   sKey.savePkcs8(os, password.c_str(), password.size());
   ConstBufferPtr privateKeyBuffer = os.buf();
 
-  BOOST_REQUIRE_NO_THROW(tpm.importKey(keyName,
-                                       privateKeyBuffer->buf(), privateKeyBuffer->size(),
-                                       password.c_str(), password.size()));
+  tpm.importKey(keyName, privateKeyBuffer->buf(), privateKeyBuffer->size(), password.c_str(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
 
   ConstBufferPtr exportedKey = tpm.exportKey(keyName, password.c_str(), password.size());
