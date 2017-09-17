@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "base64-encode.hpp"
-#include "../../encoding/buffer.hpp"
 #include "../detail/openssl.hpp"
 
 namespace ndn {
@@ -53,11 +52,13 @@ public:
 };
 
 Base64Encode::Base64Encode(bool needBreak)
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
   if (!needBreak)
     BIO_set_flags(m_impl->m_base64, BIO_FLAGS_BASE64_NO_NL);
 }
+
+Base64Encode::~Base64Encode() = default;
 
 void
 Base64Encode::preTransform()
@@ -109,7 +110,7 @@ Base64Encode::fillOutputBuffer()
 
   // there is something to read from BIO
   auto buffer = make_unique<OBuffer>(nRead);
-  int rLen = BIO_read(m_impl->m_sink, &(*buffer)[0], nRead);
+  int rLen = BIO_read(m_impl->m_sink, buffer->data(), nRead);
   if (rLen < 0)
     return;
 

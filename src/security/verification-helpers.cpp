@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -21,14 +21,18 @@
 
 #include "verification-helpers.hpp"
 
-#include "data.hpp"
-#include "interest.hpp"
-#include "encoding/buffer-stream.hpp"
-#include "security/pib/key.hpp"
-#include "security/pib/key.hpp"
-#include "security/transform.hpp"
-#include "security/v2/certificate.hpp"
-#include "security/detail/openssl.hpp"
+#include "detail/openssl.hpp"
+#include "pib/key.hpp"
+#include "transform/bool-sink.hpp"
+#include "transform/buffer-source.hpp"
+#include "transform/digest-filter.hpp"
+#include "transform/public-key.hpp"
+#include "transform/stream-sink.hpp"
+#include "transform/verifier-filter.hpp"
+#include "v2/certificate.hpp"
+#include "../data.hpp"
+#include "../interest.hpp"
+#include "../encoding/buffer-stream.hpp"
 
 namespace ndn {
 namespace security {

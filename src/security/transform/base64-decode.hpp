@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -44,8 +44,9 @@ public:
   explicit
   Base64Decode(bool expectNewlineEvery64Bytes = true);
 
-private:
+  ~Base64Decode();
 
+private:
   /**
    * @brief Read partial transformation results into output buffer and write them into next module.
    */

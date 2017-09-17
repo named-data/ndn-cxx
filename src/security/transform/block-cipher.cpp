@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,20 +48,23 @@ public:
   BIO* m_sink; // BIO_f_cipher alone does not work without a sink
 };
 
+
 BlockCipher::BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
                          const uint8_t* key, size_t keyLen,
                          const uint8_t* iv, size_t ivLen)
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
   switch (algo) {
   case BlockCipherAlgorithm::AES_CBC:
     initializeAesCbc(key, keyLen, iv, ivLen, op);
     break;
   default:
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cipher algorithm " +
-                                boost::lexical_cast<std::string>(algo) + " is not supported"));
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported block cipher algorithm " +
+                                boost::lexical_cast<std::string>(algo)));
   }
 }
+
+BlockCipher::~BlockCipher() = default;
 
 void
 BlockCipher::preTransform()
@@ -113,7 +116,7 @@ BlockCipher::fillOutputBuffer()
 
   // there is something to read from BIO
   auto buffer = make_unique<OBuffer>(nRead);
-  int rLen = BIO_read(m_impl->m_sink, &(*buffer)[0], nRead);
+  int rLen = BIO_read(m_impl->m_sink, buffer->data(), nRead);
   if (rLen < 0)
     return;
 

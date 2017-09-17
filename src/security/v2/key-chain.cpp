@@ -38,6 +38,7 @@
 #include "../transform/bool-sink.hpp"
 #include "../transform/buffer-source.hpp"
 #include "../transform/private-key.hpp"
+#include "../transform/public-key.hpp"
 #include "../transform/verifier-filter.hpp"
 #include "../../encoding/buffer-stream.hpp"
 

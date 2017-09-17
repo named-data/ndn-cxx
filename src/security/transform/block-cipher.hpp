@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -51,6 +51,8 @@ public:
   BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
               const uint8_t* key, size_t keyLen,
               const uint8_t* iv, size_t ivLen);
+
+  ~BlockCipher();
 
 private:
   /**

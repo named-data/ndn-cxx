@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "base64-decode.hpp"
-#include "../../encoding/buffer.hpp"
 #include "../detail/openssl.hpp"
 
 namespace ndn {
@@ -59,11 +58,13 @@ public:
 static const size_t BUFFER_LENGTH = 1024;
 
 Base64Decode::Base64Decode(bool expectNewlineEvery64Bytes)
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
   if (!expectNewlineEvery64Bytes)
     BIO_set_flags(m_impl->m_base64, BIO_FLAGS_BASE64_NO_NL);
 }
+
+Base64Decode::~Base64Decode() = default;
 
 void
 Base64Decode::preTransform()
@@ -114,7 +115,7 @@ Base64Decode::fillOutputBuffer()
   // OpenSSL base64 BIO cannot give us the number bytes of partial decoded result,
   // so we just try to read a chunk.
   auto buffer = make_unique<OBuffer>(BUFFER_LENGTH);
-  int rLen = BIO_read(m_impl->m_base64, &(*buffer)[0], buffer->size());
+  int rLen = BIO_read(m_impl->m_base64, buffer->data(), buffer->size());
   if (rLen <= 0)
     return;
 

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,10 +22,12 @@
 #include "back-end.hpp"
 #include "key-handle.hpp"
 #include "tpm.hpp"
-#include "../transform.hpp"
+#include "../pib/key.hpp"
+#include "../transform/buffer-source.hpp"
+#include "../transform/digest-filter.hpp"
+#include "../transform/stream-sink.hpp"
 #include "../../encoding/buffer-stream.hpp"
 #include "../../util/random.hpp"
-#include "../pib/key.hpp"
 
 namespace ndn {
 namespace security {

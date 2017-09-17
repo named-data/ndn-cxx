@@ -68,8 +68,9 @@ private:
 #endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
 };
 
+
 HmacFilter::HmacFilter(DigestAlgorithm algo, const uint8_t* key, size_t keyLen)
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
   BOOST_ASSERT(key != nullptr);
   BOOST_ASSERT(keyLen > 0);
@@ -81,6 +82,8 @@ HmacFilter::HmacFilter(DigestAlgorithm algo, const uint8_t* key, size_t keyLen)
   if (HMAC_Init_ex(*m_impl, key, keyLen, algorithm, nullptr) == 0)
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot initialize HMAC"));
 }
+
+HmacFilter::~HmacFilter() = default;
 
 size_t
 HmacFilter::convert(const uint8_t* buf, size_t size)
@@ -97,7 +100,7 @@ HmacFilter::finalize()
   auto buffer = make_unique<OBuffer>(EVP_MAX_MD_SIZE);
   unsigned int mdLen = 0;
 
-  if (HMAC_Final(*m_impl, &(*buffer)[0], &mdLen) == 0)
+  if (HMAC_Final(*m_impl, buffer->data(), &mdLen) == 0)
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to finalize HMAC"));
 
   buffer->erase(buffer->begin() + mdLen, buffer->end());

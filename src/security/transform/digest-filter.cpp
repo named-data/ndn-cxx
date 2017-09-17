@@ -71,6 +71,8 @@ DigestFilter::DigestFilter(DigestAlgorithm algo)
                                 boost::lexical_cast<std::string>(algo)));
 }
 
+DigestFilter::~DigestFilter() = default;
+
 size_t
 DigestFilter::convert(const uint8_t* buf, size_t size)
 {

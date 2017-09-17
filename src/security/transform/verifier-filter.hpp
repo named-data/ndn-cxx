@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -23,25 +23,28 @@
 #define NDN_CXX_SECURITY_TRANSFORM_VERIFIER_FILTER_HPP
 
 #include "transform-base.hpp"
-#include "public-key.hpp"
 #include "../security-common.hpp"
 
 namespace ndn {
 namespace security {
 namespace transform {
 
+class PublicKey;
+
 /**
- * @brief The module to verify signature.
+ * @brief The module to verify signatures.
  *
- * The next module is usually SinkBool.
+ * The next module in the chain is usually BoolSink.
  */
 class VerifierFilter : public Transform
 {
 public:
   /**
-   * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and @p key
+   * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and key @p key
    */
   VerifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen);
+
+  ~VerifierFilter();
 
 private:
   /**

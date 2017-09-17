@@ -20,6 +20,7 @@
  */
 
 #include "verifier-filter.hpp"
+#include "public-key.hpp"
 #include "../detail/openssl-helper.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -56,9 +57,10 @@ public:
   size_t m_sigLen;
 };
 
+
 VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key,
                                const uint8_t* sig, size_t sigLen)
-  : m_impl(new Impl(key, sig, sigLen))
+  : m_impl(make_unique<Impl>(key, sig, sigLen))
 {
   const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
   if (md == nullptr)
@@ -69,6 +71,8 @@ VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key,
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest " +
                                 boost::lexical_cast<std::string>(algo)));
 }
+
+VerifierFilter::~VerifierFilter() = default;
 
 size_t
 VerifierFilter::convert(const uint8_t* buf, size_t size)

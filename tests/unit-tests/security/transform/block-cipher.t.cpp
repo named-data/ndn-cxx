@@ -84,6 +84,17 @@ BOOST_AUTO_TEST_CASE(AesCbc)
   auto buf2 = os2.buf();
   BOOST_CHECK_EQUAL_COLLECTIONS(plainText, plainText + sizeof(plainText),
                                 buf2->begin(), buf2->end());
+
+  // invalid key length
+  const uint8_t badKey[] = {0x00, 0x01, 0x02, 0x03};
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
+                                badKey, sizeof(badKey), badKey, sizeof(badKey)), Error);
+}
+
+BOOST_AUTO_TEST_CASE(InvalidAlgorithm)
+{
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::NONE, CipherOperator::ENCRYPT,
+                                nullptr, 0, nullptr, 0), Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlockCipher

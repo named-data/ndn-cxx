@@ -26,6 +26,7 @@
 #include "security/transform/bool-sink.hpp"
 #include "security/transform/buffer-source.hpp"
 #include "security/transform/private-key.hpp"
+#include "security/transform/public-key.hpp"
 #include "security/transform/signer-filter.hpp"
 #include "security/transform/stream-sink.hpp"
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,20 +23,23 @@
 #define NDN_CXX_SECURITY_TRANSFORM_HPP
 
 #include "transform/buffer-source.hpp"
-#include "transform/stream-source.hpp"
 #include "transform/step-source.hpp"
+#include "transform/stream-source.hpp"
 
 #include "transform/bool-sink.hpp"
 #include "transform/stream-sink.hpp"
 
-#include "transform/strip-space.hpp"
-#include "transform/hex-encode.hpp"
-#include "transform/hex-decode.hpp"
-#include "transform/base64-encode.hpp"
 #include "transform/base64-decode.hpp"
+#include "transform/base64-encode.hpp"
+#include "transform/hex-decode.hpp"
+#include "transform/hex-encode.hpp"
+#include "transform/strip-space.hpp"
+
+#include "transform/block-cipher.hpp"
 #include "transform/digest-filter.hpp"
 #include "transform/hmac-filter.hpp"
-#include "transform/block-cipher.hpp"
+#include "transform/private-key.hpp"
+#include "transform/public-key.hpp"
 #include "transform/signer-filter.hpp"
 #include "transform/verifier-filter.hpp"
 

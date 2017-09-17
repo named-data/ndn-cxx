@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -35,12 +35,13 @@ namespace transform {
 class HmacFilter : public Transform
 {
 public:
-
   /**
    * @brief Create a HMAC module to generate HMAC using algorithm @p algo and @p key
    * @pre @p key must not be nullptr, and @p size must be a positive integer.
    */
   HmacFilter(DigestAlgorithm algo, const uint8_t* key, size_t keyLen);
+
+  ~HmacFilter();
 
 private:
   /**
