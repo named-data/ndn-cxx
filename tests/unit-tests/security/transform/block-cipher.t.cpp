@@ -88,7 +88,12 @@ BOOST_AUTO_TEST_CASE(AesCbc)
   // invalid key length
   const uint8_t badKey[] = {0x00, 0x01, 0x02, 0x03};
   BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
-                                badKey, sizeof(badKey), badKey, sizeof(badKey)), Error);
+                                badKey, sizeof(badKey), iv, sizeof(iv)), Error);
+
+  // wrong iv length
+  const uint8_t badIv[] = {0x00, 0x01, 0x02, 0x03};
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
+                                key, sizeof(key), badIv, sizeof(badIv)), Error);
 }
 
 BOOST_AUTO_TEST_CASE(InvalidAlgorithm)

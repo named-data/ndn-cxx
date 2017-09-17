@@ -31,7 +31,7 @@ namespace transform {
 class BlockCipher::Impl
 {
 public:
-  Impl()
+  Impl() noexcept
     : m_cipher(BIO_new(BIO_f_cipher()))
     , m_sink(BIO_new(BIO_s_mem()))
   {
@@ -80,7 +80,7 @@ BlockCipher::convert(const uint8_t* data, size_t dataLen)
 
   int wLen = BIO_write(m_impl->m_cipher, data, dataLen);
 
-  if (wLen <= 0) { // fail to write data
+  if (wLen <= 0) { // failed to write data
     if (!BIO_should_retry(m_impl->m_cipher)) {
       // we haven't written everything but some error happens, and we cannot retry
       BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
@@ -89,7 +89,7 @@ BlockCipher::convert(const uint8_t* data, size_t dataLen)
   }
   else { // update number of bytes written
     fillOutputBuffer();
-    return wLen;
+    return static_cast<size_t>(wLen);
   }
 }
 
@@ -110,35 +110,30 @@ BlockCipher::finalize()
 void
 BlockCipher::fillOutputBuffer()
 {
-  int nRead = BIO_pending(m_impl->m_sink);
-  if (nRead <= 0)
+  int nPending = BIO_pending(m_impl->m_sink);
+  if (nPending <= 0)
     return;
 
   // there is something to read from BIO
-  auto buffer = make_unique<OBuffer>(nRead);
-  int rLen = BIO_read(m_impl->m_sink, buffer->data(), nRead);
-  if (rLen < 0)
+  auto buffer = make_unique<OBuffer>(nPending);
+  int nRead = BIO_read(m_impl->m_sink, buffer->data(), nPending);
+  if (nRead < 0)
     return;
 
-  if (rLen < nRead)
-    buffer->erase(buffer->begin() + rLen, buffer->end());
+  buffer->erase(buffer->begin() + nRead, buffer->end());
   setOutputBuffer(std::move(buffer));
 }
 
 bool
 BlockCipher::isConverterEmpty() const
 {
-  return (BIO_pending(m_impl->m_sink) <= 0);
+  return BIO_pending(m_impl->m_sink) <= 0;
 }
 
 void
 BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen,
-                              CipherOperator op)
+                              const uint8_t* iv, size_t ivLen, CipherOperator op)
 {
-  if (keyLen != ivLen)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Key length must be the same as IV length"));
-
   const EVP_CIPHER* cipherType = nullptr;
   switch (keyLen) {
   case 16:
@@ -151,8 +146,13 @@ BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
     cipherType = EVP_aes_256_cbc();
     break;
   default:
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Key length is not supported"));
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
   }
+
+  size_t requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
+  if (ivLen != requiredIvLen)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "IV length must be " + to_string(requiredIvLen)));
+
   BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv, static_cast<int>(op));
 }
 

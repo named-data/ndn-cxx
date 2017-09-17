@@ -32,7 +32,7 @@ namespace transform {
 /**
  * @brief The module to encrypt data using block cipher.
  *
- * The padding scheme of the block cipher is set to the default padding scheme of OpenSSl,
+ * The padding scheme of the block cipher is set to the OpenSSL default,
  * which is PKCS padding.
  */
 class BlockCipher : public Transform
@@ -41,12 +41,12 @@ public:
   /**
    * @brief Create a block cipher
    *
-   * @param algo   The block cipher algorithm (e.g., EncryptMode::AES_CBC).
-   * @param op     The operation that the cipher needs to perform, e.g., CipherOperator::ENCRYPT or CipherOperator::DECRYPT
-   * @param key    The pointer to the key.
-   * @param keyLen The size of the key.
-   * @param iv     The pointer to the initial vector.
-   * @param ivLen  The length of the initial vector.
+   * @param algo   The block cipher algorithm to use.
+   * @param op     Whether to encrypt or decrypt.
+   * @param key    Pointer to the key.
+   * @param keyLen Size of the key.
+   * @param iv     Pointer to the initialization vector.
+   * @param ivLen  Length of the initialization vector.
    */
   BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
               const uint8_t* key, size_t keyLen,
@@ -90,8 +90,7 @@ private:
 private:
   void
   initializeAesCbc(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen,
-                   CipherOperator op);
+                   const uint8_t* iv, size_t ivLen, CipherOperator op);
 
 private:
   class Impl;
