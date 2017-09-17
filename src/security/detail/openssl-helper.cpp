@@ -47,6 +47,26 @@ getEvpPkeyType(EVP_PKEY* key)
 #endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
 }
 
+EvpMdCtx::EvpMdCtx()
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+  : m_ctx(EVP_MD_CTX_create())
+#else
+  : m_ctx(EVP_MD_CTX_new())
+#endif
+{
+  if (m_ctx == nullptr)
+    BOOST_THROW_EXCEPTION(std::runtime_error("EVP_MD_CTX creation failed"));
+}
+
+EvpMdCtx::~EvpMdCtx()
+{
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+  EVP_MD_CTX_destroy(m_ctx);
+#else
+  EVP_MD_CTX_free(m_ctx);
+#endif
+}
+
 EvpPkeyCtx::EvpPkeyCtx(EVP_PKEY* key)
   : m_ctx(EVP_PKEY_CTX_new(key, nullptr))
 {

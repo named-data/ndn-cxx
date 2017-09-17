@@ -31,28 +31,18 @@ namespace transform {
 class HmacFilter::Impl
 {
 public:
-  Impl() noexcept
+  Impl()
     : key(nullptr)
   {
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    ctx = EVP_MD_CTX_create();
-#else
-    ctx = EVP_MD_CTX_new();
-#endif
   }
 
   ~Impl()
   {
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    EVP_MD_CTX_destroy(ctx);
-#else
-    EVP_MD_CTX_free(ctx);
-#endif
     EVP_PKEY_free(key);
   }
 
 public:
-  EVP_MD_CTX* ctx;
+  detail::EvpMdCtx ctx;
   EVP_PKEY* key;
 };
 

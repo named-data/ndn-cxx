@@ -35,6 +35,22 @@ digestAlgorithmToEvpMd(DigestAlgorithm algo);
 int
 getEvpPkeyType(EVP_PKEY* key);
 
+class EvpMdCtx : noncopyable
+{
+public:
+  EvpMdCtx();
+
+  ~EvpMdCtx();
+
+  operator EVP_MD_CTX*() const
+  {
+    return m_ctx;
+  }
+
+private:
+  EVP_MD_CTX* m_ctx;
+};
+
 class EvpPkeyCtx : noncopyable
 {
 public:

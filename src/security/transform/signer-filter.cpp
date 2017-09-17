@@ -32,26 +32,7 @@ namespace transform {
 class SignerFilter::Impl
 {
 public:
-  Impl() noexcept
-  {
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    ctx = EVP_MD_CTX_create();
-#else
-    ctx = EVP_MD_CTX_new();
-#endif
-  }
-
-  ~Impl()
-  {
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    EVP_MD_CTX_destroy(ctx);
-#else
-    EVP_MD_CTX_free(ctx);
-#endif
-  }
-
-public:
-  EVP_MD_CTX* ctx;
+  detail::EvpMdCtx ctx;
 };
 
 
