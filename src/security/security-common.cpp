@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "security-common.hpp"
+
 #include <ostream>
 
 namespace ndn {
@@ -50,7 +51,7 @@ operator<<(std::ostream& os, KeyType keyType)
       return os << "EC";
     case KeyType::AES:
       return os << "AES";
-  };
+  }
   return os << static_cast<int>(keyType);
 }
 
@@ -66,7 +67,7 @@ operator<<(std::ostream& os, KeyClass keyClass)
       return os << "PRIVATE";
     case KeyClass::SYMMETRIC:
       return os << "SYMMETRIC";
-  };
+  }
   return os << static_cast<int>(keyClass);
 }
 
@@ -76,9 +77,15 @@ operator<<(std::ostream& os, DigestAlgorithm algorithm)
   switch (algorithm) {
     case DigestAlgorithm::NONE:
       return os << "NONE";
+    case DigestAlgorithm::SHA224:
+      return os << "SHA224";
     case DigestAlgorithm::SHA256:
       return os << "SHA256";
-  };
+    case DigestAlgorithm::SHA384:
+      return os << "SHA384";
+    case DigestAlgorithm::SHA512:
+      return os << "SHA512";
+  }
   return os << static_cast<int>(algorithm);
 }
 
@@ -90,7 +97,7 @@ operator<<(std::ostream& os, BlockCipherAlgorithm algorithm)
       return os << "NONE";
     case BlockCipherAlgorithm::AES_CBC:
       return os << "AES_CBC";
-  };
+  }
   return os << static_cast<int>(algorithm);
 }
 
@@ -102,7 +109,7 @@ operator<<(std::ostream& os, CipherOperator op)
       return os << "DECRYPT";
     case CipherOperator::ENCRYPT:
       return os << "ENCRYPT";
-  };
+  }
   return os << static_cast<int>(op);
 }
 
@@ -116,7 +123,7 @@ operator<<(std::ostream& os, AclType aclType)
       return os << "PUBLIC";
     case AclType::PRIVATE:
       return os << "PRIVATE";
-  };
+  }
   return os << static_cast<int>(aclType);
 }
 

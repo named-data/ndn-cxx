@@ -29,8 +29,14 @@ const EVP_MD*
 digestAlgorithmToEvpMd(DigestAlgorithm algo)
 {
   switch (algo) {
+  case DigestAlgorithm::SHA224:
+    return EVP_sha224();
   case DigestAlgorithm::SHA256:
     return EVP_sha256();
+  case DigestAlgorithm::SHA384:
+    return EVP_sha384();
+  case DigestAlgorithm::SHA512:
+    return EVP_sha512();
   default:
     return nullptr;
   }

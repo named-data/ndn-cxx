@@ -104,7 +104,10 @@ operator<<(std::ostream& os, KeyClass keyClass);
 
 enum class DigestAlgorithm {
   NONE   = 0,
+  SHA224 = 2,
   SHA256 = 1,
+  SHA384 = 3,
+  SHA512 = 4,
 };
 
 std::ostream&

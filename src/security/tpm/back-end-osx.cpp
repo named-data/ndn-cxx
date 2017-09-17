@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -100,7 +100,10 @@ static CFTypeRef
 getDigestAlgorithm(DigestAlgorithm digestAlgo)
 {
   switch (digestAlgo) {
+  case DigestAlgorithm::SHA224:
   case DigestAlgorithm::SHA256:
+  case DigestAlgorithm::SHA384:
+  case DigestAlgorithm::SHA512:
     return kSecDigestSHA2;
   default:
     return 0;
@@ -111,15 +114,21 @@ static long
 getDigestSize(DigestAlgorithm digestAlgo)
 {
   switch (digestAlgo) {
+  case DigestAlgorithm::SHA224:
+    return 224;
   case DigestAlgorithm::SHA256:
     return 256;
+  case DigestAlgorithm::SHA384:
+    return 384;
+  case DigestAlgorithm::SHA512:
+    return 512;
   default:
     return -1;
   }
 }
 
 BackEndOsx::BackEndOsx(const std::string&)
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
   SecKeychainSetUserInteractionAllowed(!m_impl->isTerminalMode);
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,9 +20,9 @@
  */
 
 #include "key-handle-mem.hpp"
-#include "../../encoding/buffer-stream.hpp"
 #include "../transform.hpp"
 #include "../transform/private-key.hpp"
+#include "../../encoding/buffer-stream.hpp"
 
 namespace ndn {
 namespace security {
@@ -39,17 +39,11 @@ KeyHandleMem::KeyHandleMem(shared_ptr<PrivateKey> key)
 ConstBufferPtr
 KeyHandleMem::doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
 {
-  switch (digestAlgorithm) {
-    case DigestAlgorithm::SHA256: {
-      using namespace transform;
+  using namespace transform;
 
-      OBufferStream sigOs;
-      bufferSource(buf, size) >> signerFilter(digestAlgorithm, *m_key) >> streamSink(sigOs);
-      return sigOs.buf();
-    }
-    default:
-      return nullptr;
-  }
+  OBufferStream sigOs;
+  bufferSource(buf, size) >> signerFilter(digestAlgorithm, *m_key) >> streamSink(sigOs);
+  return sigOs.buf();
 }
 
 ConstBufferPtr
