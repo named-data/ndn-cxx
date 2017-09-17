@@ -36,7 +36,7 @@ class HmacFilter : public Transform
 {
 public:
   /**
-   * @brief Create a HMAC module to generate HMAC using algorithm @p algo and @p key
+   * @brief Create a module to generate HMAC using digest algorithm @p algo and key @p key
    * @pre @p key must not be nullptr, and @p size must be a positive integer.
    */
   HmacFilter(DigestAlgorithm algo, const uint8_t* key, size_t keyLen);
@@ -45,7 +45,7 @@ public:
 
 private:
   /**
-   * @brief write data @p buf into HMAC signer
+   * @brief Write data @p buf into HMAC signer
    *
    * @return The number of bytes that are actually accepted
    */
