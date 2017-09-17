@@ -32,44 +32,48 @@ namespace transform {
 class VerifierFilter::Impl
 {
 public:
-  Impl(const PublicKey& key, const uint8_t* sig, size_t sigLen)
-    : m_key(key)
-    , m_md(BIO_new(BIO_f_md()))
-    , m_sink(BIO_new(BIO_s_null()))
-    , m_sig(sig)
-    , m_sigLen(sigLen)
+  Impl(const uint8_t* sig, size_t siglen) noexcept
+    : sig(sig)
+    , siglen(siglen)
   {
-    BIO_push(m_md, m_sink);
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+    ctx = EVP_MD_CTX_create();
+#else
+    ctx = EVP_MD_CTX_new();
+#endif
   }
 
   ~Impl()
   {
-    BIO_free_all(m_md);
+#if OPENSSL_VERSION_NUMBER < 0x1010000fL
+    EVP_MD_CTX_destroy(ctx);
+#else
+    EVP_MD_CTX_free(ctx);
+#endif
   }
 
 public:
-  const PublicKey& m_key;
+  EVP_MD_CTX* ctx;
 
-  BIO* m_md;
-  BIO* m_sink;
-
-  const uint8_t* m_sig;
-  size_t m_sigLen;
+  const uint8_t* sig;
+  size_t siglen;
 };
 
 
 VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key,
                                const uint8_t* sig, size_t sigLen)
-  : m_impl(make_unique<Impl>(key, sig, sigLen))
+  : m_impl(make_unique<Impl>(sig, sigLen))
 {
   const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
   if (md == nullptr)
     BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
                                 boost::lexical_cast<std::string>(algo)));
 
-  if (!BIO_set_md(m_impl->m_md, md))
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot set digest " +
-                                boost::lexical_cast<std::string>(algo)));
+  if (EVP_DigestVerifyInit(m_impl->ctx, nullptr, md, nullptr,
+                           reinterpret_cast<EVP_PKEY*>(key.getEvpPkey())) != 1)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to initialize verification context with " +
+                                boost::lexical_cast<std::string>(algo) + " digest and " +
+                                boost::lexical_cast<std::string>(key.getKeyType()) + " key"));
 }
 
 VerifierFilter::~VerifierFilter() = default;
@@ -77,34 +81,25 @@ VerifierFilter::~VerifierFilter() = default;
 size_t
 VerifierFilter::convert(const uint8_t* buf, size_t size)
 {
-  int wLen = BIO_write(m_impl->m_md, buf, size);
+  if (EVP_DigestVerifyUpdate(m_impl->ctx, buf, size) != 1)
+    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
 
-  if (wLen <= 0) { // fail to write data
-    if (!BIO_should_retry(m_impl->m_md)) {
-      // we haven't written everything but some error happens, and we cannot retry
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
-    }
-    return 0;
-  }
-  else { // update number of bytes written
-    return wLen;
-  }
+  return size;
 }
 
 void
 VerifierFilter::finalize()
 {
-  EVP_PKEY* key = reinterpret_cast<EVP_PKEY*>(m_impl->m_key.getEvpPkey());
+  int res = EVP_DigestVerifyFinal(m_impl->ctx,
+#if OPENSSL_VERSION_NUMBER < 0x1000200fL
+                                  const_cast<uint8_t*>(m_impl->sig),
+#else
+                                  m_impl->sig,
+#endif
+                                  m_impl->siglen);
+
   auto buffer = make_unique<OBuffer>(1);
-
-  EVP_MD_CTX* ctx = nullptr;
-  BIO_get_md_ctx(m_impl->m_md, &ctx);
-  int res = EVP_VerifyFinal(ctx, m_impl->m_sig, m_impl->m_sigLen, key);
-
-  if (res < 0)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Verification error"));
-
-  (*buffer)[0] = (res != 0) ? 1 : 0;
+  (*buffer)[0] = (res == 1) ? 1 : 0;
   setOutputBuffer(std::move(buffer));
 
   flushAllOutput();

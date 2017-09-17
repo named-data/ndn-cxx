@@ -35,6 +35,8 @@ class PublicKey;
  * @brief The module to verify signatures.
  *
  * The next module in the chain is usually BoolSink.
+ *
+ * @note This module cannot be used to verify HMACs.
  */
 class VerifierFilter : public Transform
 {
