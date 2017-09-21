@@ -124,6 +124,8 @@ def configure(conf):
     else:
         conf.env['WITH_OSX_KEYCHAIN'] = False
 
+    conf.check_compiler_flags()
+
     # Loading "late" to prevent tests to be compiled with profiling flags
     conf.load('coverage')
 
