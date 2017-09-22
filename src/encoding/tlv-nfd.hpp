@@ -92,9 +92,6 @@ enum {
   Route    = 129
 };
 
-DEPRECATED() constexpr auto NInDatas = NInData;
-DEPRECATED() constexpr auto NOutDatas = NOutData;
-
 } // namespace nfd
 } // namespace tlv
 } // namespace ndn
