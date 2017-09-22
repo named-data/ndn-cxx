@@ -131,11 +131,6 @@ Block::Block(const uint8_t* buf, size_t bufSize)
   m_valueBegin = m_begin + typeLengthSize;
 }
 
-Block::Block(const void* buf, size_t bufSize)
-  : Block(reinterpret_cast<const uint8_t*>(buf), bufSize)
-{
-}
-
 Block::Block(uint32_t type)
   : m_type(type)
   , m_size(tlv::sizeOfVarNumber(m_type) + tlv::sizeOfVarNumber(0))

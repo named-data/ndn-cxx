@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,7 +33,7 @@ Sqlite3Statement::~Sqlite3Statement()
 
 Sqlite3Statement::Sqlite3Statement(sqlite3* database, const std::string& statement)
 {
-  int res = sqlite3_prepare_v2(database, statement.c_str(), -1, &m_stmt, nullptr);
+  int res = sqlite3_prepare_v2(database, statement.data(), -1, &m_stmt, nullptr);
   if (res != SQLITE_OK)
     BOOST_THROW_EXCEPTION(std::domain_error("bad SQL statement: " + statement));
 }
@@ -78,7 +78,8 @@ Sqlite3Statement::getString(int column)
 Block
 Sqlite3Statement::getBlock(int column)
 {
-  return Block(sqlite3_column_blob(m_stmt, column), sqlite3_column_bytes(m_stmt, column));
+  return Block(reinterpret_cast<const uint8_t*>(sqlite3_column_blob(m_stmt, column)),
+               sqlite3_column_bytes(m_stmt, column));
 }
 
 int

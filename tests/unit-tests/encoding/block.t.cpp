@@ -473,18 +473,21 @@ BOOST_AUTO_TEST_SUITE_END() // SubElements
 
 BOOST_AUTO_TEST_CASE(Equality)
 {
-  Block a("\x08\x00", 2);
-  Block b("\x08\x00", 2);;
+  const uint8_t one[] = {0x08, 0x00};
+  Block a(one, sizeof(one));
+  Block b(one, sizeof(one));
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  Block c("\x06\x00", 2);
-  Block d("\x08\x00", 2);;
+  const uint8_t two[] = {0x06, 0x00};
+  Block c(two, sizeof(two));
+  Block d(one, sizeof(one));
   BOOST_CHECK_EQUAL(c == d, false);
   BOOST_CHECK_EQUAL(c != d, true);
 
-  Block e("\x06\x00", 2);
-  Block f("\x06\x01\xcc", 3);;
+  const uint8_t three[] = {0x06, 0x01, 0xcc};
+  Block e(two, sizeof(two));
+  Block f(three, sizeof(three));
   BOOST_CHECK_EQUAL(e == f, false);
   BOOST_CHECK_EQUAL(e != f, true);
 }

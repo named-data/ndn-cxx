@@ -304,21 +304,23 @@ BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization) // Bug 4059
 
 BOOST_AUTO_TEST_CASE(StatusDataset)
 {
-  static Block smallBlock("\x81\x01\0x01", 3);
-  static Block largeBlock = [] () -> Block {
+  const uint8_t smallBuf[] = {0x81, 0x01, 0x01};
+  const Block smallBlock(smallBuf, sizeof(smallBuf));
+  Block largeBlock;
+  {
     EncodingBuffer encoder;
     for (size_t i = 0; i < 2500; ++i) {
       encoder.prependByte(1);
     }
     encoder.prependVarNumber(2500);
     encoder.prependVarNumber(129);
-    return encoder.block();
-  }();
+    largeBlock = encoder.block();
+  }
 
   dispatcher.addStatusDataset("test/small",
                               makeTestAuthorization(),
-                              [] (const Name& prefix, const Interest& interest,
-                                  StatusDatasetContext& context) {
+                              [&smallBlock] (const Name& prefix, const Interest& interest,
+                                             StatusDatasetContext& context) {
                                 context.append(smallBlock);
                                 context.append(smallBlock);
                                 context.append(smallBlock);
@@ -327,8 +329,8 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   dispatcher.addStatusDataset("test/large",
                               makeTestAuthorization(),
-                              [] (const Name& prefix, const Interest& interest,
-                                  StatusDatasetContext& context) {
+                              [&largeBlock] (const Name& prefix, const Interest& interest,
+                                             StatusDatasetContext& context) {
                                 context.append(largeBlock);
                                 context.append(largeBlock);
                                 context.append(largeBlock);
@@ -436,8 +438,8 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
 BOOST_AUTO_TEST_CASE(NotificationStream)
 {
-  static Block block("\x82\x01\x02", 3);
-
+  const uint8_t buf[] = {0x82, 0x01, 0x02};
+  const Block block(buf, sizeof(buf));
   auto post = dispatcher.addNotificationStream("test");
 
   post(block);

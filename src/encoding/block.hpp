@@ -119,11 +119,6 @@ public: // constructor, creation, assignment
    */
   Block(const uint8_t* buf, size_t bufSize);
 
-  /** @brief Parse Block from a raw buffer
-   *  @deprecated use Block(const uint8_t*, size_t)
-   */
-  Block(const void* buf, size_t bufSize);
-
   /** @brief Create an empty Block with specified TLV-TYPE
    *  @param type TLV-TYPE
    */

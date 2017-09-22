@@ -253,13 +253,15 @@ BOOST_FIXTURE_TEST_SUITE(AbnormalState, AbnormalStateTestFixture)
 
 BOOST_AUTO_TEST_CASE(AppendReject)
 {
-  BOOST_CHECK_NO_THROW(context.append(Block("\x82\x01\x02", 3)));
+  const uint8_t buf[] = {0x82, 0x01, 0x02};
+  BOOST_CHECK_NO_THROW(context.append(Block(buf, sizeof(buf))));
   BOOST_CHECK_THROW(context.reject(), std::domain_error);
 }
 
 BOOST_AUTO_TEST_CASE(AppendEndReject)
 {
-  BOOST_CHECK_NO_THROW(context.append(Block("\x82\x01\x02", 3)));
+  const uint8_t buf[] = {0x82, 0x01, 0x02};
+  BOOST_CHECK_NO_THROW(context.append(Block(buf, sizeof(buf))));
   BOOST_CHECK_NO_THROW(context.end());
   BOOST_CHECK_THROW(context.reject(), std::domain_error);
 }
@@ -268,7 +270,8 @@ BOOST_AUTO_TEST_CASE(EndAppend)
 {
   BOOST_CHECK_NO_THROW(context.end());
   // end, append -> error
-  BOOST_CHECK_THROW(context.append(Block("\x82\x01\x02", 3)), std::domain_error);
+  const uint8_t buf[] = {0x82, 0x01, 0x02};
+  BOOST_CHECK_THROW(context.append(Block(buf, sizeof(buf))), std::domain_error);
 }
 
 BOOST_AUTO_TEST_CASE(EndEnd)
@@ -286,7 +289,8 @@ BOOST_AUTO_TEST_CASE(EndReject)
 BOOST_AUTO_TEST_CASE(RejectAppend)
 {
   BOOST_CHECK_NO_THROW(context.reject());
-  BOOST_CHECK_THROW(context.append(Block("\x82\x01\x02", 3)), std::domain_error);
+  const uint8_t buf[] = {0x82, 0x01, 0x02};
+  BOOST_CHECK_THROW(context.append(Block(buf, sizeof(buf))), std::domain_error);
 }
 
 BOOST_AUTO_TEST_CASE(RejectEnd)
