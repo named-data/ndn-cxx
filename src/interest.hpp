@@ -24,8 +24,8 @@
 
 #include "delegation-list.hpp"
 #include "name.hpp"
+#include "packet-base.hpp"
 #include "selectors.hpp"
-#include "tag-host.hpp"
 #include "util/time.hpp"
 
 namespace ndn {
@@ -39,7 +39,7 @@ const time::milliseconds DEFAULT_INTEREST_LIFETIME = time::milliseconds(4000);
 
 /** @brief represents an Interest packet
  */
-class Interest : public TagHost, public enable_shared_from_this<Interest>
+class Interest : public PacketBase, public enable_shared_from_this<Interest>
 {
 public:
   class Error : public tlv::Error

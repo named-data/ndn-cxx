@@ -17,26 +17,48 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Eric Newberry <enewberry@email.arizona.edu>
  */
 
-#include "nack.hpp"
+#include "packet-base.hpp"
+
+#include "../boost-test.hpp"
+#include "interest.hpp"
+#include "lp/tags.hpp"
 
 namespace ndn {
-namespace lp {
+namespace tests {
 
-Nack::Nack() = default;
+BOOST_AUTO_TEST_SUITE(TestPacketBase)
 
-Nack::Nack(const Interest& interest)
-  : m_interest(interest)
+BOOST_AUTO_TEST_CASE(CongestionMark)
 {
+  Interest interest;
+
+  BOOST_CHECK_EQUAL(interest.getCongestionMark(), 0);
+
+  auto tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_CHECK(!tag);
+
+  interest.setCongestionMark(true);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_REQUIRE(tag);
+  BOOST_CHECK_EQUAL(*tag, 1);
+
+  interest.setCongestionMark(false);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_CHECK(!tag);
+
+  interest.setCongestionMark(300);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_REQUIRE(tag);
+  BOOST_CHECK_EQUAL(*tag, 300);
+
+  interest.setCongestionMark(0);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_CHECK(!tag);
 }
 
-Nack::Nack(Interest&& interest)
-  : m_interest(interest)
-{
-}
+BOOST_AUTO_TEST_SUITE_END() // TestPacketBase
 
-} // namespace lp
+} // namespace tests
 } // namespace ndn

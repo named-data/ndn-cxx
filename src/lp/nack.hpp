@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,8 @@
 #define NDN_CXX_LP_NACK_HPP
 
 #include "../common.hpp"
-#include "../tag-host.hpp"
 #include "../interest.hpp"
+#include "../packet-base.hpp"
 
 #include "nack-header.hpp"
 
@@ -37,10 +37,10 @@ namespace lp {
  *
  *  This type binds a NackHeader and an Interest, and is intended for use in network layer.
  */
-class Nack : public TagHost
+class Nack : public PacketBase
 {
 public:
-  Nack() = default;
+  Nack();
 
   explicit
   Nack(const Interest& interest);

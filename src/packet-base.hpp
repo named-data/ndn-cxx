@@ -17,26 +17,31 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Eric Newberry <enewberry@email.arizona.edu>
  */
 
-#include "nack.hpp"
+#ifndef NDN_PACKET_BASE_HPP
+#define NDN_PACKET_BASE_HPP
+
+#include "tag-host.hpp"
 
 namespace ndn {
-namespace lp {
 
-Nack::Nack() = default;
-
-Nack::Nack(const Interest& interest)
-  : m_interest(interest)
+/** \brief base class to allow simple management of packet tags
+ */
+class PacketBase : public TagHost
 {
-}
+public:
+  /** \brief get the value of the CongestionMark tag
+   */
+  uint64_t
+  getCongestionMark() const;
 
-Nack::Nack(Interest&& interest)
-  : m_interest(interest)
-{
-}
+  /** \brief set the CongestionMark tag to the specified value
+   */
+  void
+  setCongestionMark(uint64_t mark);
+};
 
-} // namespace lp
 } // namespace ndn
+
+#endif // NDN_PACKET_BASE_HPP
