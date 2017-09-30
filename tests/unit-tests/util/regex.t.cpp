@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,14 +21,14 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
+#include "util/regex.hpp"
 #include "util/regex/regex-backref-manager.hpp"
+#include "util/regex/regex-backref-matcher.hpp"
 #include "util/regex/regex-component-matcher.hpp"
 #include "util/regex/regex-component-set-matcher.hpp"
 #include "util/regex/regex-pattern-list-matcher.hpp"
 #include "util/regex/regex-repeat-matcher.hpp"
-#include "util/regex/regex-backref-matcher.hpp"
 #include "util/regex/regex-top-matcher.hpp"
-#include "util/regex.hpp"
 
 #include "boost-test.hpp"
 
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
-  cm->match(Name("/a/b/c"), 0, 2);
+  res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
