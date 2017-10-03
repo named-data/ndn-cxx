@@ -86,10 +86,10 @@ private:
   addNewInterface(const std::string& ifName, const IfAddrs& ifaList);
 
   InterfaceState
-  getInterfaceState(const std::string& ifName) const;
+  getInterfaceState(const NetworkInterface& netif) const;
 
   size_t
-  getInterfaceMtu(const std::string& ifName);
+  getInterfaceMtu(const NetworkInterface& netif);
 
   void
   updateInterfaceInfo(NetworkInterface& netif, const IfAddrs& ifaList);
@@ -110,7 +110,7 @@ private:
   util::CFReleaser<SCDynamicStoreRef> m_scStore;
   util::CFReleaser<CFRunLoopSourceRef> m_loopSource;
 
-  boost::asio::ip::udp::socket m_nullUdpSocket;
+  boost::asio::ip::udp::socket m_ioctlSocket;
 };
 
 } // namespace net
