@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -40,7 +40,7 @@ public:
   }
 
   explicit
-  CertificateRequest(const Interest& interest, uint64_t requesterFaceId = 0)
+  CertificateRequest(const Interest& interest)
     : m_interest(interest)
     , m_nRetriesLeft(3)
   {
