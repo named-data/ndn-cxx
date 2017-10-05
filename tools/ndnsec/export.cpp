@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -34,7 +34,7 @@ ndnsec_export(int argc, char** argv)
   std::string output;
   std::string exportPassword;
 
-  po::options_description description("General Usage\n  ndnsec export [-h] [-o output] [-p] identity \nGeneral options");
+  po::options_description description("General Usage\n  ndnsec export [-h] [-o output] identity \nGeneral options");
   description.add_options()
     ("help,h", "Produce help message")
     ("output,o", po::value<std::string>(&output), "(Optional) output file, stdout if not specified")

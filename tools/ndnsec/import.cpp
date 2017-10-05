@@ -33,7 +33,7 @@ ndnsec_import(int argc, char** argv)
   std::string input("-");
   std::string importPassword;
 
-  po::options_description description("General Usage\n  ndnsec import [-h] [-p] input \nGeneral options");
+  po::options_description description("General Usage\n  ndnsec import [-h] input \nGeneral options");
   description.add_options()
     ("help,h", "produce help message")
     ("input,i", po::value<std::string>(&input), "input source, stdin if -")

@@ -1,43 +1,42 @@
 ndnsec-export
 =============
 
-``ndnsec-export`` is a tool to export an identity's security data
-
 Usage
 -----
 
 ::
 
-    $ ndnsec-export [-h] [-o output] [-p] identity
+    $ ndnsec-export [-h] [-o output] identity
 
 Description
 -----------
 
-``ndnsec-export`` can export public data of the ``identity`` including default key/certificate.
-``ndnsec-export`` can also export sensitive data (such as private key), but the sensitive data will
-be encrypted. The exported identity can be imported again using ``ndnsec-import``.
-
-By default, the command will write exported data to standard output.
+``ndnsec-export`` exports the default certificate of an identity and its private key as a file. It
+will ask for a passphrase to encrypt the private key. The output file can be imported again with
+``ndnsec-import`` command.
 
 Options
 -------
 
-``-o output``
-  Output the exported data to a file pointed by ``output``.
+``-h``
+  Print a help message.
 
-``-p``
-  Export private key of the identity. A password will be asked for data encryption.
+``-o output``
+  Write to an output file instead of the standard output.
+
+``identity``
+  The identity name.
 
 Examples
 --------
 
-Export an identity's security data including private key and store the security data in a file:
+Export an identity's default certificate and private key into a file:
 
 ::
 
-    $ ndnsec-export -o id.info -p /ndn/test/alice
+    $ ndnsec-export -o alice.ndnkey /ndn/test/alice
 
-Export an identity's security data without private key and write it to standard output:
+Export an identity's default certificate and private key to the standard output:
 
 ::
 
