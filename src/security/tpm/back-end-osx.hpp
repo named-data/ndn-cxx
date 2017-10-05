@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -79,17 +79,16 @@ public: // crypto transformation
   /**
    * @brief Sign @p buf with @p key using @p digestAlgorithm.
    */
-  ConstBufferPtr
-  sign(const KeyRefOsx& key, DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const;
+  static ConstBufferPtr
+  sign(const KeyRefOsx& key, DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size);
 
-  ConstBufferPtr
-  decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t cipherSize) const;
+  static ConstBufferPtr
+  decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t cipherSize);
 
-  ConstBufferPtr
-  derivePublicKey(const KeyRefOsx& key) const;
+  static ConstBufferPtr
+  derivePublicKey(const KeyRefOsx& key);
 
 private: // inherited from tpm::BackEnd
-
   /**
    * @return True if a key with name @p keyName exists in TPM.
    */

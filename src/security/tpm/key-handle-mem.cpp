@@ -20,20 +20,20 @@
  */
 
 #include "key-handle-mem.hpp"
-#include "../transform.hpp"
+#include "../transform/buffer-source.hpp"
 #include "../transform/private-key.hpp"
+#include "../transform/signer-filter.hpp"
+#include "../transform/stream-sink.hpp"
 #include "../../encoding/buffer-stream.hpp"
 
 namespace ndn {
 namespace security {
 namespace tpm {
 
-using transform::PrivateKey;
-
-KeyHandleMem::KeyHandleMem(shared_ptr<PrivateKey> key)
-  : m_key(key)
+KeyHandleMem::KeyHandleMem(shared_ptr<transform::PrivateKey> key)
+  : m_key(std::move(key))
 {
-  BOOST_ASSERT(key != nullptr);
+  BOOST_ASSERT(m_key != nullptr);
 }
 
 ConstBufferPtr

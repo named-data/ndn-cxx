@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -33,26 +33,14 @@ namespace ndn {
 namespace security {
 namespace tpm {
 
-class BackEndOsx;
-
 /**
  * @brief Abstraction of TPM key handle used by the TPM based on OS X Keychain Service.
  */
 class KeyHandleOsx : public KeyHandle
 {
 public:
-  class Error : public KeyHandle::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : KeyHandle::Error(what)
-    {
-    }
-  };
-
-public:
-  KeyHandleOsx(const BackEndOsx& impl, const KeyRefOsx& key);
+  explicit
+  KeyHandleOsx(const KeyRefOsx& key);
 
 private:
   ConstBufferPtr
@@ -65,7 +53,6 @@ private:
   doDerivePublicKey() const final;
 
 private:
-  const BackEndOsx& m_impl;
   KeyRefOsx m_key;
 };
 

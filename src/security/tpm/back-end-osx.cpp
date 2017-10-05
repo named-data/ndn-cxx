@@ -21,13 +21,13 @@
 
 #include "back-end-osx.hpp"
 #include "key-handle-osx.hpp"
-#include "../transform/private-key.hpp"
 #include "tpm.hpp"
+#include "../transform/private-key.hpp"
 
 #include <CoreServices/CoreServices.h>
-#include <Security/Security.h>
-#include <Security/SecRandom.h>
 #include <Security/SecDigestTransform.h>
+#include <Security/SecRandom.h>
+#include <Security/Security.h>
 
 namespace ndn {
 namespace security {
@@ -52,7 +52,8 @@ public:
   CFReleaser<SecKeychainItemRef>
   getKey(const Name& keyName)
   {
-    CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(), kCFStringEncodingUTF8);
+    CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(),
+                                                                 kCFStringEncodingUTF8);
 
     CFReleaser<CFMutableDictionaryRef> attrDict =
       CFDictionaryCreateMutable(nullptr, 5, &kCFTypeDictionaryKeyCallBacks, nullptr);
@@ -193,19 +194,16 @@ BackEndOsx::unlockTpm(const char* pw, size_t pwLen) const
 }
 
 ConstBufferPtr
-BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgorithm,
-                 const uint8_t* buf, size_t size) const
+BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const uint8_t* buf, size_t size)
 {
-  CFReleaser<CFDataRef> dataRef = CFDataCreateWithBytesNoCopy(nullptr, buf, size, kCFAllocatorNull);
-
   CFReleaser<CFErrorRef> error;
-  // C-style cast is used as per Apple convention
   CFReleaser<SecTransformRef> signer = SecSignTransformCreate(key.get(), &error.get());
   if (error != nullptr) {
     BOOST_THROW_EXCEPTION(Error("Fail to create signer"));
   }
 
   // Set input
+  CFReleaser<CFDataRef> dataRef = CFDataCreateWithBytesNoCopy(nullptr, buf, size, kCFAllocatorNull);
   SecTransformSetAttribute(signer.get(), kSecTransformInputAttributeName, dataRef.get(), &error.get());
   if (error != nullptr) {
     BOOST_THROW_EXCEPTION(Error("Fail to configure input of signer"));
@@ -214,25 +212,23 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgorithm,
   // Enable use of padding
   SecTransformSetAttribute(signer.get(), kSecPaddingKey, kSecPaddingPKCS1Key, &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure digest algorithm of signer"));
+    BOOST_THROW_EXCEPTION(Error("Fail to configure padding of signer"));
   }
 
-  // Set padding type
-  SecTransformSetAttribute(signer.get(), kSecDigestTypeAttribute, getDigestAlgorithm(digestAlgorithm), &error.get());
+  // Set digest type
+  SecTransformSetAttribute(signer.get(), kSecDigestTypeAttribute, getDigestAlgorithm(digestAlgo), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure digest algorithm of signer"));
+    BOOST_THROW_EXCEPTION(Error("Fail to configure digest type of signer"));
   }
 
-  // Set digest attribute
-  long digestSize = getDigestSize(digestAlgorithm);
+  // Set digest length
+  long digestSize = getDigestSize(digestAlgo);
   CFReleaser<CFNumberRef> cfDigestSize = CFNumberCreate(nullptr, kCFNumberLongType, &digestSize);
-  SecTransformSetAttribute(signer.get(),
-                           kSecDigestLengthAttribute,
-                           cfDigestSize.get(),
-                           &error.get());
+  SecTransformSetAttribute(signer.get(), kSecDigestLengthAttribute, cfDigestSize.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure digest size of signer"));
+    BOOST_THROW_EXCEPTION(Error("Fail to configure digest length of signer"));
   }
+
   // Actually sign
   // C-style cast is used as per Apple convention
   CFReleaser<CFDataRef> signature = (CFDataRef)SecTransformExecute(signer.get(), &error.get());
@@ -242,31 +238,30 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgorithm,
   }
 
   if (signature == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Signature is NULL!\n"));
+    BOOST_THROW_EXCEPTION(Error("Signature is null"));
   }
 
   return make_shared<Buffer>(CFDataGetBytePtr(signature.get()), CFDataGetLength(signature.get()));
 }
 
 ConstBufferPtr
-BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t cipherSize) const
+BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t cipherSize)
 {
-  CFReleaser<CFDataRef> dataRef = CFDataCreateWithBytesNoCopy(nullptr, cipherText, cipherSize, kCFAllocatorNull);
-
   CFReleaser<CFErrorRef> error;
   CFReleaser<SecTransformRef> decryptor = SecDecryptTransformCreate(key.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to create decrypt"));
+    BOOST_THROW_EXCEPTION(Error("Fail to create decryptor"));
   }
 
+  CFReleaser<CFDataRef> dataRef = CFDataCreateWithBytesNoCopy(nullptr, cipherText, cipherSize, kCFAllocatorNull);
   SecTransformSetAttribute(decryptor.get(), kSecTransformInputAttributeName, dataRef.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure decrypt"));
+    BOOST_THROW_EXCEPTION(Error("Fail to configure decryptor input"));
   }
 
   SecTransformSetAttribute(decryptor.get(), kSecPaddingKey, kSecPaddingOAEPKey, &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure decrypt #2"));
+    BOOST_THROW_EXCEPTION(Error("Fail to configure decryptor padding"));
   }
 
   CFReleaser<CFDataRef> output = (CFDataRef)SecTransformExecute(decryptor.get(), &error.get());
@@ -276,13 +271,14 @@ BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t ciph
   }
 
   if (output == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Output is NULL!\n"));
+    BOOST_THROW_EXCEPTION(Error("Output is null"));
   }
+
   return make_shared<Buffer>(CFDataGetBytePtr(output.get()), CFDataGetLength(output.get()));
 }
 
 ConstBufferPtr
-BackEndOsx::derivePublicKey(const KeyRefOsx& key) const
+BackEndOsx::derivePublicKey(const KeyRefOsx& key)
 {
   CFReleaser<CFDataRef> exportedKey;
   OSStatus res = SecItemExport(key.get(),           // secItemOrArray
@@ -308,7 +304,8 @@ BackEndOsx::derivePublicKey(const KeyRefOsx& key) const
 bool
 BackEndOsx::doHasKey(const Name& keyName) const
 {
-  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(), kCFStringEncodingUTF8);
+  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(),
+                                                               kCFStringEncodingUTF8);
 
   CFReleaser<CFMutableDictionaryRef> attrDict =
     CFDictionaryCreateMutable(nullptr, 4, &kCFTypeDictionaryKeyCallBacks, nullptr);
@@ -322,7 +319,7 @@ BackEndOsx::doHasKey(const Name& keyName) const
   OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict.get(), (CFTypeRef*)&itemRef.get());
   itemRef.retain();
 
-  return (res == errSecSuccess);
+  return res == errSecSuccess;
 }
 
 unique_ptr<KeyHandle>
@@ -336,7 +333,7 @@ BackEndOsx::doGetKeyHandle(const Name& keyName) const
     return nullptr;
   }
 
-  return make_unique<KeyHandleOsx>(*this, (SecKeyRef)keyItem.get());
+  return make_unique<KeyHandleOsx>((SecKeyRef)keyItem.get());
 }
 
 unique_ptr<KeyHandle>
@@ -386,7 +383,7 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
     }
   }
 
-  unique_ptr<KeyHandle> keyHandle = make_unique<KeyHandleOsx>(*this, privateKey.get());
+  unique_ptr<KeyHandle> keyHandle = make_unique<KeyHandleOsx>(privateKey.get());
   setKeyName(*keyHandle, identityName, params);
 
   SecKeychainAttribute attrs[1]; // maximum number of attributes
@@ -408,7 +405,8 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
 void
 BackEndOsx::doDeleteKey(const Name& keyName)
 {
-  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(), kCFStringEncodingUTF8);
+  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(),
+                                                               kCFStringEncodingUTF8);
 
   CFReleaser<CFMutableDictionaryRef> searchDict =
     CFDictionaryCreateMutable(nullptr, 5, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
@@ -473,7 +471,8 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
   SecExternalFormat externalFormat = kSecFormatWrappedPKCS8;
   SecExternalItemType externalType = kSecItemTypePrivateKey;
 
-  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(), kCFStringEncodingUTF8);
+  CFReleaser<CFStringRef> keyLabel = CFStringCreateWithCString(nullptr, keyName.toUri().c_str(),
+                                                               kCFStringEncodingUTF8);
   CFReleaser<CFStringRef> passphrase =
     CFStringCreateWithBytes(nullptr, reinterpret_cast<const uint8_t*>(pw), pwLen, kCFStringEncodingUTF8, false);
   CFReleaser<SecAccessRef> access;
@@ -519,7 +518,7 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
     attrs[attrList.count].length = keyUri.size();
-    attrs[attrList.count].data = const_cast<char*>(keyUri.c_str());
+    attrs[attrList.count].data = const_cast<char*>(keyUri.data());
     attrList.count++;
   }
 

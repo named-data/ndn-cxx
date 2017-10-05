@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,9 +26,8 @@ namespace ndn {
 namespace security {
 namespace tpm {
 
-KeyHandleOsx::KeyHandleOsx(const BackEndOsx& impl, const KeyRefOsx& key)
-  : m_impl(impl)
-  , m_key(key)
+KeyHandleOsx::KeyHandleOsx(const KeyRefOsx& key)
+  : m_key(key)
 {
   if (m_key.get() == 0)
     BOOST_THROW_EXCEPTION(Error("key is not set"));
@@ -37,19 +36,19 @@ KeyHandleOsx::KeyHandleOsx(const BackEndOsx& impl, const KeyRefOsx& key)
 ConstBufferPtr
 KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
 {
-  return m_impl.sign(m_key, digestAlgorithm, buf, size);
+  return BackEndOsx::sign(m_key, digestAlgorithm, buf, size);
 }
 
 ConstBufferPtr
 KeyHandleOsx::doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const
 {
-  return m_impl.decrypt(m_key, cipherText, cipherTextLen);
+  return BackEndOsx::decrypt(m_key, cipherText, cipherTextLen);
 }
 
 ConstBufferPtr
 KeyHandleOsx::doDerivePublicKey() const
 {
-  return m_impl.derivePublicKey(m_key);
+  return BackEndOsx::derivePublicKey(m_key);
 }
 
 } // namespace tpm
