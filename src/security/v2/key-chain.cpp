@@ -341,13 +341,7 @@ KeyChain::setDefaultCertificate(const Key& key, const Certificate& cert)
 {
   BOOST_ASSERT(static_cast<bool>(key));
 
-  try {
-    addCertificate(key, cert);
-  }
-  catch (const Pib::Error&) { // force to overwrite the existing certificates
-    key.removeCertificate(cert.getName());
-    addCertificate(key, cert);
-  }
+  addCertificate(key, cert);
   key.setDefaultCertificate(cert.getName());
 }
 

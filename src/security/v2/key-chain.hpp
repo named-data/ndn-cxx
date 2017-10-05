@@ -62,11 +62,7 @@ public:
   class LocatorMismatchError : public Error
   {
   public:
-    explicit
-    LocatorMismatchError(const std::string& what)
-      : Error(what)
-    {
-    }
+    using Error::Error;
   };
 
   /**
@@ -75,11 +71,7 @@ public:
   class InvalidSigningInfoError : public Error
   {
   public:
-    explicit
-    InvalidSigningInfoError(const std::string& what)
-      : Error(what)
-    {
-    }
+    using Error::Error;
   };
 
   /**
@@ -99,10 +91,10 @@ public:
    *
    * @sa manpage ndn-client.conf
    *
-   * @param pibLocator PIB locator, e.g., pib-sqlite3:/example/dir
-   * @param tpmLocator TPM locator, e.g., tpm-memory:
-   * @param allowReset if true, the PIB will be reset when the supplied tpmLocator
-   *        mismatches the one in PIB
+   * @param pibLocator PIB locator, e.g., `pib-sqlite3:/example/dir`
+   * @param tpmLocator TPM locator, e.g., `tpm-memory:`
+   * @param allowReset if true, the PIB will be reset when the supplied @p tpmLocator
+   *                   does not match the one in the PIB
    */
   KeyChain(const std::string& pibLocator, const std::string& tpmLocator, bool allowReset = false);
 
@@ -229,9 +221,10 @@ public: // Certificate management
    * certificate if it has the same name (without considering implicit digest).
    *
    * @pre @p key must be valid.
+   * @throw std::invalid_argument @p key does not match @p certificate
    */
   void
-  setDefaultCertificate(const Key& key, const Certificate& cert);
+  setDefaultCertificate(const Key& key, const Certificate& certificate);
 
 public: // signing
   /**
@@ -303,7 +296,7 @@ public: // signing
 
 public: // export & import
   /**
-   * @brief export a certificate of name @p certificateName and its corresponding private key.
+   * @brief Export a certificate and its corresponding private key.
    *
    * @param certificate The certificate to export.
    * @param pw The password to secure the private key.
