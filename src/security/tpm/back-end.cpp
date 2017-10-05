@@ -110,15 +110,18 @@ void
 BackEnd::setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams& params)
 {
   name::Component keyId;
+
   switch (params.getKeyIdType()) {
-    case KeyIdType::USER_SPECIFIED:
+    case KeyIdType::USER_SPECIFIED: {
       keyId = params.getKeyId();
       break;
+    }
     case KeyIdType::SHA256: {
       using namespace transform;
-
       OBufferStream os;
-      bufferSource(*keyHandle.derivePublicKey()) >> digestFilter() >> streamSink(os);
+      bufferSource(*keyHandle.derivePublicKey()) >>
+        digestFilter(DigestAlgorithm::SHA256) >>
+        streamSink(os);
       keyId = name::Component(os.buf());
       break;
     }
@@ -128,7 +131,7 @@ BackEnd::setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams&
       break;
     }
     default: {
-      BOOST_ASSERT(false);
+      BOOST_THROW_EXCEPTION(Error("Unsupported key id type"));
     }
   }
 
