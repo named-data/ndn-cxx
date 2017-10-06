@@ -89,7 +89,7 @@ parseAddressFromString(const std::string& address, boost::system::error_code& ec
     if (!ec && addr.is_v6() && addr.to_v6().is_link_local()) {
       return {addr, parseResult[1]};
     }
-    // Fallthrough, if the presence of % is invalid set ec to invalid_argument
+    NDN_CXX_FALLTHROUGH;
   default:
     ec = boost::asio::error::invalid_argument;
     return {};

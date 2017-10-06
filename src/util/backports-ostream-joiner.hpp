@@ -27,16 +27,12 @@
 #ifndef NDN_UTIL_BACKPORTS_OSTREAM_JOINER_HPP
 #define NDN_UTIL_BACKPORTS_OSTREAM_JOINER_HPP
 
-#include "../common.hpp"
+#include "backports.hpp"
 
-#if __cplusplus >= 201402L
-#  ifdef __has_include
-#    if __has_include(<experimental/iterator>)
-#      include <experimental/iterator>
-#      if __cpp_lib_experimental_ostream_joiner >= 201411
-#        define NDN_CXX_HAVE_EXPERIMENTAL_OSTREAM_JOINER
-#      endif
-#    endif
+#if (__cplusplus >= 201402L) && NDN_CXX_HAS_INCLUDE(<experimental/iterator>)
+#  include <experimental/iterator>
+#  if __cpp_lib_experimental_ostream_joiner >= 201411
+#    define NDN_CXX_HAVE_EXPERIMENTAL_OSTREAM_JOINER
 #  endif
 #endif
 

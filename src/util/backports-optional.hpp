@@ -42,17 +42,15 @@
 #ifndef NDN_UTIL_BACKPORTS_OPTIONAL_HPP
 #define NDN_UTIL_BACKPORTS_OPTIONAL_HPP
 
-#include "../common.hpp"
+#include "backports.hpp"
 
-#ifdef __has_include
-#  if (__cplusplus > 201402L) && __has_include(<optional>)
-#    include <optional>
-#    define NDN_CXX_HAVE_STD_OPTIONAL
-#  elif (__cplusplus > 201103L) && __has_include(<experimental/optional>)
-#    include <experimental/optional>
-#    if __cpp_lib_experimental_optional >= 201411
-#      define NDN_CXX_HAVE_EXPERIMENTAL_OPTIONAL
-#    endif
+#if (__cplusplus > 201402L) && NDN_CXX_HAS_INCLUDE(<optional>)
+#  include <optional>
+#  define NDN_CXX_HAVE_STD_OPTIONAL
+#elif (__cplusplus > 201103L) && NDN_CXX_HAS_INCLUDE(<experimental/optional>)
+#  include <experimental/optional>
+#  if __cpp_lib_experimental_optional >= 201411
+#    define NDN_CXX_HAVE_EXPERIMENTAL_OPTIONAL
 #  endif
 #endif
 

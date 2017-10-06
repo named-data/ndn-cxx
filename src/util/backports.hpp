@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2015-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -26,6 +26,30 @@
 
 #ifndef NDN_CXX_HAVE_STD_TO_STRING
 #include <boost/lexical_cast.hpp>
+#endif
+
+#ifdef __has_cpp_attribute
+#  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
+#else
+#  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) 0
+#endif
+
+#ifdef __has_include
+#  define NDN_CXX_HAS_INCLUDE(x) __has_include(x)
+#else
+#  define NDN_CXX_HAS_INCLUDE(x) 0
+#endif
+
+#if NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)
+#  define NDN_CXX_FALLTHROUGH [[fallthrough]]
+#elif NDN_CXX_HAS_CPP_ATTRIBUTE(clang::fallthrough)
+#  define NDN_CXX_FALLTHROUGH [[clang::fallthrough]]
+#elif NDN_CXX_HAS_CPP_ATTRIBUTE(gnu::fallthrough)
+#  define NDN_CXX_FALLTHROUGH [[gnu::fallthrough]]
+#elif defined(__GNUC__) && (__GNUC__ >= 7)
+#  define NDN_CXX_FALLTHROUGH __attribute__((fallthrough))
+#else
+#  define NDN_CXX_FALLTHROUGH ((void)0)
 #endif
 
 namespace ndn {

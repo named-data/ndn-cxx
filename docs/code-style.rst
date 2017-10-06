@@ -211,7 +211,7 @@ extended it to C++.
         switch (condition) {
           case ABC:        // 2 space indent
             statements;    // 4 space indent
-            // Fallthrough
+            NDN_CXX_FALLTHROUGH;
 
           case DEF:
             statements;
@@ -242,7 +242,7 @@ extended it to C++.
           // Correct style
           case A1: {
             statements;
-            // Fallthrough
+            NDN_CXX_FALLTHROUGH;
           }
 
           // Incorrect style: braces should cover the entire case block
@@ -263,7 +263,7 @@ extended it to C++.
         switch (condition) {
         case ABC:        // no indent
           statements;    // 2 space indent
-          // Fallthrough
+          NDN_CXX_FALLTHROUGH;
 
         case DEF:
           statements;
@@ -274,9 +274,11 @@ extended it to C++.
           break;
         }
 
-    The explicit ``Fallthrough`` comment should be included whenever there is a case
-    statement without a break statement.  Leaving the break out is a common error, and it
-    must be made clear that it is intentional when it is not there.
+    The ``NDN_CXX_FALLTHROUGH;`` annotation must be included whenever there is
+    a case without a break statement. Leaving the break out is a common error,
+    and it must be made clear that it is intentional when it is not there.
+    Moreover, modern compilers will warn when a case that falls through is not
+    explicitly annotated.
 
 1.11. A ``try-catch`` statement should have the following form:
 
