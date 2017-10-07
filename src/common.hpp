@@ -63,15 +63,6 @@
 #include <unistd.h>
 #include <utility>
 
-#if defined(__GNUC__) || defined(__clang__)
-#  define DEPRECATED(func) func __attribute__ ((deprecated))
-#elif defined(_MSC_VER)
-#  define DEPRECATED(func) __declspec(deprecated) func
-#else
-#  pragma message("DEPRECATED not implemented")
-#  define DEPRECATED(func) func
-#endif
-
 namespace ndn {
 
 using std::shared_ptr;

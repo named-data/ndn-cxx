@@ -40,7 +40,18 @@
 #  define NDN_CXX_HAS_INCLUDE(x) 0
 #endif
 
-#if NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)
+#if (__cplusplus >= 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(deprecated)
+#  define NDN_CXX_DEPRECATED_MSG(msg) [[deprecated(msg)]]
+#elif NDN_CXX_HAS_CPP_ATTRIBUTE(gnu::deprecated)
+#  define NDN_CXX_DEPRECATED_MSG(msg) [[gnu::deprecated(msg)]]
+#elif defined(__GNUC__)
+#  define NDN_CXX_DEPRECATED_MSG(msg) __attribute__((deprecated(msg)))
+#else
+#  define NDN_CXX_DEPRECATED_MSG(msg)
+#endif
+#define NDN_CXX_DEPRECATED NDN_CXX_DEPRECATED_MSG("")
+
+#if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)
 #  define NDN_CXX_FALLTHROUGH [[fallthrough]]
 #elif NDN_CXX_HAS_CPP_ATTRIBUTE(clang::fallthrough)
 #  define NDN_CXX_FALLTHROUGH [[clang::fallthrough]]
