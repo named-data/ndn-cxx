@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,9 +22,9 @@
 #include "security/pib/detail/identity-impl.hpp"
 #include "security/pib/pib.hpp"
 #include "security/pib/pib-memory.hpp"
-#include "../pib-data-fixture.hpp"
 
 #include "boost-test.hpp"
+#include "../pib-data-fixture.hpp"
 
 namespace ndn {
 namespace security {
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   BOOST_REQUIRE_THROW(identity1.setDefaultKey(id1Key1Name), Pib::Error);
 
   // add key
-  identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
   BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
 
   // new key becomes default key when there is no default key
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
 
   // set default key directly
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.buf(), id1Key1.size(), id1Key1Name));
+  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name));
   BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
   BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
 
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   BOOST_CHECK(defaultKey1.getPublicKey() == id1Key1);
 
   // add another key
-  identity1.addKey(id1Key2.buf(), id1Key2.size(), id1Key2Name);
+  identity1.addKey(id1Key2.data(), id1Key2.size(), id1Key2Name);
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 2);
 
   // set default key through name
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 1);
 
   // set default key directly again, change the default setting
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.buf(), id1Key1.size(), id1Key1Name));
+  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name));
   const Key& defaultKey3 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey3.getName(), id1Key1Name);
   BOOST_CHECK(defaultKey3.getPublicKey() == id1Key1);
@@ -126,10 +126,10 @@ BOOST_AUTO_TEST_CASE(Overwrite)
   auto pibImpl = make_shared<pib::PibMemory>();
   IdentityImpl identity1(id1, pibImpl, true);
 
-  identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
   BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key1);
 
-  identity1.addKey(id1Key2.buf(), id1Key2.size(), id1Key1Name); // overwriting key should work
+  identity1.addKey(id1Key2.data(), id1Key2.size(), id1Key1Name); // overwriting key should work
   BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key2);
 }
 
@@ -140,11 +140,11 @@ BOOST_AUTO_TEST_CASE(Errors)
   BOOST_CHECK_THROW(IdentityImpl(id1, pibImpl, false), Pib::Error);
   IdentityImpl identity1(id1, pibImpl, true);
 
-  identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
-  BOOST_CHECK_THROW(identity1.addKey(id2Key1.buf(), id2Key1.size(), id2Key1Name), std::invalid_argument);
+  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  BOOST_CHECK_THROW(identity1.addKey(id2Key1.data(), id2Key1.size(), id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.getKey(id2Key1Name), std::invalid_argument);
-  BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1.buf(), id2Key1.size(), id2Key1Name), std::invalid_argument);
+  BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1.data(), id2Key1.size(), id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1Name), std::invalid_argument);
 }
 

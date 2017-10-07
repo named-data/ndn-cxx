@@ -143,7 +143,7 @@ static void
 checkPkcs8Encoding(ConstBufferPtr encoding, const std::string& password, ConstBufferPtr pkcs1)
 {
   PrivateKey sKey;
-  sKey.loadPkcs8(encoding->buf(), encoding->size(), password.c_str(), password.size());
+  sKey.loadPkcs8(encoding->data(), encoding->size(), password.c_str(), password.size());
   OBufferStream os;
   sKey.savePkcs1(os);
   BOOST_CHECK_EQUAL_COLLECTIONS(pkcs1->begin(), pkcs1->end(),
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   OBufferStream os;
   bufferSource(sKeyPkcs1Base64, sKeyPkcs1Base64Len) >> base64Decode() >> streamSink(os);
   ConstBufferPtr sKeyPkcs1Buf = os.buf();
-  const uint8_t* sKeyPkcs1 = sKeyPkcs1Buf->buf();
+  const uint8_t* sKeyPkcs1 = sKeyPkcs1Buf->data();
   size_t sKeyPkcs1Len = sKeyPkcs1Buf->size();
 
   // load key in base64-encoded pkcs1 format
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   size_t sKeyPkcs8Base64Len = dataSet.privateKeyPkcs8.size();
   OBufferStream os4;
   bufferSource(sKeyPkcs8Base64, sKeyPkcs8Base64Len) >> base64Decode() >> streamSink(os4);
-  const uint8_t* sKeyPkcs8 = os4.buf()->buf();
+  const uint8_t* sKeyPkcs8 = os4.buf()->data();
   size_t sKeyPkcs8Len = os4.buf()->size();
 
   std::string password("password");
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE(RsaDecryption)
   OBufferStream os;
   bufferSource(cipherTextBase64) >> base64Decode() >> streamSink(os);
 
-  auto decrypted = sKey.decrypt(os.buf()->buf(), os.buf()->size());
+  auto decrypted = sKey.decrypt(os.buf()->data(), os.buf()->size());
   BOOST_CHECK_EQUAL_COLLECTIONS(plainText, plainText + sizeof(plainText),
                                 decrypted->begin(), decrypted->end());
 }
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(RsaEncryptDecrypt)
   const uint8_t plainText[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
   auto cipherText = pKey.encrypt(plainText, sizeof(plainText));
-  auto decrypted = sKey.decrypt(cipherText->buf(), cipherText->size());
+  auto decrypted = sKey.decrypt(cipherText->data(), cipherText->size());
   BOOST_CHECK_EQUAL_COLLECTIONS(plainText, plainText + sizeof(plainText),
                                 decrypted->begin(), decrypted->end());
 }
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(UnsupportedEcDecryption)
   OBufferStream os;
   bufferSource("Y2lhbyFob2xhIWhlbGxvIQ==") >> base64Decode() >> streamSink(os);
 
-  BOOST_CHECK_THROW(sKey.decrypt(os.buf()->buf(), os.buf()->size()), PrivateKey::Error);
+  BOOST_CHECK_THROW(sKey.decrypt(os.buf()->data(), os.buf()->size()), PrivateKey::Error);
 }
 
 using KeyParams = boost::mpl::vector<RsaKeyParams, EcKeyParams>;
@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyParams)
   unique_ptr<PrivateKey> sKey = generatePrivateKey(T());
   PublicKey pKey;
   ConstBufferPtr pKeyBits = sKey->derivePublicKey();
-  pKey.loadPkcs8(pKeyBits->buf(), pKeyBits->size());
+  pKey.loadPkcs8(pKeyBits->data(), pKeyBits->size());
 
   const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
   OBufferStream os;
@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyParams)
   ConstBufferPtr sig = os.buf();
   bool result = false;
   BOOST_REQUIRE_NO_THROW(bufferSource(data, sizeof(data)) >>
-                         verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >>
+                         verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
                          boolSink(result));
   BOOST_CHECK(result);
 

@@ -101,14 +101,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
 
   transform::PublicKey pubKey;
   ConstBufferPtr pubKeyBits = key->derivePublicKey();
-  pubKey.loadPkcs8(pubKeyBits->buf(), pubKeyBits->size());
+  pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
 
   bool result;
   {
     using namespace transform;
-    bufferSource(content, sizeof(content)) >> verifierFilter(DigestAlgorithm::SHA256, pubKey,
-                                                             sigBlock.value(), sigBlock.value_size())
-                                           >> boolSink(result);
+    bufferSource(content, sizeof(content)) >>
+      verifierFilter(DigestAlgorithm::SHA256, pubKey, sigBlock.value(), sigBlock.value_size()) >>
+      boolSink(result);
   }
   BOOST_CHECK_EQUAL(result, true);
 
@@ -131,11 +131,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaDecryption, T, TestBackEnds)
 
   transform::PublicKey pubKey;
   ConstBufferPtr pubKeyBits = key->derivePublicKey();
-  pubKey.loadPkcs8(pubKeyBits->buf(), pubKeyBits->size());
+  pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
 
   ConstBufferPtr cipherText = pubKey.encrypt(content, sizeof(content));
 
-  ConstBufferPtr plainText = key->decrypt(cipherText->buf(), cipherText->size());
+  ConstBufferPtr plainText = key->decrypt(cipherText->data(), cipherText->size());
 
   BOOST_CHECK_EQUAL_COLLECTIONS(content, content + sizeof(content),
                                 plainText->begin(), plainText->end());
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
 
   transform::PublicKey pubKey;
   ConstBufferPtr pubKeyBits = key->derivePublicKey();
-  pubKey.loadPkcs8(pubKeyBits->buf(), pubKeyBits->size());
+  pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
 
   bool result;
   {
@@ -219,14 +219,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
   sKey.savePkcs8(os, password.c_str(), password.size());
   ConstBufferPtr privateKeyBuffer = os.buf();
 
-  tpm.importKey(keyName, privateKeyBuffer->buf(), privateKeyBuffer->size(), password.c_str(), password.size());
+  tpm.importKey(keyName, privateKeyBuffer->data(), privateKeyBuffer->size(), password.c_str(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
 
   ConstBufferPtr exportedKey = tpm.exportKey(keyName, password.c_str(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
 
   transform::PrivateKey sKey2;
-  sKey2.loadPkcs8(exportedKey->buf(), exportedKey->size(), password.c_str(), password.size());
+  sKey2.loadPkcs8(exportedKey->data(), exportedKey->size(), password.c_str(), password.size());
   OBufferStream os2;
   sKey.savePkcs1Base64(os2);
   ConstBufferPtr pkcs1Buffer = os2.buf();

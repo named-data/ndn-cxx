@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE(Basic)
   statefulSha256.update(input + 3, 1);
   ConstBufferPtr digest = statefulSha256.computeDigest();
   BOOST_CHECK_EQUAL(digest->size(), Sha256::DIGEST_SIZE);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->buf(), expected->buf() + expected->size(),
-                                digest->buf(), digest->buf() + digest->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
+                                digest->data(), digest->data() + digest->size());
 }
 
 BOOST_AUTO_TEST_CASE(ConstructFromStream)
@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE(ConstructFromStream)
   BOOST_CHECK_EQUAL(sha.toString(), "315F5BDB76D078C43B8AC0064E4A0164612B1FCE77C869345BFC94C75894EDD3");
 
   ConstBufferPtr digest = sha.computeDigest();
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->buf(), expected->buf() + expected->size(),
-                                digest->buf(), digest->buf() + digest->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
+                                digest->data(), digest->data() + digest->size());
 }
 
 BOOST_AUTO_TEST_CASE(Compare)
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorSha256)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->buf(), expected->buf() + expected->size(),
-                                digest->buf(), digest->buf() + digest->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
+                                digest->data(), digest->data() + digest->size());
 }
 
 BOOST_AUTO_TEST_CASE(InsertionOperatorString)
@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorString)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->buf(), expected->buf() + expected->size(),
-                                digest->buf(), digest->buf() + digest->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
+                                digest->data(), digest->data() + digest->size());
 }
 
 BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
@@ -138,8 +138,8 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->buf(), expected->buf() + expected->size(),
-                                digest->buf(), digest->buf() + digest->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
+                                digest->data(), digest->data() + digest->size());
 }
 
 BOOST_AUTO_TEST_CASE(InsertionOperatorUint64t)
@@ -154,8 +154,8 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorUint64t)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->buf(), expected->buf() + expected->size(),
-                                digest->buf(), digest->buf() + digest->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
+                                digest->data(), digest->data() + digest->size());
 }
 
 BOOST_AUTO_TEST_CASE(Reset)
@@ -186,8 +186,8 @@ BOOST_AUTO_TEST_CASE(StaticComputeDigest)
   auto expected = fromHex("9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a");
 
   ConstBufferPtr digest = Sha256::computeDigest(input, sizeof(input));
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->buf(), expected->buf() + expected->size(),
-                                digest->buf(), digest->buf() + digest->size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
+                                digest->data(), digest->data() + digest->size());
 }
 
 BOOST_AUTO_TEST_CASE(Print)

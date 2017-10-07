@@ -69,7 +69,7 @@ Component::Component(const ConstBufferPtr& buffer)
 }
 
 Component::Component(const Buffer& value)
-  : Block(makeBinaryBlock(tlv::NameComponent, value.buf(), value.size()))
+  : Block(makeBinaryBlock(tlv::NameComponent, value.data(), value.size()))
 {
 }
 

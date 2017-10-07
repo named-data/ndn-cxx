@@ -430,24 +430,24 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   v2::Certificate cert(Block(dataset.cert.data(), dataset.cert.size()));
   Buffer keyRaw = cert.getPublicKey();
   v2::PublicKey key;
-  key.loadPkcs8(keyRaw.buf(), keyRaw.size());
+  key.loadPkcs8(keyRaw.data(), keyRaw.size());
   Data data(Block(dataset.goodData.data(), dataset.goodData.size()));
   Data badSigData(Block(dataset.badSigData.data(), dataset.badSigData.size()));
   Interest interest(Block(dataset.goodInterest.data(), dataset.goodInterest.size()));
   Interest badSigInterest(Block(dataset.badSigInterest.data(), dataset.badSigInterest.size()));
 
   BOOST_CHECK(verifySignature(data, key));
-  BOOST_CHECK(verifySignature(data, keyRaw.buf(), keyRaw.size()));
+  BOOST_CHECK(verifySignature(data, keyRaw.data(), keyRaw.size()));
   BOOST_CHECK(verifySignature(data, cert));
   BOOST_CHECK(verifySignature(interest, key));
-  BOOST_CHECK(verifySignature(interest, keyRaw.buf(), keyRaw.size()));
+  BOOST_CHECK(verifySignature(interest, keyRaw.data(), keyRaw.size()));
   BOOST_CHECK(verifySignature(interest, cert));
 
   BOOST_CHECK(!verifySignature(badSigData, key));
-  BOOST_CHECK(!verifySignature(badSigData, keyRaw.buf(), keyRaw.size()));
+  BOOST_CHECK(!verifySignature(badSigData, keyRaw.data(), keyRaw.size()));
   BOOST_CHECK(!verifySignature(badSigData, cert));
   BOOST_CHECK(!verifySignature(badSigInterest, key));
-  BOOST_CHECK(!verifySignature(badSigInterest, keyRaw.buf(), keyRaw.size()));
+  BOOST_CHECK(!verifySignature(badSigInterest, keyRaw.data(), keyRaw.size()));
   BOOST_CHECK(!verifySignature(badSigInterest, cert));
 
   Data unsignedData("/some/data");

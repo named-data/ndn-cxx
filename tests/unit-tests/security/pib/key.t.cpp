@@ -54,7 +54,8 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   else
     BOOST_CHECK(true);
 
-  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<pib::PibMemory>());
+  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
+                                      make_shared<pib::PibMemory>());
   key = Key(keyImpl);
 
   BOOST_CHECK_EQUAL(static_cast<bool>(key), true);
@@ -76,7 +77,8 @@ BOOST_AUTO_TEST_CASE(Share)
 {
   using security::pib::detail::KeyImpl;
 
-  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<pib::PibMemory>());
+  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
+                                      make_shared<pib::PibMemory>());
   Key key1(keyImpl);
   Key key2(keyImpl);
   BOOST_CHECK_EQUAL(key1, key2);

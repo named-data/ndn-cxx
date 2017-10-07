@@ -115,7 +115,7 @@ PrivateKey::loadPkcs1(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs1(os.buf()->buf(), os.buf()->size());
+  this->loadPkcs1(os.buf()->data(), os.buf()->size());
 }
 
 void
@@ -123,7 +123,7 @@ PrivateKey::loadPkcs1Base64(const uint8_t* buf, size_t size)
 {
   OBufferStream os;
   bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs1(os.buf()->buf(), os.buf()->size());
+  this->loadPkcs1(os.buf()->data(), os.buf()->size());
 }
 
 void
@@ -131,7 +131,7 @@ PrivateKey::loadPkcs1Base64(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs1(os.buf()->buf(), os.buf()->size());
+  this->loadPkcs1(os.buf()->data(), os.buf()->size());
 }
 
 void
@@ -181,7 +181,7 @@ PrivateKey::loadPkcs8(std::istream& is, const char* pw, size_t pwLen)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size(), pw, pwLen);
+  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pw, pwLen);
 }
 
 void
@@ -189,7 +189,7 @@ PrivateKey::loadPkcs8(std::istream& is, PasswordCallback pwCallback)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size(), pwCallback);
+  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pwCallback);
 }
 
 void
@@ -197,7 +197,7 @@ PrivateKey::loadPkcs8Base64(const uint8_t* buf, size_t size, const char* pw, siz
 {
   OBufferStream os;
   bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size(), pw, pwLen);
+  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pw, pwLen);
 }
 
 void
@@ -205,7 +205,7 @@ PrivateKey::loadPkcs8Base64(const uint8_t* buf, size_t size, PasswordCallback pw
 {
   OBufferStream os;
   bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size(), pwCallback);
+  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pwCallback);
 }
 
 void
@@ -213,7 +213,7 @@ PrivateKey::loadPkcs8Base64(std::istream& is, const char* pw, size_t pwLen)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size(), pw, pwLen);
+  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pw, pwLen);
 }
 
 void
@@ -221,7 +221,7 @@ PrivateKey::loadPkcs8Base64(std::istream& is, PasswordCallback pwCallback)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size(), pwCallback);
+  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pwCallback);
 }
 
 void
@@ -309,7 +309,7 @@ PrivateKey::toPkcs1() const
     BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #1 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  membio.read(buffer->buf(), buffer->size());
+  membio.read(buffer->data(), buffer->size());
 
   return buffer;
 }
@@ -327,7 +327,7 @@ PrivateKey::toPkcs8(const char* pw, size_t pwLen) const
     BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  membio.read(buffer->buf(), buffer->size());
+  membio.read(buffer->data(), buffer->size());
 
   return buffer;
 }
@@ -344,7 +344,7 @@ PrivateKey::toPkcs8(PasswordCallback pwCallback) const
     BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  membio.read(buffer->buf(), buffer->size());
+  membio.read(buffer->data(), buffer->size());
 
   return buffer;
 }
@@ -366,7 +366,7 @@ PrivateKey::rsaDecrypt(const uint8_t* cipherText, size_t cipherLen) const
     BOOST_THROW_EXCEPTION(Error("Failed to estimate output length"));
 
   auto out = make_shared<Buffer>(outlen);
-  if (EVP_PKEY_decrypt(ctx, out->buf(), &outlen, cipherText, cipherLen) <= 0)
+  if (EVP_PKEY_decrypt(ctx, out->data(), &outlen, cipherText, cipherLen) <= 0)
     BOOST_THROW_EXCEPTION(Error("Failed to decrypt ciphertext"));
 
   out->resize(outlen);

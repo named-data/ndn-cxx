@@ -98,7 +98,7 @@ PublicKey::loadPkcs8(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size());
+  this->loadPkcs8(os.buf()->data(), os.buf()->size());
 }
 
 void
@@ -106,7 +106,7 @@ PublicKey::loadPkcs8Base64(const uint8_t* buf, size_t size)
 {
   OBufferStream os;
   bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size());
+  this->loadPkcs8(os.buf()->data(), os.buf()->size());
 }
 
 void
@@ -114,7 +114,7 @@ PublicKey::loadPkcs8Base64(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->buf(), os.buf()->size());
+  this->loadPkcs8(os.buf()->data(), os.buf()->size());
 }
 
 void
@@ -184,7 +184,7 @@ PublicKey::rsaEncrypt(const uint8_t* plainText, size_t plainLen) const
     BOOST_THROW_EXCEPTION(Error("Failed to estimate output length"));
 
   auto out = make_shared<Buffer>(outlen);
-  if (EVP_PKEY_encrypt(ctx, out->buf(), &outlen, plainText, plainLen) <= 0)
+  if (EVP_PKEY_encrypt(ctx, out->data(), &outlen, plainText, plainLen) <= 0)
     BOOST_THROW_EXCEPTION(Error("Failed to encrypt plaintext"));
 
   out->resize(outlen);

@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(Basic)
     "velitessecillumdoloreeufugiatnullapariatur.Excepteursintoccaecatcupidatatnonproi"
     "dent,suntinculpaquiofficiadeseruntmollitanimidestlaborum.");
   ConstBufferPtr buf = os.buf();
-  BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(buf->get()), buf->size()), expected);
+  BOOST_CHECK_EQUAL(std::string(buf->get<char>(), buf->size()), expected);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestStripSpace

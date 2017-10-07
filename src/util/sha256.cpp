@@ -82,14 +82,14 @@ Sha256::operator==(Sha256& digest)
   }
 
   // constant-time buffer comparison to mitigate timing attacks
-  return CRYPTO_memcmp(lhs.get(), rhs.get(), lhs.size()) == 0;
+  return CRYPTO_memcmp(lhs.data(), rhs.data(), lhs.size()) == 0;
 }
 
 Sha256&
 Sha256::operator<<(Sha256& src)
 {
   auto buf = src.computeDigest();
-  update(buf->get(), buf->size());
+  update(buf->data(), buf->size());
   return *this;
 }
 

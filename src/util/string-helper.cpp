@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -60,7 +60,7 @@ printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperC
 void
 printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase)
 {
-  return printHex(os, buffer.buf(), buffer.size(), wantUpperCase);
+  return printHex(os, buffer.data(), buffer.size(), wantUpperCase);
 }
 
 std::string
@@ -74,7 +74,7 @@ toHex(const uint8_t* buffer, size_t length, bool wantUpperCase)
 std::string
 toHex(const Buffer& buffer, bool wantUpperCase)
 {
-  return toHex(buffer.buf(), buffer.size(), wantUpperCase);
+  return toHex(buffer.data(), buffer.size(), wantUpperCase);
 }
 
 int

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(container.getLoadedKeys().size(), 0);
 
   // add the first key
-  Key key11 = container.add(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  Key key11 = container.add(id1Key1.data(), id1Key1.size(), id1Key1Name);
   BOOST_CHECK_EQUAL(key11.getName(), id1Key1Name);
   BOOST_CHECK(key11.getPublicKey() == id1Key1);
   BOOST_CHECK_EQUAL(container.size(), 1);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK(container.find(id1Key1Name) != container.end());
 
   // add the same key again
-  Key key12 = container.add(id1Key1.buf(), id1Key1.size(), id1Key1Name);
+  Key key12 = container.add(id1Key1.data(), id1Key1.size(), id1Key1Name);
   BOOST_CHECK_EQUAL(key12.getName(), id1Key1Name);
   BOOST_CHECK(key12.getPublicKey() == id1Key1);
   BOOST_CHECK_EQUAL(container.size(), 1);
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK(container.find(id1Key1Name) != container.end());
 
   // add the second key
-  Key key21 = container.add(id1Key2.buf(), id1Key2.size(), id1Key2Name);
+  Key key21 = container.add(id1Key2.data(), id1Key2.size(), id1Key2Name);
   BOOST_CHECK_EQUAL(key21.getName(), id1Key2Name);
   BOOST_CHECK(key21.getPublicKey() == id1Key2);
   BOOST_CHECK_EQUAL(container.size(), 2);
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(Errors)
 
   KeyContainer container(id1, pibImpl);
 
-  BOOST_CHECK_THROW(container.add(id2Key1.buf(), id2Key1.size(), id2Key1Name), std::invalid_argument);
+  BOOST_CHECK_THROW(container.add(id2Key1.data(), id2Key1.size(), id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(container.remove(id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(container.get(id2Key1Name), std::invalid_argument);
 }
@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE(Iterator)
   auto pibImpl = make_shared<PibMemory>();
   KeyContainer container(id1, pibImpl);
 
-  container.add(id1Key1.buf(), id1Key1.size(), id1Key1Name);
-  container.add(id1Key2.buf(), id1Key2.size(), id1Key2Name);
+  container.add(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  container.add(id1Key2.data(), id1Key2.size(), id1Key2Name);
 
   std::set<Name> keyNames;
   keyNames.insert(id1Key1Name);

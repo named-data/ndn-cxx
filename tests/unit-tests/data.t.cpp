@@ -194,7 +194,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, DataSigningKeyFixture)
   }
   auto buf = sig.buf();
   tlv::writeVarNumber(os, buf->size());
-  os.write(reinterpret_cast<const char*>(buf->data()), buf->size());
+  os.write(buf->get<char>(), buf->size());
 
   Block signatureValue(os.buf());
   Signature signature(signatureInfo, signatureValue);

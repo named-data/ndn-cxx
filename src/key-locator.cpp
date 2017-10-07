@@ -177,7 +177,7 @@ KeyLocator::setKeyDigest(const ConstBufferPtr& keyDigest)
   // This function takes a constant reference of a shared pointer.
   // It MUST NOT change the reference count of that shared pointer.
 
-  return this->setKeyDigest(makeBinaryBlock(tlv::KeyDigest, keyDigest->get(), keyDigest->size()));
+  return this->setKeyDigest(makeBinaryBlock(tlv::KeyDigest, keyDigest->data(), keyDigest->size()));
 }
 
 bool

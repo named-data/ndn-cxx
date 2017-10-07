@@ -136,7 +136,7 @@ ndnsec_cert_gen(int argc, char** argv)
   try {
     Buffer keyContent = certRequest.getPublicKey();
     t::PublicKey pubKey;
-    pubKey.loadPkcs8(keyContent.buf(), keyContent.size());
+    pubKey.loadPkcs8(keyContent.data(), keyContent.size());
   }
   catch (const std::exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;

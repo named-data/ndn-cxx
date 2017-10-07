@@ -155,13 +155,13 @@ verifySignature(const Interest& interest, const v2::PublicKey& key)
 bool
 verifySignature(const Data& data, const pib::Key& key)
 {
-  return verifySignature(parse(data), key.getPublicKey().buf(), key.getPublicKey().size());
+  return verifySignature(parse(data), key.getPublicKey().data(), key.getPublicKey().size());
 }
 
 bool
 verifySignature(const Interest& interest, const pib::Key& key)
 {
-  return verifySignature(parse(interest), key.getPublicKey().buf(), key.getPublicKey().size());
+  return verifySignature(parse(interest), key.getPublicKey().data(), key.getPublicKey().size());
 }
 
 bool
@@ -209,7 +209,7 @@ verifyDigest(const uint8_t* blob, size_t blobLen, const uint8_t* digest, size_t 
     return false;
 
   // constant-time buffer comparison to mitigate timing attacks
-  return CRYPTO_memcmp(result->buf(), digest, digestLen) == 0;
+  return CRYPTO_memcmp(result->data(), digest, digestLen) == 0;
 }
 
 bool

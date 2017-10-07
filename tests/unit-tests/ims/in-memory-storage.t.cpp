@@ -31,7 +31,7 @@
 #include "make-interest-data.hpp"
 #include "../unit-test-time-fixture.hpp"
 
-#include <boost/mpl/list.hpp>
+#include <boost/mpl/vector.hpp>
 
 namespace ndn {
 namespace tests {
@@ -41,10 +41,10 @@ using namespace ndn::tests;
 BOOST_AUTO_TEST_SUITE(Ims)
 BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
 
-using InMemoryStorages = boost::mpl::list<InMemoryStoragePersistent,
-                                          InMemoryStorageFifo,
-                                          InMemoryStorageLfu,
-                                          InMemoryStorageLru>;
+using InMemoryStorages = boost::mpl::vector<InMemoryStoragePersistent,
+                                            InMemoryStorageFifo,
+                                            InMemoryStorageLfu,
+                                            InMemoryStorageLru>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion, T, InMemoryStorages)
 {
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
   ConstBufferPtr digest1 = util::Sha256::computeDigest(data->wireEncode().wire(), data->wireEncode().size());
 
   shared_ptr<Interest> interest = makeInterest("");
-  interest->setName(Name(name).appendImplicitSha256Digest(digest1->buf(), digest1->size()));
+  interest->setName(Name(name).appendImplicitSha256Digest(digest1->data(), digest1->size()));
   interest->setMinSuffixComponents(0);
   interest->setMaxSuffixComponents(0);
 
@@ -621,9 +621,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ExcludeSelector, T, InMemoryStorages)
   BOOST_CHECK_EQUAL(found3->getName(), "/c/a");
 }
 
-using InMemoryStoragesLimited = boost::mpl::list<InMemoryStorageFifo,
-                                                 InMemoryStorageLfu,
-                                                 InMemoryStorageLru>;
+using InMemoryStoragesLimited = boost::mpl::vector<InMemoryStorageFifo,
+                                                   InMemoryStorageLfu,
+                                                   InMemoryStorageLru>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(SetCapacity, T, InMemoryStoragesLimited)
 {

@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(Sha256)
   char content[6] = "1234\n";
   ConstBufferPtr buf = util::Sha256::computeDigest(reinterpret_cast<uint8_t*>(content), 5);
 
-  BOOST_CHECK_EQUAL(toHex(buf->buf(), buf->size(), false),
+  BOOST_CHECK_EQUAL(toHex(buf->data(), buf->size(), false),
                     "a883dafc480d466ee04e0d6da986bd78eb1fdd2178d04693723da3a8f95d42f4");
 }
 

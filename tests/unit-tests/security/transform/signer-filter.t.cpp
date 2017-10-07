@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(Rsa)
   bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK(verifySignature(data, sizeof(data), sig->buf(), sig->size(), pubKey->buf(), pubKey->size()));
+  BOOST_CHECK(verifySignature(data, sizeof(data), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_CASE(Ecdsa)
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK(verifySignature(data, sizeof(data), sig->buf(), sig->size(), pubKey->buf(), pubKey->size()));
+  BOOST_CHECK(verifySignature(data, sizeof(data), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_CASE(InvalidKey)

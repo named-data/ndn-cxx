@@ -273,7 +273,7 @@ KeyChain::createKey(const Identity& identity, const KeyParams& params)
 
   // set up key info in PIB
   ConstBufferPtr pubKey = m_tpm->getPublicKey(keyName);
-  Key key = identity.addKey(pubKey->buf(), pubKey->size(), keyName);
+  Key key = identity.addKey(pubKey->data(), pubKey->size(), keyName);
 
   NDN_LOG_DEBUG("Requesting self-signing for newly created key " << key.getName());
   selfSign(key);
@@ -386,7 +386,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
 
   try {
     m_tpm->importPrivateKey(keyName,
-                            safeBag.getEncryptedKeyBag().buf(), safeBag.getEncryptedKeyBag().size(),
+                            safeBag.getEncryptedKeyBag().data(), safeBag.getEncryptedKeyBag().size(),
                             pw, pwLen);
   }
   catch (const std::runtime_error&) {
@@ -407,9 +407,9 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   {
     using namespace transform;
     PublicKey publicKey;
-    publicKey.loadPkcs8(publicKeyBits.buf(), publicKeyBits.size());
+    publicKey.loadPkcs8(publicKeyBits.data(), publicKeyBits.size());
     bufferSource(content, sizeof(content)) >> verifierFilter(DigestAlgorithm::SHA256, publicKey,
-                                                             sigBits->buf(), sigBits->size())
+                                                             sigBits->data(), sigBits->size())
                                            >> boolSink(isVerified);
   }
   if (!isVerified) {
@@ -419,7 +419,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   }
 
   Identity id = m_pib->addIdentity(identity);
-  Key key = id.addKey(cert.getPublicKey().buf(), cert.getPublicKey().size(), keyName);
+  Key key = id.addKey(cert.getPublicKey().data(), cert.getPublicKey().size(), keyName);
   key.addCertificate(cert);
 }
 
@@ -559,7 +559,7 @@ KeyChain::selfSign(Key& key)
   certificate.setFreshnessPeriod(time::hours(1));
 
   // set content
-  certificate.setContent(key.getPublicKey().buf(), key.getPublicKey().size());
+  certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
 
   // set signature-info
   SignatureInfo signatureInfo;

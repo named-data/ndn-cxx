@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   OBufferStream os;
   bufferSource(pKeyPkcs8Base64, pKeyPkcs8Base64Len) >> base64Decode() >> streamSink(os);
   ConstBufferPtr pKeyPkcs8Buf = os.buf();
-  const uint8_t* pKeyPkcs8 = pKeyPkcs8Buf->buf();
+  const uint8_t* pKeyPkcs8 = pKeyPkcs8Buf->data();
   size_t pKeyPkcs8Len = pKeyPkcs8Buf->size();
 
   PublicKey pKey1;
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(UnsupportedEcEncryption)
   OBufferStream os;
   bufferSource("Y2lhbyFob2xhIWhlbGxvIQ==") >> base64Decode() >> streamSink(os);
 
-  BOOST_CHECK_THROW(pKey.encrypt(os.buf()->buf(), os.buf()->size()), PublicKey::Error);
+  BOOST_CHECK_THROW(pKey.encrypt(os.buf()->data(), os.buf()->size()), PublicKey::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPublicKey

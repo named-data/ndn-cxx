@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -159,9 +159,9 @@ operator<<(std::ostream& os, const Certificate& cert)
 
   os << "Public key bits:\n";
   {
+    using namespace transform;
     util::IndentedStream os2(os, "  ");
-    namespace t = ndn::security::transform;
-    t::bufferSource(cert.getPublicKey().buf(), cert.getPublicKey().size()) >> t::base64Encode() >> t::streamSink(os2);
+    bufferSource(cert.getPublicKey().data(), cert.getPublicKey().size()) >> base64Encode() >> streamSink(os2);
   }
 
   os << "Signature Information:\n";

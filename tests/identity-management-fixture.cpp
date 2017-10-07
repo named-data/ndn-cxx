@@ -115,7 +115,7 @@ IdentityManagementFixture::addCertificate(const security::Key& key, const std::s
   certificate.setFreshnessPeriod(time::hours(1));
 
   // set content
-  certificate.setContent(key.getPublicKey().buf(), key.getPublicKey().size());
+  certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
 
   // set signature-info
   SignatureInfo info;

@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
     certificate.setFreshnessPeriod(time::hours(1));
 
     // set content
-    certificate.setContent(requestedKey.getPublicKey().buf(), requestedKey.getPublicKey().size());
+    certificate.setContent(requestedKey.getPublicKey().data(), requestedKey.getPublicKey().size());
 
     // set signature-info
     SignatureInfo info;

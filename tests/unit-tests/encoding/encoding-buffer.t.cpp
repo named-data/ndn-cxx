@@ -40,8 +40,6 @@ BOOST_AUTO_TEST_SUITE(TestEncodingBuffer)
 BOOST_AUTO_TEST_CASE(ConstructFromBlock)
 {
   auto buf = make_shared<Buffer>(10);
-  std::memset(buf->get(), 0, 10);
-
   Block block(0xab, buf);
   block.encode();
 

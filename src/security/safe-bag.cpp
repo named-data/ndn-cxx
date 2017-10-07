@@ -64,7 +64,7 @@ SafeBag::wireEncode(EncodingImpl<TAG>& encoder) const
 
   // EncryptedKeyBag
   totalLength += encoder.prependByteArrayBlock(tlv::security::EncryptedKeyBag,
-                                               m_encryptedKeyBag.get(),
+                                               m_encryptedKeyBag.data(),
                                                m_encryptedKeyBag.size());
 
   // Certificate

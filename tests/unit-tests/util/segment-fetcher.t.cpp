@@ -20,9 +20,9 @@
  */
 
 #include "util/segment-fetcher.hpp"
+
 #include "data.hpp"
-#include "encoding/block.hpp"
-#include "lp/nack-header.hpp"
+#include "lp/nack.hpp"
 #include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
@@ -44,26 +44,21 @@ class Fixture : public IdentityManagementTimeFixture
 public:
   Fixture()
     : face(io, m_keyChain)
-    , nErrors(0)
-    , nData(0)
-    , dataSize(0)
   {
   }
 
-  shared_ptr<Data>
+  static shared_ptr<Data>
   makeDataSegment(const Name& baseName, uint64_t segment, bool isFinal)
   {
     const uint8_t buffer[] = "Hello, world!";
 
     auto data = make_shared<Data>(Name(baseName).appendSegment(segment));
     data->setContent(buffer, sizeof(buffer));
-
     if (isFinal) {
       data->setFinalBlockId(data->getName()[-1]);
     }
-    data = signData(data);
 
-    return data;
+    return signData(data);
   }
 
   void
@@ -78,7 +73,7 @@ public:
   {
     ++nData;
     dataSize = data->size();
-    dataString = std::string(reinterpret_cast<const char*>(data->get()));
+    dataString = std::string(data->get<char>());
   }
 
   void
@@ -93,10 +88,10 @@ public:
 public:
   DummyClientFace face;
 
-  uint32_t nErrors;
-  uint32_t lastError;
-  uint32_t nData;
-  size_t dataSize;
+  uint32_t nErrors = 0;
+  uint32_t lastError = 0;
+  uint32_t nData = 0;
+  size_t dataSize = 0;
   std::string dataString;
 };
 
@@ -148,7 +143,7 @@ BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
   BOOST_CHECK_EQUAL(dataSize, 14);
 
   const uint8_t buffer[] = "Hello, world!";
-  std::string bufferString = std::string(reinterpret_cast<const char*>(buffer));
+  std::string bufferString(reinterpret_cast<const char*>(buffer));
 
   BOOST_CHECK_EQUAL(dataString, bufferString);
 
@@ -172,9 +167,7 @@ BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
   advanceClocks(time::milliseconds(10));
 
   const uint8_t buffer[] = "Hello, world!";
-
-  shared_ptr<Data> data = makeData("/hello/world/version0/no-segment");
-
+  auto data = makeData("/hello/world/version0/no-segment");
   data->setContent(buffer, sizeof(buffer));
 
   face.receive(*data);

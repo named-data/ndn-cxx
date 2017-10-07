@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,14 +35,7 @@ static_assert(std::is_nothrow_move_assignable<Buffer>::value,
               "Buffer must be MoveAssignable with noexcept");
 #endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_ASSIGNABLE
 
-Buffer::Buffer()
-{
-}
-
-Buffer::Buffer(size_t size)
-  : std::vector<uint8_t>(size, 0)
-{
-}
+Buffer::Buffer() = default;
 
 Buffer::Buffer(const void* buf, size_t length)
   : std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(buf),

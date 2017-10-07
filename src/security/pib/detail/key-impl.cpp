@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -63,7 +63,7 @@ KeyImpl::KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl)
   m_key = m_pib->getKeyBits(m_keyName);
 
   transform::PublicKey key;
-  key.loadPkcs8(m_key.buf(), m_key.size());
+  key.loadPkcs8(m_key.data(), m_key.size());
   m_keyType = key.getKeyType();
 }
 

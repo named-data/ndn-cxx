@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -99,7 +99,7 @@ ndnsec_sign_req(int argc, char** argv)
   certificate.setFreshnessPeriod(time::hours(1));
 
   // set content
-  certificate.setContent(key.getPublicKey().buf(), key.getPublicKey().size());
+  certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
 
   // set signature-info
   SignatureInfo signatureInfo;

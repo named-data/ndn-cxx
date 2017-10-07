@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(Rsa)
   auto pubKey = os1.buf();
 
   PublicKey pKey;
-  pKey.loadPkcs8(pubKey->buf(), pubKey->size());
+  pKey.loadPkcs8(pubKey->data(), pubKey->size());
 
   PrivateKey sKey;
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
@@ -94,11 +94,11 @@ BOOST_AUTO_TEST_CASE(Rsa)
   bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->buf(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
 
   bool result = false;
   bufferSource(data, sizeof(data)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   auto pubKey = os1.buf();
 
   PublicKey pKey;
-  pKey.loadPkcs8(pubKey->buf(), pubKey->size());
+  pKey.loadPkcs8(pubKey->data(), pubKey->size());
 
   PrivateKey sKey;
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
@@ -139,11 +139,11 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->buf(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
 
   bool result = false;
   bufferSource(data, sizeof(data)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->buf(), sig->size()) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
