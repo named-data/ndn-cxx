@@ -56,11 +56,11 @@
 #include "../../name.hpp"
 #include "../../util/logger.hpp"
 
-#include <ifaddrs.h>       // for getifaddrs()
-#include <arpa/inet.h>     // for inet_ntop()
-#include <netinet/in.h>    // for struct sockaddr_in{,6}
-#include <net/if_dl.h>     // for struct sockaddr_dl
-#include <net/if_types.h>  // for IFT_* constants
+#include <ifaddrs.h>      // for getifaddrs()
+#include <net/if.h>       // for if_nametoindex()
+#include <net/if_dl.h>    // for struct sockaddr_dl
+#include <net/if_types.h> // for IFT_* constants
+#include <netinet/in.h>   // for struct sockaddr_in{,6}
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/address.hpp>
@@ -357,7 +357,10 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif, const IfAddr
         const sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
         ip::address_v6::bytes_type bytes;
         std::copy_n(reinterpret_cast<const unsigned char*>(&sin6->sin6_addr), bytes.size(), bytes.begin());
-        ipAddr = ip::address_v6(bytes);
+        ip::address_v6 v6Addr(bytes);
+        if (v6Addr.is_link_local())
+          v6Addr.scope_id(if_nametoindex(netif.getName().data()));
+        ipAddr = v6Addr;
 
         const sockaddr_in6* sinMask = reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask);
         std::copy_n(reinterpret_cast<const unsigned char*>(&sinMask->sin6_addr), bytes.size(), bytes.begin());

@@ -420,7 +420,7 @@ NetworkMonitorImplRtnl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg
   BOOST_ASSERT(interface != nullptr);
 
   namespace ip = boost::asio::ip;
-  ip::address ipAddr, broadcast;
+  ip::address ipAddr, broadcastAddr;
   uint32_t flags = ifa->ifa_flags; // will be overridden by IFA_FLAGS if the attribute is present
 
   const rtattr* rta = reinterpret_cast<const rtattr*>(IFA_RTA(ifa));
@@ -443,7 +443,10 @@ NetworkMonitorImplRtnl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg
         if (ifa->ifa_family == AF_INET6 && attrLen == sizeof(ip::address_v6::bytes_type)) {
           ip::address_v6::bytes_type bytes;
           std::copy_n(attrData, bytes.size(), bytes.begin());
-          ipAddr = ip::address_v6(bytes);
+          ip::address_v6 v6Addr(bytes);
+          if (v6Addr.is_link_local())
+            v6Addr.scope_id(ifa->ifa_index);
+          ipAddr = v6Addr;
         }
         break;
 
@@ -451,7 +454,7 @@ NetworkMonitorImplRtnl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg
         if (ifa->ifa_family == AF_INET && attrLen == sizeof(ip::address_v4::bytes_type)) {
           ip::address_v4::bytes_type bytes;
           std::copy_n(attrData, bytes.size(), bytes.begin());
-          broadcast = ip::address_v4(bytes);
+          broadcastAddr = ip::address_v4(bytes);
         }
         break;
 
@@ -466,13 +469,12 @@ NetworkMonitorImplRtnl::parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg
     rta = RTA_NEXT(rta, rtaTotalLen);
   }
 
-  NetworkAddress address(
-    ifaFamilyToAddressFamily(ifa->ifa_family),
-    ipAddr,
-    broadcast,
-    ifa->ifa_prefixlen,
-    ifaScopeToAddressScope(ifa->ifa_scope),
-    flags);
+  NetworkAddress address(ifaFamilyToAddressFamily(ifa->ifa_family),
+                         ipAddr,
+                         broadcastAddr,
+                         ifa->ifa_prefixlen,
+                         ifaScopeToAddressScope(ifa->ifa_scope),
+                         flags);
   BOOST_ASSERT(address.getFamily() != AddressFamily::UNSPECIFIED);
 
   if (nlh->nlmsg_type == RTM_NEWADDR)
