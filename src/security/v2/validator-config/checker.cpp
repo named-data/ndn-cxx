@@ -80,13 +80,11 @@ RegexChecker::RegexChecker(const Regex& regex)
 bool
 RegexChecker::checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state)
 {
-  // pktName not used in this check
-  Name identity = extractIdentityFromKeyName(klName);
-  bool result = m_regex.match(identity);
+  bool result = m_regex.match(klName);
   if (!result) {
     std::ostringstream os;
     os << "KeyLocator check failed: regex " << m_regex << " for packet " << pktName << " is invalid"
-       << " (KeyLocator=" << klName << ", identity=" << identity << ")";
+       << " (KeyLocator=" << klName << ")";
     state->fail({ValidationError::POLICY_ERROR, os.str()});
   }
 

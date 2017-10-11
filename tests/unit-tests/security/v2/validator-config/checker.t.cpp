@@ -123,7 +123,7 @@ class RegexEqual : public CheckerFixture
 {
 public:
   RegexEqual()
-    : checker(Regex("^<foo><bar>$"))
+    : checker(Regex("^<foo><bar><KEY><>$"))
   {
   }
 
@@ -139,7 +139,7 @@ class RegexIsPrefixOf : public CheckerFixture
 {
 public:
   RegexIsPrefixOf()
-    : checker(Regex("^<foo><bar><>*$"))
+    : checker(Regex("^<foo><bar><>*<KEY><>$"))
   {
   }
 
@@ -155,7 +155,7 @@ class RegexIsStrictPrefixOf : public CheckerFixture
 {
 public:
   RegexIsStrictPrefixOf()
-    : checker(Regex("^<foo><bar><>+$"))
+    : checker(Regex("^<foo><bar><>+<KEY><>$"))
   {
   }
 
@@ -275,7 +275,7 @@ public:
           key-locator
           {
             type name
-            regex ^<foo><bar>$
+            regex ^<foo><bar><KEY><>$
           }
         )CONF"), "test-config"))
     , checker(*checkerPtr)
