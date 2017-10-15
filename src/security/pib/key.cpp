@@ -102,13 +102,7 @@ Key::getDefaultCertificate() const
 
 Key::operator bool() const
 {
-  return !(this->operator!());
-}
-
-bool
-Key::operator!() const
-{
-  return m_impl.expired();
+  return !m_impl.expired();
 }
 
 shared_ptr<detail::KeyImpl>

@@ -97,17 +97,11 @@ public:
   const Key&
   getDefaultKey() const;
 
-  /*
+  /**
    * @return True if the identity instance is valid
    */
   explicit
   operator bool() const;
-
-  /**
-   * @return True if the identity instance is invalid
-   */
-  bool
-  operator!() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**

@@ -77,7 +77,7 @@ public:
   explicit
   Key(weak_ptr<detail::KeyImpl> impl);
 
-  /*
+  /**
    * @brief Get key name.
    */
   const Name&
@@ -127,12 +127,6 @@ public:
    */
   explicit
   operator bool() const;
-
-  /**
-   * @brief Check if the Key instance is invalid.
-   */
-  bool
-  operator!() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**

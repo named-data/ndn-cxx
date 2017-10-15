@@ -21,6 +21,7 @@
 
 #include "scheduler.hpp"
 #include "detail/monotonic-deadline-timer.hpp"
+
 #include <boost/scope_exit.hpp>
 
 namespace ndn {
@@ -50,10 +51,9 @@ public:
   EventQueue::const_iterator queueIt;
 };
 
-bool
-EventId::operator!() const
+EventId::operator bool() const
 {
-  return m_info.expired() || m_info.lock()->isExpired;
+  return !m_info.expired() && !m_info.lock()->isExpired;
 }
 
 bool

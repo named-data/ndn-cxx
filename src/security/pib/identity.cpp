@@ -83,13 +83,7 @@ Identity::getDefaultKey() const
 
 Identity::operator bool() const
 {
-  return !(this->operator!());
-}
-
-bool
-Identity::operator!() const
-{
-  return m_impl.expired();
+  return !m_impl.expired();
 }
 
 shared_ptr<detail::IdentityImpl>

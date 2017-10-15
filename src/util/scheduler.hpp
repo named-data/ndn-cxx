@@ -23,8 +23,9 @@
 #define NDN_UTIL_SCHEDULER_HPP
 
 #include "time.hpp"
-#include <set>
+
 #include <boost/asio/io_service.hpp>
+#include <set>
 
 namespace ndn {
 namespace util {
@@ -64,17 +65,7 @@ public:
    * \retval false This EventId is empty, or the event is expired or cancelled.
    */
   explicit
-  operator bool() const
-  {
-    return !this->operator!();
-  }
-
-  /**
-   * \retval true This EventId is empty, or the event is expired or cancelled.
-   * \retval false The event is valid.
-   */
-  bool
-  operator!() const;
+  operator bool() const;
 
   /**
    * \return whether this and other refer to the same event, or are both empty/expired/cancelled

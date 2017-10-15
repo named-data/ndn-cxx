@@ -28,6 +28,7 @@
 #include "boost-test.hpp"
 #include "timed-execute.hpp"
 
+#include <boost/asio/io_service.hpp>
 #include <iostream>
 
 namespace ndn {
@@ -42,17 +43,17 @@ BOOST_AUTO_TEST_CASE(ScheduleCancel)
   boost::asio::io_service io;
   Scheduler sched(io);
 
-  const int nEvents = 1000000;
+  const size_t nEvents = 1000000;
   std::vector<EventId> eventIds(nEvents);
 
   auto d1 = timedExecute([&] {
-    for (int i = 0; i < nEvents; ++i) {
+    for (size_t i = 0; i < nEvents; ++i) {
       eventIds[i] = sched.scheduleEvent(time::seconds(1), []{});
     }
   });
 
   auto d2 = timedExecute([&] {
-    for (int i = 0; i < nEvents; ++i) {
+    for (size_t i = 0; i < nEvents; ++i) {
       sched.cancelEvent(eventIds[i]);
     }
   });
@@ -66,8 +67,8 @@ BOOST_AUTO_TEST_CASE(Execute)
   boost::asio::io_service io;
   Scheduler sched(io);
 
-  const int nEvents = 1000000;
-  int nExpired = 0;
+  const size_t nEvents = 1000000;
+  size_t nExpired = 0;
 
   // Events should expire at t1, but execution finishes at t2. The difference is the overhead.
   time::steady_clock::TimePoint t1 = time::steady_clock::now() + time::seconds(5);
@@ -79,7 +80,7 @@ BOOST_AUTO_TEST_CASE(Execute)
     BOOST_REQUIRE_EQUAL(nExpired, nEvents);
   });
 
-  for (int i = 0; i < nEvents; ++i) {
+  for (size_t i = 0; i < nEvents; ++i) {
     sched.scheduleEvent(t1 - time::steady_clock::now(), [&] { ++nExpired; });
   }
 
