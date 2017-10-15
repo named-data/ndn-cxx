@@ -30,7 +30,7 @@ configuration file containing two rules and a trust anchor.
         key-locator
         {
           type name
-          name /ndn/edu/ucla/yingdi/KEY/ksk-1234
+          name /ndn/edu/ucla/yingdi/KEY/1234
           relation equal
         }
       }
@@ -72,7 +72,7 @@ rule first.
 
 In the example configuration, the first rule indicates that all the data packets under the
 name prefix ``/localhost/example`` must be signed by a certificate whose name (the key
-part) is ``/ndn/edu/ucla/yingdi/KEY/ksk-1234``. If a packet does not have a name under
+part) is ``/ndn/edu/ucla/yingdi/KEY/1234``. If a packet does not have a name under
 prefix ``/localhost/example``, the validator will skip the first rule and apply the second
 rule. The second rule indicates that all other data packets must be validated using the
 hierarchical policy (data name should be prefix or equal to the identity part of the
@@ -248,13 +248,13 @@ name filter. For example, a checker can be:
       key-locator
       {
         type name
-        name /ndn/edu/ucla/yingdi/KEY/ksk-1234
+        name /ndn/edu/ucla/yingdi/KEY/1234
         relation equal
       }
     }
 
 This checker property requires that the packet must have a ``rsa-sha256`` signature that
-can be verified with ``/ndn/edu/ucla/yingdi/KEY/ksk-1234`` key.
+can be verified with ``/ndn/edu/ucla/yingdi/KEY/1234`` key.
 
 Besides the two ways to express conditions on the ``KeyLocator`` name (name and regex),
 you can further constrain the ``KeyLocator`` name using the information extracted from the
@@ -392,10 +392,6 @@ in config file, packet validation will be turned off.
 Example Configuration For NLSR
 ------------------------------
 
-.. note::
-   **These example assumes the v1 certificate naming convention that is no longer in
-   use. The example will be updated later.**
-
 The trust model of NLSR is semi-hierarchical. An example certificate signing hierarchy is:
 
 ::
@@ -424,31 +420,31 @@ example:
 |            |                                                                                     |
 |            | Identity example: ``/ndn``                                                          |
 |            |                                                                                     |
-|            | Certificate name example: ``/ndn/KEY/ksk-1/ID-CERT/%01``                            |
+|            | Certificate name example: ``/ndn/KEY/1/%00/%01``                                    |
 +------------+-------------------------------------------------------------------------------------+
 | site       | ``/<network>/<site>``                                                               |
 |            |                                                                                     |
 |            | Identity example:   ``/ndn/edu/ucla``                                               |
 |            |                                                                                     |
-|            | Certificate name example: ``/ndn/edu/ucla/KEY/ksk-2/ID-CERT/%01``                   |
+|            | Certificate name example: ``/ndn/edu/ucla/KEY/2/%00/%01``                           |
 +------------+-------------------------------------------------------------------------------------+
 | operator   | ``/<network>/<site>/%C1.O.N./<operator-id>``                                        |
 |            |                                                                                     |
 |            | Identity example: ``/ndn/edu/ucla/%C1.O.N./op1``                                    |
 |            |                                                                                     |
-|            | Certificate name example: ``/ndn/edu/ucla/%C1.O.N./op1/KEY/ksk-3/ID-CERT/%01``      |
+|            | Certificate name example: ``/ndn/edu/ucla/%C1.O.N./op1/KEY/3/%00/%01``              |
 +------------+-------------------------------------------------------------------------------------+
 | router     | ``/<network>/<site>/%C1.O.R./<router-id>``                                          |
 |            |                                                                                     |
 |            | Identity example: ``/ndn/edu/ucla/%C1.O.R./rt1``                                    |
 |            |                                                                                     |
-|            | Certificate name example: ``/ndn/edu/ucla/%C1.O.R./rt1/KEY/ksk-4/ID-CERT/%01``      |
+|            | Certificate name example: ``/ndn/edu/ucla/%C1.O.R./rt1/KEY/4/%00/%01``              |
 +------------+-------------------------------------------------------------------------------------+
 | NLSR       | ``/<network>/<site>/%C1.O.R./<router-id>/NLSR``                                     |
 |            |                                                                                     |
 |            | Identity example: ``/ndn/edu/ucla/%C1.O.R./rt1/NLSR``                               |
 |            |                                                                                     |
-|            | Certificate name example: ``/ndn/edu/ucla/%C1.O.R./rt1/NLSR/KEY/ksk-5/ID-CERT/%01`` |
+|            | Certificate name example: ``/ndn/edu/ucla/%C1.O.R./rt1/NLSR/KEY/5/%00/%01``         |
 +------------+-------------------------------------------------------------------------------------+
 
 Assume that a typical NLSR data name is
@@ -473,7 +469,7 @@ And here is the configuration file:
       filter
       {
         type name
-        regex ^[^<NLSR><LSA>]*<NLSR><LSA>
+        regex ^<>*<NLSR><LSA><><>$
       }
       checker
       {
@@ -484,10 +480,10 @@ And here is the configuration file:
           type name
           hyper-relation
           {
-            k-regex ^([^<KEY>]*)<KEY><ksk-.*><ID-CERT>$
+            k-regex ^(<>*)<KEY><>$
             k-expand \\1
             h-relation equal
-            p-regex ^([^<NLSR><LSA>]*)<NLSR><LSA><LSType\.\d><>$
+            p-regex ^(<>*)<NLSR><LSA><><>$
             p-expand \\1
           }
         }
@@ -500,7 +496,7 @@ And here is the configuration file:
       filter
       {
         type name
-        regex ^[^<KEY><%C1.O.R.>]*<%C1.O.R.><><KEY><ksk-.*><ID-CERT><>$
+        regex ^<>*<%C1.O.R.><><KEY><><><>$
       }
       checker
       {
@@ -511,10 +507,10 @@ And here is the configuration file:
           type name
           hyper-relation
           {
-            k-regex ^([^<KEY><%C1.O.N.>]*)<%C1.O.N.><><KEY><ksk-.*><ID-CERT>$
+            k-regex ^(<>*)<%C1.O.N.><><KEY><>$
             k-expand \\1
             h-relation equal
-            p-regex ^([^<KEY><%C1.O.R.>]*)<%C1.O.R.><><KEY><ksk-.*><ID-CERT><>$
+            p-regex ^(<>*)<%C1.O.R.><><KEY><><><>$
             p-expand \\1
           }
         }
@@ -527,7 +523,7 @@ And here is the configuration file:
       filter
       {
         type name
-        regex ^[^<KEY>]*<KEY><ksk-.*><ID-CERT><>$
+        regex ^<>*<KEY><><><>$
       }
       checker
       {

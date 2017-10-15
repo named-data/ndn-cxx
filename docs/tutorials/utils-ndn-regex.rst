@@ -1,23 +1,20 @@
 NDN Regular Expression
 ======================
 
-NDN regular expression matching is done at two levels: one at the name
-level and one at the name component level.
+NDN regular expression is a kind of regular expression that can match NDN names. Matching is
+performed at two levels: the name level and the name component level.
 
-We use ``<`` and ``>`` to enclose a name component matcher which
-specifies the pattern of a name component. The component pattern is
-expressed using the `Perl Regular Expression
-Syntax <http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html>`__.
-For example, ``<ab*c>`` can match the 1st, 3rd, and 4th components of
-``/ac/dc/abc/abbc``, but it cannot match the 2nd component. A special
-case is that ``<>`` is a wildcard matcher that can match **ANY**
-component.
+A name component matcher, enclosed in ``<`` and ``>``, specifies the pattern of a name component. The
+component pattern is expressed with the `Perl Regular Expression Syntax
+<http://www.boost.org/doc/libs/1_55_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html>`__.
+For example, ``<ab*c>`` matches the 1st, 3rd, and 4th components of ``/ac/dc/abc/abbc``, but does
+not match the 2nd component. A special case is that ``<>`` denotes a wildcard matcher that can match
+**ANY** name component.
 
-Note that a component match can match only one name component. In order
-to match a name, you need to specify the pattern of a name based on the
-name component matchers. For example, ``<ndn><edu><ucla>`` can match the
-name ``/ndn/edu/ucla``. In order to describe a more complicated name
-pattern, we borrow some syntaxes from the standard regular expressions.
+A component matcher can match only one name component. To match a name, you need to compose an NDN
+regular expression with zero or more name component matchers. For example, ``<ndn><edu><ucla>``
+matches the name ``/ndn/edu/ucla``. To describe a more complicated name pattern, we borrow some
+syntaxes from the standard regular expressions.
 
 NDN Regex Syntax
 ----------------
@@ -25,79 +22,70 @@ NDN Regex Syntax
 Anchors
 ~~~~~~~
 
-A ``'^'`` character shall match the start of a name. For example,
-``^<ndn>`` shall match any names starting with a component ``ndn``, and
-it will exclude a name like ``/local/broadcast``.
+The ``^`` character matches the start of a name. For example, ``^<ndn>`` matches any name starting
+with the component ``ndn``, but does not match a name like ``/local/broadcast``.
 
-A ``'$'`` character shall match the end of a name. For example,
-``^<ndn><edu>$`` shall match only one name: ``/ndn/edu``.
+The ``$`` character matches the end of a name. For example, ``^<ndn><edu>$`` matches only one
+name: ``/ndn/edu``.
 
-Repeats
-~~~~~~~
+Repetition
+~~~~~~~~~~
 
-A component matcher can be followed by a repeat syntax to indicate how
-many times the preceding component can be matched.
+A component matcher can be followed by a repeat quantifier to indicate how many times the preceding
+component may appear.
 
-Syntax ``*`` for zero or more times. For example,
-``^<ndn><KEY><>*<ID-CERT>`` shall match ``/ndn/KEY/ID-CERT/``, or
-``/ndn/KEY/edu/ID-CERT``, or ``/ndn/KEY/edu/ksk-12345/ID-CERT`` and so
-on.
+The ``*`` quantifier denotes "zero or more times". For example, ``^<A><B>*<C>$`` matches ``/A/C``,
+``/A/B/C``, ``/A/B/B/C``, and so on.
 
-Syntax ``+`` for one or more times. For example,
-``^<ndn><KEY><>+<ID-CERT>`` shall match ``/ndn/KEY/edu/ID-CERT``, or
-``/ndn/KEY/edu/ksk-12345/ID-CERT`` and so on, but it cannot match
-``/ndn/KEY/ID-CERT/``.
+The ``+`` quantifier denotes "one or more times". For example, ``^<A><B>+<C>$`` matches ``/A/B/C``,
+``/A/B/B/C``, and so on, but does not match ``/A/C``.
 
-Syntax ``?`` for zero or one times. For example,
-``^<ndn><KEY><>?<ID-CERT>`` shall match ``/ndn/KEY/ID-CERT/``, or
-``/ndn/KEY/edu/ID-CERT``, but it cannot match
-``/ndn/KEY/edu/ksk-12345/ID-CERT``.
+The ``?`` quantifier denotes "zero or one time". For example, ``^<A><B>?<C>`` matches ``/A/C`` and
+``/A/B/C``, but does not match ``/A/B/B/C``.
 
-Repetition can also be bounded:
+A bounded quantifier specifies a minimum and maximum number of permitted matches: ``{n}`` denotes
+"exactly ``n`` times"; ``{n,}`` denotes "at least ``n`` times"; ``{,n}`` denotes "at most ``n``
+times"; ``{n, m}`` denotes "between ``n`` and ``m`` times (inclusive)". For example,
+``^<A><B>{2, 4}<C>$`` matches ``/A/B/B/C`` and ``/A/B/B/B/B/C``.
 
-``{n}`` for exactly ``n`` times. ``{n,}`` for at least ``n`` times.
-``{,n}`` for at most ``n`` times. And ``{n, m}`` for ``n`` to ``m``
-times.
-
-Note that the repeat matching is **greedy**, that is it will consume as
-many matched components as possible. We do not support non-greedy repeat
-matching and possessive repeat matching for now.
+Note that the quantifiers are **greedy**, which means it will consume as many matched components as
+possible. NDN regular expressions currently do not support non-greedy repeat matching and possessive
+repeat matching. For example, for the name ``/A/B/C/C/C``, ``^<A><B><C>+$`` will match the entire
+name instead of only ``/A/B/C``.
 
 Sets
 ~~~~
 
-Name component set is a bracket-expression starting with ``'['`` and
-ending with ``']'``, it defines a set of name components, and matches
-any single name component that is a member of that set.
+A name component set, denoted by a bracket expression starting with ``[`` and ending with ``]``,
+defines a set of name components. It matches any single name component that is a member of that set.
 
-Unlike the standard regular expression, NDN regular expression only
-supports **Single Components Set**, that is, you have to list all the
-set members one by one between the bracket. For example,
-``^[<ndn><localhost>]`` shall match any names starting with either a
-component ``ndn"`` or ``localhost``.
+Unlike standard regular expressions, NDN regular expression only supports **Single Components Set**,
+that is, you have to list all the set members one by one between the brackets. For example,
+``^[<ndn><localhost>]`` matches any names starting with either ``ndn"`` or ``localhost`` component.
 
-When a name component set starts with a ``'^'``, the set becomes a
-**Negation Set**, that is, it matches the complement of the name
-components it contains. For example, ``^[^<ndn>]`` shall match any names
-that does not start with a component ``ndn``.
+When a name component set starts with a ``'^'``, the set becomes a **Negation Set**. It matches the
+complement of the contained name components. For example, ``^[^<ndn>]`` matches any non-empty name
+that does not start with ``ndn`` component.
 
 Some other types of sets, such as Range Set, will be supported later.
 
-Note that component set can be repeated as well.
+Note that component sets may be repeated in the same way as component matchers.
 
 Sub-pattern and Back Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A section beginning ``(`` and ending ``)`` acts as a marked sub-pattern.
-Whatever matched the sub-pattern is split out in a separate field by the
-matching algorithms. For example ``^([^<DNS>])<DNS>(<>*)<NS>`` shall
-match a data name of NDN DNS NS record, and the first sub-pattern
-captures the zone name while the second sub-pattern captures the
-relative record name.
+A section beginning ``(`` and ending ``)`` acts as a marked sub-pattern. Whatever matched the
+sub-pattern is split out in a separate field by the matching algorithm. For example
+``^<A>(<>{2})<B>(<>)`` matches the name ``/A/C/D/B/E``, and the first sub-pattern captures ``C/D``.
 
-Marked sub-patterns can be referred to by a back-reference ``\n``. The
-same example above shall match a name
-``/ndn/edu/ucla/DNS/irl/NS/123456``, and a back reference ``\1\2`` shall
-extract ``/ndn/edu/ucla/irl`` out of the name.
+Marked sub-patterns can be referred to by a back-reference ``\N``, which references one or more
+capturing groups. In the example above, a back reference ``\1\2`` extracts ``/C/D/E`` out of the
+name.
 
-Note that marked sub-patterns can be also repeated.
+Marked sub-patterns can also be repeated. The regex engine does not permanently substitute
+back-references in a regular expression, but will use the last match saved into the back-reference.
+If a new match is found by capturing parentheses, the previous match is overwritten. For example,
+both ``^([<A><B><C>]+)$`` and ``^([<A><B><C>])+$`` match ``/C/A/B``. However, the former regex
+stores ``C/A/B`` as the first back-reference, while the latter one stores ``B``. That is because the
+``+`` quantifier in the latter NDN regular expression causes the marked sub-pattern to be matched
+three times, and ``B`` is the last saved match.

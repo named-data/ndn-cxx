@@ -37,7 +37,6 @@ ndn-cxx Documentation
 
 - :doc:`tutorials`
 
-   + :doc:`tutorials/security-library`
    + :doc:`tutorials/utils-ndn-regex`
    + :doc:`tutorials/security-validator-config`
 
