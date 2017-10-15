@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -78,6 +78,9 @@ BOOST_AUTO_TEST_CASE(Share)
   auto identityImpl = make_shared<IdentityImpl>(id1, make_shared<pib::PibMemory>(), true);
   Identity identity1(identityImpl);
   Identity identity2(identityImpl);
+  BOOST_CHECK_EQUAL(identity1, identity2);
+  BOOST_CHECK_NE(identity1, Identity());
+  BOOST_CHECK_EQUAL(Identity(), Identity());
 
   identity1.addKey(id1Key1.buf(), id1Key1.size(), id1Key1Name);
   BOOST_CHECK_NO_THROW(identity2.getKey(id1Key1Name));

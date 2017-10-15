@@ -79,6 +79,9 @@ BOOST_AUTO_TEST_CASE(Share)
   auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.buf(), id1Key1.size(), make_shared<pib::PibMemory>());
   Key key1(keyImpl);
   Key key2(keyImpl);
+  BOOST_CHECK_EQUAL(key1, key2);
+  BOOST_CHECK_NE(key1, Key());
+  BOOST_CHECK_EQUAL(Key(), Key());
 
   key1.addCertificate(id1Key1Cert1);
   BOOST_CHECK_NO_THROW(key2.getCertificate(id1Key1Cert1.getName()));

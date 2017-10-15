@@ -123,6 +123,24 @@ Key::lock() const
   return impl;
 }
 
+bool
+operator!=(const Key& lhs, const Key& rhs)
+{
+  return lhs.m_impl.owner_before(rhs.m_impl) || rhs.m_impl.owner_before(lhs.m_impl);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Key& key)
+{
+  if (key) {
+    os << key.getName();
+  }
+  else {
+    os << "(empty)";
+  }
+  return os;
+}
+
 } // namespace pib
 
 namespace v2 {

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -101,6 +101,24 @@ Identity::lock() const
     BOOST_THROW_EXCEPTION(std::domain_error("Invalid Identity instance"));
 
   return impl;
+}
+
+bool
+operator!=(const Identity& lhs, const Identity& rhs)
+{
+  return lhs.m_impl.owner_before(rhs.m_impl) || rhs.m_impl.owner_before(lhs.m_impl);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Identity& id)
+{
+  if (id) {
+    os << id.getName();
+  }
+  else {
+    os << "(empty)";
+  }
+  return os;
 }
 
 } // namespace pib

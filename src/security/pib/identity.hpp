@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -100,6 +100,7 @@ public:
   /*
    * @return True if the identity instance is valid
    */
+  explicit
   operator bool() const;
 
   /**
@@ -157,7 +158,20 @@ private:
   weak_ptr<detail::IdentityImpl> m_impl;
 
   friend class v2::KeyChain;
+  friend bool operator!=(const Identity&, const Identity&);
 };
+
+bool
+operator!=(const Identity& lhs, const Identity& rhs);
+
+inline bool
+operator==(const Identity& lhs, const Identity& rhs)
+{
+  return !(lhs != rhs);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Identity& id);
 
 } // namespace pib
 

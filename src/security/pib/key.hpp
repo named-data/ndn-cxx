@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -125,6 +125,7 @@ public:
   /**
    * @brief Check if the Key instance is valid.
    */
+  explicit
   operator bool() const;
 
   /**
@@ -181,7 +182,20 @@ private:
   weak_ptr<detail::KeyImpl> m_impl;
 
   friend class v2::KeyChain;
+  friend bool operator!=(const Key&, const Key&);
 };
+
+bool
+operator!=(const Key& lhs, const Key& rhs);
+
+inline bool
+operator==(const Key& lhs, const Key& rhs)
+{
+  return !(lhs != rhs);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Key& key);
 
 } // namespace pib
 
