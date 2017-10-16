@@ -1,4 +1,4 @@
-ndn-cxx version 0.5.1
+ndn-cxx version 0.6.0
 ---------------------
 
 Release date: October 16, 2017
