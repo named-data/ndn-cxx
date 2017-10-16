@@ -37,6 +37,11 @@ static_assert(std::is_nothrow_move_assignable<Buffer>::value,
 
 Buffer::Buffer() = default;
 
+Buffer::Buffer(size_t size)
+  : std::vector<uint8_t>(size, 0)
+{
+}
+
 Buffer::Buffer(const void* buf, size_t length)
   : std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(buf),
                          reinterpret_cast<const uint8_t*>(buf) + length)

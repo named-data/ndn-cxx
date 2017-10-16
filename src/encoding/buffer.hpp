@@ -40,17 +40,31 @@ namespace ndn {
 class Buffer : public std::vector<uint8_t>
 {
 public:
-  using std::vector<uint8_t>::vector;
-
   /** @brief Creates an empty Buffer
    */
   Buffer();
+
+  /** @brief Creates a Buffer with pre-allocated size
+   *  @param size size of the Buffer to be allocated
+   */
+  explicit
+  Buffer(size_t size);
 
   /** @brief Creates a Buffer by copying contents from a raw buffer
    *  @param buf const pointer to buffer to copy
    *  @param length length of the buffer to copy
    */
   Buffer(const void* buf, size_t length);
+
+  /** @brief Creates a Buffer by copying the elements of the range [first, last)
+   *  @param first an input iterator to the first element to copy
+   *  @param last an input iterator to the element immediately following the last element to copy
+   */
+  template<class InputIt>
+  Buffer(InputIt first, InputIt last)
+    : std::vector<uint8_t>(first, last)
+  {
+  }
 
   /** @return pointer to the first byte of the buffer, cast to the requested type T
    */
