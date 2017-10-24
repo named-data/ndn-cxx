@@ -17,54 +17,24 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * @author Teng Liang <philoliang@email.arizona.edu>
  */
 
-#ifndef NDN_CXX_LP_TAGS_HPP
-#define NDN_CXX_LP_TAGS_HPP
-
-#include "cache-policy.hpp"
-#include "empty-value.hpp"
-#include "../tag.hpp"
+#ifndef NDN_CXX_LP_TLV_EMPTY_VALUE_HPP
+#define NDN_CXX_LP_TLV_EMPTY_VALUE_HPP
 
 namespace ndn {
 namespace lp {
 
-/** \class IncomingFaceIdTag
- *  \brief a packet tag for IncomingFaceId field
- *
- *  This tag can be attached to Interest, Data, Nack.
+/**
+ * \brief represents a zero-length TLV-VALUE
  */
-typedef SimpleTag<uint64_t, 10> IncomingFaceIdTag;
-
-/** \class NextHopFaceIdTag
- *  \brief a packet tag for NextHopFaceId field
- *
- *  This tag can be attached to Interest.
- */
-typedef SimpleTag<uint64_t, 11> NextHopFaceIdTag;
-
-/** \class CachePolicyTag
- *  \brief a packet tag for CachePolicy field
- *
- *  This tag can be attached to Data.
- */
-typedef SimpleTag<CachePolicy, 12> CachePolicyTag;
-
-/** \class CongestionMarkTag
- *  \brief a packet tag for CongestionMark field
- *
- *  This tag can be attached to Interest, Data, Nack.
- */
-typedef SimpleTag<uint64_t, 13> CongestionMarkTag;
-
-/** \class NonDiscoveryTag
- *  \brief a packet tag for NonDiscovery field
- *
- *  This tag can be attached to Interest.
- */
-typedef SimpleTag<EmptyValue, 14> NonDiscoveryTag;
+struct EmptyValue
+{
+};
 
 } // namespace lp
 } // namespace ndn
 
-#endif // NDN_CXX_LP_TAGS_HPP
+#endif // NDN_CXX_LP_TLV_EMPTY_VALUE_HPP

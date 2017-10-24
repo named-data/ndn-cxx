@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -84,6 +84,11 @@ typedef FieldDecl<field_location_tags::Header,
                   tlv::TxSequence> TxSequenceField;
 BOOST_CONCEPT_ASSERT((Field<TxSequenceField>));
 
+typedef FieldDecl<field_location_tags::Header,
+                  EmptyValue,
+                  tlv::NonDiscovery> NonDiscoveryField;
+BOOST_CONCEPT_ASSERT((Field<NonDiscoveryField>));
+
 /**
  * The value of the wire encoded field is the data between the provided iterators. During
  * encoding, the data is copied from the Buffer into the wire buffer.
@@ -107,7 +112,8 @@ typedef boost::mpl::set<
   IncomingFaceIdField,
   CongestionMarkField,
   AckField,
-  TxSequenceField
+  TxSequenceField,
+  NonDiscoveryField
   > FieldSet;
 
 } // namespace lp

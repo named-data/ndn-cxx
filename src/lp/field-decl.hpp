@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,6 +22,7 @@
 #ifndef NDN_CXX_LP_FIELD_DECL_HPP
 #define NDN_CXX_LP_FIELD_DECL_HPP
 
+#include "empty-value.hpp"
 #include "field.hpp"
 #include "tlv.hpp"
 
@@ -46,6 +47,21 @@ struct DecodeHelper
 };
 
 template<typename TlvType>
+struct DecodeHelper<TlvType, EmptyValue>
+{
+  static EmptyValue
+  decode(const Block& wire)
+  {
+    if (wire.value_size() != 0) {
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
+                            " must be empty"));
+    }
+
+    return EmptyValue{};
+  }
+};
+
+template<typename TlvType>
 struct DecodeHelper<TlvType, uint64_t>
 {
   static uint64_t
@@ -62,7 +78,8 @@ struct DecodeHelper<TlvType, std::pair<Buffer::const_iterator, Buffer::const_ite
   decode(const Block& wire)
   {
     if (wire.value_size() == 0) {
-      BOOST_THROW_EXCEPTION(ndn::tlv::Error(to_string(wire.type()) + " must not be empty"));
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
+                            " cannot be empty"));
     }
 
     return std::make_pair(wire.value_begin(), wire.value_end());
@@ -77,6 +94,19 @@ struct EncodeHelper
   encode(EncodingImpl<TAG>& encoder, const T& value)
   {
     return value.wireEncode(encoder);
+  }
+};
+
+template<typename encoding::Tag TAG, typename TlvType>
+struct EncodeHelper<TAG, TlvType, EmptyValue>
+{
+  static size_t
+  encode(EncodingImpl<TAG>& encoder, const EmptyValue value)
+  {
+    size_t length = 0;
+    length += encoder.prependVarNumber(0);
+    length += encoder.prependVarNumber(TlvType::value);
+    return length;
   }
 };
 

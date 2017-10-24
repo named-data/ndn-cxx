@@ -105,6 +105,26 @@ BOOST_AUTO_TEST_CASE(EncodeSubTlv)
                                 wire.begin(), wire.end());
 }
 
+BOOST_AUTO_TEST_CASE(EncodeZeroLengthTlv)
+{
+  static const uint8_t expectedBlock[] = {
+    0x64, 0x04, // LpPacket
+          0xfd, 0x03, 0x4c, 0x00, // NonDiscovery
+  };
+
+  Packet packet1, packet2;
+  BOOST_CHECK_NO_THROW(packet1.set<NonDiscoveryField>(EmptyValue{}));
+  Block wire;
+  BOOST_REQUIRE_NO_THROW(wire = packet1.wireEncode());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
+                                wire.begin(), wire.end());
+
+  BOOST_CHECK_NO_THROW(packet2.add<NonDiscoveryField>(EmptyValue{}));
+  BOOST_REQUIRE_NO_THROW(wire = packet2.wireEncode());
+  BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
+                                wire.begin(), wire.end());
+}
+
 BOOST_AUTO_TEST_CASE(EncodeSortOrder)
 {
   static const uint8_t expectedBlock[] = {
@@ -211,6 +231,20 @@ BOOST_AUTO_TEST_CASE(DecodeFragment)
   BOOST_CHECK_EQUAL(0xe8, *(last - 1));
 }
 
+BOOST_AUTO_TEST_CASE(DecodeNonDiscoveryHeader)
+{
+  static const uint8_t inputBlock[] = {
+    0x64, 0x04, // LpPacket
+          0xfd, 0x03, 0x4c, 0x00, // NonDiscovery
+  };
+
+  Packet packet;
+  Block wire(inputBlock, sizeof(inputBlock));
+  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  BOOST_CHECK_EQUAL(true, packet.has<NonDiscoveryField>());
+  BOOST_CHECK_NO_THROW(packet.get<NonDiscoveryField>());
+}
+
 BOOST_AUTO_TEST_CASE(DecodeEmpty)
 {
   static const uint8_t inputBlock[] = {
@@ -222,6 +256,7 @@ BOOST_AUTO_TEST_CASE(DecodeEmpty)
   BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
   BOOST_CHECK_EQUAL(0, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
+  BOOST_CHECK_EQUAL(false, packet.has<NonDiscoveryField>());
 }
 
 BOOST_AUTO_TEST_CASE(DecodeRepeatedNonRepeatableHeader)

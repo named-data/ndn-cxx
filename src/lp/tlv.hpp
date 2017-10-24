@@ -38,12 +38,13 @@ enum {
   Nack = 800,
   NackReason = 801,
   NextHopFaceId = 816,
+  IncomingFaceId = 817,
   CachePolicy = 820,
   CachePolicyType = 821,
-  IncomingFaceId = 817,
   CongestionMark = 832,
   Ack = 836,
-  TxSequence = 840
+  TxSequence = 840,
+  NonDiscovery = 844,
 };
 
 enum {
