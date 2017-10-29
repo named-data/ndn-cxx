@@ -9,12 +9,12 @@ Supported platforms
 ndn-cxx uses continuous integration and has been tested on the following
 platforms:
 
--  Ubuntu 14.04 (64-bit and 32-bit)
+-  Ubuntu 14.04 (64-bit)
 -  Ubuntu 16.04 (64-bit and 32-bit)
--  Ubuntu 17.04 (64-bit and 32-bit)
--  OS X 10.10
+-  Ubuntu 17.10 (64-bit)
 -  OS X 10.11
 -  macOS 10.12
+-  macOS 10.13
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
