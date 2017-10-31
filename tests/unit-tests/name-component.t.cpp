@@ -91,10 +91,18 @@ BOOST_AUTO_TEST_SUITE(Compare)
 
 BOOST_AUTO_TEST_CASE(Generic)
 {
+  name::Component empty;
   name::Component compD("D");
   name::Component compD2("D");
   name::Component compF("F");
   name::Component compAA("AA");
+
+  BOOST_CHECK_EQUAL(empty == empty, true);
+  BOOST_CHECK_EQUAL(empty != empty, false);
+  BOOST_CHECK_EQUAL(empty < empty, false);
+  BOOST_CHECK_EQUAL(empty <= empty, true);
+  BOOST_CHECK_EQUAL(empty == compD, false);
+  BOOST_CHECK_EQUAL(empty < compD, true);
 
   BOOST_CHECK_EQUAL(compD == compD2, true);
   BOOST_CHECK_EQUAL(compD != compD2, false);

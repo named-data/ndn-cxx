@@ -28,6 +28,7 @@
 
 #include <boost/asio/buffer.hpp>
 #include <boost/range/adaptor/reversed.hpp>
+#include <cstring>
 
 namespace ndn {
 
@@ -504,7 +505,8 @@ operator==(const Block& lhs, const Block& rhs)
 {
   return lhs.type() == rhs.type() &&
          lhs.value_size() == rhs.value_size() &&
-         ::memcmp(lhs.value(), rhs.value(), lhs.value_size()) == 0;
+         (lhs.value_size() == 0 ||
+          std::memcmp(lhs.value(), rhs.value(), lhs.value_size()) == 0);
 }
 
 } // namespace ndn

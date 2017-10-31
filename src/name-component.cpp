@@ -31,6 +31,7 @@
 #include "util/string-helper.hpp"
 
 #include <boost/algorithm/string/trim.hpp>
+#include <cstring>
 #include <sstream>
 
 namespace ndn {
@@ -387,7 +388,7 @@ Component::equals(const Component& other) const
 {
   return type() == other.type() &&
          value_size() == other.value_size() &&
-         (empty() || // needed on OSX 10.9 due to STL bug
+         (empty() || // needed with Apple clang < 9.0.0 due to libc++ bug
           std::equal(value_begin(), value_end(), other.value_begin()));
 }
 
@@ -410,7 +411,7 @@ Component::compare(const Component& other) const
   if (cmpSize != 0)
     return cmpSize;
 
-  if (empty()) // needed on OSX 10.9 due to STL bug
+  if (empty())
     return 0;
 
   return std::memcmp(value(), other.value(), value_size());
