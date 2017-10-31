@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -121,20 +121,36 @@ using Failures = boost::mpl::vector<Timeout, Nack>;
 
 BOOST_FIXTURE_TEST_CASE(ValidateSuccessData, CertificateFetcherDirectFetchFixture<Cert>)
 {
-  VALIDATE_SUCCESS(this->data, "Should get accepted, as interests bring cert");
-  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 2);
+  VALIDATE_SUCCESS(this->data, "Should get accepted, normal and/or direct interests bring certs");
+  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 4);
 
-  for (const auto& sentInterest : this->face.sentInterests) {
+  // odd interests
+  for (const auto& sentInterest : this->face.sentInterests | boost::adaptors::strided(2)) {
+    BOOST_CHECK(sentInterest.template getTag<lp::NextHopFaceIdTag>() != nullptr);
+  }
+
+  // even interests
+  for (const auto& sentInterest : this->face.sentInterests |
+                                    boost::adaptors::sliced(1, this->face.sentInterests.size()) |
+                                    boost::adaptors::strided(2)) {
     BOOST_CHECK(sentInterest.template getTag<lp::NextHopFaceIdTag>() == nullptr);
   }
 }
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureData, T, Failures, CertificateFetcherDirectFetchFixture<T>)
 {
-  VALIDATE_FAILURE(this->data, "Should fail, as non-direct interests don't bring data");
-  BOOST_CHECK_GT(this->face.sentInterests.size(), 2);
+  VALIDATE_FAILURE(this->data, "Should fail, as all interests either NACKed or timeout");
+  BOOST_CHECK_GT(this->face.sentInterests.size(), 4);
 
-  for (const auto& sentInterest : this->face.sentInterests) {
+  // odd interests
+  for (const auto& sentInterest : this->face.sentInterests | boost::adaptors::strided(2)) {
+    BOOST_CHECK(sentInterest.template getTag<lp::NextHopFaceIdTag>() != nullptr);
+  }
+
+  // even interests
+  for (const auto& sentInterest : this->face.sentInterests |
+                                    boost::adaptors::sliced(1, this->face.sentInterests.size()) |
+                                    boost::adaptors::strided(2)) {
     BOOST_CHECK(sentInterest.template getTag<lp::NextHopFaceIdTag>() == nullptr);
   }
 }

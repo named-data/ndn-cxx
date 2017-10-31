@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -29,14 +29,13 @@ namespace security {
 namespace v2 {
 
 /**
- * @brief Extends CertificateFetcherFromNetwork to fetch certificates from Interest sender
+ * @brief Extends CertificateFetcherFromNetwork to fetch certificates from the incoming face of
+ *   the packet
  *
- * During Interest validation, if IncomingFaceId tag is present on the original Interest, this
- * fetcher will send a "direct Interest" to fetch certificates from the face where the original
- * Interest was received, in addition to fetching from the infrastructure. The application must
+ * During Interest and Data validation, if IncomingFaceId tag is present on the original Interest,
+ * this fetcher will send a "direct Interest" to fetch certificates from the face where the original
+ * packet was received, in addition to fetching from the infrastructure. The application must
  * enable NextHopFaceId privilege on the face used by this fetcher prior to the validation.
- *
- * During Data validation, this fetcher is equivalent to CertificateFetcherFromNetwork.
  */
 class CertificateFetcherDirectFetch : public CertificateFetcherFromNetwork
 {

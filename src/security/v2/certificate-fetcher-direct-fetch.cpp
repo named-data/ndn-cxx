@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -38,19 +38,25 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
                                        const ValidationContinuation& continueValidation)
 {
   auto interestState = dynamic_pointer_cast<InterestValidationState>(state);
+  uint64_t incomingFaceId = 0;
   if (interestState != nullptr) {
-    uint64_t incomingFaceId = 0;
     auto incomingFaceIdTag = interestState->getOriginalInterest().getTag<lp::IncomingFaceIdTag>();
     if (incomingFaceIdTag != nullptr) {
       incomingFaceId = incomingFaceIdTag->get();
     }
-
-    if (incomingFaceId != 0) {
-      Interest directInterest(keyRequest->m_interest);
-      directInterest.refreshNonce();
-      directInterest.setTag(make_shared<lp::NextHopFaceIdTag>(incomingFaceId));
-      m_face.expressInterest(directInterest, nullptr, nullptr, nullptr);
+  }
+  else {
+    auto dataState = dynamic_pointer_cast<DataValidationState>(state);
+    auto incomingFaceIdTag = dataState->getOriginalData().getTag<lp::IncomingFaceIdTag>();
+    if (incomingFaceIdTag != nullptr) {
+      incomingFaceId = incomingFaceIdTag->get();
     }
+  }
+  if (incomingFaceId != 0) {
+    Interest directInterest(keyRequest->m_interest);
+    directInterest.refreshNonce();
+    directInterest.setTag(make_shared<lp::NextHopFaceIdTag>(incomingFaceId));
+    m_face.expressInterest(directInterest, nullptr, nullptr, nullptr);
   }
 
   // send infrastructure Interest
