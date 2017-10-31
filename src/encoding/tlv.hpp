@@ -96,7 +96,7 @@ enum {
   AppPrivateBlock2 = 32767
 };
 
-enum SignatureTypeValue {
+enum SignatureTypeValue : uint16_t {
   DigestSha256 = 0,
   SignatureSha256WithRsa = 1,
   // <Unassigned> = 2,
@@ -104,7 +104,7 @@ enum SignatureTypeValue {
 };
 
 std::ostream&
-operator<<(std::ostream& os, const SignatureTypeValue& signatureType);
+operator<<(std::ostream& os, SignatureTypeValue signatureType);
 
 /** @brief TLV-TYPE numbers for SignatureInfo features
  *  @sa docs/tutorials/certificate-format.rst

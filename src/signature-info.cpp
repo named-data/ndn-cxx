@@ -79,10 +79,11 @@ SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
   if (m_hasKeyLocator)
     totalLength += m_keyLocator.wireEncode(encoder);
 
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::SignatureType, m_type);
-
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::SignatureType,
+                                                static_cast<uint64_t>(m_type));
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::SignatureInfo);
+
   return totalLength;
 }
 
@@ -107,6 +108,7 @@ SignatureInfo::wireEncode() const
 void
 SignatureInfo::wireDecode(const Block& wire)
 {
+  m_type = -1;
   m_hasKeyLocator = false;
   m_otherTlvs.clear();
 
@@ -116,15 +118,14 @@ SignatureInfo::wireDecode(const Block& wire)
   if (m_wire.type() != tlv::SignatureInfo)
     BOOST_THROW_EXCEPTION(Error("Decoding SignatureInfo, but TLV-TYPE is " + to_string(m_wire.type())));
 
-  Block::element_const_iterator it = m_wire.elements_begin();
+  auto it = m_wire.elements_begin();
 
   // the first sub-element must be SignatureType
-  if (it != m_wire.elements_end() && it->type() == tlv::SignatureType) {
-    m_type = readNonNegativeIntegerAs<int32_t>(*it);
-    ++it;
-  }
-  else
+  if (it == m_wire.elements_end() || it->type() != tlv::SignatureType)
     BOOST_THROW_EXCEPTION(Error("Missing SignatureType in SignatureInfo"));
+
+  m_type = readNonNegativeIntegerAs<tlv::SignatureTypeValue>(*it);
+  ++it;
 
   // the second sub-element could be KeyLocator
   if (it != m_wire.elements_end() && it->type() == tlv::KeyLocator) {
@@ -228,6 +229,9 @@ operator==(const SignatureInfo& lhs, const SignatureInfo& rhs)
 std::ostream&
 operator<<(std::ostream& os, const SignatureInfo& info)
 {
+  if (info.getSignatureType() == -1)
+    return os << "Invalid SignatureInfo";
+
   os << static_cast<tlv::SignatureTypeValue>(info.getSignatureType());
   if (info.hasKeyLocator()) {
     os << " " << info.getKeyLocator();
@@ -239,6 +243,7 @@ operator<<(std::ostream& os, const SignatureInfo& info)
     }
     os << "}";
   }
+
   return os;
 }
 

@@ -50,6 +50,8 @@ BOOST_AUTO_TEST_CASE(Constructor)
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
   BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
 
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(info), "Invalid SignatureInfo");
+
   SignatureInfo sha256Info(tlv::DigestSha256);
   BOOST_CHECK_EQUAL(sha256Info.getSignatureType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(sha256Info.hasKeyLocator(), false);

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -191,12 +191,12 @@ BOOST_AUTO_TEST_CASE(OperatorEquals)
   info2 = SigningInfo("id:/my-id");
   info1.setDigestAlgorithm(DigestAlgorithm::SHA256);
   info2.setDigestAlgorithm(DigestAlgorithm::SHA256);
-  SignatureInfo sigInfo1(tlv::SignatureTypeValue::DigestSha256);
+  SignatureInfo sigInfo1(tlv::DigestSha256);
   info1.setSignatureInfo(sigInfo1);
   info2.setSignatureInfo(sigInfo1);
   BOOST_CHECK_EQUAL(info1, info2);
   // Change signature info, check inequality
-  SignatureInfo sigInfo2(tlv::SignatureTypeValue::SignatureSha256WithRsa);
+  SignatureInfo sigInfo2(tlv::SignatureSha256WithRsa);
   info2.setSignatureInfo(sigInfo2);
   BOOST_CHECK_NE(info1, info2);
 }

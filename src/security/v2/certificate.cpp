@@ -166,7 +166,7 @@ operator<<(std::ostream& os, const Certificate& cert)
 
   os << "Signature Information:\n";
   {
-    os << "  Signature Type: " << static_cast<tlv::SignatureTypeValue>(cert.getSignature().getType()) << "\n";
+    os << "  Signature Type: " << cert.getSignature().getType() << "\n";
 
     if (cert.getSignature().hasKeyLocator()) {
       os << "  Key Locator: ";

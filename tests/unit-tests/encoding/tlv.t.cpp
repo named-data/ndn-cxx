@@ -469,17 +469,10 @@ BOOST_AUTO_TEST_SUITE(PrintHelpers)
 
 BOOST_AUTO_TEST_CASE(PrintSignatureTypeValue)
 {
-  SignatureTypeValue value = DigestSha256;
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "DigestSha256");
-
-  value = SignatureSha256WithRsa;
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "SignatureSha256WithRsa");
-
-  value = SignatureSha256WithEcdsa;
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "SignatureSha256WithEcdsa");
-
-  value = static_cast<SignatureTypeValue>(-1);
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), "Unknown Signature Type");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(DigestSha256), "DigestSha256");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureSha256WithRsa), "SignatureSha256WithRsa");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureSha256WithEcdsa), "SignatureSha256WithEcdsa");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(200)), "Unknown Signature Type");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // PrintHelpers
