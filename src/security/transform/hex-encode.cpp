@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,15 +25,18 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-static const char H2CL[16] = {
+static const uint8_t H2CL[] = {
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
+static_assert(std::extent<decltype(H2CL)>::value == 16, "");
 
-static const char H2CU[16] = {
+static const uint8_t H2CU[] = {
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
+static_assert(std::extent<decltype(H2CU)>::value == 16, "");
+
 
 HexEncode::HexEncode(bool useUpperCase)
   : m_useUpperCase(useUpperCase)
@@ -50,20 +53,18 @@ HexEncode::convert(const uint8_t* data, size_t dataLen)
 unique_ptr<Transform::OBuffer>
 HexEncode::toHex(const uint8_t* data, size_t dataLen)
 {
-  const char* encodePad = (m_useUpperCase) ? H2CU : H2CL;
-
   auto encoded = make_unique<OBuffer>(dataLen * 2);
-  uint8_t* buf = &encoded->front();
+  uint8_t* buf = encoded->data();
+  const uint8_t* encodePad = m_useUpperCase ? H2CU : H2CL;
+
   for (size_t i = 0; i < dataLen; i++) {
-    buf[0] = encodePad[((data[i] >> 4) & 0x0F)];
-    buf++;
-    buf[0] = encodePad[(data[i] & 0x0F)];
-    buf++;
+    buf[0] = encodePad[(data[i] >> 4) & 0x0F];
+    buf[1] = encodePad[data[i] & 0x0F];
+    buf += 2;
   }
+
   return encoded;
 }
-
-
 
 unique_ptr<Transform>
 hexEncode(bool useUpperCase)

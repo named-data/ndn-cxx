@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,8 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-static const int8_t C2H[256] = { // hex decoding pad.
+// hex decoding pad
+static const int8_t C2H[] = {
 // 0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 0-15
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 16-31
@@ -44,6 +45,8 @@ static const int8_t C2H[256] = { // hex decoding pad.
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 224-239
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 240-255
 };
+static_assert(std::extent<decltype(C2H)>::value == 256, "");
+
 
 HexDecode::HexDecode()
   : m_hasOddByte(false)
@@ -82,24 +85,24 @@ HexDecode::toBytes(const uint8_t* hex, size_t hexLen)
 {
   size_t bufferSize = (hexLen + (m_hasOddByte ? 1 : 0)) >> 1;
   auto buffer = make_unique<OBuffer>(bufferSize);
-  uint8_t* buf = &buffer->front();
+  auto it = buffer->begin();
 
   if (m_hasOddByte) {
     if (C2H[hex[0]] < 0 || C2H[m_oddByte] < 0)
       BOOST_THROW_EXCEPTION(Error(getIndex(), "Wrong input byte"));
 
-    buf[0] = (C2H[m_oddByte] << 4) + (C2H[hex[0]]);
-    buf += 1;
+    *it = (C2H[m_oddByte] << 4) + C2H[hex[0]];
+    ++it;
     hex += 1;
     hexLen -= 1;
   }
 
-  while (hexLen > 1) {
+  while (hexLen >= 2) {
     if (C2H[hex[0]] < 0 || C2H[hex[1]] < 0)
       BOOST_THROW_EXCEPTION(Error(getIndex(), "Wrong input byte"));
 
-    buf[0] = (C2H[hex[0]] << 4) + (C2H[hex[1]]);
-    buf += 1;
+    *it = (C2H[hex[0]] << 4) + C2H[hex[1]];
+    ++it;
     hex += 2;
     hexLen -= 2;
   }
