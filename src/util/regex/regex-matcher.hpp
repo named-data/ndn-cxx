@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2014 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,15 +21,13 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_MATCHER_H
-#define NDN_UTIL_REGEX_REGEX_MATCHER_H
+#ifndef NDN_UTIL_REGEX_REGEX_MATCHER_HPP
+#define NDN_UTIL_REGEX_REGEX_MATCHER_HPP
 
-#include "../../common.hpp"
+#include "regex-backref-manager.hpp"
 #include "../../name.hpp"
 
 namespace ndn {
-
-class RegexBackrefManager;
 
 class RegexMatcher
 {
@@ -54,12 +52,11 @@ public:
     EXPR_PSEUDO
   };
 
-  RegexMatcher(const std::string& expr,
-               const RegexExprType& type,
-               shared_ptr<RegexBackrefManager> backrefManager = shared_ptr<RegexBackrefManager>());
+  RegexMatcher(const std::string& expr, const RegexExprType& type,
+               shared_ptr<RegexBackrefManager> backrefManager = nullptr);
 
   virtual
-  ~RegexMatcher();
+  ~RegexMatcher() = default;
 
   virtual bool
   match(const Name& name, size_t offset, size_t len);
@@ -91,89 +88,65 @@ private:
   bool
   recursiveMatch(size_t matcherNo, const Name& name, size_t offset, size_t len);
 
-
 protected:
   const std::string m_expr;
   const RegexExprType m_type;
   shared_ptr<RegexBackrefManager> m_backrefManager;
-  std::vector<shared_ptr<RegexMatcher> > m_matchers;
+  std::vector<shared_ptr<RegexMatcher>> m_matchers;
   std::vector<name::Component> m_matchResult;
 };
 
 inline std::ostream&
-operator<<(std::ostream& os, const RegexMatcher& regex)
+operator<<(std::ostream& os, const RegexMatcher& rm)
 {
-  os << regex.getExpr();
-  return os;
+  return os << rm.getExpr();
 }
 
-} // namespace ndn
-
-#include "regex-backref-manager.hpp"
-
-namespace ndn {
-
 inline
-RegexMatcher::RegexMatcher(const std::string& expr,
-                           const RegexExprType& type,
+RegexMatcher::RegexMatcher(const std::string& expr, const RegexExprType& type,
                            shared_ptr<RegexBackrefManager> backrefManager)
   : m_expr(expr)
   , m_type(type)
-  , m_backrefManager(backrefManager)
 {
-  if (!static_cast<bool>(m_backrefManager))
+  if (backrefManager)
+    m_backrefManager = std::move(backrefManager);
+  else
     m_backrefManager = make_shared<RegexBackrefManager>();
-}
-
-inline
-RegexMatcher::~RegexMatcher()
-{
 }
 
 inline bool
 RegexMatcher::match(const Name& name, size_t offset, size_t len)
 {
-  bool result = false;
-
   m_matchResult.clear();
 
-  if (recursiveMatch(0, name, offset, len))
-    {
-      for (size_t i = offset; i < offset + len ; i++)
-        m_matchResult.push_back(name.get(i));
-      result = true;
-    }
-  else
-    {
-      result = false;
-    }
+  if (recursiveMatch(0, name, offset, len)) {
+    for (size_t i = offset; i < offset + len; i++)
+      m_matchResult.push_back(name.get(i));
+    return true;
+  }
 
-  return result;
+  return false;
 }
 
 inline bool
 RegexMatcher::recursiveMatch(size_t matcherNo, const Name& name, size_t offset, size_t len)
 {
-  ssize_t tried = len;
-
   if (matcherNo >= m_matchers.size())
-    return (len == 0);
+    return len == 0;
 
-  shared_ptr<RegexMatcher> matcher = m_matchers[matcherNo];
+  ssize_t tried = len;
+  auto matcher = m_matchers[matcherNo];
 
-  while (tried >= 0)
-    {
-      if (matcher->match(name, offset, tried) &&
-          recursiveMatch(matcherNo + 1, name, offset + tried, len - tried))
-        return true;
-      tried--;
-    }
+  while (tried >= 0) {
+    if (matcher->match(name, offset, tried) &&
+        recursiveMatch(matcherNo + 1, name, offset + tried, len - tried))
+      return true;
+    tried--;
+  }
 
   return false;
 }
 
-
 } // namespace ndn
 
-
-#endif // NDN_UTIL_REGEX_REGEX_MATCHER_H
+#endif // NDN_UTIL_REGEX_REGEX_MATCHER_HPP

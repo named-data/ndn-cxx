@@ -24,13 +24,9 @@
 #ifndef NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
 #define NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
 
-#include "../../common.hpp"
-
 #include "regex-matcher.hpp"
 
 namespace ndn {
-
-class RegexBackrefManager;
 
 class RegexPatternListMatcher : public RegexMatcher
 {
@@ -45,24 +41,24 @@ private:
   bool
   extractPattern(size_t index, size_t* next);
 
-  int
+  size_t
   extractSubPattern(const char left, const char right, size_t index);
 
-  int
+  size_t
   extractRepetition(size_t index);
 };
 
 } // namespace ndn
 
-#include "regex-repeat-matcher.hpp"
 #include "regex-backref-matcher.hpp"
+#include "regex-repeat-matcher.hpp"
 
 namespace ndn {
 
 inline
 RegexPatternListMatcher::RegexPatternListMatcher(const std::string& expr,
                                                  shared_ptr<RegexBackrefManager> backrefManager)
-  : RegexMatcher(expr, EXPR_PATTERN_LIST, backrefManager)
+  : RegexMatcher(expr, EXPR_PATTERN_LIST, std::move(backrefManager))
 {
   compile();
 }
@@ -78,7 +74,7 @@ RegexPatternListMatcher::compile()
     subHead = index;
 
     if (!extractPattern(subHead, &index))
-      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Compile error"));
+      BOOST_THROW_EXCEPTION(Error("Compile error"));
   }
 }
 
@@ -96,12 +92,11 @@ RegexPatternListMatcher::extractPattern(size_t index, size_t* next)
     indicator = index;
     end = extractRepetition(index);
     if (indicator == end) {
-      shared_ptr<RegexMatcher> matcher =
-        make_shared<RegexBackrefMatcher>(m_expr.substr(start, end - start), m_backrefManager);
+      auto matcher = make_shared<RegexBackrefMatcher>(m_expr.substr(start, end - start),
+                                                      m_backrefManager);
       m_backrefManager->pushRef(matcher);
-      dynamic_pointer_cast<RegexBackrefMatcher>(matcher)->lateCompile();
-
-      m_matchers.push_back(matcher);
+      matcher->lateCompile();
+      m_matchers.push_back(std::move(matcher));
     }
     else
       m_matchers.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
@@ -127,24 +122,22 @@ RegexPatternListMatcher::extractPattern(size_t index, size_t* next)
     break;
 
   default:
-    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Unexpected syntax"));
+    BOOST_THROW_EXCEPTION(Error("Unexpected syntax"));
   }
 
   *next = end;
-
   return true;
 }
 
-inline int
+inline size_t
 RegexPatternListMatcher::extractSubPattern(const char left, const char right, size_t index)
 {
   size_t lcount = 1;
   size_t rcount = 0;
 
   while (lcount > rcount) {
-
     if (index >= m_expr.size())
-      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Parenthesis mismatch"));
+      BOOST_THROW_EXCEPTION(Error("Parenthesis mismatch"));
 
     if (left == m_expr[index])
       lcount++;
@@ -154,10 +147,11 @@ RegexPatternListMatcher::extractSubPattern(const char left, const char right, si
 
     index++;
   }
+
   return index;
 }
 
-inline int
+inline size_t
 RegexPatternListMatcher::extractRepetition(size_t index)
 {
   size_t exprSize = m_expr.size();
@@ -176,7 +170,7 @@ RegexPatternListMatcher::extractRepetition(size_t index)
         break;
     }
     if (index == exprSize)
-      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Missing right brace bracket"));
+      BOOST_THROW_EXCEPTION(Error("Missing right brace bracket"));
     else
       return ++index;
   }

@@ -132,7 +132,7 @@ Filter::createNameFilter(const ConfigSection& configSection, const std::string& 
       BOOST_THROW_EXCEPTION(Error("Expect the end of filter"));
 
     try {
-      return make_unique<RegexNameFilter>(regexString);
+      return make_unique<RegexNameFilter>(Regex(regexString));
     }
     catch (const Regex::Error& e) {
       BOOST_THROW_EXCEPTION(Error("Wrong filter.regex: " + regexString));

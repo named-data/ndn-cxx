@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,10 +24,10 @@
 #ifndef NDN_UTIL_REGEX_REGEX_COMPONENT_MATCHER_HPP
 #define NDN_UTIL_REGEX_REGEX_COMPONENT_MATCHER_HPP
 
-#include <boost/regex.hpp>
-
 #include "regex-matcher.hpp"
 #include "regex-pseudo-matcher.hpp"
+
+#include <boost/regex.hpp>
 
 namespace ndn {
 
@@ -44,34 +44,24 @@ public:
                         shared_ptr<RegexBackrefManager> backrefManager,
                         bool isExactMatch = true);
 
-  virtual
-  ~RegexComponentMatcher()
-  {
-  }
-
-  virtual bool
-  match(const Name& name, size_t offset, size_t len = 1);
+  bool
+  match(const Name& name, size_t offset, size_t len = 1) override;
 
 protected:
-  /**
-   * @brief Compile the regular expression to generate the more matchers when necessary
-   */
-  virtual void
-  compile();
+  void
+  compile() override;
 
 private:
   bool m_isExactMatch;
   boost::regex m_componentRegex;
-  std::vector<shared_ptr<RegexPseudoMatcher> > m_pseudoMatchers;
-
+  std::vector<shared_ptr<RegexPseudoMatcher>> m_pseudoMatchers;
 };
-
 
 inline
 RegexComponentMatcher::RegexComponentMatcher(const std::string& expr,
                                              shared_ptr<RegexBackrefManager> backrefManager,
                                              bool isExactMatch)
-  : RegexMatcher(expr, EXPR_COMPONENT, backrefManager)
+  : RegexMatcher(expr, EXPR_COMPONENT, std::move(backrefManager))
   , m_isExactMatch(isExactMatch)
 {
   compile();
@@ -82,11 +72,12 @@ RegexComponentMatcher::RegexComponentMatcher(const std::string& expr,
 //   Breaking change: corrected behavior of basic_regex<>::mark_count() to match existing
 //   documentation, basic_regex<>::subexpression(n) changed to match, see
 //   https://svn.boost.org/trac/boost/ticket/9227
-static const size_t BOOST_REGEXP_MARK_COUNT_CORRECTION =
+//
+static constexpr size_t BOOST_REGEXP_MARK_COUNT_CORRECTION =
 #if BOOST_VERSION < 105600
-                    1;
+    1;
 #else
-                    0;
+    0;
 #endif
 
 inline void
@@ -97,13 +88,10 @@ RegexComponentMatcher::compile()
   m_pseudoMatchers.clear();
   m_pseudoMatchers.push_back(make_shared<RegexPseudoMatcher>());
 
-  for (size_t i = 1;
-       i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++)
-    {
-      shared_ptr<RegexPseudoMatcher> pMatcher = make_shared<RegexPseudoMatcher>();
-      m_pseudoMatchers.push_back(pMatcher);
-      m_backrefManager->pushRef(static_pointer_cast<RegexMatcher>(pMatcher));
-    }
+  for (size_t i = 1; i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++) {
+    m_pseudoMatchers.push_back(make_shared<RegexPseudoMatcher>());
+    m_backrefManager->pushRef(m_pseudoMatchers.back());
+  }
 }
 
 inline bool
@@ -111,37 +99,27 @@ RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
 {
   m_matchResult.clear();
 
-  if (m_expr.empty())
-    {
-      m_matchResult.push_back(name.get(offset));
-      return true;
-    }
+  if (m_expr.empty()) {
+    m_matchResult.push_back(name.get(offset));
+    return true;
+  }
 
-  if (m_isExactMatch)
-    {
-      boost::smatch subResult;
-      std::string targetStr = name.get(offset).toUri();
-      if (boost::regex_match(targetStr, subResult, m_componentRegex))
-        {
-          for (size_t i = 1;
-               i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++)
-            {
-              m_pseudoMatchers[i]->resetMatchResult();
-              m_pseudoMatchers[i]->setMatchResult(subResult[i]);
-            }
-          m_matchResult.push_back(name.get(offset));
-          return true;
-        }
+  if (!m_isExactMatch)
+    BOOST_THROW_EXCEPTION(Error("Non-exact component search is not supported yet"));
+
+  boost::smatch subResult;
+  std::string targetStr = name.get(offset).toUri();
+  if (boost::regex_match(targetStr, subResult, m_componentRegex)) {
+    for (size_t i = 1; i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++) {
+      m_pseudoMatchers[i]->resetMatchResult();
+      m_pseudoMatchers[i]->setMatchResult(subResult[i]);
     }
-  else
-    {
-      BOOST_THROW_EXCEPTION(RegexMatcher::Error("Non-exact component search is not supported "
-                                                "yet"));
-    }
+    m_matchResult.push_back(name.get(offset));
+    return true;
+  }
 
   return false;
 }
-
 
 } // namespace ndn
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,10 +39,16 @@ public:
   pushRef(const shared_ptr<RegexMatcher>& matcher);
 
   void
-  popRef();
+  popRef()
+  {
+    m_backrefs.pop_back();
+  }
 
   size_t
-  size() const;
+  size() const
+  {
+    return m_backrefs.size();
+  }
 
   shared_ptr<RegexMatcher>
   getBackref(size_t i) const;
@@ -51,26 +57,12 @@ private:
   std::vector<weak_ptr<RegexMatcher>> m_backrefs;
 };
 
-
 inline size_t
 RegexBackrefManager::pushRef(const shared_ptr<RegexMatcher>& matcher)
 {
-  size_t last = m_backrefs.size();
-  m_backrefs.push_back(matcher);
-
+  auto last = m_backrefs.size();
+  m_backrefs.emplace_back(matcher);
   return last;
-}
-
-inline void
-RegexBackrefManager::popRef()
-{
-  m_backrefs.pop_back();
-}
-
-inline size_t
-RegexBackrefManager::size() const
-{
-  return m_backrefs.size();
 }
 
 inline shared_ptr<RegexMatcher>

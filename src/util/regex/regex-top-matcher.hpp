@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,6 @@
 #ifndef NDN_UTIL_REGEX_REGEX_TOP_MATCHER_HPP
 #define NDN_UTIL_REGEX_REGEX_TOP_MATCHER_HPP
 
-#include "../../common.hpp"
-
 #include "regex-matcher.hpp"
 
 namespace ndn {
@@ -33,32 +31,30 @@ namespace ndn {
 class RegexPatternListMatcher;
 class RegexBackrefManager;
 
-class RegexTopMatcher: public RegexMatcher
+class RegexTopMatcher : public RegexMatcher
 {
 public:
+  explicit
   RegexTopMatcher(const std::string& expr, const std::string& expand = "");
-
-  virtual
-  ~RegexTopMatcher();
 
   bool
   match(const Name& name);
 
-  virtual bool
-  match(const Name& name, size_t offset, size_t len);
+  bool
+  match(const Name& name, size_t offset, size_t len) override;
 
   virtual Name
   expand(const std::string& expand = "");
 
   static shared_ptr<RegexTopMatcher>
-  fromName(const Name& name, bool hasAnchor=false);
+  fromName(const Name& name, bool hasAnchor = false);
 
 protected:
-  virtual void
-  compile();
+  void
+  compile() override;
 
 private:
-  std::string
+  static std::string
   getItemFromExpand(const std::string& expand, size_t& offset);
 
   static std::string

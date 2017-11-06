@@ -258,7 +258,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const s
     }
 
     try {
-      return make_unique<RegexChecker>(regexString);
+      return make_unique<RegexChecker>(Regex(regexString));
     }
     catch (const Regex::Error& e) {
       BOOST_THROW_EXCEPTION(Error("Invalid checker.key-locator.regex: " + regexString));

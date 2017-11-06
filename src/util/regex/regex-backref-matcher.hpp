@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,6 @@
 #ifndef NDN_UTIL_REGEX_REGEX_BACKREF_MATCHER_HPP
 #define NDN_UTIL_REGEX_REGEX_BACKREF_MATCHER_HPP
 
-#include "../../common.hpp"
-
 #include "regex-matcher.hpp"
 
 namespace ndn {
@@ -35,11 +33,6 @@ class RegexBackrefMatcher : public RegexMatcher
 public:
   RegexBackrefMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager);
 
-  virtual
-  ~RegexBackrefMatcher()
-  {
-  }
-
   void
   lateCompile()
   {
@@ -47,8 +40,8 @@ public:
   }
 
 protected:
-  virtual void
-  compile();
+  void
+  compile() override;
 };
 
 } // namespace ndn
@@ -60,29 +53,24 @@ namespace ndn {
 inline
 RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
                                          shared_ptr<RegexBackrefManager> backrefManager)
-  : RegexMatcher(expr, EXPR_BACKREF, backrefManager)
+  : RegexMatcher(expr, EXPR_BACKREF, std::move(backrefManager))
 {
-  // compile();
 }
 
 inline void
 RegexBackrefMatcher::compile()
 {
   if (m_expr.size() < 2)
-    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Unrecognized format: " + m_expr));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
 
   size_t lastIndex = m_expr.size() - 1;
   if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
-    // m_backRefManager->pushRef(this);
-
-    shared_ptr<RegexMatcher> matcher(new RegexPatternListMatcher(m_expr.substr(1, lastIndex - 1),
-                                                                 m_backrefManager));
-    m_matchers.push_back(matcher);
+    m_matchers.push_back(make_shared<RegexPatternListMatcher>(m_expr.substr(1, lastIndex - 1),
+                                                              m_backrefManager));
   }
   else
-    BOOST_THROW_EXCEPTION(RegexMatcher::Error("Unrecognized format: " + m_expr));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
 }
-
 
 } // namespace ndn
 
