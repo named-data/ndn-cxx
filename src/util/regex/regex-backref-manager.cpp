@@ -21,42 +21,24 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
-#define NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
-
-#include "../../common.hpp"
-
-#include <vector>
+#include "regex-backref-manager.hpp"
 
 namespace ndn {
 
-class RegexMatcher;
-
-class RegexBackrefManager
+size_t
+RegexBackrefManager::pushRef(const shared_ptr<RegexMatcher>& matcher)
 {
-public:
-  size_t
-  pushRef(const shared_ptr<RegexMatcher>& matcher);
+  auto last = m_backrefs.size();
+  m_backrefs.emplace_back(matcher);
+  return last;
+}
 
-  void
-  popRef()
-  {
-    m_backrefs.pop_back();
-  }
-
-  size_t
-  size() const
-  {
-    return m_backrefs.size();
-  }
-
-  shared_ptr<RegexMatcher>
-  getBackref(size_t i) const;
-
-private:
-  std::vector<weak_ptr<RegexMatcher>> m_backrefs;
-};
+shared_ptr<RegexMatcher>
+RegexBackrefManager::getBackref(size_t i) const
+{
+  auto backref = m_backrefs[i].lock();
+  BOOST_ASSERT(backref != nullptr);
+  return backref;
+}
 
 } // namespace ndn
-
-#endif // NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP

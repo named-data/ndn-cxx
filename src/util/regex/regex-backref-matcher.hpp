@@ -46,32 +46,4 @@ protected:
 
 } // namespace ndn
 
-#include "regex-pattern-list-matcher.hpp"
-
-namespace ndn {
-
-inline
-RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
-                                         shared_ptr<RegexBackrefManager> backrefManager)
-  : RegexMatcher(expr, EXPR_BACKREF, std::move(backrefManager))
-{
-}
-
-inline void
-RegexBackrefMatcher::compile()
-{
-  if (m_expr.size() < 2)
-    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
-
-  size_t lastIndex = m_expr.size() - 1;
-  if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
-    m_matchers.push_back(make_shared<RegexPatternListMatcher>(m_expr.substr(1, lastIndex - 1),
-                                                              m_backrefManager));
-  }
-  else
-    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
-}
-
-} // namespace ndn
-
 #endif // NDN_UTIL_REGEX_REGEX_BACKREF_MATCHER_HPP

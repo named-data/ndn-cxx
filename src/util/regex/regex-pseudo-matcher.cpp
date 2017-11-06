@@ -21,42 +21,30 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
-#define NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
-
-#include "../../common.hpp"
-
-#include <vector>
+#include "regex-pseudo-matcher.hpp"
 
 namespace ndn {
 
-class RegexMatcher;
-
-class RegexBackrefManager
+RegexPseudoMatcher::RegexPseudoMatcher()
+  : RegexMatcher("", EXPR_PSEUDO)
 {
-public:
-  size_t
-  pushRef(const shared_ptr<RegexMatcher>& matcher);
+}
 
-  void
-  popRef()
-  {
-    m_backrefs.pop_back();
-  }
+void
+RegexPseudoMatcher::setMatchResult(const std::string& str)
+{
+  m_matchResult.push_back(name::Component(reinterpret_cast<const uint8_t*>(str.data()), str.size()));
+}
 
-  size_t
-  size() const
-  {
-    return m_backrefs.size();
-  }
+void
+RegexPseudoMatcher::resetMatchResult()
+{
+  m_matchResult.clear();
+}
 
-  shared_ptr<RegexMatcher>
-  getBackref(size_t i) const;
-
-private:
-  std::vector<weak_ptr<RegexMatcher>> m_backrefs;
-};
+void
+RegexPseudoMatcher::compile()
+{
+}
 
 } // namespace ndn
-
-#endif // NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP

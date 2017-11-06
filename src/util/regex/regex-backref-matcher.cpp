@@ -21,42 +21,30 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
-#define NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
-
-#include "../../common.hpp"
-
-#include <vector>
+#include "regex-backref-matcher.hpp"
+#include "regex-pattern-list-matcher.hpp"
 
 namespace ndn {
 
-class RegexMatcher;
-
-class RegexBackrefManager
+RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
+                                         shared_ptr<RegexBackrefManager> backrefManager)
+  : RegexMatcher(expr, EXPR_BACKREF, std::move(backrefManager))
 {
-public:
-  size_t
-  pushRef(const shared_ptr<RegexMatcher>& matcher);
+}
 
-  void
-  popRef()
-  {
-    m_backrefs.pop_back();
+void
+RegexBackrefMatcher::compile()
+{
+  if (m_expr.size() < 2)
+    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
+
+  size_t lastIndex = m_expr.size() - 1;
+  if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
+    m_matchers.push_back(make_shared<RegexPatternListMatcher>(m_expr.substr(1, lastIndex - 1),
+                                                              m_backrefManager));
   }
-
-  size_t
-  size() const
-  {
-    return m_backrefs.size();
-  }
-
-  shared_ptr<RegexMatcher>
-  getBackref(size_t i) const;
-
-private:
-  std::vector<weak_ptr<RegexMatcher>> m_backrefs;
-};
+  else
+    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
+}
 
 } // namespace ndn
-
-#endif // NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP

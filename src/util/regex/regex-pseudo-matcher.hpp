@@ -44,29 +44,6 @@ protected:
   compile() override;
 };
 
-inline
-RegexPseudoMatcher::RegexPseudoMatcher()
-  : RegexMatcher("", EXPR_PSEUDO)
-{
-}
-
-inline void
-RegexPseudoMatcher::setMatchResult(const std::string& str)
-{
-  m_matchResult.push_back(name::Component(reinterpret_cast<const uint8_t*>(str.data()), str.size()));
-}
-
-inline void
-RegexPseudoMatcher::resetMatchResult()
-{
-  m_matchResult.clear();
-}
-
-inline void
-RegexPseudoMatcher::compile()
-{
-}
-
 } // namespace ndn
 
 #endif // NDN_UTIL_REGEX_REGEX_PSEUDO_MATCHER_HPP
