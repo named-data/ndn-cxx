@@ -52,7 +52,7 @@ extended it to C++.
 
         } // namespace example
 
-    Note that code inside namespace is **not** indented. Avoid following:
+    Note that code inside namespace is **not** indented. Avoid the following:
 
     .. code-block:: c++
 
@@ -65,7 +65,7 @@ extended it to C++.
         //
         // } // namespace example
 
-1.4. The class declarations should have the following form:
+1.4. Class declarations should have the following form:
 
     .. code-block:: c++
 
@@ -73,21 +73,25 @@ extended it to C++.
         {
         public:
           ... <public methods> ...
+
         protected:
           ... <protected methods> ...
+
         private:
           ... <private methods> ...
 
         public:
           ... <public data> ...
+
         protected:
           ... <protected data> ...
+
         private:
           ... <private data> ...
         };
 
     ``public``, ``protected``, ``private`` may be repeated several times without
-    interleaving (e.g., public, public, public, private, private) if this allows better
+    interleaving (e.g., public, public, public, private, private) if this improves
     readability of the code.
 
     Nested classes can be defined in appropriate visibility section, either in methods
@@ -135,23 +139,6 @@ extended it to C++.
           statements;
         }
 
-    or (less preferred):
-
-    .. code-block:: c++
-
-        if (condition)
-          {
-            statements;
-          }
-        else if (condition)
-          {
-            statements;
-          }
-        else
-          {
-            statements;
-          }
-
 1.7. A ``for`` statement should have the following form:
 
     .. code-block:: c++
@@ -160,23 +147,14 @@ extended it to C++.
           statements;
         }
 
-    or (less preferred):
-
-    .. code-block:: c++
-
-        for (initialization; condition; update)
-          {
-            statements;
-          }
-
-    An empty for statement should have the following form:
+    An empty ``for`` statement should have the following form:
 
     .. code-block:: c++
 
         for (initialization; condition; update)
           ;
 
-    This emphasizes the fact that the for statement is empty and it makes it obvious for
+    This emphasizes the fact that the ``for`` statement is empty and makes it obvious for
     the reader that this is intentional.  Empty loops should be avoided however.
 
 1.8. A ``while`` statement should have the following form:
@@ -186,15 +164,6 @@ extended it to C++.
         while (condition) {
           statements;
         }
-
-    or (less preferred):
-
-    .. code-block:: c++
-
-        while (condition)
-          {
-            statements;
-          }
 
 1.9. A ``do-while`` statement should have the following form:
 
@@ -291,19 +260,6 @@ extended it to C++.
           statements;
         }
 
-    or (less preferred):
-
-    .. code-block:: c++
-
-        try
-          {
-            statements;
-          }
-        catch (const Exception& exception)
-          {
-            statements;
-          }
-
 1.12. The incompleteness of split lines must be made obvious.
 
     .. code-block:: c++
@@ -317,9 +273,9 @@ extended it to C++.
           ...
         }
 
-    Split lines occurs when a statement exceed the 80 column limit given above. It is
+    Split lines occur when a statement exceeds the column limit given in rule 1.1. It is
     difficult to give rigid rules for how lines should be split, but the examples above should
-    give a general hint.In general:
+    give a general hint. In general:
 
     * Break after a comma.
     * Break after an operator.
@@ -327,7 +283,7 @@ extended it to C++.
 
     Exceptions:
 
-    * The following is the standard practice with operator<<:
+    * The following is standard practice with ``operator<<``:
 
         .. code-block:: c++
 
@@ -373,7 +329,7 @@ should take the following form:
           statements;
         }
 
-    If the function has no parameters, ``()`` should be omitted.
+    If the lambda has no parameters, ``()`` should be omitted.
 
     .. code-block:: c++
 
@@ -381,8 +337,8 @@ should take the following form:
           statements;
         }
 
-    Capture-all (``[&]`` and ``[=]``) is permitted, but its usage should be minimized.
-    Only use capture-all when it significantly simplifies code and improves readability.
+    Either capture-default (``[&]`` or ``[=]``) is permitted, but its usage should be minimized.
+    Only use a capture-default when it significantly simplifies code and improves readability.
 
     .. code-block:: c++
 
@@ -394,9 +350,9 @@ should take the following form:
           statements;
         }
 
-    Trailing return type should be omitted. Write them only when compiler cannot deduce
-    return type automatically, or when it improves readability.
-    ``()`` is required by C++ standard when trailing return type is written.
+    Trailing return type should be omitted whenever possible. Add it only when the compiler
+    cannot deduce the return type automatically, or when it improves readability.
+    ``()`` is required by the C++ standard when ``mutable`` or a trailing return type is used.
 
     .. code-block:: c++
 
@@ -504,11 +460,11 @@ to separate words.
         static const double PI = 3.14;
 
     In some cases, it is a better (or is the only way for complex constants in header-only
-    classes) to implement the value as a method:
+    classes) to implement the value as a method.
 
     .. code-block:: c++
 
-        int
+        static int          // declare constexpr if possible
         getMaxIterations()
         {
           return 25;
@@ -543,19 +499,19 @@ written in mixed case starting with lower case.
         } // namespace analyzer
         } // namespace model
 
-2.7. Names representing generic template types should be a single uppercase letter
+2.7. Names representing generic template types should be a single uppercase letter.
 
     .. code-block:: c++
 
         template<class T> ...
         template<class C, class D> ...
 
-    However, when template parameter represents a certain concept and expected to have a
-    certain interface, the name should be explicitly spelled out:
+    However, when a template parameter represents a certain concept and is expected
+    to have a certain interface, the name should be explicitly spelled out.
 
     .. code-block:: c++
 
-        template<class FaceBase> ...
+        template<class InputIterator> ...
         template<class Packet> ...
 
 2.8. Abbreviations and acronyms must not be uppercase when used as name.
@@ -787,7 +743,7 @@ system and other external libraries should be included in ``<angle brackets>``.
         #include "util/random.hpp"
 
 3.4. Include statements should be grouped. Same-project headers should be included first.
-Leave an empty line between groups of include statements. Sorted alphabetically within a group.
+Leave an empty line between groups of include statements. Sort alphabetically within a group.
 
     .. code-block:: c++
 
@@ -821,7 +777,7 @@ Leave an empty line between groups of include statements. Sorted alphabetically 
 3.7. Variables should be initialized where they are declared.
 
     This ensures that variables are valid at any time. Sometimes it is impossible to
-    initialize a variable to a valid value where it is declared:
+    initialize a variable to a valid value where it is declared.
 
     .. code-block:: c++
 
@@ -831,18 +787,18 @@ Leave an empty line between groups of include statements. Sorted alphabetically 
     In these cases it should be left uninitialized rather than initialized to some phony
     value.
 
-3.8. In most cases, class instance variables should not be declared public.
+3.8. In most cases, class data members should not be declared ``public``.
 
-    The concepts of information hiding and encapsulation are violated by public variables. Use
-    private variables and access methods instead.
+    Public data members violate the concepts of information hiding and encapsulation.
+    Use private variables and public accessor methods instead.
 
     Exceptions to this rule:
 
-    * when the class is essentially a dumb data structure with no or minimal behavior
-      (equivalent to a C struct, also known as PODS). In this case it is appropriate to make
-      the instance variables public by using struct.
+    * When the class is essentially a dumb data structure with no or minimal behavior
+      (equivalent to a C struct, also known as POD type). In this case it is appropriate
+      to make the instance variables public by using ``struct``.
 
-    * when the class is used only inside the compilation unit, e.g., when implementing pImpl
+    * When the class is used only inside the compilation unit, e.g., when implementing pImpl
       idiom (aka Bridge pattern) or similar cases.
 
 
@@ -867,13 +823,13 @@ than to the name.
 
     .. code-block:: c++
 
-        isDone = false;        // NOT: bool isDone = false;
+        bool isDone = false;   // NOT: bool isDone = false;
         while (!isDone) {      //      // other stuff
-          :                    //      while (!isDone) {
-        }                      //        :
+          ...                  //      while (!isDone) {
+        }                      //        ...
                                //      }
 
-3.13. The form while (true) should be used for infinite loops.
+3.13. The form ``while (true)`` should be used for infinite loops.
 
     .. code-block:: c++
 
@@ -906,7 +862,7 @@ instead.
         // }
 
     By assigning boolean variables to expressions, the program gets automatic
-    documentation.  The construction will be easier to read, debug and maintain.
+    documentation.  The construction will be easier to read, debug, and maintain.
 
 3.15. The conditional should be put on a separate line.
 
@@ -936,11 +892,11 @@ instead.
 should be considered declared as named constants instead.
 
     If the number does not have an obvious meaning by itself, the readability is enhanced
-    by introducing a named constant instead.  A different approach is to introduce a method
+    by introducing a named constant instead. A different approach is to introduce a method
     from which the constant can be accessed.
 
-3.18. Floating point constants should always be written with decimal point, at least one
-    decimal, and without omitting 0 before decimal point.
+3.18. Floating point literals should always be written with a decimal point, at least one
+decimal, and without omitting 0 before the decimal point.
 
     .. code-block:: c++
 
@@ -953,9 +909,9 @@ should be considered declared as named constants instead.
 
 3.19. ``goto`` should not be used.
 
-Goto statements violate the idea of structured code.  Only in some very few cases (for
-instance breaking out of deeply nested structures) should goto be considered, and only if
-the alternative structured counterpart is proven to be less readable.
+    ``goto`` statements violate the idea of structured code. Only in very few cases (for
+    instance, breaking out of deeply nested structures) should ``goto`` be considered,
+    and only if the alternative structured counterpart is proven to be less readable.
 
 3.20. ``nullptr`` should be used to represent a null pointer, instead of "0" or "NULL".
 
@@ -1005,7 +961,7 @@ the alternative structured counterpart is proven to be less readable.
 
 3.24. All comments should be written in English.
 
-    In an international environment English is the preferred language.
+    In an international environment, English is the preferred language.
 
 3.25. Use ``//`` for all comments, including multi-line comments.
 
@@ -1090,7 +1046,6 @@ the alternative structured counterpart is proven to be less readable.
     .. code-block:: c++
 
         std::list<std::string> strings;
-
         for (const auto& str : strings) {
           statements; // cannot modify `str`
         }
