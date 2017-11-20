@@ -61,6 +61,14 @@ BOOST_AUTO_TEST_CASE(RegexConvertToName)
   BOOST_CHECK_THROW(face.receive(Interest("/Hello/World/a/b/c")), InterestFilter::Error);
 }
 
+BOOST_AUTO_TEST_CASE(AllowLoopback)
+{
+  InterestFilter filter("/A");
+  BOOST_CHECK_EQUAL(filter.allowsLoopback(), true);
+  BOOST_CHECK_EQUAL(&filter.allowLoopback(false), &filter);
+  BOOST_CHECK_EQUAL(filter.allowsLoopback(), false);
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestInterestFilter
 
 } // namespace tests

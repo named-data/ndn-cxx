@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -125,9 +125,30 @@ public:
     return *m_regexFilter;
   }
 
+  /** \brief Get whether Interest loopback is allowed
+   */
+  bool
+  allowsLoopback() const
+  {
+    return m_allowsLoopback;
+  }
+
+  /** \brief Set whether Interest loopback is allowed
+   *  \param wantLoopback if true, this InterestFilter may receive Interests that are expressed
+   *                      locally on the same \p ndn::Face ; if false, this InterestFilter can only
+   *                      receive Interests received from the forwarder. The default is true.
+   */
+  InterestFilter&
+  allowLoopback(bool wantLoopback)
+  {
+    m_allowsLoopback = wantLoopback;
+    return *this;
+  }
+
 private:
   Name m_prefix;
   shared_ptr<RegexPatternListMatcher> m_regexFilter;
+  bool m_allowsLoopback = true;
 };
 
 std::ostream&

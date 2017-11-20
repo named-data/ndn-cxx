@@ -88,21 +88,26 @@ public: // consumer
                        const NackCallback& afterNacked,
                        const TimeoutCallback& afterTimeout)
   {
+    NDN_LOG_DEBUG("<I " << *interest);
     this->ensureConnected(true);
 
     const Interest& interest2 = *interest;
     auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
       std::move(interest), afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
-    PendingInterest& entry = **i;
-    entry.setDeleter([this, i] { m_pendingInterestTable.erase(i); });
+    // In dispatchInterest, an InterestCallback may respond with Data right away and delete
+    // the PendingInterestTable entry. shared_ptr is retained to ensure PendingInterest instance
+    // remains valid in this case.
+    shared_ptr<PendingInterest> entry = *i;
+    entry->setDeleter([this, i] { m_pendingInterestTable.erase(i); });
 
     lp::Packet lpPacket;
     addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest2);
     addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, interest2);
 
-    entry.recordForwarding();
+    entry->recordForwarding();
     m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest2.wireEncode(),
                                             'I', interest2.getName()));
+    dispatchInterest(*entry, interest2);
   }
 
   void
@@ -206,16 +211,23 @@ public: // producer
     const Interest& interest2 = *interest;
     auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
       std::move(interest), ref(m_scheduler))).first;
-    // InterestCallback may put Data right away and delete the entry from PendingInterestTable.
-    // shared_ptr is retained to ensure PendingInterest instance is valid throughout the loop.
+    // In dispatchInterest, an InterestCallback may respond with Data right away and delete
+    // the PendingInterestTable entry. shared_ptr is retained to ensure PendingInterest instance
+    // remains valid in this case.
     shared_ptr<PendingInterest> entry = *i;
     entry->setDeleter([this, i] { m_pendingInterestTable.erase(i); });
 
+    this->dispatchInterest(*entry, interest2);
+  }
+
+  void
+  dispatchInterest(PendingInterest& entry, const Interest& interest)
+  {
     for (const auto& filter : m_interestFilterTable) {
-      if (filter->doesMatch(interest2.getName())) {
+      if (filter->doesMatch(entry)) {
         NDN_LOG_DEBUG("   matches " << filter->getFilter());
-        entry->recordForwarding();
-        filter->invokeInterestCallback(interest2);
+        entry.recordForwarding();
+        filter->invokeInterestCallback(interest);
       }
     }
   }
@@ -223,6 +235,7 @@ public: // producer
   void
   asyncPutData(const Data& data)
   {
+    NDN_LOG_DEBUG("<D " << data.getName());
     bool shouldSendToForwarder = satisfyPendingInterests(data);
     if (!shouldSendToForwarder) {
       return;
@@ -241,6 +254,7 @@ public: // producer
   void
   asyncPutNack(const lp::Nack& nack)
   {
+    NDN_LOG_DEBUG("<N " << nack.getInterest() << '~' << nack.getHeader().getReason());
     optional<lp::Nack> outNack = nackPendingInterests(nack);
     if (!outNack) {
       return;

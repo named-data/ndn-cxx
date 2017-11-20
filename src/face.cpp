@@ -182,7 +182,6 @@ Face::expressInterest(const Interest& interest,
 {
   shared_ptr<Interest> interest2 = make_shared<Interest>(interest);
   interest2->getNonce();
-  NDN_LOG_DEBUG("<I " << *interest2);
 
   IO_CAPTURE_WEAK_IMPL(dispatch) {
     impl->asyncExpressInterest(interest2, afterSatisfied, afterNacked, afterTimeout);
@@ -216,7 +215,6 @@ Face::getNPendingInterests() const
 void
 Face::put(Data data)
 {
-  NDN_LOG_DEBUG("<D " << data.getName());
   IO_CAPTURE_WEAK_IMPL(dispatch) {
     impl->asyncPutData(data);
   } IO_CAPTURE_WEAK_IMPL_END
@@ -225,7 +223,6 @@ Face::put(Data data)
 void
 Face::put(lp::Nack nack)
 {
-  NDN_LOG_DEBUG("<N " << nack.getInterest() << '~' << nack.getHeader().getReason());
   IO_CAPTURE_WEAK_IMPL(dispatch) {
     impl->asyncPutNack(nack);
   } IO_CAPTURE_WEAK_IMPL_END

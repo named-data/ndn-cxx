@@ -325,6 +325,34 @@ BOOST_AUTO_TEST_CASE(PutData)
   BOOST_CHECK(face.sentData[1].getTag<lp::CongestionMarkTag>() != nullptr);
 }
 
+BOOST_AUTO_TEST_CASE(PutDataLoopback)
+{
+  bool hasInterest1 = false, hasData = false;
+
+  // first InterestFilter allows loopback and should receive Interest
+  face.setInterestFilter("/", [&] (const InterestFilter&, const Interest& interest) {
+    hasInterest1 = true;
+    // do not respond with Data right away, so Face must send Interest to forwarder
+  });
+  // second InterestFilter disallows loopback and should not receive Interest
+  face.setInterestFilter(InterestFilter("/").allowLoopback(false),
+    bind([] { BOOST_ERROR("Unexpected Interest on second InterestFilter"); }));
+
+  face.expressInterest(Interest("/A"),
+                       bind([&] { hasData = true; }),
+                       bind([] { BOOST_FAIL("Unexpected nack"); }),
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+  advanceClocks(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(hasInterest1, true); // Interest looped back
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1); // Interest sent to forwarder
+  BOOST_CHECK_EQUAL(hasData, false); // waiting for Data
+
+  face.put(*makeData("/A/B")); // first InterestFilter responds with Data
+  advanceClocks(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(hasData, true);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 0); // do not spill Data to forwarder
+}
+
 BOOST_AUTO_TEST_CASE(PutMultipleData)
 {
   bool hasInterest1 = false;
@@ -404,6 +432,36 @@ BOOST_AUTO_TEST_CASE(PutMultipleNack)
 
   face.put(makeNack("/A", 14333271, lp::NackReason::DUPLICATE));
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 1); // additional Nacks are ignored
+}
+
+BOOST_AUTO_TEST_CASE(PutMultipleNackLoopback)
+{
+  bool hasInterest1 = false, hasNack = false;
+
+  // first InterestFilter allows loopback and should receive Interest
+  face.setInterestFilter("/", [&] (const InterestFilter&, const Interest& interest) {
+    hasInterest1 = true;
+    face.put(makeNack(interest, lp::NackReason::CONGESTION));
+  });
+  // second InterestFilter disallows loopback and should not receive Interest
+  face.setInterestFilter(InterestFilter("/").allowLoopback(false),
+    bind([] { BOOST_ERROR("Unexpected Interest on second InterestFilter"); }));
+
+  face.expressInterest(*makeInterest("/A", 28395852),
+                       bind([] { BOOST_FAIL("Unexpected data"); }),
+                       [&] (const Interest&, const lp::Nack& nack) {
+                         hasNack = true;
+                         BOOST_CHECK_EQUAL(nack.getReason(), lp::NackReason::CONGESTION);
+                       },
+                       bind([] { BOOST_FAIL("Unexpected timeout"); }));
+  advanceClocks(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(hasInterest1, true); // Interest looped back
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1); // Interest sent to forwarder
+  BOOST_CHECK_EQUAL(hasNack, false); // waiting for Nack from forwarder
+
+  face.receive(makeNack("/A", 28395852, lp::NackReason::NO_ROUTE));
+  advanceClocks(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(hasNack, true);
 }
 
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
@@ -548,6 +606,7 @@ BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefix)
 
 BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefixFail, FacesNoRegistrationReplyFixture)
 {
+  // don't enable registration reply
   size_t nRegFailures = 0;
   face.registerPrefix("/Hello/World",
                       bind([] { BOOST_FAIL("Unexpected registerPrefix success"); }),

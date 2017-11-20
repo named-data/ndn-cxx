@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,7 @@
 #ifndef NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
 #define NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
 
-#include "../name.hpp"
-#include "../interest.hpp"
+#include "pending-interest.hpp"
 
 namespace ndn {
 
@@ -60,9 +59,10 @@ public:
    * @param name Interest Name
    */
   bool
-  doesMatch(const Name& name) const
+  doesMatch(const PendingInterest& entry) const
   {
-    return m_filter.doesMatch(name);
+    return (entry.getOrigin() == PendingInterestOrigin::FORWARDER || m_filter.allowsLoopback()) &&
+            m_filter.doesMatch(entry.getInterest()->getName());
   }
 
   /**
