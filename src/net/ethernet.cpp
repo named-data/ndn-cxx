@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2014-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
@@ -30,6 +30,7 @@
 #include <boost/functional/hash.hpp>
 
 #include <stdio.h>
+#include <cstdio>
 #include <ostream>
 
 namespace ndn {
@@ -103,18 +104,17 @@ Address::fromString(const std::string& str)
   if (ret < 11 || static_cast<size_t>(n) != str.length())
     return Address();
 
-  for (size_t i = 0; i < a.size(); ++i)
-    {
-      // check that all separators are actually the same char (: or -)
-      if (i < 5 && sep[i][0] != sep[0][0])
-        return Address();
+  for (size_t i = 0; i < a.size(); ++i) {
+    // check that all separators are actually the same char (: or -)
+    if (i < 5 && sep[i][0] != sep[0][0])
+      return Address();
 
-      // check that each value fits into a uint8_t
-      if (temp[i] > 0xFF)
-        return Address();
+    // check that each value fits into a uint8_t
+    if (temp[i] > 0xFF)
+      return Address();
 
-      a[i] = static_cast<uint8_t>(temp[i]);
-    }
+    a[i] = static_cast<uint8_t>(temp[i]);
+  }
 
   return a;
 }
