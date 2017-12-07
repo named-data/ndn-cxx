@@ -80,6 +80,11 @@ enum {
   NInBytes      = 148,
   NOutBytes     = 149,
 
+  // Content Store Management
+  CsInfo  = 128,
+  NHits   = 129,
+  NMisses = 130,
+
   // FIB Management
   FibEntry      = 128,
   NextHopRecord = 129,

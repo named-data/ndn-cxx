@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -28,6 +28,7 @@
 #include "face-query-filter.hpp"
 #include "channel-status.hpp"
 #include "fib-entry.hpp"
+#include "cs-info.hpp"
 #include "strategy-choice.hpp"
 #include "rib-entry.hpp"
 
@@ -50,7 +51,7 @@ public:
    * \brief if defined, specifies constructor argument type;
    *        otherwise, constructor has no argument
    */
-  typedef int ParamType;
+  using ParamType = int;
 #endif
 
   /**
@@ -65,7 +66,7 @@ public:
   /**
    * \brief provides the result type, usually a vector
    */
-  typedef std::vector<int> ResultType;
+  using ResultType = std::vector<int>;
 #endif
 
   /**
@@ -111,7 +112,6 @@ private:
   PartialName m_datasetName;
 };
 
-
 /**
  * \ingroup management
  * \brief represents a status/general dataset
@@ -122,12 +122,11 @@ class ForwarderGeneralStatusDataset : public StatusDataset
 public:
   ForwarderGeneralStatusDataset();
 
-  typedef ForwarderStatus ResultType;
+  using ResultType = ForwarderStatus;
 
   ResultType
   parseResult(ConstBufferPtr payload) const;
 };
-
 
 /**
  * \ingroup management
@@ -136,7 +135,7 @@ public:
 class FaceDatasetBase : public StatusDataset
 {
 public:
-  typedef std::vector<FaceStatus> ResultType;
+  using ResultType = std::vector<FaceStatus>;
 
   ResultType
   parseResult(ConstBufferPtr payload) const;
@@ -145,7 +144,6 @@ protected:
   explicit
   FaceDatasetBase(const PartialName& datasetName);
 };
-
 
 /**
  * \ingroup management
@@ -158,7 +156,6 @@ public:
   FaceDataset();
 };
 
-
 /**
  * \ingroup management
  * \brief represents a faces/query dataset
@@ -167,7 +164,7 @@ public:
 class FaceQueryDataset : public FaceDatasetBase
 {
 public:
-  typedef FaceQueryFilter ParamType;
+  using ParamType = FaceQueryFilter;
 
   explicit
   FaceQueryDataset(const FaceQueryFilter& filter);
@@ -180,7 +177,6 @@ private:
   FaceQueryFilter m_filter;
 };
 
-
 /**
  * \ingroup management
  * \brief represents a faces/channels dataset
@@ -191,12 +187,11 @@ class ChannelDataset : public StatusDataset
 public:
   ChannelDataset();
 
-  typedef std::vector<ChannelStatus> ResultType;
+  using ResultType = std::vector<ChannelStatus>;
 
   ResultType
   parseResult(ConstBufferPtr payload) const;
 };
-
 
 /**
  * \ingroup management
@@ -208,12 +203,27 @@ class FibDataset : public StatusDataset
 public:
   FibDataset();
 
-  typedef std::vector<FibEntry> ResultType;
+  using ResultType = std::vector<FibEntry>;
 
   ResultType
   parseResult(ConstBufferPtr payload) const;
 };
 
+/**
+ * \ingroup management
+ * \brief represents a cs/info dataset
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#CS-Information-Dataset
+ */
+class CsInfoDataset : public StatusDataset
+{
+public:
+  CsInfoDataset();
+
+  using ResultType = CsInfo;
+
+  ResultType
+  parseResult(ConstBufferPtr payload) const;
+};
 
 /**
  * \ingroup management
@@ -225,12 +235,11 @@ class StrategyChoiceDataset : public StatusDataset
 public:
   StrategyChoiceDataset();
 
-  typedef std::vector<StrategyChoice> ResultType;
+  using ResultType = std::vector<StrategyChoice>;
 
   ResultType
   parseResult(ConstBufferPtr payload) const;
 };
-
 
 /**
  * \ingroup management
@@ -242,12 +251,11 @@ class RibDataset : public StatusDataset
 public:
   RibDataset();
 
-  typedef std::vector<RibEntry> ResultType;
+  using ResultType = std::vector<RibEntry>;
 
   ResultType
   parseResult(ConstBufferPtr payload) const;
 };
-
 
 } // namespace nfd
 } // namespace ndn

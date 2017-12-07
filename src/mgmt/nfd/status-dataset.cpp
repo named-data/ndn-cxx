@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -136,6 +136,17 @@ FibDataset::ResultType
 FibDataset::parseResult(ConstBufferPtr payload) const
 {
   return parseDatasetVector<FibEntry>(payload);
+}
+
+CsInfoDataset::CsInfoDataset()
+  : StatusDataset("cs/info")
+{
+}
+
+CsInfoDataset::ResultType
+CsInfoDataset::parseResult(ConstBufferPtr payload) const
+{
+  return CsInfo(Block(payload));
 }
 
 StrategyChoiceDataset::StrategyChoiceDataset()

@@ -378,6 +378,28 @@ BOOST_AUTO_TEST_CASE(FibList)
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
 }
 
+BOOST_AUTO_TEST_CASE(CsInfo)
+{
+  using ndn::nfd::CsInfo;
+
+  bool hasResult = false;
+  controller.fetch<CsInfoDataset>(
+    [&hasResult] (const CsInfo& result) {
+      hasResult = true;
+      BOOST_CHECK_EQUAL(result.getNHits(), 4539);
+    },
+    datasetFailCallback);
+  this->advanceClocks(time::milliseconds(500));
+
+  CsInfo payload;
+  payload.setNHits(4539);
+  this->sendDataset("/localhost/nfd/cs/info", payload);
+  this->advanceClocks(time::milliseconds(500));
+
+  BOOST_CHECK(hasResult);
+  BOOST_CHECK_EQUAL(failCodes.size(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(StrategyChoiceList)
 {
   bool hasResult = false;
