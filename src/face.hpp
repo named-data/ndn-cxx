@@ -28,14 +28,9 @@
 #include "interest-filter.hpp"
 #include "encoding/nfd-constants.hpp"
 #include "lp/nack.hpp"
+#include "net/asio-fwd.hpp"
 #include "security/key-chain.hpp"
 #include "security/signing-info.hpp"
-
-namespace boost {
-namespace asio {
-class io_service;
-} // namespace asio
-} // namespace boost
 
 namespace ndn {
 

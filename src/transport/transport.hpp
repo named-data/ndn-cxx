@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,14 +24,9 @@
 
 #include "../common.hpp"
 #include "../encoding/block.hpp"
+#include "../net/asio-fwd.hpp"
 
 #include <boost/system/error_code.hpp>
-
-namespace boost {
-namespace asio {
-class io_service;
-} // namespace asio
-} // namespace boost
 
 namespace ndn {
 

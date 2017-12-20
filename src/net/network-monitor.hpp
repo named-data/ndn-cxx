@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -25,14 +25,10 @@
 #ifndef NDN_NET_NETWORK_MONITOR_HPP
 #define NDN_NET_NETWORK_MONITOR_HPP
 
+#include "asio-fwd.hpp"
 #include "network-interface.hpp"
-#include <vector>
 
-namespace boost {
-namespace asio {
-class io_service;
-} // namespace asio
-} // namespace boost
+#include <vector>
 
 namespace ndn {
 namespace net {

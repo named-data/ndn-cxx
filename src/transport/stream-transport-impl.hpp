@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -24,7 +24,9 @@
 
 #include "transport.hpp"
 
-#include <boost/asio.hpp>
+#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/write.hpp>
+
 #include <list>
 
 namespace ndn {
@@ -38,7 +40,7 @@ template<typename BaseTransport, typename Protocol>
 class StreamTransportImpl : public enable_shared_from_this<StreamTransportImpl<BaseTransport, Protocol>>
 {
 public:
-  typedef StreamTransportImpl<BaseTransport,Protocol> Impl;
+  typedef StreamTransportImpl<BaseTransport, Protocol> Impl;
   typedef std::list<Block> BlockSequence;
   typedef std::list<BlockSequence> TransmissionQueue;
 

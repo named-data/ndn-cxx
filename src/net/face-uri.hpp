@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
@@ -28,6 +28,7 @@
 #ifndef NDN_NET_FACE_URI_HPP
 #define NDN_NET_FACE_URI_HPP
 
+#include "asio-fwd.hpp"
 #include "ethernet.hpp"
 #include "../util/time.hpp"
 

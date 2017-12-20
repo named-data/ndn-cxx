@@ -25,13 +25,7 @@
 #include "transport.hpp"
 #include "../util/config-file.hpp"
 
-namespace boost {
-namespace asio {
-namespace ip {
-class tcp;
-} // namespace ip
-} // namespace asio
-} // namespace boost
+#include <boost/asio/ip/tcp.hpp>
 
 namespace ndn {
 

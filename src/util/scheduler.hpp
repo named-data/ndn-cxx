@@ -23,8 +23,8 @@
 #define NDN_UTIL_SCHEDULER_HPP
 
 #include "time.hpp"
+#include "../net/asio-fwd.hpp"
 
-#include <boost/asio/io_service.hpp>
 #include <set>
 
 namespace ndn {

@@ -25,13 +25,7 @@
 #include "transport.hpp"
 #include "../util/config-file.hpp"
 
-namespace boost {
-namespace asio {
-namespace local {
-class stream_protocol;
-} // namespace local
-} // namespace asio
-} // namespace boost
+#include <boost/asio/local/stream_protocol.hpp>
 
 namespace ndn {
 

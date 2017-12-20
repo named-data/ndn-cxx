@@ -27,6 +27,7 @@
 #include "face.hpp"
 #include "util/scheduler.hpp"
 
+#include <boost/asio/io_service.hpp>
 #include <iostream>
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
@@ -34,7 +35,7 @@ namespace ndn {
 // Additional nested namespaces can be used to prevent/limit name conflicts
 namespace examples {
 
-class ConsumerWithTimer : noncopyable
+class ConsumerWithTimer
 {
 public:
   ConsumerWithTimer()
@@ -58,8 +59,7 @@ public:
     std::cout << "Sending " << interest << std::endl;
 
     // Schedule a new event
-    m_scheduler.scheduleEvent(time::seconds(2),
-                              bind(&ConsumerWithTimer::delayedInterest, this));
+    m_scheduler.scheduleEvent(time::seconds(2), [this] { delayedInterest(); });
 
     // m_ioService.run() will block until all events finished or m_ioService.stop() is called
     m_ioService.run();
