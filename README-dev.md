@@ -1,6 +1,9 @@
 Notes for ndn-cxx developers
 ============================
 
+If you are new to the NDN community of software generally, read the
+[Contributor's Guide](https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md).
+
 Code style
 ----------
 

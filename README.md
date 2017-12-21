@@ -26,6 +26,9 @@ https://redmine.named-data.net/projects/ndn-cxx/issues
 Extensive documentation of the library is available on the library's homepage:
 http://www.named-data.net/doc/ndn-cxx/
 
+If you are new to the NDN community of software generally, read the
+[Contributor's Guide](https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md).
+
 ## License
 
 ndn-cxx is an open source project licensed under LGPL 3.0 license. For more information about

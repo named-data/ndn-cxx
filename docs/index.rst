@@ -37,6 +37,8 @@ ndn-cxx Documentation
 
 - :doc:`tutorials`
 
+   + `NDN Software Contributor's Guide <https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md>`__ (guide for newcomers to the NDN community of software generally)
+
    + :doc:`tutorials/utils-ndn-regex`
    + :doc:`tutorials/security-validator-config`
 
