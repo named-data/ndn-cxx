@@ -293,7 +293,7 @@ public: // modifiers
   Name&
   append(Iterator first, Iterator last)
   {
-    static_assert(sizeof(std::iterator_traits<Iterator>::value_type) == 1,
+    static_assert(sizeof(typename std::iterator_traits<Iterator>::value_type) == 1,
                   "iterator does not dereference to one-octet value type");
     return append(Component(first, last));
   }

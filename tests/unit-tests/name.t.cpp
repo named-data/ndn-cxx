@@ -248,6 +248,12 @@ BOOST_AUTO_TEST_CASE(Append)
     Name name("/hello/world");
     BOOST_CHECK_EQUAL("/hello/world/and/beyond", name.append(toAppend).append(toAppend1));
   }
+
+  {
+    std::vector<uint8_t> vec{1, 1, 2, 3};
+    Name name("/hello");
+    BOOST_CHECK_EQUAL("/hello/%01%01%02%03", name.append(vec.begin(), vec.end()));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
