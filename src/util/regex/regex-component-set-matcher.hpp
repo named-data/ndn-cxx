@@ -26,7 +26,7 @@
 
 #include "regex-matcher.hpp"
 
-#include <set>
+#include <vector>
 
 namespace ndn {
 
@@ -63,7 +63,7 @@ private:
   extractComponent(size_t index) const;
 
 private:
-  std::set<shared_ptr<RegexComponentMatcher>> m_components;
+  std::vector<shared_ptr<RegexComponentMatcher>> m_components;
   bool m_isInclusion;
 };
 

@@ -68,8 +68,7 @@ RegexComponentSetMatcher::compileSingleComponent()
   if (m_expr.size() != end)
     BOOST_THROW_EXCEPTION(Error("Component expr error " + m_expr));
 
-  m_components.insert(make_shared<RegexComponentMatcher>(m_expr.substr(1, end - 2),
-                                                         m_backrefManager));
+  m_components.push_back(make_shared<RegexComponentMatcher>(m_expr.substr(1, end - 2), m_backrefManager));
 }
 
 void
@@ -84,8 +83,8 @@ RegexComponentSetMatcher::compileMultipleComponents(size_t start, size_t lastInd
 
     tempIndex = index + 1;
     index = extractComponent(tempIndex);
-    m_components.insert(make_shared<RegexComponentMatcher>(m_expr.substr(tempIndex, index - tempIndex - 1),
-                                                           m_backrefManager));
+    m_components.push_back(make_shared<RegexComponentMatcher>(m_expr.substr(tempIndex, index - tempIndex - 1),
+                                                              m_backrefManager));
   }
 
   if (index != lastIndex)
