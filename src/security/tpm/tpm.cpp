@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -138,36 +138,27 @@ Tpm::exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const
   return m_backEnd->exportKey(keyName, pw, pwLen);
 }
 
-bool
+void
 Tpm::importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
                       const char* pw, size_t pwLen)
 {
-  try {
-    m_backEnd->importKey(keyName, pkcs8, pkcs8Len, pw, pwLen);
-  }
-  catch (const BackEnd::Error&) {
-    return false;
-  }
-  return true;
+  m_backEnd->importKey(keyName, pkcs8, pkcs8Len, pw, pwLen);
 }
 
 const KeyHandle*
 Tpm::findKey(const Name& keyName) const
 {
   auto it = m_keys.find(keyName);
-
   if (it != m_keys.end())
     return it->second.get();
 
-  unique_ptr<KeyHandle> handle = m_backEnd->getKeyHandle(keyName);
+  auto handle = m_backEnd->getKeyHandle(keyName);
+  if (handle == nullptr)
+    return nullptr;
 
-  if (handle != nullptr) {
-    KeyHandle* key = handle.get();
-    m_keys[keyName] = std::move(handle);
-    return key;
-  }
-
-  return nullptr;
+  const KeyHandle* key = handle.get();
+  m_keys[keyName] = std::move(handle);
+  return key;
 }
 
 } // namespace tpm

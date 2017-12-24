@@ -51,17 +51,11 @@ namespace security {
 // Therefore, the following standard PIB and TPMs need to be registered here.
 // http://stackoverflow.com/q/9459980/2150331
 
-/////////
-// PIB //
-/////////
 namespace pib {
 NDN_CXX_V2_KEYCHAIN_REGISTER_PIB_BACKEND(PibSqlite3);
 NDN_CXX_V2_KEYCHAIN_REGISTER_PIB_BACKEND(PibMemory);
 } // namespace pib
 
-/////////
-// TPM //
-/////////
 namespace tpm {
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndOsx);
@@ -355,8 +349,8 @@ KeyChain::exportSafeBag(const Certificate& certificate, const char* pw, size_t p
   try {
     encryptedKey = m_tpm->exportPrivateKey(keyName, pw, pwLen);
   }
-  catch (const tpm::BackEnd::Error&) {
-    BOOST_THROW_EXCEPTION(Error("Private `" + keyName.toUri() + "` key does not exist"));
+  catch (const tpm::BackEnd::Error& e) {
+    BOOST_THROW_EXCEPTION(Error("Failed to export private key `" + keyName.toUri() + "`: " + e.what()));
   }
 
   return make_shared<SafeBag>(certificate, *encryptedKey);
@@ -389,8 +383,8 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
                             safeBag.getEncryptedKeyBag().data(), safeBag.getEncryptedKeyBag().size(),
                             pw, pwLen);
   }
-  catch (const std::runtime_error&) {
-    BOOST_THROW_EXCEPTION(Error("Fail to import private key `" + keyName.toUri() + "`"));
+  catch (const tpm::BackEnd::Error& e) {
+    BOOST_THROW_EXCEPTION(Error("Failed to import private key `" + keyName.toUri() + "`: " + e.what()));
   }
 
   // check the consistency of private key and certificate
@@ -422,7 +416,6 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   Key key = id.addKey(cert.getPublicKey().data(), cert.getPublicKey().size(), keyName);
   key.addCertificate(cert);
 }
-
 
 // public: signing
 
@@ -662,7 +655,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
     }
     catch (const Pib::Error&) {
       BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing identity `" + identity.getName().toUri() +
-                                                    "` does not have default certificate"));
+                                                    "` does not have a default certificate"));
     }
   }
 

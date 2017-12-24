@@ -221,6 +221,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
 
   tpm.importKey(keyName, privateKeyBuffer->data(), privateKeyBuffer->size(), password.c_str(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
+  BOOST_CHECK_THROW(tpm.importKey(keyName, privateKeyBuffer->data(), privateKeyBuffer->size(), password.c_str(), password.size()),
+                    BackEnd::Error);
 
   ConstBufferPtr exportedKey = tpm.exportKey(keyName, password.c_str(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
@@ -236,6 +238,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
 
   tpm.deleteKey(keyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
+  BOOST_CHECK_THROW(tpm.exportKey(keyName, password.c_str(), password.size()), BackEnd::Error);
 }
 
 BOOST_AUTO_TEST_CASE(RandomKeyId)

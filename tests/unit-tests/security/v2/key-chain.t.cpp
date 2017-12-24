@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -365,6 +365,7 @@ BOOST_FIXTURE_TEST_CASE(ExportImport, IdentityManagementFixture)
   Block block = exported->wireEncode();
 
   m_keyChain.deleteIdentity(id);
+  BOOST_CHECK_THROW(m_keyChain.exportSafeBag(cert, "1234", 4), KeyChain::Error);
 
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), false);
   BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 0);
@@ -372,6 +373,7 @@ BOOST_FIXTURE_TEST_CASE(ExportImport, IdentityManagementFixture)
   SafeBag imported;
   imported.wireDecode(block);
   m_keyChain.importSafeBag(imported, "1234", 4);
+  BOOST_CHECK_THROW(m_keyChain.importSafeBag(imported, "1234", 4), KeyChain::Error);
 
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), true);
   BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 1);

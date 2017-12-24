@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
+/*
  * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
@@ -22,10 +22,9 @@
 #ifndef NDN_SECURITY_TPM_TPM_HPP
 #define NDN_SECURITY_TPM_TPM_HPP
 
-#include "../security-common.hpp"
-#include "../../name.hpp"
-#include "../key-params.hpp"
 #include "key-handle.hpp"
+#include "../key-params.hpp"
+#include "../../name.hpp"
 
 #include <unordered_map>
 
@@ -180,7 +179,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
    * @return The encoded private key wrapper.
-   * @throw BackEnd::Error the key does not exist or it cannot be exported.
+   * @throw BackEnd::Error The key does not exist or it could not be exported.
    */
   ConstBufferPtr
   exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const;
@@ -193,16 +192,16 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param pkcs8Len The length of the private key wrapper
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
-   * @return true if the operation is successful, false otherwise.
+   * @throw BackEnd::Error The key could not be imported.
    */
-  bool
+  void
   importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
                    const char* pw, size_t pwLen);
 
   /**
    * @brief Clear the key cache.
    *
-   * An empty cache can force Tpm to do key lookup in back-end.
+   * An empty cache can force Tpm to do key lookup in the back-end.
    */
   void
   clearKeyCache()
