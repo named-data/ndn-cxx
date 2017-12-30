@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2017 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,8 @@
 
 #include "boost-test.hpp"
 
+#include <sstream>
+
 namespace ndn {
 namespace security {
 namespace transform {
@@ -35,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(TestStepSource)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  std::string input =
+  const std::string input =
     "0123456701234567012345670123456701234567012345670123456701234567"
     "0123456701234567012345670123456701234567012345670123456701234567"
     "0123456701234567012345670123456701234567012345670123456701234567"
@@ -58,7 +60,7 @@ BOOST_AUTO_TEST_CASE(Basic)
     "0123456701234567012345670123456701234567012345670123456701234567";
   const uint8_t* buf = reinterpret_cast<const uint8_t*>(input.data());
 
-  std::stringstream os;
+  std::ostringstream os;
   StepSource ss;
   ss >> streamSink(os);
   BOOST_CHECK_EQUAL(ss.write(buf, 320), 320);
@@ -66,9 +68,17 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(ss.write(buf + 640, 320), 320);
   BOOST_CHECK_EQUAL(ss.write(buf + 960, 320), 320);
   ss.end();
-  BOOST_REQUIRE_THROW(ss.write(buf + 960, 320), transform::Error);
-  std::string output = os.str();
-  BOOST_CHECK_EQUAL(input, output);
+  BOOST_CHECK_THROW(ss.write(buf + 960, 320), transform::Error);
+  BOOST_CHECK_EQUAL(os.str(), input);
+}
+
+BOOST_AUTO_TEST_CASE(EmptyInput)
+{
+  std::ostringstream os;
+  StepSource ss;
+  ss >> streamSink(os);
+  ss.end();
+  BOOST_CHECK_EQUAL(os.str(), "");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestStepSource

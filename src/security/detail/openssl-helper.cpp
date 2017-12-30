@@ -37,6 +37,12 @@ digestAlgorithmToEvpMd(DigestAlgorithm algo)
     return EVP_sha384();
   case DigestAlgorithm::SHA512:
     return EVP_sha512();
+#if OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(OPENSSL_NO_BLAKE2)
+  case DigestAlgorithm::BLAKE2B_512:
+    return EVP_blake2b512();
+  case DigestAlgorithm::BLAKE2S_256:
+    return EVP_blake2s256();
+#endif
   default:
     return nullptr;
   }
@@ -50,7 +56,7 @@ getEvpPkeyType(EVP_PKEY* key)
     EVP_PKEY_type(key->type);
 #else
     EVP_PKEY_base_id(key);
-#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
+#endif
 }
 
 EvpMdCtx::EvpMdCtx()

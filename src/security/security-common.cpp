@@ -85,6 +85,10 @@ operator<<(std::ostream& os, DigestAlgorithm algorithm)
       return os << "SHA384";
     case DigestAlgorithm::SHA512:
       return os << "SHA512";
+    case DigestAlgorithm::BLAKE2B_512:
+      return os << "BLAKE2b-512";
+    case DigestAlgorithm::BLAKE2S_256:
+      return os << "BLAKE2s-256";
   }
   return os << static_cast<int>(algorithm);
 }

@@ -108,6 +108,8 @@ enum class DigestAlgorithm {
   SHA256 = 1,
   SHA384 = 3,
   SHA512 = 4,
+  BLAKE2B_512 = 10,
+  BLAKE2S_256 = 11,
 };
 
 std::ostream&
