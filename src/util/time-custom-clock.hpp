@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TIME_CUSTOM_CLOCK_HPP
-#define NDN_TIME_CUSTOM_CLOCK_HPP
+#ifndef NDN_UTIL_TIME_CUSTOM_CLOCK_HPP
+#define NDN_UTIL_TIME_CUSTOM_CLOCK_HPP
 
 #include "time.hpp"
 
@@ -46,12 +46,12 @@ public:
   virtual std::string
   getSince() const = 0;
 
-  virtual boost::posix_time::time_duration
-  toPosixDuration(const typename BaseClock::duration& duration) const = 0;
+  virtual typename BaseClock::duration
+  toWaitDuration(typename BaseClock::duration d) const = 0;
 };
 
-typedef CustomClock<system_clock> CustomSystemClock;
-typedef CustomClock<steady_clock> CustomSteadyClock;
+using CustomSystemClock = CustomClock<system_clock>;
+using CustomSteadyClock = CustomClock<steady_clock>;
 
 /**
  * \brief Set custom system and steady clocks
@@ -66,4 +66,4 @@ setCustomClocks(shared_ptr<CustomSteadyClock> steadyClock = nullptr,
 } // namespace time
 } // namespace ndn
 
-#endif // NDN_TIME_CUSTOM_CLOCK_HPP
+#endif // NDN_UTIL_TIME_CUSTOM_CLOCK_HPP

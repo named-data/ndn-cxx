@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,78 +20,75 @@
  */
 
 #include "time-unit-test-clock.hpp"
-#include "detail/monotonic-deadline-timer.hpp"
+#include "detail/steady-timer.hpp"
+
+#include <chrono>
 #include <thread>
 
 namespace ndn {
 namespace time {
 
-const std::chrono::microseconds SLEEP_AFTER_TIME_CHANGE(2);
-
-template<class BaseClock>
-UnitTestClock<BaseClock>::UnitTestClock(const nanoseconds& startTime)
+template<class BaseClock, class ClockTraits>
+UnitTestClock<BaseClock, ClockTraits>::UnitTestClock(nanoseconds startTime)
   : m_currentTime(startTime)
 {
 }
 
-template<class BaseClock>
+template<class BaseClock, class ClockTraits>
 std::string
-UnitTestClock<BaseClock>::getSince() const
+UnitTestClock<BaseClock, ClockTraits>::getSince() const
 {
-  return " since unit test clock advancements";
+  return " since unit test beginning";
 }
 
-template<class BaseClock>
+template<class BaseClock, class ClockTraits>
 typename BaseClock::time_point
-UnitTestClock<BaseClock>::getNow() const
+UnitTestClock<BaseClock, ClockTraits>::getNow() const
 {
   return typename BaseClock::time_point(duration_cast<typename BaseClock::duration>(m_currentTime));
 }
 
-template<class BaseClock>
-boost::posix_time::time_duration
-UnitTestClock<BaseClock>::toPosixDuration(const typename BaseClock::duration& duration) const
+template<class BaseClock, class ClockTraits>
+typename BaseClock::duration
+UnitTestClock<BaseClock, ClockTraits>::toWaitDuration(typename BaseClock::duration) const
 {
-  return
-#ifdef BOOST_DATE_TIME_HAS_NANOSECONDS
-    boost::posix_time::nanoseconds(1)
-#else
-    boost::posix_time::microseconds(1)
-#endif
-    ;
+  return typename BaseClock::duration(1);
 }
 
-
-template<class BaseClock>
+template<class BaseClock, class ClockTraits>
 void
-UnitTestClock<BaseClock>::advance(const nanoseconds& duration)
+UnitTestClock<BaseClock, ClockTraits>::advance(nanoseconds duration)
 {
   m_currentTime += duration;
 
-  // On some platforms, boost::asio::io_service for deadline_timer (e.g., the one used in
-  // Scheduler) will call time_traits<>::now() and will "sleep" for
-  // time_traits<>::to_posix_time(duration) period before calling time_traits<>::now()
-  // again. (Note that such "sleep" will occur even if there is no actual waiting and
-  // program is calling io_service.poll().)
+  // When UnitTestClock is used with Asio timers (e.g. basic_waitable_timer), and
+  // an async wait operation on a timer is already in progress, Asio won't look
+  // at the clock again until the earliest timer has expired, so it won't know that
+  // the current time has changed.
   //
-  // As a result, in order for the clock advancement to be effective, we must sleep for a
-  // period greater than time_traits<>::to_posix_time().
+  // Therefore, in order for the clock advancement to be effective, we must sleep
+  // for a period greater than wait_traits::to_wait_duration().
   //
-  // See also http://blog.think-async.com/2007/08/time-travel.html
-  BOOST_ASSERT(boost::posix_time::microseconds(SLEEP_AFTER_TIME_CHANGE.count()) >
-               boost::asio::time_traits<steady_clock>::to_posix_duration(duration));
-  std::this_thread::sleep_for(SLEEP_AFTER_TIME_CHANGE);
+  // See also http://blog.think-async.com/2007/08/time-travel.html - "Jumping Through Time"
+  //
+  std::this_thread::sleep_for(std::chrono::nanoseconds(duration_cast<nanoseconds>(
+                                boost::asio::wait_traits<steady_clock>::to_wait_duration(duration) +
+                                typename BaseClock::duration(1)).count()));
 }
 
-template<class BaseClock>
+template<class BaseClock, class ClockTraits>
 void
-UnitTestClock<BaseClock>::setNow(const nanoseconds& timeSinceEpoch)
+UnitTestClock<BaseClock, ClockTraits>::setNow(nanoseconds timeSinceEpoch)
 {
-  BOOST_ASSERT(boost::posix_time::microseconds(SLEEP_AFTER_TIME_CHANGE.count()) >
-               boost::asio::time_traits<steady_clock>::to_posix_duration(timeSinceEpoch -
-                                                                         m_currentTime));
+  BOOST_ASSERT(!BaseClock::is_steady || timeSinceEpoch >= m_currentTime);
+
   m_currentTime = timeSinceEpoch;
-  std::this_thread::sleep_for(SLEEP_AFTER_TIME_CHANGE);
+
+  // See comment in advance()
+  auto delta = timeSinceEpoch - m_currentTime;
+  std::this_thread::sleep_for(std::chrono::nanoseconds(duration_cast<nanoseconds>(
+                                boost::asio::wait_traits<steady_clock>::to_wait_duration(delta) +
+                                typename BaseClock::duration(1)).count()));
 }
 
 template

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,29 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TIME_HPP
-#define NDN_TIME_HPP
+#ifndef NDN_UTIL_TIME_HPP
+#define NDN_UTIL_TIME_HPP
 
 #include "../common.hpp"
+
+#include <boost/asio/wait_traits.hpp>
 #include <boost/chrono.hpp>
-#include <boost/asio/time_traits.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 namespace ndn {
 namespace time {
 
 using boost::chrono::duration;
+using boost::chrono::duration_cast;
 
-typedef duration<boost::int_least32_t, boost::ratio<86400> > days;
+using days = duration<int_fast32_t, boost::ratio<86400>>;
 using boost::chrono::hours;
 using boost::chrono::minutes;
 using boost::chrono::seconds;
-
 using boost::chrono::milliseconds;
 using boost::chrono::microseconds;
 using boost::chrono::nanoseconds;
-
-using boost::chrono::duration_cast;
 
 /** \return the absolute value of the duration d
  *  \note The function does not participate in the overload resolution
@@ -64,13 +62,13 @@ abs(duration<Rep, Period> d)
  * adjusted at any moment. It is the only clock that has the ability
  * to be displayed and converted to/from UNIX timestamp.
  *
- * To get current TimePoint:
+ * To get the current time:
  *
  * <code>
  *     system_clock::TimePoint now = system_clock::now();
  * </code>
  *
- * To convert TimePoint to/from UNIX timestamp:
+ * To convert a TimePoint to/from UNIX timestamp:
  *
  * <code>
  *     system_clock::TimePoint time = ...;
@@ -81,11 +79,11 @@ abs(duration<Rep, Period> d)
 class system_clock
 {
 public:
-  typedef BOOST_SYSTEM_CLOCK_DURATION      duration;
-  typedef duration::rep                    rep;
-  typedef duration::period                 period;
-  typedef boost::chrono::time_point<system_clock> time_point;
-  static constexpr bool is_steady = false;
+  using duration   = boost::chrono::system_clock::duration;
+  using rep        = duration::rep;
+  using period     = duration::period;
+  using time_point = boost::chrono::time_point<system_clock>;
+  static constexpr bool is_steady = boost::chrono::system_clock::is_steady;
 
   typedef time_point TimePoint;
   typedef duration Duration;
@@ -98,7 +96,7 @@ public:
 
   static time_point
   from_time_t(std::time_t t) noexcept;
-}; // class system_clock
+};
 
 /**
  * \brief Steady clock
@@ -111,10 +109,10 @@ public:
 class steady_clock
 {
 public:
-  typedef nanoseconds      duration;
-  typedef duration::rep    rep;
-  typedef duration::period period;
-  typedef boost::chrono::time_point<steady_clock> time_point;
+  using duration   = boost::chrono::steady_clock::duration;
+  using rep        = duration::rep;
+  using period     = duration::period;
+  using time_point = boost::chrono::time_point<steady_clock>;
   static constexpr bool is_steady = true;
 
   typedef time_point TimePoint;
@@ -125,19 +123,18 @@ public:
 
 private:
   /**
-   * \brief Method to be used in deadline timer to select proper waiting
+   * \brief Trait function used in detail::SteadyTimer to select proper waiting time
    *
-   * Mock time implementations should return minimum value to ensure Boost.Asio
-   * is not enabling any waiting on mock timers.
+   * Mock time implementations should return the minimum value to ensure
+   * that Boost.Asio doesn't perform any waiting on mock timers.
    *
-   * @sa http://stackoverflow.com/questions/14191855/how-do-you-mock-the-time-for-boost-timers
+   * @sa http://blog.think-async.com/2007/08/time-travel.html
    */
-  static boost::posix_time::time_duration
-  to_posix_duration(const duration& duration);
+  static duration
+  to_wait_duration(duration d);
 
-  friend struct boost::asio::time_traits<steady_clock>;
-}; // class steady_clock
-
+  friend struct boost::asio::wait_traits<steady_clock>; // see steady-timer.hpp
+};
 
 /**
  * \brief Get system_clock::TimePoint representing UNIX time epoch (00:00:00 on Jan 1, 1970)
@@ -155,13 +152,13 @@ toUnixTimestamp(const system_clock::TimePoint& point);
  * \brief Convert UNIX timestamp to system_clock::TimePoint
  */
 system_clock::TimePoint
-fromUnixTimestamp(const milliseconds& duration);
+fromUnixTimestamp(milliseconds duration);
 
 /**
  * \brief Convert to the ISO string representation of the time (YYYYMMDDTHHMMSS,fffffffff)
  *
- * If timePoint contains doesn't contain fractional seconds the
- * output format is YYYYMMDDTHHMMSS
+ * If \p timePoint contains doesn't contain fractional seconds,
+ * the output format is YYYYMMDDTHHMMSS
  *
  * Examples:
  *
@@ -199,7 +196,7 @@ fromIsoString(const std::string& isoString);
  * \param locale desired locale (default: "C" locale)
  *
  * \sa http://www.boost.org/doc/libs/1_54_0/doc/html/date_time/date_time_io.html#date_time.format_flags
- *     described possible formatting flags
+ *     describes possible formatting flags
  **/
 std::string
 toString(const system_clock::TimePoint& timePoint,
@@ -212,20 +209,17 @@ toString(const system_clock::TimePoint& timePoint,
  * By default, `%Y-%m-%d %H:%M:%S` is used, accepting dates like
  * `2014-04-10 22:51:00`
  *
- * \param formattedTimePoint string representing time point
- * \param format    input output format (default: `%Y-%m-%d %H:%M:%S`)
- * \param locale    input locale (default: "C" locale)
+ * \param timePointStr string representing time point
+ * \param format input output format (default: `%Y-%m-%d %H:%M:%S`)
+ * \param locale input locale (default: "C" locale)
  *
  * \sa http://www.boost.org/doc/libs/1_54_0/doc/html/date_time/date_time_io.html#date_time.format_flags
- *     described possible formatting flags
+ *     describes possible formatting flags
  */
 system_clock::TimePoint
-fromString(const std::string& formattedTimePoint,
+fromString(const std::string& timePointStr,
            const std::string& format = "%Y-%m-%d %H:%M:%S",
            const std::locale& locale = std::locale("C"));
-
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // namespace time
 } // namespace ndn
@@ -247,7 +241,10 @@ struct clock_string<ndn::time::steady_clock, CharT>
   since();
 };
 
+extern template struct clock_string<ndn::time::system_clock, char>;
+extern template struct clock_string<ndn::time::steady_clock, char>;
+
 } // namespace chrono
 } // namespace boost
 
-#endif // NDN_TIME_HPP
+#endif // NDN_UTIL_TIME_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,8 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#include <boost/date_time/posix_time/posix_time_duration.hpp>
+
 namespace ndn {
 namespace ndnsec {
 
@@ -39,10 +41,9 @@ security::v2::Certificate
 getCertificateHttp(const std::string& host, const std::string& port, const std::string& path)
 {
   using namespace boost::asio::ip;
+
   tcp::iostream requestStream;
-
-  requestStream.expires_from_now(boost::posix_time::milliseconds(3000));
-
+  requestStream.expires_from_now(boost::posix_time::seconds(3));
   requestStream.connect(host, port);
   if (!requestStream) {
     BOOST_THROW_EXCEPTION(HttpException("HTTP connection error"));

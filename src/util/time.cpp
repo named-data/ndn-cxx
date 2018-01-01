@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,13 +31,13 @@ namespace time {
 static shared_ptr<CustomSystemClock> g_systemClock;
 static shared_ptr<CustomSteadyClock> g_steadyClock;
 
-// this method is defined in time-custom-clock.hpp
+// this function is declared in time-custom-clock.hpp
 void
 setCustomClocks(shared_ptr<CustomSteadyClock> steadyClock,
                 shared_ptr<CustomSystemClock> systemClock)
 {
-  g_systemClock = systemClock;
-  g_steadyClock = steadyClock;
+  g_systemClock = std::move(systemClock);
+  g_steadyClock = std::move(steadyClock);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ system_clock::now() noexcept
 }
 
 std::time_t
-system_clock::to_time_t(const time_point& t) noexcept
+system_clock::to_time_t(const system_clock::time_point& t) noexcept
 {
   return duration_cast<seconds>(t.time_since_epoch()).count();
 }
@@ -88,21 +88,15 @@ steady_clock::now() noexcept
   }
 }
 
-boost::posix_time::time_duration
-steady_clock::to_posix_duration(const duration& duration)
+steady_clock::duration
+steady_clock::to_wait_duration(steady_clock::duration d)
 {
   if (g_steadyClock == nullptr) {
     // optimized default version
-    return
-#ifdef BOOST_DATE_TIME_HAS_NANOSECONDS
-      boost::posix_time::nanoseconds(duration_cast<nanoseconds>(duration).count())
-#else
-      boost::posix_time::microseconds(duration_cast<microseconds>(duration).count())
-#endif
-      ;
+    return d;
   }
   else {
-    return g_steadyClock->toPosixDuration(duration);
+    return g_steadyClock->toWaitDuration(d);
   }
 }
 
@@ -111,7 +105,7 @@ steady_clock::to_posix_duration(const duration& duration)
 const system_clock::TimePoint&
 getUnixEpoch()
 {
-  static system_clock::TimePoint epoch = system_clock::from_time_t(0);
+  static auto epoch = system_clock::from_time_t(0);
   return epoch;
 }
 
@@ -122,7 +116,7 @@ toUnixTimestamp(const system_clock::TimePoint& point)
 }
 
 system_clock::TimePoint
-fromUnixTimestamp(const milliseconds& duration)
+fromUnixTimestamp(milliseconds duration)
 {
   return getUnixEpoch() + duration;
 }
@@ -141,27 +135,23 @@ toIsoString(const system_clock::TimePoint& timePoint)
   constexpr auto unitsPerHour = duration_cast<BptResolutionUnit>(hours(1)).count();
 
   auto sinceEpoch = duration_cast<BptResolutionUnit>(timePoint - getUnixEpoch()).count();
-  bpt::ptime ptime = epoch + bpt::time_duration(sinceEpoch / unitsPerHour, 0, 0,
-                                                sinceEpoch % unitsPerHour);
+  bpt::ptime ptime = epoch + bpt::time_duration(sinceEpoch / unitsPerHour, 0, 0, sinceEpoch % unitsPerHour);
 
   return bpt::to_iso_string(ptime);
 }
-
 
 system_clock::TimePoint
 fromIsoString(const std::string& isoString)
 {
   namespace bpt = boost::posix_time;
-  static bpt::ptime posixTimeEpoch = bpt::from_time_t(0);
+  static bpt::ptime epoch = bpt::from_time_t(0);
 
   bpt::ptime ptime = bpt::from_iso_string(isoString);
+  auto point = system_clock::from_time_t((ptime - epoch).total_seconds());
+  point += microseconds((ptime - epoch).total_microseconds() % 1000000);
 
-  system_clock::TimePoint point =
-    system_clock::from_time_t((ptime - posixTimeEpoch).total_seconds());
-  point += microseconds((ptime - posixTimeEpoch).total_microseconds() % 1000000);
   return point;
 }
-
 
 std::string
 toString(const system_clock::TimePoint& timePoint,
@@ -182,25 +172,23 @@ toString(const system_clock::TimePoint& timePoint,
   return formattedTimePoint.str();
 }
 
-
 system_clock::TimePoint
-fromString(const std::string& formattedTimePoint,
+fromString(const std::string& timePointStr,
            const std::string& format/* = "%Y-%m-%d %H:%M:%S"*/,
            const std::locale& locale/* = std::locale("C")*/)
 {
   namespace bpt = boost::posix_time;
-  static bpt::ptime posixTimeEpoch = bpt::from_time_t(0);
+  static bpt::ptime epoch = bpt::from_time_t(0);
 
   bpt::time_input_facet* facet = new bpt::time_input_facet(format);
-  std::istringstream is(formattedTimePoint);
-
+  std::istringstream is(timePointStr);
   is.imbue(std::locale(locale, facet));
   bpt::ptime ptime;
   is >> ptime;
 
-  system_clock::TimePoint point =
-    system_clock::from_time_t((ptime - posixTimeEpoch).total_seconds());
-  point += microseconds((ptime - posixTimeEpoch).total_microseconds() % 1000000);
+  auto point = system_clock::from_time_t((ptime - epoch).total_seconds());
+  point += microseconds((ptime - epoch).total_microseconds() % 1000000);
+
   return point;
 }
 
@@ -209,8 +197,6 @@ fromString(const std::string& formattedTimePoint,
 
 namespace boost {
 namespace chrono {
-
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class CharT>
 std::basic_string<CharT>
@@ -225,11 +211,6 @@ clock_string<ndn::time::system_clock, CharT>::since()
   }
 }
 
-template
-struct clock_string<ndn::time::system_clock, char>;
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-
 template<class CharT>
 std::basic_string<CharT>
 clock_string<ndn::time::steady_clock, CharT>::since()
@@ -243,8 +224,8 @@ clock_string<ndn::time::steady_clock, CharT>::since()
   }
 }
 
-template
-struct clock_string<ndn::time::steady_clock, char>;
+template struct clock_string<ndn::time::system_clock, char>;
+template struct clock_string<ndn::time::steady_clock, char>;
 
 } // namespace chrono
 } // namespace boost

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TIME_UNIT_TEST_CLOCK_HPP
-#define NDN_TIME_UNIT_TEST_CLOCK_HPP
+#ifndef NDN_UTIL_TIME_UNIT_TEST_CLOCK_HPP
+#define NDN_UTIL_TIME_UNIT_TEST_CLOCK_HPP
 
 #include "time-custom-clock.hpp"
 
@@ -48,7 +48,7 @@ public:
  * @brief Specialization of UnitTestClockTraits for system_clock
  *
  * This specialization sets the default start time to 1415684132 seconds
- * (equivalent to Tue, 11 Nov 2014 05:35:32 UTC if unix epoch is assumed).
+ * (equivalent to Tue 11 Nov 2014 05:35:32 UTC, if Unix epoch is assumed).
  */
 template<>
 class UnitTestClockTraits<system_clock>
@@ -69,34 +69,34 @@ public:
  *
  * @note Default start time is determined by UnitTestClockTraits
  */
-template<class BaseClock>
+template<class BaseClock, class ClockTraits = UnitTestClockTraits<BaseClock>>
 class UnitTestClock : public CustomClock<BaseClock>
 {
 public:
   explicit
-  UnitTestClock(const nanoseconds& startTime = UnitTestClockTraits<BaseClock>::getDefaultStartTime());
+  UnitTestClock(nanoseconds startTime = ClockTraits::getDefaultStartTime());
 
   /**
    * @brief Advance unit test clock by @p duration
    */
   void
-  advance(const nanoseconds& duration);
+  advance(nanoseconds duration);
 
   /**
    * @brief Explicitly set clock to @p timeSinceEpoch
    */
   void
-  setNow(const nanoseconds& timeSinceEpoch);
+  setNow(nanoseconds timeSinceEpoch);
 
-public: // CustomClock<BaseClock>
+public:
   std::string
   getSince() const override;
 
   typename BaseClock::time_point
   getNow() const override;
 
-  boost::posix_time::time_duration
-  toPosixDuration(const typename BaseClock::duration& duration) const override;
+  typename BaseClock::duration
+  toWaitDuration(typename BaseClock::duration d) const override;
 
 private:
   nanoseconds m_currentTime;
@@ -105,10 +105,10 @@ private:
 extern template class UnitTestClock<system_clock>;
 extern template class UnitTestClock<steady_clock>;
 
-typedef UnitTestClock<system_clock> UnitTestSystemClock;
-typedef UnitTestClock<steady_clock> UnitTestSteadyClock;
+using UnitTestSystemClock = UnitTestClock<system_clock>;
+using UnitTestSteadyClock = UnitTestClock<steady_clock>;
 
 } // namespace time
 } // namespace ndn
 
-#endif // NDN_TIME_UNIT_TEST_CLOCK_HPP
+#endif // NDN_UTIL_TIME_UNIT_TEST_CLOCK_HPP

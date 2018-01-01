@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,7 @@
  */
 
 #include "scheduler.hpp"
-#include "detail/monotonic-deadline-timer.hpp"
+#include "detail/steady-timer.hpp"
 
 #include <boost/scope_exit.hpp>
 
@@ -76,7 +76,7 @@ EventQueueCompare::operator()(const shared_ptr<EventInfo>& a, const shared_ptr<E
 }
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_deadlineTimer(make_unique<detail::MonotonicDeadlineTimer>(ioService))
+  : m_timer(make_unique<detail::SteadyTimer>(ioService))
   , m_isEventExecuting(false)
 {
 }
@@ -108,7 +108,7 @@ Scheduler::cancelEvent(const EventId& eventId)
   }
 
   if (info->queueIt == m_queue.begin()) {
-    m_deadlineTimer->cancel();
+    m_timer->cancel();
   }
   m_queue.erase(info->queueIt);
 
@@ -121,15 +121,15 @@ void
 Scheduler::cancelAllEvents()
 {
   m_queue.clear();
-  m_deadlineTimer->cancel();
+  m_timer->cancel();
 }
 
 void
 Scheduler::scheduleNext()
 {
   if (!m_queue.empty()) {
-    m_deadlineTimer->expires_from_now((*m_queue.begin())->expiresFromNow());
-    m_deadlineTimer->async_wait(bind(&Scheduler::executeEvent, this, _1));
+    m_timer->expires_from_now((*m_queue.begin())->expiresFromNow());
+    m_timer->async_wait(bind(&Scheduler::executeEvent, this, _1));
   }
 }
 
@@ -148,9 +148,9 @@ Scheduler::executeEvent(const boost::system::error_code& error)
   } BOOST_SCOPE_EXIT_END
 
   // process all expired events
-  time::steady_clock::TimePoint now = time::steady_clock::now();
+  auto now = time::steady_clock::now();
   while (!m_queue.empty()) {
-    EventQueue::iterator head = m_queue.begin();
+    auto head = m_queue.begin();
     shared_ptr<EventInfo> info = *head;
     if (info->expireTime > now) {
       break;

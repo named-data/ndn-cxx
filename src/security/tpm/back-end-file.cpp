@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,11 @@
 #include "../transform.hpp"
 #include "../transform/private-key.hpp"
 #include "../../encoding/buffer-stream.hpp"
-#include <unordered_map>
-#include <fstream>
+
 #include <cstdlib>
+#include <fstream>
+#include <sys/stat.h>
+
 #include <boost/filesystem.hpp>
 
 namespace ndn {
@@ -45,12 +47,12 @@ public:
       keystorePath = boost::filesystem::path(dir);
     }
 #ifdef NDN_CXX_HAVE_TESTS
-    else if (getenv("TEST_HOME") != nullptr) {
-      keystorePath = boost::filesystem::path(getenv("TEST_HOME")) / ".ndn";
+    else if (std::getenv("TEST_HOME") != nullptr) {
+      keystorePath = boost::filesystem::path(std::getenv("TEST_HOME")) / ".ndn";
     }
 #endif // NDN_CXX_HAVE_TESTS
-    else if (getenv("HOME") != nullptr) {
-      keystorePath = boost::filesystem::path(getenv("HOME")) / ".ndn";
+    else if (std::getenv("HOME") != nullptr) {
+      keystorePath = boost::filesystem::path(std::getenv("HOME")) / ".ndn";
     }
     else {
       keystorePath = boost::filesystem::current_path() / ".ndn";
@@ -191,7 +193,7 @@ BackEndFile::saveKey(const Name& keyName, shared_ptr<PrivateKey> key)
   key->savePkcs1Base64(os);
 
   // set file permission
-  chmod(fileName.c_str(), 0000400);
+  ::chmod(fileName.c_str(), 0000400);
 }
 
 } // namespace tpm

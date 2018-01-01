@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(SystemClock)
   BOOST_CHECK_EQUAL(time::system_clock::now(), referenceTime);
 
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(time::system_clock::now()),
-                    "1390966967032000000 nanoseconds since unit test clock advancements");
+                    "1390966967032000000 nanoseconds since unit test beginning");
 
   BOOST_CHECK_EQUAL(time::toIsoString(referenceTime), "20140129T034247.032000");
   BOOST_CHECK_EQUAL(time::toString(referenceTime), "2014-01-29 03:42:47");
@@ -108,11 +108,11 @@ BOOST_AUTO_TEST_CASE(SteadyClock)
   steadyClock->advance(time::microseconds(100));
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), time::nanoseconds(100100));
 
-  steadyClock->setNow(time::nanoseconds(100));
-  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), time::nanoseconds(100));
+  steadyClock->setNow(time::milliseconds(1));
+  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), time::nanoseconds(1000000));
 
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(time::steady_clock::now()),
-                    "100 nanoseconds since unit test clock advancements");
+                    "1000000 nanoseconds since unit test beginning");
 }
 
 BOOST_AUTO_TEST_CASE(Scheduler)

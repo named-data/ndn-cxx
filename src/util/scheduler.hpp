@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,13 +25,14 @@
 #include "time.hpp"
 #include "../net/asio-fwd.hpp"
 
+#include <boost/system/error_code.hpp>
 #include <set>
 
 namespace ndn {
 namespace util {
 
 namespace detail {
-class MonotonicDeadlineTimer;
+class SteadyTimer;
 } // namespace detail
 
 namespace scheduler {
@@ -163,7 +164,7 @@ private:
   executeEvent(const boost::system::error_code& code);
 
 private:
-  unique_ptr<detail::MonotonicDeadlineTimer> m_deadlineTimer;
+  unique_ptr<detail::SteadyTimer> m_timer;
   EventQueue m_queue;
   bool m_isEventExecuting;
 };

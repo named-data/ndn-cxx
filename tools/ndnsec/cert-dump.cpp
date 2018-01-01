@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,8 @@
 
 #include "ndnsec.hpp"
 #include "util.hpp"
+
+#include <boost/date_time/posix_time/posix_time_duration.hpp>
 
 namespace ndn {
 namespace ndnsec {
@@ -172,15 +174,15 @@ ndnsec_cert_dump(int argc, char** argv)
     }
     if (isRepoOut) {
       using namespace boost::asio::ip;
-      tcp::iostream request_stream;
-      request_stream.expires_from_now(boost::posix_time::milliseconds(3000));
-      request_stream.connect(repoHost, repoPort);
-      if (!request_stream) {
+      tcp::iostream requestStream;
+      requestStream.expires_from_now(boost::posix_time::seconds(3));
+      requestStream.connect(repoHost, repoPort);
+      if (!requestStream) {
         std::cerr << "fail to open the stream!" << std::endl;
         return 1;
       }
-      request_stream.write(reinterpret_cast<const char*>(certificate.wireEncode().wire()),
-                           certificate.wireEncode().size());
+      requestStream.write(reinterpret_cast<const char*>(certificate.wireEncode().wire()),
+                          certificate.wireEncode().size());
 
       return 0;
     }

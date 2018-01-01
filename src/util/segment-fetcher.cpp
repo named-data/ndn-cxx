@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,7 @@
 #include "../lp/nack-header.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <cmath>
 
 namespace ndn {
 namespace util {
@@ -162,7 +163,8 @@ SegmentFetcher::afterNackReceived(const Interest& origInterest, const lp::Nack& 
         reExpressInterest(origInterest, reExpressCount, self);
         break;
       case lp::NackReason::CONGESTION:
-        m_scheduler.scheduleEvent(time::milliseconds(static_cast<uint32_t>(pow(2, reExpressCount + 1))),
+        using ms = time::milliseconds;
+        m_scheduler.scheduleEvent(ms(static_cast<ms::rep>(std::pow(2, reExpressCount + 1))),
                                   bind(&SegmentFetcher::reExpressInterest, this,
                                        origInterest, reExpressCount, self));
         break;

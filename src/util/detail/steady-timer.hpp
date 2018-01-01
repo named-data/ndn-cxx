@@ -19,34 +19,42 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_COMMON_PCH_HPP
-#define NDN_COMMON_PCH_HPP
+#ifndef NDN_UTIL_DETAIL_STEADY_TIMER_HPP
+#define NDN_UTIL_DETAIL_STEADY_TIMER_HPP
 
-// If the compiler supports precompiled headers, this header should be compiled
-// and included before anything else
+#include "../time.hpp"
 
-#include "common.hpp"
+#include <boost/asio/basic_waitable_timer.hpp>
+#include <boost/asio/wait_traits.hpp>
 
-// STL headers to precompile
-#include <fstream>
-#include <list>
-#include <map>
-#include <set>
-#include <sstream>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+namespace boost {
+namespace asio {
 
-// Boost headers to precompile
-#include <boost/algorithm/string.hpp>
-#include <boost/chrono.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/categories.hpp>
-#include <boost/iostreams/stream.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/multi_index_container.hpp>
-#include <boost/range/adaptors.hpp>
-#include <boost/range/algorithm/copy.hpp>
-#include <boost/regex.hpp>
+template<>
+struct wait_traits<ndn::time::steady_clock>
+{
+  static ndn::time::steady_clock::duration
+  to_wait_duration(const ndn::time::steady_clock::duration& d)
+  {
+    return ndn::time::steady_clock::to_wait_duration(d);
+  }
+};
 
-#endif // NDN_COMMON_PCH_HPP
+} // namespace asio
+} // namespace boost
+
+namespace ndn {
+namespace util {
+namespace detail {
+
+class SteadyTimer : public boost::asio::basic_waitable_timer<time::steady_clock>
+{
+public:
+  using boost::asio::basic_waitable_timer<time::steady_clock>::basic_waitable_timer;
+};
+
+} // namespace detail
+} // namespace util
+} // namespace ndn
+
+#endif // NDN_UTIL_DETAIL_STEADY_TIMER_HPP
