@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -275,6 +275,10 @@ BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
 
   BOOST_REQUIRE(readCert != nullptr);
   BOOST_CHECK_EQUAL(cert.getName(), readCert->getName());
+
+  this->writeFile<std::string>("");
+  readCert = io::load<security::v2::Certificate>(filename);
+  BOOST_REQUIRE(readCert == nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIo
