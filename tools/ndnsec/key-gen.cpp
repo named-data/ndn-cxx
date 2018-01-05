@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,8 +33,13 @@ ndnsec_key_gen(int argc, char** argv)
 
   Name identityName;
   bool isDefault = true;
+  bool isUserSpecified = false;
   char keyType = 'r';
+  char keyIdTypeChoice = 'r';
+  std::string specifiedKeyId;
+  Name::Component specifiedKeyIdComponent;
   std::string outputFilename;
+  KeyIdType keyIdType = KeyIdType::RANDOM;
 
   po::options_description description("General Usage\n"
                                       "  ndnsec key-gen [-h] [-n] identity\n"
@@ -46,8 +51,12 @@ ndnsec_key_gen(int argc, char** argv)
     ("not_default,n",
      "optional, if not specified, the target identity will be set as "
      "the default identity of the system")
-    ("type,t", po::value<char>(&keyType)->default_value('r'),
+    ("type,t", po::value<char>(&keyType),
      "optional, key type, r for RSA key (default), e for EC key")
+    ("key_id_type,k", po::value<char>(&keyIdTypeChoice),
+     "optional, key id type, r for 64-bit random number (default), h for SHA256 of the public key")
+    ("key_id", po::value<std::string>(&specifiedKeyId),
+     "optional, user-specified key id, cannot be used with key_id_type")
     // ("size,s", po::value<int>(&keySize)->default_value(2048),
     // "optional, key size, 2048 (default)")
     ;
@@ -72,8 +81,7 @@ ndnsec_key_gen(int argc, char** argv)
   }
 
   if (vm.count("identity") == 0) {
-    std::cerr << "identity must be specified" << std::endl;
-    std::cerr << description << std::endl;
+    std::cerr << "identity must be specified\n" << description << std::endl;
     return 1;
   }
 
@@ -81,22 +89,58 @@ ndnsec_key_gen(int argc, char** argv)
     isDefault = false;
   }
 
+  if (vm.count("key_id_type") != 0) {
+    if (keyIdTypeChoice == 'r') {
+      // KeyIdType has already been set to KeyIdType::RANDOM
+    }
+    else if (keyIdTypeChoice == 'h') {
+      keyIdType = KeyIdType::SHA256;
+    }
+    else {
+      std::cerr << "Unrecognized key id type\n" << description << std::endl;
+      return 1;
+    }
+    if (vm.count("key_id") != 0) {
+      std::cerr << "key_id cannot be used with key_id_type\n" << description << std::endl;
+      return 1;
+    }
+  }
+
+  if (vm.count("key_id") != 0) {
+    isUserSpecified = true;
+    specifiedKeyIdComponent = name::Component::fromEscapedString(specifiedKeyId);
+    if (specifiedKeyIdComponent.empty()) {
+      std::cerr << "Key id cannot be an empty name component\n" << description << std::endl;
+      return 1;
+    }
+    if (!specifiedKeyIdComponent.isGeneric()) {
+      std::cerr << "Key id must be a generic name component\n" << description << std::endl;
+      return 1;
+    }
+  }
+
   try {
     unique_ptr<KeyParams> params;
-    switch (keyType) {
-      case 'r':
-        params = make_unique<RsaKeyParams>();
-        break;
-      case 'e':
-        params = make_unique<EcKeyParams>();
-        break;
-      default:
-        std::cerr << "Unrecongized key type\n"
-                  << description << std::endl;
-        return 1;
+    if (keyType == 'r') {
+      if (isUserSpecified) {
+        params = make_unique<RsaKeyParams>(specifiedKeyIdComponent);
+      }
+      else {
+        params = make_unique<RsaKeyParams>(detail::RsaKeyParamsInfo::getDefaultSize(), keyIdType);
+      }
     }
-
-    // @TODO set other parameters based on whatever user specified
+    else if (keyType == 'e') {
+      if (isUserSpecified) {
+        params = make_unique<EcKeyParams>(specifiedKeyIdComponent);
+      }
+      else {
+        params = make_unique<EcKeyParams>(detail::EcKeyParamsInfo::getDefaultSize(), keyIdType);
+      }
+    }
+    else {
+      std::cerr << "Unrecognized key type\n" << description << std::endl;
+      return 1;
+    }
 
     security::v2::KeyChain keyChain;
     security::Identity identity;
