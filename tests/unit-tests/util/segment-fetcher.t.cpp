@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -419,6 +419,48 @@ BOOST_FIXTURE_TEST_CASE(ZeroComponentName, Fixture)
   BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), ndn::Name("ndn:/"));
   BOOST_CHECK_EQUAL(face.sentInterests[1].getName(), ndn::Name("ndn:/"));
   BOOST_REQUIRE_EQUAL(nData, 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(Signals, Fixture)
+{
+  DummyValidator validator;
+  bool flipResult = false;
+  validator.getPolicy().setResultCallback([&flipResult] (const Name&) {
+      flipResult = !flipResult;
+      return flipResult;
+    });
+  shared_ptr<SegmentFetcher> fetcher =
+    SegmentFetcher::fetch(face, Interest("/hello/world", time::seconds(1000)),
+                          validator,
+                          bind(&Fixture::onComplete, this, _1),
+                          bind(&Fixture::onError, this, _1));
+
+  auto data1 = makeDataSegment("/hello/world", 0, false);
+  auto data2 = makeDataSegment("/hello/world", 1, true);
+
+  size_t nRecvSegments = 0;
+  fetcher->afterSegmentReceived.connect([&nRecvSegments] (const Data& receivedSegment) {
+      ++nRecvSegments;
+    });
+
+  size_t nValidatedSegments = 0;
+  fetcher->afterSegmentValidated.connect([&nValidatedSegments] (const Data& validatedSegment) {
+      ++nValidatedSegments;
+    });
+
+  advanceClocks(time::milliseconds(10), 10);
+
+  face.receive(*data1);
+
+  advanceClocks(time::milliseconds(10), 10);
+
+  face.receive(*data2);
+
+  advanceClocks(time::milliseconds(10), 10);
+
+  BOOST_CHECK_EQUAL(nRecvSegments, 2);
+  BOOST_CHECK_EQUAL(nValidatedSegments, 1);
+  BOOST_CHECK_EQUAL(nErrors, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSegmentFetcher

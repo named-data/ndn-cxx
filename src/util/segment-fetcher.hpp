@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,10 +22,11 @@
 #ifndef NDN_UTIL_SEGMENT_FETCHER_HPP
 #define NDN_UTIL_SEGMENT_FETCHER_HPP
 
-#include "scheduler.hpp"
 #include "../common.hpp"
 #include "../face.hpp"
 #include "../security/v2/validator.hpp"
+#include "scheduler.hpp"
+#include "signal.hpp"
 
 namespace ndn {
 
@@ -120,7 +121,7 @@ public:
   };
 
   /**
-   * @brief Initiate segment fetching
+   * @brief Initiates segment fetching
    *
    * @param face          Reference to the Face that should be used to fetch data
    * @param baseInterest  An Interest for the initial segment of requested data.
@@ -135,9 +136,10 @@ public:
    *
    * @param completeCallback    Callback to be fired when all segments are fetched
    * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
+   * @return A shared_ptr to the constructed SegmentFetcher
    */
   static
-  void
+  shared_ptr<SegmentFetcher>
   fetch(Face& face,
         const Interest& baseInterest,
         security::v2::Validator& validator,
@@ -158,9 +160,10 @@ public:
    *
    * @param completeCallback    Callback to be fired when all segments are fetched
    * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
+   * @return A shared_ptr to the constructed SegmentFetcher
    */
   static
-  void
+  shared_ptr<SegmentFetcher>
   fetch(Face& face,
         const Interest& baseInterest,
         shared_ptr<security::v2::Validator> validator,
@@ -181,9 +184,9 @@ private:
                    shared_ptr<SegmentFetcher> self);
 
   void
-  afterSegmentReceived(const Interest& origInterest,
-                       const Data& data, bool isSegmentZeroExpected,
-                       shared_ptr<SegmentFetcher> self);
+  afterSegmentReceivedCb(const Interest& origInterest,
+                         const Data& data, bool isSegmentZeroExpected,
+                         shared_ptr<SegmentFetcher> self);
   void
   afterValidationSuccess(const Data& data,
                          bool isSegmentZeroExpected,
@@ -194,12 +197,23 @@ private:
   afterValidationFailure(const Data& data, const security::v2::ValidationError& error);
 
   void
-  afterNackReceived(const Interest& origInterest, const lp::Nack& nack,
-                    uint32_t reExpressCount, shared_ptr<SegmentFetcher> self);
+  afterNackReceivedCb(const Interest& origInterest, const lp::Nack& nack,
+                      uint32_t reExpressCount, shared_ptr<SegmentFetcher> self);
 
   void
   reExpressInterest(Interest interest, uint32_t reExpressCount,
                     shared_ptr<SegmentFetcher> self);
+
+public:
+  /**
+   * @brief Emits whenever a data segment received
+   */
+  Signal<SegmentFetcher, Data> afterSegmentReceived;
+
+  /**
+   * @brief Emits whenever a received data segment has been successfully validated
+   */
+  Signal<SegmentFetcher, Data> afterSegmentValidated;
 
 private:
   Face& m_face;

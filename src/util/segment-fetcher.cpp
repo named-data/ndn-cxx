@@ -46,7 +46,7 @@ SegmentFetcher::SegmentFetcher(Face& face,
 {
 }
 
-void
+shared_ptr<SegmentFetcher>
 SegmentFetcher::fetch(Face& face,
                       const Interest& baseInterest,
                       security::v2::Validator& validator,
@@ -54,10 +54,10 @@ SegmentFetcher::fetch(Face& face,
                       const ErrorCallback& errorCallback)
 {
   shared_ptr<security::v2::Validator> validatorPtr(&validator, [] (security::v2::Validator*) {});
-  fetch(face, baseInterest, validatorPtr, completeCallback, errorCallback);
+  return fetch(face, baseInterest, validatorPtr, completeCallback, errorCallback);
 }
 
-void
+shared_ptr<SegmentFetcher>
 SegmentFetcher::fetch(Face& face,
                       const Interest& baseInterest,
                       shared_ptr<security::v2::Validator> validator,
@@ -68,6 +68,8 @@ SegmentFetcher::fetch(Face& face,
                                                         errorCallback));
 
   fetcher->fetchFirstSegment(baseInterest, fetcher);
+
+  return fetcher;
 }
 
 void
@@ -79,8 +81,8 @@ SegmentFetcher::fetchFirstSegment(const Interest& baseInterest,
   interest.setMustBeFresh(true);
 
   m_face.expressInterest(interest,
-                         bind(&SegmentFetcher::afterSegmentReceived, this, _1, _2, true, self),
-                         bind(&SegmentFetcher::afterNackReceived, this, _1, _2, 0, self),
+                         bind(&SegmentFetcher::afterSegmentReceivedCb, this, _1, _2, true, self),
+                         bind(&SegmentFetcher::afterNackReceivedCb, this, _1, _2, 0, self),
                          bind(m_errorCallback, INTEREST_TIMEOUT, "Timeout"));
 }
 
@@ -95,16 +97,17 @@ SegmentFetcher::fetchNextSegment(const Interest& origInterest, const Name& dataN
   interest.setMustBeFresh(false);
   interest.setName(dataName.getPrefix(-1).appendSegment(segmentNo));
   m_face.expressInterest(interest,
-                         bind(&SegmentFetcher::afterSegmentReceived, this, _1, _2, false, self),
-                         bind(&SegmentFetcher::afterNackReceived, this, _1, _2, 0, self),
+                         bind(&SegmentFetcher::afterSegmentReceivedCb, this, _1, _2, false, self),
+                         bind(&SegmentFetcher::afterNackReceivedCb, this, _1, _2, 0, self),
                          bind(m_errorCallback, INTEREST_TIMEOUT, "Timeout"));
 }
 
 void
-SegmentFetcher::afterSegmentReceived(const Interest& origInterest,
-                                     const Data& data, bool isSegmentZeroExpected,
-                                     shared_ptr<SegmentFetcher> self)
+SegmentFetcher::afterSegmentReceivedCb(const Interest& origInterest,
+                                       const Data& data, bool isSegmentZeroExpected,
+                                       shared_ptr<SegmentFetcher> self)
 {
+  afterSegmentReceived(data);
   m_validator->validate(data,
                         bind(&SegmentFetcher::afterValidationSuccess, this, _1,
                              isSegmentZeroExpected, origInterest, self),
@@ -127,7 +130,7 @@ SegmentFetcher::afterValidationSuccess(const Data& data,
     else {
       m_buffer->write(reinterpret_cast<const char*>(data.getContent().value()),
                       data.getContent().value_size());
-
+      afterSegmentValidated(data);
       const name::Component& finalBlockId = data.getMetaInfo().getFinalBlockId();
       if (finalBlockId.empty() || (finalBlockId > currentSegment)) {
         fetchNextSegment(origInterest, data.getName(), currentSegment.toSegment() + 1, self);
@@ -151,8 +154,8 @@ SegmentFetcher::afterValidationFailure(const Data& data, const security::v2::Val
 
 
 void
-SegmentFetcher::afterNackReceived(const Interest& origInterest, const lp::Nack& nack,
-                                  uint32_t reExpressCount, shared_ptr<SegmentFetcher> self)
+SegmentFetcher::afterNackReceivedCb(const Interest& origInterest, const lp::Nack& nack,
+                                    uint32_t reExpressCount, shared_ptr<SegmentFetcher> self)
 {
   if (reExpressCount >= MAX_INTEREST_REEXPRESS) {
     m_errorCallback(NACK_ERROR, "Nack Error");
@@ -189,9 +192,9 @@ SegmentFetcher::reExpressInterest(Interest interest, uint32_t reExpressCount,
   }
 
   m_face.expressInterest(interest,
-                         bind(&SegmentFetcher::afterSegmentReceived, this, _1, _2,
+                         bind(&SegmentFetcher::afterSegmentReceivedCb, this, _1, _2,
                               isSegmentZeroExpected, self),
-                         bind(&SegmentFetcher::afterNackReceived, this, _1, _2,
+                         bind(&SegmentFetcher::afterNackReceivedCb, this, _1, _2,
                               ++reExpressCount, self),
                          bind(m_errorCallback, INTEREST_TIMEOUT, "Timeout"));
 }
