@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -66,14 +66,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion2, T, InMemoryStorages)
 
   uint32_t content1 = 1;
   shared_ptr<Data> data1 = makeData(name);
-  data1->setFreshnessPeriod(time::milliseconds(99999));
+  data1->setFreshnessPeriod(99999_ms);
   data1->setContent(reinterpret_cast<const uint8_t*>(&content1), sizeof(content1));
   signData(data1);
   ims.insert(*data1);
 
   uint32_t content2 = 2;
   shared_ptr<Data> data2 = makeData(name);
-  data2->setFreshnessPeriod(time::milliseconds(99999));
+  data2->setFreshnessPeriod(99999_ms);
   data2->setContent(reinterpret_cast<const uint8_t*>(&content2), sizeof(content2));
   signData(data2);
   ims.insert(*data2);
@@ -212,14 +212,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEraseByName, T, InMemoryStorages)
 
   uint32_t content1 = 1;
   shared_ptr<Data> data1 = makeData(name);
-  data1->setFreshnessPeriod(time::milliseconds(99999));
+  data1->setFreshnessPeriod(99999_ms);
   data1->setContent(reinterpret_cast<const uint8_t*>(&content1), sizeof(content1));
   signData(data1);
   ims.insert(*data1);
 
   uint32_t content2 = 2;
   shared_ptr<Data> data2 = makeData(name);
-  data2->setFreshnessPeriod(time::milliseconds(99999));
+  data2->setFreshnessPeriod(99999_ms);
   data2->setContent(reinterpret_cast<const uint8_t*>(&content2), sizeof(content2));
   signData(data2);
   ims.insert(*data2);
@@ -659,7 +659,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndDouble, T, InMemoryStoragesLimited)
     convert << i;
     Name name("/" + convert.str());
     shared_ptr<Data> data = makeData(name);
-    data->setFreshnessPeriod(time::milliseconds(5000));
+    data->setFreshnessPeriod(5000_ms);
     signData(data);
     ims.insert(*data);
   }
@@ -706,7 +706,7 @@ protected:
          const time::milliseconds& freshWindow = InMemoryStorage::INFINITE_WINDOW)
   {
     shared_ptr<Data> data = makeData(name);
-    data->setFreshnessPeriod(time::milliseconds(99999));
+    data->setFreshnessPeriod(99999_ms);
     data->setContent(reinterpret_cast<const uint8_t*>(&id), sizeof(id));
     signData(data);
 
@@ -978,10 +978,10 @@ BOOST_AUTO_TEST_CASE(DigestExclude)
 
 BOOST_AUTO_TEST_CASE(MustBeFresh)
 {
-  Name data1Name = insert(1, "ndn:/A/1", time::milliseconds(500));
-  insert(2, "ndn:/A/2", time::milliseconds(2500));
-  insert(3, "ndn:/A/3", time::milliseconds(3500));
-  insert(4, "ndn:/A/4", time::milliseconds(1500));
+  Name data1Name = insert(1, "ndn:/A/1", 500_ms);
+  insert(2, "ndn:/A/2", 2500_ms);
+  insert(3, "ndn:/A/3", 3500_ms);
+  insert(4, "ndn:/A/4", 1500_ms);
 
   // @0s, all Data are fresh
   startInterest("ndn:/A/1")
@@ -1002,7 +1002,7 @@ BOOST_AUTO_TEST_CASE(MustBeFresh)
     .setChildSelector(1);
   BOOST_CHECK_EQUAL(find(), 4);
 
-  advanceClocks(time::milliseconds(1000));
+  advanceClocks(1000_ms);
   // @1s, /A/1 is stale
   startInterest("ndn:/A/1")
     .setMustBeFresh(true);
@@ -1025,7 +1025,7 @@ BOOST_AUTO_TEST_CASE(MustBeFresh)
     .setChildSelector(0);
   BOOST_CHECK_EQUAL(find(), 1);
 
-  advanceClocks(time::milliseconds(1000));
+  advanceClocks(1000_ms);
   // @2s, /A/1 and /A/4 are stale
   startInterest("ndn:/A")
     .setMustBeFresh(true)
@@ -1036,7 +1036,7 @@ BOOST_AUTO_TEST_CASE(MustBeFresh)
     .setChildSelector(1);
   BOOST_CHECK_EQUAL(find(), 4);
 
-  advanceClocks(time::milliseconds(2000));
+  advanceClocks(2000_ms);
   // @4s, all Data are stale
   startInterest("ndn:/A")
     .setMustBeFresh(true)

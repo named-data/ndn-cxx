@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(Encode)
 {
   MetaInfo meta;
   meta.setType(tlv::ContentType_Blob);
-  meta.setFreshnessPeriod(time::seconds(10));
+  meta.setFreshnessPeriod(10_s);
 
   BOOST_REQUIRE_NO_THROW(meta.wireEncode());
   BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo1, MetaInfo1+sizeof(MetaInfo1),
@@ -62,38 +62,36 @@ BOOST_AUTO_TEST_CASE(Decode)
 {
   MetaInfo meta(Block(MetaInfo1, sizeof(MetaInfo1)));
   BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Blob));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component());
 
   meta.wireDecode(Block(MetaInfo2, sizeof(MetaInfo2)));
   BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Blob));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 
   meta.wireDecode(Block(MetaInfo3, sizeof(MetaInfo3)));
   BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Link));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), time::seconds(10));
+  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
 }
 
 BOOST_AUTO_TEST_CASE(EqualityChecks)
 {
-  using namespace time;
-
   MetaInfo a;
   MetaInfo b;
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  a.setFreshnessPeriod(seconds(10));
+  a.setFreshnessPeriod(10_s);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setFreshnessPeriod(milliseconds(90000));
+  b.setFreshnessPeriod(90_s);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setFreshnessPeriod(milliseconds(10000));
+  b.setFreshnessPeriod(10_s);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
@@ -110,7 +108,7 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
 {
   MetaInfo info1;
   info1.setType(196);
-  info1.setFreshnessPeriod(time::milliseconds(3600));
+  info1.setFreshnessPeriod(3600_ms);
   info1.setFinalBlockId(name::Component("/att/final"));
 
   uint32_t ints[5] = {128, 129, 130, 131, 132};
@@ -210,7 +208,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeFreshnessPeriod)
   BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
                                 expectedDefault, expectedDefault + sizeof(expectedDefault));
 
-  info.setFreshnessPeriod(time::milliseconds(1000));
+  info.setFreshnessPeriod(1000_ms);
   BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
                                 expected1000ms, expected1000ms + sizeof(expected1000ms));
 
@@ -232,12 +230,12 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeFreshnessPeriod)
 
   Block input2000msBlock(input2000ms, sizeof(input2000ms));
   BOOST_CHECK_NO_THROW(info.wireDecode(input2000msBlock));
-  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds(2000));
+  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), 2000_ms);
 
-  BOOST_CHECK_NO_THROW(info.setFreshnessPeriod(time::milliseconds(10000)));
-  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds(10000));
+  BOOST_CHECK_NO_THROW(info.setFreshnessPeriod(10000_ms));
+  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), 10000_ms);
   BOOST_CHECK_THROW(info.setFreshnessPeriod(time::milliseconds(-1)), std::invalid_argument);
-  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds(10000));
+  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), 10000_ms);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestMetaInfo

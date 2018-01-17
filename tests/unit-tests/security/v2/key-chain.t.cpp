@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -396,9 +396,8 @@ BOOST_FIXTURE_TEST_CASE(SelfSignedCertValidity, IdentityManagementFixture)
                        .getDefaultKey()
                        .getDefaultCertificate();
   BOOST_CHECK(cert.isValid());
-  BOOST_CHECK(cert.isValid(time::system_clock::now() + time::days(10 * 365)));
-  BOOST_CHECK_GT(cert.getValidityPeriod().getPeriod().second,
-                 time::system_clock::now() + time::days(10 * 365));
+  BOOST_CHECK(cert.isValid(time::system_clock::now() + 10 * 365_days));
+  BOOST_CHECK_GT(cert.getValidityPeriod().getPeriod().second, time::system_clock::now() + 10 * 365_days);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyChain

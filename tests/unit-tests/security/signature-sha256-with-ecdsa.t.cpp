@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -127,16 +127,16 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
   Interest interest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
   Interest interest11("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
 
-  scheduler.scheduleEvent(time::milliseconds(100), [&] {
+  scheduler.scheduleEvent(100_ms, [&] {
       BOOST_CHECK_NO_THROW(m_keyChain.sign(interest, security::SigningInfo(identity)));
     });
 
-  advanceClocks(time::milliseconds(100));
-  scheduler.scheduleEvent(time::milliseconds(100), [&] {
+  advanceClocks(100_ms);
+  scheduler.scheduleEvent(100_ms, [&] {
       BOOST_CHECK_NO_THROW(m_keyChain.sign(interest11, security::SigningInfo(identity)));
     });
 
-  advanceClocks(time::milliseconds(100));
+  advanceClocks(100_ms);
 
   Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
 

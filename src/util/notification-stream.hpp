@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2017 Regents of the University of California,
+/*
+ * Copyright (c) 2014-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -28,11 +28,10 @@
 #ifndef NDN_UTIL_NOTIFICATION_STREAM_HPP
 #define NDN_UTIL_NOTIFICATION_STREAM_HPP
 
-#include "../name.hpp"
-#include "../face.hpp"
-#include "../security/v2/key-chain.hpp"
-
 #include "concepts.hpp"
+#include "../face.hpp"
+#include "../name.hpp"
+#include "../security/v2/key-chain.hpp"
 
 namespace ndn {
 namespace util {
@@ -65,7 +64,7 @@ public:
 
     shared_ptr<Data> data = make_shared<Data>(dataName);
     data->setContent(notification.wireEncode());
-    data->setFreshnessPeriod(time::seconds(1));
+    data->setFreshnessPeriod(1_s);
 
     m_keyChain.sign(*data);
     m_face.put(*data);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,7 +48,7 @@ protected:
     auto responseData = makeData(face.sentInterests.at(0).getName());
     responseData->setContent(responsePayload.wireEncode());
     face.receive(*responseData);
-    this->advanceClocks(time::milliseconds(1));
+    this->advanceClocks(1_ms);
   }
 
 private:
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(Success)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(SuccessNoCallback)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   controller.start<FaceCreateCommand>(parameters, nullptr, commandFailCallback);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   ControlParameters responseBody = makeFaceCreateResponse();
   ControlResponse responsePayload(201, "created");
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(OptionsPrefix)
   options.setPrefix("/localhop/net/example/router1/nfd");
 
   controller.start<RibRegisterCommand>(parameters, succeedCallback, commandFailCallback, options);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   ControlParameters responseBody = makeFaceCreateResponse();
   ControlResponse responsePayload(201, "created");
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(ErrorCode)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   ControlResponse responsePayload(401, "Not Authenticated");
   this->respond(responsePayload);
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(InvalidResponse)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   ControlParameters responseBody = makeFaceCreateResponse();
   responseBody.unsetFaceId() // FaceId is missing
@@ -220,14 +220,14 @@ BOOST_AUTO_TEST_CASE(Nack)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
 
   auto responseNack = makeNack(requestInterest, lp::NackReason::NO_ROUTE);
   face.receive(responseNack);
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_NACK);
@@ -239,11 +239,11 @@ BOOST_AUTO_TEST_CASE(Timeout)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   CommandOptions options;
-  options.setTimeout(time::milliseconds(50));
+  options.setTimeout(50_ms);
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback, options);
-  this->advanceClocks(time::milliseconds(1)); // express Interest
-  this->advanceClocks(time::milliseconds(51)); // timeout
+  this->advanceClocks(1_ms); // express Interest
+  this->advanceClocks(51_ms); // timeout
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_TIMEOUT);
@@ -255,11 +255,11 @@ BOOST_AUTO_TEST_CASE(FailureNoCallback)
   parameters.setUri("tcp4://192.0.2.1:6363");
 
   CommandOptions options;
-  options.setTimeout(time::milliseconds(50));
+  options.setTimeout(50_ms);
 
   controller.start<FaceCreateCommand>(parameters, succeedCallback, nullptr, options);
-  this->advanceClocks(time::milliseconds(1)); // express Interest
-  this->advanceClocks(time::milliseconds(51)); // timeout
+  this->advanceClocks(1_ms); // express Interest
+  this->advanceClocks(51_ms); // timeout
 
   BOOST_CHECK_EQUAL(succeeds.size(), 0);
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,7 +62,7 @@ public:
      *  Setting this option to 0 or negative causes the validator to require exactly same
      *  timestamp as the system clock, which most likely rejects all command Interests.
      */
-    time::nanoseconds gracePeriod = time::seconds(120);
+    time::nanoseconds gracePeriod = 2_min;
 
     /** \brief max number of distinct public keys of which to record the last timestamp
      *
@@ -88,7 +88,7 @@ public:
      *  Setting this option to 0 or negative makes last timestamp records expire immediately
      *  and causes every command Interest to be processed as initial.
      */
-    time::nanoseconds recordLifetime = time::hours(1);
+    time::nanoseconds recordLifetime = 1_h;
   };
 
   /** \brief constructor
@@ -156,6 +156,5 @@ private:
 } // namespace v2
 } // namespace security
 } // namespace ndn
-
 
 #endif // NDN_SECURITY_V2_VALIDATION_POLICY_COMMAND_INTEREST_HPP

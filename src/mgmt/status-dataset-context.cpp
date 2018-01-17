@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,7 @@
 namespace ndn {
 namespace mgmt {
 
-const time::milliseconds DEFAULT_STATUS_DATASET_FRESHNESS_PERIOD = time::milliseconds(1000);
+const time::milliseconds DEFAULT_STATUS_DATASET_FRESHNESS_PERIOD = 1_s;
 
 const Name&
 StatusDatasetContext::getPrefix() const
@@ -113,7 +113,6 @@ StatusDatasetContext::reject(const ControlResponse& resp /*= a ControlResponse w
   }
 
   m_state = State::FINALIZED;
-
   m_nackSender(resp);
 }
 

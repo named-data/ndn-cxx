@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -94,7 +94,7 @@ asyncResolve(const std::string& host,
              const ErrorCallback& onError,
              boost::asio::io_service& ioService,
              const AddressSelector& addressSelector = AnyAddress(),
-             time::nanoseconds timeout = time::seconds(4));
+             time::nanoseconds timeout = 4_s);
 
 /** \brief Synchronously resolve host
  *

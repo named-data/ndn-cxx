@@ -112,7 +112,7 @@ ndnsec_cert_gen(int argc, char** argv)
   }
 
   if (vm.count("not-after") == 0) {
-    notAfter = notBefore + time::days(365);
+    notAfter = notBefore + 365_days;
   }
   else {
     notAfter = time::fromIsoString(notAfterStr.substr(0, 8) + "T" + notAfterStr.substr(8, 6));
@@ -156,7 +156,7 @@ ndnsec_cert_gen(int argc, char** argv)
   cert.setContent(certRequest.getContent());
 
   // @TODO add ability to customize
-  cert.setFreshnessPeriod(time::hours(1));
+  cert.setFreshnessPeriod(1_h);
 
   SignatureInfo signatureInfo;
   signatureInfo.setValidityPeriod(security::ValidityPeriod(notBefore, notAfter));

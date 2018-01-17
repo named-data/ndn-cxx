@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -161,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, DataSigningKeyFixture)
 
   Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
-  d.setFreshnessPeriod(time::seconds(10));
+  d.setFreshnessPeriod(10_s);
   d.setContent(CONTENT1, sizeof(CONTENT1));
 
   Block signatureInfo(tlv::SignatureInfo);
@@ -212,7 +212,7 @@ BOOST_FIXTURE_TEST_CASE(Decode, DataSigningKeyFixture)
 
   BOOST_CHECK_EQUAL(d.getName().toUri(), "/local/ndn/prefix");
   BOOST_CHECK_EQUAL(d.getContentType(), static_cast<uint32_t>(tlv::ContentType_Blob));
-  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), time::seconds(10));
+  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
                                 d.getContent().value_size()), "SUCCESS!");
   BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::SignatureSha256WithRsa);
@@ -229,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
 {
   Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
-  d.setFreshnessPeriod(time::seconds(10));
+  d.setFreshnessPeriod(10_s);
   d.setContent(CONTENT1, sizeof(CONTENT1));
   BOOST_CHECK_THROW(d.getFullName(), Data::Error); // FullName is unavailable without signing
 
@@ -245,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
   // FullName should be cached, so value() pointer points to same memory location
   BOOST_CHECK_EQUAL(fullName.get(-1).value(), d.getFullName().get(-1).value());
 
-  d.setFreshnessPeriod(time::seconds(100)); // invalidates FullName
+  d.setFreshnessPeriod(100_s); // invalidates FullName
   BOOST_CHECK_THROW(d.getFullName(), Data::Error);
 
   Data d1(Block(DATA1, sizeof(DATA1)));
@@ -258,8 +258,6 @@ BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(Equality)
 {
-  using namespace time;
-
   Data a;
   Data b;
   BOOST_CHECK_EQUAL(a == b, true);
@@ -277,11 +275,11 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  a.setFreshnessPeriod(seconds(10));
+  a.setFreshnessPeriod(10_s);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setFreshnessPeriod(seconds(10));
+  b.setFreshnessPeriod(10_s);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 

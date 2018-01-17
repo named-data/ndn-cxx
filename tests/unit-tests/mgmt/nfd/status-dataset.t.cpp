@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -110,12 +110,12 @@ BOOST_AUTO_TEST_SUITE(Failures)
 BOOST_AUTO_TEST_CASE(Timeout)
 {
   CommandOptions options;
-  options.setTimeout(time::milliseconds(3000));
+  options.setTimeout(3000_ms);
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback,
     options);
-  this->advanceClocks(time::milliseconds(500), 7);
+  this->advanceClocks(500_ms, 7);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_TIMEOUT);
@@ -126,10 +126,10 @@ BOOST_AUTO_TEST_CASE(DataHasNoSegment)
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   face.receive(*makeData("/localhost/nfd/faces/list/%FD%00"));
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_SERVER);
@@ -142,12 +142,12 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   FaceStatus payload;
   payload.setFaceId(5744);
   this->sendDataset("/localhost/nfd/faces/list", payload);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_VALIDATION);
@@ -158,11 +158,11 @@ BOOST_AUTO_TEST_CASE(Nack)
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   face.receive(lp::Nack(face.sentInterests.back()));
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_NACK);
@@ -173,11 +173,11 @@ BOOST_AUTO_TEST_CASE(ParseError1)
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   Name payload; // Name is not valid FaceStatus
   this->sendDataset("/localhost/nfd/faces/list", payload);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_SERVER);
@@ -188,13 +188,13 @@ BOOST_AUTO_TEST_CASE(ParseError2)
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   FaceStatus payload1;
   payload1.setFaceId(10930);
   Name payload2; // Name is not valid FaceStatus
   this->sendDataset("/localhost/nfd/faces/list", payload1, payload2);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_SERVER);
@@ -209,12 +209,12 @@ BOOST_AUTO_TEST_CASE(Success)
   controller.fetch<FaceDataset>(
     nullptr,
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   FaceStatus payload;
   payload.setFaceId(2577);
   this->sendDataset("/localhost/nfd/faces/list", payload);
-  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(500)));
+  BOOST_CHECK_NO_THROW(this->advanceClocks(500_ms));
 
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
 }
@@ -222,12 +222,12 @@ BOOST_AUTO_TEST_CASE(Success)
 BOOST_AUTO_TEST_CASE(Failure)
 {
   CommandOptions options;
-  options.setTimeout(time::milliseconds(3000));
+  options.setTimeout(3000_ms);
   controller.fetch<FaceDataset>(
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     nullptr,
     options);
-  BOOST_CHECK_NO_THROW(this->advanceClocks(time::milliseconds(500), 7));
+  BOOST_CHECK_NO_THROW(this->advanceClocks(500_ms, 7));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // NoCallback
@@ -243,12 +243,12 @@ BOOST_AUTO_TEST_CASE(StatusGeneral)
       BOOST_CHECK_EQUAL(result.getNfdVersion(), "0.4.2");
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   ForwarderStatus payload;
   payload.setNfdVersion("0.4.2");
   this->sendDataset("/localhost/nfd/status/general", payload);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -264,14 +264,14 @@ BOOST_AUTO_TEST_CASE(FaceList)
       BOOST_CHECK_EQUAL(result.front().getFaceId(), 24485);
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   FaceStatus payload1;
   payload1.setFaceId(24485);
   FaceStatus payload2;
   payload2.setFaceId(12987);
   this->sendDataset("/localhost/nfd/faces/list", payload1, payload2);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -290,14 +290,14 @@ BOOST_AUTO_TEST_CASE(FaceQuery)
       BOOST_CHECK_EQUAL(result.front().getFaceId(), 8795);
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   Name prefix("/localhost/nfd/faces/query");
   prefix.append(filter.wireEncode());
   FaceStatus payload;
   payload.setFaceId(8795);
   this->sendDataset(prefix, payload);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(FaceQueryWithOptions)
   FaceQueryFilter filter;
   filter.setUriScheme("udp4");
   CommandOptions options;
-  options.setTimeout(time::milliseconds(3000));
+  options.setTimeout(3000_ms);
   bool hasResult = false;
   controller.fetch<FaceQueryDataset>(
     filter,
@@ -319,14 +319,14 @@ BOOST_AUTO_TEST_CASE(FaceQueryWithOptions)
     },
     datasetFailCallback,
     options);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   Name prefix("/localhost/nfd/faces/query");
   prefix.append(filter.wireEncode());
   FaceStatus payload;
   payload.setFaceId(14022);
   this->sendDataset(prefix, payload);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -342,14 +342,14 @@ BOOST_AUTO_TEST_CASE(FaceChannels)
       BOOST_CHECK_EQUAL(result.front().getLocalUri(), "tcp4://192.0.2.1:6363");
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   ChannelStatus payload1;
   payload1.setLocalUri("tcp4://192.0.2.1:6363");
   ChannelStatus payload2;
   payload2.setLocalUri("udp4://192.0.2.1:6363");
   this->sendDataset("/localhost/nfd/faces/channels", payload1, payload2);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -365,14 +365,14 @@ BOOST_AUTO_TEST_CASE(FibList)
       BOOST_CHECK_EQUAL(result.front().getPrefix(), "/wYs7fzYcfG");
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   FibEntry payload1;
   payload1.setPrefix("/wYs7fzYcfG");
   FibEntry payload2;
   payload2.setPrefix("/LKvmnzY5S");
   this->sendDataset("/localhost/nfd/fib/list", payload1, payload2);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -389,12 +389,12 @@ BOOST_AUTO_TEST_CASE(CsInfo)
       BOOST_CHECK_EQUAL(result.getNHits(), 4539);
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   CsInfo payload;
   payload.setNHits(4539);
   this->sendDataset("/localhost/nfd/cs/info", payload);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -410,14 +410,14 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceList)
       BOOST_CHECK_EQUAL(result.front().getName(), "/8MLz6N3B");
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   StrategyChoice payload1;
   payload1.setName("/8MLz6N3B");
   StrategyChoice payload2;
   payload2.setName("/svqcBu0YwU");
   this->sendDataset("/localhost/nfd/strategy-choice/list", payload1, payload2);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -433,14 +433,14 @@ BOOST_AUTO_TEST_CASE(RibList)
       BOOST_CHECK_EQUAL(result.front().getName(), "/zXxBth97ee");
     },
     datasetFailCallback);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   RibEntry payload1;
   payload1.setName("/zXxBth97ee");
   RibEntry payload2;
   payload2.setName("/rJ8CvUpr4G");
   this->sendDataset("/localhost/nfd/rib/list", payload1, payload2);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
@@ -459,12 +459,12 @@ BOOST_AUTO_TEST_CASE(RibListWithOptions)
     },
     datasetFailCallback,
     options);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   RibEntry payload;
   payload.setName("/e6L5K4ascd");
   this->sendDataset("/localhop/nfd/rib/list", payload);
-  this->advanceClocks(time::milliseconds(500));
+  this->advanceClocks(500_ms);
 
   BOOST_CHECK(hasResult);
   BOOST_CHECK_EQUAL(failCodes.size(), 0);

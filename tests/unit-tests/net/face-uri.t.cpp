@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California,
+ * Copyright (c) 2013-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -49,7 +49,7 @@ protected:
     FaceUri uri(request);
     uri.canonize(bind(&CanonizeFixture::onCanonizeSuccess, this, tc, _1),
                  bind(&CanonizeFixture::onCanonizeFailure, this, tc, _1),
-                 m_io, time::seconds(10));
+                 m_io, 10_s);
   }
 
   void
@@ -575,22 +575,22 @@ BOOST_AUTO_TEST_CASE(CanonizeEmptyCallback)
   // unsupported scheme
   FaceUri("null://").canonize(FaceUri::CanonizeSuccessCallback(),
                               FaceUri::CanonizeFailureCallback(),
-                              io, time::milliseconds(1));
+                              io, 1_ms);
 
   // cannot resolve
   FaceUri("udp://192.0.2.333").canonize(FaceUri::CanonizeSuccessCallback(),
                                         FaceUri::CanonizeFailureCallback(),
-                                        io, time::milliseconds(1));
+                                        io, 1_ms);
 
   // already canonical
   FaceUri("udp4://192.0.2.1:6363").canonize(FaceUri::CanonizeSuccessCallback(),
                                             FaceUri::CanonizeFailureCallback(),
-                                            io, time::milliseconds(1));
+                                            io, 1_ms);
 
   // need DNS resolution
   FaceUri("udp://192.0.2.1:6363").canonize(FaceUri::CanonizeSuccessCallback(),
                                            FaceUri::CanonizeFailureCallback(),
-                                           io, time::milliseconds(1));
+                                           io, 1_ms);
 
   io.run(); // should not crash
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@ class CertificateCacheFixture : public ndn::tests::IdentityManagementTimeFixture
 {
 public:
   CertificateCacheFixture()
-    : certCache(time::seconds(10))
+    : certCache(10_s)
   {
     identity = addIdentity("/TestCertificateCache/");
     cert = identity.getDefaultKey().getDefaultCertificate();
@@ -57,16 +57,16 @@ BOOST_AUTO_TEST_CASE(RemovalTime)
   BOOST_CHECK_NO_THROW(certCache.insert(cert));
   BOOST_CHECK(certCache.find(cert.getName()) != nullptr);
 
-  advanceClocks(time::seconds(11), 1);
+  advanceClocks(11_s, 1);
   BOOST_CHECK(certCache.find(cert.getName()) == nullptr);
 
   BOOST_CHECK_NO_THROW(certCache.insert(cert));
   BOOST_CHECK(certCache.find(cert.getName()) != nullptr);
 
-  advanceClocks(time::seconds(5));
+  advanceClocks(5_s);
   BOOST_CHECK(certCache.find(cert.getName()) != nullptr);
 
-  advanceClocks(time::seconds(15));
+  advanceClocks(15_s);
   BOOST_CHECK(certCache.find(cert.getName()) == nullptr);
 }
 
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
   BOOST_CHECK(certCache.find(Interest(cert.getKeyName())) != nullptr);
   BOOST_CHECK(certCache.find(Interest(Name(cert.getName()).appendVersion())) == nullptr);
 
-  advanceClocks(time::seconds(12));
+  advanceClocks(12_s);
   BOOST_CHECK(certCache.find(Interest(cert.getIdentity())) == nullptr);
 
   Certificate cert3 = addCertificate(identity.getDefaultKey(), "3");

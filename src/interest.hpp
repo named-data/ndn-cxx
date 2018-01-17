@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@ class Data;
 /** @var const unspecified_duration_type DEFAULT_INTEREST_LIFETIME;
  *  @brief default value for InterestLifetime
  */
-const time::milliseconds DEFAULT_INTEREST_LIFETIME = time::milliseconds(4000);
+const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 
 /** @brief represents an Interest packet
  */

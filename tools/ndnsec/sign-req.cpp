@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -96,15 +96,15 @@ ndnsec_sign_req(int argc, char** argv)
 
   // set metainfo
   certificate.setContentType(tlv::ContentType_Key);
-  certificate.setFreshnessPeriod(time::hours(1));
+  certificate.setFreshnessPeriod(1_h);
 
   // set content
   certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
 
   // set signature-info
   SignatureInfo signatureInfo;
-  signatureInfo.setValidityPeriod(security::ValidityPeriod(time::system_clock::now(),
-                                                           time::system_clock::now() + time::days(10)));
+  auto now = time::system_clock::now();
+  signatureInfo.setValidityPeriod(security::ValidityPeriod(now, now + 10_days));
 
   keyChain.sign(certificate, security::SigningInfo(key).setSignatureInfo(signatureInfo));
 

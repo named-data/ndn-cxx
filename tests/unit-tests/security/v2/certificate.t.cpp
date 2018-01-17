@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(Setters)
 {
   Certificate certificate;
   certificate.setName("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
-  certificate.setFreshnessPeriod(time::seconds(3600));
+  certificate.setFreshnessPeriod(1_h);
   certificate.setContent(PUBLIC_KEY, sizeof(PUBLIC_KEY));
   certificate.setSignature(generateFakeSignature());
 
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriodChecking)
 {
   Certificate certificate;
   certificate.setName("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
-  certificate.setFreshnessPeriod(time::seconds(3600));
+  certificate.setFreshnessPeriod(1_h);
   certificate.setContent(PUBLIC_KEY, sizeof(PUBLIC_KEY));
   certificate.setSignature(generateFakeSignature());
 

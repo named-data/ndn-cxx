@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -241,11 +241,11 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
 
   switch (unit) {
     case 'h':
-      return time::duration_cast<time::nanoseconds>(time::hours(refreshPeriod));
+      return time::hours(refreshPeriod);
     case 'm':
-      return time::duration_cast<time::nanoseconds>(time::minutes(refreshPeriod));
+      return time::minutes(refreshPeriod);
     case 's':
-      return time::duration_cast<time::nanoseconds>(time::seconds(refreshPeriod));
+      return time::seconds(refreshPeriod);
     default:
       BOOST_THROW_EXCEPTION(Error(std::string("Wrong time unit: ") + unit));
   }
@@ -254,7 +254,7 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
 time::nanoseconds
 ValidationPolicyConfig::getDefaultRefreshPeriod()
 {
-  return time::duration_cast<time::nanoseconds>(time::seconds(3600));
+  return 1_h;
 }
 
 void

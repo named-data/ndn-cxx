@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,13 +48,13 @@ makeRibEntry()
   return RibEntry()
       .setName("/hello/world")
       .addRoute(makeRoute()
-                .setExpirationPeriod(time::seconds(10)));
+                .setExpirationPeriod(10_s));
 }
 
 BOOST_AUTO_TEST_CASE(RouteEncode)
 {
   Route route1 = makeRoute();
-  route1.setExpirationPeriod(time::seconds(10));
+  route1.setExpirationPeriod(10_s);
   const Block& wire = route1.wireEncode();
 
   static const uint8_t expected[] = {
@@ -89,15 +89,15 @@ BOOST_AUTO_TEST_CASE(RouteExpirationPeriod)
   BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), false);
   BOOST_CHECK_EQUAL(route.getExpirationPeriod(), time::milliseconds::max());
 
-  route.setExpirationPeriod(time::minutes(1));
+  route.setExpirationPeriod(1_min);
   BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), true);
-  BOOST_CHECK_EQUAL(route.getExpirationPeriod(), time::minutes(1));
+  BOOST_CHECK_EQUAL(route.getExpirationPeriod(), 1_min);
 
   route.setExpirationPeriod(time::milliseconds::max());
   BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), false);
   BOOST_CHECK_EQUAL(route.getExpirationPeriod(), time::milliseconds::max());
 
-  route.setExpirationPeriod(time::minutes(1));
+  route.setExpirationPeriod(1_min);
   BOOST_CHECK_EQUAL(route.hasExpirationPeriod(), true);
 
   route.unsetExpirationPeriod();
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(RouteEquality)
   BOOST_CHECK_NE(route1, route2);
 
   route2 = route1;
-  route2.setExpirationPeriod(time::minutes(1));
+  route2.setExpirationPeriod(1_min);
   BOOST_CHECK_NE(route1, route2);
 }
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(RibEntryEncode)
                   .setOrigin(ROUTE_ORIGIN_APP)
                   .setCost(32)
                   .setFlags(ROUTE_FLAG_CHILD_INHERIT)
-                  .setExpirationPeriod(time::seconds(5)));
+                  .setExpirationPeriod(5_s));
   const Block& wire = entry1.wireEncode();
 
   static const uint8_t expected[] = {

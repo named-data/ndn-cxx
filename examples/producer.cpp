@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -64,8 +64,8 @@ private:
     // Create Data packet
     shared_ptr<Data> data = make_shared<Data>();
     data->setName(dataName);
-    data->setFreshnessPeriod(time::seconds(10));
-    data->setContent(reinterpret_cast<const uint8_t*>(content.c_str()), content.size());
+    data->setFreshnessPeriod(10_s); // 10 seconds
+    data->setContent(reinterpret_cast<const uint8_t*>(content.data()), content.size());
 
     // Sign Data packet with default identity
     m_keyChain.sign(*data);

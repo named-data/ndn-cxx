@@ -43,11 +43,11 @@ BOOST_AUTO_TEST_CASE(SystemClock)
   BOOST_CHECK_EQUAL(time::system_clock::now().time_since_epoch(),
                     time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
-  steadyClock->advance(time::days(1));
+  steadyClock->advance(1_day);
   BOOST_CHECK_EQUAL(time::system_clock::now().time_since_epoch(),
                     time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
-  systemClock->advance(time::days(1));
+  systemClock->advance(1_day);
   BOOST_CHECK_GT(time::system_clock::now().time_since_epoch(),
                  time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
@@ -77,16 +77,16 @@ BOOST_AUTO_TEST_CASE(SystemClock)
   BOOST_CHECK_EQUAL(time::fromIsoString("20140129T034247.032000"), referenceTime);
   BOOST_CHECK_EQUAL(time::fromIsoString("20140129T034247.032000Z"), referenceTime);
   BOOST_CHECK_EQUAL(time::fromString("2014-01-29 03:42:47"),
-                    time::fromUnixTimestamp(time::seconds(1390966967)));
+                    time::fromUnixTimestamp(1390966967_s));
 
   // Unfortunately, not all systems has lv_LV locale installed :(
   // BOOST_CHECK_EQUAL(time::fromString("2014. gada 29. Janvāris", "%Y. gada %d. %B",
   //                                    std::locale("lv_LV.UTF-8")),
-  //                   time::fromUnixTimestamp(time::seconds(1390953600)));
+  //                   time::fromUnixTimestamp(1390953600_s));
 
   BOOST_CHECK_EQUAL(time::fromString("2014 -- 29 -- January", "%Y -- %d -- %B",
                                      std::locale("C")),
-                    time::fromUnixTimestamp(time::seconds(1390953600)));
+                    time::fromUnixTimestamp(1390953600_s));
 }
 
 BOOST_AUTO_TEST_CASE(SteadyClock)
@@ -98,18 +98,18 @@ BOOST_AUTO_TEST_CASE(SteadyClock)
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(),
                     time::steady_clock::duration::zero());
 
-  systemClock->advance(time::days(36500));
+  systemClock->advance(36500_days);
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(),
                     time::steady_clock::duration::zero());
 
-  steadyClock->advance(time::nanoseconds(100));
-  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), time::nanoseconds(100));
+  steadyClock->advance(100_ns);
+  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), 100_ns);
 
-  steadyClock->advance(time::microseconds(100));
-  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), time::nanoseconds(100100));
+  steadyClock->advance(100_us);
+  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), 100100_ns);
 
-  steadyClock->setNow(time::milliseconds(1));
-  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), time::nanoseconds(1000000));
+  steadyClock->setNow(1_ms);
+  BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), 1000000_ns);
 
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(time::steady_clock::now()),
                     "1000000 nanoseconds since unit test beginning");
@@ -120,12 +120,12 @@ BOOST_AUTO_TEST_CASE(Scheduler)
   ndn::Scheduler scheduler(io);
 
   bool hasFired = false;
-  scheduler.scheduleEvent(time::seconds(100), [&] { hasFired = true; });
+  scheduler.scheduleEvent(100_s, [&] { hasFired = true; });
 
   io.poll();
   BOOST_CHECK_EQUAL(hasFired, false);
 
-  steadyClock->advance(time::seconds(100));
+  steadyClock->advance(100_s);
 
   io.poll();
   BOOST_CHECK_EQUAL(hasFired, true);

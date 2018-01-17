@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2014-2017 Regents of the University of California,
+/*
+ * Copyright (c) 2014-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -157,7 +157,7 @@ public:
    *        User should add one or more handlers to onNotification, and invoke .start().
    */
   NotificationSubscriber(Face& face, const Name& prefix,
-                         time::milliseconds interestLifetime = time::seconds(60))
+                         time::milliseconds interestLifetime = 1_min)
     : NotificationSubscriberBase(face, prefix, interestLifetime)
   {
   }

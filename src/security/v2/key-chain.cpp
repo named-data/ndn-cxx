@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -549,7 +549,7 @@ KeyChain::selfSign(Key& key)
 
   // set metainfo
   certificate.setContentType(tlv::ContentType_Key);
-  certificate.setFreshnessPeriod(time::hours(1));
+  certificate.setFreshnessPeriod(1_h);
 
   // set content
   certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
@@ -559,7 +559,7 @@ KeyChain::selfSign(Key& key)
   // Note time::system_clock::max() or other NotAfter date results in incorrect encoded value
   // because of overflow during conversion to boost::posix_time::ptime (bug #3915).
   signatureInfo.setValidityPeriod(ValidityPeriod(time::system_clock::TimePoint(),
-                                                 time::system_clock::now() + time::days(20 * 365)));
+                                                 time::system_clock::now() + 20 * 365_days));
 
   sign(certificate, SigningInfo(key).setSignatureInfo(signatureInfo));
 

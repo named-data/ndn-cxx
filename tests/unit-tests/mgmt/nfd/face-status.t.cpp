@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,7 +42,7 @@ makeFaceStatus()
       .setFaceScope(FACE_SCOPE_LOCAL)
       .setFacePersistency(FACE_PERSISTENCY_ON_DEMAND)
       .setLinkType(LINK_TYPE_MULTI_ACCESS)
-      .setExpirationPeriod(time::seconds(10))
+      .setExpirationPeriod(10_s)
       .setNInInterests(10)
       .setNInData(200)
       .setNInNacks(1)
@@ -135,9 +135,9 @@ BOOST_AUTO_TEST_CASE(ExpirationPeriod)
   FaceStatus status;
   BOOST_CHECK_EQUAL(status.hasExpirationPeriod(), false);
 
-  status.setExpirationPeriod(time::minutes(1));
+  status.setExpirationPeriod(1_min);
   BOOST_REQUIRE_EQUAL(status.hasExpirationPeriod(), true);
-  BOOST_CHECK_EQUAL(status.getExpirationPeriod(), time::minutes(1));
+  BOOST_CHECK_EQUAL(status.getExpirationPeriod(), 1_min);
 
   status.unsetExpirationPeriod();
   BOOST_CHECK_EQUAL(status.hasExpirationPeriod(), false);

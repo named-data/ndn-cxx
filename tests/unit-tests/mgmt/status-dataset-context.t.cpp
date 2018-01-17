@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,7 +54,7 @@ protected:
               [this] (const ControlResponse& resp) {
                 sendNackHistory.push_back(resp);
               })
-    , defaultImsFresh(time::milliseconds(1000))
+    , defaultImsFresh(1000_ms)
   {
   }
 
@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_SUITE(Expiry)
 
 BOOST_AUTO_TEST_CASE(GetAndSet)
 {
-  auto period = time::milliseconds(9527);
-  BOOST_CHECK_EQUAL(context.getExpiry(), time::milliseconds(1000));
+  auto period = 9527_ms;
+  BOOST_CHECK_EQUAL(context.getExpiry(), 1000_ms);
   BOOST_CHECK_EQUAL(context.setExpiry(period).getExpiry(), period);
 }
 

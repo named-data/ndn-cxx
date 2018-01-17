@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,7 +39,7 @@ public:
   run()
   {
     Interest interest(Name("/example/testApp/randomData"));
-    interest.setInterestLifetime(time::milliseconds(1000));
+    interest.setInterestLifetime(2_s); // 2 seconds
     interest.setMustBeFresh(true);
 
     m_face.expressInterest(interest,

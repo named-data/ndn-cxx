@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -156,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE(Overwrite, OverwriteFixture)
   auto otherCert = id1Key1Cert1;
   SignatureInfo info;
   info.setValidityPeriod(ValidityPeriod(time::system_clock::now(),
-                                        time::system_clock::now() + time::seconds(1)));
+                                        time::system_clock::now() + 1_s));
   m_keyChain.sign(otherCert, SigningInfo().setSignatureInfo(info));
 
   BOOST_CHECK_EQUAL(otherCert.getName(), id1Key1Cert1.getName());

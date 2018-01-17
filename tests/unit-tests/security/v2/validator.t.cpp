@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -104,8 +104,8 @@ BOOST_AUTO_TEST_CASE(ExpiredCert)
 {
   Data expiredCert = subIdentity.getDefaultKey().getDefaultCertificate();
   SignatureInfo info;
-  info.setValidityPeriod(ValidityPeriod(time::system_clock::now() - time::hours(2),
-                                        time::system_clock::now() - time::hours(1)));
+  info.setValidityPeriod(ValidityPeriod(time::system_clock::now() - 2_h,
+                                        time::system_clock::now() - 1_h));
   m_keyChain.sign(expiredCert, signingByIdentity(identity).setSignatureInfo(info));
   BOOST_REQUIRE_NO_THROW(Certificate(expiredCert.wireEncode()));
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(TrustedCertCaching)
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
   face.sentInterests.clear();
 
-  advanceClocks(time::hours(1), 2); // expire trusted cache
+  advanceClocks(1_h, 2); // expire trusted cache
 
   VALIDATE_FAILURE(data, "Should try and fail to retrieve certs");
   BOOST_CHECK_GT(face.sentInterests.size(), 1);
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(UntrustedCertCaching)
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
   face.sentInterests.clear();
 
-  advanceClocks(time::minutes(10), 2); // expire untrusted cache
+  advanceClocks(10_min, 2); // expire untrusted cache
 
   VALIDATE_FAILURE(data, "Should try and fail to retrieve certs");
   BOOST_CHECK_GT(face.sentInterests.size(), 1);
@@ -246,7 +246,7 @@ BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
   face.sentInterests.clear();
 
-  advanceClocks(time::hours(1), 2); // expire trusted cache
+  advanceClocks(1_h, 2); // expire trusted cache
 
   m_keyChain.sign(interest, signingByIdentity(subSelfSignedIdentity));
   m_keyChain.sign(data, signingByIdentity(subSelfSignedIdentity));
@@ -272,15 +272,15 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
 
     // set metainfo
     certificate.setContentType(tlv::ContentType_Key);
-    certificate.setFreshnessPeriod(time::hours(1));
+    certificate.setFreshnessPeriod(1_h);
 
     // set content
     certificate.setContent(requestedKey.getPublicKey().data(), requestedKey.getPublicKey().size());
 
     // set signature-info
     SignatureInfo info;
-    info.setValidityPeriod(security::ValidityPeriod(time::system_clock::now() - time::days(10),
-                                                    time::system_clock::now() + time::days(10)));
+    info.setValidityPeriod(security::ValidityPeriod(time::system_clock::now() - 10_days,
+                                                    time::system_clock::now() + 10_days));
 
     m_keyChain.sign(certificate, signingByKey(parentKey).setSignatureInfo(info));
     face.receive(certificate);
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 40);
   face.sentInterests.clear();
 
-  advanceClocks(time::hours(1), 5); // expire caches
+  advanceClocks(1_h, 5); // expire caches
 
   validator.setMaxDepth(30);
   BOOST_CHECK_EQUAL(validator.getMaxDepth(), 30);
@@ -315,8 +315,8 @@ BOOST_AUTO_TEST_CASE(LoopedCertChain)
     request.setName(Name(key.getName()).append("looper").appendVersion());
 
     SignatureInfo info;
-    info.setValidityPeriod({time::system_clock::now() - time::days(100),
-                            time::system_clock::now() + time::days(100)});
+    info.setValidityPeriod({time::system_clock::now() - 100_days,
+                            time::system_clock::now() + 100_days});
     m_keyChain.sign(request, signingByKey(signer).setSignatureInfo(info));
     m_keyChain.addCertificate(key, request);
 

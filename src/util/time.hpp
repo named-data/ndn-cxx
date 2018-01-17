@@ -53,6 +53,114 @@ abs(duration<Rep, Period> d)
   return d >= d.zero() ? d : -d;
 }
 
+} // namespace time
+
+inline namespace literals {
+inline namespace time_literals {
+
+constexpr time::days
+operator "" _day(unsigned long long days)
+{
+  return time::days{days};
+}
+
+constexpr time::duration<long double, time::days::period>
+operator "" _day(long double days)
+{
+  return time::duration<long double, time::days::period>{days};
+}
+
+constexpr time::days
+operator "" _days(unsigned long long days)
+{
+  return time::days{days};
+}
+
+constexpr time::duration<long double, time::days::period>
+operator "" _days(long double days)
+{
+  return time::duration<long double, time::days::period>{days};
+}
+
+constexpr time::hours
+operator "" _h(unsigned long long hrs)
+{
+  return time::hours{hrs};
+}
+
+constexpr time::duration<long double, time::hours::period>
+operator "" _h(long double hrs)
+{
+  return time::duration<long double, time::hours::period>{hrs};
+}
+
+constexpr time::minutes
+operator "" _min(unsigned long long mins)
+{
+  return time::minutes{mins};
+}
+
+constexpr time::duration<long double, time::minutes::period>
+operator "" _min(long double mins)
+{
+  return time::duration<long double, time::minutes::period>{mins};
+}
+
+constexpr time::seconds
+operator "" _s(unsigned long long secs)
+{
+  return time::seconds{secs};
+}
+
+constexpr time::duration<long double, time::seconds::period>
+operator "" _s(long double secs)
+{
+  return time::duration<long double, time::seconds::period>{secs};
+}
+
+constexpr time::milliseconds
+operator "" _ms(unsigned long long msecs)
+{
+  return time::milliseconds{msecs};
+}
+
+constexpr time::duration<long double, time::milliseconds::period>
+operator "" _ms(long double msecs)
+{
+  return time::duration<long double, time::milliseconds::period>{msecs};
+}
+
+constexpr time::microseconds
+operator "" _us(unsigned long long usecs)
+{
+  return time::microseconds{usecs};
+}
+
+constexpr time::duration<long double, time::microseconds::period>
+operator "" _us(long double usecs)
+{
+  return time::duration<long double, time::microseconds::period>{usecs};
+}
+
+constexpr time::nanoseconds
+operator "" _ns(unsigned long long nsecs)
+{
+  return time::nanoseconds{nsecs};
+}
+
+constexpr time::duration<long double, time::nanoseconds::period>
+operator "" _ns(long double nsecs)
+{
+  return time::duration<long double, time::nanoseconds::period>{nsecs};
+}
+
+} // inline namespace time_literals
+} // inline namespace literals
+
+namespace time {
+
+using namespace literals::time_literals;
+
 /**
  * \brief System clock
  *

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -158,49 +158,49 @@ BOOST_AUTO_TEST_CASE(AddRemoveTopPrefix)
                                        bind([&nCallbackCalled] { ++nCallbackCalled["test/2"]; }));
 
   face.receive(*makeInterest("/root/1/test/1/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 0);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 0);
 
   dispatcher.addTopPrefix("/root/1");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   face.receive(*makeInterest("/root/1/test/1/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 0);
 
   face.receive(*makeInterest("/root/1/test/2/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 1);
 
   face.receive(*makeInterest("/root/2/test/1/%80%00"));
   face.receive(*makeInterest("/root/2/test/2/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 1);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/2"], 1);
 
   dispatcher.addTopPrefix("/root/2");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   face.receive(*makeInterest("/root/1/test/1/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 2);
 
   face.receive(*makeInterest("/root/2/test/1/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 3);
 
   dispatcher.removeTopPrefix("/root/1");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   face.receive(*makeInterest("/root/1/test/1/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 3);
 
   face.receive(*makeInterest("/root/2/test/1/%80%00"));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled["test/1"], 4);
 }
 
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(ControlCommand)
                                        bind([&nCallbackCalled] { ++nCallbackCalled; }));
 
   dispatcher.addTopPrefix("/root");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   face.sentData.clear();
 
   face.receive(*makeInterest("/root/test/%80%00")); // returns 403
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(ControlCommand)
   face.receive(*makeInterest("/root/test/%80%00/silent")); // silently ignored
   face.receive(*makeInterest("/root/test/.../invalid")); // silently ignored (wrong format)
   face.receive(*makeInterest("/root/test/.../valid"));  // silently ignored (wrong format)
-  advanceClocks(time::milliseconds(1), 20);
+  advanceClocks(1_ms, 20);
   BOOST_CHECK_EQUAL(nCallbackCalled, 0);
   BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(ControlCommand)
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[1].getContent().blockFromValue()).getCode(), 403);
 
   face.receive(*makeInterest("/root/test/%80%00/valid"));
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(1_ms, 10);
   BOOST_CHECK_EQUAL(nCallbackCalled, 1);
 }
 
@@ -290,15 +290,15 @@ BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization) // Bug 4059
                                            bind([&nCallbackCalled] { ++nCallbackCalled; }));
 
   dispatcher.addTopPrefix("/root");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   face.receive(*makeInterest("/root/test/%80%00"));
   BOOST_CHECK_EQUAL(nCallbackCalled, 0);
   BOOST_REQUIRE(authorizationAccept != nullptr);
 
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   authorizationAccept("");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(nCallbackCalled, 1);
 }
 
@@ -345,13 +345,13 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
                               });
 
   dispatcher.addTopPrefix("/root");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   face.sentData.clear();
 
   face.receive(*makeInterest("/root/test/small/%80%00")); // returns 403
   face.receive(*makeInterest("/root/test/small/%80%00/invalid")); // returns 403
   face.receive(*makeInterest("/root/test/small/%80%00/silent")); // silently ignored
-  advanceClocks(time::milliseconds(1), 20);
+  advanceClocks(1_ms, 20);
   BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
   BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Blob);
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   auto interestSmall = *makeInterest("/root/test/small/valid");
   face.receive(interestSmall);
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(1_ms, 10);
 
   // one data packet is generated and sent to both places
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   face.receive(*makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
   face.receive(*makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(1_ms, 10);
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK_EQUAL(storage.size(), 1);
 
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   storage.erase("/", true); // clear the storage
   face.sentData.clear();
   face.receive(*makeInterest("/root/test/large/valid"));
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(1_ms, 10);
 
   // two data packets are generated, the first one will be sent to both places
   // while the second one will only be inserted into the in-memory storage
@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   storage.erase("/", true);// clear the storage
   face.sentData.clear();
   face.receive(*makeInterest("/root/test/reject/%80%00/valid")); // returns nack
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Nack);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 400);
@@ -443,22 +443,22 @@ BOOST_AUTO_TEST_CASE(NotificationStream)
   auto post = dispatcher.addNotificationStream("test");
 
   post(block);
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 
   dispatcher.addTopPrefix("/root");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   face.sentData.clear();
 
   post(block);
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK_EQUAL(storage.size(), 1);
 
   post(block);
   post(block);
   post(block);
-  advanceClocks(time::milliseconds(1), 10);
+  advanceClocks(1_ms, 10);
 
   BOOST_CHECK_EQUAL(face.sentData.size(), 4);
   BOOST_CHECK_EQUAL(face.sentData[0].getName(), "/root/test/%FE%00");

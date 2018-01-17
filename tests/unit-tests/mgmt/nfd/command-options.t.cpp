@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,15 +37,15 @@ BOOST_AUTO_TEST_CASE(Timeout)
   CommandOptions co;
   BOOST_CHECK_EQUAL(co.getTimeout(), CommandOptions::DEFAULT_TIMEOUT);
 
-  co.setTimeout(time::milliseconds(7414));
-  BOOST_CHECK_EQUAL(co.getTimeout(), time::milliseconds(7414));
+  co.setTimeout(7414_ms);
+  BOOST_CHECK_EQUAL(co.getTimeout(), 7414_ms);
 
   BOOST_CHECK_THROW(co.setTimeout(time::milliseconds::zero()), std::out_of_range);
   BOOST_CHECK_THROW(co.setTimeout(time::milliseconds(-1)), std::out_of_range);
-  BOOST_CHECK_EQUAL(co.getTimeout(), time::milliseconds(7414)); // unchanged after throw
+  BOOST_CHECK_EQUAL(co.getTimeout(), 7414_ms); // unchanged after throw
 
-  co.setTimeout(time::milliseconds(1));
-  BOOST_CHECK_EQUAL(co.getTimeout(), time::milliseconds(1));
+  co.setTimeout(1_ms);
+  BOOST_CHECK_EQUAL(co.getTimeout(), 1_ms);
 }
 
 BOOST_AUTO_TEST_CASE(Prefix)

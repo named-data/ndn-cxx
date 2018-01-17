@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriodExtension)
   };
 
   time::system_clock::TimePoint notBefore = time::getUnixEpoch();
-  time::system_clock::TimePoint notAfter = notBefore + time::days(1);
+  time::system_clock::TimePoint notAfter = notBefore + 1_day;
   security::ValidityPeriod vp1(notBefore, notAfter);
 
   // encode

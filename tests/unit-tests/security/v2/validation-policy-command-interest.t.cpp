@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   auto i1 = makeCommandInterest(identity);
   VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
 
-  advanceClocks(time::milliseconds(5));
+  advanceClocks(5_ms);
   auto i2 = makeCommandInterest(identity);
   VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
 }
@@ -173,7 +173,7 @@ public:
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = time::seconds(15);
+    options.gracePeriod = 15_s;
     return options;
   }
 };
@@ -181,7 +181,7 @@ public:
 BOOST_FIXTURE_TEST_CASE(TimestampOutOfGracePositive, ValidationPolicyCommandInterestFixture<GracePeriod15Sec>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
-  advanceClocks(time::seconds(16)); // verifying at +16s
+  advanceClocks(16_s); // verifying at +16s
   VALIDATE_FAILURE(i1, "Should fail (timestamp outside the grace period)");
   rewindClockAfterValidation();
 
@@ -192,12 +192,12 @@ BOOST_FIXTURE_TEST_CASE(TimestampOutOfGracePositive, ValidationPolicyCommandInte
 BOOST_FIXTURE_TEST_CASE(TimestampOutOfGraceNegative, ValidationPolicyCommandInterestFixture<GracePeriod15Sec>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
-  advanceClocks(time::seconds(1));
+  advanceClocks(1_s);
   auto i2 = makeCommandInterest(identity); // signed at +1s
-  advanceClocks(time::seconds(1));
+  advanceClocks(1_s);
   auto i3 = makeCommandInterest(identity); // signed at +2s
 
-  systemClock->advance(time::seconds(-18)); // verifying at -16s
+  systemClock->advance(-18_s); // verifying at -16s
   VALIDATE_FAILURE(i1, "Should fail (timestamp outside the grace period)");
   rewindClockAfterValidation();
 
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(TimestampOutOfGraceNegative, ValidationPolicyCommandInte
   rewindClockAfterValidation();
 
   // CommandInterestValidator should not remember i2's timestamp, and should treat i3 as initial
-  advanceClocks(time::seconds(18)); // verifying at +2s
+  advanceClocks(18_s); // verifying at +2s
   VALIDATE_SUCCESS(i3, "Should succeed");
 }
 
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(TimestampReorderEqual)
                    i1.getName()[command_interest::POS_TIMESTAMP]);
   VALIDATE_FAILURE(i2, "Should fail (timestamp reordered)");
 
-  advanceClocks(time::seconds(2));
+  advanceClocks(2_s);
   auto i3 = makeCommandInterest(identity); // signed at +2s
   VALIDATE_SUCCESS(i3, "Should succeed");
 }
@@ -228,27 +228,27 @@ BOOST_AUTO_TEST_CASE(TimestampReorderEqual)
 BOOST_AUTO_TEST_CASE(TimestampReorderNegative)
 {
   auto i2 = makeCommandInterest(identity); // signed at 0ms
-  advanceClocks(time::milliseconds(200));
+  advanceClocks(200_ms);
   auto i3 = makeCommandInterest(identity); // signed at +200ms
-  advanceClocks(time::milliseconds(900));
+  advanceClocks(900_ms);
   auto i1 = makeCommandInterest(identity); // signed at +1100ms
-  advanceClocks(time::milliseconds(300));
+  advanceClocks(300_ms);
   auto i4 = makeCommandInterest(identity); // signed at +1400ms
 
-  systemClock->advance(time::milliseconds(-300)); // verifying at +1100ms
+  systemClock->advance(-300_ms); // verifying at +1100ms
   VALIDATE_SUCCESS(i1, "Should succeed");
   rewindClockAfterValidation();
 
-  systemClock->advance(time::milliseconds(-1100)); // verifying at 0ms
+  systemClock->advance(-1100_ms); // verifying at 0ms
   VALIDATE_FAILURE(i2, "Should fail (timestamp reordered)");
   rewindClockAfterValidation();
 
   // CommandInterestValidator should not remember i2's timestamp
-  advanceClocks(time::milliseconds(200)); // verifying at +200ms
+  advanceClocks(200_ms); // verifying at +200ms
   VALIDATE_FAILURE(i3, "Should fail (timestamp reordered)");
   rewindClockAfterValidation();
 
-  advanceClocks(time::milliseconds(1200)); // verifying at 1400ms
+  advanceClocks(1200_ms); // verifying at 1400ms
   VALIDATE_SUCCESS(i4, "Should succeed");
 }
 
@@ -287,7 +287,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, GraceNonPositive
   VALIDATE_SUCCESS(i1, "Should succeed when validating at 0ms");
   this->rewindClockAfterValidation();
 
-  this->advanceClocks(time::milliseconds(1));
+  this->advanceClocks(1_ms);
   VALIDATE_FAILURE(i2, "Should fail when validating at 1ms");
 }
 
@@ -298,7 +298,7 @@ public:
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = time::seconds(15);
+    options.gracePeriod = 15_s;
     options.maxRecords = 3;
     return options;
   }
@@ -319,9 +319,9 @@ BOOST_FIXTURE_TEST_CASE(LimitedRecords, ValidationPolicyCommandInterestFixture<L
   auto i2 = makeCommandInterest(id3);
   auto i3 = makeCommandInterest(id4);
   auto i00 = makeCommandInterest(id1); // signed at 0s
-  advanceClocks(time::seconds(1));
+  advanceClocks(1_s);
   auto i01 = makeCommandInterest(id1); // signed at 1s
-  advanceClocks(time::seconds(1));
+  advanceClocks(1_s);
   auto i02 = makeCommandInterest(id1); // signed at 2s
 
   VALIDATE_SUCCESS(i00, "Should succeed");
@@ -349,7 +349,7 @@ public:
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = time::seconds(15);
+    options.gracePeriod = 15_s;
     options.maxRecords = -1;
     return options;
   }
@@ -365,7 +365,7 @@ BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicyCommandInterestFixture
   }
 
   auto i1 = makeCommandInterest(identities.at(0)); // signed at 0s
-  advanceClocks(time::seconds(1));
+  advanceClocks(1_s);
   for (int i = 0; i < 20; ++i) {
     auto i2 = makeCommandInterest(identities.at(i)); // signed at +1s
 
@@ -382,7 +382,7 @@ public:
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = time::seconds(15);
+    options.gracePeriod = 15_s;
     options.maxRecords = 0;
     return options;
   }
@@ -391,7 +391,7 @@ public:
 BOOST_FIXTURE_TEST_CASE(ZeroRecords, ValidationPolicyCommandInterestFixture<ZeroRecordsOptions>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
-  advanceClocks(time::seconds(1));
+  advanceClocks(1_s);
   auto i2 = makeCommandInterest(identity); // signed at +1s
   VALIDATE_SUCCESS(i2, "Should succeed");
   rewindClockAfterValidation();
@@ -406,8 +406,8 @@ public:
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = time::seconds(400);
-    options.recordLifetime = time::seconds(300);
+    options.gracePeriod = 400_s;
+    options.recordLifetime = 300_s;
     return options;
   }
 };
@@ -415,19 +415,19 @@ public:
 BOOST_FIXTURE_TEST_CASE(LimitedRecordLifetime, ValidationPolicyCommandInterestFixture<LimitedRecordLifetimeOptions>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
-  advanceClocks(time::seconds(240));
+  advanceClocks(240_s);
   auto i2 = makeCommandInterest(identity); // signed at +240s
-  advanceClocks(time::seconds(120));
+  advanceClocks(120_s);
   auto i3 = makeCommandInterest(identity); // signed at +360s
 
-  systemClock->advance(time::seconds(-360)); // rewind system clock to 0s
+  systemClock->advance(-360_s); // rewind system clock to 0s
   VALIDATE_SUCCESS(i1, "Should succeed");
   rewindClockAfterValidation();
 
   VALIDATE_SUCCESS(i3, "Should succeed");
   rewindClockAfterValidation();
 
-  advanceClocks(time::seconds(30), time::seconds(301)); // advance steady clock by 301s, and system clock to +301s
+  advanceClocks(30_s, 301_s); // advance steady clock by 301s, and system clock to +301s
   VALIDATE_SUCCESS(i2, "Should succeed despite timestamp is reordered, because record has been expired");
 }
 
@@ -438,7 +438,7 @@ public:
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = time::seconds(15);
+    options.gracePeriod = 15_s;
     options.recordLifetime = time::seconds::zero();
     return options;
   }
@@ -447,7 +447,7 @@ public:
 BOOST_FIXTURE_TEST_CASE(ZeroRecordLifetime, ValidationPolicyCommandInterestFixture<ZeroRecordLifetimeOptions>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
-  advanceClocks(time::seconds(1));
+  advanceClocks(1_s);
   auto i2 = makeCommandInterest(identity); // signed at +1s
   VALIDATE_SUCCESS(i2, "Should succeed");
   rewindClockAfterValidation();

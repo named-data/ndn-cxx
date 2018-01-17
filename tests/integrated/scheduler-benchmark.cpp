@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(ScheduleCancel)
 
   auto d1 = timedExecute([&] {
     for (size_t i = 0; i < nEvents; ++i) {
-      eventIds[i] = sched.scheduleEvent(time::seconds(1), []{});
+      eventIds[i] = sched.scheduleEvent(1_s, []{});
     }
   });
 
@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE(Execute)
   size_t nExpired = 0;
 
   // Events should expire at t1, but execution finishes at t2. The difference is the overhead.
-  time::steady_clock::TimePoint t1 = time::steady_clock::now() + time::seconds(5);
+  time::steady_clock::TimePoint t1 = time::steady_clock::now() + 5_s;
   time::steady_clock::TimePoint t2;
   // +1ms ensures this extra event is executed last. In case the overhead is less than 1ms,
   // it will be reported as 1ms.
-  sched.scheduleEvent(t1 - time::steady_clock::now() + time::milliseconds(1), [&] {
+  sched.scheduleEvent(t1 - time::steady_clock::now() + 1_ms, [&] {
     t2 = time::steady_clock::now();
     BOOST_REQUIRE_EQUAL(nExpired, nEvents);
   });

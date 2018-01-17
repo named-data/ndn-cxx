@@ -93,7 +93,7 @@ namespace util {
  *     }
  *
  *     ...
- *     SegmentFetcher::fetch(face, Interest("/data/prefix", time::seconds(1000)),
+ *     SegmentFetcher::fetch(face, Interest("/data/prefix", 30_s),
  *                           validator,
  *                           bind(&afterFetchComplete, this, _1),
  *                           bind(&afterFetchError, this, _1, _2));

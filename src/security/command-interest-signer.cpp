@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@ CommandInterestPreparer::prepareCommandInterestName(Name name)
 {
   time::milliseconds timestamp = time::toUnixTimestamp(time::system_clock::now());
   if (timestamp <= m_lastUsedTimestamp) {
-    timestamp = m_lastUsedTimestamp + time::milliseconds(1);
+    timestamp = m_lastUsedTimestamp + 1_ms;
   }
   m_lastUsedTimestamp = timestamp;
 

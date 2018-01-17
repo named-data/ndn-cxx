@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -110,7 +110,7 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccess, CertificateFetcherFromNetworkFixture<Ce
   BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 2);
   this->face.sentInterests.clear();
 
-  this->advanceClocks(time::hours(1), 2); // expire validator caches
+  this->advanceClocks(1_h, 2); // expire validator caches
 
   VALIDATE_SUCCESS(this->interest, "Should get accepted, as interests bring certs");
   BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 2);
@@ -122,7 +122,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailure, T, Failures, CertificateFetche
   BOOST_CHECK_GT(this->face.sentInterests.size(), 2);
   this->face.sentInterests.clear();
 
-  this->advanceClocks(time::hours(1), 2); // expire validator caches
+  this->advanceClocks(1_h, 2); // expire validator caches
 
   VALIDATE_FAILURE(this->interest, "Should fail, as interests don't bring data");
   BOOST_CHECK_GT(this->face.sentInterests.size(), 2);

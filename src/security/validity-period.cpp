@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,7 +40,7 @@ static const size_t NOT_AFTER_OFFSET = 1;
 using boost::chrono::time_point_cast;
 
 ValidityPeriod::ValidityPeriod()
-  : ValidityPeriod(time::system_clock::TimePoint() + time::nanoseconds(1),
+  : ValidityPeriod(time::system_clock::TimePoint() + 1_ns,
                    time::system_clock::TimePoint())
 {
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(RibOptions)
             .setOrigin(ROUTE_ORIGIN_NLSR)
             .setCost(6)
             .setFlags(0x01)
-            .setExpirationPeriod(time::minutes(30));
+            .setExpirationPeriod(30_min);
 
   Block wire = parameters.wireEncode();
 
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(RibOptions)
   BOOST_CHECK_EQUAL(decoded.getOrigin(), ROUTE_ORIGIN_NLSR);
   BOOST_CHECK_EQUAL(decoded.getCost(), 6);
   BOOST_CHECK_EQUAL(decoded.getFlags(), 0x01);
-  BOOST_CHECK_EQUAL(decoded.getExpirationPeriod(), time::milliseconds(1800000));
+  BOOST_CHECK_EQUAL(decoded.getExpirationPeriod(), 1800000_ms);
 
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);

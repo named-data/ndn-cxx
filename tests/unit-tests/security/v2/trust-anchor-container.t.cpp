@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,10 +20,11 @@
  */
 
 #include "security/v2/trust-anchor-container.hpp"
+#include "util/io.hpp"
 
 #include "../../identity-management-time-fixture.hpp"
-#include "util/io.hpp"
 #include "boost-test.hpp"
+
 #include <boost/filesystem.hpp>
 
 namespace ndn {
@@ -97,21 +98,21 @@ BOOST_AUTO_TEST_CASE(Insert)
   BOOST_CHECK_NO_THROW(anchorContainer.insert("group1", Certificate(cert1)));
   BOOST_CHECK_EQUAL(cert, anchorContainer.find(cert1.getName())); // still the same instance of the certificate
   // cannot add dynamic group when static already exists
-  BOOST_CHECK_THROW(anchorContainer.insert("group1", certPath1.string(), time::seconds(1)), TrustAnchorContainer::Error);
+  BOOST_CHECK_THROW(anchorContainer.insert("group1", certPath1.string(), 1_s), TrustAnchorContainer::Error);
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group1").size(), 1);
   BOOST_CHECK_EQUAL(anchorContainer.size(), 1);
 
   // From file
-  anchorContainer.insert("group2", certPath2.string(), time::seconds(1));
+  anchorContainer.insert("group2", certPath2.string(), 1_s);
   BOOST_CHECK(anchorContainer.find(cert2.getName()) != nullptr);
   BOOST_CHECK(anchorContainer.find(identity2.getName()) != nullptr);
   BOOST_CHECK_THROW(anchorContainer.insert("group2", Certificate(cert2)), TrustAnchorContainer::Error);
-  BOOST_CHECK_THROW(anchorContainer.insert("group2", certPath2.string(), time::seconds(1)), TrustAnchorContainer::Error);
+  BOOST_CHECK_THROW(anchorContainer.insert("group2", certPath2.string(), 1_s), TrustAnchorContainer::Error);
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group2").size(), 1);
   BOOST_CHECK_EQUAL(anchorContainer.size(), 2);
 
   boost::filesystem::remove(certPath2);
-  advanceClocks(time::seconds(1), 11);
+  advanceClocks(1_s, 11);
 
   BOOST_CHECK(anchorContainer.find(identity2.getName()) == nullptr);
   BOOST_CHECK(anchorContainer.find(cert2.getName()) == nullptr);
@@ -133,7 +134,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 {
   boost::filesystem::remove(certPath2);
 
-  anchorContainer.insert("group", certDirPath.string(), time::seconds(1), true /* isDir */);
+  anchorContainer.insert("group", certDirPath.string(), 1_s, true /* isDir */);
 
   BOOST_CHECK(anchorContainer.find(identity1.getName()) != nullptr);
   BOOST_CHECK(anchorContainer.find(identity2.getName()) == nullptr);
@@ -141,7 +142,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 
   saveCertToFile(cert2, certPath2.string());
 
-  advanceClocks(time::milliseconds(100), 11);
+  advanceClocks(100_ms, 11);
 
   BOOST_CHECK(anchorContainer.find(identity1.getName()) != nullptr);
   BOOST_CHECK(anchorContainer.find(identity2.getName()) != nullptr);
@@ -149,7 +150,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 
   boost::filesystem::remove_all(certDirPath);
 
-  advanceClocks(time::milliseconds(100), 11);
+  advanceClocks(100_ms, 11);
 
   BOOST_CHECK(anchorContainer.find(identity1.getName()) == nullptr);
   BOOST_CHECK(anchorContainer.find(identity2.getName()) == nullptr);
@@ -158,7 +159,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 
 BOOST_FIXTURE_TEST_CASE(FindByInterest, AnchorContainerTestFixture)
 {
-  anchorContainer.insert("group1", certPath1.string(), time::seconds(1));
+  anchorContainer.insert("group1", certPath1.string(), 1_s);
   Interest interest(identity1.getName());
   BOOST_CHECK(anchorContainer.find(interest) != nullptr);
   Interest interest1(identity1.getName().getPrefix(-1));

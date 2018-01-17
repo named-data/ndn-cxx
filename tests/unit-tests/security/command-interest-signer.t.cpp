@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_NE(i2.getName().at(command_interest::POS_RANDOM_VAL),
                  i1.getName().at(command_interest::POS_RANDOM_VAL)); // this sometimes can fail
 
-  advanceClocks(time::seconds(100));
+  advanceClocks(100_s);
 
   i2 = signer.makeCommandInterest("/hello/world/!");
   BOOST_CHECK_GT(i2.getName().at(command_interest::POS_TIMESTAMP), i1.getName().at(command_interest::POS_TIMESTAMP));

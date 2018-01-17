@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -126,7 +126,7 @@ CertificateBundleFetcherFixture<Bundle>::makeResponse(const Interest& interest)
 
   shared_ptr<Data> certBundle = make_shared<Data>();
   certBundle->setName(bundleName);
-  certBundle->setFreshnessPeriod(time::seconds(100));
+  certBundle->setFreshnessPeriod(100_s);
   certBundle->setContent(certList);
   certBundle->setFinalBlockId(name::Component::fromSegment(1));
 
@@ -139,7 +139,7 @@ template<>
 void
 CertificateBundleFetcherFixture<Timeout>::makeResponse(const Interest& interest)
 {
-  this->advanceClocks(time::seconds(200));
+  this->advanceClocks(200_s);
 }
 
 template<>

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,11 +37,11 @@ BOOST_AUTO_TEST_CASE(ProcessEventsOverride)
   bool isOverrideInvoked = false;
   auto override = [&] (time::milliseconds timeout) {
     isOverrideInvoked = true;
-    BOOST_CHECK_EQUAL(timeout, time::milliseconds(200));
+    BOOST_CHECK_EQUAL(timeout, 200_ms);
   };
 
   DummyClientFace face(io, {false, false, override});
-  face.processEvents(time::milliseconds(200));
+  face.processEvents(200_ms);
   BOOST_CHECK(isOverrideInvoked);
 }
 
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
                             return;
                           }, nullptr, nullptr);
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   int nFace1Data = 0;
   int nFace2Nack = 0;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
                           nFace2Nack++;
                         }, nullptr);
 
-  advanceClocks(time::milliseconds(10), 100);
+  advanceClocks(10_ms, 100);
 
   BOOST_CHECK_EQUAL(nFace1Data, 1);
   BOOST_CHECK_EQUAL(nFace2Nack, 1);

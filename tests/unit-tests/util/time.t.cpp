@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,8 @@
 
 #include "boost-test.hpp"
 
+#include <thread>
+
 namespace ndn {
 namespace time {
 namespace tests {
@@ -42,12 +44,10 @@ BOOST_AUTO_TEST_CASE(SystemClock)
   BOOST_CHECK_EQUAL(toString(referenceTime), "2014-01-29 03:42:47");
 
   // Unfortunately, not all systems has lv_LV locale installed :(
-  // BOOST_CHECK_EQUAL(toString(referenceTime, "%Y. gada %d. %B",
-  //                                  std::locale("lv_LV.UTF-8")),
+  // BOOST_CHECK_EQUAL(toString(referenceTime, "%Y. gada %d. %B", std::locale("lv_LV.UTF-8")),
   //                   "2014. gada 29. Janvāris");
 
-  BOOST_CHECK_EQUAL(toString(referenceTime, "%Y -- %d -- %B",
-                                   std::locale("C")),
+  BOOST_CHECK_EQUAL(toString(referenceTime, "%Y -- %d -- %B", std::locale("C")),
                     "2014 -- 29 -- January");
 
   BOOST_CHECK_EQUAL(fromIsoString("20140129T034247.032000"), referenceTime);
@@ -56,21 +56,18 @@ BOOST_AUTO_TEST_CASE(SystemClock)
                     fromUnixTimestamp(seconds(1390966967)));
 
   // Unfortunately, not all systems has lv_LV locale installed :(
-  // BOOST_CHECK_EQUAL(fromString("2014. gada 29. Janvāris", "%Y. gada %d. %B",
-  //                                    std::locale("lv_LV.UTF-8")),
+  // BOOST_CHECK_EQUAL(fromString("2014. gada 29. Janvāris", "%Y. gada %d. %B", std::locale("lv_LV.UTF-8")),
   //                   fromUnixTimestamp(seconds(1390953600)));
 
-  BOOST_CHECK_EQUAL(fromString("2014 -- 29 -- January", "%Y -- %d -- %B",
-                                     std::locale("C")),
+  BOOST_CHECK_EQUAL(fromString("2014 -- 29 -- January", "%Y -- %d -- %B", std::locale("C")),
                     fromUnixTimestamp(seconds(1390953600)));
 }
 
 BOOST_AUTO_TEST_CASE(SteadyClock)
 {
   steady_clock::TimePoint oldValue = steady_clock::now();
-  usleep(100);
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   steady_clock::TimePoint newValue = steady_clock::now();
-
   BOOST_CHECK_GT(newValue, oldValue);
 }
 
@@ -83,11 +80,39 @@ BOOST_AUTO_TEST_CASE(Abs)
 
 BOOST_AUTO_TEST_CASE(LargeDates)
 {
-  system_clock::TimePoint value = fromUnixTimestamp(milliseconds(1390966967032LL));
+  auto value = fromUnixTimestamp(milliseconds(1390966967032LL));
   BOOST_CHECK_EQUAL(toIsoString(value), "20140129T034247.032000");
 
   value += days(365 * 100 + 25 - 1); // 36524 days
   BOOST_CHECK_EQUAL(toIsoString(value), "21140129T034247.032000");
+}
+
+BOOST_AUTO_TEST_CASE(Literals)
+{
+  BOOST_CHECK_EQUAL(42_s, seconds(42));
+
+  BOOST_CHECK_EQUAL(1_day, 24_h);
+  BOOST_CHECK_EQUAL(2_days, 48_h);
+  BOOST_CHECK_EQUAL(0.5_day, 12_h);
+  BOOST_CHECK_EQUAL(.5_days, 12_h);
+
+  BOOST_CHECK_EQUAL(1_h, 60_min);
+  BOOST_CHECK_EQUAL(0.5_h, 30_min);
+
+  BOOST_CHECK_EQUAL(1_min, 60_s);
+  BOOST_CHECK_EQUAL(0.5_min, 30_s);
+
+  BOOST_CHECK_EQUAL(1_s, 1000_ms);
+  BOOST_CHECK_EQUAL(0.5_s, 500_ms);
+
+  BOOST_CHECK_EQUAL(1_ms, 1000_us);
+  BOOST_CHECK_EQUAL(0.5_ms, 500_us);
+
+  BOOST_CHECK_EQUAL(1_us, 1000_ns);
+  BOOST_CHECK_EQUAL(0.5_us, 500_ns);
+
+  BOOST_CHECK_EQUAL(1_ns, nanoseconds(1));
+  BOOST_CHECK_EQUAL(5.5_ns, 0.0055_us);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTime

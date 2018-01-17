@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,22 +38,20 @@ BOOST_FIXTURE_TEST_CASE(ConstructorSetter, UnitTestTimeFixture)
 {
   time::system_clock::TimePoint now = this->systemClock->getNow();
 
-  time::system_clock::TimePoint notBefore = now - time::days(1);
-  time::system_clock::TimePoint notAfter = notBefore + time::days(2);
+  time::system_clock::TimePoint notBefore = now - 1_day;
+  time::system_clock::TimePoint notAfter = notBefore + 2_days;
 
   ValidityPeriod validity1 = ValidityPeriod(notBefore, notAfter);
 
   auto period = validity1.getPeriod();
   BOOST_CHECK_GE(period.first, notBefore); // fractional seconds will be removed
-  BOOST_CHECK_LT(period.first, notBefore + time::seconds(1));
+  BOOST_CHECK_LT(period.first, notBefore + 1_s);
 
   BOOST_CHECK_LE(period.second, notAfter); // fractional seconds will be removed
-  BOOST_CHECK_GT(period.second, notAfter - time::seconds(1));
+  BOOST_CHECK_GT(period.second, notAfter - 1_s);
   BOOST_CHECK_EQUAL(validity1.isValid(), true);
 
-  BOOST_CHECK_EQUAL(ValidityPeriod(now - time::days(2),
-                                   now - time::days(1)).isValid(),
-                    false);
+  BOOST_CHECK_EQUAL(ValidityPeriod(now - 2_days, now - 1_day).isValid(), false);
 
   BOOST_CHECK_NO_THROW((ValidityPeriod()));
   ValidityPeriod validity2;
@@ -63,17 +61,17 @@ BOOST_FIXTURE_TEST_CASE(ConstructorSetter, UnitTestTimeFixture)
   BOOST_CHECK(validity2.getPeriod() != std::make_pair(time::getUnixEpoch(), time::getUnixEpoch()));
   BOOST_CHECK_EQUAL(validity2, validity1);
 
-  validity1.setPeriod(time::getUnixEpoch(), time::getUnixEpoch() + time::days(10 * 365));
+  validity1.setPeriod(time::getUnixEpoch(), time::getUnixEpoch() + 10 * 365_days);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(validity1),
                     "(19700101T000000, 19791230T000000)");
 
-  validity1.setPeriod(time::getUnixEpoch() + time::nanoseconds(1),
-                      time::getUnixEpoch() + time::days(10 * 365) + time::nanoseconds(1));
+  validity1.setPeriod(time::getUnixEpoch() + 1_ns,
+                      time::getUnixEpoch() + (10 * 365_days) + 1_ns);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(validity1),
                     "(19700101T000001, 19791230T000000)");
 
   BOOST_CHECK_EQUAL(ValidityPeriod(now, now).isValid(), true);
-  BOOST_CHECK_EQUAL(ValidityPeriod(now + time::seconds(1), now).isValid(), false);
+  BOOST_CHECK_EQUAL(ValidityPeriod(now + 1_s, now).isValid(), false);
 }
 
 const uint8_t VP1[] = {
@@ -89,7 +87,7 @@ const uint8_t VP1[] = {
 BOOST_AUTO_TEST_CASE(EncodingDecoding)
 {
   time::system_clock::TimePoint notBefore = time::getUnixEpoch();
-  time::system_clock::TimePoint notAfter = notBefore + time::days(1);
+  time::system_clock::TimePoint notAfter = notBefore + 1_day;
 
   ValidityPeriod v1(notBefore, notAfter);
 
@@ -182,8 +180,8 @@ BOOST_AUTO_TEST_CASE(DecodingError)
 BOOST_AUTO_TEST_CASE(Comparison)
 {
   time::system_clock::TimePoint notBefore = time::getUnixEpoch();
-  time::system_clock::TimePoint notAfter = notBefore + time::days(1);
-  time::system_clock::TimePoint notAfter2 = notBefore + time::days(2);
+  time::system_clock::TimePoint notAfter = notBefore + 1_day;
+  time::system_clock::TimePoint notAfter2 = notBefore + 2_days;
 
   ValidityPeriod validity1(notBefore, notAfter);
   ValidityPeriod validity2(notBefore, notAfter);

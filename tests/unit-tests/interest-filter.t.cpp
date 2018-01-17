@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(RegexConvertToName)
   util::DummyClientFace face;
   face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
     [] (const Name&, const Interest&) { BOOST_ERROR("unexpected Interest"); });
-  face.processEvents(time::milliseconds(1));
+  face.processEvents(1_ms);
   BOOST_CHECK_THROW(face.receive(Interest("/Hello/World/a/b/c")), InterestFilter::Error);
 }
 

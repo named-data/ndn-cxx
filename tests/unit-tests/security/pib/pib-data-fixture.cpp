@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,7 +52,7 @@ namespace tests {
 //           .appendVersion(certVersion);
 //         v2::Certificate cert;
 //         cert.setName(certName);
-//         cert.setFreshnessPeriod(time::hours(1));
+//         cert.setFreshnessPeriod(1_h);
 //         cert.setContent(tpm.getPublicKey(keyName));
 
 //         // @TODO sign using the new KeyChain

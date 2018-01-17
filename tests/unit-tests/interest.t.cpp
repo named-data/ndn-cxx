@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeFull)
   i1.setName("/local/ndn/prefix");
   i1.setMinSuffixComponents(1);
   i1.setNonce(1);
-  i1.setInterestLifetime(time::milliseconds(1000));
+  i1.setInterestLifetime(1000_ms);
   i1.setForwardingHint({{1, "/A"}});
   Block wire1 = i1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeFull)
   BOOST_CHECK_EQUAL(i2.getName(), "/local/ndn/prefix");
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), 1);
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
-  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), time::milliseconds(1000));
+  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 1000_ms);
   BOOST_CHECK_EQUAL(i2.getForwardingHint(), DelegationList({{1, "/A"}}));
 
   BOOST_CHECK_EQUAL(i1, i2);
@@ -114,11 +114,11 @@ BOOST_AUTO_TEST_CASE(WireDecodeReset) // checks wireDecode resets all fields
   i1.setName("/test");
   i1.setMinSuffixComponents(100);
   i1.setNonce(10);
-  i1.setInterestLifetime(time::seconds(10));
+  i1.setInterestLifetime(10_s);
 
   Interest i2(i1.wireEncode());
   BOOST_CHECK_EQUAL(i2.getName().toUri(), "/test");
-  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), time::seconds(10));
+  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 10_s);
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), 100);
   BOOST_CHECK_EQUAL(i2.getNonce(), 10);
 
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(MatchesInterest)
     .setPublisherPublicKeyLocator(KeyLocator("/B"))
     .setExclude(Exclude().excludeAfter(name::Component("J")))
     .setNonce(10)
-    .setInterestLifetime(time::seconds(5))
+    .setInterestLifetime(5_s)
     .setForwardingHint({{1, "/H"}});
 
   Interest other;
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(MatchesInterest)
   other.setNonce(200);
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 
-  other.setInterestLifetime(time::hours(5));
+  other.setInterestLifetime(5_h);
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 }
 
@@ -334,17 +334,17 @@ BOOST_AUTO_TEST_CASE(RefreshNonce)
 BOOST_AUTO_TEST_CASE(SetInterestLifetime)
 {
   BOOST_CHECK_THROW(Interest("/A", time::milliseconds(-1)), std::invalid_argument);
-  BOOST_CHECK_NO_THROW(Interest("/A", time::milliseconds(0)));
+  BOOST_CHECK_NO_THROW(Interest("/A", 0_ms));
 
   Interest i("/local/ndn/prefix");
   i.setNonce(1);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK_THROW(i.setInterestLifetime(time::milliseconds(-1)), std::invalid_argument);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  i.setInterestLifetime(time::milliseconds(0));
-  BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(0));
-  i.setInterestLifetime(time::milliseconds(1));
-  BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds(1));
+  i.setInterestLifetime(0_ms);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), 0_ms);
+  i.setInterestLifetime(1_ms);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), 1_ms);
 }
 
 BOOST_AUTO_TEST_CASE(ModifyForwardingHint)
@@ -405,11 +405,11 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a != b, false);
 
   // compare InterestLifetime
-  a.setInterestLifetime(time::seconds(10));
+  a.setInterestLifetime(10_s);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setInterestLifetime(time::seconds(10));
+  b.setInterestLifetime(10_s);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 

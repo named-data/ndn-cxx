@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2017 Regents of the University of California,
+ * Copyright (c) 2014-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -45,7 +45,7 @@ public:
   NotificationSubscriberFixture()
     : streamPrefix("ndn:/NotificationSubscriberTest")
     , subscriberFace(io, m_keyChain)
-    , subscriber(subscriberFace, streamPrefix, time::seconds(1))
+    , subscriber(subscriberFace, streamPrefix, 1_s)
     , nextSendNotificationNo(0)
   {
   }
@@ -61,7 +61,7 @@ public:
     dataName.appendSequenceNumber(nextSendNotificationNo);
     Data data(dataName);
     data.setContent(notification.wireEncode());
-    data.setFreshnessPeriod(time::seconds(1));
+    data.setFreshnessPeriod(1_s);
     m_keyChain.sign(data);
 
     lastDeliveredSeqNo = nextSendNotificationNo;
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(StartStop)
   this->connectHandlers();
   subscriber.start();
   BOOST_REQUIRE_EQUAL(subscriber.isRunning(), true);
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK(this->hasInitialRequest());
 
   subscriberFace.sentInterests.clear();
@@ -198,19 +198,19 @@ BOOST_AUTO_TEST_CASE(Notifications)
 {
   this->connectHandlers();
   subscriber.start();
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   // respond to initial request
   subscriberFace.sentInterests.clear();
   this->deliverNotification("n1");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n1");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 
   // respond to continuation request
   subscriberFace.sentInterests.clear();
   this->deliverNotification("n2");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n2");
   BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
 }
@@ -219,17 +219,17 @@ BOOST_AUTO_TEST_CASE(Nack)
 {
   this->connectHandlers();
   subscriber.start();
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   // send the first Nack to initial request
   BOOST_REQUIRE_EQUAL(subscriberFace.sentInterests.size(), 1);
   Interest interest = subscriberFace.sentInterests[0];
   subscriberFace.sentInterests.clear();
   this->deliverNack(interest, lp::NackReason::CONGESTION);
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(lastNack.getReason(), lp::NackReason::CONGESTION);
   BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), false);
-  advanceClocks(time::milliseconds(300));
+  advanceClocks(300_ms);
   BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), true);
 
   // send the second Nack to initial request
@@ -237,25 +237,25 @@ BOOST_AUTO_TEST_CASE(Nack)
   interest = subscriberFace.sentInterests[0];
   subscriberFace.sentInterests.clear();
   this->deliverNack(interest, lp::NackReason::CONGESTION);
-  advanceClocks(time::milliseconds(301));
+  advanceClocks(301_ms);
   BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), false);
-  advanceClocks(time::milliseconds(200));
+  advanceClocks(200_ms);
   BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), true);
 
   // send a notification to initial request
   subscriberFace.sentInterests.clear();
   this->deliverNotification("n1");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   // send a Nack to subsequent request
   BOOST_REQUIRE_EQUAL(subscriberFace.sentInterests.size(), 1);
   interest = subscriberFace.sentInterests[0];
   subscriberFace.sentInterests.clear();
   this->deliverNack(interest, lp::NackReason::CONGESTION);
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(lastNack.getReason(), lp::NackReason::CONGESTION);
   BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), false);
-  advanceClocks(time::milliseconds(300));
+  advanceClocks(300_ms);
   BOOST_REQUIRE_EQUAL(this->hasInitialRequest(), true);
 }
 
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE(Timeout)
 {
   this->connectHandlers();
   subscriber.start();
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   subscriberFace.sentInterests.clear();
   lastNotification.setMessage("");
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(Timeout)
 
   subscriberFace.sentInterests.clear();
   this->deliverNotification("n1");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n1");
 }
 
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE(SequenceError)
 {
   this->connectHandlers();
   subscriber.start();
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   Name wrongName = streamPrefix;
   wrongName.append("%07%07");
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE(SequenceError)
   subscriberFace.receive(wrongData);
   subscriberFace.sentInterests.clear();
   lastNotification.setMessage("");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK_EQUAL(lastDecodeErrorData.getName(), wrongName);
   BOOST_CHECK(this->hasInitialRequest());
@@ -301,12 +301,12 @@ BOOST_AUTO_TEST_CASE(PayloadError)
 {
   this->connectHandlers();
   subscriber.start();
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   subscriberFace.sentInterests.clear();
   lastNotification.setMessage("");
   this->deliverNotification("\x07n4");
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK(lastNotification.getMessage().empty());
   BOOST_CHECK(this->hasInitialRequest());
 }

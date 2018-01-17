@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_SUITE(Consumer)
 BOOST_AUTO_TEST_CASE(ExpressInterestData)
 {
   size_t nData = 0;
-  face.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World", 50_ms),
                        [&] (const Interest& i, const Data& d) {
                          BOOST_CHECK(i.getName().isPrefixOf(d.getName()));
                          BOOST_CHECK_EQUAL(i.getName(), "/Hello/World");
@@ -74,23 +74,23 @@ BOOST_AUTO_TEST_CASE(ExpressInterestData)
                        bind([] { BOOST_FAIL("Unexpected Nack"); }),
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
 
-  advanceClocks(time::milliseconds(40));
+  advanceClocks(40_ms);
 
   face.receive(*makeData("/Bye/World/a"));
   face.receive(*makeData("/Hello/World/a"));
 
-  advanceClocks(time::milliseconds(50), 2);
+  advanceClocks(50_ms, 2);
 
   BOOST_CHECK_EQUAL(nData, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
   BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 
   size_t nTimeouts = 0;
-  face.expressInterest(Interest("/Hello/World/a/2", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World/a/2", 50_ms),
                        bind([]{}),
                        bind([]{}),
                        bind([&nTimeouts] { ++nTimeouts; }));
-  advanceClocks(time::milliseconds(200), 5);
+  advanceClocks(200_ms, 5);
   BOOST_CHECK_EQUAL(nTimeouts, 1);
 }
 
@@ -98,25 +98,25 @@ BOOST_AUTO_TEST_CASE(ExpressMultipleInterestData)
 {
   size_t nData = 0;
 
-  face.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World", 50_ms),
                        [&] (const Interest& i, const Data& d) {
                          ++nData;
                        },
                        bind([] { BOOST_FAIL("Unexpected Nack"); }),
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
 
-  face.expressInterest(Interest("/Hello/World/a", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World/a", 50_ms),
                        [&] (const Interest& i, const Data& d) {
                          ++nData;
                        },
                        bind([] { BOOST_FAIL("Unexpected Nack"); }),
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
 
-  advanceClocks(time::milliseconds(40));
+  advanceClocks(40_ms);
 
   face.receive(*makeData("/Hello/World/a/b"));
 
-  advanceClocks(time::milliseconds(50), 2);
+  advanceClocks(50_ms, 2);
 
   BOOST_CHECK_EQUAL(nData, 2);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 2);
@@ -129,18 +129,18 @@ BOOST_AUTO_TEST_CASE(ExpressInterestEmptyDataCallback)
                        nullptr,
                        bind([] { BOOST_FAIL("Unexpected Nack"); }),
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   BOOST_CHECK_NO_THROW(do {
     face.receive(*makeData("/Hello/World/a"));
-    advanceClocks(time::milliseconds(1));
+    advanceClocks(1_ms);
   } while (false));
 }
 
 BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
 {
   size_t nTimeouts = 0;
-  face.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World", 50_ms),
                        bind([] { BOOST_FAIL("Unexpected Data"); }),
                        bind([] { BOOST_FAIL("Unexpected Nack"); }),
                        [&nTimeouts] (const Interest& i) {
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
                          ++nTimeouts;
                        });
 
-  advanceClocks(time::milliseconds(200), 5);
+  advanceClocks(200_ms, 5);
 
   BOOST_CHECK_EQUAL(nTimeouts, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
@@ -158,14 +158,14 @@ BOOST_AUTO_TEST_CASE(ExpressInterestTimeout)
 
 BOOST_AUTO_TEST_CASE(ExpressInterestEmptyTimeoutCallback)
 {
-  face.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World", 50_ms),
                        bind([] { BOOST_FAIL("Unexpected Data"); }),
                        bind([] { BOOST_FAIL("Unexpected Nack"); }),
                        nullptr);
-  advanceClocks(time::milliseconds(40));
+  advanceClocks(40_ms);
 
   BOOST_CHECK_NO_THROW(do {
-    advanceClocks(time::milliseconds(6), 2);
+    advanceClocks(6_ms, 2);
   } while (false));
 }
 
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestNack)
 {
   size_t nNacks = 0;
 
-  Interest interest("/Hello/World", time::milliseconds(50));
+  Interest interest("/Hello/World", 50_ms);
 
   face.expressInterest(interest,
                        bind([] { BOOST_FAIL("Unexpected Data"); }),
@@ -185,11 +185,11 @@ BOOST_AUTO_TEST_CASE(ExpressInterestNack)
                        },
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
 
-  advanceClocks(time::milliseconds(40));
+  advanceClocks(40_ms);
 
   face.receive(makeNack(face.sentInterests.at(0), lp::NackReason::DUPLICATE));
 
-  advanceClocks(time::milliseconds(50), 2);
+  advanceClocks(50_ms, 2);
 
   BOOST_CHECK_EQUAL(nNacks, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(ExpressMultipleInterestNack)
 {
   size_t nNacks = 0;
 
-  Interest interest("/Hello/World", time::milliseconds(50));
+  Interest interest("/Hello/World", 50_ms);
   interest.setNonce(1);
 
   face.expressInterest(interest,
@@ -217,11 +217,11 @@ BOOST_AUTO_TEST_CASE(ExpressMultipleInterestNack)
                        },
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
 
-  advanceClocks(time::milliseconds(40));
+  advanceClocks(40_ms);
 
   face.receive(makeNack(face.sentInterests.at(1), lp::NackReason::DUPLICATE));
 
-  advanceClocks(time::milliseconds(50), 2);
+  advanceClocks(50_ms, 2);
 
   BOOST_CHECK_EQUAL(nNacks, 2);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 2);
@@ -233,28 +233,28 @@ BOOST_AUTO_TEST_CASE(ExpressInterestEmptyNackCallback)
                        bind([] { BOOST_FAIL("Unexpected Data"); }),
                        nullptr,
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   BOOST_CHECK_NO_THROW(do {
     face.receive(makeNack(face.sentInterests.at(0), lp::NackReason::DUPLICATE));
-    advanceClocks(time::milliseconds(1));
+    advanceClocks(1_ms);
   } while (false));
 }
 
 BOOST_AUTO_TEST_CASE(RemovePendingInterest)
 {
   const PendingInterestId* interestId =
-    face.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+    face.expressInterest(Interest("/Hello/World", 50_ms),
                          bind([] { BOOST_FAIL("Unexpected data"); }),
                          bind([] { BOOST_FAIL("Unexpected nack"); }),
                          bind([] { BOOST_FAIL("Unexpected timeout"); }));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   face.removePendingInterest(interestId);
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   face.receive(*makeData("/Hello/World/%21"));
-  advanceClocks(time::milliseconds(200), 5);
+  advanceClocks(200_ms, 5);
 
   // avoid "test case [...] did not check any assertions" message from Boost.Test
   BOOST_CHECK(true);
@@ -262,38 +262,38 @@ BOOST_AUTO_TEST_CASE(RemovePendingInterest)
 
 BOOST_AUTO_TEST_CASE(RemoveAllPendingInterests)
 {
-  face.expressInterest(Interest("/Hello/World/0", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World/0", 50_ms),
                        bind([] { BOOST_FAIL("Unexpected data"); }),
                        bind([] { BOOST_FAIL("Unexpected nack"); }),
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
 
-  face.expressInterest(Interest("/Hello/World/1", time::milliseconds(50)),
+  face.expressInterest(Interest("/Hello/World/1", 50_ms),
                        bind([] { BOOST_FAIL("Unexpected data"); }),
                        bind([] { BOOST_FAIL("Unexpected nack"); }),
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
 
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   face.removeAllPendingInterests();
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(face.getNPendingInterests(), 0);
 
   face.receive(*makeData("/Hello/World/0"));
   face.receive(*makeData("/Hello/World/1"));
-  advanceClocks(time::milliseconds(200), 5);
+  advanceClocks(200_ms, 5);
 }
 
 BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518
 {
   {
     DummyClientFace face2(io, m_keyChain);
-    face2.expressInterest(Interest("/Hello/World", time::milliseconds(50)),
+    face2.expressInterest(Interest("/Hello/World", 50_ms),
                           nullptr, nullptr, nullptr);
-    advanceClocks(time::milliseconds(50), 2);
+    advanceClocks(50_ms, 2);
   }
 
-  advanceClocks(time::milliseconds(50), 2); // should not crash
+  advanceClocks(50_ms, 2); // should not crash
 
   // avoid "test case [...] did not check any assertions" message from Boost.Test
   BOOST_CHECK(true);
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE(PutData)
   data.setTag(make_shared<lp::CongestionMarkTag>(1));
   face.put(data);
 
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
   BOOST_REQUIRE_EQUAL(face.sentData.size(), 2);
   BOOST_CHECK(face.sentData[0].getTag<lp::CachePolicyTag>() == nullptr);
   BOOST_CHECK(face.sentData[0].getTag<lp::CongestionMarkTag>() == nullptr);
@@ -342,13 +342,13 @@ BOOST_AUTO_TEST_CASE(PutDataLoopback)
                        bind([&] { hasData = true; }),
                        bind([] { BOOST_FAIL("Unexpected nack"); }),
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(hasInterest1, true); // Interest looped back
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1); // Interest sent to forwarder
   BOOST_CHECK_EQUAL(hasData, false); // waiting for Data
 
   face.put(*makeData("/A/B")); // first InterestFilter responds with Data
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(hasData, true);
   BOOST_CHECK_EQUAL(face.sentData.size(), 0); // do not spill Data to forwarder
 }
@@ -363,10 +363,10 @@ BOOST_AUTO_TEST_CASE(PutMultipleData)
     face.put(*makeData("/A/B"));
   }));
   face.setInterestFilter("/", bind([]{}));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   face.receive(*makeInterest("/A"));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
   BOOST_CHECK(hasInterest1);
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK_EQUAL(face.sentData.at(0).getName(), "/A/B");
@@ -378,20 +378,20 @@ BOOST_AUTO_TEST_CASE(PutMultipleData)
 BOOST_AUTO_TEST_CASE(PutNack)
 {
   face.setInterestFilter("/", bind([]{})); // register one Interest destination so that face can accept Nacks
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0);
 
   face.put(makeNack("/unsolicited", 18645250, lp::NackReason::NO_ROUTE));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0); // unsolicited Nack would not be sent
 
   face.receive(*makeInterest("/Hello/World", 14247162));
   face.receive(*makeInterest("/another/prefix", 92203002));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   face.put(makeNack("/Hello/World", 14247162, lp::NackReason::DUPLICATE));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
   BOOST_REQUIRE_EQUAL(face.sentNacks.size(), 1);
   BOOST_CHECK_EQUAL(face.sentNacks[0].getReason(), lp::NackReason::DUPLICATE);
   BOOST_CHECK(face.sentNacks[0].getTag<lp::CongestionMarkTag>() == nullptr);
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(PutNack)
   auto nack = makeNack("/another/prefix", 92203002, lp::NackReason::NO_ROUTE);
   nack.setTag(make_shared<lp::CongestionMarkTag>(1));
   face.put(nack);
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
   BOOST_REQUIRE_EQUAL(face.sentNacks.size(), 2);
   BOOST_CHECK_EQUAL(face.sentNacks[1].getReason(), lp::NackReason::NO_ROUTE);
   BOOST_CHECK(face.sentNacks[1].getTag<lp::CongestionMarkTag>() != nullptr);
@@ -415,10 +415,10 @@ BOOST_AUTO_TEST_CASE(PutMultipleNack)
     face.put(makeNack(interest, lp::NackReason::CONGESTION));
   });
   face.setInterestFilter("/", bind([&] { hasInterest2 = true; }));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
 
   face.receive(*makeInterest("/A", 14333271));
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
   BOOST_CHECK(hasInterest1);
   BOOST_CHECK(hasInterest2);
 
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(PutMultipleNack)
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0);
 
   face.put(makeNack("/A", 14333271, lp::NackReason::NO_ROUTE)); // Nack from second destination
-  advanceClocks(time::milliseconds(10));
+  advanceClocks(10_ms);
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 1); // sending Nack after both destinations Nacked
   BOOST_CHECK_EQUAL(face.sentNacks.at(0).getReason(), lp::NackReason::CONGESTION); // least severe reason
 
@@ -454,13 +454,13 @@ BOOST_AUTO_TEST_CASE(PutMultipleNackLoopback)
                          BOOST_CHECK_EQUAL(nack.getReason(), lp::NackReason::CONGESTION);
                        },
                        bind([] { BOOST_FAIL("Unexpected timeout"); }));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(hasInterest1, true); // Interest looped back
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 1); // Interest sent to forwarder
   BOOST_CHECK_EQUAL(hasNack, false); // waiting for Nack from forwarder
 
   face.receive(makeNack("/A", 28395852, lp::NackReason::NO_ROUTE));
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(hasNack, true);
 }
 
@@ -473,46 +473,46 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
                            bind([&nInterests] { ++nInterests; }),
                            bind([&nRegs] { ++nRegs; }),
                            bind([] {  BOOST_FAIL("Unexpected setInterestFilter failure"); }));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nRegs, 1);
   BOOST_CHECK_EQUAL(nInterests, 0);
 
   face.receive(Interest("/Hello/World/%21"));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   BOOST_CHECK_EQUAL(nRegs, 1);
   BOOST_CHECK_EQUAL(nInterests, 1);
 
   face.receive(Interest("/Bye/World/%21"));
-  advanceClocks(time::milliseconds(10000), 10);
+  advanceClocks(10000_ms, 10);
   BOOST_CHECK_EQUAL(nInterests, 1);
 
   face.receive(Interest("/Hello/World/%21/2"));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nInterests, 2);
 
   // removing filter
   face.unsetInterestFilter(regPrefixId);
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   face.receive(Interest("/Hello/World/%21/3"));
   BOOST_CHECK_EQUAL(nInterests, 2);
 
   face.unsetInterestFilter(static_cast<const RegisteredPrefixId*>(nullptr));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   face.unsetInterestFilter(static_cast<const InterestFilterId*>(nullptr));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 }
 
 BOOST_AUTO_TEST_CASE(SetInterestFilterEmptyInterestCallback)
 {
   face.setInterestFilter("/A", nullptr);
-  advanceClocks(time::milliseconds(1));
+  advanceClocks(1_ms);
 
   BOOST_CHECK_NO_THROW(do {
     face.receive(*makeInterest("/A/1"));
-    advanceClocks(time::milliseconds(1));
+    advanceClocks(1_ms);
   } while (false));
 }
 
@@ -523,34 +523,34 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilterWithoutSucessCallback)
     face.setInterestFilter("/Hello/World",
                            bind([&nInterests] { ++nInterests; }),
                            bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nInterests, 0);
 
   face.receive(Interest("/Hello/World/%21"));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   BOOST_CHECK_EQUAL(nInterests, 1);
 
   face.receive(Interest("/Bye/World/%21"));
-  advanceClocks(time::milliseconds(10000), 10);
+  advanceClocks(10000_ms, 10);
   BOOST_CHECK_EQUAL(nInterests, 1);
 
   face.receive(Interest("/Hello/World/%21/2"));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nInterests, 2);
 
   // removing filter
   face.unsetInterestFilter(regPrefixId);
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   face.receive(Interest("/Hello/World/%21/3"));
   BOOST_CHECK_EQUAL(nInterests, 2);
 
   face.unsetInterestFilter(static_cast<const RegisteredPrefixId*>(nullptr));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   face.unsetInterestFilter(static_cast<const InterestFilterId*>(nullptr));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 }
 
 BOOST_FIXTURE_TEST_CASE(SetInterestFilterFail, FacesNoRegistrationReplyFixture)
@@ -562,10 +562,10 @@ BOOST_FIXTURE_TEST_CASE(SetInterestFilterFail, FacesNoRegistrationReplyFixture)
                          bind([] { BOOST_FAIL("Unexpected success of setInterestFilter"); }),
                          bind([&nRegFailed] { ++nRegFailed; }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nRegFailed, 0);
 
-  advanceClocks(time::milliseconds(2000), 5);
+  advanceClocks(2000_ms, 5);
   BOOST_CHECK_EQUAL(nRegFailed, 1);
 }
 
@@ -577,10 +577,10 @@ BOOST_FIXTURE_TEST_CASE(SetInterestFilterFailWithoutSuccessCallback, FacesNoRegi
                          bind([] { BOOST_FAIL("Unexpected Interest"); }),
                          bind([&nRegFailed] { ++nRegFailed; }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nRegFailed, 0);
 
-  advanceClocks(time::milliseconds(2000), 5);
+  advanceClocks(2000_ms, 5);
   BOOST_CHECK_EQUAL(nRegFailed, 1);
 }
 
@@ -592,7 +592,7 @@ BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefix)
                         bind([&nRegSuccesses] { ++nRegSuccesses; }),
                         bind([] { BOOST_FAIL("Unexpected registerPrefix failure"); }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 
   size_t nUnregSuccesses = 0;
@@ -600,7 +600,7 @@ BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefix)
                         bind([&nUnregSuccesses] { ++nUnregSuccesses; }),
                         bind([] { BOOST_FAIL("Unexpected unregisterPrefix failure"); }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nUnregSuccesses, 1);
 }
 
@@ -612,7 +612,7 @@ BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefixFail, FacesNoRegistrationReplyFi
                       bind([] { BOOST_FAIL("Unexpected registerPrefix success"); }),
                       bind([&nRegFailures] { ++nRegFailures; }));
 
-  advanceClocks(time::milliseconds(5000), 20);
+  advanceClocks(5000_ms, 20);
   BOOST_CHECK_EQUAL(nRegFailures, 1);
 }
 
@@ -636,10 +636,10 @@ BOOST_AUTO_TEST_CASE(SimilarFilters)
                          nullptr,
                          bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   face.receive(Interest("/Hello/World/%21"));
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   BOOST_CHECK_EQUAL(nInInterests1, 1);
   BOOST_CHECK_EQUAL(nInInterests2, 1);
@@ -655,7 +655,7 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterError)
                          nullptr,
                          bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   BOOST_REQUIRE_THROW(face.receive(Interest("/Hello/World/XXX/b/c")), InterestFilter::Error);
 }
@@ -668,7 +668,7 @@ BOOST_AUTO_TEST_CASE(SetRegexFilter)
                          nullptr,
                          bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
 
   face.receive(Interest("/Hello/World/a"));     // shouldn't match
   BOOST_CHECK_EQUAL(nInInterests, 0);
@@ -694,7 +694,7 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterAndRegister)
                       bind([&nRegSuccesses] { ++nRegSuccesses; }),
                       bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
 
-  advanceClocks(time::milliseconds(25), 4);
+  advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 
   face.receive(Interest("/Hello/World/a")); // shouldn't match

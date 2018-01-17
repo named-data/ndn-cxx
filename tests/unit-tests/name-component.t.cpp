@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -297,7 +297,7 @@ public:
             bind(&name::Component::toTimestamp, _1),
             [] (Name& name, time::system_clock::TimePoint t) -> Name& { return name.appendTimestamp(t); },
             Name("/%FC%00%04%7BE%E3%1B%00%00"),
-            time::getUnixEpoch() + time::days(14600), // 40 years
+            time::getUnixEpoch() + 14600_days, // 40 years
             bind(&name::Component::isTimestamp, _1)};
   }
 };
