@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,10 @@
 #include "logging.hpp"
 #include "time.hpp"
 
-#include <cinttypes>
-#include <cstring>
+#include <cinttypes> // for PRIdLEAST64
+#include <cstdlib>   // for std::abs()
+#include <cstring>   // for std::strspn()
+#include <stdio.h>   // for snprintf()
 
 namespace ndn {
 namespace util {
@@ -103,7 +105,7 @@ Logger::Logger(const std::string& name)
   : m_moduleName(name)
 {
   if (!isValidLoggerName(name)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name " + name + " is invalid"));
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name '" + name + "' is invalid"));
   }
   this->setLevel(LogLevel::NONE);
   Logging::addLogger(*this);
@@ -114,20 +116,21 @@ operator<<(std::ostream& os, const LoggerTimestamp&)
 {
   using namespace ndn::time;
 
-  static const microseconds::rep ONE_SECOND = 1000000;
-  microseconds::rep usecs = duration_cast<microseconds>(
-                            system_clock::now().time_since_epoch()).count();
+  const auto sinceEpoch = system_clock::now().time_since_epoch();
+  BOOST_ASSERT(sinceEpoch.count() >= 0);
+  // use abs() to silence truncation warning in snprintf(), see #4365
+  const auto usecs = std::abs(duration_cast<microseconds>(sinceEpoch).count());
+  const auto usecsPerSec = microseconds::period::den;
 
   // 10 (whole seconds) + '.' + 6 (fraction) + '\0'
   char buffer[10 + 1 + 6 + 1];
-  BOOST_ASSERT_MSG(usecs / ONE_SECOND <= 9999999999L,
-                   "whole seconds cannot fit in 10 characters");
+  BOOST_ASSERT_MSG(usecs / usecsPerSec <= 9999999999, "whole seconds cannot fit in 10 characters");
 
   static_assert(std::is_same<microseconds::rep, int_least64_t>::value,
                 "PRIdLEAST64 is incompatible with microseconds::rep");
-  // std::snprintf unavailable in some environments <https://redmine.named-data.net/issues/2299>
-  snprintf(buffer, sizeof(buffer), "%" PRIdLEAST64 ".%06" PRIdLEAST64,
-           usecs / ONE_SECOND, usecs % ONE_SECOND);
+  // std::snprintf unavailable on some platforms, see #2299
+  ::snprintf(buffer, sizeof(buffer), "%" PRIdLEAST64 ".%06" PRIdLEAST64,
+             usecs / usecsPerSec, usecs % usecsPerSec);
 
   return os << buffer;
 }
