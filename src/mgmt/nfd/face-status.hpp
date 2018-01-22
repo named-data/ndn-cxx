@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,6 +77,28 @@ public: // getters & setters
   FaceStatus&
   unsetExpirationPeriod();
 
+  time::nanoseconds
+  getBaseCongestionMarkingInterval() const
+  {
+    return m_baseCongestionMarkingInterval;
+  }
+
+  FaceStatus&
+  setBaseCongestionMarkingInterval(time::nanoseconds interval);
+
+  /** \brief get default congestion threshold (measured in bytes)
+   */
+  uint64_t
+  getDefaultCongestionThreshold() const
+  {
+    return m_defaultCongestionThreshold;
+  }
+
+  /** \brief set default congestion threshold (measured in bytes)
+   */
+  FaceStatus&
+  setDefaultCongestionThreshold(uint64_t threshold);
+
   uint64_t
   getNInInterests() const
   {
@@ -151,6 +173,8 @@ public: // getters & setters
 
 private:
   optional<time::milliseconds> m_expirationPeriod;
+  time::nanoseconds m_baseCongestionMarkingInterval;
+  uint64_t m_defaultCongestionThreshold;
   uint64_t m_nInInterests;
   uint64_t m_nInData;
   uint64_t m_nInNacks;

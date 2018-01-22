@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,9 @@ namespace nfd {
 BOOST_CONCEPT_ASSERT((StatusDatasetItem<FaceStatus>));
 
 FaceStatus::FaceStatus()
-  : m_nInInterests(0)
+  : m_baseCongestionMarkingInterval(0)
+  , m_defaultCongestionThreshold(0)
+  , m_nInInterests(0)
   , m_nInData(0)
   , m_nInNacks(0)
   , m_nOutInterests(0)
@@ -63,6 +65,10 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInNacks, m_nInNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInData, m_nInData);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInInterests, m_nInInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::DefaultCongestionThreshold,
+                                                m_defaultCongestionThreshold);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::BaseCongestionMarkingInterval,
+                                                m_baseCongestionMarkingInterval.count());
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::LinkType, m_linkType);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FacePersistency, m_facePersistency);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceScope, m_faceScope);
@@ -163,6 +169,22 @@ FaceStatus::wireDecode(const Block& block)
     BOOST_THROW_EXCEPTION(Error("missing required LinkType field"));
   }
 
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::BaseCongestionMarkingInterval) {
+    m_baseCongestionMarkingInterval = time::nanoseconds(readNonNegativeInteger(*val));
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required BaseCongestionMarkingInterval field"));
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::DefaultCongestionThreshold) {
+    m_defaultCongestionThreshold = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required DefaultCongestionThreshold field"));
+  }
+
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
     m_nInInterests = readNonNegativeInteger(*val);
     ++val;
@@ -253,6 +275,22 @@ FaceStatus::unsetExpirationPeriod()
 }
 
 FaceStatus&
+FaceStatus::setBaseCongestionMarkingInterval(time::nanoseconds interval)
+{
+  m_wire.reset();
+  m_baseCongestionMarkingInterval = interval;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::setDefaultCongestionThreshold(uint64_t threshold)
+{
+  m_wire.reset();
+  m_defaultCongestionThreshold = threshold;
+  return *this;
+}
+
+FaceStatus&
 FaceStatus::setNInInterests(uint64_t nInInterests)
 {
   m_wire.reset();
@@ -328,6 +366,8 @@ operator==(const FaceStatus& a, const FaceStatus& b)
       a.getFlags() == b.getFlags() &&
       a.hasExpirationPeriod() == b.hasExpirationPeriod() &&
       (!a.hasExpirationPeriod() || a.getExpirationPeriod() == b.getExpirationPeriod()) &&
+      a.getBaseCongestionMarkingInterval() == b.getBaseCongestionMarkingInterval() &&
+      a.getDefaultCongestionThreshold() == b.getDefaultCongestionThreshold() &&
       a.getNInInterests() == b.getNInInterests() &&
       a.getNInData() == b.getNInData() &&
       a.getNInNacks() == b.getNInNacks() &&
@@ -355,6 +395,8 @@ operator<<(std::ostream& os, const FaceStatus& status)
   os << "     FaceScope: " << status.getFaceScope() << ",\n"
      << "     FacePersistency: " << status.getFacePersistency() << ",\n"
      << "     LinkType: " << status.getLinkType() << ",\n"
+     << "     BaseCongestionMarkingInterval: " << status.getBaseCongestionMarkingInterval() << ",\n"
+     << "     DefaultCongestionThreshold: " << status.getDefaultCongestionThreshold() << " bytes,\n"
      << "     Flags: " << AsHex{status.getFlags()} << ",\n"
      << "     Counters: {Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"

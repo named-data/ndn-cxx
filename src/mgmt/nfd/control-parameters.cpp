@@ -51,6 +51,14 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
+  if (this->hasDefaultCongestionThreshold()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder,
+                   tlv::nfd::DefaultCongestionThreshold, m_defaultCongestionThreshold);
+  }
+  if (this->hasBaseCongestionMarkingInterval()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder,
+                   tlv::nfd::BaseCongestionMarkingInterval, m_baseCongestionMarkingInterval.count());
+  }
   if (this->hasFacePersistency()) {
     totalLength += prependNonNegativeIntegerBlock(encoder,
                    tlv::nfd::FacePersistency, m_facePersistency);
@@ -200,6 +208,18 @@ ControlParameters::wireDecode(const Block& block)
   if (this->hasFacePersistency()) {
     m_facePersistency = readNonNegativeIntegerAs<FacePersistency>(*val);
   }
+
+  val = m_wire.find(tlv::nfd::BaseCongestionMarkingInterval);
+  m_hasFields[CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL] = val != m_wire.elements_end();
+  if (this->hasBaseCongestionMarkingInterval()) {
+    m_baseCongestionMarkingInterval = time::nanoseconds(readNonNegativeInteger(*val));
+  }
+
+  val = m_wire.find(tlv::nfd::DefaultCongestionThreshold);
+  m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD] = val != m_wire.elements_end();
+  if (this->hasDefaultCongestionThreshold()) {
+    m_defaultCongestionThreshold = readNonNegativeInteger(*val);
+  }
 }
 
 bool
@@ -326,6 +346,14 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
 
   if (parameters.hasFacePersistency()) {
     os << "FacePersistency: " << parameters.getFacePersistency() << ", ";
+  }
+
+  if (parameters.hasBaseCongestionMarkingInterval()) {
+    os << "BaseCongestionMarkingInterval: " << parameters.getBaseCongestionMarkingInterval() << ", ";
+  }
+
+  if (parameters.hasDefaultCongestionThreshold()) {
+    os << "DefaultCongestionThreshold: " << parameters.getDefaultCongestionThreshold() << ", ";
   }
 
   os << ")";

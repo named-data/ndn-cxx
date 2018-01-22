@@ -67,8 +67,9 @@ operator<<(std::ostream& os, LinkType linkType);
 /** \ingroup management
  */
 enum FaceFlagBit {
-  BIT_LOCAL_FIELDS_ENABLED = 0, ///< controls whether local fields are enabled on a face
-  BIT_LP_RELIABILITY_ENABLED = 1, ///< controls whether the link reliability feature is enabled on a face
+  BIT_LOCAL_FIELDS_ENABLED = 0, ///< whether local fields are enabled on a face
+  BIT_LP_RELIABILITY_ENABLED = 1, ///< whether the link reliability feature is enabled on a face
+  BIT_CONGESTION_MARKING_ENABLED = 2, ///< whether congestion detection and marking is enabled on a face
 };
 
 /** \ingroup management

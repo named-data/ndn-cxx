@@ -59,16 +59,18 @@ enum {
   NCsEntries           = 135,
 
   // Face Management
-  FaceStatus            = 128,
-  LocalUri              = 129,
-  ChannelStatus         = 130,
-  UriScheme             = 131,
-  FaceScope             = 132,
-  FacePersistency       = 133,
-  LinkType              = 134,
-  FaceQueryFilter       = 150,
-  FaceEventNotification = 192,
-  FaceEventKind         = 193,
+  FaceStatus                    = 128,
+  LocalUri                      = 129,
+  ChannelStatus                 = 130,
+  UriScheme                     = 131,
+  FaceScope                     = 132,
+  FacePersistency               = 133,
+  LinkType                      = 134,
+  BaseCongestionMarkingInterval = 135,
+  DefaultCongestionThreshold    = 136,
+  FaceQueryFilter               = 150,
+  FaceEventNotification         = 192,
+  FaceEventKind                 = 193,
 
   // ForwarderStatus and FaceStatus counters
   NInInterests  = 144,

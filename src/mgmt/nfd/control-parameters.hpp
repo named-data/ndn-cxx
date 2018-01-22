@@ -46,6 +46,8 @@ enum ControlParameterField {
   CONTROL_PARAMETER_STRATEGY,
   CONTROL_PARAMETER_EXPIRATION_PERIOD,
   CONTROL_PARAMETER_FACE_PERSISTENCY,
+  CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL,
+  CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD,
   CONTROL_PARAMETER_UBOUND
 };
 
@@ -61,7 +63,9 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "Mask",
   "Strategy",
   "ExpirationPeriod",
-  "FacePersistency"
+  "FacePersistency",
+  "BaseCongestionMarkingInterval",
+  "DefaultCongestionThreshold"
 };
 
 /**
@@ -459,6 +463,70 @@ public: // getters & setters
     return *this;
   }
 
+  bool
+  hasBaseCongestionMarkingInterval() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL];
+  }
+
+  time::nanoseconds
+  getBaseCongestionMarkingInterval() const
+  {
+    BOOST_ASSERT(this->hasBaseCongestionMarkingInterval());
+    return m_baseCongestionMarkingInterval;
+  }
+
+  ControlParameters&
+  setBaseCongestionMarkingInterval(time::nanoseconds interval)
+  {
+    m_wire.reset();
+    m_baseCongestionMarkingInterval = interval;
+    m_hasFields[CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetBaseCongestionMarkingInterval()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL] = false;
+    return *this;
+  }
+
+  bool
+  hasDefaultCongestionThreshold() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD];
+  }
+
+  /** \brief get default congestion threshold (measured in bytes)
+   */
+  uint64_t
+  getDefaultCongestionThreshold() const
+  {
+    BOOST_ASSERT(this->hasDefaultCongestionThreshold());
+    return m_defaultCongestionThreshold;
+  }
+
+  /** \brief set default congestion threshold (measured in bytes)
+   */
+  ControlParameters&
+  setDefaultCongestionThreshold(uint64_t threshold)
+  {
+    m_wire.reset();
+    m_defaultCongestionThreshold = threshold;
+    m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetDefaultCongestionThreshold()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD] = false;
+    return *this;
+  }
+
   const std::vector<bool>&
   getPresentFields() const
   {
@@ -512,6 +580,8 @@ private: // fields
   Name                m_strategy;
   time::milliseconds  m_expirationPeriod;
   FacePersistency     m_facePersistency;
+  time::nanoseconds   m_baseCongestionMarkingInterval;
+  uint64_t            m_defaultCongestionThreshold;
 
 private:
   mutable Block m_wire;

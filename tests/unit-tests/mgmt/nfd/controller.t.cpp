@@ -76,7 +76,9 @@ makeFaceCreateResponse()
       .setUri("tcp4://192.0.2.1:6363")
       .setLocalUri("tcp4://192.0.2.2:10847")
       .setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT)
-      .setFlags(0x7);
+      .setFlags(0x7)
+      .setBaseCongestionMarkingInterval(12_ns)
+      .setDefaultCongestionThreshold(10);
   return resp;
 }
 

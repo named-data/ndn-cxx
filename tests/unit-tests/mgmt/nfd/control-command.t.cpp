@@ -45,6 +45,8 @@ BOOST_AUTO_TEST_CASE(FaceCreateRequest)
   ControlParameters p2(p1);
   p2.setLocalUri("tcp4://192.0.2.2:32114")
     .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
+    .setBaseCongestionMarkingInterval(100_ms)
+    .setDefaultCongestionThreshold(10000)
     .setFlags(0x3)
     .setMask(0x1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
@@ -78,6 +80,8 @@ BOOST_AUTO_TEST_CASE(FaceCreateResponse)
     .setUri("tcp4://192.0.2.1:6363")
     .setLocalUri("tcp4://192.0.2.2:32114")
     .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
+    .setBaseCongestionMarkingInterval(500_ns)
+    .setDefaultCongestionThreshold(12345)
     .setFlags(0x3);
   BOOST_CHECK_NO_THROW(command.validateResponse(p1));
 
@@ -121,6 +125,8 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
   ControlParameters p2;
   p2.setFaceId(1)
     .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
+    .setBaseCongestionMarkingInterval(765_ns)
+    .setDefaultCongestionThreshold(54321)
     .setFlagBit(BIT_LOCAL_FIELDS_ENABLED, false);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError); // Mask forbidden but present
