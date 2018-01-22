@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,6 @@ enum {
   ControlParameters   = 104,
   FaceId              = 105,
   Uri                 = 114,
-  LocalControlFeature = 110,
   Origin              = 111,
   Cost                = 106,
   Flags               = 108,

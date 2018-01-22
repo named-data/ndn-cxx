@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,7 +68,6 @@ enum {
   NameComponent = 8,
   Selectors     = 9,
   Nonce         = 10,
-  // <Unassigned> = 11,
   InterestLifetime          = 12,
   ForwardingHint            = 30,
   MinSuffixComponents       = 13,
@@ -90,7 +89,6 @@ enum {
   KeyDigest       = 29,
   LinkPreference  = 30,
   LinkDelegation  = 31,
-  SelectedDelegation = 32,
 
   AppPrivateBlock1 = 128,
   AppPrivateBlock2 = 32767
