@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -83,6 +83,15 @@ enum FaceEventKind : uint8_t {
 
 std::ostream&
 operator<<(std::ostream& os, FaceEventKind faceEventKind);
+
+/** \ingroup management
+ *  \brief CS enablement flags
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Update-config
+ */
+enum CsFlagBit {
+  BIT_CS_ENABLE_ADMIT = 0, ///< enables the CS to admit new Data
+  BIT_CS_ENABLE_SERVE = 1, ///< enables the CS to satisfy Interests using cached Data
+};
 
 /** \ingroup management
  */

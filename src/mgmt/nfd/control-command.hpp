@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -148,9 +148,6 @@ public:
   applyDefaultsToRequest(ControlParameters& parameters) const override;
 
   void
-  validateRequest(const ControlParameters& parameters) const override;
-
-  void
   validateResponse(const ControlParameters& parameters) const override;
 };
 
@@ -167,9 +164,6 @@ public:
 
   void
   applyDefaultsToRequest(ControlParameters& parameters) const override;
-
-  void
-  validateRequest(const ControlParameters& parameters) const override;
 
   /**
    * \note This can only validate ControlParameters in a success response.
@@ -231,6 +225,18 @@ public:
 
   void
   validateResponse(const ControlParameters& parameters) const override;
+};
+
+
+/**
+ * \ingroup management
+ * \brief represents a cs/config command
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Update-config
+ */
+class CsConfigCommand : public ControlCommand
+{
+public:
+  CsConfigCommand();
 };
 
 

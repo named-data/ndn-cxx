@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,6 +67,9 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
   }
   if (this->hasFlags()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags);
+  }
+  if (this->hasCapacity()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Capacity, m_capacity);
   }
   if (this->hasCost()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Cost, m_cost);
@@ -154,6 +157,12 @@ ControlParameters::wireDecode(const Block& block)
   m_hasFields[CONTROL_PARAMETER_COST] = val != m_wire.elements_end();
   if (this->hasCost()) {
     m_cost = readNonNegativeInteger(*val);
+  }
+
+  val = m_wire.find(tlv::nfd::Capacity);
+  m_hasFields[CONTROL_PARAMETER_CAPACITY] = val != m_wire.elements_end();
+  if (this->hasCapacity()) {
+    m_capacity = readNonNegativeInteger(*val);
   }
 
   val = m_wire.find(tlv::nfd::Flags);
@@ -293,6 +302,10 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
 
   if (parameters.hasCost()) {
     os << "Cost: " << parameters.getCost() << ", ";
+  }
+
+  if (parameters.hasCapacity()) {
+    os << "Capacity: " << parameters.getCapacity() << ", ";
   }
 
   if (parameters.hasFlags()) {

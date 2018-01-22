@@ -31,103 +31,88 @@ BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(Nfd)
 BOOST_AUTO_TEST_SUITE(TestControlParameters)
 
-BOOST_AUTO_TEST_CASE(FaceOptions)
+BOOST_AUTO_TEST_CASE(Fields)
 {
-  ControlParameters parameters;
-  parameters.setUri("tcp4://192.0.2.1:6363");
-  parameters.setLocalUri("dev://eth0");
-  parameters.setFacePersistency(ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
-  parameters.setFlags(1);
-  parameters.setMask(1);
-  Block wire = parameters.wireEncode();
+  ControlParameters input;
 
-  ControlParameters decoded(wire);
-  BOOST_CHECK_EQUAL(decoded.getUri(), "tcp4://192.0.2.1:6363");
-  BOOST_CHECK_EQUAL(decoded.getLocalUri(), "dev://eth0");
-  BOOST_CHECK_EQUAL(decoded.getFacePersistency(), ndn::nfd::FacePersistency::FACE_PERSISTENCY_PERSISTENT);
-  BOOST_CHECK_EQUAL(decoded.getFlags(), 1);
-  BOOST_CHECK_EQUAL(decoded.getMask(), 1);
-
+  ControlParameters decoded(input.wireEncode());
   BOOST_CHECK_EQUAL(decoded.hasName(), false);
   BOOST_CHECK_EQUAL(decoded.hasFaceId(), false);
-  BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
-  BOOST_CHECK_EQUAL(decoded.hasCost(), false);
-  BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
-  BOOST_CHECK_EQUAL(decoded.hasExpirationPeriod(), false);
-}
-
-BOOST_AUTO_TEST_CASE(FibOptions)
-{
-  ControlParameters parameters;
-  parameters.setName("ndn:/example")
-            .setFaceId(4)
-            .setCost(555);
-
-  Block wire = parameters.wireEncode();
-
-  ControlParameters decoded(wire);
-  BOOST_CHECK_EQUAL(decoded.getName(), Name("ndn:/example"));
-  BOOST_CHECK_EQUAL(decoded.getFaceId(), 4);
-  BOOST_CHECK_EQUAL(decoded.getCost(), 555);
-
   BOOST_CHECK_EQUAL(decoded.hasUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
+  BOOST_CHECK_EQUAL(decoded.hasCost(), false);
+  BOOST_CHECK_EQUAL(decoded.hasCapacity(), false);
   BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
   BOOST_CHECK_EQUAL(decoded.hasMask(), false);
   BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
   BOOST_CHECK_EQUAL(decoded.hasExpirationPeriod(), false);
   BOOST_CHECK_EQUAL(decoded.hasFacePersistency(), false);
-}
 
-BOOST_AUTO_TEST_CASE(StrategyChoiceOptions)
-{
-  ControlParameters parameters;
-  parameters.setName("ndn:/")
-            .setStrategy("ndn:/strategy/A");
+  input.setName("/name");
+  input.setFaceId(2634);
+  input.setUri("udp4://192.0.2.1:6363");
+  input.setLocalUri("udp4://192.0.2.2:6363");
+  input.setOrigin(ROUTE_ORIGIN_NLSR);
+  input.setCost(1388);
+  input.setCapacity(2632);
+  input.setFlags(0xAFC4);
+  input.setMask(0xF7A1);
+  input.setStrategy("/strategy-name");
+  input.setExpirationPeriod(1800000_ms);
+  input.setFacePersistency(FacePersistency::FACE_PERSISTENCY_PERSISTENT);
 
-  Block wire = parameters.wireEncode();
+  decoded.wireDecode(input.wireEncode());
+  BOOST_CHECK_EQUAL(decoded.hasName(), true);
+  BOOST_CHECK_EQUAL(decoded.hasFaceId(), true);
+  BOOST_CHECK_EQUAL(decoded.hasUri(), true);
+  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), true);
+  BOOST_CHECK_EQUAL(decoded.hasOrigin(), true);
+  BOOST_CHECK_EQUAL(decoded.hasCost(), true);
+  BOOST_CHECK_EQUAL(decoded.hasCapacity(), true);
+  BOOST_CHECK_EQUAL(decoded.hasFlags(), true);
+  BOOST_CHECK_EQUAL(decoded.hasMask(), true);
+  BOOST_CHECK_EQUAL(decoded.hasStrategy(), true);
+  BOOST_CHECK_EQUAL(decoded.hasExpirationPeriod(), true);
+  BOOST_CHECK_EQUAL(decoded.hasFacePersistency(), true);
 
-  ControlParameters decoded(wire);
-  BOOST_CHECK_EQUAL(decoded.getName(), Name("ndn:/"));
-  BOOST_CHECK_EQUAL(decoded.getStrategy(), Name("ndn:/strategy/A"));
-
-  BOOST_CHECK_EQUAL(decoded.hasFaceId(), false);
-  BOOST_CHECK_EQUAL(decoded.hasUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
-  BOOST_CHECK_EQUAL(decoded.hasCost(), false);
-  BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
-  BOOST_CHECK_EQUAL(decoded.hasMask(), false);
-  BOOST_CHECK_EQUAL(decoded.hasExpirationPeriod(), false);
-  BOOST_CHECK_EQUAL(decoded.hasFacePersistency(), false);
-}
-
-BOOST_AUTO_TEST_CASE(RibOptions)
-{
-  ControlParameters parameters;
-  parameters.setName("ndn:/example")
-            .setFaceId(4)
-            .setOrigin(ROUTE_ORIGIN_NLSR)
-            .setCost(6)
-            .setFlags(0x01)
-            .setExpirationPeriod(30_min);
-
-  Block wire = parameters.wireEncode();
-
-  ControlParameters decoded(wire);
-  BOOST_CHECK_EQUAL(decoded.getName(), Name("ndn:/example"));
-  BOOST_CHECK_EQUAL(decoded.getFaceId(), 4);
+  BOOST_CHECK_EQUAL(decoded.getName(), "/name");
+  BOOST_CHECK_EQUAL(decoded.getFaceId(), 2634);
+  BOOST_CHECK_EQUAL(decoded.getUri(), "udp4://192.0.2.1:6363");
+  BOOST_CHECK_EQUAL(decoded.getLocalUri(), "udp4://192.0.2.2:6363");
   BOOST_CHECK_EQUAL(decoded.getOrigin(), ROUTE_ORIGIN_NLSR);
-  BOOST_CHECK_EQUAL(decoded.getCost(), 6);
-  BOOST_CHECK_EQUAL(decoded.getFlags(), 0x01);
+  BOOST_CHECK_EQUAL(decoded.getCost(), 1388);
+  BOOST_CHECK_EQUAL(decoded.getCapacity(), 2632);
+  BOOST_CHECK_EQUAL(decoded.getFlags(), 0xAFC4);
+  BOOST_CHECK_EQUAL(decoded.getMask(), 0xF7A1);
+  BOOST_CHECK_EQUAL(decoded.getStrategy(), "/strategy-name");
   BOOST_CHECK_EQUAL(decoded.getExpirationPeriod(), 1800000_ms);
+  BOOST_CHECK_EQUAL(decoded.getFacePersistency(), FacePersistency::FACE_PERSISTENCY_PERSISTENT);
 
-  BOOST_CHECK_EQUAL(decoded.hasUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasLocalUri(), false);
-  BOOST_CHECK_EQUAL(decoded.hasMask(), false);
-  BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
-  BOOST_CHECK_EQUAL(decoded.hasFacePersistency(), false);
+  input.unsetName();
+  input.unsetFaceId();
+  input.unsetUri();
+  input.unsetLocalUri();
+  input.unsetOrigin();
+  input.unsetCost();
+  input.unsetCapacity();
+  input.unsetFlags();
+  input.unsetMask();
+  input.unsetStrategy();
+  input.unsetExpirationPeriod();
+  input.unsetFacePersistency();
+  BOOST_CHECK_EQUAL(input.hasName(), false);
+  BOOST_CHECK_EQUAL(input.hasFaceId(), false);
+  BOOST_CHECK_EQUAL(input.hasUri(), false);
+  BOOST_CHECK_EQUAL(input.hasLocalUri(), false);
+  BOOST_CHECK_EQUAL(input.hasOrigin(), false);
+  BOOST_CHECK_EQUAL(input.hasCost(), false);
+  BOOST_CHECK_EQUAL(input.hasCapacity(), false);
+  BOOST_CHECK_EQUAL(input.hasFlags(), false);
+  BOOST_CHECK_EQUAL(input.hasMask(), false);
+  BOOST_CHECK_EQUAL(input.hasStrategy(), false);
+  BOOST_CHECK_EQUAL(input.hasExpirationPeriod(), false);
+  BOOST_CHECK_EQUAL(input.hasFacePersistency(), false);
 }
 
 BOOST_AUTO_TEST_CASE(FlagsAndMask)

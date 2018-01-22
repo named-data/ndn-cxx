@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,6 +40,7 @@ enum ControlParameterField {
   CONTROL_PARAMETER_LOCAL_URI,
   CONTROL_PARAMETER_ORIGIN,
   CONTROL_PARAMETER_COST,
+  CONTROL_PARAMETER_CAPACITY,
   CONTROL_PARAMETER_FLAGS,
   CONTROL_PARAMETER_MASK,
   CONTROL_PARAMETER_STRATEGY,
@@ -55,6 +56,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "LocalUri",
   "Origin",
   "Cost",
+  "Capacity",
   "Flags",
   "Mask",
   "Strategy",
@@ -278,6 +280,36 @@ public: // getters & setters
   }
 
   bool
+  hasCapacity() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_CAPACITY];
+  }
+
+  uint64_t
+  getCapacity() const
+  {
+    BOOST_ASSERT(this->hasCapacity());
+    return m_capacity;
+  }
+
+  ControlParameters&
+  setCapacity(uint64_t capacity)
+  {
+    m_wire.reset();
+    m_capacity = capacity;
+    m_hasFields[CONTROL_PARAMETER_CAPACITY] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetCapacity()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_CAPACITY] = false;
+    return *this;
+  }
+
+  bool
   hasFlags() const
   {
     return m_hasFields[CONTROL_PARAMETER_FLAGS];
@@ -474,6 +506,7 @@ private: // fields
   std::string         m_localUri;
   RouteOrigin         m_origin;
   uint64_t            m_cost;
+  uint64_t            m_capacity;
   uint64_t            m_flags;
   uint64_t            m_mask;
   Name                m_strategy;

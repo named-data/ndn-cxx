@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -238,6 +238,59 @@ BOOST_AUTO_TEST_CASE(FibRemoveNextHop)
   command.applyDefaultsToRequest(p1);
   BOOST_REQUIRE(p1.hasFaceId());
   BOOST_CHECK_EQUAL(p1.getFaceId(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(CsConfigRequest)
+{
+  CsConfigCommand command;
+
+  // good empty request
+  ControlParameters p1;
+  command.validateRequest(p1);
+  BOOST_CHECK(Name("/PREFIX/cs/config").isPrefixOf(command.getRequestName("/PREFIX", p1)));
+
+  // good full request
+  ControlParameters p2;
+  p2.setCapacity(1574);
+  p2.setFlagBit(BIT_CS_ENABLE_ADMIT, true);
+  p2.setFlagBit(BIT_CS_ENABLE_SERVE, true);
+  command.validateRequest(p2);
+
+  // bad request: Flags but no Mask
+  ControlParameters p3(p2);
+  p3.unsetMask();
+  BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
+
+  // bad request: Mask but no Flags
+  ControlParameters p4(p2);
+  p4.unsetFlags();
+  BOOST_CHECK_THROW(command.validateRequest(p4), ControlCommand::ArgumentError);
+
+  // bad request: forbidden field
+  ControlParameters p5(p2);
+  p5.setName("/example");
+  BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
+}
+
+BOOST_AUTO_TEST_CASE(CsConfigResponse)
+{
+  CsConfigCommand command;
+
+  // bad empty response
+  ControlParameters p1;
+  BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
+
+  // bad response: Mask not allowed
+  ControlParameters p2;
+  p2.setCapacity(1574);
+  p2.setFlagBit(BIT_CS_ENABLE_ADMIT, true);
+  p2.setFlagBit(BIT_CS_ENABLE_SERVE, true);
+  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
+
+  // good response
+  ControlParameters p3(p2);
+  p3.unsetMask();
+  command.validateResponse(p3);
 }
 
 BOOST_AUTO_TEST_CASE(StrategyChoiceSet)

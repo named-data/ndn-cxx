@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -88,6 +88,12 @@ ControlCommand::FieldValidator::validate(const ControlParameters& parameters) co
       BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but present"));
     }
   }
+
+  if (m_optional[CONTROL_PARAMETER_FLAGS] && m_optional[CONTROL_PARAMETER_MASK]) {
+    if (parameters.hasFlags() != parameters.hasMask()) {
+      BOOST_THROW_EXCEPTION(ArgumentError("Flags must be accompanied by Mask"));
+    }
+  }
 }
 
 FaceCreateCommand::FaceCreateCommand()
@@ -112,16 +118,6 @@ FaceCreateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 {
   if (!parameters.hasFacePersistency()) {
     parameters.setFacePersistency(FacePersistency::FACE_PERSISTENCY_PERSISTENT);
-  }
-}
-
-void
-FaceCreateCommand::validateRequest(const ControlParameters& parameters) const
-{
-  this->ControlCommand::validateRequest(parameters);
-
-  if (parameters.hasFlags() != parameters.hasMask()) {
-    BOOST_THROW_EXCEPTION(ArgumentError("Flags must be accompanied by Mask"));
   }
 }
 
@@ -154,16 +150,6 @@ FaceUpdateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 {
   if (!parameters.hasFaceId()) {
     parameters.setFaceId(0);
-  }
-}
-
-void
-FaceUpdateCommand::validateRequest(const ControlParameters& parameters) const
-{
-  this->ControlCommand::validateRequest(parameters);
-
-  if (parameters.hasFlags() != parameters.hasMask()) {
-    BOOST_THROW_EXCEPTION(ArgumentError("Flags must be accompanied by Mask"));
   }
 }
 
@@ -262,6 +248,18 @@ FibRemoveNextHopCommand::validateResponse(const ControlParameters& parameters) c
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
   }
+}
+
+CsConfigCommand::CsConfigCommand()
+  : ControlCommand("cs", "config")
+{
+  m_requestValidator
+    .optional(CONTROL_PARAMETER_CAPACITY)
+    .optional(CONTROL_PARAMETER_FLAGS)
+    .optional(CONTROL_PARAMETER_MASK);
+  m_responseValidator
+    .required(CONTROL_PARAMETER_CAPACITY)
+    .required(CONTROL_PARAMETER_FLAGS);
 }
 
 StrategyChoiceSetCommand::StrategyChoiceSetCommand()
