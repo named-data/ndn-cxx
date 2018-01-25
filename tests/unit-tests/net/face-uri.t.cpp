@@ -173,6 +173,17 @@ BOOST_AUTO_TEST_CASE(ParseUdp)
 
   BOOST_CHECK(uri.parse("udp6://[fe80::1%1]:6363"));
   BOOST_CHECK(uri.parse("udp6://[fe80::1%eth1]"));
+
+  BOOST_CHECK(uri.parse("udp6://[ff01::114%eth#1]"));
+  BOOST_CHECK(uri.parse("udp6://[ff01::114%eth.1,2]"));
+  BOOST_CHECK(uri.parse("udp6://[ff01::114%a+b-c=0]"));
+  BOOST_CHECK(uri.parse("udp6://[ff01::114%[foo]]"));
+  BOOST_CHECK(uri.parse("udp6://[ff01::114%]]"));
+  BOOST_CHECK(uri.parse("udp6://[ff01::114%%]"));
+  BOOST_CHECK(!uri.parse("udp6://[ff01::114%]"));
+  BOOST_CHECK(!uri.parse("udp6://[ff01::114%foo bar]"));
+  BOOST_CHECK(!uri.parse("udp6://[ff01::114%foo/bar]"));
+  BOOST_CHECK(!uri.parse("udp6://[ff01::114%eth0:1]"));
 }
 
 BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)

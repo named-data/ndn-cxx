@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California,
+ * Copyright (c) 2013-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -79,8 +79,7 @@ FaceUri::parse(const std::string& uri)
   m_path = protocolMatch[4];
 
   // pattern for IPv6 link local address enclosed in [ ], with optional port number
-  static const boost::regex v6LinkLocalExp("^\\[([a-fA-F0-9:]+)%([a-zA-Z0-9]+)\\]"
-                                           "(?:\\:(\\d+))?$");
+  static const boost::regex v6LinkLocalExp("^\\[([a-fA-F0-9:]+)%([^\\s/:]+)\\](?:\\:(\\d+))?$");
   // pattern for IPv6 address enclosed in [ ], with optional port number
   static const boost::regex v6Exp("^\\[([a-fA-F0-9:]+)\\](?:\\:(\\d+))?$");
   // pattern for Ethernet address in standard hex-digits-and-colons notation
@@ -441,11 +440,6 @@ public:
     : IpHostCanonizeProvider("udp")
   {
   }
-
-protected:
-  // checkAddress is not overriden:
-  // Although NFD doesn't support IPv6 multicast, it's an implementation limitation.
-  // FaceMgmt protocol allows IPv6 multicast address in UDP.
 };
 
 class TcpCanonizeProvider : public IpHostCanonizeProvider<boost::asio::ip::tcp>
