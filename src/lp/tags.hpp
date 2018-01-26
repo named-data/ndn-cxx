@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 
 #include "cache-policy.hpp"
 #include "empty-value.hpp"
+#include "prefix-announcement.hpp"
 #include "../tag.hpp"
 
 namespace ndn {
@@ -63,6 +64,13 @@ typedef SimpleTag<uint64_t, 13> CongestionMarkTag;
  *  This tag can be attached to Interest.
  */
 typedef SimpleTag<EmptyValue, 14> NonDiscoveryTag;
+
+/** \class PrefixAnnouncementTag
+ *  \brief a packet tag for PrefixAnnouncement field
+ *
+ *  This tag can be attached to Data.
+ */
+typedef SimpleTag<PrefixAnnouncement, 15> PrefixAnnouncementTag;
 
 } // namespace lp
 } // namespace ndn

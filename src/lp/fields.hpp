@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,7 @@
 #include "sequence.hpp"
 #include "cache-policy.hpp"
 #include "nack-header.hpp"
+#include "prefix-announcement.hpp"
 
 #include <boost/mpl/set.hpp>
 
@@ -89,6 +90,10 @@ typedef FieldDecl<field_location_tags::Header,
                   tlv::NonDiscovery> NonDiscoveryField;
 BOOST_CONCEPT_ASSERT((Field<NonDiscoveryField>));
 
+typedef FieldDecl<field_location_tags::Header,
+                  PrefixAnnouncement,
+                  tlv::PrefixAnnouncement> PrefixAnnouncementField;
+BOOST_CONCEPT_ASSERT((Field<PrefixAnnouncementField>));
 /**
  * The value of the wire encoded field is the data between the provided iterators. During
  * encoding, the data is copied from the Buffer into the wire buffer.
@@ -113,7 +118,8 @@ typedef boost::mpl::set<
   CongestionMarkField,
   AckField,
   TxSequenceField,
-  NonDiscoveryField
+  NonDiscoveryField,
+  PrefixAnnouncementField
   > FieldSet;
 
 } // namespace lp
