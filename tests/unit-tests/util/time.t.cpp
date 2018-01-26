@@ -82,9 +82,11 @@ BOOST_AUTO_TEST_CASE(LargeDates)
 {
   auto value = fromUnixTimestamp(milliseconds(1390966967032LL));
   BOOST_CHECK_EQUAL(toIsoString(value), "20140129T034247.032000");
+  BOOST_CHECK_EQUAL(fromIsoString("20140129T034247.032000"), value);
 
-  value += days(365 * 100 + 25 - 1); // 36524 days
+  value += 36524_days;
   BOOST_CHECK_EQUAL(toIsoString(value), "21140129T034247.032000");
+  BOOST_CHECK_EQUAL(fromIsoString("21140129T034247.032000"), value);
 }
 
 BOOST_AUTO_TEST_CASE(Literals)
@@ -113,6 +115,16 @@ BOOST_AUTO_TEST_CASE(Literals)
 
   BOOST_CHECK_EQUAL(1_ns, nanoseconds(1));
   BOOST_CHECK_EQUAL(5.5_ns, 0.0055_us);
+}
+
+BOOST_AUTO_TEST_CASE(Year2038)
+{
+  auto year2042 = fromIsoString("20420101T000001.042000");
+  auto year2010 = fromIsoString("20100101T000001.042000");
+
+  BOOST_CHECK_EQUAL(to_string(year2010), "1262304001042000000 nanoseconds since Jan 1, 1970");
+  BOOST_CHECK_EQUAL(to_string(year2042), "2272147201042000000 nanoseconds since Jan 1, 1970");
+  BOOST_CHECK_GT(year2042, year2010);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTime

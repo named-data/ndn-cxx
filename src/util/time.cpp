@@ -140,17 +140,23 @@ toIsoString(const system_clock::TimePoint& timePoint)
   return bpt::to_iso_string(ptime);
 }
 
+static system_clock::TimePoint
+convertToTimePoint(const boost::posix_time::ptime& ptime)
+{
+  namespace bpt = boost::posix_time;
+  static bpt::ptime epoch(boost::gregorian::date(1970, 1, 1));
+
+  // .total_seconds() has issue with large dates until Boost 1.66. See Issue #4478
+  // from_time_t has issues with large dates on 32-bit platforms
+  auto point = system_clock::time_point(seconds((ptime - epoch).ticks() / bpt::time_duration::ticks_per_second()));
+  point += microseconds((ptime - epoch).total_microseconds() % 1000000);
+  return point;
+}
+
 system_clock::TimePoint
 fromIsoString(const std::string& isoString)
 {
-  namespace bpt = boost::posix_time;
-  static bpt::ptime epoch = bpt::from_time_t(0);
-
-  bpt::ptime ptime = bpt::from_iso_string(isoString);
-  auto point = system_clock::from_time_t((ptime - epoch).total_seconds());
-  point += microseconds((ptime - epoch).total_microseconds() % 1000000);
-
-  return point;
+  return convertToTimePoint(boost::posix_time::from_iso_string(isoString));
 }
 
 std::string
@@ -178,7 +184,6 @@ fromString(const std::string& timePointStr,
            const std::locale& locale/* = std::locale("C")*/)
 {
   namespace bpt = boost::posix_time;
-  static bpt::ptime epoch = bpt::from_time_t(0);
 
   bpt::time_input_facet* facet = new bpt::time_input_facet(format);
   std::istringstream is(timePointStr);
@@ -186,10 +191,7 @@ fromString(const std::string& timePointStr,
   bpt::ptime ptime;
   is >> ptime;
 
-  auto point = system_clock::from_time_t((ptime - epoch).total_seconds());
-  point += microseconds((ptime - epoch).total_microseconds() % 1000000);
-
-  return point;
+  return convertToTimePoint(ptime);
 }
 
 } // namespace time
