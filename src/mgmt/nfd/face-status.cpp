@@ -32,9 +32,7 @@ namespace nfd {
 BOOST_CONCEPT_ASSERT((StatusDatasetItem<FaceStatus>));
 
 FaceStatus::FaceStatus()
-  : m_baseCongestionMarkingInterval(0)
-  , m_defaultCongestionThreshold(0)
-  , m_nInInterests(0)
+  : m_nInInterests(0)
   , m_nInData(0)
   , m_nInNacks(0)
   , m_nOutInterests(0)
@@ -65,10 +63,14 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInNacks, m_nInNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInData, m_nInData);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInInterests, m_nInInterests);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::DefaultCongestionThreshold,
-                                                m_defaultCongestionThreshold);
-  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::BaseCongestionMarkingInterval,
-                                                m_baseCongestionMarkingInterval.count());
+  if (m_defaultCongestionThreshold) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::DefaultCongestionThreshold,
+                                                  *m_defaultCongestionThreshold);
+  }
+  if (m_baseCongestionMarkingInterval) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::BaseCongestionMarkingInterval,
+                                                  m_baseCongestionMarkingInterval->count());
+  }
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::LinkType, m_linkType);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FacePersistency, m_facePersistency);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FaceScope, m_faceScope);
@@ -170,11 +172,11 @@ FaceStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::BaseCongestionMarkingInterval) {
-    m_baseCongestionMarkingInterval = time::nanoseconds(readNonNegativeInteger(*val));
+    m_baseCongestionMarkingInterval.emplace(readNonNegativeInteger(*val));
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required BaseCongestionMarkingInterval field"));
+    m_baseCongestionMarkingInterval = nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::DefaultCongestionThreshold) {
@@ -182,7 +184,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required DefaultCongestionThreshold field"));
+    m_defaultCongestionThreshold = nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
@@ -283,10 +285,26 @@ FaceStatus::setBaseCongestionMarkingInterval(time::nanoseconds interval)
 }
 
 FaceStatus&
+FaceStatus::unsetBaseCongestionMarkingInterval()
+{
+  m_wire.reset();
+  m_baseCongestionMarkingInterval = nullopt;
+  return *this;
+}
+
+FaceStatus&
 FaceStatus::setDefaultCongestionThreshold(uint64_t threshold)
 {
   m_wire.reset();
   m_defaultCongestionThreshold = threshold;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::unsetDefaultCongestionThreshold()
+{
+  m_wire.reset();
+  m_defaultCongestionThreshold = nullopt;
   return *this;
 }
 
@@ -366,8 +384,12 @@ operator==(const FaceStatus& a, const FaceStatus& b)
       a.getFlags() == b.getFlags() &&
       a.hasExpirationPeriod() == b.hasExpirationPeriod() &&
       (!a.hasExpirationPeriod() || a.getExpirationPeriod() == b.getExpirationPeriod()) &&
-      a.getBaseCongestionMarkingInterval() == b.getBaseCongestionMarkingInterval() &&
-      a.getDefaultCongestionThreshold() == b.getDefaultCongestionThreshold() &&
+      a.hasBaseCongestionMarkingInterval() == b.hasBaseCongestionMarkingInterval() &&
+      (!a.hasBaseCongestionMarkingInterval() ||
+       a.getBaseCongestionMarkingInterval() == b.getBaseCongestionMarkingInterval()) &&
+      a.hasDefaultCongestionThreshold() == b.hasDefaultCongestionThreshold() &&
+      (!a.hasDefaultCongestionThreshold() ||
+       a.getDefaultCongestionThreshold() == b.getDefaultCongestionThreshold()) &&
       a.getNInInterests() == b.getNInInterests() &&
       a.getNInData() == b.getNInData() &&
       a.getNInNacks() == b.getNInNacks() &&
@@ -394,10 +416,17 @@ operator<<(std::ostream& os, const FaceStatus& status)
 
   os << "     FaceScope: " << status.getFaceScope() << ",\n"
      << "     FacePersistency: " << status.getFacePersistency() << ",\n"
-     << "     LinkType: " << status.getLinkType() << ",\n"
-     << "     BaseCongestionMarkingInterval: " << status.getBaseCongestionMarkingInterval() << ",\n"
-     << "     DefaultCongestionThreshold: " << status.getDefaultCongestionThreshold() << " bytes,\n"
-     << "     Flags: " << AsHex{status.getFlags()} << ",\n"
+     << "     LinkType: " << status.getLinkType() << ",\n";
+
+  if (status.hasBaseCongestionMarkingInterval()) {
+    os << "     BaseCongestionMarkingInterval: " << status.getBaseCongestionMarkingInterval() << ",\n";
+  }
+
+  if (status.hasDefaultCongestionThreshold()) {
+    os << "     DefaultCongestionThreshold: " << status.getDefaultCongestionThreshold() << " bytes,\n";
+  }
+
+  os << "     Flags: " << AsHex{status.getFlags()} << ",\n"
      << "     Counters: {Interests: {in: " << status.getNInInterests() << ", "
      << "out: " << status.getNOutInterests() << "},\n"
      << "                Data: {in: " << status.getNInData() << ", "

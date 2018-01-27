@@ -109,8 +109,6 @@ BOOST_AUTO_TEST_CASE(Print)
                     "     FaceScope: non-local,\n"
                     "     FacePersistency: persistent,\n"
                     "     LinkType: point-to-point,\n"
-                    "     BaseCongestionMarkingInterval: 0 nanoseconds,\n"
-                    "     DefaultCongestionThreshold: 0 bytes,\n"
                     "     Flags: 0x0,\n"
                     "     Counters: {Interests: {in: 0, out: 0},\n"
                     "                Data: {in: 0, out: 0},\n"

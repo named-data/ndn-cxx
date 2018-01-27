@@ -77,27 +77,47 @@ public: // getters & setters
   FaceStatus&
   unsetExpirationPeriod();
 
+  bool
+  hasBaseCongestionMarkingInterval() const
+  {
+    return !!m_baseCongestionMarkingInterval;
+  }
+
   time::nanoseconds
   getBaseCongestionMarkingInterval() const
   {
-    return m_baseCongestionMarkingInterval;
+    BOOST_ASSERT(hasBaseCongestionMarkingInterval());
+    return *m_baseCongestionMarkingInterval;
   }
 
   FaceStatus&
   setBaseCongestionMarkingInterval(time::nanoseconds interval);
+
+  FaceStatus&
+  unsetBaseCongestionMarkingInterval();
+
+  bool
+  hasDefaultCongestionThreshold() const
+  {
+    return !!m_defaultCongestionThreshold;
+  }
 
   /** \brief get default congestion threshold (measured in bytes)
    */
   uint64_t
   getDefaultCongestionThreshold() const
   {
-    return m_defaultCongestionThreshold;
+    BOOST_ASSERT(hasDefaultCongestionThreshold());
+    return *m_defaultCongestionThreshold;
   }
 
   /** \brief set default congestion threshold (measured in bytes)
    */
   FaceStatus&
   setDefaultCongestionThreshold(uint64_t threshold);
+
+  FaceStatus&
+  unsetDefaultCongestionThreshold();
 
   uint64_t
   getNInInterests() const
@@ -173,8 +193,8 @@ public: // getters & setters
 
 private:
   optional<time::milliseconds> m_expirationPeriod;
-  time::nanoseconds m_baseCongestionMarkingInterval;
-  uint64_t m_defaultCongestionThreshold;
+  optional<time::nanoseconds> m_baseCongestionMarkingInterval;
+  optional<uint64_t> m_defaultCongestionThreshold;
   uint64_t m_nInInterests;
   uint64_t m_nInData;
   uint64_t m_nInNacks;
