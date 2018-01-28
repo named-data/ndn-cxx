@@ -52,15 +52,14 @@ BOOST_AUTO_TEST_CASE(SystemClock)
 
   BOOST_CHECK_EQUAL(fromIsoString("20140129T034247.032000"), referenceTime);
   BOOST_CHECK_EQUAL(fromIsoString("20140129T034247.032000Z"), referenceTime);
-  BOOST_CHECK_EQUAL(fromString("2014-01-29 03:42:47"),
-                    fromUnixTimestamp(seconds(1390966967)));
+  BOOST_CHECK_EQUAL(fromString("2014-01-29 03:42:47"), fromUnixTimestamp(1390966967_s));
 
   // Unfortunately, not all systems has lv_LV locale installed :(
   // BOOST_CHECK_EQUAL(fromString("2014. gada 29. Janvāris", "%Y. gada %d. %B", std::locale("lv_LV.UTF-8")),
-  //                   fromUnixTimestamp(seconds(1390953600)));
+  //                   fromUnixTimestamp(1390953600_s));
 
   BOOST_CHECK_EQUAL(fromString("2014 -- 29 -- January", "%Y -- %d -- %B", std::locale("C")),
-                    fromUnixTimestamp(seconds(1390953600)));
+                    fromUnixTimestamp(1390953600_s));
 }
 
 BOOST_AUTO_TEST_CASE(SteadyClock)
@@ -80,13 +79,17 @@ BOOST_AUTO_TEST_CASE(Abs)
 
 BOOST_AUTO_TEST_CASE(LargeDates)
 {
-  auto value = fromUnixTimestamp(milliseconds(1390966967032LL));
+  auto value = fromUnixTimestamp(1390966967032_ms);
   BOOST_CHECK_EQUAL(toIsoString(value), "20140129T034247.032000");
   BOOST_CHECK_EQUAL(fromIsoString("20140129T034247.032000"), value);
+  BOOST_CHECK_EQUAL(toString(value, "%Y-%m-%d %H:%M:%S%F"), "2014-01-29 03:42:47.032000");
+  BOOST_CHECK_EQUAL(fromString("2014-01-29 03:42:47.032000", "%Y-%m-%d %H:%M:%S%F"), value);
 
   value += 36524_days;
   BOOST_CHECK_EQUAL(toIsoString(value), "21140129T034247.032000");
   BOOST_CHECK_EQUAL(fromIsoString("21140129T034247.032000"), value);
+  BOOST_CHECK_EQUAL(toString(value, "%Y-%m-%d %H:%M:%S%F"), "2114-01-29 03:42:47.032000");
+  BOOST_CHECK_EQUAL(fromString("2114-01-29 03:42:47.03200", "%Y-%m-%d %H:%M:%S%F"), value);
 }
 
 BOOST_AUTO_TEST_CASE(Literals)

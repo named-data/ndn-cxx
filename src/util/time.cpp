@@ -105,7 +105,7 @@ steady_clock::to_wait_duration(steady_clock::duration d)
 const system_clock::TimePoint&
 getUnixEpoch()
 {
-  static auto epoch = system_clock::from_time_t(0);
+  static constexpr system_clock::TimePoint epoch(seconds::zero());
   return epoch;
 }
 
@@ -121,23 +121,30 @@ fromUnixTimestamp(milliseconds duration)
   return getUnixEpoch() + duration;
 }
 
-std::string
-toIsoString(const system_clock::TimePoint& timePoint)
+static boost::posix_time::ptime
+convertToPosixTime(const system_clock::TimePoint& timePoint)
 {
   namespace bpt = boost::posix_time;
   static bpt::ptime epoch(boost::gregorian::date(1970, 1, 1));
 
-#ifdef BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
-  using BptResolutionUnit = nanoseconds;
+  using BptResolution =
+#if defined(BOOST_DATE_TIME_HAS_NANOSECONDS)
+    nanoseconds;
+#elif defined(BOOST_DATE_TIME_HAS_MICROSECONDS)
+    microseconds;
 #else
-  using BptResolutionUnit = microseconds;
+    milliseconds;
 #endif
-  constexpr auto unitsPerHour = duration_cast<BptResolutionUnit>(hours(1)).count();
+  constexpr auto unitsPerHour = duration_cast<BptResolution>(1_h).count();
 
-  auto sinceEpoch = duration_cast<BptResolutionUnit>(timePoint - getUnixEpoch()).count();
-  bpt::ptime ptime = epoch + bpt::time_duration(sinceEpoch / unitsPerHour, 0, 0, sinceEpoch % unitsPerHour);
+  auto sinceEpoch = duration_cast<BptResolution>(timePoint - getUnixEpoch()).count();
+  return epoch + bpt::time_duration(sinceEpoch / unitsPerHour, 0, 0, sinceEpoch % unitsPerHour);
+}
 
-  return bpt::to_iso_string(ptime);
+std::string
+toIsoString(const system_clock::TimePoint& timePoint)
+{
+  return boost::posix_time::to_iso_string(convertToPosixTime(timePoint));
 }
 
 static system_clock::TimePoint
@@ -146,11 +153,11 @@ convertToTimePoint(const boost::posix_time::ptime& ptime)
   namespace bpt = boost::posix_time;
   static bpt::ptime epoch(boost::gregorian::date(1970, 1, 1));
 
-  // .total_seconds() has issue with large dates until Boost 1.66. See Issue #4478
-  // from_time_t has issues with large dates on 32-bit platforms
-  auto point = system_clock::time_point(seconds((ptime - epoch).ticks() / bpt::time_duration::ticks_per_second()));
-  point += microseconds((ptime - epoch).total_microseconds() % 1000000);
-  return point;
+  // .total_seconds() has an issue with large dates until Boost 1.66, see #4478.
+  // time_t overflows for large dates on 32-bit platforms (Y2038 problem).
+  auto sinceEpoch = ptime - epoch;
+  auto point = system_clock::TimePoint(seconds(sinceEpoch.ticks() / bpt::time_duration::ticks_per_second()));
+  return point + microseconds(sinceEpoch.total_microseconds() % 1000000);
 }
 
 system_clock::TimePoint
@@ -165,17 +172,13 @@ toString(const system_clock::TimePoint& timePoint,
          const std::locale& locale/* = std::locale("C")*/)
 {
   namespace bpt = boost::posix_time;
-  bpt::ptime ptime = bpt::from_time_t(system_clock::to_time_t(timePoint));
 
-  uint64_t micro = duration_cast<microseconds>(timePoint - getUnixEpoch()).count() % 1000000;
-  ptime += bpt::microseconds(micro);
+  std::ostringstream os;
+  auto* facet = new bpt::time_facet(format.data());
+  os.imbue(std::locale(locale, facet));
+  os << convertToPosixTime(timePoint);
 
-  bpt::time_facet* facet = new bpt::time_facet(format.c_str());
-  std::ostringstream formattedTimePoint;
-  formattedTimePoint.imbue(std::locale(locale, facet));
-  formattedTimePoint << ptime;
-
-  return formattedTimePoint.str();
+  return os.str();
 }
 
 system_clock::TimePoint
@@ -185,8 +188,8 @@ fromString(const std::string& timePointStr,
 {
   namespace bpt = boost::posix_time;
 
-  bpt::time_input_facet* facet = new bpt::time_input_facet(format);
   std::istringstream is(timePointStr);
+  auto* facet = new bpt::time_input_facet(format);
   is.imbue(std::locale(locale, facet));
   bpt::ptime ptime;
   is >> ptime;
