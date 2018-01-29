@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,6 +36,10 @@ static CsInfo
 makeCsInfo()
 {
   return CsInfo()
+    .setCapacity(20177)
+    .setEnableAdmit(false)
+    .setEnableServe(true)
+    .setNEntries(5509)
     .setNHits(12951)
     .setNMisses(28179);
 }
@@ -46,7 +50,10 @@ BOOST_AUTO_TEST_CASE(Encode)
   Block wire = csi1.wireEncode();
 
   static const uint8_t EXPECTED[] = {
-    0x80, 0x08, // CsInfo
+    0x80, 0x13, // CsInfo
+          0x83, 0x02, 0x4E, 0xD1, // Capacity
+          0x6C, 0x01, 0x02,       // Flags
+          0x87, 0x02, 0x15, 0x85, // NCsEntries
           0x81, 0x02, 0x32, 0x97, // NHits
           0x82, 0x02, 0x6E, 0x13, // NMisses
   };
@@ -66,20 +73,44 @@ BOOST_AUTO_TEST_CASE(Equality)
   csi2 = csi1;
   BOOST_CHECK_EQUAL(csi1, csi2);
 
-  csi2.setNHits(8267);
+  csi2.setCapacity(csi2.getCapacity() + 1);
   BOOST_CHECK_NE(csi1, csi2);
+  csi2 = csi1;
+
+  csi2.setEnableAdmit(!csi2.getEnableAdmit());
+  BOOST_CHECK_NE(csi1, csi2);
+  csi2 = csi1;
+
+  csi2.setEnableServe(!csi2.getEnableServe());
+  BOOST_CHECK_NE(csi1, csi2);
+  csi2 = csi1;
+
+  csi2.setNEntries(csi2.getNEntries() + 1);
+  BOOST_CHECK_NE(csi1, csi2);
+  csi2 = csi1;
+
+  csi2.setNHits(csi2.getNHits() + 1);
+  BOOST_CHECK_NE(csi1, csi2);
+  csi2 = csi1;
+
+  csi2.setNMisses(csi2.getNMisses() + 1);
+  BOOST_CHECK_NE(csi1, csi2);
+  csi2 = csi1;
 }
 
 BOOST_AUTO_TEST_CASE(Print)
 {
   CsInfo csi;
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi), "CS: 0 hits, 0 misses");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi),
+    "CS: 0 entries, 0 max, admit disabled, serve disabled, 0 hits, 0 misses");
 
   csi = makeCsInfo();
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi), "CS: 12951 hits, 28179 misses");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi),
+    "CS: 5509 entries, 20177 max, admit disabled, serve enabled, 12951 hits, 28179 misses");
 
-  csi.setNHits(1).setNMisses(1);
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi), "CS: 1 hit, 1 miss");
+  csi.setEnableAdmit(true).setNHits(1).setNMisses(1);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi),
+    "CS: 5509 entries, 20177 max, admit enabled, serve enabled, 1 hit, 1 miss");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCsInfo

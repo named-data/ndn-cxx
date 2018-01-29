@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,9 @@ namespace nfd {
 BOOST_CONCEPT_ASSERT((StatusDatasetItem<CsInfo>));
 
 CsInfo::CsInfo()
-  : m_nHits(0)
+  : m_capacity(0)
+  , m_nEntries(0)
+  , m_nHits(0)
   , m_nMisses(0)
 {
 }
@@ -49,6 +51,9 @@ CsInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NMisses, m_nMisses);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NHits, m_nHits);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NCsEntries, m_nEntries);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags.to_ullong());
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Capacity, m_capacity);
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::nfd::CsInfo);
@@ -83,6 +88,30 @@ CsInfo::wireDecode(const Block& block)
   m_wire.parse();
   auto val = m_wire.elements_begin();
 
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Capacity) {
+    m_nHits = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required Capacity field"));
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
+    m_flags = FlagsBitSet(static_cast<unsigned long long>(readNonNegativeInteger(*val)));
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NCsEntries) {
+    m_nEntries = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required NCsEntries field"));
+  }
+
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NHits) {
     m_nHits = readNonNegativeInteger(*val);
     ++val;
@@ -98,6 +127,38 @@ CsInfo::wireDecode(const Block& block)
   else {
     BOOST_THROW_EXCEPTION(Error("missing required NMisses field"));
   }
+}
+
+CsInfo&
+CsInfo::setCapacity(uint64_t capacity)
+{
+  m_wire.reset();
+  m_capacity = capacity;
+  return *this;
+}
+
+CsInfo&
+CsInfo::setEnableAdmit(bool enableAdmit)
+{
+  m_wire.reset();
+  m_flags[BIT_CS_ENABLE_ADMIT] = enableAdmit;
+  return *this;
+}
+
+CsInfo&
+CsInfo::setEnableServe(bool enableServe)
+{
+  m_wire.reset();
+  m_flags[BIT_CS_ENABLE_SERVE] = enableServe;
+  return *this;
+}
+
+CsInfo&
+CsInfo::setNEntries(uint64_t nEntries)
+{
+  m_wire.reset();
+  m_nEntries = nEntries;
+  return *this;
 }
 
 CsInfo&
@@ -119,17 +180,18 @@ CsInfo::setNMisses(uint64_t nMisses)
 bool
 operator==(const CsInfo& a, const CsInfo& b)
 {
-  return a.getNHits() == b.getNHits() &&
-         a.getNMisses() == b.getNMisses();
+  return a.wireEncode() == b.wireEncode();
 }
 
 std::ostream&
-operator<<(std::ostream& os, const CsInfo& status)
+operator<<(std::ostream& os, const CsInfo& csi)
 {
   os << "CS: "
-     << status.getNHits() << (status.getNHits() == 1 ? " hit" : " hits")
-     << ", "
-     << status.getNMisses() << (status.getNMisses() == 1 ? " miss" : " misses");
+     << csi.getNEntries() << " entries, " << csi.getCapacity() << " max, "
+     << (csi.getEnableAdmit() ? "admit enabled, " : "admit disabled, ")
+     << (csi.getEnableServe() ? "serve enabled, " : "serve disabled, ")
+     << csi.getNHits() << (csi.getNHits() == 1 ? " hit, " : " hits, ")
+     << csi.getNMisses() << (csi.getNMisses() == 1 ? " miss" : " misses");
   return os;
 }
 
