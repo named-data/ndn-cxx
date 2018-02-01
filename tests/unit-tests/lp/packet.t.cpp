@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "lp/packet.hpp"
+#include "security/signature-sha256-with-rsa.hpp"
 
 #include "boost-test.hpp"
 
@@ -396,6 +397,54 @@ BOOST_AUTO_TEST_CASE(DecodeBareNetworkLayerPacket)
   BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
 
+  Block encoded;
+  BOOST_CHECK_NO_THROW(encoded = packet.wireEncode());
+  BOOST_CHECK_EQUAL_COLLECTIONS(inputBlock, inputBlock + sizeof(inputBlock),
+                                encoded.begin(), encoded.end());
+}
+
+BOOST_AUTO_TEST_CASE(DecodePrefixAnnouncement)
+{
+  static const uint8_t inputBlock[] = {
+    0x64, 0x70, // LpPacket
+      0xfd, 0x03, 0x50, 0x3a, // PrefixAnnouncement
+        0x06, 0x38, // Data
+          0x07, 0x29, 0x08, 0x0d, 0x73, 0x65, 0x6c, 0x66, 0x2d, 0x6c,
+          0x65, 0x61, 0x72, 0x6e, 0x69, 0x6e, 0x67, 0x08, 0x03, 0x65,
+          0x64, 0x75, 0x08, 0x02, 0x75, 0x61, 0x08, 0x02, 0x63, 0x73,
+          0x08, 0x04, 0x6e, 0x65, 0x77, 0x73, 0x08, 0x05, 0xfd, 0x00,
+          0x03, 0xa5, 0xfe, 0x14, 0x00, 0x15, 0x00, 0x16, 0x05, 0x1b,
+          0x01, 0x01, 0x1c, 0x00, 0x17, 0x00,
+      0x50, 0x30, // Fragment
+        0x06, 0x2e,  // Data
+          0x07, 0x1f, 0x08, 0x03, 0x65, 0x64, 0x75, 0x08, 0x02, 0x75,
+          0x61, 0x08, 0x02, 0x63, 0x73, 0x08, 0x04, 0x6e, 0x65, 0x77,
+          0x73, 0x08, 0x0a, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x2e, 0x68,
+          0x74, 0x6d, 0x6c, 0x14, 0x00, 0x15, 0x00, 0x16, 0x05, 0x1b,
+          0x01, 0x01, 0x1c, 0x00, 0x17, 0x00,
+  };
+
+  Data data1("/edu/ua/cs/news/index.html");
+  ndn::SignatureSha256WithRsa fakeSignature;
+  fakeSignature.setValue(ndn::encoding::makeEmptyBlock(ndn::tlv::SignatureValue));
+  data1.setSignature(fakeSignature);
+
+  Block wire;
+  wire = data1.wireEncode();
+  Packet packet;
+  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+
+  Name name("/self-learning/edu/ua/cs/news");
+  name.appendVersion(239102);
+  Data data2(name);
+  fakeSignature.setValue(ndn::encoding::makeEmptyBlock(ndn::tlv::SignatureValue));
+  data2.setSignature(fakeSignature);
+  data2.wireEncode();
+
+  PrefixAnnouncement pa;
+  pa.setData(make_shared<Data>(data2));
+
+  BOOST_CHECK_NO_THROW(packet.add<PrefixAnnouncementField>(pa));
   Block encoded;
   BOOST_CHECK_NO_THROW(encoded = packet.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(inputBlock, inputBlock + sizeof(inputBlock),

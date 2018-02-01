@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -90,7 +90,7 @@ template<typename encoding::Tag TAG, typename TlvType, typename T>
 struct EncodeHelper
 {
   static
-  BOOST_CONCEPT_REQUIRES(((WireEncodable<T>)), (size_t))
+  BOOST_CONCEPT_REQUIRES(((WireEncodableWithEncodingBuffer<T>)), (size_t))
   encode(EncodingImpl<TAG>& encoder, const T& value)
   {
     return value.wireEncode(encoder);

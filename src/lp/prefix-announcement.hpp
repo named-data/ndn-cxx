@@ -25,14 +25,66 @@
 #define NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HPP
 
 #include "../data.hpp"
+#include "../name.hpp"
 
 namespace ndn {
 namespace lp {
 
-/**
- * \brief represents a Prefix Announcement field
+/** \brief represents a Prefix Announcement
+ *
+ *  This type wraps a Data, and is intended for self-learning. The Name of Data
+ *  starts with /self-learning prefix, ends with a version component, and the
+ *  components in the middle refer to the announced name prefix. The MetaInfo
+ *  and Content of the Data must be empty.
  */
-using PrefixAnnouncement = Data;
+class PrefixAnnouncement
+{
+public:
+  class Error : public ndn::tlv::Error
+  {
+  public:
+    explicit
+    Error(const std::string& what)
+      : ndn::tlv::Error(what)
+    {
+    }
+  };
+
+  PrefixAnnouncement();
+
+  explicit
+  PrefixAnnouncement(const Block& block);
+
+  explicit
+  PrefixAnnouncement(shared_ptr<const Data> data);
+
+  template<encoding::Tag TAG>
+  size_t
+  wireEncode(EncodingImpl<TAG>& encoder) const;
+
+  void
+  wireDecode(const Block& wire);
+
+  /** \brief Get announced name.
+   *  \throw Error PrefixAnnouncement is empty
+   */
+  Name
+  getAnnouncedName() const;
+
+  shared_ptr<const Data>
+  getData() const
+  {
+    return m_data;
+  }
+
+  PrefixAnnouncement&
+  setData(shared_ptr<const Data> data);
+
+private:
+  shared_ptr<const Data> m_data;
+};
+
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(PrefixAnnouncement);
 
 } // namespace lp
 } // namespace ndn
