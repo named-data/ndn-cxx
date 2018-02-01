@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -127,13 +127,11 @@ Component::fromEscapedString(const char* escapedString, size_t beginOffset, size
   }
 }
 
-
 void
 Component::toUri(std::ostream& result) const
 {
   if (type() == tlv::ImplicitSha256DigestComponent) {
     result << getSha256DigestUriPrefix();
-
     printHex(result, value(), value_size(), false);
   }
   else {
@@ -159,16 +157,19 @@ Component::toUri(std::ostream& result) const
 
       for (size_t i = 0; i < valueSize; ++i) {
         uint8_t x = value[i];
-        // Check for 0-9, A-Z, a-z, (+), (-), (.), (_)
-        if ((x >= 0x30 && x <= 0x39) || (x >= 0x41 && x <= 0x5a) ||
-            (x >= 0x61 && x <= 0x7a) || x == 0x2b || x == 0x2d ||
-            x == 0x2e || x == 0x5f)
+        // Unreserved characters are not escaped.
+        if ((x >= '0' && x <= '9') ||
+            (x >= 'A' && x <= 'Z') ||
+            (x >= 'a' && x <= 'z') ||
+            x == '-' || x == '.' ||
+            x == '_' || x == '~') {
           result << x;
+        }
         else {
           result << '%';
           if (x < 16)
             result << '0';
-          result << static_cast<uint32_t>(x);
+          result << static_cast<int>(x);
         }
       }
 

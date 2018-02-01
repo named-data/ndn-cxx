@@ -32,32 +32,33 @@ BOOST_AUTO_TEST_SUITE(TestNameComponent)
 
 static const uint8_t NAME_COMPONENT_WIRE[] = {
         0x08, 0x03, // NameComponent
-          0x6e, 0x64, 0x6e};
-
+          0x6e, 0x64, 0x6e
+};
 static const uint8_t NAME_COMPONENT2_WIRE[] = {
         0x08, 0x20, // ImplicitSha256DigestComponent
           0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
           0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
           0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
-          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x49 };
-
+          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x49
+};
 static const uint8_t DIGEST_COMPONENT_WIRE[] = {
         0x01, 0x20, // ImplicitSha256DigestComponent
           0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
           0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
           0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
-          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48 };
-
+          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48
+};
 static const uint8_t DIGEST_COMPONENT2_WIRE[] = {
         0x01, 0x20, // ImplicitSha256DigestComponent
           0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
           0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
           0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
-          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x49 };
-
+          0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x49
+};
 static const uint8_t INVALID_COMPONENT_WIRE[] = {
         0x07, 0x03, // unknown component type
-          0x6e, 0x64, 0x6e};
+          0x6e, 0x64, 0x6e
+};
 
 BOOST_AUTO_TEST_SUITE(Decode)
 
@@ -65,7 +66,7 @@ BOOST_AUTO_TEST_CASE(Generic)
 {
   Block block(NAME_COMPONENT_WIRE, sizeof(NAME_COMPONENT_WIRE));
   name::Component comp;
-  BOOST_REQUIRE_NO_THROW(comp.wireDecode(block));
+  BOOST_CHECK_NO_THROW(comp.wireDecode(block));
   BOOST_CHECK_EQUAL(comp.toUri(), "ndn");
 }
 
@@ -73,16 +74,16 @@ BOOST_AUTO_TEST_CASE(Digest)
 {
   Block block(DIGEST_COMPONENT_WIRE, sizeof(DIGEST_COMPONENT_WIRE));
   name::Component comp;
-  BOOST_REQUIRE_NO_THROW(comp.wireDecode(block));
-  BOOST_REQUIRE_EQUAL(comp.toUri(), "sha256digest=28bad4b5275bd392dbb670c75cf0b66f"
-                                                 "13f7942b21e80f55c0e86b374753a548");
+  BOOST_CHECK_NO_THROW(comp.wireDecode(block));
+  BOOST_CHECK_EQUAL(comp.toUri(), "sha256digest=28bad4b5275bd392dbb670c75cf0b66f"
+                                               "13f7942b21e80f55c0e86b374753a548");
 }
 
 BOOST_AUTO_TEST_CASE(Invalid)
 {
   Block block(INVALID_COMPONENT_WIRE, sizeof(INVALID_COMPONENT_WIRE));
   name::Component comp;
-  BOOST_REQUIRE_THROW(comp.wireDecode(block), name::Component::Error);
+  BOOST_CHECK_THROW(comp.wireDecode(block), name::Component::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Decode
@@ -126,20 +127,6 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_EQUAL(compF >= compAA, false);
 }
 
-BOOST_AUTO_TEST_CASE(ZeroLength)
-{
-  name::Component comp0("");
-  BOOST_REQUIRE_EQUAL(comp0.value_size(), 0);
-
-  BOOST_CHECK_EQUAL(comp0, comp0);
-  BOOST_CHECK_EQUAL(comp0, name::Component(""));
-  BOOST_CHECK_LT(comp0, name::Component("A"));
-  BOOST_CHECK_LE(comp0, name::Component("A"));
-  BOOST_CHECK_NE(comp0, name::Component("A"));
-  BOOST_CHECK_GT(name::Component("A"), comp0);
-  BOOST_CHECK_GE(name::Component("A"), comp0);
-}
-
 BOOST_AUTO_TEST_CASE(Digest)
 {
   name::Component digest1(Block(DIGEST_COMPONENT_WIRE, sizeof(DIGEST_COMPONENT_WIRE)));
@@ -177,7 +164,38 @@ BOOST_AUTO_TEST_CASE(Digest)
   BOOST_CHECK_EQUAL(digest2 >= generic2, false);
 }
 
+BOOST_AUTO_TEST_CASE(ZeroLength)
+{
+  name::Component comp0("");
+  BOOST_CHECK_EQUAL(comp0.value_size(), 0);
+
+  BOOST_CHECK_EQUAL(comp0, comp0);
+  BOOST_CHECK_EQUAL(comp0, name::Component(""));
+  BOOST_CHECK_LT(comp0, name::Component("A"));
+  BOOST_CHECK_LE(comp0, name::Component("A"));
+  BOOST_CHECK_NE(comp0, name::Component("A"));
+  BOOST_CHECK_GT(name::Component("A"), comp0);
+  BOOST_CHECK_GE(name::Component("A"), comp0);
+}
+
 BOOST_AUTO_TEST_SUITE_END() // Compare
+
+BOOST_AUTO_TEST_CASE(ToUri)
+{
+  using name::Component;
+
+  BOOST_CHECK_EQUAL(Component("").toUri(), "...");
+  BOOST_CHECK_EQUAL(Component(".").toUri(), "....");
+  BOOST_CHECK_EQUAL(Component("..").toUri(), ".....");
+  BOOST_CHECK_EQUAL(Component(".dot-with-other-chars").toUri(), ".dot-with-other-chars");
+
+  BOOST_CHECK_EQUAL(Component("foo42").toUri(), "foo42");
+  BOOST_CHECK_EQUAL(Component("foo%bar").toUri(), "foo%25bar");
+  BOOST_CHECK_EQUAL(Component("-._~").toUri(), "-._~");
+  BOOST_CHECK_EQUAL(Component(":/?#[]@").toUri(), "%3A%2F%3F%23%5B%5D%40");
+
+  // sha256digest component is tested in Decode/Digest
+}
 
 BOOST_AUTO_TEST_SUITE(CreateFromIterators) // Bug 2490
 
