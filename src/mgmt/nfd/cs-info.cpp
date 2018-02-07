@@ -89,7 +89,7 @@ CsInfo::wireDecode(const Block& block)
   auto val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Capacity) {
-    m_nHits = readNonNegativeInteger(*val);
+    m_capacity = readNonNegativeInteger(*val);
     ++val;
   }
   else {

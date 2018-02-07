@@ -60,7 +60,12 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL_COLLECTIONS(wire.begin(), wire.end(), EXPECTED, EXPECTED + sizeof(EXPECTED));
 
   CsInfo csi2(wire);
-  BOOST_CHECK_EQUAL(csi1, csi2);
+  BOOST_CHECK_EQUAL(csi2.getCapacity(), 20177);
+  BOOST_CHECK_EQUAL(csi2.getEnableAdmit(), false);
+  BOOST_CHECK_EQUAL(csi2.getEnableServe(), true);
+  BOOST_CHECK_EQUAL(csi2.getNEntries(), 5509);
+  BOOST_CHECK_EQUAL(csi2.getNHits(), 12951);
+  BOOST_CHECK_EQUAL(csi2.getNMisses(), 28179);
 }
 
 BOOST_AUTO_TEST_CASE(Equality)
