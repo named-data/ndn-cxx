@@ -4,9 +4,9 @@ ndn-cxx version 0.5.1
 Release date: January 25, 2017
 
 .. note::
-   This is the last release of the library that supports :ref:`NDN Certificate format version 1
-   <Security Library Tutorial>` and the existing implementations of validators.  The upcoming
-   0.6.0 release will include multiple breaking changes of the security framework.
+   This is the last release of the library that supports NDN Certificate format version 1 and
+   the existing implementations of validators.  The upcoming 0.6.0 release will include
+   multiple breaking changes of the security framework.
 
 Changes since version 0.5.0:
 

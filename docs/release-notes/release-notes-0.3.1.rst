@@ -13,9 +13,9 @@ New features:
   - Add isConnected() in :ndn-cxx:`signal::Connection` and :ndn-cxx:`signal::ScopedConnection`
     (:issue:`2308`)
 
-  - Extend :ndn-cxx:`DummyClientFace` to process :ndn-cxx:`LocalControlHeader` (:issue:`2510`)
+  - Extend :ndn-cxx:`DummyClientFace` to process ``LocalControlHeader`` (:issue:`2510`)
 
-  - Add CachingPolicy to :ndn-cxx:`LocalControlHeader` (:issue:`2183`)
+  - Add CachingPolicy to ``LocalControlHeader`` (:issue:`2183`)
 
 Updates and bug fixes:
 ^^^^^^^^^^^^^^^^^^^^^^

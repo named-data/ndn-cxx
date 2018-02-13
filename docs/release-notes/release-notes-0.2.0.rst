@@ -32,8 +32,7 @@ New features:
     The new option also allow periodic reloading trust anchors, allowing dynamic trust
     models.
 
-  + Added support for multiple signature types to :ndn-cxx:`PublicKey`,
-    :ndn-cxx:`SecPublicInfo` abstractions
+  + Added support for multiple signature types to ``PublicKey``, ``SecPublicInfo`` abstractions
 
   + New :ndn-cxx:`SignatureSha256WithEcdsa` signature type
 
@@ -64,7 +63,7 @@ New features:
   + Introduce :ndn-cxx:`Scheduler::cancelAllEvents` to cancel all previously scheduled events
     (:issue:`1757`)
 
-  + Introduce :ndn-cxx:`util::EventEmitter`, :ndn-cxx:`util::NotificationSubscriber`,
+  + Introduce ``util::EventEmitter``, :ndn-cxx:`util::NotificationSubscriber`,
     :ndn-cxx:`util::NotificationStream`, and :ndn-cxx:`nfd::FaceMonitor` utility classes
 
   + Introduce :ndn-cxx:`util::SegmentFetcher` helper class to fetch multi-segmented data
@@ -123,12 +122,11 @@ Updates and bug fixes:
     Sub-classes of :ndn-cxx:`Validator` class can use the following hooks to fine-tune the
     validation process:
 
-      * :ndn-cxx:`Validator::preCertificateValidation <preCertificateValidation>` to
-        process received certificate before validation.
-      * :ndn-cxx:`Validator::onTimeout <onTimeout>` to process interest timeout
-      * :ndn-cxx:`Validator::afterCheckPolicy <afterCheckPolicy>` to process validation requests.
+      * ``preCertificateValidation`` to process received certificate before validation.
+      * ``onTimeout`` to process interest timeout
+      * ``afterCheckPolicy`` to process validation requests.
 
-  + Fix memory issues in :ndn-cxx:`SecPublicInfoSqlite3`
+  + Fix memory issues in ``SecPublicInfoSqlite3``
 
 - **Miscellaneous tools**
 
@@ -156,7 +154,7 @@ Deprecated:
 
 - ``name::Component::toEscapedString`` method, use :ndn-cxx:`name::Component::toUri` instead.
 
-- ``SecPublicInfo::addPublicKey`` method, use :ndn-cxx:`SecPublicInfo::addKey` instead.
+- ``SecPublicInfo::addPublicKey`` method, use ``SecPublicInfo::addKey`` instead.
 
 - ``Tlv::ConentType`` constant (typo), use ``Tlv::ContentType`` instead.
 

@@ -2055,7 +2055,8 @@ PREDEFINED             = DOXYGEN \
                          PUBLIC_WITH_TESTS_ELSE_PROTECTED=protected \
                          PUBLIC_WITH_TESTS_ELSE_PRIVATE=private \
                          PROTECTED_WITH_TESTS_ELSE_PRIVATE=private \
-                         VIRTUAL_WITH_TESTS=
+                         VIRTUAL_WITH_TESTS= \
+                         BOOST_CONCEPT_ASSERT(x)=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
