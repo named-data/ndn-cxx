@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -142,12 +142,6 @@ std::string
 toHex(const Buffer& buffer, bool wantUpperCase = true);
 
 /**
- * @brief Convert the hex character to an integer from 0 to 15, or -1 if not a hex character
- */
-int
-fromHexChar(char c);
-
-/**
  * @brief Convert the hex string to buffer
  * @param hexString sequence of pairs of hex numbers (lower and upper case can be mixed)
  *        without any whitespace separators (e.g., "48656C6C6F2C20776F726C6421")
@@ -155,6 +149,51 @@ fromHexChar(char c);
  */
 shared_ptr<Buffer>
 fromHex(const std::string& hexString);
+
+/**
+ * @brief Convert (the least significant nibble of) @p n to the corresponding hex character
+ */
+constexpr char
+toHexChar(unsigned int n, bool wantUpperCase = true) noexcept
+{
+  return wantUpperCase ?
+         "0123456789ABCDEF"[n & 0xf] :
+         "0123456789abcdef"[n & 0xf];
+}
+
+/**
+ * @brief Convert the hex character @p c to an integer in [0, 15], or -1 if it's not a hex character
+ */
+constexpr int
+fromHexChar(char c) noexcept
+{
+  return (c >= '0' && c <= '9') ? int(c - '0') :
+         (c >= 'A' && c <= 'F') ? int(c - 'A' + 10) :
+         (c >= 'a' && c <= 'f') ? int(c - 'a' + 10) :
+         -1;
+}
+
+/**
+ * @brief Percent-encode a string
+ * @see RFC 3986 section 2
+ *
+ * This function will encode all characters that are not one of the following:
+ * ALPHA ("a" to "z" and "A" to "Z") / DIGIT (0 to 9) / "-" / "." / "_" / "~"
+ *
+ * The hex encoding uses the numbers 0-9 and the uppercase letters A-F.
+ *
+ * Examples:
+ *
+ * @code
+ * escape("hello world") == "hello%20world"
+ * escape("100%") == "100%25"
+ * @endcode
+ */
+std::string
+escape(const std::string& str);
+
+void
+escape(std::ostream& os, const char* str, size_t len);
 
 /**
  * @brief Decode a percent-encoded string
@@ -171,6 +210,9 @@ fromHex(const std::string& hexString);
  */
 std::string
 unescape(const std::string& str);
+
+void
+unescape(std::ostream& os, const char* str, size_t len);
 
 } // namespace ndn
 

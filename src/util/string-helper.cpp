@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,19 +77,6 @@ toHex(const Buffer& buffer, bool wantUpperCase)
   return toHex(buffer.data(), buffer.size(), wantUpperCase);
 }
 
-int
-fromHexChar(char c)
-{
-  if (c >= '0' && c <= '9')
-    return c - '0';
-  else if (c >= 'A' && c <= 'F')
-    return c - 'A' + 0xA;
-  else if (c >= 'a' && c <= 'f')
-    return c - 'a' + 0xA;
-  else
-    return -1;
-}
-
 shared_ptr<Buffer>
 fromHex(const std::string& hexString)
 {
@@ -107,31 +94,64 @@ fromHex(const std::string& hexString)
 }
 
 std::string
+escape(const std::string& str)
+{
+  std::ostringstream os;
+  escape(os, str.data(), str.size());
+  return os.str();
+}
+
+void
+escape(std::ostream& os, const char* str, size_t len)
+{
+  for (size_t i = 0; i < len; ++i) {
+    auto c = str[i];
+    // Unreserved characters don't need to be escaped.
+    if ((c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9') ||
+        c == '-' || c == '.' ||
+        c == '_' || c == '~') {
+      os << c;
+    }
+    else {
+      os << '%';
+      os << toHexChar((c & 0xf0) >> 4);
+      os << toHexChar(c & 0xf);
+    }
+  }
+}
+
+std::string
 unescape(const std::string& str)
 {
-  std::ostringstream result;
+  std::ostringstream os;
+  unescape(os, str.data(), str.size());
+  return os.str();
+}
 
-  for (size_t i = 0; i < str.size(); ++i) {
-    if (str[i] == '%' && i + 2 < str.size()) {
+void
+unescape(std::ostream& os, const char* str, size_t len)
+{
+  for (size_t i = 0; i < len; ++i) {
+    if (str[i] == '%' && i + 2 < len) {
       int hi = fromHexChar(str[i + 1]);
       int lo = fromHexChar(str[i + 2]);
 
       if (hi < 0 || lo < 0)
         // Invalid hex characters, so just keep the escaped string.
-        result << str[i] << str[i + 1] << str[i + 2];
+        os << str[i] << str[i + 1] << str[i + 2];
       else
-        result << static_cast<char>((hi << 4) | lo);
+        os << static_cast<char>((hi << 4) | lo);
 
       // Skip ahead past the escaped value.
       i += 2;
     }
     else {
       // Just copy through.
-      result << str[i];
+      os << str[i];
     }
   }
-
-  return result.str();
 }
 
 } // namespace ndn

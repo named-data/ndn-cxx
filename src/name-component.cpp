@@ -135,46 +135,16 @@ Component::toUri(std::ostream& result) const
     printHex(result, value(), value_size(), false);
   }
   else {
-    const uint8_t* value = this->value();
-    size_t valueSize = value_size();
-
-    bool gotNonDot = false;
-    for (size_t i = 0; i < valueSize; ++i) {
-      if (value[i] != 0x2e) {
-        gotNonDot = true;
-        break;
-      }
-    }
-    if (!gotNonDot) {
+    bool hasNonDot = std::any_of(value_begin(), value_end(),
+                                 [] (uint8_t x) { return x != '.'; });
+    if (!hasNonDot) {
       // Special case for component of zero or more periods.  Add 3 periods.
       result << "...";
-      for (size_t i = 0; i < valueSize; ++i)
+      for (size_t i = 0; i < value_size(); ++i)
         result << '.';
     }
     else {
-      // In case we need to escape, set to upper case hex and save the previous flags.
-      auto savedFlags = result.flags(std::ios::hex | std::ios::uppercase);
-
-      for (size_t i = 0; i < valueSize; ++i) {
-        uint8_t x = value[i];
-        // Unreserved characters are not escaped.
-        if ((x >= '0' && x <= '9') ||
-            (x >= 'A' && x <= 'Z') ||
-            (x >= 'a' && x <= 'z') ||
-            x == '-' || x == '.' ||
-            x == '_' || x == '~') {
-          result << x;
-        }
-        else {
-          result << '%';
-          if (x < 16)
-            result << '0';
-          result << static_cast<int>(x);
-        }
-      }
-
-      // Restore.
-      result.flags(savedFlags);
+      escape(result, reinterpret_cast<const char*>(value()), value_size());
     }
   }
 }

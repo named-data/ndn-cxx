@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,16 +24,21 @@
 
 #include "boost-test.hpp"
 
+#include <cctype>
+#include <cstring>
+
 namespace ndn {
 namespace util {
 namespace test {
+
+using boost::test_tools::output_test_stream;
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestStringHelper)
 
 BOOST_AUTO_TEST_CASE(PrintHex)
 {
-  boost::test_tools::output_test_stream os;
+  output_test_stream os;
 
   printHex(os, 0);
   BOOST_CHECK(os.is_equal("0x0"));
@@ -57,7 +62,7 @@ BOOST_AUTO_TEST_CASE(PrintHex)
 BOOST_AUTO_TEST_CASE(AsHex)
 {
   using ndn::AsHex;
-  boost::test_tools::output_test_stream os;
+  output_test_stream os;
 
   os << AsHex{0};
   BOOST_CHECK(os.is_equal("0x0"));
@@ -84,6 +89,38 @@ BOOST_AUTO_TEST_CASE(ToHex)
   Buffer buffer(test.data(), test.size());
   BOOST_CHECK_EQUAL(toHex(buffer, false),  "48656c6c6f2c20776f726c6421");
   BOOST_CHECK_EQUAL(toHex(Buffer{}), "");
+}
+
+BOOST_AUTO_TEST_CASE(FromHex)
+{
+  BOOST_CHECK(*fromHex("") == Buffer{});
+  BOOST_CHECK(*fromHex("48656c6c6f2c20776f726c6421") ==
+              (std::vector<uint8_t>{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20,
+                                    0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21}));
+  BOOST_CHECK(*fromHex("012a3Bc4defAB5CdEF") ==
+              (std::vector<uint8_t>{0x01, 0x2a, 0x3b, 0xc4, 0xde,
+                                    0xfa, 0xb5, 0xcd, 0xef}));
+
+  BOOST_CHECK_THROW(fromHex("1"), StringHelperError);
+  BOOST_CHECK_THROW(fromHex("zz"), StringHelperError);
+  BOOST_CHECK_THROW(fromHex("00az"), StringHelperError);
+  BOOST_CHECK_THROW(fromHex("1234z"), StringHelperError);
+}
+
+BOOST_AUTO_TEST_CASE(ToHexChar)
+{
+  static const std::vector<std::pair<unsigned int, char>> hexMap{
+    {0, '0'}, {1, '1'},  {2, '2'},  {3, '3'},  {4, '4'},  {5, '5'},  {6, '6'},  {7, '7'},
+    {8, '8'}, {9, '9'}, {10, 'A'}, {11, 'B'}, {12, 'C'}, {13, 'D'}, {14, 'E'}, {15, 'F'}
+  };
+
+  for (const auto& i : hexMap) {
+    BOOST_CHECK_EQUAL(toHexChar(i.first), i.second);
+    BOOST_CHECK_EQUAL(toHexChar(i.first + 16), i.second);
+    BOOST_CHECK_EQUAL(toHexChar(i.first + 32), i.second);
+    BOOST_CHECK_EQUAL(toHexChar(i.first + 240), i.second);
+    BOOST_CHECK_EQUAL(toHexChar(i.first, false), std::tolower(static_cast<unsigned char>(i.second)));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(FromHexChar)
@@ -134,37 +171,33 @@ BOOST_AUTO_TEST_CASE(FromHexChar)
   }
 }
 
-BOOST_AUTO_TEST_CASE(FromHex)
+BOOST_AUTO_TEST_CASE(Escape)
 {
-  BOOST_CHECK(*fromHex("") == Buffer{});
-  BOOST_CHECK(*fromHex("48656c6c6f2c20776f726c6421") ==
-              (std::vector<uint8_t>{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20,
-                                    0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21}));
-  BOOST_CHECK(*fromHex("012a3Bc4defAB5CdEF") ==
-              (std::vector<uint8_t>{0x01, 0x2a, 0x3b, 0xc4, 0xde,
-                                    0xfa, 0xb5, 0xcd, 0xef}));
+  BOOST_CHECK_EQUAL(escape(""), "");
+  BOOST_CHECK_EQUAL(escape("foo42"), "foo42");
+  BOOST_CHECK_EQUAL(escape("foo%bar"), "foo%25bar");
+  BOOST_CHECK_EQUAL(escape("lower UPPER"), "lower%20UPPER");
+  BOOST_CHECK_EQUAL(escape("-._~"), "-._~");
+  BOOST_CHECK_EQUAL(escape(":/?#[]@"), "%3A%2F%3F%23%5B%5D%40");
 
-  BOOST_CHECK_THROW(fromHex("1"), StringHelperError);
-  BOOST_CHECK_THROW(fromHex("zz"), StringHelperError);
-  BOOST_CHECK_THROW(fromHex("00az"), StringHelperError);
-  BOOST_CHECK_THROW(fromHex("1234z"), StringHelperError);
+  output_test_stream os;
+  const char str[] = "\x01\x2a\x3b\xc4\xde\xfa\xb5\xcd\xef";
+  escape(os, str, std::strlen(str));
+  BOOST_CHECK(os.is_equal("%01%2A%3B%C4%DE%FA%B5%CD%EF"));
 }
 
 BOOST_AUTO_TEST_CASE(Unescape)
 {
-  std::string test1 = "Hello%01, world!%AA  ";
-  std::string test2 = "Invalid escape %ZZ (not a hex value)";
-  std::string test3 = "Invalid escape %a (should be two hex symbols)";
-  std::string test4 = "Invalid escape %a";
+  BOOST_CHECK_EQUAL(unescape(""), "");
+  BOOST_CHECK_EQUAL(unescape("Hello%01, world!%AA  "), "Hello\x01, world!\xAA  ");
+  BOOST_CHECK_EQUAL(unescape("Bad %ZZ (not a hex value)"), "Bad %ZZ (not a hex value)");
+  BOOST_CHECK_EQUAL(unescape("Bad %a (should be two hex chars)"), "Bad %a (should be two hex chars)");
+  BOOST_CHECK_EQUAL(unescape("Bad %a"), "Bad %a");
 
-  BOOST_CHECK_EQUAL(unescape(test1), "Hello\x01, world!\xAA  ");
-
-  BOOST_CHECK_EQUAL(unescape(test2), "Invalid escape %ZZ (not a hex value)");
-  BOOST_CHECK_EQUAL(unescape(test3), "Invalid escape %a (should be two hex symbols)");
-  BOOST_CHECK_EQUAL(unescape(test4), "Invalid escape %a");
-
-  BOOST_CHECK_EQUAL(unescape("%01%2a%3B%c4%de%fA%B5%Cd%EF"),
-                    "\x01\x2a\x3b\xc4\xde\xfa\xb5\xcd\xef");
+  output_test_stream os;
+  const char str[] = "%01%2a%3B%c4%de%fA%B5%Cd%EF";
+  unescape(os, str, std::strlen(str));
+  BOOST_CHECK(os.is_equal("\x01\x2a\x3b\xc4\xde\xfa\xb5\xcd\xef"));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestStringHelper
