@@ -55,53 +55,45 @@ Dispatcher::Dispatcher(Face& face, KeyChain& keyChain,
 Dispatcher::~Dispatcher()
 {
   std::vector<Name> topPrefixNames;
-
-  std::transform(m_topLevelPrefixes.begin(),
-                 m_topLevelPrefixes.end(),
+  std::transform(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(),
                  std::back_inserter(topPrefixNames),
                  [] (const std::unordered_map<Name, TopPrefixEntry>::value_type& entry) {
                    return entry.second.topPrefix;
                  });
 
-  for (auto&& name : topPrefixNames) {
+  for (const auto& name : topPrefixNames) {
     removeTopPrefix(name);
   }
 }
 
 void
-Dispatcher::addTopPrefix(const Name& prefix,
-                         bool wantRegister,
+Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
                          const security::SigningInfo& signingInfo)
 {
-  bool hasOverlap = std::any_of(m_topLevelPrefixes.begin(),
-                                m_topLevelPrefixes.end(),
+  bool hasOverlap = std::any_of(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(),
                                 [&] (const std::unordered_map<Name, TopPrefixEntry>::value_type& x) {
                                   return x.first.isPrefixOf(prefix) || prefix.isPrefixOf(x.first);
                                 });
   if (hasOverlap) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("Top-level Prefixes overlapped"));
+    BOOST_THROW_EXCEPTION(std::out_of_range("top-level prefix overlaps"));
   }
 
-  TopPrefixEntry& topPrefixEntry = m_topLevelPrefixes[prefix];;
+  TopPrefixEntry& topPrefixEntry = m_topLevelPrefixes[prefix];
   topPrefixEntry.topPrefix = prefix;
-  topPrefixEntry.wantRegister = wantRegister;
 
   if (wantRegister) {
-    RegisterPrefixFailureCallback failure = [] (const Name& name, const std::string& reason) {
-      BOOST_THROW_EXCEPTION(std::runtime_error(reason));
-    };
-    topPrefixEntry.registerPrefixId =
-      m_face.registerPrefix(prefix, bind([]{}), failure, signingInfo);
+    topPrefixEntry.registeredPrefixId = m_face.registerPrefix(prefix,
+      nullptr,
+      [] (const Name&, const std::string& reason) {
+        BOOST_THROW_EXCEPTION(std::runtime_error("prefix registration failed: " + reason));
+      },
+      signingInfo);
   }
 
-  for (auto&& entry : m_handlers) {
-    Name fullPrefix = prefix;
-    fullPrefix.append(entry.first);
-
-    const InterestFilterId* interestFilterId =
-      m_face.setInterestFilter(fullPrefix, std::bind(entry.second, prefix, _2));
-
-    topPrefixEntry.interestFilters.push_back(interestFilterId);
+  for (const auto& entry : m_handlers) {
+    Name fullPrefix = Name(prefix).append(entry.first);
+    const InterestFilterId* filter = m_face.setInterestFilter(fullPrefix, bind(entry.second, prefix, _2));
+    topPrefixEntry.interestFilters.push_back(filter);
   }
 }
 
@@ -114,11 +106,10 @@ Dispatcher::removeTopPrefix(const Name& prefix)
   }
 
   const TopPrefixEntry& topPrefixEntry = it->second;
-  if (topPrefixEntry.wantRegister) {
-    m_face.unregisterPrefix(topPrefixEntry.registerPrefixId, bind([]{}), bind([]{}));
+  if (topPrefixEntry.registeredPrefixId) {
+    m_face.unregisterPrefix(*topPrefixEntry.registeredPrefixId, nullptr, nullptr);
   }
-
-  for (auto&& filter : topPrefixEntry.interestFilters) {
+  for (const auto& filter : topPrefixEntry.interestFilters) {
     m_face.unsetInterestFilter(filter);
   }
 
@@ -126,11 +117,11 @@ Dispatcher::removeTopPrefix(const Name& prefix)
 }
 
 bool
-Dispatcher::isOverlappedWithOthers(const PartialName& relPrefix)
+Dispatcher::isOverlappedWithOthers(const PartialName& relPrefix) const
 {
   bool hasOverlapWithHandlers =
     std::any_of(m_handlers.begin(), m_handlers.end(),
-                [&] (const HandlerMap::value_type& entry) {
+                [&] (const std::unordered_map<PartialName, InterestHandler>::value_type& entry) {
                   return entry.first.isPrefixOf(relPrefix) || relPrefix.isPrefixOf(entry.first);
                 });
   bool hasOverlapWithStreams =
@@ -157,7 +148,8 @@ Dispatcher::queryStorage(const Name& prefix, const Interest& interest,
   auto data = m_storage.find(interest);
   if (data == nullptr) {
     // invoke missContinuation to process this Interest if the query fails.
-    missContinuation(prefix, interest);
+    if (missContinuation)
+      missContinuation(prefix, interest);
   }
   else {
     // send the fetched data through face if query succeeds.
@@ -169,7 +161,7 @@ void
 Dispatcher::sendData(const Name& dataName, const Block& content, const MetaInfo& metaInfo,
                      SendDestination option, time::milliseconds imsFresh)
 {
-  shared_ptr<Data> data = make_shared<Data>(dataName);
+  auto data = make_shared<Data>(dataName);
   data->setContent(content).setMetaInfo(metaInfo).setFreshnessPeriod(DEFAULT_FRESHNESS_PERIOD);
 
   m_keyChain.sign(*data, m_signingInfo);
@@ -241,16 +233,16 @@ Dispatcher::processAuthorizedControlCommandInterest(const std::string& requester
 }
 
 void
-Dispatcher::sendControlResponse(const ControlResponse& resp, const Interest& interest,
-                                bool isNack)
+Dispatcher::sendControlResponse(const ControlResponse& resp, const Interest& interest, bool isNack)
 {
   MetaInfo metaInfo;
   if (isNack) {
     metaInfo.setType(tlv::ContentType_Nack);
   }
+
   // control response is always sent out through the face
-  sendData(interest.getName(), resp.wireEncode(), metaInfo, SendDestination::FACE,
-           DEFAULT_FRESHNESS_PERIOD);
+  sendData(interest.getName(), resp.wireEncode(), metaInfo,
+           SendDestination::FACE, DEFAULT_FRESHNESS_PERIOD);
 }
 
 void
@@ -263,12 +255,11 @@ Dispatcher::addStatusDataset(const PartialName& relPrefix,
   }
 
   if (isOverlappedWithOthers(relPrefix)) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("relPrefix overlapped"));
+    BOOST_THROW_EXCEPTION(std::out_of_range("status dataset name overlaps"));
   }
 
   AuthorizationAcceptedCallback accepted =
-    bind(&Dispatcher::processAuthorizedStatusDatasetInterest, this,
-         _1, _2, _3, handler);
+    bind(&Dispatcher::processAuthorizedStatusDatasetInterest, this, _1, _2, _3, handler);
   AuthorizationRejectedCallback rejected =
     bind(&Dispatcher::afterAuthorizationRejected, this, _1, _2);
 
@@ -336,15 +327,14 @@ Dispatcher::addNotificationStream(const PartialName& relPrefix)
   }
 
   if (isOverlappedWithOthers(relPrefix)) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("relPrefix overlaps with another relPrefix"));
+    BOOST_THROW_EXCEPTION(std::out_of_range("notification stream name overlaps"));
   }
 
-  // keep silent if Interest does not match a stored notification
-  InterestHandler missContinuation = bind([]{});
-
   // register a handler for the subscriber of this notification stream
-  m_handlers[relPrefix] = bind(&Dispatcher::queryStorage, this, _1, _2, missContinuation);
+  // keep silent if Interest does not match a stored notification
+  m_handlers[relPrefix] = bind(&Dispatcher::queryStorage, this, _1, _2, nullptr);
   m_streams[relPrefix] = 0;
+
   return bind(&Dispatcher::postNotification, this, _1, relPrefix);
 }
 
@@ -360,10 +350,9 @@ Dispatcher::postNotification(const Block& notification, const PartialName& relPr
   streamName.append(relPrefix);
   streamName.appendSequenceNumber(m_streams[streamName]++);
 
-  // notification is sent out by the face after inserting into the in-memory storage,
+  // notification is sent out via the face after inserting into the in-memory storage,
   // because a request may be pending in the PIT
-  sendData(streamName, notification, MetaInfo(), SendDestination::FACE_AND_IMS,
-           DEFAULT_FRESHNESS_PERIOD);
+  sendData(streamName, notification, {}, SendDestination::FACE_AND_IMS, DEFAULT_FRESHNESS_PERIOD);
 }
 
 } // namespace mgmt

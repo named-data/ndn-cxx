@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,10 +22,10 @@
 #ifndef NDN_MGMT_DISPATCHER_HPP
 #define NDN_MGMT_DISPATCHER_HPP
 
-#include "../face.hpp"
 #include "../encoding/block.hpp"
-#include "../security/key-chain.hpp"
+#include "../face.hpp"
 #include "../ims/in-memory-storage-fifo.hpp"
+#include "../security/key-chain.hpp"
 #include "control-response.hpp"
 #include "control-parameters.hpp"
 #include "status-dataset-context.hpp"
@@ -57,7 +57,7 @@ enum class RejectReply {
 
 /** \brief a function to be called if authorization is rejected
  */
-typedef std::function<void(RejectReply act)> RejectContinuation;
+typedef std::function<void(RejectReply reply)> RejectContinuation;
 
 /** \brief a function that performs authorization
  *  \param prefix top-level prefix, e.g., "/localhost/nfd";
@@ -76,7 +76,7 @@ typedef std::function<void(const Name& prefix, const Interest& interest,
                            const AcceptContinuation& accept,
                            const RejectContinuation& reject)> Authorization;
 
-/** \return an Authorization that accepts all Interests, with empty string as requester
+/** \brief return an Authorization that accepts all Interests, with empty string as requester
  */
 Authorization
 makeAcceptAllAuthorization();
@@ -105,6 +105,7 @@ typedef std::function<void(const Name& prefix, const Interest& interest,
                            const ControlParameters& params,
                            const CommandContinuation& done)> ControlCommandHandler;
 
+// ---- STATUS DATASET ----
 
 /** \brief a function to handle a StatusDataset request
  *  \param prefix top-level prefix, e.g., "/localhost/nfd";
@@ -128,16 +129,6 @@ typedef std::function<void(const Block& notification)> PostNotification;
  */
 class Dispatcher : noncopyable
 {
-  class Error : public std::runtime_error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : std::runtime_error(what)
-    {
-    }
-  };
-
 public:
   /** \brief constructor
    *  \param face the Face on which the dispatcher operates
@@ -194,8 +185,7 @@ public: // ControlCommand
    *  \tparam CP subclass of ControlParameters used by this command
    *  \param relPrefix a prefix for this command, e.g., "faces/create";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
-   *                   non-overlapping
-   *                   (no relPrefix is a prefix of another relPrefix)
+   *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
    *  \param authorization Callback to authorize the incoming commands
    *  \param validateParams Callback to validate parameters of the incoming commands
    *  \param handler Callback to handle the commands
@@ -227,8 +217,7 @@ public: // StatusDataset
   /** \brief register a StatusDataset or a prefix under which StatusDatasets can be requested
    *  \param relPrefix a prefix for this dataset, e.g., "faces/list";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
-   *                   non-overlapping
-   *                   (no relPrefix is a prefix of another relPrefix)
+   *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
    *  \param authorization should set identity to Name() if the dataset is public
    *  \param handler Callback to process the incoming dataset requests
    *  \pre no top-level prefix has been added
@@ -264,8 +253,7 @@ public: // NotificationStream
   /** \brief register a NotificationStream
    *  \param relPrefix a prefix for this notification stream, e.g., "faces/events";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
-   *                   non-overlapping
-   *                   (no relPrefix is a prefix of another relPrefix)
+   *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
    *  \return a function into which notifications can be posted
    *  \pre no top-level prefix has been added
    *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
@@ -298,20 +286,17 @@ private:
 
   /**
    * @brief the parser of extracting control parameters from name component.
-   *
-   * @param component name component that may encode control parameters.
+   * @param comp name component that may encode control parameters.
    * @return a shared pointer to the extracted control parameters.
    * @throw tlv::Error if the NameComponent cannot be parsed as ControlParameters
    */
-  typedef std::function<shared_ptr<ControlParameters>(const name::Component& component)>
-  ControlParametersParser;
+  typedef std::function<shared_ptr<ControlParameters>(const name::Component& comp)> ControlParametersParser;
 
   bool
-  isOverlappedWithOthers(const PartialName& relPrefix);
+  isOverlappedWithOthers(const PartialName& relPrefix) const;
 
   /**
    * @brief process unauthorized request
-   *
    * @param act action to reply
    * @param interest the incoming Interest
    */
@@ -338,14 +323,14 @@ private:
   };
 
   /**
-   * @brief send data to the face or in-memory storage
+   * @brief send data to the face and/or in-memory storage
    *
-   * create a data packet with the given @p dataName, @p content, and @p metaInfo,
-   * set its FreshnessPeriod to DEFAULT_FRESHNESS_PERIOD, and then send it out through the face and/or
-   * insert it into the in-memory storage as specified in @p option.
+   * Create a Data packet with the given @p dataName, @p content, and @p metaInfo,
+   * set its FreshnessPeriod to DEFAULT_FRESHNESS_PERIOD, and then send it out through
+   * the face and/or insert it into the in-memory storage as specified in @p destination.
    *
-   * if it's toward the in-memory storage, set its CachePolicy to NO_CACHE and limit
-   * its FreshnessPeriod in the storage as @p imsFresh
+   * If it's toward the in-memory storage, set its CachePolicy to NO_CACHE and limit
+   * its FreshnessPeriod in the storage to @p imsFresh.
    *
    * @param dataName the name of this piece of data
    * @param content the content of this piece of data
@@ -455,9 +440,8 @@ private:
   struct TopPrefixEntry
   {
     Name topPrefix;
-    bool wantRegister;
-    const ndn::RegisteredPrefixId* registerPrefixId;
-    std::vector<const ndn::InterestFilterId*> interestFilters;
+    optional<const RegisteredPrefixId*> registeredPrefixId = nullopt;
+    std::vector<const InterestFilterId*> interestFilters;
   };
   std::unordered_map<Name, TopPrefixEntry> m_topLevelPrefixes;
 
@@ -465,9 +449,7 @@ private:
   KeyChain& m_keyChain;
   security::SigningInfo m_signingInfo;
 
-  typedef std::unordered_map<PartialName, InterestHandler> HandlerMap;
-  typedef HandlerMap::iterator HandlerMapIt;
-  HandlerMap m_handlers;
+  std::unordered_map<PartialName, InterestHandler> m_handlers;
 
   // NotificationStream name => next sequence number
   std::unordered_map<Name, uint64_t> m_streams;
@@ -491,9 +473,8 @@ Dispatcher::addControlCommand(const PartialName& relPrefix,
     BOOST_THROW_EXCEPTION(std::out_of_range("relPrefix overlaps with another relPrefix"));
   }
 
-  ControlParametersParser parser =
-    [] (const name::Component& component) -> shared_ptr<ControlParameters> {
-    return make_shared<CP>(component.blockFromValue());
+  ControlParametersParser parser = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
+    return make_shared<CP>(comp.blockFromValue());
   };
 
   AuthorizationAcceptedCallback accepted =
@@ -509,4 +490,5 @@ Dispatcher::addControlCommand(const PartialName& relPrefix,
 
 } // namespace mgmt
 } // namespace ndn
+
 #endif // NDN_MGMT_DISPATCHER_HPP
