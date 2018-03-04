@@ -41,6 +41,7 @@ enum ControlParameterField {
   CONTROL_PARAMETER_ORIGIN,
   CONTROL_PARAMETER_COST,
   CONTROL_PARAMETER_CAPACITY,
+  CONTROL_PARAMETER_N_CS_ENTRIES,
   CONTROL_PARAMETER_FLAGS,
   CONTROL_PARAMETER_MASK,
   CONTROL_PARAMETER_STRATEGY,
@@ -59,6 +60,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "Origin",
   "Cost",
   "Capacity",
+  "NCsEntries",
   "Flags",
   "Mask",
   "Strategy",
@@ -310,6 +312,36 @@ public: // getters & setters
   {
     m_wire.reset();
     m_hasFields[CONTROL_PARAMETER_CAPACITY] = false;
+    return *this;
+  }
+
+  bool
+  hasNCsEntries() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_N_CS_ENTRIES];
+  }
+
+  uint64_t
+  getNCsEntries() const
+  {
+    BOOST_ASSERT(this->hasNCsEntries());
+    return m_nCsEntries;
+  }
+
+  ControlParameters&
+  setNCsEntries(uint64_t nCsEntries)
+  {
+    m_wire.reset();
+    m_nCsEntries = nCsEntries;
+    m_hasFields[CONTROL_PARAMETER_N_CS_ENTRIES] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetNCsEntries()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_N_CS_ENTRIES] = false;
     return *this;
   }
 
@@ -575,6 +607,7 @@ private: // fields
   RouteOrigin         m_origin;
   uint64_t            m_cost;
   uint64_t            m_capacity;
+  uint64_t            m_nCsEntries;
   uint64_t            m_flags;
   uint64_t            m_mask;
   Name                m_strategy;

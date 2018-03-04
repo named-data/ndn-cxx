@@ -76,6 +76,9 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
   if (this->hasFlags()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags);
   }
+  if (this->hasNCsEntries()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NCsEntries, m_nCsEntries);
+  }
   if (this->hasCapacity()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Capacity, m_capacity);
   }
@@ -171,6 +174,12 @@ ControlParameters::wireDecode(const Block& block)
   m_hasFields[CONTROL_PARAMETER_CAPACITY] = val != m_wire.elements_end();
   if (this->hasCapacity()) {
     m_capacity = readNonNegativeInteger(*val);
+  }
+
+  val = m_wire.find(tlv::nfd::NCsEntries);
+  m_hasFields[CONTROL_PARAMETER_N_CS_ENTRIES] = val != m_wire.elements_end();
+  if (this->hasNCsEntries()) {
+    m_nCsEntries = readNonNegativeInteger(*val);
   }
 
   val = m_wire.find(tlv::nfd::Flags);
@@ -326,6 +335,10 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
 
   if (parameters.hasCapacity()) {
     os << "Capacity: " << parameters.getCapacity() << ", ";
+  }
+
+  if (parameters.hasNCsEntries()) {
+    os << "NCsEntries: " << parameters.getNCsEntries() << ", ";
   }
 
   if (parameters.hasFlags()) {

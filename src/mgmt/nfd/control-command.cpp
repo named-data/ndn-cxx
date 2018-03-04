@@ -270,6 +270,38 @@ CsConfigCommand::CsConfigCommand()
     .required(CONTROL_PARAMETER_FLAGS);
 }
 
+CsEraseCommand::CsEraseCommand()
+  : ControlCommand("cs", "erase")
+{
+  m_requestValidator
+    .required(CONTROL_PARAMETER_NAME)
+    .optional(CONTROL_PARAMETER_N_CS_ENTRIES);
+  m_responseValidator
+    .required(CONTROL_PARAMETER_NAME)
+    .optional(CONTROL_PARAMETER_CAPACITY)
+    .required(CONTROL_PARAMETER_N_CS_ENTRIES);
+}
+
+void
+CsEraseCommand::validateRequest(const ControlParameters& parameters) const
+{
+  this->ControlCommand::validateRequest(parameters);
+
+  if (parameters.hasNCsEntries() && parameters.getNCsEntries() == 0) {
+    BOOST_THROW_EXCEPTION(ArgumentError("NCsEntries must be positive"));
+  }
+}
+
+void
+CsEraseCommand::validateResponse(const ControlParameters& parameters) const
+{
+  this->ControlCommand::validateResponse(parameters);
+
+  if (parameters.hasCapacity() && parameters.getCapacity() == 0) {
+    BOOST_THROW_EXCEPTION(ArgumentError("Capacity must be positive"));
+  }
+}
+
 StrategyChoiceSetCommand::StrategyChoiceSetCommand()
   : ControlCommand("strategy-choice", "set")
 {

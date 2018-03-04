@@ -155,7 +155,7 @@ public:
 /**
  * \ingroup management
  * \brief represents a faces/update command
- * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Update-a-face
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Update-the-static-properties-of-a-face
  */
 class FaceUpdateCommand : public ControlCommand
 {
@@ -231,12 +231,30 @@ public:
 /**
  * \ingroup management
  * \brief represents a cs/config command
- * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Update-config
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Update-configuration
  */
 class CsConfigCommand : public ControlCommand
 {
 public:
   CsConfigCommand();
+};
+
+
+/**
+ * \ingroup management
+ * \brief represents a cs/erase command
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Erase-entries
+ */
+class CsEraseCommand : public ControlCommand
+{
+public:
+  CsEraseCommand();
+
+  void
+  validateRequest(const ControlParameters& parameters) const override;
+
+  void
+  validateResponse(const ControlParameters& parameters) const override;
 };
 
 
