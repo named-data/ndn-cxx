@@ -52,20 +52,19 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
 
   if (this->hasDefaultCongestionThreshold()) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::DefaultCongestionThreshold, m_defaultCongestionThreshold);
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::DefaultCongestionThreshold,
+                                                  m_defaultCongestionThreshold);
   }
   if (this->hasBaseCongestionMarkingInterval()) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::BaseCongestionMarkingInterval, m_baseCongestionMarkingInterval.count());
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::BaseCongestionMarkingInterval,
+                                                  m_baseCongestionMarkingInterval.count());
   }
   if (this->hasFacePersistency()) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::FacePersistency, m_facePersistency);
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::FacePersistency, m_facePersistency);
   }
   if (this->hasExpirationPeriod()) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                   tlv::nfd::ExpirationPeriod, m_expirationPeriod.count());
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::ExpirationPeriod,
+                                                  m_expirationPeriod.count());
   }
   if (this->hasStrategy()) {
     totalLength += prependNestedBlock(encoder, tlv::nfd::Strategy, m_strategy);
@@ -76,8 +75,8 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
   if (this->hasFlags()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Flags, m_flags);
   }
-  if (this->hasNCsEntries()) {
-    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NCsEntries, m_nCsEntries);
+  if (this->hasCount()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Count, m_count);
   }
   if (this->hasCapacity()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Capacity, m_capacity);
@@ -176,10 +175,10 @@ ControlParameters::wireDecode(const Block& block)
     m_capacity = readNonNegativeInteger(*val);
   }
 
-  val = m_wire.find(tlv::nfd::NCsEntries);
-  m_hasFields[CONTROL_PARAMETER_N_CS_ENTRIES] = val != m_wire.elements_end();
-  if (this->hasNCsEntries()) {
-    m_nCsEntries = readNonNegativeInteger(*val);
+  val = m_wire.find(tlv::nfd::Count);
+  m_hasFields[CONTROL_PARAMETER_COUNT] = val != m_wire.elements_end();
+  if (this->hasCount()) {
+    m_count = readNonNegativeInteger(*val);
   }
 
   val = m_wire.find(tlv::nfd::Flags);
@@ -337,8 +336,8 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
     os << "Capacity: " << parameters.getCapacity() << ", ";
   }
 
-  if (parameters.hasNCsEntries()) {
-    os << "NCsEntries: " << parameters.getNCsEntries() << ", ";
+  if (parameters.hasCount()) {
+    os << "Count: " << parameters.getCount() << ", ";
   }
 
   if (parameters.hasFlags()) {

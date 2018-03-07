@@ -309,16 +309,16 @@ BOOST_AUTO_TEST_CASE(CsEraseRequest)
   command.validateRequest(p1);
   BOOST_CHECK(Name("/PREFIX/cs/erase").isPrefixOf(command.getRequestName("/PREFIX", p1)));
 
-  // good limit-entries request
+  // good limited request
   ControlParameters p2;
   p2.setName("/IMw1RaLF");
-  p2.setNCsEntries(177);
+  p2.setCount(177);
   command.validateRequest(p2);
 
   // bad request: zero entry
   ControlParameters p3;
   p3.setName("/ahMID1jcib");
-  p3.setNCsEntries(0);
+  p3.setCount(0);
   BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
 
   // bad request: forbidden field
@@ -334,32 +334,31 @@ BOOST_AUTO_TEST_CASE(CsEraseResponse)
   // good normal response
   ControlParameters p1;
   p1.setName("/TwiIwCdR");
-  p1.setNCsEntries(1);
+  p1.setCount(1);
   command.validateResponse(p1);
 
   // good limit exceeded request
   ControlParameters p2;
   p2.setName("/NMsiy44pr");
   p2.setCapacity(360);
-  p2.setNCsEntries(360);
+  p2.setCount(360);
   command.validateResponse(p2);
 
   // good zero-entry response
   ControlParameters p3;
   p3.setName("/5f1LRPh1L");
-  p3.setNCsEntries(0);
+  p3.setCount(0);
   command.validateResponse(p3);
 
-  // bad request: missing NCsEntries
+  // bad request: missing Count
   ControlParameters p4(p1);
-  p4.unsetNCsEntries();
+  p4.unsetCount();
   BOOST_CHECK_THROW(command.validateResponse(p4), ControlCommand::ArgumentError);
 
   // bad request: zero capacity
   ControlParameters p5(p1);
   p5.setCapacity(0);
   BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
-
 }
 
 BOOST_AUTO_TEST_CASE(StrategyChoiceSet)

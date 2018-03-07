@@ -275,11 +275,11 @@ CsEraseCommand::CsEraseCommand()
 {
   m_requestValidator
     .required(CONTROL_PARAMETER_NAME)
-    .optional(CONTROL_PARAMETER_N_CS_ENTRIES);
+    .optional(CONTROL_PARAMETER_COUNT);
   m_responseValidator
     .required(CONTROL_PARAMETER_NAME)
     .optional(CONTROL_PARAMETER_CAPACITY)
-    .required(CONTROL_PARAMETER_N_CS_ENTRIES);
+    .required(CONTROL_PARAMETER_COUNT);
 }
 
 void
@@ -287,8 +287,8 @@ CsEraseCommand::validateRequest(const ControlParameters& parameters) const
 {
   this->ControlCommand::validateRequest(parameters);
 
-  if (parameters.hasNCsEntries() && parameters.getNCsEntries() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("NCsEntries must be positive"));
+  if (parameters.hasCount() && parameters.getCount() == 0) {
+    BOOST_THROW_EXCEPTION(ArgumentError("Count must be positive"));
   }
 }
 

@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(Fields)
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), false);
   BOOST_CHECK_EQUAL(decoded.hasCost(), false);
   BOOST_CHECK_EQUAL(decoded.hasCapacity(), false);
-  BOOST_CHECK_EQUAL(decoded.hasNCsEntries(), false);
+  BOOST_CHECK_EQUAL(decoded.hasCount(), false);
   BOOST_CHECK_EQUAL(decoded.hasFlags(), false);
   BOOST_CHECK_EQUAL(decoded.hasMask(), false);
   BOOST_CHECK_EQUAL(decoded.hasStrategy(), false);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(Fields)
   input.setOrigin(ROUTE_ORIGIN_NLSR);
   input.setCost(1388);
   input.setCapacity(2632);
-  input.setNCsEntries(3100);
+  input.setCount(3100);
   input.setFlags(0xAFC4);
   input.setMask(0xF7A1);
   input.setStrategy("/strategy-name");
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(Fields)
   BOOST_CHECK_EQUAL(decoded.hasOrigin(), true);
   BOOST_CHECK_EQUAL(decoded.hasCost(), true);
   BOOST_CHECK_EQUAL(decoded.hasCapacity(), true);
-  BOOST_CHECK_EQUAL(decoded.hasNCsEntries(), true);
+  BOOST_CHECK_EQUAL(decoded.hasCount(), true);
   BOOST_CHECK_EQUAL(decoded.hasFlags(), true);
   BOOST_CHECK_EQUAL(decoded.hasMask(), true);
   BOOST_CHECK_EQUAL(decoded.hasStrategy(), true);
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(Fields)
   BOOST_CHECK_EQUAL(decoded.getOrigin(), ROUTE_ORIGIN_NLSR);
   BOOST_CHECK_EQUAL(decoded.getCost(), 1388);
   BOOST_CHECK_EQUAL(decoded.getCapacity(), 2632);
-  BOOST_CHECK_EQUAL(decoded.getNCsEntries(), 3100);
+  BOOST_CHECK_EQUAL(decoded.getCount(), 3100);
   BOOST_CHECK_EQUAL(decoded.getFlags(), 0xAFC4);
   BOOST_CHECK_EQUAL(decoded.getMask(), 0xF7A1);
   BOOST_CHECK_EQUAL(decoded.getStrategy(), "/strategy-name");
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(Fields)
   input.unsetOrigin();
   input.unsetCost();
   input.unsetCapacity();
-  input.unsetNCsEntries();
+  input.unsetCount();
   input.unsetFlags();
   input.unsetMask();
   input.unsetStrategy();
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(Fields)
   BOOST_CHECK_EQUAL(input.hasOrigin(), false);
   BOOST_CHECK_EQUAL(input.hasCost(), false);
   BOOST_CHECK_EQUAL(input.hasCapacity(), false);
-  BOOST_CHECK_EQUAL(input.hasNCsEntries(), false);
+  BOOST_CHECK_EQUAL(input.hasCount(), false);
   BOOST_CHECK_EQUAL(input.hasFlags(), false);
   BOOST_CHECK_EQUAL(input.hasMask(), false);
   BOOST_CHECK_EQUAL(input.hasStrategy(), false);

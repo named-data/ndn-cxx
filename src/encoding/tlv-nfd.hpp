@@ -38,6 +38,7 @@ enum {
   Origin              = 111,
   Cost                = 106,
   Capacity            = 131,
+  Count               = 132,
   Flags               = 108,
   Mask                = 112,
   Strategy            = 107,
