@@ -5,46 +5,36 @@ from waflib import Utils
 top = '..'
 
 def build(bld):
-    # precompiled headers (if enabled)
-    bld(features=['cxx', 'pch'],
-        name='tests-base',
-        target='tests-base',
-        headers=['../src/common-pch.hpp', 'boost-test.hpp'],
-        use='ndn-cxx BOOST',
-        includes='.')
-
     # core objects that can be shared between unit and integrated tests
-    bld(features="cxx",
-        target="boost-tests-base",
-        source=bld.path.ant_glob(['*.cpp'], excl=['main.cpp']),
-        use='ndn-cxx tests-base BOOST',
-        includes='.',
-        install_path=None)
+    bld.objects(target='tests-base',
+                features='pch',
+                source=bld.path.ant_glob('*.cpp', excl=['main.cpp']),
+                headers=['../src/common-pch.hpp', 'boost-test.hpp'],
+                includes='.',
+                export_includes='.',
+                use='ndn-cxx BOOST')
+
+    config_path = 'UNIT_TEST_CONFIG_PATH="%s"' % bld.bldnode.make_node('tmp-files')
 
     # unit test objects
-    unit_tests = bld(
-        target="unit-test-objects",
-        name="unit-test-objects",
-        features="cxx",
-        source=bld.path.ant_glob(['unit-tests/**/*.cpp'],
-                                 excl=['**/*-osx.t.cpp', '**/*-sqlite3.t.cpp']),
-        use='ndn-cxx tests-base BOOST',
-        includes='.',
-        defines='UNIT_TEST_CONFIG_PATH=\"%s/tmp-files/\"' %(bld.bldnode),
-        install_path=None)
-
+    src = bld.path.ant_glob(['unit-tests/**/*.cpp'],
+                            excl=['**/*-osx.t.cpp', '**/*-sqlite3.t.cpp'])
     if bld.env['HAVE_OSX_FRAMEWORKS']:
-        unit_tests.source += bld.path.ant_glob('unit-tests/**/*-osx.t.cpp')
+        src += bld.path.ant_glob('unit-tests/**/*-osx.t.cpp')
 
     # In case we want to make it optional later
-    unit_tests.source += bld.path.ant_glob('unit-tests/**/*-sqlite3.t.cpp')
+    src += bld.path.ant_glob('unit-tests/**/*-sqlite3.t.cpp')
+
+    bld.objects(target='unit-test-objects',
+                source=src,
+                use='tests-base',
+                defines=[config_path])
 
     # unit test app
-    bld(features='cxx cxxprogram',
-        target='../unit-tests',
-        name='unit-tests-main-unit',
-        source="main.cpp",
-        use='ndn-cxx unit-test-objects boost-tests-base BOOST',
-        install_path=None)
+    bld.program(target='../unit-tests',
+                name='unit-tests',
+                source='main.cpp',
+                use='unit-test-objects',
+                install_path=None)
 
     bld.recurse('integrated')

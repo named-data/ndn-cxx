@@ -52,7 +52,7 @@ Note that precompiled header must have multiple inclusion guards.  If the guards
 """
 
 import os
-from waflib import Task, TaskGen, Logs, Utils
+from waflib import Task, TaskGen, Utils
 from waflib.Tools import c_preproc, cxx
 
 
@@ -67,11 +67,6 @@ def options(opt):
 
 def configure(conf):
 	if (conf.options.with_pch and conf.env['COMPILER_CXX'] in PCH_COMPILER_OPTIONS.keys()):
-		if Utils.unversioned_sys_platform() == "darwin" and conf.env['CXX_NAME'] == 'clang':
-			version = tuple(int(i) for i in conf.env['CC_VERSION'])
-			if version < (6, 1, 0):
-				# Issue #2804
-				return
 		conf.env.WITH_PCH = True
 		flags = PCH_COMPILER_OPTIONS[conf.env['COMPILER_CXX']]
 		conf.env.CXXPCH_F = flags[0]
@@ -134,7 +129,7 @@ def add_pch(self):
 			x.env.append_value('CXXFLAGS', self.env['CXXPCH_F'] + [pch.target])
 
 class gchx(Task.Task):
-	run_str = '${CXX} ${ARCH_ST:ARCH} ${CXXFLAGS} ${CPPFLAGS} ${CXXPCH_FLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXXPCH_F:SRC} ${CXX_SRC_F}${SRC[0].abspath()} ${CXX_TGT_F}${TGT[0].abspath()}'
+	run_str = '${CXX} ${ARCH_ST:ARCH} ${CXXFLAGS} ${CXXPCH_FLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXXPCH_F:SRC} ${CXX_SRC_F}${SRC[0].abspath()} ${CXX_TGT_F}${TGT[0].abspath()} ${CPPFLAGS}'
 	scan    = c_preproc.scan
 	color   = 'BLUE'
 	ext_out=['.h']

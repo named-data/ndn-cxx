@@ -4,32 +4,56 @@ from waflib import Utils
 
 top = '..'
 
-def configure(conf):
-    conf.find_program('sh')
-
 def build(bld):
-    # List all .cpp files (whole tool should be in one .cpp)
-    for i in bld.path.ant_glob(['*.cpp']):
-        name = str(i)[:-len(".cpp")]
-        bld(features=['cxx', 'cxxprogram'],
-            target="../bin/%s" % name,
-            source=[i] + bld.path.ant_glob(['%s/**/*.cpp' % name]),
-            use='ndn-cxx'
-            )
+    # Single object tools:
+    # tools/example-tool.cpp is a self-contained tool with a main() function
+    # and is built as build/bin/example-tool.
+    # These tools cannot be unit-tested.
+    for tool in bld.path.ant_glob('*.cpp'):
+        name = tool.change_ext('').path_from(bld.path.get_bld())
+        bld.program(name=name,
+                    target='../bin/%s' % name,
+                    source=[tool],
+                    use='ndn-cxx')
 
-    # List all directories files (tool can has multiple .cpp in the directory)
-    for name in bld.path.ant_glob(['*'], dir=True, src=False, excl=['wrapper']):
-        bld(features=['cxx', 'cxxprogram'],
-            target="../bin/%s" % name,
-            source=bld.path.ant_glob(['%s/**/*.cpp' % name]),
-            use='ndn-cxx',
-            includes='%s' % name,
-            )
+    # Sub-directory tools:
+    # tools/example-tool/**/*.cpp is compiled and linked into build/bin/example-tool.
+    # tools/example-tool/main.cpp must exist and must contain the main() function.
+    # All other objects are collected into 'tools-objects' and can be unit-tested.
+    testableObjects = []
+    for subdir in bld.path.ant_glob('*', dir=True, src=False):
+        mainFile = subdir.find_node('main.cpp')
+        if mainFile is None:
+            continue # not a C++ tool
 
-    bld(features="subst",
-        source=bld.path.ant_glob(['wrapper/*.sh']),
-        target=['%s' % node.change_ext('', '.sh')
-                for node in bld.path.ant_glob(['wrapper/*.sh'])],
-        install_path="${BINDIR}",
-        chmod=Utils.O755,
-       )
+        name = subdir.path_from(bld.path)
+        srcFiles = subdir.ant_glob('**/*.cpp', excl=['main.cpp'])
+        srcObjects = ''
+        if srcFiles:
+            srcObjects = 'tools-%s-objects' % name
+            bld.objects(target=srcObjects,
+                        source=srcFiles,
+                        use='ndn-cxx',
+                        includes=name)
+            testableObjects.append(srcObjects)
+
+        bld.program(name=name,
+                    target='../bin/%s' % name,
+                    source=[mainFile],
+                    use='ndn-cxx ' + srcObjects,
+                    includes=name)
+
+    bld.objects(target='tools-objects',
+                source=[],
+                export_includes='.',
+                use=testableObjects)
+
+    # Tool wrappers
+    wrapperFiles = bld.path.ant_glob('wrapper/*.sh')
+    bld(name='wrappers',
+        features='subst',
+        source=wrapperFiles,
+        target=['../bin/%s' % node.change_ext('', '.sh').path_from(bld.path.find_dir('wrapper').get_bld())
+                for node in wrapperFiles],
+        install_path='${BINDIR}',
+        chmod=Utils.O755)

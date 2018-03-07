@@ -46,8 +46,9 @@ def addExtensionIfExists(extension):
 
 addExtensionIfExists('sphinxcontrib.doxylink')
 
-if os.getenv('GOOGLE_ANALYTICS', None):
-    addExtensionIfExists('sphinxcontrib.googleanalytics')
+# sphinxcontrib.googleanalytics is currently not working with the latest version of Sphinx
+# if os.getenv('GOOGLE_ANALYTICS', None):
+#     addExtensionIfExists('sphinxcontrib.googleanalytics')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

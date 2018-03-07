@@ -2,14 +2,12 @@
 
 from waflib import Utils
 
-top = '..'
+top = '../..'
 
 def build(bld):
-    for i in bld.path.ant_glob(['*.cpp']):
-        name = str(i)[:-len(".cpp")]
-        bld(features='cxx cxxprogram',
-            target=name,
-            source=[i],
-            use='ndn-cxx boost-tests-base BOOST',
-            includes='..',
-            install_path=None)
+    for test in bld.path.ant_glob('*.cpp'):
+        name = test.change_ext('').path_from(bld.path.get_bld())
+        bld.program(target=name,
+                    source=[test],
+                    use='ndn-cxx tests-base BOOST',
+                    install_path=None)

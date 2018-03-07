@@ -1,18 +1,29 @@
-# Emacs temp files
+# Emacs
 *~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+.\#*
 
-# macOS stuff
-.DS_*
+# Visual Studio Code
+.vscode/
 
-# waf build system
-.waf-1*
-.waf3-*
-.lock*
-build/
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Waf build system
+/build/
+.waf-*-*/
+.waf3-*-*/
+.lock-waf*
 
 # Compiled python code
-*.pyc
-*.pyo
+__pycache__/
+*.py[cod]
 
 # Other
-VERSION
+/VERSION
