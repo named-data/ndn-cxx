@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,11 +23,8 @@
 #include "security/v2/validation-state.hpp"
 #include "security/verification-helpers.hpp"
 #include "security/pib/key.hpp"
-#include "util/logger.hpp"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace ndn {
 namespace security {
@@ -35,7 +32,8 @@ namespace v2 {
 namespace validator_config {
 
 bool
-Checker::check(uint32_t pktType, const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state)
+Checker::check(uint32_t pktType, const Name& pktName, const Name& klName,
+               const shared_ptr<ValidationState>& state)
 {
   BOOST_ASSERT(pktType == tlv::Interest || pktType == tlv::Data);
 
@@ -57,7 +55,8 @@ NameRelationChecker::NameRelationChecker(const Name& name, const NameRelation& r
 }
 
 bool
-NameRelationChecker::checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state)
+NameRelationChecker::checkNames(const Name& pktName, const Name& klName,
+                                const shared_ptr<ValidationState>& state)
 {
   // pktName not used in this check
   Name identity = extractIdentityFromKeyName(klName);
@@ -87,7 +86,6 @@ RegexChecker::checkNames(const Name& pktName, const Name& klName, const shared_p
        << " (KeyLocator=" << klName << ")";
     state->fail({ValidationError::POLICY_ERROR, os.str()});
   }
-
   return result;
 }
 
@@ -101,7 +99,8 @@ HyperRelationChecker::HyperRelationChecker(const std::string& pktNameExpr, const
 }
 
 bool
-HyperRelationChecker::checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state)
+HyperRelationChecker::checkNames(const Name& pktName, const Name& klName,
+                                 const shared_ptr<ValidationState>& state)
 {
   if (!m_hyperPRegex.match(pktName) || !m_hyperKRegex.match(klName)) {
     std::ostringstream os;
@@ -129,11 +128,10 @@ Checker::create(const ConfigSection& configSection, const std::string& configFil
 
   // Get checker.type
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type")) {
-    BOOST_THROW_EXCEPTION(Error("Expect <checker.type>"));
+    BOOST_THROW_EXCEPTION(Error("Expecting <checker.type>"));
   }
 
   std::string type = propertyIt->second.data();
-
   if (boost::iequals(type, "customized")) {
     return createCustomizedChecker(configSection, configFilename);
   }
@@ -141,13 +139,13 @@ Checker::create(const ConfigSection& configSection, const std::string& configFil
     return createHierarchicalChecker(configSection, configFilename);
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unsupported checker type: " + type));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized <checker.type>: " + type));
   }
 }
 
 unique_ptr<Checker>
 Checker::createCustomizedChecker(const ConfigSection& configSection,
-                                        const std::string& configFilename)
+                                 const std::string& configFilename)
 {
   auto propertyIt = configSection.begin();
   propertyIt++;
@@ -161,22 +159,21 @@ Checker::createCustomizedChecker(const ConfigSection& configSection,
 
   // Get checker.key-locator
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "key-locator")) {
-    BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator>"));
+    BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator>"));
   }
 
   auto checker = createKeyLocatorChecker(propertyIt->second, configFilename);
   propertyIt++;
 
   if (propertyIt != configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Expect the end of checker"));
+    BOOST_THROW_EXCEPTION(Error("Expecting end of <checker>"));
   }
-
   return checker;
 }
 
 unique_ptr<Checker>
 Checker::createHierarchicalChecker(const ConfigSection& configSection,
-                                          const std::string& configFilename)
+                                   const std::string& configFilename)
 {
   auto propertyIt = configSection.begin();
   propertyIt++;
@@ -189,54 +186,52 @@ Checker::createHierarchicalChecker(const ConfigSection& configSection,
   }
 
   if (propertyIt != configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Expect the end of checker"));
+    BOOST_THROW_EXCEPTION(Error("Expecting end of <checker>"));
   }
-
   return make_unique<HyperRelationChecker>("^(<>*)$",        "\\1",
                                            "^(<>*)<KEY><>$", "\\1",
                                            NameRelation::IS_PREFIX_OF);
 }
 
-///
-
 unique_ptr<Checker>
-Checker::createKeyLocatorChecker(const ConfigSection& configSection, const std::string& configFilename)
+Checker::createKeyLocatorChecker(const ConfigSection& configSection,
+                                 const std::string& configFilename)
 {
   auto propertyIt = configSection.begin();
 
   // Get checker.key-locator.type
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-    BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.type>"));
+    BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.type>"));
 
   std::string type = propertyIt->second.data();
-
   if (boost::iequals(type, "name"))
     return createKeyLocatorNameChecker(configSection, configFilename);
   else
-    BOOST_THROW_EXCEPTION(Error("Unsupported checker.key-locator.type: " + type));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized <checker.key-locator.type>: " + type));
 }
 
 unique_ptr<Checker>
-Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const std::string& configFilename)
+Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
+                                     const std::string& configFilename)
 {
   auto propertyIt = configSection.begin();
   propertyIt++;
 
   if (propertyIt == configSection.end())
-    BOOST_THROW_EXCEPTION(Error("Expect more checker.key-locator properties"));
+    BOOST_THROW_EXCEPTION(Error("Unexpected end of <checker.key-locator>"));
 
   if (boost::iequals(propertyIt->first, "name")) {
     Name name;
     try {
       name = Name(propertyIt->second.data());
     }
-    catch (const Name::Error& e) {
-      BOOST_THROW_EXCEPTION(Error("Invalid checker.key-locator.name: " + propertyIt->second.data()));
+    catch (const Name::Error&) {
+      BOOST_THROW_EXCEPTION(Error("Invalid <checker.key-locator.name>: " + propertyIt->second.data()));
     }
     propertyIt++;
 
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "relation")) {
-      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.relation>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.relation>"));
     }
 
     std::string relationString = propertyIt->second.data();
@@ -245,7 +240,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const s
     NameRelation relation = getNameRelationFromString(relationString);
 
     if (propertyIt != configSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expect the end of checker.key-locator"));
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <checker.key-locator>"));
     }
     return make_unique<NameRelationChecker>(name, relation);
   }
@@ -254,24 +249,23 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const s
     propertyIt++;
 
     if (propertyIt != configSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expect the end of checker.key-locator"));
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <checker.key-locator>"));
     }
 
     try {
       return make_unique<RegexChecker>(Regex(regexString));
     }
-    catch (const Regex::Error& e) {
-      BOOST_THROW_EXCEPTION(Error("Invalid checker.key-locator.regex: " + regexString));
+    catch (const Regex::Error&) {
+      BOOST_THROW_EXCEPTION(Error("Invalid <checker.key-locator.regex>: " + regexString));
     }
   }
   else if (boost::iequals(propertyIt->first, "hyper-relation")) {
     const ConfigSection& hSection = propertyIt->second;
-
     ConfigSection::const_iterator hPropertyIt = hSection.begin();
 
     // Get k-regex
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "k-regex")) {
-      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.k-regex>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.k-regex>"));
     }
 
     std::string kRegex = hPropertyIt->second.data();
@@ -279,7 +273,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const s
 
     // Get k-expand
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "k-expand")) {
-      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.k-expand>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.k-expand>"));
     }
 
     std::string kExpand = hPropertyIt->second.data();
@@ -287,7 +281,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const s
 
     // Get h-relation
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "h-relation")) {
-      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.h-relation>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.h-relation>"));
     }
 
     std::string hRelation = hPropertyIt->second.data();
@@ -295,7 +289,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const s
 
     // Get p-regex
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "p-regex")) {
-      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.p-regex>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.p-regex>"));
     }
 
     std::string pRegex = hPropertyIt->second.data();
@@ -303,26 +297,26 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection, const s
 
     // Get p-expand
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "p-expand")) {
-      BOOST_THROW_EXCEPTION(Error("Expect <checker.key-locator.hyper-relation.p-expand>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.p-expand>"));
     }
 
     std::string pExpand = hPropertyIt->second.data();
     hPropertyIt++;
 
     if (hPropertyIt != hSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expect the end of checker.key-locator.hyper-relation"));
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <checker.key-locator.hyper-relation>"));
     }
 
     NameRelation relation = getNameRelationFromString(hRelation);
     try {
       return make_unique<HyperRelationChecker>(pRegex, pExpand, kRegex, kExpand, relation);
     }
-    catch (const Regex::Error& e) {
-      BOOST_THROW_EXCEPTION(Error("Invalid regex for key-locator.hyper-relation"));
+    catch (const Regex::Error&) {
+      BOOST_THROW_EXCEPTION(Error("Invalid regex for <key-locator.hyper-relation>"));
     }
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unsupported checker.key-locator"));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized <checker.key-locator>: " + propertyIt->first));
   }
 }
 

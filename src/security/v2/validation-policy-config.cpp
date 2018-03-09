@@ -23,10 +23,12 @@
 #include "validator.hpp"
 #include "../../util/io.hpp"
 
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/info_parser.hpp>
+
+#include <fstream>
 
 namespace ndn {
 namespace security {
@@ -42,15 +44,11 @@ ValidationPolicyConfig::ValidationPolicyConfig()
 void
 ValidationPolicyConfig::load(const std::string& filename)
 {
-  std::ifstream inputFile;
-  inputFile.open(filename.c_str());
-  if (!inputFile.good() || !inputFile.is_open()) {
-    std::string msg = "Failed to read configuration file: ";
-    msg += filename;
-    BOOST_THROW_EXCEPTION(Error(msg));
+  std::ifstream inputFile(filename);
+  if (!inputFile) {
+    BOOST_THROW_EXCEPTION(Error("Failed to read configuration file: " + filename));
   }
   load(inputFile, filename);
-  inputFile.close();
 }
 
 void
@@ -67,26 +65,20 @@ ValidationPolicyConfig::load(std::istream& input, const std::string& filename)
   try {
     boost::property_tree::read_info(input, tree);
   }
-  catch (const boost::property_tree::info_parser_error& error) {
-    std::stringstream msg;
-    msg << "Failed to parse configuration file";
-    msg << " " << filename;
-    msg << " " << error.message() << " line " << error.line();
-    BOOST_THROW_EXCEPTION(Error(msg.str()));
+  catch (const boost::property_tree::info_parser_error& e) {
+    BOOST_THROW_EXCEPTION(Error("Failed to parse configuration file " + filename +
+                                " line " + to_string(e.line()) + ": " + e.message()));
   }
-
   load(tree, filename);
 }
 
 void
-ValidationPolicyConfig::load(const ConfigSection& configSection,
-                             const std::string& filename)
+ValidationPolicyConfig::load(const ConfigSection& configSection, const std::string& filename)
 {
   if (m_isConfigured) {
     m_shouldBypass = false;
     m_dataRules.clear();
     m_interestRules.clear();
-
     m_validator->resetAnchors();
     m_validator->resetVerifiedCertificates();
   }
@@ -95,11 +87,7 @@ ValidationPolicyConfig::load(const ConfigSection& configSection,
   BOOST_ASSERT(!filename.empty());
 
   if (configSection.begin() == configSection.end()) {
-    std::string msg = "Error processing configuration file";
-    msg += ": ";
-    msg += filename;
-    msg += " no data";
-    BOOST_THROW_EXCEPTION(Error(msg));
+    BOOST_THROW_EXCEPTION(Error("Error processing configuration file " + filename + ": no data"));
   }
 
   for (const auto& subSection : configSection) {
@@ -119,21 +107,19 @@ ValidationPolicyConfig::load(const ConfigSection& configSection,
       processConfigTrustAnchor(section, filename);
     }
     else {
-      std::string msg = "Error processing configuration file";
-      msg += " ";
-      msg += filename;
-      msg += " unrecognized section: " + sectionName;
-      BOOST_THROW_EXCEPTION(Error(msg));
+      BOOST_THROW_EXCEPTION(Error("Error processing configuration file " + filename +
+                                  ": unrecognized section " + sectionName));
     }
   }
 }
 
 void
-ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSection, const std::string& filename)
+ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSection,
+                                                 const std::string& filename)
 {
   using namespace boost::filesystem;
 
-  ConfigSection::const_iterator propertyIt = configSection.begin();
+  auto propertyIt = configSection.begin();
 
   // Get trust-anchor.type
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type")) {
@@ -153,13 +139,11 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     propertyIt++;
 
     time::nanoseconds refresh = getRefreshPeriod(propertyIt, configSection.end());
-    if (propertyIt != configSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expect the end of trust-anchor!"));
-    }
+    if (propertyIt != configSection.end())
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <trust-anchor>"));
 
     m_validator->loadAnchor(filename, absolute(file, path(filename).parent_path()).string(),
                             refresh, false);
-    return;
   }
   else if (boost::iequals(type, "base64")) {
     // Get trust-anchor.base64-string
@@ -169,9 +153,8 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     std::stringstream ss(propertyIt->second.data());
     propertyIt++;
 
-    // Check other stuff
     if (propertyIt != configSection.end())
-      BOOST_THROW_EXCEPTION(Error("Expecting the end of trust-anchor"));
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <trust-anchor>"));
 
     auto idCert = io::load<Certificate>(ss);
     if (idCert != nullptr) {
@@ -180,30 +163,26 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     else {
       BOOST_THROW_EXCEPTION(Error("Cannot decode certificate from base64-string"));
     }
-
-    return;
   }
   else if (boost::iequals(type, "dir")) {
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "dir"))
-      BOOST_THROW_EXCEPTION(Error("Expect <trust-anchor.dir>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <trust-anchor.dir>"));
 
     std::string dirString(propertyIt->second.data());
     propertyIt++;
 
     time::nanoseconds refresh = getRefreshPeriod(propertyIt, configSection.end());
-    if (propertyIt != configSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expecting the end of trust-anchor"));
-    }
+    if (propertyIt != configSection.end())
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <trust-anchor>"));
 
     path dirPath = absolute(dirString, path(filename).parent_path());
     m_validator->loadAnchor(dirString, dirPath.string(), refresh, true);
-    return;
   }
   else if (boost::iequals(type, "any")) {
     m_shouldBypass = true;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unsupported trust-anchor.type: " + type));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized <trust-anchor.type>: " + type));
   }
 }
 
@@ -211,7 +190,7 @@ time::nanoseconds
 ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
                                          const ConfigSection::const_iterator& end)
 {
-  time::nanoseconds refresh = time::nanoseconds::max();
+  auto refresh = time::nanoseconds::max();
   if (it == end) {
     return refresh;
   }
@@ -222,17 +201,18 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
 
   std::string inputString = it->second.data();
   ++it;
-
   char unit = inputString[inputString.size() - 1];
   std::string refreshString = inputString.substr(0, inputString.size() - 1);
 
-  uint32_t refreshPeriod = 0;
-
+  int32_t refreshPeriod = -1;
   try {
-    refreshPeriod = boost::lexical_cast<uint32_t>(refreshString);
+    refreshPeriod = boost::lexical_cast<int32_t>(refreshString);
   }
   catch (const boost::bad_lexical_cast&) {
-    BOOST_THROW_EXCEPTION(Error("Bad number: " + refreshString));
+    // pass
+  }
+  if (refreshPeriod < 0) {
+    BOOST_THROW_EXCEPTION(Error("Bad refresh value: " + refreshString));
   }
 
   if (refreshPeriod == 0) {
@@ -247,7 +227,7 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
     case 's':
       return time::seconds(refreshPeriod);
     default:
-      BOOST_THROW_EXCEPTION(Error(std::string("Wrong time unit: ") + unit));
+      BOOST_THROW_EXCEPTION(Error(std::string("Bad refresh time unit: ") + unit));
   }
 }
 
@@ -282,7 +262,8 @@ ValidationPolicyConfig::checkPolicy(const Data& data, const shared_ptr<Validatio
     }
   }
 
-  return state->fail({ValidationError::POLICY_ERROR, "No rule matched for data `" + data.getName().toUri() + "`"});
+  return state->fail({ValidationError::POLICY_ERROR,
+                      "No rule matched for data `" + data.getName().toUri() + "`"});
 }
 
 void
@@ -310,7 +291,8 @@ ValidationPolicyConfig::checkPolicy(const Interest& interest, const shared_ptr<V
     }
   }
 
-  return state->fail({ValidationError::POLICY_ERROR, "No rule matched for interest `" + interest.getName().toUri() + "`"});
+  return state->fail({ValidationError::POLICY_ERROR,
+                      "No rule matched for interest `" + interest.getName().toUri() + "`"});
 }
 
 } // namespace validator_config

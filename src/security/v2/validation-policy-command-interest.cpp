@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "validation-policy-command-interest.hpp"
-#include "../pib/key.hpp"
 
 namespace ndn {
 namespace security {
@@ -37,7 +36,7 @@ ValidationPolicyCommandInterest::ValidationPolicyCommandInterest(unique_ptr<Vali
   }
   setInnerPolicy(std::move(inner));
 
-  m_options.gracePeriod = std::max(m_options.gracePeriod, time::nanoseconds::zero());
+  m_options.gracePeriod = std::max(m_options.gracePeriod, 0_ns);
 }
 
 void
@@ -68,7 +67,7 @@ ValidationPolicyCommandInterest::checkPolicy(const Interest& interest, const sha
 void
 ValidationPolicyCommandInterest::cleanup()
 {
-  time::steady_clock::TimePoint expiring = time::steady_clock::now() - m_options.recordLifetime;
+  auto expiring = time::steady_clock::now() - m_options.recordLifetime;
 
   while ((!m_queue.empty() && m_queue.front().lastRefreshed <= expiring) ||
          (m_options.maxRecords >= 0 &&
@@ -109,33 +108,35 @@ ValidationPolicyCommandInterest::checkTimestamp(const shared_ptr<ValidationState
 {
   this->cleanup();
 
-  time::system_clock::TimePoint now = time::system_clock::now();
-  time::system_clock::TimePoint timestampPoint = time::fromUnixTimestamp(time::milliseconds(timestamp));
+  auto now = time::system_clock::now();
+  auto timestampPoint = time::fromUnixTimestamp(time::milliseconds(timestamp));
   if (timestampPoint < now - m_options.gracePeriod || timestampPoint > now + m_options.gracePeriod) {
-    state->fail({ValidationError::POLICY_ERROR, "Timestamp is outside the grace period for key " + keyName.toUri()});
+    state->fail({ValidationError::POLICY_ERROR,
+                 "Timestamp is outside the grace period for key " + keyName.toUri()});
     return false;
   }
+
   auto it = m_index.find(keyName);
   if (it != m_index.end()) {
     if (timestamp <= it->timestamp) {
-      state->fail({ValidationError::POLICY_ERROR, "Timestamp is reordered for key " + keyName.toUri()});
+      state->fail({ValidationError::POLICY_ERROR,
+                   "Timestamp is reordered for key " + keyName.toUri()});
       return false;
     }
   }
 
-  shared_ptr<InterestValidationState> interestState = std::dynamic_pointer_cast<InterestValidationState>(state);
-  interestState->afterSuccess.connect(bind(&ValidationPolicyCommandInterest::insertNewRecord,
-                                           this, _1, keyName, timestamp));
+  auto interestState = dynamic_pointer_cast<InterestValidationState>(state);
+  BOOST_ASSERT(interestState != nullptr);
+  interestState->afterSuccess.connect([=] (const Interest&) { insertNewRecord(keyName, timestamp); });
   return true;
 }
 
 void
-ValidationPolicyCommandInterest::insertNewRecord(const Interest& interest, const Name& keyName,
-                                                 uint64_t timestamp)
+ValidationPolicyCommandInterest::insertNewRecord(const Name& keyName, uint64_t timestamp)
 {
   // try to insert new record
-  time::steady_clock::TimePoint now = time::steady_clock::now();
-  Queue::iterator i = m_queue.end();
+  auto now = time::steady_clock::now();
+  auto i = m_queue.end();
   bool isNew = false;
   LastTimestampRecord newRecord{keyName, timestamp, now};
   std::tie(i, isNew) = m_queue.push_back(newRecord);

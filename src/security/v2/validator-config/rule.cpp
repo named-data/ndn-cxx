@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,7 +73,8 @@ Rule::match(uint32_t pktType, const Name& pktName) const
 }
 
 bool
-Rule::check(uint32_t pktType, const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state) const
+Rule::check(uint32_t pktType, const Name& pktName, const Name& klName,
+            const shared_ptr<ValidationState>& state) const
 {
   NDN_LOG_TRACE("Trying to check " << pktName << " with keyLocator " << klName);
 
@@ -151,9 +152,8 @@ Rule::create(const ConfigSection& configSection, const std::string& configFilena
     hasCheckers = true;
   }
 
-  // Check other stuff
   if (propertyIt != configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Expecting the end of rule: " + ruleId));
+    BOOST_THROW_EXCEPTION(Error("Expecting end of <rule>: " + ruleId));
   }
 
   if (!hasCheckers) {

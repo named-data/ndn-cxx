@@ -23,6 +23,7 @@
 #define NDN_SECURITY_V2_VALIDATION_POLICY_COMMAND_INTEREST_HPP
 
 #include "validation-policy.hpp"
+
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
@@ -122,11 +123,9 @@ private:
                  const Name& keyName, uint64_t timestamp);
 
   void
-  insertNewRecord(const Interest& interest, const Name& keyName,
-                  uint64_t timestamp);
+  insertNewRecord(const Name& keyName, uint64_t timestamp);
 
 private:
-  unique_ptr<ValidationPolicy> m_innerPolicy;
   Options m_options;
 
   struct LastTimestampRecord
@@ -136,7 +135,7 @@ private:
     time::steady_clock::TimePoint lastRefreshed;
   };
 
-  typedef boost::multi_index_container<
+  using Container = boost::multi_index_container<
     LastTimestampRecord,
     boost::multi_index::indexed_by<
       boost::multi_index::ordered_unique<
@@ -144,9 +143,9 @@ private:
       >,
       boost::multi_index::sequenced<>
     >
-  > Container;
-  typedef Container::nth_index<0>::type Index;
-  typedef Container::nth_index<1>::type Queue;
+  >;
+  using Index = Container::nth_index<0>::type;
+  using Queue = Container::nth_index<1>::type;
 
   Container m_container;
   Index& m_index;

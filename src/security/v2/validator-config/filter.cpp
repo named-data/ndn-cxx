@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,10 @@
 
 #include "data.hpp"
 #include "interest.hpp"
-#include "util/regex.hpp"
 #include "security/security-common.hpp"
+#include "util/regex.hpp"
 
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace ndn {
 namespace security {
@@ -78,15 +78,14 @@ Filter::create(const ConfigSection& configSection, const std::string& configFile
   auto propertyIt = configSection.begin();
 
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type")) {
-    BOOST_THROW_EXCEPTION(Error("Expect <filter.type>"));
+    BOOST_THROW_EXCEPTION(Error("Expecting <filter.type>"));
   }
 
   std::string type = propertyIt->second.data();
-
   if (boost::iequals(type, "name"))
     return createNameFilter(configSection, configFilename);
   else
-    BOOST_THROW_EXCEPTION(Error("Unsupported filter.type: " + type));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized <filter.type>: " + type));
 }
 
 unique_ptr<Filter>
@@ -95,9 +94,8 @@ Filter::createNameFilter(const ConfigSection& configSection, const std::string& 
   auto propertyIt = configSection.begin();
   propertyIt++;
 
-  if (propertyIt == configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Expect more properties for filter(name)"));
-  }
+  if (propertyIt == configSection.end())
+    BOOST_THROW_EXCEPTION(Error("Unexpected end of <filter>"));
 
   if (boost::iequals(propertyIt->first, "name")) {
     // Get filter.name
@@ -105,22 +103,22 @@ Filter::createNameFilter(const ConfigSection& configSection, const std::string& 
     try {
       name = Name(propertyIt->second.data());
     }
-    catch (const Name::Error& e) {
-      BOOST_THROW_EXCEPTION(Error("Wrong filter.name: " + propertyIt->second.data()));
+    catch (const Name::Error&) {
+      BOOST_THROW_EXCEPTION(Error("Invalid <filter.name>: " + propertyIt->second.data()));
     }
 
     propertyIt++;
 
     // Get filter.relation
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "relation")) {
-      BOOST_THROW_EXCEPTION(Error("Expect <filter.relation>"));
+      BOOST_THROW_EXCEPTION(Error("Expecting <filter.relation>"));
     }
 
     NameRelation relation = getNameRelationFromString(propertyIt->second.data());
     propertyIt++;
 
     if (propertyIt != configSection.end())
-      BOOST_THROW_EXCEPTION(Error("Expect the end of filter"));
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <filter>"));
 
     return make_unique<RelationNameFilter>(name, relation);
   }
@@ -129,17 +127,17 @@ Filter::createNameFilter(const ConfigSection& configSection, const std::string& 
     propertyIt++;
 
     if (propertyIt != configSection.end())
-      BOOST_THROW_EXCEPTION(Error("Expect the end of filter"));
+      BOOST_THROW_EXCEPTION(Error("Expecting end of <filter>"));
 
     try {
       return make_unique<RegexNameFilter>(Regex(regexString));
     }
-    catch (const Regex::Error& e) {
-      BOOST_THROW_EXCEPTION(Error("Wrong filter.regex: " + regexString));
+    catch (const Regex::Error&) {
+      BOOST_THROW_EXCEPTION(Error("Invalid <filter.regex>: " + regexString));
     }
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Wrong filter(name) properties"));
+    BOOST_THROW_EXCEPTION(Error("Unrecognized <filter> property: " + propertyIt->first));
   }
 }
 
