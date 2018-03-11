@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(TypeNone)
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
@@ -51,7 +51,6 @@ BOOST_AUTO_TEST_CASE(TypeNone)
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(KeyLocator(wire));
   KeyLocator b(wire);
   BOOST_CHECK(a == b);
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_None);
@@ -74,7 +73,7 @@ BOOST_AUTO_TEST_CASE(TypeName)
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
@@ -83,7 +82,6 @@ BOOST_AUTO_TEST_CASE(TypeName)
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(KeyLocator(wire));
   KeyLocator b(wire);
   BOOST_CHECK(a == b);
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_Name);
@@ -110,7 +108,7 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
@@ -119,7 +117,6 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(KeyLocator(wire));
   KeyLocator b(wire);
   BOOST_CHECK(a == b);
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_KeyDigest);
@@ -170,7 +167,6 @@ BOOST_AUTO_TEST_CASE(UnknownType)
     0x1c, 0x03, 0x7f, 0x01, 0xcc
   };
   Block wire(wireOctets, sizeof(wireOctets));
-  BOOST_REQUIRE_NO_THROW(KeyLocator(wire));
   KeyLocator a(wire);
   BOOST_CHECK_EQUAL(a.getType(), KeyLocator::KeyLocator_Unknown);
 

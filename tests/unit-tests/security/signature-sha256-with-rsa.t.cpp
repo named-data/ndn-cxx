@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(Decoding)
   Block sigValueBlock(sigValue, sizeof(sigValue));
 
   Signature sig(sigInfoBlock, sigValueBlock);
-  BOOST_CHECK_NO_THROW(SignatureSha256WithRsa(sig));
+  BOOST_CHECK_NO_THROW(SignatureSha256WithRsa{sig});
   BOOST_CHECK_NO_THROW(sig.getKeyLocator());
 }
 

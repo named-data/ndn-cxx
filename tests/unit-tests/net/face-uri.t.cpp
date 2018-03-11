@@ -122,11 +122,10 @@ BOOST_AUTO_TEST_CASE(ParseInternal)
 
 BOOST_AUTO_TEST_CASE(ParseUdp)
 {
-  BOOST_CHECK_NO_THROW(FaceUri("udp://hostname:6363"));
+  FaceUri uri("udp://hostname:6363");
   BOOST_CHECK_THROW(FaceUri("udp//hostname:6363"), FaceUri::Error);
   BOOST_CHECK_THROW(FaceUri("udp://hostname:port"), FaceUri::Error);
 
-  FaceUri uri;
   BOOST_CHECK_EQUAL(uri.parse("udp//hostname:6363"), false);
 
   BOOST_CHECK(uri.parse("udp://hostname:80"));
@@ -158,12 +157,12 @@ BOOST_AUTO_TEST_CASE(ParseUdp)
   namespace ip = boost::asio::ip;
 
   ip::udp::endpoint endpoint4(ip::address_v4::from_string("192.0.2.1"), 7777);
-  BOOST_REQUIRE_NO_THROW(FaceUri(endpoint4));
-  BOOST_CHECK_EQUAL(FaceUri(endpoint4).toString(), "udp4://192.0.2.1:7777");
+  uri = FaceUri(endpoint4);
+  BOOST_CHECK_EQUAL(uri.toString(), "udp4://192.0.2.1:7777");
 
   ip::udp::endpoint endpoint6(ip::address_v6::from_string("2001:DB8::1"), 7777);
-  BOOST_REQUIRE_NO_THROW(FaceUri(endpoint6));
-  BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "udp6://[2001:db8::1]:7777");
+  uri = FaceUri(endpoint6);
+  BOOST_CHECK_EQUAL(uri.toString(), "udp6://[2001:db8::1]:7777");
 
   BOOST_CHECK(uri.parse("udp6://[fe80::1%25eth1]:6363"));
   BOOST_CHECK_EQUAL(uri.getHost(), "fe80::1%25eth1");
@@ -303,15 +302,15 @@ BOOST_AUTO_TEST_CASE(ParseTcp)
   namespace ip = boost::asio::ip;
 
   ip::tcp::endpoint endpoint4(ip::address_v4::from_string("192.0.2.1"), 7777);
-  BOOST_REQUIRE_NO_THROW(FaceUri(endpoint4));
-  BOOST_CHECK_EQUAL(FaceUri(endpoint4).toString(), "tcp4://192.0.2.1:7777");
+  uri = FaceUri(endpoint4);
+  BOOST_CHECK_EQUAL(uri.toString(), "tcp4://192.0.2.1:7777");
 
-  BOOST_REQUIRE_NO_THROW(FaceUri(endpoint4, "wsclient"));
-  BOOST_CHECK_EQUAL(FaceUri(endpoint4, "wsclient").toString(), "wsclient://192.0.2.1:7777");
+  uri = FaceUri(endpoint4, "wsclient");
+  BOOST_CHECK_EQUAL(uri.toString(), "wsclient://192.0.2.1:7777");
 
   ip::tcp::endpoint endpoint6(ip::address_v6::from_string("2001:DB8::1"), 7777);
-  BOOST_REQUIRE_NO_THROW(FaceUri(endpoint6));
-  BOOST_CHECK_EQUAL(FaceUri(endpoint6).toString(), "tcp6://[2001:db8::1]:7777");
+  uri = FaceUri(endpoint6);
+  BOOST_CHECK_EQUAL(uri.toString(), "tcp6://[2001:db8::1]:7777");
 
   BOOST_CHECK(uri.parse("tcp6://[fe80::1%25eth1]:6363"));
   BOOST_CHECK_EQUAL(uri.getHost(), "fe80::1%25eth1");
@@ -441,8 +440,8 @@ BOOST_AUTO_TEST_CASE(ParseUnix)
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
   using boost::asio::local::stream_protocol;
   stream_protocol::endpoint endpoint("/var/run/example.sock");
-  BOOST_REQUIRE_NO_THROW(FaceUri(endpoint));
-  BOOST_CHECK_EQUAL(FaceUri(endpoint).toString(), "unix:///var/run/example.sock");
+  uri = FaceUri(endpoint);
+  BOOST_CHECK_EQUAL(uri.toString(), "unix:///var/run/example.sock");
 #endif // BOOST_ASIO_HAS_LOCAL_SOCKETS
 }
 
@@ -457,8 +456,8 @@ BOOST_AUTO_TEST_CASE(ParseFd)
   BOOST_CHECK_EQUAL(uri.getPath(), "");
 
   int fd = 21;
-  BOOST_REQUIRE_NO_THROW(FaceUri::fromFd(fd));
-  BOOST_CHECK_EQUAL(FaceUri::fromFd(fd).toString(), "fd://21");
+  uri = FaceUri::fromFd(fd);
+  BOOST_CHECK_EQUAL(uri.toString(), "fd://21");
 }
 
 BOOST_AUTO_TEST_CASE(ParseEther)
@@ -474,8 +473,8 @@ BOOST_AUTO_TEST_CASE(ParseEther)
   BOOST_CHECK_EQUAL(uri.parse("ether://[08:00:27:zz:dd:01]"), false);
 
   auto address = ethernet::Address::fromString("33:33:01:01:01:01");
-  BOOST_REQUIRE_NO_THROW(FaceUri(address));
-  BOOST_CHECK_EQUAL(FaceUri(address).toString(), "ether://[33:33:01:01:01:01]");
+  uri = FaceUri(address);
+  BOOST_CHECK_EQUAL(uri.toString(), "ether://[33:33:01:01:01:01]");
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeEther, CanonizeFixture)
@@ -509,7 +508,7 @@ BOOST_AUTO_TEST_CASE(ParseDev)
   BOOST_CHECK_EQUAL(uri.parse("dev://eth0:8888"), false); // Bug #3896
 
   std::string ifname = "en1";
-  BOOST_REQUIRE_NO_THROW(uri = FaceUri::fromDev(ifname));
+  uri = FaceUri::fromDev(ifname);
   BOOST_CHECK_EQUAL(uri.toString(), "dev://en1");
 }
 
@@ -558,12 +557,12 @@ BOOST_AUTO_TEST_CASE(ParseUdpDev)
   namespace ip = boost::asio::ip;
 
   ip::udp::endpoint endpoint4(ip::udp::v4(), 7777);
-  BOOST_REQUIRE_NO_THROW(FaceUri::fromUdpDev(endpoint4, "en1"));
-  BOOST_CHECK_EQUAL(FaceUri::fromUdpDev(endpoint4, "en1").toString(), "udp4+dev://en1:7777");
+  uri = FaceUri::fromUdpDev(endpoint4, "en1");
+  BOOST_CHECK_EQUAL(uri.toString(), "udp4+dev://en1:7777");
 
   ip::udp::endpoint endpoint6(ip::udp::v6(), 7777);
-  BOOST_REQUIRE_NO_THROW(FaceUri::fromUdpDev(endpoint6, "en2"));
-  BOOST_CHECK_EQUAL(FaceUri::fromUdpDev(endpoint6, "en2").toString(), "udp6+dev://en2:7777");
+  uri = FaceUri::fromUdpDev(endpoint6, "en2");
+  BOOST_CHECK_EQUAL(uri.toString(), "udp6+dev://en2:7777");
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpDev, CanonizeFixture)
