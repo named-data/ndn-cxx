@@ -86,11 +86,11 @@ matrix:
           sources: ["llvm-toolchain-trusty-6.0", "ubuntu-toolchain-r-test"]
           packages: clang-6.0
     - os: linux
-      env: COMPILER=clang++-7.0
+      env: COMPILER=clang++-7
       addons:
         apt:
           sources: ["llvm-toolchain-trusty", "ubuntu-toolchain-r-test"]
-          packages: clang-7.0
+          packages: clang-7
 
     # macOS/clang
     # https://docs.travis-ci.com/user/reference/osx/#OS-X-Version
@@ -111,7 +111,7 @@ matrix:
       env: OSX_VERSION=10.13
 
   allow_failures:
-    - env: COMPILER=clang++-7.0
+    - env: COMPILER=clang++-7
     - env: OSX_VERSION=10.12 USE_OPENSSL_1_1=yes
 
   fast_finish: true
