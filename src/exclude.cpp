@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -193,6 +193,9 @@ Exclude::wireDecode(const Block& wire)
     }
     catch (const name::Component::Error&) {
       BOOST_THROW_EXCEPTION(Error("Incorrect format of Exclude filter"));
+    }
+    if (!component.isGeneric() && !component.isImplicitSha256Digest()) {
+      BOOST_THROW_EXCEPTION(Error("Excluded component must be generic or ImplicitSha256Digest"));
     }
     ++i;
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,6 +33,11 @@ namespace ndn {
 
 /**
  * @brief Represents Exclude selector in NDN Interest
+ *
+ * NDN Packet Format v0.3 defines name component types other than GenericNameComponent and
+ * ImplicitSha256DigestComponent, and removes Exclude selector. This implementation follows v0.2
+ * semantics and can only store GenericNameComponent and ImplicitSha256DigestComponent.
+ * The behavior of \c isExcluded on a name component of other types is unspecified.
  */
 class Exclude
 {

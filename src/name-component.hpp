@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,15 +41,15 @@ static const uint8_t TIMESTAMP_MARKER = 0xFC;
 /// @brief Sequence number marker for NDN naming conventions
 static const uint8_t SEQUENCE_NUMBER_MARKER = 0xFE;
 
-/**
- * @brief Component holds a read-only name component value.
+/** @brief Represents a name component.
+ *
+ *  The @c Component class provides a read-only view of a @c Block interpreted as a name component.
+ *  Although it inherits mutation methods from @c Block base class, they must not be used, because
+ *  the enclosing @c Name would not be updated correctly.
  */
 class Component : public Block
 {
 public:
-  /**
-   * @brief Error that can be thrown from name::Component
-   */
   class Error : public Block::Error
   {
   public:
@@ -60,91 +60,114 @@ public:
     }
   };
 
+public: // constructors
   /**
-   * Create a new name::Component with an empty value
+   * @brief Construct a NameComponent of @p type, using empty TLV-VALUE.
+   * @throw Error the NameComponent is invalid (see @c ensureValid).
    */
-  Component();
+  explicit
+  Component(uint32_t type = tlv::GenericNameComponent);
 
   /**
-   * @brief Create name::Component from a wire block
+   * @brief Construct a NameComponent from @p block.
+   * @throw Error the NameComponent is invalid (see @c ensureValid).
    *
-   * @param wire tlv::NameComponent Block from which to create name::Component
-   * @throws Error if wire.type() is not tlv::NameComponent
-   *
-   * Any block can be implicitly converted to name::Component
+   * This contructor enables implicit conversion from @c Block.
    */
   Component(const Block& wire);
 
   /**
-   * @brief Create a new name::Component from the buffer pointer (buffer pointer will be copied)
+   * @brief Construct a NameComponent of @p type, using TLV-VALUE from @p buffer.
+   * @throw Error the NameComponent is invalid (see @c ensureValid).
    *
-   * @param buffer A pointer to an immutable buffer
+   * This constructor does not copy the underlying buffer, but retains a pointer to it.
+   * Therefore, the caller must not change the underlying buffer.
+   */
+  Component(uint32_t type, ConstBufferPtr buffer);
+
+  /**
+   * @brief Construct a GenericNameComponent, using TLV-VALUE from @p buffer.
+   * @throw Error the NameComponent is invalid (see @c ensureValid).
    *
-   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
-   * Note that this method **will not** allocate new memory for and copy the payload until
-   * toWire() method is called.
+   * This constructor does not copy the underlying buffer, but retains a pointer to it.
+   * Therefore, the caller must not change the underlying buffer.
    */
   explicit
-  Component(const ConstBufferPtr& buffer);
+  Component(ConstBufferPtr buffer)
+    : Component(tlv::GenericNameComponent, std::move(buffer))
+  {
+  }
 
   /**
-   * @brief Create a new name::Component from the buffer (data from buffer will be copied)
-   * @param buffer A reference to the buffer
-   *
-   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
-   * Note that this method **will** allocate new memory for and copy the payload.
+   * @brief Construct a NameComponent of @p type, copying TLV-VALUE from @p buffer.
+   */
+  Component(uint32_t type, const Buffer& buffer)
+    : Component(type, buffer.data(), buffer.size())
+  {
+  }
+
+  /**
+   * @brief Construct a GenericNameComponent, copying TLV-VALUE from @p buffer.
    */
   explicit
-  Component(const Buffer& buffer);
+  Component(const Buffer& buffer)
+    : Component(tlv::GenericNameComponent, buffer)
+  {
+  }
 
   /**
-   * @brief Create a new name::Component from the buffer (data from buffer will be copied)
-   * @param buffer     A pointer to the first byte of the buffer
-   * @param bufferSize Size of the buffer
-   *
-   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
-   * Note that this method **will** allocate new memory for and copy the payload.
+   * @brief Construct a NameComponent of @p type, copying @p count bytes at @p value as TLV-VALUE.
    */
-  Component(const uint8_t* buffer, size_t bufferSize);
+  Component(uint32_t type, const uint8_t* value, size_t count);
 
   /**
-   * @brief Create a new name::Component frome the range [@p first, @p last) of bytes
-   * @param first     Iterator pointing to the beginning of the buffer
-   * @param last      Iterator pointing to the ending of the buffer
-   * @tparam Iterator iterator type satisfying at least InputIterator concept.  Implementation
-   *                  is more optimal when the iterator type satisfies RandomAccessIterator concept.
-   *                  It is required that sizeof(std::iterator_traits<Iterator>::value_type) == 1.
-   *
-   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
-   * Note that this method **will** allocate new memory for and copy the payload.
+   * @brief Construct a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
+   */
+  Component(const uint8_t* value, size_t count)
+    : Component(tlv::GenericNameComponent, value, count)
+  {
+  }
+
+  /**
+   * @brief Construct a NameComponent of @p type, copying TLV-VALUE from a range.
+   * @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
+   *                  implementation is available when it is a @c RandomAccessIterator.
+   * @param type      the TLV-TYPE.
+   * @param first     beginning of the range.
+   * @param last      past-end of the range.
    */
   template<class Iterator>
-  Component(Iterator first, Iterator last);
+  Component(uint32_t type, Iterator first, Iterator last)
+    : Block(makeBinaryBlock(type, first, last))
+  {
+  }
 
   /**
-   * @brief Create a new name::Component from the C string (data from string will be copied)
+   * @brief Construct a GenericNameComponent, copying TLV-VALUE from a range.
+   */
+  template<class Iterator>
+  Component(Iterator first, Iterator last)
+    : Component(tlv::GenericNameComponent, first, last)
+  {
+  }
+
+  /**
+   * @brief Construct a GenericNameComponent, copying TLV-VALUE from a null-terminated string.
    *
-   * @param str Zero-ended string.  Note that this string will be interpreted as is (i.e.,
-   *            it will not be interpreted as URI)
-   *
-   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
-   * Note that this method **will** allocate new memory for and copy the payload.
+   * Bytes from the string are copied as is, and not interpreted as URI component.
    */
   explicit
   Component(const char* str);
 
   /**
-   * @brief Create a new name::Component from the STL string (data from string will be copied)
+   * @brief Construct a GenericNameComponent, copying TLV-VALUE from a string.
    *
-   * @param str Const reference to STL string.  Note that this string will be interpreted
-   *            as is (i.e., it will not be interpreted as URI)
-   *
-   * This constructor will create a new tlv::NameComponent Block with `buffer` as a payload.
-   * Note that this method **will** allocate new memory for and copy the payload.
+   * Bytes from the string are copied as is, and not interpreted as URI component.
    */
   explicit
   Component(const std::string& str);
 
+public: // encoding and URI
   /**
    * @brief Fast encoding or block size estimation
    */
@@ -165,43 +188,34 @@ public:
   wireDecode(const Block& wire);
 
   /**
-   * @brief Create name::Component by decoding the escapedString between beginOffset and
-   * endOffset according to the NDN URI Scheme.
+   * @brief Decode NameComponent from a URI component.
    *
-   * If the escaped string is "", "." or ".." then return an empty name::Component.  Note
-   * that an empty name::Component should not be added to Name and if attempted, an
-   * exception will be thrown.
+   * The URI component is read from `[input+beginOffset, input+endOffset)` range.
    *
-   * @param escapedString String containing NDN URI-encoded name
-   *                      component. [escapedString+beginOffset, beginOffset+endOffset)
-   *                      must be a valid memory buffer.
-   * @param beginOffset The offset in escapedString of the beginning of the portion to decode.
-   * @param endOffset   The offset in escapedString of the end of the portion to decode.
+   * @throw Error URI component does not represent a valid NameComponent.
    */
   static Component
-  fromEscapedString(const char* escapedString, size_t beginOffset, size_t endOffset);
-
-  /**
-   * @brief Create name::Component by decoding the escapedString according to the NDN URI Scheme
-   *
-   * This overload is a convenience wrapper for fromEscapedString(char*,size_t,size)
-   */
-  static Component
-  fromEscapedString(const char* escapedString)
+  fromEscapedString(const char* input, size_t beginOffset, size_t endOffset)
   {
-    return fromEscapedString(escapedString, 0, std::char_traits<char>::length(escapedString));
+    return fromEscapedString(std::string(input + beginOffset, input + endOffset));
   }
 
   /**
-   * @brief Create name::Component by decoding the escapedString according to the NDN URI Scheme
-   *
-   * This overload is a convenience wrapper for fromEscapedString(char*,size_t,size)
+   * @brief Decode NameComponent from a URI component.
+   * @throw Error URI component does not represent a valid NameComponent.
    */
   static Component
-  fromEscapedString(const std::string& escapedString)
+  fromEscapedString(const char* input)
   {
-    return fromEscapedString(escapedString.c_str(), 0, escapedString.size());
+    return fromEscapedString(std::string(input));
   }
+
+  /**
+   * @brief Decode NameComponent from a URI component.
+   * @throw Error URI component does not represent a valid NameComponent.
+   */
+  static Component
+  fromEscapedString(std::string input);
 
   /**
    * @brief Write *this to the output stream, escaping characters according to the NDN URI Scheme
@@ -223,8 +237,7 @@ public:
   std::string
   toUri() const;
 
-  ////////////////////////////////////////////////////////////////////////////////
-
+public: // naming conventions
   /**
    * @brief Check if the component is nonNegativeInteger
    * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
@@ -273,8 +286,6 @@ public:
    */
   bool
   isSequenceNumber() const;
-
-  ////////////////////////////////////////////////////////////////////////////////
 
   /**
    * @brief Interpret this name component as nonNegativeInteger
@@ -354,8 +365,6 @@ public:
   uint64_t
   toSequenceNumber() const;
 
-  ////////////////////////////////////////////////////////////////////////////////
-
   /**
    * @brief Create a component encoded as nonNegativeInteger
    *
@@ -431,8 +440,7 @@ public:
   static Component
   fromSequenceNumber(uint64_t seqNo);
 
-  ////////////////////////////////////////////////////////////////////////////////
-
+public: // commonly used TLV-TYPEs
   /**
    * @brief Check if the component is GenericComponent
    */
@@ -457,8 +465,7 @@ public:
   static Component
   fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize);
 
-  ////////////////////////////////////////////////////////////////////////////////
-
+public: // operators
   bool
   empty() const
   {
@@ -561,6 +568,16 @@ public:
   Component
   getSuccessor() const;
 
+private:
+  /**
+   * @brief Throw @c Error if this NameComponent is invalid.
+   *
+   * A NameComponent is invalid if its TLV-TYPE is outside the 1-65535 range.
+   * Additionally, if this is an ImplicitSha256DigestComponent, the TLV-LENGTH must be 32.
+   */
+  void
+  ensureValid() const;
+
   // !!! NOTE TO IMPLEMENTOR !!!
   //
   // This class MUST NOT contain any data fields.
@@ -574,13 +591,6 @@ operator<<(std::ostream& os, const Component& component)
 {
   component.toUri(os);
   return os;
-}
-
-template<class Iterator>
-inline
-Component::Component(Iterator first, Iterator last)
-  : Block(makeBinaryBlock(tlv::NameComponent, first, last))
-{
 }
 
 } // namespace name

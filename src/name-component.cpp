@@ -51,102 +51,114 @@ getSha256DigestUriPrefix()
   return prefix;
 }
 
-Component::Component()
-  : Block(tlv::NameComponent)
+void
+Component::ensureValid() const
 {
+  if (type() < tlv::NameComponentMin || type() > tlv::NameComponentMax) {
+    BOOST_THROW_EXCEPTION(Error("TLV-TYPE " + to_string(type()) + " is not a valid NameComponent"));
+  }
+  if (type() == tlv::ImplicitSha256DigestComponent && value_size() != util::Sha256::DIGEST_SIZE) {
+    BOOST_THROW_EXCEPTION(Error("ImplicitSha256DigestComponent TLV-LENGTH must be " +
+                                to_string(util::Sha256::DIGEST_SIZE)));
+  }
+}
+
+Component::Component(uint32_t type)
+  : Block(type)
+{
+  ensureValid();
 }
 
 Component::Component(const Block& wire)
   : Block(wire)
 {
-  if (!isGeneric() && !isImplicitSha256Digest())
-    BOOST_THROW_EXCEPTION(Error("Cannot construct name::Component from not a NameComponent "
-                                "or ImplicitSha256DigestComponent TLV wire block"));
+  ensureValid();
 }
 
-Component::Component(const ConstBufferPtr& buffer)
-  : Block(tlv::NameComponent, buffer)
+Component::Component(uint32_t type, ConstBufferPtr buffer)
+  : Block(type, std::move(buffer))
 {
 }
 
-Component::Component(const Buffer& value)
-  : Block(makeBinaryBlock(tlv::NameComponent, value.data(), value.size()))
-{
-}
-
-Component::Component(const uint8_t* value, size_t valueLen)
-  : Block(makeBinaryBlock(tlv::NameComponent, value, valueLen))
+Component::Component(uint32_t type, const uint8_t* value, size_t valueLen)
+  : Block(makeBinaryBlock(type, value, valueLen))
 {
 }
 
 Component::Component(const char* str)
-  : Block(makeBinaryBlock(tlv::NameComponent, str, std::char_traits<char>::length(str)))
+  : Block(makeBinaryBlock(tlv::GenericNameComponent, str, std::char_traits<char>::length(str)))
 {
 }
 
 Component::Component(const std::string& str)
-  : Block(makeStringBlock(tlv::NameComponent, str))
+  : Block(makeStringBlock(tlv::GenericNameComponent, str))
 {
+}
+
+static Component
+parseSha256DigestUri(std::string input)
+{
+  input.erase(0, getSha256DigestUriPrefix().size());
+
+  try {
+    return Component::fromImplicitSha256Digest(fromHex(input));
+  }
+  catch (const StringHelperError&) {
+    BOOST_THROW_EXCEPTION(Component::Error("Cannot convert to a ImplicitSha256DigestComponent "
+                                           "(invalid hex encoding)"));
+  }
 }
 
 Component
-Component::fromEscapedString(const char* escapedString, size_t beginOffset, size_t endOffset)
+Component::fromEscapedString(std::string input)
 {
-  std::string trimmedString(escapedString + beginOffset, escapedString + endOffset);
-  boost::algorithm::trim(trimmedString);
-
-  if (trimmedString.compare(0, getSha256DigestUriPrefix().size(),
-                            getSha256DigestUriPrefix()) == 0) {
-    if (trimmedString.size() != getSha256DigestUriPrefix().size() + util::Sha256::DIGEST_SIZE * 2)
-      BOOST_THROW_EXCEPTION(Error("Cannot convert to ImplicitSha256DigestComponent"
-                                  "(expected sha256 in hex encoding)"));
-
-    try {
-      trimmedString.erase(0, getSha256DigestUriPrefix().size());
-      return fromImplicitSha256Digest(fromHex(trimmedString));
+  boost::algorithm::trim(input);
+  uint32_t type = tlv::GenericNameComponent;
+  size_t equalPos = input.find('=');
+  if (equalPos != std::string::npos) {
+    if (equalPos + 1 == getSha256DigestUriPrefix().size() &&
+        input.compare(0, getSha256DigestUriPrefix().size(), getSha256DigestUriPrefix()) == 0) {
+      return parseSha256DigestUri(std::move(input));
     }
-    catch (const StringHelperError&) {
-      BOOST_THROW_EXCEPTION(Error("Cannot convert to a ImplicitSha256DigestComponent (invalid hex "
-                                  "encoding)"));
+
+    long parsedType = std::strtol(input.data(), nullptr, 10);
+    if (parsedType < tlv::NameComponentMin || parsedType > tlv::NameComponentMax ||
+        parsedType == tlv::ImplicitSha256DigestComponent || parsedType == tlv::GenericNameComponent ||
+        to_string(parsedType).size() != equalPos) {
+      BOOST_THROW_EXCEPTION(Error("Incorrect TLV-TYPE in NameComponent URI"));
     }
+    type = static_cast<uint32_t>(parsedType);
+    input.erase(0, equalPos + 1);
   }
-  else {
-    std::string value = unescape(trimmedString);
 
-    if (value.find_first_not_of(".") == std::string::npos) {
-      // Special case for component of only periods.
-      if (value.size() <= 2)
-        // Zero, one or two periods is illegal.  Ignore this component.
-        BOOST_THROW_EXCEPTION(Error("Illegal URI (name component cannot be . or ..)"));
-      else
-        // Remove 3 periods.
-        return Component(reinterpret_cast<const uint8_t*>(&value[3]), value.size() - 3);
+  std::string value = unescape(input);
+  if (value.find_first_not_of('.') == std::string::npos) { // all periods
+    if (value.size() < 3) {
+      BOOST_THROW_EXCEPTION(Error("Illegal URI (name component cannot be . or ..)"));
     }
-    else
-      return Component(reinterpret_cast<const uint8_t*>(&value[0]), value.size());
+    return Component(type, reinterpret_cast<const uint8_t*>(value.data()), value.size() - 3);
   }
+  return Component(type, reinterpret_cast<const uint8_t*>(value.data()), value.size());
 }
 
 void
-Component::toUri(std::ostream& result) const
+Component::toUri(std::ostream& os) const
 {
   if (type() == tlv::ImplicitSha256DigestComponent) {
-    result << getSha256DigestUriPrefix();
-    printHex(result, value(), value_size(), false);
+    os << getSha256DigestUriPrefix();
+    printHex(os, value(), value_size(), false);
+    return;
   }
-  else {
-    bool hasNonDot = std::any_of(value_begin(), value_end(),
-                                 [] (uint8_t x) { return x != '.'; });
-    if (!hasNonDot) {
-      // Special case for component of zero or more periods.  Add 3 periods.
-      result << "...";
-      for (size_t i = 0; i < value_size(); ++i)
-        result << '.';
-    }
-    else {
-      escape(result, reinterpret_cast<const char*>(value()), value_size());
-    }
+
+  if (type() != tlv::GenericNameComponent) {
+    os << type() << '=';
   }
+
+  if (std::all_of(value_begin(), value_end(), [] (uint8_t x) { return x == '.'; })) { // all periods
+    os << "...";
+  }
+
+  escape(os, reinterpret_cast<const char*>(value()), value_size());
 }
 
 std::string
@@ -262,7 +274,7 @@ Component::toSequenceNumber() const
 Component
 Component::fromNumber(uint64_t number)
 {
-  return makeNonNegativeIntegerBlock(tlv::NameComponent, number);
+  return makeNonNegativeIntegerBlock(tlv::GenericNameComponent, number);
 }
 
 Component
@@ -274,13 +286,13 @@ Component::fromNumberWithMarker(uint8_t marker, uint64_t number)
   valueLength += estimator.prependByteArray(&marker, 1);
   size_t totalLength = valueLength;
   totalLength += estimator.prependVarNumber(valueLength);
-  totalLength += estimator.prependVarNumber(tlv::NameComponent);
+  totalLength += estimator.prependVarNumber(tlv::GenericNameComponent);
 
   EncodingBuffer encoder(totalLength, 0);
   encoder.prependNonNegativeInteger(number);
   encoder.prependByteArray(&marker, 1);
   encoder.prependVarNumber(valueLength);
-  encoder.prependVarNumber(tlv::NameComponent);
+  encoder.prependVarNumber(tlv::GenericNameComponent);
 
   return encoder.block();
 }
@@ -322,14 +334,14 @@ Component::fromSequenceNumber(uint64_t seqNo)
 bool
 Component::isGeneric() const
 {
-  return (type() == tlv::NameComponent);
+  return type() == tlv::GenericNameComponent;
 }
 
 bool
 Component::isImplicitSha256Digest() const
 {
-  return (type() == tlv::ImplicitSha256DigestComponent &&
-          value_size() == util::Sha256::DIGEST_SIZE);
+  return type() == tlv::ImplicitSha256DigestComponent &&
+         value_size() == util::Sha256::DIGEST_SIZE;
 }
 
 Component

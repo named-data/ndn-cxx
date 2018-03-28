@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -159,12 +159,6 @@ BOOST_AUTO_TEST_CASE(ImplicitSha256Digest)
   BOOST_CHECK_NO_THROW(n2 = Name("/hello/sha256digest="
                               "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"));
   BOOST_CHECK_EQUAL(n.get(0), n2.get(1));
-
-  // this is not valid sha256digest component, will be treated as generic component
-  BOOST_CHECK_NO_THROW(n2 = Name("/hello/SHA256DIGEST="
-                              "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"));
-  BOOST_CHECK_NE(n.get(0), n2.get(1));
-  BOOST_CHECK(n2.get(1).isGeneric());
 }
 
 BOOST_AUTO_TEST_CASE(NameWithSpaces)

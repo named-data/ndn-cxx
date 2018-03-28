@@ -65,7 +65,7 @@ enum {
   Data          = 6,
   Name          = 7,
   ImplicitSha256DigestComponent = 1,
-  NameComponent = 8,
+  GenericNameComponent = 8,
   Selectors     = 9,
   Nonce         = 10,
   InterestLifetime          = 12,
@@ -90,9 +90,14 @@ enum {
   LinkPreference  = 30,
   LinkDelegation  = 31,
 
+  NameComponentMin = 1,
+  NameComponentMax = 65535,
+
   AppPrivateBlock1 = 128,
   AppPrivateBlock2 = 32767
 };
+
+constexpr int NameComponent NDN_CXX_DEPRECATED = GenericNameComponent;
 
 enum SignatureTypeValue : uint16_t {
   DigestSha256 = 0,
