@@ -127,7 +127,7 @@ Exclude::wireEncode(EncodingImpl<TAG>& encoder) const
 
   size_t totalLength = 0;
 
-  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
+  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (GenericNameComponent (Any)?)+
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
 
   for (const Entry& entry : m_entries) {
@@ -177,7 +177,7 @@ Exclude::wireDecode(const Block& wire)
     BOOST_THROW_EXCEPTION(Error("Exclude element cannot be empty"));
   }
 
-  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (NameComponent (Any)?)+
+  // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (GenericNameComponent (Any)?)+
   // Any     ::= ANY-TYPE TLV-LENGTH(=0)
 
   Block::element_const_iterator i = m_wire.elements_begin();

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -177,9 +177,9 @@ BOOST_AUTO_TEST_CASE(FromStreamWhitespace) // Bug 2728
   const uint8_t PACKET[] = {
     0x06, 0x20, // Data
           0x07, 0x11, // Name
-                0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f, // NameComponent 'hello'
-                0x08, 0x01, 0x31, // NameComponent '1'
-                0x08, 0x05, 0x77, 0x6f, 0x72, 0x6c, 0x64, // NameComponent 'world'
+                0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f, // GenericNameComponent 'hello'
+                0x08, 0x01, 0x31, // GenericNameComponent '1'
+                0x08, 0x05, 0x77, 0x6f, 0x72, 0x6c, 0x64, // GenericNameComponent 'world'
           0x14, 0x00, // MetaInfo empty
           0x15, 0x00, // Content empty
           0x16, 0x05, // SignatureInfo
@@ -306,9 +306,9 @@ BOOST_AUTO_TEST_CASE(Parse)
   const uint8_t PACKET[] = {
     0x06, 0x20, // Data
           0x07, 0x11, // Name
-                0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f, // NameComponent 'hello'
-                0x08, 0x01, 0x31, // NameComponent '1'
-                0x08, 0x05, 0x77, 0x6f, 0x72, 0x6c, 0x64, // NameComponent 'world'
+                0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f, // GenericNameComponent 'hello'
+                0x08, 0x01, 0x31, // GenericNameComponent '1'
+                0x08, 0x05, 0x77, 0x6f, 0x72, 0x6c, 0x64, // GenericNameComponent 'world'
           0x14, 0x00, // MetaInfo empty
           0x15, 0x00, // Content empty
           0x16, 0x05, // SignatureInfo
@@ -334,15 +334,15 @@ BOOST_AUTO_TEST_CASE(Parse)
 BOOST_AUTO_TEST_CASE(InsertBeginning)
 {
   Block masterBlock(tlv::Name);
-  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
-  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
-  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+  Block firstBlock = makeStringBlock(tlv::GenericNameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::GenericNameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::GenericNameComponent, "thirdName");
 
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
   masterBlock.push_back(secondBlock);
   masterBlock.push_back(thirdBlock);
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 2);
-  Block::element_const_iterator it = masterBlock.find(tlv::NameComponent);
+  Block::element_const_iterator it = masterBlock.find(tlv::GenericNameComponent);
   BOOST_CHECK_EQUAL(*it == secondBlock, true);
 
   it = masterBlock.insert(it, firstBlock);
@@ -355,9 +355,9 @@ BOOST_AUTO_TEST_CASE(InsertBeginning)
 BOOST_AUTO_TEST_CASE(InsertEnd)
 {
   Block masterBlock(tlv::Name);
-  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
-  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
-  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+  Block firstBlock = makeStringBlock(tlv::GenericNameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::GenericNameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::GenericNameComponent, "thirdName");
 
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
   masterBlock.push_back(firstBlock);
@@ -376,15 +376,15 @@ BOOST_AUTO_TEST_CASE(InsertEnd)
 BOOST_AUTO_TEST_CASE(InsertMiddle)
 {
   Block masterBlock(tlv::Name);
-  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
-  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
-  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+  Block firstBlock = makeStringBlock(tlv::GenericNameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::GenericNameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::GenericNameComponent, "thirdName");
 
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
   masterBlock.push_back(firstBlock);
   masterBlock.push_back(thirdBlock);
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 2);
-  Block::element_const_iterator it = masterBlock.find(tlv::NameComponent);
+  Block::element_const_iterator it = masterBlock.find(tlv::GenericNameComponent);
   BOOST_CHECK_EQUAL(*it == firstBlock, true);
 
   it = masterBlock.insert(it + 1, secondBlock);
@@ -397,16 +397,16 @@ BOOST_AUTO_TEST_CASE(InsertMiddle)
 BOOST_AUTO_TEST_CASE(EraseSingleElement)
 {
   Block masterBlock(tlv::Name);
-  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
-  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
-  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
+  Block firstBlock = makeStringBlock(tlv::GenericNameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::GenericNameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::GenericNameComponent, "thirdName");
 
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
   masterBlock.push_back(firstBlock);
   masterBlock.push_back(secondBlock);
   masterBlock.push_back(thirdBlock);
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 3);
-  Block::element_const_iterator it = masterBlock.find(tlv::NameComponent);
+  Block::element_const_iterator it = masterBlock.find(tlv::GenericNameComponent);
   it++;
   BOOST_CHECK_EQUAL(*it == secondBlock, true);
 
@@ -420,12 +420,12 @@ BOOST_AUTO_TEST_CASE(EraseSingleElement)
 BOOST_AUTO_TEST_CASE(EraseRange)
 {
   Block masterBlock(tlv::Name);
-  Block firstBlock = makeStringBlock(tlv::NameComponent, "firstName");
-  Block secondBlock = makeStringBlock(tlv::NameComponent, "secondName");
-  Block thirdBlock = makeStringBlock(tlv::NameComponent, "thirdName");
-  Block fourthBlock = makeStringBlock(tlv::NameComponent, "fourthName");
-  Block fifthBlock = makeStringBlock(tlv::NameComponent, "fifthName");
-  Block sixthBlock = makeStringBlock(tlv::NameComponent, "sixthName");
+  Block firstBlock = makeStringBlock(tlv::GenericNameComponent, "firstName");
+  Block secondBlock = makeStringBlock(tlv::GenericNameComponent, "secondName");
+  Block thirdBlock = makeStringBlock(tlv::GenericNameComponent, "thirdName");
+  Block fourthBlock = makeStringBlock(tlv::GenericNameComponent, "fourthName");
+  Block fifthBlock = makeStringBlock(tlv::GenericNameComponent, "fifthName");
+  Block sixthBlock = makeStringBlock(tlv::GenericNameComponent, "sixthName");
 
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 0);
   masterBlock.push_back(firstBlock);
@@ -435,7 +435,7 @@ BOOST_AUTO_TEST_CASE(EraseRange)
   masterBlock.push_back(fifthBlock);
   masterBlock.push_back(sixthBlock);
   BOOST_CHECK_EQUAL(masterBlock.elements_size(), 6);
-  Block::element_const_iterator itStart = masterBlock.find(tlv::NameComponent);
+  Block::element_const_iterator itStart = masterBlock.find(tlv::GenericNameComponent);
   itStart++;
   Block::element_const_iterator itEnd = itStart + 3;
   BOOST_CHECK_EQUAL(*itStart == secondBlock, true);

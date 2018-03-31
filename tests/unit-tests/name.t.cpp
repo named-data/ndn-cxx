@@ -31,22 +31,22 @@ BOOST_AUTO_TEST_SUITE(TestName)
 
 static const uint8_t TestName[] = {
         0x7,  0x14, // Name
-          0x8,  0x5, // NameComponent
+          0x8,  0x5, // GenericNameComponent
               0x6c,  0x6f,  0x63,  0x61,  0x6c,
-          0x8,  0x3, // NameComponent
+          0x8,  0x3, // GenericNameComponent
               0x6e,  0x64,  0x6e,
-          0x8,  0x6, // NameComponent
+          0x8,  0x6, // GenericNameComponent
               0x70,  0x72,  0x65,  0x66,  0x69,  0x78
 };
 
 const uint8_t Name1[] = {0x7,  0x7, // Name
-                           0x8,  0x5, // NameComponent
+                           0x8,  0x5, // GenericNameComponent
                              0x6c,  0x6f,  0x63,  0x61,  0x6c};
 
 const uint8_t Name2[] = {0x7,  0xc, // Name
-                           0x8,  0x5, // NameComponent
+                           0x8,  0x5, // GenericNameComponent
                              0x6c,  0x6f,  0x63,  0x61,  0x6c,
-                           0x8,  0x3, // NameComponent
+                           0x8,  0x3, // GenericNameComponent
                              0x6e,  0x64,  0x6e};
 
 // ---- encoding, decoding ----

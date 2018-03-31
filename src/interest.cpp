@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -250,9 +250,9 @@ Interest::matchesData(const Data& data) const
         return false;
       // There's opportunity to inspect the Exclude filter and determine whether
       // the digest would make a difference.
-      // eg. "<NameComponent>AA</NameComponent><Any/>" doesn't exclude any digest -
-      //     fullName not needed;
-      //     "<Any/><NameComponent>AA</NameComponent>" and
+      // eg. "<GenericNameComponent>AA</GenericNameComponent><Any/>" doesn't exclude
+      //     any digest - fullName not needed;
+      //     "<Any/><GenericNameComponent>AA</GenericNameComponent>" and
       //     "<Any/><ImplicitSha256DigestComponent>ffffffffffffffffffffffffffffffff
       //      </ImplicitSha256DigestComponent>"
       //     excludes all digests - fullName not needed;

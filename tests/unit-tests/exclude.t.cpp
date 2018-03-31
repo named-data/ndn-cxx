@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,7 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestExclude)
 
-BOOST_AUTO_TEST_SUITE(GenericComponent) // exclude generic NameComponent
+BOOST_AUTO_TEST_SUITE(GenericComponent) // exclude GenericNameComponent
 
 BOOST_AUTO_TEST_CASE(One)
 {
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_SUITE(ImplicitDigest) // exclude ImplicitSha256DigestComponent
 
 /** \brief make a name::Component with an octet repeated util::Sha256::DIGEST_SIZE times
  *  \param octet the octet to fill the component
- *  \param isDigest whether to make an ImplicitSha256DigestComponent or a generic NameComponent
+ *  \param isDigest whether to make an ImplicitSha256DigestComponent or a GenericNameComponent
  *  \param lastOctet if non-negative, set the last octet to a different value
  */
 static name::Component
@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE(Malformed)
   BOOST_CHECK_THROW(e2.wireDecode(Block(ANY_ANY, sizeof(ANY_ANY))),
                                   Exclude::Error);
 
-  // // <Exclude><Any/><NameComponent>T</NameComponent><Any/></Exclude>
+  // // <Exclude><Any/><GenericNameComponent>T</GenericNameComponent><Any/></Exclude>
   // const uint8_t ANY_COMPONENT_ANY[] = { 0x10, 0x07, 0x13, 0x00, 0x08, 0x01, 0x54, 0x13, 0x00 };
   // BOOST_CHECK_THROW(e2.wireDecode(Block(ANY_COMPONENT_ANY, sizeof(ANY_COMPONENT_ANY))),
   //                   Exclude::Error);
