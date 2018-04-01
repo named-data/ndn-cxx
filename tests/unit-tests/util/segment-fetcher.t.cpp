@@ -55,7 +55,7 @@ public:
     auto data = make_shared<Data>(Name(baseName).appendSegment(segment));
     data->setContent(buffer, sizeof(buffer));
     if (isFinal) {
-      data->setFinalBlockId(data->getName()[-1]);
+      data->setFinalBlock(data->getName()[-1]);
     }
 
     return signData(data);

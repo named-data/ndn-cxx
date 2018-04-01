@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -63,11 +63,20 @@ MetaInfo::setFreshnessPeriod(time::milliseconds freshnessPeriod)
 }
 
 MetaInfo&
-MetaInfo::setFinalBlockId(const name::Component& finalBlockId)
+MetaInfo::setFinalBlock(optional<name::Component> finalBlockId)
 {
   m_wire.reset();
-  m_finalBlockId = finalBlockId;
+  m_finalBlockId = std::move(finalBlockId);
   return *this;
+}
+
+MetaInfo&
+MetaInfo::setFinalBlockId(const name::Component& finalBlockId)
+{
+  if (finalBlockId.isGeneric() && finalBlockId.empty()) {
+    return setFinalBlock(nullopt);
+  }
+  return setFinalBlock(finalBlockId);
 }
 
 const std::list<Block>&
@@ -146,8 +155,8 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // FinalBlockId
-  if (!m_finalBlockId.empty()) {
-    totalLength += prependNestedBlock(encoder, tlv::FinalBlockId, m_finalBlockId);
+  if (m_finalBlockId) {
+    totalLength += prependNestedBlock(encoder, tlv::FinalBlockId, *m_finalBlockId);
   }
 
   // FreshnessPeriod
@@ -218,16 +227,11 @@ MetaInfo::wireDecode(const Block& wire)
 
   // FinalBlockId
   if (val != m_wire.elements_end() && val->type() == tlv::FinalBlockId) {
-    m_finalBlockId = val->blockFromValue();
-    if (m_finalBlockId.type() != tlv::NameComponent)
-      {
-        /// @todo May or may not throw exception later...
-        m_finalBlockId = name::Component();
-      }
+    m_finalBlockId.emplace(val->blockFromValue());
     ++val;
   }
   else {
-    m_finalBlockId = name::Component();
+    m_finalBlockId = nullopt;
   }
 
   // AppMetaInfo (if any)
@@ -248,9 +252,9 @@ operator<<(std::ostream& os, const MetaInfo& info)
   }
 
   // FinalBlockId
-  if (!info.getFinalBlockId().empty()) {
+  if (info.getFinalBlock()) {
     os << ", FinalBlockId: ";
-    info.getFinalBlockId().toUri(os);
+    info.getFinalBlock()->toUri(os);
   }
 
   // App-defined MetaInfo items

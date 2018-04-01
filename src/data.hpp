@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -206,21 +206,35 @@ public: // MetaInfo fields
   Data&
   setContentType(uint32_t type);
 
-  const time::milliseconds&
+  time::milliseconds
   getFreshnessPeriod() const
   {
     return m_metaInfo.getFreshnessPeriod();
   }
 
   Data&
-  setFreshnessPeriod(const time::milliseconds& freshnessPeriod);
+  setFreshnessPeriod(time::milliseconds freshnessPeriod);
 
-  const name::Component&
-  getFinalBlockId() const
+  const optional<name::Component>&
+  getFinalBlock() const
   {
-    return m_metaInfo.getFinalBlockId();
+    return m_metaInfo.getFinalBlock();
   }
 
+  Data&
+  setFinalBlock(optional<name::Component> finalBlockId);
+
+  /** @deprecated Use @c getFinalBlock
+   *  @sa MetaInfo::getFinalBlockId
+   */
+  NDN_CXX_DEPRECATED
+  name::Component
+  getFinalBlockId() const;
+
+  /** @deprecated Use @c setFinalBlock
+   *  @sa MetaInfo::setFinalBlockId
+   */
+  NDN_CXX_DEPRECATED
   Data&
   setFinalBlockId(const name::Component& finalBlockId);
 

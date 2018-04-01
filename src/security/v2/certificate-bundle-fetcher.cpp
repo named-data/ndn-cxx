@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -160,9 +160,9 @@ CertificateBundleFetcher::dataCallback(const Data& bundleData,
   else {
     state->setTag(make_shared<BundleNameTag>(bundleData.getName()));
 
-    const name::Component& finalBlockId = bundleData.getMetaInfo().getFinalBlockId();
-    if (!finalBlockId.empty()) {
-      state->setTag(make_shared<FinalBlockIdTag>(finalBlockId));
+    const auto& finalBlockId = bundleData.getFinalBlock();
+    if (!finalBlockId) {
+      state->setTag(make_shared<FinalBlockIdTag>(*finalBlockId));
     }
 
     Block bundleContent = bundleData.getContent();

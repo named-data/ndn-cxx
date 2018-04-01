@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -246,11 +246,25 @@ Data::setContentType(uint32_t type)
 }
 
 Data&
-Data::setFreshnessPeriod(const time::milliseconds& freshnessPeriod)
+Data::setFreshnessPeriod(time::milliseconds freshnessPeriod)
 {
   resetWire();
   m_metaInfo.setFreshnessPeriod(freshnessPeriod);
   return *this;
+}
+
+Data&
+Data::setFinalBlock(optional<name::Component> finalBlockId)
+{
+  resetWire();
+  m_metaInfo.setFinalBlock(std::move(finalBlockId));
+  return *this;
+}
+
+name::Component
+Data::getFinalBlockId() const
+{
+  return m_metaInfo.getFinalBlockId();
 }
 
 Data&

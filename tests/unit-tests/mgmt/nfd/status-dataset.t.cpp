@@ -98,7 +98,7 @@ private:
     }
 
     auto data = make_shared<Data>(name);
-    data->setFinalBlockId(data->getName()[-1]);
+    data->setFinalBlock(name[-1]);
     return data;
   }
 };

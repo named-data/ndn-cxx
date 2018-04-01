@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -87,27 +87,71 @@ public:
   wireDecode(const Block& wire);
 
 public: // getter/setter
+  /** @brief return ContentType
+   *
+   *  If ContentType element is omitted, returns \c tlv::ContentType_Blob.
+   */
   uint32_t
-  getType() const;
+  getType() const
+  {
+    return m_type;
+  }
 
   /** @brief set ContentType
-   *  @param type a code defined in tlv::ContentTypeValue
+   *  @param type a number defined in \c tlv::ContentTypeValue
    */
   MetaInfo&
   setType(uint32_t type);
 
-  const time::milliseconds&
-  getFreshnessPeriod() const;
+  /** @brief return FreshnessPeriod
+   *
+   *  If FreshnessPeriod element is omitted, returns \c DEFAULT_FRESHNESS_PERIOD.
+   */
+  time::milliseconds
+  getFreshnessPeriod() const
+  {
+    return m_freshnessPeriod;
+  }
 
   /** @brief set FreshnessPeriod
-   *  @throw std::invalid_argument specified FreshnessPeriod is < 0
+   *  @throw std::invalid_argument specified FreshnessPeriod is negative
    */
   MetaInfo&
   setFreshnessPeriod(time::milliseconds freshnessPeriod);
 
-  const name::Component&
-  getFinalBlockId() const;
+  /** @brief return FinalBlockId
+   */
+  const optional<name::Component>&
+  getFinalBlock() const
+  {
+    return m_finalBlockId;
+  }
 
+  /** @brief set FinalBlockId
+   */
+  MetaInfo&
+  setFinalBlock(optional<name::Component> finalBlockId);
+
+  /** @brief return FinalBlockId
+   *  @deprecated use @c getFinalBlock
+   *
+   *  If FinalBlockId element is omitted, returns a default-constructed @c name::Component.
+   *  This is indistinguishable from having an empty GenericNameComponent as FinalBlockId.
+   */
+  NDN_CXX_DEPRECATED
+  name::Component
+  getFinalBlockId() const
+  {
+    return getFinalBlock().value_or(name::Component());
+  }
+
+  /** @brief set FinalBlockId
+   *  @deprecated use @c setFinalBlock
+   *
+   *  Passing a default-constructed @c name::Component removes FinalBlockId element.
+   *  This API does not support adding an empty GenericNameComponent as FinalBlockId.
+   */
+  NDN_CXX_DEPRECATED
   MetaInfo&
   setFinalBlockId(const name::Component& finalBlockId);
 
@@ -117,7 +161,7 @@ public: // app-defined MetaInfo items
    *
    * @note Warning: Experimental API, which may change or disappear in the future
    *
-   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
    */
   const std::list<Block>&
@@ -133,7 +177,7 @@ public: // app-defined MetaInfo items
    *
    * @note Warning: Experimental API, which may change or disappear in the future
    *
-   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
    */
   MetaInfo&
@@ -147,7 +191,7 @@ public: // app-defined MetaInfo items
    *
    * @note Warning: Experimental API, which may change or disappear in the future
    *
-   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
    */
   MetaInfo&
@@ -160,7 +204,7 @@ public: // app-defined MetaInfo items
    *
    * @note Warning: Experimental API, which may change or disappear in the future
    *
-   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
    */
   bool
@@ -176,7 +220,7 @@ public: // app-defined MetaInfo items
    *
    * @note Warning: Experimental API, which may change or disappear in the future
    *
-   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlockId
+   * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
    */
   const Block*
@@ -192,7 +236,7 @@ public: // EqualityComparable concept
 private:
   uint32_t m_type;
   time::milliseconds m_freshnessPeriod;
-  name::Component m_finalBlockId;
+  optional<name::Component> m_finalBlockId;
   std::list<Block> m_appMetaInfo;
 
   mutable Block m_wire;
@@ -202,24 +246,6 @@ NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(MetaInfo);
 
 std::ostream&
 operator<<(std::ostream& os, const MetaInfo& info);
-
-inline uint32_t
-MetaInfo::getType() const
-{
-  return m_type;
-}
-
-inline const time::milliseconds&
-MetaInfo::getFreshnessPeriod() const
-{
-  return m_freshnessPeriod;
-}
-
-inline const name::Component&
-MetaInfo::getFinalBlockId() const
-{
-  return m_finalBlockId;
-}
 
 inline bool
 MetaInfo::operator==(const MetaInfo& other) const

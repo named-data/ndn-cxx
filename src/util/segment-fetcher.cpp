@@ -131,8 +131,8 @@ SegmentFetcher::afterValidationSuccess(const Data& data,
       m_buffer->write(reinterpret_cast<const char*>(data.getContent().value()),
                       data.getContent().value_size());
       afterSegmentValidated(data);
-      const name::Component& finalBlockId = data.getMetaInfo().getFinalBlockId();
-      if (finalBlockId.empty() || (finalBlockId > currentSegment)) {
+      const auto& finalBlockId = data.getFinalBlock();
+      if (!finalBlockId || (*finalBlockId > currentSegment)) {
         fetchNextSegment(origInterest, data.getName(), currentSegment.toSegment() + 1, self);
       }
       else {

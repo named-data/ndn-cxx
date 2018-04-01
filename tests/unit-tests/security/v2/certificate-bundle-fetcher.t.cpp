@@ -128,7 +128,7 @@ CertificateBundleFetcherFixture<Bundle>::makeResponse(const Interest& interest)
   certBundle->setName(bundleName);
   certBundle->setFreshnessPeriod(100_s);
   certBundle->setContent(certList);
-  certBundle->setFinalBlockId(name::Component::fromSegment(1));
+  certBundle->setFinalBlock(name::Component::fromSegment(1));
 
   m_keyChain.sign(*certBundle, signingWithSha256());
 

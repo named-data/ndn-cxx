@@ -313,7 +313,7 @@ Dispatcher::sendStatusDatasetSegment(const Name& dataName, const Block& content,
 
   MetaInfo metaInfo;
   if (isFinalBlock) {
-    metaInfo.setFinalBlockId(dataName[-1]);
+    metaInfo.setFinalBlock(dataName[-1]);
   }
 
   sendData(dataName, content, metaInfo, destination, imsFresh);

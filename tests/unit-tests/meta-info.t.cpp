@@ -22,6 +22,7 @@
 #include "meta-info.hpp"
 #include "data.hpp"
 
+#include "block-literal.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
@@ -29,79 +30,53 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestMetaInfo)
 
-const uint8_t MetaInfo1[] = {0x14, 0x04, 0x19, 0x02, 0x27, 0x10};
-const uint8_t MetaInfo2[] = {0x14, 0x14, 0x19, 0x02, 0x27, 0x10, 0x1a, 0x0e, 0x08, 0x0c,
-                             0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x77, 0x6f, 0x72, 0x6c,
-                             0x64, 0x21};
-const uint8_t MetaInfo3[] = {0x14, 0x17, 0x18, 0x01, 0x01, 0x19, 0x02, 0x27, 0x10, 0x1a,
-                             0x0e, 0x08, 0x0c, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x77,
-                             0x6f, 0x72, 0x6c, 0x64, 0x21};
-
-BOOST_AUTO_TEST_CASE(Encode)
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(EncodeDecodeEquality, 1)
+BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
 {
-  MetaInfo meta;
-  meta.setType(tlv::ContentType_Blob);
-  meta.setFreshnessPeriod(10_s);
+  // default values
+  MetaInfo a("1406 type=180100 freshness=190100"_block);
+  BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 0_ms);
+  BOOST_CHECK(!a.getFinalBlock());
+  BOOST_CHECK_EQUAL(a.getFinalBlockId(), name::Component());
+  BOOST_CHECK_EQUAL(a, a);
 
-  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo1, MetaInfo1+sizeof(MetaInfo1),
-                                  meta.wireEncode().begin(), meta.wireEncode().end());
-
-  meta.setFinalBlockId(name::Component("hello,world!"));
-  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo2, MetaInfo2+sizeof(MetaInfo2),
-                                  meta.wireEncode().begin(), meta.wireEncode().end());
-
-  meta.setType(tlv::ContentType_Link);
-  BOOST_REQUIRE_NO_THROW(meta.wireEncode());
-  BOOST_REQUIRE_EQUAL_COLLECTIONS(MetaInfo3, MetaInfo3+sizeof(MetaInfo3),
-                                  meta.wireEncode().begin(), meta.wireEncode().end());
-}
-
-BOOST_AUTO_TEST_CASE(Decode)
-{
-  MetaInfo meta(Block(MetaInfo1, sizeof(MetaInfo1)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Blob));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10_s);
-  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component());
-
-  meta.wireDecode(Block(MetaInfo2, sizeof(MetaInfo2)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Blob));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10_s);
-  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
-
-  meta.wireDecode(Block(MetaInfo3, sizeof(MetaInfo3)));
-  BOOST_CHECK_EQUAL(meta.getType(), static_cast<uint32_t>(tlv::ContentType_Link));
-  BOOST_CHECK_EQUAL(meta.getFreshnessPeriod(), 10_s);
-  BOOST_CHECK_EQUAL(meta.getFinalBlockId(), name::Component("hello,world!"));
-}
-
-BOOST_AUTO_TEST_CASE(EqualityChecks)
-{
-  MetaInfo a;
   MetaInfo b;
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
+  BOOST_CHECK_NE(a, b);
+  b.setType(a.getType());
+  b.setFreshnessPeriod(a.getFreshnessPeriod());
+  b.setFinalBlock(a.getFinalBlock());
+  BOOST_CHECK(b.wireEncode() == "1400"_block);
+  BOOST_CHECK_EQUAL(a, b); // expected failure #4569
 
-  a.setFreshnessPeriod(10_s);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
+  // non-default values
+  Block wire2 = "140C type=180101 freshness=190266B2 finalblock=1A03080141"_block;
+  a.wireDecode(wire2);
+  BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Link);
+  BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 26290_ms);
+  BOOST_CHECK_EQUAL(*a.getFinalBlock(), name::Component("A"));
+  BOOST_CHECK_EQUAL(a.getFinalBlockId(), name::Component("A"));
+  BOOST_CHECK_NE(a, b);
 
-  b.setFreshnessPeriod(90_s);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
+  b.setType(a.getType());
+  b.setFreshnessPeriod(a.getFreshnessPeriod());
+  b.setFinalBlockId(a.getFinalBlockId());
+  BOOST_CHECK(b.wireEncode() == wire2);
+  BOOST_CHECK_EQUAL(a, b);
 
-  b.setFreshnessPeriod(10_s);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
+  // FinalBlockId is typed name component
+  Block wire3 = "1405 finalblock=1A03DD0141"_block;
+  a.wireDecode(wire3);
+  BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 0_ms);
+  BOOST_CHECK_EQUAL(*a.getFinalBlock(), name::Component::fromEscapedString("221=A"));
+  BOOST_CHECK_NE(a, b);
 
-  a.setType(10);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setType(10);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
+  b.setType(a.getType());
+  b.setFreshnessPeriod(a.getFreshnessPeriod());
+  b.setFinalBlockId(a.getFinalBlockId());
+  BOOST_CHECK(b.wireEncode() == wire3);
+  BOOST_CHECK_EQUAL(a, b);
 }
 
 BOOST_AUTO_TEST_CASE(AppMetaInfo)
@@ -109,7 +84,7 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
   MetaInfo info1;
   info1.setType(196);
   info1.setFreshnessPeriod(3600_ms);
-  info1.setFinalBlockId(name::Component("/att/final"));
+  info1.setFinalBlock(name::Component("/att/final"));
 
   uint32_t ints[5] = {128, 129, 130, 131, 132};
   std::string ss[5] = {"h", "hello", "hello, world", "hello, world, alex",
@@ -186,56 +161,6 @@ BOOST_AUTO_TEST_CASE(AppMetaInfoTypeRange)
 
   BOOST_CHECK_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(127, 1000)), MetaInfo::Error);
   BOOST_CHECK_THROW(info.addAppMetaInfo(makeNonNegativeIntegerBlock(253, 1000)), MetaInfo::Error);
-}
-
-BOOST_AUTO_TEST_CASE(EncodeDecodeFreshnessPeriod)
-{
-  const uint8_t expectedDefault[] = {
-    0x14, 0x00, // MetaInfo
-  };
-
-  const uint8_t expected1000ms[] = {
-    0x14, 0x04, // MetaInfo
-          0x19, 0x02, // FreshnessPeriod
-                0x03, 0xe8 // 1000ms
-  };
-
-  MetaInfo info;
-  BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
-                                expectedDefault, expectedDefault + sizeof(expectedDefault));
-
-  info.setFreshnessPeriod(time::milliseconds::zero());
-  BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
-                                expectedDefault, expectedDefault + sizeof(expectedDefault));
-
-  info.setFreshnessPeriod(1000_ms);
-  BOOST_CHECK_EQUAL_COLLECTIONS(info.wireEncode().begin(), info.wireEncode().end(),
-                                expected1000ms, expected1000ms + sizeof(expected1000ms));
-
-  const uint8_t inputDefault[] = {
-    0x14, 0x03, // MetaInfo
-          0x19, 0x01, // FreshnessPeriod
-                0x00  // 0ms
-  };
-
-  const uint8_t input2000ms[] = {
-    0x14, 0x04, // MetaInfo
-          0x19, 0x02, // FreshnessPeriod
-                0x07, 0xd0 // 2000ms
-  };
-
-  Block inputDefaultBlock(inputDefault, sizeof(inputDefault));
-  BOOST_CHECK_NO_THROW(info.wireDecode(inputDefaultBlock));
-  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), time::milliseconds::zero());
-
-  Block input2000msBlock(input2000ms, sizeof(input2000ms));
-  BOOST_CHECK_NO_THROW(info.wireDecode(input2000msBlock));
-  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), 2000_ms);
-
-  BOOST_CHECK_NO_THROW(info.setFreshnessPeriod(10000_ms));
-  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), 10000_ms);
-  BOOST_CHECK_THROW(info.setFreshnessPeriod(time::milliseconds(-1)), std::invalid_argument);
-  BOOST_CHECK_EQUAL(info.getFreshnessPeriod(), 10000_ms);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestMetaInfo
