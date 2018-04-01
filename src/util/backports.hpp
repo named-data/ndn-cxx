@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2015-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,6 +49,29 @@
 #else
 #  define NDN_CXX_DEPRECATED_MSG(msg)
 #endif
+
+/** \brief Mark a type, variable, or function as deprecated.
+ *
+ *  To deprecate a type \c DeprecatedType:
+ *  \code
+ *  typedef ModernType DeprecatedType NDN_CXX_DEPRECATED;
+ *  \endcode
+ *  This macro can only be applied to a typedef, not directly on a class.
+ *
+ *  To deprecate a variable or class member \c deprecatedVar:
+ *  \code
+ *  int deprecatedVar NDN_CXX_DEPRECATED;
+ *  \endcode
+ *
+ *  To deprecate a function \c deprecatedFunc:
+ *  \code
+ *  NDN_CXX_DEPRECATED
+ *  void
+ *  deprecatedFunc(int a, NamedEnum b)
+ *  {
+ *  }
+ *  \endcode
+ */
 #define NDN_CXX_DEPRECATED NDN_CXX_DEPRECATED_MSG("")
 
 #if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,6 +29,41 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestBackports)
+
+namespace deprecated_test {
+
+// Deprecate a variable.
+static int g_deprecatedVar NDN_CXX_DEPRECATED = 0;
+
+// Deprecate an enum member (a variable).
+enum NamedEnum
+{
+  ModernEnumMember,
+};
+constexpr NamedEnum DeprecatedEnumMember NDN_CXX_DEPRECATED = ModernEnumMember;
+
+// Deprecate a type.
+class ModernType
+{
+public:
+  // Deprecate a function.
+  NDN_CXX_DEPRECATED
+  void
+  deprecatedFunc(int a, NamedEnum b)
+  {
+  }
+};
+typedef ModernType DeprecatedType NDN_CXX_DEPRECATED;
+
+} // namespace deprecated_test
+
+BOOST_AUTO_TEST_CASE(Deprecated)
+{
+  using namespace deprecated_test;
+  DeprecatedType instance;
+  instance.deprecatedFunc(g_deprecatedVar, DeprecatedEnumMember);
+  BOOST_CHECK(true);
+}
 
 BOOST_AUTO_TEST_CASE(MakeUnique)
 {
