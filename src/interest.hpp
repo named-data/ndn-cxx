@@ -37,7 +37,7 @@ class Data;
  */
 const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 
-/** @brief represents an Interest packet
+/** @brief Represents an Interest packet.
  */
 class Interest : public PacketBase, public enable_shared_from_this<Interest>
 {
@@ -52,42 +52,38 @@ public:
     }
   };
 
-  /** @brief Create a new Interest with the given name and interest lifetime
-   *  @throw std::invalid_argument InterestLifetime is negative
-   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
+  /** @brief Construct an Interest with given @p name and @p lifetime.
+   *  @throw std::invalid_argument @p lifetime is negative
+   *  @warning In certain contexts that use `Interest::shared_from_this()`, Interest must be created
+   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
    */
   explicit
-  Interest(const Name& name = Name(), time::milliseconds interestLifetime = DEFAULT_INTEREST_LIFETIME);
+  Interest(const Name& name = Name(), time::milliseconds lifetime = DEFAULT_INTEREST_LIFETIME);
 
-  /** @brief Create from wire encoding
-   *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
+  /** @brief Construct an Interest by decoding from @p wire.
+   *  @warning In certain contexts that use `Interest::shared_from_this()`, Interest must be created
+   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
    */
   explicit
   Interest(const Block& wire);
 
-  /**
-   * @brief Fast encoding or block size estimation
+  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.2.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /**
-   * @brief Encode to a wire format
+  /** @brief Encode to a @c Block in NDN Packet Format v0.2.
    */
   const Block&
   wireEncode() const;
 
-  /**
-   * @brief Decode from the wire format
+  /** @brief Decode from @p wire in NDN Packet Format v0.2.
    */
   void
   wireDecode(const Block& wire);
 
-  /**
-   * @brief Check if already has wire
+  /** @brief Check if this instance has cached wire encoding.
    */
   bool
   hasWire() const
@@ -95,11 +91,11 @@ public:
     return m_wire.hasWire();
   }
 
-  /**
-   * @brief Encode the name according to the NDN URI Scheme
+  /** @brief Return a URI-like string that represents the Interest.
    *
-   * If there are interest selectors, this method will append "?" and add the selectors as
-   * a query string.  For example, "/test/name?ndn.ChildSelector=1"
+   *  The string starts with `getName().toUri()`.
+   *  If the Interest contains selectors, they are included as a query string.
+   *  Example: "/test/name?ndn.MustBeFresh=1"
    */
   std::string
   toUri() const;
@@ -112,29 +108,27 @@ public: // matching
   bool
   matchesName(const Name& name) const;
 
-  /**
-   * @brief Check if Interest can be satisfied by @p data.
+  /** @brief Check if Interest can be satisfied by @p data.
    *
-   * This method considers Name, MinSuffixComponents, MaxSuffixComponents,
-   * PublisherPublicKeyLocator, and Exclude.
-   * This method does not consider ChildSelector and MustBeFresh.
+   *  This method considers Name, MinSuffixComponents, MaxSuffixComponents,
+   *  PublisherPublicKeyLocator, and Exclude.
+   *  This method does not consider ChildSelector and MustBeFresh.
    */
   bool
   matchesData(const Data& data) const;
 
-  /**
-   * @brief Check if Interest matches @p other interest
+  /** @brief Check if Interest matches @p other interest
    *
-   * Interest matches @p other if both have the same name, selectors, and link.  Other fields
-   * (e.g., Nonce) may be different.
+   *  Interest matches @p other if both have the same name, selectors, and link.  Other fields
+   *  (e.g., Nonce) may be different.
    *
-   * @todo Implement distinguishing interests by link. The current implementation checks only
-   *       name+selectors (Issue #3162).
+   *  @todo Implement distinguishing Interests by forwarding hint. The current implementation
+   *        checks only name+selectors (Issue #3162).
    */
   bool
   matchesInterest(const Interest& other) const;
 
-public: // Name, Nonce, and Guiders
+public: // element access
   const Name&
   getName() const
   {
@@ -149,48 +143,59 @@ public: // Name, Nonce, and Guiders
     return *this;
   }
 
-  /** @brief Check if Nonce set
+  /** @brief Check whether the CanBePrefix element is present.
+   *
+   *  This is a getter for the CanBePrefix element as defined in NDN Packet Format v0.3.
+   *  In this implementation, it is mapped to the closest v0.2 semantics:
+   *  MaxSuffixComponents=1 means CanBePrefix is absent.
    */
   bool
-  hasNonce() const
+  getCanBePrefix() const
   {
-    return static_cast<bool>(m_nonce);
+    return m_selectors.getMaxSuffixComponents() != 1;
   }
 
-  /** @brief Get nonce
+  /** @brief Add or remove CanBePrefix element.
+   *  @param canBePrefix whether CanBePrefix element should be present.
    *
-   *  If nonce was not set before this call, it will be automatically assigned to a random value
-   */
-  uint32_t
-  getNonce() const;
-
-  /** @brief Set nonce
+   *  This is a setter for the CanBePrefix element as defined in NDN Packet Format v0.3.
+   *  In this implementation, it is mapped to the closest v0.2 semantics:
+   *  MaxSuffixComponents=1 means CanBePrefix is absent.
    */
   Interest&
-  setNonce(uint32_t nonce);
-
-  /** @brief Refresh nonce
-   *
-   *  It's guaranteed that new nonce value differs from the existing one.
-   *
-   *  If nonce is already set, it will be updated to a different random value.
-   *  If nonce is not set, this method does nothing.
-   */
-  void
-  refreshNonce();
-
-  time::milliseconds
-  getInterestLifetime() const
+  setCanBePrefix(bool canBePrefix)
   {
-    return m_interestLifetime;
+    m_selectors.setMaxSuffixComponents(canBePrefix ? -1 : 1);
+    m_wire.reset();
+    return *this;
   }
 
-  /**
-   * @brief Set Interest's lifetime
-   * @throw std::invalid_argument specified lifetime is < 0
+  /** @brief Check whether the MustBeFresh element is present.
+   *
+   *  This is a getter for the MustBeFresh element as defined in NDN Packet Format v0.3.
+   *  In this implementation, it is mapped to the closest v0.2 semantics and appears as
+   *  MustBeFresh element under Selectors.
+   */
+  bool
+  getMustBeFresh() const
+  {
+    return m_selectors.getMustBeFresh();
+  }
+
+  /** @brief Add or remove MustBeFresh element.
+   *  @param mustBeFresh whether MustBeFresh element should be present.
+   *
+   *  This is a setter for the MustBeFresh element as defined in NDN Packet Format v0.3.
+   *  In this implementation, it is mapped to the closest v0.2 semantics and appears as
+   *  MustBeFresh element under Selectors.
    */
   Interest&
-  setInterestLifetime(time::milliseconds interestLifetime);
+  setMustBeFresh(bool mustBeFresh)
+  {
+    m_selectors.setMustBeFresh(mustBeFresh);
+    m_wire.reset();
+    return *this;
+  }
 
   const DelegationList&
   getForwardingHint() const
@@ -201,7 +206,7 @@ public: // Name, Nonce, and Guiders
   Interest&
   setForwardingHint(const DelegationList& value);
 
-  /** @brief modify ForwardingHint in-place
+  /** @brief Modify ForwardingHint in-place.
    *  @tparam Modifier a unary function that accepts DelegationList&
    *
    *  This is equivalent to, but more efficient (avoids copying) than:
@@ -220,22 +225,64 @@ public: // Name, Nonce, and Guiders
     return *this;
   }
 
-public: // Selectors
-  /**
-   * @return true if Interest has any selector present
+  /** @brief Check if the Nonce element is present.
    */
+  bool
+  hasNonce() const
+  {
+    return static_cast<bool>(m_nonce);
+  }
+
+  /** @brief Get nonce value.
+   *
+   *  If nonce was not present, it is added and assigned a random value.
+   */
+  uint32_t
+  getNonce() const;
+
+  /** @brief Set nonce value.
+   */
+  Interest&
+  setNonce(uint32_t nonce);
+
+  /** @brief Change nonce value.
+   *
+   *  If the Nonce element is present, the new nonce value will differ from the old value.
+   *  If the Nonce element is not present, this method does nothing.
+   */
+  void
+  refreshNonce();
+
+  time::milliseconds
+  getInterestLifetime() const
+  {
+    return m_interestLifetime;
+  }
+
+  /** @brief Set Interest's lifetime
+   *  @throw std::invalid_argument @p lifetime is negative
+   */
+  Interest&
+  setInterestLifetime(time::milliseconds lifetime);
+
+public: // Selectors (deprecated)
+  /** @brief Check if Interest has any selector present.
+   */
+  NDN_CXX_DEPRECATED
   bool
   hasSelectors() const
   {
     return !m_selectors.empty();
   }
 
+  NDN_CXX_DEPRECATED
   const Selectors&
   getSelectors() const
   {
     return m_selectors;
   }
 
+  NDN_CXX_DEPRECATED
   Interest&
   setSelectors(const Selectors& selectors)
   {
@@ -244,12 +291,14 @@ public: // Selectors
     return *this;
   }
 
+  NDN_CXX_DEPRECATED
   int
   getMinSuffixComponents() const
   {
     return m_selectors.getMinSuffixComponents();
   }
 
+  NDN_CXX_DEPRECATED
   Interest&
   setMinSuffixComponents(int minSuffixComponents)
   {
@@ -258,12 +307,14 @@ public: // Selectors
     return *this;
   }
 
+  NDN_CXX_DEPRECATED
   int
   getMaxSuffixComponents() const
   {
     return m_selectors.getMaxSuffixComponents();
   }
 
+  NDN_CXX_DEPRECATED
   Interest&
   setMaxSuffixComponents(int maxSuffixComponents)
   {
@@ -272,12 +323,14 @@ public: // Selectors
     return *this;
   }
 
+  NDN_CXX_DEPRECATED
   const KeyLocator&
   getPublisherPublicKeyLocator() const
   {
     return m_selectors.getPublisherPublicKeyLocator();
   }
 
+  NDN_CXX_DEPRECATED
   Interest&
   setPublisherPublicKeyLocator(const KeyLocator& keyLocator)
   {
@@ -286,12 +339,14 @@ public: // Selectors
     return *this;
   }
 
+  NDN_CXX_DEPRECATED
   const Exclude&
   getExclude() const
   {
     return m_selectors.getExclude();
   }
 
+  NDN_CXX_DEPRECATED
   Interest&
   setExclude(const Exclude& exclude)
   {
@@ -300,30 +355,18 @@ public: // Selectors
     return *this;
   }
 
+  NDN_CXX_DEPRECATED
   int
   getChildSelector() const
   {
     return m_selectors.getChildSelector();
   }
 
+  NDN_CXX_DEPRECATED
   Interest&
   setChildSelector(int childSelector)
   {
     m_selectors.setChildSelector(childSelector);
-    m_wire.reset();
-    return *this;
-  }
-
-  int
-  getMustBeFresh() const
-  {
-    return m_selectors.getMustBeFresh();
-  }
-
-  Interest&
-  setMustBeFresh(bool mustBeFresh)
-  {
-    m_selectors.setMustBeFresh(mustBeFresh);
     m_wire.reset();
     return *this;
   }

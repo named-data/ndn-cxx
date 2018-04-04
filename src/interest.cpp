@@ -35,11 +35,11 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
 static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
-Interest::Interest(const Name& name, time::milliseconds interestLifetime)
+Interest::Interest(const Name& name, time::milliseconds lifetime)
   : m_name(name)
-  , m_interestLifetime(interestLifetime)
+  , m_interestLifetime(lifetime)
 {
-  if (interestLifetime < time::milliseconds::zero()) {
+  if (lifetime < time::milliseconds::zero()) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
   }
 }
@@ -329,12 +329,12 @@ Interest::refreshNonce()
 }
 
 Interest&
-Interest::setInterestLifetime(time::milliseconds interestLifetime)
+Interest::setInterestLifetime(time::milliseconds lifetime)
 {
-  if (interestLifetime < time::milliseconds::zero()) {
+  if (lifetime < time::milliseconds::zero()) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
   }
-  m_interestLifetime = interestLifetime;
+  m_interestLifetime = lifetime;
   m_wire.reset();
   return *this;
 }

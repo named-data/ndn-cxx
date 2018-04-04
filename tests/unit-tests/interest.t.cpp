@@ -278,6 +278,42 @@ BOOST_AUTO_TEST_CASE(MatchesInterest)
 
 // ---- field accessors ----
 
+BOOST_AUTO_TEST_CASE(CanBePrefix)
+{
+  Interest i;
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  i.setCanBePrefix(false);
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), false);
+  BOOST_CHECK_EQUAL(i.getSelectors().getMaxSuffixComponents(), 1);
+  i.setCanBePrefix(true);
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(i.getSelectors().getMaxSuffixComponents(), -1);
+}
+
+BOOST_AUTO_TEST_CASE(MustBeFresh)
+{
+  Interest i;
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
+  i.setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(i.getSelectors().getMustBeFresh(), true);
+  i.setMustBeFresh(false);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
+  BOOST_CHECK_EQUAL(i.getSelectors().getMustBeFresh(), false);
+}
+
+BOOST_AUTO_TEST_CASE(ModifyForwardingHint)
+{
+  Interest i;
+  i.setForwardingHint({{1, "/A"}});
+  i.wireEncode();
+  BOOST_CHECK(i.hasWire());
+
+  i.modifyForwardingHint([] (DelegationList& fh) { fh.insert(2, "/B"); });
+  BOOST_CHECK(!i.hasWire());
+  BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{1, "/A"}, {2, "/B"}}));
+}
+
 BOOST_AUTO_TEST_CASE(GetNonce)
 {
   unique_ptr<Interest> i1, i2;
@@ -345,18 +381,6 @@ BOOST_AUTO_TEST_CASE(SetInterestLifetime)
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 0_ms);
   i.setInterestLifetime(1_ms);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 1_ms);
-}
-
-BOOST_AUTO_TEST_CASE(ModifyForwardingHint)
-{
-  Interest i;
-  i.setForwardingHint({{1, "/A"}});
-  i.wireEncode();
-  BOOST_CHECK(i.hasWire());
-
-  i.modifyForwardingHint([] (DelegationList& fh) { fh.insert(2, "/B"); });
-  BOOST_CHECK(!i.hasWire());
-  BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{1, "/A"}, {2, "/B"}}));
 }
 
 // ---- operators ----
