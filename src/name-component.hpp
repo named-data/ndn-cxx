@@ -62,7 +62,7 @@ public:
 
 public: // constructors
   /**
-   * @brief Construct a NameComponent of @p type, using empty TLV-VALUE.
+   * @brief Construct a NameComponent of TLV-TYPE @p type, using empty TLV-VALUE.
    * @throw Error the NameComponent is invalid (see @c ensureValid).
    */
   explicit
@@ -77,7 +77,7 @@ public: // constructors
   Component(const Block& wire);
 
   /**
-   * @brief Construct a NameComponent of @p type, using TLV-VALUE from @p buffer.
+   * @brief Construct a NameComponent of TLV-TYPE @p type, using TLV-VALUE from @p buffer.
    * @throw Error the NameComponent is invalid (see @c ensureValid).
    *
    * This constructor does not copy the underlying buffer, but retains a pointer to it.
@@ -99,7 +99,7 @@ public: // constructors
   }
 
   /**
-   * @brief Construct a NameComponent of @p type, copying TLV-VALUE from @p buffer.
+   * @brief Construct a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from @p buffer.
    */
   Component(uint32_t type, const Buffer& buffer)
     : Component(type, buffer.data(), buffer.size())
@@ -116,7 +116,8 @@ public: // constructors
   }
 
   /**
-   * @brief Construct a NameComponent of @p type, copying @p count bytes at @p value as TLV-VALUE.
+   * @brief Construct a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as
+   *        TLV-VALUE.
    */
   Component(uint32_t type, const uint8_t* value, size_t count);
 
@@ -129,7 +130,7 @@ public: // constructors
   }
 
   /**
-   * @brief Construct a NameComponent of @p type, copying TLV-VALUE from a range.
+   * @brief Construct a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from a range.
    * @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
    *                  implementation is available when it is a @c RandomAccessIterator.
    * @param type      the TLV-TYPE.
@@ -222,7 +223,7 @@ public: // encoding and URI
    *
    * This also adds "..." to a value with zero or more "."
    *
-   * @param os The output stream to where write the URI escaped version *this
+   * @param os The output stream where to write the URI escaped version of *this
    */
   void
   toUri(std::ostream& os) const;
@@ -240,49 +241,49 @@ public: // encoding and URI
 public: // naming conventions
   /**
    * @brief Check if the component is nonNegativeInteger
-   * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
    */
   bool
   isNumber() const;
 
   /**
    * @brief Check if the component is NameComponentWithMarker per NDN naming conventions
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isNumberWithMarker(uint8_t marker) const;
 
   /**
    * @brief Check if the component is version per NDN naming conventions
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isVersion() const;
 
   /**
    * @brief Check if the component is segment number per NDN naming conventions
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isSegment() const;
 
   /**
    * @brief Check if the component is segment offset per NDN naming conventions
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isSegmentOffset() const;
 
   /**
    * @brief Check if the component is timestamp per NDN naming conventions
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isTimestamp() const;
 
   /**
    * @brief Check if the component is sequence number per NDN naming conventions
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isSequenceNumber() const;
@@ -290,7 +291,7 @@ public: // naming conventions
   /**
    * @brief Interpret this name component as nonNegativeInteger
    *
-   * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
    *
    * @return The integer number.
    */
@@ -300,7 +301,7 @@ public: // naming conventions
   /**
    * @brief Interpret this name component as NameComponentWithMarker
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
    * @param marker 1-byte octet of the marker
    * @return The integer number.
@@ -313,7 +314,7 @@ public: // naming conventions
   /**
    * @brief Interpret as version component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
    * @throws Error if name component does not have the specified marker.
    *         tlv::Error if format does not follow NameComponentWithMarker specification.
@@ -324,7 +325,7 @@ public: // naming conventions
   /**
    * @brief Interpret as segment number component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
    * @throws Error if name component does not have the specified marker.
    *         tlv::Error if format does not follow NameComponentWithMarker specification.
@@ -335,7 +336,7 @@ public: // naming conventions
   /**
    * @brief Interpret as segment offset component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
    * @throws Error if name component does not have the specified marker.
    *         tlv::Error if format does not follow NameComponentWithMarker specification.
@@ -346,7 +347,7 @@ public: // naming conventions
   /**
    * @brief Interpret as timestamp component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
    * @throws Error if name component does not have the specified marker.
    *         tlv::Error if format does not follow NameComponentWithMarker specification.
@@ -357,7 +358,7 @@ public: // naming conventions
   /**
    * @brief Interpret as sequence number component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
    * @throws Error if name component does not have the specified marker.
    *         tlv::Error if format does not follow NameComponentWithMarker specification.
@@ -368,7 +369,7 @@ public: // naming conventions
   /**
    * @brief Create a component encoded as nonNegativeInteger
    *
-   * @see http://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
    *
    * @param number The non-negative number
    * @return The component value.
@@ -391,7 +392,7 @@ public: // naming conventions
    *     TLV-LENGTH := VAR-NUMBER
    *     TLV-VALUE := BYTE+
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
    * @param marker 1-byte marker octet
    * @param number The non-negative number
@@ -403,7 +404,7 @@ public: // naming conventions
   /**
    * @brief Create version component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   static Component
   fromVersion(uint64_t version);
@@ -411,7 +412,7 @@ public: // naming conventions
   /**
    * @brief Create segment number component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   static Component
   fromSegment(uint64_t segmentNo);
@@ -419,7 +420,7 @@ public: // naming conventions
   /**
    * @brief Create segment offset component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   static Component
   fromSegmentOffset(uint64_t offset);
@@ -427,7 +428,7 @@ public: // naming conventions
   /**
    * @brief Create sequence number component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   static Component
   fromTimestamp(const time::system_clock::TimePoint& timePoint);
@@ -435,7 +436,7 @@ public: // naming conventions
   /**
    * @brief Create sequence number component using NDN naming conventions
    *
-   * @see http://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   static Component
   fromSequenceNumber(uint64_t seqNo);
@@ -489,7 +490,7 @@ public: // operators
    * @retval zero this equals other
    * @retval positive this comes after other in canonical ordering
    *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
    */
   int
   compare(const Component& other) const;
@@ -521,7 +522,7 @@ public: // operators
    * @brief Check if the *this is less than or equal to the other in NDN canonical ordering
    * @param other The other Component to compare with
    *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
    */
   bool
   operator<=(const Component& other) const
@@ -533,7 +534,7 @@ public: // operators
    * @brief Check if the *this is less than the other in NDN canonical ordering
    * @param other The other Component to compare with
    *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
    */
   bool
   operator<(const Component& other) const
@@ -545,7 +546,7 @@ public: // operators
    * @brief Check if the *this is greater or equal than the other in NDN canonical ordering
    * @param other The other Component to compare with
    *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
    */
   bool
   operator>=(const Component& other) const
@@ -557,7 +558,7 @@ public: // operators
    * @brief Check if the *this is greater than the other in NDN canonical ordering
    * @param other The other Component to compare with
    *
-   * @see http://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
    */
   bool
   operator>(const Component& other) const

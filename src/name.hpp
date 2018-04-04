@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -89,19 +89,19 @@ public: // constructors, encoding, decoding
 
   /** @brief Parse name from NDN URI
    *  @param uri a null-terminated URI string
-   *  @sa https://named-data.net/doc/ndn-tlv/name.html#ndn-uri-scheme
+   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    */
   Name(const char* uri);
 
   /** @brief Create name from NDN URI
    *  @param uri a URI string
-   *  @sa https://named-data.net/doc/ndn-tlv/name.html#ndn-uri-scheme
+   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    */
   Name(std::string uri);
 
   /** @brief Get URI representation of the name
    *  @return URI representation; "ndn:" scheme identifier is not included
-   *  @sa https://named-data.net/doc/ndn-tlv/name.html#ndn-uri-scheme
+   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    *  @note To print URI representation into a stream, it is more efficient to use ``os << name``.
    */
   std::string
@@ -249,8 +249,8 @@ public: // iterators
   }
 
 public: // modifiers
-  /** @brief Append a component
-   *  @return a reference to this name, to allow chaining
+  /** @brief Append a component.
+   *  @return a reference to this name, to allow chaining.
    */
   Name&
   append(const Component& component)
@@ -259,66 +259,86 @@ public: // modifiers
     return *this;
   }
 
-  /** @brief Append a component, copying from a zero-terminated byte string
-   *  @param value a zero-terminated string; it will be constructed as a component as is
-   *               and will not be interpreted as a URI
-   *  @note This overload is necessary to ensure unambiguity of ``append("string")``, because both
-   *        Component and PartialName are implicitly convertible from zero-terminated byte string.
-   *        This overload ensures the string is constructed as a Component.
+  /** @brief Append a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as
+   *         TLV-VALUE.
+   *  @return a reference to this name, to allow chaining.
    */
   Name&
-  append(const char* value)
+  append(uint32_t type, const uint8_t* value, size_t count)
   {
-    return append(Component(value));
+    return append(Component(type, value, count));
   }
 
-  /** @brief Append a component, copying from [@p value, @p value + @p valueLength)
-   *  @return a reference to this name, to allow chaining
+  /** @brief Append a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
+   *  @return a reference to this name, to allow chaining.
    */
   Name&
-  append(const uint8_t* value, size_t valueLength)
+  append(const uint8_t* value, size_t count)
   {
-    return append(Component(value, valueLength));
+    return append(Component(value, count));
   }
 
-  /** @brief Append a component, copying from [@p first, @p last)
-   *  @tparam Iterator an InputIterator dereferencing to a one-octet value type. More efficient
-   *                   implementation is available when @p Iterator additionally satisfies
-   *                   RandomAccessIterator concept.
-   *  @param first     begin position of the value
-   *  @param last      end position of the value
-   *  @return a reference to this name, to allow chaining
+  /** @brief Append a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from a range.
+   *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
+   *                   implementation is available when it is a @c RandomAccessIterator.
+   *  @param type      the TLV-TYPE.
+   *  @param first     beginning of the range.
+   *  @param last      past-end of the range.
+   *  @return a reference to this name, to allow chaining.
+   */
+  template<class Iterator>
+  Name&
+  append(uint32_t type, Iterator first, Iterator last)
+  {
+    return append(Component(type, first, last));
+  }
+
+  /** @brief Append a GenericNameComponent, copying TLV-VALUE from a range.
+   *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
+   *                   implementation is available when it is a @c RandomAccessIterator.
+   *  @param first     beginning of the range.
+   *  @param last      past-end of the range.
+   *  @return a reference to this name, to allow chaining.
    */
   template<class Iterator>
   Name&
   append(Iterator first, Iterator last)
   {
-    static_assert(sizeof(typename std::iterator_traits<Iterator>::value_type) == 1,
-                  "iterator does not dereference to one-octet value type");
     return append(Component(first, last));
   }
 
-  /** @brief Append a component, decoding from a Block
-   *  @param value a Block; if its TLV-TYPE is not NameComponent, it is nested into a NameComponent
-   *  @return a reference to this name, to allow chaining
+  /** @brief Append a GenericNameComponent, copying TLV-VALUE from a null-terminated string.
+   *  @param str a null-terminated string. Bytes from the string are copied as is, and not
+   *             interpreted as URI component.
+   *  @return a reference to this name, to allow chaining.
+   */
+  Name&
+  append(const char* str)
+  {
+    return append(Component(str));
+  }
+
+  /** @brief Append a GenericNameComponent from a TLV element.
+   *  @param value a TLV element. If its type is @c tlv::GenericNameComponent, it is used as is.
+   *               Otherwise, it is encapsulated into a GenericNameComponent.
+   *  @return a reference to this name, to allow chaining.
    */
   Name&
   append(const Block& value)
   {
-    if (value.type() == tlv::NameComponent) {
+    if (value.type() == tlv::GenericNameComponent) {
       m_wire.push_back(value);
     }
     else {
-      m_wire.push_back(Block(tlv::NameComponent, value));
+      m_wire.push_back(Block(tlv::GenericNameComponent, value));
     }
-
     return *this;
   }
 
   /** @brief Append a component with a nonNegativeInteger
    *  @sa number the number
    *  @return a reference to this name, to allow chaining
-   *  @sa https://named-data.net/doc/ndn-tlv/tlv.html#non-negative-integer-encoding
+   *  @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
    */
   Name&
   appendNumber(uint64_t number)
@@ -514,7 +534,7 @@ public: // algorithms
    *  @retval zero this equals other
    *  @retval positive this comes after other in canonical ordering
    *
-   *  @sa https://named-data.net/doc/ndn-tlv/name.html#canonical-order
+   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
    */
   int
   compare(const Name& other) const
@@ -579,13 +599,13 @@ operator>(const Name& lhs, const Name& rhs)
 }
 
 /** @brief Print URI representation of a name
- *  @sa https://named-data.net/doc/ndn-tlv/name.html#ndn-uri-scheme
+ *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
  */
 std::ostream&
 operator<<(std::ostream& os, const Name& name);
 
 /** @brief Parse URI from stream as Name
- *  @sa https://named-data.net/doc/ndn-tlv/name.html#ndn-uri-scheme
+ *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
  */
 std::istream&
 operator>>(std::istream& is, Name& name);

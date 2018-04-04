@@ -21,144 +21,38 @@
 
 #include "name.hpp"
 
+#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include <unordered_map>
 
 namespace ndn {
 namespace tests {
 
+using Component = name::Component;
+
 BOOST_AUTO_TEST_SUITE(TestName)
 
-static const uint8_t TestName[] = {
-        0x7,  0x14, // Name
-          0x8,  0x5, // GenericNameComponent
-              0x6c,  0x6f,  0x63,  0x61,  0x6c,
-          0x8,  0x3, // GenericNameComponent
-              0x6e,  0x64,  0x6e,
-          0x8,  0x6, // GenericNameComponent
-              0x70,  0x72,  0x65,  0x66,  0x69,  0x78
-};
+// ---- encoding, decoding, and URI ----
 
-const uint8_t Name1[] = {0x7,  0x7, // Name
-                           0x8,  0x5, // GenericNameComponent
-                             0x6c,  0x6f,  0x63,  0x61,  0x6c};
-
-const uint8_t Name2[] = {0x7,  0xc, // Name
-                           0x8,  0x5, // GenericNameComponent
-                             0x6c,  0x6f,  0x63,  0x61,  0x6c,
-                           0x8,  0x3, // GenericNameComponent
-                             0x6e,  0x64,  0x6e};
-
-// ---- encoding, decoding ----
-
-BOOST_AUTO_TEST_CASE(Basic)
+BOOST_AUTO_TEST_CASE(EncodeDecode)
 {
-  Name name("/hello/world");
+  std::string uri = "/Emid/25042=P3/.../..../%1C%9F/"
+                    "sha256digest=0415e3624a151850ac686c84f155f29808c0dd73819aa4a4c20be73a4d8a874c";
+  Name name(uri);
+  BOOST_CHECK_EQUAL(name.size(), 6);
+  BOOST_CHECK_EQUAL(name[0], Component("Emid"));
+  BOOST_CHECK_EQUAL(name[1], Component("FD61D2025033"_block));
+  BOOST_CHECK_EQUAL(name[2], Component(""));
+  BOOST_CHECK_EQUAL(name[3], Component("."));
+  BOOST_CHECK_EQUAL(name[4], Component("\x1C\x9F"));
+  BOOST_CHECK(name[5].isImplicitSha256Digest());
 
-  BOOST_CHECK_NO_THROW(name.at(0));
-  BOOST_CHECK_NO_THROW(name.at(1));
-  BOOST_CHECK_NO_THROW(name.at(-1));
-  BOOST_CHECK_NO_THROW(name.at(-2));
+  Block wire = name.wireEncode();
+  BOOST_CHECK(wire == "0737 0804456D6964 FD61D2025033 0800 08012E 08021C9F "
+              "01200415E3624A151850AC686C84F155F29808C0DD73819AA4A4C20BE73A4D8A874C"_block);
 
-  BOOST_CHECK_THROW(name.at(2), Name::Error);
-  BOOST_CHECK_THROW(name.at(-3), Name::Error);
-}
-
-BOOST_AUTO_TEST_CASE(Encode)
-{
-  Name name("/local/ndn/prefix");
-  const Block& wire = name.wireEncode();
-
-  // for (auto i = wire.begin(); i != wire.end(); ++i) {
-  //   if (i != wire.begin())
-  //     std::cout << ", ";
-  //   printHex(std::cout, *i);
-  // }
-  // std::cout << std::endl;
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(TestName, TestName + sizeof(TestName),
-                                wire.begin(), wire.end());
-}
-
-BOOST_AUTO_TEST_CASE(Decode)
-{
-  Block block(TestName, sizeof(TestName));
-
-  Name name(block);
-
-  BOOST_CHECK_EQUAL(name.toUri(), "/local/ndn/prefix");
-}
-
-BOOST_AUTO_TEST_CASE(ZeroLengthComponent)
-{
-  static const uint8_t compOctets[] {0x08, 0x00};
-  Block compBlock(compOctets, sizeof(compOctets));
-  name::Component comp;
-  BOOST_REQUIRE_NO_THROW(comp.wireDecode(compBlock));
-  BOOST_CHECK_EQUAL(comp.value_size(), 0);
-
-  static const uint8_t nameOctets[] {0x07, 0x08, 0x08, 0x01, 0x41, 0x08, 0x00, 0x08, 0x01, 0x42};
-  Block nameBlock(nameOctets, sizeof(nameOctets));
-  static const std::string nameUri("/A/.../B");
-  Name name;
-  BOOST_REQUIRE_NO_THROW(name.wireDecode(nameBlock));
-  BOOST_CHECK_EQUAL(name.toUri(), nameUri);
-  Block nameEncoded = name.wireEncode();
-  BOOST_CHECK(nameEncoded == nameBlock);
-
-  Name name2;
-  BOOST_REQUIRE_NO_THROW(name2 = Name(nameUri));
-  BOOST_CHECK_EQUAL(name2.toUri(), nameUri);
-  Block name2Encoded = name2.wireEncode();
-  BOOST_CHECK(name2Encoded == nameBlock);
-}
-
-BOOST_AUTO_TEST_CASE(ImplicitSha256Digest)
-{
-  Name n;
-
-  static const uint8_t DIGEST[] = {0x28, 0xba, 0xd4, 0xb5, 0x27, 0x5b, 0xd3, 0x92,
-                                   0xdb, 0xb6, 0x70, 0xc7, 0x5c, 0xf0, 0xb6, 0x6f,
-                                   0x13, 0xf7, 0x94, 0x2b, 0x21, 0xe8, 0x0f, 0x55,
-                                   0xc0, 0xe8, 0x6b, 0x37, 0x47, 0x53, 0xa5, 0x48,
-                                   0x00, 0x00};
-
-  BOOST_REQUIRE_NO_THROW(n.appendImplicitSha256Digest(DIGEST, 32));
-  BOOST_REQUIRE_NO_THROW(n.appendImplicitSha256Digest(make_shared<Buffer>(DIGEST, 32)));
-  BOOST_CHECK_EQUAL(n.get(0), n.get(1));
-
-  BOOST_REQUIRE_THROW(n.appendImplicitSha256Digest(DIGEST, 34), name::Component::Error);
-  BOOST_REQUIRE_THROW(n.appendImplicitSha256Digest(DIGEST, 30), name::Component::Error);
-
-  n.append(DIGEST, 32);
-  BOOST_CHECK_LT(n.get(0), n.get(2));
-  BOOST_CHECK_EQUAL_COLLECTIONS(n.get(0).value_begin(), n.get(0).value_end(),
-                                n.get(2).value_begin(), n.get(2).value_end());
-
-  n.append(DIGEST + 1, 32);
-  BOOST_CHECK_LT(n.get(0), n.get(3));
-
-  n.append(DIGEST + 2, 32);
-  BOOST_CHECK_LT(n.get(0), n.get(4));
-
-  BOOST_CHECK_EQUAL(n.get(0).toUri(), "sha256digest="
-                    "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
-
-  BOOST_CHECK_EQUAL(n.get(0).isImplicitSha256Digest(), true);
-  BOOST_CHECK_EQUAL(n.get(2).isImplicitSha256Digest(), false);
-
-  BOOST_CHECK_THROW(Name("/hello/sha256digest=hmm"), name::Component::Error);
-
-  Name n2;
-  // check canonical URI encoding (lower case)
-  BOOST_CHECK_NO_THROW(n2 = Name("/hello/sha256digest="
-                              "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548"));
-  BOOST_CHECK_EQUAL(n.get(0), n2.get(1));
-
-  // will accept hex value in upper case too
-  BOOST_CHECK_NO_THROW(n2 = Name("/hello/sha256digest="
-                              "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"));
-  BOOST_CHECK_EQUAL(n.get(0), n2.get(1));
+  Name decoded(wire);
+  BOOST_CHECK_EQUAL(decoded, name);
 }
 
 BOOST_AUTO_TEST_CASE(NameWithSpaces)
@@ -187,6 +81,59 @@ BOOST_AUTO_TEST_CASE(DeepCopy)
 
   BOOST_CHECK_LT(n3.wireEncode().size(), 1024);
   BOOST_CHECK_EQUAL(n3.wireEncode().getBuffer()->size(), n3.wireEncode().size());
+}
+
+// ---- access ----
+
+BOOST_AUTO_TEST_CASE(At)
+{
+  Name name("/hello/5=NDN");
+
+  BOOST_CHECK_EQUAL(name.at(0), name::Component("080568656C6C6F"_block));
+  BOOST_CHECK_EQUAL(name.at(1), name::Component("05034E444E"_block));
+  BOOST_CHECK_EQUAL(name.at(-1), name::Component("05034E444E"_block));
+  BOOST_CHECK_EQUAL(name.at(-2), name::Component("080568656C6C6F"_block));
+
+  BOOST_CHECK_THROW(name.at(2), Name::Error);
+  BOOST_CHECK_THROW(name.at(-3), Name::Error);
+}
+
+BOOST_AUTO_TEST_CASE(SubName)
+{
+  Name name("/hello/world");
+
+  BOOST_CHECK_EQUAL("/hello/world", name.getSubName(0));
+  BOOST_CHECK_EQUAL("/world", name.getSubName(1));
+  BOOST_CHECK_EQUAL("/hello/", name.getSubName(0, 1));
+}
+
+BOOST_AUTO_TEST_CASE(SubNameNegativeIndex)
+{
+  Name name("/first/second/third/last");
+
+  BOOST_CHECK_EQUAL("/last", name.getSubName(-1));
+  BOOST_CHECK_EQUAL("/third/last", name.getSubName(-2));
+  BOOST_CHECK_EQUAL("/second", name.getSubName(-3, 1));
+}
+
+BOOST_AUTO_TEST_CASE(SubNameOutOfRangeIndexes)
+{
+  Name name("/first/second/last");
+  // No length
+  BOOST_CHECK_EQUAL("/first/second/last", name.getSubName(-10));
+  BOOST_CHECK_EQUAL("/", name.getSubName(10));
+
+  // Starting after the max position
+  BOOST_CHECK_EQUAL("/", name.getSubName(10, 1));
+  BOOST_CHECK_EQUAL("/", name.getSubName(10, 10));
+
+  // Not enough components
+  BOOST_CHECK_EQUAL("/second/last", name.getSubName(1, 10));
+  BOOST_CHECK_EQUAL("/last", name.getSubName(-1, 10));
+
+  // Start before first
+  BOOST_CHECK_EQUAL("/first/second", name.getSubName(-10, 2));
+  BOOST_CHECK_EQUAL("/first/second/last", name.getSubName(-10, 10));
 }
 
 // ---- iterators ----
@@ -225,44 +172,48 @@ BOOST_AUTO_TEST_CASE(ReverseIterator)
 
 // ---- modifiers ----
 
-BOOST_AUTO_TEST_CASE(Append)
+BOOST_AUTO_TEST_CASE(AppendComponent)
 {
-  PartialName toAppend("/and");
-  PartialName toAppend1("/beyond");
-  {
-    Name name("/hello/world");
-    BOOST_CHECK_EQUAL("/hello/world/hello/world", name.append(name));
-    BOOST_CHECK_EQUAL("/hello/world/hello/world", name);
-  }
-  {
-    Name name("/hello/world");
-    BOOST_CHECK_EQUAL("/hello/world/and", name.append(toAppend));
-  }
-  {
-    Name name("/hello/world");
-    BOOST_CHECK_EQUAL("/hello/world/and/beyond", name.append(toAppend).append(toAppend1));
-  }
+  Name name;
+  BOOST_CHECK(name.wireEncode() == "0700"_block);
 
-  {
-    std::vector<uint8_t> vec{1, 1, 2, 3};
-    Name name("/hello");
-    BOOST_CHECK_EQUAL("/hello/%01%01%02%03", name.append(vec.begin(), vec.end()));
-  }
+  name.append(Component("Emid"));
+  BOOST_CHECK(name.wireEncode() == "0706 0804456D6964"_block);
+
+  name.append(25042, reinterpret_cast<const uint8_t*>("P3"), 2);
+  BOOST_CHECK(name.wireEncode() == "070C 0804456D6964 FD61D2025033"_block);
+
+  name.append(reinterpret_cast<const uint8_t*>("."), 1);
+  BOOST_CHECK(name.wireEncode() == "070F 0804456D6964 FD61D2025033 08012E"_block);
+
+  std::vector<uint8_t> v1{0x28, 0xF0, 0xA3, 0x6B};
+  name.append(16, v1.begin(), v1.end());
+  BOOST_CHECK(name.wireEncode() == "0715 0804456D6964 FD61D2025033 08012E 100428F0A36B"_block);
+
+  BOOST_CHECK(!name.empty());
+  name.clear();
+  BOOST_CHECK(name.empty());
+  BOOST_CHECK(name.wireEncode() == "0700"_block);
+
+  name.append(v1.begin(), v1.end());
+  BOOST_CHECK(name.wireEncode() == "0706 080428F0A36B"_block);
+
+  name.append("xKh");
+  BOOST_CHECK(name.wireEncode() == "070B 080428F0A36B 0803784B68"_block);
+
+  name.append("0100"_block);
+  BOOST_CHECK(name.wireEncode() == "070F 080428F0A36B 0803784B68 08020100"_block);
+
+  name.append("080109"_block);
+  BOOST_CHECK(name.wireEncode() == "0712 080428F0A36B 0803784B68 08020100 080109"_block);
 }
 
-BOOST_AUTO_TEST_CASE(AppendsAndMultiEncode)
+BOOST_AUTO_TEST_CASE(AppendPartialName)
 {
-  Name name("/local");
-  BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
-                                Name1, Name1 + sizeof(Name1));
-
-  name.append("ndn");
-  BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
-                                Name2, Name2 + sizeof(Name2));
-
-  name.append("prefix");
-  BOOST_CHECK_EQUAL_COLLECTIONS(name.wireEncode().begin(), name.wireEncode().end(),
-                                TestName, TestName+sizeof(TestName));
+  Name name("/A/B");
+  name.append(PartialName("/6=C/D"))
+      .append(PartialName("/E"));
+  BOOST_CHECK(name.wireEncode() == "070F 080141 080142 060143 080144 080145"_block);
 }
 
 BOOST_AUTO_TEST_CASE(AppendNumber)
@@ -271,7 +222,6 @@ BOOST_AUTO_TEST_CASE(AppendNumber)
   for (uint32_t i = 0; i < 10; i++) {
     name.appendNumber(i);
   }
-
   BOOST_CHECK_EQUAL(name.size(), 10);
 
   for (uint32_t i = 0; i < 10; i++) {
@@ -307,27 +257,88 @@ BOOST_AUTO_TEST_CASE(Markers)
   BOOST_CHECK_EQUAL(number, 11676);
 }
 
-BOOST_AUTO_TEST_CASE(Clear)
-{
-  Name n("/A");
-  BOOST_CHECK_EQUAL(n.empty(), false);
-
-  n.clear();
-  BOOST_CHECK_EQUAL(n.empty(), true);
-  BOOST_CHECK_EQUAL(n.size(), 0);
-}
-
 // ---- algorithms ----
 
 BOOST_AUTO_TEST_CASE(GetSuccessor)
 {
-  BOOST_CHECK_EQUAL(Name("ndn:/%00%01/%01%02").getSuccessor(), Name("ndn:/%00%01/%01%03"));
-  BOOST_CHECK_EQUAL(Name("ndn:/%00%01/%01%FF").getSuccessor(), Name("ndn:/%00%01/%02%00"));
-  BOOST_CHECK_EQUAL(Name("ndn:/%00%01/%FF%FF").getSuccessor(), Name("ndn:/%00%01/%00%00%00"));
-  BOOST_CHECK_EQUAL(Name().getSuccessor(), Name("ndn:/%00"));
+  BOOST_CHECK_EQUAL(Name("/%00%01/%01%02").getSuccessor(), Name("/%00%01/%01%03"));
+  BOOST_CHECK_EQUAL(Name("/%00%01/%01%FF").getSuccessor(), Name("/%00%01/%02%00"));
+  BOOST_CHECK_EQUAL(Name("/%00%01/%FF%FF").getSuccessor(), Name("/%00%01/%00%00%00"));
+  BOOST_CHECK_EQUAL(Name().getSuccessor(), Name("/%00"));
 }
 
-BOOST_AUTO_TEST_CASE(Compare)
+BOOST_AUTO_TEST_CASE(IsPrefixOf)
+{
+  BOOST_CHECK(Name("/").isPrefixOf("/"));
+  BOOST_CHECK(Name("/").isPrefixOf("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
+  BOOST_CHECK(Name("/").isPrefixOf("/2=D"));
+  BOOST_CHECK(Name("/").isPrefixOf("/F"));
+  BOOST_CHECK(Name("/").isPrefixOf("/21426=AA"));
+
+  BOOST_CHECK(Name("/B").isPrefixOf("/B"));
+  BOOST_CHECK(Name("/B").isPrefixOf("/B/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
+  BOOST_CHECK(Name("/B").isPrefixOf("/B/2=D"));
+  BOOST_CHECK(Name("/B").isPrefixOf("/B/F"));
+  BOOST_CHECK(Name("/B").isPrefixOf("/B/21426=AA"));
+
+  BOOST_CHECK(!Name("/C").isPrefixOf("/"));
+  BOOST_CHECK(!Name("/C").isPrefixOf("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
+  BOOST_CHECK(!Name("/C").isPrefixOf("/2=D"));
+  BOOST_CHECK(!Name("/C").isPrefixOf("/F"));
+  BOOST_CHECK(!Name("/C").isPrefixOf("/21426=AA"));
+}
+
+BOOST_AUTO_TEST_CASE(CompareOp)
+{
+  std::vector<Name> names = {
+    Name("/"),
+    Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"),
+    Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000001"),
+    Name("/sha256digest=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
+    Name("/2=..."),
+    Name("/2=D"),
+    Name("/2=F"),
+    Name("/2=AA"),
+    Name("/..."),
+    Name("/D"),
+    Name("/D/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"),
+    Name("/D/sha256digest=0000000000000000000000000000000000000000000000000000000000000001"),
+    Name("/D/sha256digest=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
+    Name("/D/2=..."),
+    Name("/D/2=D"),
+    Name("/D/2=F"),
+    Name("/D/2=AA"),
+    Name("/D/..."),
+    Name("/D/D"),
+    Name("/D/F"),
+    Name("/D/AA"),
+    Name("/D/21426=..."),
+    Name("/D/21426=D"),
+    Name("/D/21426=F"),
+    Name("/D/21426=AA"),
+    Name("/F"),
+    Name("/AA"),
+    Name("/21426=..."),
+    Name("/21426=D"),
+    Name("/21426=F"),
+    Name("/21426=AA"),
+  };
+
+  for (size_t i = 0; i < names.size(); ++i) {
+    for (size_t j = 0; j < names.size(); ++j) {
+      Name lhs = names[i];
+      Name rhs = names[j];
+      BOOST_CHECK_EQUAL(lhs == rhs, i == j);
+      BOOST_CHECK_EQUAL(lhs != rhs, i != j);
+      BOOST_CHECK_EQUAL(lhs <  rhs, i <  j);
+      BOOST_CHECK_EQUAL(lhs <= rhs, i <= j);
+      BOOST_CHECK_EQUAL(lhs >  rhs, i >  j);
+      BOOST_CHECK_EQUAL(lhs >= rhs, i >= j);
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(CompareFunc)
 {
   BOOST_CHECK_EQUAL(Name("/A")  .compare(Name("/A")),   0);
   BOOST_CHECK_LT   (Name("/A")  .compare(Name("/B")),   0);
@@ -368,44 +379,6 @@ BOOST_AUTO_TEST_CASE(Compare)
   BOOST_CHECK_GT   (Name("/Z/AA/Y") .compare(1, 1, Name("/X/A"),   1), 0);
   BOOST_CHECK_LT   (Name("/Z/A/Y")  .compare(1, 1, Name("/X/A/C"), 1), 0);
   BOOST_CHECK_GT   (Name("/Z/A/C/Y").compare(1, 2, Name("/X/A"),   1), 0);
-}
-
-BOOST_AUTO_TEST_CASE(SubName)
-{
-  Name name("/hello/world");
-
-  BOOST_CHECK_EQUAL("/hello/world", name.getSubName(0));
-  BOOST_CHECK_EQUAL("/world", name.getSubName(1));
-  BOOST_CHECK_EQUAL("/hello/", name.getSubName(0, 1));
-}
-
-BOOST_AUTO_TEST_CASE(SubNameNegativeIndex)
-{
-  Name name("/first/second/third/last");
-
-  BOOST_CHECK_EQUAL("/last", name.getSubName(-1));
-  BOOST_CHECK_EQUAL("/third/last", name.getSubName(-2));
-  BOOST_CHECK_EQUAL("/second", name.getSubName(-3, 1));
-}
-
-BOOST_AUTO_TEST_CASE(SubNameOutOfRangeIndexes)
-{
-  Name name("/first/second/last");
-  // No length
-  BOOST_CHECK_EQUAL("/first/second/last", name.getSubName(-10));
-  BOOST_CHECK_EQUAL("/", name.getSubName(10));
-
-  // Starting after the max position
-  BOOST_CHECK_EQUAL("/", name.getSubName(10, 1));
-  BOOST_CHECK_EQUAL("/", name.getSubName(10, 10));
-
-  // Not enough components
-  BOOST_CHECK_EQUAL("/second/last", name.getSubName(1, 10));
-  BOOST_CHECK_EQUAL("/last", name.getSubName(-1, 10));
-
-  // Start before first
-  BOOST_CHECK_EQUAL("/first/second", name.getSubName(-10, 2));
-  BOOST_CHECK_EQUAL("/first/second/last", name.getSubName(-10, 10));
 }
 
 BOOST_AUTO_TEST_CASE(UnorderedMap)
