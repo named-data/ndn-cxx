@@ -226,6 +226,13 @@ BOOST_AUTO_TEST_CASE(Swap)
   BOOST_CHECK_EQUAL(static_cast<bool>(o2), false);
 }
 
+BOOST_AUTO_TEST_CASE(Reset)
+{
+  optional<int> o1(1);
+  o1.reset();
+  BOOST_CHECK_EQUAL(static_cast<bool>(o1), false);
+}
+
 BOOST_AUTO_TEST_CASE(Emplace)
 {
   optional<std::pair<int, int>> o1;
