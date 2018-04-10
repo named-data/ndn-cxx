@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,6 +38,20 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestTlv)
+
+BOOST_AUTO_TEST_CASE(CriticalType)
+{
+  BOOST_CHECK_EQUAL(isCriticalType(0), true);
+  BOOST_CHECK_EQUAL(isCriticalType(1), true);
+  BOOST_CHECK_EQUAL(isCriticalType(2), true);
+  BOOST_CHECK_EQUAL(isCriticalType(30), true);
+  BOOST_CHECK_EQUAL(isCriticalType(31), true);
+  BOOST_CHECK_EQUAL(isCriticalType(32), false);
+  BOOST_CHECK_EQUAL(isCriticalType(33), true);
+  BOOST_CHECK_EQUAL(isCriticalType(34), false);
+  BOOST_CHECK_EQUAL(isCriticalType(10000), false);
+  BOOST_CHECK_EQUAL(isCriticalType(10001), true);
+}
 
 using ArrayStream = boost::iostreams::stream<boost::iostreams::array_source>;
 using StreamIterator = std::istream_iterator<uint8_t>;

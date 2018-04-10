@@ -39,7 +39,7 @@ namespace ndn {
 const size_t MAX_NDN_PACKET_SIZE = 8800;
 
 /**
- * @brief Namespace defining NDN-TLV related constants and procedures
+ * @brief Namespace defining NDN Packet Format related constants and procedures
  */
 namespace tlv {
 
@@ -57,44 +57,53 @@ public:
   }
 };
 
-/** @brief TLV-TYPE numbers defined in NDN Packet Format
- *  @sa https://named-data.net/doc/ndn-tlv/types.html
+/** @brief TLV-TYPE numbers defined in NDN Packet Format v0.3
+ *  @sa https://named-data.net/doc/NDN-packet-spec/current/types.html
  */
 enum {
-  Interest      = 5,
-  Data          = 6,
-  Name          = 7,
+  Interest                      = 5,
+  Data                          = 6,
+  Name                          = 7,
+  GenericNameComponent          = 8,
   ImplicitSha256DigestComponent = 1,
-  GenericNameComponent = 8,
-  Selectors     = 9,
-  Nonce         = 10,
-  InterestLifetime          = 12,
-  ForwardingHint            = 30,
-  MinSuffixComponents       = 13,
-  MaxSuffixComponents       = 14,
-  PublisherPublicKeyLocator = 15,
-  Exclude         = 16,
-  ChildSelector   = 17,
-  MustBeFresh     = 18,
-  Any             = 19,
-  MetaInfo        = 20,
-  Content         = 21,
-  SignatureInfo   = 22,
-  SignatureValue  = 23,
-  ContentType     = 24,
-  FreshnessPeriod = 25,
-  FinalBlockId    = 26,
-  SignatureType   = 27,
-  KeyLocator      = 28,
-  KeyDigest       = 29,
-  LinkPreference  = 30,
-  LinkDelegation  = 31,
+  CanBePrefix                   = 33,
+  MustBeFresh                   = 18,
+  ForwardingHint                = 30,
+  Nonce                         = 10,
+  InterestLifetime              = 12,
+  HopLimit                      = 34,
+  Parameters                    = 35,
+  MetaInfo                      = 20,
+  Content                       = 21,
+  SignatureInfo                 = 22,
+  SignatureValue                = 23,
+  ContentType                   = 24,
+  FreshnessPeriod               = 25,
+  FinalBlockId                  = 26,
+  SignatureType                 = 27,
+  KeyLocator                    = 28,
+  KeyDigest                     = 29,
+  LinkDelegation                = 31,
+  LinkPreference                = 30,
 
   NameComponentMin = 1,
   NameComponentMax = 65535,
 
   AppPrivateBlock1 = 128,
   AppPrivateBlock2 = 32767
+};
+
+/** @brief TLV-TYPE numbers defined in NDN Packet Format v0.2 but not in v0.3
+ *  @sa https://named-data.net/doc/NDN-packet-spec/0.2.1/types.html
+ */
+enum {
+  Selectors                 = 9,
+  MinSuffixComponents       = 13,
+  MaxSuffixComponents       = 14,
+  PublisherPublicKeyLocator = 15,
+  Exclude                   = 16,
+  ChildSelector             = 17,
+  Any                       = 19,
 };
 
 constexpr int NameComponent NDN_CXX_DEPRECATED = GenericNameComponent;
@@ -142,6 +151,16 @@ enum ContentTypeValue {
    */
   ContentType_Nack = 3
 };
+
+/**
+ * @brief Determine whether a TLV-TYPE is "critical" for evolvability purpose.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#considerations-for-evolvability-of-tlv-based-encoding
+ */
+inline bool
+isCriticalType(uint32_t type)
+{
+  return type <= 31 || (type & 0x01);
+}
 
 /**
  * @brief Read VAR-NUMBER in NDN-TLV encoding
