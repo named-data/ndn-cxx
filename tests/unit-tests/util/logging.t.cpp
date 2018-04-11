@@ -21,8 +21,8 @@
 
 #include "util/logging.hpp"
 #include "util/logger.hpp"
-#include "../unit-test-time-fixture.hpp"
 
+#include "../unit-test-time-fixture.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {
@@ -31,7 +31,6 @@ namespace tests {
 
 NDN_LOG_INIT(ndn.util.tests.Logging);
 
-using namespace ndn::tests;
 using boost::test_tools::output_test_stream;
 
 void
@@ -46,10 +45,9 @@ logFromFilterModule();
 static void
 logFromNewLogger(const std::string& moduleName)
 {
-  auto loggerPtr = make_unique<Logger>(moduleName);
-  Logger& logger = *loggerPtr;
+  Logger logger(moduleName);
+  auto ndn_cxx_getLogger = [&logger] () -> Logger& { return logger; };
 
-  auto getNdnCxxLogger = [&logger] () -> Logger& { return logger; };
   NDN_LOG_TRACE("trace" << moduleName);
   NDN_LOG_DEBUG("debug" << moduleName);
   NDN_LOG_INFO("info" << moduleName);
@@ -60,13 +58,82 @@ logFromNewLogger(const std::string& moduleName)
   BOOST_CHECK(Logging::get().removeLogger(logger));
 }
 
-const time::system_clock::Duration LOG_SYSTIME = time::microseconds(1468108800311239LL);
-const std::string LOG_SYSTIME_STR = "1468108800.311239";
+namespace ns1 {
 
-class LoggingFixture : public UnitTestTimeFixture
+NDN_LOG_INIT(ndn.util.tests.ns1);
+
+static void
+logFromNamespace1()
+{
+  NDN_LOG_INFO("hello world from ns1");
+}
+
+} // namespace ns1
+
+namespace ns2 {
+
+NDN_LOG_INIT(ndn.util.tests.ns2);
+
+static void
+logFromNamespace2()
+{
+  NDN_LOG_INFO("hi there from ns2");
+}
+
+} // namespace ns2
+
+class ClassWithLogger
+{
+public:
+  void
+  logFromConstMemberFunction() const
+  {
+    NDN_LOG_INFO("const member function");
+  }
+
+  static void
+  logFromStaticMemberFunction()
+  {
+    NDN_LOG_INFO("static member function");
+  }
+
+private:
+  NDN_LOG_MEMBER_INIT(ndn.util.tests.ClassWithLogger);
+};
+
+template<class T, class U>
+class ClassTemplateWithLogger
+{
+public:
+  void
+  logFromMemberFunction()
+  {
+    NDN_LOG_INFO("class template non-static member function");
+  }
+
+  static void
+  logFromStaticMemberFunction()
+  {
+    NDN_LOG_INFO("class template static member function");
+  }
+
+private:
+  NDN_LOG_MEMBER_DECL();
+};
+
+// Technically this declaration is not necessary in this case,
+// but we want to test that the macro expands to well-formed code
+NDN_LOG_MEMBER_DECL_SPECIALIZED((ClassTemplateWithLogger<int, double>));
+
+NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, double>), ndn.util.tests.Specialized1);
+NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, std::string>), ndn.util.tests.Specialized2);
+
+const time::microseconds LOG_SYSTIME(1468108800311239LL);
+const std::string LOG_SYSTIME_STR("1468108800.311239");
+
+class LoggingFixture : public ndn::tests::UnitTestTimeFixture
 {
 protected:
-  explicit
   LoggingFixture()
     : m_oldEnabledLevel(Logging::get().getLevels())
     , m_oldDestination(Logging::get().getDestination())
@@ -96,8 +163,8 @@ BOOST_FIXTURE_TEST_SUITE(TestLogging, LoggingFixture)
 BOOST_AUTO_TEST_CASE(GetLoggerNames)
 {
   NDN_LOG_TRACE("GetLoggerNames"); // to avoid unused function warning
-  std::set<std::string> names = Logging::getLoggerNames();
-  BOOST_CHECK_GT(names.size(), 0);
+  auto names = Logging::getLoggerNames();
+  BOOST_CHECK(!names.empty());
   BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Logging"), 1);
 }
 
@@ -202,6 +269,53 @@ BOOST_AUTO_TEST_CASE(All)
 
 BOOST_AUTO_TEST_SUITE_END() // Severity
 
+BOOST_AUTO_TEST_CASE(NamespaceLogger)
+{
+  Logging::setLevel("ndn.util.tests.ns1", LogLevel::INFO);
+  Logging::setLevel("ndn.util.tests.ns2", LogLevel::DEBUG);
+
+  const auto& levels = Logging::get().getLevels();
+  BOOST_CHECK_EQUAL(levels.size(), 2);
+  BOOST_CHECK_EQUAL(levels.at("ndn.util.tests.ns1"), LogLevel::INFO);
+  BOOST_CHECK_EQUAL(levels.at("ndn.util.tests.ns2"), LogLevel::DEBUG);
+
+  ns1::logFromNamespace1();
+  ns2::logFromNamespace2();
+
+  Logging::flush();
+  BOOST_CHECK(os.is_equal(
+    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ns1] hello world from ns1\n" +
+    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ns2] hi there from ns2\n"
+    ));
+}
+
+BOOST_AUTO_TEST_CASE(MemberLogger)
+{
+  Logging::setLevel("ndn.util.tests.ClassWithLogger", LogLevel::INFO);
+  Logging::setLevel("ndn.util.tests.Specialized1", LogLevel::INFO);
+  // ndn.util.tests.Specialized2 is not enabled
+
+  ClassWithLogger::logFromStaticMemberFunction();
+  ClassWithLogger{}.logFromConstMemberFunction();
+
+  Logging::flush();
+  BOOST_CHECK(os.is_equal(
+    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ClassWithLogger] static member function\n" +
+    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ClassWithLogger] const member function\n"
+    ));
+
+  ClassTemplateWithLogger<int, double>::logFromStaticMemberFunction();
+  ClassTemplateWithLogger<int, double>{}.logFromMemberFunction();
+  ClassTemplateWithLogger<int, std::string>::logFromStaticMemberFunction();
+  ClassTemplateWithLogger<int, std::string>{}.logFromMemberFunction();
+
+  Logging::flush();
+  BOOST_CHECK(os.is_equal(
+    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.Specialized1] class template static member function\n" +
+    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.Specialized1] class template non-static member function\n"
+    ));
+}
+
 BOOST_AUTO_TEST_CASE(SameNameLoggers)
 {
   Logging::setLevel("Module1", LogLevel::WARN);
@@ -221,7 +335,7 @@ BOOST_AUTO_TEST_CASE(SameNameLoggers)
 
 BOOST_AUTO_TEST_CASE(LateRegistration)
 {
-  BOOST_CHECK_NO_THROW(Logging::setLevel("Module3", LogLevel::DEBUG));
+  Logging::setLevel("Module3", LogLevel::DEBUG);
   logFromNewLogger("Module3");
 
   Logging::flush();

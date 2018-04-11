@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@
 namespace ndn {
 namespace util {
 
-/** \brief indicates the severity level of a log message
+/** \brief Indicates the severity level of a log message.
  */
 enum class LogLevel {
   FATAL   = -1,   ///< fatal (will be logged unconditionally)
@@ -48,20 +48,20 @@ enum class LogLevel {
   ALL     = 255   ///< all messages
 };
 
-/** \brief output LogLevel as string
+/** \brief Output LogLevel as string.
  *  \throw std::invalid_argument unknown \p level
  */
 std::ostream&
 operator<<(std::ostream& os, LogLevel level);
 
-/** \brief parse LogLevel from string
+/** \brief Parse LogLevel from string.
  *  \throw std::invalid_argument unknown level name
  */
 LogLevel
 parseLogLevel(const std::string& s);
 
-/** \brief represents a logger in logging facility
- *  \note User should declare a new logger with \p NDN_LOG_INIT macro.
+/** \brief Represents a log module in the logging facility.
+ *  \note New loggers should be defined using #NDN_LOG_INIT or #NDN_LOG_MEMBER_INIT.
  */
 class Logger : public boost::log::sources::logger_mt
 {
@@ -92,23 +92,9 @@ private:
   std::atomic<LogLevel> m_currentLevel;
 };
 
-/** \brief declare a log module
- *
- *  \note Logger name is restricted to alphanumeric characters and a select set of
- *  symbols: `~`, `#`, `%`, `_`, `<`, `>`, `.`, `-`
- *  A logger name must not start or end with `.` or contain consecutive `.`
- */
-#define NDN_LOG_INIT(name) \
-  namespace { \
-    inline ::ndn::util::Logger& getNdnCxxLogger() \
-    { \
-      static ::ndn::util::Logger logger(BOOST_STRINGIZE(name)); \
-      return logger; \
-    } \
-  } \
-  struct ndn_cxx__allow_trailing_semicolon
+namespace detail {
 
-/** \brief a tag that writes a timestamp upon stream output
+/** \brief A tag type used to output a timestamp to a stream.
  *  \code
  *  std::clog << LoggerTimestamp();
  *  \endcode
@@ -117,57 +103,151 @@ struct LoggerTimestamp
 {
 };
 
-/** \brief write a timestamp to \p os
+/** \brief Write a timestamp to \p os.
  *  \note This function is thread-safe.
  */
 std::ostream&
-operator<<(std::ostream& os, const LoggerTimestamp&);
+operator<<(std::ostream& os, LoggerTimestamp);
 
-#if (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106000)
+/** \cond */
+template<class T>
+struct ExtractArgument;
+
+template<class T, class U>
+struct ExtractArgument<T(U)>
+{
+  using type = U;
+};
+
+template<class T>
+using ArgumentType = typename ExtractArgument<T>::type;
+/** \endcond */
+
+} // namespace detail
+
+/** \cond */
+#define NDN_LOG_INIT_FUNCTION_BODY(name) \
+  { \
+    static ::ndn::util::Logger logger(BOOST_STRINGIZE(name)); \
+    return logger; \
+  }
+/** \endcond */
+
+/** \brief Define a non-member log module.
+ *
+ *  This macro can be used in global scope to define a log module for an entire translation
+ *  unit, or in namespace scope to define a log module for the enclosing namespace.
+ *  Use #NDN_LOG_MEMBER_INIT to define a log module as a class or struct member.
+ *
+ *  \warning Do not use this macro in header files unless you know what you're doing,
+ *           as it can easily trigger ODR violations if used incorrectly.
+ *
+ *  \param name the logger name
+ *  \note The logger name is restricted to alphanumeric characters and a select set of
+ *        symbols: `~`, `#`, `%`, `_`, `<`, `>`, `.`, `-`. It must not start or end with
+ *        a dot (`.`), or contain multiple consecutive dots.
+ */
+#define NDN_LOG_INIT(name) \
+  namespace { \
+    ::ndn::util::Logger& ndn_cxx_getLogger() \
+    NDN_LOG_INIT_FUNCTION_BODY(name) \
+  } \
+  struct ndn_cxx_allow_trailing_semicolon
+
+/** \brief Define a member log module.
+ *
+ *  This macro should only be used to define a log module as a class or struct member.
+ *  Use #NDN_LOG_INIT to define a non-member log module.
+ *
+ *  \param name the logger name
+ *  \note The logger name is restricted to alphanumeric characters and a select set of
+ *        symbols: `~`, `#`, `%`, `_`, `<`, `>`, `.`, `-`. It must not start or end with
+ *        a dot (`.`), or contain multiple consecutive dots.
+ */
+#define NDN_LOG_MEMBER_INIT(name) \
+  private: \
+  static ::ndn::util::Logger& ndn_cxx_getLogger() \
+  NDN_LOG_INIT_FUNCTION_BODY(name) \
+  struct ndn_cxx_allow_trailing_semicolon
+
+/** \brief Forward-declare a member log module, without fully defining it.
+ *
+ *  This macro can be used to declare a log module as a member of a class template.
+ *  Use this macro in conjunction with #NDN_LOG_MEMBER_DECL_SPECIALIZED and
+ *  #NDN_LOG_MEMBER_INIT_SPECIALIZED to provide different loggers for different
+ *  template specializations.
+ */
+#define NDN_LOG_MEMBER_DECL() \
+  private: \
+  static ::ndn::util::Logger& ndn_cxx_getLogger()
+
+/** \brief Declare an explicit specialization of a member log module of a class template.
+ *
+ *  \param cls fully specialized class name; wrap in parentheses if it contains commas
+ */
+#define NDN_LOG_MEMBER_DECL_SPECIALIZED(cls) \
+  template<> ::ndn::util::Logger& detail::ArgumentType<void(cls)>::ndn_cxx_getLogger()
+
+/** \brief Define an explicit specialization of a member log module of a class template.
+ *
+ *  \param cls fully specialized class name; wrap in parentheses if it contains commas
+ *  \param name the logger name
+ *  \note The logger name is restricted to alphanumeric characters and a select set of
+ *        symbols: `~`, `#`, `%`, `_`, `<`, `>`, `.`, `-`. It must not start or end with
+ *        a dot (`.`), or contain multiple consecutive dots.
+ */
+#define NDN_LOG_MEMBER_INIT_SPECIALIZED(cls, name) \
+  template<> inline ::ndn::util::Logger& detail::ArgumentType<void(cls)>::ndn_cxx_getLogger() \
+  NDN_LOG_INIT_FUNCTION_BODY(name) \
+  struct ndn_cxx_allow_trailing_semicolon
+
+/** \cond */
+#if BOOST_VERSION == 105900
 // workaround Boost bug 11549
 #define NDN_BOOST_LOG(x) BOOST_LOG(x) << ""
 #else
 #define NDN_BOOST_LOG(x) BOOST_LOG(x)
 #endif
 
-#define NDN_LOG(lvl, lvlstr, expression) \
+#define NDN_LOG_INTERNAL(lvl, lvlstr, expression) \
   do { \
-    if (getNdnCxxLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
-      NDN_BOOST_LOG(getNdnCxxLogger()) << ::ndn::util::LoggerTimestamp{} \
-        << " " BOOST_STRINGIZE(lvlstr) ": [" << getNdnCxxLogger().getModuleName() << "] " \
+    if (ndn_cxx_getLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
+      NDN_BOOST_LOG(ndn_cxx_getLogger()) << ::ndn::util::detail::LoggerTimestamp{} \
+        << " " BOOST_STRINGIZE(lvlstr) ": [" << ndn_cxx_getLogger().getModuleName() << "] " \
         << expression; \
     } \
   } while (false)
+/** \endcond */
 
-/** \brief log at TRACE level
- *  \pre A log module must be declared in the same translation unit.
+/** \brief Log at TRACE level.
+ *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_TRACE(expression) NDN_LOG(TRACE, TRACE, expression)
+#define NDN_LOG_TRACE(expression) NDN_LOG_INTERNAL(TRACE, TRACE, expression)
 
-/** \brief log at DEBUG level
- *  \pre A log module must be declared in the same translation unit.
+/** \brief Log at DEBUG level.
+ *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_DEBUG(expression) NDN_LOG(DEBUG, DEBUG, expression)
+#define NDN_LOG_DEBUG(expression) NDN_LOG_INTERNAL(DEBUG, DEBUG, expression)
 
-/** \brief log at INFO level
- *  \pre A log module must be declared in the same translation unit.
+/** \brief Log at INFO level.
+ *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_INFO(expression) NDN_LOG(INFO, INFO, expression)
+#define NDN_LOG_INFO(expression) NDN_LOG_INTERNAL(INFO, INFO, expression)
 
-/** \brief log at WARN level
- *  \pre A log module must be declared in the same translation unit.
+/** \brief Log at WARN level.
+ *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_WARN(expression) NDN_LOG(WARN, WARNING, expression)
+#define NDN_LOG_WARN(expression) NDN_LOG_INTERNAL(WARN, WARNING, expression)
 
-/** \brief log at ERROR level
- *  \pre A log module must be declared in the same translation unit.
+/** \brief Log at ERROR level.
+ *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_ERROR(expression) NDN_LOG(ERROR, ERROR, expression)
+#define NDN_LOG_ERROR(expression) NDN_LOG_INTERNAL(ERROR, ERROR, expression)
 
-/** \brief log at FATAL level
- *  \pre A log module must be declared in the same translation unit.
+/** \brief Log at FATAL level.
+ *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_FATAL(expression) NDN_LOG(FATAL, FATAL, expression)
+#define NDN_LOG_FATAL(expression) NDN_LOG_INTERNAL(FATAL, FATAL, expression)
 
 } // namespace util
 } // namespace ndn

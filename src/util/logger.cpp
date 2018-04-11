@@ -111,8 +111,10 @@ Logger::Logger(const std::string& name)
   Logging::addLogger(*this);
 }
 
+namespace detail {
+
 std::ostream&
-operator<<(std::ostream& os, const LoggerTimestamp&)
+operator<<(std::ostream& os, LoggerTimestamp)
 {
   using namespace ndn::time;
 
@@ -135,5 +137,6 @@ operator<<(std::ostream& os, const LoggerTimestamp&)
   return os << buffer;
 }
 
+} // namespace detail
 } // namespace util
 } // namespace ndn
