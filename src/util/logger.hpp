@@ -48,13 +48,13 @@ enum class LogLevel {
   ALL     = 255   ///< all messages
 };
 
-/** \brief Output LogLevel as string.
+/** \brief Output LogLevel as a string.
  *  \throw std::invalid_argument unknown \p level
  */
 std::ostream&
 operator<<(std::ostream& os, LogLevel level);
 
-/** \brief Parse LogLevel from string.
+/** \brief Parse LogLevel from a string.
  *  \throw std::invalid_argument unknown level name
  */
 LogLevel
@@ -157,7 +157,8 @@ using ArgumentType = typename ExtractArgument<T>::type;
 /** \brief Define a member log module.
  *
  *  This macro should only be used to define a log module as a class or struct member.
- *  Use #NDN_LOG_INIT to define a non-member log module.
+ *  It is recommended to place this macro in the private or protected section of the
+ *  class or struct definition. Use #NDN_LOG_INIT to define a non-member log module.
  *
  *  \param name the logger name
  *  \note The logger name is restricted to alphanumeric characters and a select set of
@@ -165,7 +166,6 @@ using ArgumentType = typename ExtractArgument<T>::type;
  *        a dot (`.`), or contain multiple consecutive dots.
  */
 #define NDN_LOG_MEMBER_INIT(name) \
-  private: \
   static ::ndn::util::Logger& ndn_cxx_getLogger() \
   NDN_LOG_INIT_FUNCTION_BODY(name) \
   struct ndn_cxx_allow_trailing_semicolon
@@ -178,7 +178,6 @@ using ArgumentType = typename ExtractArgument<T>::type;
  *  template specializations.
  */
 #define NDN_LOG_MEMBER_DECL() \
-  private: \
   static ::ndn::util::Logger& ndn_cxx_getLogger()
 
 /** \brief Declare an explicit specialization of a member log module of a class template.
@@ -186,7 +185,8 @@ using ArgumentType = typename ExtractArgument<T>::type;
  *  \param cls fully specialized class name; wrap in parentheses if it contains commas
  */
 #define NDN_LOG_MEMBER_DECL_SPECIALIZED(cls) \
-  template<> ::ndn::util::Logger& detail::ArgumentType<void(cls)>::ndn_cxx_getLogger()
+  template<> \
+  ::ndn::util::Logger& ::ndn::util::detail::ArgumentType<void(cls)>::ndn_cxx_getLogger()
 
 /** \brief Define an explicit specialization of a member log module of a class template.
  *
@@ -197,7 +197,8 @@ using ArgumentType = typename ExtractArgument<T>::type;
  *        a dot (`.`), or contain multiple consecutive dots.
  */
 #define NDN_LOG_MEMBER_INIT_SPECIALIZED(cls, name) \
-  template<> inline ::ndn::util::Logger& detail::ArgumentType<void(cls)>::ndn_cxx_getLogger() \
+  template<> inline \
+  ::ndn::util::Logger& ::ndn::util::detail::ArgumentType<void(cls)>::ndn_cxx_getLogger() \
   NDN_LOG_INIT_FUNCTION_BODY(name) \
   struct ndn_cxx_allow_trailing_semicolon
 
