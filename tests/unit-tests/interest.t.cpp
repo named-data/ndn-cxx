@@ -24,6 +24,7 @@
 #include "security/digest-sha256.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
 
+#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
 
@@ -37,13 +38,17 @@ BOOST_AUTO_TEST_SUITE(TestInterest)
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
   Interest i;
+  BOOST_CHECK(!i.hasWire());
   BOOST_CHECK_EQUAL(i.getName(), "/");
-  BOOST_CHECK(i.getSelectors().empty());
-  BOOST_CHECK_EQUAL(i.hasNonce(), false);
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
+  BOOST_CHECK(i.getForwardingHint().empty());
+  BOOST_CHECK(!i.hasNonce());
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK(!i.hasSelectors());
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDecodeBasic)
+BOOST_AUTO_TEST_CASE(EncodeDecode02Basic)
 {
   const uint8_t WIRE[] = {
     0x05, 0x1c, // Interest
@@ -69,7 +74,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeBasic)
   BOOST_CHECK_EQUAL(i1, i2);
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDecodeFull)
+BOOST_AUTO_TEST_CASE(EncodeDecode02Full)
 {
   const uint8_t WIRE[] = {
     0x05, 0x31, // Interest
@@ -108,57 +113,143 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeFull)
   BOOST_CHECK_EQUAL(i1, i2);
 }
 
-BOOST_AUTO_TEST_CASE(WireDecodeReset) // checks wireDecode resets all fields
+class Decode03Fixture
 {
-  Interest i1;
-  i1.setName("/test");
-  i1.setMinSuffixComponents(100);
-  i1.setNonce(10);
-  i1.setInterestLifetime(10_s);
+protected:
+  Decode03Fixture()
+  {
+    // initialize all elements to non-empty, to verify wireDecode clears them
+    i.setName("/A");
+    i.setForwardingHint({{10309, "/F"}});
+    i.setNonce(0x03d645a8);
+    i.setInterestLifetime(18554_ms);
+    i.setPublisherPublicKeyLocator(Name("/K"));
+  }
 
-  Interest i2(i1.wireEncode());
-  BOOST_CHECK_EQUAL(i2.getName().toUri(), "/test");
-  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 10_s);
-  BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), 100);
-  BOOST_CHECK_EQUAL(i2.getNonce(), 10);
-
-  i2.wireDecode(Interest().wireEncode());
-  BOOST_CHECK_EQUAL(i2.getName().toUri(), "/");
-  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), -1);
-  BOOST_WARN_NE(i2.getNonce(), 10);
-}
-
-BOOST_AUTO_TEST_CASE(DecodeNoName)
-{
-  Block b(tlv::Interest);
-  b.push_back(makeBinaryBlock(tlv::Nonce, "FISH", 4));
-  b.encode();
-
+protected:
   Interest i;
-  BOOST_CHECK_THROW(i.wireDecode(b), tlv::Error);
-}
+};
 
-BOOST_AUTO_TEST_CASE(DecodeNoNonce)
+BOOST_FIXTURE_TEST_SUITE(Decode03, Decode03Fixture)
+
+BOOST_AUTO_TEST_CASE(Minimal)
 {
-  Block b(tlv::Interest);
-  b.push_back(Name("/YvzNKtPWh").wireEncode());
-  b.encode();
+  i.wireDecode("0505 0703080149"_block);
+  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), false);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
+  BOOST_CHECK(i.getForwardingHint().empty());
+  BOOST_CHECK(i.hasNonce()); // a random nonce is generated
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK(i.getPublisherPublicKeyLocator().empty());
 
-  Interest i;
-  BOOST_CHECK_THROW(i.wireDecode(b), tlv::Error);
+  BOOST_CHECK(!i.hasWire()); // nonce generation resets wire encoding
+
+  // modify then re-encode as v0.2 format
+  i.setNonce(0x54657c95);
+  BOOST_CHECK(i.wireEncode() == "0510 0703080149 09030E0101 0A04957C6554"_block);
 }
 
-BOOST_AUTO_TEST_CASE(DecodeBadNonce)
+BOOST_AUTO_TEST_CASE(Full)
 {
-  Block b(tlv::Interest);
-  b.push_back(Name("/BJzEHVxDJ").wireEncode());
-  b.push_back(makeBinaryBlock(tlv::Nonce, "SKY", 3));
-  b.encode();
+  i.wireDecode("053B FC00 0703080149 FC00 2100 FC00 1200 "
+               "FC00 1E0B(1F09 1E023E15 0703080148) FC00 0A044ACB1E4C "
+               "FC00 0C0276A1 FC00 2201D6 FC00 2304C0C1C2C3 FC00"_block);
+  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{15893, "/H"}}));
+  BOOST_CHECK(i.hasNonce());
+  BOOST_CHECK_EQUAL(i.getNonce(), 0x4c1ecb4a);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), 30369_ms);
+  // HopLimit=214 is not stored
+  // Parameters="C0C1C2C3" is not stored
 
-  Interest i;
-  BOOST_CHECK_THROW(i.wireDecode(b), tlv::Error);
+  // encode without modification: retain original wire encoding
+  BOOST_CHECK_EQUAL(i.wireEncode().value_size(), 59);
+
+  // modify then re-encode as v0.2 format
+  i.setName("/J");
+  BOOST_CHECK(i.wireEncode() ==
+              "0520 070308014A 09021200 0A044ACB1E4C 0C0276A1 "
+              "1E0B(1F09 1E023E15 0703080148)"_block);
 }
+
+BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
+{
+  BOOST_CHECK_THROW(i.wireDecode(
+    "0529 2100 0703080149 1200 1E0B(1F09 1E023E15 0703080148) "
+    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(
+    "0529 0703080149 1200 2100 1E0B(1F09 1E023E15 0703080148) "
+    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(
+    "0529 0703080149 2100 1E0B(1F09 1E023E15 0703080148) 1200 "
+    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(
+    "0529 0703080149 2100 1200 0A044ACB1E4C "
+    "1E0B(1F09 1E023E15 0703080148) 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(
+    "0529 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
+    "0C0276A1 0A044ACB1E4C 2201D6 2304C0C1C2C3"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(
+    "0529 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
+    "0A044ACB1E4C 2201D6 0C0276A1 2304C0C1C2C3"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(
+    "052F 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
+    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3 2304C0C1C2C3"_block),
+    tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(HopLimitOutOfOrder)
+{
+  // HopLimit is non-critical, its out-of-order appearances are ignored
+  i.wireDecode("0514 0703080149 2201D6 2200 2304C0C1C2C3 22020101"_block);
+  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  // HopLimit=214 is not stored
+  // Parameters="C0C1C2C3" is not stored
+}
+
+BOOST_AUTO_TEST_CASE(NameMissing)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0500"_block), tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode("0502 1200"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(NameEmpty)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0502 0700"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(BadCanBePrefix)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0508 0703080149 210102"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(BadMustBeFresh)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0508 0703080149 120102"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(BadNonce)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 0A00"_block), tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode("050A 0703080149 0A0304C263"_block), tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode("050C 0703080149 0A05EFA420B262"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 FB00"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // Decode03
 
 // ---- matching ----
 

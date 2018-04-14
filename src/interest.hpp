@@ -73,12 +73,16 @@ public:
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** @brief Encode to a @c Block in NDN Packet Format v0.2.
+  /** @brief Encode to a @c Block.
+   *
+   *  Normally, this function encodes to NDN Packet Format v0.2. However, if this instance has
+   *  cached wire encoding (@c hasWire() is true), the cached encoding is returned and it might
+   *  be in v0.3 format.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode from @p wire in NDN Packet Format v0.2.
+  /** @brief Decode from @p wire in NDN Packet Format v0.2 or v0.3.
    */
   void
   wireDecode(const Block& wire);
@@ -370,6 +374,21 @@ public: // Selectors (deprecated)
     m_wire.reset();
     return *this;
   }
+
+private:
+  /** @brief Decode @c m_wire as NDN Packet Format v0.2.
+   *  @retval true decoding successful.
+   *  @retval false decoding failed due to structural error.
+   *  @throw tlv::Error decoding error within a sub-element.
+   */
+  bool
+  decode02();
+
+  /** @brief Decode @c m_wire as NDN Packet Format v0.3.
+   *  @throw tlv::Error decoding error.
+   */
+  void
+  decode03();
 
 private:
   Name m_name;

@@ -156,7 +156,7 @@ enum ContentTypeValue {
  * @brief Determine whether a TLV-TYPE is "critical" for evolvability purpose.
  * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#considerations-for-evolvability-of-tlv-based-encoding
  */
-inline bool
+constexpr bool
 isCriticalType(uint32_t type)
 {
   return type <= 31 || (type & 0x01);
