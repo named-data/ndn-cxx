@@ -49,8 +49,8 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
 {
   // Data ::= DATA-TLV TLV-LENGTH
   //            Name
-  //            MetaInfo
-  //            Content
+  //            MetaInfo?
+  //            Content?
   //            SignatureInfo
   //            SignatureValue
 
@@ -121,26 +121,75 @@ Data::wireEncode() const
 void
 Data::wireDecode(const Block& wire)
 {
-  m_fullName.clear();
   m_wire = wire;
   m_wire.parse();
+  bool hasName = false, hasSigInfo = false;
+  m_name.clear();
+  m_metaInfo = MetaInfo();
+  m_content = Block(tlv::Content);
+  m_signature = Signature();
+  m_fullName.clear();
 
-  // Name
-  m_name.wireDecode(m_wire.get(tlv::Name));
+  int lastEle = 0; // last recognized element index, in spec order
+  for (const Block& ele : m_wire.elements()) {
+    switch (ele.type()) {
+      case tlv::Name: {
+        if (lastEle >= 1) {
+          BOOST_THROW_EXCEPTION(Error("Name element is out of order"));
+        }
+        hasName = true;
+        m_name.wireDecode(ele);
+        lastEle = 1;
+        break;
+      }
+      case tlv::MetaInfo: {
+        if (lastEle >= 2) {
+          BOOST_THROW_EXCEPTION(Error("MetaInfo element is out of order"));
+        }
+        m_metaInfo.wireDecode(ele);
+        lastEle = 2;
+        break;
+      }
+      case tlv::Content: {
+        if (lastEle >= 3) {
+          BOOST_THROW_EXCEPTION(Error("Content element is out of order"));
+        }
+        m_content = ele;
+        lastEle = 3;
+        break;
+      }
+      case tlv::SignatureInfo: {
+        if (lastEle >= 4) {
+          BOOST_THROW_EXCEPTION(Error("SignatureInfo element is out of order"));
+        }
+        hasSigInfo = true;
+        m_signature.setInfo(ele);
+        lastEle = 4;
+        break;
+      }
+      case tlv::SignatureValue: {
+        if (lastEle >= 5) {
+          BOOST_THROW_EXCEPTION(Error("SignatureValue element is out of order"));
+        }
+        m_signature.setValue(ele);
+        lastEle = 5;
+        break;
+      }
+      default: {
+        if (tlv::isCriticalType(ele.type())) {
+          BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
+                                      to_string(ele.type())));
+        }
+        break;
+      }
+    }
+  }
 
-  // MetaInfo
-  m_metaInfo.wireDecode(m_wire.get(tlv::MetaInfo));
-
-  // Content
-  m_content = m_wire.get(tlv::Content);
-
-  // SignatureInfo
-  m_signature.setInfo(m_wire.get(tlv::SignatureInfo));
-
-  // SignatureValue
-  Block::element_const_iterator val = m_wire.find(tlv::SignatureValue);
-  if (val != m_wire.elements_end()) {
-    m_signature.setValue(*val);
+  if (!hasName) {
+    BOOST_THROW_EXCEPTION(Error("Name element is missing"));
+  }
+  if (!hasSigInfo) {
+    BOOST_THROW_EXCEPTION(Error("SignatureInfo element is missing"));
   }
 }
 

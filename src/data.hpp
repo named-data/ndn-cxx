@@ -45,21 +45,23 @@ public:
     }
   };
 
-  /** @brief Create a new Data with the given name and empty Content
-   *  @warning In certain contexts that use Data::shared_from_this(), Data must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
+  /** @brief Construct an unsigned Data packet with given @p name and empty Content.
+   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created
+   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
    */
   explicit
   Data(const Name& name = Name());
 
-  /** @brief Create from wire encoding
-   *  @warning In certain contexts that use Data::shared_from_this(), Data must be created
-   *           using `make_shared`. Otherwise, .shared_from_this() will trigger undefined behavior.
+  /** @brief Construct a Data packet by decoding from @p wire.
+   *  @param wire @c tlv::Data element as defined in NDN Packet Format v0.2 or v0.3.
+   *              It may be signed or unsigned.
+   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created
+   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
    */
   explicit
   Data(const Block& wire);
 
-  /** @brief Fast encoding or block size estimation
+  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.2.
    *  @param encoder EncodingEstimator or EncodingBuffer instance
    *  @param wantUnsignedPortionOnly If true, only prepends Name, MetaInfo, Content, and
    *         SignatureInfo to @p encoder, but omit SignatureValue and outmost Type-Length of Data
@@ -89,17 +91,22 @@ public:
   const Block&
   wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const;
 
-  /** @brief Encode to a wire format
+  /** @brief Encode to a @c Block.
+   *  @pre Data is signed.
+   *
+   *  Normally, this function encodes to NDN Packet Format v0.2. However, if this instance has
+   *  cached wire encoding (\c hasWire() is true), the cached encoding is returned and it might
+   *  be in v0.3 format.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode from the wire format
+  /** @brief Decode from @p wire in NDN Packet Format v0.2 or v0.3.
    */
   void
   wireDecode(const Block& wire);
 
-  /** @brief Check if already has wire
+  /** @brief Check if this instance has cached wire encoding.
    */
   bool
   hasWire() const

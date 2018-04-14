@@ -30,6 +30,7 @@
 #include "security/verification-helpers.hpp"
 #include "util/sha256.hpp"
 
+#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
 #include <boost/lexical_cast.hpp>
@@ -88,7 +89,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK_EQUAL(d.getName(), "/");
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), DEFAULT_FRESHNESS_PERIOD);
-  BOOST_CHECK_EQUAL(d.getFinalBlockId(), name::Component());
+  BOOST_CHECK(!d.getFinalBlock());
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK(!d.getSignature());
@@ -205,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(Encode, DataSigningKeyFixture)
                                 dataBlock.begin(), dataBlock.end());
 }
 
-BOOST_FIXTURE_TEST_CASE(Decode, DataSigningKeyFixture)
+BOOST_FIXTURE_TEST_CASE(Decode02, DataSigningKeyFixture)
 {
   Block dataBlock(DATA1, sizeof(DATA1));
   Data d(dataBlock);
@@ -224,6 +225,123 @@ BOOST_FIXTURE_TEST_CASE(Decode, DataSigningKeyFixture)
 
   BOOST_CHECK(security::verifySignature(d, m_pubKey));
 }
+
+class Decode03Fixture
+{
+protected:
+  Decode03Fixture()
+  {
+    // initialize all elements to non-empty, to verify wireDecode clears them
+    d.setName("/A");
+    d.setContentType(tlv::ContentType_Key);
+    d.setContent("1504C0C1C2C3"_block);
+    d.setSignature(Signature("160A 1B0101 1C050703080142"_block,
+                   "1780 B48F1707A3BCA3CFC5F32DE51D9B46C32D7D262A21544EBDA88C3B415D637503"
+                        "FC9BEF20F88202A56AF9831E0D30205FD4154B08502BCDEE860267A5C3E03D8E"
+                        "A6CB74BE391C01E0A57B991B4404FC11B7D777F1B700A4B65F201118CF1840A8"
+                        "30A2A7C17DB4B7A8777E58515121AF9E2498627F8475414CDFD9801B8152AD5B"_block));
+  }
+
+protected:
+  Data d;
+};
+
+BOOST_FIXTURE_TEST_SUITE(Decode03, Decode03Fixture)
+
+BOOST_AUTO_TEST_CASE(MinimalNoSigValue)
+{
+  d.wireDecode("0607 0700 16031B0100"_block);
+  BOOST_CHECK_EQUAL(d.getName(), "/"); // empty Name is allowed in Data
+  BOOST_CHECK_EQUAL(d.getMetaInfo(), MetaInfo());
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(Minimal)
+{
+  d.wireDecode("062C 0703080144 16031B0100 "
+               "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block);
+  BOOST_CHECK_EQUAL(d.getName(), "/D");
+  BOOST_CHECK_EQUAL(d.getMetaInfo(), MetaInfo());
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 32);
+
+  // encode without modification: retain original wire encoding
+  BOOST_CHECK_EQUAL(d.wireEncode().value_size(), 44);
+
+  // modify then re-encode as v0.2 format
+  d.setName("/E");
+  BOOST_CHECK(d.wireEncode() ==
+              "0630 0703080145 1400 1500 16031B0100 "
+              "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block);
+}
+
+BOOST_AUTO_TEST_CASE(Full)
+{
+  d.wireDecode("063C FC00 0703080144 FC00 1400 FC00 1500 FC00 16031B0100 FC00 "
+               "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76 FC00"_block);
+  BOOST_CHECK_EQUAL(d.getName(), "/D");
+  BOOST_CHECK_EQUAL(d.getMetaInfo(), MetaInfo());
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 32);
+
+  // encode without modification: retain original wire encoding
+  BOOST_CHECK_EQUAL(d.wireEncode().value_size(), 60);
+
+  // modify then re-encode as v0.2 format
+  d.setName("/E");
+  BOOST_CHECK(d.wireEncode() ==
+              "0630 0703080145 1400 1500 16031B0100 "
+              "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block);
+}
+
+BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
+{
+  BOOST_CHECK_THROW(d.wireDecode(
+    "0630 1400 0703080145 1500 16031B0100 "
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(d.wireDecode(
+    "0630 0703080145 1500 1400 16031B0100 "
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(d.wireDecode(
+    "0630 0703080145 1400 16031B0100 1500 "
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(d.wireDecode(
+    "0630 0703080145 1400 1500 "
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76 16031B0100"_block),
+    tlv::Error);
+  BOOST_CHECK_THROW(d.wireDecode(
+    "0652 0703080145 1400 1500 16031B0100 "
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
+    tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(NameMissing)
+{
+  BOOST_CHECK_THROW(d.wireDecode("0605 16031B0100"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(SigInfoMissing)
+{
+  BOOST_CHECK_THROW(d.wireDecode("0605 0703080144"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
+{
+  BOOST_CHECK_THROW(d.wireDecode(
+    "0632 0703080145 FB00 1400 1500 16031B0100 "
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
+    tlv::Error);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // Decode03
 
 BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
 {
