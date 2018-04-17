@@ -22,7 +22,9 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#if BOOST_VERSION < 106700
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
+#endif // BOOST_VERSION < 106700
 
 namespace ndn {
 namespace ndnsec {
@@ -40,14 +42,18 @@ public:
 security::v2::Certificate
 getCertificateHttp(const std::string& host, const std::string& port, const std::string& path)
 {
-  using namespace boost::asio::ip;
-
-  tcp::iostream requestStream;
+  boost::asio::ip::tcp::iostream requestStream;
+#if BOOST_VERSION >= 106700
+  requestStream.expires_after(std::chrono::seconds(3));
+#else
   requestStream.expires_from_now(boost::posix_time::seconds(3));
+#endif // BOOST_VERSION >= 106700
+
   requestStream.connect(host, port);
   if (!requestStream) {
     BOOST_THROW_EXCEPTION(HttpException("HTTP connection error"));
   }
+
   requestStream << "GET " << path << " HTTP/1.0\r\n";
   requestStream << "Host: " << host << "\r\n";
   requestStream << "Accept: */*\r\n";

@@ -22,7 +22,9 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#if BOOST_VERSION < 106700
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
+#endif // BOOST_VERSION < 106700
 
 namespace ndn {
 namespace ndnsec {
@@ -173,9 +175,12 @@ ndnsec_cert_dump(int argc, char** argv)
       return 0;
     }
     if (isRepoOut) {
-      using namespace boost::asio::ip;
-      tcp::iostream requestStream;
+      boost::asio::ip::tcp::iostream requestStream;
+#if BOOST_VERSION >= 106700
+      requestStream.expires_after(std::chrono::seconds(3));
+#else
       requestStream.expires_from_now(boost::posix_time::seconds(3));
+#endif // BOOST_VERSION >= 106700
       requestStream.connect(repoHost, repoPort);
       if (!requestStream) {
         std::cerr << "fail to open the stream!" << std::endl;

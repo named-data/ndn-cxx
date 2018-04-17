@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,24 +24,17 @@
 
 #include <boost/version.hpp>
 
+namespace boost {
+namespace asio {
+
 #if BOOST_VERSION >= 106600
-
-#include <boost/asio/ts/netfwd.hpp>
-
-namespace boost {
-namespace asio {
+class io_context;
 using io_service = io_context;
-} // namespace asio
-} // namespace boost
-
 #else
-
-namespace boost {
-namespace asio {
 class io_service;
+#endif // BOOST_VERSION >= 106600
+
 } // namespace asio
 } // namespace boost
-
-#endif // BOOST_VERSION >= 106600
 
 #endif // NDN_NET_ASIO_FWD_HPP
