@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,6 @@
 #include "util/time.hpp"
 
 #include <sstream>
-#include <boost/algorithm/string/trim.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/concepts.hpp>
@@ -71,7 +70,6 @@ Name::Name(const char* uri)
 
 Name::Name(std::string uri)
 {
-  boost::algorithm::trim(uri);
   if (uri.empty())
     return;
 
@@ -82,7 +80,6 @@ Name::Name(std::string uri)
     if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {
       // Omit the leading protocol such as ndn:
       uri.erase(0, iColon + 1);
-      boost::algorithm::trim(uri);
     }
   }
 
@@ -96,12 +93,10 @@ Name::Name(std::string uri)
         return;
       else {
         uri.erase(0, iAfterAuthority + 1);
-        boost::algorithm::trim(uri);
       }
     }
     else {
       uri.erase(0, 1);
-      boost::algorithm::trim(uri);
     }
   }
 

@@ -30,7 +30,6 @@
 #include "util/sha256.hpp"
 #include "util/string-helper.hpp"
 
-#include <boost/algorithm/string/trim.hpp>
 #include <cstring>
 #include <sstream>
 
@@ -112,7 +111,6 @@ parseSha256DigestUri(std::string input)
 Component
 Component::fromEscapedString(std::string input)
 {
-  boost::algorithm::trim(input);
   uint32_t type = tlv::GenericNameComponent;
   size_t equalPos = input.find('=');
   if (equalPos != std::string::npos) {

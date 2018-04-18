@@ -55,12 +55,36 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   BOOST_CHECK_EQUAL(decoded, name);
 }
 
-BOOST_AUTO_TEST_CASE(NameWithSpaces)
+BOOST_AUTO_TEST_CASE(ParseUri)
 {
-  Name name("/ hello\t/\tworld \r\n");
+  // URI with correct scheme
+  BOOST_CHECK_EQUAL(Name("ndn:/hello/world").toUri(), "/hello/world");
 
-  BOOST_CHECK_EQUAL("/hello/world", name);
+  // URI with incorrect scheme: auto-corrected
+  BOOST_CHECK_EQUAL(Name("ncc:/hello/world").toUri(), "/hello/world");
+
+  // URI with authority: authority ignored
+  BOOST_CHECK_EQUAL(Name("//authority/hello/world").toUri(), "/hello/world");
+  BOOST_CHECK_EQUAL(Name("ndn://authority/hello/world").toUri(), "/hello/world");
+
+  // URI containing unescaped characters: auto-corrected
+  BOOST_CHECK_EQUAL(Name("/ hello\t/\tworld \r\n").toUri(), "/%20hello%09/%09world%20%0D%0A");
+  BOOST_CHECK_EQUAL(Name("/hello/world/  ").toUri(), "/hello/world/%20%20");
+  BOOST_CHECK_EQUAL(Name("/:?#[]@").toUri(), "/%3A%3F%23%5B%5D%40");
+
+  // URI not starting with '/': accepted as PartialName
+  BOOST_CHECK_EQUAL(Name("").toUri(), "/");
+  BOOST_CHECK_EQUAL(Name(" ").toUri(), "/%20");
+  BOOST_CHECK_EQUAL(Name("  /hello/world").toUri(), "/%20%20/hello/world");
+  BOOST_CHECK_EQUAL(Name("hello/world").toUri(), "/hello/world");
+
+  // URI ending with '/': auto-corrected
+  BOOST_CHECK_EQUAL(Name("/hello/world/").toUri(), "/hello/world");
+
+  // URI containing bad component: rejected
   BOOST_CHECK_THROW(Name("/hello//world"), name::Component::Error);
+  BOOST_CHECK_THROW(Name("/hello/./world"), name::Component::Error);
+  BOOST_CHECK_THROW(Name("/hello/../world"), name::Component::Error);
 }
 
 BOOST_AUTO_TEST_CASE(DeepCopy)
@@ -104,7 +128,7 @@ BOOST_AUTO_TEST_CASE(SubName)
 
   BOOST_CHECK_EQUAL("/hello/world", name.getSubName(0));
   BOOST_CHECK_EQUAL("/world", name.getSubName(1));
-  BOOST_CHECK_EQUAL("/hello/", name.getSubName(0, 1));
+  BOOST_CHECK_EQUAL("/hello", name.getSubName(0, 1));
 }
 
 BOOST_AUTO_TEST_CASE(SubNameNegativeIndex)
