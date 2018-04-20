@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -384,6 +384,11 @@ private:
   size_t
   encode(EncodingEstimator& estimator) const;
 
+  /** @brief Estimate TLV-LENGTH as if sub elements are encoded into TLV-VALUE
+   */
+  size_t
+  encodeValue(EncodingEstimator& estimator) const;
+
   /** @brief Encode sub elements into TLV-VALUE and prepend Block to encoder
    *  @post TLV-VALUE contains sub elements from elements()
    *  @post internal buffer and iterators point to Encoder's buffer
@@ -420,6 +425,18 @@ protected:
    *  This field is valid only if parse() has been executed.
    */
   mutable element_container m_elements;
+
+  /** @brief Print @p block to @p os.
+   *
+   *  Default-constructed block is printed as: `[invalid]`.
+   *  Zero-length block is printed as: `TT[empty]`, where TT is TLV-TYPE in decimal.
+   *  Non-zero-length block on which @c Block::parse is not called is printed as: `TT[LL]=VVVV`,
+   *  where LL is TLV-LENGTH in decimal, and VVVV is TLV-VALUE is hexadecimal.
+   *  Block on which @c Block::parse has been called in printed as: `TT[LL]={SUB,SUB}`,
+   *  where SUB is a sub-element printed using this format.
+   */
+  friend std::ostream&
+  operator<<(std::ostream& os, const Block& block);
 };
 
 /** @brief Compare whether two Blocks have same TLV-TYPE, TLV-LENGTH, and TLV-VALUE

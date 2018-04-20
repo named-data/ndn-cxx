@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -95,8 +95,8 @@ BOOST_AUTO_TEST_CASE(Data)
   Block b3 = makeBinaryBlock(100, buf1.begin(), buf1.end()); // fast encoding (random access iterator)
   Block b4 = makeBinaryBlock(100, buf3.begin(), buf3.end()); // slow encoding (general iterator)
 
-  BOOST_CHECK(b1 == b2);
-  BOOST_CHECK(b1 == b3);
+  BOOST_CHECK_EQUAL(b1, b2);
+  BOOST_CHECK_EQUAL(b1, b3);
   BOOST_CHECK_EQUAL(b1.type(), 100);
   BOOST_CHECK_EQUAL(b1.value_size(), buf1.size());
   BOOST_CHECK_EQUAL_COLLECTIONS(b1.value_begin(), b1.value_end(),
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(Nested)
   b1.parse();
   BOOST_CHECK_EQUAL(b1.elements().size(), 1);
   BOOST_CHECK_EQUAL(b1.elements().begin()->type(), name.wireEncode().type());
-  BOOST_CHECK(*b1.elements().begin() == name.wireEncode());
+  BOOST_CHECK_EQUAL(*b1.elements().begin(), name.wireEncode());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlockHelpers

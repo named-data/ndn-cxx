@@ -216,9 +216,9 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
 
   // Create the third key
   Key key3 = m_keyChain.createKey(id);
-  BOOST_CHECK(key3.getName() != key2.getName());
+  BOOST_CHECK_NE(key3.getName(), key2.getName());
   // The added key will not be the default key, because the default key already exists
-  BOOST_CHECK(id.getDefaultKey().getName() == key2.getName());
+  BOOST_CHECK_EQUAL(id.getDefaultKey().getName(), key2.getName());
   BOOST_CHECK_EQUAL(id.getKeys().size(), 2);
   BOOST_REQUIRE_NO_THROW(key3.getDefaultCertificate());
 

@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriodExtension)
   info.setKeyLocator(KeyLocator("/test/key/locator"));
   info.setValidityPeriod(vp1);
 
-  BOOST_CHECK(info.getValidityPeriod() == vp1);
+  BOOST_CHECK_EQUAL(info.getValidityPeriod(), vp1);
 
   const Block& encoded = info.wireEncode();
 
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriodExtension)
   Block block(sigInfo, sizeof(sigInfo));
   SignatureInfo info2;
   info2.wireDecode(block);
-  BOOST_CHECK(info2.getValidityPeriod() == vp1);
+  BOOST_CHECK_EQUAL(info2.getValidityPeriod(), vp1);
 
   const security::ValidityPeriod& validityPeriod = info2.getValidityPeriod();
   BOOST_CHECK(validityPeriod.getPeriod() == std::make_pair(notBefore, notAfter));

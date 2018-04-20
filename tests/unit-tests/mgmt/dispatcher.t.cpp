@@ -226,9 +226,9 @@ BOOST_AUTO_TEST_CASE(ControlCommand)
   BOOST_CHECK_EQUAL(nCallbackCalled, 0);
   BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
-  BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(face.sentData[0].getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 403);
-  BOOST_CHECK(face.sentData[1].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(face.sentData[1].getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[1].getContent().blockFromValue()).getCode(), 403);
 
   face.receive(*makeInterest("/root/test/%80%00/valid"));
@@ -354,9 +354,9 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   advanceClocks(1_ms, 20);
   BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
-  BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(face.sentData[0].getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 403);
-  BOOST_CHECK(face.sentData[1].getContentType() == tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(face.sentData[1].getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[1].getContent().blockFromValue()).getCode(), 403);
 
   face.sentData.clear();
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   auto fetchedData = storage.find(interestSmall);
   BOOST_REQUIRE(fetchedData != nullptr);
-  BOOST_CHECK(face.sentData[0].wireEncode() == fetchedData->wireEncode());
+  BOOST_CHECK_EQUAL(face.sentData[0].wireEncode(), fetchedData->wireEncode());
 
   face.receive(*makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
   face.receive(*makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
@@ -382,10 +382,10 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   Block content = face.sentData[0].getContent();
   BOOST_CHECK_NO_THROW(content.parse());
 
-  BOOST_CHECK_EQUAL(content.elements().size(), 3);
-  BOOST_CHECK(content.elements()[0] == smallBlock);
-  BOOST_CHECK(content.elements()[1] == smallBlock);
-  BOOST_CHECK(content.elements()[2] == smallBlock);
+  BOOST_REQUIRE_EQUAL(content.elements().size(), 3);
+  BOOST_CHECK_EQUAL(content.elements()[0], smallBlock);
+  BOOST_CHECK_EQUAL(content.elements()[1], smallBlock);
+  BOOST_CHECK_EQUAL(content.elements()[2], smallBlock);
 
   storage.erase("/", true); // clear the storage
   face.sentData.clear();
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   // the Data sent through the face should be the same as the first Data in the storage
   BOOST_CHECK_EQUAL(face.sentData[0].getName(), dataInStorage[0].getName());
-  BOOST_CHECK(face.sentData[0].getContent() == dataInStorage[0].getContent());
+  BOOST_CHECK_EQUAL(face.sentData[0].getContent(), dataInStorage[0].getContent());
 
   content = [&dataInStorage] () -> Block {
     EncodingBuffer encoder;
@@ -421,17 +421,17 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   }();
 
   BOOST_CHECK_NO_THROW(content.parse());
-  BOOST_CHECK_EQUAL(content.elements().size(), 3);
-  BOOST_CHECK(content.elements()[0] == largeBlock);
-  BOOST_CHECK(content.elements()[1] == largeBlock);
-  BOOST_CHECK(content.elements()[2] == largeBlock);
+  BOOST_REQUIRE_EQUAL(content.elements().size(), 3);
+  BOOST_CHECK_EQUAL(content.elements()[0], largeBlock);
+  BOOST_CHECK_EQUAL(content.elements()[1], largeBlock);
+  BOOST_CHECK_EQUAL(content.elements()[2], largeBlock);
 
   storage.erase("/", true);// clear the storage
   face.sentData.clear();
   face.receive(*makeInterest("/root/test/reject/%80%00/valid")); // returns nack
   advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(face.sentData.size(), 1);
-  BOOST_CHECK(face.sentData[0].getContentType() == tlv::ContentType_Nack);
+  BOOST_CHECK_EQUAL(face.sentData[0].getContentType(), tlv::ContentType_Nack);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 400);
   BOOST_CHECK_EQUAL(storage.size(), 0); // the nack packet will not be inserted into the in-memory storage
 }
@@ -460,30 +460,30 @@ BOOST_AUTO_TEST_CASE(NotificationStream)
   post(block);
   advanceClocks(1_ms, 10);
 
-  BOOST_CHECK_EQUAL(face.sentData.size(), 4);
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 4);
   BOOST_CHECK_EQUAL(face.sentData[0].getName(), "/root/test/%FE%00");
   BOOST_CHECK_EQUAL(face.sentData[1].getName(), "/root/test/%FE%01");
   BOOST_CHECK_EQUAL(face.sentData[2].getName(), "/root/test/%FE%02");
   BOOST_CHECK_EQUAL(face.sentData[3].getName(), "/root/test/%FE%03");
 
-  BOOST_CHECK(face.sentData[0].getContent().blockFromValue() == block);
-  BOOST_CHECK(face.sentData[1].getContent().blockFromValue() == block);
-  BOOST_CHECK(face.sentData[2].getContent().blockFromValue() == block);
-  BOOST_CHECK(face.sentData[3].getContent().blockFromValue() == block);
+  BOOST_CHECK_EQUAL(face.sentData[0].getContent().blockFromValue(), block);
+  BOOST_CHECK_EQUAL(face.sentData[1].getContent().blockFromValue(), block);
+  BOOST_CHECK_EQUAL(face.sentData[2].getContent().blockFromValue(), block);
+  BOOST_CHECK_EQUAL(face.sentData[3].getContent().blockFromValue(), block);
 
   // each version of notification will be sent to both places
   std::vector<Data> dataInStorage;
   std::copy(storage.begin(), storage.end(), std::back_inserter(dataInStorage));
-  BOOST_CHECK_EQUAL(dataInStorage.size(), 4);
+  BOOST_REQUIRE_EQUAL(dataInStorage.size(), 4);
   BOOST_CHECK_EQUAL(dataInStorage[0].getName(), "/root/test/%FE%00");
   BOOST_CHECK_EQUAL(dataInStorage[1].getName(), "/root/test/%FE%01");
   BOOST_CHECK_EQUAL(dataInStorage[2].getName(), "/root/test/%FE%02");
   BOOST_CHECK_EQUAL(dataInStorage[3].getName(), "/root/test/%FE%03");
 
-  BOOST_CHECK(dataInStorage[0].getContent().blockFromValue() == block);
-  BOOST_CHECK(dataInStorage[1].getContent().blockFromValue() == block);
-  BOOST_CHECK(dataInStorage[2].getContent().blockFromValue() == block);
-  BOOST_CHECK(dataInStorage[3].getContent().blockFromValue() == block);
+  BOOST_CHECK_EQUAL(dataInStorage[0].getContent().blockFromValue(), block);
+  BOOST_CHECK_EQUAL(dataInStorage[1].getContent().blockFromValue(), block);
+  BOOST_CHECK_EQUAL(dataInStorage[2].getContent().blockFromValue(), block);
+  BOOST_CHECK_EQUAL(dataInStorage[3].getContent().blockFromValue(), block);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestDispatcher

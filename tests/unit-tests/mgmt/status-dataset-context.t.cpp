@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(Get)
 {
   Name dataName = context.getPrefix();
   BOOST_CHECK(dataName[-1].isVersion());
-  BOOST_CHECK(dataName.getPrefix(-1) == interest->getName());
+  BOOST_CHECK_EQUAL(dataName.getPrefix(-1), interest->getName());
 }
 
 BOOST_AUTO_TEST_CASE(SetValid)
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(SetValid)
   Name validPrefix = Name(interest->getName()).append("/valid");
   BOOST_CHECK_NO_THROW(context.setPrefix(validPrefix));
   BOOST_CHECK(context.getPrefix()[-1].isVersion());
-  BOOST_CHECK(context.getPrefix().getPrefix(-1) == validPrefix);
+  BOOST_CHECK_EQUAL(context.getPrefix().getPrefix(-1), validPrefix);
 }
 
 BOOST_AUTO_TEST_CASE(SetInvalid)
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   const auto& args = sendDataHistory[0];
 
   BOOST_CHECK_EQUAL(args.dataName, makeSegmentName(0));
-  BOOST_CHECK(args.content.blockFromValue() == contentBlock);
+  BOOST_CHECK_EQUAL(args.content.blockFromValue(), contentBlock);
   BOOST_CHECK_EQUAL(args.imsFresh, defaultImsFresh);
   BOOST_CHECK_EQUAL(args.isFinalBlock, true);
 }
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(Large)
   auto contentLargeBlock = concatenateDataContent();
   BOOST_CHECK_NO_THROW(contentLargeBlock.parse());
   BOOST_REQUIRE_EQUAL(contentLargeBlock.elements().size(), 1);
-  BOOST_CHECK(contentLargeBlock.elements()[0] == largeBlock);
+  BOOST_CHECK_EQUAL(contentLargeBlock.elements()[0], largeBlock);
 }
 
 BOOST_AUTO_TEST_CASE(MultipleSmall)
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(MultipleSmall)
   BOOST_CHECK_NO_THROW(contentMultiBlocks.parse());
   BOOST_CHECK_EQUAL(contentMultiBlocks.elements().size(), nBlocks);
   for (auto&& element : contentMultiBlocks.elements()) {
-    BOOST_CHECK(element == contentBlock);
+    BOOST_CHECK_EQUAL(element, contentBlock);
   }
 }
 

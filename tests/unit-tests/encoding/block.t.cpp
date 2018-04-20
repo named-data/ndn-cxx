@@ -22,7 +22,9 @@
 #include "encoding/block.hpp"
 #include "encoding/block-helpers.hpp"
 
+#include "block-literal.hpp"
 #include "boost-test.hpp"
+#include <boost/lexical_cast.hpp>
 #include <cstring>
 #include <sstream>
 
@@ -490,6 +492,42 @@ BOOST_AUTO_TEST_CASE(Equality)
   Block f(three, sizeof(three));
   BOOST_CHECK_EQUAL(e == f, false);
   BOOST_CHECK_EQUAL(e != f, true);
+}
+
+BOOST_AUTO_TEST_CASE(Print)
+{
+  // default constructed
+  Block b;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "[invalid]");
+
+  // zero length
+  b = "0700"_block;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "7[empty]");
+
+  // unparsed
+  b = "0E10FF7E4E6B3B21C902660F16ED589FCCCC"_block;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b),
+                    "14[16]=FF7E4E6B3B21C902660F16ED589FCCCC");
+  // set and restore format flags
+  {
+    std::ostringstream oss;
+    oss << std::showbase << std::hex << 0xd23c4 << b << 0x4981e;
+    BOOST_CHECK_EQUAL(oss.str(), "0xd23c414[16]=FF7E4E6B3B21C902660F16ED589FCCCC0x4981e");
+  }
+
+  // parsed
+  b = "FD010808 0502CADD 59024E42"_block;
+  b.parse();
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b),
+                    "264[8]={5[2]=CADD,89[2]=4E42}");
+
+  // parsed then modified: print modified sub-elements
+  b = "FD010808 0502CADD 59024E42"_block;
+  b.parse();
+  b.erase(b.elements_begin());
+  b.push_back("10022386"_block);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b),
+                    "264[8]={89[2]=4E42,16[2]=2386}");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlock

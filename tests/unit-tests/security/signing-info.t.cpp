@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,16 +93,16 @@ BOOST_AUTO_TEST_CASE(Basic)
 BOOST_AUTO_TEST_CASE(CustomSignatureInfo)
 {
   SigningInfo info1;
-  BOOST_CHECK(info1.getSignatureInfo() == SignatureInfo());
+  BOOST_CHECK_EQUAL(info1.getSignatureInfo(), SignatureInfo());
 
   SignatureInfo si;
   si.setKeyLocator(Name("ndn:/test/key/locator"));
   info1.setSignatureInfo(si);
 
-  BOOST_CHECK(info1.getSignatureInfo() == si);
+  BOOST_CHECK_EQUAL(info1.getSignatureInfo(), si);
 
   SigningInfo info2(SigningInfo::SIGNER_TYPE_NULL, SigningInfo::getEmptyName(), si);
-  BOOST_CHECK(info2.getSignatureInfo() == si);
+  BOOST_CHECK_EQUAL(info2.getSignatureInfo(), si);
 }
 
 BOOST_AUTO_TEST_CASE(FromString)

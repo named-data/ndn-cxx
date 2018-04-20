@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -135,10 +135,9 @@ BOOST_AUTO_TEST_CASE(Basic)
     BOOST_CHECK_EQUAL(stmt.step(), SQLITE_ROW);
     BOOST_CHECK_EQUAL(stmt.getInt(0), 4);
 
-    Block newBlock;
-    BOOST_CHECK_NO_THROW(newBlock = stmt.getBlock(1));
+    Block newBlock = stmt.getBlock(1);
     BOOST_CHECK_EQUAL(newBlock.type(), 100);
-    BOOST_CHECK(newBlock == block);
+    BOOST_CHECK_EQUAL(newBlock, block);
 
     BOOST_CHECK_EQUAL(stmt.step(), SQLITE_ROW);
     BOOST_CHECK_EQUAL(stmt.getInt(0), 5);

@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
   b.setFinalBlock(a.getFinalBlock());
-  BOOST_CHECK(b.wireEncode() == "1400"_block);
+  BOOST_CHECK_EQUAL(b.wireEncode(), "1400"_block);
   BOOST_CHECK_EQUAL(a, b); // expected failure #4569
 
   // non-default values
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
   b.setFinalBlockId(a.getFinalBlockId());
-  BOOST_CHECK(b.wireEncode() == wire2);
+  BOOST_CHECK_EQUAL(b.wireEncode(), wire2);
   BOOST_CHECK_EQUAL(a, b);
 
   // FinalBlockId is typed name component
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
   b.setFinalBlockId(a.getFinalBlockId());
-  BOOST_CHECK(b.wireEncode() == wire3);
+  BOOST_CHECK_EQUAL(b.wireEncode(), wire3);
   BOOST_CHECK_EQUAL(a, b);
 }
 
@@ -97,19 +97,19 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
     info1.addAppMetaInfo(makeStringBlock(type, ss[i]));
   }
 
-  BOOST_CHECK(info1.findAppMetaInfo(252) == 0);
+  BOOST_CHECK(info1.findAppMetaInfo(252) == nullptr);
 
   info1.addAppMetaInfo(makeNonNegativeIntegerBlock(252, 1000));
-  BOOST_CHECK(info1.findAppMetaInfo(252) != 0);
+  BOOST_CHECK(info1.findAppMetaInfo(252) != nullptr);
 
   info1.addAppMetaInfo(makeNonNegativeIntegerBlock(252, 1000));
-  BOOST_CHECK(info1.findAppMetaInfo(252) != 0);
+  BOOST_CHECK(info1.findAppMetaInfo(252) != nullptr);
 
   info1.removeAppMetaInfo(252);
-  BOOST_CHECK(info1.findAppMetaInfo(252) != 0);
+  BOOST_CHECK(info1.findAppMetaInfo(252) != nullptr);
 
   info1.removeAppMetaInfo(252);
-  BOOST_CHECK(info1.findAppMetaInfo(252) == 0);
+  BOOST_CHECK(info1.findAppMetaInfo(252) == nullptr);
 
   // // These octets are obtained by the snippet below.
   // // This check is intended to detect unexpected encoding change in the future.

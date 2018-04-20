@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(TypeNone)
                                 wire.begin(), wire.end());
 
   KeyLocator b(wire);
-  BOOST_CHECK(a == b);
+  BOOST_CHECK_EQUAL(a, b);
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_None);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
   BOOST_CHECK_THROW(b.getKeyDigest(), KeyLocator::Error);
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(TypeName)
                                 wire.begin(), wire.end());
 
   KeyLocator b(wire);
-  BOOST_CHECK(a == b);
+  BOOST_CHECK_EQUAL(a, b);
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_Name);
   BOOST_CHECK_EQUAL(b.getName(), Name("/N"));
   BOOST_CHECK_THROW(b.getKeyDigest(), KeyLocator::Error);
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
   KeyLocator a;
   a.setKeyDigest(digestBuffer);
   BOOST_CHECK_EQUAL(a.getType(), KeyLocator::KeyLocator_KeyDigest);
-  BOOST_CHECK(a.getKeyDigest() == expectedDigestBlock);
+  BOOST_CHECK_EQUAL(a.getKeyDigest(), expectedDigestBlock);
   BOOST_CHECK_THROW(a.getName(), KeyLocator::Error);
 
   Block wire;
@@ -118,9 +118,9 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
                                 wire.begin(), wire.end());
 
   KeyLocator b(wire);
-  BOOST_CHECK(a == b);
+  BOOST_CHECK_EQUAL(a, b);
   BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_KeyDigest);
-  BOOST_CHECK(b.getKeyDigest() == expectedDigestBlock);
+  BOOST_CHECK_EQUAL(b.getKeyDigest(), expectedDigestBlock);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
 
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=123456789A...");

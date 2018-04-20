@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -82,13 +82,13 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_REQUIRE_NO_THROW(AdditionalDescription(Block(description, sizeof(description))));
   AdditionalDescription aDescription2(Block(description, sizeof(description)));
 
-  BOOST_CHECK(aDescription2 == aDescription);
+  BOOST_CHECK_EQUAL(aDescription2, aDescription);
 
   AdditionalDescription aDescription3;
   aDescription3.set("key3", "val3");
   aDescription3.set("key2", "val2");
 
-  BOOST_CHECK(aDescription2 != aDescription3);
+  BOOST_CHECK_NE(aDescription2, aDescription3);
 
   std::ostringstream os;
   os << aDescription;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,7 @@
 #include "buffer-stream.hpp"
 #include "encoding-buffer.hpp"
 #include "tlv.hpp"
+#include "../util/string-helper.hpp"
 
 #include <boost/asio/buffer.hpp>
 #include <boost/range/adaptor/reversed.hpp>
@@ -379,12 +380,19 @@ Block::encode(EncodingEstimator& estimator) const
     return m_size;
   }
 
+  size_t len = encodeValue(estimator);
+  len += estimator.prependVarNumber(len);
+  len += estimator.prependVarNumber(m_type);
+  return len;
+}
+
+size_t
+Block::encodeValue(EncodingEstimator& estimator) const
+{
   size_t len = 0;
   for (const Block& element : m_elements | boost::adaptors::reversed) {
     len += element.encode(estimator);
   }
-  len += estimator.prependVarNumber(len);
-  len += estimator.prependVarNumber(m_type);
   return len;
 }
 
@@ -507,6 +515,33 @@ operator==(const Block& lhs, const Block& rhs)
          lhs.value_size() == rhs.value_size() &&
          (lhs.value_size() == 0 ||
           std::memcmp(lhs.value(), rhs.value(), lhs.value_size()) == 0);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Block& block)
+{
+  auto oldFmt = os.flags(std::ios_base::dec);
+
+  if (block.empty()) {
+    os << "[invalid]";
+  }
+  else if (!block.m_elements.empty()) {
+    EncodingEstimator estimator;
+    size_t tlvLength = block.encodeValue(estimator);
+    os << block.type() << '[' << tlvLength << "]={";
+    std::copy(block.elements_begin(), block.elements_end(), make_ostream_joiner(os, ','));
+    os << '}';
+  }
+  else if (block.value_size() > 0) {
+    os << block.type() << '[' << block.value_size() << "]=";
+    printHex(os, block.value(), block.value_size(), true);
+  }
+  else {
+    os << block.type() << "[empty]";
+  }
+
+  os.flags(oldFmt);
+  return os;
 }
 
 } // namespace ndn

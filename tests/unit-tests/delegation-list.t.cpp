@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(InsertSimple)
 
   EncodingBuffer encoder;
   dl.wireEncode(encoder);
-  BOOST_CHECK(encoder.block() == makeDelegationListBlock(tlv::ForwardingHint, {DEL1B, DEL2A}));
+  BOOST_CHECK_EQUAL(encoder.block(), makeDelegationListBlock(tlv::ForwardingHint, {DEL1B, DEL2A}));
 }
 
 BOOST_AUTO_TEST_CASE(InsertReplace)
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(InsertReplace)
 
   EncodingBuffer encoder;
   dl.wireEncode(encoder);
-  BOOST_CHECK(encoder.block() == makeDelegationListBlock(tlv::ForwardingHint, {DEL1A}));
+  BOOST_CHECK_EQUAL(encoder.block(), makeDelegationListBlock(tlv::ForwardingHint, {DEL1A}));
 }
 
 BOOST_AUTO_TEST_CASE(InsertAppend)
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(InsertAppend)
 
   EncodingBuffer encoder;
   dl.wireEncode(encoder);
-  BOOST_CHECK(encoder.block() == makeDelegationListBlock(tlv::ForwardingHint, {DEL1A, DEL2A}));
+  BOOST_CHECK_EQUAL(encoder.block(), makeDelegationListBlock(tlv::ForwardingHint, {DEL1A, DEL2A}));
 }
 
 BOOST_AUTO_TEST_CASE(InsertSkip)
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(InsertSkip)
 
   EncodingBuffer encoder;
   dl.wireEncode(encoder);
-  BOOST_CHECK(encoder.block() == makeDelegationListBlock(tlv::ForwardingHint, {DEL2A}));
+  BOOST_CHECK_EQUAL(encoder.block(), makeDelegationListBlock(tlv::ForwardingHint, {DEL2A}));
 }
 
 BOOST_AUTO_TEST_CASE(Unsorted)
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(Unsorted)
 
   EncodingBuffer encoder;
   dl.wireEncode(encoder, tlv::Content);
-  BOOST_CHECK(encoder.block() == makeDelegationListBlock(tlv::Content, {DEL2A, DEL1B}));
+  BOOST_CHECK_EQUAL(encoder.block(), makeDelegationListBlock(tlv::Content, {DEL2A, DEL1B}));
 }
 
 BOOST_AUTO_TEST_CASE(EncodeBadType)

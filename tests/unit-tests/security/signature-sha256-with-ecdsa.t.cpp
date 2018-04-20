@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(Encoding)
   sig.setKeyLocator(Name("/test/another/key/locator"));
 
   const Block& encodeSigInfoBlock2 = sig.getInfo();
-  BOOST_CHECK(sigInfoBlock != encodeSigInfoBlock2);
+  BOOST_CHECK_NE(sigInfoBlock, encodeSigInfoBlock2);
 }
 
 BOOST_AUTO_TEST_CASE(DataSignature)

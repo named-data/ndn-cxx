@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(Minimal)
 
   // modify then re-encode as v0.2 format
   i.setNonce(0x54657c95);
-  BOOST_CHECK(i.wireEncode() == "0510 0703080149 09030E0101 0A04957C6554"_block);
+  BOOST_CHECK_EQUAL(i.wireEncode(), "0510 0703080149 09030E0101 0A04957C6554"_block);
 }
 
 BOOST_AUTO_TEST_CASE(Full)
@@ -170,9 +170,8 @@ BOOST_AUTO_TEST_CASE(Full)
 
   // modify then re-encode as v0.2 format
   i.setName("/J");
-  BOOST_CHECK(i.wireEncode() ==
-              "0520 070308014A 09021200 0A044ACB1E4C 0C0276A1 "
-              "1E0B(1F09 1E023E15 0703080148)"_block);
+  BOOST_CHECK_EQUAL(i.wireEncode(),
+    "0520 070308014A 09021200 0A044ACB1E4C 0C0276A1 1E0B(1F09 1E023E15 0703080148)"_block);
 }
 
 BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)

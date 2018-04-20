@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -224,7 +224,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), true);
   BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
-  BOOST_CHECK(this->pib.getCertificate(this->id1Key1Cert1.getName()).wireEncode() == this->id1Key1Cert1.wireEncode());
+  BOOST_CHECK_EQUAL(this->pib.getCertificate(this->id1Key1Cert1.getName()).wireEncode(),
+                    this->id1Key1Cert1.wireEncode());
   BOOST_CHECK_NO_THROW(this->pib.getDefaultCertificateOfKey(this->id1Key1Name));
   BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), this->id1Key1Cert1);
 
@@ -323,7 +324,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Overwrite, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), true);
 
   auto cert = this->pib.getCertificate(this->id1Key1Cert1.getName());
-  BOOST_CHECK(cert.wireEncode() == this->id1Key1Cert1.wireEncode());
+  BOOST_CHECK_EQUAL(cert.wireEncode(), this->id1Key1Cert1.wireEncode());
 
   // Create a fake cert with the same name
   auto cert2 = this->id1Key2Cert1;
@@ -332,7 +333,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Overwrite, T, PibImpls, T)
   this->pib.addCertificate(cert2);
 
   auto cert3 = this->pib.getCertificate(this->id1Key1Cert1.getName());
-  BOOST_CHECK(cert3.wireEncode() == cert2.wireEncode());
+  BOOST_CHECK_EQUAL(cert3.wireEncode(), cert2.wireEncode());
 
   // both key and certificate are overwritten
   Buffer keyBits3 = this->pib.getKeyBits(this->id1Key1Name);

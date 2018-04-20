@@ -48,8 +48,9 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   BOOST_CHECK(name[5].isImplicitSha256Digest());
 
   Block wire = name.wireEncode();
-  BOOST_CHECK(wire == "0737 0804456D6964 FD61D2025033 0800 08012E 08021C9F "
-              "01200415E3624A151850AC686C84F155F29808C0DD73819AA4A4C20BE73A4D8A874C"_block);
+  BOOST_CHECK_EQUAL(wire,
+    "0737 0804456D6964 FD61D2025033 0800 08012E 08021C9F "
+    "01200415E3624A151850AC686C84F155F29808C0DD73819AA4A4C20BE73A4D8A874C"_block);
 
   Name decoded(wire);
   BOOST_CHECK_EQUAL(decoded, name);
@@ -199,37 +200,37 @@ BOOST_AUTO_TEST_CASE(ReverseIterator)
 BOOST_AUTO_TEST_CASE(AppendComponent)
 {
   Name name;
-  BOOST_CHECK(name.wireEncode() == "0700"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0700"_block);
 
   name.append(Component("Emid"));
-  BOOST_CHECK(name.wireEncode() == "0706 0804456D6964"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0706 0804456D6964"_block);
 
   name.append(25042, reinterpret_cast<const uint8_t*>("P3"), 2);
-  BOOST_CHECK(name.wireEncode() == "070C 0804456D6964 FD61D2025033"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "070C 0804456D6964 FD61D2025033"_block);
 
   name.append(reinterpret_cast<const uint8_t*>("."), 1);
-  BOOST_CHECK(name.wireEncode() == "070F 0804456D6964 FD61D2025033 08012E"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "070F 0804456D6964 FD61D2025033 08012E"_block);
 
   std::vector<uint8_t> v1{0x28, 0xF0, 0xA3, 0x6B};
   name.append(16, v1.begin(), v1.end());
-  BOOST_CHECK(name.wireEncode() == "0715 0804456D6964 FD61D2025033 08012E 100428F0A36B"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0715 0804456D6964 FD61D2025033 08012E 100428F0A36B"_block);
 
   BOOST_CHECK(!name.empty());
   name.clear();
   BOOST_CHECK(name.empty());
-  BOOST_CHECK(name.wireEncode() == "0700"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0700"_block);
 
   name.append(v1.begin(), v1.end());
-  BOOST_CHECK(name.wireEncode() == "0706 080428F0A36B"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080428F0A36B"_block);
 
   name.append("xKh");
-  BOOST_CHECK(name.wireEncode() == "070B 080428F0A36B 0803784B68"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "070B 080428F0A36B 0803784B68"_block);
 
   name.append("0100"_block);
-  BOOST_CHECK(name.wireEncode() == "070F 080428F0A36B 0803784B68 08020100"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "070F 080428F0A36B 0803784B68 08020100"_block);
 
   name.append("080109"_block);
-  BOOST_CHECK(name.wireEncode() == "0712 080428F0A36B 0803784B68 08020100 080109"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0712 080428F0A36B 0803784B68 08020100 080109"_block);
 }
 
 BOOST_AUTO_TEST_CASE(AppendPartialName)
@@ -237,7 +238,7 @@ BOOST_AUTO_TEST_CASE(AppendPartialName)
   Name name("/A/B");
   name.append(PartialName("/6=C/D"))
       .append(PartialName("/E"));
-  BOOST_CHECK(name.wireEncode() == "070F 080141 080142 060143 080144 080145"_block);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "070F 080141 080142 060143 080144 080145"_block);
 }
 
 BOOST_AUTO_TEST_CASE(AppendNumber)
