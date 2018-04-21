@@ -66,9 +66,9 @@ BOOST_AUTO_TEST_CASE(FieldAccess)
 BOOST_AUTO_TEST_CASE(EncodeFragment)
 {
   static const uint8_t expectedBlock[] = {
-    0x64, 0x08, // LpPacket
-          0x51, 0x02, // Sequence
-                0x03, 0xe8,
+    0x64, 0x0e, // LpPacket
+          0x51, 0x08, // Sequence
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xe8,
           0x50, 0x02, // Fragment
                 0x03, 0xe8,
   };
@@ -78,10 +78,9 @@ BOOST_AUTO_TEST_CASE(EncodeFragment)
   buf[1] = 0xe8;
 
   Packet packet;
-  BOOST_CHECK_NO_THROW(packet.add<FragmentField>(std::make_pair(buf.begin(), buf.end())));
-  BOOST_CHECK_NO_THROW(packet.add<SequenceField>(1000));
-  Block wire;
-  BOOST_CHECK_NO_THROW(wire = packet.wireEncode());
+  packet.add<FragmentField>(std::make_pair(buf.begin(), buf.end()));
+  packet.add<SequenceField>(1000);
+  Block wire = packet.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 }
@@ -129,17 +128,17 @@ BOOST_AUTO_TEST_CASE(EncodeZeroLengthTlv)
 BOOST_AUTO_TEST_CASE(EncodeSortOrder)
 {
   static const uint8_t expectedBlock[] = {
-    0x64, 0x19, // LpPacket
+    0x64, 0x2e, // LpPacket
           0x52, 0x01, // FragIndex
                 0x00,
           0x53, 0x01, // FragCount
                 0x01,
-          0xfd, 0x03, 0x44, 0x01, // Ack
-                0x02,
-          0xfd, 0x03, 0x44, 0x01, // Ack
-                0x04,
-          0xfd, 0x03, 0x44, 0x01, // Ack
-                0x03,
+          0xfd, 0x03, 0x44, 0x08, // Ack
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
+          0xfd, 0x03, 0x44, 0x08, // Ack
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
+          0xfd, 0x03, 0x44, 0x08, // Ack
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03,
           0x50, 0x02, // Fragment
                 0x03, 0xe8,
   };

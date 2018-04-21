@@ -24,7 +24,6 @@
 
 #include "field-decl.hpp"
 
-#include "sequence.hpp"
 #include "cache-policy.hpp"
 #include "nack-header.hpp"
 #include "prefix-announcement.hpp"
@@ -41,12 +40,18 @@ BOOST_CONCEPT_ASSERT((Field<SequenceField>));
 
 typedef FieldDecl<field_location_tags::Header,
                   uint64_t,
-                  tlv::FragIndex> FragIndexField;
+                  tlv::FragIndex,
+                  false,
+                  NonNegativeIntegerTag,
+                  NonNegativeIntegerTag> FragIndexField;
 BOOST_CONCEPT_ASSERT((Field<FragIndexField>));
 
 typedef FieldDecl<field_location_tags::Header,
                   uint64_t,
-                  tlv::FragCount> FragCountField;
+                  tlv::FragCount,
+                  false,
+                  NonNegativeIntegerTag,
+                  NonNegativeIntegerTag> FragCountField;
 BOOST_CONCEPT_ASSERT((Field<FragCountField>));
 
 typedef FieldDecl<field_location_tags::Header,
@@ -56,7 +61,10 @@ BOOST_CONCEPT_ASSERT((Field<NackField>));
 
 typedef FieldDecl<field_location_tags::Header,
                   uint64_t,
-                  tlv::NextHopFaceId> NextHopFaceIdField;
+                  tlv::NextHopFaceId,
+                  false,
+                  NonNegativeIntegerTag,
+                  NonNegativeIntegerTag> NextHopFaceIdField;
 BOOST_CONCEPT_ASSERT((Field<NextHopFaceIdField>));
 
 typedef FieldDecl<field_location_tags::Header,
@@ -66,12 +74,18 @@ BOOST_CONCEPT_ASSERT((Field<CachePolicyField>));
 
 typedef FieldDecl<field_location_tags::Header,
                   uint64_t,
-                  tlv::IncomingFaceId> IncomingFaceIdField;
+                  tlv::IncomingFaceId,
+                  false,
+                  NonNegativeIntegerTag,
+                  NonNegativeIntegerTag> IncomingFaceIdField;
 BOOST_CONCEPT_ASSERT((Field<IncomingFaceIdField>));
 
 typedef FieldDecl<field_location_tags::Header,
                   uint64_t,
-                  tlv::CongestionMark> CongestionMarkField;
+                  tlv::CongestionMark,
+                  false,
+                  NonNegativeIntegerTag,
+                  NonNegativeIntegerTag> CongestionMarkField;
 BOOST_CONCEPT_ASSERT((Field<CongestionMarkField>));
 
 typedef FieldDecl<field_location_tags::Header,
@@ -94,17 +108,18 @@ typedef FieldDecl<field_location_tags::Header,
                   PrefixAnnouncement,
                   tlv::PrefixAnnouncement> PrefixAnnouncementField;
 BOOST_CONCEPT_ASSERT((Field<PrefixAnnouncementField>));
-/**
- * The value of the wire encoded field is the data between the provided iterators. During
- * encoding, the data is copied from the Buffer into the wire buffer.
+
+/** \brief Declare the Fragment field.
+ *
+ *  The fragment (i.e. payload) is the bytes between two provided iterators. During encoding,
+ *  these bytes are copied from the Buffer into the LpPacket.
  */
 typedef FieldDecl<field_location_tags::Fragment,
                   std::pair<Buffer::const_iterator, Buffer::const_iterator>,
                   tlv::Fragment> FragmentField;
 BOOST_CONCEPT_ASSERT((Field<FragmentField>));
 
-/**
- * \brief set of all field declarations
+/** \brief Set of all field declarations.
  */
 typedef boost::mpl::set<
   FragmentField,
