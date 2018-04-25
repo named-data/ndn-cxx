@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,7 +38,7 @@ namespace util {
 enum class LogLevel;
 class Logger;
 
-/** \brief controls the logging facility
+/** \brief Controls the logging facility.
  *
  *  \note Public static methods are thread safe.
  *        Non-public methods are not guaranteed to be thread safe.
@@ -46,65 +46,60 @@ class Logger;
 class Logging : noncopyable
 {
 public:
-  /** \brief register a new logger
-   *  \note App should declare a new logger with \p NDN_LOG_INIT macro.
-   */
-  static void
-  addLogger(Logger& logger);
-
-  /** \brief get list of names of all registered loggers
+  /** \brief Get list of all registered logger names.
    */
   static std::set<std::string>
   getLoggerNames();
 
-  /** \brief set severity level
-   *  \param prefix logger prefix; this can be a specific logger name, a general prefix like ndn.a.*
-   *   to apply a setting for all modules that contain this prefix, or "*" for all modules
+  /** \brief Set severity level.
+   *  \param prefix logger prefix; this can be a specific logger name, a general prefix like
+   *                `"ndn.a.*"` to apply a setting for all modules that contain that prefix,
+   *                or `"*"` for all modules
    *  \param level minimum severity level
    *
-   *  Log messages are output only if its severity is greater than the set minimum severity level.
-   *  Initial default severity level is \p LogLevel::NONE which enables FATAL only.
+   *  Log messages are output only if their severity is greater than the current minimum severity
+   *  level. The initial severity level is \c LogLevel::NONE, which enables FATAL messages only.
    */
   static void
   setLevel(const std::string& prefix, LogLevel level);
 
-  /** \brief set severity levels with a config string
-   *  \param config colon-separate key=value pairs
+  /** \brief Set severity levels with a config string.
+   *  \param config colon-separated `key=value` pairs
    *  \throw std::invalid_argument config string is malformed
    *
    *  \code
-   *  Logging::setSeverityLevels("*=INFO:Face=DEBUG:NfdController=WARN");
+   *  Logging::setLevel("*=INFO:Face=DEBUG:NfdController=WARN");
    *  \endcode
-   *  is equivalent to
+   *  is equivalent to:
    *  \code
-   *  Logging::setSeverityLevel("*", LogLevel::INFO);
-   *  Logging::setSeverityLevel("Face", LogLevel::DEBUG);
-   *  Logging::setSeverityLevel("NfdController", LogLevel::WARN);
+   *  Logging::setLevel("*", LogLevel::INFO);
+   *  Logging::setLevel("Face", LogLevel::DEBUG);
+   *  Logging::setLevel("NfdController", LogLevel::WARN);
    *  \endcode
    */
   static void
   setLevel(const std::string& config);
 
-  /** \brief set log destination
+  /** \brief Set log destination.
    *  \param os a stream for log output
    *
-   *  Initial destination is \p std::clog .
+   *  The initial destination is `std::clog`.
    */
   static void
   setDestination(shared_ptr<std::ostream> os);
 
-  /** \brief set log destination
-   *  \param os a stream for log output; caller must ensure this is valid
-   *            until setDestination is invoked again or program exits
+  /** \brief Set log destination.
+   *  \param os a stream for log output; caller must ensure it remains valid
+   *            until setDestination() is invoked again or program exits
    *
-   *  This is equivalent to setDestination(shared_ptr<std::ostream>(&os, nullDeleter))
+   *  This is equivalent to `setDestination(shared_ptr<std::ostream>(&os, nullDeleter))`.
    */
   static void
   setDestination(std::ostream& os);
 
-  /** \brief flush log backend
+  /** \brief Flush log backend.
    *
-   *  This ensures log messages are written to the destination stream.
+   *  This ensures all log messages are written to the destination stream.
    */
   static void
   flush();
@@ -115,11 +110,14 @@ private:
   void
   addLoggerImpl(Logger& logger);
 
+  void
+  registerLoggerNameImpl(std::string name);
+
   std::set<std::string>
   getLoggerNamesImpl() const;
 
   /**
-   * \brief finds the appropriate LogLevel for a logger
+   * \brief Finds the appropriate LogLevel for a logger.
    * \param moduleName name of logger
    *
    * This searches m_enabledLevel map to determine which LogLevel is appropriate for
@@ -131,7 +129,7 @@ private:
    * found.
    */
   LogLevel
-  findLevel(const std::string& moduleName) const;
+  findLevel(std::string moduleName) const;
 
   void
   setLevelImpl(const std::string& prefix, LogLevel level);
@@ -167,20 +165,16 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 #endif // NDN_CXX_HAVE_TESTS
 
 private:
+  friend Logger;
+
   mutable std::mutex m_mutex;
   std::unordered_map<std::string, LogLevel> m_enabledLevel; ///< module prefix => minimum level
-  std::unordered_multimap<std::string, Logger*> m_loggers; ///< moduleName => logger
+  std::unordered_multimap<std::string, Logger*> m_loggers; ///< module name => logger instance
 
-  shared_ptr<std::ostream> m_destination;
-  typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> Sink;
+  using Sink = boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend>;
   boost::shared_ptr<Sink> m_sink;
+  shared_ptr<std::ostream> m_destination;
 };
-
-inline void
-Logging::addLogger(Logger& logger)
-{
-  get().addLoggerImpl(logger);
-}
 
 inline std::set<std::string>
 Logging::getLoggerNames()

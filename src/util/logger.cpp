@@ -101,14 +101,24 @@ isValidLoggerName(const std::string& name)
   return true;
 }
 
-Logger::Logger(const std::string& name)
+Logger::Logger(const char* name)
   : m_moduleName(name)
 {
-  if (!isValidLoggerName(name)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name '" + name + "' is invalid"));
+  if (!isValidLoggerName(m_moduleName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name '" + m_moduleName + "' is invalid"));
   }
   this->setLevel(LogLevel::NONE);
-  Logging::addLogger(*this);
+  Logging::get().addLoggerImpl(*this);
+}
+
+void
+Logger::registerModuleName(const char* name)
+{
+  std::string moduleName(name);
+  if (!isValidLoggerName(moduleName)) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name '" + moduleName + "' is invalid"));
+  }
+  Logging::get().registerLoggerNameImpl(std::move(moduleName));
 }
 
 namespace detail {

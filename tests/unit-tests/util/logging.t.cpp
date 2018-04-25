@@ -31,8 +31,6 @@ namespace tests {
 
 NDN_LOG_INIT(ndn.util.tests.Logging);
 
-using boost::test_tools::output_test_stream;
-
 void
 logFromModule1();
 
@@ -43,7 +41,7 @@ void
 logFromFilterModule();
 
 static void
-logFromNewLogger(const std::string& moduleName)
+logFromNewLogger(const char* moduleName)
 {
   Logger logger(moduleName);
   auto ndn_cxx_getLogger = [&logger] () -> Logger& { return logger; };
@@ -98,8 +96,10 @@ public:
   }
 
 private:
-  NDN_LOG_MEMBER_INIT(ndn.util.tests.ClassWithLogger);
+  NDN_LOG_MEMBER_DECL();
 };
+
+NDN_LOG_MEMBER_INIT(ClassWithLogger, ndn.util.tests.ClassWithLogger);
 
 template<class T, class U>
 class ClassTemplateWithLogger
@@ -150,7 +150,7 @@ protected:
   }
 
 protected:
-  output_test_stream os;
+  boost::test_tools::output_test_stream os;
 
 private:
   std::unordered_map<std::string, LogLevel> m_oldEnabledLevel;
@@ -162,9 +162,12 @@ BOOST_FIXTURE_TEST_SUITE(TestLogging, LoggingFixture)
 
 BOOST_AUTO_TEST_CASE(GetLoggerNames)
 {
-  NDN_LOG_TRACE("GetLoggerNames"); // to avoid unused function warning
+  // check that all names are registered from the start even if
+  // logger instances are lazily created on first use
+  auto n = Logging::getLoggerNames().size();
+  NDN_LOG_TRACE("GetLoggerNames");
   auto names = Logging::getLoggerNames();
-  BOOST_CHECK(!names.empty());
+  BOOST_CHECK_EQUAL(names.size(), n);
   BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Logging"), 1);
 }
 
@@ -279,6 +282,10 @@ BOOST_AUTO_TEST_CASE(NamespaceLogger)
   BOOST_CHECK_EQUAL(levels.at("ndn.util.tests.ns1"), LogLevel::INFO);
   BOOST_CHECK_EQUAL(levels.at("ndn.util.tests.ns2"), LogLevel::DEBUG);
 
+  const auto& names = Logging::getLoggerNames();
+  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.ns1"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.ns2"), 1);
+
   ns1::logFromNamespace1();
   ns2::logFromNamespace2();
 
@@ -294,6 +301,11 @@ BOOST_AUTO_TEST_CASE(MemberLogger)
   Logging::setLevel("ndn.util.tests.ClassWithLogger", LogLevel::INFO);
   Logging::setLevel("ndn.util.tests.Specialized1", LogLevel::INFO);
   // ndn.util.tests.Specialized2 is not enabled
+
+  const auto& names = Logging::getLoggerNames();
+  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.ClassWithLogger"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Specialized1"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Specialized2"), 1);
 
   ClassWithLogger::logFromStaticMemberFunction();
   ClassWithLogger{}.logFromConstMemberFunction();
@@ -321,6 +333,8 @@ BOOST_AUTO_TEST_CASE(SameNameLoggers)
   Logging::setLevel("Module1", LogLevel::WARN);
   logFromModule1();
   logFromNewLogger("Module1");
+
+  BOOST_CHECK_EQUAL(Logging::getLoggerNames().count("Module1"), 1);
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
@@ -603,6 +617,8 @@ BOOST_AUTO_TEST_SUITE_END() // SeverityConfig
 
 BOOST_AUTO_TEST_CASE(ChangeDestination)
 {
+  using boost::test_tools::output_test_stream;
+
   logFromModule1();
 
   auto os2 = make_shared<output_test_stream>();

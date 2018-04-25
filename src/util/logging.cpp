@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,8 +68,14 @@ Logging::addLoggerImpl(Logger& logger)
   const std::string& moduleName = logger.getModuleName();
   m_loggers.emplace(moduleName, &logger);
 
-  LogLevel level = findLevel(moduleName);
-  logger.setLevel(level);
+  logger.setLevel(findLevel(moduleName));
+}
+
+void
+Logging::registerLoggerNameImpl(std::string name)
+{
+  std::lock_guard<std::mutex> lock(m_mutex);
+  m_loggers.emplace(std::move(name), nullptr);
 }
 
 std::set<std::string>
@@ -83,9 +89,8 @@ Logging::getLoggerNamesImpl() const
 }
 
 LogLevel
-Logging::findLevel(const std::string& moduleName) const
+Logging::findLevel(std::string mn) const
 {
-  std::string mn = moduleName;
   while (!mn.empty()) {
     auto it = m_enabledLevel.find(mn);
     if (it != m_enabledLevel.end()) {
@@ -109,13 +114,9 @@ Logging::findLevel(const std::string& moduleName) const
       mn = "";
     }
   }
+
   auto it = m_enabledLevel.find(mn);
-  if (it != m_enabledLevel.end()) {
-    return it->second;
-  }
-  else {
-    return INITIAL_DEFAULT_LEVEL;
-  }
+  return it != m_enabledLevel.end() ? it->second : INITIAL_DEFAULT_LEVEL;
 }
 
 #ifdef NDN_CXX_HAVE_TESTS
@@ -155,17 +156,19 @@ Logging::setLevelImpl(const std::string& prefix, LogLevel level)
     }
     m_enabledLevel[p] = level;
 
-    for (auto&& it : m_loggers) {
-      if (it.first.compare(0, p.size(), p) == 0) {
-        it.second->setLevel(level);
+    for (const auto& pair : m_loggers) {
+      if (pair.first.compare(0, p.size(), p) == 0 && pair.second != nullptr) {
+        pair.second->setLevel(level);
       }
     }
   }
   else {
     m_enabledLevel[prefix] = level;
     auto range = boost::make_iterator_range(m_loggers.equal_range(prefix));
-    for (auto&& it : range) {
-      it.second->setLevel(level);
+    for (const auto& pair : range) {
+      if (pair.second != nullptr) {
+        pair.second->setLevel(level);
+      }
     }
   }
 }
