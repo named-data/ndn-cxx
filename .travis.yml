@@ -36,6 +36,12 @@ matrix:
         apt:
           sources: ubuntu-toolchain-r-test
           packages: g++-7
+    - os: linux
+      env: COMPILER=g++-8
+      addons:
+        apt:
+          sources: ubuntu-toolchain-r-test
+          packages: g++-8
 
     # Linux/clang
     # https://apt.llvm.org/
@@ -101,18 +107,15 @@ matrix:
       osx_image: xcode8.3
       env: OSX_VERSION=10.12
     - os: osx
-      osx_image: xcode9.2
-      env: OSX_VERSION=10.12
-    - os: osx
-      osx_image: xcode9.2
-      env: OSX_VERSION=10.12 USE_OPENSSL_1_1=yes
-    - os: osx
-      osx_image: xcode9.3beta
+      osx_image: xcode9.3
       env: OSX_VERSION=10.13
+    - os: osx
+      osx_image: xcode9.3
+      env: OSX_VERSION=10.13 USE_OPENSSL_1_1=yes
 
   allow_failures:
     - env: COMPILER=clang++-7
-    - env: OSX_VERSION=10.12 USE_OPENSSL_1_1=yes
+    - env: OSX_VERSION=10.13 USE_OPENSSL_1_1=yes
 
   fast_finish: true
 
