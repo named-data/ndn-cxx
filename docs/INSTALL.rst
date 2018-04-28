@@ -9,9 +9,9 @@ Supported platforms
 ndn-cxx uses continuous integration and has been tested on the following
 platforms:
 
--  Ubuntu 14.04 (64-bit)
--  Ubuntu 16.04 (64-bit and 32-bit)
--  Ubuntu 17.10 (64-bit)
+-  Ubuntu 14.04 (amd64)
+-  Ubuntu 16.04 (amd64, armhf, i386)
+-  Ubuntu 18.04 (amd64)
 -  OS X 10.11
 -  macOS 10.12
 -  macOS 10.13
@@ -19,11 +19,10 @@ platforms:
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
 
--  Fedora >= 20
--  CentOS >= 6.2
+-  Debian >= 9
+-  Fedora >= 24
 -  Gentoo Linux
--  FreeBSD >= 10.0
--  Raspbian >= 3.12
+-  Raspbian >= 2017-08-16
 
 Prerequisites
 -------------
@@ -31,7 +30,7 @@ Prerequisites
 Required:
 ~~~~~~~~~
 
--  ``python`` >= 2.6
+-  ``python2`` >= 2.7, or ``python3`` >= 3.4
 -  ``libsqlite3``
 -  OpenSSL >= 1.0.1
 -  ``pkg-config``
