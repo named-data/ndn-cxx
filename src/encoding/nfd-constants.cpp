@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -115,6 +115,8 @@ operator>>(std::istream& is, RouteOrigin& routeOrigin)
     routeOrigin = ROUTE_ORIGIN_AUTOCONF;
   else if (iequals(s, "nlsr"))
     routeOrigin = ROUTE_ORIGIN_NLSR;
+  else if (iequals(s, "selflearning"))
+    routeOrigin = ROUTE_ORIGIN_SELFLEARNING;
   else if (iequals(s, "static"))
     routeOrigin = ROUTE_ORIGIN_STATIC;
   else {
@@ -158,6 +160,8 @@ operator<<(std::ostream& os, RouteOrigin routeOrigin)
       return os << "autoconf";
     case ROUTE_ORIGIN_NLSR:
       return os << "nlsr";
+    case ROUTE_ORIGIN_SELFLEARNING:
+      return os << "selflearning";
     case ROUTE_ORIGIN_STATIC:
       return os << "static";
   }

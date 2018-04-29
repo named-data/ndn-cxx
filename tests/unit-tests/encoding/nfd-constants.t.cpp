@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -96,6 +96,7 @@ BOOST_AUTO_TEST_CASE(ParseRouteOrigin)
   expectSuccess("Client", ROUTE_ORIGIN_CLIENT);
   expectSuccess("AutoConf", ROUTE_ORIGIN_AUTOCONF);
   expectSuccess("NLSR", ROUTE_ORIGIN_NLSR);
+  expectSuccess("SelfLearning", ROUTE_ORIGIN_SELFLEARNING);
   expectSuccess("static", ROUTE_ORIGIN_STATIC);
   expectSuccess("27", static_cast<RouteOrigin>(27));
 
@@ -118,6 +119,7 @@ BOOST_AUTO_TEST_CASE(PrintRouteOrigin)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_CLIENT), "client");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_AUTOCONF), "autoconf");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_NLSR), "nlsr");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_SELFLEARNING), "selflearning");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_STATIC), "static");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteOrigin>(27)), "27");
 }

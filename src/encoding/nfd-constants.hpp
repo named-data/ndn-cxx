@@ -97,13 +97,14 @@ enum CsFlagBit {
 /** \ingroup management
  */
 enum RouteOrigin : uint16_t {
-  ROUTE_ORIGIN_NONE     = std::numeric_limits<uint16_t>::max(),
-  ROUTE_ORIGIN_APP      = 0,
-  ROUTE_ORIGIN_AUTOREG  = 64,
-  ROUTE_ORIGIN_CLIENT   = 65,
-  ROUTE_ORIGIN_AUTOCONF = 66,
-  ROUTE_ORIGIN_NLSR     = 128,
-  ROUTE_ORIGIN_STATIC   = 255,
+  ROUTE_ORIGIN_NONE          = std::numeric_limits<uint16_t>::max(),
+  ROUTE_ORIGIN_APP           = 0,
+  ROUTE_ORIGIN_AUTOREG       = 64,
+  ROUTE_ORIGIN_CLIENT        = 65,
+  ROUTE_ORIGIN_AUTOCONF      = 66,
+  ROUTE_ORIGIN_NLSR          = 128,
+  ROUTE_ORIGIN_SELFLEARNING  = 129,
+  ROUTE_ORIGIN_STATIC        = 255,
 };
 
 /** \brief extract RouteOrigin from stream
