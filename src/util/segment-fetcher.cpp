@@ -20,7 +20,6 @@
  */
 
 #include "segment-fetcher.hpp"
-#include "../encoding/buffer-stream.hpp"
 #include "../name-component.hpp"
 #include "../lp/nack.hpp"
 #include "../lp/nack-header.hpp"
@@ -33,17 +32,21 @@ namespace util {
 
 const uint32_t SegmentFetcher::MAX_INTEREST_REEXPRESS = 3;
 
-SegmentFetcher::SegmentFetcher(Face& face,
-                               shared_ptr<security::v2::Validator> validator,
-                               const CompleteCallback& completeCallback,
-                               const ErrorCallback& errorCallback)
+SegmentFetcher::SegmentFetcher(Face& face, security::v2::Validator& validator)
   : m_face(face)
   , m_scheduler(m_face.getIoService())
   , m_validator(validator)
-  , m_completeCallback(completeCallback)
-  , m_errorCallback(errorCallback)
-  , m_buffer(make_shared<OBufferStream>())
 {
+}
+
+shared_ptr<SegmentFetcher>
+SegmentFetcher::start(Face& face,
+                      const Interest& baseInterest,
+                      security::v2::Validator& validator)
+{
+  shared_ptr<SegmentFetcher> fetcher(new SegmentFetcher(face, validator));
+  fetcher->fetchFirstSegment(baseInterest, fetcher);
+  return fetcher;
 }
 
 shared_ptr<SegmentFetcher>
@@ -53,8 +56,10 @@ SegmentFetcher::fetch(Face& face,
                       const CompleteCallback& completeCallback,
                       const ErrorCallback& errorCallback)
 {
-  shared_ptr<security::v2::Validator> validatorPtr(&validator, [] (security::v2::Validator*) {});
-  return fetch(face, baseInterest, validatorPtr, completeCallback, errorCallback);
+  shared_ptr<SegmentFetcher> fetcher = start(face, baseInterest, validator);
+  fetcher->onComplete.connect(completeCallback);
+  fetcher->onError.connect(errorCallback);
+  return fetcher;
 }
 
 shared_ptr<SegmentFetcher>
@@ -64,11 +69,8 @@ SegmentFetcher::fetch(Face& face,
                       const CompleteCallback& completeCallback,
                       const ErrorCallback& errorCallback)
 {
-  shared_ptr<SegmentFetcher> fetcher(new SegmentFetcher(face, validator, completeCallback,
-                                                        errorCallback));
-
-  fetcher->fetchFirstSegment(baseInterest, fetcher);
-
+  auto fetcher = fetch(face, baseInterest, *validator, completeCallback, errorCallback);
+  fetcher->onComplete.connect([validator] (ConstBufferPtr) {});
   return fetcher;
 }
 
@@ -83,7 +85,7 @@ SegmentFetcher::fetchFirstSegment(const Interest& baseInterest,
   m_face.expressInterest(interest,
                          bind(&SegmentFetcher::afterSegmentReceivedCb, this, _1, _2, true, self),
                          bind(&SegmentFetcher::afterNackReceivedCb, this, _1, _2, 0, self),
-                         bind(m_errorCallback, INTEREST_TIMEOUT, "Timeout"));
+                         bind([this] { onError(INTEREST_TIMEOUT, "Timeout"); }));
 }
 
 void
@@ -99,7 +101,7 @@ SegmentFetcher::fetchNextSegment(const Interest& origInterest, const Name& dataN
   m_face.expressInterest(interest,
                          bind(&SegmentFetcher::afterSegmentReceivedCb, this, _1, _2, false, self),
                          bind(&SegmentFetcher::afterNackReceivedCb, this, _1, _2, 0, self),
-                         bind(m_errorCallback, INTEREST_TIMEOUT, "Timeout"));
+                         bind([this] { onError(INTEREST_TIMEOUT, "Timeout"); }));
 }
 
 void
@@ -108,10 +110,10 @@ SegmentFetcher::afterSegmentReceivedCb(const Interest& origInterest,
                                        shared_ptr<SegmentFetcher> self)
 {
   afterSegmentReceived(data);
-  m_validator->validate(data,
-                        bind(&SegmentFetcher::afterValidationSuccess, this, _1,
-                             isSegmentZeroExpected, origInterest, self),
-                        bind(&SegmentFetcher::afterValidationFailure, this, _1, _2));
+  m_validator.validate(data,
+                       bind(&SegmentFetcher::afterValidationSuccess, this, _1,
+                            isSegmentZeroExpected, origInterest, self),
+                       bind(&SegmentFetcher::afterValidationFailure, this, _1, _2));
 
 }
 
@@ -128,28 +130,28 @@ SegmentFetcher::afterValidationSuccess(const Data& data,
       fetchNextSegment(origInterest, data.getName(), 0, self);
     }
     else {
-      m_buffer->write(reinterpret_cast<const char*>(data.getContent().value()),
-                      data.getContent().value_size());
+      m_buffer.write(reinterpret_cast<const char*>(data.getContent().value()),
+                     data.getContent().value_size());
       afterSegmentValidated(data);
       const auto& finalBlockId = data.getFinalBlock();
       if (!finalBlockId || (*finalBlockId > currentSegment)) {
         fetchNextSegment(origInterest, data.getName(), currentSegment.toSegment() + 1, self);
       }
       else {
-        return m_completeCallback(m_buffer->buf());
+        onComplete(m_buffer.buf());
       }
     }
   }
   else {
-    m_errorCallback(DATA_HAS_NO_SEGMENT, "Data Name has no segment number.");
+    onError(DATA_HAS_NO_SEGMENT, "Data Name has no segment number.");
   }
 }
 
 void
 SegmentFetcher::afterValidationFailure(const Data& data, const security::v2::ValidationError& error)
 {
-  return m_errorCallback(SEGMENT_VALIDATION_FAIL, "Segment validation fail " +
-                         boost::lexical_cast<std::string>(error));
+  onError(SEGMENT_VALIDATION_FAIL, "Segment validation fail " +
+                                   boost::lexical_cast<std::string>(error));
 }
 
 
@@ -158,7 +160,7 @@ SegmentFetcher::afterNackReceivedCb(const Interest& origInterest, const lp::Nack
                                     uint32_t reExpressCount, shared_ptr<SegmentFetcher> self)
 {
   if (reExpressCount >= MAX_INTEREST_REEXPRESS) {
-    m_errorCallback(NACK_ERROR, "Nack Error");
+    onError(NACK_ERROR, "Nack Error");
   }
   else {
     switch (nack.getReason()) {
@@ -172,7 +174,7 @@ SegmentFetcher::afterNackReceivedCb(const Interest& origInterest, const lp::Nack
                                        origInterest, reExpressCount, self));
         break;
       default:
-        m_errorCallback(NACK_ERROR, "Nack Error");
+        onError(NACK_ERROR, "Nack Error");
         break;
     }
   }
@@ -196,7 +198,7 @@ SegmentFetcher::reExpressInterest(Interest interest, uint32_t reExpressCount,
                               isSegmentZeroExpected, self),
                          bind(&SegmentFetcher::afterNackReceivedCb, this, _1, _2,
                               ++reExpressCount, self),
-                         bind(m_errorCallback, INTEREST_TIMEOUT, "Timeout"));
+                         bind([this] { onError(INTEREST_TIMEOUT, "Timeout"); }));
 }
 
 } // namespace util

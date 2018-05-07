@@ -71,7 +71,7 @@ public:
   void
   onComplete(const ConstBufferPtr& data)
   {
-    ++nData;
+    ++nCompletions;
     dataSize = data->size();
     dataString = std::string(data->get<char>());
   }
@@ -85,12 +85,19 @@ public:
     advanceClocks(10_ms);
   }
 
+  void
+  connectSignals(shared_ptr<SegmentFetcher> fetcher)
+  {
+    fetcher->onComplete.connect(bind(&Fixture::onComplete, this, _1));
+    fetcher->onError.connect(bind(&Fixture::onError, this, _1));
+  }
+
 public:
   DummyClientFace face;
 
-  uint32_t nErrors = 0;
+  int nErrors = 0;
   uint32_t lastError = 0;
-  uint32_t nData = 0;
+  int nCompletions = 0;
   size_t dataSize = 0;
   std::string dataString;
 };
@@ -98,10 +105,9 @@ public:
 BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
 {
   DummyValidator acceptValidator;
-  SegmentFetcher::fetch(face, Interest("/hello/world", 100_ms),
-                        acceptValidator,
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world", 100_ms),
+                                                             acceptValidator);
+  connectSignals(fetcher);
 
   advanceClocks(1_ms);
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -113,7 +119,7 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
 
   advanceClocks(98_ms);
   BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nData, 0);
+  BOOST_CHECK_EQUAL(nCompletions, 0);
   BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 
   advanceClocks(1_ms, 2);
@@ -123,193 +129,16 @@ BOOST_FIXTURE_TEST_CASE(Timeout, Fixture)
   BOOST_CHECK_EQUAL(face.sentData.size(), 0);
 }
 
-
 BOOST_FIXTURE_TEST_CASE(Basic, Fixture)
 {
   DummyValidator acceptValidator;
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        acceptValidator,
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
-
-  advanceClocks(10_ms);
-
-  face.receive(*makeDataSegment("/hello/world/version0", 0, true));
-  advanceClocks(10_ms);
-
-  BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nData, 1);
-
-  BOOST_CHECK_EQUAL(dataSize, 14);
-
-  const uint8_t buffer[] = "Hello, world!";
-  std::string bufferString(reinterpret_cast<const char*>(buffer));
-
-  BOOST_CHECK_EQUAL(dataString, bufferString);
-
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
-
-  const Interest& interest = face.sentInterests[0];
-  BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
-  BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
-  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
-}
-
-BOOST_FIXTURE_TEST_CASE(NoSegmentInData, Fixture)
-{
-  DummyValidator acceptValidator;
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        acceptValidator,
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
-
-  advanceClocks(10_ms);
-
-  const uint8_t buffer[] = "Hello, world!";
-  auto data = makeData("/hello/world/version0/no-segment");
-  data->setContent(buffer, sizeof(buffer));
-
-  face.receive(*data);
-  advanceClocks(10_ms);
-
-  BOOST_CHECK_EQUAL(nErrors, 1);
-  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::DATA_HAS_NO_SEGMENT));
-  BOOST_CHECK_EQUAL(nData, 0);
-}
-
-BOOST_FIXTURE_TEST_CASE(SegmentValidationFailure, Fixture)
-{
-  DummyValidator rejectValidator(false);
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        rejectValidator,
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 0, true));
-  advanceClocks(10_ms);
-
-  BOOST_CHECK_EQUAL(nErrors, 1);
-  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::SEGMENT_VALIDATION_FAIL));
-  BOOST_CHECK_EQUAL(nData, 0);
-}
-
-BOOST_FIXTURE_TEST_CASE(Triple, Fixture)
-{
-  DummyValidator acceptValidator;
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        acceptValidator,
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 0, false));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 1, false));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 2, true));
-
-  advanceClocks(10_ms);
-
-  BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nData, 1);
-
-  BOOST_CHECK_EQUAL(dataSize, 42);
-
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 3);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
-
-  {
-    const Interest& interest = face.sentInterests[0];
-    BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
-    BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
-    BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
-  }
-
-  {
-    const Interest& interest = face.sentInterests[1];
-    BOOST_CHECK_EQUAL(interest.getName(), "/hello/world/version0/%00%01");
-    BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
-    BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
-  }
-
-  {
-    const Interest& interest = face.sentInterests[2];
-    BOOST_CHECK_EQUAL(interest.getName(),  "/hello/world/version0/%00%02");
-    BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
-    BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
-  }
-}
-
-BOOST_FIXTURE_TEST_CASE(TripleWithInitialSegmentFetching, Fixture)
-{
-  DummyValidator acceptValidator;
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        acceptValidator,
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 1, false));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 0, false));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 1, false));
-
-  advanceClocks(10_ms);
-  face.receive(*makeDataSegment("/hello/world/version0", 2, true));
-
-  advanceClocks(10_ms);
-
-  BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nData, 1);
-
-  BOOST_CHECK_EQUAL(dataSize, 42);
-
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 4);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
-
-  {
-    const Interest& interest = face.sentInterests[0];
-    BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
-    BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
-    BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
-  }
-
-  {
-    const Interest& interest = face.sentInterests[1];
-    BOOST_CHECK_EQUAL(interest.getName(), "/hello/world/version0/%00%00");
-    BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
-    BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
-  }
-
-  {
-    const Interest& interest = face.sentInterests[2];
-    BOOST_CHECK_EQUAL(interest.getName(), "/hello/world/version0/%00%01");
-    BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
-    BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
-  }
-
-  {
-    const Interest& interest = face.sentInterests[3];
-    BOOST_CHECK_EQUAL(interest.getName(),  "/hello/world/version0/%00%02");
-    BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
-    BOOST_CHECK_EQUAL(interest.getChildSelector(), 0);
-  }
-}
-
-BOOST_FIXTURE_TEST_CASE(MultipleSegmentFetching, Fixture)
-{
-  DummyValidator acceptValidator;
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        acceptValidator,
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
+  size_t nAfterSegmentReceived = 0;
+  size_t nAfterSegmentValidated = 0;
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world", 1000_s),
+                                                             acceptValidator);
+  connectSignals(fetcher);
+  fetcher->afterSegmentReceived.connect(bind([&nAfterSegmentReceived] { ++nAfterSegmentReceived; }));
+  fetcher->afterSegmentValidated.connect(bind([&nAfterSegmentValidated] { ++nAfterSegmentValidated; }));
 
   advanceClocks(10_ms);
 
@@ -323,15 +152,38 @@ BOOST_FIXTURE_TEST_CASE(MultipleSegmentFetching, Fixture)
   advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nData, 1);
+  BOOST_CHECK_EQUAL(nCompletions, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentReceived, 401);
+  BOOST_CHECK_EQUAL(nAfterSegmentValidated, 401);
+}
+
+BOOST_FIXTURE_TEST_CASE(MissingSegmentNum, Fixture)
+{
+  DummyValidator acceptValidator;
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world", 1000_s),
+                                                             acceptValidator);
+  connectSignals(fetcher);
+
+  advanceClocks(10_ms);
+
+  const uint8_t buffer[] = "Hello, world!";
+  auto data = makeData("/hello/world/version0/no-segment");
+  data->setContent(buffer, sizeof(buffer));
+
+  face.receive(*data);
+  advanceClocks(10_ms);
+
+  BOOST_CHECK_EQUAL(nErrors, 1);
+  BOOST_CHECK_EQUAL(lastError, static_cast<uint32_t>(SegmentFetcher::DATA_HAS_NO_SEGMENT));
+  BOOST_CHECK_EQUAL(nCompletions, 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(DuplicateNack, Fixture)
 {
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        make_shared<DummyValidator>(true),
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
+  DummyValidator acceptValidator;
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world", 1000_s),
+                                                             acceptValidator);
+  connectSignals(fetcher);
   advanceClocks(10_ms);
 
   // receive nack for the original interest
@@ -348,10 +200,10 @@ BOOST_FIXTURE_TEST_CASE(DuplicateNack, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(CongestionNack, Fixture)
 {
-  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                        make_shared<DummyValidator>(true),
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
+  DummyValidator acceptValidator;
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world", 1000_s),
+                                                             acceptValidator);
+  connectSignals(fetcher);
   advanceClocks(10_ms);
 
   // receive nack for the original interest
@@ -371,11 +223,10 @@ BOOST_FIXTURE_TEST_CASE(SegmentZero, Fixture)
   int nNacks = 2;
 
   ndn::Name interestName("ndn:/A");
-  SegmentFetcher::fetch(face,
-                        Interest(interestName),
-                        make_shared<DummyValidator>(true),
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
+  DummyValidator acceptValidator;
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest(interestName),
+                                                             acceptValidator);
+  connectSignals(fetcher);
 
   advanceClocks(1000_ms);
 
@@ -405,12 +256,12 @@ BOOST_FIXTURE_TEST_CASE(SegmentZero, Fixture)
   BOOST_CHECK_EQUAL(face.sentInterests[5].getName(), ndn::Name("ndn:/A/%00%03"));
 }
 
-BOOST_FIXTURE_TEST_CASE(ZeroComponentName, Fixture)
+BOOST_FIXTURE_TEST_CASE(SingleSegment, Fixture)
 {
-  SegmentFetcher::fetch(face, Interest("ndn:/"),
-                        make_shared<DummyValidator>(true),
-                        bind(&Fixture::onComplete, this, _1),
-                        bind(&Fixture::onError, this, _1));
+  DummyValidator acceptValidator;
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("ndn:/", 1000_s),
+                                                             acceptValidator);
+  connectSignals(fetcher);
   advanceClocks(10_ms);
   nackLastInterest(lp::NackReason::DUPLICATE);
   face.receive(*makeDataSegment("/hello/world", 0, true));
@@ -418,22 +269,18 @@ BOOST_FIXTURE_TEST_CASE(ZeroComponentName, Fixture)
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 2);
   BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), ndn::Name("ndn:/"));
   BOOST_CHECK_EQUAL(face.sentInterests[1].getName(), ndn::Name("ndn:/"));
-  BOOST_REQUIRE_EQUAL(nData, 1);
+  BOOST_REQUIRE_EQUAL(nCompletions, 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(Signals, Fixture)
+BOOST_FIXTURE_TEST_CASE(ValidationFailure, Fixture)
 {
   DummyValidator validator;
-  bool flipResult = false;
-  validator.getPolicy().setResultCallback([&flipResult] (const Name&) {
-      flipResult = !flipResult;
-      return flipResult;
+  validator.getPolicy().setResultCallback([] (const Name& name) {
+      return name.at(-1).toSegment() % 2 == 0;
     });
-  shared_ptr<SegmentFetcher> fetcher =
-    SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
-                          validator,
-                          bind(&Fixture::onComplete, this, _1),
-                          bind(&Fixture::onError, this, _1));
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world", 1000_s),
+                                                             validator);
+  connectSignals(fetcher);
 
   auto data1 = makeDataSegment("/hello/world", 0, false);
   auto data2 = makeDataSegment("/hello/world", 1, true);
@@ -461,6 +308,117 @@ BOOST_FIXTURE_TEST_CASE(Signals, Fixture)
   BOOST_CHECK_EQUAL(nRecvSegments, 2);
   BOOST_CHECK_EQUAL(nValidatedSegments, 1);
   BOOST_CHECK_EQUAL(nErrors, 1);
+}
+
+// Tests deprecated `fetch` API that uses callbacks instead of signals. This test case will be
+// removed when this API is removed.
+BOOST_FIXTURE_TEST_CASE(DeprecatedFetch, Fixture)
+{
+  DummyValidator acceptValidator;
+  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
+                        acceptValidator,
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+
+  advanceClocks(10_ms);
+
+  face.receive(*makeDataSegment("/hello/world/version0", 0, true));
+  advanceClocks(10_ms);
+
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nCompletions, 1);
+
+  BOOST_CHECK_EQUAL(dataSize, 14);
+
+  const uint8_t buffer[] = "Hello, world!";
+  std::string bufferString(reinterpret_cast<const char*>(buffer));
+
+  BOOST_CHECK_EQUAL(dataString, bufferString);
+
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
+
+  const Interest& interest = face.sentInterests[0];
+  BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
+  BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
+}
+
+// Tests deprecated `fetch` API that uses callbacks instead of signals (with an accepting shared_ptr
+// Validator). This test case will be removed when this API is removed.
+BOOST_FIXTURE_TEST_CASE(DeprecatedFetchSharedPtrComplete, Fixture)
+{
+  auto acceptValidator = make_shared<DummyValidator>(true);
+  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
+                        acceptValidator,
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+
+  weak_ptr<DummyValidator> weakValidator = acceptValidator;
+  BOOST_CHECK(!weakValidator.expired());
+  acceptValidator.reset();
+  BOOST_CHECK(!weakValidator.expired());
+
+  advanceClocks(10_ms);
+
+  BOOST_CHECK(!weakValidator.expired());
+  face.receive(*makeDataSegment("/hello/world/version0", 0, true));
+
+  advanceClocks(10_ms);
+
+  BOOST_CHECK(weakValidator.expired());
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nCompletions, 1);
+
+  BOOST_CHECK_EQUAL(dataSize, 14);
+
+  const uint8_t buffer[] = "Hello, world!";
+  std::string bufferString(reinterpret_cast<const char*>(buffer));
+
+  BOOST_CHECK_EQUAL(dataString, bufferString);
+
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
+
+  const Interest& interest = face.sentInterests[0];
+  BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
+  BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
+}
+
+// Tests deprecated `fetch` API that uses callbacks instead of signals (with a rejecting shared_ptr
+// Validator). This test case will be removed when this API is removed.
+BOOST_FIXTURE_TEST_CASE(DeprecatedFetchSharedPtrError, Fixture)
+{
+  auto acceptValidator = make_shared<DummyValidator>(false);
+  SegmentFetcher::fetch(face, Interest("/hello/world", 1000_s),
+                        acceptValidator,
+                        bind(&Fixture::onComplete, this, _1),
+                        bind(&Fixture::onError, this, _1));
+
+  weak_ptr<DummyValidator> weakValidator = acceptValidator;
+  BOOST_CHECK(!weakValidator.expired());
+  acceptValidator.reset();
+  BOOST_CHECK(!weakValidator.expired());
+
+  advanceClocks(10_ms);
+
+  BOOST_CHECK(!weakValidator.expired());
+  face.receive(*makeDataSegment("/hello/world/version0", 0, true));
+
+  advanceClocks(10_ms);
+
+  BOOST_CHECK(weakValidator.expired());
+  BOOST_CHECK_EQUAL(nErrors, 1);
+  BOOST_CHECK_EQUAL(nCompletions, 0);
+
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+  BOOST_CHECK_EQUAL(face.sentData.size(), 0);
+
+  const Interest& interest = face.sentInterests[0];
+  BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
+  BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestSegmentFetcher

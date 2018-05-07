@@ -24,14 +24,12 @@
 
 #include "../common.hpp"
 #include "../face.hpp"
+#include "../encoding/buffer-stream.hpp"
 #include "../security/v2/validator.hpp"
 #include "scheduler.hpp"
 #include "signal.hpp"
 
 namespace ndn {
-
-class OBufferStream;
-
 namespace util {
 
 /**
@@ -107,7 +105,7 @@ public:
    */
   static const uint32_t MAX_INTEREST_REEXPRESS;
 
-  typedef function<void (const ConstBufferPtr& data)> CompleteCallback;
+  typedef function<void (ConstBufferPtr data)> CompleteCallback;
   typedef function<void (uint32_t code, const std::string& msg)> ErrorCallback;
 
   /**
@@ -122,6 +120,32 @@ public:
 
   /**
    * @brief Initiates segment fetching
+   *
+   * @param face         Reference to the Face that should be used to fetch data
+   * @param baseInterest An Interest for the initial segment of requested data.
+   *                     This interest may include a custom InterestLifetime and selectors that will
+   *                     propagate to all subsequent Interests. The only exception is that the
+   *                     initial Interest will be forced to include the "ChildSelector=1" and
+   *                     "MustBeFresh=true" selectors, which will be turned off in subsequent
+   *                     Interests.
+   * @param validator    Reference to the Validator that should be used to validate data. Caller
+   *                     must ensure validator is valid until either onComplete or onError has been
+   *                     signaled.
+   *
+   * @return A shared_ptr to the constructed SegmentFetcher
+   *
+   * Transfer completion, failure, and progress are indicated via signals.
+   */
+  static
+  shared_ptr<SegmentFetcher>
+  start(Face& face,
+        const Interest& baseInterest,
+        security::v2::Validator& validator);
+
+  /**
+   * @brief Initiates segment fetching
+   *
+   * @deprecated Use @c start
    *
    * @param face          Reference to the Face that should be used to fetch data
    * @param baseInterest  An Interest for the initial segment of requested data.
@@ -138,6 +162,7 @@ public:
    * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
    * @return A shared_ptr to the constructed SegmentFetcher
    */
+  NDN_CXX_DEPRECATED_MSG("Use SegmentFetcher::start instead")
   static
   shared_ptr<SegmentFetcher>
   fetch(Face& face,
@@ -148,6 +173,8 @@ public:
 
   /**
    * @brief Initiate segment fetching
+   *
+   * @deprecated Use @c start
    *
    * @param face          Reference to the Face that should be used to fetch data
    * @param baseInterest  An Interest for the initial segment of requested data.
@@ -162,6 +189,7 @@ public:
    * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
    * @return A shared_ptr to the constructed SegmentFetcher
    */
+  NDN_CXX_DEPRECATED_MSG("Use SegmentFetcher::start instead")
   static
   shared_ptr<SegmentFetcher>
   fetch(Face& face,
@@ -171,10 +199,7 @@ public:
         const ErrorCallback& errorCallback);
 
 private:
-  SegmentFetcher(Face& face,
-                 shared_ptr<security::v2::Validator> validator,
-                 const CompleteCallback& completeCallback,
-                 const ErrorCallback& errorCallback);
+  SegmentFetcher(Face& face, security::v2::Validator& validator);
 
   void
   fetchFirstSegment(const Interest& baseInterest, shared_ptr<SegmentFetcher> self);
@@ -206,6 +231,18 @@ private:
 
 public:
   /**
+   * @brief Emits upon successful retrieval of the complete data
+   */
+  Signal<SegmentFetcher, ConstBufferPtr> onComplete;
+
+  /**
+   * @brief Emits when the retrieval could not be completed due to an error
+   *
+   * Handler(s) are provided with an error code and a string error message.
+   */
+  Signal<SegmentFetcher, uint32_t, std::string> onError;
+
+  /**
    * @brief Emits whenever a data segment received
    */
   Signal<SegmentFetcher, Data> afterSegmentReceived;
@@ -218,11 +255,9 @@ public:
 private:
   Face& m_face;
   Scheduler m_scheduler;
-  shared_ptr<security::v2::Validator> m_validator;
-  CompleteCallback m_completeCallback;
-  ErrorCallback m_errorCallback;
+  security::v2::Validator& m_validator;
 
-  shared_ptr<OBufferStream> m_buffer;
+  OBufferStream m_buffer;
 };
 
 } // namespace util
