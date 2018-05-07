@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,19 +26,6 @@
 
 namespace ndn {
 
-// Re: http://www.boost.org/users/history/version_1_56_0.html
-//
-//   Breaking change: corrected behavior of basic_regex<>::mark_count() to match existing
-//   documentation, basic_regex<>::subexpression(n) changed to match, see
-//   https://svn.boost.org/trac/boost/ticket/9227
-//
-static constexpr size_t BOOST_REGEXP_MARK_COUNT_CORRECTION =
-#if BOOST_VERSION < 105600
-    1;
-#else
-    0;
-#endif
-
 RegexComponentMatcher::RegexComponentMatcher(const std::string& expr,
                                              shared_ptr<RegexBackrefManager> backrefManager,
                                              bool isExactMatch)
@@ -56,7 +43,7 @@ RegexComponentMatcher::compile()
   m_pseudoMatchers.clear();
   m_pseudoMatchers.push_back(make_shared<RegexPseudoMatcher>());
 
-  for (size_t i = 1; i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++) {
+  for (size_t i = 1; i <= m_componentRegex.mark_count(); i++) {
     m_pseudoMatchers.push_back(make_shared<RegexPseudoMatcher>());
     m_backrefManager->pushRef(m_pseudoMatchers.back());
   }
@@ -78,7 +65,7 @@ RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
   boost::smatch subResult;
   std::string targetStr = name.get(offset).toUri();
   if (boost::regex_match(targetStr, subResult, m_componentRegex)) {
-    for (size_t i = 1; i <= m_componentRegex.mark_count() - BOOST_REGEXP_MARK_COUNT_CORRECTION; i++) {
+    for (size_t i = 1; i <= m_componentRegex.mark_count(); i++) {
       m_pseudoMatchers[i]->resetMatchResult();
       m_pseudoMatchers[i]->setMatchResult(subResult[i]);
     }

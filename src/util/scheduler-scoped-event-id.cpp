@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,10 +25,8 @@ namespace ndn {
 namespace util {
 namespace scheduler {
 
-#if NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 static_assert(std::is_nothrow_move_constructible<ScopedEventId>::value,
               "ScopedEventId must be MoveConstructible with noexcept");
-#endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 
 ScopedEventId::ScopedEventId(Scheduler& scheduler)
   : m_scheduler(&scheduler)

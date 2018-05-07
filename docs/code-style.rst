@@ -1087,6 +1087,6 @@ member function or a virtual destructor.
 
 3.31. The recommended way to throw an exception derived from ``std::exception`` is to use
 the ``BOOST_THROW_EXCEPTION``
-`macro <http://www.boost.org/doc/libs/1_54_0/libs/exception/doc/BOOST_THROW_EXCEPTION.html>`__.
+`macro <https://www.boost.org/doc/libs/1_58_0/libs/exception/doc/BOOST_THROW_EXCEPTION.html>`__.
 Exceptions thrown using this macro will be augmented with additional diagnostic information,
 including file name, line number, and function name from where the exception was thrown.

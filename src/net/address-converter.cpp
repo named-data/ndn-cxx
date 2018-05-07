@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California,
+ * Copyright (c) 2013-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -27,13 +27,7 @@
 
 #include "address-converter.hpp"
 
-#if BOOST_VERSION < 105800
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <vector>
-#endif // BOOST_VERSION < 105800
-
-#include <net/if.h> // for if_nametoindex and if_indextoname
+#include <net/if.h> // for if_indextoname()
 
 namespace ndn {
 namespace ip {
@@ -49,69 +43,10 @@ scopeNameFromId(unsigned int scopeId)
   return nullopt;
 }
 
-#if BOOST_VERSION < 105800
-static unsigned int
-scopeIdFromString(const std::string& scope)
-{
-  auto id = if_nametoindex(scope.c_str());
-  if (id != 0) {
-    return id;
-  }
-
-  // cannot find a corresponding index, assume it's not a name but an interface index
-  try {
-    return boost::lexical_cast<unsigned int>(scope);
-  }
-  catch (const boost::bad_lexical_cast&) {
-    return 0;
-  }
-}
-
-struct ParsedAddress
-{
-  boost::asio::ip::address addr;
-  std::string scope;
-};
-
-static ParsedAddress
-parseAddressFromString(const std::string& address, boost::system::error_code& ec)
-{
-  std::vector<std::string> parseResult;
-  boost::algorithm::split(parseResult, address, boost::is_any_of("%"));
-  auto addr = boost::asio::ip::address::from_string(parseResult[0], ec);
-
-  switch (parseResult.size()) {
-  case 1:
-    // regular address
-    return {addr, ""};
-  case 2:
-    // the presence of % in either an IPv4 address or a regular IPv6 address is invalid
-    if (!ec && addr.is_v6() && addr.to_v6().is_link_local()) {
-      return {addr, parseResult[1]};
-    }
-    NDN_CXX_FALLTHROUGH;
-  default:
-    ec = boost::asio::error::invalid_argument;
-    return {};
-  }
-}
-#endif // BOOST_VERSION < 105800
-
 boost::asio::ip::address
 addressFromString(const std::string& address, boost::system::error_code& ec)
 {
-  // boost < 1.58 cannot recognize scope-id in link-local IPv6 address
-#if BOOST_VERSION < 105800
-  auto parsedAddress = parseAddressFromString(address, ec);
-  if (ec || parsedAddress.addr.is_v4()) {
-    return parsedAddress.addr;
-  }
-  auto addr = parsedAddress.addr.to_v6();
-  addr.scope_id(scopeIdFromString(parsedAddress.scope));
-  return addr;
-#else
   return boost::asio::ip::address::from_string(address, ec);
-#endif // BOOST_VERSION < 105800
 }
 
 boost::asio::ip::address

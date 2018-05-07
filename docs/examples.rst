@@ -52,7 +52,7 @@ The following example demonstrates how to use :ndn-cxx:`Scheduler` to schedule a
 events for execution at specific points of time.
 
 The library internally uses `boost::asio::io_service
-<http://www.boost.org/doc/libs/1_54_0/doc/html/boost_asio/reference/io_service.html>`_ to
+<https://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio/reference/io_service.html>`_ to
 implement fully asynchronous NDN operations (i.e., sending and receiving Interests and
 Data).  In addition to network-related operations, ``boost::asio::io_service`` can be used
 to execute any arbitrary callback within the processing thread (run either explicitly via

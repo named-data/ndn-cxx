@@ -34,15 +34,10 @@
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Block>));
-#if NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 static_assert(std::is_nothrow_move_constructible<Block>::value,
               "Block must be MoveConstructible with noexcept");
-#endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
-
-#if NDN_CXX_HAVE_IS_NOTHROW_MOVE_ASSIGNABLE
 static_assert(std::is_nothrow_move_assignable<Block>::value,
               "Block must be MoveAssignable with noexcept");
-#endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_ASSIGNABLE
 
 const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = MAX_NDN_PACKET_SIZE;
 
@@ -454,30 +449,14 @@ Block::element_iterator
 Block::erase(Block::element_const_iterator position)
 {
   resetWire();
-
-#ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
   return m_elements.erase(position);
-#else
-  element_iterator it = m_elements.begin();
-  std::advance(it, std::distance(m_elements.cbegin(), position));
-  return m_elements.erase(it);
-#endif
 }
 
 Block::element_iterator
 Block::erase(Block::element_const_iterator first, Block::element_const_iterator last)
 {
   resetWire();
-
-#ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
   return m_elements.erase(first, last);
-#else
-  element_iterator itStart = m_elements.begin();
-  element_iterator itEnd = m_elements.begin();
-  std::advance(itStart, std::distance(m_elements.cbegin(), first));
-  std::advance(itEnd, std::distance(m_elements.cbegin(), last));
-  return m_elements.erase(itStart, itEnd);
-#endif
 }
 
 void
@@ -491,14 +470,7 @@ Block::element_iterator
 Block::insert(Block::element_const_iterator pos, const Block& element)
 {
   resetWire();
-
-#ifdef NDN_CXX_HAVE_VECTOR_INSERT_ERASE_CONST_ITERATOR
   return m_elements.insert(pos, element);
-#else
-  element_iterator it = m_elements.begin();
-  std::advance(it, std::distance(m_elements.cbegin(), pos));
-  return m_elements.insert(it, element);
-#endif
 }
 
 // ---- misc ----

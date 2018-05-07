@@ -9,7 +9,6 @@ Supported platforms
 ndn-cxx uses continuous integration and has been tested on the following
 platforms:
 
--  Ubuntu 14.04 (amd64)
 -  Ubuntu 16.04 (amd64, armhf, i386)
 -  Ubuntu 18.04 (amd64)
 -  OS X 10.11
@@ -30,11 +29,12 @@ Prerequisites
 Required:
 ~~~~~~~~~
 
+-  GCC >= 5.3, or clang >= 3.5
 -  ``python2`` >= 2.7, or ``python3`` >= 3.4
 -  ``libsqlite3``
--  OpenSSL >= 1.0.1
+-  OpenSSL >= 1.0.2
 -  ``pkg-config``
--  Boost libraries >= 1.54
+-  Boost libraries >= 1.58
 -  OSX Security framework (on OSX/macOS platform only)
 
 Following are the detailed steps for each platform to install the compiler, all necessary

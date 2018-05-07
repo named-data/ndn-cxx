@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_UTIL_SIGNAL_SIGNAL_HPP
 
 #include "connection.hpp"
+
 #include <list>
 
 namespace ndn {
@@ -163,7 +164,7 @@ template<typename Owner, typename ...TArgs>
 Connection
 Signal<Owner, TArgs...>::connect(const Handler& handler)
 {
-  typename SlotList::iterator it = m_slots.insert(m_slots.end(), {handler, nullptr});
+  auto it = m_slots.insert(m_slots.end(), {handler, nullptr});
   it->disconnect = make_shared<function<void()>>(bind(&Self::disconnect, this, it));
 
   return signal::Connection(weak_ptr<function<void()>>(it->disconnect));
@@ -173,7 +174,7 @@ template<typename Owner, typename ...TArgs>
 Connection
 Signal<Owner, TArgs...>::connectSingleShot(const Handler& handler)
 {
-  typename SlotList::iterator it = m_slots.insert(m_slots.end(), {nullptr, nullptr});
+  auto it = m_slots.insert(m_slots.end(), {nullptr, nullptr});
   it->disconnect = make_shared<function<void()>>(bind(&Self::disconnect, this, it));
   signal::Connection conn(weak_ptr<function<void()>>(it->disconnect));
 
@@ -189,8 +190,6 @@ template<typename Owner, typename ...TArgs>
 void
 Signal<Owner, TArgs...>::disconnect(typename SlotList::iterator it)
 {
-  // 'it' could be const_iterator, but gcc 4.6 doesn't support std::list::erase(const_iterator)
-
   if (m_isExecuting) {
     // during signal emission, only the currently executing handler can be disconnected
     BOOST_ASSERT_MSG(it == m_currentSlot, "cannot disconnect another handler from a handler");

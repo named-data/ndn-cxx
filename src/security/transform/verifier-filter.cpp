@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,13 +75,7 @@ VerifierFilter::convert(const uint8_t* buf, size_t size)
 void
 VerifierFilter::finalize()
 {
-  int res = EVP_DigestVerifyFinal(m_impl->ctx,
-#if OPENSSL_VERSION_NUMBER < 0x1000200fL
-                                  const_cast<uint8_t*>(m_impl->sig),
-#else
-                                  m_impl->sig,
-#endif
-                                  m_impl->siglen);
+  int res = EVP_DigestVerifyFinal(m_impl->ctx, m_impl->sig, m_impl->siglen);
 
   auto buffer = make_unique<OBuffer>(1);
   (*buffer)[0] = (res == 1) ? 1 : 0;

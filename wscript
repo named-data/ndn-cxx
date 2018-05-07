@@ -11,7 +11,7 @@ GIT_TAG_PREFIX = 'ndn-cxx-'
 
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
-    opt.load(['default-compiler-flags', 'compiler-features', 'type_traits',
+    opt.load(['default-compiler-flags', 'compiler-features',
               'coverage', 'pch', 'sanitizers', 'osx-frameworks',
               'boost', 'openssl', 'sqlite3',
               'doxygen', 'sphinx_build'],
@@ -67,7 +67,7 @@ def configure(conf):
         conf.fatal('Either static library or shared library must be enabled')
 
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
-               'default-compiler-flags', 'compiler-features', 'type_traits',
+               'default-compiler-flags', 'compiler-features',
                'pch', 'osx-frameworks', 'boost', 'openssl', 'sqlite3',
                'doxygen', 'sphinx_build'])
 
@@ -89,15 +89,13 @@ def configure(conf):
                                    'linux/netlink.h', 'linux/rtnetlink.h']):
         conf.env['HAVE_RTNETLINK'] = True
         conf.check_cxx(msg='Checking for IFA_FLAGS', define_name='HAVE_IFA_FLAGS', mandatory=False,
-                       fragment='''
-                       #include <linux/if_addr.h>
-                       int main() { return IFA_FLAGS; }
-                       ''')
+                       fragment='''#include <linux/if_addr.h>
+                                   int main() { return IFA_FLAGS; }''')
 
     conf.check_osx_frameworks()
 
     conf.check_sqlite3(mandatory=True)
-    conf.check_openssl(mandatory=True, atleast_version=0x10001000) # 1.0.1
+    conf.check_openssl(mandatory=True, atleast_version=0x1000200f) # 1.0.2
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
                        'regex', 'program_options', 'chrono', 'thread',
@@ -108,13 +106,10 @@ def configure(conf):
         conf.define('HAVE_TESTS', 1)
 
     conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True, mt=True)
-    if conf.env.BOOST_VERSION_NUMBER < 105400:
-        conf.fatal('Minimum required Boost version is 1.54.0\n'
+    if conf.env.BOOST_VERSION_NUMBER < 105800:
+        conf.fatal('Minimum required Boost version is 1.58.0\n'
                    'Please upgrade your distribution or manually install a newer version of Boost'
                    ' (https://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)')
-
-    if conf.env['CXX_NAME'] == 'clang' and conf.env.BOOST_VERSION_NUMBER < 105800:
-        conf.env.append_value('DEFINES', 'BOOST_ASIO_HAS_STD_ARRAY=1') # Bug #4096
 
     if not conf.options.with_sqlite_locking:
         conf.define('DISABLE_SQLITE3_FS_LOCKING', 1)

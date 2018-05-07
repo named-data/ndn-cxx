@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,14 +25,10 @@ namespace ndn {
 namespace util {
 namespace signal {
 
-#if NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 static_assert(std::is_nothrow_move_constructible<ScopedConnection>::value,
               "ScopedConnection must be MoveConstructible with noexcept");
-#endif // NDN_CXX_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE
 
-ScopedConnection::ScopedConnection()
-{
-}
+ScopedConnection::ScopedConnection() = default;
 
 ScopedConnection::ScopedConnection(const Connection& connection)
   : m_connection(connection)

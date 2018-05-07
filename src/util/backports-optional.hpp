@@ -107,18 +107,7 @@ public:
 };
 constexpr nullopt_t nullopt{0};
 
-#if BOOST_VERSION >= 105600
 using boost::bad_optional_access;
-#else
-class bad_optional_access : public std::logic_error
-{
-public:
-  bad_optional_access()
-    : std::logic_error("bad optional access")
-  {
-  }
-};
-#endif
 
 template<typename T>
 constexpr bool
@@ -241,25 +230,14 @@ public: // observers
   T&
   value()
   {
-#if BOOST_VERSION >= 105600
     return m_boostOptional.value();
-#else
-    if (!m_boostOptional) {
-      BOOST_THROW_EXCEPTION(bad_optional_access());
-    }
-    return m_boostOptional.get();
-#endif
   }
 
   template<typename U>
   constexpr T
   value_or(U&& default_value) const
   {
-#if BOOST_VERSION >= 105600
     return m_boostOptional.value_or(default_value);
-#else
-    return m_boostOptional.get_value_or(default_value);
-#endif
   }
 
 public: // modifiers
