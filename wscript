@@ -343,7 +343,7 @@ def version(ctx):
             else:
                 # no tags matched
                 Context.g_module.VERSION = '%s-commit-%s' % (VERSION_BASE, out)
-    except subprocess.CalledProcessError:
+    except (OSError, subprocess.CalledProcessError):
         pass
 
     versionFile = ctx.path.find_node('VERSION')
