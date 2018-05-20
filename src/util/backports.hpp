@@ -24,10 +24,6 @@
 
 #include "../common.hpp"
 
-#ifndef NDN_CXX_HAVE_STD_TO_STRING
-#include <boost/lexical_cast.hpp>
-#endif
-
 #ifdef __has_cpp_attribute
 #  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
 #else
@@ -39,40 +35,6 @@
 #else
 #  define NDN_CXX_HAS_INCLUDE(x) 0
 #endif
-
-#if (__cplusplus >= 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(deprecated)
-#  define NDN_CXX_DEPRECATED_MSG(msg) [[deprecated(msg)]]
-#elif NDN_CXX_HAS_CPP_ATTRIBUTE(gnu::deprecated)
-#  define NDN_CXX_DEPRECATED_MSG(msg) [[gnu::deprecated(msg)]]
-#elif defined(__GNUC__)
-#  define NDN_CXX_DEPRECATED_MSG(msg) __attribute__((deprecated(msg)))
-#else
-#  define NDN_CXX_DEPRECATED_MSG(msg)
-#endif
-
-/** \brief Mark a type, variable, or function as deprecated.
- *
- *  To deprecate a type \c DeprecatedType:
- *  \code
- *  typedef ModernType DeprecatedType NDN_CXX_DEPRECATED;
- *  \endcode
- *  This macro can only be applied to a typedef, not directly on a class.
- *
- *  To deprecate a variable or class member \c deprecatedVar:
- *  \code
- *  int deprecatedVar NDN_CXX_DEPRECATED;
- *  \endcode
- *
- *  To deprecate a function \c deprecatedFunc:
- *  \code
- *  NDN_CXX_DEPRECATED
- *  void
- *  deprecatedFunc(int a, NamedEnum b)
- *  {
- *  }
- *  \endcode
- */
-#define NDN_CXX_DEPRECATED NDN_CXX_DEPRECATED_MSG("")
 
 #if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)
 #  define NDN_CXX_FALLTHROUGH [[fallthrough]]
@@ -86,18 +48,14 @@
 #  define NDN_CXX_FALLTHROUGH ((void)0)
 #endif
 
-namespace ndn {
+#include "backports-ostream-joiner.hpp"
+#include "nonstd/optional.hpp"
 
-#if __cpp_lib_make_unique >= 201304
-using std::make_unique;
-#else
-template<typename T, typename ...Args>
-inline unique_ptr<T>
-make_unique(Args&&... args)
-{
-  return unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-#endif // __cpp_lib_make_unique
+#ifndef NDN_CXX_HAVE_STD_TO_STRING
+#include <boost/lexical_cast.hpp>
+#endif
+
+namespace ndn {
 
 #ifdef NDN_CXX_HAVE_STD_TO_STRING
 using std::to_string;
@@ -128,9 +86,14 @@ clamp(const T& v, const T& lo, const T& hi)
 }
 #endif // __cpp_lib_clamp
 
-} // namespace ndn
+using ::nonstd::optional;
+using ::nonstd::bad_optional_access;
+using ::nonstd::nullopt;
+using ::nonstd::nullopt_t;
+using ::nonstd::in_place;
+using ::nonstd::in_place_t;
+using ::nonstd::make_optional;
 
-#include "backports-optional.hpp"
-#include "backports-ostream-joiner.hpp"
+} // namespace ndn
 
 #endif // NDN_UTIL_BACKPORTS_HPP

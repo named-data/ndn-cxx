@@ -6,7 +6,7 @@
 # (similar to running all test cases), instead of failing at the first error.
 
 CXX=${CXX:-g++}
-STD=-std=c++11
+STD=-std=c++14
 CXXFLAGS="-O2 -Wall -Wno-unused-local-typedef $(pkg-config --cflags libndn-cxx)"
 INCLUDEDIR="$(pkg-config --variable=includedir libndn-cxx)"/ndn-cxx
 

@@ -30,9 +30,9 @@
 
 namespace ndn {
 
-/** @brief Represents a Data packet
+/** @brief Represents a Data packet.
  */
-class Data : public PacketBase, public enable_shared_from_this<Data>
+class Data : public PacketBase, public std::enable_shared_from_this<Data>
 {
 public:
   class Error : public tlv::Error
@@ -234,14 +234,14 @@ public: // MetaInfo fields
   /** @deprecated Use @c getFinalBlock
    *  @sa MetaInfo::getFinalBlockId
    */
-  NDN_CXX_DEPRECATED
+  [[deprecated("use getFinalBlock")]]
   name::Component
   getFinalBlockId() const;
 
   /** @deprecated Use @c setFinalBlock
    *  @sa MetaInfo::setFinalBlockId
    */
-  NDN_CXX_DEPRECATED
+  [[deprecated("use setFinalBlock")]]
   Data&
   setFinalBlockId(const name::Component& finalBlockId);
 

@@ -106,7 +106,8 @@ enum {
   Any                       = 19,
 };
 
-constexpr int NameComponent NDN_CXX_DEPRECATED = GenericNameComponent;
+[[deprecated("use GenericNameComponent")]]
+constexpr int NameComponent = GenericNameComponent;
 
 enum SignatureTypeValue : uint16_t {
   DigestSha256 = 0,
@@ -518,7 +519,6 @@ writeNonNegativeInteger(std::ostream& os, uint64_t integer)
     return 8;
   }
 }
-
 
 } // namespace tlv
 } // namespace ndn

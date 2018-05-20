@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,13 +31,13 @@
 
 namespace ndn {
 
-/** \brief implementation detail of a Boost.Asio-based stream-oriented transport
+/** \brief Implementation detail of a Boost.Asio-based stream-oriented transport.
  *  \tparam BaseTransport a subclass of Transport
- *  \tparam Protocol a Boost.Asio stream-oriented protocol, including boost::asio::ip::tcp
- *                   and boost::asio::local::stream_protocol
+ *  \tparam Protocol a Boost.Asio stream-oriented protocol, e.g. boost::asio::ip::tcp
+ *                   or boost::asio::local::stream_protocol
  */
 template<typename BaseTransport, typename Protocol>
-class StreamTransportImpl : public enable_shared_from_this<StreamTransportImpl<BaseTransport, Protocol>>
+class StreamTransportImpl : public std::enable_shared_from_this<StreamTransportImpl<BaseTransport, Protocol>>
 {
 public:
   typedef StreamTransportImpl<BaseTransport, Protocol> Impl;

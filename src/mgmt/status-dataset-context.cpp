@@ -86,7 +86,7 @@ StatusDatasetContext::append(const Block& block)
                    makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size()),
                    m_expiry, false);
 
-      m_buffer = std::make_shared<EncodingBuffer>();
+      m_buffer = make_shared<EncodingBuffer>();
     }
   }
 }

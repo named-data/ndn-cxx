@@ -162,7 +162,7 @@ public:
    * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
    * @return A shared_ptr to the constructed SegmentFetcher
    */
-  NDN_CXX_DEPRECATED_MSG("Use SegmentFetcher::start instead")
+  [[deprecated("use SegmentFetcher::start instead")]]
   static
   shared_ptr<SegmentFetcher>
   fetch(Face& face,
@@ -189,7 +189,7 @@ public:
    * @param errorCallback       Callback to be fired when an error occurs (@see Errors)
    * @return A shared_ptr to the constructed SegmentFetcher
    */
-  NDN_CXX_DEPRECATED_MSG("Use SegmentFetcher::start instead")
+  [[deprecated("use SegmentFetcher::start instead")]]
   static
   shared_ptr<SegmentFetcher>
   fetch(Face& face,

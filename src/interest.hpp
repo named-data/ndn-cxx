@@ -39,7 +39,7 @@ const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 
 /** @brief Represents an Interest packet.
  */
-class Interest : public PacketBase, public enable_shared_from_this<Interest>
+class Interest : public PacketBase, public std::enable_shared_from_this<Interest>
 {
 public:
   class Error : public tlv::Error
@@ -272,21 +272,21 @@ public: // element access
 public: // Selectors (deprecated)
   /** @brief Check if Interest has any selector present.
    */
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   bool
   hasSelectors() const
   {
     return !m_selectors.empty();
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   const Selectors&
   getSelectors() const
   {
     return m_selectors;
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   Interest&
   setSelectors(const Selectors& selectors)
   {
@@ -295,14 +295,14 @@ public: // Selectors (deprecated)
     return *this;
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   int
   getMinSuffixComponents() const
   {
     return m_selectors.getMinSuffixComponents();
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   Interest&
   setMinSuffixComponents(int minSuffixComponents)
   {
@@ -311,14 +311,14 @@ public: // Selectors (deprecated)
     return *this;
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   int
   getMaxSuffixComponents() const
   {
     return m_selectors.getMaxSuffixComponents();
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   Interest&
   setMaxSuffixComponents(int maxSuffixComponents)
   {
@@ -327,14 +327,14 @@ public: // Selectors (deprecated)
     return *this;
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   const KeyLocator&
   getPublisherPublicKeyLocator() const
   {
     return m_selectors.getPublisherPublicKeyLocator();
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   Interest&
   setPublisherPublicKeyLocator(const KeyLocator& keyLocator)
   {
@@ -343,14 +343,14 @@ public: // Selectors (deprecated)
     return *this;
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   const Exclude&
   getExclude() const
   {
     return m_selectors.getExclude();
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   Interest&
   setExclude(const Exclude& exclude)
   {
@@ -359,14 +359,14 @@ public: // Selectors (deprecated)
     return *this;
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   int
   getChildSelector() const
   {
     return m_selectors.getChildSelector();
   }
 
-  NDN_CXX_DEPRECATED
+  [[deprecated]]
   Interest&
   setChildSelector(int childSelector)
   {

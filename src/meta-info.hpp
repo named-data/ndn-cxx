@@ -34,7 +34,7 @@ namespace ndn {
 const time::milliseconds DEFAULT_FRESHNESS_PERIOD = time::milliseconds::zero();
 
 /**
- * An MetaInfo holds the meta info which is signed inside the data packet.
+ * A MetaInfo holds the meta info which is signed inside the data packet.
  *
  * The class allows experimentation with application-defined meta information blocks,
  * which slightly violates NDN-TLV specification.  When using the application-defined
@@ -138,7 +138,7 @@ public: // getter/setter
    *  If FinalBlockId element is omitted, returns a default-constructed @c name::Component.
    *  This is indistinguishable from having an empty GenericNameComponent as FinalBlockId.
    */
-  NDN_CXX_DEPRECATED
+  [[deprecated("use getFinalBlock")]]
   name::Component
   getFinalBlockId() const
   {
@@ -151,7 +151,7 @@ public: // getter/setter
    *  Passing a default-constructed @c name::Component removes FinalBlockId element.
    *  This API does not support adding an empty GenericNameComponent as FinalBlockId.
    */
-  NDN_CXX_DEPRECATED
+  [[deprecated("use setFinalBlock")]]
   MetaInfo&
   setFinalBlockId(const name::Component& finalBlockId);
 

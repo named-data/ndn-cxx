@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,15 +44,14 @@
 #define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE private
 #endif
 
-// require C++11
-#if __cplusplus < 201103L && !defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  error "ndn-cxx applications must be compiled using the C++11 standard (-std=c++11)"
+// require C++14
+#if __cplusplus < 201402L
+#error "ndn-cxx applications must be compiled using the C++14 standard (-std=c++14)"
 #endif
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <exception>
 #include <functional>
 #include <iosfwd>
 #include <limits>
@@ -68,9 +67,8 @@ namespace ndn {
 using std::shared_ptr;
 using std::unique_ptr;
 using std::weak_ptr;
-using std::bad_weak_ptr;
 using std::make_shared;
-using std::enable_shared_from_this;
+using std::make_unique;
 
 using std::static_pointer_cast;
 using std::dynamic_pointer_cast;
