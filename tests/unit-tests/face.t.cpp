@@ -299,6 +299,23 @@ BOOST_AUTO_TEST_CASE(DestructionWithoutCancellingPendingInterests) // Bug #2518
   BOOST_CHECK(true);
 }
 
+BOOST_AUTO_TEST_CASE(DataCallbackPutData) // Bug 4596
+{
+  face.expressInterest(Interest("/localhost/notification/1"),
+                       [&] (const Interest& i, const Data& d) {
+                         face.put(*makeData("/chronosync/sampleDigest/1"));
+                       }, nullptr, nullptr);
+  advanceClocks(10_ms);
+  BOOST_CHECK_EQUAL(face.sentInterests.back().getName(), "/localhost/notification/1");
+
+  face.receive(Interest("/chronosync/sampleDigest"));
+  advanceClocks(10_ms);
+
+  face.put(*makeData("/localhost/notification/1"));
+  advanceClocks(10_ms);
+  BOOST_CHECK_EQUAL(face.sentData.back().getName(), "/chronosync/sampleDigest/1");
+}
+
 BOOST_AUTO_TEST_SUITE_END() // Consumer
 
 BOOST_AUTO_TEST_SUITE(Producer)

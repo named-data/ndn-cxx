@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -183,7 +183,7 @@ Face::expressInterest(const Interest& interest,
   shared_ptr<Interest> interest2 = make_shared<Interest>(interest);
   interest2->getNonce();
 
-  IO_CAPTURE_WEAK_IMPL(dispatch) {
+  IO_CAPTURE_WEAK_IMPL(post) {
     impl->asyncExpressInterest(interest2, afterSatisfied, afterNacked, afterTimeout);
   } IO_CAPTURE_WEAK_IMPL_END
 
@@ -215,7 +215,7 @@ Face::getNPendingInterests() const
 void
 Face::put(Data data)
 {
-  IO_CAPTURE_WEAK_IMPL(dispatch) {
+  IO_CAPTURE_WEAK_IMPL(post) {
     impl->asyncPutData(data);
   } IO_CAPTURE_WEAK_IMPL_END
 }
@@ -223,7 +223,7 @@ Face::put(Data data)
 void
 Face::put(lp::Nack nack)
 {
-  IO_CAPTURE_WEAK_IMPL(dispatch) {
+  IO_CAPTURE_WEAK_IMPL(post) {
     impl->asyncPutNack(nack);
   } IO_CAPTURE_WEAK_IMPL_END
 }
