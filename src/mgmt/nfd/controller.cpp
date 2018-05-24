@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -133,15 +133,19 @@ Controller::processValidatedCommandResponse(const Data& data,
 
 void
 Controller::fetchDataset(const Name& prefix,
-                         const std::function<void(const ConstBufferPtr&)>& processResponse,
+                         const std::function<void(ConstBufferPtr)>& processResponse,
                          const DatasetFailCallback& onFailure,
                          const CommandOptions& options)
 {
   Interest baseInterest(prefix);
-  baseInterest.setInterestLifetime(options.getTimeout());
 
-  SegmentFetcher::fetch(m_face, baseInterest, m_validator, processResponse,
-                        bind(&Controller::processDatasetFetchError, this, onFailure, _1, _2));
+  SegmentFetcher::Options fetcherOptions;
+  fetcherOptions.maxTimeout = options.getTimeout();
+  auto fetcher = SegmentFetcher::start(m_face, baseInterest, m_validator, fetcherOptions);
+  fetcher->onComplete.connect(processResponse);
+  fetcher->onError.connect([=] (uint32_t code, const std::string& msg) {
+      processDatasetFetchError(onFailure, code, msg);
+    });
 }
 
 void
@@ -156,6 +160,7 @@ Controller::processDatasetFetchError(const DatasetFailCallback& onFailure,
       onFailure(ERROR_TIMEOUT, msg);
       break;
     case SegmentFetcher::ErrorCode::DATA_HAS_NO_SEGMENT:
+    case SegmentFetcher::ErrorCode::FINALBLOCKID_NOT_SEGMENT:
       onFailure(ERROR_SERVER, msg);
       break;
     case SegmentFetcher::ErrorCode::SEGMENT_VALIDATION_FAIL:

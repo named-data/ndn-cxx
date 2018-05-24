@@ -132,7 +132,7 @@ private:
 
   void
   fetchDataset(const Name& prefix,
-               const std::function<void(const ConstBufferPtr&)>& processResponse,
+               const std::function<void(ConstBufferPtr)>& processResponse,
                const DatasetFailCallback& onFailure,
                const CommandOptions& options);
 
