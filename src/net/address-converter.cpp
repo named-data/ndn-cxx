@@ -27,21 +27,8 @@
 
 #include "address-converter.hpp"
 
-#include <net/if.h> // for if_indextoname()
-
 namespace ndn {
 namespace ip {
-
-optional<std::string>
-scopeNameFromId(unsigned int scopeId)
-{
-  char buffer[IFNAMSIZ];
-  auto scopeName = if_indextoname(scopeId, buffer);
-  if (scopeName != nullptr) {
-    return std::string(scopeName);
-  }
-  return nullopt;
-}
 
 boost::asio::ip::address
 addressFromString(const std::string& address, boost::system::error_code& ec)
@@ -52,34 +39,19 @@ addressFromString(const std::string& address, boost::system::error_code& ec)
 boost::asio::ip::address
 addressFromString(const std::string& address)
 {
-  boost::system::error_code ec;
-  auto addr = addressFromString(address, ec);
-  if (ec) {
-    BOOST_THROW_EXCEPTION(boost::system::system_error(ec));
-  }
-  return addr;
+  return boost::asio::ip::address::from_string(address);
 }
 
 boost::asio::ip::address_v6
 addressV6FromString(const std::string& address, boost::system::error_code& ec)
 {
-  auto addr = addressFromString(address, ec);
-  if (ec || addr.is_v4()) {
-    ec = boost::asio::error::invalid_argument;
-    return {};
-  }
-  return addr.to_v6();
+  return boost::asio::ip::address_v6::from_string(address, ec);
 }
 
 boost::asio::ip::address_v6
 addressV6FromString(const std::string& address)
 {
-  boost::system::error_code ec;
-  auto addr = addressV6FromString(address, ec);
-  if (ec) {
-    BOOST_THROW_EXCEPTION(boost::system::system_error(ec));
-  }
-  return addr;
+  return boost::asio::ip::address_v6::from_string(address);
 }
 
 } // namespace ip

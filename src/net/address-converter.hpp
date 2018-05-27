@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California,
+ * Copyright (c) 2013-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -37,14 +37,6 @@ namespace ndn {
 namespace ip {
 
 /**
- * \brief Convert scope ID of IPv6 address into interface name
- *
- * \return interface name, or ndn::nullopt if \p scopeId cannot be converted
- */
-optional<std::string>
-scopeNameFromId(unsigned int scopeId);
-
-/**
  * \brief parse and convert the input string into an IP address
  *
  * \param str the string to parse
@@ -52,6 +44,7 @@ scopeNameFromId(unsigned int scopeId);
  * \return the converted IP address
  * \throw boost::system::system_error in case of failure
  */
+[[deprecated("use boost::asio::ip::address::from_string")]]
 boost::asio::ip::address
 addressFromString(const std::string& str);
 
@@ -64,6 +57,7 @@ addressFromString(const std::string& str);
  * \return the converted IP address, or a default-constructed
  *         `boost::asio::ip::address` in case of failure
  */
+[[deprecated("use boost::asio::ip::address::from_string")]]
 boost::asio::ip::address
 addressFromString(const std::string& str, boost::system::error_code& ec);
 
@@ -75,6 +69,7 @@ addressFromString(const std::string& str, boost::system::error_code& ec);
  * \return the converted IPv6 address
  * \throw boost::system::system_error in case of failure
  */
+[[deprecated("use boost::asio::ip::address_v6::from_string")]]
 boost::asio::ip::address_v6
 addressV6FromString(const std::string& str);
 
@@ -87,6 +82,7 @@ addressV6FromString(const std::string& str);
  * \return the converted IPv6 address, or a default-constructed
  *         `boost::asio::ip::address_v6` in case of failure
  */
+[[deprecated("use boost::asio::ip::address_v6::from_string")]]
 boost::asio::ip::address_v6
 addressV6FromString(const std::string& str, boost::system::error_code& ec);
 

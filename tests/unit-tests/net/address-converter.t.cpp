@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California,
+ * Copyright (c) 2013-2018 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -42,20 +42,6 @@ BOOST_AUTO_TEST_SUITE(TestAddressConverter)
     addrV6.scope_id(scope);                                             \
     BOOST_CHECK_EQUAL(address, addrV6);                                 \
 } while (false)
-
-BOOST_AUTO_TEST_CASE(ScopeNameFromId)
-{
-  const auto& networkInterfaces = net::tests::collectNetworkInterfaces();
-  if (!networkInterfaces.empty()) {
-    const auto& netif = networkInterfaces.front();
-    auto index = netif->getIndex();
-    auto name = netif->getName();
-
-    BOOST_CHECK_EQUAL(scopeNameFromId(index).value(), name);
-  }
-
-  BOOST_CHECK(!scopeNameFromId(std::numeric_limits<unsigned int>::max()));
-}
 
 BOOST_AUTO_TEST_CASE(AddressFromString)
 {
