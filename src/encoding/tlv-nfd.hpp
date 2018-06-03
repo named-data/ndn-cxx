@@ -69,6 +69,7 @@ enum {
   LinkType                      = 134,
   BaseCongestionMarkingInterval = 135,
   DefaultCongestionThreshold    = 136,
+  Mtu                           = 137,
   FaceQueryFilter               = 150,
   FaceEventNotification         = 192,
   FaceEventKind                 = 193,

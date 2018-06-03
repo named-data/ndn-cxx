@@ -51,6 +51,9 @@ ControlParameters::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
+  if (this->hasMtu()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Mtu, m_mtu);
+  }
   if (this->hasDefaultCongestionThreshold()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::DefaultCongestionThreshold,
                                                   m_defaultCongestionThreshold);
@@ -228,6 +231,12 @@ ControlParameters::wireDecode(const Block& block)
   if (this->hasDefaultCongestionThreshold()) {
     m_defaultCongestionThreshold = readNonNegativeInteger(*val);
   }
+
+  val = m_wire.find(tlv::nfd::Mtu);
+  m_hasFields[CONTROL_PARAMETER_MTU] = val != m_wire.elements_end();
+  if (this->hasMtu()) {
+    m_mtu = readNonNegativeInteger(*val);
+  }
 }
 
 bool
@@ -366,6 +375,10 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
 
   if (parameters.hasDefaultCongestionThreshold()) {
     os << "DefaultCongestionThreshold: " << parameters.getDefaultCongestionThreshold() << ", ";
+  }
+
+  if (parameters.hasMtu()) {
+    os << "Mtu: " << parameters.getMtu() << ", ";
   }
 
   os << ")";

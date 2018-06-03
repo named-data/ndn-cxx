@@ -49,6 +49,7 @@ enum ControlParameterField {
   CONTROL_PARAMETER_FACE_PERSISTENCY,
   CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL,
   CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD,
+  CONTROL_PARAMETER_MTU,
   CONTROL_PARAMETER_UBOUND
 };
 
@@ -67,7 +68,8 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "ExpirationPeriod",
   "FacePersistency",
   "BaseCongestionMarkingInterval",
-  "DefaultCongestionThreshold"
+  "DefaultCongestionThreshold",
+  "Mtu"
 };
 
 /**
@@ -559,6 +561,44 @@ public: // getters & setters
     return *this;
   }
 
+  bool
+  hasMtu() const
+  {
+    return m_hasFields[CONTROL_PARAMETER_MTU];
+  }
+
+  /** \brief get MTU (measured in bytes)
+   *
+   *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
+   */
+  uint64_t
+  getMtu() const
+  {
+    BOOST_ASSERT(this->hasMtu());
+    return m_mtu;
+  }
+
+  /** \brief set MTU (measured in bytes)
+   *
+   *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
+   */
+  ControlParameters&
+  setMtu(uint64_t mtu)
+  {
+    m_wire.reset();
+    m_mtu = mtu;
+    m_hasFields[CONTROL_PARAMETER_MTU] = true;
+    return *this;
+  }
+
+  ControlParameters&
+  unsetMtu()
+  {
+    m_wire.reset();
+    m_hasFields[CONTROL_PARAMETER_MTU] = false;
+    return *this;
+  }
+
   const std::vector<bool>&
   getPresentFields() const
   {
@@ -615,6 +655,7 @@ private: // fields
   FacePersistency     m_facePersistency;
   time::nanoseconds   m_baseCongestionMarkingInterval;
   uint64_t            m_defaultCongestionThreshold;
+  uint64_t            m_mtu;
 
 private:
   mutable Block m_wire;

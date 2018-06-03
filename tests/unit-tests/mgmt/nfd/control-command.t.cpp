@@ -47,6 +47,7 @@ BOOST_AUTO_TEST_CASE(FaceCreateRequest)
     .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
     .setBaseCongestionMarkingInterval(100_ms)
     .setDefaultCongestionThreshold(10000)
+    .setMtu(8192)
     .setFlags(0x3)
     .setMask(0x1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
@@ -82,6 +83,7 @@ BOOST_AUTO_TEST_CASE(FaceCreateResponse)
     .setFacePersistency(FACE_PERSISTENCY_PERMANENT)
     .setBaseCongestionMarkingInterval(500_ns)
     .setDefaultCongestionThreshold(12345)
+    .setMtu(2048)
     .setFlags(0x3);
   BOOST_CHECK_NO_THROW(command.validateResponse(p1));
 
@@ -161,6 +163,12 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
   BOOST_CHECK_NO_THROW(command.validateRequest(p5));
   BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
   BOOST_CHECK_EQUAL(p5.getFaceId(), 0);
+
+  ControlParameters p6;
+  p6.setFaceId(1)
+    .setMtu(1024);
+  BOOST_CHECK_THROW(command.validateRequest(p6), ControlCommand::ArgumentError);
+  BOOST_CHECK_THROW(command.validateResponse(p6), ControlCommand::ArgumentError);
 }
 
 BOOST_AUTO_TEST_CASE(FaceDestroy)

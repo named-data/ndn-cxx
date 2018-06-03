@@ -63,6 +63,9 @@ FaceStatus::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInNacks, m_nInNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInData, m_nInData);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NInInterests, m_nInInterests);
+  if (m_mtu) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::Mtu, *m_mtu);
+  }
   if (m_defaultCongestionThreshold) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::DefaultCongestionThreshold,
                                                   *m_defaultCongestionThreshold);
@@ -187,6 +190,14 @@ FaceStatus::wireDecode(const Block& block)
     m_defaultCongestionThreshold = nullopt;
   }
 
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::Mtu) {
+    m_mtu = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    m_mtu = nullopt;
+  }
+
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
     m_nInInterests = readNonNegativeInteger(*val);
     ++val;
@@ -309,6 +320,22 @@ FaceStatus::unsetDefaultCongestionThreshold()
 }
 
 FaceStatus&
+FaceStatus::setMtu(uint64_t mtu)
+{
+  m_wire.reset();
+  m_mtu = mtu;
+  return *this;
+}
+
+FaceStatus&
+FaceStatus::unsetMtu()
+{
+  m_wire.reset();
+  m_mtu = nullopt;
+  return *this;
+}
+
+FaceStatus&
 FaceStatus::setNInInterests(uint64_t nInInterests)
 {
   m_wire.reset();
@@ -390,6 +417,8 @@ operator==(const FaceStatus& a, const FaceStatus& b)
       a.hasDefaultCongestionThreshold() == b.hasDefaultCongestionThreshold() &&
       (!a.hasDefaultCongestionThreshold() ||
        a.getDefaultCongestionThreshold() == b.getDefaultCongestionThreshold()) &&
+      a.hasMtu() == b.hasMtu() &&
+      (!a.hasMtu() || a.getMtu() == b.getMtu()) &&
       a.getNInInterests() == b.getNInInterests() &&
       a.getNInData() == b.getNInData() &&
       a.getNInNacks() == b.getNInNacks() &&
@@ -424,6 +453,10 @@ operator<<(std::ostream& os, const FaceStatus& status)
 
   if (status.hasDefaultCongestionThreshold()) {
     os << "     DefaultCongestionThreshold: " << status.getDefaultCongestionThreshold() << " bytes,\n";
+  }
+
+  if (status.hasMtu()) {
+    os << "     Mtu: " << status.getMtu() << " bytes,\n";
   }
 
   os << "     Flags: " << AsHex{status.getFlags()} << ",\n"

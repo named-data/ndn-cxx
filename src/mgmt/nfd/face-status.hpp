@@ -119,6 +119,33 @@ public: // getters & setters
   FaceStatus&
   unsetDefaultCongestionThreshold();
 
+  bool
+  hasMtu() const
+  {
+    return !!m_mtu;
+  }
+
+  /** \brief get MTU (measured in bytes)
+   *
+   *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
+   */
+  uint64_t
+  getMtu() const
+  {
+    BOOST_ASSERT(hasMtu());
+    return *m_mtu;
+  }
+
+  /** \brief set MTU (measured in bytes)
+   *
+   *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
+   */
+  FaceStatus&
+  setMtu(uint64_t mtu);
+
+  FaceStatus&
+  unsetMtu();
+
   uint64_t
   getNInInterests() const
   {
@@ -195,6 +222,7 @@ private:
   optional<time::milliseconds> m_expirationPeriod;
   optional<time::nanoseconds> m_baseCongestionMarkingInterval;
   optional<uint64_t> m_defaultCongestionThreshold;
+  optional<uint64_t> m_mtu;
   uint64_t m_nInInterests;
   uint64_t m_nInData;
   uint64_t m_nInNacks;
