@@ -35,7 +35,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
-#include <boost/regex.hpp>
+
+#include <regex>
 #include <set>
 #include <sstream>
 
@@ -69,43 +70,43 @@ FaceUri::parse(const std::string& uri)
   m_path.clear();
   m_isV6 = false;
 
-  static const boost::regex protocolExp("(\\w+\\d?(\\+\\w+)?)://([^/]*)(\\/[^?]*)?");
-  boost::smatch protocolMatch;
-  if (!boost::regex_match(uri, protocolMatch, protocolExp)) {
+  static const std::regex protocolExp("(\\w+\\d?(\\+\\w+)?)://([^/]*)(\\/[^?]*)?");
+  std::smatch protocolMatch;
+  if (!std::regex_match(uri, protocolMatch, protocolExp)) {
     return false;
   }
   m_scheme = protocolMatch[1];
-  const std::string& authority = protocolMatch[3];
+  std::string authority = protocolMatch[3];
   m_path = protocolMatch[4];
 
   // pattern for IPv6 link local address enclosed in [ ], with optional port number
-  static const boost::regex v6LinkLocalExp("^\\[([a-fA-F0-9:]+)%([^\\s/:]+)\\](?:\\:(\\d+))?$");
+  static const std::regex v6LinkLocalExp("^\\[([a-fA-F0-9:]+)%([^\\s/:]+)\\](?:\\:(\\d+))?$");
   // pattern for IPv6 address enclosed in [ ], with optional port number
-  static const boost::regex v6Exp("^\\[([a-fA-F0-9:]+)\\](?:\\:(\\d+))?$");
+  static const std::regex v6Exp("^\\[([a-fA-F0-9:]+)\\](?:\\:(\\d+))?$");
   // pattern for Ethernet address in standard hex-digits-and-colons notation
-  static const boost::regex etherExp("^\\[((?:[a-fA-F0-9]{1,2}\\:){5}(?:[a-fA-F0-9]{1,2}))\\]$");
+  static const std::regex etherExp("^\\[((?:[a-fA-F0-9]{1,2}\\:){5}(?:[a-fA-F0-9]{1,2}))\\]$");
   // pattern for IPv4-mapped IPv6 address, with optional port number
-  static const boost::regex v4MappedV6Exp("^\\[::ffff:(\\d+(?:\\.\\d+){3})\\](?:\\:(\\d+))?$");
+  static const std::regex v4MappedV6Exp("^\\[::ffff:(\\d+(?:\\.\\d+){3})\\](?:\\:(\\d+))?$");
   // pattern for IPv4/hostname/fd/ifname, with optional port number
-  static const boost::regex v4HostExp("^([^:]+)(?:\\:(\\d+))?$");
+  static const std::regex v4HostExp("^([^:]+)(?:\\:(\\d+))?$");
 
   if (authority.empty()) {
     // UNIX, internal
   }
   else {
-    boost::smatch match;
-    if (boost::regex_match(authority, match, v6LinkLocalExp)) {
+    std::smatch match;
+    if (std::regex_match(authority, match, v6LinkLocalExp)) {
       m_isV6 = true;
-      m_host = match[1] + "%" + match[2];
+      m_host = match[1].str() + "%" + match[2].str();
       m_port = match[3];
       return true;
     }
 
-    m_isV6 = boost::regex_match(authority, match, v6Exp);
+    m_isV6 = std::regex_match(authority, match, v6Exp);
     if (m_isV6 ||
-        boost::regex_match(authority, match, etherExp) ||
-        boost::regex_match(authority, match, v4MappedV6Exp) ||
-        boost::regex_match(authority, match, v4HostExp)) {
+        std::regex_match(authority, match, etherExp) ||
+        std::regex_match(authority, match, v4MappedV6Exp) ||
+        std::regex_match(authority, match, v4HostExp)) {
       m_host = match[1];
       m_port = match[2];
     }
@@ -269,7 +270,7 @@ public:
     }
 
     boost::system::error_code ec;
-    auto addr = ip::addressFromString(unescapeHost(faceUri.getHost()), ec);
+    auto addr = boost::asio::ip::address::from_string(unescapeHost(faceUri.getHost()), ec);
     if (ec) {
       return false;
     }
@@ -322,7 +323,7 @@ public:
     // make a copy because caller may modify faceUri
     auto uri = make_shared<FaceUri>(faceUri);
     boost::system::error_code ec;
-    auto ipAddress = ip::addressFromString(unescapeHost(faceUri.getHost()), ec);
+    auto ipAddress = boost::asio::ip::address::from_string(unescapeHost(faceUri.getHost()), ec);
     if (!ec) {
       // No need to resolve IP address if host is already an IP
       if ((faceUri.getScheme() == m_v4Scheme && !ipAddress.is_v4()) ||

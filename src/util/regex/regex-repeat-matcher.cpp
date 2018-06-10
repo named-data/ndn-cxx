@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,8 @@
 #include "regex-backref-matcher.hpp"
 #include "regex-component-set-matcher.hpp"
 
-#include <boost/regex.hpp>
 #include <cstdlib>
+#include <regex>
 
 namespace ndn {
 
@@ -91,32 +91,30 @@ RegexRepeatMatcher::parseRepetition()
     size_t min = 0;
     size_t max = 0;
 
-    if (boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+,[0-9]+\\}"))) {
+    if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+,[0-9]+\\}"))) {
       size_t separator = repeatStruct.find_first_of(',', 0);
       min = std::atoi(repeatStruct.substr(1, separator - 1).data());
       max = std::atoi(repeatStruct.substr(separator + 1, rsSize - separator - 2).data());
     }
-    else if (boost::regex_match(repeatStruct, boost::regex("\\{,[0-9]+\\}"))) {
+    else if (std::regex_match(repeatStruct, std::regex("\\{,[0-9]+\\}"))) {
       size_t separator = repeatStruct.find_first_of(',', 0);
       min = 0;
       max = std::atoi(repeatStruct.substr(separator + 1, rsSize - separator - 2).data());
     }
-    else if (boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+,\\}"))) {
+    else if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+,\\}"))) {
       size_t separator = repeatStruct.find_first_of(',', 0);
       min = std::atoi(repeatStruct.substr(1, separator).data());
       max = MAX_REPETITIONS;
     }
-    else if (boost::regex_match(repeatStruct, boost::regex("\\{[0-9]+\\}"))) {
+    else if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+\\}"))) {
       min = std::atoi(repeatStruct.substr(1, rsSize - 1).data());
       max = min;
     }
     else
-      BOOST_THROW_EXCEPTION(Error(std::string("Error: RegexRepeatMatcher.ParseRepetition():")
-                                  + " Unrecognized format " + m_expr));
+      BOOST_THROW_EXCEPTION(Error("RegexRepeatMatcher::parseRepetition(): Unrecognized format " + m_expr));
 
     if (min > MAX_REPETITIONS || max > MAX_REPETITIONS || min > max)
-      BOOST_THROW_EXCEPTION(Error(std::string("Error: RegexRepeatMatcher.ParseRepetition():")
-                                  + " Wrong number " + m_expr));
+      BOOST_THROW_EXCEPTION(Error("RegexRepeatMatcher::parseRepetition(): Wrong number " + m_expr));
 
     m_repeatMin = min;
     m_repeatMax = max;

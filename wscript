@@ -98,8 +98,7 @@ def configure(conf):
     conf.check_openssl(mandatory=True, atleast_version=0x1000200f) # 1.0.2
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
-                       'regex', 'program_options', 'chrono', 'thread',
-                       'log', 'log_setup']
+                       'program_options', 'chrono', 'thread', 'log', 'log_setup']
 
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']

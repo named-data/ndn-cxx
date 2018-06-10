@@ -38,7 +38,7 @@ RegexComponentMatcher::RegexComponentMatcher(const std::string& expr,
 void
 RegexComponentMatcher::compile()
 {
-  m_componentRegex = boost::regex(m_expr);
+  m_componentRegex.assign(m_expr);
 
   m_pseudoMatchers.clear();
   m_pseudoMatchers.push_back(make_shared<RegexPseudoMatcher>());
@@ -62,9 +62,9 @@ RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
   if (!m_isExactMatch)
     BOOST_THROW_EXCEPTION(Error("Non-exact component search is not supported yet"));
 
-  boost::smatch subResult;
+  std::smatch subResult;
   std::string targetStr = name.get(offset).toUri();
-  if (boost::regex_match(targetStr, subResult, m_componentRegex)) {
+  if (std::regex_match(targetStr, subResult, m_componentRegex)) {
     for (size_t i = 1; i <= m_componentRegex.mark_count(); i++) {
       m_pseudoMatchers[i]->resetMatchResult();
       m_pseudoMatchers[i]->setMatchResult(subResult[i]);

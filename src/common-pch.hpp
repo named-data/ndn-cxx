@@ -47,6 +47,5 @@
 #include <boost/multi_index_container.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/copy.hpp>
-#include <boost/regex.hpp>
 
 #endif // NDN_COMMON_PCH_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,7 +26,7 @@
 
 #include "regex-matcher.hpp"
 
-#include <boost/regex.hpp>
+#include <regex>
 
 namespace ndn {
 
@@ -54,7 +54,7 @@ protected:
 
 private:
   bool m_isExactMatch;
-  boost::regex m_componentRegex;
+  std::regex m_componentRegex;
   std::vector<shared_ptr<RegexPseudoMatcher>> m_pseudoMatchers;
 };
 
