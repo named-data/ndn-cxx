@@ -613,15 +613,11 @@ scope can have short names.
     indicating a number of objects.
 
 
-2.18. The suffix ``No`` should be used for variables representing an entity number.
+2.18. The suffix ``Num`` or ``No`` should be used for variables representing an entity number.
 
     .. code-block:: c++
 
-        tableNo, employeeNo
-
-    The notation is taken from mathematics where it is an established convention for
-    indicating an entity number.  An elegant alternative is to prefix such variables with
-    an ``i``: ``iTable``, ``iEmployee``.  This effectively makes them named iterators.
+        tableNum, tableNo, employeeNum, employeeNo
 
 2.19. The prefix ``is``, ``has``, ``need``, or similar should be used for boolean variables and
 methods.
