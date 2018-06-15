@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,10 +33,13 @@ ndnsec_import(int argc, char** argv)
   std::string input("-");
   std::string importPassword;
 
-  po::options_description description("General Usage\n  ndnsec import [-h] input \nGeneral options");
+  po::options_description description("General Usage\n"
+                                      "  ndnsec import [-h] [-P passphrase] input \n"
+                                      "General options");
   description.add_options()
     ("help,h", "produce help message")
     ("input,i", po::value<std::string>(&input), "input source, stdin if -")
+    ("password,P", po::value<std::string>(&importPassword), "Passphrase (will prompt if empty or not specified)")
     ;
 
   po::positional_options_description p;
@@ -67,15 +70,18 @@ ndnsec_import(int argc, char** argv)
     else
       safeBag = io::load<security::SafeBag>(input);
 
-    int count = 3;
-    while (!getPassword(importPassword, "Passphrase for the private key: ", false)) {
-      count--;
-      if (count <= 0) {
-        std::cerr << "ERROR: Fail to get password" << std::endl;
-        memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-        return 1;
+    if (importPassword.empty()) {
+      int count = 3;
+      while (!getPassword(importPassword, "Passphrase for the private key: ", false)) {
+        count--;
+        if (count <= 0) {
+          std::cerr << "ERROR: Fail to get password" << std::endl;
+          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
+          return 1;
+        }
       }
     }
+
     keyChain.importSafeBag(*safeBag, importPassword.c_str(), importPassword.size());
     memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
     return 0;

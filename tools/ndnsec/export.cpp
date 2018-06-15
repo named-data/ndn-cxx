@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,11 +34,14 @@ ndnsec_export(int argc, char** argv)
   std::string output;
   std::string exportPassword;
 
-  po::options_description description("General Usage\n  ndnsec export [-h] [-o output] identity \nGeneral options");
+  po::options_description description("General Usage\n"
+                                      "  ndnsec export [-h] [-o output] [-P passphrase] identity \n"
+                                      "General options");
   description.add_options()
     ("help,h", "Produce help message")
     ("output,o", po::value<std::string>(&output), "(Optional) output file, stdout if not specified")
     ("identity,i", po::value<Name>(&identityName), "Identity to export")
+    ("password,P", po::value<std::string>(&exportPassword), "Passphrase (will prompt if empty or not specified)")
     ;
 
   po::positional_options_description p;
@@ -70,13 +73,15 @@ ndnsec_export(int argc, char** argv)
     output = "-";
 
   try {
-    int count = 3;
-    while (!getPassword(exportPassword, "Passphrase for the private key: ")) {
-      count--;
-      if (count <= 0) {
-        std::cerr << "ERROR: invalid password" << std::endl;
-        memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-        return 1;
+    if (exportPassword.empty()) {
+      int count = 3;
+      while (!getPassword(exportPassword, "Passphrase for the private key: ")) {
+        count--;
+        if (count <= 0) {
+          std::cerr << "ERROR: invalid password" << std::endl;
+          memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
+          return 1;
+        }
       }
     }
 
