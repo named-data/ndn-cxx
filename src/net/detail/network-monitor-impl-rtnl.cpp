@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -96,8 +96,7 @@ NetworkMonitorImplRtnl::initSocket()
 
   int fd = ::socket(AF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, NETLINK_ROUTE);
   if (fd < 0) {
-    BOOST_THROW_EXCEPTION(Error(std::string("Cannot create netlink socket (") +
-                                std::strerror(errno) + ")"));
+    BOOST_THROW_EXCEPTION(Error("Cannot create netlink socket ("s + std::strerror(errno) + ")"));
   }
   m_socket->assign(fd);
 
@@ -107,15 +106,13 @@ NetworkMonitorImplRtnl::initSocket()
                    RTMGRP_IPV4_IFADDR | RTMGRP_IPV4_ROUTE |
                    RTMGRP_IPV6_IFADDR | RTMGRP_IPV6_ROUTE;
   if (::bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
-    BOOST_THROW_EXCEPTION(Error(std::string("Cannot bind netlink socket (") +
-                                std::strerror(errno) + ")"));
+    BOOST_THROW_EXCEPTION(Error("Cannot bind netlink socket ("s + std::strerror(errno) + ")"));
   }
 
   // find out what pid has been assigned to us
   socklen_t len = sizeof(addr);
   if (::getsockname(fd, reinterpret_cast<sockaddr*>(&addr), &len) < 0) {
-    BOOST_THROW_EXCEPTION(Error(std::string("Cannot obtain netlink socket address (") +
-                                std::strerror(errno) + ")"));
+    BOOST_THROW_EXCEPTION(Error("Cannot obtain netlink socket address ("s + std::strerror(errno) + ")"));
   }
   if (len != sizeof(addr)) {
     BOOST_THROW_EXCEPTION(Error("Wrong address length (" + to_string(len) + ")"));

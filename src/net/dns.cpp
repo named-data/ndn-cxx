@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,7 +57,7 @@ public:
 
     m_resolver.async_resolve(q, bind(&Resolver::onResolveResult, this, _1, _2, self));
 
-    m_resolveTimeout = m_scheduler.scheduleEvent(timeout, bind(&Resolver::onResolveTimeout, this, self));
+    m_resolveTimeout = m_scheduler.scheduleEvent(timeout, [=] { onResolveTimeout(self); });
   }
 
   iterator
@@ -73,7 +73,7 @@ private:
   {
     m_scheduler.cancelEvent(m_resolveTimeout);
     // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
-    m_resolver.get_io_service().post(bind([] (const shared_ptr<Resolver>&) {}, self));
+    m_resolver.get_io_service().post([self] {});
 
     if (error) {
       if (error == boost::asio::error::operation_aborted)
@@ -100,7 +100,7 @@ private:
   {
     m_resolver.cancel();
     // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
-    m_resolver.get_io_service().post(bind([] (const shared_ptr<Resolver>&) {}, self));
+    m_resolver.get_io_service().post([self] {});
 
     if (m_onError)
       m_onError("Hostname resolution timed out");

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortBadMissingHost)
   BOOST_CHECK_EXCEPTION(TcpTransport::getSocketHostAndPortFromUri("tcp://:6000"),
                         Transport::Error,
                         [] (const Transport::Error& error) {
-                          return error.what() == std::string("Malformed URI: tcp://:6000");
+                          return error.what() == "Malformed URI: tcp://:6000"s;
                         });
 }
 
@@ -70,8 +70,7 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortBadWrongTransport)
   BOOST_CHECK_EXCEPTION(TcpTransport::getSocketHostAndPortFromUri("unix://"),
                         Transport::Error,
                         [] (const Transport::Error& error) {
-                          return error.what() == std::string("Cannot create TcpTransport "
-                                                             "from \"unix\" URI");
+                          return error.what() == "Cannot create TcpTransport from \"unix\" URI"s;
                         });
 }
 
@@ -80,7 +79,7 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketHostAndPortBadMalformedUri)
   BOOST_CHECK_EXCEPTION(TcpTransport::getSocketHostAndPortFromUri("tcp"),
                         Transport::Error,
                         [] (const Transport::Error& error) {
-                          return error.what() == std::string("Malformed URI: tcp");
+                          return error.what() == "Malformed URI: tcp"s;
                         });
 }
 

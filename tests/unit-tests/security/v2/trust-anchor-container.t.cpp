@@ -46,16 +46,15 @@ class AnchorContainerTestFixture : public IdentityManagementTimeFixture
 public:
   AnchorContainerTestFixture()
   {
-    boost::filesystem::create_directory(boost::filesystem::path(UNIT_TEST_CONFIG_PATH));
+    namespace fs = boost::filesystem;
 
-    certDirPath = boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / std::string("test-cert-dir");
-    boost::filesystem::create_directory(certDirPath);
+    fs::create_directory(fs::path(UNIT_TEST_CONFIG_PATH));
 
-    certPath1 = boost::filesystem::path(UNIT_TEST_CONFIG_PATH) /
-      std::string("test-cert-dir") / std::string("trust-anchor-1.cert");
+    certDirPath = fs::path(UNIT_TEST_CONFIG_PATH) / "test-cert-dir";
+    fs::create_directory(certDirPath);
 
-    certPath2 = boost::filesystem::path(UNIT_TEST_CONFIG_PATH) /
-      std::string("test-cert-dir") / std::string("trust-anchor-2.cert");
+    certPath1 = fs::path(UNIT_TEST_CONFIG_PATH) / "test-cert-dir" / "trust-anchor-1.cert";
+    certPath2 = fs::path(UNIT_TEST_CONFIG_PATH) / "test-cert-dir" / "trust-anchor-2.cert";
 
     identity1 = addIdentity("/TestAnchorContainer/First");
     cert1 = identity1.getDefaultKey().getDefaultCertificate();

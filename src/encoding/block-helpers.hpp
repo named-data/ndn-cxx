@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,7 +68,7 @@ readNonNegativeInteger(const Block& block);
  *                    represented in R
  */
 template<typename R>
-typename std::enable_if<std::is_integral<R>::value, R>::type
+std::enable_if_t<std::is_integral<R>::value, R>
 readNonNegativeIntegerAs(const Block& block)
 {
   uint64_t value = readNonNegativeInteger(block);
@@ -88,10 +88,10 @@ readNonNegativeIntegerAs(const Block& block)
  *           function may trigger unspecified behavior.
  */
 template<typename R>
-typename std::enable_if<std::is_enum<R>::value, R>::type
+std::enable_if_t<std::is_enum<R>::value, R>
 readNonNegativeIntegerAs(const Block& block)
 {
-  return static_cast<R>(readNonNegativeIntegerAs<typename std::underlying_type<R>::type>(block));
+  return static_cast<R>(readNonNegativeIntegerAs<std::underlying_type_t<R>>(block));
 }
 
 /** @brief Prepend an empty TLV element
@@ -231,11 +231,11 @@ template<class Iterator>
 Block
 makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 {
-  using BinaryBlockHelper = typename std::conditional<
+  using BinaryBlockHelper = std::conditional_t<
     std::is_base_of<std::random_access_iterator_tag,
                     typename std::iterator_traits<Iterator>::iterator_category>::value,
     detail::BinaryBlockFast<Iterator>,
-    detail::BinaryBlockSlow<Iterator>>::type;
+    detail::BinaryBlockSlow<Iterator>>;
 
   return BinaryBlockHelper::makeBlock(type, first, last);
 }

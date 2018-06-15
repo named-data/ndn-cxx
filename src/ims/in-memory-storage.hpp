@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -63,9 +63,15 @@ public:
    *
    *  @note Don't try to instantiate this class directly, use InMemoryStorage::begin() instead.
    */
-  class const_iterator : public std::iterator<std::input_iterator_tag, const Data>
+  class const_iterator
   {
   public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type        = const Data;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = value_type*;
+    using reference         = value_type&;
+
     const_iterator(const Data* ptr, const Cache* cache,
                    Cache::index<byFullName>::type::iterator it);
 
@@ -75,10 +81,10 @@ public:
     const_iterator
     operator++(int);
 
-    const Data&
+    reference
     operator*();
 
-    const Data*
+    pointer
     operator->();
 
     bool

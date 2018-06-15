@@ -121,7 +121,7 @@ operator>>(std::istream& is, RouteOrigin& routeOrigin)
     routeOrigin = ROUTE_ORIGIN_STATIC;
   else {
     // To reject negative numbers, we parse as a wider signed type, and compare with the range.
-    static_assert(std::numeric_limits<std::underlying_type<RouteOrigin>::type>::max() <=
+    static_assert(std::numeric_limits<std::underlying_type_t<RouteOrigin>>::max() <=
                   std::numeric_limits<int>::max(), "");
 
     int v = -1;
@@ -131,8 +131,8 @@ operator>>(std::istream& is, RouteOrigin& routeOrigin)
     catch (const boost::bad_lexical_cast&) {
     }
 
-    if (v >= std::numeric_limits<std::underlying_type<RouteOrigin>::type>::min() &&
-        v <= std::numeric_limits<std::underlying_type<RouteOrigin>::type>::max()) {
+    if (v >= std::numeric_limits<std::underlying_type_t<RouteOrigin>>::min() &&
+        v <= std::numeric_limits<std::underlying_type_t<RouteOrigin>>::max()) {
       routeOrigin = static_cast<RouteOrigin>(v);
     }
     else {

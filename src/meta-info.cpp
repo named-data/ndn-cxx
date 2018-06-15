@@ -88,10 +88,9 @@ MetaInfo::getAppMetaInfo() const
 MetaInfo&
 MetaInfo::setAppMetaInfo(const std::list<Block>& info)
 {
-  for (std::list<Block>::const_iterator i = info.begin(); i != info.end(); ++i) {
-    if (!(128 <= i->type() && i->type() <= 252))
-      BOOST_THROW_EXCEPTION(Error("AppMetaInfo block has type outside the application range "
-                                  "[128, 252]"));
+  for (const auto& block : info) {
+    if (block.type() < 128 || block.type() > 252)
+      BOOST_THROW_EXCEPTION(Error("AppMetaInfo block has type outside the application range [128, 252]"));
   }
 
   m_wire.reset();
@@ -114,11 +113,10 @@ MetaInfo::addAppMetaInfo(const Block& block)
 bool
 MetaInfo::removeAppMetaInfo(uint32_t tlvType)
 {
-  for (std::list<Block>::iterator iter = m_appMetaInfo.begin();
-       iter != m_appMetaInfo.end(); ++iter) {
-    if (iter->type() == tlvType) {
+  for (auto it = m_appMetaInfo.begin(); it != m_appMetaInfo.end(); ++it) {
+    if (it->type() == tlvType) {
       m_wire.reset();
-      m_appMetaInfo.erase(iter);
+      m_appMetaInfo.erase(it);
       return true;
     }
   }
@@ -128,13 +126,9 @@ MetaInfo::removeAppMetaInfo(uint32_t tlvType)
 const Block*
 MetaInfo::findAppMetaInfo(uint32_t tlvType) const
 {
-  for (std::list<Block>::const_iterator iter = m_appMetaInfo.begin();
-       iter != m_appMetaInfo.end(); ++iter) {
-    if (iter->type() == tlvType) {
-      return &*iter;
-    }
-  }
-  return 0;
+  auto it = std::find_if(m_appMetaInfo.begin(), m_appMetaInfo.end(),
+                         [=] (const Block& b) { return b.type() == tlvType; });
+  return it != m_appMetaInfo.end() ? &*it : nullptr;
 }
 
 template<encoding::Tag TAG>
@@ -149,9 +143,8 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 
   size_t totalLength = 0;
 
-  for (std::list<Block>::const_reverse_iterator appMetaInfoItem = m_appMetaInfo.rbegin();
-       appMetaInfoItem != m_appMetaInfo.rend(); ++appMetaInfoItem) {
-    totalLength += encoder.prependBlock(*appMetaInfoItem);
+  for (auto it = m_appMetaInfo.rbegin(); it != m_appMetaInfo.rend(); ++it) {
+    totalLength += encoder.prependBlock(*it);
   }
 
   // FinalBlockId
@@ -161,7 +154,8 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 
   // FreshnessPeriod
   if (m_freshnessPeriod != DEFAULT_FRESHNESS_PERIOD) {
-    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod, m_freshnessPeriod.count());
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod,
+                                                  static_cast<uint64_t>(m_freshnessPeriod.count()));
   }
 
   // ContentType
@@ -204,8 +198,7 @@ MetaInfo::wireDecode(const Block& wire)
   //                FinalBlockId?
   //                AppMetaInfo*
 
-
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   // ContentType
   if (val != m_wire.elements_end() && val->type() == tlv::ContentType) {
@@ -247,7 +240,7 @@ operator<<(std::ostream& os, const MetaInfo& info)
   os << "ContentType: " << info.getType();
 
   // FreshnessPeriod
-  if (info.getFreshnessPeriod() > time::milliseconds::zero()) {
+  if (info.getFreshnessPeriod() > 0_ms) {
     os << ", FreshnessPeriod: " << info.getFreshnessPeriod();
   }
 
@@ -258,9 +251,8 @@ operator<<(std::ostream& os, const MetaInfo& info)
   }
 
   // App-defined MetaInfo items
-  for (std::list<Block>::const_iterator iter = info.getAppMetaInfo().begin();
-       iter != info.getAppMetaInfo().end(); ++iter) {
-    os << ", AppMetaInfoTlvType: " << iter->type();
+  for (const auto& block : info.getAppMetaInfo()) {
+    os << ", AppMetaInfoTlvType: " << block.type();
   }
 
   return os;

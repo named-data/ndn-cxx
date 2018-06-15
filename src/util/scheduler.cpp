@@ -41,7 +41,7 @@ public:
   time::nanoseconds
   expiresFromNow() const
   {
-    return std::max(expireTime - time::steady_clock::now(), time::nanoseconds::zero());
+    return std::max(expireTime - time::steady_clock::now(), 0_ns);
   }
 
 public:
@@ -129,7 +129,7 @@ Scheduler::scheduleNext()
 {
   if (!m_queue.empty()) {
     m_timer->expires_from_now((*m_queue.begin())->expiresFromNow());
-    m_timer->async_wait(bind(&Scheduler::executeEvent, this, _1));
+    m_timer->async_wait([this] (const auto& error) { this->executeEvent(error); });
   }
 }
 

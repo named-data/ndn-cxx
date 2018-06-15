@@ -113,7 +113,7 @@ private:
 };
 
 template<typename CharT, typename Traits, typename DelimT>
-inline ostream_joiner<typename std::decay<DelimT>::type, CharT, Traits>
+inline ostream_joiner<std::decay_t<DelimT>, CharT, Traits>
 make_ostream_joiner(std::basic_ostream<CharT, Traits>& os, DelimT&& delimiter)
 {
   return {os, std::forward<DelimT>(delimiter)};

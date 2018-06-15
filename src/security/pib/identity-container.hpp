@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 
 #include "identity.hpp"
 
+#include <iterator>
 #include <set>
 #include <unordered_map>
 
@@ -46,9 +47,15 @@ class IdentityImpl;
 class IdentityContainer : noncopyable
 {
 public:
-  class const_iterator : public std::iterator<std::forward_iterator_tag, const Identity>
+  class const_iterator
   {
   public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type        = const Identity;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = value_type*;
+    using reference         = value_type&;
+
     const_iterator();
 
     Identity

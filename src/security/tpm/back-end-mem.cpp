@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #include "key-handle-mem.hpp"
 #include "../transform/private-key.hpp"
 #include "../../encoding/buffer-stream.hpp"
+
 #include <unordered_map>
 
 namespace ndn {
@@ -101,7 +102,7 @@ BackEndMem::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, co
     m_impl->keys[keyName] = key;
   }
   catch (const PrivateKey::Error& e) {
-    BOOST_THROW_EXCEPTION(Error(std::string("Cannot import private key: ") + e.what()));
+    BOOST_THROW_EXCEPTION(Error("Cannot import private key: "s + e.what()));
   }
 }
 

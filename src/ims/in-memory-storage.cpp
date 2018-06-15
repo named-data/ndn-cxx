@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,7 @@ InMemoryStorage::const_iterator::operator++()
     m_ptr = &((*m_it)->getData());
   }
   else {
-    m_ptr = 0;
+    m_ptr = nullptr;
   }
 
   return *this;
@@ -57,13 +57,13 @@ InMemoryStorage::const_iterator::operator++(int)
   return i;
 }
 
-const Data&
+InMemoryStorage::const_iterator::reference
 InMemoryStorage::const_iterator::operator*()
 {
   return *m_ptr;
 }
 
-const Data*
+InMemoryStorage::const_iterator::pointer
 InMemoryStorage::const_iterator::operator->()
 {
   return m_ptr;
@@ -160,8 +160,8 @@ InMemoryStorage::setCapacity(size_t capacity)
 void
 InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshProcessingWindow)
 {
-  //check if identical Data/Name already exists
-  Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().find(data.getFullName());
+  // check if identical Data/Name already exists
+  auto it = m_cache.get<byFullName>().find(data.getFullName());
   if (it != m_cache.get<byFullName>().end())
     return;
 
@@ -187,8 +187,7 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
   entry->setData(data);
   if (m_scheduler != nullptr && mustBeFreshProcessingWindow > ZERO_WINDOW) {
     auto eventId = make_unique<util::scheduler::ScopedEventId>(*m_scheduler);
-    *eventId = m_scheduler->scheduleEvent(mustBeFreshProcessingWindow,
-                                          bind(&InMemoryStorageEntry::markStale, entry));
+    *eventId = m_scheduler->scheduleEvent(mustBeFreshProcessingWindow, [entry] { entry->markStale(); });
     entry->setMarkStaleEventId(std::move(eventId));
   }
   m_cache.insert(entry);
@@ -200,16 +199,16 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
 shared_ptr<const Data>
 InMemoryStorage::find(const Name& name)
 {
-  Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().lower_bound(name);
+  auto it = m_cache.get<byFullName>().lower_bound(name);
 
-  //if not found, return null
+  // if not found, return null
   if (it == m_cache.get<byFullName>().end()) {
-    return shared_ptr<const Data>();
+    return nullptr;
   }
 
-  //if the given name is not the prefix of the lower_bound, return null
+  // if the given name is not the prefix of the lower_bound, return null
   if (!name.isPrefixOf((*it)->getFullName())) {
-    return shared_ptr<const Data>();
+    return nullptr;
   }
 
   afterAccess(*it);
@@ -219,36 +218,35 @@ InMemoryStorage::find(const Name& name)
 shared_ptr<const Data>
 InMemoryStorage::find(const Interest& interest)
 {
-  //if the interest contains implicit digest, it is possible to directly locate a packet.
-  Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>()
-                                                    .find(interest.getName());
+  // if the interest contains implicit digest, it is possible to directly locate a packet.
+  auto it = m_cache.get<byFullName>().find(interest.getName());
 
-  //if a packet is located by its full name, it must be the packet to return.
+  // if a packet is located by its full name, it must be the packet to return.
   if (it != m_cache.get<byFullName>().end()) {
     return ((*it)->getData()).shared_from_this();
   }
 
-  //if the packet is not discovered by last step, either the packet is not in the storage or
-  //the interest doesn't contains implicit digest.
+  // if the packet is not discovered by last step, either the packet is not in the storage or
+  // the interest doesn't contains implicit digest.
   it = m_cache.get<byFullName>().lower_bound(interest.getName());
 
   if (it == m_cache.get<byFullName>().end()) {
-    return shared_ptr<const Data>();
+    return nullptr;
   }
 
-  //to locate the element that has a just smaller name than the interest's
-  if (it != m_cache.get<byFullName>().begin())
+  // to locate the element that has a just smaller name than the interest's
+  if (it != m_cache.get<byFullName>().begin()) {
     it--;
+  }
 
   InMemoryStorageEntry* ret = selectChild(interest, it);
-  if (ret != 0) {
-    //let derived class do something with the entry
-    afterAccess(ret);
-    return ret->getData().shared_from_this();
+  if (ret == nullptr) {
+    return nullptr;
   }
-  else {
-    return shared_ptr<const Data>();
-  }
+
+  // let derived class do something with the entry
+  afterAccess(ret);
+  return ret->getData().shared_from_this();
 }
 
 InMemoryStorage::Cache::index<InMemoryStorage::byFullName>::type::iterator
@@ -268,99 +266,86 @@ InMemoryStorage::selectChild(const Interest& interest,
 {
   BOOST_ASSERT(startingPoint != m_cache.get<byFullName>().end());
 
-  if (startingPoint != m_cache.get<byFullName>().begin())
-    {
-      BOOST_ASSERT((*startingPoint)->getFullName() < interest.getName());
-    }
+  if (startingPoint != m_cache.get<byFullName>().begin()) {
+    BOOST_ASSERT((*startingPoint)->getFullName() < interest.getName());
+  }
 
   bool hasLeftmostSelector = (interest.getChildSelector() <= 0);
   bool hasRightmostSelector = !hasLeftmostSelector;
 
   // filter out "stale" data
-  if (interest.getMustBeFresh())
+  if (interest.getMustBeFresh()) {
     startingPoint = findNextFresh(startingPoint);
+  }
 
   if (startingPoint == m_cache.get<byFullName>().end()) {
     return nullptr;
   }
 
-  if (hasLeftmostSelector)
-    {
-      if (interest.matchesData((*startingPoint)->getData()))
-        {
-          return *startingPoint;
-        }
+  if (hasLeftmostSelector) {
+    if (interest.matchesData((*startingPoint)->getData())) {
+      return *startingPoint;
     }
+  }
 
-  //iterate to the right
-  Cache::index<byFullName>::type::iterator rightmost = startingPoint;
-  if (startingPoint != m_cache.get<byFullName>().end())
-    {
-      Cache::index<byFullName>::type::iterator rightmostCandidate = startingPoint;
-      Name currentChildPrefix("");
+  // iterate to the right
+  auto rightmost = startingPoint;
+  if (startingPoint != m_cache.get<byFullName>().end()) {
+    auto rightmostCandidate = startingPoint;
+    Name currentChildPrefix("");
 
-      while (true)
-        {
-          ++rightmostCandidate;
-          // filter out "stale" data
-          if (interest.getMustBeFresh())
-            rightmostCandidate = findNextFresh(rightmostCandidate);
+    while (true) {
+      ++rightmostCandidate;
+      // filter out "stale" data
+      if (interest.getMustBeFresh()) {
+        rightmostCandidate = findNextFresh(rightmostCandidate);
+      }
 
-          bool isInBoundaries = (rightmostCandidate != m_cache.get<byFullName>().end());
-          bool isInPrefix = false;
-          if (isInBoundaries)
-            {
-              isInPrefix = interest.getName().isPrefixOf((*rightmostCandidate)->getFullName());
+      bool isInBoundaries = (rightmostCandidate != m_cache.get<byFullName>().end());
+      bool isInPrefix = false;
+      if (isInBoundaries) {
+        isInPrefix = interest.getName().isPrefixOf((*rightmostCandidate)->getFullName());
+      }
+
+      if (isInPrefix) {
+        if (interest.matchesData((*rightmostCandidate)->getData())) {
+          if (hasLeftmostSelector) {
+            return *rightmostCandidate;
+          }
+
+          if (hasRightmostSelector) {
+            // get prefix which is one component longer than Interest name
+            const Name& childPrefix = (*rightmostCandidate)->getFullName().getPrefix(interest.getName().size() + 1);
+            if (currentChildPrefix.empty() || (childPrefix != currentChildPrefix)) {
+              currentChildPrefix = childPrefix;
+              rightmost = rightmostCandidate;
             }
-
-          if (isInPrefix)
-            {
-              if (interest.matchesData((*rightmostCandidate)->getData()))
-                {
-                  if (hasLeftmostSelector)
-                    {
-                      return *rightmostCandidate;
-                    }
-
-                  if (hasRightmostSelector)
-                    {
-                      // get prefix which is one component longer than Interest name
-                      const Name& childPrefix = (*rightmostCandidate)->getFullName()
-                                                  .getPrefix(interest.getName().size() + 1);
-
-                      if (currentChildPrefix.empty() || (childPrefix != currentChildPrefix))
-                        {
-                          currentChildPrefix = childPrefix;
-                          rightmost = rightmostCandidate;
-                        }
-                    }
-                }
-            }
-          else
-            break;
+          }
         }
+      }
+      else {
+        break;
+      }
     }
+  }
 
-  if (rightmost != startingPoint)
-    {
-      return *rightmost;
+  if (rightmost != startingPoint) {
+    return *rightmost;
+  }
+
+  if (hasRightmostSelector) { // if rightmost was not found, try starting point
+    if (interest.matchesData((*startingPoint)->getData())) {
+      return *startingPoint;
     }
+  }
 
-  if (hasRightmostSelector) // if rightmost was not found, try starting point
-    {
-      if (interest.matchesData((*startingPoint)->getData()))
-        {
-          return *startingPoint;
-        }
-    }
-
-  return 0;
+  return nullptr;
 }
 
 InMemoryStorage::Cache::iterator
 InMemoryStorage::freeEntry(Cache::iterator it)
 {
-  //push the *empty* entry into mem pool
+  // push the *empty* entry into mem pool
   (*it)->release();
   m_freeEntries.push(*it);
   m_nPackets--;
@@ -371,21 +356,19 @@ void
 InMemoryStorage::erase(const Name& prefix, const bool isPrefix)
 {
   if (isPrefix) {
-    Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().lower_bound(prefix);
-
+    auto it = m_cache.get<byFullName>().lower_bound(prefix);
     while (it != m_cache.get<byFullName>().end() && prefix.isPrefixOf((*it)->getName())) {
-      //let derived class do something with the entry
+      // let derived class do something with the entry
       beforeErase(*it);
       it = freeEntry(it);
     }
   }
   else {
-    Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().find(prefix);
-
+    auto it = m_cache.get<byFullName>().find(prefix);
     if (it == m_cache.get<byFullName>().end())
       return;
 
-    //let derived class do something with the entry
+    // let derived class do something with the entry
     beforeErase(*it);
     freeEntry(it);
   }
@@ -397,8 +380,7 @@ InMemoryStorage::erase(const Name& prefix, const bool isPrefix)
 void
 InMemoryStorage::eraseImpl(const Name& name)
 {
-  Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().find(name);
-
+  auto it = m_cache.get<byFullName>().find(name);
   if (it == m_cache.get<byFullName>().end())
     return;
 
@@ -408,16 +390,14 @@ InMemoryStorage::eraseImpl(const Name& name)
 InMemoryStorage::const_iterator
 InMemoryStorage::begin() const
 {
-  Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().begin();
-
+  auto it = m_cache.get<byFullName>().begin();
   return const_iterator(&((*it)->getData()), &m_cache, it);
 }
 
 InMemoryStorage::const_iterator
 InMemoryStorage::end() const
 {
-  Cache::index<byFullName>::type::iterator it = m_cache.get<byFullName>().end();
-
+  auto it = m_cache.get<byFullName>().end();
   return const_iterator(nullptr, &m_cache, it);
 }
 
@@ -439,11 +419,9 @@ InMemoryStorage::afterAccess(InMemoryStorageEntry* entry)
 void
 InMemoryStorage::printCache(std::ostream& os) const
 {
-  //start from the upper layer towards bottom
-  const Cache::index<byFullName>::type& cacheIndex = m_cache.get<byFullName>();
-  for (Cache::index<byFullName>::type::iterator it = cacheIndex.begin();
-       it != cacheIndex.end(); it++)
-    os << (*it)->getFullName() << std::endl;
+  // start from the upper layer towards bottom
+  for (const auto& elem : m_cache.get<byFullName>())
+    os << elem->getFullName() << std::endl;
 }
 
 } // namespace ndn

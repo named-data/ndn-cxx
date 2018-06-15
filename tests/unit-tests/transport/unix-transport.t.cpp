@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,8 +47,7 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadWrongTransport)
   BOOST_CHECK_EXCEPTION(UnixTransport::getSocketNameFromUri("tcp://"),
                         Transport::Error,
                         [] (const Transport::Error& error) {
-                          return error.what() == std::string("Cannot create UnixTransport "
-                                                             "from \"tcp\" URI");
+                          return error.what() == "Cannot create UnixTransport from \"tcp\" URI"s;
                         });
 }
 
@@ -57,7 +56,7 @@ BOOST_AUTO_TEST_CASE(GetDefaultSocketNameBadMalformedUri)
   BOOST_CHECK_EXCEPTION(UnixTransport::getSocketNameFromUri("unix"),
                         Transport::Error,
                         [] (const Transport::Error& error) {
-                          return error.what() == std::string("Malformed URI: unix");
+                          return error.what() == "Malformed URI: unix"s;
                         });
 }
 

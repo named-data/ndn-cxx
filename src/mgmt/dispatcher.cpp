@@ -55,11 +55,8 @@ Dispatcher::Dispatcher(Face& face, KeyChain& keyChain,
 Dispatcher::~Dispatcher()
 {
   std::vector<Name> topPrefixNames;
-  std::transform(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(),
-                 std::back_inserter(topPrefixNames),
-                 [] (const std::unordered_map<Name, TopPrefixEntry>::value_type& entry) {
-                   return entry.second.topPrefix;
-                 });
+  std::transform(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(), std::back_inserter(topPrefixNames),
+                 [] (const auto& entry) { return entry.second.topPrefix; });
 
   for (const auto& name : topPrefixNames) {
     removeTopPrefix(name);
@@ -71,7 +68,7 @@ Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
                          const security::SigningInfo& signingInfo)
 {
   bool hasOverlap = std::any_of(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(),
-                                [&] (const std::unordered_map<Name, TopPrefixEntry>::value_type& x) {
+                                [&prefix] (const auto& x) {
                                   return x.first.isPrefixOf(prefix) || prefix.isPrefixOf(x.first);
                                 });
   if (hasOverlap) {
@@ -92,8 +89,8 @@ Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
 
   for (const auto& entry : m_handlers) {
     Name fullPrefix = Name(prefix).append(entry.first);
-    const InterestFilterId* filter = m_face.setInterestFilter(fullPrefix, bind(entry.second, prefix, _2));
-    topPrefixEntry.interestFilters.push_back(filter);
+    const auto* filterId = m_face.setInterestFilter(fullPrefix, bind(entry.second, prefix, _2));
+    topPrefixEntry.interestFilters.push_back(filterId);
   }
 }
 
@@ -121,12 +118,12 @@ Dispatcher::isOverlappedWithOthers(const PartialName& relPrefix) const
 {
   bool hasOverlapWithHandlers =
     std::any_of(m_handlers.begin(), m_handlers.end(),
-                [&] (const std::unordered_map<PartialName, InterestHandler>::value_type& entry) {
+                [&] (const auto& entry) {
                   return entry.first.isPrefixOf(relPrefix) || relPrefix.isPrefixOf(entry.first);
                 });
   bool hasOverlapWithStreams =
     std::any_of(m_streams.begin(), m_streams.end(),
-                [&] (const std::unordered_map<PartialName, uint64_t>::value_type& entry) {
+                [&] (const auto& entry) {
                   return entry.first.isPrefixOf(relPrefix) || relPrefix.isPrefixOf(entry.first);
                 });
 
@@ -210,8 +207,8 @@ Dispatcher::processControlCommandInterest(const Name& prefix,
     return;
   }
 
-  AcceptContinuation accept = bind(accepted, _1, prefix, interest, parameters);
-  RejectContinuation reject = bind(rejected, _1, interest);
+  AcceptContinuation accept = [=] (const auto& req) { accepted(req, prefix, interest, parameters); };
+  RejectContinuation reject = [=] (RejectReply reply) { rejected(reply, interest); };
   authorization(prefix, interest, parameters.get(), accept, reject);
 }
 
@@ -225,7 +222,7 @@ Dispatcher::processAuthorizedControlCommandInterest(const std::string& requester
 {
   if (validateParams(*parameters)) {
     handler(prefix, interest, *parameters,
-            bind(&Dispatcher::sendControlResponse, this, _1, interest, false));
+            [=] (const auto& resp) { this->sendControlResponse(resp, interest); });
   }
   else {
     sendControlResponse(ControlResponse(400, "failed in validating parameters"), interest);
@@ -247,8 +244,8 @@ Dispatcher::sendControlResponse(const ControlResponse& resp, const Interest& int
 
 void
 Dispatcher::addStatusDataset(const PartialName& relPrefix,
-                             const Authorization& authorization,
-                             const StatusDatasetHandler& handler)
+                             Authorization authorize,
+                             StatusDatasetHandler handle)
 {
   if (!m_topLevelPrefixes.empty()) {
     BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));
@@ -259,14 +256,17 @@ Dispatcher::addStatusDataset(const PartialName& relPrefix,
   }
 
   AuthorizationAcceptedCallback accepted =
-    bind(&Dispatcher::processAuthorizedStatusDatasetInterest, this, _1, _2, _3, handler);
+    bind(&Dispatcher::processAuthorizedStatusDatasetInterest, this, _1, _2, _3, std::move(handle));
   AuthorizationRejectedCallback rejected =
     bind(&Dispatcher::afterAuthorizationRejected, this, _1, _2);
 
   // follow the general path if storage is a miss
-  InterestHandler missContinuation = bind(&Dispatcher::processStatusDatasetInterest, this,
-                                          _1, _2, authorization, accepted, rejected);
-  m_handlers[relPrefix] = bind(&Dispatcher::queryStorage, this, _1, _2, missContinuation);
+  InterestHandler missContinuation = bind(&Dispatcher::processStatusDatasetInterest, this, _1, _2,
+                                          std::move(authorize), std::move(accepted), std::move(rejected));
+
+  m_handlers[relPrefix] = [this, miss = std::move(missContinuation)] (auto&&... args) {
+    this->queryStorage(std::forward<decltype(args)>(args)..., miss);
+  };
 }
 
 void
@@ -283,8 +283,8 @@ Dispatcher::processStatusDatasetInterest(const Name& prefix,
     return;
   }
 
-  AcceptContinuation accept = bind(accepted, _1, prefix, interest, nullptr);
-  RejectContinuation reject = bind(rejected, _1, interest);
+  AcceptContinuation accept = [=] (const auto& req) { accepted(req, prefix, interest, nullptr); };
+  RejectContinuation reject = [=] (RejectReply reply) { rejected(reply, interest); };
   authorization(prefix, interest, nullptr, accept, reject);
 }
 
@@ -332,10 +332,12 @@ Dispatcher::addNotificationStream(const PartialName& relPrefix)
 
   // register a handler for the subscriber of this notification stream
   // keep silent if Interest does not match a stored notification
-  m_handlers[relPrefix] = bind(&Dispatcher::queryStorage, this, _1, _2, nullptr);
+  m_handlers[relPrefix] = [this] (auto&&... args) {
+    this->queryStorage(std::forward<decltype(args)>(args)..., nullptr);
+  };
   m_streams[relPrefix] = 0;
 
-  return bind(&Dispatcher::postNotification, this, _1, relPrefix);
+  return [=] (const Block& b) { postNotification(b, relPrefix); };
 }
 
 void

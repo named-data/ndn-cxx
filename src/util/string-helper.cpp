@@ -87,7 +87,7 @@ fromHex(const std::string& hexString)
     tr::bufferSource(hexString) >> tr::hexDecode() >> tr::streamSink(os);
   }
   catch (const tr::Error& e) {
-    BOOST_THROW_EXCEPTION(StringHelperError(std::string("Conversion from hex failed: ") + e.what()));
+    BOOST_THROW_EXCEPTION(StringHelperError("Conversion from hex failed: "s + e.what()));
   }
 
   return os.buf();

@@ -656,11 +656,9 @@ FaceUri::canonize(const CanonizeSuccessCallback& onSuccess,
     return;
   }
 
-  static CanonizeSuccessCallback successNop = bind([]{});
-  static CanonizeFailureCallback failureNop = bind([]{});
   cp->canonize(*this,
-               onSuccess ? onSuccess : successNop,
-               onFailure ? onFailure : failureNop,
+               onSuccess ? onSuccess : [] (auto&&) {},
+               onFailure ? onFailure : [] (auto&&) {},
                io, timeout);
 }
 

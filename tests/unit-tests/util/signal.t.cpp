@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(OneArgument)
 
 BOOST_AUTO_TEST_CASE(TwoArguments)
 {
-  Signal<std::remove_pointer<decltype(this)>::type, int, int> sig;
+  Signal<std::remove_pointer_t<decltype(this)>, int, int> sig;
 
   int hit = 0;
   sig.connect([&hit] (int a, int b) {
@@ -138,8 +138,8 @@ BOOST_AUTO_TEST_CASE(HandlerByVal)
   RefObject refObject;
   RefObject::s_copyCount = 0;
 
-  Signal<std::remove_pointer<decltype(this)>::type, RefObject> sig;
-  sig.connect([] (RefObject ro) {});
+  Signal<std::remove_pointer_t<decltype(this)>, RefObject> sig;
+  sig.connect([] (RefObject) {});
   sig(refObject);
 
   BOOST_CHECK_EQUAL(RefObject::s_copyCount, 1);
@@ -152,8 +152,8 @@ BOOST_AUTO_TEST_CASE(HandlerByRef)
   RefObject refObject;
   RefObject::s_copyCount = 0;
 
-  Signal<std::remove_pointer<decltype(this)>::type, RefObject> sig;
-  sig.connect([] (const RefObject& ro) {});
+  Signal<std::remove_pointer_t<decltype(this)>, RefObject> sig;
+  sig.connect([] (const RefObject&) {});
   sig(refObject);
 
   BOOST_CHECK_EQUAL(RefObject::s_copyCount, 0);

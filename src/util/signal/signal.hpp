@@ -64,14 +64,14 @@ public: // API for anyone
    *  \warning The handler is permitted to disconnect itself, but it must ensure its validity.
    */
   Connection
-  connect(const Handler& handler);
+  connect(Handler handler);
 
   /** \brief connects a single-shot handler to the signal
    *
    *  After the handler is executed once, it is automatically disconnected.
    */
   Connection
-  connectSingleShot(const Handler& handler);
+  connectSingleShot(Handler handler);
 
 private: // API for owner
   /** \retval true if there is no connection
@@ -162,23 +162,23 @@ Signal<Owner, TArgs...>::~Signal()
 
 template<typename Owner, typename ...TArgs>
 Connection
-Signal<Owner, TArgs...>::connect(const Handler& handler)
+Signal<Owner, TArgs...>::connect(Handler handler)
 {
-  auto it = m_slots.insert(m_slots.end(), {handler, nullptr});
-  it->disconnect = make_shared<function<void()>>(bind(&Self::disconnect, this, it));
+  auto it = m_slots.insert(m_slots.end(), {std::move(handler), nullptr});
+  it->disconnect = make_shared<function<void()>>([=] { disconnect(it); });
 
   return signal::Connection(weak_ptr<function<void()>>(it->disconnect));
 }
 
 template<typename Owner, typename ...TArgs>
 Connection
-Signal<Owner, TArgs...>::connectSingleShot(const Handler& handler)
+Signal<Owner, TArgs...>::connectSingleShot(Handler handler)
 {
   auto it = m_slots.insert(m_slots.end(), {nullptr, nullptr});
-  it->disconnect = make_shared<function<void()>>(bind(&Self::disconnect, this, it));
+  it->disconnect = make_shared<function<void()>>([=] { disconnect(it); });
   signal::Connection conn(weak_ptr<function<void()>>(it->disconnect));
 
-  it->handler = [conn, handler] (const TArgs&... args) mutable {
+  it->handler = [conn, handler = std::move(handler)] (const TArgs&... args) mutable {
     handler(args...);
     conn.disconnect();
   };

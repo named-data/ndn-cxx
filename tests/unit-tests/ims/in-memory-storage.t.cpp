@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Iterator, T, InMemoryStorages)
   BOOST_REQUIRE(tmp2 == tmp1);
 
   int i = 0;
-  for (;it != ims.end(); it++) {
+  for (; it != ims.end(); it++) {
     std::ostringstream convert;
     convert << i;
     Name name("/" + convert.str());

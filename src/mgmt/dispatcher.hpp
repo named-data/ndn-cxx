@@ -186,9 +186,9 @@ public: // ControlCommand
    *  \param relPrefix a prefix for this command, e.g., "faces/create";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
    *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
-   *  \param authorization Callback to authorize the incoming commands
-   *  \param validateParams Callback to validate parameters of the incoming commands
-   *  \param handler Callback to handle the commands
+   *  \param authorize Callback to authorize the incoming commands
+   *  \param validate Callback to validate parameters of the incoming commands
+   *  \param handle Callback to handle the commands
    *  \pre no top-level prefix has been added
    *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
    *  \throw std::domain_error one or more top-level prefix has been added
@@ -209,17 +209,17 @@ public: // ControlCommand
   template<typename CP>
   void
   addControlCommand(const PartialName& relPrefix,
-                    const Authorization& authorization,
-                    const ValidateParameters& validateParams,
-                    const ControlCommandHandler& handler);
+                    Authorization authorize,
+                    ValidateParameters validate,
+                    ControlCommandHandler handle);
 
 public: // StatusDataset
   /** \brief register a StatusDataset or a prefix under which StatusDatasets can be requested
    *  \param relPrefix a prefix for this dataset, e.g., "faces/list";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
    *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
-   *  \param authorization should set identity to Name() if the dataset is public
-   *  \param handler Callback to process the incoming dataset requests
+   *  \param authorize should set identity to Name() if the dataset is public
+   *  \param handle Callback to process the incoming dataset requests
    *  \pre no top-level prefix has been added
    *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
    *  \throw std::domain_error one or more top-level prefix has been added
@@ -246,8 +246,8 @@ public: // StatusDataset
    */
   void
   addStatusDataset(const PartialName& relPrefix,
-                   const Authorization& authorization,
-                   const StatusDatasetHandler& handler);
+                   Authorization authorize,
+                   StatusDatasetHandler handle);
 
 public: // NotificationStream
   /** \brief register a NotificationStream
@@ -440,7 +440,7 @@ private:
   struct TopPrefixEntry
   {
     Name topPrefix;
-    optional<const RegisteredPrefixId*> registeredPrefixId = nullopt;
+    optional<const RegisteredPrefixId*> registeredPrefixId;
     std::vector<const InterestFilterId*> interestFilters;
   };
   std::unordered_map<Name, TopPrefixEntry> m_topLevelPrefixes;
@@ -461,9 +461,9 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 template<typename CP>
 void
 Dispatcher::addControlCommand(const PartialName& relPrefix,
-                              const Authorization& authorization,
-                              const ValidateParameters& validateParams,
-                              const ControlCommandHandler& handler)
+                              Authorization authorize,
+                              ValidateParameters validate,
+                              ControlCommandHandler handle)
 {
   if (!m_topLevelPrefixes.empty()) {
     BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));
@@ -473,19 +473,20 @@ Dispatcher::addControlCommand(const PartialName& relPrefix,
     BOOST_THROW_EXCEPTION(std::out_of_range("relPrefix overlaps with another relPrefix"));
   }
 
-  ControlParametersParser parser = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
+  auto parser = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
     return make_shared<CP>(comp.blockFromValue());
   };
 
   AuthorizationAcceptedCallback accepted =
     bind(&Dispatcher::processAuthorizedControlCommandInterest, this,
-         _1, _2, _3, _4, validateParams, handler);
+         _1, _2, _3, _4, std::move(validate), std::move(handle));
 
   AuthorizationRejectedCallback rejected =
     bind(&Dispatcher::afterAuthorizationRejected, this, _1, _2);
 
   m_handlers[relPrefix] = bind(&Dispatcher::processControlCommandInterest, this,
-                               _1, relPrefix, _2, parser, authorization, accepted, rejected);
+                               _1, relPrefix, _2, std::move(parser), std::move(authorize),
+                               std::move(accepted), std::move(rejected));
 }
 
 } // namespace mgmt

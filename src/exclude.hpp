@@ -27,6 +27,7 @@
 #include "name-component.hpp"
 #include "encoding/encoding-buffer.hpp"
 
+#include <iterator>
 #include <map>
 
 namespace ndn {
@@ -222,17 +223,23 @@ public: // enumeration API
     name::Component to;
   };
 
-  class const_iterator : public std::iterator<std::forward_iterator_tag, const Range>
+  class const_iterator
   {
   public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type        = const Range;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = value_type*;
+    using reference         = value_type&;
+
     const_iterator() = default;
 
     const_iterator(ExcludeMap::const_reverse_iterator it, ExcludeMap::const_reverse_iterator rend);
 
-    const Range&
+    reference
     operator*() const;
 
-    const Range*
+    pointer
     operator->() const;
 
     const_iterator&
@@ -347,14 +354,14 @@ Exclude::Range::operator!=(const Exclude::Range& other) const
   return !this->operator==(other);
 }
 
-inline const Exclude::Range&
+inline Exclude::const_iterator::reference
 Exclude::const_iterator::operator*() const
 {
   BOOST_ASSERT(m_it != m_rend);
   return m_range;
 }
 
-inline const Exclude::Range*
+inline Exclude::const_iterator::pointer
 Exclude::const_iterator::operator->() const
 {
   BOOST_ASSERT(m_it != m_rend);

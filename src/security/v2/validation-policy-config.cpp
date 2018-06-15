@@ -227,7 +227,7 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
     case 's':
       return time::seconds(refreshPeriod);
     default:
-      BOOST_THROW_EXCEPTION(Error(std::string("Bad refresh time unit: ") + unit));
+      BOOST_THROW_EXCEPTION(Error("Bad refresh time unit: "s + unit));
   }
 }
 

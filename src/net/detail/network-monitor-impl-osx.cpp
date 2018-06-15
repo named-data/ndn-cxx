@@ -79,8 +79,7 @@ public:
   IfAddrs()
   {
     if (::getifaddrs(&m_ifaList) < 0) {
-      BOOST_THROW_EXCEPTION(NetworkMonitorImplOsx::Error(std::string("getifaddrs() failed: ") +
-                                                         strerror(errno)));
+      BOOST_THROW_EXCEPTION(NetworkMonitorImplOsx::Error("getifaddrs() failed: "s + strerror(errno)));
     }
   }
 

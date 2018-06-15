@@ -45,8 +45,7 @@ using boost::chrono::nanoseconds;
  *  \note The function does not participate in the overload resolution
  *        unless std::numeric_limits<Rep>::is_signed is true.
  */
-template<typename Rep, typename Period,
-         typename = typename std::enable_if<std::numeric_limits<Rep>::is_signed>::type>
+template<typename Rep, typename Period, typename = std::enable_if_t<std::numeric_limits<Rep>::is_signed>>
 constexpr duration<Rep, Period>
 abs(duration<Rep, Period> d)
 {

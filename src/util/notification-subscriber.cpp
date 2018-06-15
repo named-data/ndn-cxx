@@ -43,6 +43,7 @@ NotificationSubscriberBase::NotificationSubscriberBase(Face& face, const Name& p
   , m_attempts(1)
   , m_scheduler(face.getIoService())
   , m_nackEvent(m_scheduler)
+  , m_lastInterestId(nullptr)
   , m_interestLifetime(interestLifetime)
 {
 }
@@ -56,7 +57,7 @@ NotificationSubscriberBase::start()
     return;
   m_isRunning = true;
 
-  this->sendInitialInterest();
+  sendInitialInterest();
 }
 
 void
@@ -66,15 +67,15 @@ NotificationSubscriberBase::stop()
     return;
   m_isRunning = false;
 
-  if (m_lastInterestId != 0)
+  if (m_lastInterestId != nullptr)
     m_face.removePendingInterest(m_lastInterestId);
-  m_lastInterestId = 0;
+  m_lastInterestId = nullptr;
 }
 
 void
 NotificationSubscriberBase::sendInitialInterest()
 {
-  if (this->shouldStop())
+  if (shouldStop())
     return;
 
   auto interest = make_shared<Interest>(m_prefix);
@@ -83,15 +84,15 @@ NotificationSubscriberBase::sendInitialInterest()
   interest->setInterestLifetime(getInterestLifetime());
 
   m_lastInterestId = m_face.expressInterest(*interest,
-                       bind(&NotificationSubscriberBase::afterReceiveData, this, _2),
-                       bind(&NotificationSubscriberBase::afterReceiveNack, this, _2),
-                       bind(&NotificationSubscriberBase::afterTimeout, this));
+                                            [this] (const auto&, const auto& d) { this->afterReceiveData(d); },
+                                            [this] (const auto&, const auto& n) { this->afterReceiveNack(n); },
+                                            [this] (const auto&) { this->afterTimeout(); });
 }
 
 void
 NotificationSubscriberBase::sendNextInterest()
 {
-  if (this->shouldStop())
+  if (shouldStop())
     return;
 
   BOOST_ASSERT(m_lastSequenceNo != std::numeric_limits<uint64_t>::max()); // overflow or missing initial reply
@@ -103,9 +104,9 @@ NotificationSubscriberBase::sendNextInterest()
   interest->setInterestLifetime(getInterestLifetime());
 
   m_lastInterestId = m_face.expressInterest(*interest,
-                       bind(&NotificationSubscriberBase::afterReceiveData, this, _2),
-                       bind(&NotificationSubscriberBase::afterReceiveNack, this, _2),
-                       bind(&NotificationSubscriberBase::afterTimeout, this));
+                                            [this] (const auto&, const auto& d) { this->afterReceiveData(d); },
+                                            [this] (const auto&, const auto& n) { this->afterReceiveNack(n); },
+                                            [this] (const auto&) { this->afterTimeout(); });
 }
 
 bool
@@ -113,8 +114,9 @@ NotificationSubscriberBase::shouldStop()
 {
   if (!m_isRunning)
     return true;
-  if (!this->hasSubscriber() && onNack.isEmpty()) {
-    this->stop();
+
+  if (!hasSubscriber() && onNack.isEmpty()) {
+    stop();
     return true;
   }
   return false;
@@ -123,55 +125,54 @@ NotificationSubscriberBase::shouldStop()
 void
 NotificationSubscriberBase::afterReceiveData(const Data& data)
 {
-  if (this->shouldStop())
+  if (shouldStop())
     return;
 
   try {
     m_lastSequenceNo = data.getName().get(-1).toSequenceNumber();
   }
   catch (const tlv::Error&) {
-    this->onDecodeError(data);
-    this->sendInitialInterest();
+    onDecodeError(data);
+    sendInitialInterest();
     return;
   }
 
-  if (!this->decodeAndDeliver(data)) {
-    this->onDecodeError(data);
-    this->sendInitialInterest();
+  if (!decodeAndDeliver(data)) {
+    onDecodeError(data);
+    sendInitialInterest();
     return;
   }
 
-  this->sendNextInterest();
+  sendNextInterest();
 }
 
 void
 NotificationSubscriberBase::afterReceiveNack(const lp::Nack& nack)
 {
-  if (this->shouldStop())
+  if (shouldStop())
     return;
 
-  this->onNack(nack);
+  onNack(nack);
 
   time::milliseconds delay = exponentialBackoff(nack);
-  m_nackEvent = m_scheduler.scheduleEvent(delay, [this] {this->sendInitialInterest();});
+  m_nackEvent = m_scheduler.scheduleEvent(delay, [this] { sendInitialInterest(); });
 }
 
 void
 NotificationSubscriberBase::afterTimeout()
 {
-  if (this->shouldStop())
+  if (shouldStop())
     return;
 
-  this->onTimeout();
+  onTimeout();
 
-  this->sendInitialInterest();
+  sendInitialInterest();
 }
 
 time::milliseconds
 NotificationSubscriberBase::exponentialBackoff(lp::Nack nack)
 {
   uint64_t nackSequenceNo;
-
   try {
     nackSequenceNo = nack.getInterest().getName().get(-1).toSequenceNumber();
   }

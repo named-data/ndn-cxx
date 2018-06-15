@@ -354,7 +354,7 @@ public:
  *  common ContiguousIterator types used with TLV decoding function templates.
  */
 template<typename Iterator,
-         typename DecayedIterator = typename std::decay<Iterator>::type,
+         typename DecayedIterator = std::decay_t<Iterator>,
          typename ValueType = typename std::iterator_traits<DecayedIterator>::value_type>
 constexpr bool
 shouldSelectContiguousReadNumber()
@@ -367,8 +367,8 @@ shouldSelectContiguousReadNumber()
 }
 
 template<typename Iterator>
-class ReadNumber : public std::conditional<shouldSelectContiguousReadNumber<Iterator>(),
-                                           ReadNumberFast<Iterator>, ReadNumberSlow<Iterator>>::type
+class ReadNumber : public std::conditional_t<shouldSelectContiguousReadNumber<Iterator>(),
+                                             ReadNumberFast<Iterator>, ReadNumberSlow<Iterator>>
 {
 };
 

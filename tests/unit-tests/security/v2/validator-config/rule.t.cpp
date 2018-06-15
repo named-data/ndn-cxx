@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -157,9 +157,9 @@ BOOST_AUTO_TEST_CASE(Errors)
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(FilterAndChecker, PktType, PktTypes, RuleFixture<PktType::value>)
 {
-  std::string config = std::string("") + R"CONF(
+  std::string config = R"CONF(
       id rule-id
-      for )CONF" + (PktType::value == tlv::Data ? "data" : "interest") + R"CONF(
+      for )CONF" + (PktType::value == tlv::Data ? "data"s : "interest"s) + R"CONF(
       filter
       {
         type name

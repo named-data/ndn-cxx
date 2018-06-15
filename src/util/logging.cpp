@@ -52,7 +52,7 @@ Logging::get()
 
 Logging::Logging()
 {
-  this->setDestinationImpl(shared_ptr<std::ostream>(&std::clog, bind([]{})));
+  this->setDestinationImpl(shared_ptr<std::ostream>(&std::clog, [] (auto) {}));
 
   const char* environ = std::getenv("NDN_LOG");
   if (environ != nullptr) {
@@ -202,7 +202,7 @@ Logging::resetLevels()
 void
 Logging::setDestination(std::ostream& os)
 {
-  setDestination(shared_ptr<std::ostream>(&os, bind([]{})));
+  setDestination(shared_ptr<std::ostream>(&os, [] (auto) {}));
 }
 
 void
@@ -214,7 +214,7 @@ Logging::setDestinationImpl(shared_ptr<std::ostream> os)
 
   auto backend = boost::make_shared<boost::log::sinks::text_ostream_backend>();
   backend->auto_flush(true);
-  backend->add_stream(boost::shared_ptr<std::ostream>(m_destination.get(), bind([]{})));
+  backend->add_stream(boost::shared_ptr<std::ostream>(m_destination.get(), [] (auto) {}));
 
   if (m_sink != nullptr) {
     boost::log::core::get()->remove_sink(m_sink);

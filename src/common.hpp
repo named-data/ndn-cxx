@@ -79,6 +79,8 @@ using std::bind;
 using std::ref;
 using std::cref;
 
+using namespace std::string_literals;
+
 } // namespace ndn
 
 using namespace std::placeholders;
@@ -90,7 +92,7 @@ using namespace std::placeholders;
 namespace boost {
 #define NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(N) \
   template<> \
-  struct is_placeholder<typename std::remove_const<decltype(_##N)>::type> \
+  struct is_placeholder<std::remove_const_t<decltype(_##N)>> \
   { \
     enum _vt { \
       value = N \

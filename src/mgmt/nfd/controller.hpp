@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,7 +74,7 @@ public:
   start(const ControlParameters& parameters,
         const CommandSucceedCallback& onSuccess,
         const CommandFailCallback& onFailure,
-        const CommandOptions& options = CommandOptions())
+        const CommandOptions& options = {})
   {
     shared_ptr<ControlCommand> command = make_shared<Command>();
     this->startCommand(command, parameters, onSuccess, onFailure, options);
@@ -83,10 +83,10 @@ public:
   /** \brief start dataset fetching
    */
   template<typename Dataset>
-  typename std::enable_if<std::is_default_constructible<Dataset>::value>::type
+  std::enable_if_t<std::is_default_constructible<Dataset>::value>
   fetch(const std::function<void(typename Dataset::ResultType)>& onSuccess,
         const DatasetFailCallback& onFailure,
-        const CommandOptions& options = CommandOptions())
+        const CommandOptions& options = {})
   {
     this->fetchDataset(make_shared<Dataset>(), onSuccess, onFailure, options);
   }
@@ -98,7 +98,7 @@ public:
   fetch(const ParamType& param,
         const std::function<void(typename Dataset::ResultType)>& onSuccess,
         const DatasetFailCallback& onFailure,
-        const CommandOptions& options = CommandOptions())
+        const CommandOptions& options = {})
   {
     this->fetchDataset(make_shared<Dataset>(param), onSuccess, onFailure, options);
   }

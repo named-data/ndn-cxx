@@ -129,7 +129,7 @@ BackEndFile::doCreateKey(const Name& identityName, const KeyParams& params)
     return keyHandle;
   }
   catch (const std::runtime_error& e) {
-    BOOST_THROW_EXCEPTION(Error(std::string("Cannot write key to disk: ") + e.what()));
+    BOOST_THROW_EXCEPTION(Error("Cannot write key to disk: "s + e.what()));
   }
 }
 
