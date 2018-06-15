@@ -50,8 +50,19 @@ public:
 
   ~TestHomeAndPibFixture()
   {
-    const_cast<std::string&>(KeyChain::getDefaultPibLocator()).clear();
-    const_cast<std::string&>(KeyChain::getDefaultTpmLocator()).clear();
+    try {
+      const_cast<std::string&>(KeyChain::getDefaultPibLocator()).clear();
+    }
+    catch (const KeyChain::Error&) {
+      // ignore
+    }
+
+    try {
+      const_cast<std::string&>(KeyChain::getDefaultTpmLocator()).clear();
+    }
+    catch (const KeyChain::Error&) {
+      // ignore
+    }
   }
 };
 
@@ -160,6 +171,30 @@ BOOST_FIXTURE_TEST_CASE(ConstructorMal2Config, TestHomeAndPibFixture<PibPathConf
   createClientConf({"pib=pib-sqlite3:%PATH%", "tpm=just-wrong"});
 
   BOOST_REQUIRE_THROW(KeyChain(), KeyChain::Error); // Wrong configuration. Error expected.
+}
+
+struct PibPathConfigFileNonCanonicalTpm
+{
+  const std::string PATH = "build/config-file-non-canonical-tpm/";
+};
+
+BOOST_FIXTURE_TEST_CASE(ConstructorNonCanonicalTpm, TestHomeAndPibFixture<PibPathConfigFileNonCanonicalTpm>) // Bug 4297
+{
+  createClientConf({"pib=pib-sqlite3:", "tpm=tpm-file"});
+
+  {
+    KeyChain keyChain;
+    keyChain.createIdentity("/test");
+    BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-sqlite3:");
+    BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-file:");
+  }
+
+  {
+    KeyChain keyChain;
+    BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-sqlite3:");
+    BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-file:");
+    BOOST_CHECK(keyChain.getPib().getIdentities().find("/test") != keyChain.getPib().getIdentities().end());
+  }
 }
 
 BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)

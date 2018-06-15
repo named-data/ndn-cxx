@@ -116,6 +116,10 @@ KeyChain::getDefaultPibLocator()
     s_defaultPibLocator = config.getParsedConfiguration().get<std::string>("pib", getDefaultPibScheme() + ":");
   }
 
+  std::string pibScheme, pibLocation;
+  std::tie(pibScheme, pibLocation) = parseAndCheckPibLocator(s_defaultPibLocator);
+  s_defaultPibLocator = pibScheme + ":" + pibLocation;
+
   return s_defaultPibLocator;
 }
 
@@ -132,6 +136,10 @@ KeyChain::getDefaultTpmLocator()
     ConfigFile config;
     s_defaultTpmLocator = config.getParsedConfiguration().get<std::string>("tpm", getDefaultTpmScheme() + ":");
   }
+
+  std::string tpmScheme, tpmLocation;
+  std::tie(tpmScheme, tpmLocation) = parseAndCheckTpmLocator(s_defaultTpmLocator);
+  s_defaultTpmLocator = tpmScheme + ":" + tpmLocation;
 
   return s_defaultTpmLocator;
 }
