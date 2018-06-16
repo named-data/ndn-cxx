@@ -22,8 +22,6 @@ matrix:
     # Linux/clang
     # https://apt.llvm.org/
     - os: linux
-      env: COMPILER=clang++-3.5
-    - os: linux
       env: COMPILER=clang++-3.6
     - os: linux
       env: COMPILER=clang++-3.7 DISABLE_ASAN=yes
@@ -46,26 +44,24 @@ matrix:
       osx_image: xcode7.3
       env: OSX_VERSION=10.11
     - os: osx
+      osx_image: xcode8
+      env: OSX_VERSION=10.11
+    - os: osx
       osx_image: xcode8.3
       env: OSX_VERSION=10.12
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode9.2
+      env: OSX_VERSION=10.12
+    - os: osx
+      osx_image: xcode9.4
       env: OSX_VERSION=10.13
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode9.4
       env: OSX_VERSION=10.13 USE_OPENSSL_1_1=yes
 
   allow_failures:
-    - env: COMPILER=g++-6
-    - env: COMPILER=g++-7
-    - env: COMPILER=g++-8
-    - env: COMPILER=clang++-3.5
     - env: COMPILER=clang++-3.6
     - env: COMPILER=clang++-3.7 DISABLE_ASAN=yes
-    - env: COMPILER=clang++-4.0
-    - env: COMPILER=clang++-5.0
-    - env: COMPILER=clang++-6.0
-    - env: COMPILER=clang++-7
     - env: OSX_VERSION=10.13 USE_OPENSSL_1_1=yes
 
   fast_finish: true

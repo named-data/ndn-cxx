@@ -29,7 +29,7 @@ Prerequisites
 Required:
 ~~~~~~~~~
 
--  GCC >= 5.3, or clang >= 3.5
+-  GCC >= 5.3, or clang >= 3.6
 -  ``python2`` >= 2.7, or ``python3`` >= 3.4
 -  ``libsqlite3``
 -  OpenSSL >= 1.0.2
