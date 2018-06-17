@@ -90,10 +90,14 @@ BOOST_AUTO_TEST_CASE(Basic)
 {
   auto i1 = makeCommandInterest(identity);
   VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
+  VALIDATE_FAILURE(i1, "Should fail (replay attack)");
 
   advanceClocks(5_ms);
   auto i2 = makeCommandInterest(identity);
   VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
+
+  auto i3 =  m_signer.makeCommandInterest(Name(identity.getName()).append("CMD"), signingWithSha256());
+  VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
 }
 
 BOOST_AUTO_TEST_CASE(DataPassthru)
@@ -101,6 +105,20 @@ BOOST_AUTO_TEST_CASE(DataPassthru)
   Data d1("/Security/V2/ValidatorFixture/Sub1");
   m_keyChain.sign(d1);
   VALIDATE_SUCCESS(d1, "Should succeed (fallback on inner validation policy for data)");
+}
+
+using ValidationPolicyAcceptAllCommands = ValidationPolicyCommandInterestFixture<DefaultOptions,
+                                                                                 ValidationPolicyAcceptAll>;
+
+BOOST_FIXTURE_TEST_CASE(SignedWithSha256, ValidationPolicyAcceptAllCommands) // Bug 4635
+{
+  auto i1 = m_signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
+  VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
+  VALIDATE_FAILURE(i1, "Should fail (replay attack)");
+
+  advanceClocks(5_ms);
+  auto i2 = m_signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
+  VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Accepts

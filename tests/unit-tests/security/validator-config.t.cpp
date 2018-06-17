@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "security/validator-config.hpp"
+#include "security/command-interest-signer.hpp"
 #include "security/v2/certificate-fetcher-offline.hpp"
 #include "util/dummy-client-face.hpp"
 
@@ -125,6 +126,30 @@ BOOST_AUTO_TEST_CASE(FromSection)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Loads
+
+
+BOOST_FIXTURE_TEST_CASE(ValidateCommandInterestWithDigestSha256, ValidatorConfigFixture) // Bug 4635
+{
+  validator.load(configFile);
+
+  CommandInterestSigner signer(m_keyChain);
+  auto i = signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
+  size_t nValidated = 0, nFailed = 0;
+
+  validator.validate(i, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 1);
+  BOOST_CHECK_EQUAL(nFailed, 0);
+
+  validator.validate(i, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 1);
+  BOOST_CHECK_EQUAL(nFailed, 1);
+
+  i = signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
+  validator.validate(i, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 2);
+  BOOST_CHECK_EQUAL(nFailed, 1);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END() // TestValidatorConfig
 BOOST_AUTO_TEST_SUITE_END() // Security

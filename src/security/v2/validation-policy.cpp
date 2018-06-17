@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "validation-policy.hpp"
+#include "../signing-info.hpp"
 
 namespace ndn {
 namespace security {
@@ -62,6 +63,10 @@ ValidationPolicy::setValidator(Validator& validator)
 static Name
 getKeyLocatorName(const SignatureInfo& si, ValidationState& state)
 {
+  if (si.getSignatureType() == tlv::DigestSha256) {
+    return SigningInfo::getDigestSha256Identity();
+  }
+
   if (!si.hasKeyLocator()) {
     state.fail({ValidationError::Code::INVALID_KEY_LOCATOR, "KeyLocator is missing"});
     return Name();
