@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (C) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -190,7 +190,7 @@ public: // constructors
   Face(shared_ptr<Transport> transport, KeyChain& keyChain);
 
   /**
-   * @brief Create Face using given transport and IO service
+   * @brief Create Face using given transport and io_service
    * @param transport the transport for lower layer communication. If nullptr,
    *                  a default transport will be used.
    * @param ioService the io_service that controls all IO operations
@@ -205,7 +205,7 @@ public: // constructors
   Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService);
 
   /**
-   * @brief Create a new Face using given Transport and IO service
+   * @brief Create a new Face using given Transport and io_service
    * @param transport the transport for lower layer communication. If nullptr,
    *                  a default transport will be used.
    * @param ioService the io_service that controls all IO operations
@@ -428,18 +428,24 @@ public: // IO routine
    * @brief Process any data to receive or call timeout callbacks.
    *
    * This call will block forever (default timeout == 0) to process IO on the face.
-   * To exit, one expected to call face.shutdown() from one of the callback methods.
+   * To exit cleanly on a producer, unset any Interest filters with unsetInterestFilter() and wait
+   * for processEvents() to return. To exit after an error, one can call shutdown().
+   * In consumer applications, processEvents() will return when all expressed Interests have been
+   * satisfied, Nacked, or timed out. To terminate earlier, a consumer application should call
+   * removePendingInterests() for all previously expressed and still-pending Interests.
    *
-   * If positive timeout is specified, then processEvents will exit after this timeout, if
-   * not stopped earlier with face.shutdown() or when all active events finish.  The call
+   * If a positive timeout is specified, then processEvents() will exit after this timeout, provided
+   * it is not stopped earlier with shutdown() or when all active events finish. processEvents()
    * can be called repeatedly, if desired.
    *
-   * If negative timeout is specified, then processEvents will not block and process only
+   * If a negative timeout is specified, then processEvents will not block and will process only
    * pending events.
    *
    * @param timeout     maximum time to block the thread
    * @param keepThread  Keep thread in a blocked state (in event processing), even when
-   *                    there are no outstanding events (e.g., no Interest/Data is expected)
+   *                    there are no outstanding events (e.g., no Interest/Data is expected).
+   *                    If timeout is zero and this parameter is true, the only way to stop
+   *                    processEvents() is to call shutdown().
    *
    * @note This may throw an exception for reading data or in the callback for processing
    * the data.  If you call this from an main event loop, you may want to catch and
@@ -459,14 +465,18 @@ public: // IO routine
    *
    * This method cancels all pending operations and closes connection to NDN Forwarder.
    *
-   * Note that this method does not stop IO service and if the same IO service is shared
-   * between multiple Faces or with other IO objects (e.g., Scheduler).
+   * Note that this method does not stop the io_service if it is shared between multiple Faces or
+   * with other IO objects (e.g., Scheduler).
+   *
+   * @warning Calling this method could cause outgoing packets to be lost. Producers that shut down
+   *          immediately after sending a Data packet should instead use unsetInterestFilter() to
+   *          shut down cleanly.
    */
   void
   shutdown();
 
   /**
-   * @return reference to IO service object
+   * @return reference to io_service object
    */
   boost::asio::io_service&
   getIoService()
@@ -506,9 +516,9 @@ private:
   asyncShutdown();
 
 private:
-  /// the IO service owned by this Face, could be null
+  /// the io_service owned by this Face, could be null
   unique_ptr<boost::asio::io_service> m_internalIoService;
-  /// the IO service used by this Face
+  /// the io_service used by this Face
   boost::asio::io_service& m_ioService;
 
   shared_ptr<Transport> m_transport;
