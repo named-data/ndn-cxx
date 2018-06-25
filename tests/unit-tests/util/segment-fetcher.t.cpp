@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(ExceedMaxTimeout)
   const Interest& interest = face.sentInterests[0];
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
-  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
+  BOOST_CHECK_EQUAL(interest.getCanBePrefix(), true);
 
   advanceClocks(98_ms);
   BOOST_CHECK_EQUAL(nErrors, 0);
@@ -761,7 +761,7 @@ BOOST_AUTO_TEST_CASE(DeprecatedFetch)
   const Interest& interest = face.sentInterests[0];
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
-  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
+  BOOST_CHECK_EQUAL(interest.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(interest.getInterestLifetime(), 1000_s);
 }
 
@@ -802,19 +802,19 @@ BOOST_AUTO_TEST_CASE(DeprecatedFetchMultipleSegments)
   const Interest& interest0 = face.sentInterests[0];
   BOOST_CHECK_EQUAL(interest0.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest0.getMustBeFresh(), true);
-  BOOST_CHECK_EQUAL(interest0.getChildSelector(), 1);
+  BOOST_CHECK_EQUAL(interest0.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(interest0.getInterestLifetime(), 1000_s);
 
   const Interest& interest1 = face.sentInterests[1];
   BOOST_CHECK_EQUAL(interest1.getName(), "/hello/world/version0/%00%01");
   BOOST_CHECK_EQUAL(interest1.getMustBeFresh(), false);
-  BOOST_CHECK_EQUAL(interest1.getChildSelector(), 0);
+  BOOST_CHECK_EQUAL(interest1.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(interest1.getInterestLifetime(), 1000_s);
 
   const Interest& interest2 = face.sentInterests[2];
   BOOST_CHECK_EQUAL(interest2.getName(), "/hello/world/version0/%00%02");
   BOOST_CHECK_EQUAL(interest2.getMustBeFresh(), false);
-  BOOST_CHECK_EQUAL(interest2.getChildSelector(), 0);
+  BOOST_CHECK_EQUAL(interest2.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(interest2.getInterestLifetime(), 1000_s);
 }
 
@@ -857,7 +857,7 @@ BOOST_AUTO_TEST_CASE(DeprecatedFetchSharedPtrComplete)
   const Interest& interest = face.sentInterests[0];
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
-  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
+  BOOST_CHECK_EQUAL(interest.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(interest.getInterestLifetime(), 1000_s);
 }
 
@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_CASE(DeprecatedFetchSharedPtrError)
   const Interest& interest = face.sentInterests[0];
   BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
   BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
-  BOOST_CHECK_EQUAL(interest.getChildSelector(), 1);
+  BOOST_CHECK_EQUAL(interest.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(interest.getInterestLifetime(), 1000_s);
 }
 

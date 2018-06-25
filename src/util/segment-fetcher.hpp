@@ -41,35 +41,33 @@ namespace ndn {
 namespace util {
 
 /**
- * @brief Utility class to fetch the latest version of segmented data
+ * @brief Utility class to fetch the latest version of a segmented object.
  *
- * SegmentFetcher assumes that the data is named `/<prefix>/<version>/<segment>`,
+ * SegmentFetcher assumes that segments in the object are named `/<prefix>/<version>/<segment>`,
  * where:
  * - `<prefix>` is the specified prefix,
  * - `<version>` is an unknown version that needs to be discovered, and
- * - `<segment>` is a segment number (number of segments is unknown and is controlled
- *   by `FinalBlockId` field in at least the last Data packet
+ * - `<segment>` is a segment number (The number of segments in the object is unknown until a Data
+ *   packet containing the `FinalBlockId` field is receieved.)
  *
  * The following logic is implemented in SegmentFetcher:
  *
- * 1. Express first interest to discover version:
+ * 1. Express an Interest to discover the latest version of the object:
  *
- *    >> Interest: `/<prefix>?ChildSelector=1&MustBeFresh=yes`
+ *    >> Interest: `/<prefix>?ndn.CanBePrefix=true&ndn.MustBeFresh=true`
  *
- * 2. Infer the latest version of Data:  `<version> = Data.getName().get(-2)`
+ * 2. Infer the latest version of the object: `<version> = Data.getName().get(-2)`
  *
- * 3. If segment number in the retrieved packet == 0, go to step 5.
+ * 3. Keep sending Interests for future segments until an error occurs or the number of segments
+ *    indicated by the FinalBlockId in a received Data packet is reached. This retrieval will start
+ *    at segment 1 if segment 0 was received in response to the Interest expressed in step 2;
+ *    otherwise, retrieval will start at segment 0. By default, congestion control will be used to
+ *    manage the Interest window size. Interests expressed in this step will follow this Name
+ *    format:
  *
- * 4. Send Interest for segment 0:
+ *    >> Interest: `/<prefix>/<version>/<segment=(N)>`
  *
- *    >> Interest: `/<prefix>/<version>/<segment=0>`
- *
- * 5. Keep sending Interests for the next segment while the retrieved Data does not have
- *    FinalBlockId or FinalBlockId != Data.getName().get(-1).
- *
- *    >> Interest: `/<prefix>/<version>/<segment=(N+1))>`
- *
- * 6. Signal `onComplete` with a memory block that combines the content of all segments of the
+ * 4. Signal `onComplete` with a memory block that combines the content of all segments in the
  *    object.
  *
  * If an error occurs during the fetching process, `onError` is signaled with one of the error codes
@@ -81,6 +79,7 @@ namespace util {
  *
  * Examples:
  *
+ *     @code
  *     void
  *     afterFetchComplete(ConstBufferPtr data)
  *     {
@@ -97,7 +96,7 @@ namespace util {
  *     auto fetcher = SegmentFetcher::start(face, Interest("/data/prefix"), validator);
  *     fetcher->onComplete.connect(bind(&afterFetchComplete, this, _1));
  *     fetcher->onError.connect(bind(&afterFetchError, this, _1, _2));
- *
+ *     @endcode
  *
  */
 class SegmentFetcher : noncopyable
@@ -153,10 +152,10 @@ public:
    *
    * @param face         Reference to the Face that should be used to fetch data
    * @param baseInterest Interest for the initial segment of requested data.
-   *                     This interest may include a custom InterestLifetime and selectors that will
-   *                     propagate to all subsequent Interests. The only exception is that the
-   *                     initial Interest will be forced to include the "ChildSelector=1" and
-   *                     "MustBeFresh=true" selectors, which will not be included in subsequent
+   *                     This interest may include a custom InterestLifetime and parameters that
+   *                     will propagate to all subsequent Interests. The only exception is that the
+   *                     initial Interest will be forced to include the "CanBePrefix=true" and
+   *                     "MustBeFresh=true" parameters, which will not be included in subsequent
    *                     Interests.
    * @param validator    Reference to the Validator the fetcher will use to validate data.
    *                     The caller must ensure the validator is valid until either `onComplete` or
@@ -183,11 +182,11 @@ public:
    *
    * @param face             Reference to the Face that should be used to fetch data
    * @param baseInterest     An Interest for the initial segment of requested data.
-   *                         This interest may include custom InterestLifetime and selectors that
+   *                         This interest may include a custom InterestLifetime and parameters that
    *                         will propagate to all subsequent Interests.  The only exception is that
-   *                         the initial Interest will be forced to include
-   *                         "ChildSelector=rightmost" and "MustBeFresh=true" selectors, which will
-   *                         be turned off in subsequent Interests.
+   *                         the initial Interest will be forced to include the parameters
+   *                         "CanBePrefix=true" and "MustBeFresh=true", which will be turned off in
+   *                         subsequent Interests.
    * @param validator        Reference to the Validator that should be used to validate data. Caller
    *                         must ensure validator is valid until either completeCallback or
    *                         errorCallback is invoked.
@@ -214,11 +213,11 @@ public:
    *
    * @param face             Reference to the Face that should be used to fetch data
    * @param baseInterest     An Interest for the initial segment of requested data.
-   *                         This interest may include custom InterestLifetime and selectors that
+   *                         This interest may include a custom InterestLifetime and parameters that
    *                         will propagate to all subsequent Interests.  The only exception is that
-   *                         the initial Interest will be forced to include "ChildSelector=1" and
-   *                         "MustBeFresh=true" selectors, which will be turned off in subsequent
-   *                         Interests.
+   *                         the initial Interest will be forced to include the parameters
+   *                         "CanBePrefix=true" and "MustBeFresh=true", which will both be set to
+   *                         false in subsequent Interests.
    * @param validator        A shared_ptr to the Validator that should be used to validate data.
    *
    * @param completeCallback Callback to be fired when all segments are fetched

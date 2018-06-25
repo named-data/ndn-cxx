@@ -130,7 +130,7 @@ SegmentFetcher::fetchFirstSegment(const Interest& baseInterest,
                                   shared_ptr<SegmentFetcher> self)
 {
   Interest interest(baseInterest);
-  interest.setChildSelector(1);
+  interest.setCanBePrefix(true);
   interest.setMustBeFresh(true);
   interest.setInterestLifetime(m_options.interestLifetime);
   if (isRetransmission) {
@@ -197,7 +197,7 @@ SegmentFetcher::fetchSegmentsInWindow(const Interest& origInterest, shared_ptr<S
   for (const auto& segment : segmentsToRequest) {
     Interest interest(origInterest); // to preserve Interest elements
     interest.refreshNonce();
-    interest.setChildSelector(0);
+    interest.setCanBePrefix(false);
     interest.setMustBeFresh(false);
 
     Name interestName(m_versionedDataName);
