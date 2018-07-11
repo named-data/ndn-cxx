@@ -79,8 +79,7 @@ def configure(conf):
 
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
-    conf.check_cxx(msg='Checking for getpass function', mandatory=False,
-                   define_name='HAVE_GETPASS',
+    conf.check_cxx(msg='Checking for function getpass', define_name='HAVE_GETPASS', mandatory=False,
                    fragment='''#include <unistd.h>
                                int main() { getpass("Enter password"); }''')
 
@@ -88,6 +87,9 @@ def configure(conf):
                       header_name=['linux/if_addr.h', 'linux/if_link.h',
                                    'linux/netlink.h', 'linux/rtnetlink.h']):
         conf.env['HAVE_RTNETLINK'] = True
+        conf.check_cxx(msg='Checking for NETLINK_EXT_ACK', define_name='HAVE_NETLINK_EXT_ACK', mandatory=False,
+                       fragment='''#include <linux/netlink.h>
+                                   int main() { return NETLINK_EXT_ACK; }''')
         conf.check_cxx(msg='Checking for IFA_FLAGS', define_name='HAVE_IFA_FLAGS', mandatory=False,
                        fragment='''#include <linux/if_addr.h>
                                    int main() { return IFA_FLAGS; }''')
@@ -170,7 +172,7 @@ def build(bld):
         target='ndn-cxx',
         source=bld.path.ant_glob('src/**/*.cpp',
                                  excl=['src/**/*-osx.cpp',
-                                       'src/**/*-rtnl.cpp',
+                                       'src/**/*netlink*.cpp',
                                        'src/**/*-sqlite3.cpp']),
         features='pch',
         headers='src/common-pch.hpp',
@@ -184,7 +186,7 @@ def build(bld):
         libndn_cxx['use'] += ' OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN'
 
     if bld.env['HAVE_RTNETLINK']:
-        libndn_cxx['source'] += bld.path.ant_glob('src/**/*-rtnl.cpp')
+        libndn_cxx['source'] += bld.path.ant_glob('src/**/*netlink*.cpp')
 
     # In case we want to make it optional later
     libndn_cxx['source'] += bld.path.ant_glob('src/**/*-sqlite3.cpp')
@@ -251,14 +253,15 @@ def build(bld):
 
     headers = bld.path.ant_glob('src/**/*.hpp',
                                 excl=['src/**/*-osx.hpp',
-                                      'src/**/*-rtnl.hpp',
+                                      'src/**/*netlink*.hpp',
                                       'src/**/*-sqlite3.hpp',
                                       'src/**/detail/**/*'])
+
     if bld.env['HAVE_OSX_FRAMEWORKS']:
         headers += bld.path.ant_glob('src/**/*-osx.hpp', excl='src/**/detail/**/*')
 
     if bld.env['HAVE_RTNETLINK']:
-        headers += bld.path.ant_glob('src/**/*-rtnl.hpp', excl='src/**/detail/**/*')
+        headers += bld.path.ant_glob('src/**/*netlink*.hpp', excl='src/**/detail/**/*')
 
     # In case we want to make it optional later
     headers += bld.path.ant_glob('src/**/*-sqlite3.hpp', excl='src/**/detail/**/*')

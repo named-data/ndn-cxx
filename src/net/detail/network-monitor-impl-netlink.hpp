@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,14 +21,14 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_NET_NETWORK_MONITOR_IMPL_RTNL_HPP
-#define NDN_NET_NETWORK_MONITOR_IMPL_RTNL_HPP
+#ifndef NDN_NET_NETWORK_MONITOR_IMPL_NETLINK_HPP
+#define NDN_NET_NETWORK_MONITOR_IMPL_NETLINK_HPP
 
 #include "ndn-cxx-config.hpp"
 #include "../network-monitor.hpp"
 
 #ifndef NDN_CXX_HAVE_RTNETLINK
-#error "This file should not be compiled ..."
+#error "This file should not be included ..."
 #endif
 
 #include <boost/asio/posix/stream_descriptor.hpp>
@@ -36,15 +36,12 @@
 #include <array>
 #include <map>
 
-#include <linux/netlink.h>
-#include <linux/rtnetlink.h>
-#include <linux/if_addr.h>
-#include <linux/if_link.h>
-
 namespace ndn {
 namespace net {
 
-class NetworkMonitorImplRtnl : public NetworkMonitorImpl
+class NetlinkMessage;
+
+class NetworkMonitorImplNetlink : public NetworkMonitorImpl
 {
 public:
   using Error = NetworkMonitor::Error;
@@ -52,9 +49,9 @@ public:
   /** \brief initialize netlink socket and start enumerating interfaces
    */
   explicit
-  NetworkMonitorImplRtnl(boost::asio::io_service& io);
+  NetworkMonitorImplNetlink(boost::asio::io_service& io);
 
-  ~NetworkMonitorImplRtnl();
+  ~NetworkMonitorImplNetlink();
 
   uint32_t
   getCapabilities() const final
@@ -73,19 +70,14 @@ public:
   listNetworkInterfaces() const final;
 
 private:
-  struct RtnlRequest
-  {
-    nlmsghdr nlh;
-    ifinfomsg ifi;
-    rtattr rta __attribute__((aligned(NLMSG_ALIGNTO))); // rtattr has to be aligned
-    uint32_t rtext;                                     // space for IFLA_EXT_MASK
-  };
-
   bool
   isEnumerating() const;
 
   void
-  initSocket();
+  initSocket(int family);
+
+  void
+  joinGroup(int group);
 
   void
   sendDumpRequest(uint16_t nlmsgType);
@@ -98,16 +90,19 @@ private:
              const shared_ptr<boost::asio::posix::stream_descriptor>& socket);
 
   void
-  parseNetlinkMessage(const nlmsghdr* nlh, size_t len);
+  parseNetlinkMessage(const NetlinkMessage& nlmsg);
 
   void
-  parseLinkMessage(const nlmsghdr* nlh, const ifinfomsg* ifi);
+  parseLinkMessage(const NetlinkMessage& nlmsg);
 
   void
-  parseAddressMessage(const nlmsghdr* nlh, const ifaddrmsg* ifa);
+  parseAddressMessage(const NetlinkMessage& nlmsg);
 
   void
-  parseRouteMessage(const nlmsghdr* nlh, const rtmsg* rtm);
+  parseRouteMessage(const NetlinkMessage& nlmsg);
+
+  void
+  parseErrorMessage(const NetlinkMessage& nlmsg);
 
   static void
   updateInterfaceState(NetworkInterface& interface, uint8_t operState);
@@ -125,4 +120,4 @@ private:
 } // namespace net
 } // namespace ndn
 
-#endif // NDN_NET_NETWORK_MONITOR_IMPL_RTNL_HPP
+#endif // NDN_NET_NETWORK_MONITOR_IMPL_NETLINK_HPP

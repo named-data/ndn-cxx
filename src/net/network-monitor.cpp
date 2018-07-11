@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,8 +29,8 @@
 #include "detail/network-monitor-impl-osx.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplOsx
 #elif defined(NDN_CXX_HAVE_RTNETLINK)
-#include "detail/network-monitor-impl-rtnl.hpp"
-#define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplRtnl
+#include "detail/network-monitor-impl-netlink.hpp"
+#define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNetlink
 #else
 #include "detail/network-monitor-impl-noop.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNoop

@@ -26,7 +26,7 @@
 #include "../network-monitor.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#error "This file should not be compiled ..."
+#error "This file should not be included ..."
 #endif
 
 #include "../../util/cf-releaser-osx.hpp"
