@@ -86,8 +86,7 @@ private:
   asyncRead();
 
   void
-  handleRead(const boost::system::error_code& error, size_t nBytesReceived,
-             const shared_ptr<boost::asio::posix::stream_descriptor>& socket);
+  receiveMessage();
 
   void
   parseNetlinkMessage(const NetlinkMessage& nlmsg);
