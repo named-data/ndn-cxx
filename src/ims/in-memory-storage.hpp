@@ -178,8 +178,8 @@ public:
    *  entry completely matched with the prefix according to canonical ordering.
    *  For this case, user should substitute the prefix with full name.
    *
-   *  @note Please do not use this function directly in any derived class to erase
-   *  entry in the cache, use eraseHelper instead.
+   *  @warning Please do not use this function directly in any derived class to erase
+   *  an entry from the cache, use eraseImpl() instead.
    *  @note It will invoke beforeErase(shared_ptr<InMemoryStorageEntry>).
    */
   void
@@ -240,10 +240,10 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
 
   /** @brief Removes one Data packet from in-memory storage based on
    *  derived class implemented replacement policy
+   *  @return whether a Data packet was removed
    *
-   *  Please do not use this function directly in any derived class to erase
-   *  entry in the cache, use eraseHelper instead.
-   *  @return{ whether the Data was removed }
+   *  @warning Please do not use this function directly in any derived class to erase
+   *  an entry from the cache, use eraseImpl() instead.
    */
   virtual bool
   evictItem() = 0;
