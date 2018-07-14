@@ -26,10 +26,11 @@
 #include "field.hpp"
 #include "sequence.hpp"
 #include "tlv.hpp"
-
 #include "../encoding/block-helpers.hpp"
 #include "../util/concepts.hpp"
+
 #include <boost/concept/requires.hpp>
+#include <boost/endian/conversion.hpp>
 
 namespace ndn {
 namespace lp {
@@ -145,9 +146,9 @@ struct EncodeHelper<TAG, TlvType, uint64_t>
   static size_t
   encode(EncodingImpl<TAG>& encoder, uint64_t value)
   {
-    uint64_t be = htobe64(value);
-    const uint8_t* buf = reinterpret_cast<const uint8_t*>(&be);
-    return encoder.prependByteArrayBlock(TlvType::value, buf, sizeof(be));
+    boost::endian::native_to_big_inplace(value);
+    return encoder.prependByteArrayBlock(TlvType::value,
+                                         reinterpret_cast<const uint8_t*>(&value), sizeof(value));
   }
 };
 

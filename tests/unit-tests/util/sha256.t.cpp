@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,10 +21,10 @@
 
 #include "util/sha256.hpp"
 #include "util/string-helper.hpp"
-#include "encoding/endian.hpp"
 
 #include "boost-test.hpp"
 
+#include <boost/endian/conversion.hpp>
 #include <sstream>
 
 namespace ndn {
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorUint64t)
 
   Sha256 statefulSha256;
   for (size_t i = 0; i < sizeof(input) / sizeof(uint64_t); ++i) {
-    statefulSha256 << htobe64(input[i]);
+    statefulSha256 << boost::endian::native_to_big(input[i]);
   }
   ConstBufferPtr digest = statefulSha256.computeDigest();
 

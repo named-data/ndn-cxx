@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,15 +21,18 @@
 
 #include "encoder.hpp"
 
+#include <boost/endian/conversion.hpp>
+
 namespace ndn {
 namespace encoding {
 
-Encoder::Encoder(size_t totalReserve/* = MAX_NDN_PACKET_SIZE*/, size_t reserveFromBack/* = 400*/)
-  : m_buffer(new Buffer(totalReserve))
+namespace endian = boost::endian;
+
+Encoder::Encoder(size_t totalReserve, size_t reserveFromBack)
+  : m_buffer(make_shared<Buffer>(totalReserve))
 {
   m_begin = m_end = m_buffer->end() - (reserveFromBack < totalReserve ? reserveFromBack : 0);
 }
-
 
 Encoder::Encoder(const Block& block)
   : m_buffer(const_pointer_cast<Buffer>(block.getBuffer()))
@@ -38,30 +41,24 @@ Encoder::Encoder(const Block& block)
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
 void
 Encoder::reserveBack(size_t size)
 {
-  if ((m_end + size) > m_buffer->end())
+  if (m_end + size > m_buffer->end())
     reserve(m_buffer->size() * 2 + size, false);
 }
 
 void
 Encoder::reserveFront(size_t size)
 {
-  if ((m_buffer->begin() + size) > m_begin)
+  if (m_buffer->begin() + size > m_begin)
     reserve(m_buffer->size() * 2 + size, true);
 }
 
-
 Block
-Encoder::block(bool verifyLength/* = true*/) const
+Encoder::block(bool verifyLength) const
 {
-  return Block(m_buffer,
-               m_begin, m_end,
-               verifyLength);
+  return Block(m_buffer, m_begin, m_end, verifyLength);
 }
 
 void
@@ -97,9 +94,6 @@ Encoder::reserve(size_t size, bool addInFront)
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
 size_t
 Encoder::prependByte(uint8_t value)
 {
@@ -119,7 +113,6 @@ Encoder::appendByte(uint8_t value)
   m_end++;
   return 1;
 }
-
 
 size_t
 Encoder::prependByteArray(const uint8_t* array, size_t length)
@@ -141,7 +134,6 @@ Encoder::appendByteArray(const uint8_t* array, size_t length)
   return length;
 }
 
-
 size_t
 Encoder::prependVarNumber(uint64_t varNumber)
 {
@@ -150,19 +142,19 @@ Encoder::prependVarNumber(uint64_t varNumber)
     return 1;
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    uint16_t value = htobe16(static_cast<uint16_t>(varNumber));
+    uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
     prependByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
     prependByte(253);
     return 3;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    uint32_t value = htobe32(static_cast<uint32_t>(varNumber));
+    uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
     prependByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
     prependByte(254);
     return 5;
   }
   else {
-    uint64_t value = htobe64(varNumber);
+    uint64_t value = endian::native_to_big(varNumber);
     prependByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
     prependByte(255);
     return 9;
@@ -178,24 +170,23 @@ Encoder::appendVarNumber(uint64_t varNumber)
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
     appendByte(253);
-    uint16_t value = htobe16(static_cast<uint16_t>(varNumber));
+    uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
     appendByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
     return 3;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
     appendByte(254);
-    uint32_t value = htobe32(static_cast<uint32_t>(varNumber));
+    uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
     appendByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
     return 5;
   }
   else {
     appendByte(255);
-    uint64_t value = htobe64(varNumber);
+    uint64_t value = endian::native_to_big(varNumber);
     appendByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
     return 9;
   }
 }
-
 
 size_t
 Encoder::prependNonNegativeInteger(uint64_t varNumber)
@@ -204,15 +195,15 @@ Encoder::prependNonNegativeInteger(uint64_t varNumber)
     return prependByte(static_cast<uint8_t>(varNumber));
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    uint16_t value = htobe16(static_cast<uint16_t>(varNumber));
+    uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
     return prependByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    uint32_t value = htobe32(static_cast<uint32_t>(varNumber));
+    uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
     return prependByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
   }
   else {
-    uint64_t value = htobe64(varNumber);
+    uint64_t value = endian::native_to_big(varNumber);
     return prependByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
   }
 }
@@ -224,15 +215,15 @@ Encoder::appendNonNegativeInteger(uint64_t varNumber)
     return appendByte(static_cast<uint8_t>(varNumber));
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    uint16_t value = htobe16(static_cast<uint16_t>(varNumber));
+    uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
     return appendByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    uint32_t value = htobe32(static_cast<uint32_t>(varNumber));
+    uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
     return appendByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
   }
   else {
-    uint64_t value = htobe64(varNumber);
+    uint64_t value = endian::native_to_big(varNumber);
     return appendByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
   }
 }

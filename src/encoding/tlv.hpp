@@ -23,12 +23,13 @@
 #define NDN_ENCODING_TLV_HPP
 
 #include "buffer.hpp"
-#include "endian.hpp"
 
 #include <cstring>
 #include <iterator>
 #include <ostream>
 #include <type_traits>
+
+#include <boost/endian/conversion.hpp>
 
 namespace ndn {
 
@@ -323,21 +324,21 @@ public:
         uint16_t value = 0;
         std::memcpy(&value, &*begin, 2);
         begin += 2;
-        number = be16toh(value);
+        number = boost::endian::big_to_native(value);
         return true;
       }
       case 4: {
         uint32_t value = 0;
         std::memcpy(&value, &*begin, 4);
         begin += 4;
-        number = be32toh(value);
+        number = boost::endian::big_to_native(value);
         return true;
       }
       case 8: {
         uint64_t value = 0;
         std::memcpy(&value, &*begin, 8);
         begin += 8;
-        number = be64toh(value);
+        number = boost::endian::big_to_native(value);
         return true;
       }
       default: {
@@ -452,19 +453,19 @@ writeVarNumber(std::ostream& os, uint64_t number)
   }
   else if (number <= std::numeric_limits<uint16_t>::max()) {
     os.put(static_cast<char>(253));
-    uint16_t value = htobe16(static_cast<uint16_t>(number));
+    uint16_t value = boost::endian::native_to_big(static_cast<uint16_t>(number));
     os.write(reinterpret_cast<const char*>(&value), 2);
     return 3;
   }
   else if (number <= std::numeric_limits<uint32_t>::max()) {
     os.put(static_cast<char>(254));
-    uint32_t value = htobe32(static_cast<uint32_t>(number));
+    uint32_t value = boost::endian::native_to_big(static_cast<uint32_t>(number));
     os.write(reinterpret_cast<const char*>(&value), 4);
     return 5;
   }
   else {
     os.put(static_cast<char>(255));
-    uint64_t value = htobe64(number);
+    uint64_t value = boost::endian::native_to_big(number);
     os.write(reinterpret_cast<const char*>(&value), 8);
     return 9;
   }
@@ -504,17 +505,17 @@ writeNonNegativeInteger(std::ostream& os, uint64_t integer)
     return 1;
   }
   else if (integer <= std::numeric_limits<uint16_t>::max()) {
-    uint16_t value = htobe16(static_cast<uint16_t>(integer));
+    uint16_t value = boost::endian::native_to_big(static_cast<uint16_t>(integer));
     os.write(reinterpret_cast<const char*>(&value), 2);
     return 2;
   }
   else if (integer <= std::numeric_limits<uint32_t>::max()) {
-    uint32_t value = htobe32(static_cast<uint32_t>(integer));
+    uint32_t value = boost::endian::native_to_big(static_cast<uint32_t>(integer));
     os.write(reinterpret_cast<const char*>(&value), 4);
     return 4;
   }
   else {
-    uint64_t value = htobe64(integer);
+    uint64_t value = boost::endian::native_to_big(integer);
     os.write(reinterpret_cast<const char*>(&value), 8);
     return 8;
   }
