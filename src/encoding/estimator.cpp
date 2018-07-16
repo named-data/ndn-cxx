@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,37 +24,8 @@
 namespace ndn {
 namespace encoding {
 
-Estimator::Estimator(size_t totalReserve, size_t reserveFromBack)
-{
-}
-
 size_t
-Estimator::prependByte(uint8_t value)
-{
-  return 1;
-}
-
-size_t
-Estimator::appendByte(uint8_t value)
-{
-  return 1;
-}
-
-
-size_t
-Estimator::prependByteArray(const uint8_t* array, size_t length)
-{
-  return length;
-}
-
-size_t
-Estimator::appendByteArray(const uint8_t* array, size_t length)
-{
-  return prependByteArray(array, length);
-}
-
-size_t
-Estimator::prependVarNumber(uint64_t varNumber)
+Estimator::prependVarNumber(uint64_t varNumber) const noexcept
 {
   if (varNumber < 253) {
     return 1;
@@ -71,14 +42,13 @@ Estimator::prependVarNumber(uint64_t varNumber)
 }
 
 size_t
-Estimator::appendVarNumber(uint64_t varNumber)
+Estimator::appendVarNumber(uint64_t varNumber) const noexcept
 {
   return prependVarNumber(varNumber);
 }
 
-
 size_t
-Estimator::prependNonNegativeInteger(uint64_t varNumber)
+Estimator::prependNonNegativeInteger(uint64_t varNumber) const noexcept
 {
   if (varNumber <= std::numeric_limits<uint8_t>::max()) {
     return 1;
@@ -95,14 +65,13 @@ Estimator::prependNonNegativeInteger(uint64_t varNumber)
 }
 
 size_t
-Estimator::appendNonNegativeInteger(uint64_t varNumber)
+Estimator::appendNonNegativeInteger(uint64_t varNumber) const noexcept
 {
   return prependNonNegativeInteger(varNumber);
 }
 
-
 size_t
-Estimator::prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize)
+Estimator::prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
 {
   size_t totalLength = arraySize;
   totalLength += prependVarNumber(arraySize);
@@ -112,14 +81,13 @@ Estimator::prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arr
 }
 
 size_t
-Estimator::appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize)
+Estimator::appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
 {
   return prependByteArrayBlock(type, array, arraySize);
 }
 
-
 size_t
-Estimator::prependBlock(const Block& block)
+Estimator::prependBlock(const Block& block) const
 {
   if (block.hasWire()) {
     return block.size();
@@ -130,11 +98,10 @@ Estimator::prependBlock(const Block& block)
 }
 
 size_t
-Estimator::appendBlock(const Block& block)
+Estimator::appendBlock(const Block& block) const
 {
   return prependBlock(block);
 }
-
 
 } // namespace encoding
 } // namespace ndn

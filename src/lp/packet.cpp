@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,18 +33,18 @@ namespace {
 
 template<typename TAG>
 int
-getLocationSortOrder();
+getLocationSortOrder() noexcept;
 
 template<>
-int
-getLocationSortOrder<field_location_tags::Header>()
+constexpr int
+getLocationSortOrder<field_location_tags::Header>() noexcept
 {
   return 1;
 }
 
 template<>
-int
-getLocationSortOrder<field_location_tags::Fragment>()
+constexpr int
+getLocationSortOrder<field_location_tags::Fragment>() noexcept
 {
   return 2;
 }
@@ -52,17 +52,18 @@ getLocationSortOrder<field_location_tags::Fragment>()
 class FieldInfo
 {
 public:
-  FieldInfo();
+  constexpr
+  FieldInfo() noexcept = default;
 
   explicit
-  FieldInfo(uint64_t tlv);
+  FieldInfo(uint64_t tlv) noexcept;
 
 public:
-  uint64_t tlvType;       ///< TLV-TYPE of the field; 0 if field does not exist
-  bool isRecognized;      ///< is this field known
-  bool canIgnore;         ///< can this unknown field be ignored
-  bool isRepeatable;      ///< is the field repeatable
-  int locationSortOrder;  ///< sort order of field_location_tag
+  uint64_t tlvType = 0;       ///< TLV-TYPE of the field; 0 if field does not exist
+  bool isRecognized = false;  ///< is this field known
+  bool canIgnore = false;     ///< can this unknown field be ignored
+  bool isRepeatable = false;  ///< is the field repeatable
+  int locationSortOrder = getLocationSortOrder<field_location_tags::Header>(); ///< sort order of field_location_tag
 };
 
 class ExtractFieldInfo
@@ -71,8 +72,8 @@ public:
   using result_type = void;
 
   template<typename T>
-  void
-  operator()(FieldInfo* info, T) const
+  constexpr void
+  operator()(FieldInfo* info, const T&) const noexcept
   {
     if (T::TlvType::value != info->tlvType) {
       return;
@@ -84,21 +85,8 @@ public:
   }
 };
 
-FieldInfo::FieldInfo()
-  : tlvType(0)
-  , isRecognized(false)
-  , canIgnore(false)
-  , isRepeatable(false)
-  , locationSortOrder(getLocationSortOrder<field_location_tags::Header>())
-{
-}
-
-FieldInfo::FieldInfo(uint64_t tlv)
+FieldInfo::FieldInfo(uint64_t tlv) noexcept
   : tlvType(tlv)
-  , isRecognized(false)
-  , canIgnore(false)
-  , isRepeatable(false)
-  , locationSortOrder(getLocationSortOrder<field_location_tags::Header>())
 {
   boost::mpl::for_each<FieldSet>(boost::bind(ExtractFieldInfo(), this, _1));
   if (!isRecognized) {
@@ -108,8 +96,8 @@ FieldInfo::FieldInfo(uint64_t tlv)
   }
 }
 
-bool
-compareFieldSortOrder(const FieldInfo& first, const FieldInfo& second)
+constexpr bool
+compareFieldSortOrder(const FieldInfo& first, const FieldInfo& second) noexcept
 {
   return (first.locationSortOrder < second.locationSortOrder) ||
          (first.locationSortOrder == second.locationSortOrder && first.tlvType < second.tlvType);
@@ -183,7 +171,7 @@ Packet::wireDecode(const Block& wire)
 }
 
 bool
-Packet::comparePos(uint64_t first, const Block& second)
+Packet::comparePos(uint64_t first, const Block& second) noexcept
 {
   FieldInfo firstInfo(first);
   FieldInfo secondInfo(second.type());

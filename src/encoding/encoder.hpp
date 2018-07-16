@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,22 +32,9 @@ namespace encoding {
  * Interface of this class (mostly) matches interface of Estimator class
  * @sa Estimator
  */
-class Encoder
+class Encoder : noncopyable
 {
 public: // common interface between Encoder and Estimator
-  /**
-   * @brief Create instance of the encoder with the specified reserved sizes
-   * @param totalReserve    initial buffer size to reserve
-   * @param reserveFromBack number of bytes to reserve for append* operations
-   */
-  explicit
-  Encoder(size_t totalReserve = MAX_NDN_PACKET_SIZE, size_t reserveFromBack = 400);
-
-  Encoder(const Encoder&) = delete;
-
-  Encoder&
-  operator=(const Encoder&) = delete;
-
   /**
    * @brief Prepend a byte
    */
@@ -144,6 +131,14 @@ public: // unique interface to the Encoder
   using const_iterator = Buffer::const_iterator;
 
   /**
+   * @brief Create instance of the encoder with the specified reserved sizes
+   * @param totalReserve    initial buffer size to reserve
+   * @param reserveFromBack number of bytes to reserve for append* operations
+   */
+  explicit
+  Encoder(size_t totalReserve = MAX_NDN_PACKET_SIZE, size_t reserveFromBack = 400);
+
+  /**
    * @brief Create EncodingBlock from existing block
    *
    * This is a dangerous constructor and should be used with caution.
@@ -188,16 +183,15 @@ public: // unique interface to the Encoder
    * @brief Get size of the underlying buffer
    */
   size_t
-  capacity() const;
+  capacity() const noexcept;
 
   /**
    * @brief Get underlying buffer
    */
   shared_ptr<Buffer>
-  getBuffer();
+  getBuffer() const noexcept;
 
 public: // accessors
-
   /**
    * @brief Get an iterator pointing to the first byte of the encoded buffer
    */
@@ -216,6 +210,9 @@ public: // accessors
   const_iterator
   begin() const;
 
+  /**
+   * @brief Get an iterator pointing to the past-the-end byte of the encoded buffer
+   */
   const_iterator
   end() const;
 
@@ -232,10 +229,10 @@ public: // accessors
   buf() const;
 
   /**
-   * @brief Get size of the encoded buffer
+   * @brief Get the size of the encoded buffer
    */
   size_t
-  size() const;
+  size() const noexcept;
 
   /**
    * @brief Create Block from the underlying buffer
@@ -256,21 +253,20 @@ private:
   iterator m_end;
 };
 
-
 inline size_t
-Encoder::size() const
+Encoder::size() const noexcept
 {
   return m_end - m_begin;
 }
 
 inline shared_ptr<Buffer>
-Encoder::getBuffer()
+Encoder::getBuffer() const noexcept
 {
   return m_buffer;
 }
 
 inline size_t
-Encoder::capacity() const
+Encoder::capacity() const noexcept
 {
   return m_buffer->size();
 }
@@ -312,7 +308,7 @@ Encoder::buf() const
 }
 
 template<class Iterator>
-inline size_t
+size_t
 Encoder::prependRange(Iterator first, Iterator last)
 {
   using ValueType = typename std::iterator_traits<Iterator>::value_type;
@@ -326,9 +322,8 @@ Encoder::prependRange(Iterator first, Iterator last)
   return length;
 }
 
-
 template<class Iterator>
-inline size_t
+size_t
 Encoder::appendRange(Iterator first, Iterator last)
 {
   using ValueType = typename std::iterator_traits<Iterator>::value_type;
@@ -341,7 +336,6 @@ Encoder::appendRange(Iterator first, Iterator last)
   m_end += length;
   return length;
 }
-
 
 } // namespace encoding
 } // namespace ndn

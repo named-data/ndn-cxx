@@ -50,7 +50,7 @@ Block::Block()
 }
 
 Block::Block(const EncodingBuffer& buffer)
-  : Block(const_cast<EncodingBuffer&>(buffer).getBuffer(), buffer.begin(), buffer.end(), true)
+  : Block(buffer.getBuffer(), buffer.begin(), buffer.end(), true)
 {
 }
 

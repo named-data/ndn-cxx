@@ -22,12 +22,13 @@
 #ifndef NDN_ENCODING_TLV_HPP
 #define NDN_ENCODING_TLV_HPP
 
-#include "buffer.hpp"
+#include "../common.hpp"
 
 #include <cstring>
 #include <iterator>
 #include <ostream>
 #include <type_traits>
+#include <vector>
 
 #include <boost/endian/conversion.hpp>
 
@@ -165,8 +166,8 @@ isCriticalType(uint32_t type)
 }
 
 /**
- * @brief Read VAR-NUMBER in NDN-TLV encoding
- * @tparam Iterator an iterator or pointer whose value is assignable to uint8_t
+ * @brief Read VAR-NUMBER in NDN-TLV encoding.
+ * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
  * @param [inout] begin  Begin of the buffer, will be incremented to point to the first byte after
  *                       the read VAR-NUMBER
@@ -174,15 +175,14 @@ isCriticalType(uint32_t type)
  * @param [out]   number Read VAR-NUMBER
  *
  * @return true if number was successfully read from input, false otherwise
- * @note This call never throws exceptions
  */
 template<typename Iterator>
 bool
-readVarNumber(Iterator& begin, const Iterator& end, uint64_t& number);
+readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept;
 
 /**
- * @brief Read TLV-TYPE
- * @tparam Iterator an iterator or pointer whose value is assignable to uint8_t
+ * @brief Read TLV-TYPE.
+ * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
  * @param [inout] begin  Begin of the buffer, will be incremented to point to the first byte after
  *                       the read TLV-TYPE
@@ -190,17 +190,16 @@ readVarNumber(Iterator& begin, const Iterator& end, uint64_t& number);
  * @param [out]   type  Read TLV-TYPE
  *
  * @return true if TLV-TYPE was successfully read from input, false otherwise
- * @note This call never throws exceptions
- * @note This call is largely equivalent to tlv::readVarNumber, but it will return false if type
- *       is larger than 2^32-1 (TLV-TYPE in this library is implemented as uint32_t)
+ * @note This function is largely equivalent to readVarNumber(), except that it returns false if
+ *       the TLV-TYPE is larger than 2^32-1 (TLV-TYPE in this library is implemented as `uint32_t`)
  */
 template<typename Iterator>
 bool
-readType(Iterator& begin, const Iterator& end, uint32_t& type);
+readType(Iterator& begin, Iterator end, uint32_t& type) noexcept;
 
 /**
- * @brief Read VAR-NUMBER in NDN-TLV encoding
- * @tparam Iterator an iterator or pointer whose value is assignable to uint8_t
+ * @brief Read VAR-NUMBER in NDN-TLV encoding.
+ * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
  * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
  *                      the read VAR-NUMBER
@@ -210,40 +209,40 @@ readType(Iterator& begin, const Iterator& end, uint32_t& type);
  */
 template<typename Iterator>
 uint64_t
-readVarNumber(Iterator& begin, const Iterator& end);
+readVarNumber(Iterator& begin, Iterator end);
 
 /**
- * @brief Read TLV Type
- * @tparam Iterator an iterator or pointer whose value is assignable to uint8_t
+ * @brief Read TLV-TYPE.
+ * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
  * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
  *                      the read TLV-TYPE
  * @param [in]    end   End of the buffer
  *
- * @throw tlv::Error VAR-NUMBER cannot be read
- * @note This call is largely equivalent to tlv::readVarNumber, but exception will be thrown if type
- *       is larger than 2^32-1 (TLV-TYPE in this library is implemented as uint32_t)
+ * @throw tlv::Error TLV-TYPE cannot be read
+ * @note This function is largely equivalent to readVarNumber(), except that it throws if
+ *       the TLV-TYPE is larger than 2^32-1 (TLV-TYPE in this library is implemented as `uint32_t`)
  */
 template<typename Iterator>
 uint32_t
-readType(Iterator& begin, const Iterator& end);
+readType(Iterator& begin, Iterator end);
 
 /**
- * @brief Get number of bytes necessary to hold value of VAR-NUMBER
+ * @brief Get the number of bytes necessary to hold the value of @p number encoded as VAR-NUMBER.
  */
 constexpr size_t
-sizeOfVarNumber(uint64_t number);
+sizeOfVarNumber(uint64_t number) noexcept;
 
 /**
- * @brief Write VAR-NUMBER to the specified stream
+ * @brief Write VAR-NUMBER to the specified stream.
  * @return length of written VAR-NUMBER
  */
 size_t
 writeVarNumber(std::ostream& os, uint64_t number);
 
 /**
- * @brief Read nonNegativeInteger in NDN-TLV encoding
- * @tparam Iterator an iterator or pointer whose value is assignable to uint8_t
+ * @brief Read nonNegativeInteger in NDN-TLV encoding.
+ * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
  * @param [in]    size  size of the nonNegativeInteger
  * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
@@ -252,20 +251,20 @@ writeVarNumber(std::ostream& os, uint64_t number);
  *
  * @throw tlv::Error number cannot be read
  * @note How many bytes to read is directly controlled by \p size, which can be either 1, 2, 4, or 8.
- *       If \p size differs from \p std::distance(begin, end), tlv::Error exception will be thrown.
+ *       If \p size differs from `std::distance(begin, end)`, tlv::Error exception will be thrown.
  */
 template<typename Iterator>
 uint64_t
-readNonNegativeInteger(size_t size, Iterator& begin, const Iterator& end);
+readNonNegativeInteger(size_t size, Iterator& begin, Iterator end);
 
 /**
- * @brief Get number of bytes necessary to hold value of nonNegativeInteger
+ * @brief Get the number of bytes necessary to hold the value of @p integer encoded as nonNegativeInteger.
  */
 constexpr size_t
-sizeOfNonNegativeInteger(uint64_t integer);
+sizeOfNonNegativeInteger(uint64_t integer) noexcept;
 
 /**
- * @brief Write nonNegativeInteger to the specified stream
+ * @brief Write nonNegativeInteger to the specified stream.
  * @return length of written nonNegativeInteger
  */
 size_t
@@ -289,8 +288,8 @@ template<typename Iterator>
 class ReadNumberSlow
 {
 public:
-  bool
-  operator()(size_t size, Iterator& begin, const Iterator& end, uint64_t& number) const
+  constexpr bool
+  operator()(size_t size, Iterator& begin, Iterator end, uint64_t& number) const noexcept
   {
     number = 0;
     size_t count = 0;
@@ -307,8 +306,8 @@ template<typename Iterator>
 class ReadNumberFast
 {
 public:
-  bool
-  operator()(size_t size, Iterator& begin, const Iterator& end, uint64_t& number) const
+  constexpr bool
+  operator()(size_t size, Iterator& begin, Iterator end, uint64_t& number) const noexcept
   {
     if (begin + size > end) {
       return false;
@@ -377,7 +376,7 @@ class ReadNumber : public std::conditional_t<shouldSelectContiguousReadNumber<It
 
 template<typename Iterator>
 bool
-readVarNumber(Iterator& begin, const Iterator& end, uint64_t& number)
+readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept
 {
   if (begin == end)
     return false;
@@ -396,7 +395,7 @@ readVarNumber(Iterator& begin, const Iterator& end, uint64_t& number)
 
 template<typename Iterator>
 bool
-readType(Iterator& begin, const Iterator& end, uint32_t& type)
+readType(Iterator& begin, Iterator end, uint32_t& type) noexcept
 {
   uint64_t number = 0;
   bool isOk = readVarNumber(begin, end, number);
@@ -410,15 +409,16 @@ readType(Iterator& begin, const Iterator& end, uint32_t& type)
 
 template<typename Iterator>
 uint64_t
-readVarNumber(Iterator& begin, const Iterator& end)
+readVarNumber(Iterator& begin, Iterator end)
 {
-  if (begin == end)
-    BOOST_THROW_EXCEPTION(Error("Empty buffer during TLV processing"));
+  if (begin == end) {
+    BOOST_THROW_EXCEPTION(Error("Empty buffer during TLV parsing"));
+  }
 
   uint64_t value = 0;
   bool isOk = readVarNumber(begin, end, value);
   if (!isOk) {
-    BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
+    BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV parsing"));
   }
 
   return value;
@@ -426,7 +426,7 @@ readVarNumber(Iterator& begin, const Iterator& end)
 
 template<typename Iterator>
 uint32_t
-readType(Iterator& begin, const Iterator& end)
+readType(Iterator& begin, Iterator end)
 {
   uint64_t type = readVarNumber(begin, end);
   if (type > std::numeric_limits<uint32_t>::max()) {
@@ -437,7 +437,7 @@ readType(Iterator& begin, const Iterator& end)
 }
 
 constexpr size_t
-sizeOfVarNumber(uint64_t number)
+sizeOfVarNumber(uint64_t number) noexcept
 {
   return number < 253 ? 1 :
          number <= std::numeric_limits<uint16_t>::max() ? 3 :
@@ -473,7 +473,7 @@ writeVarNumber(std::ostream& os, uint64_t number)
 
 template<typename Iterator>
 uint64_t
-readNonNegativeInteger(size_t size, Iterator& begin, const Iterator& end)
+readNonNegativeInteger(size_t size, Iterator& begin, Iterator end)
 {
   if (size != 1 && size != 2 && size != 4 && size != 8) {
     BOOST_THROW_EXCEPTION(Error("Invalid length for nonNegativeInteger "
@@ -483,14 +483,14 @@ readNonNegativeInteger(size_t size, Iterator& begin, const Iterator& end)
   uint64_t number = 0;
   bool isOk = detail::ReadNumber<Iterator>()(size, begin, end, number);
   if (!isOk) {
-    BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV processing"));
+    BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV parsing"));
   }
 
   return number;
 }
 
 constexpr size_t
-sizeOfNonNegativeInteger(uint64_t integer)
+sizeOfNonNegativeInteger(uint64_t integer) noexcept
 {
   return integer <= std::numeric_limits<uint8_t>::max() ? 1 :
          integer <= std::numeric_limits<uint16_t>::max() ? 2 :

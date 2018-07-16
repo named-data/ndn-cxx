@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,23 +33,21 @@ BOOST_AUTO_TEST_SUITE(TestEstimator)
 BOOST_AUTO_TEST_CASE(Basic)
 {
   Estimator e;
-  Estimator e1(100);
-  Estimator e2(100, 100);
 
   BOOST_CHECK_EQUAL(e.prependByte(1), 1);
   BOOST_CHECK_EQUAL(e.appendByte(1), 1);
 
   uint8_t buf1[] = {'t', 'e', 's', 't', '1'};
-  BOOST_CHECK_EQUAL(e1.prependByteArray(buf1, sizeof(buf1)), 5);
-  BOOST_CHECK_EQUAL(e1.appendByteArray(buf1, sizeof(buf1)), 5);
+  BOOST_CHECK_EQUAL(e.prependByteArray(buf1, sizeof(buf1)), 5);
+  BOOST_CHECK_EQUAL(e.appendByteArray(buf1, sizeof(buf1)), 5);
 
   std::vector<uint8_t> buf2 = {'t', 'e', 's', 't', '2'};
-  BOOST_CHECK_EQUAL(e1.prependRange(buf2.begin(), buf2.end()), 5);
-  BOOST_CHECK_EQUAL(e1.appendRange(buf2.begin(), buf2.end()), 5);
+  BOOST_CHECK_EQUAL(e.prependRange(buf2.begin(), buf2.end()), 5);
+  BOOST_CHECK_EQUAL(e.appendRange(buf2.begin(), buf2.end()), 5);
 
   std::list<uint8_t> buf3 = {'t', 'e', 's', 't', '2'};
-  BOOST_CHECK_EQUAL(e2.prependRange(buf3.begin(), buf3.end()), 5);
-  BOOST_CHECK_EQUAL(e2.appendRange(buf3.begin(), buf3.end()), 5);
+  BOOST_CHECK_EQUAL(e.prependRange(buf3.begin(), buf3.end()), 5);
+  BOOST_CHECK_EQUAL(e.appendRange(buf3.begin(), buf3.end()), 5);
 }
 
 BOOST_AUTO_TEST_CASE(Tlv)

@@ -20,6 +20,7 @@
  */
 
 #include "encoding/tlv.hpp"
+#include "encoding/buffer.hpp"
 
 #include "boost-test.hpp"
 
