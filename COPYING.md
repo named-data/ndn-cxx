@@ -3,11 +3,11 @@ version 3 or later.
 
 ndn-cxx relies on third-party software, licensed under the following licenses:
 
-- The Boost libraries are licensed under the terms of the
-  [Boost Software License, Version 1.0](https://www.boost.org/users/license.html)
+- The Boost libraries are licensed under the
+  [Boost Software License 1.0](https://www.boost.org/users/license.html)
 
 - optional-lite by Martin Moene is licensed under the
-  [MIT License](https://github.com/martinmoene/optional-lite/blob/master/LICENSE)
+  [Boost Software License 1.0](https://github.com/martinmoene/optional-lite/blob/master/LICENSE.txt)
 
 - SQLite is in the [public domain](https://www.sqlite.org/copyright.html)
 
