@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,8 @@ namespace signal {
 class Connection
 {
 public:
-  Connection();
+  constexpr
+  Connection() noexcept = default;
 
   /** \brief disconnects from the signal
    *  \note If the connection is already disconnected, or if the Signal has been destructed,
@@ -49,7 +50,7 @@ public:
    *  \return false if disconnected from the signal
    */
   bool
-  isConnected() const;
+  isConnected() const noexcept;
 
   /** \brief compare for equality
    *
@@ -66,7 +67,7 @@ private:
   /** \param disconnect weak_ptr to a function that disconnects the handler
    */
   explicit
-  Connection(weak_ptr<function<void()>> disconnect);
+  Connection(weak_ptr<function<void()>> disconnect) noexcept;
 
   template<typename Owner, typename ...TArgs>
   friend class Signal;

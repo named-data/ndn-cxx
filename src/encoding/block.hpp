@@ -61,6 +61,24 @@ public: // constructor, creation, assignment
    */
   Block();
 
+  /** @brief Copy constructor
+   */
+  Block(const Block&);
+
+  /** @brief Copy assignment operator
+   */
+  Block&
+  operator=(const Block&);
+
+  /** @brief Move constructor
+   */
+  Block(Block&&) noexcept;
+
+  /** @brief Move assignment operator
+   */
+  Block&
+  operator=(Block&&) noexcept;
+
   /** @brief Parse Block from an EncodingBuffer
    *  @param buffer an EncodingBuffer containing one TLV element
    *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
@@ -412,13 +430,13 @@ protected:
   Buffer::const_iterator m_valueBegin; ///< @sa m_buffer
   Buffer::const_iterator m_valueEnd; ///< @sa m_buffer
 
-  uint32_t m_type; ///< TLV-TYPE
+  uint32_t m_type = std::numeric_limits<uint32_t>::max(); ///< TLV-TYPE
 
   /** @brief total size including Type-Length-Value
    *
    *  This field is valid only if empty() is false.
    */
-  uint32_t m_size;
+  size_t m_size = 0;
 
   /** @brief sub elements
    *
@@ -438,6 +456,12 @@ protected:
   friend std::ostream&
   operator<<(std::ostream& os, const Block& block);
 };
+
+inline
+Block::Block(Block&&) noexcept = default;
+
+inline Block&
+Block::operator=(Block&&) noexcept = default;
 
 /** @brief Compare whether two Blocks have same TLV-TYPE, TLV-LENGTH, and TLV-VALUE
  */

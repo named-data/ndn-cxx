@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,44 +28,53 @@ namespace ndn {
 namespace util {
 namespace scheduler {
 
-/** \brief Event that is automatically cancelled upon destruction
+/** \brief Event that is automatically cancelled upon destruction.
  */
-class ScopedEventId : noncopyable
+class ScopedEventId
 {
 public:
-  /** \brief Construct ScopedEventId tied to the specified scheduler
+  /** \brief Construct ScopedEventId tied to the specified scheduler.
    *  \param scheduler Scheduler to which the event is tied.  Behavior is undefined if
-   *                   scheduler is destructed before an uncanceled ScopedEventId.
+   *                   \p scheduler is destructed before an uncanceled ScopedEventId.
    */
   explicit
-  ScopedEventId(Scheduler& scheduler);
+  ScopedEventId(Scheduler& scheduler) noexcept;
 
-  /** \brief move constructor
+  ScopedEventId(const ScopedEventId&) = delete;
+
+  ScopedEventId&
+  operator=(const ScopedEventId&) = delete;
+
+  /** \brief Move constructor.
    */
-  ScopedEventId(ScopedEventId&& other) noexcept;
+  ScopedEventId(ScopedEventId&&) noexcept;
 
-  /** \brief assigns an event
+  /** \brief Move assignment operator.
+   */
+  ScopedEventId&
+  operator=(ScopedEventId&&) noexcept;
+
+  /** \brief Assign an event.
    *
    *  If a different event has been assigned to this instance previously,
    *  that event will be cancelled immediately.
    *
-   *  \note The caller should ensure that ScopedEventId is tied to a correct scheduler.
-   *        Behavior is undefined when assigning event scheduled in another scheduler instance.
+   *  \note The caller should ensure that this ScopedEventId is tied to the correct Scheduler.
+   *        Behavior is undefined when assigning an event scheduled in another Scheduler instance.
    */
   ScopedEventId&
-  operator=(const EventId& event);
+  operator=(EventId event);
 
-  /** \brief cancels the event
+  /** \brief Destructor, automatically cancels the event.
    */
-  ~ScopedEventId() noexcept;
+  ~ScopedEventId();
 
-  /** \brief cancels the event manually
+  /** \brief Manually cancel the event.
    */
   void
   cancel();
 
-  /** \brief releases the event so that it won't be canceled
-   *         when this ScopedEventId is destructed
+  /** \brief Release the event so that it won't be canceled when this ScopedEventId is destructed.
    */
   void
   release() noexcept;
@@ -74,6 +83,12 @@ private:
   Scheduler* m_scheduler; // pointer to allow move semantics
   EventId m_event;
 };
+
+inline
+ScopedEventId::ScopedEventId(ScopedEventId&&) noexcept = default;
+
+inline ScopedEventId&
+ScopedEventId::operator=(ScopedEventId&&) noexcept = default;
 
 } // namespace scheduler
 } // namespace util

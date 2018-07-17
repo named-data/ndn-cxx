@@ -34,20 +34,17 @@
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Block>));
-static_assert(std::is_nothrow_move_constructible<Block>::value,
-              "Block must be MoveConstructible with noexcept");
-static_assert(std::is_nothrow_move_assignable<Block>::value,
-              "Block must be MoveAssignable with noexcept");
 
 const size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = MAX_NDN_PACKET_SIZE;
 
 // ---- constructor, creation, assignment ----
 
-Block::Block()
-  : m_type(std::numeric_limits<uint32_t>::max())
-  , m_size(0)
-{
-}
+Block::Block() = default;
+
+Block::Block(const Block&) = default;
+
+Block&
+Block::operator=(const Block&) = default;
 
 Block::Block(const EncodingBuffer& buffer)
   : Block(buffer.getBuffer(), buffer.begin(), buffer.end(), true)
@@ -116,10 +113,13 @@ Block::Block(const uint8_t* buf, size_t bufSize)
   uint64_t length = tlv::readVarNumber(pos, end);
   // pos now points to TLV-VALUE
 
+  BOOST_ASSERT(pos <= end);
   if (length > static_cast<uint64_t>(end - pos)) {
     BOOST_THROW_EXCEPTION(Error("Not enough bytes in the buffer to fully parse TLV"));
   }
-  size_t typeLengthSize = pos - buf;
+
+  BOOST_ASSERT(pos > buf);
+  uint64_t typeLengthSize = static_cast<uint64_t>(pos - buf);
   m_size = typeLengthSize + length;
 
   m_buffer = make_shared<Buffer>(buf, m_size);
@@ -262,7 +262,7 @@ void
 Block::resetWire()
 {
   m_buffer.reset(); // discard underlying buffer by resetting shared_ptr
-  m_begin = m_end = m_valueBegin = m_valueEnd = Buffer::const_iterator();
+  m_begin = m_end = m_valueBegin = m_valueEnd = {};
 }
 
 Buffer::const_iterator
@@ -313,7 +313,7 @@ Block::value() const
 size_t
 Block::value_size() const
 {
-  return hasValue() ? m_valueEnd - m_valueBegin : 0;
+  return hasValue() ? static_cast<size_t>(m_valueEnd - m_valueBegin) : 0;
 }
 
 Block

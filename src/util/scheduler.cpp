@@ -51,15 +51,16 @@ public:
   EventQueue::const_iterator queueIt;
 };
 
-EventId::operator bool() const
+EventId::operator bool() const noexcept
 {
-  return !m_info.expired() && !m_info.lock()->isExpired;
+  auto sp = m_info.lock();
+  return sp != nullptr && !sp->isExpired;
 }
 
 bool
-EventId::operator==(const EventId& other) const
+EventId::operator==(const EventId& other) const noexcept
 {
-  return (!(*this) && !other) ||
+  return (!*this && !other) ||
          !(m_info.owner_before(other.m_info) || other.m_info.owner_before(m_info));
 }
 
@@ -70,7 +71,7 @@ operator<<(std::ostream& os, const EventId& eventId)
 }
 
 bool
-EventQueueCompare::operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const
+EventQueueCompare::operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const noexcept
 {
   return a->expireTime < b->expireTime;
 }

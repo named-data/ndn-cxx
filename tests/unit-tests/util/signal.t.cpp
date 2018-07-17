@@ -289,9 +289,9 @@ BOOST_AUTO_TEST_CASE(AutoDisconnectRelease)
 BOOST_AUTO_TEST_CASE(AutoDisconnectMove)
 {
   SignalOwner0 so;
-  unique_ptr<ScopedConnection> sc2;
-
   int hit = 0;
+
+  unique_ptr<ScopedConnection> sc2;
   {
     ScopedConnection sc = so.sig.connect([&hit] { ++hit; });
 
@@ -299,15 +299,35 @@ BOOST_AUTO_TEST_CASE(AutoDisconnectMove)
     BOOST_CHECK_EQUAL(hit, 1); // handler called
     BOOST_CHECK_EQUAL(sc.isConnected(), true);
 
-    sc2.reset(new ScopedConnection(std::move(sc)));
+    sc2 = make_unique<ScopedConnection>(std::move(sc)); // move constructor
     BOOST_CHECK_EQUAL(sc.isConnected(), false);
     BOOST_CHECK_EQUAL(sc2->isConnected(), true);
 
-    // sc goes out of scope, but not disconnecting
+    // sc goes out of scope, but without disconnecting
   }
 
   so.emitSignal(sig);
   BOOST_CHECK_EQUAL(hit, 2); // handler called
+  sc2.reset();
+
+  ScopedConnection sc3;
+  {
+    ScopedConnection sc = so.sig.connect([&hit] { ++hit; });
+
+    so.emitSignal(sig);
+    BOOST_CHECK_EQUAL(hit, 3); // handler called
+    BOOST_CHECK_EQUAL(sc.isConnected(), true);
+    BOOST_CHECK_EQUAL(sc3.isConnected(), false);
+
+    sc3 = std::move(sc); // move assignment
+    BOOST_CHECK_EQUAL(sc.isConnected(), false);
+    BOOST_CHECK_EQUAL(sc3.isConnected(), true);
+
+    // sc goes out of scope, but without disconnecting
+  }
+
+  so.emitSignal(sig);
+  BOOST_CHECK_EQUAL(hit, 4); // handler called
 }
 
 BOOST_AUTO_TEST_CASE(ConnectSingleShot)

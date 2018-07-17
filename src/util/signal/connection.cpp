@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,26 +27,22 @@ namespace signal {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Connection>));
 
-Connection::Connection()
-{
-}
-
-Connection::Connection(weak_ptr<function<void()>> disconnect)
-  : m_disconnect(disconnect)
+Connection::Connection(weak_ptr<function<void()>> disconnect) noexcept
+  : m_disconnect(std::move(disconnect))
 {
 }
 
 void
 Connection::disconnect()
 {
-  shared_ptr<function<void()>> f = m_disconnect.lock();
+  auto f = m_disconnect.lock();
   if (f != nullptr) {
     (*f)();
   }
 }
 
 bool
-Connection::isConnected() const
+Connection::isConnected() const noexcept
 {
   return !m_disconnect.expired();
 }
@@ -54,8 +50,8 @@ Connection::isConnected() const
 bool
 Connection::operator==(const Connection& other) const
 {
-  shared_ptr<function<void()>> f1 = m_disconnect.lock();
-  shared_ptr<function<void()>> f2 = other.m_disconnect.lock();
+  auto f1 = m_disconnect.lock();
+  auto f2 = other.m_disconnect.lock();
   return f1 == f2;
 }
 

@@ -25,35 +25,24 @@ namespace ndn {
 namespace util {
 namespace signal {
 
-static_assert(std::is_nothrow_move_constructible<ScopedConnection>::value,
-              "ScopedConnection must be MoveConstructible with noexcept");
-
-ScopedConnection::ScopedConnection() = default;
-
-ScopedConnection::ScopedConnection(const Connection& connection)
-  : m_connection(connection)
+ScopedConnection::ScopedConnection(Connection connection) noexcept
+  : m_connection(std::move(connection))
 {
-}
-
-ScopedConnection::ScopedConnection(ScopedConnection&& other) noexcept
-  : m_connection(other.m_connection)
-{
-  other.release();
 }
 
 ScopedConnection&
-ScopedConnection::operator=(const Connection& connection)
+ScopedConnection::operator=(Connection connection)
 {
   if (m_connection != connection) {
-    m_connection.disconnect();
-    m_connection = connection;
+    disconnect();
+    m_connection = std::move(connection);
   }
   return *this;
 }
 
-ScopedConnection::~ScopedConnection() noexcept
+ScopedConnection::~ScopedConnection()
 {
-  m_connection.disconnect();
+  disconnect();
 }
 
 void
@@ -63,13 +52,13 @@ ScopedConnection::disconnect()
 }
 
 bool
-ScopedConnection::isConnected() const
+ScopedConnection::isConnected() const noexcept
 {
   return m_connection.isConnected();
 }
 
 void
-ScopedConnection::release()
+ScopedConnection::release() noexcept
 {
   m_connection = {};
 }

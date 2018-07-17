@@ -24,6 +24,7 @@
 
 #include "boost-test.hpp"
 #include "../unit-test-time-fixture.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
@@ -253,9 +254,9 @@ BOOST_AUTO_TEST_CASE(ConstructEmpty)
 {
   EventId eid;
   eid = nullptr;
+  EventId eid2(nullptr);
 
-  // avoid "test case [...] did not check any assertions" message from Boost.Test
-  BOOST_CHECK(true);
+  BOOST_CHECK(!eid && !eid2);
 }
 
 BOOST_AUTO_TEST_CASE(Compare)
@@ -273,12 +274,12 @@ BOOST_AUTO_TEST_CASE(Compare)
   BOOST_CHECK_EQUAL(eid != nullptr, true);
 
   eid2 = eid;
-  BOOST_CHECK_EQUAL(eid == eid2, true);
+  BOOST_CHECK_EQUAL(eid, eid2);
   BOOST_CHECK_EQUAL(eid != eid2, false);
 
   eid2 = scheduler.scheduleEvent(10_ms, []{});
   BOOST_CHECK_EQUAL(eid == eid2, false);
-  BOOST_CHECK_EQUAL(eid != eid2, true);
+  BOOST_CHECK_NE(eid, eid2);
 }
 
 BOOST_AUTO_TEST_CASE(Valid)
@@ -293,10 +294,8 @@ BOOST_AUTO_TEST_CASE(Valid)
 
   EventId eid2 = eid;
   scheduler.cancelEvent(eid2);
-  BOOST_CHECK_EQUAL(static_cast<bool>(eid), false);
-  BOOST_CHECK_EQUAL(!eid, true);
-  BOOST_CHECK_EQUAL(static_cast<bool>(eid2), false);
-  BOOST_CHECK_EQUAL(!eid2, true);
+  BOOST_CHECK(!eid);
+  BOOST_CHECK(!eid2);
 }
 
 BOOST_AUTO_TEST_CASE(DuringCallback)
@@ -309,17 +308,14 @@ BOOST_AUTO_TEST_CASE(DuringCallback)
     isCallbackInvoked = true;
 
     // eid is "expired" during callback execution
-    BOOST_CHECK_EQUAL(static_cast<bool>(eid), false);
-    BOOST_CHECK_EQUAL(!eid, true);
-    BOOST_CHECK_EQUAL(eid == eid2, false);
-    BOOST_CHECK_EQUAL(eid != eid2, true);
-    BOOST_CHECK_EQUAL(eid == nullptr, true);
-    BOOST_CHECK_EQUAL(eid != nullptr, false);
+    BOOST_CHECK(!eid);
+    BOOST_CHECK(eid == nullptr);
+    BOOST_CHECK_NE(eid, eid2);
 
     scheduler.cancelEvent(eid2);
-    BOOST_CHECK_EQUAL(eid == eid2, true);
-    BOOST_CHECK_EQUAL(eid != eid2, false);
+    BOOST_CHECK_EQUAL(eid, eid2);
   });
+
   this->advanceClocks(6_ms, 2);
   BOOST_CHECK(isCallbackInvoked);
 }
@@ -327,11 +323,10 @@ BOOST_AUTO_TEST_CASE(DuringCallback)
 BOOST_AUTO_TEST_CASE(Reset)
 {
   bool isCallbackInvoked = false;
-  EventId eid = scheduler.scheduleEvent(10_ms,
-                                        [&isCallbackInvoked]{ isCallbackInvoked = true; });
+  EventId eid = scheduler.scheduleEvent(10_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });
   eid.reset();
-  BOOST_CHECK_EQUAL(!eid, true);
-  BOOST_CHECK_EQUAL(eid == nullptr, true);
+  BOOST_CHECK(!eid);
+  BOOST_CHECK(eid == nullptr);
 
   this->advanceClocks(6_ms, 2);
   BOOST_CHECK(isCallbackInvoked);
@@ -392,14 +387,23 @@ BOOST_AUTO_TEST_CASE(Release)
 BOOST_AUTO_TEST_CASE(Move)
 {
   int hit = 0;
-  unique_ptr<scheduler::ScopedEventId> se2;
+  unique_ptr<ScopedEventId> se2;
   {
     ScopedEventId se(scheduler);
     se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
-    se2.reset(new ScopedEventId(std::move(se)));
+    se2 = make_unique<ScopedEventId>(std::move(se)); // move constructor
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
   BOOST_CHECK_EQUAL(hit, 1);
+
+  ScopedEventId se3(scheduler);
+  {
+    ScopedEventId se(scheduler);
+    se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    se3 = std::move(se); // move assignment
+  } // se goes out of scope
+  this->advanceClocks(1_ms, 15);
+  BOOST_CHECK_EQUAL(hit, 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // ScopedEventId

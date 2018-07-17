@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,19 +42,44 @@ class Buffer : public std::vector<uint8_t>
 public:
   /** @brief Creates an empty Buffer
    */
-  Buffer();
+  Buffer() = default;
+
+  /** @brief Copy constructor
+   */
+  Buffer(const Buffer&);
+
+  /** @brief Copy assignment operator
+   */
+  Buffer&
+  operator=(const Buffer&);
+
+  /** @brief Move constructor
+   */
+  Buffer(Buffer&&) noexcept;
+
+  /** @brief Move assignment operator
+   */
+  Buffer&
+  operator=(Buffer&&) noexcept;
 
   /** @brief Creates a Buffer with pre-allocated size
    *  @param size size of the Buffer to be allocated
    */
   explicit
-  Buffer(size_t size);
+  Buffer(size_t size)
+    : std::vector<uint8_t>(size, 0)
+  {
+  }
 
   /** @brief Creates a Buffer by copying contents from a raw buffer
    *  @param buf const pointer to buffer to copy
    *  @param length length of the buffer to copy
    */
-  Buffer(const void* buf, size_t length);
+  Buffer(const void* buf, size_t length)
+    : std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(buf),
+                           reinterpret_cast<const uint8_t*>(buf) + length)
+  {
+  }
 
   /** @brief Creates a Buffer by copying the elements of the range [first, last)
    *  @param first an input iterator to the first element to copy
@@ -84,6 +109,18 @@ public:
     return reinterpret_cast<const T*>(data());
   }
 };
+
+inline
+Buffer::Buffer(const Buffer&) = default;
+
+inline Buffer&
+Buffer::operator=(const Buffer&) = default;
+
+inline
+Buffer::Buffer(Buffer&&) noexcept = default;
+
+inline Buffer&
+Buffer::operator=(Buffer&&) noexcept = default;
 
 using BufferPtr = shared_ptr<Buffer>;
 using ConstBufferPtr = shared_ptr<const Buffer>;

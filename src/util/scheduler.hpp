@@ -57,7 +57,8 @@ public:
    * \brief Constructs an empty EventId
    * \note EventId is implicitly convertible from nullptr.
    */
-  EventId(std::nullptr_t = nullptr)
+  constexpr
+  EventId(std::nullptr_t = nullptr) noexcept
   {
   }
 
@@ -66,16 +67,16 @@ public:
    * \retval false This EventId is empty, or the event is expired or cancelled.
    */
   explicit
-  operator bool() const;
+  operator bool() const noexcept;
 
   /**
    * \return whether this and other refer to the same event, or are both empty/expired/cancelled
    */
   bool
-  operator==(const EventId& other) const;
+  operator==(const EventId& other) const noexcept;
 
   bool
-  operator!=(const EventId& other) const
+  operator!=(const EventId& other) const noexcept
   {
     return !this->operator==(other);
   }
@@ -86,15 +87,15 @@ public:
    * \post !(*this)
    */
   void
-  reset()
+  reset() noexcept
   {
     m_info.reset();
   }
 
 private:
   explicit
-  EventId(const weak_ptr<EventInfo>& info)
-    : m_info(info)
+  EventId(weak_ptr<EventInfo> info) noexcept
+    : m_info(std::move(info))
   {
   }
 
@@ -112,7 +113,7 @@ class EventQueueCompare
 {
 public:
   bool
-  operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const;
+  operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const noexcept;
 };
 
 using EventQueue = std::multiset<shared_ptr<EventInfo>, EventQueueCompare>;
