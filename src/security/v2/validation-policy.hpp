@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_POLICY_HPP
 #define NDN_SECURITY_V2_VALIDATION_POLICY_HPP
 
-#include "validation-state.hpp"
 #include "certificate-request.hpp"
+#include "validation-state.hpp"
 #include "../../data.hpp"
 #include "../../interest.hpp"
 
@@ -97,10 +97,10 @@ public:
    * Semantics of checkPolicy has changed from v1::Validator
    * - If packet violates policy, the policy should call `state->fail` with appropriate error
    *   code and error description.
-   * - If packet conforms to the policy and no further key retrievals are necessary,
-   *   the policy should call continueValidation(state, nullptr)
-   * - If packet conforms to the policy and a key needs to be fetched, the policy should call
-   *   continueValidation(state, <appropriate-key-request-instance>)
+   * - If packet conforms to the policy and no further certificate retrievals are necessary,
+   *   the policy should call continueValidation(nullptr, state)
+   * - If packet conforms to the policy and a certificate needs to be fetched, the policy should
+   *   call continueValidation(<appropriate-cert-request-instance>, state)
    */
   virtual void
   checkPolicy(const Data& data, const shared_ptr<ValidationState>& state,
@@ -115,10 +115,10 @@ public:
    * Semantics of checkPolicy has changed from v1::Validator
    * - If packet violates policy, the policy should call `state->fail` with appropriate error
    *   code and error description.
-   * - If packet conforms to the policy and no further key retrievals are necessary,
-   *   the policy should call continueValidation(state, nullptr)
-   * - If packet conforms to the policy and a key needs to be fetched, the policy should call
-   *   continueValidation(state, <appropriate-key-request-instance>)
+   * - If packet conforms to the policy and no further certificate retrievals are necessary,
+   *   the policy should call continueValidation(nullptr, state)
+   * - If packet conforms to the policy and a certificate needs to be fetched, the policy should
+   *   call continueValidation(<appropriate-cert-request-instance>, state)
    */
   virtual void
   checkPolicy(const Interest& interest, const shared_ptr<ValidationState>& state,
@@ -135,10 +135,10 @@ public:
    * Semantics of checkPolicy has changed from v1::Validator
    * - If packet violates policy, the policy should call `state->fail` with appropriate error
    *   code and error description.
-   * - If packet conforms to the policy and no further key retrievals are necessary,
-   *   the policy should call continueValidation(state, nullptr)
-   * - If packet conforms to the policy and a key needs to be fetched, the policy should call
-   *   continueValidation(state, <appropriate-key-request-instance>)
+   * - If packet conforms to the policy and no further certificate retrievals are necessary,
+   *   the policy should call continueValidation(nullptr, state)
+   * - If packet conforms to the policy and a certificate needs to be fetched, the policy should
+   *   call continueValidation(<appropriate-cert-request-instance>, state)
    */
   virtual void
   checkPolicy(const Certificate& certificate, const shared_ptr<ValidationState>& state,
