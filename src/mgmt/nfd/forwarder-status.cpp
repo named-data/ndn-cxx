@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -131,7 +131,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NNameTreeEntries) {
-    m_nNameTreeEntries = readNonNegativeIntegerAs<size_t>(*val);
+    m_nNameTreeEntries = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -139,7 +139,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NFibEntries) {
-    m_nFibEntries = readNonNegativeIntegerAs<size_t>(*val);
+    m_nFibEntries = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -147,7 +147,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NPitEntries) {
-    m_nPitEntries = readNonNegativeIntegerAs<size_t>(*val);
+    m_nPitEntries = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -155,7 +155,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NMeasurementsEntries) {
-    m_nMeasurementsEntries = readNonNegativeIntegerAs<size_t>(*val);
+    m_nMeasurementsEntries = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -163,7 +163,7 @@ ForwarderStatus::wireDecode(const Block& block)
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NCsEntries) {
-    m_nCsEntries = readNonNegativeIntegerAs<size_t>(*val);
+    m_nCsEntries = readNonNegativeInteger(*val);
     ++val;
   }
   else {
@@ -244,7 +244,7 @@ ForwarderStatus::setCurrentTimestamp(const time::system_clock::TimePoint& curren
 }
 
 ForwarderStatus&
-ForwarderStatus::setNNameTreeEntries(size_t nNameTreeEntries)
+ForwarderStatus::setNNameTreeEntries(uint64_t nNameTreeEntries)
 {
   m_wire.reset();
   m_nNameTreeEntries = nNameTreeEntries;
@@ -252,7 +252,7 @@ ForwarderStatus::setNNameTreeEntries(size_t nNameTreeEntries)
 }
 
 ForwarderStatus&
-ForwarderStatus::setNFibEntries(size_t nFibEntries)
+ForwarderStatus::setNFibEntries(uint64_t nFibEntries)
 {
   m_wire.reset();
   m_nFibEntries = nFibEntries;
@@ -260,7 +260,7 @@ ForwarderStatus::setNFibEntries(size_t nFibEntries)
 }
 
 ForwarderStatus&
-ForwarderStatus::setNPitEntries(size_t nPitEntries)
+ForwarderStatus::setNPitEntries(uint64_t nPitEntries)
 {
   m_wire.reset();
   m_nPitEntries = nPitEntries;
@@ -268,7 +268,7 @@ ForwarderStatus::setNPitEntries(size_t nPitEntries)
 }
 
 ForwarderStatus&
-ForwarderStatus::setNMeasurementsEntries(size_t nMeasurementsEntries)
+ForwarderStatus::setNMeasurementsEntries(uint64_t nMeasurementsEntries)
 {
   m_wire.reset();
   m_nMeasurementsEntries = nMeasurementsEntries;
@@ -276,7 +276,7 @@ ForwarderStatus::setNMeasurementsEntries(size_t nMeasurementsEntries)
 }
 
 ForwarderStatus&
-ForwarderStatus::setNCsEntries(size_t nCsEntries)
+ForwarderStatus::setNCsEntries(uint64_t nCsEntries)
 {
   m_wire.reset();
   m_nCsEntries = nCsEntries;

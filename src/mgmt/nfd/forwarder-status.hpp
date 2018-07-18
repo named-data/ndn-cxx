@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -101,50 +101,50 @@ public: // getters & setters
   ForwarderStatus&
   setCurrentTimestamp(const time::system_clock::TimePoint& currentTimestamp);
 
-  size_t
+  uint64_t
   getNNameTreeEntries() const
   {
     return m_nNameTreeEntries;
   }
 
   ForwarderStatus&
-  setNNameTreeEntries(size_t nNameTreeEntries);
+  setNNameTreeEntries(uint64_t nNameTreeEntries);
 
-  size_t
+  uint64_t
   getNFibEntries() const
   {
     return m_nFibEntries;
   }
 
   ForwarderStatus&
-  setNFibEntries(size_t nFibEntries);
+  setNFibEntries(uint64_t nFibEntries);
 
-  size_t
+  uint64_t
   getNPitEntries() const
   {
     return m_nPitEntries;
   }
 
   ForwarderStatus&
-  setNPitEntries(size_t nPitEntries);
+  setNPitEntries(uint64_t nPitEntries);
 
-  size_t
+  uint64_t
   getNMeasurementsEntries() const
   {
     return m_nMeasurementsEntries;
   }
 
   ForwarderStatus&
-  setNMeasurementsEntries(size_t nMeasurementsEntries);
+  setNMeasurementsEntries(uint64_t nMeasurementsEntries);
 
-  size_t
+  uint64_t
   getNCsEntries() const
   {
     return m_nCsEntries;
   }
 
   ForwarderStatus&
-  setNCsEntries(size_t nCsEntries);
+  setNCsEntries(uint64_t nCsEntries);
 
   uint64_t
   getNInInterests() const
@@ -204,11 +204,11 @@ private:
   std::string m_nfdVersion;
   time::system_clock::TimePoint m_startTimestamp;
   time::system_clock::TimePoint m_currentTimestamp;
-  size_t m_nNameTreeEntries;
-  size_t m_nFibEntries;
-  size_t m_nPitEntries;
-  size_t m_nMeasurementsEntries;
-  size_t m_nCsEntries;
+  uint64_t m_nNameTreeEntries;
+  uint64_t m_nFibEntries;
+  uint64_t m_nPitEntries;
+  uint64_t m_nMeasurementsEntries;
+  uint64_t m_nCsEntries;
   uint64_t m_nInInterests;
   uint64_t m_nInData;
   uint64_t m_nInNacks;
