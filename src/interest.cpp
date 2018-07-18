@@ -77,14 +77,27 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
       hasDefaultCanBePrefixWarning = true;
     }
 #ifdef NDN_CXX_HAVE_TESTS
-     if (s_errorIfCanBePrefixUnset) {
-       BOOST_THROW_EXCEPTION(std::logic_error("Interest.CanBePrefix is unset"));
-     }
+    if (s_errorIfCanBePrefixUnset) {
+      BOOST_THROW_EXCEPTION(std::logic_error("Interest.CanBePrefix is unset"));
+    }
 #endif // NDN_CXX_HAVE_TESTS
   }
 
+  if (hasParameters()) {
+    return encode03(encoder);
+  }
+  else {
+    return encode02(encoder);
+  }
+}
+
+template<encoding::Tag TAG>
+size_t
+Interest::encode02(EncodingImpl<TAG>& encoder) const
+{
   size_t totalLength = 0;
 
+  // Encode as NDN Packet Format v0.2
   // Interest ::= INTEREST-TYPE TLV-LENGTH
   //                Name
   //                Selectors?
@@ -95,8 +108,8 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   // (reverse encoding)
 
   // ForwardingHint
-  if (m_forwardingHint.size() > 0) {
-    totalLength += m_forwardingHint.wireEncode(encoder);
+  if (getForwardingHint().size() > 0) {
+    totalLength += getForwardingHint().wireEncode(encoder);
   }
 
   // InterestLifetime
@@ -107,14 +120,72 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // Nonce
-  uint32_t nonce = this->getNonce(); // assigns random Nonce if needed
-  totalLength += encoder.prependByteArray(reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
-  totalLength += encoder.prependVarNumber(sizeof(nonce));
-  totalLength += encoder.prependVarNumber(tlv::Nonce);
+  uint32_t nonce = getNonce(); // if nonce was unset, getNonce generates a random nonce
+  totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
 
   // Selectors
   if (hasSelectors()) {
     totalLength += getSelectors().wireEncode(encoder);
+  }
+
+  // Name
+  totalLength += getName().wireEncode(encoder);
+
+  totalLength += encoder.prependVarNumber(totalLength);
+  totalLength += encoder.prependVarNumber(tlv::Interest);
+  return totalLength;
+}
+
+template<encoding::Tag TAG>
+size_t
+Interest::encode03(EncodingImpl<TAG>& encoder) const
+{
+  size_t totalLength = 0;
+
+  // Encode as NDN Packet Format v0.3
+  // Interest ::= INTEREST-TYPE TLV-LENGTH
+  //                Name
+  //                CanBePrefix?
+  //                MustBeFresh?
+  //                ForwardingHint?
+  //                Nonce?
+  //                InterestLifetime?
+  //                HopLimit?
+  //                Parameters?
+
+  // (reverse encoding)
+
+  // Parameters
+  if (hasParameters()) {
+    totalLength += encoder.prependBlock(getParameters());
+  }
+
+  // HopLimit: not yet supported
+
+  // InterestLifetime
+  if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
+    totalLength += prependNonNegativeIntegerBlock(encoder,
+                                                  tlv::InterestLifetime,
+                                                  getInterestLifetime().count());
+  }
+
+  // Nonce
+  uint32_t nonce = getNonce(); // if nonce was unset, getNonce generates a random nonce
+  totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
+
+  // ForwardingHint
+  if (getForwardingHint().size() > 0) {
+    totalLength += getForwardingHint().wireEncode(encoder);
+  }
+
+  // MustBeFresh
+  if (getMustBeFresh()) {
+    totalLength += prependEmptyBlock(encoder, tlv::MustBeFresh);
+  }
+
+  // CanBePrefix
+  if (getCanBePrefix()) {
+    totalLength += prependEmptyBlock(encoder, tlv::CanBePrefix);
   }
 
   // Name
@@ -166,59 +237,59 @@ Interest::wireDecode(const Block& wire)
 bool
 Interest::decode02()
 {
-  auto ele = m_wire.elements_begin();
+  auto element = m_wire.elements_begin();
 
   // Name
-  if (ele != m_wire.elements_end() && ele->type() == tlv::Name) {
-    m_name.wireDecode(*ele);
-    ++ele;
+  if (element != m_wire.elements_end() && element->type() == tlv::Name) {
+    m_name.wireDecode(*element);
+    ++element;
   }
   else {
     return false;
   }
 
   // Selectors?
-  if (ele != m_wire.elements_end() && ele->type() == tlv::Selectors) {
-    m_selectors.wireDecode(*ele);
-    ++ele;
+  if (element != m_wire.elements_end() && element->type() == tlv::Selectors) {
+    m_selectors.wireDecode(*element);
+    ++element;
   }
   else {
     m_selectors = Selectors();
   }
 
   // Nonce
-  if (ele != m_wire.elements_end() && ele->type() == tlv::Nonce) {
+  if (element != m_wire.elements_end() && element->type() == tlv::Nonce) {
     uint32_t nonce = 0;
-    if (ele->value_size() != sizeof(nonce)) {
+    if (element->value_size() != sizeof(nonce)) {
       BOOST_THROW_EXCEPTION(Error("Nonce element is malformed"));
     }
-    std::memcpy(&nonce, ele->value(), sizeof(nonce));
+    std::memcpy(&nonce, element->value(), sizeof(nonce));
     m_nonce = nonce;
-    ++ele;
+    ++element;
   }
   else {
     return false;
   }
 
   // InterestLifetime?
-  if (ele != m_wire.elements_end() && ele->type() == tlv::InterestLifetime) {
-    m_interestLifetime = time::milliseconds(readNonNegativeInteger(*ele));
-    ++ele;
+  if (element != m_wire.elements_end() && element->type() == tlv::InterestLifetime) {
+    m_interestLifetime = time::milliseconds(readNonNegativeInteger(*element));
+    ++element;
   }
   else {
     m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
   }
 
   // ForwardingHint?
-  if (ele != m_wire.elements_end() && ele->type() == tlv::ForwardingHint) {
-    m_forwardingHint.wireDecode(*ele, false);
-    ++ele;
+  if (element != m_wire.elements_end() && element->type() == tlv::ForwardingHint) {
+    m_forwardingHint.wireDecode(*element, false);
+    ++element;
   }
   else {
     m_forwardingHint = DelegationList();
   }
 
-  return ele == m_wire.elements_end();
+  return element == m_wire.elements_end();
 }
 
 void
@@ -239,96 +310,97 @@ Interest::decode03()
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
   m_forwardingHint = DelegationList();
+  m_parameters = Block();
 
-  int lastEle = 0; // last recognized element index, in spec order
-  for (const Block& ele : m_wire.elements()) {
-    switch (ele.type()) {
+  int lastElement = 0; // last recognized element index, in spec order
+  for (const Block& element : m_wire.elements()) {
+    switch (element.type()) {
       case tlv::Name: {
-        if (lastEle >= 1) {
+        if (lastElement >= 1) {
           BOOST_THROW_EXCEPTION(Error("Name element is out of order"));
         }
         hasName = true;
-        m_name.wireDecode(ele);
+        m_name.wireDecode(element);
         if (m_name.empty()) {
           BOOST_THROW_EXCEPTION(Error("Name has zero name components"));
         }
-        lastEle = 1;
+        lastElement = 1;
         break;
       }
       case tlv::CanBePrefix: {
-        if (lastEle >= 2) {
+        if (lastElement >= 2) {
           BOOST_THROW_EXCEPTION(Error("CanBePrefix element is out of order"));
         }
-        if (ele.value_size() != 0) {
+        if (element.value_size() != 0) {
           BOOST_THROW_EXCEPTION(Error("CanBePrefix element has non-zero TLV-LENGTH"));
         }
         m_selectors.setMaxSuffixComponents(-1);
-        lastEle = 2;
+        lastElement = 2;
         break;
       }
       case tlv::MustBeFresh: {
-        if (lastEle >= 3) {
+        if (lastElement >= 3) {
           BOOST_THROW_EXCEPTION(Error("MustBeFresh element is out of order"));
         }
-        if (ele.value_size() != 0) {
+        if (element.value_size() != 0) {
           BOOST_THROW_EXCEPTION(Error("MustBeFresh element has non-zero TLV-LENGTH"));
         }
         m_selectors.setMustBeFresh(true);
-        lastEle = 3;
+        lastElement = 3;
         break;
       }
       case tlv::ForwardingHint: {
-        if (lastEle >= 4) {
+        if (lastElement >= 4) {
           BOOST_THROW_EXCEPTION(Error("ForwardingHint element is out of order"));
         }
-        m_forwardingHint.wireDecode(ele);
-        lastEle = 4;
+        m_forwardingHint.wireDecode(element);
+        lastElement = 4;
         break;
       }
       case tlv::Nonce: {
-        if (lastEle >= 5) {
+        if (lastElement >= 5) {
           BOOST_THROW_EXCEPTION(Error("Nonce element is out of order"));
         }
         uint32_t nonce = 0;
-        if (ele.value_size() != sizeof(nonce)) {
+        if (element.value_size() != sizeof(nonce)) {
           BOOST_THROW_EXCEPTION(Error("Nonce element is malformed"));
         }
-        std::memcpy(&nonce, ele.value(), sizeof(nonce));
+        std::memcpy(&nonce, element.value(), sizeof(nonce));
         m_nonce = nonce;
-        lastEle = 5;
+        lastElement = 5;
         break;
       }
       case tlv::InterestLifetime: {
-        if (lastEle >= 6) {
+        if (lastElement >= 6) {
           BOOST_THROW_EXCEPTION(Error("InterestLifetime element is out of order"));
         }
-        m_interestLifetime = time::milliseconds(readNonNegativeInteger(ele));
-        lastEle = 6;
+        m_interestLifetime = time::milliseconds(readNonNegativeInteger(element));
+        lastElement = 6;
         break;
       }
       case tlv::HopLimit: {
-        if (lastEle >= 7) {
+        if (lastElement >= 7) {
           break; // HopLimit is non-critical, ignore out-of-order appearance
         }
-        if (ele.value_size() != 1) {
+        if (element.value_size() != 1) {
           BOOST_THROW_EXCEPTION(Error("HopLimit element is malformed"));
         }
         // TLV-VALUE is ignored
-        lastEle = 7;
+        lastElement = 7;
         break;
       }
       case tlv::Parameters: {
-        if (lastEle >= 8) {
+        if (lastElement >= 8) {
           BOOST_THROW_EXCEPTION(Error("Parameters element is out of order"));
         }
-        // TLV-VALUE is ignored
-        lastEle = 8;
+        m_parameters = element;
+        lastElement = 8;
         break;
       }
       default: {
-        if (tlv::isCriticalType(ele.type())) {
+        if (tlv::isCriticalType(element.type())) {
           BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
-                                      to_string(ele.type())));
+                                      to_string(element.type())));
         }
         break;
       }
@@ -517,6 +589,43 @@ Interest&
 Interest::setForwardingHint(const DelegationList& value)
 {
   m_forwardingHint = value;
+  m_wire.reset();
+  return *this;
+}
+
+Interest&
+Interest::setParameters(const Block& parameters)
+{
+  if (parameters.type() == tlv::Parameters) {
+    m_parameters = parameters;
+  }
+  else {
+    m_parameters = Block(tlv::Parameters, parameters);
+  }
+  m_wire.reset();
+  return *this;
+}
+
+Interest&
+Interest::setParameters(const uint8_t* buffer, size_t bufferSize)
+{
+  m_parameters = makeBinaryBlock(tlv::Parameters, buffer, bufferSize);
+  m_wire.reset();
+  return *this;
+}
+
+Interest&
+Interest::setParameters(ConstBufferPtr buffer)
+{
+  m_parameters = Block(tlv::Parameters, std::move(buffer));
+  m_wire.reset();
+  return *this;
+}
+
+Interest&
+Interest::unsetParameters()
+{
+  m_parameters = Block();
   m_wire.reset();
   return *this;
 }

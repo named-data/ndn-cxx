@@ -64,7 +64,7 @@ public:
   explicit
   Interest(const Block& wire);
 
-  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.2.
+  /** @brief Prepend wire encoding to @p encoder.
    */
   template<encoding::Tag TAG>
   size_t
@@ -72,9 +72,8 @@ public:
 
   /** @brief Encode to a @c Block.
    *
-   *  Normally, this function encodes to NDN Packet Format v0.2. However, if this instance has
-   *  cached wire encoding (@c hasWire() is true), the cached encoding is returned and it might
-   *  be in v0.3 format.
+   *  Encodes into NDN Packet Format v0.3 if Parameters element is present. In this case, Selectors
+   *  are not encoded. Otherwise, encodes into NDN Packet Format v0.2.
    */
   const Block&
   wireEncode() const;
@@ -287,6 +286,51 @@ public: // element access
   Interest&
   setInterestLifetime(time::milliseconds lifetime);
 
+  bool
+  hasParameters() const
+  {
+    return !m_parameters.empty();
+  }
+
+  const Block&
+  getParameters() const
+  {
+    return m_parameters;
+  }
+
+  /** @brief Set parameters from a Block
+   *
+   *  If the block's TLV-TYPE is Parameters, it will be used directly as this Interest's Parameters element.
+   *  If the block's TLV-TYPE is not Parameters, it will be nested into a Parameters element.
+   *  @return a reference to this Interest
+   */
+  Interest&
+  setParameters(const Block& parameters);
+
+  /** @brief Copy parameters from raw buffer
+   *
+   *  @param buffer pointer to the first octet of parameters
+   *  @param bufferSize size of the raw buffer
+   *  @return a reference to this Interest
+   */
+  Interest&
+  setParameters(const uint8_t* buffer, size_t bufferSize);
+
+  /** @brief Set parameters from a wire buffer
+   *
+   *  @param buffer containing the Interest parameters
+   *  @return a reference to this Interest
+   */
+  Interest&
+  setParameters(ConstBufferPtr buffer);
+
+  /** @brief Remove the Parameters element from this Interest
+   *
+   *  @post hasParameters() == false
+   */
+  Interest&
+  unsetParameters();
+
 public: // Selectors (deprecated)
   /** @brief Check if Interest has any selector present.
    */
@@ -394,6 +438,18 @@ public: // Selectors (deprecated)
   }
 
 private:
+  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.2.
+   */
+  template<encoding::Tag TAG>
+  size_t
+  encode02(EncodingImpl<TAG>& encoder) const;
+
+  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.3.
+   */
+  template<encoding::Tag TAG>
+  size_t
+  encode03(EncodingImpl<TAG>& encoder) const;
+
   /** @brief Decode @c m_wire as NDN Packet Format v0.2.
    *  @retval true decoding successful.
    *  @retval false decoding failed due to structural error.
@@ -419,11 +475,12 @@ private:
   static boost::logic::tribool s_defaultCanBePrefix;
 
   Name m_name;
-  Selectors m_selectors;
+  Selectors m_selectors; // NDN Packet Format v0.2 only
   mutable bool m_isCanBePrefixSet;
   mutable optional<uint32_t> m_nonce;
   time::milliseconds m_interestLifetime;
   DelegationList m_forwardingHint;
+  Block m_parameters; // NDN Packet Format v0.3 only
 
   mutable Block m_wire;
 
