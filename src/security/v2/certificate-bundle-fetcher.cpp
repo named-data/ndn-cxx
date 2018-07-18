@@ -95,9 +95,10 @@ CertificateBundleFetcher::fetchFirstBundleSegment(const Name& bundleNamePrefix,
                                                   const ValidationContinuation& continueValidation)
 {
   Interest bundleInterest = Interest(bundleNamePrefix);
-  bundleInterest.setInterestLifetime(m_bundleInterestLifetime);
+  bundleInterest.setCanBePrefix(true);
   bundleInterest.setMustBeFresh(true);
   bundleInterest.setChildSelector(1);
+  bundleInterest.setInterestLifetime(m_bundleInterestLifetime);
 
   m_face.expressInterest(bundleInterest,
                          [=] (const Interest& interest, const Data& data) {
@@ -123,8 +124,9 @@ CertificateBundleFetcher::fetchNextBundleSegment(const Name& fullBundleName, con
   }
 
   Interest bundleInterest(fullBundleName.getPrefix(-1).append(segmentNo));
-  bundleInterest.setInterestLifetime(m_bundleInterestLifetime);
+  bundleInterest.setCanBePrefix(false);
   bundleInterest.setMustBeFresh(false);
+  bundleInterest.setInterestLifetime(m_bundleInterestLifetime);
 
   m_face.expressInterest(bundleInterest,
                          [=] (const Interest& interest, const Data& data) {

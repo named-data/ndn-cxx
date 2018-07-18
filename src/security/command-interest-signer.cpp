@@ -56,6 +56,7 @@ Interest
 CommandInterestSigner::makeCommandInterest(const Name& name, const SigningInfo& params)
 {
   Interest commandInterest(prepareCommandInterestName(name));
+  commandInterest.setCanBePrefix(false);
   m_keyChain.sign(commandInterest, params);
   return commandInterest;
 }

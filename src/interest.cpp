@@ -23,7 +23,10 @@
 #include "util/random.hpp"
 #include "data.hpp"
 
+#include <boost/scope_exit.hpp>
+
 #include <cstring>
+#include <iostream>
 #include <sstream>
 
 namespace ndn {
@@ -35,16 +38,27 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
 static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
+#ifdef NDN_CXX_HAVE_TESTS
+bool Interest::s_errorIfCanBePrefixUnset = true;
+#endif // NDN_CXX_HAVE_TESTS
+boost::logic::tribool Interest::s_defaultCanBePrefix = boost::logic::indeterminate;
+
 Interest::Interest(const Name& name, time::milliseconds lifetime)
   : m_name(name)
+  , m_isCanBePrefixSet(false)
   , m_interestLifetime(lifetime)
 {
   if (lifetime < time::milliseconds::zero()) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
   }
+
+  if (!boost::logic::indeterminate(s_defaultCanBePrefix)) {
+    setCanBePrefix(static_cast<bool>(s_defaultCanBePrefix));
+  }
 }
 
 Interest::Interest(const Block& wire)
+  : m_isCanBePrefixSet(true)
 {
   wireDecode(wire);
 }
@@ -55,6 +69,20 @@ template<encoding::Tag TAG>
 size_t
 Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 {
+  static bool hasDefaultCanBePrefixWarning = false;
+  if (!m_isCanBePrefixSet) {
+    if (!hasDefaultCanBePrefixWarning) {
+      std::cerr << "WARNING: Interest.CanBePrefix will be set to 0 in the near future. "
+                << "Please declare a preferred setting via Interest::setDefaultCanBePrefix.";
+      hasDefaultCanBePrefixWarning = true;
+    }
+#ifdef NDN_CXX_HAVE_TESTS
+     if (s_errorIfCanBePrefixUnset) {
+       BOOST_THROW_EXCEPTION(std::logic_error("Interest.CanBePrefix is unset"));
+     }
+#endif // NDN_CXX_HAVE_TESTS
+  }
+
   size_t totalLength = 0;
 
   // Interest ::= INTEREST-TYPE TLV-LENGTH
@@ -131,6 +159,8 @@ Interest::wireDecode(const Block& wire)
       setNonce(getNonce());
     }
   }
+
+  m_isCanBePrefixSet = true; // don't trigger warning from decoded packet
 }
 
 bool
@@ -492,6 +522,21 @@ Interest::setForwardingHint(const DelegationList& value)
 }
 
 // ---- operators ----
+
+bool
+operator==(const Interest& lhs, const Interest& rhs)
+{
+  bool wasCanBePrefixSetOnLhs = lhs.m_isCanBePrefixSet;
+  bool wasCanBePrefixSetOnRhs = rhs.m_isCanBePrefixSet;
+  lhs.m_isCanBePrefixSet = true;
+  rhs.m_isCanBePrefixSet = true;
+  BOOST_SCOPE_EXIT_ALL(&) {
+    lhs.m_isCanBePrefixSet = wasCanBePrefixSetOnLhs;
+    rhs.m_isCanBePrefixSet = wasCanBePrefixSetOnRhs;
+  };
+
+  return lhs.wireEncode() == rhs.wireEncode();
+}
 
 std::ostream&
 operator<<(std::ostream& os, const Interest& interest)

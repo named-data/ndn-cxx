@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,11 +32,13 @@ namespace tests {
 
 /** \brief create an Interest
  *  \param name Interest name
- *  \param nonce if non-zero, set Nonce to this value
- *               (useful for creating Nack with same Nonce)
+ *  \param canBePrefix CanBePrefix setting
+ *  \param lifetime InterestLifetime
+ *  \param nonce if non-zero, set Nonce to this value (useful for creating Nack with same Nonce)
  */
 shared_ptr<Interest>
-makeInterest(const Name& name, uint32_t nonce = 0);
+makeInterest(const Name& name, bool canBePrefix = false,
+             time::milliseconds lifetime = DEFAULT_INTEREST_LIFETIME, uint32_t nonce = 0);
 
 /** \brief create a Data with fake signature
  *  \note Data may be modified afterwards without losing the fake signature.
@@ -65,14 +67,6 @@ signData(shared_ptr<Data> data)
  */
 lp::Nack
 makeNack(const Interest& interest, lp::NackReason reason);
-
-/** \brief create a Nack
- *  \param name Interest name
- *  \param nonce Interest nonce
- *  \param reason Nack reason
- */
-lp::Nack
-makeNack(const Name& name, uint32_t nonce, lp::NackReason reason);
 
 /** \brief replace a name component
  *  \param[inout] name name

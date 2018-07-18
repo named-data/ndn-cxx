@@ -27,6 +27,7 @@
 #include "util/dummy-client-face.hpp"
 
 #include "boost-test.hpp"
+#include "make-interest-data.hpp"
 
 namespace ndn {
 namespace tests {
@@ -58,7 +59,7 @@ BOOST_AUTO_TEST_CASE(RegexConvertToName)
   face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
     [] (const Name&, const Interest&) { BOOST_ERROR("unexpected Interest"); });
   face.processEvents(1_ms);
-  BOOST_CHECK_THROW(face.receive(Interest("/Hello/World/a/b/c")), InterestFilter::Error);
+  BOOST_CHECK_THROW(face.receive(*makeInterest("/Hello/World/a/b/c")), InterestFilter::Error);
 }
 
 BOOST_AUTO_TEST_CASE(AllowLoopback)

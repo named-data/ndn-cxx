@@ -436,16 +436,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ChildSelector, T, InMemoryStorages)
   shared_ptr<Data> data7 = makeData("/c/n");
   ims.insert(*data7);
 
-  shared_ptr<Interest> interest = makeInterest("/c");
+  shared_ptr<Interest> interest = makeInterest("/c", true);
   interest->setChildSelector(1);
 
   shared_ptr<const Data> found = ims.find(*interest);
+  BOOST_REQUIRE(found != nullptr);
   BOOST_CHECK_EQUAL(found->getName(), "/c/n");
 
-  shared_ptr<Interest> interest2 = makeInterest("/c");
+  shared_ptr<Interest> interest2 = makeInterest("/c", true);
   interest2->setChildSelector(0);
 
   shared_ptr<const Data> found2 = ims.find(*interest2);
+  BOOST_REQUIRE(found2 != nullptr);
   BOOST_CHECK_EQUAL(found2->getName(), "/c/c");
 }
 
@@ -465,10 +467,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ChildSelector2, T, InMemoryStorages)
   shared_ptr<Data> data4 = makeData("/a/z/2");
   ims.insert(*data4);
 
-  shared_ptr<Interest> interest = makeInterest("/a");
+  shared_ptr<Interest> interest = makeInterest("/a", true);
   interest->setChildSelector(1);
 
   shared_ptr<const Data> found = ims.find(*interest);
+  BOOST_REQUIRE(found != nullptr);
   BOOST_CHECK_EQUAL(found->getName(), "/a/z/1");
 }
 
@@ -544,18 +547,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(MinMaxComponentsSelector, T, InMemoryStorages)
   shared_ptr<Data> data8 = makeData("/c/c/1");
   ims.insert(*data8);
 
-  shared_ptr<Interest> interest = makeInterest("/c/c");
+  shared_ptr<Interest> interest = makeInterest("/c/c", true);
   interest->setMinSuffixComponents(3);
   interest->setChildSelector(0);
 
   shared_ptr<const Data> found = ims.find(*interest);
+  BOOST_REQUIRE(found != nullptr);
   BOOST_CHECK_EQUAL(found->getName(), "/c/c/1/2/3");
 
-  shared_ptr<Interest> interest2 = makeInterest("/c/c");
+  shared_ptr<Interest> interest2 = makeInterest("/c/c", true);
   interest2->setMinSuffixComponents(4);
   interest2->setChildSelector(1);
 
   shared_ptr<const Data> found2 = ims.find(*interest2);
+  BOOST_REQUIRE(found2 != nullptr);
   BOOST_CHECK_EQUAL(found2->getName(), "/c/c/6/7/8/9");
 
   shared_ptr<Interest> interest3 = makeInterest("/c/c");
@@ -563,6 +568,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(MinMaxComponentsSelector, T, InMemoryStorages)
   interest3->setChildSelector(1);
 
   shared_ptr<const Data> found3 = ims.find(*interest3);
+  BOOST_REQUIRE(found3 != nullptr);
   BOOST_CHECK_EQUAL(found3->getName(), "/c/c/1");
 }
 
@@ -591,33 +597,34 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ExcludeSelector, T, InMemoryStorages)
   shared_ptr<Data> data7 = makeData("/c/n");
   ims.insert(*data7);
 
-  shared_ptr<Interest> interest = makeInterest("/c");
+  shared_ptr<Interest> interest = makeInterest("/c", true);
   interest->setChildSelector(1);
   Exclude e;
-  e.excludeOne (Name::Component("n"));
+  e.excludeOne(Name::Component("n"));
   interest->setExclude(e);
 
   shared_ptr<const Data> found = ims.find(*interest);
+  BOOST_REQUIRE(found != nullptr);
   BOOST_CHECK_EQUAL(found->getName(), "/c/f");
 
-  shared_ptr<Interest> interest2 = makeInterest("/c");
+  shared_ptr<Interest> interest2 = makeInterest("/c", true);
   interest2->setChildSelector(0);
-
   Exclude e2;
-  e2.excludeOne (Name::Component("a"));
+  e2.excludeOne(Name::Component("a"));
   interest2->setExclude(e2);
 
   shared_ptr<const Data> found2 = ims.find(*interest2);
+  BOOST_REQUIRE(found2 != nullptr);
   BOOST_CHECK_EQUAL(found2->getName(), "/c/c");
 
-  shared_ptr<Interest> interest3 = makeInterest("/c");
+  shared_ptr<Interest> interest3 = makeInterest("/c", true);
   interest3->setChildSelector(0);
-
   Exclude e3;
-  e3.excludeOne (Name::Component("c"));
+  e3.excludeOne(Name::Component("c"));
   interest3->setExclude(e3);
 
   shared_ptr<const Data> found3 = ims.find(*interest3);
+  BOOST_REQUIRE(found3 != nullptr);
   BOOST_CHECK_EQUAL(found3->getName(), "/c/a");
 }
 
@@ -642,11 +649,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SetCapacity, T, InMemoryStoragesLimited)
 BOOST_AUTO_TEST_CASE_TEMPLATE(GetLimit, T, InMemoryStoragesLimited)
 {
   T ims(10000);
-
   BOOST_CHECK_EQUAL(ims.getLimit(), 10000);
 
   T ims2(4);
-
   BOOST_CHECK_EQUAL(ims2.getLimit(), 4);
 }
 
@@ -665,7 +670,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndDouble, T, InMemoryStoragesLimited)
   }
 
   BOOST_CHECK_EQUAL(ims.size(), 11);
-
   BOOST_CHECK_EQUAL(ims.getCapacity(), 20);
 }
 
@@ -718,7 +722,7 @@ protected:
   Interest&
   startInterest(const Name& name)
   {
-    m_interest = makeInterest(name);
+    m_interest = makeInterest(name, true);
     return *m_interest;
   }
 

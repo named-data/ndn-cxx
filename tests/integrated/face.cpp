@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_SUITE(Consumer)
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ExpressInterestData, TransportType, Transports, FaceFixture<TransportType>)
 {
   int nData = 0;
-  this->face.expressInterest(Interest("/"),
+  this->face.expressInterest(*makeInterest("/", true),
     [&] (const Interest&, const Data&) { ++nData; },
     [] (const Interest&, const lp::Nack&) { BOOST_ERROR("unexpected Nack"); },
     [] (const Interest&) { BOOST_ERROR("unexpected timeout"); });
@@ -140,7 +140,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ExpressInterestData, TransportType, Transports,
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ExpressInterestNack, TransportType, Transports, FaceFixture<TransportType>)
 {
   int nNacks = 0;
-  this->face.expressInterest(Interest("/localhost/non-existent-should-nack"),
+  this->face.expressInterest(*makeInterest("/localhost/non-existent-should-nack"),
     [] (const Interest&, const Data&) { BOOST_ERROR("unexpected Data"); },
     [&] (const Interest&, const lp::Nack&) { ++nNacks; },
     [] (const Interest&) { BOOST_ERROR("unexpected timeout"); });
@@ -156,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ExpressInterestTimeout, TransportType, Transpor
   std::this_thread::sleep_for(std::chrono::milliseconds(200)); // wait for FIB update to take effect
 
   int nTimeouts = 0;
-  this->face.expressInterest(Interest("/localhost/non-existent-should-timeout", 1_s),
+  this->face.expressInterest(*makeInterest("/localhost/non-existent-should-timeout", false, 1_s),
     [] (const Interest&, const Data&) { BOOST_ERROR("unexpected Data"); },
     [] (const Interest&, const lp::Nack&) { BOOST_ERROR("unexpected Nack"); },
     [&] (const Interest&) { ++nTimeouts; });
@@ -168,7 +168,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ExpressInterestTimeout, TransportType, Transpor
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(OversizedInterest, TransportType, Transports, FaceFixture<TransportType>)
 {
   BOOST_CHECK_THROW(do {
-    this->face.expressInterest(Interest(makeVeryLongName()), nullptr, nullptr, nullptr);
+    this->face.expressInterest(*makeInterest(makeVeryLongName()), nullptr, nullptr, nullptr);
     this->face.processEvents();
   } while (false), Face::OversizedPacketError);
 }
@@ -229,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegularFilter, TransportType, Transports, FaceF
   });
 
   char interestOutcome;
-  this->sendInterest(1_s, Interest("/Hello/World/regular", 50_ms), interestOutcome);
+  this->sendInterest(1_s, *makeInterest("/Hello/World/regular", false, 50_ms), interestOutcome);
 
   this->face.processEvents();
   BOOST_CHECK_EQUAL(interestOutcome, 'T');
@@ -254,10 +254,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilter, TransportType, Transports, FaceFix
     BOOST_CHECK(!output.empty());
   });
 
-  this->sendInterest(200_ms, Interest("/Hello/World/a", 50_ms));
-  this->sendInterest(300_ms, Interest("/Hello/World/a/b", 50_ms));
-  this->sendInterest(400_ms, Interest("/Hello/World/a/b/c", 50_ms));
-  this->sendInterest(500_ms, Interest("/Hello/World/a/b/d", 50_ms));
+  this->sendInterest(200_ms, *makeInterest("/Hello/World/a", false, 50_ms));
+  this->sendInterest(300_ms, *makeInterest("/Hello/World/a/b", false, 50_ms));
+  this->sendInterest(400_ms, *makeInterest("/Hello/World/a/b/c", false, 50_ms));
+  this->sendInterest(500_ms, *makeInterest("/Hello/World/a/b/d", false, 50_ms));
 
   this->face.processEvents();
   BOOST_CHECK_EQUAL(nRegSuccess, 1);
@@ -280,10 +280,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilterNoRegister, TransportType, Transport
     BOOST_CHECK(output.empty());
   });
 
-  this->sendInterest(200_ms, Interest("/Hello/World/a", 50_ms));
-  this->sendInterest(300_ms, Interest("/Hello/World/a/b", 50_ms));
-  this->sendInterest(400_ms, Interest("/Hello/World/a/b/c", 50_ms));
-  this->sendInterest(500_ms, Interest("/Hello/World/a/b/d", 50_ms));
+  this->sendInterest(200_ms, *makeInterest("/Hello/World/a", false, 50_ms));
+  this->sendInterest(300_ms, *makeInterest("/Hello/World/a/b", false, 50_ms));
+  this->sendInterest(400_ms, *makeInterest("/Hello/World/a/b/c", false, 50_ms));
+  this->sendInterest(500_ms, *makeInterest("/Hello/World/a/b/d", false, 50_ms));
 
   this->face.processEvents();
 }
@@ -305,8 +305,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(PutDataNack, TransportType, Transports, FaceFix
     [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
   char outcome1, outcome2;
-  this->sendInterest(700_ms, Interest("/Hello/World/data", 50_ms), outcome1);
-  this->sendInterest(800_ms, Interest("/Hello/World/nack", 50_ms), outcome2);
+  this->sendInterest(700_ms, *makeInterest("/Hello/World/data", false, 50_ms), outcome1);
+  this->sendInterest(800_ms, *makeInterest("/Hello/World/nack", false, 50_ms), outcome2);
 
   this->face.processEvents();
   BOOST_CHECK_EQUAL(outcome1, 'D');
@@ -324,7 +324,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(OversizedData, TransportType, Transports, FaceF
     nullptr,
     [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
-  this->sendInterest(1_s, Interest("/Hello/World/oversized", 50_ms));
+  this->sendInterest(1_s, *makeInterest("/Hello/World/oversized", true, 50_ms));
 
   BOOST_CHECK_THROW(this->face.processEvents(), Face::OversizedPacketError);
 }
@@ -335,12 +335,12 @@ BOOST_AUTO_TEST_SUITE(IoRoutine)
 
 BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress) // Bug #3136
 {
-  this->face.expressInterest(Interest("/Hello/World"), nullptr, nullptr, nullptr);
+  this->face.expressInterest(*makeInterest("/Hello/World"), nullptr, nullptr, nullptr);
   this->face.processEvents(1_s);
 
-  this->face.expressInterest(Interest("/Bye/World/1"), nullptr, nullptr, nullptr);
-  this->face.expressInterest(Interest("/Bye/World/2"), nullptr, nullptr, nullptr);
-  this->face.expressInterest(Interest("/Bye/World/3"), nullptr, nullptr, nullptr);
+  this->face.expressInterest(*makeInterest("/Bye/World/1"), nullptr, nullptr, nullptr);
+  this->face.expressInterest(*makeInterest("/Bye/World/2"), nullptr, nullptr, nullptr);
+  this->face.expressInterest(*makeInterest("/Bye/World/3"), nullptr, nullptr, nullptr);
   this->face.shutdown();
 
   this->face.processEvents(1_s); // should not segfault

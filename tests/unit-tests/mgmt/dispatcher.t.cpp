@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   face.sentData.clear();
 
-  auto interestSmall = *makeInterest("/root/test/small/valid");
+  auto interestSmall = *makeInterest("/root/test/small/valid", true);
   face.receive(interestSmall);
   advanceClocks(1_ms, 10);
 

@@ -29,6 +29,8 @@ namespace ndn {
 namespace util {
 namespace tests {
 
+using namespace ndn::tests;
+
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_FIXTURE_TEST_SUITE(TestDummyClientFace, ndn::tests::IdentityManagementTimeFixture)
 
@@ -71,12 +73,12 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
 
   int nFace1Data = 0;
   int nFace2Nack = 0;
-  face1.expressInterest(Interest("/face2/data"),
+  face1.expressInterest(*makeInterest("/face2/data"),
                         [&] (const Interest& i, const Data& d) {
                           BOOST_CHECK_EQUAL(d.getName().toUri(), "/face2/data");
                           nFace1Data++;
                         }, nullptr, nullptr);
-  face2.expressInterest(Interest("/face1/data"),
+  face2.expressInterest(*makeInterest("/face1/data"),
                         [&] (const Interest& i, const Data& d) {
                           BOOST_CHECK(false);
                         },

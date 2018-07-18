@@ -79,6 +79,7 @@ NotificationSubscriberBase::sendInitialInterest()
     return;
 
   auto interest = make_shared<Interest>(m_prefix);
+  interest->setCanBePrefix(true);
   interest->setMustBeFresh(true);
   interest->setChildSelector(1);
   interest->setInterestLifetime(getInterestLifetime());
@@ -101,6 +102,7 @@ NotificationSubscriberBase::sendNextInterest()
   nextName.appendSequenceNumber(m_lastSequenceNo + 1);
 
   auto interest = make_shared<Interest>(nextName);
+  interest->setCanBePrefix(false);
   interest->setInterestLifetime(getInterestLifetime());
 
   m_lastInterestId = m_face.expressInterest(*interest,

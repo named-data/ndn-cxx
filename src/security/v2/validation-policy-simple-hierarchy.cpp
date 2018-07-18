@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@ ValidationPolicySimpleHierarchy::checkPolicy(const Data& data, const shared_ptr<
   }
 
   if (klName.getPrefix(-2).isPrefixOf(data.getName())) {
-    continueValidation(make_shared<CertificateRequest>(Interest(klName)), state);
+    continueValidation(make_shared<CertificateRequest>(klName), state);
   }
   else {
     state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Data signing policy violation for " +
@@ -53,7 +53,7 @@ ValidationPolicySimpleHierarchy::checkPolicy(const Interest& interest, const sha
   }
 
   if (klName.getPrefix(-2).isPrefixOf(interest.getName())) {
-    continueValidation(make_shared<CertificateRequest>(Interest(klName)), state);
+    continueValidation(make_shared<CertificateRequest>(klName), state);
   }
   else {
     state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Interest signing policy violation for " +

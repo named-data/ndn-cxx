@@ -25,6 +25,7 @@
 
 #include "boost-test.hpp"
 #include "../identity-management-time-fixture.hpp"
+#include "make-interest-data.hpp"
 
 namespace ndn {
 namespace security {
@@ -124,21 +125,21 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
 {
   Identity identity = addIdentity("/SecurityTestSignatureSha256WithEcdsa/InterestSignature", EcKeyParams());
 
-  Interest interest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
-  Interest interest11("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
+  auto interest = makeInterest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
+  auto interest11 = makeInterest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
 
   scheduler.scheduleEvent(100_ms, [&] {
-      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest, security::SigningInfo(identity)));
+      m_keyChain.sign(*interest, security::SigningInfo(identity));
     });
 
   advanceClocks(100_ms);
   scheduler.scheduleEvent(100_ms, [&] {
-      BOOST_CHECK_NO_THROW(m_keyChain.sign(interest11, security::SigningInfo(identity)));
+      m_keyChain.sign(*interest11, security::SigningInfo(identity));
     });
 
   advanceClocks(100_ms);
 
-  Block interestBlock(interest.wireEncode().wire(), interest.wireEncode().size());
+  Block interestBlock(interest->wireEncode().wire(), interest->wireEncode().size());
 
   Interest interest2;
   interest2.wireDecode(interestBlock);

@@ -27,6 +27,7 @@
 #include "packet-base.hpp"
 #include "selectors.hpp"
 #include "util/time.hpp"
+#include <boost/logic/tribool.hpp>
 
 namespace ndn {
 
@@ -147,6 +148,26 @@ public: // element access
     return *this;
   }
 
+  /** @brief Declare the default CanBePrefix setting of the application.
+   *
+   *  As part of transitioning to NDN Packet Format v0.3, the default setting for CanBePrefix
+   *  will be changed from "true" to "false". Application developers are advised to review all
+   *  Interests expressed by their application and decide what CanBePrefix setting is appropriate
+   *  for each Interest, to avoid breaking changes when the transition occurs. Application may
+   *  either set CanBePrefix on a per-Interest basis, or declare a default CanBePrefix setting for
+   *  all Interests expressed by the application using this function. If an application neither
+   *  declares a default nor sets CanBePrefix on every Interest, Interest::wireEncode will print a
+   *  one-time warning message.
+   *
+   *  @note This function should not be used in libraries or in ndn-cxx unit tests.
+   *  @sa https://redmine.named-data.net/projects/nfd/wiki/Packet03Transition
+   */
+  static void
+  setDefaultCanBePrefix(bool canBePrefix)
+  {
+    s_defaultCanBePrefix = canBePrefix;
+  }
+
   /** @brief Check whether the CanBePrefix element is present.
    *
    *  This is a getter for the CanBePrefix element as defined in NDN Packet Format v0.3.
@@ -171,6 +192,7 @@ public: // element access
   {
     m_selectors.setMaxSuffixComponents(canBePrefix ? -1 : 1);
     m_wire.reset();
+    m_isCanBePrefixSet = true;
     return *this;
   }
 
@@ -390,14 +412,26 @@ private:
   void
   decode03();
 
+#ifdef NDN_CXX_HAVE_TESTS
+public:
+  /** @brief If true, not setting CanBePrefix results in an error in wireEncode().
+   */
+  static bool s_errorIfCanBePrefixUnset;
+#endif // NDN_CXX_HAVE_TESTS
+
 private:
+  static boost::logic::tribool s_defaultCanBePrefix;
+
   Name m_name;
   Selectors m_selectors;
+  mutable bool m_isCanBePrefixSet;
   mutable optional<uint32_t> m_nonce;
   time::milliseconds m_interestLifetime;
   DelegationList m_forwardingHint;
 
   mutable Block m_wire;
+
+  friend bool operator==(const Interest& lhs, const Interest& rhs);
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Interest);
@@ -405,11 +439,8 @@ NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Interest);
 std::ostream&
 operator<<(std::ostream& os, const Interest& interest);
 
-inline bool
-operator==(const Interest& lhs, const Interest& rhs)
-{
-  return lhs.wireEncode() == rhs.wireEncode();
-}
+bool
+operator==(const Interest& lhs, const Interest& rhs);
 
 inline bool
 operator!=(const Interest& lhs, const Interest& rhs)

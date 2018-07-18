@@ -61,6 +61,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode02Basic)
   };
 
   Interest i1("/local/ndn/prefix");
+  i1.setCanBePrefix(true);
   i1.setNonce(1);
   Block wire1 = i1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
@@ -96,6 +97,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode02Full)
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
+  i1.setCanBePrefix(true);
   i1.setMinSuffixComponents(1);
   i1.setNonce(1);
   i1.setInterestLifetime(1000_ms);
@@ -395,6 +397,7 @@ BOOST_AUTO_TEST_CASE(MustBeFresh)
 BOOST_AUTO_TEST_CASE(ModifyForwardingHint)
 {
   Interest i;
+  i.setCanBePrefix(false);
   i.setForwardingHint({{1, "/A"}});
   i.wireEncode();
   BOOST_CHECK(i.hasWire());
@@ -431,6 +434,7 @@ BOOST_AUTO_TEST_CASE(GetNonce)
 BOOST_AUTO_TEST_CASE(SetNonce)
 {
   Interest i1("/A");
+  i1.setCanBePrefix(false);
   i1.setNonce(1);
   i1.wireEncode();
   BOOST_CHECK_EQUAL(i1.getNonce(), 1);
