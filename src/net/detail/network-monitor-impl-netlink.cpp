@@ -23,69 +23,37 @@
 
 #include "network-monitor-impl-netlink.hpp"
 #include "linux-if-constants.hpp"
-#include "netlink-util.hpp"
+#include "netlink-message.hpp"
 #include "../network-address.hpp"
 #include "../network-interface.hpp"
 #include "../../util/logger.hpp"
-#include "../../util/time.hpp"
-
-#include <cerrno>
-#include <cstdlib>
 
 #include <linux/if_addr.h>
 #include <linux/if_link.h>
 #include <net/if_arp.h>
-#include <sys/socket.h>
-
-#include <boost/asio/write.hpp>
-
-#ifndef SOL_NETLINK
-#define SOL_NETLINK 270
-#endif
-
-#ifndef RTEXT_FILTER_SKIP_STATS
-#define RTEXT_FILTER_SKIP_STATS (1 << 3)
-#endif
 
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
 namespace ndn {
 namespace net {
 
-struct RtnlRequest
-{
-  nlmsghdr nlh;
-  ifinfomsg ifi;
-  rtattr rta alignas(NLMSG_ALIGNTO); // rtattr has to be aligned
-  uint32_t rtext;                    // space for IFLA_EXT_MASK
-};
-
 NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io)
-  : m_socket(make_shared<boost::asio::posix::stream_descriptor>(io))
-  , m_pid(0)
-  , m_sequenceNo(static_cast<uint32_t>(time::system_clock::now().time_since_epoch().count()))
+  : m_rtnlSocket(io)
   , m_isEnumeratingLinks(false)
   , m_isEnumeratingAddresses(false)
 {
-  NDN_LOG_TRACE("creating NETLINK_ROUTE socket");
-  initSocket(NETLINK_ROUTE);
+  m_rtnlSocket.open();
   for (auto group : {RTNLGRP_LINK,
                      RTNLGRP_IPV4_IFADDR, RTNLGRP_IPV4_ROUTE,
                      RTNLGRP_IPV6_IFADDR, RTNLGRP_IPV6_ROUTE}) {
-    joinGroup(group);
+    m_rtnlSocket.joinGroup(group);
   }
 
-  asyncRead();
+  m_rtnlSocket.startAsyncReceive([this] (const auto& msg) { this->parseRtnlMessage(msg); });
 
   NDN_LOG_TRACE("enumerating links");
-  sendDumpRequest(RTM_GETLINK);
+  m_rtnlSocket.sendDumpRequest(RTM_GETLINK);
   m_isEnumeratingLinks = true;
-}
-
-NetworkMonitorImplNetlink::~NetworkMonitorImplNetlink()
-{
-  boost::system::error_code error;
-  m_socket->close(error);
 }
 
 shared_ptr<const NetworkInterface>
@@ -117,220 +85,7 @@ NetworkMonitorImplNetlink::isEnumerating() const
 }
 
 void
-NetworkMonitorImplNetlink::initSocket(int family)
-{
-  int fd = ::socket(AF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, family);
-  if (fd < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot create netlink socket ("s + std::strerror(errno) + ")"));
-  }
-  m_socket->assign(fd);
-
-  // increase socket receive buffer to 1MB to avoid losing messages
-  const int bufsize = 1 * 1024 * 1024;
-  if (::setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) < 0) {
-    // not a fatal error
-    NDN_LOG_DEBUG("setting SO_RCVBUF failed: " << std::strerror(errno));
-  }
-
-  // enable control messages for received packets to get the destination group
-  const int one = 1;
-  if (::setsockopt(fd, SOL_NETLINK, NETLINK_PKTINFO, &one, sizeof(one)) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot enable NETLINK_PKTINFO ("s + std::strerror(errno) + ")"));
-  }
-
-  sockaddr_nl addr{};
-  addr.nl_family = AF_NETLINK;
-  if (::bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot bind netlink socket ("s + std::strerror(errno) + ")"));
-  }
-
-  // find out what pid has been assigned to us
-  socklen_t len = sizeof(addr);
-  if (::getsockname(fd, reinterpret_cast<sockaddr*>(&addr), &len) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot obtain netlink socket address ("s + std::strerror(errno) + ")"));
-  }
-  if (len != sizeof(addr)) {
-    BOOST_THROW_EXCEPTION(Error("Wrong address length (" + to_string(len) + ")"));
-  }
-  if (addr.nl_family != AF_NETLINK) {
-    BOOST_THROW_EXCEPTION(Error("Wrong address family (" + to_string(addr.nl_family) + ")"));
-  }
-  m_pid = addr.nl_pid;
-  NDN_LOG_TRACE("our pid is " << m_pid);
-
-#ifdef NDN_CXX_HAVE_NETLINK_EXT_ACK
-  // enable extended ACK reporting
-  if (::setsockopt(fd, SOL_NETLINK, NETLINK_EXT_ACK, &one, sizeof(one)) < 0) {
-    // not a fatal error
-    NDN_LOG_DEBUG("setting NETLINK_EXT_ACK failed: " << std::strerror(errno));
-  }
-#endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
-}
-
-void
-NetworkMonitorImplNetlink::joinGroup(int group)
-{
-  if (::setsockopt(m_socket->native_handle(), SOL_NETLINK, NETLINK_ADD_MEMBERSHIP,
-                   &group, sizeof(group)) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot join netlink group " + to_string(group) +
-                                " (" + std::strerror(errno) + ")"));
-  }
-}
-
-void
-NetworkMonitorImplNetlink::sendDumpRequest(uint16_t nlmsgType)
-{
-  auto request = make_shared<RtnlRequest>();
-  request->nlh.nlmsg_len = sizeof(RtnlRequest);
-  request->nlh.nlmsg_type = nlmsgType;
-  request->nlh.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
-  request->nlh.nlmsg_seq = ++m_sequenceNo;
-  request->nlh.nlmsg_pid = m_pid;
-  request->ifi.ifi_family = AF_UNSPEC;
-  request->rta.rta_type = IFLA_EXT_MASK;
-  request->rta.rta_len = RTA_LENGTH(sizeof(request->rtext));
-  request->rtext = RTEXT_FILTER_SKIP_STATS;
-
-  boost::asio::async_write(*m_socket, boost::asio::buffer(request.get(), sizeof(RtnlRequest)),
-    // capture 'request' to prevent its premature deallocation
-    [request] (const boost::system::error_code& error, size_t) {
-      if (!error) {
-        auto type = request->nlh.nlmsg_type;
-        NDN_LOG_TRACE("sent dump request type=" << type << nlmsgTypeToString(type)
-                      << " seq=" << request->nlh.nlmsg_seq);
-      }
-      else if (error != boost::asio::error::operation_aborted) {
-        NDN_LOG_ERROR("write failed: " << error.message());
-        BOOST_THROW_EXCEPTION(Error("Failed to send netlink request (" + error.message() + ")"));
-      }
-    });
-}
-
-void
-NetworkMonitorImplNetlink::asyncRead()
-{
-  m_socket->async_read_some(boost::asio::null_buffers(),
-    // capture a copy of 'm_socket' to prevent its deallocation while the handler is still pending
-    [this, socket = m_socket] (const auto& error, auto&&...) {
-      if (!socket->is_open() || error == boost::asio::error::operation_aborted) {
-        // socket was closed, ignore the error
-        NDN_LOG_DEBUG("socket closed or operation aborted");
-      }
-      else if (error) {
-        NDN_LOG_ERROR("read failed: " << error.message());
-        BOOST_THROW_EXCEPTION(Error("Netlink socket read error (" + error.message() + ")"));
-      }
-      else {
-        this->receiveMessage();
-        this->asyncRead();
-      }
-  });
-}
-
-void
-NetworkMonitorImplNetlink::receiveMessage()
-{
-  msghdr msg{};
-  sockaddr_nl sender{};
-  msg.msg_name = &sender;
-  msg.msg_namelen = sizeof(sender);
-  iovec iov{};
-  iov.iov_base = m_buffer.data();
-  iov.iov_len = m_buffer.size();
-  msg.msg_iov = &iov;
-  msg.msg_iovlen = 1;
-  std::array<uint8_t, CMSG_SPACE(sizeof(nl_pktinfo))> cmsgBuffer;
-  msg.msg_control = cmsgBuffer.data();
-  msg.msg_controllen = cmsgBuffer.size();
-
-  ssize_t nBytesRead = ::recvmsg(m_socket->native_handle(), &msg, 0);
-  if (nBytesRead < 0) {
-    std::string errorString = std::strerror(errno);
-    if (errno == EAGAIN || errno == EINTR || errno == EWOULDBLOCK) {
-      NDN_LOG_DEBUG("recvmsg failed: " << errorString);
-      return;
-    }
-    else {
-      NDN_LOG_ERROR("recvmsg failed: " << errorString);
-      BOOST_THROW_EXCEPTION(Error("Netlink socket receive error (" + errorString + ")"));
-    }
-  }
-
-  NDN_LOG_TRACE("read " << nBytesRead << " bytes from netlink socket");
-
-  if (msg.msg_flags & MSG_TRUNC) {
-    NDN_LOG_ERROR("truncated message");
-    BOOST_THROW_EXCEPTION(Error("Received truncated netlink message"));
-    // TODO: grow the buffer and start over
-  }
-
-  if (msg.msg_namelen >= sizeof(sockaddr_nl) && sender.nl_pid != 0) {
-    NDN_LOG_TRACE("ignoring message from pid=" << sender.nl_pid);
-    return;
-  }
-
-  if (nBytesRead == 0) {
-    return;
-  }
-
-  uint32_t nlGroup = 0;
-  for (cmsghdr* cmsg = CMSG_FIRSTHDR(&msg); cmsg != nullptr; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-    if (cmsg->cmsg_level == SOL_NETLINK &&
-        cmsg->cmsg_type == NETLINK_PKTINFO &&
-        cmsg->cmsg_len == CMSG_LEN(sizeof(nl_pktinfo))) {
-      const nl_pktinfo* pktinfo = reinterpret_cast<nl_pktinfo*>(CMSG_DATA(cmsg));
-      nlGroup = pktinfo->group;
-    }
-  }
-
-  NetlinkMessage nlmsg(m_buffer.data(), static_cast<size_t>(nBytesRead));
-  for (; nlmsg.isValid(); nlmsg = nlmsg.getNext()) {
-    NDN_LOG_TRACE("parsing " << (nlmsg->nlmsg_flags & NLM_F_MULTI ? "multi-part " : "") <<
-                  "message type=" << nlmsg->nlmsg_type << nlmsgTypeToString(nlmsg->nlmsg_type) <<
-                  " len=" << nlmsg->nlmsg_len <<
-                  " seq=" << nlmsg->nlmsg_seq <<
-                  " pid=" << nlmsg->nlmsg_pid <<
-                  " group=" << nlGroup);
-
-    if (nlGroup == 0 && // not a multicast notification
-        (nlmsg->nlmsg_pid != m_pid || nlmsg->nlmsg_seq != m_sequenceNo)) { // not for us
-      NDN_LOG_TRACE("seq/pid mismatch, ignoring");
-      continue;
-    }
-
-    if (nlmsg->nlmsg_flags & NLM_F_DUMP_INTR) {
-      NDN_LOG_ERROR("dump is inconsistent");
-      BOOST_THROW_EXCEPTION(Error("Inconsistency detected in netlink dump"));
-      // TODO: discard the rest of the message and retry the dump
-    }
-
-    if (nlmsg->nlmsg_type == NLMSG_DONE) {
-      break;
-    }
-
-    parseNetlinkMessage(nlmsg);
-  }
-
-  if (nlmsg->nlmsg_type == NLMSG_DONE) {
-    if (m_isEnumeratingLinks) {
-      // links enumeration complete, now request all the addresses
-      m_isEnumeratingLinks = false;
-      NDN_LOG_TRACE("enumerating addresses");
-      sendDumpRequest(RTM_GETADDR);
-      m_isEnumeratingAddresses = true;
-    }
-    else if (m_isEnumeratingAddresses) {
-      // links and addresses enumeration complete
-      m_isEnumeratingAddresses = false;
-      // TODO: enumerate routes
-      NDN_LOG_DEBUG("enumeration complete");
-      this->emitSignal(onEnumerationCompleted);
-    }
-  }
-}
-
-void
-NetworkMonitorImplNetlink::parseNetlinkMessage(const NetlinkMessage& nlmsg)
+NetworkMonitorImplNetlink::parseRtnlMessage(const NetlinkMessage& nlmsg)
 {
   switch (nlmsg->nlmsg_type) {
   case RTM_NEWLINK:
@@ -352,6 +107,23 @@ NetworkMonitorImplNetlink::parseNetlinkMessage(const NetlinkMessage& nlmsg)
     parseRouteMessage(nlmsg);
     if (!isEnumerating())
       this->emitSignal(onNetworkStateChanged); // backward compat
+    break;
+
+  case NLMSG_DONE:
+    if (m_isEnumeratingLinks) {
+      // links enumeration complete, now request all the addresses
+      m_isEnumeratingLinks = false;
+      NDN_LOG_TRACE("enumerating addresses");
+      m_rtnlSocket.sendDumpRequest(RTM_GETADDR);
+      m_isEnumeratingAddresses = true;
+    }
+    else if (m_isEnumeratingAddresses) {
+      // links and addresses enumeration complete
+      m_isEnumeratingAddresses = false;
+      // TODO: enumerate routes
+      NDN_LOG_DEBUG("enumeration complete");
+      this->emitSignal(onEnumerationCompleted);
+    }
     break;
 
   case NLMSG_ERROR:
@@ -398,6 +170,27 @@ ifaScopeToAddressScope(uint8_t scope)
       return AddressScope::LINK;
     default:
       return AddressScope::GLOBAL;
+  }
+}
+
+static void
+updateInterfaceState(NetworkInterface& interface, uint8_t operState)
+{
+  if (operState == linux_if::OPER_STATE_UP) {
+    interface.setState(InterfaceState::RUNNING);
+  }
+  else if (operState == linux_if::OPER_STATE_DORMANT) {
+    interface.setState(InterfaceState::DORMANT);
+  }
+  else {
+    // fallback to flags
+    auto flags = interface.getFlags();
+    if ((flags & linux_if::FLAG_LOWER_UP) && !(flags & linux_if::FLAG_DORMANT))
+      interface.setState(InterfaceState::RUNNING);
+    else if (flags & IFF_UP)
+      interface.setState(InterfaceState::NO_CARRIER);
+    else
+      interface.setState(InterfaceState::DOWN);
   }
 }
 
@@ -568,30 +361,9 @@ NetworkMonitorImplNetlink::parseErrorMessage(const NetlinkMessage& nlmsg)
   auto nla = reinterpret_cast<const nlattr*>(reinterpret_cast<const uint8_t*>(&*nlmsg) + errLen);
   auto attrs = NetlinkMessageAttributes<nlattr>(nla, nlmsg->nlmsg_len - errLen);
   auto msg = attrs.getAttributeByType<std::string>(NLMSGERR_ATTR_MSG);
-  if (msg)
+  if (msg && !msg->empty())
     NDN_LOG_ERROR("kernel message: " << *msg);
 #endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
-}
-
-void
-NetworkMonitorImplNetlink::updateInterfaceState(NetworkInterface& interface, uint8_t operState)
-{
-  if (operState == linux_if::OPER_STATE_UP) {
-    interface.setState(InterfaceState::RUNNING);
-  }
-  else if (operState == linux_if::OPER_STATE_DORMANT) {
-    interface.setState(InterfaceState::DORMANT);
-  }
-  else {
-    // fallback to flags
-    auto flags = interface.getFlags();
-    if ((flags & linux_if::FLAG_LOWER_UP) && !(flags & linux_if::FLAG_DORMANT))
-      interface.setState(InterfaceState::RUNNING);
-    else if (flags & IFF_UP)
-      interface.setState(InterfaceState::NO_CARRIER);
-    else
-      interface.setState(InterfaceState::DOWN);
-  }
 }
 
 } // namespace net

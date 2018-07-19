@@ -47,8 +47,6 @@ class IfAddrs;
 class NetworkMonitorImplOsx : public NetworkMonitorImpl
 {
 public:
-  using Error = NetworkMonitor::Error;
-
   NetworkMonitorImplOsx(boost::asio::io_service& io);
 
   ~NetworkMonitorImplOsx();

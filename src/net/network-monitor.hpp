@@ -133,6 +133,8 @@ public: // signals
 class NetworkMonitorImpl : noncopyable
 {
 public:
+  using Error = NetworkMonitor::Error;
+
   virtual
   ~NetworkMonitorImpl() = default;
 

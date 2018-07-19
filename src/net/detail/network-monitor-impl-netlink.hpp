@@ -31,27 +31,20 @@
 #error "This file should not be included ..."
 #endif
 
-#include <boost/asio/posix/stream_descriptor.hpp>
+#include "netlink-socket.hpp"
 
-#include <array>
 #include <map>
 
 namespace ndn {
 namespace net {
 
-class NetlinkMessage;
-
 class NetworkMonitorImplNetlink : public NetworkMonitorImpl
 {
 public:
-  using Error = NetworkMonitor::Error;
-
   /** \brief initialize netlink socket and start enumerating interfaces
    */
   explicit
   NetworkMonitorImplNetlink(boost::asio::io_service& io);
-
-  ~NetworkMonitorImplNetlink();
 
   uint32_t
   getCapabilities() const final
@@ -74,22 +67,7 @@ private:
   isEnumerating() const;
 
   void
-  initSocket(int family);
-
-  void
-  joinGroup(int group);
-
-  void
-  sendDumpRequest(uint16_t nlmsgType);
-
-  void
-  asyncRead();
-
-  void
-  receiveMessage();
-
-  void
-  parseNetlinkMessage(const NetlinkMessage& nlmsg);
+  parseRtnlMessage(const NetlinkMessage& nlmsg);
 
   void
   parseLinkMessage(const NetlinkMessage& nlmsg);
@@ -103,15 +81,9 @@ private:
   void
   parseErrorMessage(const NetlinkMessage& nlmsg);
 
-  static void
-  updateInterfaceState(NetworkInterface& interface, uint8_t operState);
-
 private:
   std::map<int, shared_ptr<NetworkInterface>> m_interfaces; ///< ifindex => interface
-  std::array<uint8_t, 16384> m_buffer; ///< netlink messages received from the kernel
-  shared_ptr<boost::asio::posix::stream_descriptor> m_socket; ///< the netlink socket
-  uint32_t m_pid; ///< our port ID (unicast address for netlink sockets)
-  uint32_t m_sequenceNo; ///< sequence number of the last netlink request sent to the kernel
+  RtnlSocket m_rtnlSocket; ///< rtnetlink socket
   bool m_isEnumeratingLinks; ///< true if a dump of all links is in progress
   bool m_isEnumeratingAddresses; ///< true if a dump of all addresses is in progress
 };

@@ -21,8 +21,8 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_NET_NETLINK_UTIL_HPP
-#define NDN_NET_NETLINK_UTIL_HPP
+#ifndef NDN_NET_NETLINK_MESSAGE_HPP
+#define NDN_NET_NETLINK_MESSAGE_HPP
 
 #include "../../common.hpp"
 #include "../ethernet.hpp"
@@ -307,33 +307,7 @@ private:
   std::map<uint16_t, const T*> m_attrs;
 };
 
-inline const char*
-nlmsgTypeToString(uint16_t type) noexcept
-{
-#define NLMSG_STRINGIFY(x) case NLMSG_##x: return "<" #x ">"
-#define RTM_STRINGIFY(x) case RTM_##x: return "<" #x ">"
-  switch (type) {
-    NLMSG_STRINGIFY(NOOP);
-    NLMSG_STRINGIFY(ERROR);
-    NLMSG_STRINGIFY(DONE);
-    NLMSG_STRINGIFY(OVERRUN);
-    RTM_STRINGIFY(NEWLINK);
-    RTM_STRINGIFY(DELLINK);
-    RTM_STRINGIFY(GETLINK);
-    RTM_STRINGIFY(NEWADDR);
-    RTM_STRINGIFY(DELADDR);
-    RTM_STRINGIFY(GETADDR);
-    RTM_STRINGIFY(NEWROUTE);
-    RTM_STRINGIFY(DELROUTE);
-    RTM_STRINGIFY(GETROUTE);
-    default:
-      return "";
-  }
-#undef NLMSG_STRINGIFY
-#undef RTM_STRINGIFY
-}
-
 } // namespace net
 } // namespace ndn
 
-#endif // NDN_NET_NETLINK_UTIL_HPP
+#endif // NDN_NET_NETLINK_MESSAGE_HPP
