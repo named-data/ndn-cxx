@@ -322,18 +322,16 @@ Face::doProcessEvents(time::milliseconds timeout, bool keepThread)
     }
 
     if (timeout > time::milliseconds::zero()) {
-      boost::asio::io_service& ioService = m_ioService;
-      unique_ptr<boost::asio::io_service::work>& work = m_impl->m_ioServiceWork;
       m_impl->m_processEventsTimeoutEvent = m_impl->m_scheduler.scheduleEvent(timeout,
-        [&ioService, &work] {
-          ioService.stop();
+        [&io = m_ioService, &work = m_impl->m_ioServiceWork] {
+          io.stop();
           work.reset();
         });
     }
 
     if (keepThread) {
       // work will ensure that m_ioService is running until work object exists
-      m_impl->m_ioServiceWork.reset(new boost::asio::io_service::work(m_ioService));
+      m_impl->m_ioServiceWork = make_unique<boost::asio::io_service::work>(m_ioService);
     }
 
     m_ioService.run();

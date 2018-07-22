@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -95,33 +95,30 @@ DummyClientFace::AlreadyLinkedError::AlreadyLinkedError()
 {
 }
 
-DummyClientFace::DummyClientFace(const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+DummyClientFace::DummyClientFace(const Options& options)
   : Face(make_shared<DummyClientFace::Transport>())
-  , m_internalKeyChain(new KeyChain)
+  , m_internalKeyChain(make_unique<KeyChain>())
   , m_keyChain(*m_internalKeyChain)
 {
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(KeyChain& keyChain,
-                                 const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+DummyClientFace::DummyClientFace(KeyChain& keyChain, const Options& options)
   : Face(make_shared<DummyClientFace::Transport>(), keyChain)
   , m_keyChain(keyChain)
 {
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(boost::asio::io_service& ioService,
-                                 const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, const Options& options)
   : Face(make_shared<DummyClientFace::Transport>(), ioService)
-  , m_internalKeyChain(new KeyChain)
+  , m_internalKeyChain(make_unique<KeyChain>())
   , m_keyChain(*m_internalKeyChain)
 {
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
-                                 const Options& options/* = DummyClientFace::DEFAULT_OPTIONS*/)
+DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain, const Options& options)
   : Face(make_shared<DummyClientFace::Transport>(), ioService, keyChain)
   , m_keyChain(keyChain)
 {

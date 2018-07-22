@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,13 +34,13 @@ public:
   ~Tag();
 
   /**
-   * @fn static constexpr int getTypeId()
+   * @fn static constexpr int getTypeId() noexcept
    * @return an integer that uniquely identifies this Tag type
-   * @sa http://redmine.named-data.net/projects/ndn-cxx/wiki/PacketTagTypes
+   * @sa https://redmine.named-data.net/projects/ndn-cxx/wiki/PacketTagTypes
    */
 #ifdef DOXYGEN
   static constexpr int
-  getTypeId()
+  getTypeId() noexcept
   {
     return <type-identifier>;
   }
@@ -59,15 +59,15 @@ class SimpleTag : public Tag
 {
 public:
   static constexpr int
-  getTypeId()
+  getTypeId() noexcept
   {
     return TypeId;
   }
 
   /** \brief explicitly convertible from T
    */
-  explicit
-  SimpleTag(const T& value)
+  constexpr explicit
+  SimpleTag(const T& value) noexcept
     : m_value(value)
   {
   }
@@ -82,8 +82,8 @@ public:
 
   /** \return the enclosed value
    */
-  const T&
-  get() const
+  constexpr const T&
+  get() const noexcept
   {
     return m_value;
   }

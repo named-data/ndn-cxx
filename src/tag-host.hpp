@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2015 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,12 +58,11 @@ public:
   removeTag() const;
 
 private:
-  mutable std::map<size_t, shared_ptr<Tag>> m_tags;
+  mutable std::map<int, shared_ptr<Tag>> m_tags;
 };
 
-
 template<typename T>
-inline shared_ptr<T>
+shared_ptr<T>
 TagHost::getTag() const
 {
   static_assert(std::is_base_of<Tag, T>::value, "T must inherit from Tag");
@@ -76,21 +75,21 @@ TagHost::getTag() const
 }
 
 template<typename T>
-inline void
+void
 TagHost::setTag(shared_ptr<T> tag) const
 {
   static_assert(std::is_base_of<Tag, T>::value, "T must inherit from Tag");
 
   if (tag == nullptr) {
     m_tags.erase(T::getTypeId());
-    return;
   }
-
-  m_tags[T::getTypeId()] = tag;
+  else {
+    m_tags[T::getTypeId()] = std::move(tag);
+  }
 }
 
 template<typename T>
-inline void
+void
 TagHost::removeTag() const
 {
   setTag<T>(nullptr);

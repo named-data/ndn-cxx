@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,7 +67,7 @@ public:
   ~Pib();
 
   /**
-   * @brief return the scheme of the PibLocator
+   * @brief return the scheme of the PIB Locator
    */
   std::string
   getScheme() const
@@ -110,19 +110,21 @@ public:
   Identity
   getIdentity(const Name& identityName) const;
 
-  /// @brief Get all the identities
+  /**
+   * @brief Get all the identities
+   */
   const IdentityContainer&
   getIdentities() const;
 
   /**
    * @brief Get the default identity.
-   * @throw Pib::Error if no default identity.
+   * @throw Pib::Error if no default identity exists.
    */
   const Identity&
   getDefaultIdentity() const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
-  /*
+  /**
    * @brief Create a Pib instance
    *
    * @param scheme The scheme for the Pib
@@ -131,17 +133,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    */
   Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl);
 
-  /*
-   * @brief Create an identity with name @p identityName and return a reference to it.
-   *
-   * If there already exists an identity for the name @p identityName, then it is returned.
-   * If no default identity is set, the newly created identity will be set as the default.
-   *
-   * @param identityName The name for the identity to be added
-   */
-
   /**
-   * @brief Add an @p identity.
+   * @brief Add an identity.
    *
    * If no default identity is set before, the new identity will be set as the default identity
    *
@@ -150,8 +143,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   Identity
   addIdentity(const Name& identity);
 
-  /*
-   * @brief Remove an @p identity.
+  /**
+   * @brief Remove an identity.
    *
    * If the default identity is being removed, no default identity will be selected.
    */
@@ -159,7 +152,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   removeIdentity(const Name& identity);
 
   /**
-   * @brief Set an @p identity as the default identity.
+   * @brief Set an identity as the default identity.
    *
    * Create the identity if it does not exist.
    *

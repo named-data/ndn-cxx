@@ -263,10 +263,10 @@ Data::setContent(const uint8_t* value, size_t valueSize)
 }
 
 Data&
-Data::setContent(const ConstBufferPtr& value)
+Data::setContent(ConstBufferPtr value)
 {
   resetWire();
-  m_content = Block(tlv::Content, value);
+  m_content = Block(tlv::Content, std::move(value));
   return *this;
 }
 

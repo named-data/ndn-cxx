@@ -52,20 +52,21 @@ class Controller : noncopyable
 public:
   /** \brief a callback on command success
    */
-  typedef function<void(const ControlParameters&)> CommandSucceedCallback;
+  using CommandSucceedCallback = function<void(const ControlParameters&)>;
 
   /** \brief a callback on command failure
    */
-  typedef function<void(const ControlResponse&)> CommandFailCallback;
+  using CommandFailCallback = function<void(const ControlResponse&)>;
 
   /** \brief a callback on dataset retrieval failure
    */
-  typedef function<void(uint32_t code, const std::string& reason)> DatasetFailCallback;
+  using DatasetFailCallback = function<void(uint32_t code, const std::string& reason)>;
 
   /** \brief construct a Controller that uses face for transport,
    *         and uses the passed KeyChain to sign commands
    */
-  Controller(Face& face, KeyChain& keyChain, security::v2::Validator& validator = security::getAcceptAllValidator());
+  Controller(Face& face, KeyChain& keyChain,
+             security::v2::Validator& validator = security::getAcceptAllValidator());
 
   /** \brief start command execution
    */
@@ -76,8 +77,7 @@ public:
         const CommandFailCallback& onFailure,
         const CommandOptions& options = CommandOptions())
   {
-    shared_ptr<ControlCommand> command = make_shared<Command>();
-    this->startCommand(command, parameters, onSuccess, onFailure, options);
+    startCommand(make_shared<Command>(), parameters, onSuccess, onFailure, options);
   }
 
   /** \brief start dataset fetching
@@ -88,7 +88,7 @@ public:
         const DatasetFailCallback& onFailure,
         const CommandOptions& options = CommandOptions())
   {
-    this->fetchDataset(make_shared<Dataset>(), onSuccess, onFailure, options);
+    fetchDataset(make_shared<Dataset>(), onSuccess, onFailure, options);
   }
 
   /** \brief start dataset fetching
@@ -100,7 +100,7 @@ public:
         const DatasetFailCallback& onFailure,
         const CommandOptions& options = CommandOptions())
   {
-    this->fetchDataset(make_shared<Dataset>(param), onSuccess, onFailure, options);
+    fetchDataset(make_shared<Dataset>(param), onSuccess, onFailure, options);
   }
 
 private:
@@ -175,41 +175,40 @@ protected:
 };
 
 template<typename Dataset>
-inline void
+void
 Controller::fetchDataset(shared_ptr<Dataset> dataset,
-                         const std::function<void(typename Dataset::ResultType)>& onSuccess1,
-                         const DatasetFailCallback& onFailure1,
+                         const std::function<void(typename Dataset::ResultType)>& onSuccess,
+                         const DatasetFailCallback& onFailure,
                          const CommandOptions& options)
 {
-  const std::function<void(typename Dataset::ResultType)>& onSuccess = onSuccess1 ?
-    onSuccess1 : [] (const typename Dataset::ResultType&) {};
-  const DatasetFailCallback& onFailure = onFailure1 ?
-    onFailure1 : [] (uint32_t, const std::string&) {};
-
   Name prefix = dataset->getDatasetPrefix(options.getPrefix());
-  this->fetchDataset(prefix,
-                     bind(&Controller::processDatasetResponse<Dataset>, this, dataset, onSuccess, onFailure, _1),
-                     onFailure,
-                     options);
+  fetchDataset(prefix,
+    [=, d = std::move(dataset)] (ConstBufferPtr p) {
+      processDatasetResponse(std::move(d), onSuccess, onFailure, std::move(p));
+    },
+    onFailure, options);
 }
 
 template<typename Dataset>
-inline void
+void
 Controller::processDatasetResponse(shared_ptr<Dataset> dataset,
                                    const std::function<void(typename Dataset::ResultType)>& onSuccess,
                                    const DatasetFailCallback& onFailure,
                                    ConstBufferPtr payload)
 {
   typename Dataset::ResultType result;
+
   try {
-    result = dataset->parseResult(payload);
+    result = dataset->parseResult(std::move(payload));
   }
   catch (const tlv::Error& e) {
-    onFailure(ERROR_SERVER, e.what());
+    if (onFailure)
+      onFailure(ERROR_SERVER, e.what());
     return;
   }
 
-  onSuccess(result);
+  if (onSuccess)
+    onSuccess(result);
 }
 
 } // namespace nfd

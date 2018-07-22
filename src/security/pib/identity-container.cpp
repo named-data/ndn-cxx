@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -81,10 +81,10 @@ IdentityContainer::const_iterator::operator!=(const const_iterator& other)
 }
 
 IdentityContainer::IdentityContainer(shared_ptr<PibImpl> pibImpl)
-  : m_pibImpl(pibImpl)
+  : m_pibImpl(std::move(pibImpl))
 {
-  BOOST_ASSERT(pibImpl != nullptr);
-  m_identityNames = pibImpl->getIdentities();
+  BOOST_ASSERT(m_pibImpl != nullptr);
+  m_identityNames = m_pibImpl->getIdentities();
 }
 
 IdentityContainer::const_iterator
@@ -116,8 +116,7 @@ IdentityContainer::add(const Name& identityName)
 {
   if (m_identityNames.count(identityName) == 0) {
     m_identityNames.insert(identityName);
-    m_identities[identityName] =
-      shared_ptr<detail::IdentityImpl>(new detail::IdentityImpl(identityName, m_pibImpl, true));
+    m_identities[identityName] = make_shared<detail::IdentityImpl>(identityName, m_pibImpl, true);
   }
   return get(identityName);
 }
@@ -140,7 +139,7 @@ IdentityContainer::get(const Name& identityName) const
     id = it->second;
   }
   else {
-    id = shared_ptr<detail::IdentityImpl>(new detail::IdentityImpl(identityName, m_pibImpl, false));
+    id = make_shared<detail::IdentityImpl>(identityName, m_pibImpl, false);
     m_identities[identityName] = id;
   }
   return Identity(id);

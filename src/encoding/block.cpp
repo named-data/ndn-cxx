@@ -191,14 +191,15 @@ Block::fromStream(std::istream& is)
 std::tuple<bool, Block>
 Block::fromBuffer(ConstBufferPtr buffer, size_t offset)
 {
-  const Buffer::const_iterator begin = buffer->begin() + offset;
-  Buffer::const_iterator pos = begin;
+  auto begin = buffer->begin() + offset;
+  auto pos = begin;
 
   uint32_t type = 0;
   bool isOk = tlv::readType(pos, buffer->end(), type);
   if (!isOk) {
     return std::make_tuple(false, Block());
   }
+
   uint64_t length = 0;
   isOk = tlv::readVarNumber(pos, buffer->end(), length);
   if (!isOk) {
@@ -210,7 +211,7 @@ Block::fromBuffer(ConstBufferPtr buffer, size_t offset)
     return std::make_tuple(false, Block());
   }
 
-  return std::make_tuple(true, Block(buffer, type, begin, pos + length, pos, pos + length));
+  return std::make_tuple(true, Block(std::move(buffer), type, begin, pos + length, pos, pos + length));
 }
 
 std::tuple<bool, Block>

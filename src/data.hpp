@@ -181,7 +181,7 @@ public: // Data fields
    *  @return a reference to this Data, to allow chaining
    */
   Data&
-  setContent(const ConstBufferPtr& value);
+  setContent(ConstBufferPtr value);
 
   /** @brief Get Signature
    */

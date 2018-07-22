@@ -343,13 +343,13 @@ Component::isImplicitSha256Digest() const
 }
 
 Component
-Component::fromImplicitSha256Digest(const ConstBufferPtr& digest)
+Component::fromImplicitSha256Digest(ConstBufferPtr digest)
 {
   if (digest->size() != util::Sha256::DIGEST_SIZE)
     BOOST_THROW_EXCEPTION(Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
                                 to_string(util::Sha256::DIGEST_SIZE) + " octets)"));
 
-  return Block(tlv::ImplicitSha256DigestComponent, digest);
+  return Block(tlv::ImplicitSha256DigestComponent, std::move(digest));
 }
 
 Component

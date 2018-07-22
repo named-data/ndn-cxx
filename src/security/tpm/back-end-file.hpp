@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,7 @@
 
 namespace ndn {
 namespace security {
+
 namespace transform {
 class PrivateKey;
 } // namespace transform
@@ -123,14 +124,14 @@ private:
   /**
    * @brief Load a private key with name @p keyName from the key file directory
    */
-  shared_ptr<transform::PrivateKey>
+  unique_ptr<transform::PrivateKey>
   loadKey(const Name& keyName) const;
 
   /**
    * @brief Save a private key with name @p keyName into the key file directory
    */
   void
-  saveKey(const Name& keyName, shared_ptr<transform::PrivateKey> key);
+  saveKey(const Name& keyName, const transform::PrivateKey& key);
 
 private:
   class Impl;

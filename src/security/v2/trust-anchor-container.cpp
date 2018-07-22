@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -85,6 +85,7 @@ TrustAnchorContainer::find(const Name& keyName) const
   auto cert = m_anchors.lower_bound(keyName);
   if (cert == m_anchors.end() || !keyName.isPrefixOf(cert->getName()))
     return nullptr;
+
   return &*cert;
 }
 
@@ -123,7 +124,7 @@ void
 TrustAnchorContainer::refresh()
 {
   for (auto it = m_groups.begin(); it != m_groups.end(); ++it) {
-    m_groups.modify(it, [] (shared_ptr<TrustAnchorGroup>& group) { group->refresh(); });
+    m_groups.modify(it, [] (const auto& group) { group->refresh(); });
   }
 }
 

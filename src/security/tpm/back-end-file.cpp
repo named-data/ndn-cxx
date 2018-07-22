@@ -125,11 +125,11 @@ BackEndFile::doCreateKey(const Name& identityName, const KeyParams& params)
   setKeyName(*keyHandle, identityName, params);
 
   try {
-    saveKey(keyHandle->getKeyName(), key);
+    saveKey(keyHandle->getKeyName(), *key);
     return keyHandle;
   }
   catch (const std::runtime_error& e) {
-    BOOST_THROW_EXCEPTION(Error("Cannot write key to disk: "s + e.what()));
+    BOOST_THROW_EXCEPTION(Error("Cannot write key to file: "s + e.what()));
   }
 }
 
@@ -137,27 +137,28 @@ void
 BackEndFile::doDeleteKey(const Name& keyName)
 {
   boost::filesystem::path keyPath(m_impl->toFileName(keyName));
+  if (!boost::filesystem::exists(keyPath))
+    return;
 
-  if (boost::filesystem::exists(keyPath)) {
-    try {
-      boost::filesystem::remove(keyPath);
-    }
-    catch (const boost::filesystem::filesystem_error&) {
-      BOOST_THROW_EXCEPTION(Error("Cannot delete key"));
-    }
+  try {
+    boost::filesystem::remove(keyPath);
+  }
+  catch (const boost::filesystem::filesystem_error& e) {
+    BOOST_THROW_EXCEPTION(Error("Cannot remove key file: "s + e.what()));
   }
 }
 
 ConstBufferPtr
 BackEndFile::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
 {
-  shared_ptr<PrivateKey> key;
+  unique_ptr<PrivateKey> key;
   try {
     key = loadKey(keyName);
   }
-  catch (const PrivateKey::Error&) {
-    BOOST_THROW_EXCEPTION(Error("Cannot export private key"));
+  catch (const PrivateKey::Error& e) {
+    BOOST_THROW_EXCEPTION(Error("Cannot export private key: "s + e.what()));
   }
+
   OBufferStream os;
   key->savePkcs8(os, pw, pwLen);
   return os.buf();
@@ -167,33 +168,33 @@ void
 BackEndFile::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen)
 {
   try {
-    auto key = make_shared<PrivateKey>();
-    key->loadPkcs8(buf, size, pw, pwLen);
+    PrivateKey key;
+    key.loadPkcs8(buf, size, pw, pwLen);
     saveKey(keyName, key);
   }
-  catch (const PrivateKey::Error&) {
-    BOOST_THROW_EXCEPTION(Error("Cannot import private key"));
+  catch (const PrivateKey::Error& e) {
+    BOOST_THROW_EXCEPTION(Error("Cannot import private key: "s + e.what()));
   }
 }
 
-shared_ptr<PrivateKey>
+unique_ptr<PrivateKey>
 BackEndFile::loadKey(const Name& keyName) const
 {
-  auto key = make_shared<PrivateKey>();
-  std::fstream is(m_impl->toFileName(keyName).string(), std::ios_base::in);
+  std::ifstream is(m_impl->toFileName(keyName).string());
+  auto key = make_unique<PrivateKey>();
   key->loadPkcs1Base64(is);
   return key;
 }
 
 void
-BackEndFile::saveKey(const Name& keyName, shared_ptr<PrivateKey> key)
+BackEndFile::saveKey(const Name& keyName, const PrivateKey& key)
 {
   std::string fileName = m_impl->toFileName(keyName).string();
-  std::fstream os(fileName, std::ios_base::out);
-  key->savePkcs1Base64(os);
+  std::ofstream os(fileName);
+  key.savePkcs1Base64(os);
 
   // set file permission
-  ::chmod(fileName.c_str(), 0000400);
+  ::chmod(fileName.data(), 0000400);
 }
 
 } // namespace tpm

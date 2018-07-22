@@ -432,9 +432,9 @@ public: // modifiers
    *  @return a reference to this name, to allow chaining
    */
   Name&
-  appendImplicitSha256Digest(const ConstBufferPtr& digest)
+  appendImplicitSha256Digest(ConstBufferPtr digest)
   {
-    return append(Component::fromImplicitSha256Digest(digest));
+    return append(Component::fromImplicitSha256Digest(std::move(digest)));
   }
 
   /** @brief Append an ImplicitSha256Digest component

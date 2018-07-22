@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -85,7 +85,7 @@ ForwarderGeneralStatusDataset::ForwarderGeneralStatusDataset()
 ForwarderGeneralStatusDataset::ResultType
 ForwarderGeneralStatusDataset::parseResult(ConstBufferPtr payload) const
 {
-  return ForwarderStatus(Block(tlv::Content, payload));
+  return ForwarderStatus(Block(tlv::Content, std::move(payload)));
 }
 
 FaceDatasetBase::FaceDatasetBase(const PartialName& datasetName)
@@ -96,7 +96,7 @@ FaceDatasetBase::FaceDatasetBase(const PartialName& datasetName)
 FaceDatasetBase::ResultType
 FaceDatasetBase::parseResult(ConstBufferPtr payload) const
 {
-  return parseDatasetVector<FaceStatus>(payload);
+  return parseDatasetVector<FaceStatus>(std::move(payload));
 }
 
 FaceDataset::FaceDataset()
@@ -124,7 +124,7 @@ ChannelDataset::ChannelDataset()
 ChannelDataset::ResultType
 ChannelDataset::parseResult(ConstBufferPtr payload) const
 {
-  return parseDatasetVector<ChannelStatus>(payload);
+  return parseDatasetVector<ChannelStatus>(std::move(payload));
 }
 
 FibDataset::FibDataset()
@@ -135,7 +135,7 @@ FibDataset::FibDataset()
 FibDataset::ResultType
 FibDataset::parseResult(ConstBufferPtr payload) const
 {
-  return parseDatasetVector<FibEntry>(payload);
+  return parseDatasetVector<FibEntry>(std::move(payload));
 }
 
 CsInfoDataset::CsInfoDataset()
@@ -146,7 +146,7 @@ CsInfoDataset::CsInfoDataset()
 CsInfoDataset::ResultType
 CsInfoDataset::parseResult(ConstBufferPtr payload) const
 {
-  return CsInfo(Block(payload));
+  return CsInfo(Block(std::move(payload)));
 }
 
 StrategyChoiceDataset::StrategyChoiceDataset()
@@ -157,7 +157,7 @@ StrategyChoiceDataset::StrategyChoiceDataset()
 StrategyChoiceDataset::ResultType
 StrategyChoiceDataset::parseResult(ConstBufferPtr payload) const
 {
-  return parseDatasetVector<StrategyChoice>(payload);
+  return parseDatasetVector<StrategyChoice>(std::move(payload));
 }
 
 RibDataset::RibDataset()
@@ -168,7 +168,7 @@ RibDataset::RibDataset()
 RibDataset::ResultType
 RibDataset::parseResult(ConstBufferPtr payload) const
 {
-  return parseDatasetVector<RibEntry>(payload);
+  return parseDatasetVector<RibEntry>(std::move(payload));
 }
 
 } // namespace nfd

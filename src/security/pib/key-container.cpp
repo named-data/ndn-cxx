@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -121,7 +121,7 @@ KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
   }
 
   m_keyNames.insert(keyName);
-  m_keys[keyName] = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, key, keyLen, m_pib));
+  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, keyLen, m_pib);
 
   return get(keyName);
 }
@@ -154,7 +154,7 @@ KeyContainer::get(const Name& keyName) const
     key = it->second;
   }
   else {
-    key = shared_ptr<detail::KeyImpl>(new detail::KeyImpl(keyName, m_pib));
+    key = make_shared<detail::KeyImpl>(keyName, m_pib);
     m_keys[keyName] = key;
   }
 

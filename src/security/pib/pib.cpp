@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,9 +34,9 @@ Pib::Pib(const std::string& scheme, const std::string& location, shared_ptr<PibI
   , m_location(location)
   , m_isDefaultIdentityLoaded(false)
   , m_identities(impl)
-  , m_impl(impl)
+  , m_impl(std::move(impl))
 {
-  BOOST_ASSERT(impl != nullptr);
+  BOOST_ASSERT(m_impl != nullptr);
 }
 
 Pib::~Pib() = default;

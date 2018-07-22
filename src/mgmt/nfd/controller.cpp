@@ -22,7 +22,6 @@
 #include "controller.hpp"
 #include "face.hpp"
 #include "security/v2/key-chain.hpp"
-#include "security/validator-null.hpp"
 #include "util/segment-fetcher.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -49,28 +48,25 @@ Controller::Controller(Face& face, KeyChain& keyChain, security::v2::Validator& 
 void
 Controller::startCommand(const shared_ptr<ControlCommand>& command,
                          const ControlParameters& parameters,
-                         const CommandSucceedCallback& onSuccess1,
-                         const CommandFailCallback& onFailure1,
+                         const CommandSucceedCallback& onSuccess,
+                         const CommandFailCallback& onFailure,
                          const CommandOptions& options)
 {
-  const CommandSucceedCallback& onSuccess = onSuccess1 ?
-    onSuccess1 : [] (const ControlParameters&) {};
-  const CommandFailCallback& onFailure = onFailure1 ?
-    onFailure1 : [] (const ControlResponse&) {};
-
   Name requestName = command->getRequestName(options.getPrefix(), parameters);
   Interest interest = m_signer.makeCommandInterest(requestName, options.getSigningInfo());
   interest.setInterestLifetime(options.getTimeout());
 
   m_face.expressInterest(interest,
     [=] (const Interest&, const Data& data) {
-      this->processCommandResponse(data, command, onSuccess, onFailure);
+      processCommandResponse(data, command, onSuccess, onFailure);
     },
     [=] (const Interest&, const lp::Nack&) {
-      onFailure(ControlResponse(Controller::ERROR_NACK, "network Nack received"));
+      if (onFailure)
+        onFailure(ControlResponse(Controller::ERROR_NACK, "network Nack received"));
     },
     [=] (const Interest&) {
-      onFailure(ControlResponse(Controller::ERROR_TIMEOUT, "request timed out"));
+      if (onFailure)
+        onFailure(ControlResponse(Controller::ERROR_TIMEOUT, "request timed out"));
     });
 }
 
@@ -82,10 +78,11 @@ Controller::processCommandResponse(const Data& data,
 {
   m_validator.validate(data,
     [=] (const Data& data) {
-      this->processValidatedCommandResponse(data, command, onSuccess, onFailure);
+      processValidatedCommandResponse(data, command, onSuccess, onFailure);
     },
-    [=] (const Data& data, const security::v2::ValidationError& error) {
-      onFailure(ControlResponse(ERROR_VALIDATION, boost::lexical_cast<std::string>(error)));
+    [=] (const Data&, const auto& error) {
+      if (onFailure)
+        onFailure(ControlResponse(ERROR_VALIDATION, boost::lexical_cast<std::string>(error)));
     }
   );
 }
@@ -101,13 +98,15 @@ Controller::processValidatedCommandResponse(const Data& data,
     response.wireDecode(data.getContent().blockFromValue());
   }
   catch (const tlv::Error& e) {
-    onFailure(ControlResponse(ERROR_SERVER, e.what()));
+    if (onFailure)
+      onFailure(ControlResponse(ERROR_SERVER, e.what()));
     return;
   }
 
   uint32_t code = response.getCode();
   if (code >= ERROR_LBOUND) {
-    onFailure(response);
+    if (onFailure)
+      onFailure(response);
     return;
   }
 
@@ -116,7 +115,8 @@ Controller::processValidatedCommandResponse(const Data& data,
     parameters.wireDecode(response.getBody());
   }
   catch (const tlv::Error& e) {
-    onFailure(ControlResponse(ERROR_SERVER, e.what()));
+    if (onFailure)
+      onFailure(ControlResponse(ERROR_SERVER, e.what()));
     return;
   }
 
@@ -124,11 +124,13 @@ Controller::processValidatedCommandResponse(const Data& data,
     command->validateResponse(parameters);
   }
   catch (const ControlCommand::ArgumentError& e) {
-    onFailure(ControlResponse(ERROR_SERVER, e.what()));
+    if (onFailure)
+      onFailure(ControlResponse(ERROR_SERVER, e.what()));
     return;
   }
 
-  onSuccess(parameters);
+  if (onSuccess)
+    onSuccess(parameters);
 }
 
 void
@@ -137,21 +139,26 @@ Controller::fetchDataset(const Name& prefix,
                          const DatasetFailCallback& onFailure,
                          const CommandOptions& options)
 {
-  Interest baseInterest(prefix);
-
   SegmentFetcher::Options fetcherOptions;
   fetcherOptions.maxTimeout = options.getTimeout();
-  auto fetcher = SegmentFetcher::start(m_face, baseInterest, m_validator, fetcherOptions);
-  fetcher->onComplete.connect(processResponse);
-  fetcher->onError.connect([=] (uint32_t code, const std::string& msg) {
+
+  auto fetcher = SegmentFetcher::start(m_face, Interest(prefix), m_validator, fetcherOptions);
+  if (processResponse) {
+    fetcher->onComplete.connect(processResponse);
+  }
+  if (onFailure) {
+    fetcher->onError.connect([=] (uint32_t code, const std::string& msg) {
       processDatasetFetchError(onFailure, code, msg);
     });
+  }
 }
 
 void
 Controller::processDatasetFetchError(const DatasetFailCallback& onFailure,
                                      uint32_t code, std::string msg)
 {
+  BOOST_ASSERT(onFailure);
+
   switch (static_cast<SegmentFetcher::ErrorCode>(code)) {
     // It's intentional to cast as SegmentFetcher::ErrorCode, and to not have a 'default' clause.
     // This forces the switch statement to handle every defined SegmentFetcher::ErrorCode,

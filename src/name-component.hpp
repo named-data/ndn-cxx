@@ -458,7 +458,7 @@ public: // commonly used TLV-TYPEs
    * @brief Create ImplicitSha256DigestComponent component
    */
   static Component
-  fromImplicitSha256Digest(const ConstBufferPtr& digest);
+  fromImplicitSha256Digest(ConstBufferPtr digest);
 
   /**
    * @brief Create ImplicitSha256DigestComponent component
