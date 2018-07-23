@@ -242,10 +242,7 @@ Name
 Name::getSuccessor() const
 {
   if (empty()) {
-    static uint8_t firstValue[] {0};
-    Name firstName;
-    firstName.append(firstValue, 1);
-    return firstName;
+    return Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
   }
 
   return getPrefix(-1).append(get(-1).getSuccessor());

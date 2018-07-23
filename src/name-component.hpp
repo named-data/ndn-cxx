@@ -566,6 +566,26 @@ public: // operators
     return compare(other) > 0;
   }
 
+  /**
+   * @brief Get the successor of this name component.
+   *
+   * The successor of a name component is defined as follows:
+   *
+   *     C represents the set of name components, and X,Y ∈ C.
+   *     Operator < is defined by canonical order on C.
+   *     Y is the successor of X, if (a) X < Y, and (b) ∄ Z ∈ C s.t. X < Z < Y.
+   *
+   * In plain words, successor of a name component is the next possible name component.
+   *
+   * Examples:
+   *
+   * - successor of `sha256digest=0000000000000000000000000000000000000000000000000000000000000000`
+   *   is `sha256digest=0000000000000000000000000000000000000000000000000000000000000001`.
+   * - successor of `sha256digest=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`
+   *   is `2=...`.
+   * - successor of `A` is `B`.
+   * - successor of `%FF` is `%00%00`.
+   */
   Component
   getSuccessor() const;
 

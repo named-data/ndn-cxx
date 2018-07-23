@@ -398,13 +398,40 @@ Component::compare(const Component& other) const
   return std::memcmp(value(), other.value(), value_size());
 }
 
+static Component
+getDigestSuccessor(const Component& comp)
+{
+  size_t totalLength = 0;
+  EncodingBuffer encoder(comp.size(), 0);
+
+  bool isOverflow = true;
+  size_t i = comp.value_size();
+  for (; isOverflow && i > 0; i--) {
+    uint8_t newValue = static_cast<uint8_t>((comp.value()[i - 1] + 1) & 0xFF);
+    totalLength += encoder.prependByte(newValue);
+    isOverflow = (newValue == 0);
+  }
+  totalLength += encoder.prependByteArray(comp.value(), i);
+
+  if (isOverflow) {
+    return Component(comp.type() + 1);
+  }
+
+  encoder.prependVarNumber(totalLength);
+  encoder.prependVarNumber(comp.type());
+  return encoder.block();
+}
+
 Component
 Component::getSuccessor() const
 {
+  if (isImplicitSha256Digest()) {
+    return getDigestSuccessor(*this);
+  }
+
   size_t totalLength = 0;
-  EncodingBuffer encoder(size() + 1, 1); // + 1 in case there is an overflow
-                                         // in unlikely case TLV length increases,
-                                         // EncodingBuffer will take care of that
+  EncodingBuffer encoder(size() + 9, 9);
+  // leave room for additional byte when TLV-VALUE overflows, and for TLV-LENGTH size increase
 
   bool isOverflow = true;
   size_t i = value_size();
@@ -416,7 +443,7 @@ Component::getSuccessor() const
   totalLength += encoder.prependByteArray(value(), i);
 
   if (isOverflow) {
-    // new name components has to be extended
+    // new name component has to be extended
     totalLength += encoder.appendByte(0);
   }
 

@@ -286,10 +286,23 @@ BOOST_AUTO_TEST_CASE(Markers)
 
 BOOST_AUTO_TEST_CASE(GetSuccessor)
 {
-  BOOST_CHECK_EQUAL(Name("/%00%01/%01%02").getSuccessor(), Name("/%00%01/%01%03"));
-  BOOST_CHECK_EQUAL(Name("/%00%01/%01%FF").getSuccessor(), Name("/%00%01/%02%00"));
-  BOOST_CHECK_EQUAL(Name("/%00%01/%FF%FF").getSuccessor(), Name("/%00%01/%00%00%00"));
-  BOOST_CHECK_EQUAL(Name().getSuccessor(), Name("/%00"));
+  BOOST_CHECK_EQUAL(Name().getSuccessor(), "/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
+  BOOST_CHECK_EQUAL(Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000").getSuccessor(),
+                    "/sha256digest=0000000000000000000000000000000000000000000000000000000000000001");
+  BOOST_CHECK_EQUAL(Name("/sha256digest=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").getSuccessor(),
+                    "/2=...");
+  BOOST_CHECK_EQUAL(Name("/P/A").getSuccessor(), "/P/B");
+  BOOST_CHECK_EQUAL(Name("/P/AAA").getSuccessor(), "/P/AAB");
+  BOOST_CHECK_EQUAL(Name("/Q/...").getSuccessor(), "/Q/%00");
+  BOOST_CHECK_EQUAL(Name("/Q/%FF").getSuccessor(), "/Q/%00%00");
+  BOOST_CHECK_EQUAL(Name("/Q/%FE%FF").getSuccessor(), "/Q/%FF%00");
+  BOOST_CHECK_EQUAL(Name("/Q/%FF%FF").getSuccessor(), "/Q/%00%00%00");
+  BOOST_CHECK_EQUAL(Name("/P/3=A").getSuccessor(), "/P/3=B");
+  BOOST_CHECK_EQUAL(Name("/P/3=AAA").getSuccessor(), "/P/3=AAB");
+  BOOST_CHECK_EQUAL(Name("/Q/3=...").getSuccessor(), "/Q/3=%00");
+  BOOST_CHECK_EQUAL(Name("/Q/3=%FF").getSuccessor(), "/Q/3=%00%00");
+  BOOST_CHECK_EQUAL(Name("/Q/3=%FE%FF").getSuccessor(), "/Q/3=%FF%00");
+  BOOST_CHECK_EQUAL(Name("/Q/3=%FF%FF").getSuccessor(), "/Q/3=%00%00%00");
 }
 
 BOOST_AUTO_TEST_CASE(IsPrefixOf)

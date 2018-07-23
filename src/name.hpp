@@ -486,10 +486,14 @@ public: // algorithms
    *
    *  Examples:
    *
-   *  - successor for / is /%00
-   *  - successor for /%00%01/%01%02 is /%00%01/%01%03
-   *  - successor for /%00%01/%01%FF is /%00%01/%02%00
-   *  - successor for /%00%01/%FF%FF is /%00%01/%00%00%00
+   *  - successor of `/` is
+   *    `/sha256digest=0000000000000000000000000000000000000000000000000000000000000000`.
+   *  - successor of `/sha256digest=0000000000000000000000000000000000000000000000000000000000000000`
+   *    is `/sha256digest=0000000000000000000000000000000000000000000000000000000000000001`.
+   *  - successor of `/sha256digest=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`
+   *    is `/2=...`.
+   *  - successor of `/P/A` is `/P/B`.
+   *  - successor of `/Q/%FF` is `/Q/%00%00`.
    *
    *  @return a new Name containing the successor
    */
