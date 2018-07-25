@@ -38,11 +38,7 @@ public:
   class Error : public tlv::Error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : tlv::Error(what)
-    {
-    }
+    using tlv::Error::Error;
   };
 
   /** @brief Construct an unsigned Data packet with given @p name and empty Content.

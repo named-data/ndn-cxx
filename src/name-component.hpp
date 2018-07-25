@@ -53,11 +53,7 @@ public:
   class Error : public Block::Error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : Block::Error(what)
-    {
-    }
+    using Block::Error::Error;
   };
 
 public: // constructors

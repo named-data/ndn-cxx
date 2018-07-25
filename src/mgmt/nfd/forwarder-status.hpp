@@ -39,11 +39,7 @@ public:
   class Error : public tlv::Error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : tlv::Error(what)
-    {
-    }
+    using tlv::Error::Error;
   };
 
   ForwarderStatus();

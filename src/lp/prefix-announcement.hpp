@@ -43,11 +43,7 @@ public:
   class Error : public ndn::tlv::Error
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : ndn::tlv::Error(what)
-    {
-    }
+    using ndn::tlv::Error::Error;
   };
 
   PrefixAnnouncement();

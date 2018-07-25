@@ -42,17 +42,6 @@ namespace tpm {
 class BackEndFile : public BackEnd
 {
 public:
-  class Error : public BackEnd::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : BackEnd::Error(what)
-    {
-    }
-  };
-
-public:
   /**
    * @brief Create file-based TPM backend
    * @param location Directory to store private keys

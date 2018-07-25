@@ -27,11 +27,6 @@ BOOST_CONCEPT_ASSERT((boost::EqualityComparable<DelegationList>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<DelegationList>));
 BOOST_CONCEPT_ASSERT((WireDecodable<DelegationList>));
 
-DelegationList::Error::Error(const std::string& what)
-  : tlv::Error(what)
-{
-}
-
 DelegationList::Error::Error(const std::string& what, const std::exception& innerException)
   : Error(what + ": "s + innerException.what())
 {

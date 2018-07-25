@@ -682,12 +682,16 @@ notation).
 
         class Foo
         {
+        public:
           class Error : public std::runtime_error
           {
           public:
-            explicit
-            Error(const std::string& what)
-              : std::runtime_error(what)
+            // You can inherit constructors from std::runtime_error like this:
+            using std::runtime_error::runtime_error;
+
+            // Additional constructors, if desired, can be declared like this:
+            Error(const std::string& what, const std::exception& inner)
+              : std::runtime_error(what + ": " + inner.what())
             {
             }
           };

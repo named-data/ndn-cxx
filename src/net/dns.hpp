@@ -60,13 +60,10 @@ struct Ipv6Only
   }
 };
 
-struct Error : public std::runtime_error
+class Error : public std::runtime_error
 {
-  explicit
-  Error(const std::string& what)
-    : std::runtime_error(what)
-  {
-  }
+public:
+  using std::runtime_error::runtime_error;
 };
 
 typedef function<void (const IpAddress& address)> SuccessCallback;

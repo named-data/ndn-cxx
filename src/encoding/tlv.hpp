@@ -52,11 +52,7 @@ namespace tlv {
 class Error : public std::runtime_error
 {
 public:
-  explicit
-  Error(const std::string& what)
-    : std::runtime_error(what)
-  {
-  }
+  using std::runtime_error::runtime_error;
 };
 
 /** @brief TLV-TYPE numbers defined in NDN Packet Format v0.3

@@ -42,15 +42,7 @@ using PartialName = Name;
 class Name
 {
 public: // nested types
-  class Error : public name::Component::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : name::Component::Error(what)
-    {
-    }
-  };
+  using Error = name::Component::Error;
 
   using Component = name::Component;
   using component_container = std::vector<Component>;

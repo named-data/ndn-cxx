@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,17 +36,6 @@ namespace pib {
  */
 class PibMemory : public PibImpl
 {
-public:
-  class Error : public PibImpl::Error
-  {
-  public:
-    explicit
-    Error(const std::string& what)
-      : PibImpl::Error(what)
-    {
-    }
-  };
-
 public:
   /**
    * @brief Create memory based PIB backend
