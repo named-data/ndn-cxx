@@ -1,0 +1,314 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ *
+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received copies of the GNU General Public License and GNU Lesser
+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ */
+
+#ifndef NDN_DETAIL_NAME_COMPONENT_TYPES_HPP
+#define NDN_DETAIL_NAME_COMPONENT_TYPES_HPP
+
+#include "../name-component.hpp"
+
+#include "../util/sha256.hpp"
+#include "../util/string-helper.hpp"
+
+#include <array>
+#include <unordered_map>
+
+namespace ndn {
+namespace name {
+namespace detail {
+
+/** \brief Declare rules regarding a NameComponent type.
+ */
+class ComponentType : noncopyable
+{
+public:
+  using Error = Component::Error;
+
+  virtual
+  ~ComponentType() = default;
+
+  /** \brief Throw Component::Error if \p comp is invalid.
+   */
+  virtual void
+  check(const Component& comp) const
+  {
+  }
+
+  /** \brief Calculate the successor of \p comp.
+   *
+   *  If \p comp is the maximum possible value of this component type, return true to indicate
+   *  that the successor should have a greater TLV-TYPE.
+   */
+  virtual std::pair<bool, Component>
+  getSuccessor(const Component& comp) const
+  {
+    return {false, getSuccessorImpl(comp).second};
+  }
+
+  /** \brief Return the minimum allowable TLV-VALUE of this component type.
+   */
+  virtual const std::vector<uint8_t>&
+  getMinValue() const
+  {
+    static std::vector<uint8_t> value;
+    return value;
+  }
+
+  /** \brief Return the prefix of the alternate URI representation.
+   *
+   *  NDN URI specification allows a name component type to declare an alternate URI representation
+   *  in the form of `<prefix>=<value>`, in addition to the plain `<type-number>=<escaped-value>`
+   *  syntax.
+   *
+   *  \return the `<prefix>` portion of the alternate URI representation.
+   *  \retval nullptr this component does not have an alternate URI representation.
+   */
+  virtual const char*
+  getAltUriPrefix() const
+  {
+    return nullptr;
+  }
+
+  /** \brief Parse component from alternate URI representation.
+   *  \param input the `<value>` portion of the alternate URI representation.
+   *  \throw Component::Error
+   *  \pre getAltUriPrefix() != nullptr
+   */
+  virtual Component
+  parseAltUriValue(const std::string& input) const
+  {
+    BOOST_ASSERT(false);
+    return Component();
+  }
+
+  /** \brief Write URI representation of \p comp to \p os.
+   *
+   *  This base class implementation encodes the component in the plain
+   *  `<type-number>=<escaped-value>` syntax.
+   */
+  virtual void
+  writeUri(std::ostream& os, const Component& comp) const
+  {
+    os << comp.type() << '=';
+    writeUriEscapedValue(os, comp);
+  }
+
+protected:
+  /** \brief Calculate the successor of \p comp, extending TLV-LENGTH if value overflows.
+   *  \return whether TLV-LENGTH was extended, and the successor
+   */
+  std::pair<bool, Block>
+  getSuccessorImpl(const Component& comp) const
+  {
+    EncodingBuffer encoder(comp.size() + 9, 9);
+    // leave room for additional byte when TLV-VALUE overflows, and for TLV-LENGTH size increase
+
+    bool isOverflow = true;
+    size_t i = comp.value_size();
+    for (; isOverflow && i > 0; i--) {
+      uint8_t newValue = static_cast<uint8_t>((comp.value()[i - 1] + 1) & 0xFF);
+      encoder.prependByte(newValue);
+      isOverflow = (newValue == 0);
+    }
+    encoder.prependByteArray(comp.value(), i);
+
+    if (isOverflow) {
+      // new name component has to be extended
+      encoder.appendByte(0);
+    }
+
+    encoder.prependVarNumber(encoder.size());
+    encoder.prependVarNumber(comp.type());
+    return {isOverflow, encoder.block()};
+  }
+
+  /** \brief Write TLV-VALUE as `<escaped-value>` of NDN URI syntax.
+   */
+  void
+  writeUriEscapedValue(std::ostream& os, const Component& comp) const
+  {
+    bool isAllPeriods = std::all_of(comp.value_begin(), comp.value_end(),
+                                    [] (uint8_t x) { return x == '.'; });
+    if (isAllPeriods) {
+      os << "...";
+    }
+    escape(os, reinterpret_cast<const char*>(comp.value()), comp.value_size());
+  }
+};
+
+/** \brief Rules regarding GenericNameComponent.
+ *
+ *  GenericNameComponent has an alternate URI representation that omits the `<type-number>` prefix.
+ *  This must be special-cased in the caller, and is not handled by this class.
+ */
+class GenericNameComponentType final : public ComponentType
+{
+public:
+  void
+  writeUri(std::ostream& os, const Component& comp) const final
+  {
+    writeUriEscapedValue(os, comp);
+  }
+};
+
+/** \brief Rules regarding a component type holding a SHA256 digest value.
+ */
+class Sha256ComponentType final : public ComponentType
+{
+public:
+  Sha256ComponentType(uint32_t type, const std::string& typeName, const std::string& uriPrefix)
+    : m_type(type)
+    , m_typeName(typeName)
+    , m_uriPrefix(uriPrefix)
+  {
+  }
+
+  void
+  check(const Component& comp) const final
+  {
+    if (comp.value_size() != util::Sha256::DIGEST_SIZE) {
+      BOOST_THROW_EXCEPTION(Error(m_typeName + " TLV-LENGTH must be " +
+                                  to_string(util::Sha256::DIGEST_SIZE)));
+    }
+  }
+
+  std::pair<bool, Component>
+  getSuccessor(const Component& comp) const final
+  {
+    bool isExtended = false;
+    Block successor;
+    std::tie(isExtended, successor) = getSuccessorImpl(comp);
+    if (isExtended) {
+      return {true, comp};
+    }
+    return {false, Component(successor)};
+  }
+
+  const std::vector<uint8_t>&
+  getMinValue() const final
+  {
+    static std::vector<uint8_t> value(16);
+    return value;
+  }
+
+  const char*
+  getAltUriPrefix() const final
+  {
+    return m_uriPrefix.data();
+  }
+
+  Component
+  parseAltUriValue(const std::string& input) const final
+  {
+    shared_ptr<Buffer> value;
+    try {
+      value = fromHex(input);
+    }
+    catch (const StringHelperError&) {
+      BOOST_THROW_EXCEPTION(Error("Cannot convert to " + m_typeName + " (invalid hex encoding)"));
+    }
+    return Component(m_type, std::move(value));
+  }
+
+  void
+  writeUri(std::ostream& os, const Component& comp) const final
+  {
+    os << m_uriPrefix << '=';
+    printHex(os, comp.value(), comp.value_size(), false);
+  }
+
+private:
+  uint32_t m_type;
+  std::string m_typeName;
+  std::string m_uriPrefix;
+};
+
+/** \brief Rules regarding NameComponent types.
+ */
+class ComponentTypeTable : noncopyable
+{
+public:
+  ComponentTypeTable();
+
+  /** \brief Retrieve ComponentType by TLV-TYPE.
+   */
+  const ComponentType&
+  get(uint32_t type) const
+  {
+    if (type >= m_table.size() || m_table[type] == nullptr) {
+      return m_baseType;
+    }
+    return *m_table[type];
+  }
+
+  /** \brief Retrieve ComponentType by alternate URI prefix.
+   */
+  const ComponentType*
+  findByUriPrefix(const std::string& prefix) const
+  {
+    auto it = m_uriPrefixes.find(prefix);
+    if (it == m_uriPrefixes.end()) {
+      return nullptr;
+    }
+    return it->second;
+  }
+
+private:
+  void
+  set(uint32_t type, const ComponentType& ct)
+  {
+    m_table.at(type) = &ct;
+    if (ct.getAltUriPrefix() != nullptr) {
+      m_uriPrefixes[ct.getAltUriPrefix()] = &ct;
+    }
+  }
+
+private:
+  ComponentType m_baseType;
+  std::array<const ComponentType*, 32> m_table;
+  std::unordered_map<std::string, const ComponentType*> m_uriPrefixes;
+};
+
+ComponentTypeTable::ComponentTypeTable()
+{
+  m_table.fill(nullptr);
+
+  static GenericNameComponentType ct8;
+  set(tlv::GenericNameComponent, ct8);
+
+  static Sha256ComponentType ct1(tlv::ImplicitSha256DigestComponent,
+                                 "ImplicitSha256DigestComponent", "sha256digest");
+  set(tlv::ImplicitSha256DigestComponent, ct1);
+}
+
+/** \brief Get the global ComponentTypeTable.
+ */
+const ComponentTypeTable&
+getComponentTypeTable()
+{
+  static ComponentTypeTable ctt;
+  return ctt;
+}
+
+} // namespace detail
+} // namespace name
+} // namespace ndn
+
+#endif // NDN_DETAIL_NAME_COMPONENT_TYPES_HPP

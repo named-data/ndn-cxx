@@ -212,7 +212,7 @@ public: // encoding and URI
    * @throw Error URI component does not represent a valid NameComponent.
    */
   static Component
-  fromEscapedString(std::string input);
+  fromEscapedString(const std::string& input);
 
   /**
    * @brief Write *this to the output stream, escaping characters according to the NDN URI Scheme

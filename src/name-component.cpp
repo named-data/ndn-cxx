@@ -24,12 +24,9 @@
  */
 
 #include "name-component.hpp"
+#include "detail/name-component-types.hpp"
 
-#include "encoding/block-helpers.hpp"
-#include "encoding/encoding-buffer.hpp"
-#include "util/sha256.hpp"
-#include "util/string-helper.hpp"
-
+#include <cstdlib>
 #include <cstring>
 #include <sstream>
 
@@ -43,23 +40,13 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
 static_assert(std::is_base_of<tlv::Error, Component::Error>::value,
               "name::Component::Error must inherit from tlv::Error");
 
-static const std::string&
-getSha256DigestUriPrefix()
-{
-  static const std::string prefix{"sha256digest="};
-  return prefix;
-}
-
 void
 Component::ensureValid() const
 {
   if (type() < tlv::NameComponentMin || type() > tlv::NameComponentMax) {
     BOOST_THROW_EXCEPTION(Error("TLV-TYPE " + to_string(type()) + " is not a valid NameComponent"));
   }
-  if (type() == tlv::ImplicitSha256DigestComponent && value_size() != util::Sha256::DIGEST_SIZE) {
-    BOOST_THROW_EXCEPTION(Error("ImplicitSha256DigestComponent TLV-LENGTH must be " +
-                                to_string(util::Sha256::DIGEST_SIZE)));
-  }
+  detail::getComponentTypeTable().get(type()).check(*this);
 }
 
 Component::Component(uint32_t type)
@@ -77,11 +64,13 @@ Component::Component(const Block& wire)
 Component::Component(uint32_t type, ConstBufferPtr buffer)
   : Block(type, std::move(buffer))
 {
+  ensureValid();
 }
 
 Component::Component(uint32_t type, const uint8_t* value, size_t valueLen)
   : Block(makeBinaryBlock(type, value, valueLen))
 {
+  ensureValid();
 }
 
 Component::Component(const char* str)
@@ -95,68 +84,48 @@ Component::Component(const std::string& str)
 }
 
 static Component
-parseSha256DigestUri(std::string input)
+parseUriEscapedValue(uint32_t type, const char* input, size_t len)
 {
-  input.erase(0, getSha256DigestUriPrefix().size());
-
-  try {
-    return Component::fromImplicitSha256Digest(fromHex(input));
-  }
-  catch (const StringHelperError&) {
-    BOOST_THROW_EXCEPTION(Component::Error("Cannot convert to a ImplicitSha256DigestComponent "
-                                           "(invalid hex encoding)"));
-  }
-}
-
-Component
-Component::fromEscapedString(std::string input)
-{
-  uint32_t type = tlv::GenericNameComponent;
-  size_t equalPos = input.find('=');
-  if (equalPos != std::string::npos) {
-    if (equalPos + 1 == getSha256DigestUriPrefix().size() &&
-        input.compare(0, getSha256DigestUriPrefix().size(), getSha256DigestUriPrefix()) == 0) {
-      return parseSha256DigestUri(std::move(input));
-    }
-
-    long parsedType = std::strtol(input.data(), nullptr, 10);
-    if (parsedType < tlv::NameComponentMin || parsedType > tlv::NameComponentMax ||
-        parsedType == tlv::ImplicitSha256DigestComponent || parsedType == tlv::GenericNameComponent ||
-        to_string(parsedType).size() != equalPos) {
-      BOOST_THROW_EXCEPTION(Error("Incorrect TLV-TYPE in NameComponent URI"));
-    }
-    type = static_cast<uint32_t>(parsedType);
-    input.erase(0, equalPos + 1);
-  }
-
-  std::string value = unescape(input);
+  std::ostringstream oss;
+  unescape(oss, input, len);
+  std::string value = oss.str();
   if (value.find_first_not_of('.') == std::string::npos) { // all periods
     if (value.size() < 3) {
-      BOOST_THROW_EXCEPTION(Error("Illegal URI (name component cannot be . or ..)"));
+      BOOST_THROW_EXCEPTION(Component::Error("Illegal URI (name component cannot be . or ..)"));
     }
     return Component(type, reinterpret_cast<const uint8_t*>(value.data()), value.size() - 3);
   }
   return Component(type, reinterpret_cast<const uint8_t*>(value.data()), value.size());
 }
 
+Component
+Component::fromEscapedString(const std::string& input)
+{
+  size_t equalPos = input.find('=');
+  if (equalPos == std::string::npos) {
+    return parseUriEscapedValue(tlv::GenericNameComponent, input.data(), input.size());
+  }
+
+  long type = std::strtol(input.data(), nullptr, 10);
+  if (type >= tlv::NameComponentMin && type <= tlv::NameComponentMax &&
+      to_string(type).size() == equalPos) {
+    size_t valuePos = equalPos + 1;
+    return parseUriEscapedValue(static_cast<uint32_t>(type), input.data() + valuePos,
+                                input.size() - valuePos);
+  }
+
+  auto typePrefix = input.substr(0, equalPos);
+  auto ct = detail::getComponentTypeTable().findByUriPrefix(typePrefix);
+  if (ct == nullptr) {
+    BOOST_THROW_EXCEPTION(Error("Incorrect TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
+  }
+  return ct->parseAltUriValue(input.substr(equalPos + 1));
+}
+
 void
 Component::toUri(std::ostream& os) const
 {
-  if (type() == tlv::ImplicitSha256DigestComponent) {
-    os << getSha256DigestUriPrefix();
-    printHex(os, value(), value_size(), false);
-    return;
-  }
-
-  if (type() != tlv::GenericNameComponent) {
-    os << type() << '=';
-  }
-
-  if (std::all_of(value_begin(), value_end(), [] (uint8_t x) { return x == '.'; })) { // all periods
-    os << "...";
-  }
-
-  escape(os, reinterpret_cast<const char*>(value()), value_size());
+  detail::getComponentTypeTable().get(type()).writeUri(os, *this);
 }
 
 std::string
@@ -398,59 +367,20 @@ Component::compare(const Component& other) const
   return std::memcmp(value(), other.value(), value_size());
 }
 
-static Component
-getDigestSuccessor(const Component& comp)
-{
-  size_t totalLength = 0;
-  EncodingBuffer encoder(comp.size(), 0);
-
-  bool isOverflow = true;
-  size_t i = comp.value_size();
-  for (; isOverflow && i > 0; i--) {
-    uint8_t newValue = static_cast<uint8_t>((comp.value()[i - 1] + 1) & 0xFF);
-    totalLength += encoder.prependByte(newValue);
-    isOverflow = (newValue == 0);
-  }
-  totalLength += encoder.prependByteArray(comp.value(), i);
-
-  if (isOverflow) {
-    return Component(comp.type() + 1);
-  }
-
-  encoder.prependVarNumber(totalLength);
-  encoder.prependVarNumber(comp.type());
-  return encoder.block();
-}
-
 Component
 Component::getSuccessor() const
 {
-  if (isImplicitSha256Digest()) {
-    return getDigestSuccessor(*this);
+  bool isOverflow = false;
+  Component successor;
+  std::tie(isOverflow, successor) =
+    detail::getComponentTypeTable().get(type()).getSuccessor(*this);
+  if (!isOverflow) {
+    return successor;
   }
 
-  size_t totalLength = 0;
-  EncodingBuffer encoder(size() + 9, 9);
-  // leave room for additional byte when TLV-VALUE overflows, and for TLV-LENGTH size increase
-
-  bool isOverflow = true;
-  size_t i = value_size();
-  for (; isOverflow && i > 0; i--) {
-    uint8_t newValue = static_cast<uint8_t>((value()[i - 1] + 1) & 0xFF);
-    totalLength += encoder.prependByte(newValue);
-    isOverflow = (newValue == 0);
-  }
-  totalLength += encoder.prependByteArray(value(), i);
-
-  if (isOverflow) {
-    // new name component has to be extended
-    totalLength += encoder.appendByte(0);
-  }
-
-  encoder.prependVarNumber(totalLength);
-  encoder.prependVarNumber(type());
-
-  return encoder.block();
+  uint32_t type = this->type() + 1;
+  const std::vector<uint8_t>& value = detail::getComponentTypeTable().get(type).getMinValue();
+  return Component(type, value.data(), value.size());
 }
 
 template<encoding::Tag TAG>

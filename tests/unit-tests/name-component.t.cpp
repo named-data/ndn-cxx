@@ -42,10 +42,12 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_EQUAL(comp.type(), tlv::GenericNameComponent);
   BOOST_CHECK_EQUAL(comp.toUri(), "ndn-cxx");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("ndn-cxx"), comp);
+  BOOST_CHECK_EQUAL(Component::fromEscapedString("8=ndn-cxx"), comp);
 
   comp.wireDecode("0800"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "...");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("..."), comp);
+  BOOST_CHECK_EQUAL(Component::fromEscapedString("8=..."), comp);
   BOOST_CHECK_EQUAL(Component::fromEscapedString(".%2E."), comp);
 
   comp.wireDecode("0801 2E"_block);
@@ -60,10 +62,15 @@ BOOST_AUTO_TEST_CASE(Generic)
   comp.wireDecode("0807 666F6F25626172"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "foo%25bar");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("foo%25bar"), comp);
+  BOOST_CHECK_EQUAL(Component::fromEscapedString("8=foo%25bar"), comp);
 
   comp.wireDecode("0804 2D2E5F7E"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "-._~");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("-._~"), comp);
+
+  comp.wireDecode("0803 393D41"_block);
+  BOOST_CHECK_EQUAL(comp.toUri(), "9%3DA");
+  BOOST_CHECK_EQUAL(Component::fromEscapedString("9%3DA"), comp);
 
   comp = Component(":/?#[]@");
   BOOST_CHECK_EQUAL(comp.toUri(), "%3A%2F%3F%23%5B%5D%40");
@@ -72,7 +79,6 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_THROW(Component::fromEscapedString(""), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("."), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString(".."), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("8=A"), Component::Error);
 }
 
 BOOST_AUTO_TEST_CASE(Digest)
@@ -80,11 +86,14 @@ BOOST_AUTO_TEST_CASE(Digest)
   std::string uriPrefix = "sha256digest=";
   std::string hexLower = "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548";
   std::string hexUpper = "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548";
+  std::string hexPct = "%28%BA%D4%B5%27%5B%D3%92%DB%B6%70%C7%5C%F0%B6%6F"
+                       "%13%F7%94%2B%21%E8%0F%55%C0%E8%6B%37%47%53%A5%48";
 
   Component comp("0120 28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(Component::fromEscapedString(uriPrefix + hexLower), comp);
   BOOST_CHECK_EQUAL(Component::fromEscapedString(uriPrefix + hexUpper), comp);
+  BOOST_CHECK_EQUAL(Component::fromEscapedString("1=" + hexPct), comp);
 
   BOOST_CHECK_THROW(comp.wireDecode("0108 A791806951F25C4D"_block), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString(uriPrefix), Component::Error);
@@ -124,6 +133,7 @@ BOOST_AUTO_TEST_CASE(InvalidType)
 
   BOOST_CHECK_THROW(Component::fromEscapedString("0=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("65536=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("4294967296=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("-1=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("+=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("=A"), Component::Error);
@@ -132,6 +142,10 @@ BOOST_AUTO_TEST_CASE(InvalidType)
   BOOST_CHECK_THROW(Component::fromEscapedString("09=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("0x2=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("+9=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString(" 9=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("9 =A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("9.0=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("9E0=A"), Component::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Decode
