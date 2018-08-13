@@ -28,6 +28,7 @@
 #include "../network-monitor.hpp"
 
 #include <boost/asio/posix/stream_descriptor.hpp>
+#include <map>
 #include <vector>
 
 #ifndef NDN_CXX_HAVE_RTNETLINK
@@ -48,6 +49,9 @@ public:
   void
   joinGroup(int group);
 
+  void
+  registerNotificationCallback(MessageCallback cb);
+
 protected:
   explicit
   NetlinkSocket(boost::asio::io_service& io);
@@ -58,7 +62,7 @@ protected:
   open(int protocol);
 
   void
-  startAsyncReceive(MessageCallback cb);
+  registerRequestCallback(uint32_t seq, MessageCallback cb);
 
 private:
   void
@@ -74,7 +78,7 @@ protected:
 
 private:
   std::vector<uint8_t> m_buffer; ///< buffer for netlink messages from the kernel
-  MessageCallback m_onMessage; ///< callback invoked when a valid netlink message is received
+  std::map<uint32_t, MessageCallback> m_pendingRequests; ///< request sequence number => callback
 };
 
 class RtnlSocket : public NetlinkSocket
@@ -87,9 +91,7 @@ public:
   open();
 
   void
-  sendDumpRequest(uint16_t nlmsgType);
-
-  using NetlinkSocket::startAsyncReceive;
+  sendDumpRequest(uint16_t nlmsgType, MessageCallback cb);
 };
 
 } // namespace net

@@ -49,10 +49,11 @@ NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io
     m_rtnlSocket.joinGroup(group);
   }
 
-  m_rtnlSocket.startAsyncReceive([this] (const auto& msg) { this->parseRtnlMessage(msg); });
+  m_rtnlSocket.registerNotificationCallback([this] (const auto& msg) { this->parseRtnlMessage(msg); });
 
   NDN_LOG_TRACE("enumerating links");
-  m_rtnlSocket.sendDumpRequest(RTM_GETLINK);
+  m_rtnlSocket.sendDumpRequest(RTM_GETLINK,
+                               [this] (const auto& msg) { this->parseRtnlMessage(msg); });
   m_isEnumeratingLinks = true;
 }
 
@@ -114,7 +115,8 @@ NetworkMonitorImplNetlink::parseRtnlMessage(const NetlinkMessage& nlmsg)
       // links enumeration complete, now request all the addresses
       m_isEnumeratingLinks = false;
       NDN_LOG_TRACE("enumerating addresses");
-      m_rtnlSocket.sendDumpRequest(RTM_GETADDR);
+      m_rtnlSocket.sendDumpRequest(RTM_GETADDR,
+                                   [this] (const auto& msg) { this->parseRtnlMessage(msg); });
       m_isEnumeratingAddresses = true;
     }
     else if (m_isEnumeratingAddresses) {
