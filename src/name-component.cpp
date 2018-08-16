@@ -307,28 +307,37 @@ Component::isGeneric() const
 bool
 Component::isImplicitSha256Digest() const
 {
-  return type() == tlv::ImplicitSha256DigestComponent &&
-         value_size() == util::Sha256::DIGEST_SIZE;
+  return detail::getComponentType1().match(*this);
 }
 
 Component
 Component::fromImplicitSha256Digest(ConstBufferPtr digest)
 {
-  if (digest->size() != util::Sha256::DIGEST_SIZE)
-    BOOST_THROW_EXCEPTION(Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
-                                to_string(util::Sha256::DIGEST_SIZE) + " octets)"));
-
-  return Block(tlv::ImplicitSha256DigestComponent, std::move(digest));
+  return detail::getComponentType1().create(digest);
 }
 
 Component
 Component::fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
 {
-  if (digestSize != util::Sha256::DIGEST_SIZE)
-    BOOST_THROW_EXCEPTION(Error("Cannot create ImplicitSha256DigestComponent (input digest must be " +
-                                to_string(util::Sha256::DIGEST_SIZE) + " octets)"));
+  return detail::getComponentType1().create(digest, digestSize);
+}
 
-  return makeBinaryBlock(tlv::ImplicitSha256DigestComponent, digest, digestSize);
+bool
+Component::isParametersSha256Digest() const
+{
+  return detail::getComponentType2().match(*this);
+}
+
+Component
+Component::fromParametersSha256Digest(ConstBufferPtr digest)
+{
+  return detail::getComponentType2().create(digest);
+}
+
+Component
+Component::fromParametersSha256Digest(const uint8_t* digest, size_t digestSize)
+{
+  return detail::getComponentType2().create(digest, digestSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -21,9 +21,11 @@
 
 #include "name-component.hpp"
 #include "name.hpp"
+#include "util/string-helper.hpp"
 
 #include "block-literal.hpp"
 #include "boost-test.hpp"
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/mpl/vector.hpp>
 
 namespace ndn {
@@ -81,26 +83,39 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_THROW(Component::fromEscapedString(".."), Component::Error);
 }
 
-BOOST_AUTO_TEST_CASE(Digest)
+static void
+testSha256(uint32_t type, const std::string& uriPrefix)
 {
-  std::string uriPrefix = "sha256digest=";
   std::string hexLower = "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548";
-  std::string hexUpper = "28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548";
-  std::string hexPct = "%28%BA%D4%B5%27%5B%D3%92%DB%B6%70%C7%5C%F0%B6%6F"
-                       "%13%F7%94%2B%21%E8%0F%55%C0%E8%6B%37%47%53%A5%48";
+  std::string hexUpper = boost::to_upper_copy(hexLower);
+  std::string hexPct;
+  for (size_t i = 0; i < hexUpper.size(); i += 2) {
+    hexPct += "%" + hexUpper.substr(i, 2);
+  }
 
-  Component comp("0120 28BAD4B5275BD392DBB670C75CF0B66F13F7942B21E80F55C0E86B374753A548"_block);
+  Component comp(Block(type, fromHex(hexLower)));
+  BOOST_CHECK_EQUAL(comp.type(), type);
   BOOST_CHECK_EQUAL(comp.toUri(), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(Component::fromEscapedString(uriPrefix + hexLower), comp);
   BOOST_CHECK_EQUAL(Component::fromEscapedString(uriPrefix + hexUpper), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("1=" + hexPct), comp);
+  BOOST_CHECK_EQUAL(Component::fromEscapedString(to_string(type) + "=" + hexPct), comp);
 
-  BOOST_CHECK_THROW(comp.wireDecode("0108 A791806951F25C4D"_block), Component::Error);
+  BOOST_CHECK_THROW(comp.wireDecode(Block(type, fromHex("A791806951F25C4D"))), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString(uriPrefix), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString(uriPrefix + "=a791806951f25c4d"),
+  BOOST_CHECK_THROW(Component::fromEscapedString(uriPrefix + "a791806951f25c4d"),
                     Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("1=" + hexLower), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("SHA256DIGEST=" + hexLower), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString(boost::to_upper_copy(uriPrefix) + hexLower),
+                    Component::Error);
+}
+
+BOOST_AUTO_TEST_CASE(Digest)
+{
+  testSha256(tlv::ImplicitSha256DigestComponent, "sha256digest=");
+}
+
+BOOST_AUTO_TEST_CASE(Params)
+{
+  testSha256(tlv::ParametersSha256DigestComponent, "params-sha256=");
 }
 
 BOOST_AUTO_TEST_CASE(OtherType)
@@ -140,7 +155,7 @@ BOOST_AUTO_TEST_CASE(InvalidType)
   BOOST_CHECK_THROW(Component::fromEscapedString("0x1=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("Z=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("09=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("0x2=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("0x3=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("+9=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString(" 9=A"), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("9 =A"), Component::Error);
@@ -156,10 +171,13 @@ BOOST_AUTO_TEST_CASE(Compare)
     Component("0120 0000000000000000000000000000000000000000000000000000000000000000"_block),
     Component("0120 0000000000000000000000000000000000000000000000000000000000000001"_block),
     Component("0120 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"_block),
-    Component(0x02),
-    Component("0201 44"_block),
-    Component("0201 46"_block),
-    Component("0202 4141"_block),
+    Component("0220 0000000000000000000000000000000000000000000000000000000000000000"_block),
+    Component("0220 0000000000000000000000000000000000000000000000000000000000000001"_block),
+    Component("0220 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"_block),
+    Component(0x03),
+    Component("0301 44"_block),
+    Component("0301 46"_block),
+    Component("0302 4141"_block),
     Component(),
     Component("D"),
     Component("F"),

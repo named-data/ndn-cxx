@@ -180,13 +180,31 @@ public:
   {
   }
 
+  bool
+  match(const Component& comp) const
+  {
+    return comp.type() == m_type && comp.value_size() == util::Sha256::DIGEST_SIZE;
+  }
+
   void
   check(const Component& comp) const final
   {
-    if (comp.value_size() != util::Sha256::DIGEST_SIZE) {
+    if (!match(comp)) {
       BOOST_THROW_EXCEPTION(Error(m_typeName + " TLV-LENGTH must be " +
                                   to_string(util::Sha256::DIGEST_SIZE)));
     }
+  }
+
+  Component
+  create(ConstBufferPtr value) const
+  {
+    return Component(Block(m_type, std::move(value)));
+  }
+
+  Component
+  create(const uint8_t* value, size_t valueSize) const
+  {
+    return Component(makeBinaryBlock(m_type, value, valueSize));
   }
 
   std::pair<bool, Component>
@@ -204,7 +222,7 @@ public:
   const std::vector<uint8_t>&
   getMinValue() const final
   {
-    static std::vector<uint8_t> value(16);
+    static std::vector<uint8_t> value(util::Sha256::DIGEST_SIZE);
     return value;
   }
 
@@ -239,6 +257,22 @@ private:
   std::string m_typeName;
   std::string m_uriPrefix;
 };
+
+inline const Sha256ComponentType&
+getComponentType1()
+{
+  static Sha256ComponentType ct1(tlv::ImplicitSha256DigestComponent,
+                                 "ImplicitSha256DigestComponent", "sha256digest");
+  return ct1;
+}
+
+inline const Sha256ComponentType&
+getComponentType2()
+{
+  static Sha256ComponentType ct2(tlv::ParametersSha256DigestComponent,
+                                 "ParametersSha256DigestComponent", "params-sha256");
+  return ct2;
+}
 
 /** \brief Rules regarding NameComponent types.
  */
@@ -286,6 +320,7 @@ private:
   std::unordered_map<std::string, const ComponentType*> m_uriPrefixes;
 };
 
+inline
 ComponentTypeTable::ComponentTypeTable()
 {
   m_table.fill(nullptr);
@@ -293,14 +328,13 @@ ComponentTypeTable::ComponentTypeTable()
   static GenericNameComponentType ct8;
   set(tlv::GenericNameComponent, ct8);
 
-  static Sha256ComponentType ct1(tlv::ImplicitSha256DigestComponent,
-                                 "ImplicitSha256DigestComponent", "sha256digest");
-  set(tlv::ImplicitSha256DigestComponent, ct1);
+  set(tlv::ImplicitSha256DigestComponent, getComponentType1());
+  set(tlv::ParametersSha256DigestComponent, getComponentType2());
 }
 
 /** \brief Get the global ComponentTypeTable.
  */
-const ComponentTypeTable&
+inline const ComponentTypeTable&
 getComponentTypeTable()
 {
   static ComponentTypeTable ctt;

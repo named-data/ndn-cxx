@@ -462,6 +462,24 @@ public: // commonly used TLV-TYPEs
   static Component
   fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize);
 
+  /**
+   * @brief Check if the component is ParametersSha256DigestComponent
+   */
+  bool
+  isParametersSha256Digest() const;
+
+  /**
+   * @brief Create ParametersSha256DigestComponent component
+   */
+  static Component
+  fromParametersSha256Digest(ConstBufferPtr digest);
+
+  /**
+   * @brief Create ParametersSha256DigestComponent component
+   */
+  static Component
+  fromParametersSha256Digest(const uint8_t* digest, size_t digestSize);
+
 public: // operators
   bool
   empty() const
@@ -578,7 +596,12 @@ public: // operators
    * - successor of `sha256digest=0000000000000000000000000000000000000000000000000000000000000000`
    *   is `sha256digest=0000000000000000000000000000000000000000000000000000000000000001`.
    * - successor of `sha256digest=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`
-   *   is `2=...`.
+   *   is `params-sha256=0000000000000000000000000000000000000000000000000000000000000000`.
+   * - successor of `params-sha256=0000000000000000000000000000000000000000000000000000000000000000`
+   *   is `params-sha256=0000000000000000000000000000000000000000000000000000000000000001`.
+   * - successor of `params-sha256=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`
+   *   is `3=...`.
+   * - successor of `...` is `%00`.
    * - successor of `A` is `B`.
    * - successor of `%FF` is `%00%00`.
    */

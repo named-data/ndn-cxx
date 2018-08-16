@@ -290,7 +290,11 @@ BOOST_AUTO_TEST_CASE(GetSuccessor)
   BOOST_CHECK_EQUAL(Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000").getSuccessor(),
                     "/sha256digest=0000000000000000000000000000000000000000000000000000000000000001");
   BOOST_CHECK_EQUAL(Name("/sha256digest=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").getSuccessor(),
-                    "/2=...");
+                    "/params-sha256=0000000000000000000000000000000000000000000000000000000000000000");
+  BOOST_CHECK_EQUAL(Name("/params-sha256=0000000000000000000000000000000000000000000000000000000000000000").getSuccessor(),
+                    "/params-sha256=0000000000000000000000000000000000000000000000000000000000000001");
+  BOOST_CHECK_EQUAL(Name("/params-sha256=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").getSuccessor(),
+                    "/3=...");
   BOOST_CHECK_EQUAL(Name("/P/A").getSuccessor(), "/P/B");
   BOOST_CHECK_EQUAL(Name("/P/AAA").getSuccessor(), "/P/AAB");
   BOOST_CHECK_EQUAL(Name("/Q/...").getSuccessor(), "/Q/%00");
@@ -309,19 +313,22 @@ BOOST_AUTO_TEST_CASE(IsPrefixOf)
 {
   BOOST_CHECK(Name("/").isPrefixOf("/"));
   BOOST_CHECK(Name("/").isPrefixOf("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
-  BOOST_CHECK(Name("/").isPrefixOf("/2=D"));
+  BOOST_CHECK(Name("/").isPrefixOf("/params-sha256=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+  BOOST_CHECK(Name("/").isPrefixOf("/3=D"));
   BOOST_CHECK(Name("/").isPrefixOf("/F"));
   BOOST_CHECK(Name("/").isPrefixOf("/21426=AA"));
 
   BOOST_CHECK(Name("/B").isPrefixOf("/B"));
   BOOST_CHECK(Name("/B").isPrefixOf("/B/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
-  BOOST_CHECK(Name("/B").isPrefixOf("/B/2=D"));
+  BOOST_CHECK(Name("/").isPrefixOf("/B/params-sha256=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+  BOOST_CHECK(Name("/B").isPrefixOf("/B/3=D"));
   BOOST_CHECK(Name("/B").isPrefixOf("/B/F"));
   BOOST_CHECK(Name("/B").isPrefixOf("/B/21426=AA"));
 
   BOOST_CHECK(!Name("/C").isPrefixOf("/"));
   BOOST_CHECK(!Name("/C").isPrefixOf("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
-  BOOST_CHECK(!Name("/C").isPrefixOf("/2=D"));
+  BOOST_CHECK(Name("/").isPrefixOf("/params-sha256=ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+  BOOST_CHECK(!Name("/C").isPrefixOf("/3=D"));
   BOOST_CHECK(!Name("/C").isPrefixOf("/F"));
   BOOST_CHECK(!Name("/C").isPrefixOf("/21426=AA"));
 }
@@ -333,19 +340,25 @@ BOOST_AUTO_TEST_CASE(CompareOp)
     Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"),
     Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000001"),
     Name("/sha256digest=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
-    Name("/2=..."),
-    Name("/2=D"),
-    Name("/2=F"),
-    Name("/2=AA"),
+    Name("/params-sha256=0000000000000000000000000000000000000000000000000000000000000000"),
+    Name("/params-sha256=0000000000000000000000000000000000000000000000000000000000000001"),
+    Name("/params-sha256=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
+    Name("/3=..."),
+    Name("/3=D"),
+    Name("/3=F"),
+    Name("/3=AA"),
     Name("/..."),
     Name("/D"),
     Name("/D/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"),
     Name("/D/sha256digest=0000000000000000000000000000000000000000000000000000000000000001"),
     Name("/D/sha256digest=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
-    Name("/D/2=..."),
-    Name("/D/2=D"),
-    Name("/D/2=F"),
-    Name("/D/2=AA"),
+    Name("/D/params-sha256=0000000000000000000000000000000000000000000000000000000000000000"),
+    Name("/D/params-sha256=0000000000000000000000000000000000000000000000000000000000000001"),
+    Name("/D/params-sha256=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
+    Name("/D/3=..."),
+    Name("/D/3=D"),
+    Name("/D/3=F"),
+    Name("/D/3=AA"),
     Name("/D/..."),
     Name("/D/D"),
     Name("/D/F"),
