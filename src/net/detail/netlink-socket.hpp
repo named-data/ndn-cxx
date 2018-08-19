@@ -24,8 +24,8 @@
 #ifndef NDN_NET_NETLINK_SOCKET_HPP
 #define NDN_NET_NETLINK_SOCKET_HPP
 
-#include "../../common.hpp"
 #include "../network-monitor.hpp"
+#include "../../util/signal/signal.hpp"
 
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <map>
@@ -64,6 +64,9 @@ protected:
   void
   registerRequestCallback(uint32_t seq, MessageCallback cb);
 
+  virtual std::string
+  nlmsgTypeToString(uint16_t type) const;
+
 private:
   void
   asyncWait();
@@ -81,7 +84,7 @@ private:
   std::map<uint32_t, MessageCallback> m_pendingRequests; ///< request sequence number => callback
 };
 
-class RtnlSocket : public NetlinkSocket
+class RtnlSocket final : public NetlinkSocket
 {
 public:
   explicit
@@ -92,6 +95,60 @@ public:
 
   void
   sendDumpRequest(uint16_t nlmsgType, MessageCallback cb);
+
+protected:
+  std::string
+  nlmsgTypeToString(uint16_t type) const final;
+};
+
+class GenlSocket;
+
+class GenlFamilyResolver : noncopyable
+{
+public:
+  GenlFamilyResolver(std::string familyName, GenlSocket& socket);
+
+  util::Signal<GenlFamilyResolver, uint16_t> onResolved;
+  util::Signal<GenlFamilyResolver> onError;
+
+private:
+  void
+  asyncResolve();
+
+  void
+  handleResolve(const NetlinkMessage& nlmsg);
+
+private:
+  GenlSocket& m_sock;
+  std::string m_family;
+};
+
+class GenlSocket final : public NetlinkSocket
+{
+public:
+  explicit
+  GenlSocket(boost::asio::io_service& io);
+
+  void
+  open();
+
+  void
+  sendRequest(const std::string& familyName, uint8_t command,
+              const void* payload, size_t payloadLen,
+              MessageCallback messageCb, std::function<void()> errorCb);
+
+  void
+  sendRequest(uint16_t familyId, uint8_t command,
+              const void* payload, size_t payloadLen,
+              MessageCallback messageCb);
+
+protected:
+  std::string
+  nlmsgTypeToString(uint16_t type) const final;
+
+private:
+  std::map<std::string, uint16_t> m_cachedFamilyIds; ///< family name => family id
+  std::map<std::string, GenlFamilyResolver> m_familyResolvers; ///< family name => resolver instance
 };
 
 } // namespace net

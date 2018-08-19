@@ -84,6 +84,7 @@ private:
 private:
   std::map<int, shared_ptr<NetworkInterface>> m_interfaces; ///< ifindex => interface
   RtnlSocket m_rtnlSocket; ///< rtnetlink socket
+  GenlSocket m_genlSocket; ///< generic netlink socket to communicate with nl80211
   bool m_isEnumeratingLinks; ///< true if a dump of all links is in progress
   bool m_isEnumeratingAddresses; ///< true if a dump of all addresses is in progress
 };

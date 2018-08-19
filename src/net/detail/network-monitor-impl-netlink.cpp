@@ -39,16 +39,17 @@ namespace net {
 
 NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io)
   : m_rtnlSocket(io)
+  , m_genlSocket(io)
   , m_isEnumeratingLinks(false)
   , m_isEnumeratingAddresses(false)
 {
   m_rtnlSocket.open();
+
   for (auto group : {RTNLGRP_LINK,
                      RTNLGRP_IPV4_IFADDR, RTNLGRP_IPV4_ROUTE,
                      RTNLGRP_IPV6_IFADDR, RTNLGRP_IPV6_ROUTE}) {
     m_rtnlSocket.joinGroup(group);
   }
-
   m_rtnlSocket.registerNotificationCallback([this] (const auto& msg) { this->parseRtnlMessage(msg); });
 
   NDN_LOG_TRACE("enumerating links");

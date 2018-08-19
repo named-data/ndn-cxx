@@ -27,7 +27,7 @@
 #include "../../util/time.hpp"
 
 #include <cerrno>
-#include <cstring>
+#include <linux/genetlink.h>
 #include <sys/socket.h>
 
 #include <boost/asio/write.hpp>
@@ -139,30 +139,19 @@ NetlinkSocket::registerRequestCallback(uint32_t seq, MessageCallback cb)
   }
 }
 
-static const char*
-nlmsgTypeToString(uint16_t type)
+std::string
+NetlinkSocket::nlmsgTypeToString(uint16_t type) const
 {
-#define NLMSG_STRINGIFY(x) case NLMSG_##x: return "<" #x ">"
-#define RTM_STRINGIFY(x) case RTM_##x: return "<" #x ">"
+#define NLMSG_STRINGIFY(x) case NLMSG_##x: return to_string(type) + "<" #x ">"
   switch (type) {
     NLMSG_STRINGIFY(NOOP);
     NLMSG_STRINGIFY(ERROR);
     NLMSG_STRINGIFY(DONE);
     NLMSG_STRINGIFY(OVERRUN);
-    RTM_STRINGIFY(NEWLINK);
-    RTM_STRINGIFY(DELLINK);
-    RTM_STRINGIFY(GETLINK);
-    RTM_STRINGIFY(NEWADDR);
-    RTM_STRINGIFY(DELADDR);
-    RTM_STRINGIFY(GETADDR);
-    RTM_STRINGIFY(NEWROUTE);
-    RTM_STRINGIFY(DELROUTE);
-    RTM_STRINGIFY(GETROUTE);
     default:
-      return "";
+      return to_string(type);
   }
 #undef NLMSG_STRINGIFY
-#undef RTM_STRINGIFY
 }
 
 void
@@ -241,7 +230,7 @@ NetlinkSocket::receiveAndValidate()
   NetlinkMessage nlmsg(m_buffer.data(), static_cast<size_t>(nBytesRead));
   for (; nlmsg.isValid(); nlmsg = nlmsg.getNext()) {
     NDN_LOG_TRACE("parsing " << (nlmsg->nlmsg_flags & NLM_F_MULTI ? "multi-part " : "") <<
-                  "message type=" << nlmsg->nlmsg_type << nlmsgTypeToString(nlmsg->nlmsg_type) <<
+                  "message type=" << nlmsgTypeToString(nlmsg->nlmsg_type) <<
                   " len=" << nlmsg->nlmsg_len <<
                   " seq=" << nlmsg->nlmsg_seq <<
                   " pid=" << nlmsg->nlmsg_pid <<
@@ -326,10 +315,9 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, MessageCallback cb)
 
   boost::asio::async_write(*m_sock, boost::asio::buffer(request.get(), request->nlh.nlmsg_len),
     // capture 'request' to prevent its premature deallocation
-    [request] (const boost::system::error_code& ec, size_t) {
+    [this, request] (const boost::system::error_code& ec, size_t) {
       if (!ec) {
-        auto type = request->nlh.nlmsg_type;
-        NDN_LOG_TRACE("sent dump request type=" << type << nlmsgTypeToString(type)
+        NDN_LOG_TRACE("sent dump request type=" << nlmsgTypeToString(request->nlh.nlmsg_type)
                       << " seq=" << request->nlh.nlmsg_seq);
       }
       else if (ec != boost::asio::error::operation_aborted) {
@@ -337,6 +325,219 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, MessageCallback cb)
         BOOST_THROW_EXCEPTION(Error("Failed to send netlink request (" + ec.message() + ")"));
       }
   });
+}
+
+std::string
+RtnlSocket::nlmsgTypeToString(uint16_t type) const
+{
+#define RTM_STRINGIFY(x) case RTM_##x: return to_string(type) + "<" #x ">"
+  switch (type) {
+    RTM_STRINGIFY(NEWLINK);
+    RTM_STRINGIFY(DELLINK);
+    RTM_STRINGIFY(GETLINK);
+    RTM_STRINGIFY(NEWADDR);
+    RTM_STRINGIFY(DELADDR);
+    RTM_STRINGIFY(GETADDR);
+    RTM_STRINGIFY(NEWROUTE);
+    RTM_STRINGIFY(DELROUTE);
+    RTM_STRINGIFY(GETROUTE);
+    default:
+      return NetlinkSocket::nlmsgTypeToString(type);
+  }
+#undef RTM_STRINGIFY
+}
+
+GenlSocket::GenlSocket(boost::asio::io_service& io)
+  : NetlinkSocket(io)
+{
+  m_cachedFamilyIds["nlctrl"] = GENL_ID_CTRL;
+}
+
+void
+GenlSocket::open()
+{
+  NDN_LOG_TRACE("opening genetlink socket");
+  NetlinkSocket::open(NETLINK_GENERIC);
+}
+
+void
+GenlSocket::sendRequest(const std::string& familyName, uint8_t command,
+                        const void* payload, size_t payloadLen,
+                        MessageCallback messageCb, std::function<void()> errorCb)
+{
+  auto it = m_cachedFamilyIds.find(familyName);
+  if (it != m_cachedFamilyIds.end()) {
+    if (it->second >= GENL_MIN_ID) {
+      sendRequest(it->second, command, payload, payloadLen, std::move(messageCb));
+    }
+    else if (errorCb) {
+      errorCb();
+    }
+    return;
+  }
+
+  auto ret = m_familyResolvers.emplace(std::piecewise_construct,
+                                       std::forward_as_tuple(familyName),
+                                       std::forward_as_tuple(familyName, *this));
+  auto& resolver = ret.first->second;
+  if (ret.second) {
+    // cache the result
+    resolver.onResolved.connectSingleShot([=] (uint16_t familyId) {
+      m_cachedFamilyIds[familyName] = familyId;
+    });
+    resolver.onError.connectSingleShot([=] {
+      m_cachedFamilyIds[familyName] = 0;
+    });
+  }
+  resolver.onResolved.connectSingleShot([=, cb = std::move(messageCb)] (uint16_t familyId) {
+    sendRequest(familyId, command, payload, payloadLen, std::move(cb));
+  });
+  if (errorCb) {
+    resolver.onError.connectSingleShot(std::move(errorCb));
+  }
+}
+
+void
+GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
+                        const void* payload, size_t payloadLen, MessageCallback cb)
+{
+  struct GenlRequestHeader
+  {
+    alignas(NLMSG_ALIGNTO) nlmsghdr nlh;
+    alignas(NLMSG_ALIGNTO) genlmsghdr genlh;
+  };
+  static_assert(sizeof(GenlRequestHeader) == NLMSG_SPACE(GENL_HDRLEN), "");
+
+  auto hdr = make_shared<GenlRequestHeader>();
+  hdr->nlh.nlmsg_len = sizeof(GenlRequestHeader) + payloadLen;
+  hdr->nlh.nlmsg_type = familyId;
+  hdr->nlh.nlmsg_flags = NLM_F_REQUEST;
+  hdr->nlh.nlmsg_seq = ++m_seqNum;
+  hdr->nlh.nlmsg_pid = m_pid;
+  hdr->genlh.cmd = command;
+  hdr->genlh.version = 1;
+
+  registerRequestCallback(hdr->nlh.nlmsg_seq, std::move(cb));
+
+  std::array<boost::asio::const_buffer, 2> bufs = {
+    boost::asio::buffer(hdr.get(), sizeof(GenlRequestHeader)),
+    boost::asio::buffer(payload, payloadLen)
+  };
+  boost::asio::async_write(*m_sock, bufs,
+    // capture 'hdr' to prevent its premature deallocation
+    [this, hdr] (const boost::system::error_code& ec, size_t) {
+      if (!ec) {
+        NDN_LOG_TRACE("sent genl request type=" << nlmsgTypeToString(hdr->nlh.nlmsg_type) <<
+                      " cmd=" << static_cast<unsigned>(hdr->genlh.cmd) <<
+                      " seq=" << hdr->nlh.nlmsg_seq);
+      }
+      else if (ec != boost::asio::error::operation_aborted) {
+        NDN_LOG_ERROR("write failed: " << ec.message());
+        BOOST_THROW_EXCEPTION(Error("Failed to send netlink request (" + ec.message() + ")"));
+      }
+  });
+}
+
+GenlFamilyResolver::GenlFamilyResolver(std::string familyName, GenlSocket& socket)
+  : m_sock(socket)
+  , m_family(std::move(familyName))
+{
+  if (m_family.size() >= GENL_NAMSIZ) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("netlink family name '" + m_family + "' too long"));
+  }
+
+  NDN_LOG_TRACE("resolving netlink family " << m_family);
+  asyncResolve();
+}
+
+void
+GenlFamilyResolver::asyncResolve()
+{
+  struct FamilyNameAttribute
+  {
+    alignas(NLMSG_ALIGNTO) nlattr nla;
+    alignas(NLMSG_ALIGNTO) char name[GENL_NAMSIZ];
+  };
+
+  auto attr = make_shared<FamilyNameAttribute>();
+  attr->nla.nla_type = CTRL_ATTR_FAMILY_NAME;
+  attr->nla.nla_len = NLA_HDRLEN + m_family.size() + 1;
+  ::strncpy(attr->name, m_family.data(), GENL_NAMSIZ);
+
+  m_sock.sendRequest(GENL_ID_CTRL, CTRL_CMD_GETFAMILY, attr.get(), attr->nla.nla_len,
+                     // capture 'attr' to prevent its premature deallocation
+                     [this, attr] (const auto& msg) { this->handleResolve(msg); });
+}
+
+void
+GenlFamilyResolver::handleResolve(const NetlinkMessage& nlmsg)
+{
+  switch (nlmsg->nlmsg_type) {
+    case NLMSG_ERROR: {
+      const nlmsgerr* err = nlmsg.getPayload<nlmsgerr>();
+      if (err == nullptr) {
+        NDN_LOG_WARN("malformed nlmsgerr");
+      }
+      else if (err->error != 0) {
+        NDN_LOG_DEBUG("failed to resolve netlink family " << m_family << ": "
+                      << std::strerror(std::abs(err->error)));
+      }
+      onError();
+      break;
+    }
+
+    case GENL_ID_CTRL: {
+      const genlmsghdr* genlh = nlmsg.getPayload<genlmsghdr>();
+      if (genlh == nullptr) {
+        NDN_LOG_WARN("malformed genlmsghdr");
+        return onError();
+      }
+      if (genlh->cmd != CTRL_CMD_NEWFAMILY) {
+        NDN_LOG_WARN("unexpected genl cmd=" << static_cast<unsigned>(genlh->cmd));
+        return onError();
+      }
+
+      auto attrs = nlmsg.getAttributes<nlattr>(genlh);
+      auto familyName = attrs.getAttributeByType<std::string>(CTRL_ATTR_FAMILY_NAME);
+      if (familyName && *familyName != m_family) {
+        NDN_LOG_WARN("CTRL_ATTR_FAMILY_NAME mismatch: " << *familyName << " != " << m_family);
+        return onError();
+      }
+      auto familyId = attrs.getAttributeByType<uint16_t>(CTRL_ATTR_FAMILY_ID);
+      if (!familyId) {
+        NDN_LOG_WARN("missing CTRL_ATTR_FAMILY_ID");
+        return onError();
+      }
+      if (*familyId < GENL_MIN_ID) {
+        NDN_LOG_WARN("invalid CTRL_ATTR_FAMILY_ID=" << *familyId);
+        return onError();
+      }
+
+      NDN_LOG_TRACE("resolved netlink family name=" << m_family << " id=" << *familyId);
+      onResolved(*familyId);
+      break;
+    }
+
+    default: {
+      NDN_LOG_WARN("unexpected message type");
+      onError();
+      break;
+    }
+  }
+}
+
+std::string
+GenlSocket::nlmsgTypeToString(uint16_t type) const
+{
+  if (type >= GENL_MIN_ID) {
+    for (const auto& p : m_cachedFamilyIds) {
+      if (p.second == type) {
+        return to_string(type) + "<" + p.first + ">";
+      }
+    }
+  }
+
+  return NetlinkSocket::nlmsgTypeToString(type);
 }
 
 } // namespace net
