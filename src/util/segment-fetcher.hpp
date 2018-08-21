@@ -166,49 +166,55 @@ public:
         security::v2::Validator& validator,
         const Options& options = Options());
 
+  /**
+   * @brief Stops fetching.
+   *
+   * This cancels all interests that are still pending.
+   */
+  void
+  stop();
+
 private:
   class PendingSegment;
 
   SegmentFetcher(Face& face, security::v2::Validator& validator, const Options& options);
 
-  void
-  fetchFirstSegment(const Interest& baseInterest,
-                    bool isRetransmission,
-                    shared_ptr<SegmentFetcher> self);
+  static bool
+  shouldStop(const weak_ptr<SegmentFetcher>& weakSelf);
 
   void
-  fetchSegmentsInWindow(const Interest& origInterest, shared_ptr<SegmentFetcher> self);
+  fetchFirstSegment(const Interest& baseInterest, bool isRetransmission);
 
   void
-  afterSegmentReceivedCb(const Interest& origInterest,
-                         const Data& data,
-                         shared_ptr<SegmentFetcher> self);
+  fetchSegmentsInWindow(const Interest& origInterest);
+
   void
-  afterValidationSuccess(const Data& data,
-                         const Interest& origInterest,
+  afterSegmentReceivedCb(const Interest& origInterest, const Data& data,
+                         const weak_ptr<SegmentFetcher>& weakSelf);
+
+  void
+  afterValidationSuccess(const Data& data, const Interest& origInterest,
                          std::map<uint64_t, PendingSegment>::iterator pendingSegmentIt,
-                         shared_ptr<SegmentFetcher> self);
+                         const weak_ptr<SegmentFetcher>& weakSelf);
 
   void
   afterValidationFailure(const Data& data,
                          const security::v2::ValidationError& error,
-                         shared_ptr<SegmentFetcher> self);
+                         const weak_ptr<SegmentFetcher>& weakSelf);
 
   void
-  afterNackReceivedCb(const Interest& origInterest,
-                      const lp::Nack& nack,
-                      shared_ptr<SegmentFetcher> self);
+  afterNackReceivedCb(const Interest& origInterest, const lp::Nack& nack,
+                      const weak_ptr<SegmentFetcher>& weakSelf);
 
   void
   afterTimeoutCb(const Interest& origInterest,
-                 shared_ptr<SegmentFetcher> self);
+                 const weak_ptr<SegmentFetcher>& weakSelf);
 
   void
-  afterNackOrTimeout(const Interest& origInterest,
-                     shared_ptr<SegmentFetcher> self);
+  afterNackOrTimeout(const Interest& origInterest);
 
   void
-  finalizeFetch(shared_ptr<SegmentFetcher> self);
+  finalizeFetch();
 
   void
   windowIncrease();
@@ -284,6 +290,8 @@ private:
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   static constexpr double MIN_SSTHRESH = 2.0;
+
+  shared_ptr<SegmentFetcher> m_this;
 
   Options m_options;
   Face& m_face;
