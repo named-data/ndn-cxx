@@ -274,7 +274,7 @@ commands:
     ./waf sphinx
 
     # Only API docs in `build/docs/doxygen`
-    ./waf doxgyen
+    ./waf doxygen
 
 Manpages are automatically created and installed during the normal build
 process (e.g., during ``./waf`` and ``./waf install``), if
