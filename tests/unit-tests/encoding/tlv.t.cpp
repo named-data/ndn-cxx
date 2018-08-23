@@ -486,8 +486,30 @@ BOOST_AUTO_TEST_CASE(PrintSignatureTypeValue)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(DigestSha256), "DigestSha256");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureSha256WithRsa), "SignatureSha256WithRsa");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(2)), "Unknown(2)");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureSha256WithEcdsa), "SignatureSha256WithEcdsa");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(200)), "Unknown Signature Type");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureHmacWithSha256), "SignatureHmacWithSha256");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(5)), "Unknown(5)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(200)), "Unknown(200)");
+}
+
+BOOST_AUTO_TEST_CASE(PrintContentTypeValue)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ContentType_Blob), "Blob");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ContentType_Link), "Link");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ContentType_Key), "Key");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ContentType_Nack), "Nack");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ContentType_Manifest), "Manifest");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ContentType_PrefixAnn), "PrefixAnn");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(6)), "Reserved(6)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(1023)), "Reserved(1023)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ContentType_Flic), "FLIC");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(1025)), "Unknown(1025)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(8999)), "Unknown(8999)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(9000)), "Experimental(9000)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(9999)), "Experimental(9999)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(10000)), "Unknown(10000)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(19910118)), "Unknown(19910118)");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // PrintHelpers

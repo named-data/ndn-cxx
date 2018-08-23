@@ -108,18 +108,33 @@ enum {
 [[deprecated("use GenericNameComponent")]]
 constexpr int NameComponent = GenericNameComponent;
 
+/** @brief TLV-TYPE numbers for typed name components.
+ *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
+ */
+enum {
+  KeywordNameComponent     = 32,
+  SegmentNameComponent     = 33,
+  ByteOffsetNameComponent  = 34,
+  VersionNameComponent     = 35,
+  TimestampNameComponent   = 36,
+  SequenceNumNameComponent = 37,
+};
+
+/** @brief SignatureType values
+ *  @sa https://named-data.net/doc/NDN-packet-spec/current/signature.html
+ */
 enum SignatureTypeValue : uint16_t {
-  DigestSha256 = 0,
-  SignatureSha256WithRsa = 1,
-  // <Unassigned> = 2,
-  SignatureSha256WithEcdsa = 3
+  DigestSha256             = 0,
+  SignatureSha256WithRsa   = 1,
+  SignatureSha256WithEcdsa = 3,
+  SignatureHmacWithSha256  = 4,
 };
 
 std::ostream&
-operator<<(std::ostream& os, SignatureTypeValue signatureType);
+operator<<(std::ostream& os, SignatureTypeValue st);
 
 /** @brief TLV-TYPE numbers for SignatureInfo features
- *  @sa docs/tutorials/certificate-format.rst
+ *  @sa docs/specs/certificate-format.rst
  */
 enum {
   ValidityPeriod = 253,
@@ -132,25 +147,21 @@ enum {
   DescriptionValue = 514
 };
 
-/** @brief indicates a possible value of ContentType field
+/** @brief ContentType values
+ *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/ContentType
  */
-enum ContentTypeValue {
-  /** @brief indicates content is the actual data bits
-   */
-  ContentType_Blob = 0,
-
-  /** @brief indicates content is another name which identifies actual data content
-   */
-  ContentType_Link = 1,
-
-  /** @brief indicates content is a public key
-   */
-  ContentType_Key = 2,
-
-  /** @brief indicates a producer generated NACK
-   */
-  ContentType_Nack = 3
+enum ContentTypeValue : uint32_t {
+  ContentType_Blob      = 0,    ///< payload
+  ContentType_Link      = 1,    ///< another name that identifies the actual data content
+  ContentType_Key       = 2,    ///< public key, certificate
+  ContentType_Nack      = 3,    ///< application-level nack
+  ContentType_Manifest  = 4,
+  ContentType_PrefixAnn = 5,    ///< prefix announcement
+  ContentType_Flic      = 1024, ///< File-Like ICN Collection
 };
+
+std::ostream&
+operator<<(std::ostream& os, ContentTypeValue ct);
 
 /**
  * @brief Determine whether a TLV-TYPE is "critical" for evolvability purpose.

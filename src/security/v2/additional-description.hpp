@@ -33,7 +33,7 @@ namespace v2 {
 
 /**
  * @brief Abstraction of AdditionalDescription
- * @sa docs/tutorials/certificate-format.rst
+ * @sa docs/specs/certificate-format.rst
  */
 class AdditionalDescription
 {

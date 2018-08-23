@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,17 +25,51 @@ namespace ndn {
 namespace tlv {
 
 std::ostream&
-operator<<(std::ostream& os, SignatureTypeValue signatureType)
+operator<<(std::ostream& os, SignatureTypeValue st)
 {
-  switch (signatureType) {
-    case SignatureTypeValue::DigestSha256:
+  switch (st) {
+    case DigestSha256:
       return os << "DigestSha256";
-    case SignatureTypeValue::SignatureSha256WithRsa:
+    case SignatureSha256WithRsa:
       return os << "SignatureSha256WithRsa";
-    case SignatureTypeValue::SignatureSha256WithEcdsa:
+    case SignatureSha256WithEcdsa:
       return os << "SignatureSha256WithEcdsa";
+    case SignatureHmacWithSha256:
+      return os << "SignatureHmacWithSha256";
   }
-  return os << "Unknown Signature Type";
+  return os << "Unknown(" << static_cast<uint32_t>(st) << ')';
+}
+
+std::ostream&
+operator<<(std::ostream& os, ContentTypeValue ct)
+{
+  switch (ct) {
+    case ContentType_Blob:
+      return os << "Blob";
+    case ContentType_Link:
+      return os << "Link";
+    case ContentType_Key:
+      return os << "Key";
+    case ContentType_Nack:
+      return os << "Nack";
+    case ContentType_Manifest:
+      return os << "Manifest";
+    case ContentType_PrefixAnn:
+      return os << "PrefixAnn";
+    case ContentType_Flic:
+      return os << "FLIC";
+  }
+
+  if (ct >= 6 && ct <= 1023) {
+    os << "Reserved(";
+  }
+  else if (ct >= 9000 && ct <= 9999) {
+    os << "Experimental(";
+  }
+  else {
+    os << "Unknown(";
+  }
+  return os << static_cast<uint32_t>(ct) << ')';
 }
 
 } // namespace tlv

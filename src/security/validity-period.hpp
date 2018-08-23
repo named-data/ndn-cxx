@@ -32,7 +32,7 @@ namespace security {
 
 
 /** @brief Abstraction of validity period
- *  @sa docs/tutorials/certificate-format.rst
+ *  @sa docs/specs/certificate-format.rst
  */
 class ValidityPeriod
 {
