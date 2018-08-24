@@ -22,7 +22,6 @@
 #include "encoding/block.hpp"
 #include "encoding/block-helpers.hpp"
 
-#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include <boost/lexical_cast.hpp>
 #include <cstring>
@@ -529,6 +528,41 @@ BOOST_AUTO_TEST_CASE(Print)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b),
                     "264[8]={89[2]=4E42,16[2]=2386}");
 }
+
+BOOST_AUTO_TEST_SUITE(BlockLiteral)
+
+BOOST_AUTO_TEST_CASE(Simple)
+{
+  Block b0 = "0000"_block;
+  BOOST_CHECK_EQUAL(b0.type(), 0x00);
+  BOOST_CHECK_EQUAL(b0.value_size(), 0);
+
+  Block b1 = "0101A0"_block;
+  BOOST_CHECK_EQUAL(b1.type(), 0x01);
+  BOOST_REQUIRE_EQUAL(b1.value_size(), 1);
+  BOOST_CHECK_EQUAL(b1.value()[0], 0xA0);
+}
+
+BOOST_AUTO_TEST_CASE(Comment)
+{
+  Block b0 = "a2b0c0d2eBf0G.B 1+"_block;
+  BOOST_CHECK_EQUAL(b0.type(), 0x20);
+  BOOST_REQUIRE_EQUAL(b0.value_size(), 2);
+  BOOST_CHECK_EQUAL(b0.value()[0], 0xB0);
+  BOOST_CHECK_EQUAL(b0.value()[1], 0xB1);
+}
+
+BOOST_AUTO_TEST_CASE(BadInput)
+{
+  BOOST_CHECK_THROW(""_block, std::invalid_argument);
+  BOOST_CHECK_THROW("1"_block, std::invalid_argument);
+  BOOST_CHECK_THROW("333"_block, std::invalid_argument);
+
+  BOOST_CHECK_THROW("0202C0"_block, tlv::Error);
+  BOOST_CHECK_THROW("0201C0C1"_block, tlv::Error);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // BlockLiteral
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlock
 BOOST_AUTO_TEST_SUITE_END() // Encoding

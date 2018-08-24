@@ -30,7 +30,6 @@
 #include "security/verification-helpers.hpp"
 #include "util/sha256.hpp"
 
-#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
 #include <boost/lexical_cast.hpp>

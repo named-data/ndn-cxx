@@ -470,6 +470,22 @@ operator!=(const Block& lhs, const Block& rhs)
   return !(lhs == rhs);
 }
 
+/** \brief Construct a \c Block from hexadecimal \p input.
+ *  \param input a string containing hexadecimal bytes and comments.
+ *               0-9 and upper-case A-F are input; all other characters are comments.
+ *  \param len length of \p input.
+ *  \throw std::invalid_argument input is empty or has odd number of hexadecimal digits.
+ *  \throw tlv::Error input cannot be parsed into valid \c Block.
+ *
+ *  Example
+ *  \code
+ *  Block nameBlock = "0706 080141 080142"_block;
+ *  Block nackBlock = "FD032005 reason(no-route)=FD03210196"_block;
+ *  \endcode
+ */
+Block
+operator "" _block(const char* input, std::size_t len);
+
 } // namespace ndn
 
 #endif // NDN_ENCODING_BLOCK_HPP

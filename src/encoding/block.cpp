@@ -25,6 +25,7 @@
 #include "buffer-stream.hpp"
 #include "encoding-buffer.hpp"
 #include "tlv.hpp"
+#include "../security/transform.hpp"
 #include "../util/string-helper.hpp"
 
 #include <boost/asio/buffer.hpp>
@@ -515,6 +516,30 @@ operator<<(std::ostream& os, const Block& block)
 
   os.flags(oldFmt);
   return os;
+}
+
+Block
+operator "" _block(const char* input, std::size_t len)
+{
+  namespace t = security::transform;
+  t::StepSource ss;
+  OBufferStream os;
+  ss >> t::hexDecode() >> t::streamSink(os);
+
+  for (const char* end = input + len; input != end; ++input) {
+    if (std::strchr("0123456789ABCDEF", *input) != nullptr) {
+      ss.write(reinterpret_cast<const uint8_t*>(input), 1);
+    }
+  }
+
+  try {
+    ss.end();
+  }
+  catch (const t::Error&) {
+    BOOST_THROW_EXCEPTION(std::invalid_argument("input has odd number of hexadecimal digits"));
+  }
+
+  return Block(os.buf());
 }
 
 } // namespace ndn

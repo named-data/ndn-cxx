@@ -23,7 +23,6 @@
 #include "name.hpp"
 #include "util/string-helper.hpp"
 
-#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/mpl/vector.hpp>
@@ -31,8 +30,6 @@
 namespace ndn {
 namespace name {
 namespace tests {
-
-using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(TestNameComponent)
 

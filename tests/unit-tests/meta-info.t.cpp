@@ -22,7 +22,6 @@
 #include "meta-info.hpp"
 #include "data.hpp"
 
-#include "block-literal.hpp"
 #include "boost-test.hpp"
 
 namespace ndn {

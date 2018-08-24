@@ -21,7 +21,6 @@
 
 #include "name.hpp"
 
-#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include <unordered_map>
 

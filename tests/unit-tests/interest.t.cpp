@@ -24,7 +24,6 @@
 #include "security/digest-sha256.hpp"
 #include "security/signature-sha256-with-rsa.hpp"
 
-#include "block-literal.hpp"
 #include "boost-test.hpp"
 #include "identity-management-fixture.hpp"
 
