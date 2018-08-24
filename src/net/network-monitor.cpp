@@ -24,6 +24,9 @@
 
 #include "network-monitor.hpp"
 #include "ndn-cxx-config.hpp"
+#include "../util/logger.hpp"
+
+#include "detail/network-monitor-impl-noop.hpp"
 
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
 #include "detail/network-monitor-impl-osx.hpp"
@@ -32,15 +35,29 @@
 #include "detail/network-monitor-impl-netlink.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNetlink
 #else
-#include "detail/network-monitor-impl-noop.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNoop
 #endif
+
+NDN_LOG_INIT(ndn.NetworkMonitor);
 
 namespace ndn {
 namespace net {
 
+static unique_ptr<NetworkMonitorImpl>
+makeNetworkMonitorImpl(boost::asio::io_service& io)
+{
+  try {
+    return make_unique<NETWORK_MONITOR_IMPL_TYPE>(io);
+  }
+  catch (const std::runtime_error& e) {
+    NDN_LOG_WARN("failed to initialize " BOOST_STRINGIZE(NETWORK_MONITOR_IMPL_TYPE) ": " << e.what());
+    // fallback to dummy implementation
+    return make_unique<NetworkMonitorImplNoop>(io);
+  }
+}
+
 NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
-  : NetworkMonitor(make_unique<NETWORK_MONITOR_IMPL_TYPE>(io))
+  : NetworkMonitor(makeNetworkMonitorImpl(io))
 {
 }
 

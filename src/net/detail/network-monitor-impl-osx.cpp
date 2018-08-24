@@ -66,12 +66,12 @@
 #include <boost/asio/ip/address.hpp>
 #include <boost/asio/ip/udp.hpp>
 
+NDN_LOG_INIT(ndn.NetworkMonitor);
+
 namespace ndn {
 namespace net {
 
 using util::CFReleaser;
-
-NDN_LOG_INIT(ndn.NetworkMonitor);
 
 class IfAddrs : noncopyable
 {
