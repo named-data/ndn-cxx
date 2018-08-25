@@ -31,7 +31,7 @@
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
 #include "detail/network-monitor-impl-osx.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplOsx
-#elif defined(NDN_CXX_HAVE_RTNETLINK)
+#elif defined(NDN_CXX_HAVE_NETLINK)
 #include "detail/network-monitor-impl-netlink.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNetlink
 #else

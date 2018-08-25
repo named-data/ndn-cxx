@@ -27,7 +27,7 @@
 #include "../../common.hpp"
 #include "../ethernet.hpp"
 
-#ifndef NDN_CXX_HAVE_RTNETLINK
+#ifndef NDN_CXX_HAVE_NETLINK
 #error "This file should not be included ..."
 #endif
 

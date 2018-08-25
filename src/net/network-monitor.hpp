@@ -36,7 +36,7 @@ namespace net {
 class NetworkMonitorImpl;
 
 /**
- * @brief Network interface monitor
+ * @brief Network interface monitor.
  *
  * Maintains an up-to-date view of every system network interface and notifies when an interface
  * is added or removed.
@@ -44,7 +44,7 @@ class NetworkMonitorImpl;
  * @note The implementation of this class is highly platform dependent, and not all platform
  *       backends provide all the features. On macOS, @e SystemConfiguration and
  *       @e CFNotificationCenterAddObserver are used (notification of MTU change is not supported).
- *       On Linux, @e rtnetlink notifications from the kernel are used. See getCapabilities() for
+ *       On Linux, @e netlink notifications from the kernel are used. See getCapabilities() for
  *       the detailed set of capabilities supported by the platform backend currently in use.
  */
 class NetworkMonitor : noncopyable
@@ -58,10 +58,8 @@ public:
 
   /**
    * @brief Construct instance, request enumeration of all network interfaces, and start
-   *        monitoring for network state changes
-   *
+   *        monitoring for network state changes.
    * @param io io_service instance that will dispatch events
-   * @throw Error error starting monitoring
    */
   explicit
   NetworkMonitor(boost::asio::io_service& io);
@@ -81,16 +79,16 @@ public:
     CAP_ADDR_ADD_REMOVE = 1 << 4
   };
 
-  /// Returns a bitwise OR'ed set of @ref Capability flags supported on the current platform
+  /// Returns a bitwise OR'ed set of #Capability flags supported on the current platform.
   uint32_t
   getCapabilities() const;
 
-  /// Returns the NetworkInterface with the given name, or @c nullptr if it does not exist
+  /// Returns the NetworkInterface with the given name, or @c nullptr if it does not exist.
   shared_ptr<const NetworkInterface>
   getNetworkInterface(const std::string& ifname) const;
 
   /**
-   * @brief Lists all network interfaces currently available on the system
+   * @brief Lists all network interfaces currently available on the system.
    * @warning May return incomplete results if called before the
    *          #onEnumerationCompleted signal has been emitted.
    */

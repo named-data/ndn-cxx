@@ -83,10 +83,10 @@ def configure(conf):
                    fragment='''#include <unistd.h>
                                int main() { getpass("Enter password"); }''')
 
-    if conf.check_cxx(msg='Checking for rtnetlink', define_name='HAVE_RTNETLINK', mandatory=False,
+    if conf.check_cxx(msg='Checking for netlink', define_name='HAVE_NETLINK', mandatory=False,
                       header_name=['linux/if_addr.h', 'linux/if_link.h',
-                                   'linux/netlink.h', 'linux/rtnetlink.h']):
-        conf.env['HAVE_RTNETLINK'] = True
+                                   'linux/netlink.h', 'linux/rtnetlink.h', 'linux/genetlink.h']):
+        conf.env['HAVE_NETLINK'] = True
         conf.check_cxx(msg='Checking for NETLINK_EXT_ACK', define_name='HAVE_NETLINK_EXT_ACK', mandatory=False,
                        fragment='''#include <linux/netlink.h>
                                    int main() { return NETLINK_EXT_ACK; }''')
@@ -185,7 +185,7 @@ def build(bld):
         libndn_cxx['source'] += bld.path.ant_glob('src/**/*-osx.cpp')
         libndn_cxx['use'] += ' OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN'
 
-    if bld.env['HAVE_RTNETLINK']:
+    if bld.env['HAVE_NETLINK']:
         libndn_cxx['source'] += bld.path.ant_glob('src/**/*netlink*.cpp')
 
     # In case we want to make it optional later
@@ -260,7 +260,7 @@ def build(bld):
     if bld.env['HAVE_OSX_FRAMEWORKS']:
         headers += bld.path.ant_glob('src/**/*-osx.hpp', excl='src/**/detail/**/*')
 
-    if bld.env['HAVE_RTNETLINK']:
+    if bld.env['HAVE_NETLINK']:
         headers += bld.path.ant_glob('src/**/*netlink*.hpp', excl='src/**/detail/**/*')
 
     # In case we want to make it optional later
