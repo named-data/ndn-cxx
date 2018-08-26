@@ -28,7 +28,6 @@
 #ifndef NDN_UTIL_SEGMENT_FETCHER_HPP
 #define NDN_UTIL_SEGMENT_FETCHER_HPP
 
-#include "../common.hpp"
 #include "../face.hpp"
 #include "../security/v2/validator.hpp"
 #include "rtt-estimator.hpp"
@@ -47,14 +46,14 @@ namespace util {
  * where:
  * - `<prefix>` is the specified prefix,
  * - `<version>` is an unknown version that needs to be discovered, and
- * - `<segment>` is a segment number (The number of segments in the object is unknown until a Data
- *   packet containing the `FinalBlockId` field is receieved.)
+ * - `<segment>` is a segment number (the number of segments in the object is unknown until a Data
+ *   packet containing the `FinalBlockId` field is received).
  *
- * The following logic is implemented in SegmentFetcher:
+ * SegmentFetcher implements the following logic:
  *
  * 1. Express an Interest to discover the latest version of the object:
  *
- *    >> Interest: `/<prefix>?ndn.CanBePrefix=true&ndn.MustBeFresh=true`
+ *    Interest: `/<prefix>?ndn.CanBePrefix=true&ndn.MustBeFresh=true`
  *
  * 2. Infer the latest version of the object: `<version> = Data.getName().get(-2)`
  *
@@ -65,20 +64,17 @@ namespace util {
  *    manage the Interest window size. Interests expressed in this step will follow this Name
  *    format:
  *
- *    >> Interest: `/<prefix>/<version>/<segment=(N)>`
+ *    Interest: `/<prefix>/<version>/<segment=(N)>`
  *
- * 4. Signal `onComplete` with a memory block that combines the content of all segments in the
- *    object.
+ * 4. Signal #onComplete passing a memory buffer that combines the content of all segments in the object.
  *
- * If an error occurs during the fetching process, `onError` is signaled with one of the error codes
- * from `SegmentFetcher::ErrorCode`.
+ * If an error occurs during the fetching process, #onError is signaled with one of the error codes
+ * from SegmentFetcher::ErrorCode.
  *
  * A Validator instance must be specified to validate individual segments. Every time a segment has
- * been successfully validated, `afterValidationSuccess` will be signaled. If a segment fails
- * validation, `afterValidationFailure` will be signaled.
+ * been successfully validated, #afterSegmentValidated will be signaled.
  *
- * Examples:
- *
+ * Example:
  *     @code
  *     void
  *     afterFetchComplete(ConstBufferPtr data)
@@ -97,29 +93,24 @@ namespace util {
  *     fetcher->onComplete.connect(bind(&afterFetchComplete, this, _1));
  *     fetcher->onError.connect(bind(&afterFetchError, this, _1, _2));
  *     @endcode
- *
  */
 class SegmentFetcher : noncopyable
 {
 public:
-  // Deprecated: will be removed when deprecated fetch() API is removed - use start() instead
-  typedef function<void (ConstBufferPtr data)> CompleteCallback;
-  typedef function<void (uint32_t code, const std::string& msg)> ErrorCallback;
-
   /**
-   * @brief Error codes passed to `onError`
+   * @brief Error codes passed to #onError.
    */
   enum ErrorCode {
-    /// retrieval timed out because the maximum timeout between the successful receipt of segments was exceeded
+    /// Retrieval timed out because the maximum timeout between the successful receipt of segments was exceeded
     INTEREST_TIMEOUT = 1,
-    /// one of the retrieved Data packets lacked a segment number in the last Name component (excl. implicit digest)
+    /// One of the retrieved Data packets lacked a segment number in the last Name component (excl. implicit digest)
     DATA_HAS_NO_SEGMENT = 2,
-    /// one of the retrieved segments failed user-provided validation
+    /// One of the retrieved segments failed user-provided validation
     SEGMENT_VALIDATION_FAIL = 3,
-    /// an unrecoverable Nack was received during retrieval
+    /// An unrecoverable Nack was received during retrieval
     NACK_ERROR = 4,
-    /// a received FinalBlockId did not contain a segment component
-    FINALBLOCKID_NOT_SEGMENT = 5
+    /// A received FinalBlockId did not contain a segment component
+    FINALBLOCKID_NOT_SEGMENT = 5,
   };
 
   class Options
@@ -148,9 +139,11 @@ public:
   };
 
   /**
-   * @brief Initiates segment fetching
+   * @brief Initiates segment fetching.
    *
-   * @param face         Reference to the Face that should be used to fetch data
+   * Transfer completion, failure, and progress are indicated via signals.
+   *
+   * @param face         Reference to the Face that should be used to fetch data.
    * @param baseInterest Interest for the initial segment of requested data.
    *                     This interest may include a custom InterestLifetime and parameters that
    *                     will propagate to all subsequent Interests. The only exception is that the
@@ -158,83 +151,20 @@ public:
    *                     "MustBeFresh=true" parameters, which will not be included in subsequent
    *                     Interests.
    * @param validator    Reference to the Validator the fetcher will use to validate data.
-   *                     The caller must ensure the validator is valid until either `onComplete` or
-   *                     `onError` has been signaled.
-   * @param options      Options controlling the transfer
+   *                     The caller must ensure the validator remains valid until either #onComplete
+   *                     or #onError has been signaled.
+   * @param options      Options controlling the transfer.
    *
    * @return             A shared_ptr to the constructed SegmentFetcher.
    *                     This shared_ptr is kept internally for the lifetime of the transfer.
    *                     Therefore, it does not need to be saved and is provided here so that the
    *                     SegmentFetcher's signals can be connected to.
-   *
-   * Transfer completion, failure, and progress are indicated via signals.
    */
   static shared_ptr<SegmentFetcher>
   start(Face& face,
         const Interest& baseInterest,
         security::v2::Validator& validator,
         const Options& options = Options());
-
-  /**
-   * @brief Initiates segment fetching
-   *
-   * @deprecated Use @c start
-   *
-   * @param face             Reference to the Face that should be used to fetch data
-   * @param baseInterest     An Interest for the initial segment of requested data.
-   *                         This interest may include a custom InterestLifetime and parameters that
-   *                         will propagate to all subsequent Interests.  The only exception is that
-   *                         the initial Interest will be forced to include the parameters
-   *                         "CanBePrefix=true" and "MustBeFresh=true", which will be turned off in
-   *                         subsequent Interests.
-   * @param validator        Reference to the Validator that should be used to validate data. Caller
-   *                         must ensure validator is valid until either completeCallback or
-   *                         errorCallback is invoked.
-   * @param completeCallback Callback to be fired when all segments are fetched
-   * @param errorCallback    Callback to be fired when an error occurs (@see Errors)
-   *
-   * @return                 A shared_ptr to the constructed SegmentFetcher.
-   *                         This shared_ptr is kept internally for the lifetime of the transfer.
-   *                         Therefore, it does not need to be saved and is provided here so that
-   *                         the SegmentFetcher's signals can be connected to.
-   */
-  [[deprecated("use SegmentFetcher::start instead")]]
-  static shared_ptr<SegmentFetcher>
-  fetch(Face& face,
-        const Interest& baseInterest,
-        security::v2::Validator& validator,
-        const CompleteCallback& completeCallback,
-        const ErrorCallback& errorCallback);
-
-  /**
-   * @brief Initiate segment fetching
-   *
-   * @deprecated Use @c start
-   *
-   * @param face             Reference to the Face that should be used to fetch data
-   * @param baseInterest     An Interest for the initial segment of requested data.
-   *                         This interest may include a custom InterestLifetime and parameters that
-   *                         will propagate to all subsequent Interests.  The only exception is that
-   *                         the initial Interest will be forced to include the parameters
-   *                         "CanBePrefix=true" and "MustBeFresh=true", which will both be set to
-   *                         false in subsequent Interests.
-   * @param validator        A shared_ptr to the Validator that should be used to validate data.
-   *
-   * @param completeCallback Callback to be fired when all segments are fetched
-   * @param errorCallback    Callback to be fired when an error occurs (@see Errors)
-   *
-   * @return                 A shared_ptr to the constructed SegmentFetcher.
-   *                         This shared_ptr is kept internally for the lifetime of the transfer.
-   *                         Therefore, it does not need to be saved and is provided here so that
-   *                         the SegmentFetcher's signals can be connected to.
-   */
-  [[deprecated("use SegmentFetcher::start instead")]]
-  static shared_ptr<SegmentFetcher>
-  fetch(Face& face,
-        const Interest& baseInterest,
-        shared_ptr<security::v2::Validator> validator,
-        const CompleteCallback& completeCallback,
-        const ErrorCallback& errorCallback);
 
 private:
   class PendingSegment;
@@ -305,34 +235,34 @@ private:
 
 public:
   /**
-   * @brief Emits upon successful retrieval of the complete data
+   * @brief Emits upon successful retrieval of the complete data.
    */
   Signal<SegmentFetcher, ConstBufferPtr> onComplete;
 
   /**
-   * @brief Emits when the retrieval could not be completed due to an error
+   * @brief Emits when the retrieval could not be completed due to an error.
    *
-   * Handler(s) are provided with an error code and a string error message.
+   * Handlers are provided with an error code and a string error message.
    */
   Signal<SegmentFetcher, uint32_t, std::string> onError;
 
   /**
-   * @brief Emits whenever a data segment received
+   * @brief Emits whenever a data segment received.
    */
   Signal<SegmentFetcher, Data> afterSegmentReceived;
 
   /**
-   * @brief Emits whenever a received data segment has been successfully validated
+   * @brief Emits whenever a received data segment has been successfully validated.
    */
   Signal<SegmentFetcher, Data> afterSegmentValidated;
 
   /**
-   * @brief Emits whenever an Interest for a data segment is nacked
+   * @brief Emits whenever an Interest for a data segment is nacked.
    */
   Signal<SegmentFetcher> afterSegmentNacked;
 
   /**
-   * @brief Emits whenever an Interest for a data segment times out
+   * @brief Emits whenever an Interest for a data segment times out.
    */
   Signal<SegmentFetcher> afterSegmentTimedOut;
 

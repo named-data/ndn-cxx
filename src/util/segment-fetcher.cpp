@@ -93,37 +93,6 @@ SegmentFetcher::start(Face& face,
   return fetcher;
 }
 
-shared_ptr<SegmentFetcher>
-SegmentFetcher::fetch(Face& face,
-                      const Interest& baseInterest,
-                      security::v2::Validator& validator,
-                      const CompleteCallback& completeCallback,
-                      const ErrorCallback& errorCallback)
-{
-  Options options;
-  options.useConstantCwnd = true;
-  options.useConstantInterestTimeout = true;
-  options.maxTimeout = baseInterest.getInterestLifetime();
-  options.interestLifetime = baseInterest.getInterestLifetime();
-  shared_ptr<SegmentFetcher> fetcher = start(face, baseInterest, validator, options);
-  fetcher->onComplete.connect(completeCallback);
-  fetcher->onError.connect(errorCallback);
-  return fetcher;
-}
-
-shared_ptr<SegmentFetcher>
-SegmentFetcher::fetch(Face& face,
-                      const Interest& baseInterest,
-                      shared_ptr<security::v2::Validator> validator,
-                      const CompleteCallback& completeCallback,
-                      const ErrorCallback& errorCallback)
-{
-  auto fetcher = fetch(face, baseInterest, *validator, completeCallback, errorCallback);
-  // Ensure lifetime of validator shared_ptr
-  fetcher->onComplete.connect([validator] (ConstBufferPtr) {});
-  return fetcher;
-}
-
 void
 SegmentFetcher::fetchFirstSegment(const Interest& baseInterest,
                                   bool isRetransmission,
