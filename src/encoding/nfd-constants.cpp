@@ -115,8 +115,8 @@ operator>>(std::istream& is, RouteOrigin& routeOrigin)
     routeOrigin = ROUTE_ORIGIN_AUTOCONF;
   else if (iequals(s, "nlsr"))
     routeOrigin = ROUTE_ORIGIN_NLSR;
-  else if (iequals(s, "selflearning"))
-    routeOrigin = ROUTE_ORIGIN_SELFLEARNING;
+  else if (iequals(s, "prefixann"))
+    routeOrigin = ROUTE_ORIGIN_PREFIXANN;
   else if (iequals(s, "static"))
     routeOrigin = ROUTE_ORIGIN_STATIC;
   else {
@@ -160,8 +160,8 @@ operator<<(std::ostream& os, RouteOrigin routeOrigin)
       return os << "autoconf";
     case ROUTE_ORIGIN_NLSR:
       return os << "nlsr";
-    case ROUTE_ORIGIN_SELFLEARNING:
-      return os << "selflearning";
+    case ROUTE_ORIGIN_PREFIXANN:
+      return os << "prefixann";
     case ROUTE_ORIGIN_STATIC:
       return os << "static";
   }

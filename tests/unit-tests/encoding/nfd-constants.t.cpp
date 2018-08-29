@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(ParseRouteOrigin)
   expectSuccess("Client", ROUTE_ORIGIN_CLIENT);
   expectSuccess("AutoConf", ROUTE_ORIGIN_AUTOCONF);
   expectSuccess("NLSR", ROUTE_ORIGIN_NLSR);
-  expectSuccess("SelfLearning", ROUTE_ORIGIN_SELFLEARNING);
+  expectSuccess("PrefixAnn", ROUTE_ORIGIN_PREFIXANN);
   expectSuccess("static", ROUTE_ORIGIN_STATIC);
   expectSuccess("27", static_cast<RouteOrigin>(27));
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(PrintRouteOrigin)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_CLIENT), "client");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_AUTOCONF), "autoconf");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_NLSR), "nlsr");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_SELFLEARNING), "selflearning");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_PREFIXANN), "prefixann");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_ORIGIN_STATIC), "static");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteOrigin>(27)), "27");
 }
