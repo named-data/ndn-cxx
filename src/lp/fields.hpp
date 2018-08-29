@@ -26,7 +26,7 @@
 
 #include "cache-policy.hpp"
 #include "nack-header.hpp"
-#include "prefix-announcement.hpp"
+#include "prefix-announcement-header.hpp"
 
 #include <boost/mpl/set.hpp>
 
@@ -105,7 +105,7 @@ typedef FieldDecl<field_location_tags::Header,
 BOOST_CONCEPT_ASSERT((Field<NonDiscoveryField>));
 
 typedef FieldDecl<field_location_tags::Header,
-                  PrefixAnnouncement,
+                  PrefixAnnouncementHeader,
                   tlv::PrefixAnnouncement> PrefixAnnouncementField;
 BOOST_CONCEPT_ASSERT((Field<PrefixAnnouncementField>));
 

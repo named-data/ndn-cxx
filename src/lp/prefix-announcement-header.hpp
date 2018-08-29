@@ -17,27 +17,19 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Teng Liang <philoliang@email.arizona.edu>
  */
 
-#ifndef NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HPP
-#define NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HPP
+#ifndef NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HEADER_HPP
+#define NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HEADER_HPP
 
-#include "../data.hpp"
-#include "../name.hpp"
+#include "../prefix-announcement.hpp"
 
 namespace ndn {
 namespace lp {
 
-/** \brief represents a Prefix Announcement
- *
- *  This type wraps a Data, and is intended for self-learning. The Name of Data
- *  starts with /self-learning prefix, ends with a version component, and the
- *  components in the middle refer to the announced name prefix. The MetaInfo
- *  and Content of the Data must be empty.
+/** \brief represents a PrefixAnnouncement header field in NDNLP
  */
-class PrefixAnnouncement
+class PrefixAnnouncementHeader
 {
 public:
   class Error : public ndn::tlv::Error
@@ -46,14 +38,22 @@ public:
     using ndn::tlv::Error::Error;
   };
 
-  PrefixAnnouncement();
+  PrefixAnnouncementHeader();
 
   explicit
-  PrefixAnnouncement(const Block& block);
+  PrefixAnnouncementHeader(const Block& block);
 
+  /** \brief constructs PrefixAnnouncementHeader using PrefixAnnouncement
+   *
+   *  \throw Error PrefixAnnouncement does not contain Data.
+   */
   explicit
-  PrefixAnnouncement(shared_ptr<const Data> data);
+  PrefixAnnouncementHeader(PrefixAnnouncement prefixAnn);
 
+  /** \brief encodes the prefix announcement header to the wire format
+   *
+   *  \throw Error this instance does not contain a PrefixAnnouncement.
+   */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
@@ -61,28 +61,19 @@ public:
   void
   wireDecode(const Block& wire);
 
-  /** \brief Get announced name.
-   *  \throw Error PrefixAnnouncement is empty
-   */
-  Name
-  getAnnouncedName() const;
-
-  shared_ptr<const Data>
-  getData() const
+  const optional<PrefixAnnouncement>&
+  getPrefixAnn() const
   {
-    return m_data;
+    return m_prefixAnn;
   }
 
-  PrefixAnnouncement&
-  setData(shared_ptr<const Data> data);
-
 private:
-  shared_ptr<const Data> m_data;
+  optional<PrefixAnnouncement> m_prefixAnn;
 };
 
-NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(PrefixAnnouncement);
+NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(PrefixAnnouncementHeader);
 
 } // namespace lp
 } // namespace ndn
 
-#endif // NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HPP
+#endif // NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HEADER_HPP

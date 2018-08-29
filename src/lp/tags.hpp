@@ -24,7 +24,7 @@
 
 #include "cache-policy.hpp"
 #include "empty-value.hpp"
-#include "prefix-announcement.hpp"
+#include "prefix-announcement-header.hpp"
 #include "../tag.hpp"
 
 namespace ndn {
@@ -70,7 +70,7 @@ typedef SimpleTag<EmptyValue, 14> NonDiscoveryTag;
  *
  *  This tag can be attached to Data.
  */
-typedef SimpleTag<PrefixAnnouncement, 15> PrefixAnnouncementTag;
+typedef SimpleTag<PrefixAnnouncementHeader, 15> PrefixAnnouncementTag;
 
 } // namespace lp
 } // namespace ndn
