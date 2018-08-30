@@ -119,13 +119,15 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccess, CertificateFetcherFromNetworkFixture<Ce
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailure, T, Failures, CertificateFetcherFromNetworkFixture<T>)
 {
   VALIDATE_FAILURE(this->data, "Should fail, as interests don't bring data");
-  BOOST_CHECK_GT(this->face.sentInterests.size(), 2);
+  // first interest + 3 retries
+  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 4);
+
   this->face.sentInterests.clear();
 
   this->advanceClocks(1_h, 2); // expire validator caches
 
   VALIDATE_FAILURE(this->interest, "Should fail, as interests don't bring data");
-  BOOST_CHECK_GT(this->face.sentInterests.size(), 2);
+  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 4);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateFetcherFromNetwork

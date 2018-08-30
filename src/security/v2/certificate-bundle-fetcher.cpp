@@ -175,7 +175,7 @@ CertificateBundleFetcher::dataCallback(const Data& bundleData,
       m_certStorage->cacheUnverifiedCert(Certificate(block));
     }
 
-    auto cert = m_certStorage->getUnverifiedCertCache().find(certRequest->m_interest);
+    auto cert = m_certStorage->getUnverifiedCertCache().find(certRequest->interest);
     continueValidation(*cert, state);
   }
 }

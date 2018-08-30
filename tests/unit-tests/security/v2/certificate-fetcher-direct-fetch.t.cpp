@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -140,7 +140,9 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccessData, CertificateFetcherDirectFetchFixtur
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureData, T, Failures, CertificateFetcherDirectFetchFixture<T>)
 {
   VALIDATE_FAILURE(this->data, "Should fail, as all interests either NACKed or timeout");
-  BOOST_CHECK_GT(this->face.sentInterests.size(), 4);
+  // Direct fetcher sends two interests each time - to network and face
+  // 3 retries on nack or timeout (2 * (1 + 3) = 4)
+  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 8);
 
   // odd interests
   for (const auto& sentInterest : this->face.sentInterests | boost::adaptors::strided(2)) {
@@ -176,7 +178,9 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccessInterest, CertificateFetcherDirectFetchFi
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureInterest, T, Failures, CertificateFetcherDirectFetchFixture<T>)
 {
   VALIDATE_FAILURE(this->interest, "Should fail, as all interests either NACKed or timeout");
-  BOOST_CHECK_GT(this->face.sentInterests.size(), 4);
+  // Direct fetcher sends two interests each time - to network and face
+  // 3 retries on nack or timeout (2 * (1 + 3) = 4)
+  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 8);
 
   // odd interests
   for (const auto& sentInterest : this->face.sentInterests | boost::adaptors::strided(2)) {

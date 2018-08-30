@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -146,15 +146,15 @@ Validator::requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
     return;
   }
 
-  if (state->hasSeenCertificateName(certRequest->m_interest.getName())) {
+  if (state->hasSeenCertificateName(certRequest->interest.getName())) {
     state->fail({ValidationError::Code::LOOP_DETECTED,
-                 "Validation loop detected for certificate `" + certRequest->m_interest.getName().toUri() + "`"});
+                 "Validation loop detected for certificate `" + certRequest->interest.getName().toUri() + "`"});
     return;
   }
 
-  NDN_LOG_DEBUG_DEPTH("Retrieving " << certRequest->m_interest.getName());
+  NDN_LOG_DEBUG_DEPTH("Retrieving " << certRequest->interest.getName());
 
-  auto cert = findTrustedCert(certRequest->m_interest);
+  auto cert = findTrustedCert(certRequest->interest);
   if (cert != nullptr) {
     NDN_LOG_TRACE_DEPTH("Found trusted certificate " << cert->getName());
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,7 +49,7 @@ CertificateFetcher::fetch(const shared_ptr<CertificateRequest>& certRequest,
                           const ValidationContinuation& continueValidation)
 {
   BOOST_ASSERT(m_certStorage != nullptr);
-  auto cert = m_certStorage->getUnverifiedCertCache().find(certRequest->m_interest);
+  auto cert = m_certStorage->getUnverifiedCertCache().find(certRequest->interest);
   if (cert != nullptr) {
     NDN_LOG_DEBUG_DEPTH("Found certificate in **un**verified key cache " << cert->getName());
     continueValidation(*cert, state);

@@ -72,7 +72,8 @@ BOOST_AUTO_TEST_CASE(NackedInterests)
   m_keyChain.sign(data, signingByIdentity(subIdentity));
 
   VALIDATE_FAILURE(data, "All interests should get NACKed");
-  BOOST_CHECK_GT(face.sentInterests.size(), 1);
+  // 1 for the first interest, 3 for the retries on nack
+  BOOST_CHECK_EQUAL(face.sentInterests.size(), 4);
 }
 
 BOOST_AUTO_TEST_CASE(MalformedCert)

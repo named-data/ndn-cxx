@@ -34,15 +34,12 @@ namespace v2 {
 class CertificateRequest : noncopyable
 {
 public:
-  CertificateRequest()
-    : m_nRetriesLeft(0)
-  {
-  }
+  CertificateRequest() = default;
 
   explicit
   CertificateRequest(const Interest& interest)
-    : m_interest(interest)
-    , m_nRetriesLeft(3)
+    : interest(interest)
+    , nRetriesLeft(3)
   {
   }
 
@@ -54,9 +51,11 @@ public:
 
 public:
   /// @brief the name for the requested data/certificate.
-  Interest m_interest;
-  /// @brief the number of remaining retries after time out or NACK
-  int m_nRetriesLeft;
+  Interest interest;
+  /// @brief the number of remaining retries after timeout or NACK.
+  int nRetriesLeft = 0;
+  /// @brief the amount of time to wait before sending the next interest after a NACK.
+  time::milliseconds waitAfterNack = 500_ms;
 };
 
 } // namespace v2

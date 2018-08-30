@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
 
 #include "certificate-fetcher.hpp"
+#include "../../util/scheduler.hpp"
 
 namespace ndn {
 
@@ -59,9 +60,7 @@ private:
   /**
    * @brief Callback invoked when interest for fetching certificate gets NACKed.
    *
-   * It will retry if certRequest->m_nRetriesLeft > 0
-   *
-   * @todo Delay retry for some amount of time
+   * Retries with exponential backoff while `certRequest->nRetriesLeft > 0`
    */
   void
   nackCallback(const lp::Nack& nack,
@@ -71,7 +70,7 @@ private:
   /**
    * @brief Callback invoked when interest for fetching certificate times out.
    *
-   * It will retry if certRequest->m_nRetriesLeft > 0
+   * It will retry if `certRequest->nRetriesLeft > 0`
    */
   void
   timeoutCallback(const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
@@ -79,6 +78,7 @@ private:
 
 protected:
   Face& m_face;
+  Scheduler m_scheduler;
 };
 
 } // namespace v2

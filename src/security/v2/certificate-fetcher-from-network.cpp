@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,6 +34,7 @@ NDN_LOG_INIT(ndn.security.v2.CertificateFetcher);
 
 CertificateFetcherFromNetwork::CertificateFetcherFromNetwork(Face& face)
   : m_face(face)
+  , m_scheduler(face.getIoService())
 {
 }
 
@@ -42,7 +43,7 @@ CertificateFetcherFromNetwork::doFetch(const shared_ptr<CertificateRequest>& cer
                                        const shared_ptr<ValidationState>& state,
                                        const ValidationContinuation& continueValidation)
 {
-  m_face.expressInterest(certRequest->m_interest,
+  m_face.expressInterest(certRequest->interest,
                          [=] (const Interest& interest, const Data& data) {
                            dataCallback(data, certRequest, state, continueValidation);
                          },
@@ -80,16 +81,17 @@ CertificateFetcherFromNetwork::nackCallback(const lp::Nack& nack,
                                             const ValidationContinuation& continueValidation)
 {
   NDN_LOG_DEBUG_DEPTH("NACK (" << nack.getReason() <<  ") while fetching certificate "
-                      << certRequest->m_interest.getName());
+                      << certRequest->interest.getName());
 
-  --certRequest->m_nRetriesLeft;
-  if (certRequest->m_nRetriesLeft >= 0) {
-    // TODO implement delay for the the next fetch
-    fetch(certRequest, state, continueValidation);
+  --certRequest->nRetriesLeft;
+  if (certRequest->nRetriesLeft >= 0) {
+    m_scheduler.scheduleEvent(certRequest->waitAfterNack,
+                              [=] { fetch(certRequest, state, continueValidation); });
+    certRequest->waitAfterNack *= 2;
   }
   else {
     state->fail({ValidationError::Code::CANNOT_RETRIEVE_CERT, "Cannot fetch certificate after all "
-                 "retries `" + certRequest->m_interest.getName().toUri() + "`"});
+                 "retries `" + certRequest->interest.getName().toUri() + "`"});
   }
 }
 
@@ -98,16 +100,16 @@ CertificateFetcherFromNetwork::timeoutCallback(const shared_ptr<CertificateReque
                                                const shared_ptr<ValidationState>& state,
                                                const ValidationContinuation& continueValidation)
 {
-  NDN_LOG_DEBUG_DEPTH("Timeout while fetching certificate " << certRequest->m_interest.getName()
+  NDN_LOG_DEBUG_DEPTH("Timeout while fetching certificate " << certRequest->interest.getName()
                       << ", retrying");
 
-  --certRequest->m_nRetriesLeft;
-  if (certRequest->m_nRetriesLeft >= 0) {
+  --certRequest->nRetriesLeft;
+  if (certRequest->nRetriesLeft >= 0) {
     fetch(certRequest, state, continueValidation);
   }
   else {
     state->fail({ValidationError::Code::CANNOT_RETRIEVE_CERT, "Cannot fetch certificate after all "
-                 "retries `" + certRequest->m_interest.getName().toUri() + "`"});
+                 "retries `" + certRequest->interest.getName().toUri() + "`"});
   }
 }
 
