@@ -22,10 +22,9 @@
 #ifndef NDN_SECURITY_TPM_BACK_END_HPP
 #define NDN_SECURITY_TPM_BACK_END_HPP
 
-#include "../../common.hpp"
-#include "../../name.hpp"
-#include "../../encoding/buffer.hpp"
 #include "../key-params.hpp"
+#include "../../encoding/buffer.hpp"
+#include "../../name.hpp"
 
 namespace ndn {
 namespace security {
@@ -34,7 +33,7 @@ namespace tpm {
 class KeyHandle;
 
 /**
- * @brief Abstraction of Tpm back-end.
+ * @brief Abstract interface for a TPM backend implementation.
  *
  * This class provides KeyHandle to the front-end and other TPM management operations.
  */
@@ -53,157 +52,137 @@ public:
 
 public: // key management
   /**
-   * @return True if a key with name @p keyName exists in TPM.
+   * @brief Check if the key with name @p keyName exists in the TPM.
+   *
+   * @return True if the key exists, false otherwise.
    */
   bool
   hasKey(const Name& keyName) const;
 
   /**
-   * @return The handle of a key with name @p keyName, or nullptr if the key does not exist.
+   * @brief Get the handle of the key with name @p keyName.
    *
-   * Calling getKeyHandle multiple times with the same keyName will return different KeyHandle
+   * Calling this function multiple times with the same @p keyName will return different KeyHandle
    * objects that all refer to the same key.
+   *
+   * @return The handle of the key, or nullptr if the key does not exist.
    */
   unique_ptr<KeyHandle>
   getKeyHandle(const Name& keyName) const;
 
   /**
-   * @brief Create key for @p identity according to @p params.
-   *
-   * The key name is set in the returned KeyHandle.
+   * @brief Create a key for @p identityName according to @p params.
    *
    * @return The handle of the created key.
-   * @throw Tpm::Error @p params are invalid
-   * @throw Error the key cannot be created
+   * @throw Tpm::Error @p params are invalid.
+   * @throw Error The key could not be created.
    */
   unique_ptr<KeyHandle>
-  createKey(const Name& identity, const KeyParams& params);
+  createKey(const Name& identityName, const KeyParams& params);
 
   /**
-   * @brief Delete a key with name @p keyName.
+   * @brief Delete the key with name @p keyName.
    *
-   * Continuing to use existing KeyHandles on a deleted key results in undefined behavior.
+   * @warning Continuing to use existing KeyHandle objects for a deleted key
+   *          results in undefined behavior.
    *
-   * @throw Error if the deletion fails.
+   * @throw Error The key could not be deleted.
    */
   void
   deleteKey(const Name& keyName);
 
   /**
-   * @return A private key with name @p keyName in encrypted PKCS #8 format using password @p pw
-   * @throw Error the key does not exist
-   * @throw Error the key cannot be exported, e.g., insufficient privilege
+   * @brief Get the private key with name @p keyName in encrypted PKCS #8 format.
+   *
+   * @param keyName The name of the key.
+   * @param pw The password to encrypt the private key.
+   * @param pwLen The length of the password.
+   *
+   * @return The encoded private key.
+   * @throw Error The key does not exist or cannot be exported.
    */
   ConstBufferPtr
   exportKey(const Name& keyName, const char* pw, size_t pwLen);
 
   /**
-   * @brief Import a private key in encrypted PKCS #8 format
+   * @brief Import a private key in encrypted PKCS #8 format.
    *
-   * @param keyName The name of imported private key
-   * @param pkcs8 Pointer to the key in encrypted PKCS #8 format
-   * @param pkcs8Len The size of the key in encrypted PKCS #8 format
-   * @param pw The password to decrypt the private key
-   * @param pwLen The length of the password
-   * @throw Error import failed
+   * @param keyName The name of the key to use in the TPM.
+   * @param pkcs8 Pointer to the key in encrypted PKCS #8 format.
+   * @param pkcs8Len The size of the key in encrypted PKCS #8 format.
+   * @param pw The password to decrypt the private key.
+   * @param pwLen The length of the password.
+   *
+   * @throw Error The key could not be imported.
    */
   void
   importKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen);
 
   /**
-   * @brief Check if TPM is in terminal mode
+   * @brief Check if the TPM is in terminal mode.
    *
-   * Default implementation always returns true.
+   * The default implementation always returns true.
+   *
+   * @return True if in terminal mode, false otherwise.
    */
   virtual bool
   isTerminalMode() const;
 
   /**
-   * @brief Set the terminal mode of TPM.
+   * @brief Set the terminal mode of the TPM.
    *
-   * In terminal mode, TPM will not ask user permission from GUI.
-   *
-   * Default implementation does nothing.
+   * In terminal mode, the TPM will not ask for a password from the GUI.
+   * The default implementation does nothing.
    */
   virtual void
   setTerminalMode(bool isTerminal) const;
 
   /**
-   * @return True if TPM is locked, otherwise false
+   * @brief Check if the TPM is locked.
    *
-   * Default implementation always returns false.
+   * The default implementation always returns false.
+   *
+   * @return True if locked, false otherwise.
    */
   virtual bool
   isTpmLocked() const;
 
   /**
-   * @brief Unlock TPM
+   * @brief Unlock the TPM.
    *
-   * @param pw    The password to unlock TPM
-   * @param pwLen The password size.
+   * The default implementation does nothing and returns `!isTpmLocked()`.
    *
-   * Default implementation always returns !isTpmLocked()
+   * @param pw The password to unlock the TPM.
+   * @param pwLen The length of the password.
+   *
+   * @return True if the TPM was unlocked.
    */
   virtual bool
   unlockTpm(const char* pw, size_t pwLen) const;
 
-protected: // static helper method
+protected: // static helper methods
   /**
-   * @brief Set the key name in @p keyHandle according to @p identity and @p params
+   * @brief Set the key name in @p keyHandle according to @p identity and @p params.
    */
   static void
   setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams& params);
 
 private: // pure virtual methods
-  /**
-   * @return True if a key with name @p keyName exists in TPM.
-   */
   virtual bool
   doHasKey(const Name& keyName) const = 0;
 
-  /**
-   * @return The handle of a key with name @p keyName, or nullptr if the key does not exist
-   */
   virtual unique_ptr<KeyHandle>
   doGetKeyHandle(const Name& keyName) const = 0;
 
-  /**
-   * @brief Create key for @p identityName according to @p params.
-   *
-   * The created key is named as: /<identityName>/[keyId]/KEY
-   * The key name is set in the returned KeyHandle.
-   *
-   * @return The handle of the created key.
-   * @throw Error key cannot be created
-   */
   virtual unique_ptr<KeyHandle>
   doCreateKey(const Name& identity, const KeyParams& params) = 0;
 
-  /**
-   * @brief Delete a key with name @p keyName.
-   *
-   * @throw Error the deletion failed
-   */
   virtual void
   doDeleteKey(const Name& keyName) = 0;
 
-  /**
-   * @return A private key with name @p keyName in encrypted PKCS #8 format using password @p pw
-   * @throw Error the key cannot be exported, e.g., insufficient privilege
-   */
   virtual ConstBufferPtr
   doExportKey(const Name& keyName, const char* pw, size_t pwLen) = 0;
 
-  /**
-   * @brief Import a private key in encrypted PKCS #8 format using @p password
-   *
-   * @param keyName The name of imported private key
-   * @param pkcs8 Pointer to the key in PKCS #8 format
-   * @param pkcs8Len The size of the key in PKCS #8 format
-   * @param pw The password to decrypt the private key
-   * @param pwLen The length of the password
-   * @throw Error import failed
-   */
   virtual void
   doImportKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen) = 0;
 };

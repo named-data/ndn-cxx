@@ -89,14 +89,14 @@ KeyChain::getTpmFactories()
 const std::string&
 KeyChain::getDefaultPibScheme()
 {
-  return pib::PibSqlite3::getScheme();;
+  return pib::PibSqlite3::getScheme();
 }
 
 const std::string&
 KeyChain::getDefaultTpmScheme()
 {
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
-  return tpm::BackEndOsx::getScheme();;
+  return tpm::BackEndOsx::getScheme();
 #else
   return tpm::BackEndFile::getScheme();
 #endif // defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)

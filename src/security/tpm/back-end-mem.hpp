@@ -29,75 +29,40 @@ namespace security {
 namespace tpm {
 
 /**
- * @brief The back-end implementation of in-memory TPM.
+ * @brief The back-end implementation of an in-memory TPM.
  */
-class BackEndMem : public BackEnd
+class BackEndMem final : public BackEnd
 {
 public:
   /**
-   * @brief Create memory-based TPM backend
-   * @param location Not used (required by the TPM-registration interface)
+   * @brief Create memory-based TPM backend.
+   *
+   * @param location Not used (required by the TPM registration interface).
    */
   explicit
   BackEndMem(const std::string& location = "");
 
-  ~BackEndMem() override;
+  ~BackEndMem() final;
 
   static const std::string&
   getScheme();
 
 private: // inherited from tpm::BackEnd
-
-  /**
-   * @return True if a key with name @p keyName exists in TPM.
-   */
   bool
   doHasKey(const Name& keyName) const final;
 
-  /**
-   * @return The handle of a key with name @p keyName, or nullptr if the key does not exist
-   */
   unique_ptr<KeyHandle>
   doGetKeyHandle(const Name& keyName) const final;
 
-  /**
-   * @brief Create key for @p identityName according to @p params.
-   *
-   * The created key is named as: /<identityName>/[keyId]/KEY
-   * The key name is set in the returned KeyHandle.
-   * If the key with the same name is created, the old one will be removed.
-   * The behavior of using KeyHandler of removed key is undefined.
-   *
-   * @return The handle of the created key.
-   */
   unique_ptr<KeyHandle>
   doCreateKey(const Name& identityName, const KeyParams& params) final;
 
-  /**
-   * @brief Delete a key with name @p keyName.
-   *
-   * @throw Error the deletion failed
-   */
   void
   doDeleteKey(const Name& keyName) final;
 
-  /**
-   * @return A private key with name @p keyName in encrypted PKCS #8 format using password @p pw
-   * @throw Error the key cannot be exported, e.g., not enough privilege
-   */
   ConstBufferPtr
   doExportKey(const Name& keyName, const char* pw, size_t pwLen) final;
 
-  /**
-   * @brief Import a private key in encrypted PKCS #8 format
-   *
-   * @param keyName The name of imported private key
-   * @param buf Pointer to the key in encrypted PKCS #8 format
-   * @param size The size of the key in encrypted PKCS #8 format
-   * @param pw The password to decrypt the key
-   * @param pwLen The length of password
-   * @throw Error import failed
-   */
   void
   doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen) final;
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,12 @@
 
 #ifndef NDN_SECURITY_TPM_KEY_REF_OSX_HPP
 #define NDN_SECURITY_TPM_KEY_REF_OSX_HPP
+
+#include "../../common.hpp"
+
+#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
+#error "This file should not be compiled ..."
+#endif
 
 #include "../../util/cf-releaser-osx.hpp"
 #include <Security/Security.h>

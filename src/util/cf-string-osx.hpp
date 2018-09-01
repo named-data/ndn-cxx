@@ -19,46 +19,50 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
-#define NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
+#ifndef NDN_UTIL_CF_STRING_OSX_HPP
+#define NDN_UTIL_CF_STRING_OSX_HPP
 
-#include "key-handle.hpp"
+#include "../common.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#error "This file should not be compiled ..."
+#error "This file should not be included ..."
 #endif
 
-#include "key-ref-osx.hpp"
-
-namespace ndn {
-namespace security {
-namespace tpm {
+#include "cf-releaser-osx.hpp"
 
 /**
- * @brief Abstraction of TPM key handle used by the TPM based on OS X Keychain Service.
+ * @file
+ *
+ * This file contains utilities to deal with Apple Core Foundation's CFString and related types.
  */
-class KeyHandleOsx : public KeyHandle
-{
-public:
-  explicit
-  KeyHandleOsx(const KeyRefOsx& key);
 
-private:
-  ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const final;
+namespace ndn {
+namespace util {
+namespace cfstring {
 
-  ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+/**
+ * @brief Create a CFString by copying bytes from a raw buffer
+ * @throw std::runtime_error creation failed
+ */
+CFReleaser<CFStringRef>
+fromBuffer(const uint8_t* buf, size_t buflen);
 
-  ConstBufferPtr
-  doDerivePublicKey() const final;
+/**
+ * @brief Create a CFString by copying characters from a std::string
+ * @throw std::runtime_error creation failed
+ */
+CFReleaser<CFStringRef>
+fromStdString(const std::string& str);
 
-private:
-  KeyRefOsx m_key;
-};
+/**
+ * @brief Convert a CFString to a std::string
+ * @throw std::runtime_error conversion failed
+ */
+std::string
+toStdString(CFStringRef cfStr);
 
-} // namespace tpm
-} // namespace security
+} // namespace cfstring
+} // namespace util
 } // namespace ndn
 
-#endif // NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
+#endif // NDN_UTIL_CF_STRING_OSX_HPP

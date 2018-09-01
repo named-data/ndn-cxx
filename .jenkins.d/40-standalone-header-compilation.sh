@@ -7,7 +7,7 @@
 
 CXX=${CXX:-g++}
 STD=-std=c++14
-CXXFLAGS="-O2 -Wall -Wno-unused-local-typedef $(pkg-config --cflags libndn-cxx)"
+CXXFLAGS="-O2 -Wall -Wno-unused-const-variable -Wno-unused-local-typedef $(pkg-config --cflags libndn-cxx)"
 INCLUDEDIR="$(pkg-config --variable=includedir libndn-cxx)"/ndn-cxx
 
 echo "Using: $CXX $STD $CXXFLAGS"

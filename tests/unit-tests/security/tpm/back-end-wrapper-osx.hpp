@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2016 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,8 @@
 
 #include "security/tpm/back-end-osx.hpp"
 #include "security/tpm/key-handle-osx.hpp"
-#include <Availability.h>
+
+#include <cstdlib>
 
 namespace ndn {
 namespace security {
@@ -47,17 +48,17 @@ public:
       m_HOME = std::getenv("HOME");
 
     if (!oldHOME.empty())
-      setenv("HOME", oldHOME.c_str(), 1);
+      setenv("HOME", oldHOME.data(), 1);
     else
       unsetenv("HOME");
 
-    m_impl = unique_ptr<BackEnd>(new BackEndOsx);
+    m_impl = make_unique<BackEndOsx>();
   }
 
   ~BackEndWrapperOsx()
   {
     if (!m_HOME.empty())
-      setenv("HOME", m_HOME.c_str(), 1);
+      setenv("HOME", m_HOME.data(), 1);
     else
       unsetenv("HOME");
   }
@@ -69,7 +70,7 @@ public:
   }
 
   std::string
-  getScheme()
+  getScheme() const
   {
     return "tpm-osxkeychain";
   }

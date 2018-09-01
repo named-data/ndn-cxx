@@ -54,6 +54,7 @@
 
 #include "../network-address.hpp"
 #include "../../name.hpp"
+#include "../../util/cf-string-osx.hpp"
 #include "../../util/logger.hpp"
 
 #include <ifaddrs.h>      // for getifaddrs()
@@ -203,26 +204,6 @@ NetworkMonitorImplOsx::enumerateInterfaces()
   this->emitSignal(onEnumerationCompleted);
 }
 
-static std::string
-convertToStdString(CFStringRef cfStr)
-{
-  const char* cStr = CFStringGetCStringPtr(cfStr, kCFStringEncodingASCII);
-  if (cStr != nullptr) {
-    // fast path
-    return cStr;
-  }
-
-  // reserve space for the string + null terminator
-  std::string str(CFStringGetLength(cfStr) + 1, '\0');
-  if (!CFStringGetCString(cfStr, &str.front(), str.size(), kCFStringEncodingASCII)) {
-    BOOST_THROW_EXCEPTION(NetworkMonitorImplOsx::Error("CFString conversion failed"));
-  }
-
-  // drop the null terminator, std::string doesn't need it
-  str.pop_back();
-  return str;
-}
-
 std::set<std::string>
 NetworkMonitorImplOsx::getInterfaceNames() const
 {
@@ -241,7 +222,7 @@ NetworkMonitorImplOsx::getInterfaceNames() const
   size_t count = CFArrayGetCount(interfaces);
   for (size_t i = 0; i != count; ++i) {
     auto ifName = (CFStringRef)CFArrayGetValueAtIndex(interfaces, i);
-    ifNames.insert(convertToStdString(ifName));
+    ifNames.insert(util::cfstring::toStdString(ifName));
   }
   return ifNames;
 }
@@ -268,9 +249,7 @@ InterfaceState
 NetworkMonitorImplOsx::getInterfaceState(const NetworkInterface& netif) const
 {
   CFReleaser<CFStringRef> linkName =
-    CFStringCreateWithCString(kCFAllocatorDefault,
-                              ("State:/Network/Interface/" + netif.getName() + "/Link").data(),
-                              kCFStringEncodingASCII);
+    util::cfstring::fromStdString("State:/Network/Interface/" + netif.getName() + "/Link");
 
   CFReleaser<CFDictionaryRef> dict =
     (CFDictionaryRef)SCDynamicStoreCopyValue(m_scStore.get(), linkName.get());
@@ -426,7 +405,7 @@ NetworkMonitorImplOsx::onConfigChanged(CFArrayRef changedKeys)
 
   size_t count = CFArrayGetCount(changedKeys);
   for (size_t i = 0; i != count; ++i) {
-    Name key(convertToStdString((CFStringRef)CFArrayGetValueAtIndex(changedKeys, i)));
+    Name key(util::cfstring::toStdString((CFStringRef)CFArrayGetValueAtIndex(changedKeys, i)));
     std::string ifName = key.at(-2).toUri();
 
     auto ifIt = m_interfaces.find(ifName);
