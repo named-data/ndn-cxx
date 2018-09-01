@@ -8,8 +8,8 @@ set -x
 
 sudo rm -f /usr/local/bin/ndnsec*
 sudo rm -fr /usr/local/include/ndn-cxx
-sudo rm -f /usr/local/lib/libndn-cxx*
-sudo rm -f /usr/local/lib/pkgconfig/libndn-cxx.pc
+sudo rm -f /usr/local/lib{,64}/libndn-cxx*
+sudo rm -f /usr/local/lib{,64}/pkgconfig/libndn-cxx.pc
 
 if [[ $JOB_NAME == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
