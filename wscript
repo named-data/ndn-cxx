@@ -19,34 +19,33 @@ def options(opt):
 
     opt = opt.add_option_group('Library Options')
 
-    opt.add_option('--with-tests', action='store_true', default=False, dest='with_tests',
-                   help='''Build unit tests''')
+    opt.add_option('--with-examples', action='store_true', default=False,
+                   help='Build examples')
+
+    opt.add_option('--with-tests', action='store_true', default=False,
+                   help='Build unit tests')
 
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
-                   help='''Do not build tools''')
-
-    opt.add_option('--with-examples', action='store_true', default=False, dest='with_examples',
-                   help='''Build examples''')
+                   help='Do not build tools')
 
     opt.add_option('--without-sqlite-locking', action='store_false', default=True,
                    dest='with_sqlite_locking',
-                   help='''Disable filesystem locking in sqlite3 database '''
-                        '''(use unix-dot locking mechanism instead). '''
-                        '''This option may be necessary if home directory is hosted on NFS.''')
+                   help='Disable filesystem locking in sqlite3 database '
+                        '(use unix-dot locking mechanism instead). '
+                        'This option may be necessary if the home directory is hosted on NFS.')
 
     opt.add_option('--without-osx-keychain', action='store_false', default=True,
-                   dest='with_osx_keychain',
-                   help='''On Darwin, do not use OSX keychain as a default TPM''')
+                   dest='with_osx_keychain', help='Do not use macOS Keychain as default TPM (macOS only)')
 
     opt.add_option('--enable-static', action='store_true', default=False,
-                   dest='enable_static', help='''Build static library (disabled by default)''')
+                   dest='enable_static', help='Build static library (disabled by default)')
     opt.add_option('--disable-static', action='store_false', default=False,
-                   dest='enable_static', help='''Do not build static library (disabled by default)''')
+                   dest='enable_static', help='Do not build static library (disabled by default)')
 
     opt.add_option('--enable-shared', action='store_true', default=True,
-                   dest='enable_shared', help='''Build shared library (enabled by default)''')
+                   dest='enable_shared', help='Build shared library (enabled by default)')
     opt.add_option('--disable-shared', action='store_false', default=True,
-                   dest='enable_shared', help='''Do not build shared library (enabled by default)''')
+                   dest='enable_shared', help='Do not build shared library (enabled by default)')
 
 def configure(conf):
     conf.start_msg('Building static library')
@@ -165,7 +164,7 @@ def build(bld):
             target='ndn-cxx-mm',
             name='ndn-cxx-mm',
             source=bld.path.ant_glob(['src/**/*-osx.mm']),
-            use='version BOOST OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
+            use='version BOOST OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
             includes='src')
 
     libndn_cxx = dict(
@@ -183,7 +182,7 @@ def build(bld):
 
     if bld.env['HAVE_OSX_FRAMEWORKS']:
         libndn_cxx['source'] += bld.path.ant_glob('src/**/*-osx.cpp')
-        libndn_cxx['use'] += ' OSX_COREFOUNDATION OSX_CORESERVICES OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN'
+        libndn_cxx['use'] += ' OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN'
 
     if bld.env['HAVE_NETLINK']:
         libndn_cxx['source'] += bld.path.ant_glob('src/**/*netlink*.cpp')
@@ -221,7 +220,7 @@ def build(bld):
 
     EXTRA_FRAMEWORKS = ''
     if bld.env['HAVE_OSX_FRAMEWORKS']:
-        EXTRA_FRAMEWORKS = '-framework CoreFoundation -framework CoreServices -framework Security -framework SystemConfiguration -framework Foundation -framework CoreWLAN'
+        EXTRA_FRAMEWORKS = '-framework CoreFoundation -framework Security -framework SystemConfiguration -framework Foundation -framework CoreWLAN'
 
     def uniq(alist):
         seen = set()
@@ -281,8 +280,8 @@ def build(bld):
         bld(features='sphinx',
             name='manpages',
             builder='man',
-            outdir='docs/manpages',
             config='docs/conf.py',
+            outdir='docs/manpages',
             source=bld.path.ant_glob('docs/manpages/**/*.rst'),
             install_path='${MANDIR}',
             VERSION=VERSION)

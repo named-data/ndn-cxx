@@ -4,48 +4,39 @@
 from waflib import Logs, Utils, TaskGen
 from waflib.Configure import conf
 
-OSX_SECURITY_CODE = '''
-#include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
-#include <Security/SecRandom.h>
-#include <CoreServices/CoreServices.h>
-#include <Security/SecDigestTransform.h>
-int main() {}
-'''
+@conf
+def check_osx_framework_cxx(conf, fw_name, **kw):
+    conf.check_cxx(framework_name=fw_name,
+                   uselib_store='OSX_' + fw_name.upper(),
+                   fragment='#include <{0}/{0}.h>\nint main() {{}}'.format(fw_name),
+                   **kw)
 
-OSX_SYSTEMCONFIGURATION_CODE = '''
-#include <CoreFoundation/CoreFoundation.h>
-#include <SystemConfiguration/SystemConfiguration.h>
-int main() {}
-'''
+@conf
+def check_osx_framework_mm(conf, fw_name, **kw):
+    conf.check_cxx(framework_name=fw_name,
+                   uselib_store='OSX_' + fw_name.upper(),
+                   fragment='#import <{0}/{0}.h>\nint main() {{}}'.format(fw_name),
+                   compile_filename='test.mm',
+                   **kw)
 
 @conf
 def check_osx_frameworks(conf, *k, **kw):
-    if Utils.unversioned_sys_platform() == "darwin":
+    if Utils.unversioned_sys_platform() == 'darwin':
         try:
-            conf.check_cxx(framework_name='CoreFoundation', uselib_store='OSX_COREFOUNDATION',
-                           mandatory=True)
-            conf.check_cxx(framework_name='CoreServices', uselib_store='OSX_CORESERVICES',
-                           mandatory=True)
-            conf.check_cxx(framework_name='Security', uselib_store='OSX_SECURITY',
-                           use='OSX_COREFOUNDATION', fragment=OSX_SECURITY_CODE,
-                           mandatory=True)
-            conf.check_cxx(framework_name='SystemConfiguration', uselib_store='OSX_SYSTEMCONFIGURATION',
-                           use='OSX_COREFOUNDATION', fragment=OSX_SYSTEMCONFIGURATION_CODE,
-                           mandatory=True)
+            conf.check_osx_framework_cxx('CoreFoundation', mandatory=True)
+            conf.check_osx_framework_cxx('Security', use='OSX_COREFOUNDATION', mandatory=True)
+            conf.check_osx_framework_cxx('SystemConfiguration', use='OSX_COREFOUNDATION', mandatory=True)
 
-            conf.check_cxx(framework_name='Foundation', uselib_store='OSX_FOUNDATION',
-                           mandatory=True, compile_filename='test.mm')
-            conf.check_cxx(framework_name='CoreWLAN', uselib_store='OSX_COREWLAN',
-                           use="OSX_FOUNDATION", mandatory=True, compile_filename='test.mm')
+            conf.check_osx_framework_mm('Foundation', mandatory=True)
+            conf.check_osx_framework_mm('CoreWLAN', use='OSX_FOUNDATION', mandatory=True)
 
             conf.define('HAVE_OSX_FRAMEWORKS', 1)
             conf.env['HAVE_OSX_FRAMEWORKS'] = True
         except:
-            Logs.warn("Compiling on macOS, but required framework(s) is(are) not functional.")
-            Logs.warn("Note that the frameworks are known to work only with the Apple clang compiler.")
+            Logs.warn('Building on macOS, but one or more required frameworks are not functional.')
+            Logs.warn('Note that the frameworks are known to work only with the Apple clang compiler.')
 
 @TaskGen.extension('.mm')
 def m_hook(self, node):
-    """Alias .mm files to be compiled the same as .cpp files, gcc/clang will do the right thing."""
+    '''Alias .mm files to be compiled the same as .cpp files, clang will do the right thing.'''
     return self.create_compiled_task('cxx', node)
