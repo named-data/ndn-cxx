@@ -26,6 +26,7 @@
 #include "../../util/cf-string-osx.hpp"
 
 #include <Security/Security.h>
+#include <cstring>
 
 namespace ndn {
 namespace security {
@@ -55,6 +56,26 @@ makeCFMutableDictionary()
                                    &kCFTypeDictionaryValueCallBacks);
 }
 
+static std::string
+getErrorMessage(OSStatus status)
+{
+  CFReleaser<CFStringRef> msg = SecCopyErrorMessageString(status, nullptr);
+  if (msg != nullptr)
+    return cfstring::toStdString(msg.get());
+  else
+    return "<no error message>";
+}
+
+static std::string
+getFailureReason(CFErrorRef err)
+{
+  CFReleaser<CFStringRef> reason = CFErrorCopyFailureReason(err);
+  if (reason != nullptr)
+    return cfstring::toStdString(reason.get());
+  else
+    return "<unknown reason>";
+}
+
 static CFTypeRef
 getAsymKeyType(KeyType keyType)
 {
@@ -82,7 +103,7 @@ getDigestAlgorithm(DigestAlgorithm digestAlgo)
   }
 }
 
-static long
+static int
 getDigestSize(DigestAlgorithm digestAlgo)
 {
   switch (digestAlgo) {
@@ -101,32 +122,32 @@ getDigestSize(DigestAlgorithm digestAlgo)
 
 /**
  * @brief Get reference to private key with name @p keyName.
- * @param keyName
  */
-static CFReleaser<SecKeychainItemRef>
-getKey(const Name& keyName)
+static KeyRefOsx
+getKeyRef(const Name& keyName)
 {
   auto keyLabel = cfstring::fromStdString(keyName.toUri());
 
-  auto attrDict = makeCFMutableDictionary();
-  CFDictionaryAddValue(attrDict.get(), kSecClass, kSecClassKey);
-  CFDictionaryAddValue(attrDict.get(), kSecAttrLabel, keyLabel.get());
-  CFDictionaryAddValue(attrDict.get(), kSecAttrKeyClass, kSecAttrKeyClassPrivate);
-  CFDictionaryAddValue(attrDict.get(), kSecReturnRef, kCFBooleanTrue);
+  auto query = makeCFMutableDictionary();
+  CFDictionaryAddValue(query.get(), kSecClass, kSecClassKey);
+  CFDictionaryAddValue(query.get(), kSecAttrKeyClass, kSecAttrKeyClassPrivate);
+  CFDictionaryAddValue(query.get(), kSecAttrLabel, keyLabel.get());
+  CFDictionaryAddValue(query.get(), kSecReturnRef, kCFBooleanTrue);
 
-  CFReleaser<SecKeychainItemRef> keyItem;
+  KeyRefOsx keyRef;
   // C-style cast is used as per Apple convention
-  OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict.get(), (CFTypeRef*)&keyItem.get());
-  keyItem.retain();
+  OSStatus res = SecItemCopyMatching(query.get(), (CFTypeRef*)&keyRef.get());
+  keyRef.retain();
 
-  if (res != errSecSuccess) {
-    if (res == errSecAuthFailed) {
-      BOOST_THROW_EXCEPTION(BackEnd::Error("Fail to unlock the keychain"));
-    }
+  if (res == errSecSuccess) {
+    return keyRef;
+  }
+  else if (res == errSecItemNotFound) {
     return nullptr;
   }
-
-  return keyItem;
+  else {
+    BOOST_THROW_EXCEPTION(BackEnd::Error("Key lookup in keychain failed: " + getErrorMessage(res)));
+  }
 }
 
 BackEndOsx::BackEndOsx(const std::string&)
@@ -197,47 +218,46 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const uint8_t
 {
   CFReleaser<CFErrorRef> error;
   CFReleaser<SecTransformRef> signer = SecSignTransformCreate(key.get(), &error.get());
-  if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to create signer"));
+  if (signer == nullptr) {
+    BOOST_THROW_EXCEPTION(Error("Failed to create sign transform: " + getFailureReason(error.get())));
   }
 
   // Set input
   auto data = makeCFDataNoCopy(buf, size);
   SecTransformSetAttribute(signer.get(), kSecTransformInputAttributeName, data.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure input of signer"));
+    BOOST_THROW_EXCEPTION(Error("Failed to configure input of sign transform: " +
+                                getFailureReason(error.get())));
   }
 
   // Enable use of padding
   SecTransformSetAttribute(signer.get(), kSecPaddingKey, kSecPaddingPKCS1Key, &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure padding of signer"));
+    BOOST_THROW_EXCEPTION(Error("Failed to configure padding of sign transform: " +
+                                getFailureReason(error.get())));
   }
 
   // Set digest type
   SecTransformSetAttribute(signer.get(), kSecDigestTypeAttribute, getDigestAlgorithm(digestAlgo), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure digest type of signer"));
+    BOOST_THROW_EXCEPTION(Error("Failed to configure digest type of sign transform: " +
+                                getFailureReason(error.get())));
   }
 
   // Set digest length
-  long digestSize = getDigestSize(digestAlgo);
-  CFReleaser<CFNumberRef> cfDigestSize = CFNumberCreate(kCFAllocatorDefault, kCFNumberLongType, &digestSize);
+  int digestSize = getDigestSize(digestAlgo);
+  CFReleaser<CFNumberRef> cfDigestSize = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &digestSize);
   SecTransformSetAttribute(signer.get(), kSecDigestLengthAttribute, cfDigestSize.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure digest length of signer"));
+    BOOST_THROW_EXCEPTION(Error("Failed to configure digest length of sign transform: " +
+                                getFailureReason(error.get())));
   }
 
   // Actually sign
   // C-style cast is used as per Apple convention
   CFReleaser<CFDataRef> signature = (CFDataRef)SecTransformExecute(signer.get(), &error.get());
-  if (error != nullptr) {
-    CFShow(error.get());
-    BOOST_THROW_EXCEPTION(Error("Fail to sign data"));
-  }
-
   if (signature == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Signature is null"));
+    BOOST_THROW_EXCEPTION(Error("Failed to sign data: " + getFailureReason(error.get())));
   }
 
   return make_shared<Buffer>(CFDataGetBytePtr(signature.get()), CFDataGetLength(signature.get()));
@@ -248,32 +268,30 @@ BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t ciph
 {
   CFReleaser<CFErrorRef> error;
   CFReleaser<SecTransformRef> decryptor = SecDecryptTransformCreate(key.get(), &error.get());
-  if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to create decryptor"));
+  if (decryptor == nullptr) {
+    BOOST_THROW_EXCEPTION(Error("Failed to create decrypt transform: " + getFailureReason(error.get())));
   }
 
   auto data = makeCFDataNoCopy(cipherText, cipherSize);
   SecTransformSetAttribute(decryptor.get(), kSecTransformInputAttributeName, data.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure decryptor input"));
+    BOOST_THROW_EXCEPTION(Error("Failed to configure input of decrypt transform: " +
+                                getFailureReason(error.get())));
   }
 
   SecTransformSetAttribute(decryptor.get(), kSecPaddingKey, kSecPaddingOAEPKey, &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Fail to configure decryptor padding"));
+    BOOST_THROW_EXCEPTION(Error("Failed to configure padding of decrypt transform: " +
+                                getFailureReason(error.get())));
   }
 
-  CFReleaser<CFDataRef> output = (CFDataRef)SecTransformExecute(decryptor.get(), &error.get());
-  if (error != nullptr) {
-    // CFShow(error);
-    BOOST_THROW_EXCEPTION(Error("Fail to decrypt data"));
+  // C-style cast is used as per Apple convention
+  CFReleaser<CFDataRef> plainText = (CFDataRef)SecTransformExecute(decryptor.get(), &error.get());
+  if (plainText == nullptr) {
+    BOOST_THROW_EXCEPTION(Error("Failed to decrypt data: " + getFailureReason(error.get())));
   }
 
-  if (output == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Output is null"));
-  }
-
-  return make_shared<Buffer>(CFDataGetBytePtr(output.get()), CFDataGetLength(output.get()));
+  return make_shared<Buffer>(CFDataGetBytePtr(plainText.get()), CFDataGetLength(plainText.get()));
 }
 
 ConstBufferPtr
@@ -287,12 +305,7 @@ BackEndOsx::derivePublicKey(const KeyRefOsx& key)
                                &exportedKey.get()); // exportedData
 
   if (res != errSecSuccess) {
-    if (res == errSecAuthFailed) {
-      BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
-    }
-    else {
-      BOOST_THROW_EXCEPTION(Error("Fail to export private key"));
-    }
+    BOOST_THROW_EXCEPTION(Error("Failed to export private key: "s + getErrorMessage(res)));
   }
 
   transform::PrivateKey privateKey;
@@ -303,30 +316,18 @@ BackEndOsx::derivePublicKey(const KeyRefOsx& key)
 bool
 BackEndOsx::doHasKey(const Name& keyName) const
 {
-  auto keyLabel = cfstring::fromStdString(keyName.toUri());
-
-  auto attrDict = makeCFMutableDictionary();
-  CFDictionaryAddValue(attrDict.get(), kSecClass, kSecClassKey);
-  CFDictionaryAddValue(attrDict.get(), kSecAttrLabel, keyLabel.get());
-  CFDictionaryAddValue(attrDict.get(), kSecReturnRef, kCFBooleanTrue);
-
-  CFReleaser<SecKeychainItemRef> itemRef;
-  // C-style cast is used as per Apple convention
-  OSStatus res = SecItemCopyMatching((CFDictionaryRef)attrDict.get(), (CFTypeRef*)&itemRef.get());
-  itemRef.retain();
-
-  return res == errSecSuccess;
+  return getKeyRef(keyName) != nullptr;
 }
 
 unique_ptr<KeyHandle>
 BackEndOsx::doGetKeyHandle(const Name& keyName) const
 {
-  CFReleaser<SecKeychainItemRef> keychainItem = getKey(keyName);
-  if (keychainItem == nullptr) {
+  KeyRefOsx keyRef = getKeyRef(keyName);
+  if (keyRef == nullptr) {
     return nullptr;
   }
 
-  return make_unique<KeyHandleOsx>((SecKeyRef)keychainItem.get());
+  return make_unique<KeyHandleOsx>(keyRef.get());
 }
 
 unique_ptr<KeyHandle>
@@ -346,7 +347,7 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
       break;
     }
     default: {
-      BOOST_THROW_EXCEPTION(Tpm::Error("Fail to create a key pair: Unsupported key type"));
+      BOOST_THROW_EXCEPTION(Tpm::Error("Failed to generate key pair: Unsupported key type"));
     }
   }
   CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &keySize);
@@ -356,28 +357,19 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
   CFDictionaryAddValue(attrDict.get(), kSecAttrKeySizeInBits, cfKeySize.get());
 
   KeyRefOsx publicKey, privateKey;
-  // C-style cast is used as per Apple convention
-  OSStatus res = SecKeyGeneratePair((CFDictionaryRef)attrDict.get(), &publicKey.get(), &privateKey.get());
-
-  BOOST_ASSERT(privateKey != nullptr);
-
+  OSStatus res = SecKeyGeneratePair(attrDict.get(), &publicKey.get(), &privateKey.get());
   publicKey.retain();
   privateKey.retain();
 
   if (res != errSecSuccess) {
-    if (res == errSecAuthFailed) {
-      BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
-    }
-    else {
-      BOOST_THROW_EXCEPTION(Error("Fail to create a key pair"));
-    }
+    BOOST_THROW_EXCEPTION(Error("Failed to generate key pair: " + getErrorMessage(res)));
   }
 
   unique_ptr<KeyHandle> keyHandle = make_unique<KeyHandleOsx>(privateKey.get());
   setKeyName(*keyHandle, identityName, params);
 
   SecKeychainAttribute attrs[1]; // maximum number of attributes
-  SecKeychainAttributeList attrList = { 0, attrs };
+  SecKeychainAttributeList attrList = {0, attrs};
   std::string keyUri = keyHandle->getKeyName().toUri();
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
@@ -397,37 +389,33 @@ BackEndOsx::doDeleteKey(const Name& keyName)
 {
   auto keyLabel = cfstring::fromStdString(keyName.toUri());
 
-  auto searchDict = makeCFMutableDictionary();
-  CFDictionaryAddValue(searchDict.get(), kSecClass, kSecClassKey);
-  CFDictionaryAddValue(searchDict.get(), kSecAttrLabel, keyLabel.get());
-  CFDictionaryAddValue(searchDict.get(), kSecMatchLimit, kSecMatchLimitAll);
+  auto query = makeCFMutableDictionary();
+  CFDictionaryAddValue(query.get(), kSecClass, kSecClassKey);
+  CFDictionaryAddValue(query.get(), kSecAttrLabel, keyLabel.get());
+  CFDictionaryAddValue(query.get(), kSecMatchLimit, kSecMatchLimitAll);
 
-  OSStatus res = SecItemDelete(searchDict.get());
+  OSStatus res = SecItemDelete(query.get());
 
-  if (res != errSecSuccess) {
-    if (res == errSecAuthFailed) {
-      BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
-    }
-    else if (res != errSecItemNotFound) {
-      BOOST_THROW_EXCEPTION(Error("Fail to delete a key pair"));
-    }
+  if (res != errSecSuccess && res != errSecItemNotFound) {
+    BOOST_THROW_EXCEPTION(Error("Failed to delete key pair: " + getErrorMessage(res)));
   }
 }
 
 ConstBufferPtr
 BackEndOsx::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
 {
-  CFReleaser<SecKeychainItemRef> keychainItem = getKey(keyName);
+  KeyRefOsx keychainItem = getKeyRef(keyName);
   if (keychainItem == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Private key does not exist in macOS Keychain"));
+    BOOST_THROW_EXCEPTION(Error("Failed to export private key: " + getErrorMessage(errSecItemNotFound)));
   }
 
-  CFReleaser<CFDataRef> exportedKey;
-  SecItemImportExportKeyParameters keyParams;
-  memset(&keyParams, 0, sizeof(keyParams));
   auto passphrase = cfstring::fromBuffer(reinterpret_cast<const uint8_t*>(pw), pwLen);
+  SecItemImportExportKeyParameters keyParams;
+  std::memset(&keyParams, 0, sizeof(keyParams));
+  keyParams.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
   keyParams.passphrase = passphrase.get();
 
+  CFReleaser<CFDataRef> exportedKey;
   OSStatus res = SecItemExport(keychainItem.get(),     // secItemOrArray
                                kSecFormatWrappedPKCS8, // outputFormat
                                0,                      // flags
@@ -435,12 +423,7 @@ BackEndOsx::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
                                &exportedKey.get());    // exportedData
 
   if (res != errSecSuccess) {
-    if (res == errSecAuthFailed) {
-      BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
-    }
-    else {
-      BOOST_THROW_EXCEPTION(Error("Fail to export private key"));
-    }
+    BOOST_THROW_EXCEPTION(Error("Failed to export private key: " + getErrorMessage(res)));
   }
 
   return make_shared<Buffer>(CFDataGetBytePtr(exportedKey.get()), CFDataGetLength(exportedKey.get()));
@@ -460,17 +443,11 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
   CFReleaser<SecAccessRef> access;
   SecAccessCreate(keyLabel.get(), nullptr, &access.get());
 
-  CFArrayRef attributes = nullptr;
-  const SecItemImportExportKeyParameters keyParams{
-    SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION, // version
-    0, // flags
-    passphrase.get(), // passphrase
-    nullptr, // alert title
-    nullptr, // alert prompt
-    access.get(), // access ref
-    nullptr, // key usage
-    attributes // key attributes
-  };
+  SecItemImportExportKeyParameters keyParams;
+  std::memset(&keyParams, 0, sizeof(keyParams));
+  keyParams.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+  keyParams.passphrase = passphrase.get();
+  keyParams.accessRef = access.get();
 
   CFReleaser<CFArrayRef> outItems;
   OSStatus res = SecItemImport(importedKey.get(),   // importedData
@@ -483,18 +460,13 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
                                &outItems.get());    // outItems
 
   if (res != errSecSuccess) {
-    if (res == errSecAuthFailed) {
-      BOOST_THROW_EXCEPTION(Error("Fail to unlock the keychain"));
-    }
-    else {
-      BOOST_THROW_EXCEPTION(Error("Cannot import the private key"));
-    }
+    BOOST_THROW_EXCEPTION(Error("Failed to import private key: " + getErrorMessage(res)));
   }
 
   // C-style cast is used as per Apple convention
   SecKeychainItemRef privateKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
   SecKeychainAttribute attrs[1]; // maximum number of attributes
-  SecKeychainAttributeList attrList = { 0, attrs };
+  SecKeychainAttributeList attrList = {0, attrs};
   std::string keyUri = keyName.toUri();
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
