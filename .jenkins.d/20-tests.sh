@@ -40,5 +40,8 @@ ASAN_OPTIONS+=":strict_string_checks=true"
 ASAN_OPTIONS+=":strip_path_prefix=${PWD}/"
 export ASAN_OPTIONS
 
+export BOOST_TEST_BUILD_INFO=1
+export BOOST_TEST_COLOR_OUTPUT=1
+
 # Run unit tests
 ./build/unit-tests $(ut_log_args)

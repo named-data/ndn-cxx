@@ -21,7 +21,7 @@ if [[ -n $USE_OPENSSL_1_1 ]] && has OSX $NODE_LABELS; then
 fi
 
 # Cleanup
-sudo env "PATH=$PATH" ./waf --color=yes distclean
+sudo_preserve_env PATH -- ./waf --color=yes distclean
 
 if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
   # Configure/build static library in optimized mode with tests
@@ -29,14 +29,14 @@ if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
   ./waf --color=yes build -j${WAF_JOBS:-1}
 
   # Cleanup
-  sudo env "PATH=$PATH" ./waf --color=yes distclean
+  sudo_preserve_env PATH -- ./waf --color=yes distclean
 
   # Configure/build static and shared library in optimized mode without tests
   ./waf --color=yes configure --enable-static --enable-shared $OPENSSL
   ./waf --color=yes build -j${WAF_JOBS:-1}
 
   # Cleanup
-  sudo env "PATH=$PATH" ./waf --color=yes distclean
+  sudo_preserve_env PATH -- ./waf --color=yes distclean
 fi
 
 # Configure/build shared library in debug mode with tests/examples and without precompiled headers
@@ -47,7 +47,7 @@ fi
 # (tests will be run against debug version)
 
 # Install
-sudo env "PATH=$PATH" ./waf --color=yes install
+sudo_preserve_env PATH -- ./waf --color=yes install
 
 if has Linux $NODE_LABELS; then
     sudo ldconfig
