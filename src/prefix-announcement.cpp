@@ -74,6 +74,7 @@ PrefixAnnouncement::toData(KeyChain& keyChain, const ndn::security::SigningInfo&
     dataName.appendVersion(version.value_or(time::toUnixTimestamp(time::system_clock::now()).count()));
     dataName.appendSegment(0);
     m_data.emplace(dataName);
+    m_data->setContentType(tlv::ContentType_PrefixAnn);
 
     Block content(tlv::Content);
     content.push_back(makeNonNegativeIntegerBlock(tlv::nfd::ExpirationPeriod,
@@ -114,6 +115,24 @@ PrefixAnnouncement::setValidityPeriod(optional<security::ValidityPeriod> validit
   m_data.reset();
   m_validity = std::move(validity);
   return *this;
+}
+
+bool
+operator==(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs)
+{
+  return lhs.getAnnouncedName() == rhs.getAnnouncedName() &&
+         lhs.getExpiration() == rhs.getExpiration() &&
+         lhs.getValidityPeriod() == rhs.getValidityPeriod();
+}
+
+std::ostream&
+operator<<(std::ostream& os, const PrefixAnnouncement& pa)
+{
+  os << pa.getAnnouncedName() << " expires=" << pa.getExpiration();
+  if (pa.getValidityPeriod()) {
+    os << " validity=" << *pa.getValidityPeriod();
+  }
+  return os;
 }
 
 } // namespace ndn

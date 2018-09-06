@@ -45,36 +45,6 @@ makePrefixAnnData()
     "     1720 0000000000000000000000000000000000000000000000000000000000000000"_block);
 }
 
-BOOST_FIXTURE_TEST_CASE(Encode, IdentityManagementFixture)
-{
-  PrefixAnnouncement pa;
-  BOOST_CHECK(!pa.getData());
-  const Data& data0 = pa.toData(m_keyChain, signingWithSha256(), 5);
-  BOOST_CHECK_EQUAL(data0.getName(), "/32=PA/%FD%05/%00%00");
-  BOOST_REQUIRE(pa.getData());
-  BOOST_CHECK_EQUAL(*pa.getData(), data0);
-
-  pa.setAnnouncedName("/net/example");
-  BOOST_CHECK_THROW(pa.setExpiration(-1_ms), std::invalid_argument);
-  pa.setExpiration(1_h);
-  const Data& data1 = pa.toData(m_keyChain, signingWithSha256(), 1);
-  BOOST_CHECK_EQUAL(data1.getName(), "/net/example/32=PA/%FD%01/%00%00");
-  const Block& payload1 = data1.getContent();
-  payload1.parse();
-  BOOST_CHECK_EQUAL(readNonNegativeInteger(payload1.get(tlv::nfd::ExpirationPeriod)), 3600000);
-  BOOST_CHECK(payload1.find(tlv::ValidityPeriod) == payload1.elements_end());
-
-  pa.setValidityPeriod(security::ValidityPeriod(time::fromIsoString("20181030T000000"),
-                                                time::fromIsoString("20181124T235959")));
-  const Data& data2 = pa.toData(m_keyChain);
-  const Block& payload2 = data2.getContent();
-  payload2.parse();
-  BOOST_CHECK_EQUAL(readNonNegativeInteger(payload2.get(tlv::nfd::ExpirationPeriod)), 3600000);
-  BOOST_CHECK_EQUAL(payload2.get(tlv::ValidityPeriod),
-                    "FD00FD26 FD00FE0F323031383130333054303030303030"
-                    "         FD00FF0F323031383131323454323335393539"_block);
-}
-
 BOOST_AUTO_TEST_CASE(DecodeGood)
 {
   Data data0 = makePrefixAnnData();
@@ -178,22 +148,97 @@ BOOST_AUTO_TEST_CASE(DecodeBad)
   BOOST_CHECK_THROW(PrefixAnnouncement pa7(data7), tlv::Error);
 }
 
+BOOST_FIXTURE_TEST_CASE(EncodeEmpty, IdentityManagementFixture)
+{
+  PrefixAnnouncement pa;
+  BOOST_CHECK(!pa.getData());
+  BOOST_CHECK_EQUAL(pa.getAnnouncedName(), "/");
+  BOOST_CHECK_EQUAL(pa.getExpiration(), 0_ms);
+  BOOST_CHECK(!pa.getValidityPeriod());
+
+  const Data& data = pa.toData(m_keyChain, signingWithSha256(), 5);
+  BOOST_CHECK_EQUAL(data.getName(), "/32=PA/%FD%05/%00%00");
+  BOOST_CHECK_EQUAL(data.getContentType(), tlv::ContentType_PrefixAnn);
+  BOOST_REQUIRE(pa.getData());
+  BOOST_CHECK_EQUAL(*pa.getData(), data);
+
+  PrefixAnnouncement decoded(data);
+  BOOST_CHECK_EQUAL(decoded.getAnnouncedName(), "/");
+  BOOST_CHECK_EQUAL(decoded.getExpiration(), 0_s);
+  BOOST_CHECK(!decoded.getValidityPeriod());
+
+  BOOST_CHECK_EQUAL(pa, decoded);
+}
+
+BOOST_FIXTURE_TEST_CASE(EncodeNoValidity, IdentityManagementFixture)
+{
+  PrefixAnnouncement pa;
+  pa.setAnnouncedName("/net/example");
+  BOOST_CHECK_THROW(pa.setExpiration(-1_ms), std::invalid_argument);
+  pa.setExpiration(1_h);
+
+  const Data& data = pa.toData(m_keyChain, signingWithSha256(), 1);
+  BOOST_CHECK_EQUAL(data.getName(), "/net/example/32=PA/%FD%01/%00%00");
+  BOOST_CHECK_EQUAL(data.getContentType(), tlv::ContentType_PrefixAnn);
+
+  const Block& payload = data.getContent();
+  payload.parse();
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(payload.get(tlv::nfd::ExpirationPeriod)), 3600000);
+  BOOST_CHECK(payload.find(tlv::ValidityPeriod) == payload.elements_end());
+
+  PrefixAnnouncement decoded(data);
+  BOOST_CHECK_EQUAL(decoded.getAnnouncedName(), "/net/example");
+  BOOST_CHECK_EQUAL(decoded.getExpiration(), 1_h);
+  BOOST_CHECK(!decoded.getValidityPeriod());
+
+  BOOST_CHECK_EQUAL(pa, decoded);
+}
+
+BOOST_FIXTURE_TEST_CASE(EncodeWithValidity, IdentityManagementFixture)
+{
+  PrefixAnnouncement pa;
+  pa.setAnnouncedName("/net/example");
+  pa.setExpiration(1_h);
+  security::ValidityPeriod validity(time::fromIsoString("20181030T000000"),
+                                    time::fromIsoString("20181124T235959"));
+  pa.setValidityPeriod(validity);
+
+  const Data& data = pa.toData(m_keyChain);
+  const Block& payload = data.getContent();
+  payload.parse();
+  BOOST_CHECK_EQUAL(readNonNegativeInteger(payload.get(tlv::nfd::ExpirationPeriod)), 3600000);
+  BOOST_CHECK_EQUAL(payload.get(tlv::ValidityPeriod), validity.wireEncode());
+
+  PrefixAnnouncement decoded(data);
+  BOOST_CHECK_EQUAL(decoded.getAnnouncedName(), "/net/example");
+  BOOST_CHECK_EQUAL(decoded.getExpiration(), 1_h);
+  BOOST_REQUIRE(decoded.getValidityPeriod());
+  BOOST_CHECK_EQUAL(*decoded.getValidityPeriod(), validity);
+
+  BOOST_CHECK_EQUAL(pa, decoded);
+}
+
 BOOST_AUTO_TEST_CASE(Modify)
 {
-  PrefixAnnouncement pa0(makePrefixAnnData());
+  PrefixAnnouncement pa(makePrefixAnnData());
+
+  PrefixAnnouncement pa0(pa);
   BOOST_REQUIRE(pa0.getData());
   BOOST_CHECK_EQUAL(*pa0.getData(), makePrefixAnnData());
   pa0.setAnnouncedName("/com/example");
   BOOST_CHECK(!pa0.getData());
+  BOOST_CHECK_NE(pa0, pa);
 
   PrefixAnnouncement pa1(makePrefixAnnData());
   pa1.setExpiration(5_min);
   BOOST_CHECK(!pa1.getData());
+  BOOST_CHECK_NE(pa1, pa);
 
   PrefixAnnouncement pa2(makePrefixAnnData());
   pa2.setValidityPeriod(security::ValidityPeriod(time::fromIsoString("20180118T000000"),
                                                  time::fromIsoString("20180212T235959")));
   BOOST_CHECK(!pa2.getData());
+  BOOST_CHECK_NE(pa2, pa);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPrefixAnnouncement

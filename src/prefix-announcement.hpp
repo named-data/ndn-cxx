@@ -119,9 +119,28 @@ public:
 private:
   mutable optional<Data> m_data;
   Name m_announcedName;
-  time::milliseconds m_expiration;
+  time::milliseconds m_expiration = 0_ms;
   optional<security::ValidityPeriod> m_validity;
 };
+
+/** \brief Test whether two prefix announcements has the same name, expiration period,
+ *         and validity period.
+ */
+bool
+operator==(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs);
+
+inline bool
+operator!=(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs)
+{
+  return !(lhs == rhs);
+}
+
+/** \brief Print prefix announcement to a stream.
+ *
+ *  This string is for debugging purpose. Its syntax is not public API.
+ */
+std::ostream&
+operator<<(std::ostream& os, const PrefixAnnouncement& pa);
 
 } // namespace ndn
 
