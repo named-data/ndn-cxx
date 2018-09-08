@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -89,6 +89,14 @@ operator<<(std::ostream& os, DigestAlgorithm algorithm)
       return os << "BLAKE2b-512";
     case DigestAlgorithm::BLAKE2S_256:
       return os << "BLAKE2s-256";
+    case DigestAlgorithm::SHA3_224:
+      return os << "SHA3-224";
+    case DigestAlgorithm::SHA3_256:
+      return os << "SHA3-256";
+    case DigestAlgorithm::SHA3_384:
+      return os << "SHA3-384";
+    case DigestAlgorithm::SHA3_512:
+      return os << "SHA3-512";
   }
   return os << static_cast<int>(algorithm);
 }

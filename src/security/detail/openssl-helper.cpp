@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,6 +42,16 @@ digestAlgorithmToEvpMd(DigestAlgorithm algo)
     return EVP_blake2b512();
   case DigestAlgorithm::BLAKE2S_256:
     return EVP_blake2s256();
+#endif
+#if OPENSSL_VERSION_NUMBER >= 0x10101001L
+  case DigestAlgorithm::SHA3_224:
+    return EVP_sha3_224();
+  case DigestAlgorithm::SHA3_256:
+    return EVP_sha3_256();
+  case DigestAlgorithm::SHA3_384:
+    return EVP_sha3_384();
+  case DigestAlgorithm::SHA3_512:
+    return EVP_sha3_512();
 #endif
   default:
     return nullptr;

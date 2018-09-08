@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -110,6 +110,10 @@ enum class DigestAlgorithm {
   SHA512 = 4,
   BLAKE2B_512 = 10,
   BLAKE2S_256 = 11,
+  SHA3_224 = 20,
+  SHA3_256 = 21,
+  SHA3_384 = 22,
+  SHA3_512 = 23,
 };
 
 std::ostream&
