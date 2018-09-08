@@ -23,7 +23,7 @@
 
 namespace ndn {
 
-static const uint32_t MIN_RSA_KEY_SIZE = 1024;
+static const uint32_t MIN_RSA_KEY_SIZE = 2048;
 static const uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
 static const uint32_t EC_KEY_SIZES[] = {224, 256, 384, 521};
 static const uint32_t DEFAULT_EC_KEY_SIZE = 256;

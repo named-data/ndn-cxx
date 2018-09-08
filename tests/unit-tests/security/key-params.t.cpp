@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,12 +38,12 @@ BOOST_AUTO_TEST_CASE(Rsa)
   BOOST_CHECK_EQUAL(params.getKeySize(), 2048);
   BOOST_CHECK(params.getKeyIdType() == KeyIdType::RANDOM);
 
-  RsaKeyParams params2(1024, KeyIdType::SHA256);
+  RsaKeyParams params2(4096, KeyIdType::SHA256);
   BOOST_CHECK_EQUAL(params2.getKeyType(), KeyType::RSA);
-  BOOST_CHECK_EQUAL(params2.getKeySize(), 1024);
+  BOOST_CHECK_EQUAL(params2.getKeySize(), 4096);
   BOOST_CHECK(params2.getKeyIdType() == KeyIdType::SHA256);
 
-  BOOST_CHECK_THROW(RsaKeyParams(3), KeyParams::Error);
+  BOOST_CHECK_THROW(RsaKeyParams(1024), KeyParams::Error);
 
   name::Component keyId("keyId");
   RsaKeyParams params4(keyId);
