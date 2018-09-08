@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -401,14 +401,20 @@ PrivateKey::generateEcKey(uint32_t keySize)
 
   int ret;
   switch (keySize) {
-    case 256:
-      ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_X9_62_prime256v1); // same as secp256r1
-      break;
-    case 384:
-      ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_secp384r1);
-      break;
-    default:
-      BOOST_THROW_EXCEPTION(PrivateKey::Error("Unsupported EC key length"));
+  case 224:
+    ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_secp224r1);
+    break;
+  case 256:
+    ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_X9_62_prime256v1); // same as secp256r1
+    break;
+  case 384:
+    ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_secp384r1);
+    break;
+  case 521:
+    ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_secp521r1);
+    break;
+  default:
+    BOOST_THROW_EXCEPTION(std::invalid_argument("Unsupported EC key length " + to_string(keySize)));
   }
   if (ret <= 0)
     BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to set EC curve"));

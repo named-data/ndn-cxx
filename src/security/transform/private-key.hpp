@@ -257,10 +257,10 @@ private:
 /**
  * @brief Generate a private key according to @p keyParams
  *
- * @note The public key can be derived from the private key.
+ * @note The corresponding public key can be derived from the private key.
  *
  * @throw std::invalid_argument the specified key type is not supported
- * @throw std::runtime_error    key generation fails
+ * @throw PrivateKey::Error     key generation failed
  */
 unique_ptr<PrivateKey>
 generatePrivateKey(const KeyParams& keyParams);
