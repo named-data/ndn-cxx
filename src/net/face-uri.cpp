@@ -26,8 +26,6 @@
  */
 
 #include "face-uri.hpp"
-
-#include "address-converter.hpp"
 #include "dns.hpp"
 #include "util/string-helper.hpp"
 
