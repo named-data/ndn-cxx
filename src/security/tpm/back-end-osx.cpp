@@ -23,6 +23,7 @@
 #include "key-handle-osx.hpp"
 #include "tpm.hpp"
 #include "../transform/private-key.hpp"
+#include "../../encoding/buffer-stream.hpp"
 #include "../../util/cf-string-osx.hpp"
 
 #include <Security/Security.h>
@@ -148,6 +149,36 @@ getKeyRef(const Name& keyName)
   else {
     BOOST_THROW_EXCEPTION(BackEnd::Error("Key lookup in keychain failed: " + getErrorMessage(res)));
   }
+}
+
+/**
+ * @brief Export a private key from the Keychain to @p outKey
+ */
+static void
+exportItem(const KeyRefOsx& keyRef, transform::PrivateKey& outKey)
+{
+  // use a temporary password for PKCS8 encoding
+  const char pw[] = "correct horse battery staple";
+  auto passphrase = cfstring::fromBuffer(reinterpret_cast<const uint8_t*>(pw), std::strlen(pw));
+
+  SecItemImportExportKeyParameters keyParams;
+  std::memset(&keyParams, 0, sizeof(keyParams));
+  keyParams.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+  keyParams.passphrase = passphrase.get();
+
+  CFReleaser<CFDataRef> exportedKey;
+  OSStatus res = SecItemExport(keyRef.get(),           // secItemOrArray
+                               kSecFormatWrappedPKCS8, // outputFormat
+                               0,                      // flags
+                               &keyParams,             // keyParams
+                               &exportedKey.get());    // exportedData
+
+  if (res != errSecSuccess) {
+    BOOST_THROW_EXCEPTION(BackEnd::Error("Failed to export private key: "s + getErrorMessage(res)));
+  }
+
+  outKey.loadPkcs8(CFDataGetBytePtr(exportedKey.get()), CFDataGetLength(exportedKey.get()),
+                   pw, std::strlen(pw));
 }
 
 BackEndOsx::BackEndOsx(const std::string&)
@@ -297,19 +328,8 @@ BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t ciph
 ConstBufferPtr
 BackEndOsx::derivePublicKey(const KeyRefOsx& key)
 {
-  CFReleaser<CFDataRef> exportedKey;
-  OSStatus res = SecItemExport(key.get(),           // secItemOrArray
-                               kSecFormatOpenSSL,   // outputFormat
-                               0,                   // flags
-                               nullptr,             // keyParams
-                               &exportedKey.get()); // exportedData
-
-  if (res != errSecSuccess) {
-    BOOST_THROW_EXCEPTION(Error("Failed to export private key: "s + getErrorMessage(res)));
-  }
-
   transform::PrivateKey privateKey;
-  privateKey.loadPkcs1(CFDataGetBytePtr(exportedKey.get()), CFDataGetLength(exportedKey.get()));
+  exportItem(key, privateKey);
   return privateKey.derivePublicKey();
 }
 
@@ -409,73 +429,78 @@ BackEndOsx::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
     BOOST_THROW_EXCEPTION(Error("Failed to export private key: " + getErrorMessage(errSecItemNotFound)));
   }
 
-  auto passphrase = cfstring::fromBuffer(reinterpret_cast<const uint8_t*>(pw), pwLen);
-  SecItemImportExportKeyParameters keyParams;
-  std::memset(&keyParams, 0, sizeof(keyParams));
-  keyParams.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-  keyParams.passphrase = passphrase.get();
-
-  CFReleaser<CFDataRef> exportedKey;
-  OSStatus res = SecItemExport(keychainItem.get(),     // secItemOrArray
-                               kSecFormatWrappedPKCS8, // outputFormat
-                               0,                      // flags
-                               &keyParams,             // keyParams
-                               &exportedKey.get());    // exportedData
-
-  if (res != errSecSuccess) {
-    BOOST_THROW_EXCEPTION(Error("Failed to export private key: " + getErrorMessage(res)));
+  transform::PrivateKey exportedKey;
+  OBufferStream pkcs8;
+  try {
+    exportItem(keychainItem, exportedKey);
+    exportedKey.savePkcs8(pkcs8, pw, pwLen);
   }
-
-  return make_shared<Buffer>(CFDataGetBytePtr(exportedKey.get()), CFDataGetLength(exportedKey.get()));
+  catch (const transform::PrivateKey::Error& e) {
+    BOOST_THROW_EXCEPTION(Error("Failed to export private key: "s + e.what()));
+  }
+  return pkcs8.buf();
 }
 
 void
 BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
                         const char* pw, size_t pwLen)
 {
-  auto importedKey = makeCFDataNoCopy(buf, size);
+  transform::PrivateKey privKey;
+  OBufferStream pkcs1;
+  try {
+    // do the PKCS8 decoding ourselves, see bug #4450
+    privKey.loadPkcs8(buf, size, pw, pwLen);
+    privKey.savePkcs1(pkcs1);
+  }
+  catch (const transform::PrivateKey::Error& e) {
+    BOOST_THROW_EXCEPTION(Error("Failed to import private key: "s + e.what()));
+  }
+  auto keyToImport = makeCFDataNoCopy(pkcs1.buf()->data(), pkcs1.buf()->size());
 
-  SecExternalFormat externalFormat = kSecFormatWrappedPKCS8;
+  SecExternalFormat externalFormat = kSecFormatOpenSSL;
   SecExternalItemType externalType = kSecItemTypePrivateKey;
 
-  auto passphrase = cfstring::fromBuffer(reinterpret_cast<const uint8_t*>(pw), pwLen);
-  auto keyLabel = cfstring::fromStdString(keyName.toUri());
+  auto keyUri = keyName.toUri();
+  auto keyLabel = cfstring::fromStdString(keyUri);
   CFReleaser<SecAccessRef> access;
-  SecAccessCreate(keyLabel.get(), nullptr, &access.get());
+  OSStatus res = SecAccessCreate(keyLabel.get(), // descriptor
+                                 nullptr,        // trustedlist (null == trust only the calling app)
+                                 &access.get()); // accessRef
+
+  if (res != errSecSuccess) {
+    BOOST_THROW_EXCEPTION(Error("Failed to import private key: " + getErrorMessage(res)));
+  }
 
   SecItemImportExportKeyParameters keyParams;
   std::memset(&keyParams, 0, sizeof(keyParams));
   keyParams.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-  keyParams.passphrase = passphrase.get();
   keyParams.accessRef = access.get();
 
   CFReleaser<CFArrayRef> outItems;
-  OSStatus res = SecItemImport(importedKey.get(),   // importedData
-                               nullptr,             // fileNameOrExtension
-                               &externalFormat,     // inputFormat
-                               &externalType,       // itemType
-                               0,                   // flags
-                               &keyParams,          // keyParams
-                               m_impl->keyChainRef, // importKeychain
-                               &outItems.get());    // outItems
+  res = SecItemImport(keyToImport.get(),   // importedData
+                      nullptr,             // fileNameOrExtension
+                      &externalFormat,     // inputFormat
+                      &externalType,       // itemType
+                      0,                   // flags
+                      &keyParams,          // keyParams
+                      m_impl->keyChainRef, // importKeychain
+                      &outItems.get());    // outItems
 
   if (res != errSecSuccess) {
     BOOST_THROW_EXCEPTION(Error("Failed to import private key: " + getErrorMessage(res)));
   }
 
   // C-style cast is used as per Apple convention
-  SecKeychainItemRef privateKey = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
+  SecKeychainItemRef keychainItem = (SecKeychainItemRef)CFArrayGetValueAtIndex(outItems.get(), 0);
   SecKeychainAttribute attrs[1]; // maximum number of attributes
   SecKeychainAttributeList attrList = {0, attrs};
-  std::string keyUri = keyName.toUri();
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
     attrs[attrList.count].length = keyUri.size();
     attrs[attrList.count].data = const_cast<char*>(keyUri.data());
     attrList.count++;
   }
-
-  SecKeychainItemModifyAttributesAndData(privateKey, &attrList, 0, nullptr);
+  SecKeychainItemModifyAttributesAndData(keychainItem, &attrList, 0, nullptr);
 }
 
 } // namespace tpm

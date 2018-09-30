@@ -20,14 +20,16 @@
  */
 
 #include "security/tpm/back-end.hpp"
-#include "security/tpm/back-end-mem.hpp"
-#include "security/tpm/key-handle.hpp"
-#include "security/tpm/tpm.hpp"
-#include "security/transform.hpp"
-#include "security/transform/public-key.hpp"
-#include "security/transform/private-key.hpp"
+
 #include "encoding/buffer-stream.hpp"
 #include "security/pib/key.hpp"
+#include "security/tpm/key-handle.hpp"
+#include "security/tpm/tpm.hpp"
+#include "security/transform/bool-sink.hpp"
+#include "security/transform/buffer-source.hpp"
+#include "security/transform/private-key.hpp"
+#include "security/transform/public-key.hpp"
+#include "security/transform/verifier-filter.hpp"
 
 #include "back-end-wrapper-file.hpp"
 #include "back-end-wrapper-mem.hpp"
@@ -90,9 +92,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
   T wrapper;
   BackEnd& tpm = wrapper.getTpm();
 
-  // create an rsa key
+  // create an RSA key
   Name identity("/Test/KeyName");
-
   unique_ptr<KeyHandle> key = tpm.createKey(identity, RsaKeyParams());
   Name keyName = key->getKeyName();
 
@@ -121,9 +122,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaDecryption, T, TestBackEnds)
   T wrapper;
   BackEnd& tpm = wrapper.getTpm();
 
-  // create an rsa key
+  // create an RSA key
   Name identity("/Test/KeyName");
-
   unique_ptr<KeyHandle> key = tpm.createKey(identity, RsaKeyParams());
   Name keyName = key->getKeyName();
 
@@ -134,7 +134,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaDecryption, T, TestBackEnds)
   pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
 
   ConstBufferPtr cipherText = pubKey.encrypt(content, sizeof(content));
-
   ConstBufferPtr plainText = key->decrypt(cipherText->data(), cipherText->size());
 
   BOOST_CHECK_EQUAL_COLLECTIONS(content, content + sizeof(content),
@@ -149,9 +148,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   T wrapper;
   BackEnd& tpm = wrapper.getTpm();
 
-  // create an ec key
+  // create an EC key
   Name identity("/Test/Ec/KeyName");
-
   unique_ptr<KeyHandle> key = tpm.createKey(identity, EcKeyParams());
   Name ecKeyName = key->getKeyName();
 
@@ -177,7 +175,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
 {
-  const std::string privateKeyPkcs1 =
+  const std::string privKeyPkcs1 =
     "MIIEpAIBAAKCAQEAw0WM1/WhAxyLtEqsiAJgWDZWuzkYpeYVdeeZcqRZzzfRgBQT\n"
     "sNozS5t4HnwTZhwwXbH7k3QN0kRTV826Xobws3iigohnM9yTK+KKiayPhIAm/+5H\n"
     "GT6SgFJhYhqo1/upWdueojil6RP4/AgavHhopxlAVbk6G9VdVnlQcQ5Zv0OcGi73\n"
@@ -203,42 +201,58 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
     "cuHICmsCgYAtFJ1idqMoHxES3mlRpf2JxyQudP3SCm2WpGmqVzhRYInqeatY5sUd\n"
     "lPLHm/p77RT7EyxQHTlwn8FJPuM/4ZH1rQd/vB+Y8qAtYJCexDMsbvLW+Js+VOvk\n"
     "jweEC0nrcL31j9mF0vz5E6tfRu4hhJ6L4yfWs0gSejskeVB/w8QY4g==\n";
+  const std::string password("password");
+  const std::string wrongPassword("wrong");
 
   T wrapper;
   BackEnd& tpm = wrapper.getTpm();
 
   Name keyName("/Test/KeyName/KEY/1");
   tpm.deleteKey(keyName);
-  BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
+  BOOST_REQUIRE_EQUAL(tpm.hasKey(keyName), false);
 
   transform::PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.c_str()), privateKeyPkcs1.size());
-
-  std::string password("password");
+  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privKeyPkcs1.data()), privKeyPkcs1.size());
   OBufferStream os;
-  sKey.savePkcs8(os, password.c_str(), password.size());
-  ConstBufferPtr privateKeyBuffer = os.buf();
+  sKey.savePkcs8(os, password.data(), password.size());
+  auto pkcs8 = os.buf();
 
-  tpm.importKey(keyName, privateKeyBuffer->data(), privateKeyBuffer->size(), password.c_str(), password.size());
+  // import with wrong password
+  BOOST_CHECK_THROW(tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), wrongPassword.data(), wrongPassword.size()),
+                    BackEnd::Error);
+  BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
+
+  // import with correct password
+  tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), password.data(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
-  BOOST_CHECK_THROW(tpm.importKey(keyName, privateKeyBuffer->data(), privateKeyBuffer->size(), password.c_str(), password.size()),
+
+  // import already present key
+  BOOST_CHECK_THROW(tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), password.data(), password.size()),
                     BackEnd::Error);
 
-  ConstBufferPtr exportedKey = tpm.exportKey(keyName, password.c_str(), password.size());
+  // test derivePublicKey with the imported key
+  auto keyHdl = tpm.getKeyHandle(keyName);
+  auto pubKey = keyHdl->derivePublicKey();
+  BOOST_CHECK(pubKey != nullptr);
+
+  // export
+  auto exportedKey = tpm.exportKey(keyName, password.data(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
 
   transform::PrivateKey sKey2;
-  sKey2.loadPkcs8(exportedKey->data(), exportedKey->size(), password.c_str(), password.size());
+  sKey2.loadPkcs8(exportedKey->data(), exportedKey->size(), password.data(), password.size());
   OBufferStream os2;
   sKey.savePkcs1Base64(os2);
-  ConstBufferPtr pkcs1Buffer = os2.buf();
+  auto pkcs1 = os2.buf();
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(privateKeyPkcs1.begin(), privateKeyPkcs1.end(),
-                                pkcs1Buffer->begin(), pkcs1Buffer->end());
+  // verify that the exported key is identical to the key that was imported
+  BOOST_CHECK_EQUAL_COLLECTIONS(privKeyPkcs1.begin(), privKeyPkcs1.end(),
+                                pkcs1->begin(), pkcs1->end());
 
+  // export nonexistent key
   tpm.deleteKey(keyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
-  BOOST_CHECK_THROW(tpm.exportKey(keyName, password.c_str(), password.size()), BackEnd::Error);
+  BOOST_CHECK_THROW(tpm.exportKey(keyName, password.data(), password.size()), BackEnd::Error);
 }
 
 BOOST_AUTO_TEST_CASE(RandomKeyId)

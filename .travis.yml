@@ -58,17 +58,16 @@ matrix:
       osx_image: xcode9.4
       env: OSX_VERSION=10.13
     - os: osx
-      osx_image: xcode9.4
-      env: OSX_VERSION=10.13 USE_OPENSSL_1_1=yes
-    - os: osx
       osx_image: xcode10
       env: OSX_VERSION=10.13
+    - os: osx
+      osx_image: xcode10
+      env: OSX_VERSION=10.13 USE_OPENSSL_1_1=yes
 
   allow_failures:
     - env: COMPILER=clang++-3.6
     - env: COMPILER=clang++-3.7 DISABLE_ASAN=yes
     - env: COMPILER=clang++-8
-    - env: OSX_VERSION=10.13 USE_OPENSSL_1_1=yes
 
   fast_finish: true
 
