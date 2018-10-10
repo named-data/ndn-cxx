@@ -322,7 +322,7 @@ PrivateKey::toPkcs8(const char* pw, size_t pwLen) const
   opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
-  if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_des_ede3_cbc(), nullptr, 0,
+  if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_aes_256_cbc(), nullptr, 0,
                                nullptr, const_cast<char*>(pw)))
     BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #8 format"));
 
@@ -339,7 +339,7 @@ PrivateKey::toPkcs8(PasswordCallback pwCallback) const
   opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
-  if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_des_ede3_cbc(), nullptr, 0,
+  if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_aes_256_cbc(), nullptr, 0,
                                &passwordCallbackWrapper, &pwCallback))
     BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #8 format"));
 
