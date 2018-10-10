@@ -29,7 +29,7 @@
 namespace ndn {
 namespace encoding {
 
-/** @brief Prepend a TLV element containing a non-negative integer
+/** @brief Prepend a TLV element containing a non-negative integer.
  *  @param encoder an EncodingBuffer or EncodingEstimator
  *  @param type TLV-TYPE number
  *  @param value non-negative integer value
@@ -45,7 +45,7 @@ prependNonNegativeIntegerBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32
 extern template size_t
 prependNonNegativeIntegerBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, uint64_t);
 
-/** @brief Create a TLV block containing a non-negative integer
+/** @brief Create a TLV block containing a non-negative integer.
  *  @param type TLV-TYPE number
  *  @param value non-negative integer value
  *  @sa prependNonNegativeIntegerBlock, readNonNegativeInteger
@@ -53,7 +53,7 @@ prependNonNegativeIntegerBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, 
 Block
 makeNonNegativeIntegerBlock(uint32_t type, uint64_t value);
 
-/** @brief Read a non-negative integer from a TLV element
+/** @brief Read a non-negative integer from a TLV element.
  *  @param block the TLV element
  *  @throw tlv::Error block does not contain a non-negative integer
  *  @sa prependNonNegativeIntegerBlock, makeNonNegativeIntegerBlock
@@ -61,7 +61,7 @@ makeNonNegativeIntegerBlock(uint32_t type, uint64_t value);
 uint64_t
 readNonNegativeInteger(const Block& block);
 
-/** @brief Read a non-negative integer from a TLV element and cast to the specified type
+/** @brief Read a non-negative integer from a TLV element and cast to the specified type.
  *  @tparam R result type, must be an integral type
  *  @param block the TLV element
  *  @throw tlv::Error block does not contain a valid non-negative integer or the number cannot be
@@ -79,7 +79,7 @@ readNonNegativeIntegerAs(const Block& block)
   return static_cast<R>(value);
 }
 
-/** @brief Read a non-negative integer from a TLV element and cast to the specified type
+/** @brief Read a non-negative integer from a TLV element and cast to the specified type.
  *  @tparam R result type, must be an enumeration type
  *  @param block the TLV element
  *  @throw tlv::Error block does not contain a valid non-negative integer or the number cannot be
@@ -94,7 +94,7 @@ readNonNegativeIntegerAs(const Block& block)
   return static_cast<R>(readNonNegativeIntegerAs<std::underlying_type_t<R>>(block));
 }
 
-/** @brief Prepend an empty TLV element
+/** @brief Prepend an empty TLV element.
  *  @param encoder an EncodingBuffer or EncodingEstimator
  *  @param type TLV-TYPE number
  *  @details The TLV element has zero-length TLV-VALUE.
@@ -110,7 +110,7 @@ prependEmptyBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t);
 extern template size_t
 prependEmptyBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t);
 
-/** @brief Create an empty TLV block
+/** @brief Create an empty TLV block.
  *  @param type TLV-TYPE number
  *  @return A TLV block with zero-length TLV-VALUE
  *  @sa prependEmptyBlock
@@ -150,6 +150,38 @@ makeStringBlock(uint32_t type, const std::string& value);
 std::string
 readString(const Block& block);
 
+/** @brief Prepend a TLV element containing an IEEE 754 double-precision floating-point number.
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number
+ *  @param value a floating point number value
+ *  @sa makeDoubleBlock, readDouble
+ */
+template<Tag TAG>
+size_t
+prependDoubleBlock(EncodingImpl<TAG>& encoder, uint32_t type, double value);
+
+extern template size_t
+prependDoubleBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, double);
+
+extern template size_t
+prependDoubleBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, double);
+
+/** @brief Create a TLV element containing an IEEE 754 double-precision floating-point number.
+ *  @param type TLV-TYPE number
+ *  @param value floating point number value
+ *  @sa prependDoubleBlock, readDouble
+ */
+Block
+makeDoubleBlock(uint32_t type, double value);
+
+/** @brief Read TLV-VALUE of a TLV element as an IEEE 754 double-precision floating-point number.
+ *  @param block the TLV element
+ *  @return a floating point number value
+ *  @sa prependDoubleBlock, makeDoubleBlock
+ */
+double
+readDouble(const Block& block);
+
 /** @brief Create a TLV block copying TLV-VALUE from raw buffer.
  *  @param type TLV-TYPE number
  *  @param value raw buffer as TLV-VALUE
@@ -170,7 +202,7 @@ makeBinaryBlock(uint32_t type, const char* value, size_t length);
 
 namespace detail {
 
-/** @brief Create a binary block copying from RandomAccessIterator
+/** @brief Create a binary block copying from RandomAccessIterator.
  */
 template<class Iterator>
 class BinaryBlockFast
@@ -196,7 +228,7 @@ public:
   }
 };
 
-/** @brief Create a binary block copying from generic InputIterator
+/** @brief Create a binary block copying from generic InputIterator.
  */
 template<class Iterator>
 class BinaryBlockSlow

@@ -84,6 +84,23 @@ BOOST_AUTO_TEST_CASE(String)
   BOOST_CHECK_EQUAL(readString(b), "Hello, world!");
 }
 
+BOOST_AUTO_TEST_CASE(Double)
+{
+  const double f = 0.25;
+  Block b = makeDoubleBlock(100, f);
+  BOOST_CHECK_EQUAL(b, "64083FD0000000000000"_block);
+
+  EncodingEstimator estimator;
+  size_t totalLength = prependDoubleBlock(estimator, 100, f);
+  EncodingBuffer encoder(totalLength, 0);
+  prependDoubleBlock(encoder, 100, f);
+  BOOST_CHECK_EQUAL(encoder.block(), b);
+
+  BOOST_CHECK_EQUAL(readDouble(b), f);
+  BOOST_CHECK_THROW(readDouble("4200"_block), tlv::Error);
+  BOOST_CHECK_THROW(readDouble("64043E800000"_block), tlv::Error);
+}
+
 BOOST_AUTO_TEST_CASE(Data)
 {
   std::string buf1{1, 1, 1, 1};
@@ -99,8 +116,7 @@ BOOST_AUTO_TEST_CASE(Data)
   BOOST_CHECK_EQUAL(b1, b3);
   BOOST_CHECK_EQUAL(b1.type(), 100);
   BOOST_CHECK_EQUAL(b1.value_size(), buf1.size());
-  BOOST_CHECK_EQUAL_COLLECTIONS(b1.value_begin(), b1.value_end(),
-                                buf2, buf2 + sizeof(buf2));
+  BOOST_CHECK_EQUAL_COLLECTIONS(b1.value_begin(), b1.value_end(), buf2, buf2 + sizeof(buf2));
 }
 
 BOOST_AUTO_TEST_CASE(Nested)

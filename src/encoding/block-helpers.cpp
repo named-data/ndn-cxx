@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,7 +59,7 @@ makeNonNegativeIntegerBlock(uint32_t type, uint64_t value)
 uint64_t
 readNonNegativeInteger(const Block& block)
 {
-  Buffer::const_iterator begin = block.value_begin();
+  auto begin = block.value_begin();
   return tlv::readNonNegativeInteger(block.value_size(), begin, block.value_end());
 }
 
@@ -118,6 +118,53 @@ std::string
 readString(const Block& block)
 {
   return std::string(reinterpret_cast<const char*>(block.value()), block.value_size());
+}
+
+// ---- double ----
+
+static_assert(std::numeric_limits<double>::is_iec559, "This code requires IEEE-754 doubles");
+
+template<Tag TAG>
+size_t
+prependDoubleBlock(EncodingImpl<TAG>& encoder, uint32_t type, double value)
+{
+  uint64_t temp = 0;
+  std::memcpy(&temp, &value, 8);
+  boost::endian::native_to_big_inplace(temp);
+  return encoder.prependByteArrayBlock(type, reinterpret_cast<const uint8_t*>(&temp), 8);
+}
+
+template size_t
+prependDoubleBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, double);
+
+template size_t
+prependDoubleBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, double);
+
+Block
+makeDoubleBlock(uint32_t type, double value)
+{
+  EncodingEstimator estimator;
+  size_t totalLength = prependDoubleBlock(estimator, type, value);
+
+  EncodingBuffer encoder(totalLength, 0);
+  prependDoubleBlock(encoder, type, value);
+
+  return encoder.block();
+}
+
+double
+readDouble(const Block& block)
+{
+  if (block.value_size() != 8) {
+    BOOST_THROW_EXCEPTION(tlv::Error("Invalid length for double (must be 8)"));
+  }
+
+  uint64_t temp = 0;
+  std::memcpy(&temp, block.value(), 8);
+  boost::endian::big_to_native_inplace(temp);
+  double d = 0;
+  std::memcpy(&d, &temp, 8);
+  return d;
 }
 
 // ---- binary ----
