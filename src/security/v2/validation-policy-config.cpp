@@ -75,6 +75,9 @@ ValidationPolicyConfig::load(std::istream& input, const std::string& filename)
 void
 ValidationPolicyConfig::load(const ConfigSection& configSection, const std::string& filename)
 {
+  if (m_validator == nullptr) {
+    BOOST_THROW_EXCEPTION(Error("Validator instance not assigned on the policy"));
+  }
   if (m_isConfigured) {
     m_shouldBypass = false;
     m_dataRules.clear();

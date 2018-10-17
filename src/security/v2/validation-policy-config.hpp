@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,15 +44,31 @@ class ValidationPolicyConfig : public ValidationPolicy
 public:
   ValidationPolicyConfig();
 
+  /**
+   * @brief Load policy from file @p filename
+   * @throw Error Validator instance not assigned to the policy (m_validator == nullptr)
+   */
   void
   load(const std::string& filename);
 
+  /**
+   * @brief Load policy from direct @p input
+   * @throw Error Validator instance not assigned to the policy (m_validator == nullptr)
+   */
   void
   load(const std::string& input, const std::string& filename);
 
+  /**
+   * @brief Load policy from direct @p input
+   * @throw Error Validator instance not assigned to the policy (m_validator == nullptr)
+   */
   void
   load(std::istream& input, const std::string& filename);
 
+  /**
+   * @brief Load policy from @p configSection
+   * @throw Error Validator instance not assigned to the policy (m_validator == nullptr)
+   */
   void
   load(const ConfigSection& configSection, const std::string& filename);
 

@@ -505,6 +505,29 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateRefresh, Refresh, RefreshPolicies, Refr
   VALIDATE_FAILURE(packet, "Should fail, as the trust anchor should no longer exist");
 }
 
+BOOST_FIXTURE_TEST_CASE(OrphanedPolicyLoad, HierarchicalValidatorFixture<ValidationPolicyConfig>) // Bug #4758
+{
+  ValidationPolicyConfig policy1;
+  BOOST_CHECK_THROW(policy1.load("trust-anchor { type any }", "test-config"), Error);
+
+  // Reloading would have triggered a segfault
+  BOOST_CHECK_THROW(policy1.load("trust-anchor { type any }", "test-config"), Error);
+
+  ValidationPolicyConfig policy2;
+
+  std::string config = R"CONF(
+      trust-anchor
+      {
+        type dir
+        dir keys
+        refresh 1h
+      }
+    )CONF";
+
+  // Inserting trust anchor would have triggered a segfault
+  BOOST_CHECK_THROW(policy2.load(config, "test-config"), Error);
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestValidationPolicyConfig
 BOOST_AUTO_TEST_SUITE_END() // V2
 BOOST_AUTO_TEST_SUITE_END() // Security

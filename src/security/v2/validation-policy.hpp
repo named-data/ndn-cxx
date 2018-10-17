@@ -40,11 +40,6 @@ public:
   using ValidationContinuation = std::function<void(const shared_ptr<CertificateRequest>& certRequest,
                                                     const shared_ptr<ValidationState>& state)>;
 
-  ValidationPolicy()
-    : m_validator(nullptr)
-  {
-  }
-
   virtual
   ~ValidationPolicy() = default;
 
@@ -148,7 +143,7 @@ public:
   }
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
-  Validator* m_validator;
+  Validator* m_validator = nullptr;
   unique_ptr<ValidationPolicy> m_innerPolicy;
 };
 
