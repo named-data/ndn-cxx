@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(Minimal)
 
 BOOST_AUTO_TEST_CASE(Full)
 {
-  i.wireDecode("0533 FC00 0703080149 FC00 2100 FC00 1200 "
+  i.wireDecode("0531 0703080149 FC00 2100 FC00 1200 "
                "FC00 1E0B(1F09 1E023E15 0703080148) FC00 0A044ACB1E4C "
                "FC00 0C0276A1 FC00 2201D6 FC00"_block);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(Full)
   // HopLimit=214 is not stored
 
   // encode without modification: retain original wire encoding
-  BOOST_CHECK_EQUAL(i.wireEncode().value_size(), 51);
+  BOOST_CHECK_EQUAL(i.wireEncode().value_size(), 49);
 
   // modify then re-encode as v0.2 format
   i.setName("/J");
@@ -324,6 +324,11 @@ BOOST_AUTO_TEST_CASE(BadNonce)
   BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 0A00"_block), tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode("050A 0703080149 0A0304C263"_block), tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode("050C 0703080149 0A05EFA420B262"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0507 FC00 0703080149"_block), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)

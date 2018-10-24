@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(Minimal)
 
 BOOST_AUTO_TEST_CASE(Full)
 {
-  d.wireDecode("063C FC00 0703080144 FC00 1400 FC00 1500 FC00 16031B0100 FC00 "
+  d.wireDecode("063A 0703080144 FC00 1400 FC00 1500 FC00 16031B0100 FC00 "
                "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76 FC00"_block);
   BOOST_CHECK_EQUAL(d.getName(), "/D");
   BOOST_CHECK_EQUAL(d.getMetaInfo(), MetaInfo());
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 32);
 
   // encode without modification: retain original wire encoding
-  BOOST_CHECK_EQUAL(d.wireEncode().value_size(), 60);
+  BOOST_CHECK_EQUAL(d.wireEncode().value_size(), 58);
 
   // modify then re-encode as v0.2 format
   d.setName("/E");
@@ -330,6 +330,14 @@ BOOST_AUTO_TEST_CASE(NameMissing)
 BOOST_AUTO_TEST_CASE(SigInfoMissing)
 {
   BOOST_CHECK_THROW(d.wireDecode("0605 0703080144"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
+{
+  BOOST_CHECK_THROW(d.wireDecode(
+    "062F FC00 0703080144 16031B0100 "
+    "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
+    tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)

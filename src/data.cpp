@@ -121,74 +121,73 @@ Data::wireEncode() const
 void
 Data::wireDecode(const Block& wire)
 {
+  // Data ::= DATA-TLV TLV-LENGTH
+  //            Name
+  //            MetaInfo?
+  //            Content?
+  //            SignatureInfo
+  //            SignatureValue
+
   m_wire = wire;
   m_wire.parse();
-  bool hasName = false, hasSigInfo = false;
-  m_name.clear();
+
+  auto element = m_wire.elements_begin();
+  if (element == m_wire.elements_end() || element->type() != tlv::Name) {
+    BOOST_THROW_EXCEPTION(Error("Name element is missing or out of order"));
+  }
+  m_name.wireDecode(*element);
+  int lastElement = 1; // last recognized element index, in spec order
+
   m_metaInfo = MetaInfo();
   m_content = Block(tlv::Content);
   m_signature = Signature();
   m_fullName.clear();
 
-  int lastEle = 0; // last recognized element index, in spec order
-  for (const Block& ele : m_wire.elements()) {
-    switch (ele.type()) {
-      case tlv::Name: {
-        if (lastEle >= 1) {
-          BOOST_THROW_EXCEPTION(Error("Name element is out of order"));
-        }
-        hasName = true;
-        m_name.wireDecode(ele);
-        lastEle = 1;
-        break;
-      }
+  for (++element; element != m_wire.elements_end(); ++element) {
+    switch (element->type()) {
       case tlv::MetaInfo: {
-        if (lastEle >= 2) {
+        if (lastElement >= 2) {
           BOOST_THROW_EXCEPTION(Error("MetaInfo element is out of order"));
         }
-        m_metaInfo.wireDecode(ele);
-        lastEle = 2;
+        m_metaInfo.wireDecode(*element);
+        lastElement = 2;
         break;
       }
       case tlv::Content: {
-        if (lastEle >= 3) {
+        if (lastElement >= 3) {
           BOOST_THROW_EXCEPTION(Error("Content element is out of order"));
         }
-        m_content = ele;
-        lastEle = 3;
+        m_content = *element;
+        lastElement = 3;
         break;
       }
       case tlv::SignatureInfo: {
-        if (lastEle >= 4) {
+        if (lastElement >= 4) {
           BOOST_THROW_EXCEPTION(Error("SignatureInfo element is out of order"));
         }
-        hasSigInfo = true;
-        m_signature.setInfo(ele);
-        lastEle = 4;
+        m_signature.setInfo(*element);
+        lastElement = 4;
         break;
       }
       case tlv::SignatureValue: {
-        if (lastEle >= 5) {
+        if (lastElement >= 5) {
           BOOST_THROW_EXCEPTION(Error("SignatureValue element is out of order"));
         }
-        m_signature.setValue(ele);
-        lastEle = 5;
+        m_signature.setValue(*element);
+        lastElement = 5;
         break;
       }
       default: {
-        if (tlv::isCriticalType(ele.type())) {
+        if (tlv::isCriticalType(element->type())) {
           BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
-                                      to_string(ele.type())));
+                                      to_string(element->type())));
         }
         break;
       }
     }
   }
 
-  if (!hasName) {
-    BOOST_THROW_EXCEPTION(Error("Name element is missing"));
-  }
-  if (!hasSigInfo) {
+  if (!m_signature) {
     BOOST_THROW_EXCEPTION(Error("SignatureInfo element is missing"));
   }
 }

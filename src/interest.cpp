@@ -305,33 +305,29 @@ Interest::decode03()
   //                HopLimit?
   //                Parameters?
 
-  bool hasName = false;
+  auto element = m_wire.elements_begin();
+  if (element == m_wire.elements_end() || element->type() != tlv::Name) {
+    BOOST_THROW_EXCEPTION(Error("Name element is missing or out of order"));
+  }
+  m_name.wireDecode(*element);
+  if (m_name.empty()) {
+    BOOST_THROW_EXCEPTION(Error("Name has zero name components"));
+  }
+  int lastElement = 1; // last recognized element index, in spec order
+
   m_selectors = Selectors().setMaxSuffixComponents(1); // CanBePrefix=0
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
   m_forwardingHint = DelegationList();
   m_parameters = Block();
 
-  int lastElement = 0; // last recognized element index, in spec order
-  for (const Block& element : m_wire.elements()) {
-    switch (element.type()) {
-      case tlv::Name: {
-        if (lastElement >= 1) {
-          BOOST_THROW_EXCEPTION(Error("Name element is out of order"));
-        }
-        hasName = true;
-        m_name.wireDecode(element);
-        if (m_name.empty()) {
-          BOOST_THROW_EXCEPTION(Error("Name has zero name components"));
-        }
-        lastElement = 1;
-        break;
-      }
+  for (++element; element != m_wire.elements_end(); ++element) {
+    switch (element->type()) {
       case tlv::CanBePrefix: {
         if (lastElement >= 2) {
           BOOST_THROW_EXCEPTION(Error("CanBePrefix element is out of order"));
         }
-        if (element.value_size() != 0) {
+        if (element->value_size() != 0) {
           BOOST_THROW_EXCEPTION(Error("CanBePrefix element has non-zero TLV-LENGTH"));
         }
         m_selectors.setMaxSuffixComponents(-1);
@@ -342,7 +338,7 @@ Interest::decode03()
         if (lastElement >= 3) {
           BOOST_THROW_EXCEPTION(Error("MustBeFresh element is out of order"));
         }
-        if (element.value_size() != 0) {
+        if (element->value_size() != 0) {
           BOOST_THROW_EXCEPTION(Error("MustBeFresh element has non-zero TLV-LENGTH"));
         }
         m_selectors.setMustBeFresh(true);
@@ -353,7 +349,7 @@ Interest::decode03()
         if (lastElement >= 4) {
           BOOST_THROW_EXCEPTION(Error("ForwardingHint element is out of order"));
         }
-        m_forwardingHint.wireDecode(element);
+        m_forwardingHint.wireDecode(*element);
         lastElement = 4;
         break;
       }
@@ -362,10 +358,10 @@ Interest::decode03()
           BOOST_THROW_EXCEPTION(Error("Nonce element is out of order"));
         }
         uint32_t nonce = 0;
-        if (element.value_size() != sizeof(nonce)) {
+        if (element->value_size() != sizeof(nonce)) {
           BOOST_THROW_EXCEPTION(Error("Nonce element is malformed"));
         }
-        std::memcpy(&nonce, element.value(), sizeof(nonce));
+        std::memcpy(&nonce, element->value(), sizeof(nonce));
         m_nonce = nonce;
         lastElement = 5;
         break;
@@ -374,7 +370,7 @@ Interest::decode03()
         if (lastElement >= 6) {
           BOOST_THROW_EXCEPTION(Error("InterestLifetime element is out of order"));
         }
-        m_interestLifetime = time::milliseconds(readNonNegativeInteger(element));
+        m_interestLifetime = time::milliseconds(readNonNegativeInteger(*element));
         lastElement = 6;
         break;
       }
@@ -382,7 +378,7 @@ Interest::decode03()
         if (lastElement >= 7) {
           break; // HopLimit is non-critical, ignore out-of-order appearance
         }
-        if (element.value_size() != 1) {
+        if (element->value_size() != 1) {
           BOOST_THROW_EXCEPTION(Error("HopLimit element is malformed"));
         }
         // TLV-VALUE is ignored
@@ -393,22 +389,18 @@ Interest::decode03()
         if (lastElement >= 8) {
           BOOST_THROW_EXCEPTION(Error("Parameters element is out of order"));
         }
-        m_parameters = element;
+        m_parameters = *element;
         lastElement = 8;
         break;
       }
       default: {
-        if (tlv::isCriticalType(element.type())) {
+        if (tlv::isCriticalType(element->type())) {
           BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
-                                      to_string(element.type())));
+                                      to_string(element->type())));
         }
         break;
       }
     }
-  }
-
-  if (!hasName) {
-    BOOST_THROW_EXCEPTION(Error("Name element is missing"));
   }
 }
 
