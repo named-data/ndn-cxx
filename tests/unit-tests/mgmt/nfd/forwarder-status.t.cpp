@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,7 +49,9 @@ makeForwarderStatus()
       .setNInNacks(1234)
       .setNOutInterests(952144445)
       .setNOutData(138198826)
-      .setNOutNacks(4321);
+      .setNOutNacks(4321)
+      .setNSatisfiedInterests(961020)
+      .setNUnsatisfiedInterests(941024);
 }
 
 BOOST_AUTO_TEST_CASE(Encode)
@@ -63,7 +65,7 @@ BOOST_AUTO_TEST_CASE(Encode)
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
-    0x15, 0x65, 0x80, 0x11, 0x30, 0x2e, 0x35, 0x2e, 0x31, 0x2d, 0x31, 0x34,
+    0x15, 0x71, 0x80, 0x11, 0x30, 0x2e, 0x35, 0x2e, 0x31, 0x2d, 0x31, 0x34,
     0x2d, 0x67, 0x30, 0x35, 0x64, 0x64, 0x34, 0x34, 0x34, 0x81, 0x08, 0x00,
     0x00, 0x00, 0x57, 0x5b, 0x42, 0xa6, 0x2d, 0x82, 0x08, 0x00, 0x00, 0x00,
     0xce, 0x50, 0x36, 0xd7, 0x20, 0x83, 0x04, 0x6e, 0x43, 0xe4, 0x78, 0x84,
@@ -71,7 +73,8 @@ BOOST_AUTO_TEST_CASE(Encode)
     0x04, 0x69, 0x9a, 0x61, 0xf2, 0x87, 0x04, 0x4b, 0x65, 0xe3, 0xf0, 0x90,
     0x04, 0x24, 0x86, 0xc3, 0x5f, 0x91, 0x04, 0x6d, 0xe2, 0xbc, 0xf2, 0x97,
     0x02, 0x04, 0xd2, 0x92, 0x04, 0x38, 0xc0, 0x92, 0x3d, 0x93, 0x04, 0x08,
-    0x3c, 0xbf, 0x2a, 0x98, 0x02, 0x10, 0xe1,
+    0x3c, 0xbf, 0x2a, 0x98, 0x02, 0x10, 0xe1, 0x99, 0x04, 0x00, 0x0e, 0xa9,
+    0xfc, 0x9a, 0x04, 0x00, 0x0e, 0x5b, 0xe0,
   };
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
@@ -106,7 +109,9 @@ BOOST_AUTO_TEST_CASE(Print)
                     "                         CsEntries: 0,\n"
                     "                         Interests: {in: 0, out: 0},\n"
                     "                         Data: {in: 0, out: 0},\n"
-                    "                         Nacks: {in: 0, out: 0}}\n"
+                    "                         Nacks: {in: 0, out: 0},\n"
+                    "                         SatisfiedInterests: 0,\n"
+                    "                         UnsatisfiedInterests: 0}\n"
                     "              )");
 
   status = makeForwarderStatus();
@@ -121,7 +126,9 @@ BOOST_AUTO_TEST_CASE(Print)
                     "                         CsEntries: 1264968688,\n"
                     "                         Interests: {in: 612811615, out: 952144445},\n"
                     "                         Data: {in: 1843576050, out: 138198826},\n"
-                    "                         Nacks: {in: 1234, out: 4321}}\n"
+                    "                         Nacks: {in: 1234, out: 4321},\n"
+                    "                         SatisfiedInterests: 961020,\n"
+                    "                         UnsatisfiedInterests: 941024}\n"
                     "              )");
 }
 

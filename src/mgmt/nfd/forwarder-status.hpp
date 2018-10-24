@@ -196,6 +196,24 @@ public: // getters & setters
   ForwarderStatus&
   setNOutNacks(uint64_t nOutNacks);
 
+  uint64_t
+  getNSatisfiedInterests() const
+  {
+    return m_nSatisfiedInterests;
+  }
+
+  ForwarderStatus&
+  setNSatisfiedInterests(uint64_t nSatisfiedInterests);
+
+  uint64_t
+  getNUnsatisfiedInterests() const
+  {
+    return m_nUnsatisfiedInterests;
+  }
+
+  ForwarderStatus&
+  setNUnsatisfiedInterests(uint64_t nUnsatisfiedInterests);
+
 private:
   std::string m_nfdVersion;
   time::system_clock::TimePoint m_startTimestamp;
@@ -211,6 +229,8 @@ private:
   uint64_t m_nOutInterests;
   uint64_t m_nOutData;
   uint64_t m_nOutNacks;
+  uint64_t m_nSatisfiedInterests;
+  uint64_t m_nUnsatisfiedInterests;
 
   mutable Block m_wire;
 };

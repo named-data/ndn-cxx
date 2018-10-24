@@ -42,6 +42,8 @@ ForwarderStatus::ForwarderStatus()
   , m_nOutInterests(0)
   , m_nOutData(0)
   , m_nOutNacks(0)
+  , m_nSatisfiedInterests(0)
+  , m_nUnsatisfiedInterests(0)
 {
 }
 
@@ -56,6 +58,8 @@ ForwarderStatus::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NUnsatisfiedInterests, m_nUnsatisfiedInterests);
+  totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NSatisfiedInterests, m_nSatisfiedInterests);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutNacks, m_nOutNacks);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutData, m_nOutData);
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::nfd::NOutInterests, m_nOutInterests);
@@ -217,6 +221,22 @@ ForwarderStatus::wireDecode(const Block& block)
   else {
     BOOST_THROW_EXCEPTION(Error("missing required NOutNacks field"));
   }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NSatisfiedInterests) {
+    m_nSatisfiedInterests = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required NSatisfiedInterests field"));
+  }
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::NUnsatisfiedInterests) {
+    m_nUnsatisfiedInterests = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    BOOST_THROW_EXCEPTION(Error("missing required NUnsatisfiedInterests field"));
+  }
 }
 
 ForwarderStatus&
@@ -331,6 +351,22 @@ ForwarderStatus::setNOutNacks(uint64_t nOutNacks)
   return *this;
 }
 
+ForwarderStatus&
+ForwarderStatus::setNSatisfiedInterests(uint64_t nSatisfiedInterests)
+{
+  m_wire.reset();
+  m_nSatisfiedInterests = nSatisfiedInterests;
+  return *this;
+}
+
+ForwarderStatus&
+ForwarderStatus::setNUnsatisfiedInterests(uint64_t nUnsatisfiedInterests)
+{
+  m_wire.reset();
+  m_nUnsatisfiedInterests = nUnsatisfiedInterests;
+  return *this;
+}
+
 bool
 operator==(const ForwarderStatus& a, const ForwarderStatus& b)
 {
@@ -347,7 +383,9 @@ operator==(const ForwarderStatus& a, const ForwarderStatus& b)
       a.getNInNacks() == b.getNInNacks() &&
       a.getNOutInterests() == b.getNOutInterests() &&
       a.getNOutData() == b.getNOutData() &&
-      a.getNOutNacks() == b.getNOutNacks();
+      a.getNOutNacks() == b.getNOutNacks() &&
+      a.getNSatisfiedInterests() == b.getNSatisfiedInterests() &&
+      a.getNUnsatisfiedInterests() == b.getNUnsatisfiedInterests();
 }
 
 std::ostream&
@@ -366,7 +404,9 @@ operator<<(std::ostream& os, const ForwarderStatus& status)
      << "                         Data: {in: " << status.getNInData() << ", "
      << "out: " << status.getNOutData() << "},\n"
      << "                         Nacks: {in: " << status.getNInNacks() << ", "
-     << "out: " << status.getNOutNacks() << "}}\n"
+     << "out: " << status.getNOutNacks() << "},\n"
+     << "                         SatisfiedInterests: " << status.getNSatisfiedInterests() << ",\n"
+     << "                         UnsatisfiedInterests: " << status.getNUnsatisfiedInterests() << "}\n"
      << "              )";
 
   return os;

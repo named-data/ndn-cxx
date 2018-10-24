@@ -75,14 +75,16 @@ enum {
   FaceEventKind                 = 193,
 
   // ForwarderStatus and FaceStatus counters
-  NInInterests  = 144,
-  NInData       = 145,
-  NInNacks      = 151,
-  NOutInterests = 146,
-  NOutData      = 147,
-  NOutNacks     = 152,
-  NInBytes      = 148,
-  NOutBytes     = 149,
+  NInInterests          = 144,
+  NInData               = 145,
+  NInNacks              = 151,
+  NOutInterests         = 146,
+  NOutData              = 147,
+  NOutNacks             = 152,
+  NInBytes              = 148,
+  NOutBytes             = 149,
+  NSatisfiedInterests   = 153,
+  NUnsatisfiedInterests = 154,
 
   // Content Store Management
   CsInfo  = 128,
