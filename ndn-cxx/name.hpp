@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -355,24 +355,13 @@ public: // modifiers
   }
 
   /** @brief Append a version component
+   *  @param version the version number to append; if nullopt, the current UNIX time
+   *                 in milliseconds is used
    *  @return a reference to this name, to allow chaining
    *  @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   Name&
-  appendVersion(uint64_t version)
-  {
-    return append(Component::fromVersion(version));
-  }
-
-  /** @brief Append a version component based on current time
-   *
-   *  The version number is the current UNIX timestamp in milliseconds
-   *
-   *  @return a reference to this name, to allow chaining
-   *  @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
-   */
-  Name&
-  appendVersion();
+  appendVersion(optional<uint64_t> version = nullopt);
 
   /** @brief Append a segment number (sequential) component
    *  @return a reference to this name, to allow chaining
@@ -395,21 +384,12 @@ public: // modifiers
   }
 
   /** @brief Append a timestamp component
+   *  @param timestamp the timestamp to append; if nullopt, the current system time is used
    *  @return a reference to this name, to allow chaining
    *  @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   Name&
-  appendTimestamp(const time::system_clock::TimePoint& timePoint)
-  {
-    return append(Component::fromTimestamp(timePoint));
-  }
-
-  /** @brief Append a timestamp component based on current time
-   *  @return a reference to this name, to allow chaining
-   *  @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
-   */
-  Name&
-  appendTimestamp();
+  appendTimestamp(optional<time::system_clock::TimePoint> timestamp = nullopt);
 
   /** @brief Append a sequence number component
    *  @return a reference to this name, to allow chaining

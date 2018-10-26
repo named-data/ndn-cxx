@@ -40,3 +40,4 @@ in the library:
 * Susmit Shannigrahi    <https://www.linkedin.com/in/susmit-shannigrahi-90433b8>
 * José Quevedo          <http://atnog.av.it.pt/members/jquevedo>
 * Zhiyi Zhang           <http://irl.cs.ucla.edu/~zhiyi/>
+* Chavoosh Ghasemi      <https://www.linkedin.com/in/chavoosh-ghasemi-421327117/>
