@@ -309,20 +309,6 @@ Data::setFinalBlock(optional<name::Component> finalBlockId)
   return *this;
 }
 
-name::Component
-Data::getFinalBlockId() const
-{
-  return m_metaInfo.getFinalBlockId();
-}
-
-Data&
-Data::setFinalBlockId(const name::Component& finalBlockId)
-{
-  resetWire();
-  m_metaInfo.setFinalBlockId(finalBlockId);
-  return *this;
-}
-
 bool
 operator==(const Data& lhs, const Data& rhs)
 {

@@ -128,29 +128,6 @@ public: // getter/setter
   MetaInfo&
   setFinalBlock(optional<name::Component> finalBlockId);
 
-  /** @brief return FinalBlockId
-   *  @deprecated use @c getFinalBlock
-   *
-   *  If FinalBlockId element is omitted, returns a default-constructed @c name::Component.
-   *  This is indistinguishable from having an empty GenericNameComponent as FinalBlockId.
-   */
-  [[deprecated("use getFinalBlock")]]
-  name::Component
-  getFinalBlockId() const
-  {
-    return getFinalBlock().value_or(name::Component());
-  }
-
-  /** @brief set FinalBlockId
-   *  @deprecated use @c setFinalBlock
-   *
-   *  Passing a default-constructed @c name::Component removes FinalBlockId element.
-   *  This API does not support adding an empty GenericNameComponent as FinalBlockId.
-   */
-  [[deprecated("use setFinalBlock")]]
-  MetaInfo&
-  setFinalBlockId(const name::Component& finalBlockId);
-
 public: // app-defined MetaInfo items
   /**
    * @brief Get all app-defined MetaInfo items

@@ -37,7 +37,6 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
   BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK(!a.getFinalBlock());
-  BOOST_CHECK_EQUAL(a.getFinalBlockId(), name::Component());
   BOOST_CHECK_EQUAL(a, a);
 
   MetaInfo b;
@@ -54,12 +53,11 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
   BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Link);
   BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 26290_ms);
   BOOST_CHECK_EQUAL(*a.getFinalBlock(), name::Component("A"));
-  BOOST_CHECK_EQUAL(a.getFinalBlockId(), name::Component("A"));
   BOOST_CHECK_NE(a, b);
 
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
-  b.setFinalBlockId(a.getFinalBlockId());
+  b.setFinalBlock(a.getFinalBlock());
   BOOST_CHECK_EQUAL(b.wireEncode(), wire2);
   BOOST_CHECK_EQUAL(a, b);
 
@@ -73,7 +71,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
 
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
-  b.setFinalBlockId(a.getFinalBlockId());
+  b.setFinalBlock(a.getFinalBlock());
   BOOST_CHECK_EQUAL(b.wireEncode(), wire3);
   BOOST_CHECK_EQUAL(a, b);
 }
@@ -89,7 +87,7 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
   std::string ss[5] = {"h", "hello", "hello, world", "hello, world, alex",
                        "hello, world, alex, I am Xiaoke Jiang"};
 
-  for (int i = 0; i < 5; i++) {
+  for (size_t i = 0; i < 5; i++) {
     uint32_t type = 128 + i * 10;
     info1.addAppMetaInfo(makeNonNegativeIntegerBlock(type, ints[i]));
     type += 5;
@@ -116,7 +114,6 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
   // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
-
   const uint8_t METAINFO[] = {0x14, 0x77, 0x18, 0x01, 0xc4, 0x19, 0x02, 0x0e, 0x10, 0x1a, 0x0c,
                               0x08, 0x0a, 0x2f, 0x61, 0x74, 0x74, 0x2f, 0x66, 0x69, 0x6e, 0x61,
                               0x6c, 0x80, 0x01, 0x80, 0x85, 0x01, 0x68, 0x8a, 0x01, 0x81, 0x8f,
@@ -135,18 +132,17 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
   MetaInfo info2;
   info2.wireDecode(Block(METAINFO, sizeof(METAINFO)));
 
-  for (int i = 0; i < 5; i++) {
+  for (size_t i = 0; i < 5; i++) {
     uint32_t tlvType = 128 + i * 10;
     const Block* block = info2.findAppMetaInfo(tlvType);
-    BOOST_REQUIRE(block != 0);
+    BOOST_REQUIRE(block != nullptr);
     BOOST_CHECK_EQUAL(readNonNegativeInteger(*block), ints[i]);
     tlvType += 5;
 
     block = info2.findAppMetaInfo(tlvType);
-    BOOST_REQUIRE(block != 0);
+    BOOST_REQUIRE(block != nullptr);
 
-    std::string s3 = std::string(reinterpret_cast<const char*>(block->value()),
-                                 block->value_size());
+    std::string s3(reinterpret_cast<const char*>(block->value()), block->value_size());
     BOOST_CHECK_EQUAL(s3, ss[i]);
   }
 }

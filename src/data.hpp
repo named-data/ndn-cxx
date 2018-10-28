@@ -227,20 +227,6 @@ public: // MetaInfo fields
   Data&
   setFinalBlock(optional<name::Component> finalBlockId);
 
-  /** @deprecated Use @c getFinalBlock
-   *  @sa MetaInfo::getFinalBlockId
-   */
-  [[deprecated("use getFinalBlock")]]
-  name::Component
-  getFinalBlockId() const;
-
-  /** @deprecated Use @c setFinalBlock
-   *  @sa MetaInfo::setFinalBlockId
-   */
-  [[deprecated("use setFinalBlock")]]
-  Data&
-  setFinalBlockId(const name::Component& finalBlockId);
-
 protected:
   /** @brief Clear wire encoding and cached FullName
    *  @note This does not clear the SignatureValue.

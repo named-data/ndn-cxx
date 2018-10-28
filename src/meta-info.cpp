@@ -70,15 +70,6 @@ MetaInfo::setFinalBlock(optional<name::Component> finalBlockId)
   return *this;
 }
 
-MetaInfo&
-MetaInfo::setFinalBlockId(const name::Component& finalBlockId)
-{
-  if (finalBlockId.isGeneric() && finalBlockId.empty()) {
-    return setFinalBlock(nullopt);
-  }
-  return setFinalBlock(finalBlockId);
-}
-
 const std::list<Block>&
 MetaInfo::getAppMetaInfo() const
 {
