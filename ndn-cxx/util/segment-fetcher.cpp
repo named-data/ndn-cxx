@@ -229,8 +229,6 @@ SegmentFetcher::afterSegmentReceivedCb(const Interest& origInterest, const Data&
   if (shouldStop(weakSelf))
     return;
 
-  afterSegmentReceived(data);
-
   BOOST_ASSERT(m_nSegmentsInFlight > 0);
   m_nSegmentsInFlight--;
 
@@ -249,6 +247,12 @@ SegmentFetcher::afterSegmentReceivedCb(const Interest& origInterest, const Data&
   else {
     pendingSegmentIt = m_pendingSegments.begin();
   }
+
+  if (pendingSegmentIt == m_pendingSegments.end()) {
+    return;
+  }
+
+  afterSegmentReceived(data);
 
   // Cancel timeout event
   m_scheduler.cancelEvent(pendingSegmentIt->second.timeoutEvent);
@@ -479,6 +483,7 @@ SegmentFetcher::updateRetransmittedSegment(uint64_t segmentNum,
   BOOST_ASSERT(pendingSegmentIt != m_pendingSegments.end());
   BOOST_ASSERT(pendingSegmentIt->second.state == SegmentState::InRetxQueue);
   pendingSegmentIt->second.state = SegmentState::Retransmitted;
+  m_face.removePendingInterest(pendingSegmentIt->second.id);
   pendingSegmentIt->second.id = pendingInterest;
   pendingSegmentIt->second.timeoutEvent = timeoutEvent;
 }

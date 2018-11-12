@@ -855,6 +855,28 @@ BOOST_AUTO_TEST_CASE(OutOfScopeTimeout)
   BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 2);
 }
 
+BOOST_AUTO_TEST_CASE(UncanceledPendingInterestBug) // Bug #4770
+{
+  DummyValidator acceptValidator;
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator);
+  connectSignals(fetcher);
+
+  // Fetcher will send the first interest immediately
+  // and the second interest after 1 second by default
+  advanceClocks(1100_ms);
+
+  // Face will give data to the fetcher twice if the first interest is not canceled.
+  // isFinal=false to keep fetcher alive so that it can receive the second data.
+  face.receive(*makeDataSegment("/hello/world/version0", 0, false));
+
+  advanceClocks(1100_ms);
+
+  face.receive(*makeDataSegment("/hello/world/version0", 1, true));
+
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nCompletions, 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestSegmentFetcher
 BOOST_AUTO_TEST_SUITE_END() // Util
 
