@@ -42,20 +42,38 @@ BOOST_AUTO_TEST_CASE(GetLimit)
 BOOST_AUTO_TEST_CASE(InsertAndDouble)
 {
   InMemoryStoragePersistent ims;
+  size_t initialCapacity = ims.getCapacity();
 
-  for(int i = 0; i < 11; i++) {
-    std::ostringstream convert;
-    convert << i;
-    Name name("/" + convert.str());
-    shared_ptr<Data> data = makeData(name);
+  for (size_t i = 0; i < initialCapacity + 1; i++) {
+    shared_ptr<Data> data = makeData(to_string(i));
     data->setFreshnessPeriod(5000_ms);
     signData(data);
     ims.insert(*data);
   }
 
-  BOOST_CHECK_EQUAL(ims.size(), 11);
+  BOOST_CHECK_EQUAL(ims.size(), initialCapacity + 1);
 
-  BOOST_CHECK_EQUAL(ims.getCapacity(), 20);
+  BOOST_CHECK_EQUAL(ims.getCapacity(), initialCapacity * 2);
+}
+
+BOOST_AUTO_TEST_CASE(EraseAndShrink)
+{
+  InMemoryStoragePersistent ims;
+
+  auto capacity = ims.getCapacity() * 2;
+  ims.setCapacity(capacity);
+
+  Name name("/1");
+  shared_ptr<Data> data = makeData(name);
+  data->setFreshnessPeriod(5000_ms);
+  signData(data);
+  ims.insert(*data);
+  BOOST_CHECK_EQUAL(ims.size(), 1);
+
+  ims.erase(name);
+
+  BOOST_CHECK_EQUAL(ims.size(), 0);
+  BOOST_CHECK_EQUAL(ims.getCapacity(), capacity / 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStoragePersistent

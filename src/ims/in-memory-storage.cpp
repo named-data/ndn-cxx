@@ -100,7 +100,7 @@ void
 InMemoryStorage::init()
 {
   // TODO consider a more suitable initial value
-  m_capacity = 10;
+  m_capacity = m_initCapacity;
 
   if (m_limit != std::numeric_limits<size_t>::max() && m_capacity > m_limit) {
     m_capacity = m_limit;
@@ -131,7 +131,7 @@ void
 InMemoryStorage::setCapacity(size_t capacity)
 {
   size_t oldCapacity = m_capacity;
-  m_capacity = capacity;
+  m_capacity = std::max(capacity, m_initCapacity);
 
   if (size() > m_capacity) {
     ssize_t nAllowedFailures = size() - m_capacity;

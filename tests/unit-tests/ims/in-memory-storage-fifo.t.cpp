@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,6 +71,21 @@ BOOST_AUTO_TEST_CASE(ArrivalQueue2)
   shared_ptr<Interest> interest2 = makeInterest("/2");
   shared_ptr<const Data> found2 = ims.find(*interest2);
   BOOST_CHECK(found2 == nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(MemoryPoolSizeZeroBug) // Bug #4769
+{
+  InMemoryStorageFifo ims;
+
+  BOOST_CHECK_EQUAL(ims.getCapacity(), 16);
+  for (int i = 1; i < 5; ++i) {
+    ims.insert(*makeData(to_string(i)));
+    ims.erase(Name(to_string(i)));
+  }
+
+  BOOST_CHECK_EQUAL(ims.getCapacity(), 16);
+  ims.insert(*makeData("/5"));
+  BOOST_CHECK_EQUAL(ims.getCapacity(), 16);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStorageFifo

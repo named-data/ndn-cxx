@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEraseByPrefix, T, InMemoryStorages)
   Name name("/c");
   ims.erase(name);
   BOOST_CHECK_EQUAL(ims.size(), 3);
-  BOOST_CHECK_EQUAL(ims.getCapacity(), 5);
+  BOOST_CHECK_EQUAL(ims.getCapacity(), 16);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(DigestCalculation, T, InMemoryStorages)
@@ -636,14 +636,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SetCapacity, T, InMemoryStoragesLimited)
 {
   T ims;
 
-  ims.setCapacity(3);
-  ims.insert(*makeData("/1"));
-  ims.insert(*makeData("/2"));
-  ims.insert(*makeData("/3"));
-  BOOST_CHECK_EQUAL(ims.size(), 3);
+  ims.setCapacity(18);
+  for (int i = 1; i < 19; ++i) {
+    ims.insert(*makeData(to_string(i)));
+  }
+  BOOST_CHECK_EQUAL(ims.size(), 18);
 
-  ims.setCapacity(2);
-  BOOST_CHECK_EQUAL(ims.size(), 2);
+  ims.setCapacity(16);
+  BOOST_CHECK_EQUAL(ims.size(), 16);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(GetLimit, T, InMemoryStoragesLimited)
@@ -658,19 +658,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GetLimit, T, InMemoryStoragesLimited)
 BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndDouble, T, InMemoryStoragesLimited)
 {
   T ims(40);
+  size_t initialCapacity = ims.getCapacity();
 
-  for (int i = 0; i < 11; i++) {
-    std::ostringstream convert;
-    convert << i;
-    Name name("/" + convert.str());
-    shared_ptr<Data> data = makeData(name);
+  for (size_t i = 0; i < initialCapacity + 1; i++) {
+    shared_ptr<Data> data = makeData(to_string(i));
     data->setFreshnessPeriod(5000_ms);
     signData(data);
     ims.insert(*data);
   }
 
-  BOOST_CHECK_EQUAL(ims.size(), 11);
-  BOOST_CHECK_EQUAL(ims.getCapacity(), 20);
+  BOOST_CHECK_EQUAL(ims.size(), initialCapacity + 1);
+  BOOST_CHECK_EQUAL(ims.getCapacity(), initialCapacity * 2);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEvict, T, InMemoryStoragesLimited)

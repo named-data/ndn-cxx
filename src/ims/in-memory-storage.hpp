@@ -332,6 +332,8 @@ private:
   Cache m_cache;
   /// user defined maximum capacity of the in-memory storage in packets
   size_t m_limit;
+  /// initial capacity, used as minimum capacity
+  const size_t m_initCapacity = 16;
   /// current capacity of the in-memory storage in packets
   size_t m_capacity;
   /// current number of packets in in-memory storage

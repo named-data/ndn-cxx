@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,9 +38,10 @@ class InMemoryStorageLru : public InMemoryStorage
 {
 public:
   explicit
-  InMemoryStorageLru(size_t limit = 10);
+  InMemoryStorageLru(size_t limit = 16);
 
-  InMemoryStorageLru(boost::asio::io_service& ioService, size_t limit = 10);
+  explicit
+  InMemoryStorageLru(boost::asio::io_service& ioService, size_t limit = 16);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on LRU, i.e. evict the least
