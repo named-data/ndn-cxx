@@ -30,6 +30,7 @@
 #include "../../security/validator-null.hpp"
 #include "../../security/v2/key-chain.hpp"
 #include "../../security/v2/validator.hpp"
+#include "../../util/segment-fetcher.hpp"
 
 namespace ndn {
 
@@ -67,6 +68,8 @@ public:
    */
   Controller(Face& face, KeyChain& keyChain,
              security::v2::Validator& validator = security::getAcceptAllValidator());
+
+  ~Controller();
 
   /** \brief start command execution
    */
@@ -172,6 +175,9 @@ protected:
   KeyChain& m_keyChain;
   security::v2::Validator& m_validator;
   security::CommandInterestSigner m_signer;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
+  std::set<shared_ptr<util::SegmentFetcher>> m_fetchers;
 };
 
 template<typename Dataset>

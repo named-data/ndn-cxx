@@ -22,7 +22,6 @@
 #include "controller.hpp"
 #include "face.hpp"
 #include "security/v2/key-chain.hpp"
-#include "util/segment-fetcher.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -43,6 +42,13 @@ Controller::Controller(Face& face, KeyChain& keyChain, security::v2::Validator& 
   , m_validator(validator)
   , m_signer(keyChain)
 {
+}
+
+Controller::~Controller()
+{
+  for (const auto& sp : m_fetchers) {
+    sp->stop();
+  }
 }
 
 void
@@ -151,6 +157,10 @@ Controller::fetchDataset(const Name& prefix,
       processDatasetFetchError(onFailure, code, msg);
     });
   }
+
+  auto it = m_fetchers.insert(fetcher).first;
+  fetcher->onComplete.connect([this, it] (ConstBufferPtr) { m_fetchers.erase(it); });
+  fetcher->onError.connect([this, it] (uint32_t, const std::string&) { m_fetchers.erase(it); });
 }
 
 void

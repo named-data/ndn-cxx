@@ -115,8 +115,11 @@ BOOST_AUTO_TEST_CASE(Timeout)
     [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback,
     options);
-  this->advanceClocks(500_ms, 7);
+  this->advanceClocks(500_ms);
+  BOOST_CHECK_EQUAL(controller.m_fetchers.size(), 1);
 
+  this->advanceClocks(500_ms, 6);
+  BOOST_CHECK_EQUAL(controller.m_fetchers.size(), 0);
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);
   BOOST_CHECK_EQUAL(failCodes.back(), Controller::ERROR_TIMEOUT);
 }
@@ -210,6 +213,7 @@ BOOST_AUTO_TEST_CASE(Success)
     nullptr,
     datasetFailCallback);
   this->advanceClocks(500_ms);
+  BOOST_CHECK_EQUAL(controller.m_fetchers.size(), 1);
 
   FaceStatus payload;
   payload.setFaceId(2577);
@@ -217,6 +221,7 @@ BOOST_AUTO_TEST_CASE(Success)
   BOOST_CHECK_NO_THROW(this->advanceClocks(500_ms));
 
   BOOST_CHECK_EQUAL(failCodes.size(), 0);
+  BOOST_CHECK_EQUAL(controller.m_fetchers.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(Failure)
