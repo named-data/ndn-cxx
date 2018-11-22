@@ -13,7 +13,7 @@
 
 #define optional_lite_MAJOR  3
 #define optional_lite_MINOR  1
-#define optional_lite_PATCH  0
+#define optional_lite_PATCH  1
 
 #define optional_lite_VERSION  optional_STRINGIFY(optional_lite_MAJOR) "." optional_STRINGIFY(optional_lite_MINOR) "." optional_STRINGIFY(optional_lite_PATCH)
 
@@ -34,7 +34,7 @@
 // Note: VC14.0/1900 (VS2015) lacks too much from C++14.
 
 #ifndef   optional_CPLUSPLUS
-# ifdef  _MSVC_LANG
+# if defined(_MSVC_LANG ) && !defined(__clang__)
 #  define optional_CPLUSPLUS  (_MSC_VER == 1900 ? 201103L : _MSVC_LANG )
 # else
 #  define optional_CPLUSPLUS  __cplusplus
@@ -43,6 +43,7 @@
 
 #define optional_CPP98_OR_GREATER  ( optional_CPLUSPLUS >= 199711L )
 #define optional_CPP11_OR_GREATER  ( optional_CPLUSPLUS >= 201103L )
+#define optional_CPP11_OR_GREATER_ ( optional_CPLUSPLUS >= 201103L )
 #define optional_CPP14_OR_GREATER  ( optional_CPLUSPLUS >= 201402L )
 #define optional_CPP17_OR_GREATER  ( optional_CPLUSPLUS >= 201703L )
 #define optional_CPP20_OR_GREATER  ( optional_CPLUSPLUS >= 202000L )
@@ -65,7 +66,97 @@
 
 #define optional_USES_STD_OPTIONAL  ( (optional_CONFIG_SELECT_OPTIONAL == optional_OPTIONAL_STD) || ((optional_CONFIG_SELECT_OPTIONAL == optional_OPTIONAL_DEFAULT) && optional_HAVE_STD_OPTIONAL) )
 
+//
+// in_place: code duplicated in any-lite, expected-lite, optional-lite, value-ptr-lite, variant-lite:
+//
+
+#ifndef nonstd_lite_HAVE_IN_PLACE_TYPES
+#define nonstd_lite_HAVE_IN_PLACE_TYPES  1
+
+// C++17 std::in_place in <utility>:
+
+#if optional_CPP17_OR_GREATER
+
+#include <utility>
+
+namespace nonstd {
+
+using std::in_place;
+using std::in_place_type;
+using std::in_place_index;
+using std::in_place_t;
+using std::in_place_type_t;
+using std::in_place_index_t;
+
+#define nonstd_lite_in_place_t(      T)  std::in_place_t
+#define nonstd_lite_in_place_type_t( T)  std::in_place_type_t<T>
+#define nonstd_lite_in_place_index_t(K)  std::in_place_index_t<K>
+
+#define nonstd_lite_in_place(      T)    std::in_place_t{}
+#define nonstd_lite_in_place_type( T)    std::in_place_type_t<T>{}
+#define nonstd_lite_in_place_index(K)    std::in_place_index_t<K>{}
+
+} // namespace nonstd
+
+#else // optional_CPP17_OR_GREATER
+
+#include <cstddef>
+
+namespace nonstd {
+namespace detail {
+
+template< class T >
+struct in_place_type_tag {};
+
+template< std::size_t K >
+struct in_place_index_tag {};
+
+} // namespace detail
+
+struct in_place_t {};
+
+template< class T >
+inline in_place_t in_place( detail::in_place_type_tag<T> = detail::in_place_type_tag<T>() )
+{
+    return in_place_t();
+}
+
+template< std::size_t K >
+inline in_place_t in_place( detail::in_place_index_tag<K> = detail::in_place_index_tag<K>() )
+{
+    return in_place_t();
+}
+
+template< class T >
+inline in_place_t in_place_type( detail::in_place_type_tag<T> = detail::in_place_type_tag<T>() )
+{
+    return in_place_t();
+}
+
+template< std::size_t K >
+inline in_place_t in_place_index( detail::in_place_index_tag<K> = detail::in_place_index_tag<K>() )
+{
+    return in_place_t();
+}
+
+// mimic templated typedef:
+
+#define nonstd_lite_in_place_t(      T)  nonstd::in_place_t(&)( nonstd::detail::in_place_type_tag<T>  )
+#define nonstd_lite_in_place_type_t( T)  nonstd::in_place_t(&)( nonstd::detail::in_place_type_tag<T>  )
+#define nonstd_lite_in_place_index_t(K)  nonstd::in_place_t(&)( nonstd::detail::in_place_index_tag<K> )
+
+#define nonstd_lite_in_place(      T)    nonstd::in_place_type<T>
+#define nonstd_lite_in_place_type( T)    nonstd::in_place_type<T>
+#define nonstd_lite_in_place_index(K)    nonstd::in_place_index<K>
+
+} // namespace nonstd
+
+#endif // optional_CPP17_OR_GREATER
+#endif // nonstd_lite_HAVE_IN_PLACE_TYPES
+
+//
 // Using std::optional:
+//
 
 #if optional_USES_STD_OPTIONAL
 
@@ -79,12 +170,6 @@ namespace nonstd {
 
     using std::nullopt;
     using std::nullopt_t;
-    using std::in_place;
-    using std::in_place_type;
-    using std::in_place_index;
-    using std::in_place_t;
-    using std::in_place_type_t;
-    using std::in_place_index_t;
 
     using std::operator==;
     using std::operator!=;
@@ -118,32 +203,47 @@ namespace nonstd {
 
 // Compiler warning suppression:
 
-#if defined (__clang__)
+#if defined(__clang__)
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wundef"
-#elif defined (__GNUC__)
+#elif defined(__GNUC__)
 # pragma GCC   diagnostic push
 # pragma GCC   diagnostic ignored "-Wundef"
 #endif
 
 // half-open range [lo..hi):
-#define optional_BETWEEN( v, lo, hi ) ( lo <= v && v < hi )
+#define optional_BETWEEN( v, lo, hi ) ( (lo) <= (v) && (v) < (hi) )
 
-#if defined(_MSC_VER) && !defined(__clang__)
-# define optional_COMPILER_MSVC_VERSION   (_MSC_VER / 10 - 10 * ( 5 + (_MSC_VER < 1900)) )
+// Compiler versions:
+//
+// MSVC++ 6.0  _MSC_VER == 1200 (Visual Studio 6.0)
+// MSVC++ 7.0  _MSC_VER == 1300 (Visual Studio .NET 2002)
+// MSVC++ 7.1  _MSC_VER == 1310 (Visual Studio .NET 2003)
+// MSVC++ 8.0  _MSC_VER == 1400 (Visual Studio 2005)
+// MSVC++ 9.0  _MSC_VER == 1500 (Visual Studio 2008)
+// MSVC++ 10.0 _MSC_VER == 1600 (Visual Studio 2010)
+// MSVC++ 11.0 _MSC_VER == 1700 (Visual Studio 2012)
+// MSVC++ 12.0 _MSC_VER == 1800 (Visual Studio 2013)
+// MSVC++ 14.0 _MSC_VER == 1900 (Visual Studio 2015)
+// MSVC++ 14.1 _MSC_VER >= 1910 (Visual Studio 2017)
+
+#if defined(_MSC_VER ) && !defined(__clang__)
+# define optional_COMPILER_MSVC_VER      (_MSC_VER )
+# define optional_COMPILER_MSVC_VERSION  (_MSC_VER / 10 - 10 * ( 5 + (_MSC_VER < 1900 ) ) )
 #else
-# define optional_COMPILER_MSVC_VERSION   0
+# define optional_COMPILER_MSVC_VER      0
+# define optional_COMPILER_MSVC_VERSION  0
 #endif
 
 #define optional_COMPILER_VERSION( major, minor, patch )  ( 10 * (10 * major + minor ) + patch )
 
-#if defined (__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__)
 # define optional_COMPILER_GNUC_VERSION   optional_COMPILER_VERSION(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #else
 # define optional_COMPILER_GNUC_VERSION   0
 #endif
 
-#if defined (__clang__)
+#if defined(__clang__)
 # define optional_COMPILER_CLANG_VERSION  optional_COMPILER_VERSION(__clang_major__, __clang_minor__, __clang_patchlevel__)
 #else
 # define optional_COMPILER_CLANG_VERSION  0
@@ -163,80 +263,52 @@ namespace nonstd {
 
 #define optional_HAVE(FEATURE) ( optional_HAVE_##FEATURE )
 
-// Presence of C++11 language features:
-
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 100
-# define optional_HAVE_AUTO  1
-# define optional_HAVE_NULLPTR  1
-# define optional_HAVE_STATIC_ASSERT  1
+#ifdef _HAS_CPP0X
+# define optional_HAS_CPP0X  _HAS_CPP0X
+#else
+# define optional_HAS_CPP0X  0
 #endif
 
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 120
-# define optional_HAVE_DEFAULT_FUNCTION_TEMPLATE_ARG  1
-# define optional_HAVE_INITIALIZER_LIST  1
-#endif
+// Unless defined otherwise below, consider VC14 as C++11 for optional-lite:
 
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 140
-# define optional_HAVE_ALIAS_TEMPLATE  1
-# define optional_HAVE_CONSTEXPR_11  1
-# define optional_HAVE_ENUM_CLASS  1
-# define optional_HAVE_EXPLICIT_CONVERSION  1
-# define optional_HAVE_IS_DEFAULT  1
-# define optional_HAVE_IS_DELETE  1
-# define optional_HAVE_NOEXCEPT  1
-# define optional_HAVE_REF_QUALIFIER  1
-#endif
-
-// Presence of C++14 language features:
-
-#if optional_CPP14_OR_GREATER
-# define optional_HAVE_CONSTEXPR_14  1
-#endif
-
-// Presence of C++17 language features:
-
-#if optional_CPP17_OR_GREATER
-# define optional_HAVE_ENUM_CLASS_CONSTRUCTION_FROM_UNDERLYING_TYPE  1
-#endif
-
-// Presence of C++ library features:
-
-#if optional_COMPILER_GNUC_VERSION
-# define optional_HAVE_TR1_TYPE_TRAITS  1
-# define optional_HAVE_TR1_ADD_POINTER  1
-#endif
-
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 90
-# define optional_HAVE_TYPE_TRAITS  1
-# define optional_HAVE_STD_ADD_POINTER  1
-#endif
-
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 110
-# define optional_HAVE_ARRAY  1
-#endif
-
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 120
-# define optional_HAVE_CONDITIONAL  1
-#endif
-
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 140 || (optional_COMPILER_MSVC_VERSION >= 90 && _HAS_CPP0X)
-# define optional_HAVE_CONTAINER_DATA_METHOD  1
-#endif
-
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 120
-# define optional_HAVE_REMOVE_CV  1
-#endif
-
-#if optional_CPP11_OR_GREATER || optional_COMPILER_MSVC_VERSION >= 140
-# define optional_HAVE_SIZED_TYPES  1
-#endif
-
-// For the rest, consider VC14 as C++11 for optional-lite:
-
-#if optional_COMPILER_MSVC_VERSION >= 140
+#if optional_COMPILER_MSVC_VER >= 1900
 # undef  optional_CPP11_OR_GREATER
 # define optional_CPP11_OR_GREATER  1
 #endif
+
+#define optional_CPP11_90   (optional_CPP11_OR_GREATER_ || optional_COMPILER_MSVC_VER >= 1500)
+#define optional_CPP11_100  (optional_CPP11_OR_GREATER_ || optional_COMPILER_MSVC_VER >= 1600)
+#define optional_CPP11_110  (optional_CPP11_OR_GREATER_ || optional_COMPILER_MSVC_VER >= 1700)
+#define optional_CPP11_120  (optional_CPP11_OR_GREATER_ || optional_COMPILER_MSVC_VER >= 1800)
+#define optional_CPP11_140  (optional_CPP11_OR_GREATER_ || optional_COMPILER_MSVC_VER >= 1900)
+#define optional_CPP11_141  (optional_CPP11_OR_GREATER_ || optional_COMPILER_MSVC_VER >= 1910)
+
+#define optional_CPP14_000  (optional_CPP14_OR_GREATER)
+#define optional_CPP17_000  (optional_CPP17_OR_GREATER)
+
+// Presence of C++11 language features:
+
+#define optional_HAVE_CONSTEXPR_11      optional_CPP11_140
+#define optional_HAVE_NOEXCEPT          optional_CPP11_140
+#define optional_HAVE_NULLPTR           optional_CPP11_100
+#define optional_HAVE_REF_QUALIFIER     optional_CPP11_140
+
+// Presence of C++14 language features:
+
+#define optional_HAVE_CONSTEXPR_14      optional_CPP14_000
+
+// Presence of C++17 language features:
+
+// no flag
+
+// Presence of C++ library features:
+
+#define optional_HAVE_CONDITIONAL       optional_CPP11_120
+#define optional_HAVE_REMOVE_CV         optional_CPP11_120
+#define optional_HAVE_TYPE_TRAITS       optional_CPP11_90
+
+#define optional_HAVE_TR1_TYPE_TRAITS   (!! optional_COMPILER_GNUC_VERSION )
+#define optional_HAVE_TR1_ADD_POINTER   (!! optional_COMPILER_GNUC_VERSION )
 
 // C++ feature usage:
 
@@ -302,90 +374,6 @@ namespace nonstd {
     , typename std::enable_if<__VA_ARGS__, void*>::type = optional_nullptr
 
 #endif
-
-//
-// in_place: code duplicated in any-lite, expected-lite, optional-lite, variant-lite:
-//
-
-#ifndef nonstd_lite_HAVE_IN_PLACE_TYPES
-#define nonstd_lite_HAVE_IN_PLACE_TYPES  1
-
-// C++17 std::in_place in <utility>:
-
-#if optional_CPP17_OR_GREATER
-
-namespace nonstd {
-
-using std::in_place;
-using std::in_place_type;
-using std::in_place_index;
-using std::in_place_t;
-using std::in_place_type_t;
-using std::in_place_index_t;
-
-#define nonstd_lite_in_place_t(      T)  std::in_place_t
-#define nonstd_lite_in_place_type_t( T)  std::in_place_type_t<T>
-#define nonstd_lite_in_place_index_t(T)  std::in_place_index_t<I>
-
-#define nonstd_lite_in_place(      T)    std::in_place_t{}
-#define nonstd_lite_in_place_type( T)    std::in_place_type_t<T>{}
-#define nonstd_lite_in_place_index(T)    std::in_place_index_t<I>{}
-
-} // namespace nonstd
-
-#else // optional_CPP17_OR_GREATER
-
-namespace nonstd {
-namespace detail {
-
-template< class T >
-struct in_place_type_tag {};
-
-template< std::size_t I >
-struct in_place_index_tag {};
-
-} // namespace detail
-
-struct in_place_t {};
-
-template< class T >
-inline in_place_t in_place( detail::in_place_type_tag<T> = detail::in_place_type_tag<T>() )
-{
-    return in_place_t();
-}
-
-template< std::size_t I >
-inline in_place_t in_place( detail::in_place_index_tag<I> = detail::in_place_index_tag<I>() )
-{
-    return in_place_t();
-}
-
-template< class T >
-inline in_place_t in_place_type( detail::in_place_type_tag<T> = detail::in_place_type_tag<T>() )
-{
-    return in_place_t();
-}
-
-template< std::size_t I >
-inline in_place_t in_place_index( detail::in_place_index_tag<I> = detail::in_place_index_tag<I>() )
-{
-    return in_place_t();
-}
-
-// mimic templated typedef:
-
-#define nonstd_lite_in_place_t(      T)  nonstd::in_place_t(&)( nonstd::detail::in_place_type_tag<T>  )
-#define nonstd_lite_in_place_type_t( T)  nonstd::in_place_t(&)( nonstd::detail::in_place_type_tag<T>  )
-#define nonstd_lite_in_place_index_t(T)  nonstd::in_place_t(&)( nonstd::detail::in_place_index_tag<I> )
-
-#define nonstd_lite_in_place(      T)    nonstd::in_place_type<T>
-#define nonstd_lite_in_place_type( T)    nonstd::in_place_type<T>
-#define nonstd_lite_in_place_index(T)    nonstd::in_place_index<I>
-
-} // namespace nonstd
-
-#endif // optional_CPP17_OR_GREATER
-#endif // nonstd_lite_HAVE_IN_PLACE_TYPES
 
 //
 // optional:
@@ -1211,7 +1199,7 @@ public:
 
 #if optional_HAVE( REF_QUALIFIER )
 
-    optional_constexpr14 value_type const && value() const optional_refref_qual
+    optional_constexpr value_type const && value() const optional_refref_qual
     {
         return std::move( value() );
     }
@@ -1232,7 +1220,7 @@ public:
     }
 
     template< typename U >
-    optional_constexpr value_type value_or( U && v ) const optional_refref_qual
+    optional_constexpr14 value_type value_or( U && v ) optional_refref_qual
     {
         return has_value() ? std::move( contained.value() ) : static_cast<T>(std::forward<U>( v ) );
     }
@@ -1538,9 +1526,9 @@ public:
 
 #endif // optional_CPP11_OR_GREATER
 
-#if defined (__clang__)
+#if defined(__clang__)
 # pragma clang diagnostic pop
-#elif defined (__GNUC__)
+#elif defined(__GNUC__)
 # pragma GCC   diagnostic pop
 #endif
 

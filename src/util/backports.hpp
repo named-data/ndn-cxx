@@ -49,7 +49,9 @@
 #endif
 
 #include "backports-ostream-joiner.hpp"
+#include "nonstd/any.hpp"
 #include "nonstd/optional.hpp"
+#include "nonstd/variant.hpp"
 
 #ifndef NDN_CXX_HAVE_STD_TO_STRING
 #include <boost/lexical_cast.hpp>
@@ -86,6 +88,11 @@ clamp(const T& v, const T& lo, const T& hi)
 }
 #endif // __cpp_lib_clamp
 
+using ::nonstd::any;
+using ::nonstd::any_cast;
+using ::nonstd::bad_any_cast;
+using ::nonstd::make_any;
+
 using ::nonstd::optional;
 using ::nonstd::bad_optional_access;
 using ::nonstd::nullopt;
@@ -93,6 +100,14 @@ using ::nonstd::nullopt_t;
 using ::nonstd::in_place;
 using ::nonstd::in_place_t;
 using ::nonstd::make_optional;
+
+using ::nonstd::variant;
+using ::nonstd::bad_variant_access;
+using ::nonstd::monostate;
+using ::nonstd::visit;
+using ::nonstd::holds_alternative;
+using ::nonstd::get_if;
+using ::nonstd::variant_npos;
 
 } // namespace ndn
 
