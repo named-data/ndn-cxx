@@ -3,7 +3,7 @@
 top = '..'
 
 def build(bld):
-    # core objects that can be shared between unit and integrated tests
+    # common objects that can be shared between unit and integrated tests
     bld.objects(target='tests-base',
                 features='pch',
                 source=bld.path.ant_glob('*.cpp', excl=['main.cpp']),
@@ -15,13 +15,14 @@ def build(bld):
     config_path = 'UNIT_TEST_CONFIG_PATH="%s"' % bld.bldnode.make_node('tmp-files')
 
     # unit test objects
-    src = bld.path.ant_glob('unit-tests/**/*.cpp',
-                            excl=['**/*-osx.t.cpp', '**/*-sqlite3.t.cpp'])
+    src = bld.path.ant_glob('unit/**/*.cpp', excl=['**/*-osx.t.cpp',
+                                                   '**/*-sqlite3.t.cpp'])
+
     if bld.env['HAVE_OSX_FRAMEWORKS']:
-        src += bld.path.ant_glob('unit-tests/**/*-osx.t.cpp')
+        src += bld.path.ant_glob('unit/**/*-osx.t.cpp')
 
     # In case we want to make it optional later
-    src += bld.path.ant_glob('unit-tests/**/*-sqlite3.t.cpp')
+    src += bld.path.ant_glob('unit/**/*-sqlite3.t.cpp')
 
     bld.objects(target='unit-tests-objects',
                 source=src,

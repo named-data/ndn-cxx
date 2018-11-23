@@ -46,7 +46,7 @@ you are choosing LGPL 3.0, please use the following license boilerplate in all `
 If you are affiliated to an NSF-supported NDN project institution, please use the [NDN Team License
 Boilerplate](https://redmine.named-data.net/projects/ndn-cxx/wiki/NDN_Team_License_Boilerplate_(ndn-cxx)).
 
-Running unit-tests
+Running unit tests
 ------------------
 
 To run unit tests, ndn-cxx needs to be configured, build with unit test support, and installed
@@ -68,7 +68,7 @@ is very flexible and allows a number of run-time customization of what tests sho
 For example, it is possible to choose to run only a specific test suite, only a specific
 test case within a suite, or specific test cases within specific test suites:
 
-    # Run only Face test suite tests (tests/unit-tests/face.t.cpp)
+    # Run only Face test suite tests (tests/unit/face.t.cpp)
     ./build/unit-tests -t TestFace
 
     # Run only test case ExpressInterestData from the same test suite
