@@ -21,9 +21,7 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-// correct way to include ndn-cxx headers
-// #include <ndn-cxx/face.hpp>
-#include "face.hpp"
+#include <ndn-cxx/face.hpp>
 
 #include <iostream>
 

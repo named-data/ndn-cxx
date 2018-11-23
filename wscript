@@ -139,15 +139,15 @@ def configure(conf):
     # config file will contain all defines that were added using conf.define('xxx'...)
     # Everything that was added directly to conf.env['DEFINES'] will not appear in the
     # config file and will be added using compiler directives in the command line.
-    conf.write_config_header('src/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
+    conf.write_config_header('ndn-cxx/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
 
 def build(bld):
     version(bld)
 
     bld(features='subst',
         name='version.hpp',
-        source='src/version.hpp.in',
-        target='src/version.hpp',
+        source='ndn-cxx/version.hpp.in',
+        target='ndn-cxx/version.hpp',
         install_path=None,
         VERSION_STRING=VERSION_BASE,
         VERSION_BUILD=VERSION,
@@ -161,34 +161,33 @@ def build(bld):
     if bld.env['HAVE_OSX_FRAMEWORKS']:
         # Need to disable precompiled headers for Objective-C++ code
         bld(features=['cxx'],
-            target='ndn-cxx-mm',
-            name='ndn-cxx-mm',
-            source=bld.path.ant_glob(['src/**/*-osx.mm']),
-            use='version BOOST OPENSSL SQLITE3 RT PTHREAD OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
-            includes='src')
+            target='ndn-cxx-mm-objects',
+            source=bld.path.ant_glob('ndn-cxx/**/*-osx.mm'),
+            use='BOOST PTHREAD OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
+            includes='. ndn-cxx')
 
     libndn_cxx = dict(
         target='ndn-cxx',
-        source=bld.path.ant_glob('src/**/*.cpp',
-                                 excl=['src/**/*-osx.cpp',
-                                       'src/**/*netlink*.cpp',
-                                       'src/**/*-sqlite3.cpp']),
+        source=bld.path.ant_glob('ndn-cxx/**/*.cpp',
+                                 excl=['ndn-cxx/**/*-osx.cpp',
+                                       'ndn-cxx/**/*netlink*.cpp',
+                                       'ndn-cxx/**/*-sqlite3.cpp']),
         features='pch',
-        headers='src/common-pch.hpp',
-        use='version ndn-cxx-mm BOOST OPENSSL SQLITE3 RT PTHREAD',
-        includes='. src',
-        export_includes='src',
+        headers='ndn-cxx/common-pch.hpp',
+        use='ndn-cxx-mm-objects version BOOST OPENSSL SQLITE3 RT PTHREAD',
+        includes='. ndn-cxx',
+        export_includes='. ndn-cxx',
         install_path='${LIBDIR}')
 
     if bld.env['HAVE_OSX_FRAMEWORKS']:
-        libndn_cxx['source'] += bld.path.ant_glob('src/**/*-osx.cpp')
+        libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*-osx.cpp')
         libndn_cxx['use'] += ' OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN'
 
     if bld.env['HAVE_NETLINK']:
-        libndn_cxx['source'] += bld.path.ant_glob('src/**/*netlink*.cpp')
+        libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*netlink*.cpp')
 
     # In case we want to make it optional later
-    libndn_cxx['source'] += bld.path.ant_glob('src/**/*-sqlite3.cpp')
+    libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*-sqlite3.cpp')
 
     if bld.env.enable_shared:
         bld.shlib(name='ndn-cxx',
@@ -250,29 +249,28 @@ def build(bld):
     if bld.env['WITH_EXAMPLES']:
         bld.recurse('examples')
 
-    headers = bld.path.ant_glob('src/**/*.hpp',
-                                excl=['src/**/*-osx.hpp',
-                                      'src/**/*netlink*.hpp',
-                                      'src/**/*-sqlite3.hpp',
-                                      'src/**/detail/**/*'])
+    headers = bld.path.ant_glob('ndn-cxx/**/*.hpp',
+                                excl=['ndn-cxx/**/*-osx.hpp',
+                                      'ndn-cxx/**/*netlink*.hpp',
+                                      'ndn-cxx/**/*-sqlite3.hpp',
+                                      'ndn-cxx/**/detail/**/*'])
 
     if bld.env['HAVE_OSX_FRAMEWORKS']:
-        headers += bld.path.ant_glob('src/**/*-osx.hpp', excl='src/**/detail/**/*')
+        headers += bld.path.ant_glob('ndn-cxx/**/*-osx.hpp', excl='ndn-cxx/**/detail/**/*')
 
     if bld.env['HAVE_NETLINK']:
-        headers += bld.path.ant_glob('src/**/*netlink*.hpp', excl='src/**/detail/**/*')
+        headers += bld.path.ant_glob('ndn-cxx/**/*netlink*.hpp', excl='ndn-cxx/**/detail/**/*')
 
     # In case we want to make it optional later
-    headers += bld.path.ant_glob('src/**/*-sqlite3.hpp', excl='src/**/detail/**/*')
+    headers += bld.path.ant_glob('ndn-cxx/**/*-sqlite3.hpp', excl='ndn-cxx/**/detail/**/*')
 
-    bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'], headers,
-                      relative_trick=True, cwd=bld.path.find_node('src'))
-
-    bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'],
-                      bld.path.find_resource('src/ndn-cxx-config.hpp'))
+    bld.install_files(bld.env['INCLUDEDIR'], headers, relative_trick=True)
 
     bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'],
-                      bld.path.find_resource('src/version.hpp'))
+                      bld.path.find_resource('ndn-cxx/ndn-cxx-config.hpp'))
+
+    bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'],
+                      bld.path.find_resource('ndn-cxx/version.hpp'))
 
     bld.install_files('${SYSCONFDIR}/ndn', 'client.conf.sample')
 

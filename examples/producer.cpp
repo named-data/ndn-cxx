@@ -21,11 +21,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-// correct way to include ndn-cxx headers
-// #include <ndn-cxx/face.hpp>
-// #include <ndn-cxx/security/key-chain.hpp>
-#include "face.hpp"
-#include "security/key-chain.hpp"
+#include <ndn-cxx/face.hpp>
+#include <ndn-cxx/security/key-chain.hpp>
 
 #include <iostream>
 

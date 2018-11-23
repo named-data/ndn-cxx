@@ -21,11 +21,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-// correct way to include ndn-cxx headers
-// #include <ndn-cxx/face.hpp>
-// #include <ndn-cxx/util/scheduler.hpp>
-#include "face.hpp"
-#include "util/scheduler.hpp"
+#include <ndn-cxx/face.hpp>
+#include <ndn-cxx/util/scheduler.hpp>
 
 #include <boost/asio/io_service.hpp>
 #include <iostream>
