@@ -24,7 +24,7 @@
 #ifndef NDN_ENCODING_BUFFER_STREAM_HPP
 #define NDN_ENCODING_BUFFER_STREAM_HPP
 
-#include "buffer.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
 
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>

@@ -22,21 +22,21 @@
 #ifndef NDN_DETAIL_FACE_IMPL_HPP
 #define NDN_DETAIL_FACE_IMPL_HPP
 
-#include "../face.hpp"
-#include "container-with-on-empty-signal.hpp"
-#include "lp-field-tag.hpp"
-#include "pending-interest.hpp"
-#include "registered-prefix.hpp"
-#include "../lp/packet.hpp"
-#include "../lp/tags.hpp"
-#include "../mgmt/nfd/command-options.hpp"
-#include "../mgmt/nfd/controller.hpp"
-#include "../transport/tcp-transport.hpp"
-#include "../transport/unix-transport.hpp"
-#include "../util/config-file.hpp"
-#include "../util/logger.hpp"
-#include "../util/scheduler.hpp"
-#include "../util/signal.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/detail/container-with-on-empty-signal.hpp"
+#include "ndn-cxx/detail/lp-field-tag.hpp"
+#include "ndn-cxx/detail/pending-interest.hpp"
+#include "ndn-cxx/detail/registered-prefix.hpp"
+#include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/lp/tags.hpp"
+#include "ndn-cxx/mgmt/nfd/command-options.hpp"
+#include "ndn-cxx/mgmt/nfd/controller.hpp"
+#include "ndn-cxx/transport/tcp-transport.hpp"
+#include "ndn-cxx/transport/unix-transport.hpp"
+#include "ndn-cxx/util/config-file.hpp"
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
+#include "ndn-cxx/util/signal.hpp"
 
 NDN_LOG_INIT(ndn.Face);
 // INFO level: prefix registration, etc.

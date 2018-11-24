@@ -22,7 +22,7 @@
 #ifndef NDN_NET_NETWORK_MONITOR_STUB_HPP
 #define NDN_NET_NETWORK_MONITOR_STUB_HPP
 
-#include "network-monitor.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
 
 namespace ndn {
 namespace net {

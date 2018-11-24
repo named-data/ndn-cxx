@@ -19,12 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "pib-data-fixture.hpp"
-#include "../../identity-management-time-fixture.hpp"
+#include "tests/unit/security/pib/pib-data-fixture.hpp"
 
-// #include "security/pib/pib-memory.hpp"
-// #include "security/tpm/tpm.hpp"
-// #include "security/tpm/back-end-mem.hpp"
+// #include "ndn-cxx/security/pib/pib-memory.hpp"
+// #include "ndn-cxx/security/tpm/tpm.hpp"
+// #include "ndn-cxx/security/tpm/back-end-mem.hpp"
 // #include <fstream>
 
 namespace ndn {

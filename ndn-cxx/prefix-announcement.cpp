@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "prefix-announcement.hpp"
-#include "encoding/tlv-nfd.hpp"
+#include "ndn-cxx/prefix-announcement.hpp"
+#include "ndn-cxx/encoding/tlv-nfd.hpp"
 
 #include <boost/lexical_cast.hpp>
 

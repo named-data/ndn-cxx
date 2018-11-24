@@ -22,7 +22,7 @@
 #ifndef NDN_IMS_IN_MEMORY_STORAGE_HPP
 #define NDN_IMS_IN_MEMORY_STORAGE_HPP
 
-#include "in-memory-storage-entry.hpp"
+#include "ndn-cxx/ims/in-memory-storage-entry.hpp"
 
 #include <iterator>
 #include <stack>

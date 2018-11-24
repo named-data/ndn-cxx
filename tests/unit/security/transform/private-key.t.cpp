@@ -19,13 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
 
-#include "encoding/buffer-stream.hpp"
-#include "security/key-params.hpp"
-#include "security/transform.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/key-params.hpp"
+#include "ndn-cxx/security/transform.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+
 #include <boost/mpl/vector.hpp>
 
 #include <sstream>

@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-params.hpp"
+#include "ndn-cxx/security/key-params.hpp"
 
 namespace ndn {
 

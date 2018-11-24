@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_STRING_HELPER_HPP
 #define NDN_UTIL_STRING_HELPER_HPP
 
-#include "../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 namespace ndn {
 

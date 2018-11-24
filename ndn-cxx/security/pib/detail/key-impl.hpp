@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_PIB_DETAIL_KEY_IMPL_HPP
 #define NDN_SECURITY_PIB_DETAIL_KEY_IMPL_HPP
 
-#include "../../security-common.hpp"
-#include "../certificate-container.hpp"
+#include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/security/pib/certificate-container.hpp"
 
 namespace ndn {
 namespace security {

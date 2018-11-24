@@ -22,7 +22,7 @@
 #ifndef NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
 #define NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
 
-#include "security/tpm/back-end-mem.hpp"
+#include "ndn-cxx/security/tpm/back-end-mem.hpp"
 
 namespace ndn {
 namespace security {

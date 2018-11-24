@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,11 +22,10 @@
 #ifndef NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
 #define NDN_TESTS_IDENTITY_MANAGEMENT_FIXTURE_HPP
 
-#include "security/v2/key-chain.hpp"
-#include "security/signing-helpers.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
 
-#include "boost-test.hpp"
-#include "test-home-fixture.hpp"
+#include "tests/test-home-fixture.hpp"
 
 #include <vector>
 
@@ -62,7 +61,8 @@ public:
    * @return name of the created self-signed certificate
    */
   security::Identity
-  addIdentity(const Name& identityName, const KeyParams& params = security::v2::KeyChain::getDefaultKeyParams());
+  addIdentity(const Name& identityName,
+              const KeyParams& params = security::v2::KeyChain::getDefaultKeyParams());
 
   /**
    *  @brief Save identity certificate to a file

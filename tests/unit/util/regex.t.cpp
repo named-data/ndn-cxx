@@ -21,16 +21,16 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "util/regex.hpp"
-#include "util/regex/regex-backref-manager.hpp"
-#include "util/regex/regex-backref-matcher.hpp"
-#include "util/regex/regex-component-matcher.hpp"
-#include "util/regex/regex-component-set-matcher.hpp"
-#include "util/regex/regex-pattern-list-matcher.hpp"
-#include "util/regex/regex-repeat-matcher.hpp"
-#include "util/regex/regex-top-matcher.hpp"
+#include "ndn-cxx/util/regex.hpp"
+#include "ndn-cxx/util/regex/regex-backref-manager.hpp"
+#include "ndn-cxx/util/regex/regex-backref-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-component-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-component-set-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-pattern-list-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-repeat-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-top-matcher.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace tests {

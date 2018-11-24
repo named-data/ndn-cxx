@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "encoding/encoding-buffer.hpp"
-#include "encoding/block.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/encoding/block.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace tests {

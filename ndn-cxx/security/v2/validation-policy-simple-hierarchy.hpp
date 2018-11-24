@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_POLICY_SIMPLE_HIERARCHY_HPP
 #define NDN_SECURITY_V2_VALIDATION_POLICY_SIMPLE_HIERARCHY_HPP
 
-#include "validation-policy.hpp"
+#include "ndn-cxx/security/v2/validation-policy.hpp"
 
 namespace ndn {
 namespace security {

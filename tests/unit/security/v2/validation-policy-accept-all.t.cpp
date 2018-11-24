@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/validation-policy-accept-all.hpp"
+#include "ndn-cxx/security/v2/validation-policy-accept-all.hpp"
 
-#include "boost-test.hpp"
-#include "validator-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/security/v2/validator-fixture.hpp"
 
 #include <boost/mpl/vector.hpp>
 

@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP
 #define NDN_SECURITY_SIGNATURE_SHA256_WITH_ECDSA_HPP
 
-#include "../signature.hpp"
+#include "ndn-cxx/signature.hpp"
 
 namespace ndn {
 

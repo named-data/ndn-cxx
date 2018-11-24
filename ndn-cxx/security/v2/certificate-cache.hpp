@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_CACHE_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_CACHE_HPP
 
-#include "../../interest.hpp"
-#include "certificate.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>

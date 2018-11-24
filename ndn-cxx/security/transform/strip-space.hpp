@@ -22,7 +22,8 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_STRIP_SPACE_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_STRIP_SPACE_HPP
 
-#include "transform-base.hpp"
+#include "ndn-cxx/security/transform/transform-base.hpp"
+
 #include <bitset>
 #include <climits>
 

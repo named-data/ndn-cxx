@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#ifndef NDN_TESTS_UNIT_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#define NDN_TESTS_UNIT_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
 
-#include "identity-management-fixture.hpp"
-#include "unit-test-time-fixture.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/unit/unit-test-time-fixture.hpp"
 
 namespace ndn {
 namespace tests {
@@ -36,4 +36,4 @@ class IdentityManagementTimeFixture : public UnitTestTimeFixture
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TESTS_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP
+#endif // NDN_TESTS_UNIT_IDENTITY_MANAGEMENT_TIME_FIXTURE_HPP

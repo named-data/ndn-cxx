@@ -19,11 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "name-component.hpp"
-#include "name.hpp"
-#include "util/string-helper.hpp"
+#include "ndn-cxx/name-component.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/mpl/vector.hpp>
 

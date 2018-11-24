@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "pib-sqlite3.hpp"
-#include "pib.hpp"
-#include "../security-common.hpp"
-#include "../../util/sqlite3-statement.hpp"
+#include "ndn-cxx/security/pib/pib-sqlite3.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
+#include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/util/sqlite3-statement.hpp"
 
 #include <sqlite3.h>
 #include <boost/filesystem.hpp>

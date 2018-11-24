@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/signature-sha256-with-ecdsa.hpp"
-#include "security/verification-helpers.hpp"
-#include "util/scheduler.hpp"
+#include "ndn-cxx/security/signature-sha256-with-ecdsa.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
-#include "boost-test.hpp"
-#include "../identity-management-time-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace security {

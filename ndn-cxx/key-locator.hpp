@@ -22,8 +22,8 @@
 #ifndef NDN_KEY_LOCATOR_HPP
 #define NDN_KEY_LOCATOR_HPP
 
-#include "encoding/encoding-buffer.hpp"
-#include "name.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
 
 namespace ndn {
 

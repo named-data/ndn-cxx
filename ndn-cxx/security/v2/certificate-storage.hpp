@@ -22,9 +22,9 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_STORAGE_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_STORAGE_HPP
 
-#include "certificate.hpp"
-#include "certificate-cache.hpp"
-#include "trust-anchor-container.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
+#include "ndn-cxx/security/v2/certificate-cache.hpp"
+#include "ndn-cxx/security/v2/trust-anchor-container.hpp"
 
 namespace ndn {
 namespace security {

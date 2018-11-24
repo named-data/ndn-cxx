@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2015 Regents of the University of California.
+/*
+ * Copyright (c) 2015-2018 Regents of the University of California.
  *
  * Based on work by Martin Ba (http://stackoverflow.com/a/26718189)
  *
@@ -8,8 +8,8 @@
  * (See http://www.boost.org/LICENSE_1_0.txt)
  */
 
-#ifndef NDN_TESTS_BOOST_MULTI_LOG_FORMATTER_HPP
-#define NDN_TESTS_BOOST_MULTI_LOG_FORMATTER_HPP
+#ifndef NDN_TESTS_UNIT_BOOST_MULTI_LOG_FORMATTER_HPP
+#define NDN_TESTS_UNIT_BOOST_MULTI_LOG_FORMATTER_HPP
 
 #include <boost/version.hpp>
 
@@ -211,4 +211,4 @@ private:
 } // namespace unit_test
 } // namespace boost
 
-#endif // NDN_TESTS_BOOST_MULTI_LOG_FORMATTER_HPP
+#endif // NDN_TESTS_UNIT_BOOST_MULTI_LOG_FORMATTER_HPP

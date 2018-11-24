@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_COMMAND_INTEREST_SIGNER_HPP
 #define NDN_SECURITY_COMMAND_INTEREST_SIGNER_HPP
 
-#include "v2/key-chain.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
 
 namespace ndn {
 namespace security {

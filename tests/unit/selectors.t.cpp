@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "selectors.hpp"
+#include "ndn-cxx/selectors.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace tests {

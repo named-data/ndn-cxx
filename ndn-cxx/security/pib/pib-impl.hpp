@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_PIB_PIB_IMPL_HPP
 #define NDN_SECURITY_PIB_PIB_IMPL_HPP
 
-#include "pib.hpp"
-#include "../v2/certificate.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 #include <set>
 

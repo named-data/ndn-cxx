@@ -23,7 +23,7 @@
  * @author Chavoosh Ghasemi
  */
 
-#include "rtt-estimator.hpp"
+#include "ndn-cxx/util/rtt-estimator.hpp"
 
 #include <cmath>
 #include <limits>

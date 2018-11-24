@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/random.hpp"
-#include "security/detail/openssl.hpp"
+#include "ndn-cxx/util/random.hpp"
+#include "ndn-cxx/security/detail/openssl.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <boost/mpl/vector.hpp>
 #include <cmath>

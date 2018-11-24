@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "bool-sink.hpp"
+#include "ndn-cxx/security/transform/bool-sink.hpp"
 
 namespace ndn {
 namespace security {

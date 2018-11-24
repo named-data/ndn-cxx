@@ -22,9 +22,9 @@
 #ifndef NDN_CXX_LP_FIELD_HPP
 #define NDN_CXX_LP_FIELD_HPP
 
-#include "../common.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../util/concepts.hpp"
+#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace lp {

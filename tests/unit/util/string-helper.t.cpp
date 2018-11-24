@@ -19,13 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/string-helper.hpp"
-#include "encoding/buffer.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <cctype>
 #include <cstring>
+#include <boost/test/output_test_stream.hpp>
 
 namespace ndn {
 namespace util {

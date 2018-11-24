@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "buffer-source.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "cf-string-osx.hpp"
+#include "ndn-cxx/util/cf-string-osx.hpp"
 
 namespace ndn {
 namespace util {

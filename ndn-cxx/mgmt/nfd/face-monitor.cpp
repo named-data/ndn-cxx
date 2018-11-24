@@ -25,7 +25,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "face-monitor.hpp"
+#include "ndn-cxx/mgmt/nfd/face-monitor.hpp"
 
 namespace ndn {
 namespace nfd {

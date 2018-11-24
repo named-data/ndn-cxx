@@ -24,7 +24,7 @@
 #ifndef NDN_ENCODING_BUFFER_HPP
 #define NDN_ENCODING_BUFFER_HPP
 
-#include "../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 #include <vector>
 

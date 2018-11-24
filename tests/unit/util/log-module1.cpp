@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/logger.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 NDN_LOG_INIT(Module1);
 

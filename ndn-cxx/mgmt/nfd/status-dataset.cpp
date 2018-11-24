@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "status-dataset.hpp"
-#include "../../util/concepts.hpp"
+#include "ndn-cxx/mgmt/nfd/status-dataset.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {

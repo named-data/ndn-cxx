@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "certificate-fetcher.hpp"
-#include "util/logger.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
 namespace security {

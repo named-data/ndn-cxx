@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "transport.hpp"
+#include "ndn-cxx/transport/transport.hpp"
 
 namespace ndn {
 

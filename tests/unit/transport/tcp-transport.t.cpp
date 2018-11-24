@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "transport/tcp-transport.hpp"
-#include "transport-fixture.hpp"
+#include "ndn-cxx/transport/tcp-transport.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/transport/transport-fixture.hpp"
 
 namespace ndn {
 namespace tests {

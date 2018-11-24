@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_TIME_UNIT_TEST_CLOCK_HPP
 #define NDN_UTIL_TIME_UNIT_TEST_CLOCK_HPP
 
-#include "time-custom-clock.hpp"
+#include "ndn-cxx/util/time-custom-clock.hpp"
 
 namespace ndn {
 namespace time {

@@ -28,8 +28,8 @@
 #ifndef NDN_UTIL_CONCEPTS_HPP
 #define NDN_UTIL_CONCEPTS_HPP
 
-#include "../encoding/block.hpp"
-#include "../encoding/encoding-buffer.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
 
 #include <boost/concept/usage.hpp>
 #include <boost/type_traits/has_equal_to.hpp>

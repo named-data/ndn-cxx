@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "stream-source.hpp"
+#include "ndn-cxx/security/transform/stream-source.hpp"
 
 #include <istream>
 #include <vector>

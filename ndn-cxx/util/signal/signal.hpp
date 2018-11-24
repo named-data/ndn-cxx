@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_SIGNAL_SIGNAL_HPP
 #define NDN_UTIL_SIGNAL_SIGNAL_HPP
 
-#include "connection.hpp"
+#include "ndn-cxx/util/signal/connection.hpp"
 
 #include <list>
 

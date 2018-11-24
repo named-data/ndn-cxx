@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-locator.hpp"
-#include "encoding/block-helpers.hpp"
+#include "ndn-cxx/key-locator.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {

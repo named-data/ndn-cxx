@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "in-memory-storage-persistent.hpp"
+#include "ndn-cxx/ims/in-memory-storage-persistent.hpp"
 
 namespace ndn {
 

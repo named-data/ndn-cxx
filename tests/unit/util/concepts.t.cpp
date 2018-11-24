@@ -25,7 +25,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/concepts.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace tests {

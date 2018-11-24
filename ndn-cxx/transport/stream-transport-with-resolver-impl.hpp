@@ -22,7 +22,7 @@
 #ifndef NDN_TRANSPORT_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP
 #define NDN_TRANSPORT_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP
 
-#include "stream-transport-impl.hpp"
+#include "ndn-cxx/transport/stream-transport-impl.hpp"
 
 namespace ndn {
 

@@ -22,8 +22,8 @@
 #ifndef NDN_MGMT_NFD_FIB_ENTRY_HPP
 #define NDN_MGMT_NFD_FIB_ENTRY_HPP
 
-#include "../../encoding/block.hpp"
-#include "../../name.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn {
 namespace nfd {

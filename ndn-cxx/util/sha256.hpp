@@ -22,9 +22,9 @@
 #ifndef NDN_UTIL_SHA256_HPP
 #define NDN_UTIL_SHA256_HPP
 
-#include "../encoding/block.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "../security/transform/step-source.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/step-source.hpp"
 
 namespace ndn {
 namespace util {

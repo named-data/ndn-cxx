@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "data.hpp"
-#include "encoding/block-helpers.hpp"
-#include "util/sha256.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/sha256.hpp"
 
 namespace ndn {
 

@@ -22,8 +22,8 @@
 #ifndef NDN_CXX_SECURITY_DETAIL_OPENSSL_HELPER_HPP
 #define NDN_CXX_SECURITY_DETAIL_OPENSSL_HELPER_HPP
 
-#include "openssl.hpp"
-#include "../security-common.hpp"
+#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {

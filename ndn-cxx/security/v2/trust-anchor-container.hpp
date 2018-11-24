@@ -22,9 +22,9 @@
 #ifndef NDN_SECURITY_V2_TRUST_ANCHOR_CONTAINER_HPP
 #define NDN_SECURITY_V2_TRUST_ANCHOR_CONTAINER_HPP
 
-#include "trust-anchor-group.hpp"
-#include "certificate.hpp"
-#include "../../interest.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
+#include "ndn-cxx/security/v2/trust-anchor-group.hpp"
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>

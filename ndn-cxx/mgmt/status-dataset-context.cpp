@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "status-dataset-context.hpp"
+#include "ndn-cxx/mgmt/status-dataset-context.hpp"
 
 namespace ndn {
 namespace mgmt {

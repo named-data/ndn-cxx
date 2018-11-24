@@ -1,0 +1,29 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+top = '../..'
+
+def build(bld):
+    configPath = 'UNIT_TEST_CONFIG_PATH="%s"' % bld.bldnode.make_node('tmp-files')
+
+    # unit test objects
+    srcFiles = bld.path.ant_glob('**/*.cpp', excl=['main.cpp',
+                                                   '**/*-osx.t.cpp',
+                                                   '**/*-sqlite3.t.cpp'])
+
+    if bld.env['HAVE_OSX_FRAMEWORKS']:
+        srcFiles += bld.path.ant_glob('**/*-osx.t.cpp')
+
+    # In case we want to make it optional later
+    srcFiles += bld.path.ant_glob('**/*-sqlite3.t.cpp')
+
+    bld.objects(target='unit-tests-objects',
+                source=srcFiles,
+                use='tests-common',
+                defines=[configPath])
+
+    # unit test binary
+    bld.program(target='../../unit-tests',
+                name='unit-tests',
+                source=['main.cpp'],
+                use='unit-tests-objects',
+                install_path=None)

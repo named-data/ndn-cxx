@@ -19,11 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "mgmt/nfd/status-dataset.hpp"
-#include "mgmt/nfd/controller.hpp"
+#include "ndn-cxx/mgmt/nfd/status-dataset.hpp"
+#include "ndn-cxx/mgmt/nfd/controller.hpp"
 
-#include "controller-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/mgmt/nfd/controller-fixture.hpp"
 
 namespace ndn {
 namespace nfd {

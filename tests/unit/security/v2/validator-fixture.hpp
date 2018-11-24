@@ -19,14 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_SECURITY_V2_VALIDATOR_FIXTURE_HPP
-#define NDN_TESTS_SECURITY_V2_VALIDATOR_FIXTURE_HPP
+#ifndef NDN_TESTS_UNIT_SECURITY_V2_VALIDATOR_FIXTURE_HPP
+#define NDN_TESTS_UNIT_SECURITY_V2_VALIDATOR_FIXTURE_HPP
 
-#include "security/v2/validator.hpp"
-#include "security/v2/certificate-fetcher-from-network.hpp"
-#include "util/dummy-client-face.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-from-network.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "../../identity-management-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -180,4 +181,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_TESTS_SECURITY_V2_VALIDATOR_FIXTURE_HPP
+#endif // NDN_TESTS_UNIT_SECURITY_V2_VALIDATOR_FIXTURE_HPP

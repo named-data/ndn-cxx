@@ -19,16 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_MGMT_NFD_CONTROLLER_FIXTURE_HPP
-#define NDN_TESTS_MGMT_NFD_CONTROLLER_FIXTURE_HPP
+#ifndef NDN_TESTS_UNIT_MGMT_NFD_CONTROLLER_FIXTURE_HPP
+#define NDN_TESTS_UNIT_MGMT_NFD_CONTROLLER_FIXTURE_HPP
 
-#include "mgmt/nfd/controller.hpp"
-#include "util/dummy-client-face.hpp"
-#include "security/v2/certificate-fetcher-offline.hpp"
+#include "ndn-cxx/mgmt/nfd/controller.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-offline.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
-#include "dummy-validator.hpp"
-#include "../../identity-management-time-fixture.hpp"
+#include "tests/unit/dummy-validator.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace nfd {
@@ -87,4 +86,4 @@ protected:
 } // namespace nfd
 } // namespace ndn
 
-#endif // NDN_TESTS_MGMT_NFD_CONTROLLER_FIXTURE_HPP
+#endif // NDN_TESTS_UNIT_MGMT_NFD_CONTROLLER_FIXTURE_HPP

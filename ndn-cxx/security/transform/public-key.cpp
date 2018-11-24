@@ -19,14 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "public-key.hpp"
-#include "base64-decode.hpp"
-#include "base64-encode.hpp"
-#include "buffer-source.hpp"
-#include "stream-sink.hpp"
-#include "stream-source.hpp"
-#include "../detail/openssl-helper.hpp"
-#include "../../encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/base64-decode.hpp"
+#include "ndn-cxx/security/transform/base64-encode.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/security/transform/stream-source.hpp"
+#include "ndn-cxx/security/detail/openssl-helper.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
 
 #define ENSURE_PUBLIC_KEY_LOADED(key) \
   do { \

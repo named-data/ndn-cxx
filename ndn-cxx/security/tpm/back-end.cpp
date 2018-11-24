@@ -19,15 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "back-end.hpp"
-#include "key-handle.hpp"
-#include "tpm.hpp"
-#include "../pib/key.hpp"
-#include "../transform/buffer-source.hpp"
-#include "../transform/digest-filter.hpp"
-#include "../transform/stream-sink.hpp"
-#include "../../encoding/buffer-stream.hpp"
-#include "../../util/random.hpp"
+#include "ndn-cxx/security/tpm/back-end.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/util/random.hpp"
 
 namespace ndn {
 namespace security {

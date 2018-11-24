@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "stream-sink.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 
 #include <ostream>
 

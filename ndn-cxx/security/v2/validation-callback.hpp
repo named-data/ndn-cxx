@@ -22,10 +22,10 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_CALLBACK_HPP
 #define NDN_SECURITY_V2_VALIDATION_CALLBACK_HPP
 
-#include "../../interest.hpp"
-#include "../../data.hpp"
-#include "../security-common.hpp"
-#include "validation-error.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/security/v2/validation-error.hpp"
 
 namespace ndn {
 namespace security {

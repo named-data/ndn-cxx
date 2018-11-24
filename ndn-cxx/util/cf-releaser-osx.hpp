@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_CF_RELEASER_OSX_HPP
 #define NDN_UTIL_CF_RELEASER_OSX_HPP
 
-#include "../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be included ..."

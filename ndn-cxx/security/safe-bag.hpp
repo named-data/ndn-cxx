@@ -20,14 +20,14 @@
  *
  * @author Zhiyi Zhang <dreamerbarrychang@gmail.com>
  */
+
 #ifndef NDN_CXX_SECURITY_SAFE_BAG_HPP
 #define NDN_CXX_SECURITY_SAFE_BAG_HPP
 
-#include "../common.hpp"
-#include "../data.hpp"
-#include "../encoding/block.hpp"
-#include "../encoding/buffer.hpp"
-#include "security-common.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {

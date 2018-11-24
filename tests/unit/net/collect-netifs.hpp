@@ -25,11 +25,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NFD_TESTS_UNIT_TESTS_NET_COLLECT_NETIFS_HPP
-#define NFD_TESTS_UNIT_TESTS_NET_COLLECT_NETIFS_HPP
+#ifndef NDN_TESTS_UNIT_NET_COLLECT_NETIFS_HPP
+#define NDN_TESTS_UNIT_NET_COLLECT_NETIFS_HPP
 
-#include "common.hpp"
-#include "net/network-interface.hpp"
+#include "ndn-cxx/net/network-interface.hpp"
 
 #include <vector>
 
@@ -49,4 +48,4 @@ collectNetworkInterfaces(bool allowCached = true);
 } // namespace net
 } // namespace ndn
 
-#endif // NFD_TESTS_UNIT_TESTS_NET_COLLECT_NETIFS_HPP
+#endif // NDN_TESTS_UNIT_NET_COLLECT_NETIFS_HPP

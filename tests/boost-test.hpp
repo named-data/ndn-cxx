@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,8 +26,7 @@
 #pragma GCC system_header
 #pragma clang system_header
 
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/test/output_test_stream.hpp>
-#include <boost/concept_check.hpp>
 
 #endif // NDN_TESTS_BOOST_TEST_HPP

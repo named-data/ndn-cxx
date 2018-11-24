@@ -21,7 +21,7 @@
  * @author Eric Newberry <enewberry@email.arizona.edu>
  */
 
-#include "nack-header.hpp"
+#include "ndn-cxx/lp/nack-header.hpp"
 
 namespace ndn {
 namespace lp {

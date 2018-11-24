@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HEADER_HPP
 #define NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HEADER_HPP
 
-#include "../prefix-announcement.hpp"
+#include "ndn-cxx/prefix-announcement.hpp"
 
 namespace ndn {
 namespace lp {

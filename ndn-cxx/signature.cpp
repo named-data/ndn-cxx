@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "signature.hpp"
+#include "ndn-cxx/signature.hpp"
 
 namespace ndn {
 

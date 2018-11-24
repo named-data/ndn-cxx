@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_PIB_DETAIL_IDENTITY_IMPL_HPP
 #define NDN_SECURITY_PIB_DETAIL_IDENTITY_IMPL_HPP
 
-#include "../key-container.hpp"
+#include "ndn-cxx/security/pib/key-container.hpp"
 
 namespace ndn {
 namespace security {

@@ -139,7 +139,7 @@ def configure(conf):
     # config file will contain all defines that were added using conf.define('xxx'...)
     # Everything that was added directly to conf.env['DEFINES'] will not appear in the
     # config file and will be added using compiler directives in the command line.
-    conf.write_config_header('ndn-cxx/ndn-cxx-config.hpp', define_prefix='NDN_CXX_')
+    conf.write_config_header('ndn-cxx/config.hpp', define_prefix='NDN_CXX_')
 
 def build(bld):
     version(bld)
@@ -164,7 +164,7 @@ def build(bld):
             target='ndn-cxx-mm-objects',
             source=bld.path.ant_glob('ndn-cxx/**/*-osx.mm'),
             use='BOOST PTHREAD OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',
-            includes='. ndn-cxx')
+            includes='.')
 
     libndn_cxx = dict(
         target='ndn-cxx',
@@ -175,8 +175,8 @@ def build(bld):
         features='pch',
         headers='ndn-cxx/common-pch.hpp',
         use='ndn-cxx-mm-objects version BOOST OPENSSL SQLITE3 RT PTHREAD',
-        includes='. ndn-cxx',
-        export_includes='. ndn-cxx',
+        includes='.',
+        export_includes='.',
         install_path='${LIBDIR}')
 
     if bld.env['HAVE_OSX_FRAMEWORKS']:
@@ -267,7 +267,7 @@ def build(bld):
     bld.install_files(bld.env['INCLUDEDIR'], headers, relative_trick=True)
 
     bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'],
-                      bld.path.find_resource('ndn-cxx/ndn-cxx-config.hpp'))
+                      bld.path.find_resource('ndn-cxx/config.hpp'))
 
     bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'],
                       bld.path.find_resource('ndn-cxx/version.hpp'))

@@ -22,8 +22,9 @@
 #ifndef NDN_SIGNATURE_INFO_HPP
 #define NDN_SIGNATURE_INFO_HPP
 
-#include "key-locator.hpp"
-#include "security/validity-period.hpp"
+#include "ndn-cxx/key-locator.hpp"
+#include "ndn-cxx/security/validity-period.hpp"
+
 #include <list>
 
 namespace ndn {

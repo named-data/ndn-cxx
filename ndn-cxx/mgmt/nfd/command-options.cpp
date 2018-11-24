@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "command-options.hpp"
+#include "ndn-cxx/mgmt/nfd/command-options.hpp"
 
 namespace ndn {
 namespace nfd {

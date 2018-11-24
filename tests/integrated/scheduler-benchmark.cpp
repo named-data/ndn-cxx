@@ -19,14 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MAIN 1
-#define BOOST_TEST_DYN_LINK 1
 #define BOOST_TEST_MODULE ndn-cxx Scheduler Benchmark
+#include "tests/boost-test.hpp"
 
-#include "util/scheduler.hpp"
-
-#include "boost-test.hpp"
-#include "timed-execute.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
+#include "tests/integrated/timed-execute.hpp"
 
 #include <boost/asio/io_service.hpp>
 #include <iostream>

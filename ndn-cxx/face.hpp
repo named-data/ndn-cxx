@@ -22,15 +22,14 @@
 #ifndef NDN_FACE_HPP
 #define NDN_FACE_HPP
 
-#include "data.hpp"
-#include "name.hpp"
-#include "interest.hpp"
-#include "interest-filter.hpp"
-#include "encoding/nfd-constants.hpp"
-#include "lp/nack.hpp"
-#include "net/asio-fwd.hpp"
-#include "security/key-chain.hpp"
-#include "security/signing-info.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/interest-filter.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
+#include "ndn-cxx/lp/nack.hpp"
+#include "ndn-cxx/net/asio-fwd.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
+#include "ndn-cxx/security/signing-info.hpp"
 
 namespace ndn {
 

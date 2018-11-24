@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_REQUEST_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_REQUEST_HPP
 
-#include "../../interest.hpp"
+#include "ndn-cxx/interest.hpp"
 
 namespace ndn {
 namespace security {

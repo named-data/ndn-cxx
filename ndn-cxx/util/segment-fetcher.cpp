@@ -25,11 +25,11 @@
  * @author Chavoosh Ghasemi
  */
 
-#include "segment-fetcher.hpp"
-#include "../name-component.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "../lp/nack.hpp"
-#include "../lp/nack-header.hpp"
+#include "ndn-cxx/util/segment-fetcher.hpp"
+#include "ndn-cxx/name-component.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/lp/nack.hpp"
+#include "ndn-cxx/lp/nack-header.hpp"
 
 #include <boost/asio/io_service.hpp>
 #include <boost/lexical_cast.hpp>

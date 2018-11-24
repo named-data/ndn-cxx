@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/signing-helpers.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "tcp-transport.hpp"
-#include "stream-transport-with-resolver-impl.hpp"
-#include "net/face-uri.hpp"
-#include "util/logger.hpp"
+#include "ndn-cxx/transport/tcp-transport.hpp"
+#include "ndn-cxx/transport/stream-transport-with-resolver-impl.hpp"
+#include "ndn-cxx/net/face-uri.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 NDN_LOG_INIT(ndn.TcpTransport);
 // DEBUG level: connect, close, pause, resume.

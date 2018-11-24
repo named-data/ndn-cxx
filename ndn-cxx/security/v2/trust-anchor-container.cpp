@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "trust-anchor-container.hpp"
+#include "ndn-cxx/security/v2/trust-anchor-container.hpp"
 
 #include <boost/filesystem.hpp>
 

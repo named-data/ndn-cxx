@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "certificate-container.hpp"
-#include "pib-impl.hpp"
-#include "util/concepts.hpp"
+#include "ndn-cxx/security/pib/certificate-container.hpp"
+#include "ndn-cxx/security/pib/pib-impl.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace security {

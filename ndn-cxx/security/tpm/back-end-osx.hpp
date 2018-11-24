@@ -22,13 +22,13 @@
 #ifndef NDN_SECURITY_TPM_BACK_END_OSX_HPP
 #define NDN_SECURITY_TPM_BACK_END_OSX_HPP
 
-#include "back-end.hpp"
+#include "ndn-cxx/security/tpm/back-end.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be compiled ..."
 #endif
 
-#include "key-ref-osx.hpp"
+#include "ndn-cxx/security/tpm/key-ref-osx.hpp"
 
 namespace ndn {
 namespace security {

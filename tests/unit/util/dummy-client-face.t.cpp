@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/dummy-client-face.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
-#include "../identity-management-time-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace util {

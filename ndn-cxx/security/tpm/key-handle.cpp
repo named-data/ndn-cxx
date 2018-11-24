@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-handle.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
 
 namespace ndn {
 namespace security {

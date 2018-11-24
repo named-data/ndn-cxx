@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITTY_PIB_PIB_SQLITE3_HPP
 #define NDN_SECURITTY_PIB_PIB_SQLITE3_HPP
 
-#include "pib-impl.hpp"
+#include "ndn-cxx/security/pib/pib-impl.hpp"
 
 struct sqlite3;
 

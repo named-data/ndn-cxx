@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "packet-base.hpp"
+#include "ndn-cxx/packet-base.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/lp/tags.hpp"
 
-#include "../boost-test.hpp"
-#include "interest.hpp"
-#include "lp/tags.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace tests {

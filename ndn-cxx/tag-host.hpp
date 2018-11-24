@@ -22,8 +22,8 @@
 #ifndef NDN_TAG_HOST_HPP
 #define NDN_TAG_HOST_HPP
 
-#include "common.hpp"
-#include "tag.hpp"
+#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/tag.hpp"
 
 #include <map>
 

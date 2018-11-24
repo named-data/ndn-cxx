@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "hex-encode.hpp"
+#include "ndn-cxx/security/transform/hex-encode.hpp"
 
 namespace ndn {
 namespace security {

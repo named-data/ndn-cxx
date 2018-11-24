@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_SECURITY_KEY_CHAIN_HPP
 #define NDN_CXX_SECURITY_KEY_CHAIN_HPP
 
-#include "security-common.hpp"
-#include "v2/key-chain.hpp"
+#include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
 
 #endif // NDN_CXX_SECURITY_KEY_CHAIN_HPP

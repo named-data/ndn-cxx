@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "mgmt/control-response.hpp"
+#include "ndn-cxx/mgmt/control-response.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace mgmt {

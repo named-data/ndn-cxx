@@ -432,7 +432,6 @@ extension ``.cpp``
 
         my-class.hpp, my-class.cpp
 
-
 2.2. Names representing types must be written in English in mixed case starting with upper case.
 
     .. code-block:: c++
@@ -544,7 +543,6 @@ written in mixed case starting with lower case.
           static std::string s_name;
         };
 
-
 2.11. Variables with a large scope should have long (explicit) names, variables with a small
 scope can have short names.
 
@@ -611,7 +609,6 @@ scope can have short names.
 
     The notation is taken from mathematics where it is an established convention for
     indicating a number of objects.
-
 
 2.18. The suffix ``Num`` or ``No`` should be used for variables representing an entity number.
 
@@ -701,7 +698,6 @@ notation).
     hierarchy, then child classes should should define their own ``Error`` or
     ``Exception`` classes that are inherited from the parent's Error class.
 
-
 2.25. Functions (methods returning something) should be named after what they return and
 procedures (void methods) after what they do.
 
@@ -717,8 +713,8 @@ not in the primary processing path.
 
 3.2. Header files must contain an include guard.
 
-    For example, header file located in ``module/class-name.hpp`` or in
-    ``src/module/class-name.hpp`` should have header guard in the following form:
+    For example, a header file named ``module/class-name.hpp`` or
+    ``src/module/class-name.hpp`` should have a header guard in the following form:
 
     .. code-block:: c++
 
@@ -727,38 +723,42 @@ not in the primary processing path.
         ...
         #endif // APP_MODULE_CLASS_NAME_HPP
 
-    The name should follow the location of the file inside the source tree and prevents
-    naming conflicts.  Header guard should be prefixed with the application/library name
-    to avoid conflicts with other packaged and libraries.
+    The macro name should reflect the path of the header file relative to the root of the
+    source tree, in order to prevent naming conflicts. The header guard should be prefixed
+    with the application/library name to avoid conflicts with other packages and libraries.
 
-3.3. Header files which are in the same source distribution should be included in
-``"quotes"``, if possible with a path relative to the source file.  Header files for
-system and other external libraries should be included in ``<angle brackets>``.
+3.3. Include directives for system headers and other external libraries should use
+``<angle brackets>``. Header files in the same source code repository should be included
+using ``"quotes"``.
 
     .. code-block:: c++
+
+        #include "ndn-cxx/util/random.hpp"
 
         #include <string>
         #include <boost/lexical_cast.hpp>
 
-        #include "util/random.hpp"
+    All of a project's header files should be included with their path relative to
+    the project's source directory. The use of UNIX directory shortcuts ``.``
+    (the current directory) and ``..`` (the parent directory) is discouraged.
 
 3.4. Include statements should be grouped. Same-project headers should be included first.
 Leave an empty line between groups of include statements. Sort alphabetically within a group.
+For example, the include section of ``ndn-cxx/foo/bar.cpp`` may look like this:
 
     .. code-block:: c++
 
-        #include "detail/pending-interest.hpp"
-        #include "util/random.hpp"
+        #include "ndn-cxx/detail/pending-interest.hpp"
+        #include "ndn-cxx/util/random.hpp"
 
+        #include <cstdlib>
         #include <fstream>
         #include <iomanip>
 
         #include <boost/lexical_cast.hpp>
         #include <boost/regex.hpp>
 
-
 3.5. Types that are local to one file only can be declared inside that file.
-
 
 3.6. Implicit conversion is generally allowed.
 
@@ -772,7 +772,6 @@ Leave an empty line between groups of include statements. Sort alphabetically wi
     Avoid C-style casts. Use ``static_cast``, ``dynamic_cast``, ``reinterpret_cast``,
     ``const_cast`` instead where appropriate.  Use ``static_pointer_cast``,
     ``dynamic_pointer_cast``, ``const_pointer_cast`` when dealing with ``shared_ptr``.
-
 
 3.7. Variables should be initialized where they are declared.
 
@@ -800,7 +799,6 @@ Leave an empty line between groups of include statements. Sort alphabetically wi
 
     * When the class is used only inside the compilation unit, e.g., when implementing pImpl
       idiom (aka Bridge pattern) or similar cases.
-
 
 3.9. C++ pointers and references should have their reference symbol next to the type rather
 than to the name.

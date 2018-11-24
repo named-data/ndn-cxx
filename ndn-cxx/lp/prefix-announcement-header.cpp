@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "prefix-announcement-header.hpp"
-#include "tlv.hpp"
+#include "ndn-cxx/lp/prefix-announcement-header.hpp"
+#include "ndn-cxx/lp/tlv.hpp"
 
 namespace ndn {
 namespace lp {

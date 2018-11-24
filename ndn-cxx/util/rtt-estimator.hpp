@@ -26,9 +26,8 @@
 #ifndef NDN_CXX_UTIL_RTT_ESTIMATOR_HPP
 #define NDN_CXX_UTIL_RTT_ESTIMATOR_HPP
 
-#include "../common.hpp"
-#include "signal.hpp"
-#include "time.hpp"
+#include "ndn-cxx/util/signal.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace util {

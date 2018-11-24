@@ -24,11 +24,9 @@
 #ifndef NDN_CXX_LP_NACK_HPP
 #define NDN_CXX_LP_NACK_HPP
 
-#include "../common.hpp"
-#include "../interest.hpp"
-#include "../packet-base.hpp"
-
-#include "nack-header.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/packet-base.hpp"
+#include "ndn-cxx/lp/nack-header.hpp"
 
 namespace ndn {
 namespace lp {

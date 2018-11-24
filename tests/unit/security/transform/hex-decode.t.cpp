@@ -19,13 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/transform/hex-decode.hpp"
-#include "security/transform/buffer-source.hpp"
-#include "security/transform/step-source.hpp"
-#include "security/transform/stream-sink.hpp"
-#include "encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/hex-decode.hpp"
 
-#include "boost-test.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/step-source.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "control-response.hpp"
-#include "../encoding/block-helpers.hpp"
-#include "../encoding/tlv-nfd.hpp"
+#include "ndn-cxx/mgmt/control-response.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/encoding/tlv-nfd.hpp"
 
 namespace ndn {
 namespace mgmt {

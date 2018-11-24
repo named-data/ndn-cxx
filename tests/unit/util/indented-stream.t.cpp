@@ -19,9 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/indented-stream.hpp"
+#include "ndn-cxx/util/indented-stream.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+
+#include <boost/test/output_test_stream.hpp>
 
 namespace ndn {
 namespace util {

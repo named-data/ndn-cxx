@@ -22,10 +22,10 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_STATE_HPP
 #define NDN_SECURITY_V2_VALIDATION_STATE_HPP
 
-#include "../../tag-host.hpp"
-#include "validation-callback.hpp"
-#include "certificate.hpp"
-#include "../../util/signal.hpp"
+#include "ndn-cxx/tag-host.hpp"
+#include "ndn-cxx/security/v2/validation-callback.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
+#include "ndn-cxx/util/signal.hpp"
 
 #include <list>
 #include <unordered_set>

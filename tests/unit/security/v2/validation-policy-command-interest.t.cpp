@@ -19,15 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/validation-policy-command-interest.hpp"
-#include "security/v2/validation-policy-simple-hierarchy.hpp"
-#include "security/v2/validation-policy-accept-all.hpp"
-#include "security/command-interest-signer.hpp"
-#include "security/signing-helpers.hpp"
+#include "ndn-cxx/security/v2/validation-policy-command-interest.hpp"
+#include "ndn-cxx/security/v2/validation-policy-simple-hierarchy.hpp"
+#include "ndn-cxx/security/v2/validation-policy-accept-all.hpp"
+#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
 
-#include "boost-test.hpp"
-#include "validator-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/security/v2/validator-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>

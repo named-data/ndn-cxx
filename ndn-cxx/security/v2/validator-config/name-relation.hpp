@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_V2_VALIDATOR_CONFIG_NAME_RELATION_HPP
 #define NDN_SECURITY_V2_VALIDATOR_CONFIG_NAME_RELATION_HPP
 
-#include "common.hpp"
-#include "../../../name.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/v2/validator-config/common.hpp"
 
 namespace ndn {
 namespace security {

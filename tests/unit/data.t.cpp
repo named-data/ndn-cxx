@@ -19,19 +19,19 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "data.hpp"
-#include "encoding/buffer-stream.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
-#include "security/transform/private-key.hpp"
-#include "security/transform/public-key.hpp"
-#include "security/transform/signer-filter.hpp"
-#include "security/transform/step-source.hpp"
-#include "security/transform/stream-sink.hpp"
-#include "security/verification-helpers.hpp"
-#include "util/sha256.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/signer-filter.hpp"
+#include "ndn-cxx/security/transform/step-source.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
+#include "ndn-cxx/util/sha256.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {

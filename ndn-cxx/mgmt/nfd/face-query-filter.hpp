@@ -22,8 +22,8 @@
 #ifndef NDN_MGMT_NFD_FACE_QUERY_FILTER_HPP
 #define NDN_MGMT_NFD_FACE_QUERY_FILTER_HPP
 
-#include "../../encoding/block.hpp"
-#include "../../encoding/nfd-constants.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
 
 namespace ndn {
 namespace nfd {

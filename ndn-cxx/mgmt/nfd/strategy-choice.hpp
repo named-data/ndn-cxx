@@ -22,8 +22,8 @@
 #ifndef NDN_MGMT_NFD_STRATEGY_CHOICE_HPP
 #define NDN_MGMT_NFD_STRATEGY_CHOICE_HPP
 
-#include "../../encoding/block.hpp"
-#include "../../name.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/name.hpp"
 
 namespace ndn {
 namespace nfd {

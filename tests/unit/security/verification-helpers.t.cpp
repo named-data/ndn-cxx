@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/verification-helpers.hpp"
-#include "security/transform/public-key.hpp"
-// #include "util/string-helper.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+// #include "ndn-cxx/util/string-helper.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/make-interest-data.hpp"
 
 #include <boost/mpl/list.hpp>
 

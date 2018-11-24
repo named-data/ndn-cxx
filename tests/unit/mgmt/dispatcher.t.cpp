@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "mgmt/dispatcher.hpp"
-#include "mgmt/nfd/control-parameters.hpp"
-#include "util/dummy-client-face.hpp"
+#include "ndn-cxx/mgmt/dispatcher.hpp"
+#include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
-#include "make-interest-data.hpp"
-#include "../identity-management-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace mgmt {

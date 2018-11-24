@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validation-policy-simple-hierarchy.hpp"
+#include "ndn-cxx/security/v2/validation-policy-simple-hierarchy.hpp"
 
 namespace ndn {
 namespace security {

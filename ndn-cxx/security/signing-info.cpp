@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "signing-info.hpp"
+#include "ndn-cxx/security/signing-info.hpp"
 
 namespace ndn {
 namespace security {

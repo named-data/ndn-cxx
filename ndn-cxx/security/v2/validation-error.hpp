@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_ERROR_HPP
 #define NDN_SECURITY_V2_VALIDATION_ERROR_HPP
 
-#include "../../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 namespace ndn {
 namespace security {

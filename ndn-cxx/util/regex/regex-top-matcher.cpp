@@ -21,10 +21,10 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "regex-top-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-top-matcher.hpp"
 
-#include "regex-backref-manager.hpp"
-#include "regex-pattern-list-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-backref-manager.hpp"
+#include "ndn-cxx/util/regex/regex-pattern-list-matcher.hpp"
 
 #include <boost/lexical_cast.hpp>
 

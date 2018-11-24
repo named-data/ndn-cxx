@@ -21,7 +21,7 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-address.hpp"
+#include "ndn-cxx/net/network-address.hpp"
 
 namespace ndn {
 namespace net {

@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "transform-base.hpp"
+#include "ndn-cxx/security/transform/transform-base.hpp"
 
 namespace ndn {
 namespace security {

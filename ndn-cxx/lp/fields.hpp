@@ -22,11 +22,11 @@
 #ifndef NDN_CXX_LP_FIELDS_HPP
 #define NDN_CXX_LP_FIELDS_HPP
 
-#include "field-decl.hpp"
+#include "ndn-cxx/lp/field-decl.hpp"
 
-#include "cache-policy.hpp"
-#include "nack-header.hpp"
-#include "prefix-announcement-header.hpp"
+#include "ndn-cxx/lp/cache-policy.hpp"
+#include "ndn-cxx/lp/nack-header.hpp"
+#include "ndn-cxx/lp/prefix-announcement-header.hpp"
 
 #include <boost/mpl/set.hpp>
 

@@ -24,7 +24,7 @@
 #ifndef NDN_NET_NETWORK_MONITOR_IMPL_NOOP_HPP
 #define NDN_NET_NETWORK_MONITOR_IMPL_NOOP_HPP
 
-#include "../network-monitor.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
 
 namespace ndn {
 namespace net {

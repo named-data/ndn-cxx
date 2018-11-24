@@ -28,7 +28,7 @@
 #ifndef NDN_COMMON_HPP
 #define NDN_COMMON_HPP
 
-#include "ndn-cxx-config.hpp"
+#include "ndn-cxx/config.hpp"
 
 // ndn-cxx specific macros declared in this and other headers must have NDN_CXX_ prefix
 // to avoid conflicts with other projects that include ndn-cxx headers.
@@ -120,6 +120,6 @@ namespace ndn {
 using boost::noncopyable;
 } // namespace ndn
 
-#include "util/backports.hpp"
+#include "ndn-cxx/util/backports.hpp"
 
 #endif // NDN_COMMON_HPP

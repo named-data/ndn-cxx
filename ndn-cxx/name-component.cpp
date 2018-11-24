@@ -23,8 +23,8 @@
  * @author Zhenkai Zhu <http://irl.cs.ucla.edu/~zhenkai/>
  */
 
-#include "name-component.hpp"
-#include "detail/name-component-types.hpp"
+#include "ndn-cxx/name-component.hpp"
+#include "ndn-cxx/detail/name-component-types.hpp"
 
 #include <cstdlib>
 #include <cstring>

@@ -19,11 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/logging.hpp"
-#include "util/logger.hpp"
+#include "ndn-cxx/util/logging.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
-#include "../unit-test-time-fixture.hpp"
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/unit-test-time-fixture.hpp"
+
+#include <boost/test/output_test_stream.hpp>
 
 namespace ndn {
 namespace util {

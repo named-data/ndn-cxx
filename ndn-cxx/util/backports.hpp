@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_BACKPORTS_HPP
 #define NDN_UTIL_BACKPORTS_HPP
 
-#include "../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 #ifdef __has_cpp_attribute
 #  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
@@ -48,10 +48,10 @@
 #  define NDN_CXX_FALLTHROUGH ((void)0)
 #endif
 
-#include "backports-ostream-joiner.hpp"
-#include "nonstd/any.hpp"
-#include "nonstd/optional.hpp"
-#include "nonstd/variant.hpp"
+#include "ndn-cxx/util/backports-ostream-joiner.hpp"
+#include "ndn-cxx/util/nonstd/any.hpp"
+#include "ndn-cxx/util/nonstd/optional.hpp"
+#include "ndn-cxx/util/nonstd/variant.hpp"
 
 #ifndef NDN_CXX_HAVE_STD_TO_STRING
 #include <boost/lexical_cast.hpp>

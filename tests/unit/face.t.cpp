@@ -19,17 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "face.hpp"
-#include "lp/tags.hpp"
-#include "transport/tcp-transport.hpp"
-#include "transport/unix-transport.hpp"
-#include "util/dummy-client-face.hpp"
-#include "util/scheduler.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/lp/tags.hpp"
+#include "ndn-cxx/transport/tcp-transport.hpp"
+#include "ndn-cxx/transport/unix-transport.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
-#include "boost-test.hpp"
-#include "make-interest-data.hpp"
-#include "identity-management-time-fixture.hpp"
-#include "test-home-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace tests {

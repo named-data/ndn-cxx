@@ -19,14 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/validator-config.hpp"
-#include "security/command-interest-signer.hpp"
-#include "security/v2/certificate-fetcher-offline.hpp"
-#include "util/dummy-client-face.hpp"
+#include "ndn-cxx/security/validator-config.hpp"
+#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-offline.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
-#include "v2/validator-config/common.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/unit/security/v2/validator-config/common.hpp"
 
 namespace ndn {
 namespace security {

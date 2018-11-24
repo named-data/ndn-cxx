@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/pib/key-container.hpp"
-#include "security/pib/pib.hpp"
-#include "security/pib/pib-memory.hpp"
+#include "ndn-cxx/security/pib/key-container.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
+#include "ndn-cxx/security/pib/pib-memory.hpp"
 
-#include "boost-test.hpp"
-#include "pib-data-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/security/pib/pib-data-fixture.hpp"
 
 namespace ndn {
 namespace security {

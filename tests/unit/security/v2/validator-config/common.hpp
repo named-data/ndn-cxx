@@ -22,6 +22,8 @@
 #ifndef NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
 #define NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
 
+#include "ndn-cxx/security/v2/validator-config/common.hpp"
+
 #include <boost/property_tree/info_parser.hpp>
 
 namespace ndn {

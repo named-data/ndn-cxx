@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/key-params.hpp"
+#include "ndn-cxx/security/key-params.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <boost/lexical_cast.hpp>
 

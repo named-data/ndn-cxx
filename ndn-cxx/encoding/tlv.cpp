@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "tlv.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
 
 namespace ndn {
 namespace tlv {

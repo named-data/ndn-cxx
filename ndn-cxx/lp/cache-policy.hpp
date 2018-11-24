@@ -24,8 +24,8 @@
 #ifndef NDN_CXX_LP_CACHE_POLICY_HPP
 #define NDN_CXX_LP_CACHE_POLICY_HPP
 
-#include "../encoding/encoding-buffer.hpp"
-#include "tlv.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/lp/tlv.hpp"
 
 namespace ndn {
 namespace lp {

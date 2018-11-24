@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "encoding/tlv.hpp"
-#include "encoding/buffer.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <array>
 #include <deque>

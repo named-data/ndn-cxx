@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "interest-filter.hpp"
-#include "util/regex/regex-pattern-list-matcher.hpp"
+#include "ndn-cxx/interest-filter.hpp"
+#include "ndn-cxx/util/regex/regex-pattern-list-matcher.hpp"
 
 namespace ndn {
 

@@ -21,7 +21,7 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "regex-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-matcher.hpp"
 
 namespace ndn {
 

@@ -25,11 +25,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "net/face-uri.hpp"
+#include "ndn-cxx/net/face-uri.hpp"
 
-#include "boost-test.hpp"
-#include "collect-netifs.hpp"
-#include "network-configuration-detector.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/net/collect-netifs.hpp"
+#include "tests/unit/net/network-configuration-detector.hpp"
 
 namespace ndn {
 namespace tests {

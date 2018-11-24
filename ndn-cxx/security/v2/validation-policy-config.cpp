@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validation-policy-config.hpp"
-#include "validator.hpp"
-#include "../../util/io.hpp"
+#include "ndn-cxx/security/v2/validation-policy-config.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/util/io.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>

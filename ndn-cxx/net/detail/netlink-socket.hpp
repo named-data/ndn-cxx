@@ -24,8 +24,8 @@
 #ifndef NDN_NET_NETLINK_SOCKET_HPP
 #define NDN_NET_NETLINK_SOCKET_HPP
 
-#include "../network-monitor.hpp"
-#include "../../util/signal/signal.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 
 #include <boost/asio/posix/stream_descriptor.hpp>
 #include <map>

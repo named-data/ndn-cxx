@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_FACE_EVENT_NOTIFICATION_HPP
 #define NDN_MGMT_NFD_FACE_EVENT_NOTIFICATION_HPP
 
-#include "face-traits.hpp"
+#include "ndn-cxx/mgmt/nfd/face-traits.hpp"
 
 namespace ndn {
 namespace nfd {

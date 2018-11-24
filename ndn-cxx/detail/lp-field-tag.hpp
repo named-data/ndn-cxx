@@ -22,8 +22,8 @@
 #ifndef NDN_DETAIL_LP_FIELD_TAG_HPP
 #define NDN_DETAIL_LP_FIELD_TAG_HPP
 
-#include "../lp/packet.hpp"
-#include "../lp/tags.hpp"
+#include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/lp/tags.hpp"
 
 namespace ndn {
 

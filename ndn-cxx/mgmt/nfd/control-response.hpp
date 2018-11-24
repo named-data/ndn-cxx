@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_CONTROL_RESPONSE_HPP
 #define NDN_MGMT_NFD_CONTROL_RESPONSE_HPP
 
-#include "../control-response.hpp"
+#include "ndn-cxx/mgmt/control-response.hpp"
 
 namespace ndn {
 namespace nfd {

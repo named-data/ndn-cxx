@@ -4,36 +4,11 @@ top = '..'
 
 def build(bld):
     # common objects that can be shared between unit and integrated tests
-    bld.objects(target='tests-base',
+    bld.objects(target='tests-common',
                 features='pch',
-                source=bld.path.ant_glob('*.cpp', excl=['main.cpp']),
+                source=bld.path.ant_glob('*.cpp'),
                 headers=['../ndn-cxx/common-pch.hpp', 'boost-test.hpp'],
-                includes='.',
-                export_includes='.',
                 use='ndn-cxx BOOST')
 
-    config_path = 'UNIT_TEST_CONFIG_PATH="%s"' % bld.bldnode.make_node('tmp-files')
-
-    # unit test objects
-    src = bld.path.ant_glob('unit/**/*.cpp', excl=['**/*-osx.t.cpp',
-                                                   '**/*-sqlite3.t.cpp'])
-
-    if bld.env['HAVE_OSX_FRAMEWORKS']:
-        src += bld.path.ant_glob('unit/**/*-osx.t.cpp')
-
-    # In case we want to make it optional later
-    src += bld.path.ant_glob('unit/**/*-sqlite3.t.cpp')
-
-    bld.objects(target='unit-tests-objects',
-                source=src,
-                use='tests-base',
-                defines=[config_path])
-
-    # unit test app
-    bld.program(target='../unit-tests',
-                name='unit-tests',
-                source='main.cpp',
-                use='unit-tests-objects',
-                install_path=None)
-
     bld.recurse('integrated')
+    bld.recurse('unit')

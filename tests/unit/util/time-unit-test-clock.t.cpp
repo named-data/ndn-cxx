@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/time-unit-test-clock.hpp"
-#include "util/scheduler.hpp"
+#include "ndn-cxx/util/time-unit-test-clock.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
-#include "boost-test.hpp"
-#include "../unit-test-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/unit-test-time-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <thread>

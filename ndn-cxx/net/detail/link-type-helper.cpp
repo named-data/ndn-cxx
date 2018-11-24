@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "link-type-helper.hpp"
-#include "ndn-cxx-config.hpp"
+#include "ndn-cxx/net/detail/link-type-helper.hpp"
+#include "ndn-cxx/config.hpp"
 
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
 // implemented in link-type-helper-osx.mm

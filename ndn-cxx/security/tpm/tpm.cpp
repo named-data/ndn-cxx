@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "tpm.hpp"
-#include "back-end.hpp"
-#include "../../encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
+#include "ndn-cxx/security/tpm/back-end.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
 
 namespace ndn {
 namespace security {

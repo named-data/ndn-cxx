@@ -22,9 +22,9 @@
 #ifndef NDN_SECURITY_VALIDATOR_CONFIG_HPP
 #define NDN_SECURITY_VALIDATOR_CONFIG_HPP
 
-#include "v2/validator.hpp"
-#include "v2/validation-policy-command-interest.hpp"
-#include "v2/validation-policy-config.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/security/v2/validation-policy-command-interest.hpp"
+#include "ndn-cxx/security/v2/validation-policy-config.hpp"
 
 namespace ndn {
 namespace security {

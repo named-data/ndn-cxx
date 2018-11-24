@@ -22,9 +22,8 @@
 #ifndef NDN_SELECTORS_HPP
 #define NDN_SELECTORS_HPP
 
-#include "common.hpp"
-#include "key-locator.hpp"
-#include "exclude.hpp"
+#include "ndn-cxx/exclude.hpp"
+#include "ndn-cxx/key-locator.hpp"
 
 namespace ndn {
 

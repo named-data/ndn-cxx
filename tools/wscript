@@ -33,19 +33,16 @@ def build(bld):
             srcObjects = 'tool-%s-objects' % name
             bld.objects(target=srcObjects,
                         source=srcFiles,
-                        use='ndn-cxx',
-                        includes=name)
+                        use='ndn-cxx')
             testableObjects.append(srcObjects)
 
         bld.program(name='tool-%s' % name,
                     target='../bin/%s' % name,
                     source=[mainFile],
-                    use='ndn-cxx ' + srcObjects,
-                    includes=name)
+                    use='ndn-cxx ' + srcObjects)
 
     bld.objects(target='tools-objects',
                 source=[],
-                export_includes='.',
                 use=testableObjects)
 
     # Tool wrappers

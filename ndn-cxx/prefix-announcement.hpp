@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_PREFIX_ANNOUNCEMENT_HPP
 #define NDN_CXX_PREFIX_ANNOUNCEMENT_HPP
 
-#include "security/v2/key-chain.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
 
 namespace ndn {
 

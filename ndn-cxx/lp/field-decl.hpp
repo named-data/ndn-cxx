@@ -22,12 +22,12 @@
 #ifndef NDN_CXX_LP_FIELD_DECL_HPP
 #define NDN_CXX_LP_FIELD_DECL_HPP
 
-#include "empty-value.hpp"
-#include "field.hpp"
-#include "sequence.hpp"
-#include "tlv.hpp"
-#include "../encoding/block-helpers.hpp"
-#include "../util/concepts.hpp"
+#include "ndn-cxx/lp/empty-value.hpp"
+#include "ndn-cxx/lp/field.hpp"
+#include "ndn-cxx/lp/sequence.hpp"
+#include "ndn-cxx/lp/tlv.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 #include <boost/concept/requires.hpp>
 #include <boost/endian/conversion.hpp>

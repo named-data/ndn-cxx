@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_PIB_PIB_MEMORY_HPP
 #define NDN_SECURITY_PIB_PIB_MEMORY_HPP
 
-#include "pib-impl.hpp"
+#include "ndn-cxx/security/pib/pib-impl.hpp"
 
 namespace ndn {
 namespace security {

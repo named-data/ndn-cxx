@@ -21,10 +21,10 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-interface.hpp"
-#include "detail/linux-if-constants.hpp"
-#include "../util/logger.hpp"
-#include "../util/string-helper.hpp"
+#include "ndn-cxx/net/network-interface.hpp"
+#include "ndn-cxx/net/detail/linux-if-constants.hpp"
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include <net/if.h>
 

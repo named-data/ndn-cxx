@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key.hpp"
-#include "detail/key-impl.hpp"
-#include "../v2/certificate.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
+#include "ndn-cxx/security/pib/detail/key-impl.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 namespace ndn {
 namespace security {

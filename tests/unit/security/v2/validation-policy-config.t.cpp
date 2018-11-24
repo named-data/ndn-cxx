@@ -19,16 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/validation-policy-config.hpp"
-#include "security/transform/base64-encode.hpp"
-#include "security/transform/buffer-source.hpp"
-#include "security/transform/stream-sink.hpp"
-#include "util/logger.hpp"
-#include "util/io.hpp"
+#include "ndn-cxx/security/v2/validation-policy-config.hpp"
+#include "ndn-cxx/security/transform/base64-encode.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/io.hpp"
 
-#include "boost-test.hpp"
-#include "validator-config/common.hpp"
-#include "validator-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/security/v2/validator-config/common.hpp"
+#include "tests/unit/security/v2/validator-fixture.hpp"
 
 namespace ndn {
 namespace security {

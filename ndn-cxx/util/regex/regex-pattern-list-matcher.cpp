@@ -21,9 +21,9 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "regex-pattern-list-matcher.hpp"
-#include "regex-backref-matcher.hpp"
-#include "regex-repeat-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-pattern-list-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-backref-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-repeat-matcher.hpp"
 
 namespace ndn {
 

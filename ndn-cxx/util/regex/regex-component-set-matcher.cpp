@@ -21,8 +21,8 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "regex-component-set-matcher.hpp"
-#include "regex-component-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-component-set-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-component-matcher.hpp"
 
 namespace ndn {
 

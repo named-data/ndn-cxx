@@ -21,8 +21,8 @@
  * @author Eric Newberry <enewberry@email.arizona.edu>
  */
 
-#include "cache-policy.hpp"
-#include "../encoding/block-helpers.hpp"
+#include "ndn-cxx/lp/cache-policy.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
 
 namespace ndn {
 namespace lp {

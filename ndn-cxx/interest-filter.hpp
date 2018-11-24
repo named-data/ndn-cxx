@@ -22,7 +22,7 @@
 #ifndef NDN_INTEREST_FILTER_HPP
 #define NDN_INTEREST_FILTER_HPP
 
-#include "name.hpp"
+#include "ndn-cxx/name.hpp"
 
 namespace ndn {
 

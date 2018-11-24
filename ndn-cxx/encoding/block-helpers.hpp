@@ -22,9 +22,9 @@
 #ifndef NDN_ENCODING_BLOCK_HELPERS_HPP
 #define NDN_ENCODING_BLOCK_HELPERS_HPP
 
-#include "block.hpp"
-#include "encoding-buffer.hpp"
-#include "../util/concepts.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace encoding {

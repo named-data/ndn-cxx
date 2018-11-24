@@ -19,23 +19,22 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MAIN 1
-#define BOOST_TEST_DYN_LINK 1
 #define BOOST_TEST_MODULE ndn-cxx Integrated Tests (Face)
+#include "tests/boost-test.hpp"
 
-#include "face.hpp"
-#include "transport/tcp-transport.hpp"
-#include "transport/unix-transport.hpp"
-#include "util/scheduler.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/transport/tcp-transport.hpp"
+#include "ndn-cxx/transport/unix-transport.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/make-interest-data.hpp"
 
 #include <stdio.h>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <thread>
+
 #include <boost/mpl/vector.hpp>
 
 namespace ndn {

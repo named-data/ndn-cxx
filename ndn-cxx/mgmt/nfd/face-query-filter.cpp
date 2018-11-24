@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "face-query-filter.hpp"
-#include "encoding/block-helpers.hpp"
-#include "encoding/tlv-nfd.hpp"
-#include "util/concepts.hpp"
+#include "ndn-cxx/mgmt/nfd/face-query-filter.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/encoding/tlv-nfd.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {

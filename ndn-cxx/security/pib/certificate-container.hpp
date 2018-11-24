@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP
 #define NDN_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP
 
-#include "../v2/certificate.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 #include <iterator>
 #include <set>

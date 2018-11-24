@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/scheduler.hpp"
-#include "util/scheduler-scoped-event-id.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
+#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
-#include "boost-test.hpp"
-#include "../unit-test-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/unit-test-time-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 

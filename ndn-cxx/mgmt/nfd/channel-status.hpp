@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_CHANNEL_STATUS_HPP
 #define NDN_MGMT_NFD_CHANNEL_STATUS_HPP
 
-#include "../../encoding/block.hpp"
+#include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn {
 namespace nfd {

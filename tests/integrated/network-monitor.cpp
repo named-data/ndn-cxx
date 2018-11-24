@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,19 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MAIN 1
-#define BOOST_TEST_DYN_LINK 1
 #define BOOST_TEST_MODULE ndn-cxx Integrated Tests (Network Monitor)
+#include "tests/boost-test.hpp"
 
-#include "net/network-monitor.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
 
-#include "net/network-address.hpp"
-#include "net/network-interface.hpp"
-#include "net/detail/link-type-helper.hpp"
-#include "util/string-helper.hpp"
-#include "util/time.hpp"
-
-#include "boost-test.hpp"
+#include "ndn-cxx/net/network-address.hpp"
+#include "ndn-cxx/net/network-interface.hpp"
+#include "ndn-cxx/net/detail/link-type-helper.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 #include <boost/asio/io_service.hpp>
 #include <iostream>

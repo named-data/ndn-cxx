@@ -22,8 +22,8 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
-#include <ndn-cxx/util/logger.hpp>
-#include <ndn-cxx/version.hpp>
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/version.hpp"
 
 #include <boost/exception/get_error_info.hpp>
 

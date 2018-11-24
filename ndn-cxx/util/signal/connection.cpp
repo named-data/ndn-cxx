@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "connection.hpp"
+#include "ndn-cxx/util/signal/connection.hpp"
 
 namespace ndn {
 namespace util {

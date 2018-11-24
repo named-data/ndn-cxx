@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "encoder.hpp"
+#include "ndn-cxx/encoding/encoder.hpp"
 
 #include <boost/endian/conversion.hpp>
 

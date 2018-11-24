@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_COMMAND_OPTIONS_HPP
 #define NDN_MGMT_NFD_COMMAND_OPTIONS_HPP
 
-#include "../../security/signing-info.hpp"
+#include "ndn-cxx/security/signing-info.hpp"
 
 namespace ndn {
 namespace nfd {

@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-impl.hpp"
-#include "../pib-impl.hpp"
-#include "../pib.hpp"
-#include "../../transform/public-key.hpp"
+#include "ndn-cxx/security/pib/detail/key-impl.hpp"
+#include "ndn-cxx/security/pib/pib-impl.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
 
 namespace ndn {
 namespace security {

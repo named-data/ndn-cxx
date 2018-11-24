@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "signature-sha256-with-rsa.hpp"
+#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 
 namespace ndn {
 

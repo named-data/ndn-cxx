@@ -28,8 +28,8 @@
 #ifndef NDN_MGMT_NFD_FACE_MONITOR_HPP
 #define NDN_MGMT_NFD_FACE_MONITOR_HPP
 
-#include "../../util/notification-subscriber.hpp"
-#include "face-event-notification.hpp"
+#include "ndn-cxx/mgmt/nfd/face-event-notification.hpp"
+#include "ndn-cxx/util/notification-subscriber.hpp"
 
 namespace ndn {
 namespace nfd {

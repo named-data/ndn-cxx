@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "digest-filter.hpp"
-#include "../detail/openssl-helper.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/detail/openssl-helper.hpp"
 
 #include <boost/lexical_cast.hpp>
 

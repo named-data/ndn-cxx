@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security-common.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 #include <ostream>
 

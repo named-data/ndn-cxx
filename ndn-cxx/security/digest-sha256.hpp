@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_DIGEST_SHA256_HPP
 #define NDN_SECURITY_DIGEST_SHA256_HPP
 
-#include "../signature.hpp"
+#include "ndn-cxx/signature.hpp"
 
 namespace ndn {
 

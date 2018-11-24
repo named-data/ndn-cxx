@@ -24,7 +24,7 @@
 #ifndef NDN_UTIL_REGEX_HPP
 #define NDN_UTIL_REGEX_HPP
 
-#include "regex/regex-top-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-top-matcher.hpp"
 
 namespace ndn {
 

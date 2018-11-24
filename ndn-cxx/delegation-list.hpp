@@ -22,7 +22,8 @@
 #ifndef NDN_DELEGATION_LIST_HPP
 #define NDN_DELEGATION_LIST_HPP
 
-#include "delegation.hpp"
+#include "ndn-cxx/delegation.hpp"
+
 #include <initializer_list>
 
 namespace ndn {

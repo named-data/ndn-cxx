@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "collect-netifs.hpp"
-#include "net/network-monitor.hpp"
+#include "tests/unit/net/collect-netifs.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
 
 #include <boost/asio/io_service.hpp>
 

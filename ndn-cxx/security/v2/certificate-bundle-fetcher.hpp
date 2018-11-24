@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_BUNDLE_FETCHER_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_BUNDLE_FETCHER_HPP
 
-#include "certificate-fetcher-from-network.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-from-network.hpp"
 
 namespace ndn {
 namespace security {

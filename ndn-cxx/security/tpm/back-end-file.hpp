@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_TPM_BACK_END_FILE_HPP
 #define NDN_SECURITY_TPM_BACK_END_FILE_HPP
 
-#include "back-end.hpp"
+#include "ndn-cxx/security/tpm/back-end.hpp"
 
 namespace ndn {
 namespace security {

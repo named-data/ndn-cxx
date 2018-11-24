@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "dispatcher.hpp"
-#include "../lp/tags.hpp"
-#include "../util/logger.hpp"
+#include "ndn-cxx/mgmt/dispatcher.hpp"
+#include "ndn-cxx/lp/tags.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 NDN_LOG_INIT(ndn.mgmt.Dispatcher);
 

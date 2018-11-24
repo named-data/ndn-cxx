@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/validation-error.hpp"
+#include "ndn-cxx/security/v2/validation-error.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {

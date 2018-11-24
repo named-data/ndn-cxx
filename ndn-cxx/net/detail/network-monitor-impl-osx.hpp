@@ -22,16 +22,16 @@
 #ifndef NDN_NET_NETWORK_MONITOR_IMPL_OSX_HPP
 #define NDN_NET_NETWORK_MONITOR_IMPL_OSX_HPP
 
-#include "ndn-cxx-config.hpp"
-#include "../network-monitor.hpp"
+#include "ndn-cxx/config.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be included ..."
 #endif
 
-#include "../../util/cf-releaser-osx.hpp"
-#include "../../util/scheduler.hpp"
-#include "../../util/scheduler-scoped-event-id.hpp"
+#include "ndn-cxx/util/cf-releaser-osx.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
+#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SystemConfiguration.h>

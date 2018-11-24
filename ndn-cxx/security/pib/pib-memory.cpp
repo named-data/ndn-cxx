@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "pib-memory.hpp"
-#include "pib.hpp"
-#include "../security-common.hpp"
+#include "ndn-cxx/security/pib/pib-memory.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {

@@ -22,8 +22,8 @@
 #ifndef NDN_LINK_HPP
 #define NDN_LINK_HPP
 
-#include "data.hpp"
-#include "delegation-list.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/delegation-list.hpp"
 
 namespace ndn {
 

@@ -22,10 +22,10 @@
 #ifndef NDN_SECURITY_VALIDITY_PERIOD_HPP
 #define NDN_SECURITY_VALIDITY_PERIOD_HPP
 
-#include "../common.hpp"
-#include "../encoding/tlv.hpp"
-#include "../encoding/block.hpp"
-#include "../util/time.hpp"
+#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace security {

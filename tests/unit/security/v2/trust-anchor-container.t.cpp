@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/trust-anchor-container.hpp"
-#include "util/io.hpp"
+#include "ndn-cxx/security/v2/trust-anchor-container.hpp"
+#include "ndn-cxx/util/io.hpp"
 
-#include "../../identity-management-time-fixture.hpp"
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 #include <boost/filesystem.hpp>
 

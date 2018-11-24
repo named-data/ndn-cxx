@@ -22,8 +22,8 @@
 #ifndef NDN_DETAIL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
 #define NDN_DETAIL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
 
-#include "../common.hpp"
-#include "../util/signal.hpp"
+#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/util/signal.hpp"
 
 namespace ndn {
 

@@ -23,11 +23,10 @@
  * @author Zhenkai Zhu <http://irl.cs.ucla.edu/~zhenkai/>
  */
 
-#include "name.hpp"
-
-#include "encoding/block.hpp"
-#include "encoding/encoding-buffer.hpp"
-#include "util/time.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 #include <sstream>
 #include <boost/functional/hash.hpp>

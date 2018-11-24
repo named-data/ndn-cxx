@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#ifndef NDN_TESTS_UNIT_UNIT_TEST_TIME_FIXTURE_HPP
+#define NDN_TESTS_UNIT_UNIT_TEST_TIME_FIXTURE_HPP
 
-#include "util/time-unit-test-clock.hpp"
+#include "ndn-cxx/util/time-unit-test-clock.hpp"
 
 #include <boost/asio/io_service.hpp>
 
@@ -103,4 +103,4 @@ public:
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TESTS_UNIT_TEST_TIME_FIXTURE_HPP
+#endif // NDN_TESTS_UNIT_UNIT_TEST_TIME_FIXTURE_HPP

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "block-cipher.hpp"
-#include "../detail/openssl.hpp"
+#include "ndn-cxx/security/transform/block-cipher.hpp"
+#include "ndn-cxx/security/detail/openssl.hpp"
 
 #include <boost/lexical_cast.hpp>
 

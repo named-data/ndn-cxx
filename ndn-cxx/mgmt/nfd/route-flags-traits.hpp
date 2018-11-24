@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_ROUTE_FLAGS_TRAITS_HPP
 #define NDN_MGMT_NFD_ROUTE_FLAGS_TRAITS_HPP
 
-#include "../../encoding/nfd-constants.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
 
 namespace ndn {
 namespace nfd {

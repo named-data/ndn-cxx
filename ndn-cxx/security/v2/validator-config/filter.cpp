@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "filter.hpp"
+#include "ndn-cxx/security/v2/validator-config/filter.hpp"
 
-#include "data.hpp"
-#include "interest.hpp"
-#include "security/security-common.hpp"
-#include "util/regex.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/util/regex.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
 

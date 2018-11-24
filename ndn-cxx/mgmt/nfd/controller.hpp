@@ -22,15 +22,15 @@
 #ifndef NDN_MGMT_NFD_CONTROLLER_HPP
 #define NDN_MGMT_NFD_CONTROLLER_HPP
 
-#include "control-command.hpp"
-#include "control-response.hpp"
-#include "status-dataset.hpp"
-#include "command-options.hpp"
-#include "../../security/command-interest-signer.hpp"
-#include "../../security/validator-null.hpp"
-#include "../../security/v2/key-chain.hpp"
-#include "../../security/v2/validator.hpp"
-#include "../../util/segment-fetcher.hpp"
+#include "ndn-cxx/mgmt/nfd/control-command.hpp"
+#include "ndn-cxx/mgmt/nfd/control-response.hpp"
+#include "ndn-cxx/mgmt/nfd/status-dataset.hpp"
+#include "ndn-cxx/mgmt/nfd/command-options.hpp"
+#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/validator-null.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/util/segment-fetcher.hpp"
 
 namespace ndn {
 

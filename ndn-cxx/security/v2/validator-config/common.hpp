@@ -24,7 +24,8 @@
 #ifndef NDN_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
 #define NDN_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
 
-#include "../../../common.hpp"
+#include "ndn-cxx/common.hpp"
+
 #include <boost/property_tree/ptree.hpp>
 
 namespace ndn {

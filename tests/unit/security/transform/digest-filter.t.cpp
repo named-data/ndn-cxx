@@ -19,15 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
 
-#include "encoding/buffer-stream.hpp"
-#include "security/detail/openssl.hpp"
-#include "security/transform/buffer-source.hpp"
-#include "security/transform/step-source.hpp"
-#include "security/transform/stream-sink.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/step-source.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace security {

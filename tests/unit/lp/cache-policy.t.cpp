@@ -21,9 +21,9 @@
  * @author Eric Newberry <enewberry@email.arizona.edu>
  */
 
-#include "lp/cache-policy.hpp"
+#include "ndn-cxx/lp/cache-policy.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace lp {

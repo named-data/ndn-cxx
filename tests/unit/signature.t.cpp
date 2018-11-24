@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "signature.hpp"
-#include "security/digest-sha256.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
+#include "ndn-cxx/signature.hpp"
+#include "ndn-cxx/security/digest-sha256.hpp"
+#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace tests {

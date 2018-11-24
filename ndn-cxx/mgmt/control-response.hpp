@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_CONTROL_RESPONSE_HPP
 #define NDN_MGMT_CONTROL_RESPONSE_HPP
 
-#include "../encoding/block.hpp"
+#include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn {
 namespace mgmt {

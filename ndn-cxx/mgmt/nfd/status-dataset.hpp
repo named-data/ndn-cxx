@@ -22,15 +22,15 @@
 #ifndef NDN_MGMT_NFD_STATUS_DATASET_HPP
 #define NDN_MGMT_NFD_STATUS_DATASET_HPP
 
-#include "../../name.hpp"
-#include "forwarder-status.hpp"
-#include "face-status.hpp"
-#include "face-query-filter.hpp"
-#include "channel-status.hpp"
-#include "fib-entry.hpp"
-#include "cs-info.hpp"
-#include "strategy-choice.hpp"
-#include "rib-entry.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/mgmt/nfd/forwarder-status.hpp"
+#include "ndn-cxx/mgmt/nfd/face-status.hpp"
+#include "ndn-cxx/mgmt/nfd/face-query-filter.hpp"
+#include "ndn-cxx/mgmt/nfd/channel-status.hpp"
+#include "ndn-cxx/mgmt/nfd/fib-entry.hpp"
+#include "ndn-cxx/mgmt/nfd/cs-info.hpp"
+#include "ndn-cxx/mgmt/nfd/strategy-choice.hpp"
+#include "ndn-cxx/mgmt/nfd/rib-entry.hpp"
 
 namespace ndn {
 namespace nfd {

@@ -25,12 +25,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/notification-stream.hpp"
-#include "util/dummy-client-face.hpp"
+#include "ndn-cxx/util/notification-stream.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
-#include "simple-notification.hpp"
-#include "../identity-management-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/unit/util/simple-notification.hpp"
 
 namespace ndn {
 namespace util {

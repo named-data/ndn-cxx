@@ -24,9 +24,10 @@
 #ifndef NDN_NET_NETWORK_INTERFACE_HPP
 #define NDN_NET_NETWORK_INTERFACE_HPP
 
-#include "ethernet.hpp"
-#include "network-address.hpp"
-#include "../util/signal.hpp"
+#include "ndn-cxx/net/ethernet.hpp"
+#include "ndn-cxx/net/network-address.hpp"
+#include "ndn-cxx/util/signal.hpp"
+
 #include <set>
 
 namespace ndn {

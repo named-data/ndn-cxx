@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "control-parameters.hpp"
-#include "encoding/block-helpers.hpp"
-#include "encoding/tlv-nfd.hpp"
-#include "util/concepts.hpp"
-#include "util/string-helper.hpp"
+#include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/encoding/tlv-nfd.hpp"
+#include "ndn-cxx/util/concepts.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 namespace ndn {
 namespace nfd {

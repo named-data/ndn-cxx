@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "indented-stream.hpp"
+#include "ndn-cxx/util/indented-stream.hpp"
 
 #include <vector>
 

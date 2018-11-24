@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "encoding/nfd-constants.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <sstream>

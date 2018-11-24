@@ -19,17 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ims/in-memory-storage.hpp"
-#include "ims/in-memory-storage-fifo.hpp"
-#include "ims/in-memory-storage-lfu.hpp"
-#include "ims/in-memory-storage-lru.hpp"
-#include "ims/in-memory-storage-persistent.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
-#include "util/sha256.hpp"
+#include "ndn-cxx/ims/in-memory-storage.hpp"
+#include "ndn-cxx/ims/in-memory-storage-fifo.hpp"
+#include "ndn-cxx/ims/in-memory-storage-lfu.hpp"
+#include "ndn-cxx/ims/in-memory-storage-lru.hpp"
+#include "ndn-cxx/ims/in-memory-storage-persistent.hpp"
+#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
+#include "ndn-cxx/util/sha256.hpp"
 
-#include "boost-test.hpp"
-#include "make-interest-data.hpp"
-#include "../unit-test-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/unit-test-time-fixture.hpp"
 
 #include <boost/mpl/vector.hpp>
 

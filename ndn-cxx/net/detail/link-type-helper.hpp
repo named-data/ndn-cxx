@@ -22,7 +22,7 @@
 #ifndef NDN_NET_DETAIL_LINK_TYPE_HELPER_HPP
 #define NDN_NET_DETAIL_LINK_TYPE_HELPER_HPP
 
-#include "../../encoding/nfd-constants.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
 
 namespace ndn {
 namespace net {

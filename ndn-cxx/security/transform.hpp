@@ -22,25 +22,25 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_HPP
 
-#include "transform/buffer-source.hpp"
-#include "transform/step-source.hpp"
-#include "transform/stream-source.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/step-source.hpp"
+#include "ndn-cxx/security/transform/stream-source.hpp"
 
-#include "transform/bool-sink.hpp"
-#include "transform/stream-sink.hpp"
+#include "ndn-cxx/security/transform/bool-sink.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 
-#include "transform/base64-decode.hpp"
-#include "transform/base64-encode.hpp"
-#include "transform/hex-decode.hpp"
-#include "transform/hex-encode.hpp"
-#include "transform/strip-space.hpp"
+#include "ndn-cxx/security/transform/base64-decode.hpp"
+#include "ndn-cxx/security/transform/base64-encode.hpp"
+#include "ndn-cxx/security/transform/hex-decode.hpp"
+#include "ndn-cxx/security/transform/hex-encode.hpp"
+#include "ndn-cxx/security/transform/strip-space.hpp"
 
-#include "transform/block-cipher.hpp"
-#include "transform/digest-filter.hpp"
-#include "transform/hmac-filter.hpp"
-#include "transform/private-key.hpp"
-#include "transform/public-key.hpp"
-#include "transform/signer-filter.hpp"
-#include "transform/verifier-filter.hpp"
+#include "ndn-cxx/security/transform/block-cipher.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/hmac-filter.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/signer-filter.hpp"
+#include "ndn-cxx/security/transform/verifier-filter.hpp"
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_HPP

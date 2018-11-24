@@ -19,11 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/config-file.hpp"
-#include "../test-home-env-saver.hpp"
+#ifndef NDN_TESTS_UNIT_TRANSPORT_TRANSPORT_FIXTURE_HPP
+#define NDN_TESTS_UNIT_TRANSPORT_TRANSPORT_FIXTURE_HPP
 
-#ifndef NDN_TESTS_UNIT_TESTS_TRANSPORT_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TESTS_TRANSPORT_FIXTURE_HPP
+#include "ndn-cxx/util/config-file.hpp"
+
+#include "tests/unit/test-home-env-saver.hpp"
 
 namespace ndn {
 namespace tests {
@@ -45,4 +46,4 @@ protected:
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TESTS_TRANSPORT_FIXTURE_HPP
+#endif // NDN_TESTS_UNIT_TRANSPORT_TRANSPORT_FIXTURE_HPP

@@ -22,11 +22,11 @@
 #ifndef NDN_MGMT_STATUS_DATASET_CONTEXT_HPP
 #define NDN_MGMT_STATUS_DATASET_CONTEXT_HPP
 
-#include "../interest.hpp"
-#include "../data.hpp"
-#include "../util/time.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "control-response.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/mgmt/control-response.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace mgmt {

@@ -19,13 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MAIN 1
-#define BOOST_TEST_DYN_LINK 1
 #define BOOST_TEST_MODULE ndn-cxx Integrated Tests (DefaultCanBePrefix=1)
+#include "tests/boost-test.hpp"
 
-#include "interest.hpp"
-
-#include "boost-test.hpp"
+#include "ndn-cxx/interest.hpp"
 
 namespace ndn {
 namespace tests {

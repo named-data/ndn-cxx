@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_SIGNAL_SCOPED_CONNECTION_HPP
 #define NDN_UTIL_SIGNAL_SCOPED_CONNECTION_HPP
 
-#include "connection.hpp"
+#include "ndn-cxx/util/signal/connection.hpp"
 
 namespace ndn {
 namespace util {

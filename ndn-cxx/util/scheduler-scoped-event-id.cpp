@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "scheduler-scoped-event-id.hpp"
+#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
 namespace ndn {
 namespace util {

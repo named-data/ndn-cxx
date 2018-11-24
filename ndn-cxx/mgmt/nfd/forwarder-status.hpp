@@ -22,8 +22,8 @@
 #ifndef NDN_MGMT_NFD_FORWARDER_STATUS_HPP
 #define NDN_MGMT_NFD_FORWARDER_STATUS_HPP
 
-#include "../../encoding/block.hpp"
-#include "../../util/time.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace nfd {

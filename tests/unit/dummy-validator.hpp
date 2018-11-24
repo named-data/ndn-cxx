@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_DUMMY_VALIDATOR_HPP
-#define NDN_TESTS_DUMMY_VALIDATOR_HPP
+#ifndef NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP
+#define NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP
 
-#include "security/v2/validator.hpp"
-#include "security/v2/validation-policy.hpp"
-#include "security/v2/certificate-fetcher-offline.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/security/v2/validation-policy.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-offline.hpp"
 
 namespace ndn {
 namespace tests {
@@ -91,10 +91,10 @@ private:
   function<bool(const Name&)> m_decide;
 };
 
-
 class DummyValidator : public security::v2::Validator
 {
 public:
+  explicit
   DummyValidator(bool shouldAccept = true)
     : security::v2::Validator(make_unique<DummyValidationPolicy>(shouldAccept),
                               make_unique<security::v2::CertificateFetcherOffline>())
@@ -111,4 +111,4 @@ public:
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_DUMMY_VALIDATOR_HPP
+#endif // NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP

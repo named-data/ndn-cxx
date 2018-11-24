@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_RANDOM_HPP
 #define NDN_UTIL_RANDOM_HPP
 
-#include "../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 namespace ndn {
 namespace random {

@@ -22,11 +22,11 @@
 // Bug 2109 test case
 
 // interest.hpp includes common.hpp; common.hpp shouldn't be used from external program
-#include "interest.hpp"
+#include "ndn-cxx/interest.hpp"
 
 // util/config-file.hpp indirectly includes <boost/property_tree/ptree.hpp>
 // which in turn imports Boost placeholders
-#include "util/config-file.hpp"
+#include "ndn-cxx/util/config-file.hpp"
 
 // It's intentional to write "using namespace",
 // to simulate an external program linked against ndn-cxx.

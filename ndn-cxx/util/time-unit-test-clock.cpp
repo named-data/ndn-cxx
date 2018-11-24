@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "time-unit-test-clock.hpp"
-#include "detail/steady-timer.hpp"
+#include "ndn-cxx/util/time-unit-test-clock.hpp"
+#include "ndn-cxx/util/detail/steady-timer.hpp"
 
 #include <chrono>
 #include <thread>

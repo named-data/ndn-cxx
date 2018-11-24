@@ -22,9 +22,9 @@
 #ifndef NDN_IMS_IN_MEMORY_STORAGE_ENTRY_HPP
 #define NDN_IMS_IN_MEMORY_STORAGE_ENTRY_HPP
 
-#include "../data.hpp"
-#include "../interest.hpp"
-#include "../util/scheduler-scoped-event-id.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
 namespace ndn {
 

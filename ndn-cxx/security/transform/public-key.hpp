@@ -22,8 +22,8 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_PUBLIC_KEY_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_PUBLIC_KEY_HPP
 
-#include "../security-common.hpp"
-#include "../../encoding/buffer.hpp"
+#include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
 
 namespace ndn {
 namespace security {

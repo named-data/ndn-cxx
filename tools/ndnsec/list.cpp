@@ -22,7 +22,7 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
-#include <ndn-cxx/util/indented-stream.hpp>
+#include "ndn-cxx/util/indented-stream.hpp"
 
 namespace ndn {
 namespace ndnsec {

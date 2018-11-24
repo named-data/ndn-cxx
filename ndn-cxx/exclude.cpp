@@ -21,8 +21,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "exclude.hpp"
-#include "encoding/block-helpers.hpp"
+#include "ndn-cxx/exclude.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
 #include <sstream>

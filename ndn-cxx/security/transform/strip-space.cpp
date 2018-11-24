@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "strip-space.hpp"
+#include "ndn-cxx/security/transform/strip-space.hpp"
 
 namespace ndn {
 namespace security {

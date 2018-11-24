@@ -22,7 +22,7 @@
 #ifndef NDN_SIGNATURE_HPP
 #define NDN_SIGNATURE_HPP
 
-#include "signature-info.hpp"
+#include "ndn-cxx/signature-info.hpp"
 
 namespace ndn {
 

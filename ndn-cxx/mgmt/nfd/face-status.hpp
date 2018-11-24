@@ -22,8 +22,8 @@
 #ifndef NDN_MGMT_NFD_FACE_STATUS_HPP
 #define NDN_MGMT_NFD_FACE_STATUS_HPP
 
-#include "face-traits.hpp"
-#include "../../util/time.hpp"
+#include "ndn-cxx/mgmt/nfd/face-traits.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace nfd {

@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "mgmt/nfd/cs-info.hpp"
+#include "ndn-cxx/mgmt/nfd/cs-info.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {

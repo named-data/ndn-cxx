@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_V2_TRUST_ANCHOR_GROUP_HPP
 #define NDN_SECURITY_V2_TRUST_ANCHOR_GROUP_HPP
 
-#include "../../data.hpp"
-#include "certificate.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 #include <boost/filesystem/path.hpp>
 #include <set>

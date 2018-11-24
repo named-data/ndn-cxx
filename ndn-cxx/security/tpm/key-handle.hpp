@@ -22,9 +22,8 @@
 #ifndef NDN_SECURITY_TPM_KEY_HANDLE_HPP
 #define NDN_SECURITY_TPM_KEY_HANDLE_HPP
 
-#include "../../common.hpp"
-#include "../../name.hpp"
-#include "../security-common.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {

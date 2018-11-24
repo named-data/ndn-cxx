@@ -24,11 +24,9 @@
 #ifndef NDN_CXX_LP_NACK_HEADER_HPP
 #define NDN_CXX_LP_NACK_HEADER_HPP
 
-#include "../common.hpp"
-#include "../encoding/encoding-buffer.hpp"
-#include "../encoding/block-helpers.hpp"
-
-#include "tlv.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/lp/tlv.hpp"
 
 namespace ndn {
 namespace lp {

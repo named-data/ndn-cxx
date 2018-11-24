@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_SCHEDULER_SCOPED_EVENT_ID_HPP
 #define NDN_UTIL_SCHEDULER_SCOPED_EVENT_ID_HPP
 
-#include "scheduler.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
 namespace ndn {
 namespace util {

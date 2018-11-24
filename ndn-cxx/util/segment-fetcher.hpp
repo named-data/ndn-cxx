@@ -28,11 +28,11 @@
 #ifndef NDN_UTIL_SEGMENT_FETCHER_HPP
 #define NDN_UTIL_SEGMENT_FETCHER_HPP
 
-#include "../face.hpp"
-#include "../security/v2/validator.hpp"
-#include "rtt-estimator.hpp"
-#include "scheduler.hpp"
-#include "signal.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/util/rtt-estimator.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
+#include "ndn-cxx/util/signal.hpp"
 
 #include <queue>
 

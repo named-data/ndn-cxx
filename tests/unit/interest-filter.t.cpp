@@ -19,15 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "interest-filter.hpp"
-#include "data.hpp"
-#include "encoding/buffer-stream.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
-#include "security/digest-sha256.hpp"
-#include "util/dummy-client-face.hpp"
+#include "ndn-cxx/interest-filter.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
+#include "ndn-cxx/security/digest-sha256.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
 
 namespace ndn {
 namespace tests {

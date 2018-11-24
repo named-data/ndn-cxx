@@ -22,8 +22,7 @@
 #ifndef NDN_UTIL_SQLITE3_STATEMENT_HPP
 #define NDN_UTIL_SQLITE3_STATEMENT_HPP
 
-#include "../encoding/block.hpp"
-#include <string>
+#include "ndn-cxx/encoding/block.hpp"
 
 struct sqlite3;
 struct sqlite3_stmt;

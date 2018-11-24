@@ -21,12 +21,12 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#include "block.hpp"
-#include "buffer-stream.hpp"
-#include "encoding-buffer.hpp"
-#include "tlv.hpp"
-#include "../security/transform.hpp"
-#include "../util/string-helper.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include <boost/asio/buffer.hpp>
 #include <boost/range/adaptor/reversed.hpp>

@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/sha256.hpp"
-#include "util/string-helper.hpp"
+#include "ndn-cxx/util/sha256.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <boost/endian/conversion.hpp>
 #include <sstream>

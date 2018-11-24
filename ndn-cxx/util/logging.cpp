@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "logging.hpp"
-#include "logger.hpp"
+#include "ndn-cxx/util/logging.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 #include <boost/log/expressions.hpp>
 #include <boost/range/adaptor/map.hpp>

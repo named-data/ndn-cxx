@@ -22,11 +22,11 @@
 #ifndef NDN_DATA_HPP
 #define NDN_DATA_HPP
 
-#include "meta-info.hpp"
-#include "name.hpp"
-#include "packet-base.hpp"
-#include "signature.hpp"
-#include "encoding/block.hpp"
+#include "ndn-cxx/meta-info.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/packet-base.hpp"
+#include "ndn-cxx/signature.hpp"
+#include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn {
 

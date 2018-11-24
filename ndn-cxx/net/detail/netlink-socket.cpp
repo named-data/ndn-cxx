@@ -21,10 +21,10 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "netlink-socket.hpp"
-#include "netlink-message.hpp"
-#include "../../util/logger.hpp"
-#include "../../util/time.hpp"
+#include "ndn-cxx/net/detail/netlink-socket.hpp"
+#include "ndn-cxx/net/detail/netlink-message.hpp"
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 #include <cerrno>
 #include <linux/genetlink.h>

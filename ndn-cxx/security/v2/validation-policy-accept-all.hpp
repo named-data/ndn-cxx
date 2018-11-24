@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_POLICY_ACCEPT_ALL_HPP
 #define NDN_SECURITY_V2_VALIDATION_POLICY_ACCEPT_ALL_HPP
 
-#include "validation-policy.hpp"
+#include "ndn-cxx/security/v2/validation-policy.hpp"
 
 namespace ndn {
 namespace security {

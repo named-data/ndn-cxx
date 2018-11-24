@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "delegation-list.hpp"
+#include "ndn-cxx/delegation-list.hpp"
 
 namespace ndn {
 

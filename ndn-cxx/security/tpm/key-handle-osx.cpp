@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-handle-osx.hpp"
-#include "back-end-osx.hpp"
+#include "ndn-cxx/security/tpm/key-handle-osx.hpp"
+#include "ndn-cxx/security/tpm/back-end-osx.hpp"
 
 namespace ndn {
 namespace security {

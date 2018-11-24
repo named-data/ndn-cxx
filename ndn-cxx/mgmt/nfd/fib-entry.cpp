@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "fib-entry.hpp"
-#include "encoding/block-helpers.hpp"
-#include "encoding/encoding-buffer.hpp"
-#include "encoding/tlv-nfd.hpp"
-#include "util/concepts.hpp"
+#include "ndn-cxx/mgmt/nfd/fib-entry.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/encoding/tlv-nfd.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
 

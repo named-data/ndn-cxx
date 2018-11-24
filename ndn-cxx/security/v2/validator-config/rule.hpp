@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_V2_VALIDATOR_CONFIG_RULE_HPP
 #define NDN_SECURITY_V2_VALIDATOR_CONFIG_RULE_HPP
 
-#include "filter.hpp"
-#include "checker.hpp"
+#include "ndn-cxx/security/v2/validator-config/checker.hpp"
+#include "ndn-cxx/security/v2/validator-config/filter.hpp"
 
 namespace ndn {
 namespace security {

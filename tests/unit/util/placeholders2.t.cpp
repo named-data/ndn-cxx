@@ -22,7 +22,7 @@
 // Bug 2109 test case
 
 // interest.hpp includes common.hpp; common.hpp shouldn't be used from external program
-#include "interest.hpp"
+#include "ndn-cxx/interest.hpp"
 
 #include <boost/bind.hpp>
 

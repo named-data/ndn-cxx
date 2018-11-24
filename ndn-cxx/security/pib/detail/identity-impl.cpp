@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "identity-impl.hpp"
-#include "../pib-impl.hpp"
-#include "../pib.hpp"
+#include "ndn-cxx/security/pib/detail/identity-impl.hpp"
+#include "ndn-cxx/security/pib/pib-impl.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
 
 namespace ndn {
 namespace security {

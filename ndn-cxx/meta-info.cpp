@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "meta-info.hpp"
-#include "encoding/block-helpers.hpp"
-#include "encoding/encoding-buffer.hpp"
+#include "ndn-cxx/meta-info.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
 
 namespace ndn {
 

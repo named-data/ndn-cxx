@@ -19,16 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/segment-fetcher.hpp"
+#include "ndn-cxx/util/segment-fetcher.hpp"
 
-#include "data.hpp"
-#include "lp/nack.hpp"
-#include "util/dummy-client-face.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/lp/nack.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "boost-test.hpp"
-#include "dummy-validator.hpp"
-#include "make-interest-data.hpp"
-#include "../identity-management-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
+#include "tests/unit/dummy-validator.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 #include <set>
 

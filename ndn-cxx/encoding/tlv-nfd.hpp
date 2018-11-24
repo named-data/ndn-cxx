@@ -22,8 +22,8 @@
 #ifndef NDN_ENCODING_TLV_NFD_HPP
 #define NDN_ENCODING_TLV_NFD_HPP
 
-#include "tlv.hpp"
-#include "nfd-constants.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
 
 namespace ndn {
 namespace tlv {

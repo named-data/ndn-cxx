@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validator-config.hpp"
-#include "v2/certificate-fetcher-from-network.hpp"
+#include "ndn-cxx/security/validator-config.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-from-network.hpp"
 
 namespace ndn {
 namespace security {

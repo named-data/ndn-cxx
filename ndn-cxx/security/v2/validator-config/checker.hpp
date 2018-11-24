@@ -22,10 +22,10 @@
 #ifndef NDN_SECURITY_V2_VALIDATOR_CONFIG_CHECKER_HPP
 #define NDN_SECURITY_V2_VALIDATOR_CONFIG_CHECKER_HPP
 
-#include "common.hpp"
-#include "name-relation.hpp"
-#include "../../../name.hpp"
-#include "../../../util/regex.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/v2/validator-config/common.hpp"
+#include "ndn-cxx/security/v2/validator-config/name-relation.hpp"
+#include "ndn-cxx/util/regex.hpp"
 
 namespace ndn {
 namespace security {

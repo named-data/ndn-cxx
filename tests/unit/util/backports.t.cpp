@@ -19,10 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/backports.hpp"
+#include "ndn-cxx/util/backports.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+
 #include <numeric>
+#include <boost/test/output_test_stream.hpp>
 
 namespace ndn {
 namespace tests {

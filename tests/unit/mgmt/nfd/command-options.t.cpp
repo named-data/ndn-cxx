@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "mgmt/nfd/command-options.hpp"
-#include "security/signing-helpers.hpp"
+#include "ndn-cxx/mgmt/nfd/command-options.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace nfd {

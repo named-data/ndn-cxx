@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validator-null.hpp"
-#include "v2/validation-policy-accept-all.hpp"
-#include "v2/certificate-fetcher-offline.hpp"
+#include "ndn-cxx/security/validator-null.hpp"
+#include "ndn-cxx/security/v2/validation-policy-accept-all.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-offline.hpp"
 
 namespace ndn {
 namespace security {

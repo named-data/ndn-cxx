@@ -22,9 +22,9 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_FETCHER_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_FETCHER_HPP
 
-#include "certificate-request.hpp"
-#include "certificate-storage.hpp"
-#include "validation-state.hpp"
+#include "ndn-cxx/security/v2/certificate-request.hpp"
+#include "ndn-cxx/security/v2/certificate-storage.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
 
 namespace ndn {
 

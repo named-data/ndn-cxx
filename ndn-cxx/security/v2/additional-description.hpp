@@ -22,9 +22,10 @@
 #ifndef NDN_SECURITY_V2_ADDITIONAL_DESCRIPTION_HPP
 #define NDN_SECURITY_V2_ADDITIONAL_DESCRIPTION_HPP
 
-#include "../../common.hpp"
-#include "../../encoding/tlv.hpp"
-#include "../../encoding/block.hpp"
+#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
+
 #include <map>
 
 namespace ndn {

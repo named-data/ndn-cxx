@@ -24,7 +24,7 @@
 #ifndef NDN_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP
 #define NDN_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP
 
-#include "regex-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-matcher.hpp"
 
 #include <vector>
 

@@ -25,7 +25,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ethernet.hpp"
+#include "ndn-cxx/net/ethernet.hpp"
 
 #include <boost/functional/hash.hpp>
 

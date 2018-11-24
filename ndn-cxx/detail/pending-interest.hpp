@@ -22,12 +22,11 @@
 #ifndef NDN_DETAIL_PENDING_INTEREST_HPP
 #define NDN_DETAIL_PENDING_INTEREST_HPP
 
-#include "../face.hpp"
-
-#include "../data.hpp"
-#include "../interest.hpp"
-#include "../lp/nack.hpp"
-#include "../util/scheduler-scoped-event-id.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/lp/nack.hpp"
+#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
 namespace ndn {
 

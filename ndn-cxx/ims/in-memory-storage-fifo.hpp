@@ -22,7 +22,7 @@
 #ifndef NDN_IMS_IN_MEMORY_STORAGE_FIFO_HPP
 #define NDN_IMS_IN_MEMORY_STORAGE_FIFO_HPP
 
-#include "in-memory-storage.hpp"
+#include "ndn-cxx/ims/in-memory-storage.hpp"
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>

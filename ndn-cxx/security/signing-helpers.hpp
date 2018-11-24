@@ -22,8 +22,8 @@
 #ifndef NDN_CXX_SECURITY_SIGNING_HELPERS_HPP
 #define NDN_CXX_SECURITY_SIGNING_HELPERS_HPP
 
-#include "../common.hpp"
-#include "signing-info.hpp"
+#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/security/signing-info.hpp"
 
 namespace ndn {
 namespace security {

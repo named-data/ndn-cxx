@@ -28,10 +28,10 @@
 #ifndef NDN_UTIL_NOTIFICATION_STREAM_HPP
 #define NDN_UTIL_NOTIFICATION_STREAM_HPP
 
-#include "concepts.hpp"
-#include "../face.hpp"
-#include "../name.hpp"
-#include "../security/v2/key-chain.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace util {

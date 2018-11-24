@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/validity-period.hpp"
+#include "ndn-cxx/security/validity-period.hpp"
 
-#include "boost-test.hpp"
-#include "../unit-test-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/unit-test-time-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 

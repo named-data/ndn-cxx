@@ -22,12 +22,12 @@
 #ifndef NDN_SECURITY_V2_VALIDATOR_HPP
 #define NDN_SECURITY_V2_VALIDATOR_HPP
 
-#include "certificate-fetcher.hpp"
-#include "certificate-request.hpp"
-#include "certificate-storage.hpp"
-#include "validation-callback.hpp"
-#include "validation-policy.hpp"
-#include "validation-state.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher.hpp"
+#include "ndn-cxx/security/v2/certificate-request.hpp"
+#include "ndn-cxx/security/v2/certificate-storage.hpp"
+#include "ndn-cxx/security/v2/validation-callback.hpp"
+#include "ndn-cxx/security/v2/validation-policy.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
 
 namespace ndn {
 

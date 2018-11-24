@@ -22,7 +22,7 @@
 #ifndef NDN_MGMT_NFD_CONTROL_COMMAND_HPP
 #define NDN_MGMT_NFD_CONTROL_COMMAND_HPP
 
-#include "control-parameters.hpp"
+#include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 
 namespace ndn {
 namespace nfd {

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,16 +19,17 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_KEY_CHAIN_FIXTURE_HPP
-#define NDN_TESTS_KEY_CHAIN_FIXTURE_HPP
+#ifndef NDN_TESTS_TEST_HOME_FIXTURE_HPP
+#define NDN_TESTS_TEST_HOME_FIXTURE_HPP
 
-#include "security/v2/key-chain.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
 
-#include "boost-test.hpp"
-
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include <cstdlib>
 #include <fstream>
+#include <initializer_list>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 namespace ndn {
 namespace tests {
@@ -46,11 +47,11 @@ public:
   PibDirFixture()
     : m_pibDir(Path().PATH)
   {
-    if (getenv("NDN_CLIENT_PIB") != nullptr) {
-      m_oldPib = getenv("NDN_CLIENT_PIB");
+    if (std::getenv("NDN_CLIENT_PIB") != nullptr) {
+      m_oldPib = std::getenv("NDN_CLIENT_PIB");
     }
-    if (getenv("NDN_CLIENT_TPM") != nullptr) {
-      m_oldTpm = getenv("NDN_CLIENT_TPM");
+    if (std::getenv("NDN_CLIENT_TPM") != nullptr) {
+      m_oldTpm = std::getenv("NDN_CLIENT_TPM");
     }
 
     /// @todo Consider change to an in-memory PIB/TPM
@@ -61,14 +62,14 @@ public:
   ~PibDirFixture()
   {
     if (!m_oldPib.empty()) {
-      setenv("NDN_CLIENT_PIB", m_oldPib.c_str(), true);
+      setenv("NDN_CLIENT_PIB", m_oldPib.data(), true);
     }
     else {
       unsetenv("NDN_CLIENT_PIB");
     }
 
     if (!m_oldTpm.empty()) {
-      setenv("NDN_CLIENT_TPM", m_oldTpm.c_str(), true);
+      setenv("NDN_CLIENT_TPM", m_oldTpm.data(), true);
     }
     else {
       unsetenv("NDN_CLIENT_TPM");
@@ -105,7 +106,7 @@ public:
   }
 
   void
-  createClientConf(std::initializer_list<std::string> lines)
+  createClientConf(std::initializer_list<std::string> lines) const
   {
     boost::filesystem::create_directories(boost::filesystem::path(this->m_pibDir) / ".ndn");
     std::ofstream of((boost::filesystem::path(this->m_pibDir) / ".ndn" / "client.conf").c_str());
@@ -124,4 +125,4 @@ struct DefaultPibDir
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_KEY_CHAIN_FIXTURE_HPP
+#endif // NDN_TESTS_TEST_HOME_FIXTURE_HPP

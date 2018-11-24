@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/validator-null.hpp"
+#include "ndn-cxx/security/validator-null.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/make-interest-data.hpp"
 
 namespace ndn {
 namespace security {

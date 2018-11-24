@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "sha256.hpp"
-#include "string-helper.hpp"
-#include "../security/detail/openssl.hpp"
-#include "../security/transform/digest-filter.hpp"
-#include "../security/transform/stream-sink.hpp"
-#include "../security/transform/stream-source.hpp"
+#include "ndn-cxx/util/sha256.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
+#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/security/transform/stream-source.hpp"
 
 namespace ndn {
 namespace util {

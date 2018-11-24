@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "meta-info.hpp"
-#include "data.hpp"
+#include "ndn-cxx/meta-info.hpp"
+#include "ndn-cxx/data.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace tests {

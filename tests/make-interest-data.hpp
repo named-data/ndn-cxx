@@ -22,10 +22,10 @@
 #ifndef NDN_TESTS_MAKE_INTEREST_DATA_HPP
 #define NDN_TESTS_MAKE_INTEREST_DATA_HPP
 
-#include "interest.hpp"
-#include "data.hpp"
-#include "link.hpp"
-#include "lp/nack.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/link.hpp"
+#include "ndn-cxx/lp/nack.hpp"
 
 namespace ndn {
 namespace tests {

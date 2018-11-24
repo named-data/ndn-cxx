@@ -19,16 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/transform/signer-filter.hpp"
+#include "ndn-cxx/security/transform/signer-filter.hpp"
 
-#include "encoding/buffer-stream.hpp"
-#include "security/transform/base64-decode.hpp"
-#include "security/transform/buffer-source.hpp"
-#include "security/transform/private-key.hpp"
-#include "security/transform/stream-sink.hpp"
-#include "security/verification-helpers.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/base64-decode.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "back-end-file.hpp"
-#include "key-handle-mem.hpp"
-#include "../transform.hpp"
-#include "../transform/private-key.hpp"
-#include "../../encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/tpm/back-end-file.hpp"
+#include "ndn-cxx/security/tpm/key-handle-mem.hpp"
+#include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
 
 #include <cstdlib>
 #include <fstream>

@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_TPM_KEY_HANDLE_MEM_HPP
 #define NDN_SECURITY_TPM_KEY_HANDLE_MEM_HPP
 
-#include "key-handle.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
 
 namespace ndn {
 namespace security {

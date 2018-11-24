@@ -22,8 +22,8 @@
 #ifndef NDN_UTIL_IO_HPP
 #define NDN_UTIL_IO_HPP
 
-#include "concepts.hpp"
-#include "../encoding/block.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 #include <fstream>
 

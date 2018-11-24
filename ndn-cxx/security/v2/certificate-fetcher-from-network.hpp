@@ -22,8 +22,8 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
 
-#include "certificate-fetcher.hpp"
-#include "../../util/scheduler.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
 namespace ndn {
 

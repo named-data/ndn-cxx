@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "digest-sha256.hpp"
+#include "ndn-cxx/security/digest-sha256.hpp"
 
 namespace ndn {
 

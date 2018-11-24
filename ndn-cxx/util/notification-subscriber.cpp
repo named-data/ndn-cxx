@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "notification-subscriber.hpp"
-#include "random.hpp"
+#include "ndn-cxx/util/notification-subscriber.hpp"
+#include "ndn-cxx/util/random.hpp"
 
 #include <cmath>
 

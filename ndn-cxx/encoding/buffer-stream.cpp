@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "buffer-stream.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
 
 namespace ndn {
 namespace detail {

@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/digest-sha256.hpp"
-#include "security/verification-helpers.hpp"
-#include "util/sha256.hpp"
-#include "util/string-helper.hpp"
+#include "ndn-cxx/security/digest-sha256.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
+#include "ndn-cxx/util/sha256.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
-#include "identity-management-fixture.hpp"
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
 
 namespace ndn {
 namespace security {

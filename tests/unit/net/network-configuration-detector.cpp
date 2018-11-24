@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "network-configuration-detector.hpp"
+#include "tests/unit/net/network-configuration-detector.hpp"
 
-#include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/udp.hpp>
-#include <boost/asio/ip/basic_resolver.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/basic_resolver.hpp>
+#include <boost/asio/ip/udp.hpp>
 #include <boost/range/iterator_range_core.hpp>
 
 namespace ndn {

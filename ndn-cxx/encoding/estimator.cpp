@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "estimator.hpp"
+#include "ndn-cxx/encoding/estimator.hpp"
 
 namespace ndn {
 namespace encoding {

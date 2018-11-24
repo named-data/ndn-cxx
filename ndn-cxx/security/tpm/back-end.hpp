@@ -22,9 +22,9 @@
 #ifndef NDN_SECURITY_TPM_BACK_END_HPP
 #define NDN_SECURITY_TPM_BACK_END_HPP
 
-#include "../key-params.hpp"
-#include "../../encoding/buffer.hpp"
-#include "../../name.hpp"
+#include "ndn-cxx/security/key-params.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/name.hpp"
 
 namespace ndn {
 namespace security {

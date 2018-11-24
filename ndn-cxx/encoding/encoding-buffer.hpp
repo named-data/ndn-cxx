@@ -22,9 +22,9 @@
 #ifndef NDN_ENCODING_ENCODING_BUFFER_HPP
 #define NDN_ENCODING_ENCODING_BUFFER_HPP
 
-#include "encoding-buffer-fwd.hpp"
-#include "encoder.hpp"
-#include "estimator.hpp"
+#include "ndn-cxx/encoding/encoding-buffer-fwd.hpp"
+#include "ndn-cxx/encoding/encoder.hpp"
+#include "ndn-cxx/encoding/estimator.hpp"
 
 namespace ndn {
 namespace encoding {

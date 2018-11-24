@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "dummy-client-face.hpp"
-#include "../detail/lp-field-tag.hpp"
-#include "../lp/packet.hpp"
-#include "../lp/tags.hpp"
-#include "../mgmt/nfd/controller.hpp"
-#include "../mgmt/nfd/control-response.hpp"
-#include "../transport/transport.hpp"
+#include "ndn-cxx/util/dummy-client-face.hpp"
+#include "ndn-cxx/detail/lp-field-tag.hpp"
+#include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/lp/tags.hpp"
+#include "ndn-cxx/mgmt/nfd/controller.hpp"
+#include "ndn-cxx/mgmt/nfd/control-response.hpp"
+#include "ndn-cxx/transport/transport.hpp"
 
 #include <boost/asio/io_service.hpp>
 

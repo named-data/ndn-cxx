@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "back-end-osx.hpp"
-#include "key-handle-osx.hpp"
-#include "tpm.hpp"
-#include "../transform/private-key.hpp"
-#include "../../encoding/buffer-stream.hpp"
-#include "../../util/cf-string-osx.hpp"
+#include "ndn-cxx/security/tpm/back-end-osx.hpp"
+#include "ndn-cxx/security/tpm/key-handle-osx.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/util/cf-string-osx.hpp"
 
 #include <Security/Security.h>
 #include <cstring>

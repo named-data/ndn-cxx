@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "prefix-announcement.hpp"
-#include "encoding/tlv-nfd.hpp"
+#include "ndn-cxx/prefix-announcement.hpp"
+#include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/make-interest-data.hpp"
 
 namespace ndn {
 namespace tests {

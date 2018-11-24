@@ -19,9 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "net/network-monitor.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+
 #include <boost/asio/io_service.hpp>
 
 namespace ndn {

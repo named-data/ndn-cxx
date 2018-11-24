@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/sqlite3-statement.hpp"
+#include "ndn-cxx/util/sqlite3-statement.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <boost/filesystem.hpp>
 #include <cstring>

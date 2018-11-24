@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/key-chain.hpp"
-#include "security/signing-helpers.hpp"
-#include "security/verification-helpers.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
-#include "../../test-home-env-saver.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
+#include "tests/unit/test-home-env-saver.hpp"
 
 namespace ndn {
 namespace security {

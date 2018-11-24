@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "certificate-storage.hpp"
+#include "ndn-cxx/security/v2/certificate-storage.hpp"
 
 namespace ndn {
 namespace security {

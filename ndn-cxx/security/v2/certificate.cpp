@@ -22,11 +22,11 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "certificate.hpp"
-#include "additional-description.hpp"
-#include "../../encoding/block-helpers.hpp"
-#include "../../util/indented-stream.hpp"
-#include "../transform.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
+#include "ndn-cxx/security/v2/additional-description.hpp"
+#include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/indented-stream.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,12 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_SECURITY_PIB_DATA_FIXTURE_HPP
-#define NDN_TESTS_SECURITY_PIB_DATA_FIXTURE_HPP
+#ifndef NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP
+#define NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP
 
-#include "security/v2/certificate.hpp"
-
-#include "boost-test.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 namespace ndn {
 namespace security {
@@ -63,4 +61,4 @@ public:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_TESTS_SECURITY_PIB_DATA_FIXTURE_HPP
+#endif // NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP

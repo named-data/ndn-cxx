@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "util/config-file.hpp"
-#include "../test-home-env-saver.hpp"
+#include "ndn-cxx/util/config-file.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/test-home-env-saver.hpp"
 
 #include <cstdlib>
 

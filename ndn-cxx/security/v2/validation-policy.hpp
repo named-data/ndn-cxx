@@ -22,10 +22,10 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_POLICY_HPP
 #define NDN_SECURITY_V2_VALIDATION_POLICY_HPP
 
-#include "certificate-request.hpp"
-#include "validation-state.hpp"
-#include "../../data.hpp"
-#include "../../interest.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/security/v2/certificate-request.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
 
 namespace ndn {
 namespace security {

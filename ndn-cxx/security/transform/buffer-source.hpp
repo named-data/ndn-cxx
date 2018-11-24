@@ -22,8 +22,8 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_BUFFER_SOURCE_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_BUFFER_SOURCE_HPP
 
-#include "transform-base.hpp"
-#include "../../encoding/buffer.hpp"
+#include "ndn-cxx/security/transform/transform-base.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validation-error.hpp"
+#include "ndn-cxx/security/v2/validation-error.hpp"
 
 #include <ostream>
 

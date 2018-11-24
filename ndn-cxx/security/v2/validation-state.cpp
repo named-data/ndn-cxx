@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validation-state.hpp"
-#include "validator.hpp"
-#include "../verification-helpers.hpp"
-#include "util/logger.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
 namespace security {

@@ -22,9 +22,9 @@
 #ifndef NDN_UTIL_SIGNAL_HPP
 #define NDN_UTIL_SIGNAL_HPP
 
-#include "signal/signal.hpp"
-#include "signal/emit.hpp"
-#include "signal/connection.hpp"
-#include "signal/scoped-connection.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
+#include "ndn-cxx/util/signal/emit.hpp"
+#include "ndn-cxx/util/signal/connection.hpp"
+#include "ndn-cxx/util/signal/scoped-connection.hpp"
 
 #endif // NDN_UTIL_SIGNAL_HPP

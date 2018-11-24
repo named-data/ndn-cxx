@@ -19,16 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/certificate-fetcher-direct-fetch.hpp"
-#include "security/v2/validation-policy-simple-hierarchy.hpp"
-#include "lp/nack.hpp"
-#include "lp/tags.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-direct-fetch.hpp"
+#include "ndn-cxx/security/v2/validation-policy-simple-hierarchy.hpp"
+#include "ndn-cxx/lp/nack.hpp"
+#include "ndn-cxx/lp/tags.hpp"
 
-#include "boost-test.hpp"
-#include "validator-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/security/v2/validator-fixture.hpp"
 
-#include <boost/range/adaptor/strided.hpp>
 #include <boost/range/adaptor/sliced.hpp>
+#include <boost/range/adaptor/strided.hpp>
 
 namespace ndn {
 namespace security {

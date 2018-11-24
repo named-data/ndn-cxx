@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validator.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
 
-#include "face.hpp"
-#include "security/transform/public-key.hpp"
-#include "util/logger.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
 namespace security {

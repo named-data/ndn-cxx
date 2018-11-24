@@ -19,20 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "verification-helpers.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
 
-#include "detail/openssl.hpp"
-#include "pib/key.hpp"
-#include "transform/bool-sink.hpp"
-#include "transform/buffer-source.hpp"
-#include "transform/digest-filter.hpp"
-#include "transform/public-key.hpp"
-#include "transform/stream-sink.hpp"
-#include "transform/verifier-filter.hpp"
-#include "v2/certificate.hpp"
-#include "../data.hpp"
-#include "../interest.hpp"
-#include "../encoding/buffer-stream.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
+#include "ndn-cxx/security/transform/bool-sink.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/security/transform/verifier-filter.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 namespace ndn {
 namespace security {

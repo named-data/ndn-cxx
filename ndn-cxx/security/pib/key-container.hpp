@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_PIB_KEY_CONTAINER_HPP
 #define NDN_SECURITY_PIB_KEY_CONTAINER_HPP
 
-#include "key.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
 
 #include <iterator>
 #include <set>

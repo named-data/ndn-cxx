@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_PIB_IDENTITY_CONTAINER_HPP
 #define NDN_SECURITY_PIB_IDENTITY_CONTAINER_HPP
 
-#include "identity.hpp"
+#include "ndn-cxx/security/pib/identity.hpp"
 
 #include <iterator>
 #include <set>

@@ -22,8 +22,8 @@
 #ifndef NDN_TRANSPORT_UNIX_TRANSPORT_HPP
 #define NDN_TRANSPORT_UNIX_TRANSPORT_HPP
 
-#include "transport.hpp"
-#include "../util/config-file.hpp"
+#include "ndn-cxx/transport/transport.hpp"
+#include "ndn-cxx/util/config-file.hpp"
 
 #include <boost/asio/local/stream_protocol.hpp>
 

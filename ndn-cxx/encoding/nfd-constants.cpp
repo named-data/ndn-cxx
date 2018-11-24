@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "nfd-constants.hpp"
-#include "util/string-helper.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>

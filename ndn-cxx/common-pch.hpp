@@ -25,7 +25,7 @@
 // If the compiler supports precompiled headers, this header should be compiled
 // and included before anything else
 
-#include "common.hpp"
+#include "ndn-cxx/common.hpp"
 
 // STL headers to precompile
 #include <fstream>

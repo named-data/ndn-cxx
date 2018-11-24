@@ -22,10 +22,10 @@
 #ifndef NDN_UTIL_LOGGING_HPP
 #define NDN_UTIL_LOGGING_HPP
 
-#include "../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 #ifdef HAVE_NDN_CXX_CUSTOM_LOGGER
-#include "ndn-cxx-custom-logging.hpp"
+#include "ndn-cxx/util/custom-logging.hpp"
 #else
 
 #include <boost/log/sinks.hpp>

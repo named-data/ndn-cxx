@@ -21,9 +21,9 @@
  * @author Zhiyi Zhang <dreamerbarrychang@gmail.com>
  */
 
-#include "security/safe-bag.hpp"
+#include "ndn-cxx/security/safe-bag.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace security {

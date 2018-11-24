@@ -22,8 +22,8 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_HMAC_FILTER_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_HMAC_FILTER_HPP
 
-#include "transform-base.hpp"
-#include "../security-common.hpp"
+#include "ndn-cxx/security/transform/transform-base.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {

@@ -50,12 +50,11 @@
  *   POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "network-monitor-impl-osx.hpp"
-
-#include "../network-address.hpp"
-#include "../../name.hpp"
-#include "../../util/cf-string-osx.hpp"
-#include "../../util/logger.hpp"
+#include "ndn-cxx/net/detail/network-monitor-impl-osx.hpp"
+#include "ndn-cxx/net/network-address.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/util/cf-string-osx.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 #include <ifaddrs.h>      // for getifaddrs()
 #include <net/if.h>       // for if_nametoindex()

@@ -21,7 +21,7 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#include "regex-backref-manager.hpp"
+#include "ndn-cxx/util/regex/regex-backref-manager.hpp"
 
 namespace ndn {
 

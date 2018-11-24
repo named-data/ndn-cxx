@@ -22,10 +22,10 @@
 #ifndef NDN_NAME_COMPONENT_HPP
 #define NDN_NAME_COMPONENT_HPP
 
-#include "common.hpp"
-#include "encoding/block.hpp"
-#include "encoding/block-helpers.hpp"
-#include "util/time.hpp"
+#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace name {

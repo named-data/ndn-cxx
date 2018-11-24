@@ -24,7 +24,7 @@
 #ifndef NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
 #define NDN_UTIL_REGEX_REGEX_PATTERN_LIST_MATCHER_HPP
 
-#include "regex-matcher.hpp"
+#include "ndn-cxx/util/regex/regex-matcher.hpp"
 
 namespace ndn {
 

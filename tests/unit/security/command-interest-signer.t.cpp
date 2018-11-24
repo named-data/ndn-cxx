@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/command-interest-signer.hpp"
-#include "security/signing-helpers.hpp"
+#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
 
-#include "boost-test.hpp"
-#include "../identity-management-time-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/identity-management-time-fixture.hpp"
 
 namespace ndn {
 namespace security {

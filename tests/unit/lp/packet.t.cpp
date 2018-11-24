@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "lp/packet.hpp"
-#include "prefix-announcement.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
+#include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/prefix-announcement.hpp"
+#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 
-#include "boost-test.hpp"
-#include "identity-management-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/identity-management-fixture.hpp"
 
 namespace ndn {
 namespace lp {

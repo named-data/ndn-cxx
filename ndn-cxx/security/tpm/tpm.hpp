@@ -22,9 +22,9 @@
 #ifndef NDN_SECURITY_TPM_TPM_HPP
 #define NDN_SECURITY_TPM_TPM_HPP
 
-#include "key-handle.hpp"
-#include "../key-params.hpp"
-#include "../../name.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/key-params.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
 
 #include <unordered_map>
 

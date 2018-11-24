@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "base64-decode.hpp"
-#include "../detail/openssl.hpp"
+#include "ndn-cxx/security/transform/base64-decode.hpp"
+#include "ndn-cxx/security/detail/openssl.hpp"
 
 namespace ndn {
 namespace security {

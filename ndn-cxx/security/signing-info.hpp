@@ -22,11 +22,11 @@
 #ifndef NDN_SECURITY_SIGNING_INFO_HPP
 #define NDN_SECURITY_SIGNING_INFO_HPP
 
-#include "../name.hpp"
-#include "../signature-info.hpp"
-#include "pib/identity.hpp"
-#include "pib/key.hpp"
-#include "security-common.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/signature-info.hpp"
+#include "ndn-cxx/security/pib/identity.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {

@@ -22,7 +22,7 @@
 #ifndef NDN_IMS_IN_MEMORY_STORAGE_PERSISTENT_HPP
 #define NDN_IMS_IN_MEMORY_STORAGE_PERSISTENT_HPP
 
-#include "in-memory-storage.hpp"
+#include "ndn-cxx/ims/in-memory-storage.hpp"
 
 namespace ndn {
 

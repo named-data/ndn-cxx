@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "packet.hpp"
-#include "fields.hpp"
+#include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/mpl/for_each.hpp>

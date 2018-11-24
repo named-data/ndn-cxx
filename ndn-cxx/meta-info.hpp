@@ -22,10 +22,10 @@
 #ifndef NDN_META_INFO_HPP
 #define NDN_META_INFO_HPP
 
-#include "encoding/block.hpp"
-#include "encoding/encoding-buffer.hpp"
-#include "name-component.hpp"
-#include "util/time.hpp"
+#include "ndn-cxx/name-component.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 #include <list>
 

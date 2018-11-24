@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validation-policy-command-interest.hpp"
+#include "ndn-cxx/security/v2/validation-policy-command-interest.hpp"
 
 namespace ndn {
 namespace security {

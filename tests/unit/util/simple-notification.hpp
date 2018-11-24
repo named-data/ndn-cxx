@@ -25,12 +25,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP
-#define NDN_TESTS_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP
+#ifndef NDN_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
+#define NDN_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
 
-#include "common.hpp"
-
-#include "encoding/encoding-buffer.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
 
 namespace ndn {
 namespace util {
@@ -93,4 +91,4 @@ private:
 } // namespace util
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TESTS_UTIL_SIMPLE_NOTIFICATION_HPP
+#endif // NDN_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP

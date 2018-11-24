@@ -22,10 +22,10 @@
 #ifndef NDN_CXX_LP_TAGS_HPP
 #define NDN_CXX_LP_TAGS_HPP
 
-#include "cache-policy.hpp"
-#include "empty-value.hpp"
-#include "prefix-announcement-header.hpp"
-#include "../tag.hpp"
+#include "ndn-cxx/lp/cache-policy.hpp"
+#include "ndn-cxx/lp/empty-value.hpp"
+#include "ndn-cxx/lp/prefix-announcement-header.hpp"
+#include "ndn-cxx/tag.hpp"
 
 namespace ndn {
 namespace lp {

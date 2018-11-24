@@ -19,10 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "trust-anchor-group.hpp"
-
-#include "util/io.hpp"
-#include "util/logger.hpp"
+#include "ndn-cxx/security/v2/trust-anchor-group.hpp"
+#include "ndn-cxx/util/io.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/range/adaptor/map.hpp>

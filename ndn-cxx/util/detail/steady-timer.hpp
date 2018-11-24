@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_DETAIL_STEADY_TIMER_HPP
 #define NDN_UTIL_DETAIL_STEADY_TIMER_HPP
 
-#include "../time.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 #include <boost/asio/basic_waitable_timer.hpp>
 #include <boost/asio/wait_traits.hpp>

@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "certificate-fetcher-direct-fetch.hpp"
-#include "face.hpp"
-#include "lp/tags.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-direct-fetch.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/lp/tags.hpp"
 
 namespace ndn {
 namespace security {

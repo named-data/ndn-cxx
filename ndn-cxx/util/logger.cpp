@@ -19,10 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "logger.hpp"
-
-#include "logging.hpp"
-#include "time.hpp"
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/logging.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 #include <cinttypes> // for PRIdLEAST64
 #include <cstdlib>   // for std::abs()

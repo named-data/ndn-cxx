@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-locator.hpp"
-#include "encoding/block-helpers.hpp"
-#include "util/string-helper.hpp"
+#include "ndn-cxx/key-locator.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 namespace ndn {
 

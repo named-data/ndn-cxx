@@ -19,12 +19,12 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-handle-mem.hpp"
-#include "../transform/buffer-source.hpp"
-#include "../transform/private-key.hpp"
-#include "../transform/signer-filter.hpp"
-#include "../transform/stream-sink.hpp"
-#include "../../encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/tpm/key-handle-mem.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/signer-filter.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
 
 namespace ndn {
 namespace security {

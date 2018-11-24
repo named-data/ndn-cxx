@@ -22,7 +22,7 @@
 #ifndef NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
 #define NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
 
-#include "pending-interest.hpp"
+#include "ndn-cxx/detail/pending-interest.hpp"
 
 namespace ndn {
 

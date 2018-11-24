@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2017 Regents of the University of California.
+ * Copyright (c) 2013-2018 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_TESTS_INTEGRATED_TIMED_EXECUTE_HPP
 #define NDN_TESTS_INTEGRATED_TIMED_EXECUTE_HPP
 
-#include "util/time.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace tests {

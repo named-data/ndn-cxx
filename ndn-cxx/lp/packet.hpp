@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_LP_PACKET_HPP
 #define NDN_CXX_LP_PACKET_HPP
 
-#include "fields.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 
 namespace ndn {
 namespace lp {

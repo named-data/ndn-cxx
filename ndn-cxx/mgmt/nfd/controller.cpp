@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "controller.hpp"
-#include "face.hpp"
-#include "security/v2/key-chain.hpp"
+#include "ndn-cxx/mgmt/nfd/controller.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
 
 #include <boost/lexical_cast.hpp>
 

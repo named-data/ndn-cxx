@@ -19,9 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "identity-management-fixture.hpp"
-#include "util/io.hpp"
-#include "security/v2/additional-description.hpp"
+#include "tests/identity-management-fixture.hpp"
+
+#include "ndn-cxx/security/v2/additional-description.hpp"
+#include "ndn-cxx/util/io.hpp"
 
 #include <boost/filesystem.hpp>
 

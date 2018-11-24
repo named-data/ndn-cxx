@@ -21,10 +21,10 @@
  * @author Zhiyi Zhang <dreamerbarrychang@gmail.com>
  */
 
-#include "safe-bag.hpp"
-#include "encoding/encoding-buffer.hpp"
-#include "encoding/tlv-security.hpp"
-#include "util/concepts.hpp"
+#include "ndn-cxx/security/safe-bag.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/encoding/tlv-security.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace security {

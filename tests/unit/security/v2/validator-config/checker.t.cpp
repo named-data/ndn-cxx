@@ -19,15 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/v2/validator-config/checker.hpp"
-#include "security/command-interest-signer.hpp"
-#include "security/v2/validation-policy.hpp"
-#include "security/v2/validation-state.hpp"
+#include "ndn-cxx/security/v2/validator-config/checker.hpp"
+#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/v2/validation-policy.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
 
-#include "boost-test.hpp"
-#include "common.hpp"
-#include "identity-management-fixture.hpp"
-#include "../validator-fixture.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/security/v2/validator-fixture.hpp"
+#include "tests/unit/security/v2/validator-config/common.hpp"
 
 namespace ndn {
 namespace security {

@@ -22,12 +22,12 @@
 #ifndef NDN_MANAGEMENT_CONFIG_FILE_HPP
 #define NDN_MANAGEMENT_CONFIG_FILE_HPP
 
-#include "../common.hpp"
+#include "ndn-cxx/common.hpp"
 
 #include <fstream>
 
-#include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 namespace ndn {
 
@@ -48,7 +48,6 @@ namespace ndn {
 class ConfigFile : noncopyable
 {
 public:
-
   class Error : public std::runtime_error
   {
   public:
@@ -73,7 +72,6 @@ public:
   getParsedConfiguration() const;
 
 private:
-
   bool
   open();
 
@@ -104,7 +102,6 @@ private:
    *
    * @return path to preferred configuration (according to above order) or empty path on failure
    */
-
   boost::filesystem::path
   findConfigFile();
 
@@ -127,6 +124,5 @@ ConfigFile::getParsedConfiguration() const
 }
 
 } // namespace ndn
-
 
 #endif // NDN_MANAGEMENT_CONFIG_FILE_HPP

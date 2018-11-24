@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "interest.hpp"
-#include "util/random.hpp"
-#include "data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/util/random.hpp"
 
 #include <boost/scope_exit.hpp>
 

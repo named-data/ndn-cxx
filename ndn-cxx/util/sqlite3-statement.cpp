@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "sqlite3-statement.hpp"
+#include "ndn-cxx/util/sqlite3-statement.hpp"
 
 #include <sqlite3.h>
 

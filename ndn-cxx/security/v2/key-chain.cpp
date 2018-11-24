@@ -19,28 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "key-chain.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
 
-#include "../../util/config-file.hpp"
-#include "../../util/logger.hpp"
-#include "../../util/sha256.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/util/config-file.hpp"
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/sha256.hpp"
 
-#include "../pib/pib-sqlite3.hpp"
-#include "../pib/pib-memory.hpp"
+#include "ndn-cxx/security/pib/pib-memory.hpp"
+#include "ndn-cxx/security/pib/pib-sqlite3.hpp"
 
+#include "ndn-cxx/security/tpm/back-end-file.hpp"
+#include "ndn-cxx/security/tpm/back-end-mem.hpp"
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#include "../tpm/back-end-osx.hpp"
+#include "ndn-cxx/security/tpm/back-end-osx.hpp"
 #endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 
-#include "../tpm/back-end-file.hpp"
-#include "../tpm/back-end-mem.hpp"
-
-#include "../transform/bool-sink.hpp"
-#include "../transform/buffer-source.hpp"
-#include "../transform/private-key.hpp"
-#include "../transform/public-key.hpp"
-#include "../transform/verifier-filter.hpp"
-#include "../../encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/bool-sink.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/verifier-filter.hpp"
 
 #include <boost/lexical_cast.hpp>
 

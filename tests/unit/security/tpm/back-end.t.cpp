@@ -19,25 +19,25 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "security/tpm/back-end.hpp"
+#include "ndn-cxx/security/tpm/back-end.hpp"
 
-#include "encoding/buffer-stream.hpp"
-#include "security/pib/key.hpp"
-#include "security/tpm/key-handle.hpp"
-#include "security/tpm/tpm.hpp"
-#include "security/transform/bool-sink.hpp"
-#include "security/transform/buffer-source.hpp"
-#include "security/transform/private-key.hpp"
-#include "security/transform/public-key.hpp"
-#include "security/transform/verifier-filter.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
+#include "ndn-cxx/security/transform/bool-sink.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/verifier-filter.hpp"
 
-#include "back-end-wrapper-file.hpp"
-#include "back-end-wrapper-mem.hpp"
+#include "tests/unit/security/tpm/back-end-wrapper-file.hpp"
+#include "tests/unit/security/tpm/back-end-wrapper-mem.hpp"
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#include "back-end-wrapper-osx.hpp"
+#include "tests/unit/security/tpm/back-end-wrapper-osx.hpp"
 #endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <boost/mpl/vector.hpp>
 #include <set>

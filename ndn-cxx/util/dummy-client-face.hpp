@@ -22,9 +22,9 @@
 #ifndef NDN_UTIL_DUMMY_CLIENT_FACE_HPP
 #define NDN_UTIL_DUMMY_CLIENT_FACE_HPP
 
-#include "../face.hpp"
-#include "signal.hpp"
-#include "../security/key-chain.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/util/signal.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
 
 namespace ndn {
 namespace util {

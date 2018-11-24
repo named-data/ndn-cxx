@@ -22,8 +22,8 @@
 #ifndef NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_OSX_HPP
 #define NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_OSX_HPP
 
-#include "security/tpm/back-end-osx.hpp"
-#include "security/tpm/key-handle-osx.hpp"
+#include "ndn-cxx/security/tpm/back-end-osx.hpp"
+#include "ndn-cxx/security/tpm/key-handle-osx.hpp"
 
 #include <cstdlib>
 

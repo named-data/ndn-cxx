@@ -22,11 +22,11 @@
 #ifndef NDN_TOOLS_NDNSEC_UTIL_HPP
 #define NDN_TOOLS_NDNSEC_UTIL_HPP
 
-#include <ndn-cxx/encoding/buffer-stream.hpp>
-#include <ndn-cxx/security/key-chain.hpp>
-#include <ndn-cxx/security/transform.hpp>
-#include <ndn-cxx/security/v2/additional-description.hpp>
-#include <ndn-cxx/util/io.hpp>
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
+#include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/security/v2/additional-description.hpp"
+#include "ndn-cxx/util/io.hpp"
 
 #include <fstream>
 #include <iostream>

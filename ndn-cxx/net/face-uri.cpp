@@ -25,9 +25,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "face-uri.hpp"
-#include "dns.hpp"
-#include "util/string-helper.hpp"
+#include "ndn-cxx/net/face-uri.hpp"
+#include "ndn-cxx/net/dns.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>

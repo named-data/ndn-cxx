@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "in-memory-storage-fifo.hpp"
+#include "ndn-cxx/ims/in-memory-storage-fifo.hpp"
 
 namespace ndn {
 

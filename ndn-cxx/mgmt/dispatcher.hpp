@@ -22,13 +22,13 @@
 #ifndef NDN_MGMT_DISPATCHER_HPP
 #define NDN_MGMT_DISPATCHER_HPP
 
-#include "../encoding/block.hpp"
-#include "../face.hpp"
-#include "../ims/in-memory-storage-fifo.hpp"
-#include "../security/key-chain.hpp"
-#include "control-response.hpp"
-#include "control-parameters.hpp"
-#include "status-dataset-context.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/ims/in-memory-storage-fifo.hpp"
+#include "ndn-cxx/mgmt/control-response.hpp"
+#include "ndn-cxx/mgmt/control-parameters.hpp"
+#include "ndn-cxx/mgmt/status-dataset-context.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
 
 #include <unordered_map>
 

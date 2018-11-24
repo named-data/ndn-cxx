@@ -22,7 +22,7 @@
 #ifndef NDN_DELEGATION_HPP
 #define NDN_DELEGATION_HPP
 
-#include "name.hpp"
+#include "ndn-cxx/name.hpp"
 
 namespace ndn {
 

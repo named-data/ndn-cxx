@@ -22,10 +22,9 @@
 #ifndef NDN_DETAIL_NAME_COMPONENT_TYPES_HPP
 #define NDN_DETAIL_NAME_COMPONENT_TYPES_HPP
 
-#include "../name-component.hpp"
-
-#include "../util/sha256.hpp"
-#include "../util/string-helper.hpp"
+#include "ndn-cxx/name-component.hpp"
+#include "ndn-cxx/util/sha256.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include <array>
 #include <unordered_map>

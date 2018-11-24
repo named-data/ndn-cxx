@@ -22,7 +22,7 @@
 #ifndef NDN_PACKET_BASE_HPP
 #define NDN_PACKET_BASE_HPP
 
-#include "tag-host.hpp"
+#include "ndn-cxx/tag-host.hpp"
 
 namespace ndn {
 

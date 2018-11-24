@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "rule.hpp"
-#include "util/logger.hpp"
+#include "ndn-cxx/security/v2/validator-config/rule.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
 

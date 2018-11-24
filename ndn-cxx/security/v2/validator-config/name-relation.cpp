@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "name-relation.hpp"
+#include "ndn-cxx/security/v2/validator-config/name-relation.hpp"
 
 #include <boost/algorithm/string.hpp>
 

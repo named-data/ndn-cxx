@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "in-memory-storage-lru.hpp"
+#include "ndn-cxx/ims/in-memory-storage-lru.hpp"
 
 namespace ndn {
 

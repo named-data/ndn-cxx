@@ -25,8 +25,8 @@
 #ifndef NDN_NET_NETWORK_MONITOR_HPP
 #define NDN_NET_NETWORK_MONITOR_HPP
 
-#include "asio-fwd.hpp"
-#include "network-interface.hpp"
+#include "ndn-cxx/net/asio-fwd.hpp"
+#include "ndn-cxx/net/network-interface.hpp"
 
 #include <vector>
 

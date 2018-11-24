@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "additional-description.hpp"
-#include "../../util/concepts.hpp"
-#include "../../encoding/block-helpers.hpp"
+#include "ndn-cxx/security/v2/additional-description.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace security {

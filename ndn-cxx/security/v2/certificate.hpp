@@ -25,7 +25,7 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_HPP
 
-#include "../../data.hpp"
+#include "ndn-cxx/data.hpp"
 
 namespace ndn {
 namespace security {

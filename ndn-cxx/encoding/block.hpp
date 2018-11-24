@@ -24,9 +24,9 @@
 #ifndef NDN_ENCODING_BLOCK_HPP
 #define NDN_ENCODING_BLOCK_HPP
 
-#include "buffer.hpp"
-#include "encoding-buffer-fwd.hpp"
-#include "tlv.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/encoding/encoding-buffer-fwd.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
 
 namespace boost {
 namespace asio {

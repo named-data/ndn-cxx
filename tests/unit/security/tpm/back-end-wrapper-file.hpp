@@ -22,7 +22,8 @@
 #ifndef NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_FILE_HPP
 #define NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_FILE_HPP
 
-#include "security/tpm/back-end-file.hpp"
+#include "ndn-cxx/security/tpm/back-end-file.hpp"
+
 #include <boost/filesystem.hpp>
 
 namespace ndn {

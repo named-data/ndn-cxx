@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "command-interest-signer.hpp"
-#include "../util/random.hpp"
+#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/util/random.hpp"
 
 namespace ndn {
 namespace security {

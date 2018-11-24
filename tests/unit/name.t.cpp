@@ -19,9 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "name.hpp"
+#include "ndn-cxx/name.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
+
 #include <unordered_map>
 
 namespace ndn {

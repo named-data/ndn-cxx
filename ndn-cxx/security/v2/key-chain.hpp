@@ -22,14 +22,14 @@
 #ifndef NDN_SECURITY_V2_KEY_CHAIN_HPP
 #define NDN_SECURITY_V2_KEY_CHAIN_HPP
 
-#include "../security-common.hpp"
-#include "certificate.hpp"
-#include "../key-params.hpp"
-#include "../pib/pib.hpp"
-#include "../safe-bag.hpp"
-#include "../signing-info.hpp"
-#include "../tpm/tpm.hpp"
-#include "../../interest.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/security/key-params.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
+#include "ndn-cxx/security/safe-bag.hpp"
+#include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/security/signing-info.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
+#include "ndn-cxx/security/v2/certificate.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "validation-policy.hpp"
-#include "../signing-info.hpp"
+#include "ndn-cxx/security/v2/validation-policy.hpp"
+#include "ndn-cxx/security/signing-info.hpp"
 
 namespace ndn {
 namespace security {

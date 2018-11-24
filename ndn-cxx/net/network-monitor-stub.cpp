@@ -22,8 +22,10 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-monitor-stub.hpp"
+#include "ndn-cxx/net/network-monitor-stub.hpp"
+
 #include <unordered_map>
+
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 

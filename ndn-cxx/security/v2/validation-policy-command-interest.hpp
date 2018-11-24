@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_V2_VALIDATION_POLICY_COMMAND_INTEREST_HPP
 #define NDN_SECURITY_V2_VALIDATION_POLICY_COMMAND_INTEREST_HPP
 
-#include "validation-policy.hpp"
+#include "ndn-cxx/security/v2/validation-policy.hpp"
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>

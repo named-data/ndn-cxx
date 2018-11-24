@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "tag-host.hpp"
-#include "data.hpp"
-#include "interest.hpp"
+#include "ndn-cxx/tag-host.hpp"
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
 
-#include "boost-test.hpp"
+#include "tests/boost-test.hpp"
 
 #include <boost/mpl/vector.hpp>
 

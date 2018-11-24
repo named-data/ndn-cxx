@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "dns.hpp"
-#include "../util/scheduler.hpp"
+#include "ndn-cxx/net/dns.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/udp.hpp>

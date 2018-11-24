@@ -23,7 +23,7 @@
 
 #ifdef __linux__
 
-#include "linux-if-constants.hpp"
+#include "ndn-cxx/net/detail/linux-if-constants.hpp"
 
 #include <sys/socket.h>
 #include <linux/if.h>

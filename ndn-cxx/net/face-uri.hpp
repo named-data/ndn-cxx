@@ -28,9 +28,9 @@
 #ifndef NDN_NET_FACE_URI_HPP
 #define NDN_NET_FACE_URI_HPP
 
-#include "asio-fwd.hpp"
-#include "ethernet.hpp"
-#include "../util/time.hpp"
+#include "ndn-cxx/net/asio-fwd.hpp"
+#include "ndn-cxx/net/ethernet.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/udp.hpp>

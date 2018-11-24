@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TESTS_TEST_HOME_ENV_SAVER_HPP
-#define NDN_TESTS_UNIT_TESTS_TEST_HOME_ENV_SAVER_HPP
+#ifndef NDN_TESTS_UNIT_TEST_HOME_ENV_SAVER_HPP
+#define NDN_TESTS_UNIT_TEST_HOME_ENV_SAVER_HPP
 
-#include <string>
 #include <cstdlib>
+#include <string>
 
 namespace ndn {
 namespace tests {
@@ -41,7 +41,7 @@ public:
   ~TestHomeEnvSaver()
   {
     if (!m_HOME.empty())
-      setenv("TEST_HOME", m_HOME.c_str(), 1);
+      setenv("TEST_HOME", m_HOME.data(), 1);
     else
       unsetenv("TEST_HOME");
   }
@@ -53,4 +53,4 @@ private:
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TESTS_TEST_HOME_ENV_SAVER_HPP
+#endif // NDN_TESTS_UNIT_TEST_HOME_ENV_SAVER_HPP

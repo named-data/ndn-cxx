@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "step-source.hpp"
+#include "ndn-cxx/security/transform/step-source.hpp"
 
 namespace ndn {
 namespace security {

@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "mgmt/status-dataset-context.hpp"
+#include "ndn-cxx/mgmt/status-dataset-context.hpp"
 
-#include "boost-test.hpp"
-#include "make-interest-data.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/make-interest-data.hpp"
 
 namespace ndn {
 namespace mgmt {

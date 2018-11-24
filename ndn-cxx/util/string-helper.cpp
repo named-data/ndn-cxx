@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "string-helper.hpp"
-#include "../encoding/buffer.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "../security/transform/buffer-source.hpp"
-#include "../security/transform/hex-decode.hpp"
-#include "../security/transform/hex-encode.hpp"
-#include "../security/transform/stream-sink.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/hex-decode.hpp"
+#include "ndn-cxx/security/transform/hex-encode.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 
 #include <sstream>
 

@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "certificate-fetcher-offline.hpp"
+#include "ndn-cxx/security/v2/certificate-fetcher-offline.hpp"
 
 namespace ndn {
 namespace security {

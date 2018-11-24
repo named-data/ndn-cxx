@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "block-helpers.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
 
 namespace ndn {
 namespace encoding {

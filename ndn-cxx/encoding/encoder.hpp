@@ -22,7 +22,7 @@
 #ifndef NDN_ENCODING_ENCODER_HPP
 #define NDN_ENCODING_ENCODER_HPP
 
-#include "block.hpp"
+#include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn {
 namespace encoding {

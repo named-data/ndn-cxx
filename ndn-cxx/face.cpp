@@ -19,14 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "face.hpp"
-#include "detail/face-impl.hpp"
-
-#include "encoding/tlv.hpp"
-#include "net/face-uri.hpp"
-#include "security/signing-helpers.hpp"
-#include "util/random.hpp"
-#include "util/time.hpp"
+#include "ndn-cxx/face.hpp"
+#include "ndn-cxx/detail/face-impl.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/net/face-uri.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
+#include "ndn-cxx/util/random.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 // NDN_LOG_INIT(ndn.Face) is declared in face-impl.hpp
 

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "packet-base.hpp"
-#include "lp/tags.hpp"
+#include "ndn-cxx/packet-base.hpp"
+#include "ndn-cxx/lp/tags.hpp"
 
 namespace ndn {
 

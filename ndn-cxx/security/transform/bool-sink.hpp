@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_BOOL_SINK_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_BOOL_SINK_HPP
 
-#include "transform-base.hpp"
+#include "ndn-cxx/security/transform/transform-base.hpp"
 
 namespace ndn {
 namespace security {

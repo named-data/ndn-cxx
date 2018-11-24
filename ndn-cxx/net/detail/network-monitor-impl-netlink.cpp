@@ -21,12 +21,12 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "network-monitor-impl-netlink.hpp"
-#include "linux-if-constants.hpp"
-#include "netlink-message.hpp"
-#include "../network-address.hpp"
-#include "../network-interface.hpp"
-#include "../../util/logger.hpp"
+#include "ndn-cxx/net/detail/network-monitor-impl-netlink.hpp"
+#include "ndn-cxx/net/detail/linux-if-constants.hpp"
+#include "ndn-cxx/net/detail/netlink-message.hpp"
+#include "ndn-cxx/net/network-address.hpp"
+#include "ndn-cxx/net/network-interface.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 #include <linux/if_addr.h>
 #include <linux/if_link.h>

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "in-memory-storage.hpp"
-#include "in-memory-storage-entry.hpp"
+#include "ndn-cxx/ims/in-memory-storage.hpp"
+#include "ndn-cxx/ims/in-memory-storage-entry.hpp"
 
 namespace ndn {
 

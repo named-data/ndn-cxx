@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "checker.hpp"
-#include "security/v2/validation-state.hpp"
-#include "security/verification-helpers.hpp"
-#include "security/pib/key.hpp"
+#include "ndn-cxx/security/v2/validator-config/checker.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
 

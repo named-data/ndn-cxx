@@ -26,7 +26,8 @@
 #ifndef NDN_NAME_HPP
 #define NDN_NAME_HPP
 
-#include "name-component.hpp"
+#include "ndn-cxx/name-component.hpp"
+
 #include <iterator>
 
 namespace ndn {

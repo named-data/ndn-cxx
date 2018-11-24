@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_VERIFICATION_HELPERS_HPP
 #define NDN_SECURITY_VERIFICATION_HELPERS_HPP
 
-#include "security-common.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 

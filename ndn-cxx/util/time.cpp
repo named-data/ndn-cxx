@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "time.hpp"
-#include "time-custom-clock.hpp"
+#include "ndn-cxx/util/time.hpp"
+#include "ndn-cxx/util/time-custom-clock.hpp"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <sstream>

@@ -22,7 +22,7 @@
 #ifndef NDN_ENCODING_TLV_SECURITY_HPP
 #define NDN_ENCODING_TLV_SECURITY_HPP
 
-#include "tlv.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
 
 namespace ndn {
 namespace tlv {

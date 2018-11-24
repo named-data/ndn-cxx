@@ -24,8 +24,8 @@
 #ifndef NDN_EXCLUDE_HPP
 #define NDN_EXCLUDE_HPP
 
-#include "name-component.hpp"
-#include "encoding/encoding-buffer.hpp"
+#include "ndn-cxx/name-component.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
 
 #include <iterator>
 #include <map>

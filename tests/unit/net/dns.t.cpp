@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "net/dns.hpp"
+#include "ndn-cxx/net/dns.hpp"
 
-#include "boost-test.hpp"
-#include "network-configuration-detector.hpp"
+#include "tests/boost-test.hpp"
+#include "tests/unit/net/network-configuration-detector.hpp"
 
 #include <boost/asio/io_service.hpp>
 

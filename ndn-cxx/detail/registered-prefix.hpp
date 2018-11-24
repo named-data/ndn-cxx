@@ -22,13 +22,10 @@
 #ifndef NDN_DETAIL_REGISTERED_PREFIX_HPP
 #define NDN_DETAIL_REGISTERED_PREFIX_HPP
 
-#include "../common.hpp"
-#include "../name.hpp"
-#include "../interest.hpp"
-
-#include "interest-filter-record.hpp"
-#include "mgmt/nfd/command-options.hpp"
-#include "mgmt/nfd/control-parameters.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/detail/interest-filter-record.hpp"
+#include "ndn-cxx/mgmt/nfd/command-options.hpp"
+#include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 
 namespace ndn {
 

@@ -22,10 +22,10 @@
 #ifndef NDN_MGMT_NFD_CONTROL_PARAMETERS_HPP
 #define NDN_MGMT_NFD_CONTROL_PARAMETERS_HPP
 
-#include "../../encoding/nfd-constants.hpp"
-#include "../../name.hpp"
-#include "../../util/time.hpp"
-#include "../control-parameters.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
+#include "ndn-cxx/mgmt/control-parameters.hpp"
+#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace nfd {

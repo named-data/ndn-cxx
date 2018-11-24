@@ -24,8 +24,8 @@
 #ifndef NDN_UTIL_REGEX_REGEX_MATCHER_HPP
 #define NDN_UTIL_REGEX_REGEX_MATCHER_HPP
 
-#include "regex-backref-manager.hpp"
-#include "../../name.hpp"
+#include "ndn-cxx/util/regex/regex-backref-manager.hpp"
+#include "ndn-cxx/name.hpp"
 
 namespace ndn {
 

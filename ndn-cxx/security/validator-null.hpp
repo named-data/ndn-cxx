@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_VALIDATOR_NULL_HPP
 #define NDN_SECURITY_VALIDATOR_NULL_HPP
 
-#include "v2/validator.hpp"
+#include "ndn-cxx/security/v2/validator.hpp"
 
 namespace ndn {
 namespace security {

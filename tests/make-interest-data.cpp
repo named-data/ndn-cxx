@@ -19,8 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "make-interest-data.hpp"
-#include "security/signature-sha256-with-rsa.hpp"
+#include "tests/make-interest-data.hpp"
+
+#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 
 namespace ndn {
 namespace tests {

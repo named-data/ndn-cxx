@@ -19,9 +19,9 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "io.hpp"
-#include "../encoding/buffer-stream.hpp"
-#include "../security/transform.hpp"
+#include "ndn-cxx/util/io.hpp"
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform.hpp"
 
 namespace ndn {
 namespace io {

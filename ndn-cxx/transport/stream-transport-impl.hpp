@@ -22,7 +22,7 @@
 #ifndef NDN_TRANSPORT_STREAM_TRANSPORT_IMPL_HPP
 #define NDN_TRANSPORT_STREAM_TRANSPORT_IMPL_HPP
 
-#include "transport.hpp"
+#include "ndn-cxx/transport/transport.hpp"
 
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/write.hpp>
