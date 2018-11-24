@@ -88,6 +88,9 @@ private:
   void
   sendNextInterest();
 
+  void
+  sendInterest(const Interest& interest);
+
   virtual bool
   hasSubscriber() const = 0;
 
@@ -132,8 +135,8 @@ private:
   Face& m_face;
   Name m_prefix;
   bool m_isRunning;
-  uint64_t m_lastSequenceNo;
-  uint64_t m_lastNackSequenceNo;
+  uint64_t m_lastSequenceNum;
+  uint64_t m_lastNackSequenceNum;
   uint64_t m_attempts;
   util::scheduler::Scheduler m_scheduler;
   util::scheduler::ScopedEventId m_nackEvent;

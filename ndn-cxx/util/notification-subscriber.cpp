@@ -38,8 +38,8 @@ NotificationSubscriberBase::NotificationSubscriberBase(Face& face, const Name& p
   : m_face(face)
   , m_prefix(prefix)
   , m_isRunning(false)
-  , m_lastSequenceNo(std::numeric_limits<uint64_t>::max())
-  , m_lastNackSequenceNo(std::numeric_limits<uint64_t>::max())
+  , m_lastSequenceNum(std::numeric_limits<uint64_t>::max())
+  , m_lastNackSequenceNum(std::numeric_limits<uint64_t>::max())
   , m_attempts(1)
   , m_scheduler(face.getIoService())
   , m_nackEvent(m_scheduler)
@@ -81,13 +81,8 @@ NotificationSubscriberBase::sendInitialInterest()
   auto interest = make_shared<Interest>(m_prefix);
   interest->setCanBePrefix(true);
   interest->setMustBeFresh(true);
-  interest->setChildSelector(1);
-  interest->setInterestLifetime(getInterestLifetime());
-
-  m_lastInterestId = m_face.expressInterest(*interest,
-                                            [this] (const auto&, const auto& d) { this->afterReceiveData(d); },
-                                            [this] (const auto&, const auto& n) { this->afterReceiveNack(n); },
-                                            [this] (const auto&) { this->afterTimeout(); });
+  interest->setInterestLifetime(m_interestLifetime);
+  sendInterest(*interest);
 }
 
 void
@@ -96,16 +91,19 @@ NotificationSubscriberBase::sendNextInterest()
   if (shouldStop())
     return;
 
-  BOOST_ASSERT(m_lastSequenceNo != std::numeric_limits<uint64_t>::max()); // overflow or missing initial reply
-
   Name nextName = m_prefix;
-  nextName.appendSequenceNumber(m_lastSequenceNo + 1);
+  nextName.appendSequenceNumber(m_lastSequenceNum + 1);
 
   auto interest = make_shared<Interest>(nextName);
   interest->setCanBePrefix(false);
-  interest->setInterestLifetime(getInterestLifetime());
+  interest->setInterestLifetime(m_interestLifetime);
+  sendInterest(*interest);
+}
 
-  m_lastInterestId = m_face.expressInterest(*interest,
+void
+NotificationSubscriberBase::sendInterest(const Interest& interest)
+{
+  m_lastInterestId = m_face.expressInterest(interest,
                                             [this] (const auto&, const auto& d) { this->afterReceiveData(d); },
                                             [this] (const auto&, const auto& n) { this->afterReceiveNack(n); },
                                             [this] (const auto&) { this->afterTimeout(); });
@@ -131,7 +129,7 @@ NotificationSubscriberBase::afterReceiveData(const Data& data)
     return;
 
   try {
-    m_lastSequenceNo = data.getName().get(-1).toSequenceNumber();
+    m_lastSequenceNum = data.getName().get(-1).toSequenceNumber();
   }
   catch (const tlv::Error&) {
     onDecodeError(data);
@@ -174,22 +172,22 @@ NotificationSubscriberBase::afterTimeout()
 time::milliseconds
 NotificationSubscriberBase::exponentialBackoff(lp::Nack nack)
 {
-  uint64_t nackSequenceNo;
+  uint64_t nackSequenceNum;
   try {
-    nackSequenceNo = nack.getInterest().getName().get(-1).toSequenceNumber();
+    nackSequenceNum = nack.getInterest().getName().get(-1).toSequenceNumber();
   }
   catch (const tlv::Error&) {
-    nackSequenceNo = 0;
+    nackSequenceNum = 0;
   }
 
-  if (m_lastNackSequenceNo == nackSequenceNo) {
+  if (m_lastNackSequenceNum == nackSequenceNum) {
     ++m_attempts;
   }
   else {
     m_attempts = 1;
   }
 
-  m_lastNackSequenceNo = nackSequenceNo;
+  m_lastNackSequenceNum = nackSequenceNum;
 
   return time::milliseconds(static_cast<time::milliseconds::rep>(std::pow(2, m_attempts) * 100 +
                                                                  random::generateWord32() % 100));

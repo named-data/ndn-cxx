@@ -64,7 +64,7 @@ public:
     data.setFreshnessPeriod(1_s);
     m_keyChain.sign(data);
 
-    lastDeliveredSeqNo = nextSendNotificationNo;
+    lastDeliveredSeqNum = nextSendNotificationNo;
     lastNotification.setMessage("");
     ++nextSendNotificationNo;
     subscriberFace.receive(data);
@@ -133,7 +133,7 @@ public:
 
     const Interest& interest = subscriberFace.sentInterests[0];
     return interest.getName() == streamPrefix &&
-           interest.getChildSelector() == 1 &&
+           interest.getCanBePrefix() &&
            interest.getMustBeFresh() &&
            interest.getInterestLifetime() == subscriber.getInterestLifetime();
   }
@@ -142,7 +142,7 @@ public:
    *          or 0 if there's no such request as sole sent Interest
    */
   uint64_t
-  getRequestSeqNo() const
+  getRequestSeqNum() const
   {
     if (subscriberFace.sentInterests.size() != 1)
       return 0;
@@ -164,7 +164,7 @@ protected:
   util::signal::Connection notificationConn;
   util::signal::Connection nackConn;
   uint64_t nextSendNotificationNo;
-  uint64_t lastDeliveredSeqNo;
+  uint64_t lastDeliveredSeqNum;
   SimpleNotification lastNotification;
   lp::Nack lastNack;
   bool hasTimeout;
@@ -205,14 +205,14 @@ BOOST_AUTO_TEST_CASE(Notifications)
   this->deliverNotification("n1");
   advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n1");
-  BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
+  BOOST_CHECK_EQUAL(this->getRequestSeqNum(), lastDeliveredSeqNum + 1);
 
   // respond to continuation request
   subscriberFace.sentInterests.clear();
   this->deliverNotification("n2");
   advanceClocks(1_ms);
   BOOST_CHECK_EQUAL(lastNotification.getMessage(), "n2");
-  BOOST_CHECK_EQUAL(this->getRequestSeqNo(), lastDeliveredSeqNo + 1);
+  BOOST_CHECK_EQUAL(this->getRequestSeqNum(), lastDeliveredSeqNum + 1);
 }
 
 BOOST_AUTO_TEST_CASE(Nack)
