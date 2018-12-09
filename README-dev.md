@@ -49,17 +49,17 @@ Boilerplate](https://redmine.named-data.net/projects/ndn-cxx/wiki/NDN_Team_Licen
 Running unit tests
 ------------------
 
-To run unit tests, ndn-cxx needs to be configured, build with unit test support, and installed
+To run the unit tests, ndn-cxx needs to be built with unit test support and installed
 into the configured location.  For example:
 
-    ./waf configure --with-tests
+    ./waf configure --with-tests # --debug is also recommended while developing
     ./waf
     sudo ./waf install
 
-**Note**: On Linux platform you also need to run `sudo ldconfig` to reconfigure dynamic loader
-run-time bindings.  On FreeBSD, use `sudo ldconfig -a` instead.
+**Note**: On Linux you also need to run `sudo ldconfig` to reconfigure dynamic loader
+run-time bindings.
 
-The simplest way to run tests, is just to run the compiled binary without any parameters:
+The simplest way to run the tests is to launch the compiled binary without any parameters:
 
     ./build/unit-tests
 
@@ -79,8 +79,8 @@ test case within a suite, or specific test cases within specific test suites:
 
 By default, Boost.Test framework will produce verbose output only when a test case fails.
 If it is desired to see verbose output (result of each test assertion), add `-l all`
-option to `./build/unit-tests` command.  To see test progress, you can use `-l test_suite`
-or `-p` to show progress bar:
+option to `./build/unit-tests` command.  To see test progress, you can use `-l test_suite`,
+or `-p` to show a progress bar:
 
     # Show report all log messages including the passed test notification
     ./build/unit-tests -l all

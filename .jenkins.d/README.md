@@ -15,11 +15,11 @@ Environment Variables Used in Build Scripts
   * `[DISTRO_TYPE]`: `Ubuntu`
   * `[DISTRO_VERSION]`: `Ubuntu-16.04`, `Ubuntu-18.04`
 
-  Possible values for OS X / macOS:
+  Possible values for macOS:
 
   * `[OS_TYPE]`: `OSX`
   * `[DISTRO_TYPE]`: `OSX` (can be absent)
-  * `[DISTRO_VERSION]`: `OSX-10.11`, `OSX-10.12`, `OSX-10.13`
+  * `[DISTRO_VERSION]`: `OSX-10.12`, `OSX-10.13`, `OSX-10.14`
 
 - `JOB_NAME`: optional variable to define type of the job.  Depending on the defined job type,
   the build scripts can perform different tasks.

@@ -1,0 +1,11 @@
+In tests, we set a test-specific HOME, which causes macOS Keychain to look for
+the default keychain of a "different" user. If the default keychain does not
+exist, all subsequent calls to macOS Keychain will fail. User interaction
+(such as entering the password) is required to create a keychain. However,
+user interaction is not feasible in automated tests.
+
+This problem is caused by macOS's assumption that a user must have a login
+keychain, which is also the user's default keychain, because a user account is
+always created with a login keychain by default. Thus, macOS infers the user
+according to the HOME env, and does not expect the user to change the HOME env
+during normal use.

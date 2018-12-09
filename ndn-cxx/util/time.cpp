@@ -69,11 +69,11 @@ system_clock::from_time_t(std::time_t t) noexcept
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef __APPLE__
-  // Note that on OS X platform boost::steady_clock is not truly monotonic, so we use
-  // system_clock instead.  Refer to https://svn.boost.org/trac/boost/ticket/7719)
-  typedef boost::chrono::system_clock base_steady_clock;
+// Note that on macOS platform boost::steady_clock is not truly monotonic, so we use
+// system_clock instead.  Refer to https://svn.boost.org/trac/boost/ticket/7719)
+typedef boost::chrono::system_clock base_steady_clock;
 #else
-  typedef boost::chrono::steady_clock base_steady_clock;
+typedef boost::chrono::steady_clock base_steady_clock;
 #endif
 
 steady_clock::time_point

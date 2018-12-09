@@ -35,7 +35,7 @@ namespace security {
 namespace tpm {
 
 /**
- * @brief Abstraction of TPM key handle used by the TPM based on OS X Keychain Service.
+ * @brief Abstraction of TPM key handle used by the TPM based on macOS Keychain Services.
  */
 class KeyHandleOsx : public KeyHandle
 {

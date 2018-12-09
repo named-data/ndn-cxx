@@ -51,6 +51,4 @@ sudo_preserve_env PATH -- ./waf --color=yes install
 
 if has Linux $NODE_LABELS; then
     sudo ldconfig
-elif has FreeBSD $NODE_LABELS; then
-    sudo ldconfig -a
 fi
