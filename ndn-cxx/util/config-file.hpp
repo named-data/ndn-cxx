@@ -22,7 +22,7 @@
 #ifndef NDN_MANAGEMENT_CONFIG_FILE_HPP
 #define NDN_MANAGEMENT_CONFIG_FILE_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #include <fstream>
 

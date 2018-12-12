@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_COMMON_PCH_HPP
-#define NDN_COMMON_PCH_HPP
+#ifndef NDN_IMPL_COMMON_PCH_HPP
+#define NDN_IMPL_COMMON_PCH_HPP
 
 // If the compiler supports precompiled headers, this header should be compiled
 // and included before anything else
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 // STL headers to precompile
 #include <fstream>
@@ -48,4 +48,4 @@
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/copy.hpp>
 
-#endif // NDN_COMMON_PCH_HPP
+#endif // NDN_IMPL_COMMON_PCH_HPP

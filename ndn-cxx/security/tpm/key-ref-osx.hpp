@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_TPM_KEY_REF_OSX_HPP
 #define NDN_SECURITY_TPM_KEY_REF_OSX_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be compiled ..."

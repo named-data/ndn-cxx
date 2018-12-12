@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_SECURITY_COMMON_HPP
 #define NDN_SECURITY_SECURITY_COMMON_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 namespace ndn {
 

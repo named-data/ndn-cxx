@@ -22,7 +22,7 @@
 #ifndef NDN_IMPL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
 #define NDN_IMPL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/util/signal.hpp"
 
 namespace ndn {

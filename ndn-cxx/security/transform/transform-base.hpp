@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_SECURITY_TRANSFORM_BASE_HPP
 #define NDN_CXX_SECURITY_TRANSFORM_BASE_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #include <vector>
 

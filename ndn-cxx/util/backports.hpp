@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_BACKPORTS_HPP
 #define NDN_UTIL_BACKPORTS_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #ifdef __has_cpp_attribute
 #  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)

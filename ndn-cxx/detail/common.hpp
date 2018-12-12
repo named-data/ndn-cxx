@@ -25,10 +25,10 @@
  *           Aliases imported in this file MUST NOT be used outside of ndn-cxx.
  */
 
-#ifndef NDN_COMMON_HPP
-#define NDN_COMMON_HPP
+#ifndef NDN_DETAIL_COMMON_HPP
+#define NDN_DETAIL_COMMON_HPP
 
-#include "ndn-cxx/config.hpp"
+#include "ndn-cxx/detail/config.hpp"
 
 // ndn-cxx specific macros declared in this and other headers must have NDN_CXX_ prefix
 // to avoid conflicts with other projects that include ndn-cxx headers.
@@ -122,4 +122,4 @@ using boost::noncopyable;
 
 #include "ndn-cxx/util/backports.hpp"
 
-#endif // NDN_COMMON_HPP
+#endif // NDN_DETAIL_COMMON_HPP

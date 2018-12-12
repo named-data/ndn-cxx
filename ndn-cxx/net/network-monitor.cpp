@@ -25,7 +25,7 @@
 #include "ndn-cxx/net/network-monitor.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-#include "ndn-cxx/config.hpp"
+#include "ndn-cxx/detail/config.hpp"
 #include "ndn-cxx/net/impl/network-monitor-impl-noop.hpp"
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
 #include "ndn-cxx/net/impl/network-monitor-impl-osx.hpp"

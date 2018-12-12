@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/net/impl/link-type-helper.hpp"
-#include "ndn-cxx/config.hpp"
+#include "ndn-cxx/detail/config.hpp"
 
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
 // implemented in link-type-helper-osx.mm

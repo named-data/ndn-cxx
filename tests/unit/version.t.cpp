@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/version.hpp"
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #include "tests/boost-test.hpp"
 

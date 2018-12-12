@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_LP_FIELD_HPP
 #define NDN_CXX_LP_FIELD_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/util/concepts.hpp"
 

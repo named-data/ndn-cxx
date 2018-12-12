@@ -139,7 +139,7 @@ def configure(conf):
     # config file will contain all defines that were added using conf.define('xxx'...)
     # Everything that was added directly to conf.env['DEFINES'] will not appear in the
     # config file and will be added using compiler directives in the command line.
-    conf.write_config_header('ndn-cxx/config.hpp', define_prefix='NDN_CXX_')
+    conf.write_config_header('ndn-cxx/detail/config.hpp', define_prefix='NDN_CXX_')
 
 def build(bld):
     version(bld)
@@ -173,7 +173,7 @@ def build(bld):
                                        'ndn-cxx/**/*netlink*.cpp',
                                        'ndn-cxx/**/*-sqlite3.cpp']),
         features='pch',
-        headers='ndn-cxx/common-pch.hpp',
+        headers='ndn-cxx/impl/common-pch.hpp',
         use='ndn-cxx-mm-objects version BOOST OPENSSL SQLITE3 RT PTHREAD',
         includes='.',
         export_includes='.',
@@ -266,11 +266,10 @@ def build(bld):
 
     bld.install_files(bld.env['INCLUDEDIR'], headers, relative_trick=True)
 
-    bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'],
-                      bld.path.find_resource('ndn-cxx/config.hpp'))
-
-    bld.install_files('%s/ndn-cxx' % bld.env['INCLUDEDIR'],
-                      bld.path.find_resource('ndn-cxx/version.hpp'))
+    # Install generated headers
+    for filename in ['ndn-cxx/detail/config.hpp', 'ndn-cxx/version.hpp']:
+        bld.install_files('%s/%s' % (bld.env['INCLUDEDIR'], os.path.dirname(filename)),
+                          bld.path.find_resource(filename))
 
     bld.install_files('${SYSCONFDIR}/ndn', 'client.conf.sample')
 

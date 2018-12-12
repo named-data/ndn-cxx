@@ -24,7 +24,7 @@
 #ifndef NDN_NET_NETWORK_ADDRESS_HPP
 #define NDN_NET_NETWORK_ADDRESS_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #include <boost/asio/ip/address.hpp>
 

@@ -24,7 +24,7 @@
 #ifndef NDN_CXX_LP_SEQUENCE_HPP
 #define NDN_CXX_LP_SEQUENCE_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 namespace ndn {
 namespace lp {

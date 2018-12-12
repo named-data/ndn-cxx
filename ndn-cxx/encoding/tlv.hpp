@@ -22,7 +22,7 @@
 #ifndef NDN_ENCODING_TLV_HPP
 #define NDN_ENCODING_TLV_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #include <cstring>
 #include <iterator>

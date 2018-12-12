@@ -22,7 +22,7 @@
 #ifndef NDN_ENCODING_ENCODING_BUFFER_FWD_HPP
 #define NDN_ENCODING_ENCODING_BUFFER_FWD_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 namespace ndn {
 namespace encoding {

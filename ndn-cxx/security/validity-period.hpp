@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_VALIDITY_PERIOD_HPP
 #define NDN_SECURITY_VALIDITY_PERIOD_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/util/time.hpp"

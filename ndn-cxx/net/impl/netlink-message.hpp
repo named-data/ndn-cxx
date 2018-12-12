@@ -24,7 +24,7 @@
 #ifndef NDN_NET_NETLINK_MESSAGE_HPP
 #define NDN_NET_NETLINK_MESSAGE_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/net/ethernet.hpp"
 
 #ifndef NDN_CXX_HAVE_NETLINK

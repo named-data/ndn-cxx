@@ -22,7 +22,7 @@
 #ifndef NDN_NET_NETWORK_MONITOR_IMPL_OSX_HPP
 #define NDN_NET_NETWORK_MONITOR_IMPL_OSX_HPP
 
-#include "ndn-cxx/config.hpp"
+#include "ndn-cxx/detail/config.hpp"
 #include "ndn-cxx/net/network-monitor.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS

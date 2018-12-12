@@ -24,7 +24,7 @@
 #ifndef NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
 #define NDN_UTIL_REGEX_REGEX_BACKREF_MANAGER_HPP
 
-#include "ndn-cxx/common.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 #include <vector>
 
