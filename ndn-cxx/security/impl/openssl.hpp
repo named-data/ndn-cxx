@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_DETAIL_OPENSSL_HPP
-#define NDN_SECURITY_DETAIL_OPENSSL_HPP
+#ifndef NDN_SECURITY_IMPL_OPENSSL_HPP
+#define NDN_SECURITY_IMPL_OPENSSL_HPP
 
 // suppress deprecation warnings on macOS >= 10.7
 #if defined(__APPLE__) && defined(__clang__)
@@ -42,4 +42,4 @@
 #pragma clang diagnostic pop
 #endif
 
-#endif // NDN_SECURITY_DETAIL_OPENSSL_HPP
+#endif // NDN_SECURITY_IMPL_OPENSSL_HPP

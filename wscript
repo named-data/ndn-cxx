@@ -253,16 +253,16 @@ def build(bld):
                                 excl=['ndn-cxx/**/*-osx.hpp',
                                       'ndn-cxx/**/*netlink*.hpp',
                                       'ndn-cxx/**/*-sqlite3.hpp',
-                                      'ndn-cxx/**/detail/**/*'])
+                                      'ndn-cxx/**/impl/**/*'])
 
     if bld.env['HAVE_OSX_FRAMEWORKS']:
-        headers += bld.path.ant_glob('ndn-cxx/**/*-osx.hpp', excl='ndn-cxx/**/detail/**/*')
+        headers += bld.path.ant_glob('ndn-cxx/**/*-osx.hpp', excl='ndn-cxx/**/impl/**/*')
 
     if bld.env['HAVE_NETLINK']:
-        headers += bld.path.ant_glob('ndn-cxx/**/*netlink*.hpp', excl='ndn-cxx/**/detail/**/*')
+        headers += bld.path.ant_glob('ndn-cxx/**/*netlink*.hpp', excl='ndn-cxx/**/impl/**/*')
 
     # In case we want to make it optional later
-    headers += bld.path.ant_glob('ndn-cxx/**/*-sqlite3.hpp', excl='ndn-cxx/**/detail/**/*')
+    headers += bld.path.ant_glob('ndn-cxx/**/*-sqlite3.hpp', excl='ndn-cxx/**/impl/**/*')
 
     bld.install_files(bld.env['INCLUDEDIR'], headers, relative_trick=True)
 

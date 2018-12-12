@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_PIB_DETAIL_KEY_IMPL_HPP
-#define NDN_SECURITY_PIB_DETAIL_KEY_IMPL_HPP
+#ifndef NDN_SECURITY_PIB_IMPL_KEY_IMPL_HPP
+#define NDN_SECURITY_PIB_IMPL_KEY_IMPL_HPP
 
 #include "ndn-cxx/security/security-common.hpp"
 #include "ndn-cxx/security/pib/certificate-container.hpp"
@@ -184,4 +184,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_PIB_DETAIL_KEY_IMPL_HPP
+#endif // NDN_SECURITY_PIB_IMPL_KEY_IMPL_HPP

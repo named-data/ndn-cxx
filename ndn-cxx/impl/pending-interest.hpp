@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_PENDING_INTEREST_HPP
-#define NDN_DETAIL_PENDING_INTEREST_HPP
+#ifndef NDN_IMPL_PENDING_INTEREST_HPP
+#define NDN_IMPL_PENDING_INTEREST_HPP
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/face.hpp"
@@ -241,4 +241,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_DETAIL_PENDING_INTEREST_HPP
+#endif // NDN_IMPL_PENDING_INTEREST_HPP

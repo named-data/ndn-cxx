@@ -24,7 +24,7 @@
  */
 
 #include "ndn-cxx/name-component.hpp"
-#include "ndn-cxx/detail/name-component-types.hpp"
+#include "ndn-cxx/impl/name-component-types.hpp"
 
 #include <cstdlib>
 #include <cstring>

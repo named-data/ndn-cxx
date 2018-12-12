@@ -19,11 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_REGISTERED_PREFIX_HPP
-#define NDN_DETAIL_REGISTERED_PREFIX_HPP
+#ifndef NDN_IMPL_REGISTERED_PREFIX_HPP
+#define NDN_IMPL_REGISTERED_PREFIX_HPP
 
 #include "ndn-cxx/interest.hpp"
-#include "ndn-cxx/detail/interest-filter-record.hpp"
+#include "ndn-cxx/impl/interest-filter-record.hpp"
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 
@@ -97,4 +97,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_DETAIL_REGISTERED_PREFIX_HPP
+#endif // NDN_IMPL_REGISTERED_PREFIX_HPP

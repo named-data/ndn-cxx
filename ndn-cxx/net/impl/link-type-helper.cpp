@@ -17,35 +17,27 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifdef __linux__
+#include "ndn-cxx/net/impl/link-type-helper.hpp"
+#include "ndn-cxx/config.hpp"
 
-#include "ndn-cxx/net/detail/linux-if-constants.hpp"
-
-#include <sys/socket.h>
-#include <linux/if.h>
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
+// implemented in link-type-helper-osx.mm
+#else
 
 namespace ndn {
 namespace net {
-namespace linux_if {
+namespace detail {
 
-const uint32_t FLAG_LOWER_UP = IFF_LOWER_UP;
-const uint32_t FLAG_DORMANT  = IFF_DORMANT;
-const uint32_t FLAG_ECHO     = IFF_ECHO;
+ndn::nfd::LinkType
+getLinkType(const std::string& ifName)
+{
+  return nfd::LINK_TYPE_NONE;
+}
 
-const uint8_t OPER_STATE_UNKNOWN        = IF_OPER_UNKNOWN;
-const uint8_t OPER_STATE_NOTPRESENT     = IF_OPER_NOTPRESENT;
-const uint8_t OPER_STATE_DOWN           = IF_OPER_DOWN;
-const uint8_t OPER_STATE_LOWERLAYERDOWN = IF_OPER_LOWERLAYERDOWN;
-const uint8_t OPER_STATE_TESTING        = IF_OPER_TESTING;
-const uint8_t OPER_STATE_DORMANT        = IF_OPER_DORMANT;
-const uint8_t OPER_STATE_UP             = IF_OPER_UP;
-
-} // namespace linux_if
+} // namespace detail
 } // namespace net
 } // namespace ndn
 
-#endif // __linux__
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS

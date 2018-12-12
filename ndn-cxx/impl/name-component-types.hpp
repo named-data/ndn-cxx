@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_NAME_COMPONENT_TYPES_HPP
-#define NDN_DETAIL_NAME_COMPONENT_TYPES_HPP
+#ifndef NDN_IMPL_NAME_COMPONENT_TYPES_HPP
+#define NDN_IMPL_NAME_COMPONENT_TYPES_HPP
 
 #include "ndn-cxx/name-component.hpp"
 #include "ndn-cxx/util/sha256.hpp"
@@ -344,4 +344,4 @@ getComponentTypeTable()
 } // namespace name
 } // namespace ndn
 
-#endif // NDN_DETAIL_NAME_COMPONENT_TYPES_HPP
+#endif // NDN_IMPL_NAME_COMPONENT_TYPES_HPP

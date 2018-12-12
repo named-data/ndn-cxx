@@ -22,7 +22,7 @@
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/pib/pib.hpp"
 #include "ndn-cxx/security/pib/pib-memory.hpp"
-#include "ndn-cxx/security/pib/detail/key-impl.hpp"
+#include "ndn-cxx/security/pib/impl/key-impl.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"

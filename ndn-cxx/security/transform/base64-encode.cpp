@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/security/transform/base64-encode.hpp"
-#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 
 namespace ndn {
 namespace security {

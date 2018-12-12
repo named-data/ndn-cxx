@@ -25,7 +25,7 @@
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/security/transform/stream-source.hpp"
-#include "ndn-cxx/security/detail/openssl-helper.hpp"
+#include "ndn-cxx/security/impl/openssl-helper.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 
 #define ENSURE_PUBLIC_KEY_LOADED(key) \

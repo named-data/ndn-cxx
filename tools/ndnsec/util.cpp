@@ -21,7 +21,7 @@
 
 #include "util.hpp"
 
-#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 
 namespace ndn {
 namespace ndnsec {

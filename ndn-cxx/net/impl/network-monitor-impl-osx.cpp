@@ -50,7 +50,7 @@
  *   POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ndn-cxx/net/detail/network-monitor-impl-osx.hpp"
+#include "ndn-cxx/net/impl/network-monitor-impl-osx.hpp"
 #include "ndn-cxx/net/network-address.hpp"
 #include "ndn-cxx/name.hpp"
 #include "ndn-cxx/util/cf-string-osx.hpp"

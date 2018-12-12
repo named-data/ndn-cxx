@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/security/pib/detail/key-impl.hpp"
+#include "ndn-cxx/security/pib/impl/key-impl.hpp"
 #include "ndn-cxx/security/pib/pib-impl.hpp"
 #include "ndn-cxx/security/pib/pib.hpp"
 #include "ndn-cxx/security/transform/public-key.hpp"

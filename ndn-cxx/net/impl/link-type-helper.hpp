@@ -19,47 +19,23 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/net/detail/link-type-helper.hpp"
+#ifndef NDN_NET_IMPL_LINK_TYPE_HELPER_HPP
+#define NDN_NET_IMPL_LINK_TYPE_HELPER_HPP
 
-#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#error "This file should not be compiled ..."
-#endif
-
-#import <Foundation/Foundation.h>
-#import <CoreWLAN/CoreWLAN.h>
-#import <CoreWLAN/CWInterface.h>
-#import <CoreWLAN/CWWiFiClient.h>
+#include "ndn-cxx/encoding/nfd-constants.hpp"
 
 namespace ndn {
 namespace net {
 namespace detail {
 
+/**
+ * @brief Obtain information about WiFi link type
+ */
 ndn::nfd::LinkType
-getLinkType(const std::string& ifName)
-{
-  @autoreleasepool {
-    NSString* interfaceName = [NSString stringWithCString:ifName.c_str()
-                                                 encoding:[NSString defaultCStringEncoding]];
-
-    CWWiFiClient* wifiInterface = [CWWiFiClient sharedWiFiClient];
-    if (wifiInterface == nullptr) {
-      return nfd::LINK_TYPE_NONE;
-    }
-
-    CWInterface* airport = [wifiInterface interfaceWithName:interfaceName];
-    if (airport == nullptr) {
-      return nfd::LINK_TYPE_NONE;
-    }
-
-    if ([airport interfaceMode] == kCWInterfaceModeIBSS) {
-      return nfd::LINK_TYPE_AD_HOC;
-    }
-    else {
-      return nfd::LINK_TYPE_MULTI_ACCESS;
-    }
-  }
-}
+getLinkType(const std::string& ifName);
 
 } // namespace detail
 } // namespace net
 } // namespace ndn
+
+#endif // NDN_NET_IMPL_LINK_TYPE_HELPER_HPP

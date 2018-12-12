@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/security/detail/openssl-helper.hpp"
+#include "ndn-cxx/security/impl/openssl-helper.hpp"
 
 namespace ndn {
 namespace security {

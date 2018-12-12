@@ -26,7 +26,7 @@
 
 #include "ndn-cxx/net/network-address.hpp"
 #include "ndn-cxx/net/network-interface.hpp"
-#include "ndn-cxx/net/detail/link-type-helper.hpp"
+#include "ndn-cxx/net/impl/link-type-helper.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 #include "ndn-cxx/util/time.hpp"
 

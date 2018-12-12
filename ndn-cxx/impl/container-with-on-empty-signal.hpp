@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
-#define NDN_DETAIL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
+#ifndef NDN_IMPL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
+#define NDN_IMPL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
 
 #include "ndn-cxx/common.hpp"
 #include "ndn-cxx/util/signal.hpp"
@@ -105,4 +105,4 @@ public:
 
 } // namespace ndn
 
-#endif // NDN_DETAIL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP
+#endif // NDN_IMPL_CONTAINER_WITH_ON_EMPTY_SIGNAL_HPP

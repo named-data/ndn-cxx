@@ -19,25 +19,33 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/net/detail/link-type-helper.hpp"
-#include "ndn-cxx/config.hpp"
+#ifndef NDN_IMPL_LP_FIELD_TAG_HPP
+#define NDN_IMPL_LP_FIELD_TAG_HPP
 
-#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
-// implemented in link-type-helper-osx.mm
-#else
+#include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/lp/tags.hpp"
 
 namespace ndn {
-namespace net {
-namespace detail {
 
-ndn::nfd::LinkType
-getLinkType(const std::string& ifName)
+template<typename Field, typename Tag, typename Packet>
+void
+addFieldFromTag(lp::Packet& lpPacket, const Packet& packet)
 {
-  return nfd::LINK_TYPE_NONE;
+  shared_ptr<Tag> tag = static_cast<const TagHost&>(packet).getTag<Tag>();
+  if (tag != nullptr) {
+    lpPacket.add<Field>(*tag);
+  }
 }
 
-} // namespace detail
-} // namespace net
+template<typename Tag, typename Field, typename Packet>
+void
+addTagFromField(Packet& packet, const lp::Packet& lpPacket)
+{
+  if (lpPacket.has<Field>()) {
+    packet.setTag(make_shared<Tag>(lpPacket.get<Field>()));
+  }
+}
+
 } // namespace ndn
 
-#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
+#endif // NDN_IMPL_LP_FIELD_TAG_HPP

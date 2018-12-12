@@ -22,7 +22,7 @@
  */
 
 #include "ndn-cxx/net/network-interface.hpp"
-#include "ndn-cxx/net/detail/linux-if-constants.hpp"
+#include "ndn-cxx/net/impl/linux-if-constants.hpp"
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 

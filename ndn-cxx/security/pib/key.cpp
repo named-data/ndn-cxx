@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/security/pib/key.hpp"
-#include "ndn-cxx/security/pib/detail/key-impl.hpp"
+#include "ndn-cxx/security/pib/impl/key-impl.hpp"
 #include "ndn-cxx/security/v2/certificate.hpp"
 
 namespace ndn {

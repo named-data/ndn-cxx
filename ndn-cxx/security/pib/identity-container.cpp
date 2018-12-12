@@ -21,7 +21,7 @@
 
 #include "ndn-cxx/security/pib/identity-container.hpp"
 #include "ndn-cxx/security/pib/pib-impl.hpp"
-#include "ndn-cxx/security/pib/detail/identity-impl.hpp"
+#include "ndn-cxx/security/pib/impl/identity-impl.hpp"
 #include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {

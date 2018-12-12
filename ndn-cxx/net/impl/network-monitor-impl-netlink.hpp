@@ -31,7 +31,7 @@
 #error "This file should not be included ..."
 #endif
 
-#include "ndn-cxx/net/detail/netlink-socket.hpp"
+#include "ndn-cxx/net/impl/netlink-socket.hpp"
 
 #include <map>
 

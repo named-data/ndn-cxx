@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/util/scheduler.hpp"
-#include "ndn-cxx/util/detail/steady-timer.hpp"
+#include "ndn-cxx/util/impl/steady-timer.hpp"
 
 #include <boost/scope_exit.hpp>
 

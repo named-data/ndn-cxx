@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/security/pib/identity.hpp"
-#include "ndn-cxx/security/pib/detail/identity-impl.hpp"
+#include "ndn-cxx/security/pib/impl/identity-impl.hpp"
 
 namespace ndn {
 namespace security {

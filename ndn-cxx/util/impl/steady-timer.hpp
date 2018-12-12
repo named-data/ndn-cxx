@@ -19,33 +19,42 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_LP_FIELD_TAG_HPP
-#define NDN_DETAIL_LP_FIELD_TAG_HPP
+#ifndef NDN_UTIL_IMPL_STEADY_TIMER_HPP
+#define NDN_UTIL_IMPL_STEADY_TIMER_HPP
 
-#include "ndn-cxx/lp/packet.hpp"
-#include "ndn-cxx/lp/tags.hpp"
+#include "ndn-cxx/util/time.hpp"
+
+#include <boost/asio/basic_waitable_timer.hpp>
+#include <boost/asio/wait_traits.hpp>
+
+namespace boost {
+namespace asio {
+
+template<>
+struct wait_traits<ndn::time::steady_clock>
+{
+  static ndn::time::steady_clock::duration
+  to_wait_duration(const ndn::time::steady_clock::duration& d)
+  {
+    return ndn::time::steady_clock::to_wait_duration(d);
+  }
+};
+
+} // namespace asio
+} // namespace boost
 
 namespace ndn {
+namespace util {
+namespace detail {
 
-template<typename Field, typename Tag, typename Packet>
-void
-addFieldFromTag(lp::Packet& lpPacket, const Packet& packet)
+class SteadyTimer : public boost::asio::basic_waitable_timer<time::steady_clock>
 {
-  shared_ptr<Tag> tag = static_cast<const TagHost&>(packet).getTag<Tag>();
-  if (tag != nullptr) {
-    lpPacket.add<Field>(*tag);
-  }
-}
+public:
+  using boost::asio::basic_waitable_timer<time::steady_clock>::basic_waitable_timer;
+};
 
-template<typename Tag, typename Field, typename Packet>
-void
-addTagFromField(Packet& packet, const lp::Packet& lpPacket)
-{
-  if (lpPacket.has<Field>()) {
-    packet.setTag(make_shared<Tag>(lpPacket.get<Field>()));
-  }
-}
-
+} // namespace detail
+} // namespace util
 } // namespace ndn
 
-#endif // NDN_DETAIL_LP_FIELD_TAG_HPP
+#endif // NDN_UTIL_IMPL_STEADY_TIMER_HPP

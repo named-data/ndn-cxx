@@ -24,7 +24,7 @@
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"

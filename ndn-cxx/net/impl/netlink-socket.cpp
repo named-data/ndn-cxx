@@ -21,8 +21,8 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#include "ndn-cxx/net/detail/netlink-socket.hpp"
-#include "ndn-cxx/net/detail/netlink-message.hpp"
+#include "ndn-cxx/net/impl/netlink-socket.hpp"
+#include "ndn-cxx/net/impl/netlink-message.hpp"
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/time.hpp"
 

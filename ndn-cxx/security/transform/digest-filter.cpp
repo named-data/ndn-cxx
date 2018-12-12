@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/security/transform/digest-filter.hpp"
-#include "ndn-cxx/security/detail/openssl-helper.hpp"
+#include "ndn-cxx/security/impl/openssl-helper.hpp"
 
 #include <boost/lexical_cast.hpp>
 

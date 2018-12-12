@@ -26,12 +26,12 @@
 #include "ndn-cxx/util/logger.hpp"
 
 #include "ndn-cxx/config.hpp"
-#include "ndn-cxx/net/detail/network-monitor-impl-noop.hpp"
+#include "ndn-cxx/net/impl/network-monitor-impl-noop.hpp"
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
-#include "ndn-cxx/net/detail/network-monitor-impl-osx.hpp"
+#include "ndn-cxx/net/impl/network-monitor-impl-osx.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplOsx
 #elif defined(NDN_CXX_HAVE_NETLINK)
-#include "ndn-cxx/net/detail/network-monitor-impl-netlink.hpp"
+#include "ndn-cxx/net/impl/network-monitor-impl-netlink.hpp"
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNetlink
 #else
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNoop

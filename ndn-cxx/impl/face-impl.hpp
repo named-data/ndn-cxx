@@ -19,14 +19,14 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_FACE_IMPL_HPP
-#define NDN_DETAIL_FACE_IMPL_HPP
+#ifndef NDN_IMPL_FACE_IMPL_HPP
+#define NDN_IMPL_FACE_IMPL_HPP
 
 #include "ndn-cxx/face.hpp"
-#include "ndn-cxx/detail/container-with-on-empty-signal.hpp"
-#include "ndn-cxx/detail/lp-field-tag.hpp"
-#include "ndn-cxx/detail/pending-interest.hpp"
-#include "ndn-cxx/detail/registered-prefix.hpp"
+#include "ndn-cxx/impl/container-with-on-empty-signal.hpp"
+#include "ndn-cxx/impl/lp-field-tag.hpp"
+#include "ndn-cxx/impl/pending-interest.hpp"
+#include "ndn-cxx/impl/registered-prefix.hpp"
 #include "ndn-cxx/lp/packet.hpp"
 #include "ndn-cxx/lp/tags.hpp"
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
@@ -430,4 +430,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_DETAIL_FACE_IMPL_HPP
+#endif // NDN_IMPL_FACE_IMPL_HPP

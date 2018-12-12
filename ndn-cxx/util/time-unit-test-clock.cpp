@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/util/time-unit-test-clock.hpp"
-#include "ndn-cxx/util/detail/steady-timer.hpp"
+#include "ndn-cxx/util/impl/steady-timer.hpp"
 
 #include <chrono>
 #include <thread>

@@ -19,42 +19,47 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_DETAIL_STEADY_TIMER_HPP
-#define NDN_UTIL_DETAIL_STEADY_TIMER_HPP
+#include "ndn-cxx/net/impl/link-type-helper.hpp"
 
-#include "ndn-cxx/util/time.hpp"
+#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
+#error "This file should not be compiled ..."
+#endif
 
-#include <boost/asio/basic_waitable_timer.hpp>
-#include <boost/asio/wait_traits.hpp>
-
-namespace boost {
-namespace asio {
-
-template<>
-struct wait_traits<ndn::time::steady_clock>
-{
-  static ndn::time::steady_clock::duration
-  to_wait_duration(const ndn::time::steady_clock::duration& d)
-  {
-    return ndn::time::steady_clock::to_wait_duration(d);
-  }
-};
-
-} // namespace asio
-} // namespace boost
+#import <Foundation/Foundation.h>
+#import <CoreWLAN/CoreWLAN.h>
+#import <CoreWLAN/CWInterface.h>
+#import <CoreWLAN/CWWiFiClient.h>
 
 namespace ndn {
-namespace util {
+namespace net {
 namespace detail {
 
-class SteadyTimer : public boost::asio::basic_waitable_timer<time::steady_clock>
+ndn::nfd::LinkType
+getLinkType(const std::string& ifName)
 {
-public:
-  using boost::asio::basic_waitable_timer<time::steady_clock>::basic_waitable_timer;
-};
+  @autoreleasepool {
+    NSString* interfaceName = [NSString stringWithCString:ifName.c_str()
+                                                 encoding:[NSString defaultCStringEncoding]];
+
+    CWWiFiClient* wifiInterface = [CWWiFiClient sharedWiFiClient];
+    if (wifiInterface == nullptr) {
+      return nfd::LINK_TYPE_NONE;
+    }
+
+    CWInterface* airport = [wifiInterface interfaceWithName:interfaceName];
+    if (airport == nullptr) {
+      return nfd::LINK_TYPE_NONE;
+    }
+
+    if ([airport interfaceMode] == kCWInterfaceModeIBSS) {
+      return nfd::LINK_TYPE_AD_HOC;
+    }
+    else {
+      return nfd::LINK_TYPE_MULTI_ACCESS;
+    }
+  }
+}
 
 } // namespace detail
-} // namespace util
+} // namespace net
 } // namespace ndn
-
-#endif // NDN_UTIL_DETAIL_STEADY_TIMER_HPP

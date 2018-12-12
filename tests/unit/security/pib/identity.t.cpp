@@ -22,7 +22,7 @@
 #include "ndn-cxx/security/pib/identity.hpp"
 #include "ndn-cxx/security/pib/pib.hpp"
 #include "ndn-cxx/security/pib/pib-memory.hpp"
-#include "ndn-cxx/security/pib/detail/identity-impl.hpp"
+#include "ndn-cxx/security/pib/impl/identity-impl.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"

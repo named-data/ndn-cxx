@@ -21,7 +21,7 @@
 
 #include "ndn-cxx/security/pib/key-container.hpp"
 #include "ndn-cxx/security/pib/pib-impl.hpp"
-#include "ndn-cxx/security/pib/detail/key-impl.hpp"
+#include "ndn-cxx/security/pib/impl/key-impl.hpp"
 #include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {

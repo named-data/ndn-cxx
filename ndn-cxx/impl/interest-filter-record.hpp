@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
-#define NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
+#ifndef NDN_IMPL_INTEREST_FILTER_RECORD_HPP
+#define NDN_IMPL_INTEREST_FILTER_RECORD_HPP
 
-#include "ndn-cxx/detail/pending-interest.hpp"
+#include "ndn-cxx/impl/pending-interest.hpp"
 
 namespace ndn {
 
@@ -111,4 +111,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_DETAIL_INTEREST_FILTER_RECORD_HPP
+#endif // NDN_IMPL_INTEREST_FILTER_RECORD_HPP

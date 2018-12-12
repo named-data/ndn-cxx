@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/util/random.hpp"
-#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 
 #include <random>
 

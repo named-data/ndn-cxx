@@ -17,25 +17,35 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
+ * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_NET_DETAIL_LINK_TYPE_HELPER_HPP
-#define NDN_NET_DETAIL_LINK_TYPE_HELPER_HPP
+#ifdef __linux__
 
-#include "ndn-cxx/encoding/nfd-constants.hpp"
+#include "ndn-cxx/net/impl/linux-if-constants.hpp"
+
+#include <sys/socket.h>
+#include <linux/if.h>
 
 namespace ndn {
 namespace net {
-namespace detail {
+namespace linux_if {
 
-/**
- * @brief Obtain information about WiFi link type
- */
-ndn::nfd::LinkType
-getLinkType(const std::string& ifName);
+const uint32_t FLAG_LOWER_UP = IFF_LOWER_UP;
+const uint32_t FLAG_DORMANT  = IFF_DORMANT;
+const uint32_t FLAG_ECHO     = IFF_ECHO;
 
-} // namespace detail
+const uint8_t OPER_STATE_UNKNOWN        = IF_OPER_UNKNOWN;
+const uint8_t OPER_STATE_NOTPRESENT     = IF_OPER_NOTPRESENT;
+const uint8_t OPER_STATE_DOWN           = IF_OPER_DOWN;
+const uint8_t OPER_STATE_LOWERLAYERDOWN = IF_OPER_LOWERLAYERDOWN;
+const uint8_t OPER_STATE_TESTING        = IF_OPER_TESTING;
+const uint8_t OPER_STATE_DORMANT        = IF_OPER_DORMANT;
+const uint8_t OPER_STATE_UP             = IF_OPER_UP;
+
+} // namespace linux_if
 } // namespace net
 } // namespace ndn
 
-#endif // NDN_NET_DETAIL_LINK_TYPE_HELPER_HPP
+#endif // __linux__

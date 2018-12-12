@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_SECURITY_DETAIL_OPENSSL_HELPER_HPP
-#define NDN_CXX_SECURITY_DETAIL_OPENSSL_HELPER_HPP
+#ifndef NDN_CXX_SECURITY_IMPL_OPENSSL_HELPER_HPP
+#define NDN_CXX_SECURITY_IMPL_OPENSSL_HELPER_HPP
 
-#include "ndn-cxx/security/detail/openssl.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
@@ -104,4 +104,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_CXX_SECURITY_DETAIL_OPENSSL_HELPER_HPP
+#endif // NDN_CXX_SECURITY_IMPL_OPENSSL_HELPER_HPP

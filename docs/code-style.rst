@@ -748,7 +748,7 @@ For example, the include section of ``ndn-cxx/foo/bar.cpp`` may look like this:
 
     .. code-block:: c++
 
-        #include "ndn-cxx/detail/pending-interest.hpp"
+        #include "ndn-cxx/impl/pending-interest.hpp"
         #include "ndn-cxx/util/random.hpp"
 
         #include <cstdlib>

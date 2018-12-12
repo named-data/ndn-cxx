@@ -20,8 +20,8 @@
  */
 
 #include "ndn-cxx/face.hpp"
-#include "ndn-cxx/detail/face-impl.hpp"
 #include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/impl/face-impl.hpp"
 #include "ndn-cxx/net/face-uri.hpp"
 #include "ndn-cxx/security/signing-helpers.hpp"
 #include "ndn-cxx/util/random.hpp"
