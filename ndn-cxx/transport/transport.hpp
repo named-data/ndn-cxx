@@ -22,9 +22,9 @@
 #ifndef NDN_TRANSPORT_TRANSPORT_HPP
 #define NDN_TRANSPORT_TRANSPORT_HPP
 
+#include "ndn-cxx/detail/asio-fwd.hpp"
 #include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/encoding/block.hpp"
-#include "ndn-cxx/net/asio-fwd.hpp"
 
 #include <boost/system/error_code.hpp>
 

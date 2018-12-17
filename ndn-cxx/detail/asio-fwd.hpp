@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_NET_ASIO_FWD_HPP
-#define NDN_NET_ASIO_FWD_HPP
+#ifndef NDN_DETAIL_ASIO_FWD_HPP
+#define NDN_DETAIL_ASIO_FWD_HPP
 
 #include <boost/version.hpp>
 
@@ -37,4 +37,4 @@ class io_service;
 } // namespace asio
 } // namespace boost
 
-#endif // NDN_NET_ASIO_FWD_HPP
+#endif // NDN_DETAIL_ASIO_FWD_HPP

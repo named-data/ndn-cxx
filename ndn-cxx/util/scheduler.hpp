@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_SCHEDULER_HPP
 #define NDN_UTIL_SCHEDULER_HPP
 
-#include "ndn-cxx/net/asio-fwd.hpp"
+#include "ndn-cxx/detail/asio-fwd.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 #include <boost/system/error_code.hpp>

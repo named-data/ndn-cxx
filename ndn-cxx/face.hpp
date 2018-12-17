@@ -25,9 +25,9 @@
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/interest-filter.hpp"
+#include "ndn-cxx/detail/asio-fwd.hpp"
 #include "ndn-cxx/encoding/nfd-constants.hpp"
 #include "ndn-cxx/lp/nack.hpp"
-#include "ndn-cxx/net/asio-fwd.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
 #include "ndn-cxx/security/signing-info.hpp"
 
