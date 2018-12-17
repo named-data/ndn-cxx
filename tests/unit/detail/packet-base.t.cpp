@@ -19,29 +19,48 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_PACKET_BASE_HPP
-#define NDN_PACKET_BASE_HPP
+#include "ndn-cxx/detail/packet-base.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/lp/tags.hpp"
 
-#include "ndn-cxx/tag-host.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
+namespace tests {
 
-/** \brief base class to allow simple management of packet tags
- */
-class PacketBase : public TagHost
+BOOST_AUTO_TEST_SUITE(Detail)
+BOOST_AUTO_TEST_SUITE(TestPacketBase)
+
+BOOST_AUTO_TEST_CASE(CongestionMark)
 {
-public:
-  /** \brief get the value of the CongestionMark tag
-   */
-  uint64_t
-  getCongestionMark() const;
+  Interest interest;
 
-  /** \brief set the CongestionMark tag to the specified value
-   */
-  void
-  setCongestionMark(uint64_t mark);
-};
+  BOOST_CHECK_EQUAL(interest.getCongestionMark(), 0);
 
+  auto tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_CHECK(!tag);
+
+  interest.setCongestionMark(true);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_REQUIRE(tag);
+  BOOST_CHECK_EQUAL(*tag, 1);
+
+  interest.setCongestionMark(false);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_CHECK(!tag);
+
+  interest.setCongestionMark(300);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_REQUIRE(tag);
+  BOOST_CHECK_EQUAL(*tag, 300);
+
+  interest.setCongestionMark(0);
+  tag = interest.getTag<lp::CongestionMarkTag>();
+  BOOST_CHECK(!tag);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestPacketBase
+BOOST_AUTO_TEST_SUITE_END() // Detail
+
+} // namespace tests
 } // namespace ndn
-
-#endif // NDN_PACKET_BASE_HPP

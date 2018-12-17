@@ -24,8 +24,8 @@
 
 #include "ndn-cxx/delegation-list.hpp"
 #include "ndn-cxx/name.hpp"
-#include "ndn-cxx/packet-base.hpp"
 #include "ndn-cxx/selectors.hpp"
+#include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 #include <boost/logic/tribool.hpp>

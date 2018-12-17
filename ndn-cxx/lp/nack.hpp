@@ -25,7 +25,7 @@
 #define NDN_CXX_LP_NACK_HPP
 
 #include "ndn-cxx/interest.hpp"
-#include "ndn-cxx/packet-base.hpp"
+#include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/lp/nack-header.hpp"
 
 namespace ndn {

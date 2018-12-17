@@ -24,8 +24,8 @@
 
 #include "ndn-cxx/meta-info.hpp"
 #include "ndn-cxx/name.hpp"
-#include "ndn-cxx/packet-base.hpp"
 #include "ndn-cxx/signature.hpp"
+#include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn {

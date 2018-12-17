@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TAG_HOST_HPP
-#define NDN_TAG_HOST_HPP
+#ifndef NDN_DETAIL_TAG_HOST_HPP
+#define NDN_DETAIL_TAG_HOST_HPP
 
 #include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/tag.hpp"
@@ -97,4 +97,4 @@ TagHost::removeTag() const
 
 } // namespace ndn
 
-#endif // NDN_TAG_HOST_HPP
+#endif // NDN_DETAIL_TAG_HOST_HPP

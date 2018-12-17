@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/packet-base.hpp"
+#include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/lp/tags.hpp"
 
 namespace ndn {

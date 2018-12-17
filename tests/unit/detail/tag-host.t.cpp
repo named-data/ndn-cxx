@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/tag-host.hpp"
+#include "ndn-cxx/detail/tag-host.hpp"
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
 
@@ -30,6 +30,7 @@
 namespace ndn {
 namespace tests {
 
+BOOST_AUTO_TEST_SUITE(Detail)
 BOOST_AUTO_TEST_SUITE(TestTagHost)
 
 class TestTag : public Tag
@@ -81,6 +82,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Basic, T, Fixtures, T)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTagHost
+BOOST_AUTO_TEST_SUITE_END() // Detail
 
 } // namespace tests
 } // namespace ndn
