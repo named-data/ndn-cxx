@@ -51,9 +51,9 @@
  */
 
 #include "ndn-cxx/net/impl/network-monitor-impl-osx.hpp"
-#include "ndn-cxx/net/network-address.hpp"
 #include "ndn-cxx/name.hpp"
-#include "ndn-cxx/util/cf-string-osx.hpp"
+#include "ndn-cxx/detail/cf-string-osx.hpp"
+#include "ndn-cxx/net/network-address.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
 #include <ifaddrs.h>      // for getifaddrs()
@@ -71,7 +71,7 @@ NDN_LOG_INIT(ndn.NetworkMonitor);
 namespace ndn {
 namespace net {
 
-using util::CFReleaser;
+using detail::CFReleaser;
 
 class IfAddrs : noncopyable
 {
@@ -221,7 +221,7 @@ NetworkMonitorImplOsx::getInterfaceNames() const
   size_t count = CFArrayGetCount(interfaces);
   for (size_t i = 0; i != count; ++i) {
     auto ifName = (CFStringRef)CFArrayGetValueAtIndex(interfaces, i);
-    ifNames.insert(util::cfstring::toStdString(ifName));
+    ifNames.insert(detail::cfstring::toStdString(ifName));
   }
   return ifNames;
 }
@@ -248,7 +248,7 @@ InterfaceState
 NetworkMonitorImplOsx::getInterfaceState(const NetworkInterface& netif) const
 {
   CFReleaser<CFStringRef> linkName =
-    util::cfstring::fromStdString("State:/Network/Interface/" + netif.getName() + "/Link");
+    detail::cfstring::fromStdString("State:/Network/Interface/" + netif.getName() + "/Link");
 
   CFReleaser<CFDictionaryRef> dict =
     (CFDictionaryRef)SCDynamicStoreCopyValue(m_scStore.get(), linkName.get());
@@ -404,7 +404,7 @@ NetworkMonitorImplOsx::onConfigChanged(CFArrayRef changedKeys)
 
   size_t count = CFArrayGetCount(changedKeys);
   for (size_t i = 0; i != count; ++i) {
-    Name key(util::cfstring::toStdString((CFStringRef)CFArrayGetValueAtIndex(changedKeys, i)));
+    Name key(detail::cfstring::toStdString((CFStringRef)CFArrayGetValueAtIndex(changedKeys, i)));
     std::string ifName = key.at(-2).toUri();
 
     auto ifIt = m_interfaces.find(ifName);

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_CF_STRING_OSX_HPP
-#define NDN_UTIL_CF_STRING_OSX_HPP
+#ifndef NDN_DETAIL_CF_STRING_OSX_HPP
+#define NDN_DETAIL_CF_STRING_OSX_HPP
 
 #include "ndn-cxx/detail/common.hpp"
 
@@ -28,7 +28,7 @@
 #error "This file should not be included ..."
 #endif
 
-#include "ndn-cxx/util/cf-releaser-osx.hpp"
+#include "ndn-cxx/detail/cf-releaser-osx.hpp"
 
 /**
  * @file
@@ -37,7 +37,7 @@
  */
 
 namespace ndn {
-namespace util {
+namespace detail {
 namespace cfstring {
 
 /**
@@ -62,7 +62,7 @@ std::string
 toStdString(CFStringRef cfStr);
 
 } // namespace cfstring
-} // namespace util
+} // namespace detail
 } // namespace ndn
 
-#endif // NDN_UTIL_CF_STRING_OSX_HPP
+#endif // NDN_DETAIL_CF_STRING_OSX_HPP

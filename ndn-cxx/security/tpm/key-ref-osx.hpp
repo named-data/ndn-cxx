@@ -28,14 +28,15 @@
 #error "This file should not be compiled ..."
 #endif
 
-#include "ndn-cxx/util/cf-releaser-osx.hpp"
+#include "ndn-cxx/detail/cf-releaser-osx.hpp"
+
 #include <Security/Security.h>
 
 namespace ndn {
 namespace security {
 namespace tpm {
 
-using KeyRefOsx = util::CFReleaser<SecKeyRef>;
+using KeyRefOsx = detail::CFReleaser<SecKeyRef>;
 
 } // namespace tpm
 } // namespace security

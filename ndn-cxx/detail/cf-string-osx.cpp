@@ -19,10 +19,10 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/util/cf-string-osx.hpp"
+#include "ndn-cxx/detail/cf-string-osx.hpp"
 
 namespace ndn {
-namespace util {
+namespace detail {
 namespace cfstring {
 
 CFReleaser<CFStringRef>
@@ -67,5 +67,5 @@ toStdString(CFStringRef cfStr)
 }
 
 } // namespace cfstring
-} // namespace util
+} // namespace detail
 } // namespace ndn

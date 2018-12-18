@@ -29,7 +29,7 @@
 #error "This file should not be included ..."
 #endif
 
-#include "ndn-cxx/util/cf-releaser-osx.hpp"
+#include "ndn-cxx/detail/cf-releaser-osx.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 #include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
@@ -106,8 +106,8 @@ private:
   util::scheduler::ScopedEventId m_cfLoopEvent;
 
   SCDynamicStoreContext m_context;
-  util::CFReleaser<SCDynamicStoreRef> m_scStore;
-  util::CFReleaser<CFRunLoopSourceRef> m_loopSource;
+  detail::CFReleaser<SCDynamicStoreRef> m_scStore;
+  detail::CFReleaser<CFRunLoopSourceRef> m_loopSource;
 
   boost::asio::ip::udp::socket m_ioctlSocket;
 };

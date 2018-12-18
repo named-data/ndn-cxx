@@ -23,8 +23,8 @@
 #include "ndn-cxx/security/tpm/key-handle-osx.hpp"
 #include "ndn-cxx/security/tpm/tpm.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/detail/cf-string-osx.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/util/cf-string-osx.hpp"
 
 #include <Security/Security.h>
 #include <cstring>
@@ -33,8 +33,8 @@ namespace ndn {
 namespace security {
 namespace tpm {
 
-namespace cfstring = util::cfstring;
-using util::CFReleaser;
+namespace cfstring = detail::cfstring;
+using detail::CFReleaser;
 
 class BackEndOsx::Impl
 {

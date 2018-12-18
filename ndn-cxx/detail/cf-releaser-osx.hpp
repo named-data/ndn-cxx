@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_CF_RELEASER_OSX_HPP
-#define NDN_UTIL_CF_RELEASER_OSX_HPP
+#ifndef NDN_DETAIL_CF_RELEASER_OSX_HPP
+#define NDN_DETAIL_CF_RELEASER_OSX_HPP
 
 #include "ndn-cxx/detail/common.hpp"
 
@@ -31,7 +31,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 
 namespace ndn {
-namespace util {
+namespace detail {
 
 /**
  * @brief Helper class to wrap CoreFoundation object pointers
@@ -144,7 +144,7 @@ private:
   T m_typeRef;
 };
 
-} // namespace util
+} // namespace detail
 } // namespace ndn
 
-#endif // NDN_UTIL_CF_RELEASER_OSX_HPP
+#endif // NDN_DETAIL_CF_RELEASER_OSX_HPP
