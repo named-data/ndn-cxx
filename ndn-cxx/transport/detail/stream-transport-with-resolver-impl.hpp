@@ -19,12 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TRANSPORT_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP
-#define NDN_TRANSPORT_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP
+#ifndef NDN_TRANSPORT_DETAIL_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP
+#define NDN_TRANSPORT_DETAIL_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP
 
-#include "ndn-cxx/transport/stream-transport-impl.hpp"
+#include "ndn-cxx/transport/detail/stream-transport-impl.hpp"
 
 namespace ndn {
+namespace detail {
 
 /** \brief implementation detail of a Boost.Asio-based stream-oriented transport
  *         with resolver support
@@ -88,7 +89,7 @@ private:
   }
 };
 
-
+} // namespace detail
 } // namespace ndn
 
-#endif // NDN_TRANSPORT_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP
+#endif // NDN_TRANSPORT_DETAIL_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP

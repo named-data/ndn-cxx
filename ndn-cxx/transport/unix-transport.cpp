@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/transport/unix-transport.hpp"
-#include "ndn-cxx/transport/stream-transport-impl.hpp"
+#include "ndn-cxx/transport/detail/stream-transport-impl.hpp"
 
 #include "ndn-cxx/face.hpp"
 #include "ndn-cxx/net/face-uri.hpp"

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TRANSPORT_STREAM_TRANSPORT_IMPL_HPP
-#define NDN_TRANSPORT_STREAM_TRANSPORT_IMPL_HPP
+#ifndef NDN_TRANSPORT_DETAIL_STREAM_TRANSPORT_IMPL_HPP
+#define NDN_TRANSPORT_DETAIL_STREAM_TRANSPORT_IMPL_HPP
 
 #include "ndn-cxx/transport/transport.hpp"
 
@@ -30,6 +30,7 @@
 #include <list>
 
 namespace ndn {
+namespace detail {
 
 /** \brief Implementation detail of a Boost.Asio-based stream-oriented transport.
  *  \tparam BaseTransport a subclass of Transport
@@ -278,6 +279,7 @@ protected:
   boost::asio::deadline_timer m_connectTimer;
 };
 
+} // namespace detail
 } // namespace ndn
 
-#endif // NDN_TRANSPORT_STREAM_TRANSPORT_IMPL_HPP
+#endif // NDN_TRANSPORT_DETAIL_STREAM_TRANSPORT_IMPL_HPP

@@ -29,8 +29,12 @@
 
 namespace ndn {
 
+namespace detail {
+
 template<typename BaseTransport, typename Protocol>
 class StreamTransportImpl;
+
+} // namespace detail
 
 /** \brief a transport using Unix stream socket
  */
@@ -74,7 +78,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 private:
   std::string m_unixSocket;
 
-  using Impl = StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol>;
+  using Impl = detail::StreamTransportImpl<UnixTransport, boost::asio::local::stream_protocol>;
   friend Impl;
   shared_ptr<Impl> m_impl;
 };

@@ -29,11 +29,15 @@
 
 namespace ndn {
 
+namespace detail {
+
 template<typename BaseTransport, typename Protocol>
 class StreamTransportImpl;
 
 template<typename BaseTransport, typename Protocol>
 class StreamTransportWithResolverImpl;
+
+} // namespace detail
 
 /** \brief a transport using TCP socket
  */
@@ -77,8 +81,8 @@ private:
   std::string m_host;
   std::string m_port;
 
-  using Impl = StreamTransportWithResolverImpl<TcpTransport, boost::asio::ip::tcp>;
-  friend class StreamTransportImpl<TcpTransport, boost::asio::ip::tcp>;
+  using Impl = detail::StreamTransportWithResolverImpl<TcpTransport, boost::asio::ip::tcp>;
+  friend class detail::StreamTransportImpl<TcpTransport, boost::asio::ip::tcp>;
   friend Impl;
   shared_ptr<Impl> m_impl;
 };

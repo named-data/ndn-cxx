@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/transport/tcp-transport.hpp"
-#include "ndn-cxx/transport/stream-transport-with-resolver-impl.hpp"
+#include "ndn-cxx/transport/detail/stream-transport-with-resolver-impl.hpp"
 #include "ndn-cxx/net/face-uri.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
