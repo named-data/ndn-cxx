@@ -39,7 +39,6 @@ namespace tests {
 /** \brief Collect information about network interfaces
  *  \param allowCached if true, previously collected information can be returned
  *  \note This function is blocking if \p allowCached is false or no previous information exists
- *  \throw ndn::net::NetworkMonitor::Error NetworkMonitor::CAP_ENUM is unavailable
  */
 std::vector<shared_ptr<const NetworkInterface>>
 collectNetworkInterfaces(bool allowCached = true);

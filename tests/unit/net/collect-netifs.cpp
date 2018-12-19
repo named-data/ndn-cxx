@@ -37,26 +37,21 @@ namespace tests {
 std::vector<shared_ptr<const NetworkInterface>>
 collectNetworkInterfaces(bool allowCached)
 {
-  static std::vector<shared_ptr<const NetworkInterface>> cached;
-  // cached.empty() indicates there's no cached list of netifs.
-  // Although it could also mean a system without any network interface, this situation is rare
-  // because the loopback interface is present on almost all systems.
+  static optional<std::vector<shared_ptr<const NetworkInterface>>> cached;
 
-  if (!allowCached || cached.empty()) {
+  if (!allowCached || !cached) {
     boost::asio::io_service io;
     NetworkMonitor netmon(io);
-    if ((netmon.getCapabilities() & NetworkMonitor::CAP_ENUM) == 0) {
-      BOOST_THROW_EXCEPTION(NetworkMonitor::Error("NetworkMonitor::CAP_ENUM is unavailable"));
+
+    if (netmon.getCapabilities() & NetworkMonitor::CAP_ENUM) {
+      netmon.onEnumerationCompleted.connect([&io] { io.stop(); });
+      io.run();
+      io.reset();
     }
-
-    netmon.onEnumerationCompleted.connect([&io] { io.stop(); });
-    io.run();
-    io.reset();
-
     cached = netmon.listNetworkInterfaces();
   }
 
-  return cached;
+  return *cached;
 }
 
 } // namespace tests
