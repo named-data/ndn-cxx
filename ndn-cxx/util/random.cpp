@@ -22,8 +22,6 @@
 #include "ndn-cxx/util/random.hpp"
 #include "ndn-cxx/security/impl/openssl.hpp"
 
-#include <random>
-
 namespace ndn {
 namespace random {
 
@@ -52,31 +50,30 @@ generateSecureBytes(uint8_t* bytes, size_t size)
   }
 }
 
-static std::mt19937&
-getRandomGenerator()
+RandomNumberEngine&
+getRandomNumberEngine()
 {
-  static optional<std::mt19937> rng;
-  if (!rng) {
+  thread_local std::mt19937 rng = [] {
     std::random_device rd;
     // seed with 256 bits of entropy
     std::seed_seq seeds{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
-    rng.emplace(seeds);
-  }
-  return *rng;
+    return std::mt19937{seeds};
+  }();
+  return rng;
 }
 
 uint32_t
 generateWord32()
 {
-  static std::uniform_int_distribution<uint32_t> distribution;
-  return distribution(getRandomGenerator());
+  thread_local std::uniform_int_distribution<uint32_t> distribution;
+  return distribution(getRandomNumberEngine());
 }
 
 uint64_t
 generateWord64()
 {
-  static std::uniform_int_distribution<uint64_t> distribution;
-  return distribution(getRandomGenerator());
+  thread_local std::uniform_int_distribution<uint64_t> distribution;
+  return distribution(getRandomNumberEngine());
 }
 
 } // namespace random

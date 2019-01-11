@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,8 @@
 #define NDN_UTIL_RANDOM_HPP
 
 #include "ndn-cxx/detail/common.hpp"
+
+#include <random>
 
 namespace ndn {
 namespace random {
@@ -50,6 +52,17 @@ generateSecureWord64();
  */
 void
 generateSecureBytes(uint8_t* bytes, size_t size);
+
+using RandomNumberEngine = std::mt19937;
+
+/**
+ * @brief Returns a reference to a thread-local instance of a properly seeded PRNG
+ *
+ * @warning The returned RandomNumberEngine MUST NOT be used when cryptographically secure
+ *          random numbers are needed.
+ */
+RandomNumberEngine&
+getRandomNumberEngine();
 
 /**
  * @brief Generate a non-cryptographically-secure random integer in the range [0, 2^32)

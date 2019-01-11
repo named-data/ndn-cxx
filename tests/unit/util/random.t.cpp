@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,14 +24,30 @@
 
 #include "tests/boost-test.hpp"
 
-#include <boost/mpl/vector.hpp>
+#include <array>
 #include <cmath>
+#include <thread>
+
+#include <boost/mpl/vector.hpp>
 
 namespace ndn {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestRandom)
+
+BOOST_AUTO_TEST_CASE(ThreadLocalRng)
+{
+  random::RandomNumberEngine* r1 = &random::getRandomNumberEngine();
+  random::RandomNumberEngine* r2 = nullptr;
+  std::thread t([&r2] { r2 = &random::getRandomNumberEngine(); });
+  t.join();
+  random::RandomNumberEngine* r3 = &random::getRandomNumberEngine();
+
+  BOOST_CHECK(r2 != nullptr);
+  BOOST_CHECK_NE(r1, r2);
+  BOOST_CHECK_EQUAL(r1, r3);
+}
 
 class PseudoRandomWord32
 {
@@ -73,11 +89,10 @@ public:
   }
 };
 
-typedef boost::mpl::vector<PseudoRandomWord32,
-                           PseudoRandomWord64,
-                           SecureRandomWord32,
-                           SecureRandomWord64> RandomGenerators;
-
+using RandomGenerators = boost::mpl::vector<PseudoRandomWord32,
+                                            PseudoRandomWord64,
+                                            SecureRandomWord32,
+                                            SecureRandomWord64>;
 
 static double
 getDeviation(const std::vector<uint32_t>& counts, size_t size)
@@ -100,40 +115,37 @@ getDeviation(const std::vector<uint32_t>& counts, size_t size)
   return t;
 }
 
-
 BOOST_AUTO_TEST_CASE_TEMPLATE(GoodnessOfFit, RandomGenerator, RandomGenerators)
 {
   const size_t MAX_BINS = 32;
   const uint32_t MAX_ITERATIONS = 35;
 
   std::vector<uint32_t> counts(MAX_BINS, 0);
-
   for (uint32_t i = 0; i < MAX_ITERATIONS; i++) {
     counts[RandomGenerator::generate() % MAX_BINS]++;
   }
 
   // Check if it is uniform distribution with confidence 0.95
   // http://dlc.erieri.com/onlinetextbook/index.cfm?fuseaction=textbook.appendix&FileName=Table7
-  BOOST_WARN_LE(getDeviation(counts, MAX_ITERATIONS), 0.230);
+  BOOST_CHECK_LE(getDeviation(counts, MAX_ITERATIONS), 0.230);
 }
 
-BOOST_AUTO_TEST_CASE(GenerateRandomBytes)
+BOOST_AUTO_TEST_CASE(GenerateSecureBytes)
 {
   // Kolmogorov-Smirnov Goodness-of-Fit Test
   // http://www.itl.nist.gov/div898/handbook/eda/section3/eda35g.htm
 
-  uint8_t buf[1024] = {0};
-  random::generateSecureBytes(buf, sizeof(buf));
+  std::array<uint8_t, 1024> buf;
+  random::generateSecureBytes(buf.data(), buf.size());
 
   std::vector<uint32_t> counts(256, 0);
-
-  for (size_t i = 0; i < sizeof(buf); i++) {
+  for (size_t i = 0; i < buf.size(); i++) {
     counts[buf[i]]++;
   }
 
   // Check if it is uniform distribution with confidence 0.95
   // http://dlc.erieri.com/onlinetextbook/index.cfm?fuseaction=textbook.appendix&FileName=Table7
-  BOOST_WARN_LE(getDeviation(counts, sizeof(buf)), 0.230);
+  BOOST_CHECK_LE(getDeviation(counts, buf.size()), 0.230);
 }
 
 // This fixture uses OpenSSL routines to set a dummy random generator that always fails
@@ -214,8 +226,8 @@ private:
 
 BOOST_FIXTURE_TEST_CASE(Error, FailRandMethodFixture)
 {
-  uint8_t buf[1024] = {0};
-  BOOST_CHECK_THROW(random::generateSecureBytes(buf, sizeof(buf)), std::runtime_error);
+  std::array<uint8_t, 1024> buf;
+  BOOST_CHECK_THROW(random::generateSecureBytes(buf.data(), buf.size()), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestRandom
