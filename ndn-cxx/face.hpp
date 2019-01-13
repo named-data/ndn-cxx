@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,7 @@
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/interest-filter.hpp"
 #include "ndn-cxx/detail/asio-fwd.hpp"
+#include "ndn-cxx/detail/cancel-handle.hpp"
 #include "ndn-cxx/encoding/nfd-constants.hpp"
 #include "ndn-cxx/lp/nack.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
@@ -37,6 +38,7 @@ class Transport;
 
 class PendingInterestId;
 class RegisteredPrefixId;
+class RegisteredPrefixHandle;
 class InterestFilterId;
 
 namespace nfd {
@@ -345,7 +347,7 @@ public: // producer
    * @return The registered prefix ID which can be used with unregisterPrefix
    * @see nfd::RouteFlags
    */
-  const RegisteredPrefixId*
+  RegisteredPrefixHandle
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
@@ -532,6 +534,57 @@ private:
   class Impl;
   shared_ptr<Impl> m_impl;
 };
+
+/** \brief A handle of registered prefix.
+ */
+class RegisteredPrefixHandle : public detail::CancelHandle
+{
+public:
+  RegisteredPrefixHandle() = default;
+
+  RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id);
+
+  operator const RegisteredPrefixId*() const
+  {
+    return m_id;
+  }
+
+  /** \brief Unregister the prefix.
+   *  \warning Unregistering the same prefix more than once, using same or different
+   *           RegisteredPrefixHandle or ScopedRegisteredPrefixHandle, may trigger undefined
+   *           behavior.
+   *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
+   *           behavior.
+   */
+  void
+  unregister(const UnregisterPrefixSuccessCallback& onSuccess = nullptr,
+             const UnregisterPrefixFailureCallback& onFailure = nullptr);
+
+private:
+  Face* m_face = nullptr;
+  const RegisteredPrefixId* m_id = nullptr;
+};
+
+/** \brief A scoped handle of registered prefix.
+ *
+ *  Upon destruction of this handle, the prefix is unregistered automatically.
+ *  Most commonly, the application keeps a ScopedRegisteredPrefixHandle as a class member field,
+ *  so that it can cleanup its prefix registration when the class instance is destructed.
+ *  The application will not be notified whether the unregistration was successful.
+ *
+ *  \code
+ *  {
+ *    ScopedRegisteredPrefixHandle hdl = face.registerPrefix(prefix, onSuccess, onFailure);
+ *  } // hdl goes out of scope, unregistering the prefix
+ *  \endcode
+ *
+ *  \warning Unregistering the same prefix more than once, using same or different
+ *           RegisteredPrefixHandle or ScopedRegisteredPrefixHandle, may trigger undefined
+ *           behavior.
+ *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
+ *           behavior.
+ */
+using ScopedRegisteredPrefixHandle = detail::ScopedCancelHandle;
 
 } // namespace ndn
 

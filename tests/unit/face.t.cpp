@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,34 +30,63 @@
 #include "tests/make-interest-data.hpp"
 #include "tests/unit/identity-management-time-fixture.hpp"
 
+#include <boost/logic/tribool.hpp>
+
 namespace ndn {
 namespace tests {
 
 using ndn::util::DummyClientFace;
 
+struct WantPrefixRegReply;
+struct NoPrefixRegReply;
+
+template<typename PrefixRegReply = WantPrefixRegReply>
 class FaceFixture : public IdentityManagementTimeFixture
 {
 public:
-  explicit
-  FaceFixture(bool enableRegistrationReply = true)
-    : face(io, m_keyChain, {true, enableRegistrationReply})
+  FaceFixture()
+    : face(io, m_keyChain, {true, !std::is_same<PrefixRegReply, NoPrefixRegReply>::value})
   {
+    static_assert(std::is_same<PrefixRegReply, WantPrefixRegReply>::value ||
+                  std::is_same<PrefixRegReply, NoPrefixRegReply>::value, "");
+  }
+
+  /** \brief Execute a prefix registration, and optionally check the name in callback.
+   *  \return whether the prefix registration succeeded.
+   */
+  bool
+  runPrefixReg(function<void(const RegisterPrefixSuccessCallback& success,
+                             const RegisterPrefixFailureCallback& failure)> f)
+  {
+    boost::logic::tribool result = boost::logic::indeterminate;
+    f([&] (const Name&) { result = true; },
+      [&] (const Name&, const std::string&) { result = false; });
+
+    advanceClocks(1_ms);
+    BOOST_REQUIRE(!boost::logic::indeterminate(result));
+    return static_cast<bool>(result);
+  }
+
+  /** \brief Execute a prefix unregistration, and optionally check the name in callback.
+   *  \return whether the prefix unregistration succeeded.
+   */
+  bool
+  runPrefixUnreg(function<void(const UnregisterPrefixSuccessCallback& success,
+                               const UnregisterPrefixFailureCallback& failure)> f)
+  {
+    boost::logic::tribool result = boost::logic::indeterminate;
+    f([&] { result = true; }, [&] (const std::string&) { result = false; });
+
+    advanceClocks(1_ms);
+    BOOST_REQUIRE(!boost::logic::indeterminate(result));
+    return static_cast<bool>(result);
   }
 
 public:
   DummyClientFace face;
 };
 
-class FacesNoRegistrationReplyFixture : public FaceFixture
-{
-public:
-  FacesNoRegistrationReplyFixture()
-    : FaceFixture(false)
-  {
-  }
-};
-
-BOOST_FIXTURE_TEST_SUITE(TestFace, FaceFixture)
+BOOST_FIXTURE_TEST_SUITE(TestFace, FaceFixture<>)
 
 BOOST_AUTO_TEST_SUITE(Consumer)
 
@@ -572,7 +601,7 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilterWithoutSucessCallback)
   advanceClocks(25_ms, 4);
 }
 
-BOOST_FIXTURE_TEST_CASE(SetInterestFilterFail, FacesNoRegistrationReplyFixture)
+BOOST_FIXTURE_TEST_CASE(SetInterestFilterFail, FaceFixture<NoPrefixRegReply>)
 {
   // don't enable registration reply
   size_t nRegFailed = 0;
@@ -588,7 +617,7 @@ BOOST_FIXTURE_TEST_CASE(SetInterestFilterFail, FacesNoRegistrationReplyFixture)
   BOOST_CHECK_EQUAL(nRegFailed, 1);
 }
 
-BOOST_FIXTURE_TEST_CASE(SetInterestFilterFailWithoutSuccessCallback, FacesNoRegistrationReplyFixture)
+BOOST_FIXTURE_TEST_CASE(SetInterestFilterFailWithoutSuccessCallback, FaceFixture<NoPrefixRegReply>)
 {
   // don't enable registration reply
   size_t nRegFailed = 0;
@@ -603,36 +632,40 @@ BOOST_FIXTURE_TEST_CASE(SetInterestFilterFailWithoutSuccessCallback, FacesNoRegi
   BOOST_CHECK_EQUAL(nRegFailed, 1);
 }
 
-BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefix)
+BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefixFunc)
 {
-  size_t nRegSuccesses = 0;
-  const RegisteredPrefixId* regPrefixId =
-    face.registerPrefix("/Hello/World",
-                        bind([&nRegSuccesses] { ++nRegSuccesses; }),
-                        bind([] { BOOST_FAIL("Unexpected registerPrefix failure"); }));
+  const RegisteredPrefixId* regPrefixId = nullptr;
+  BOOST_CHECK(runPrefixReg([&] (const auto& success, const auto& failure) {
+    regPrefixId = face.registerPrefix("/Hello/World", success, failure);
+  }));
 
-  advanceClocks(25_ms, 4);
-  BOOST_CHECK_EQUAL(nRegSuccesses, 1);
-
-  size_t nUnregSuccesses = 0;
-  face.unregisterPrefix(regPrefixId,
-                        bind([&nUnregSuccesses] { ++nUnregSuccesses; }),
-                        bind([] { BOOST_FAIL("Unexpected unregisterPrefix failure"); }));
-
-  advanceClocks(25_ms, 4);
-  BOOST_CHECK_EQUAL(nUnregSuccesses, 1);
+  BOOST_CHECK(runPrefixUnreg([&] (const auto& success, const auto& failure) {
+    face.unregisterPrefix(regPrefixId, success, failure);
+  }));
 }
 
-BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefixFail, FacesNoRegistrationReplyFixture)
+BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefixFail, FaceFixture<NoPrefixRegReply>)
 {
-  // don't enable registration reply
-  size_t nRegFailures = 0;
-  face.registerPrefix("/Hello/World",
-                      bind([] { BOOST_FAIL("Unexpected registerPrefix success"); }),
-                      bind([&nRegFailures] { ++nRegFailures; }));
+  BOOST_CHECK(!runPrefixReg([&] (const auto& success, const auto& failure) {
+    face.registerPrefix("/Hello/World", success, failure);
+    this->advanceClocks(5_s, 20); // wait for command timeout
+  }));
+}
+BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefixHandle)
+{
+  RegisteredPrefixHandle hdl;
+  BOOST_CHECK(!runPrefixUnreg([&] (const auto& success, const auto& failure) {
+    // despite the "undefined behavior" warning, we try not to crash, but no API guarantee for this
+    hdl.unregister(success, failure);
+  }));
 
-  advanceClocks(5000_ms, 20);
-  BOOST_CHECK_EQUAL(nRegFailures, 1);
+  BOOST_CHECK(runPrefixReg([&] (const auto& success, const auto& failure) {
+    hdl = face.registerPrefix("/Hello/World", success, failure);
+  }));
+
+  BOOST_CHECK(runPrefixUnreg([&] (const auto& success, const auto& failure) {
+    hdl.unregister(success, failure);
+  }));
 }
 
 BOOST_AUTO_TEST_CASE(SimilarFilters)
@@ -729,7 +762,7 @@ BOOST_AUTO_TEST_CASE(SetRegexFilterAndRegister)
   BOOST_CHECK_EQUAL(nInInterests, 2);
 }
 
-BOOST_FIXTURE_TEST_CASE(SetInterestFilterNoReg, FacesNoRegistrationReplyFixture) // Bug 2318
+BOOST_FIXTURE_TEST_CASE(SetInterestFilterNoReg, FaceFixture<NoPrefixRegReply>) // Bug 2318
 {
   // This behavior is specific to DummyClientFace.
   // Regular Face won't accept incoming packets until something is sent.

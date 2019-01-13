@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -103,8 +103,8 @@ Dispatcher::removeTopPrefix(const Name& prefix)
   }
 
   const TopPrefixEntry& topPrefixEntry = it->second;
-  if (topPrefixEntry.registeredPrefixId) {
-    m_face.unregisterPrefix(*topPrefixEntry.registeredPrefixId, nullptr, nullptr);
+  if (topPrefixEntry.registeredPrefixId != nullptr) {
+    m_face.unregisterPrefix(topPrefixEntry.registeredPrefixId, nullptr, nullptr);
   }
   for (const auto& filter : topPrefixEntry.interestFilters) {
     m_face.unsetInterestFilter(filter);

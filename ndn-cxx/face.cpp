@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -267,7 +267,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   return reinterpret_cast<const InterestFilterId*>(filter.get());
 }
 
-const RegisteredPrefixId*
+RegisteredPrefixHandle
 Face::registerPrefix(const Name& prefix,
                      const RegisterPrefixSuccessCallback& onSuccess,
                      const RegisterPrefixFailureCallback& onFailure,
@@ -277,7 +277,8 @@ Face::registerPrefix(const Name& prefix,
   nfd::CommandOptions options;
   options.setSigningInfo(signingInfo);
 
-  return m_impl->registerPrefix(prefix, nullptr, onSuccess, onFailure, flags, options);
+  auto id = m_impl->registerPrefix(prefix, nullptr, onSuccess, onFailure, flags, options);
+  return RegisteredPrefixHandle(*this, id);
 }
 
 void
@@ -408,6 +409,31 @@ Face::onReceiveElement(const Block& blockFromDaemon)
       break;
     }
   }
+}
+
+RegisteredPrefixHandle::RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id)
+  : CancelHandle([&face, id] { face.unregisterPrefix(id, nullptr, nullptr); })
+  , m_face(&face)
+  , m_id(id)
+{
+  // The lambda passed to CancelHandle constructor cannot call this->unregister,
+  // because base class destructor cannot access the member fields of this subclass.
+}
+
+void
+RegisteredPrefixHandle::unregister(const UnregisterPrefixSuccessCallback& onSuccess,
+                                   const UnregisterPrefixFailureCallback& onFailure)
+{
+  if (m_id == nullptr) {
+    if (onFailure != nullptr) {
+      onFailure("RegisteredPrefixHandle is empty");
+    }
+    return;
+  }
+
+  m_face->unregisterPrefix(m_id, onSuccess, onFailure);
+  m_face = nullptr;
+  m_id = nullptr;
 }
 
 } // namespace ndn
