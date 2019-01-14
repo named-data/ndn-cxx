@@ -651,6 +651,7 @@ BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefixFail, FaceFixture<NoPrefixRegRep
     this->advanceClocks(5_s, 20); // wait for command timeout
   }));
 }
+
 BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefixHandle)
 {
   RegisteredPrefixHandle hdl;
@@ -774,6 +775,24 @@ BOOST_FIXTURE_TEST_CASE(SetInterestFilterNoReg, FaceFixture<NoPrefixRegReply>) /
   face.receive(*makeInterest("/A"));
   face.processEvents(time::milliseconds(-1));
 
+  BOOST_CHECK_EQUAL(hit, 1);
+}
+
+BOOST_AUTO_TEST_CASE(SetInterestFilterHandle)
+{
+  int hit = 0;
+  auto hdl = face.setInterestFilter(Name("/"), bind([&hit] { ++hit; }));
+  face.processEvents(-1_ms);
+
+  face.receive(*makeInterest("/A"));
+  face.processEvents(-1_ms);
+  BOOST_CHECK_EQUAL(hit, 1);
+
+  hdl.cancel();
+  face.processEvents(-1_ms);
+
+  face.receive(*makeInterest("/B"));
+  face.processEvents(-1_ms);
   BOOST_CHECK_EQUAL(hit, 1);
 }
 

@@ -227,7 +227,7 @@ Face::put(lp::Nack nack)
   } IO_CAPTURE_WEAK_IMPL_END
 }
 
-const RegisteredPrefixId*
+RegisteredPrefixHandle
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const InterestCallback& onInterest,
                         const RegisterPrefixFailureCallback& onFailure,
@@ -237,7 +237,7 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   return setInterestFilter(interestFilter, onInterest, nullptr, onFailure, signingInfo, flags);
 }
 
-const RegisteredPrefixId*
+RegisteredPrefixHandle
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const InterestCallback& onInterest,
                         const RegisterPrefixSuccessCallback& onSuccess,
@@ -250,11 +250,12 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   nfd::CommandOptions options;
   options.setSigningInfo(signingInfo);
 
-  return m_impl->registerPrefix(interestFilter.getPrefix(), filter,
-                                onSuccess, onFailure, flags, options);
+  auto id = m_impl->registerPrefix(interestFilter.getPrefix(), filter,
+                                   onSuccess, onFailure, flags, options);
+  return RegisteredPrefixHandle(*this, id);
 }
 
-const InterestFilterId*
+InterestFilterHandle
 Face::setInterestFilter(const InterestFilter& interestFilter,
                         const InterestCallback& onInterest)
 {
@@ -264,7 +265,8 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
     impl->asyncSetInterestFilter(filter);
   } IO_CAPTURE_WEAK_IMPL_END
 
-  return reinterpret_cast<const InterestFilterId*>(filter.get());
+  auto id = reinterpret_cast<const InterestFilterId*>(filter.get());
+  return InterestFilterHandle(*this, id);
 }
 
 RegisteredPrefixHandle
@@ -434,6 +436,12 @@ RegisteredPrefixHandle::unregister(const UnregisterPrefixSuccessCallback& onSucc
   m_face->unregisterPrefix(m_id, onSuccess, onFailure);
   m_face = nullptr;
   m_id = nullptr;
+}
+
+InterestFilterHandle::InterestFilterHandle(Face& face, const InterestFilterId* id)
+  : CancelHandle([&face, id] { face.unsetInterestFilter(id); })
+  , m_id(id)
+{
 }
 
 } // namespace ndn

@@ -40,6 +40,7 @@ class PendingInterestId;
 class RegisteredPrefixId;
 class RegisteredPrefixHandle;
 class InterestFilterId;
+class InterestFilterHandle;
 
 namespace nfd {
 class Controller;
@@ -275,10 +276,9 @@ public: // producer
    * @param signingInfo    (optional) Signing parameters.  When omitted, a default parameters
    *                       used in the signature will be used.
    *
-   * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
-   *         removeRegisteredPrefix
+   * @return A handle for unregistering the prefix.
    */
-  const RegisteredPrefixId*
+  RegisteredPrefixHandle
   setInterestFilter(const InterestFilter& interestFilter,
                     const InterestCallback& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
@@ -303,10 +303,9 @@ public: // producer
    * @param signingInfo    (optional) Signing parameters.  When omitted, a default parameters
    *                       used in the signature will be used.
    *
-   * @return Opaque registered prefix ID which can be used with unsetInterestFilter or
-   *         removeRegisteredPrefix
+   * @return A handle for unregistering the prefix.
    */
-  const RegisteredPrefixId*
+  RegisteredPrefixHandle
   setInterestFilter(const InterestFilter& interestFilter,
                     const InterestCallback& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
@@ -324,9 +323,9 @@ public: // producer
    * forwarder.  It will always succeed.  To register prefix with the forwarder, use
    * registerPrefix, or use the setInterestFilter overload taking two callbacks.
    *
-   * @return Opaque interest filter ID which can be used with unsetInterestFilter
+   * @return A handle for unsetting the Interest filter.
    */
-  const InterestFilterId*
+  InterestFilterHandle
   setInterestFilter(const InterestFilter& interestFilter,
                     const InterestCallback& onInterest);
 
@@ -344,7 +343,7 @@ public: // producer
    *                    used in the signature will be used.
    * @param flags       Prefix registration flags
    *
-   * @return The registered prefix ID which can be used with unregisterPrefix
+   * @return A handle for unregistering the prefix.
    * @see nfd::RouteFlags
    */
   RegisteredPrefixHandle
@@ -364,7 +363,7 @@ public: // producer
    * unsetInterestFilter will use the same credentials as original
    * setInterestFilter/registerPrefix command
    *
-   * @param registeredPrefixId The ID returned from registerPrefix
+   * @param registeredPrefixId a handle returned from registerPrefix
    */
   void
   unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
@@ -375,7 +374,7 @@ public: // producer
    * This method always succeeds and will **NOT** send any request to the connected
    * forwarder.
    *
-   * @param interestFilterId The ID returned from setInterestFilter.
+   * @param interestFilterId a handle returned from setInterestFilter.
    */
   void
   unsetInterestFilter(const InterestFilterId* interestFilterId);
@@ -389,7 +388,7 @@ public: // producer
    * If registeredPrefixId was obtained using setInterestFilter, the corresponding
    * InterestFilter will be unset too.
    *
-   * @param registeredPrefixId The ID returned from registerPrefix
+   * @param registeredPrefixId a handle returned from registerPrefix
    * @param onSuccess          Callback to be called when operation succeeds
    * @param onFailure          Callback to be called when operation fails
    */
@@ -585,6 +584,53 @@ private:
  *           behavior.
  */
 using ScopedRegisteredPrefixHandle = detail::ScopedCancelHandle;
+
+/** \brief A handle of registered Interest filter.
+ *
+ *  \code
+ *  InterestFilterHandle hdl = face.setInterestFilter(prefix, onInterest);
+ *  hdl.cancel(); // unset the Interest filter
+ *  \endcode
+ *
+ *  \warning Unsetting the same Interest filter more than once, using same or different
+ *           InterestFilterHandle or ScopedInterestFilterHandle, may trigger undefined behavior.
+ *  \warning Unsetting an Interest filter after the face has been destructed may trigger
+ *           undefined behavior.
+ */
+class InterestFilterHandle : public detail::CancelHandle
+{
+public:
+  InterestFilterHandle() = default;
+
+  InterestFilterHandle(Face& face, const InterestFilterId* id);
+
+  operator const InterestFilterId*() const
+  {
+    return m_id;
+  }
+
+private:
+  const InterestFilterId* m_id = nullptr;
+};
+
+/** \brief A scoped handle of registered Interest filter.
+ *
+ *  Upon destruction of this handle, the Interest filter is unset automatically.
+ *  Most commonly, the application keeps a ScopedInterestFilterHandle as a class member field,
+ *  so that it can cleanup its Interest filter when the class instance is destructed.
+ *
+ *  \code
+ *  {
+ *    ScopedInterestFilterHandle hdl = face.setInterestFilter(prefix, onInterest);
+ *  } // hdl goes out of scope, unsetting the Interest filter
+ *  \endcode
+ *
+ *  \warning Unsetting the same Interest filter more than once, using same or different
+ *           InterestFilterHandle or ScopedInterestFilterHandle, may trigger undefined behavior.
+ *  \warning Unsetting an Interest filter after the face has been destructed may trigger
+ *           undefined behavior.
+ */
+using ScopedInterestFilterHandle = detail::ScopedCancelHandle;
 
 } // namespace ndn
 

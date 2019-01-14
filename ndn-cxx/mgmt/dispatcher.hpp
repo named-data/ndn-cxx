@@ -439,9 +439,8 @@ private:
 private:
   struct TopPrefixEntry
   {
-    Name topPrefix;
-    const RegisteredPrefixId* registeredPrefixId = nullptr;
-    std::vector<const InterestFilterId*> interestFilters;
+    ScopedRegisteredPrefixHandle registeredPrefix;
+    std::vector<ScopedInterestFilterHandle> interestFilters;
   };
   std::unordered_map<Name, TopPrefixEntry> m_topLevelPrefixes;
 

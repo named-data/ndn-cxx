@@ -56,7 +56,7 @@ Dispatcher::~Dispatcher()
 {
   std::vector<Name> topPrefixNames;
   std::transform(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(), std::back_inserter(topPrefixNames),
-                 [] (const auto& entry) { return entry.second.topPrefix; });
+                 [] (const auto& entry) { return entry.first; });
 
   for (const auto& name : topPrefixNames) {
     removeTopPrefix(name);
@@ -76,10 +76,9 @@ Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
   }
 
   TopPrefixEntry& topPrefixEntry = m_topLevelPrefixes[prefix];
-  topPrefixEntry.topPrefix = prefix;
 
   if (wantRegister) {
-    topPrefixEntry.registeredPrefixId = m_face.registerPrefix(prefix,
+    topPrefixEntry.registeredPrefix = m_face.registerPrefix(prefix,
       nullptr,
       [] (const Name&, const std::string& reason) {
         BOOST_THROW_EXCEPTION(std::runtime_error("prefix registration failed: " + reason));
@@ -89,28 +88,15 @@ Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
 
   for (const auto& entry : m_handlers) {
     Name fullPrefix = Name(prefix).append(entry.first);
-    const auto* filterId = m_face.setInterestFilter(fullPrefix, bind(entry.second, prefix, _2));
-    topPrefixEntry.interestFilters.push_back(filterId);
+    auto filterHdl = m_face.setInterestFilter(fullPrefix, bind(entry.second, prefix, _2));
+    topPrefixEntry.interestFilters.push_back(filterHdl);
   }
 }
 
 void
 Dispatcher::removeTopPrefix(const Name& prefix)
 {
-  auto it = m_topLevelPrefixes.find(prefix);
-  if (it == m_topLevelPrefixes.end()) {
-    return;
-  }
-
-  const TopPrefixEntry& topPrefixEntry = it->second;
-  if (topPrefixEntry.registeredPrefixId != nullptr) {
-    m_face.unregisterPrefix(topPrefixEntry.registeredPrefixId, nullptr, nullptr);
-  }
-  for (const auto& filter : topPrefixEntry.interestFilters) {
-    m_face.unsetInterestFilter(filter);
-  }
-
-  m_topLevelPrefixes.erase(it);
+  m_topLevelPrefixes.erase(prefix);
 }
 
 bool
@@ -348,7 +334,7 @@ Dispatcher::postNotification(const Block& notification, const PartialName& relPr
     return;
   }
 
-  Name streamName(m_topLevelPrefixes.begin()->second.topPrefix);
+  Name streamName(m_topLevelPrefixes.begin()->first);
   streamName.append(relPrefix);
   streamName.appendSequenceNumber(m_streams[streamName]++);
 
