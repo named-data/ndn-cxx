@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -83,11 +83,13 @@ struct DecodeHelper<TlvType, uint64_t>
   static uint64_t
   decode(const Block& wire)
   {
-    // NDNLPv2 spec defines sequence number fields to be encoded as a fixed-width unsigned integer,
-    // but previous versions of ndn-cxx encode it as a NonNegativeInteger, so we decode it as such
-    // for backwards compatibility. In a future version, the decoder will be changed to accept
-    // 8-byte big endian only, to allow faster decoding.
-    return readNonNegativeInteger(wire);
+    if (wire.value_size() != sizeof(uint64_t)) {
+      BOOST_THROW_EXCEPTION(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
+                                            " should contain a 64-bit integer"));
+    }
+    uint64_t n = 0;
+    std::memcpy(&n, wire.value(), sizeof(n));
+    return boost::endian::big_to_native(n);
   }
 };
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,31 +39,47 @@ BOOST_AUTO_TEST_CASE(FieldAccess)
 
   BOOST_CHECK(packet.empty());
   BOOST_CHECK(!packet.has<FragIndexField>());
-  BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
+  BOOST_CHECK_EQUAL(packet.count<FragIndexField>(), 0);
 
   packet.set<FragIndexField>(1234);
   BOOST_CHECK(!packet.empty());
   BOOST_CHECK(packet.has<FragIndexField>());
   BOOST_CHECK_THROW(packet.add<FragIndexField>(5678), std::length_error);
-  BOOST_CHECK_EQUAL(1, packet.count<FragIndexField>());
-  BOOST_CHECK_EQUAL(1234, packet.get<FragIndexField>(0));
+  BOOST_CHECK_EQUAL(packet.count<FragIndexField>(), 1);
+  BOOST_CHECK_EQUAL(packet.get<FragIndexField>(0), 1234);
   BOOST_CHECK_THROW(packet.get<FragIndexField>(1), std::out_of_range);
   BOOST_CHECK_THROW(packet.remove<FragIndexField>(1), std::out_of_range);
 
   packet.remove<FragIndexField>(0);
-  BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
+  BOOST_CHECK_EQUAL(packet.count<FragIndexField>(), 0);
 
   packet.add<FragIndexField>(832);
   std::vector<uint64_t> fragIndexes = packet.list<FragIndexField>();
-  BOOST_CHECK_EQUAL(1, fragIndexes.size());
-  BOOST_CHECK_EQUAL(832, fragIndexes.at(0));
+  BOOST_CHECK_EQUAL(fragIndexes.size(), 1);
+  BOOST_CHECK_EQUAL(fragIndexes.at(0), 832);
 
   packet.clear<FragIndexField>();
-  BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
+  BOOST_CHECK_EQUAL(packet.count<FragIndexField>(), 0);
+  BOOST_CHECK(packet.empty());
+
+  packet.add<AckField>(4001);
+  packet.add<AckField>(4002);
+  packet.add<AckField>(4003);
+  BOOST_CHECK_EQUAL(packet.count<AckField>(), 3);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(0), 4001);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(1), 4002);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(2), 4003);
+
+  packet.remove<AckField>(1);
+  BOOST_CHECK_EQUAL(packet.count<AckField>(), 2);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(0), 4001);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(1), 4003);
+
+  packet.remove<AckField>(0);
+  packet.remove<AckField>(0);
+  BOOST_CHECK_EQUAL(packet.count<AckField>(), 0);
   BOOST_CHECK(packet.empty());
 }
-
-/// \todo test field access methods with a REPEATABLE field
 
 BOOST_AUTO_TEST_CASE(EncodeFragment)
 {
@@ -100,9 +116,8 @@ BOOST_AUTO_TEST_CASE(EncodeSubTlv)
   nack.setReason(NackReason::DUPLICATE);
 
   Packet packet;
-  BOOST_CHECK_NO_THROW(packet.add<NackField>(nack));
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = packet.wireEncode());
+  packet.add<NackField>(nack);
+  Block wire = packet.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 }
@@ -114,15 +129,15 @@ BOOST_AUTO_TEST_CASE(EncodeZeroLengthTlv)
           0xfd, 0x03, 0x4c, 0x00, // NonDiscovery
   };
 
-  Packet packet1, packet2;
-  BOOST_CHECK_NO_THROW(packet1.set<NonDiscoveryField>(EmptyValue{}));
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = packet1.wireEncode());
+  Packet packet1;
+  packet1.set<NonDiscoveryField>(EmptyValue{});
+  Block wire = packet1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 
-  BOOST_CHECK_NO_THROW(packet2.add<NonDiscoveryField>(EmptyValue{}));
-  BOOST_REQUIRE_NO_THROW(wire = packet2.wireEncode());
+  Packet packet2;
+  packet2.add<NonDiscoveryField>(EmptyValue{});
+  wire = packet2.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 }
@@ -150,18 +165,16 @@ BOOST_AUTO_TEST_CASE(EncodeSortOrder)
   frag[1] = 0xe8;
 
   Packet packet;
-  BOOST_CHECK_NO_THROW(packet.add<FragmentField>(std::make_pair(frag.begin(), frag.end())));
-  BOOST_CHECK_NO_THROW(packet.add<FragIndexField>(0));
-  BOOST_CHECK_NO_THROW(packet.add<AckField>(2));
-  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
-  BOOST_CHECK_NO_THROW(packet.add<FragCountField>(1));
-  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
-  BOOST_CHECK_NO_THROW(packet.add<AckField>(4));
-  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
-  BOOST_CHECK_NO_THROW(packet.add<AckField>(3));
-  BOOST_REQUIRE_NO_THROW(packet.wireEncode());
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = packet.wireEncode());
+  packet.add<FragmentField>(std::make_pair(frag.begin(), frag.end()));
+  packet.add<FragIndexField>(0);
+  packet.add<AckField>(2);
+  packet.wireEncode();
+  packet.add<FragCountField>(1);
+  packet.wireEncode();
+  packet.add<AckField>(4);
+  packet.wireEncode();
+  packet.add<AckField>(3);
+  Block wire = packet.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 }
@@ -169,28 +182,43 @@ BOOST_AUTO_TEST_CASE(EncodeSortOrder)
 BOOST_AUTO_TEST_CASE(DecodeNormal)
 {
   static const uint8_t inputBlock[] = {
-    0x64, 0x0a, // LpPacket
+    0x64, 0x2e, // LpPacket
           0x52, 0x01, // FragIndex
                 0x00,
           0x53, 0x01, // FragCount
                 0x01,
+          0xfd, 0x03, 0x44, 0x08, // Ack
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+          0xfd, 0x03, 0x44, 0x08, // Ack
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03,
+          0xfd, 0x03, 0x44, 0x08, // Ack
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
           0x50, 0x02, // Fragment
                 0x03, 0xe8,
   };
 
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
-  BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
-  BOOST_CHECK_EQUAL(1, packet.count<FragIndexField>());
-  BOOST_CHECK_EQUAL(1, packet.count<FragCountField>());
+  packet.wireDecode(wire);
+
+  BOOST_CHECK_EQUAL(packet.count<FragIndexField>(), 1);
+  BOOST_CHECK_EQUAL(packet.get<FragIndexField>(), 0);
+
+  BOOST_CHECK_EQUAL(packet.count<FragCountField>(), 1);
+  BOOST_CHECK_EQUAL(packet.get<FragCountField>(), 1);
+
+  BOOST_CHECK_EQUAL(packet.count<AckField>(), 3);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(), 1);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(0), 1);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(1), 3);
+  BOOST_CHECK_EQUAL(packet.get<AckField>(2), 2);
+
+  BOOST_CHECK_EQUAL(packet.count<FragmentField>(), 1);
   Buffer::const_iterator first, last;
-  BOOST_REQUIRE_NO_THROW(std::tie(first, last) = packet.get<FragmentField>(0));
+  std::tie(first, last) = packet.get<FragmentField>(0);
   BOOST_CHECK_EQUAL(2, last - first);
   BOOST_CHECK_EQUAL(0x03, *first);
   BOOST_CHECK_EQUAL(0xe8, *(last - 1));
-  BOOST_CHECK_EQUAL(0, packet.get<FragIndexField>(0));
-  BOOST_CHECK_EQUAL(1, packet.get<FragCountField>(0));
 }
 
 BOOST_AUTO_TEST_CASE(DecodeIdle)
@@ -205,7 +233,7 @@ BOOST_AUTO_TEST_CASE(DecodeIdle)
 
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(0, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(1, packet.count<FragIndexField>());
   BOOST_CHECK_EQUAL(1, packet.count<FragCountField>());
@@ -223,11 +251,11 @@ BOOST_AUTO_TEST_CASE(DecodeFragment)
 
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
   Buffer::const_iterator first, last;
-  BOOST_REQUIRE_NO_THROW(std::tie(first, last) = packet.get<FragmentField>(0));
+  std::tie(first, last) = packet.get<FragmentField>(0);
   BOOST_CHECK_EQUAL(2, last - first);
   BOOST_CHECK_EQUAL(0x03, *first);
   BOOST_CHECK_EQUAL(0xe8, *(last - 1));
@@ -242,9 +270,9 @@ BOOST_AUTO_TEST_CASE(DecodeNonDiscoveryHeader)
 
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(true, packet.has<NonDiscoveryField>());
-  BOOST_CHECK_NO_THROW(packet.get<NonDiscoveryField>());
+  packet.get<NonDiscoveryField>();
 }
 
 BOOST_AUTO_TEST_CASE(DecodeEmpty)
@@ -255,7 +283,7 @@ BOOST_AUTO_TEST_CASE(DecodeEmpty)
 
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(0, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
   BOOST_CHECK_EQUAL(false, packet.has<NonDiscoveryField>());
@@ -274,28 +302,6 @@ BOOST_AUTO_TEST_CASE(DecodeRepeatedNonRepeatableHeader)
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
-}
-
-BOOST_AUTO_TEST_CASE(DecodeRepeatedRepeatableHeader)
-{
-  static const uint8_t inputBlock[] = {
-    0x64, 0x0f, // LpPacket
-          0xfd, 0x03, 0x44, 0x01, // Ack
-                0x01,
-          0xfd, 0x03, 0x44, 0x01, // Ack
-                0x03,
-          0xfd, 0x03, 0x44, 0x01, // Ack
-                0x02,
-  };
-
-  Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
-  BOOST_REQUIRE_EQUAL(packet.count<AckField>(), 3);
-  BOOST_CHECK_EQUAL(packet.get<AckField>(), 1);
-  BOOST_CHECK_EQUAL(packet.get<AckField>(0), 1);
-  BOOST_CHECK_EQUAL(packet.get<AckField>(1), 3);
-  BOOST_CHECK_EQUAL(packet.get<AckField>(2), 2);
 }
 
 BOOST_AUTO_TEST_CASE(DecodeRepeatedFragment)
@@ -361,7 +367,7 @@ BOOST_AUTO_TEST_CASE(DecodeIgnoredHeader)
 
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(1, packet.count<FragIndexField>());
 }
@@ -395,13 +401,24 @@ BOOST_AUTO_TEST_CASE(DecodeBareNetworkLayerPacket)
 
   Packet packet;
   Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_CHECK_NO_THROW(packet.wireDecode(wire));
+  packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
 
-  Block encoded;
-  BOOST_CHECK_NO_THROW(encoded = packet.wireEncode());
+  Block encoded = packet.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(inputBlock, inputBlock + sizeof(inputBlock),
                                 encoded.begin(), encoded.end());
+}
+
+BOOST_AUTO_TEST_CASE(DecodeSeqNum)
+{
+  Packet packet;
+
+  // Sequence number is fixed-width, not NonNegativeInteger
+  packet.wireDecode("640A 5104A4A5A6A7 5002FFFF"_block);
+  BOOST_CHECK_THROW(packet.get<SequenceField>(), ndn::tlv::Error);
+
+  packet.wireDecode("640E 5108A0A1A2A3A4A5A6A7 5002FFFF"_block);
+  BOOST_CHECK_EQUAL(packet.get<SequenceField>(), 0xA0A1A2A3A4A5A6A7);
 }
 
 BOOST_AUTO_TEST_CASE(DecodeUnrecognizedTlvType)
@@ -432,16 +449,14 @@ BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, ndn::tests::IdentityManagement
                                                 time::fromIsoString("20181124T235959")));
   pa.toData(m_keyChain, signingWithSha256(), 1);
   PrefixAnnouncementHeader pah0(pa);
-  BOOST_CHECK_NO_THROW(packet0.add<PrefixAnnouncementField>(pah0));
-  Block encoded;
-  BOOST_CHECK_NO_THROW(encoded = packet0.wireEncode());
+  packet0.add<PrefixAnnouncementField>(pah0);
+  Block encoded = packet0.wireEncode();
 
   // check decoding
   Packet packet1;
-  BOOST_CHECK_NO_THROW(packet1.wireDecode(encoded));
+  packet1.wireDecode(encoded);
   BOOST_CHECK_EQUAL(true, packet1.has<PrefixAnnouncementField>());
-  PrefixAnnouncementHeader pah1;
-  BOOST_CHECK_NO_THROW(pah1 = packet1.get<PrefixAnnouncementField>());
+  PrefixAnnouncementHeader pah1 = packet1.get<PrefixAnnouncementField>();
   BOOST_CHECK_EQUAL(pah1.getPrefixAnn()->getAnnouncedName(), "/net/example");
 }
 
