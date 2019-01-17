@@ -52,16 +52,7 @@ Dispatcher::Dispatcher(Face& face, KeyChain& keyChain,
 {
 }
 
-Dispatcher::~Dispatcher()
-{
-  std::vector<Name> topPrefixNames;
-  std::transform(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(), std::back_inserter(topPrefixNames),
-                 [] (const auto& entry) { return entry.first; });
-
-  for (const auto& name : topPrefixNames) {
-    removeTopPrefix(name);
-  }
-}
+Dispatcher::~Dispatcher() = default;
 
 void
 Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
@@ -329,7 +320,7 @@ Dispatcher::addNotificationStream(const PartialName& relPrefix)
 void
 Dispatcher::postNotification(const Block& notification, const PartialName& relPrefix)
 {
-  if (m_topLevelPrefixes.empty() || m_topLevelPrefixes.size() > 1) {
+  if (m_topLevelPrefixes.size() != 1) {
     NDN_LOG_WARN("postNotification: no top-level prefix or too many top-level prefixes");
     return;
   }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018, Regents of the University of California,
+ * Copyright (c) 2013-2019, Regents of the University of California,
  *                          Colorado State University,
  *                          University Pierre & Marie Curie, Sorbonne University.
  *
@@ -33,6 +33,8 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/range/adaptor/map.hpp>
+
 #include <cmath>
 
 namespace ndn {
@@ -102,10 +104,10 @@ SegmentFetcher::stop()
     return;
   }
 
-  for (const auto& pendingSegment : m_pendingSegments) {
-    m_face.removePendingInterest(pendingSegment.second.id);
-    if (pendingSegment.second.timeoutEvent) {
-      m_scheduler.cancelEvent(pendingSegment.second.timeoutEvent);
+  for (const auto& pendingSegment : m_pendingSegments | boost::adaptors::map_values) {
+    m_face.removePendingInterest(pendingSegment.id);
+    if (pendingSegment.timeoutEvent) {
+      m_scheduler.cancelEvent(pendingSegment.timeoutEvent);
     }
   }
   m_face.getIoService().post([self = std::move(m_this)] {});

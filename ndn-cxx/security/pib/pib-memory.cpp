@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,8 @@
 #include "ndn-cxx/security/pib/pib-memory.hpp"
 #include "ndn-cxx/security/pib/pib.hpp"
 #include "ndn-cxx/security/security-common.hpp"
+
+#include <boost/range/adaptor/map.hpp>
 
 namespace ndn {
 namespace security {
@@ -168,9 +170,9 @@ std::set<Name>
 PibMemory::getKeysOfIdentity(const Name& identity) const
 {
   std::set<Name> ids;
-  for (const auto& key : m_keys) {
-    if (identity == v2::extractIdentityFromKeyName(key.first)) {
-      ids.insert(key.first);
+  for (const auto& keyName : m_keys | boost::adaptors::map_keys) {
+    if (identity == v2::extractIdentityFromKeyName(keyName)) {
+      ids.insert(keyName);
     }
   }
   return ids;
