@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,9 +79,6 @@ CertificateCache::find(const Name& certPrefix) const
 const Certificate*
 CertificateCache::find(const Interest& interest) const
 {
-  if (interest.getChildSelector() >= 0) {
-    NDN_LOG_DEBUG("Certificate search using ChildSelector is not supported, searching as if selector not specified");
-  }
   if (interest.getName().size() > 0 && interest.getName()[-1].isImplicitSha256Digest()) {
     NDN_LOG_INFO("Certificate search using name with implicit digest is not yet supported");
   }

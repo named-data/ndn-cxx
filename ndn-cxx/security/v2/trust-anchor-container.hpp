@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -115,8 +115,6 @@ public:
    * @note The returned value may be invalidated after next call to one of `find` methods.
    *
    * @note Interest with implicit digest is not supported.
-   *
-   * @note ChildSelector is not supported.
    */
   const Certificate*
   find(const Interest& interest) const;
