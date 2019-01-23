@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,6 +28,8 @@ namespace ndn {
 namespace util {
 namespace scheduler {
 
+/** \brief Stores internal information about a scheduled event
+ */
 class EventInfo : noncopyable
 {
 public:
@@ -51,6 +53,12 @@ public:
   EventQueue::const_iterator queueIt;
 };
 
+EventId::EventId(Scheduler& sched, weak_ptr<EventInfo> info)
+  : CancelHandle([&sched, info] { sched.cancelImpl(info.lock()); })
+  , m_info(std::move(info))
+{
+}
+
 EventId::operator bool() const noexcept
 {
   auto sp = m_info.lock();
@@ -62,6 +70,12 @@ EventId::operator==(const EventId& other) const noexcept
 {
   return (!*this && !other) ||
          !(m_info.owner_before(other.m_info) || other.m_info.owner_before(m_info));
+}
+
+void
+EventId::reset() noexcept
+{
+  *this = {};
 }
 
 std::ostream&
@@ -97,15 +111,14 @@ Scheduler::scheduleEvent(time::nanoseconds after, const EventCallback& callback)
     this->scheduleNext();
   }
 
-  return EventId(*i);
+  return EventId(*this, *i);
 }
 
 void
-Scheduler::cancelEvent(const EventId& eventId)
+Scheduler::cancelImpl(const shared_ptr<EventInfo>& info)
 {
-  shared_ptr<EventInfo> info = eventId.m_info.lock();
   if (info == nullptr || info->isExpired) {
-    return; // event already expired or cancelled
+    return;
   }
 
   if (info->queueIt == m_queue.begin()) {

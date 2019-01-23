@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,7 @@
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
-#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
+#include "ndn-cxx/util/scheduler.hpp"
 
 namespace ndn {
 
@@ -74,15 +74,10 @@ public:
   void
   setData(const Data& data);
 
-  /** @brief Set eventId for the markStale event.
+  /** @brief Schedule an event to mark this entry as non-fresh.
    */
   void
-  setMarkStaleEventId(unique_ptr<util::scheduler::ScopedEventId> eventId);
-
-  /** @brief Disable the data from satisfying interest with MustBeFresh
-   */
-  void
-  markStale();
+  scheduleMarkStale(util::Scheduler& sched, time::nanoseconds after);
 
   /** @brief Check if the data can satisfy an interest with MustBeFresh
    */
@@ -96,7 +91,7 @@ private:
   shared_ptr<const Data> m_dataPacket;
 
   bool m_isFresh;
-  unique_ptr<util::scheduler::ScopedEventId> m_markStaleEventId;
+  util::scheduler::ScopedEventId m_markStaleEventId;
 };
 
 } // namespace ndn

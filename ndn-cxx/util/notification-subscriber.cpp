@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2018 Regents of the University of California,
+ * Copyright (c) 2014-2019 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -42,7 +42,6 @@ NotificationSubscriberBase::NotificationSubscriberBase(Face& face, const Name& p
   , m_lastNackSequenceNum(std::numeric_limits<uint64_t>::max())
   , m_attempts(1)
   , m_scheduler(face.getIoService())
-  , m_nackEvent(m_scheduler)
   , m_lastInterestId(nullptr)
   , m_interestLifetime(interestLifetime)
 {

@@ -25,16 +25,16 @@ namespace ndn {
 namespace detail {
 
 CancelHandle::CancelHandle(function<void()> cancel)
-  : doCancel(std::move(cancel))
+  : m_cancel(std::move(cancel))
 {
 }
 
 void
-CancelHandle::cancel()
+CancelHandle::cancel() const
 {
-  if (doCancel != nullptr) {
-    doCancel();
-    doCancel = nullptr;
+  if (m_cancel != nullptr) {
+    m_cancel();
+    m_cancel = nullptr;
   }
 }
 

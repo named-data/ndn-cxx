@@ -104,7 +104,6 @@ private:
 
 NetworkMonitorImplOsx::NetworkMonitorImplOsx(boost::asio::io_service& io)
   : m_scheduler(io)
-  , m_cfLoopEvent(m_scheduler)
   , m_context{0, this, nullptr, nullptr, nullptr}
   , m_scStore(SCDynamicStoreCreate(nullptr, CFSTR("net.named-data.ndn-cxx.NetworkMonitor"),
                                    &NetworkMonitorImplOsx::onConfigChanged, &m_context))

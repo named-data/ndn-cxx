@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_UTIL_SCHEDULER_HPP
 
 #include "ndn-cxx/detail/asio-fwd.hpp"
+#include "ndn-cxx/detail/cancel-handle.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 #include <boost/system/error_code.hpp>
@@ -37,40 +38,47 @@ class SteadyTimer;
 
 namespace scheduler {
 
-/**
- * \brief Function to be invoked when a scheduled event expires
+class Scheduler;
+class EventInfo;
+
+/** \brief Function to be invoked when a scheduled event expires
  */
 using EventCallback = std::function<void()>;
 
-/**
- * \brief Stores internal information about a scheduled event
+/** \brief A handle of scheduled event.
+ *
+ *  \code
+ *  EventId eid = scheduler.scheduleEvent(10_ms, [] { doSomething(); });
+ *  eid.cancel(); // cancel the event
+ *  \endcode
+ *
+ *  \note Canceling an expired (executed) or canceled event has no effect.
+ *  \warning Canceling an event after the scheduler has been destructed may trigger undefined
+ *           behavior.
  */
-class EventInfo;
-
-/**
- * \brief Identifies a scheduled event
- */
-class EventId
+class EventId : public ndn::detail::CancelHandle
 {
 public:
-  /**
-   * \brief Constructs an empty EventId
-   * \note EventId is implicitly convertible from nullptr.
+  /** \brief Constructs an empty EventId
    */
-  constexpr
-  EventId(std::nullptr_t = nullptr) noexcept
+  EventId() noexcept = default;
+
+  /** \brief Allow implicit conversion from nullptr.
+   */
+  [[deprecated]]
+  EventId(std::nullptr_t) noexcept
   {
   }
 
-  /**
-   * \retval true The event is valid.
-   * \retval false This EventId is empty, or the event is expired or cancelled.
+  /** \brief Determine whether the event is valid.
+   *  \retval true The event is valid.
+   *  \retval false This EventId is empty, or the event is expired or cancelled.
    */
   explicit
   operator bool() const noexcept;
 
-  /**
-   * \return whether this and other refer to the same event, or are both empty/expired/cancelled
+  /** \brief Determine whether this and other refer to the same event, or are both
+   *         empty/expired/cancelled.
    */
   bool
   operator==(const EventId& other) const noexcept;
@@ -81,23 +89,14 @@ public:
     return !this->operator==(other);
   }
 
-  /**
-   * \brief clear this EventId
-   * \note This does not cancel the event.
-   * \post !(*this)
+  /** \brief Clear this EventId without canceling.
+   *  \post !(*this)
    */
   void
-  reset() noexcept
-  {
-    m_info.reset();
-  }
+  reset() noexcept;
 
 private:
-  explicit
-  EventId(weak_ptr<EventInfo> info) noexcept
-    : m_info(std::move(info))
-  {
-  }
+  EventId(Scheduler& sched, weak_ptr<EventInfo> info);
 
 private:
   weak_ptr<EventInfo> m_info;
@@ -109,6 +108,38 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const EventId& eventId);
 
+/** \brief A scoped handle of scheduled event.
+ *
+ *  Upon destruction of this handle, the event is canceled automatically.
+ *  Most commonly, the application keeps a ScopedEventId as a class member field, so that it can
+ *  cleanup its event when the class instance is destructed.
+ *
+ *  \code
+ *  {
+ *    ScopedEventId eid = scheduler.scheduleEvent(10_ms, [] { doSomething(); });
+ *  } // eid goes out of scope, canceling the event
+ *  \endcode
+ *
+ *  \note Canceling an expired (executed) or canceled event has no effect.
+ *  \warning Canceling an event after the scheduler has been destructed may trigger undefined
+ *           behavior.
+ */
+class ScopedEventId : public ndn::detail::ScopedCancelHandle
+{
+public:
+  using ScopedCancelHandle::ScopedCancelHandle;
+
+  ScopedEventId() noexcept = default;
+
+  /** \deprecated Scheduler argument is no longer necessary. Use default construction instead.
+   */
+  [[deprecated]]
+  explicit
+  ScopedEventId(Scheduler& scheduler) noexcept
+  {
+  }
+};
+
 class EventQueueCompare
 {
 public:
@@ -118,8 +149,7 @@ public:
 
 using EventQueue = std::multiset<shared_ptr<EventInfo>, EventQueueCompare>;
 
-/**
- * \brief Generic scheduler
+/** \brief Generic scheduler
  */
 class Scheduler : noncopyable
 {
@@ -129,37 +159,40 @@ public:
 
   ~Scheduler();
 
-  /**
-   * \brief Schedule a one-time event after the specified delay
-   * \return EventId that can be used to cancel the scheduled event
+  /** \brief Schedule a one-time event after the specified delay
+   *  \return EventId that can be used to cancel the scheduled event
    */
   EventId
   scheduleEvent(time::nanoseconds after, const EventCallback& callback);
 
-  /**
-   * \brief Cancel a scheduled event
+  /** \brief Cancel a scheduled event
+   *
+   *  You may also invoke `eid.cancel()`
    */
   void
-  cancelEvent(const EventId& eventId);
+  cancelEvent(const EventId& eid)
+  {
+    eid.cancel();
+  }
 
-  /**
-   * \brief Cancel all scheduled events
+  /** \brief Cancel all scheduled events
    */
   void
   cancelAllEvents();
 
 private:
-  /**
-   * \brief Schedule the next event on the deadline timer
+  void
+  cancelImpl(const shared_ptr<EventInfo>& info);
+
+  /** \brief Schedule the next event on the deadline timer
    */
   void
   scheduleNext();
 
-  /**
-   * \brief Execute expired events
-   * \note If an event callback throws, the exception is propagated to the thread running the
-   *       io_service. In case there are other expired events, they will be processed in the next
-   *       invocation of this method.
+  /** \brief Execute expired events
+   *
+   *  If an event callback throws, the exception is propagated to the thread running the io_service.
+   *  In case there are other expired events, they will be processed in the next invocation.
    */
   void
   executeEvent(const boost::system::error_code& code);
@@ -168,6 +201,8 @@ private:
   unique_ptr<detail::SteadyTimer> m_timer;
   EventQueue m_queue;
   bool m_isEventExecuting;
+
+  friend EventId;
 };
 
 } // namespace scheduler

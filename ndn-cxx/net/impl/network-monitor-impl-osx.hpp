@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,6 @@
 
 #include "ndn-cxx/detail/cf-releaser-osx.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
-#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SystemConfiguration.h>

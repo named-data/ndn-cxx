@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -186,9 +186,7 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
   m_nPackets++;
   entry->setData(data);
   if (m_scheduler != nullptr && mustBeFreshProcessingWindow > ZERO_WINDOW) {
-    auto eventId = make_unique<util::scheduler::ScopedEventId>(*m_scheduler);
-    *eventId = m_scheduler->scheduleEvent(mustBeFreshProcessingWindow, [entry] { entry->markStale(); });
-    entry->setMarkStaleEventId(std::move(eventId));
+    entry->scheduleMarkStale(*m_scheduler, mustBeFreshProcessingWindow);
   }
   m_cache.insert(entry);
 

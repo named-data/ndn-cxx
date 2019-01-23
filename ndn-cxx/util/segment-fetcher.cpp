@@ -257,8 +257,7 @@ SegmentFetcher::afterSegmentReceivedCb(const Interest& origInterest, const Data&
   afterSegmentReceived(data);
 
   // Cancel timeout event
-  m_scheduler.cancelEvent(pendingSegmentIt->second.timeoutEvent);
-  pendingSegmentIt->second.timeoutEvent = nullptr;
+  pendingSegmentIt->second.timeoutEvent.cancel();
 
   m_validator.validate(data,
                        bind(&SegmentFetcher::afterValidationSuccess, this, _1, origInterest,
@@ -403,8 +402,7 @@ SegmentFetcher::afterNackOrTimeout(const Interest& origInterest)
   }
 
   // Cancel timeout event and set status to InRetxQueue
-  m_scheduler.cancelEvent(pendingSegmentIt->second.timeoutEvent);
-  pendingSegmentIt->second.timeoutEvent = nullptr;
+  pendingSegmentIt->second.timeoutEvent.cancel();
   pendingSegmentIt->second.state = SegmentState::InRetxQueue;
 
   m_rttEstimator.backoffRto();

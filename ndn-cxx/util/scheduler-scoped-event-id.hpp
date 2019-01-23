@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,76 +22,8 @@
 #ifndef NDN_UTIL_SCHEDULER_SCOPED_EVENT_ID_HPP
 #define NDN_UTIL_SCHEDULER_SCOPED_EVENT_ID_HPP
 
+#pragma message("scheduler-scoped-event-id.hpp has been combined into scheduler.hpp")
+
 #include "ndn-cxx/util/scheduler.hpp"
-
-namespace ndn {
-namespace util {
-namespace scheduler {
-
-/** \brief Event that is automatically cancelled upon destruction.
- */
-class ScopedEventId
-{
-public:
-  /** \brief Construct ScopedEventId tied to the specified scheduler.
-   *  \param scheduler Scheduler to which the event is tied.  Behavior is undefined if
-   *                   \p scheduler is destructed before an uncanceled ScopedEventId.
-   */
-  explicit
-  ScopedEventId(Scheduler& scheduler) noexcept;
-
-  ScopedEventId(const ScopedEventId&) = delete;
-
-  ScopedEventId&
-  operator=(const ScopedEventId&) = delete;
-
-  /** \brief Move constructor.
-   */
-  ScopedEventId(ScopedEventId&&) noexcept;
-
-  /** \brief Move assignment operator.
-   */
-  ScopedEventId&
-  operator=(ScopedEventId&&) noexcept;
-
-  /** \brief Assign an event.
-   *
-   *  If a different event has been assigned to this instance previously,
-   *  that event will be cancelled immediately.
-   *
-   *  \note The caller should ensure that this ScopedEventId is tied to the correct Scheduler.
-   *        Behavior is undefined when assigning an event scheduled in another Scheduler instance.
-   */
-  ScopedEventId&
-  operator=(EventId event);
-
-  /** \brief Destructor, automatically cancels the event.
-   */
-  ~ScopedEventId();
-
-  /** \brief Manually cancel the event.
-   */
-  void
-  cancel();
-
-  /** \brief Release the event so that it won't be canceled when this ScopedEventId is destructed.
-   */
-  void
-  release() noexcept;
-
-private:
-  Scheduler* m_scheduler; // pointer to allow move semantics
-  EventId m_event;
-};
-
-inline
-ScopedEventId::ScopedEventId(ScopedEventId&&) noexcept = default;
-
-inline ScopedEventId&
-ScopedEventId::operator=(ScopedEventId&&) noexcept = default;
-
-} // namespace scheduler
-} // namespace util
-} // namespace ndn
 
 #endif // NDN_UTIL_SCHEDULER_SCOPED_EVENT_ID_HPP

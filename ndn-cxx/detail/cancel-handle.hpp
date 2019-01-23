@@ -32,18 +32,18 @@ namespace detail {
 class CancelHandle
 {
 public:
+  CancelHandle() noexcept = default;
+
   explicit
-  CancelHandle(function<void()> cancel = nullptr);
+  CancelHandle(function<void()> cancel);
 
   /** \brief Cancel the operation.
-   *  \warning Cancelling the same operation more than once, using same or different CancelHandle or
-   *           ScopedCancelHandle, may trigger undefined behavior.
    */
   void
-  cancel();
+  cancel() const;
 
-protected:
-  function<void()> doCancel;
+private:
+  mutable function<void()> m_cancel;
 };
 
 /** \brief Cancels an operation automatically upon destruction.
@@ -51,7 +51,7 @@ protected:
 class ScopedCancelHandle
 {
 public:
-  ScopedCancelHandle() = default;
+  ScopedCancelHandle() noexcept = default;
 
   /** \brief Implicit constructor from CancelHandle.
    */

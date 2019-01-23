@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,7 +67,6 @@ public:
   Impl(Face& face)
     : m_face(face)
     , m_scheduler(m_face.getIoService())
-    , m_processEventsTimeoutEvent(m_scheduler)
   {
     auto postOnEmptyPitOrNoRegisteredPrefixes = [this] {
       this->m_face.getIoService().post([this] { this->onEmptyPitOrNoRegisteredPrefixes(); });

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/util/scheduler.hpp"
-#include "ndn-cxx/util/scheduler-scoped-event-id.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/unit-test-time-fixture.hpp"
@@ -235,8 +234,7 @@ BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
 BOOST_AUTO_TEST_CASE(CancelAllWithScopedEventId) // Bug 3691
 {
   Scheduler sched(io);
-  ScopedEventId eid(sched);
-  eid = sched.scheduleEvent(10_ms, []{});
+  ScopedEventId eid = sched.scheduleEvent(10_ms, []{});
   sched.cancelAllEvents();
   eid.cancel(); // should not crash
 
@@ -253,10 +251,7 @@ using scheduler::EventId;
 BOOST_AUTO_TEST_CASE(ConstructEmpty)
 {
   EventId eid;
-  eid = nullptr;
-  EventId eid2(nullptr);
-
-  BOOST_CHECK(!eid && !eid2);
+  BOOST_CHECK(!eid);
 }
 
 BOOST_AUTO_TEST_CASE(Compare)
@@ -264,14 +259,10 @@ BOOST_AUTO_TEST_CASE(Compare)
   EventId eid, eid2;
   BOOST_CHECK_EQUAL(eid == eid2, true);
   BOOST_CHECK_EQUAL(eid != eid2, false);
-  BOOST_CHECK_EQUAL(eid == nullptr, true);
-  BOOST_CHECK_EQUAL(eid != nullptr, false);
 
   eid = scheduler.scheduleEvent(10_ms, []{});
   BOOST_CHECK_EQUAL(eid == eid2, false);
   BOOST_CHECK_EQUAL(eid != eid2, true);
-  BOOST_CHECK_EQUAL(eid == nullptr, false);
-  BOOST_CHECK_EQUAL(eid != nullptr, true);
 
   eid2 = eid;
   BOOST_CHECK_EQUAL(eid, eid2);
@@ -309,7 +300,6 @@ BOOST_AUTO_TEST_CASE(DuringCallback)
 
     // eid is "expired" during callback execution
     BOOST_CHECK(!eid);
-    BOOST_CHECK(eid == nullptr);
     BOOST_CHECK_NE(eid, eid2);
 
     scheduler.cancelEvent(eid2);
@@ -326,7 +316,6 @@ BOOST_AUTO_TEST_CASE(Reset)
   EventId eid = scheduler.scheduleEvent(10_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });
   eid.reset();
   BOOST_CHECK(!eid);
-  BOOST_CHECK(eid == nullptr);
 
   this->advanceClocks(6_ms, 2);
   BOOST_CHECK(isCallbackInvoked);
@@ -354,8 +343,7 @@ BOOST_AUTO_TEST_CASE(Destruct)
 {
   int hit = 0;
   {
-    ScopedEventId se(scheduler);
-    se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
   BOOST_CHECK_EQUAL(hit, 0);
@@ -364,8 +352,7 @@ BOOST_AUTO_TEST_CASE(Destruct)
 BOOST_AUTO_TEST_CASE(Assign)
 {
   int hit1 = 0, hit2 = 0;
-  ScopedEventId se1(scheduler);
-  se1 = scheduler.scheduleEvent(10_ms, [&] { ++hit1; });
+  ScopedEventId se1 = scheduler.scheduleEvent(10_ms, [&] { ++hit1; });
   se1 = scheduler.scheduleEvent(10_ms, [&] { ++hit2; });
   this->advanceClocks(1_ms, 15);
   BOOST_CHECK_EQUAL(hit1, 0);
@@ -376,8 +363,7 @@ BOOST_AUTO_TEST_CASE(Release)
 {
   int hit = 0;
   {
-    ScopedEventId se(scheduler);
-    se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
     se.release();
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
@@ -389,17 +375,15 @@ BOOST_AUTO_TEST_CASE(Move)
   int hit = 0;
   unique_ptr<ScopedEventId> se2;
   {
-    ScopedEventId se(scheduler);
-    se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
     se2 = make_unique<ScopedEventId>(std::move(se)); // move constructor
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
   BOOST_CHECK_EQUAL(hit, 1);
 
-  ScopedEventId se3(scheduler);
+  ScopedEventId se3;
   {
-    ScopedEventId se(scheduler);
-    se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
     se3 = std::move(se); // move assignment
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);

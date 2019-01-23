@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@ void
 InMemoryStorageEntry::release()
 {
   m_dataPacket.reset();
-  m_markStaleEventId.reset();
+  m_markStaleEventId.cancel();
 }
 
 void
@@ -43,15 +43,9 @@ InMemoryStorageEntry::setData(const Data& data)
 }
 
 void
-InMemoryStorageEntry::setMarkStaleEventId(unique_ptr<util::scheduler::ScopedEventId> markStaleEventId)
+InMemoryStorageEntry::scheduleMarkStale(util::Scheduler& sched, time::nanoseconds after)
 {
-  m_markStaleEventId = std::move(markStaleEventId);
-}
-
-void
-InMemoryStorageEntry::markStale()
-{
-  m_isFresh = false;
+  m_markStaleEventId = sched.scheduleEvent(after, [this] { m_isFresh = false; });
 }
 
 } // namespace ndn
