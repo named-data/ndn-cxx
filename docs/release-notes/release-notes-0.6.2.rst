@@ -3,11 +3,6 @@ ndn-cxx version 0.6.2
 
 Release date: May 4, 2018
 
-Note that this is the last release that encodes to [NDN packet format version
-0.2.1](https://named-data.net/doc/NDN-packet-spec/0.2.1/). A future release will continue to
-decode v0.2.1 format, but will encode to [v0.3
-format](https://named-data.net/doc/NDN-packet-spec/0.3/).
-
 New features:
 ^^^^^^^^^^^^^
 

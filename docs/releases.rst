@@ -5,6 +5,7 @@ ndn-cxx Versions
    :hidden:
    :maxdepth: 1
 
+   release-notes/release-notes-0.6.5
    release-notes/release-notes-0.6.3
    release-notes/release-notes-0.6.2
    release-notes/release-notes-0.6.1
@@ -20,6 +21,12 @@ ndn-cxx Versions
    release-notes/release-notes-0.3.0
    release-notes/release-notes-0.2.0
    release-notes/release-notes-0.1.0
+
+* **ndn-cxx version 0.6.5**
+  (:doc:`Release Notes <release-notes/release-notes-0.6.5>`, `Documentation <https://named-data.net/doc/ndn-cxx/0.6.5/>`__)
+
+  `src (git) <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.6.5>`__,
+  `src (tarball) <https://named-data.net/downloads/nfd-0.6.5.tar.bz2>`__ (`checksum <https://named-data.net/downloads/nfd-0.6.5.tar.bz2.sha256>`__)
 
 * **ndn-cxx version 0.6.3**
   (:doc:`Release Notes <release-notes/release-notes-0.6.3>`, `Documentation <https://named-data.net/doc/ndn-cxx/0.6.3/>`__)
