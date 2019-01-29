@@ -173,20 +173,20 @@ Face::getTransport()
   return m_transport;
 }
 
-const PendingInterestId*
+PendingInterestHandle
 Face::expressInterest(const Interest& interest,
                       const DataCallback& afterSatisfied,
                       const NackCallback& afterNacked,
                       const TimeoutCallback& afterTimeout)
 {
-  shared_ptr<Interest> interest2 = make_shared<Interest>(interest);
+  auto interest2 = make_shared<Interest>(interest);
   interest2->getNonce();
 
   IO_CAPTURE_WEAK_IMPL(post) {
     impl->asyncExpressInterest(interest2, afterSatisfied, afterNacked, afterTimeout);
   } IO_CAPTURE_WEAK_IMPL_END
 
-  return reinterpret_cast<const PendingInterestId*>(interest2.get());
+  return PendingInterestHandle(*this, reinterpret_cast<const PendingInterestId*>(interest2.get()));
 }
 
 void
@@ -411,6 +411,12 @@ Face::onReceiveElement(const Block& blockFromDaemon)
       break;
     }
   }
+}
+
+PendingInterestHandle::PendingInterestHandle(Face& face, const PendingInterestId* id)
+  : CancelHandle([&face, id] { face.removePendingInterest(id); })
+  , m_id(id)
+{
 }
 
 RegisteredPrefixHandle::RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id)

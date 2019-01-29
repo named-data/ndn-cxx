@@ -37,6 +37,7 @@ namespace ndn {
 class Transport;
 
 class PendingInterestId;
+class PendingInterestHandle;
 class RegisteredPrefixId;
 class RegisteredPrefixHandle;
 class InterestFilterId;
@@ -231,8 +232,9 @@ public: // consumer
    * @param afterTimeout function to be invoked if neither Data nor Network NACK
    *                     is returned within InterestLifetime
    * @throw OversizedPacketError encoded Interest size exceeds MAX_NDN_PACKET_SIZE
+   * @return A handle for canceling the pending Interest.
    */
-  const PendingInterestId*
+  PendingInterestHandle
   expressInterest(const Interest& interest,
                   const DataCallback& afterSatisfied,
                   const NackCallback& afterNacked,
@@ -240,8 +242,7 @@ public: // consumer
 
   /**
    * @brief Cancel previously expressed Interest
-   *
-   * @param pendingInterestId The ID returned from expressInterest.
+   * @param pendingInterestId a handle returned by expressInterest.
    */
   void
   removePendingInterest(const PendingInterestId* pendingInterestId);
@@ -363,7 +364,7 @@ public: // producer
    * unsetInterestFilter will use the same credentials as original
    * setInterestFilter/registerPrefix command
    *
-   * @param registeredPrefixId a handle returned from registerPrefix
+   * @param registeredPrefixId a handle returned by registerPrefix
    */
   void
   unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
@@ -374,7 +375,7 @@ public: // producer
    * This method always succeeds and will **NOT** send any request to the connected
    * forwarder.
    *
-   * @param interestFilterId a handle returned from setInterestFilter.
+   * @param interestFilterId a handle returned by setInterestFilter.
    */
   void
   unsetInterestFilter(const InterestFilterId* interestFilterId);
@@ -388,7 +389,7 @@ public: // producer
    * If registeredPrefixId was obtained using setInterestFilter, the corresponding
    * InterestFilter will be unset too.
    *
-   * @param registeredPrefixId a handle returned from registerPrefix
+   * @param registeredPrefixId a handle returned by registerPrefix
    * @param onSuccess          Callback to be called when operation succeeds
    * @param onFailure          Callback to be called when operation fails
    */
@@ -534,16 +535,67 @@ private:
   shared_ptr<Impl> m_impl;
 };
 
+/** \brief A handle of pending Interest.
+ *
+ *  \code
+ *  PendingInterestHandle hdl = face.expressInterest(interest, satisfyCb, nackCb, timeoutCb);
+ *  hdl.cancel(); // cancel the pending Interest
+ *  \endcode
+ *
+ *  \warning Canceling the same pending Interest more than once, using same or different
+ *           PendingInterestHandle or ScopedPendingInterestHandle, may trigger undefined behavior.
+ *  \warning Canceling a pending Interest after the face has been destructed may trigger undefined
+ *           behavior.
+ */
+class PendingInterestHandle : public detail::CancelHandle
+{
+public:
+  PendingInterestHandle() noexcept = default;
+
+  PendingInterestHandle(Face& face, const PendingInterestId* id);
+
+  operator const PendingInterestId*() const noexcept
+  {
+    return m_id;
+  }
+
+private:
+  const PendingInterestId* m_id = nullptr;
+};
+
+/** \brief A scoped handle of pending Interest.
+ *
+ *  Upon destruction of this handle, the pending Interest is canceled automatically.
+ *  Most commonly, the application keeps a ScopedPendingInterestHandle as a class member field,
+ *  so that it can cleanup its pending Interest when the class instance is destructed.
+ *
+ *  \code
+ *  {
+ *    ScopedPendingInterestHandle hdl = face.expressInterest(interest, satisfyCb, nackCb, timeoutCb);
+ *  } // hdl goes out of scope, canceling the pending Interest
+ *  \endcode
+ *
+ *  \warning Canceling the same pending Interest more than once, using same or different
+ *           PendingInterestHandle or ScopedPendingInterestHandle, may trigger undefined behavior.
+ *  \warning Canceling a pending Interest after the face has been destructed may trigger undefined
+ *           behavior.
+ */
+using ScopedPendingInterestHandle = detail::ScopedCancelHandle;
+
 /** \brief A handle of registered prefix.
  */
 class RegisteredPrefixHandle : public detail::CancelHandle
 {
 public:
-  RegisteredPrefixHandle() = default;
+  RegisteredPrefixHandle() noexcept
+  {
+    // This could have been '= default', but there's compiler bug in Apple clang 9.0.0,
+    // see https://stackoverflow.com/a/44693603
+  }
 
   RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id);
 
-  operator const RegisteredPrefixId*() const
+  operator const RegisteredPrefixId*() const noexcept
   {
     return m_id;
   }
@@ -600,11 +652,11 @@ using ScopedRegisteredPrefixHandle = detail::ScopedCancelHandle;
 class InterestFilterHandle : public detail::CancelHandle
 {
 public:
-  InterestFilterHandle() = default;
+  InterestFilterHandle() noexcept = default;
 
   InterestFilterHandle(Face& face, const InterestFilterId* id);
 
-  operator const InterestFilterId*() const
+  operator const InterestFilterId*() const noexcept
   {
     return m_id;
   }

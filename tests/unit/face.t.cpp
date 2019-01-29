@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(ExpressInterestEmptyNackCallback)
   } while (false));
 }
 
-BOOST_AUTO_TEST_CASE(RemovePendingInterest)
+BOOST_AUTO_TEST_CASE(RemovePendingInterestId)
 {
   const PendingInterestId* interestId =
     face.expressInterest(*makeInterest("/Hello/World", true, 50_ms),
@@ -277,6 +277,24 @@ BOOST_AUTO_TEST_CASE(RemovePendingInterest)
   advanceClocks(10_ms);
 
   face.removePendingInterest(interestId);
+  advanceClocks(10_ms);
+
+  face.receive(*makeData("/Hello/World/%21"));
+  advanceClocks(200_ms, 5);
+
+  // avoid "test case [...] did not check any assertions" message from Boost.Test
+  BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE(CancelPendingInterestHandle)
+{
+  auto hdl = face.expressInterest(*makeInterest("/Hello/World", true, 50_ms),
+                                  bind([] { BOOST_FAIL("Unexpected data"); }),
+                                  bind([] { BOOST_FAIL("Unexpected nack"); }),
+                                  bind([] { BOOST_FAIL("Unexpected timeout"); }));
+  advanceClocks(10_ms);
+
+  hdl.cancel();
   advanceClocks(10_ms);
 
   face.receive(*makeData("/Hello/World/%21"));
