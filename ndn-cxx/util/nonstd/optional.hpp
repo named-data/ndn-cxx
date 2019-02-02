@@ -30,6 +30,16 @@
 # define optional_CONFIG_SELECT_OPTIONAL  ( optional_HAVE_STD_OPTIONAL ? optional_OPTIONAL_STD : optional_OPTIONAL_NONSTD )
 #endif
 
+// Control presence of exception handling (try and auto discover):
+
+#ifndef optional_CONFIG_NO_EXCEPTIONS
+# if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
+#  define optional_CONFIG_NO_EXCEPTIONS  0
+# else
+#  define optional_CONFIG_NO_EXCEPTIONS  1
+# endif
+#endif
+
 // C++ language version detection (C++20 is speculative):
 // Note: VC14.0/1900 (VS2015) lacks too much from C++14.
 
@@ -184,7 +194,6 @@ namespace nonstd {
 #else // optional_USES_STD_OPTIONAL
 
 #include <cassert>
-#include <stdexcept>
 #include <utility>
 
 // optional-lite alignment configuration:
@@ -209,6 +218,8 @@ namespace nonstd {
 #elif defined(__GNUC__)
 # pragma GCC   diagnostic push
 # pragma GCC   diagnostic ignored "-Wundef"
+#elif defined(_MSC_VER )
+# pragma warning( push )
 #endif
 
 // half-open range [lo..hi):
@@ -250,12 +261,10 @@ namespace nonstd {
 #endif
 
 #if optional_BETWEEN(optional_COMPILER_MSVC_VERSION, 70, 140 )
-# pragma warning( push )
 # pragma warning( disable: 4345 )   // initialization behavior changed
 #endif
 
 #if optional_BETWEEN(optional_COMPILER_MSVC_VERSION, 70, 150 )
-# pragma warning( push )
 # pragma warning( disable: 4814 )   // in C++14 'constexpr' will not imply 'const'
 #endif
 
@@ -345,6 +354,12 @@ namespace nonstd {
 #endif
 
 // additional includes:
+
+#if optional_CONFIG_NO_EXCEPTIONS
+// already included: <cassert>
+#else
+# include <stdexcept>
+#endif
 
 #if optional_CPP11_OR_GREATER
 # include <functional>
@@ -722,12 +737,16 @@ const nullopt_t nullopt(( nullopt_t::init() ));
 
 /// optional access error
 
+#if ! optional_CONFIG_NO_EXCEPTIONS
+
 class bad_optional_access : public std::logic_error
 {
 public:
   explicit bad_optional_access()
   : logic_error( "bad optional access" ) {}
 };
+
+#endif //optional_CONFIG_NO_EXCEPTIONS
 
 /// optional
 
@@ -1183,17 +1202,23 @@ public:
 
     optional_constexpr14 value_type const & value() const optional_ref_qual
     {
+#if optional_CONFIG_NO_EXCEPTIONS
+        assert( has_value() );
+#else
         if ( ! has_value() )
             throw bad_optional_access();
-
+#endif
         return contained.value();
     }
 
     optional_constexpr14 value_type & value() optional_ref_qual
     {
+#if optional_CONFIG_NO_EXCEPTIONS
+        assert( has_value() );
+#else
         if ( ! has_value() )
             throw bad_optional_access();
-
+#endif
         return contained.value();
     }
 
@@ -1530,6 +1555,8 @@ public:
 # pragma clang diagnostic pop
 #elif defined(__GNUC__)
 # pragma GCC   diagnostic pop
+#elif defined(_MSC_VER )
+# pragma warning( pop )
 #endif
 
 #endif // optional_USES_STD_OPTIONAL

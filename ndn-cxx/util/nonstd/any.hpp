@@ -30,6 +30,16 @@
 # define any_CONFIG_SELECT_ANY  ( any_HAVE_STD_ANY ? any_ANY_STD : any_ANY_NONSTD )
 #endif
 
+// Control presence of exception handling (try and auto discover):
+
+#ifndef any_CONFIG_NO_EXCEPTIONS
+# if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
+#  define any_CONFIG_NO_EXCEPTIONS  0
+# else
+#  define any_CONFIG_NO_EXCEPTIONS  1
+# endif
+#endif
+
 // C++ language version detection (C++20 is speculative):
 // Note: VC14.0/1900 (VS2015) lacks too much from C++14.
 
@@ -169,7 +179,6 @@ namespace nonstd {
 
 #else // any_USES_STD_ANY
 
-#include <typeinfo>
 #include <utility>
 
 // Compiler versions:
@@ -253,7 +262,7 @@ namespace nonstd {
 
 #define any_HAVE_NODISCARD              any_CPP17_000
 
-// Presence of C++ library features:
+// Presence of C++ language features:
 
 #if any_HAVE_CONSTEXPR_11
 # define any_constexpr constexpr
@@ -286,6 +295,12 @@ namespace nonstd {
 #endif
 
 // additional includes:
+
+#if any_CONFIG_NO_EXCEPTIONS
+# include <cassert>
+#else
+# include <typeinfo>
+#endif
 
 #if ! any_HAVE_NULLPTR
 # include <cstddef>
@@ -342,6 +357,8 @@ template< class T > struct remove_reference<T&> { typedef T type; };
 
 } // namespace detail
 
+#if ! any_CONFIG_NO_EXCEPTIONS
+
 class bad_any_cast : public std::bad_cast
 {
 public:
@@ -354,6 +371,8 @@ public:
       return "any-lite: bad any_cast";
    }
 };
+
+#endif // any_CONFIG_NO_EXCEPTIONS
 
 class any
 {
@@ -572,10 +591,14 @@ any_nodiscard inline ValueType any_cast( any const & operand )
 {
    const ValueType * result = any_cast< typename detail::add_const< typename detail::remove_reference<ValueType>::type >::type >( &operand );
 
+#if any_CONFIG_NO_EXCEPTIONS
+   assert( result );
+#else
    if ( ! result )
    {
-      throw bad_any_cast();
+       throw bad_any_cast();
    }
+#endif
 
    return *result;
 }
@@ -590,10 +613,14 @@ any_nodiscard inline ValueType any_cast( any & operand )
 {
    const ValueType * result = any_cast< typename detail::remove_reference<ValueType>::type >( &operand );
 
+#if any_CONFIG_NO_EXCEPTIONS
+   assert( result );
+#else
    if ( ! result )
    {
-      throw bad_any_cast();
+       throw bad_any_cast();
    }
+#endif
 
    return *result;
 }
@@ -610,10 +637,14 @@ any_nodiscard inline ValueType any_cast( any && operand )
 {
    const ValueType * result = any_cast< typename detail::remove_reference<ValueType>::type >( &operand );
 
+#if any_CONFIG_NO_EXCEPTIONS
+   assert( result );
+#else
    if ( ! result )
    {
-      throw bad_any_cast();
+       throw bad_any_cast();
    }
+#endif
 
    return *result;
 }
