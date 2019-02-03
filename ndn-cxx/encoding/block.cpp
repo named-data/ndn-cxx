@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -245,23 +245,14 @@ Block::fromBuffer(const uint8_t* buf, size_t bufSize)
 
 // ---- wire format ----
 
-bool
-Block::hasWire() const
+void
+Block::reset() noexcept
 {
-  return m_buffer != nullptr && m_begin != m_end;
+  *this = {};
 }
 
 void
-Block::reset()
-{
-  this->resetWire();
-
-  m_type = std::numeric_limits<uint32_t>::max();
-  m_elements.clear();
-}
-
-void
-Block::resetWire()
+Block::resetWire() noexcept
 {
   m_buffer.reset(); // discard underlying buffer by resetting shared_ptr
   m_begin = m_end = m_valueBegin = m_valueEnd = {};
@@ -307,13 +298,13 @@ Block::size() const
 // ---- value ----
 
 const uint8_t*
-Block::value() const
+Block::value() const noexcept
 {
   return hasValue() ? &*m_valueBegin : nullptr;
 }
 
 size_t
-Block::value_size() const
+Block::value_size() const noexcept
 {
   return hasValue() ? static_cast<size_t>(m_valueEnd - m_valueBegin) : 0;
 }
@@ -444,7 +435,7 @@ Block::remove(uint32_t type)
 
   auto it = std::remove_if(m_elements.begin(), m_elements.end(),
                            [type] (const Block& subBlock) { return subBlock.type() == type; });
-  m_elements.resize(it - m_elements.begin());
+  m_elements.erase(it, m_elements.end());
 }
 
 Block::element_iterator

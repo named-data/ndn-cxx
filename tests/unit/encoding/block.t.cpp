@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,9 +50,10 @@ BOOST_AUTO_TEST_CASE(Empty)
 
 BOOST_AUTO_TEST_CASE(FromEncodingBuffer)
 {
-  const uint8_t VALUE[4] = {0x11, 0x12, 0x13, 0x14};
-
   EncodingBuffer encoder;
+  BOOST_CHECK_THROW(Block{encoder}, tlv::Error);
+
+  const uint8_t VALUE[] = {0x11, 0x12, 0x13, 0x14};
   size_t length = encoder.prependByteArray(VALUE, sizeof(VALUE));
   encoder.prependVarNumber(length);
   encoder.prependVarNumber(0xe0);
@@ -70,17 +71,10 @@ BOOST_AUTO_TEST_CASE(FromEncodingBuffer)
                                 VALUE, VALUE + sizeof(VALUE));
 }
 
-BOOST_AUTO_TEST_CASE(FromEmptyEncodingBuffer)
-{
-  EncodingBuffer encoder;
-  Block b;
-  BOOST_CHECK_THROW(b = Block(encoder), tlv::Error);
-}
-
 BOOST_AUTO_TEST_CASE(FromBlock)
 {
-  static uint8_t buffer[] = {0x80, 0x06, 0x81, 0x01, 0x01, 0x82, 0x01, 0x01};
-  Block block(buffer, sizeof(buffer));
+  const uint8_t BUFFER[] = {0x80, 0x06, 0x81, 0x01, 0x01, 0x82, 0x01, 0x01};
+  Block block(BUFFER, sizeof(BUFFER));
 
   Block derivedBlock(block, block.begin(), block.end());
   BOOST_CHECK_EQUAL(derivedBlock.wire(), block.wire()); // pointers should match
@@ -88,9 +82,9 @@ BOOST_AUTO_TEST_CASE(FromBlock)
 
   derivedBlock = Block(block, block.begin() + 2, block.begin() + 5);
   BOOST_CHECK(derivedBlock.begin() == block.begin() + 2);
-  BOOST_CHECK(derivedBlock == Block(buffer + 2, 3));
+  BOOST_CHECK(derivedBlock == Block(BUFFER + 2, 3));
 
-  Buffer otherBuffer(buffer, sizeof(buffer));
+  Buffer otherBuffer(BUFFER, sizeof(BUFFER));
   BOOST_CHECK_THROW(Block(block, otherBuffer.begin(), block.end()), std::invalid_argument);
   BOOST_CHECK_THROW(Block(block, block.begin(), otherBuffer.end()), std::invalid_argument);
   BOOST_CHECK_THROW(Block(block, otherBuffer.begin(), otherBuffer.end()), std::invalid_argument);
@@ -143,12 +137,41 @@ BOOST_AUTO_TEST_CASE(FromType)
   BOOST_CHECK_EQUAL(b1.empty(), false);
   BOOST_CHECK_EQUAL(b1.type(), 4);
   BOOST_CHECK_EQUAL(b1.size(), 2); // 1-octet TLV-TYPE and 1-octet TLV-LENGTH
+  BOOST_CHECK_EQUAL(b1.hasValue(), false);
   BOOST_CHECK_EQUAL(b1.value_size(), 0);
 
   Block b2(258);
+  BOOST_CHECK_EQUAL(b2.empty(), false);
   BOOST_CHECK_EQUAL(b2.type(), 258);
   BOOST_CHECK_EQUAL(b2.size(), 4); // 3-octet TLV-TYPE and 1-octet TLV-LENGTH
+  BOOST_CHECK_EQUAL(b2.hasValue(), false);
   BOOST_CHECK_EQUAL(b2.value_size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(FromTypeAndBuffer)
+{
+  const uint8_t VALUE[] = {0x11, 0x12, 0x13, 0x14};
+  auto bufferPtr = make_shared<Buffer>(VALUE, sizeof(VALUE));
+
+  Block b(42, bufferPtr);
+  BOOST_CHECK_EQUAL(b.empty(), false);
+  BOOST_CHECK_EQUAL(b.type(), 42);
+  BOOST_CHECK_EQUAL(b.size(), 6);
+  BOOST_CHECK_EQUAL(b.hasValue(), true);
+  BOOST_CHECK_EQUAL(b.value_size(), sizeof(VALUE));
+}
+
+BOOST_AUTO_TEST_CASE(FromTypeAndBlock)
+{
+  const uint8_t BUFFER[] = {0x80, 0x06, 0x81, 0x01, 0x01, 0x82, 0x01, 0x01};
+  Block nested(BUFFER, sizeof(BUFFER));
+
+  Block b(84, nested);
+  BOOST_CHECK_EQUAL(b.empty(), false);
+  BOOST_CHECK_EQUAL(b.type(), 84);
+  BOOST_CHECK_EQUAL(b.size(), 10);
+  BOOST_CHECK_EQUAL(b.hasValue(), true);
+  BOOST_CHECK_EQUAL(b.value_size(), sizeof(BUFFER));
 }
 
 BOOST_AUTO_TEST_CASE(FromStream)
