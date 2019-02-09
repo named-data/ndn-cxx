@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,6 +45,13 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK(!i.hasNonce());
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(!i.hasSelectors());
+  BOOST_CHECK(!i.hasParameters());
+  BOOST_CHECK(i.getParameters().empty());
+}
+
+BOOST_AUTO_TEST_CASE(DecodeNotInterest)
+{
+  BOOST_CHECK_THROW(Interest("4202CAFE"_block), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(EncodeDecode02Basic)
@@ -124,14 +131,14 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Basic)
                 0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, // GenericNameComponent
           0x0a, 0x04, // Nonce
                 0x01, 0x00, 0x00, 0x00,
-          0x23, 0x04, // Parameters
+          0x24, 0x04, // Parameters
                 0xc0, 0xc1, 0xc2, 0xc3};
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
   i1.setCanBePrefix(false);
   i1.setNonce(1);
-  i1.setParameters("2304C0C1C2C3"_block);
+  i1.setParameters("2404C0C1C2C3"_block);
   Block wire1 = i1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
 
@@ -143,7 +150,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Basic)
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i2.hasParameters());
-  BOOST_CHECK_EQUAL(i2.getParameters(), "2304C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i2.getParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK(i2.getPublisherPublicKeyLocator().empty());
 }
 
@@ -167,7 +174,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
                 0x4a, 0xcb, 0x1e, 0x4c,
           0x0c, 0x02, // Interest Lifetime
                 0x76, 0xa1,
-          0x23, 0x04, // Parameters
+          0x24, 0x04, // Parameters
                 0xc0, 0xc1, 0xc2, 0xc3};
   Interest i1;
   i1.setName("/local/ndn/prefix");
@@ -176,7 +183,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
   i1.setForwardingHint(DelegationList({{15893, "/H"}}));
   i1.setNonce(0x4c1ecb4a);
   i1.setInterestLifetime(30369_ms);
-  i1.setParameters("2304C0C1C2C3"_block);
+  i1.setParameters("2404C0C1C2C3"_block);
   i1.setMinSuffixComponents(1); // v0.2-only elements will not be encoded
   i1.setExclude(Exclude().excludeAfter(name::Component("J"))); // v0.2-only elements will not be encoded
   Block wire1 = i1.wireEncode();
@@ -190,7 +197,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
   BOOST_CHECK(i2.hasNonce());
   BOOST_CHECK_EQUAL(i2.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 30369_ms);
-  BOOST_CHECK_EQUAL(i2.getParameters(), "2304C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i2.getParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), -1); // Default because minSuffixComponents was not encoded
   BOOST_CHECK(i2.getExclude().empty()); // Exclude was not encoded
 }
@@ -206,7 +213,7 @@ protected:
     i.setNonce(0x03d645a8);
     i.setInterestLifetime(18554_ms);
     i.setPublisherPublicKeyLocator(Name("/K"));
-    i.setParameters("2304A0A1A2A3"_block);
+    i.setParameters("2404A0A1A2A3"_block);
   }
 
 protected:
@@ -261,41 +268,43 @@ BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
 {
   BOOST_CHECK_THROW(i.wireDecode(
     "0529 2100 0703080149 1200 1E0B(1F09 1E023E15 0703080148) "
-    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3"_block),
     tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode(
     "0529 0703080149 1200 2100 1E0B(1F09 1E023E15 0703080148) "
-    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3"_block),
     tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode(
     "0529 0703080149 2100 1E0B(1F09 1E023E15 0703080148) 1200 "
-    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3"_block),
     tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode(
     "0529 0703080149 2100 1200 0A044ACB1E4C "
-    "1E0B(1F09 1E023E15 0703080148) 0C0276A1 2201D6 2304C0C1C2C3"_block),
+    "1E0B(1F09 1E023E15 0703080148) 0C0276A1 2201D6 2404C0C1C2C3"_block),
     tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode(
     "0529 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
-    "0C0276A1 0A044ACB1E4C 2201D6 2304C0C1C2C3"_block),
+    "0C0276A1 0A044ACB1E4C 2201D6 2404C0C1C2C3"_block),
     tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode(
     "0529 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
-    "0A044ACB1E4C 2201D6 0C0276A1 2304C0C1C2C3"_block),
-    tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode(
-    "052F 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
-    "0A044ACB1E4C 0C0276A1 2201D6 2304C0C1C2C3 2304C0C1C2C3"_block),
+    "0A044ACB1E4C 2201D6 0C0276A1 2404C0C1C2C3"_block),
     tlv::Error);
 }
 
-BOOST_AUTO_TEST_CASE(HopLimitOutOfOrder)
+BOOST_AUTO_TEST_CASE(NonCriticalElementOutOfOrder)
 {
-  // HopLimit is non-critical, its out-of-order appearances are ignored
-  i.wireDecode("0514 0703080149 2201D6 2200 2304C0C1C2C3 22020101"_block);
+  // HopLimit
+  i.wireDecode("0514 0703080149 2201D6 2200 2404C0C1C2C3 22020101"_block);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
   // HopLimit=214 is not stored
-  BOOST_CHECK_EQUAL(i.getParameters(), "2304C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i.getParameters(), "2404C0C1C2C3"_block);
+
+  // Parameters
+  i.wireDecode("051F 0703080149 2100 1200 0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3 2401EE"_block);
+  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  BOOST_CHECK_EQUAL(i.hasParameters(), true);
+  BOOST_CHECK_EQUAL(i.getParameters(), "2404C0C1C2C3"_block);
 }
 
 BOOST_AUTO_TEST_CASE(NameMissing)
@@ -324,6 +333,12 @@ BOOST_AUTO_TEST_CASE(BadNonce)
   BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 0A00"_block), tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode("050A 0703080149 0A0304C263"_block), tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode("050C 0703080149 0A05EFA420B262"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(BadHopLimit)
+{
+  BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 2200"_block), tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode("0509 0703080149 22021356"_block), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
@@ -549,13 +564,13 @@ BOOST_AUTO_TEST_CASE(RefreshNonce)
 
 BOOST_AUTO_TEST_CASE(SetInterestLifetime)
 {
-  BOOST_CHECK_THROW(Interest("/A", time::milliseconds(-1)), std::invalid_argument);
+  BOOST_CHECK_THROW(Interest("/A", -1_ms), std::invalid_argument);
   BOOST_CHECK_NO_THROW(Interest("/A", 0_ms));
 
   Interest i("/local/ndn/prefix");
   i.setNonce(1);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK_THROW(i.setInterestLifetime(time::milliseconds(-1)), std::invalid_argument);
+  BOOST_CHECK_THROW(i.setInterestLifetime(-1_ms), std::invalid_argument);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   i.setInterestLifetime(0_ms);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 0_ms);
@@ -570,19 +585,19 @@ BOOST_AUTO_TEST_CASE(SetParameters)
 
   Interest i;
   BOOST_CHECK(!i.hasParameters());
-  i.setParameters("2300"_block);
+  i.setParameters("2400"_block);
   BOOST_CHECK(i.hasParameters());
   i.unsetParameters();
   BOOST_CHECK(!i.hasParameters());
 
-  i.setParameters("2301C0"_block); // Block overload
-  BOOST_CHECK_EQUAL(i.getParameters(), "2301C0"_block);
+  i.setParameters("2401C0"_block); // Block overload
+  BOOST_CHECK_EQUAL(i.getParameters(), "2401C0"_block);
   i.setParameters(PARAMETERS1, sizeof(PARAMETERS1)); // raw buffer overload
-  BOOST_CHECK_EQUAL(i.getParameters(), "2301C1"_block);
+  BOOST_CHECK_EQUAL(i.getParameters(), "2401C1"_block);
   i.setParameters(make_shared<Buffer>(PARAMETERS2, sizeof(PARAMETERS2))); // ConstBufferPtr overload
-  BOOST_CHECK_EQUAL(i.getParameters(), "2301C2"_block);
+  BOOST_CHECK_EQUAL(i.getParameters(), "2401C2"_block);
   i.setParameters("8001C1"_block); // Block of non-Parameters type
-  BOOST_CHECK_EQUAL(i.getParameters(), "23038001C1"_block);
+  BOOST_CHECK_EQUAL(i.getParameters(), "24038001C1"_block);
 }
 
 // ---- operators ----
@@ -649,11 +664,11 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a != b, false);
 
   // compare Parameters
-  a.setParameters("2304C0C1C2C3"_block);
+  a.setParameters("2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setParameters("2304C0C1C2C3"_block);
+  b.setParameters("2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,7 +48,7 @@ Interest::Interest(const Name& name, time::milliseconds lifetime)
   , m_isCanBePrefixSet(false)
   , m_interestLifetime(lifetime)
 {
-  if (lifetime < time::milliseconds::zero()) {
+  if (lifetime < 0_ms) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
   }
 
@@ -114,9 +114,8 @@ Interest::encode02(EncodingImpl<TAG>& encoder) const
 
   // InterestLifetime
   if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                                                  tlv::InterestLifetime,
-                                                  getInterestLifetime().count());
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::InterestLifetime,
+                                                  static_cast<uint64_t>(getInterestLifetime().count()));
   }
 
   // Nonce
@@ -174,7 +173,7 @@ Interest::encode03(EncodingImpl<TAG>& encoder) const
   totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
 
   // ForwardingHint
-  if (getForwardingHint().size() > 0) {
+  if (!getForwardingHint().empty()) {
     totalLength += getForwardingHint().wireEncode(encoder);
   }
 
@@ -254,7 +253,7 @@ Interest::decode02()
     ++element;
   }
   else {
-    m_selectors = Selectors();
+    m_selectors = {};
   }
 
   // Nonce
@@ -286,7 +285,7 @@ Interest::decode02()
     ++element;
   }
   else {
-    m_forwardingHint = DelegationList();
+    m_forwardingHint = {};
   }
 
   return element == m_wire.elements_end();
@@ -318,8 +317,8 @@ Interest::decode03()
   m_selectors = Selectors().setMaxSuffixComponents(1); // CanBePrefix=0
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
-  m_forwardingHint = DelegationList();
-  m_parameters = Block();
+  m_forwardingHint = {};
+  m_parameters = {};
 
   for (++element; element != m_wire.elements_end(); ++element) {
     switch (element->type()) {
@@ -387,7 +386,7 @@ Interest::decode03()
       }
       case tlv::Parameters: {
         if (lastElement >= 8) {
-          BOOST_THROW_EXCEPTION(Error("Parameters element is out of order"));
+          break; // Parameters is non-critical, ignore out-of-order appearance
         }
         m_parameters = *element;
         lastElement = 8;
@@ -449,9 +448,7 @@ Interest::matchesData(const Data& data) const
   size_t fullNameLength = dataName.size() + 1;
 
   // check MinSuffixComponents
-  bool hasMinSuffixComponents = getMinSuffixComponents() >= 0;
-  size_t minSuffixComponents = hasMinSuffixComponents ?
-                               static_cast<size_t>(getMinSuffixComponents()) : 0;
+  size_t minSuffixComponents = static_cast<size_t>(std::max(0, getMinSuffixComponents()));
   if (!(interestNameLength + minSuffixComponents <= fullNameLength))
     return false;
 
@@ -509,7 +506,7 @@ Interest::matchesData(const Data& data) const
   }
 
   // check PublisherPublicKeyLocator
-  const KeyLocator& publisherPublicKeyLocator = this->getPublisherPublicKeyLocator();
+  const KeyLocator& publisherPublicKeyLocator = getPublisherPublicKeyLocator();
   if (!publisherPublicKeyLocator.empty()) {
     const Signature& signature = data.getSignature();
     const Block& signatureInfo = signature.getInfo();
@@ -529,8 +526,8 @@ bool
 Interest::matchesInterest(const Interest& other) const
 {
   /// @todo #3162 match ForwardingHint field
-  return (this->getName() == other.getName() &&
-          this->getSelectors() == other.getSelectors());
+  return this->getName() == other.getName() &&
+         this->getSelectors() == other.getSelectors();
 }
 
 // ---- field accessors ----
@@ -569,7 +566,7 @@ Interest::refreshNonce()
 Interest&
 Interest::setInterestLifetime(time::milliseconds lifetime)
 {
-  if (lifetime < time::milliseconds::zero()) {
+  if (lifetime < 0_ms) {
     BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
   }
   m_interestLifetime = lifetime;
@@ -617,7 +614,7 @@ Interest::setParameters(ConstBufferPtr buffer)
 Interest&
 Interest::unsetParameters()
 {
-  m_parameters = Block();
+  m_parameters = {};
   m_wire.reset();
   return *this;
 }
@@ -666,7 +663,6 @@ operator<<(std::ostream& os, const Interest& interest)
     os << delim << "ndn.InterestLifetime=" << interest.getInterestLifetime().count();
     delim = '&';
   }
-
   if (interest.hasNonce()) {
     os << delim << "ndn.Nonce=" << interest.getNonce();
     delim = '&';
