@@ -205,6 +205,7 @@ def build(bld):
     pkgconfig_linkflags = []
     pkgconfig_includes = []
     pkgconfig_cxxflags = []
+    pkgconfig_defines = []
     for lib in Utils.to_list(libndn_cxx['use']):
         if bld.env['LIB_%s' % lib]:
             pkgconfig_libs += Utils.to_list(bld.env['LIB_%s' % lib])
@@ -216,6 +217,8 @@ def build(bld):
             pkgconfig_linkflags += Utils.to_list(bld.env['LINKFLAGS_%s' % lib])
         if bld.env['CXXFLAGS_%s' % lib]:
             pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
+        if bld.env['DEFINES_%s' % lib]:
+            pkgconfig_defines += Utils.to_list(bld.env['DEFINES_%s' % lib])
 
     EXTRA_FRAMEWORKS = ''
     if bld.env['HAVE_OSX_FRAMEWORKS']:
@@ -237,7 +240,7 @@ def build(bld):
          EXTRA_LDFLAGS=' '.join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
          EXTRA_LINKFLAGS=' '.join(uniq(pkgconfig_linkflags)),
          EXTRA_INCLUDES=' '.join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
-         EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags)),
+         EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags)) + ' ' + ' '.join([('-D%s' % i) for i in uniq(pkgconfig_defines)]),
          EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS)
 
     if bld.env['WITH_TESTS']:
