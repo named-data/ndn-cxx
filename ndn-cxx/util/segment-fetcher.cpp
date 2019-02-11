@@ -104,12 +104,7 @@ SegmentFetcher::stop()
     return;
   }
 
-  for (const auto& pendingSegment : m_pendingSegments | boost::adaptors::map_values) {
-    m_face.removePendingInterest(pendingSegment.id);
-    if (pendingSegment.timeoutEvent) {
-      m_scheduler.cancelEvent(pendingSegment.timeoutEvent);
-    }
-  }
+  m_pendingSegments.clear(); // cancels pending Interests and timeout events
   m_face.getIoService().post([self = std::move(m_this)] {});
 }
 
@@ -254,10 +249,9 @@ SegmentFetcher::afterSegmentReceivedCb(const Interest& origInterest, const Data&
     return;
   }
 
-  afterSegmentReceived(data);
-
-  // Cancel timeout event
   pendingSegmentIt->second.timeoutEvent.cancel();
+
+  afterSegmentReceived(data);
 
   m_validator.validate(data,
                        bind(&SegmentFetcher::afterValidationSuccess, this, _1, origInterest,
@@ -476,15 +470,14 @@ SegmentFetcher::signalError(uint32_t code, const std::string& msg)
 
 void
 SegmentFetcher::updateRetransmittedSegment(uint64_t segmentNum,
-                                           const PendingInterestId* pendingInterest,
+                                           const PendingInterestHandle& pendingInterest,
                                            scheduler::EventId timeoutEvent)
 {
   auto pendingSegmentIt = m_pendingSegments.find(segmentNum);
   BOOST_ASSERT(pendingSegmentIt != m_pendingSegments.end());
   BOOST_ASSERT(pendingSegmentIt->second.state == SegmentState::InRetxQueue);
   pendingSegmentIt->second.state = SegmentState::Retransmitted;
-  m_face.removePendingInterest(pendingSegmentIt->second.id);
-  pendingSegmentIt->second.id = pendingInterest;
+  pendingSegmentIt->second.hdl = pendingInterest; // cancels previous pending Interest via scoped handle
   pendingSegmentIt->second.timeoutEvent = timeoutEvent;
 }
 
@@ -493,11 +486,7 @@ SegmentFetcher::cancelExcessInFlightSegments()
 {
   for (auto it = m_pendingSegments.begin(); it != m_pendingSegments.end();) {
     if (it->first >= static_cast<uint64_t>(m_nSegments)) {
-      m_face.removePendingInterest(it->second.id);
-      if (it->second.timeoutEvent) {
-        m_scheduler.cancelEvent(it->second.timeoutEvent);
-      }
-      it = m_pendingSegments.erase(it);
+      it = m_pendingSegments.erase(it); // cancels pending Interest and timeout event
       BOOST_ASSERT(m_nSegmentsInFlight > 0);
       m_nSegmentsInFlight--;
     }

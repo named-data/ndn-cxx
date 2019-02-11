@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018, Regents of the University of California,
+ * Copyright (c) 2013-2019, Regents of the University of California,
  *                          Colorado State University,
  *                          University Pierre & Marie Curie, Sorbonne University.
  *
@@ -227,7 +227,7 @@ private:
 
   void
   updateRetransmittedSegment(uint64_t segmentNum,
-                             const PendingInterestId* pendingInterest,
+                             const PendingInterestHandle& pendingInterest,
                              scheduler::EventId timeoutEvent);
 
   void
@@ -284,8 +284,8 @@ private:
   public:
     SegmentState state;
     time::steady_clock::TimePoint sendTime;
-    const PendingInterestId* id;
-    scheduler::EventId timeoutEvent;
+    ScopedPendingInterestHandle hdl;
+    scheduler::ScopedEventId timeoutEvent;
   };
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:

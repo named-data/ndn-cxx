@@ -153,14 +153,14 @@ public:
    *  1. if the new top-level prefix overlaps with an existing top-level prefix
    *     (one top-level prefix is a prefix of another top-level prefix), throw std::domain_error
    *  2. if wantRegister is true, invoke face.registerPrefix for the top-level prefix;
-   *     the returned RegisteredPrefixId shall be recorded internally, indexed by the top-level
+   *     the returned RegisteredPrefixHandle shall be recorded internally, indexed by the top-level
    *     prefix
    *  3. foreach relPrefix from ControlCommands and StatusDatasets,
    *     join the top-level prefix with the relPrefix to obtain the full prefix,
    *     and invoke non-registering overload of face.setInterestFilter,
    *     with the InterestHandler set to an appropriate private method to handle incoming Interests
    *     for the ControlCommand or StatusDataset;
-   *     the returned InterestFilterId shall be recorded internally, indexed by the top-level
+   *     the returned InterestFilterHandle shall be recorded internally, indexed by the top-level
    *     prefix
    */
   void
@@ -172,10 +172,8 @@ public:
    *
    *  Procedure for removing a top-level prefix:
    *  1. if the top-level prefix has not been added, abort these steps
-   *  2. if the top-level prefix has been added with wantRegister,
-   *     invoke face.unregisterPrefix with the RegisteredPrefixId
-   *  3. foreach InterestFilterId recorded during addTopPrefix,
-   *     invoke face.unsetInterestFilter with the InterestFilterId
+   *  2. if the top-level prefix has been added with wantRegister, unregister the prefix
+   *  3. unset each Interest filter recorded during addTopPrefix,
    */
   void
   removeTopPrefix(const Name& prefix);

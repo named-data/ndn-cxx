@@ -192,7 +192,7 @@ Face::expressInterest(const Interest& interest,
 }
 
 void
-Face::removePendingInterest(const PendingInterestId* pendingInterestId)
+Face::cancelPendingInterest(const PendingInterestId* pendingInterestId)
 {
   IO_CAPTURE_WEAK_IMPL(post) {
     impl->asyncRemovePendingInterest(pendingInterestId);
@@ -271,6 +271,14 @@ Face::setInterestFilter(const InterestFilter& interestFilter,
   return InterestFilterHandle(*this, id);
 }
 
+void
+Face::clearInterestFilter(const InterestFilterId* interestFilterId)
+{
+  IO_CAPTURE_WEAK_IMPL(post) {
+    impl->asyncUnsetInterestFilter(interestFilterId);
+  } IO_CAPTURE_WEAK_IMPL_END
+}
+
 RegisteredPrefixHandle
 Face::registerPrefix(const Name& prefix,
                      const RegisterPrefixSuccessCallback& onSuccess,
@@ -286,25 +294,9 @@ Face::registerPrefix(const Name& prefix,
 }
 
 void
-Face::unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
-{
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->asyncUnregisterPrefix(registeredPrefixId, nullptr, nullptr);
-  } IO_CAPTURE_WEAK_IMPL_END
-}
-
-void
-Face::unsetInterestFilter(const InterestFilterId* interestFilterId)
-{
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->asyncUnsetInterestFilter(interestFilterId);
-  } IO_CAPTURE_WEAK_IMPL_END
-}
-
-void
-Face::unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
-                       const UnregisterPrefixSuccessCallback& onSuccess,
-                       const UnregisterPrefixFailureCallback& onFailure)
+Face::unregisterPrefixImpl(const RegisteredPrefixId* registeredPrefixId,
+                           const UnregisterPrefixSuccessCallback& onSuccess,
+                           const UnregisterPrefixFailureCallback& onFailure)
 {
   IO_CAPTURE_WEAK_IMPL(post) {
     impl->asyncUnregisterPrefix(registeredPrefixId, onSuccess, onFailure);
@@ -352,20 +344,14 @@ void
 Face::shutdown()
 {
   IO_CAPTURE_WEAK_IMPL(post) {
-    this->asyncShutdown();
+    impl->m_pendingInterestTable.clear();
+    impl->m_registeredPrefixTable.clear();
+
+    if (m_transport->isConnected())
+      m_transport->close();
+
+    impl->m_ioServiceWork.reset();
   } IO_CAPTURE_WEAK_IMPL_END
-}
-
-void
-Face::asyncShutdown()
-{
-  m_impl->m_pendingInterestTable.clear();
-  m_impl->m_registeredPrefixTable.clear();
-
-  if (m_transport->isConnected())
-    m_transport->close();
-
-  m_impl->m_ioServiceWork.reset();
 }
 
 /**
@@ -416,13 +402,13 @@ Face::onReceiveElement(const Block& blockFromDaemon)
 }
 
 PendingInterestHandle::PendingInterestHandle(Face& face, const PendingInterestId* id)
-  : CancelHandle([&face, id] { face.removePendingInterest(id); })
+  : CancelHandle([&face, id] { face.cancelPendingInterest(id); })
   , m_id(id)
 {
 }
 
 RegisteredPrefixHandle::RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id)
-  : CancelHandle([&face, id] { face.unregisterPrefix(id, nullptr, nullptr); })
+  : CancelHandle([&face, id] { face.unregisterPrefixImpl(id, nullptr, nullptr); })
   , m_face(&face)
   , m_id(id)
 {
@@ -441,13 +427,13 @@ RegisteredPrefixHandle::unregister(const UnregisterPrefixSuccessCallback& onSucc
     return;
   }
 
-  m_face->unregisterPrefix(m_id, onSuccess, onFailure);
+  m_face->unregisterPrefixImpl(m_id, onSuccess, onFailure);
   m_face = nullptr;
   m_id = nullptr;
 }
 
 InterestFilterHandle::InterestFilterHandle(Face& face, const InterestFilterId* id)
-  : CancelHandle([&face, id] { face.unsetInterestFilter(id); })
+  : CancelHandle([&face, id] { face.clearInterestFilter(id); })
   , m_id(id)
 {
 }

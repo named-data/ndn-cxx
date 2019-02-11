@@ -139,7 +139,7 @@ private:
   uint64_t m_attempts;
   util::scheduler::Scheduler m_scheduler;
   util::scheduler::ScopedEventId m_nackEvent;
-  const PendingInterestId* m_lastInterestId;
+  ScopedPendingInterestHandle m_lastInterest;
   time::milliseconds m_interestLifetime;
 };
 

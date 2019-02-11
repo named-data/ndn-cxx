@@ -42,7 +42,6 @@ NotificationSubscriberBase::NotificationSubscriberBase(Face& face, const Name& p
   , m_lastNackSequenceNum(std::numeric_limits<uint64_t>::max())
   , m_attempts(1)
   , m_scheduler(face.getIoService())
-  , m_lastInterestId(nullptr)
   , m_interestLifetime(interestLifetime)
 {
 }
@@ -66,9 +65,7 @@ NotificationSubscriberBase::stop()
     return;
   m_isRunning = false;
 
-  if (m_lastInterestId != nullptr)
-    m_face.removePendingInterest(m_lastInterestId);
-  m_lastInterestId = nullptr;
+  m_lastInterest.cancel();
 }
 
 void
@@ -102,10 +99,10 @@ NotificationSubscriberBase::sendNextInterest()
 void
 NotificationSubscriberBase::sendInterest(const Interest& interest)
 {
-  m_lastInterestId = m_face.expressInterest(interest,
-                                            [this] (const auto&, const auto& d) { this->afterReceiveData(d); },
-                                            [this] (const auto&, const auto& n) { this->afterReceiveNack(n); },
-                                            [this] (const auto&) { this->afterTimeout(); });
+  m_lastInterest = m_face.expressInterest(interest,
+                                          [this] (const auto&, const auto& d) { this->afterReceiveData(d); },
+                                          [this] (const auto&, const auto& n) { this->afterReceiveNack(n); },
+                                          [this] (const auto&) { this->afterTimeout(); });
 }
 
 bool

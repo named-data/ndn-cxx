@@ -241,11 +241,14 @@ public: // consumer
                   const TimeoutCallback& afterTimeout);
 
   /**
-   * @brief Cancel previously expressed Interest
-   * @param pendingInterestId a handle returned by expressInterest.
+   * @deprecated use PendingInterestHandle::cancel()
    */
+  [[deprecated]]
   void
-  removePendingInterest(const PendingInterestId* pendingInterestId);
+  removePendingInterest(const PendingInterestId* pendingInterestId)
+  {
+    cancelPendingInterest(pendingInterestId);
+  }
 
   /**
    * @brief Cancel all previously expressed Interests
@@ -355,48 +358,36 @@ public: // producer
                  uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
-   * @brief Remove the registered prefix entry with the registeredPrefixId
-   *
-   * This does not affect another registered prefix with a different registeredPrefixId,
-   * even it if has the same prefix name.  If there is no entry with the
-   * registeredPrefixId, do nothing.
-   *
-   * unsetInterestFilter will use the same credentials as original
-   * setInterestFilter/registerPrefix command
-   *
-   * @param registeredPrefixId a handle returned by registerPrefix
+   * @deprecated use RegisteredPrefixHandle::unregister()
    */
+  [[deprecated]]
   void
-  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId);
+  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
+  {
+    unregisterPrefixImpl(registeredPrefixId, nullptr, nullptr);
+  }
 
   /**
-   * @brief Remove previously set InterestFilter from library's FIB
-   *
-   * This method always succeeds and will **NOT** send any request to the connected
-   * forwarder.
-   *
-   * @param interestFilterId a handle returned by setInterestFilter.
+   * @deprecated use InterestFilterHandle::cancel()
    */
+  [[deprecated]]
   void
-  unsetInterestFilter(const InterestFilterId* interestFilterId);
+  unsetInterestFilter(const InterestFilterId* interestFilterId)
+  {
+    clearInterestFilter(interestFilterId);
+  }
 
   /**
-   * @brief Unregister prefix from RIB
-   *
-   * unregisterPrefix will use the same credentials as original
-   * setInterestFilter/registerPrefix command
-   *
-   * If registeredPrefixId was obtained using setInterestFilter, the corresponding
-   * InterestFilter will be unset too.
-   *
-   * @param registeredPrefixId a handle returned by registerPrefix
-   * @param onSuccess          Callback to be called when operation succeeds
-   * @param onFailure          Callback to be called when operation fails
+   * @deprecated use RegisteredPrefixHandle::unregister()
    */
+  [[deprecated]]
   void
   unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
                    const UnregisterPrefixSuccessCallback& onSuccess,
-                   const UnregisterPrefixFailureCallback& onFailure);
+                   const UnregisterPrefixFailureCallback& onFailure)
+  {
+    unregisterPrefixImpl(registeredPrefixId, onSuccess, onFailure);
+  }
 
   /**
    * @brief Publish data packet
@@ -428,8 +419,8 @@ public: // IO routine
    * To exit cleanly on a producer, unset any Interest filters with unsetInterestFilter() and wait
    * for processEvents() to return. To exit after an error, one can call shutdown().
    * In consumer applications, processEvents() will return when all expressed Interests have been
-   * satisfied, Nacked, or timed out. To terminate earlier, a consumer application should call
-   * removePendingInterests() for all previously expressed and still-pending Interests.
+   * satisfied, Nacked, or timed out. To terminate earlier, a consumer application should cancel
+   * all previously expressed and still-pending Interests.
    *
    * If a positive timeout is specified, then processEvents() will exit after this timeout, provided
    * it is not stopped earlier with shutdown() or when all active events finish. processEvents()
@@ -510,7 +501,15 @@ private:
   onReceiveElement(const Block& blockFromDaemon);
 
   void
-  asyncShutdown();
+  cancelPendingInterest(const PendingInterestId* pendingInterestId);
+
+  void
+  clearInterestFilter(const InterestFilterId* interestFilterId);
+
+  void
+  unregisterPrefixImpl(const RegisteredPrefixId* registeredPrefixId,
+                       const UnregisterPrefixSuccessCallback& onSuccess,
+                       const UnregisterPrefixFailureCallback& onFailure);
 
 private:
   /// the io_service owned by this Face, could be null
@@ -533,6 +532,10 @@ private:
 
   class Impl;
   shared_ptr<Impl> m_impl;
+
+  friend PendingInterestHandle;
+  friend RegisteredPrefixHandle;
+  friend InterestFilterHandle;
 };
 
 /** \brief A handle of pending Interest.
@@ -542,8 +545,6 @@ private:
  *  hdl.cancel(); // cancel the pending Interest
  *  \endcode
  *
- *  \warning Canceling the same pending Interest more than once, using same or different
- *           PendingInterestHandle or ScopedPendingInterestHandle, may trigger undefined behavior.
  *  \warning Canceling a pending Interest after the face has been destructed may trigger undefined
  *           behavior.
  */
@@ -554,6 +555,7 @@ public:
 
   PendingInterestHandle(Face& face, const PendingInterestId* id);
 
+  [[deprecated]]
   operator const PendingInterestId*() const noexcept
   {
     return m_id;
@@ -575,8 +577,6 @@ private:
  *  } // hdl goes out of scope, canceling the pending Interest
  *  \endcode
  *
- *  \warning Canceling the same pending Interest more than once, using same or different
- *           PendingInterestHandle or ScopedPendingInterestHandle, may trigger undefined behavior.
  *  \warning Canceling a pending Interest after the face has been destructed may trigger undefined
  *           behavior.
  */
@@ -595,15 +595,13 @@ public:
 
   RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id);
 
+  [[deprecated]]
   operator const RegisteredPrefixId*() const noexcept
   {
     return m_id;
   }
 
   /** \brief Unregister the prefix.
-   *  \warning Unregistering the same prefix more than once, using same or different
-   *           RegisteredPrefixHandle or ScopedRegisteredPrefixHandle, may trigger undefined
-   *           behavior.
    *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
    *           behavior.
    */
@@ -629,9 +627,6 @@ private:
  *  } // hdl goes out of scope, unregistering the prefix
  *  \endcode
  *
- *  \warning Unregistering the same prefix more than once, using same or different
- *           RegisteredPrefixHandle or ScopedRegisteredPrefixHandle, may trigger undefined
- *           behavior.
  *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
  *           behavior.
  */
@@ -644,8 +639,6 @@ using ScopedRegisteredPrefixHandle = detail::ScopedCancelHandle;
  *  hdl.cancel(); // unset the Interest filter
  *  \endcode
  *
- *  \warning Unsetting the same Interest filter more than once, using same or different
- *           InterestFilterHandle or ScopedInterestFilterHandle, may trigger undefined behavior.
  *  \warning Unsetting an Interest filter after the face has been destructed may trigger
  *           undefined behavior.
  */
@@ -656,6 +649,7 @@ public:
 
   InterestFilterHandle(Face& face, const InterestFilterId* id);
 
+  [[deprecated]]
   operator const InterestFilterId*() const noexcept
   {
     return m_id;
@@ -677,8 +671,6 @@ private:
  *  } // hdl goes out of scope, unsetting the Interest filter
  *  \endcode
  *
- *  \warning Unsetting the same Interest filter more than once, using same or different
- *           InterestFilterHandle or ScopedInterestFilterHandle, may trigger undefined behavior.
  *  \warning Unsetting an Interest filter after the face has been destructed may trigger
  *           undefined behavior.
  */
