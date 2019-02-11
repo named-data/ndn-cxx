@@ -67,6 +67,7 @@ public:
   Impl(Face& face)
     : m_face(face)
     , m_scheduler(m_face.getIoService())
+    , m_lastPendingInterestId(0)
   {
     auto postOnEmptyPitOrNoRegisteredPrefixes = [this] {
       this->m_face.getIoService().post([this] { this->onEmptyPitOrNoRegisteredPrefixes(); });
@@ -81,8 +82,16 @@ public:
   }
 
 public: // consumer
+  const PendingInterestId*
+  generatePendingInterestId()
+  {
+    auto id = ++m_lastPendingInterestId;
+    return reinterpret_cast<const PendingInterestId*>(id);
+  }
+
   void
-  asyncExpressInterest(shared_ptr<const Interest> interest,
+  asyncExpressInterest(const PendingInterestId* id,
+                       shared_ptr<const Interest> interest,
                        const DataCallback& afterSatisfied,
                        const NackCallback& afterNacked,
                        const TimeoutCallback& afterTimeout)
@@ -92,7 +101,7 @@ public: // consumer
 
     const Interest& interest2 = *interest;
     auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
-      std::move(interest), afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
+      id, std::move(interest), afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
     // In dispatchInterest, an InterestCallback may respond with Data right away and delete
     // the PendingInterestTable entry. shared_ptr is retained to ensure PendingInterest instance
     // remains valid in this case.
@@ -418,6 +427,7 @@ private:
   util::Scheduler m_scheduler;
   util::scheduler::ScopedEventId m_processEventsTimeoutEvent;
 
+  std::atomic_uintptr_t m_lastPendingInterestId;
   PendingInterestTable m_pendingInterestTable;
   InterestFilterTable m_interestFilterTable;
   RegisteredPrefixTable m_registeredPrefixTable;

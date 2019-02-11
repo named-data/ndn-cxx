@@ -31,6 +31,11 @@
 namespace ndn {
 
 /**
+ * @brief Opaque type to identify a PendingInterest
+ */
+class PendingInterestId;
+
+/**
  * @brief Indicates where a pending Interest came from
  */
 enum class PendingInterestOrigin
@@ -63,19 +68,15 @@ public:
    *
    * The timeout is set based on the current time and InterestLifetime.
    * This class will invoke the timeout callback unless the record is deleted before timeout.
-   *
-   * @param interest the Interest
-   * @param dataCallback invoked when matching Data packet is received
-   * @param nackCallback invoked when Nack matching Interest is received
-   * @param timeoutCallback invoked when Interest times out
-   * @param scheduler Scheduler for scheduling the timeout event
    */
-  PendingInterest(shared_ptr<const Interest> interest,
+  PendingInterest(const PendingInterestId* id,
+                  shared_ptr<const Interest> interest,
                   const DataCallback& dataCallback,
                   const NackCallback& nackCallback,
                   const TimeoutCallback& timeoutCallback,
                   Scheduler& scheduler)
-    : m_interest(std::move(interest))
+    : m_id(id)
+    , m_interest(std::move(interest))
     , m_origin(PendingInterestOrigin::APP)
     , m_dataCallback(dataCallback)
     , m_nackCallback(nackCallback)
@@ -92,16 +93,20 @@ public:
    * @param scheduler Scheduler for scheduling the timeout event
    */
   PendingInterest(shared_ptr<const Interest> interest, Scheduler& scheduler)
-    : m_interest(std::move(interest))
+    : m_id(nullptr)
+    , m_interest(std::move(interest))
     , m_origin(PendingInterestOrigin::FORWARDER)
     , m_nNotNacked(0)
   {
     scheduleTimeoutEvent(scheduler);
   }
 
-  /**
-   * @brief Get the Interest
-   */
+  const PendingInterestId*
+  getId() const
+  {
+    return m_id;
+  }
+
   shared_ptr<const Interest>
   getInterest() const
   {
@@ -199,6 +204,7 @@ private:
   }
 
 private:
+  const PendingInterestId* m_id;
   shared_ptr<const Interest> m_interest;
   PendingInterestOrigin m_origin;
   DataCallback m_dataCallback;
@@ -209,11 +215,6 @@ private:
   optional<lp::Nack> m_leastSevereNack;
   std::function<void()> m_deleter;
 };
-
-/**
- * @brief Opaque type to identify a PendingInterest
- */
-class PendingInterestId;
 
 /**
  * @brief Functor to match PendingInterestId
@@ -230,7 +231,7 @@ public:
   bool
   operator()(const shared_ptr<const PendingInterest>& pendingInterest) const
   {
-    return reinterpret_cast<const PendingInterestId*>(pendingInterest->getInterest().get()) == m_id;
+    return pendingInterest->getId() == m_id;
   }
 
 private:

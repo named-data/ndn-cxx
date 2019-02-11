@@ -179,14 +179,16 @@ Face::expressInterest(const Interest& interest,
                       const NackCallback& afterNacked,
                       const TimeoutCallback& afterTimeout)
 {
+  auto id = m_impl->generatePendingInterestId();
+
   auto interest2 = make_shared<Interest>(interest);
   interest2->getNonce();
 
   IO_CAPTURE_WEAK_IMPL(post) {
-    impl->asyncExpressInterest(interest2, afterSatisfied, afterNacked, afterTimeout);
+    impl->asyncExpressInterest(id, interest2, afterSatisfied, afterNacked, afterTimeout);
   } IO_CAPTURE_WEAK_IMPL_END
 
-  return PendingInterestHandle(*this, reinterpret_cast<const PendingInterestId*>(interest2.get()));
+  return PendingInterestHandle(*this, id);
 }
 
 void
