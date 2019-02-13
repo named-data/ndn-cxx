@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -111,10 +111,10 @@ RegexRepeatMatcher::parseRepetition()
       max = min;
     }
     else
-      BOOST_THROW_EXCEPTION(Error("RegexRepeatMatcher::parseRepetition(): Unrecognized format " + m_expr));
+      NDN_THROW(Error("parseRepetition: unrecognized format " + m_expr));
 
     if (min > MAX_REPETITIONS || max > MAX_REPETITIONS || min > max)
-      BOOST_THROW_EXCEPTION(Error("RegexRepeatMatcher::parseRepetition(): Wrong number " + m_expr));
+      NDN_THROW(Error("parseRepetition: wrong number " + m_expr));
 
     m_repeatMin = min;
     m_repeatMax = max;

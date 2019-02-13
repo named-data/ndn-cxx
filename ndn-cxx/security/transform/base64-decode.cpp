@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -86,7 +86,7 @@ Base64Decode::convert(const uint8_t* buf, size_t size)
   if (wLen <= 0) { // fail to write data
     if (!BIO_should_retry(m_impl->m_source)) {
       // we haven't written everything but some error happens, and we cannot retry
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
+      NDN_THROW(Error(getIndex(), "Failed to accept more input"));
     }
     return 0;
   }

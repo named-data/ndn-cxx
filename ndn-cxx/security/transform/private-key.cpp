@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,13 +35,13 @@
 #define ENSURE_PRIVATE_KEY_LOADED(key) \
   do { \
     if ((key) == nullptr) \
-      BOOST_THROW_EXCEPTION(Error("Private key has not been loaded yet")); \
+      NDN_THROW(Error("Private key has not been loaded yet")); \
   } while (false)
 
 #define ENSURE_PRIVATE_KEY_NOT_LOADED(key) \
   do { \
     if ((key) != nullptr) \
-      BOOST_THROW_EXCEPTION(Error("Private key has already been loaded")); \
+      NDN_THROW(Error("Private key has already been loaded")); \
   } while (false)
 
 namespace ndn {
@@ -107,7 +107,7 @@ PrivateKey::loadPkcs1(const uint8_t* buf, size_t size)
   opensslInitAlgorithms();
 
   if (d2i_AutoPrivateKey(&m_impl->key, &buf, static_cast<long>(size)) == nullptr)
-    BOOST_THROW_EXCEPTION(Error("Failed to load private key"));
+    NDN_THROW(Error("Failed to load private key"));
 }
 
 void
@@ -143,10 +143,10 @@ PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, const char* pw, size_t pw
 
   detail::Bio membio(BIO_s_mem());
   if (!membio.write(buf, size))
-    BOOST_THROW_EXCEPTION(Error("Failed to copy buffer"));
+    NDN_THROW(Error("Failed to copy buffer"));
 
   if (d2i_PKCS8PrivateKey_bio(membio, &m_impl->key, nullptr, const_cast<char*>(pw)) == nullptr)
-    BOOST_THROW_EXCEPTION(Error("Failed to load private key"));
+    NDN_THROW(Error("Failed to load private key"));
 }
 
 static inline int
@@ -165,7 +165,7 @@ PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, PasswordCallback pwCallba
 
   detail::Bio membio(BIO_s_mem());
   if (!membio.write(buf, size))
-    BOOST_THROW_EXCEPTION(Error("Failed to copy buffer"));
+    NDN_THROW(Error("Failed to copy buffer"));
 
   if (pwCallback)
     m_impl->key = d2i_PKCS8PrivateKey_bio(membio, nullptr, &passwordCallbackWrapper, &pwCallback);
@@ -173,7 +173,7 @@ PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, PasswordCallback pwCallba
     m_impl->key = d2i_PKCS8PrivateKey_bio(membio, nullptr, nullptr, nullptr);
 
   if (m_impl->key == nullptr)
-    BOOST_THROW_EXCEPTION(Error("Failed to load private key"));
+    NDN_THROW(Error("Failed to load private key"));
 }
 
 void
@@ -268,7 +268,7 @@ PrivateKey::derivePublicKey() const
   uint8_t* pkcs8 = nullptr;
   int len = i2d_PUBKEY(m_impl->key, &pkcs8);
   if (len < 0)
-    BOOST_THROW_EXCEPTION(Error("Failed to derive public key"));
+    NDN_THROW(Error("Failed to derive public key"));
 
   auto result = make_shared<Buffer>(pkcs8, len);
   OPENSSL_free(pkcs8);
@@ -284,11 +284,11 @@ PrivateKey::decrypt(const uint8_t* cipherText, size_t cipherLen) const
   int keyType = detail::getEvpPkeyType(m_impl->key);
   switch (keyType) {
     case EVP_PKEY_NONE:
-      BOOST_THROW_EXCEPTION(Error("Failed to determine key type"));
+      NDN_THROW(Error("Failed to determine key type"));
     case EVP_PKEY_RSA:
       return rsaDecrypt(cipherText, cipherLen);
     default:
-      BOOST_THROW_EXCEPTION(Error("Decryption is not supported for key type " + to_string(keyType)));
+      NDN_THROW(Error("Decryption is not supported for key type " + to_string(keyType)));
   }
 }
 
@@ -306,7 +306,7 @@ PrivateKey::toPkcs1() const
 
   detail::Bio membio(BIO_s_mem());
   if (!i2d_PrivateKey_bio(membio, m_impl->key))
-    BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #1 format"));
+    NDN_THROW(Error("Cannot convert key to PKCS #1 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
   membio.read(buffer->data(), buffer->size());
@@ -324,7 +324,7 @@ PrivateKey::toPkcs8(const char* pw, size_t pwLen) const
   detail::Bio membio(BIO_s_mem());
   if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_aes_256_cbc(), nullptr, 0,
                                nullptr, const_cast<char*>(pw)))
-    BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #8 format"));
+    NDN_THROW(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
   membio.read(buffer->data(), buffer->size());
@@ -341,7 +341,7 @@ PrivateKey::toPkcs8(PasswordCallback pwCallback) const
   detail::Bio membio(BIO_s_mem());
   if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_aes_256_cbc(), nullptr, 0,
                                &passwordCallbackWrapper, &pwCallback))
-    BOOST_THROW_EXCEPTION(Error("Cannot convert key to PKCS #8 format"));
+    NDN_THROW(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
   membio.read(buffer->data(), buffer->size());
@@ -355,19 +355,19 @@ PrivateKey::rsaDecrypt(const uint8_t* cipherText, size_t cipherLen) const
   detail::EvpPkeyCtx ctx(m_impl->key);
 
   if (EVP_PKEY_decrypt_init(ctx) <= 0)
-    BOOST_THROW_EXCEPTION(Error("Failed to initialize decryption context"));
+    NDN_THROW(Error("Failed to initialize decryption context"));
 
   if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0)
-    BOOST_THROW_EXCEPTION(Error("Failed to set padding"));
+    NDN_THROW(Error("Failed to set padding"));
 
   size_t outlen = 0;
   // Determine buffer length
   if (EVP_PKEY_decrypt(ctx, nullptr, &outlen, cipherText, cipherLen) <= 0)
-    BOOST_THROW_EXCEPTION(Error("Failed to estimate output length"));
+    NDN_THROW(Error("Failed to estimate output length"));
 
   auto out = make_shared<Buffer>(outlen);
   if (EVP_PKEY_decrypt(ctx, out->data(), &outlen, cipherText, cipherLen) <= 0)
-    BOOST_THROW_EXCEPTION(Error("Failed to decrypt ciphertext"));
+    NDN_THROW(Error("Failed to decrypt ciphertext"));
 
   out->resize(outlen);
   return out;
@@ -379,14 +379,14 @@ PrivateKey::generateRsaKey(uint32_t keySize)
   detail::EvpPkeyCtx kctx(EVP_PKEY_RSA);
 
   if (EVP_PKEY_keygen_init(kctx) <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to initialize RSA keygen context"));
+    NDN_THROW(PrivateKey::Error("Failed to initialize RSA keygen context"));
 
   if (EVP_PKEY_CTX_set_rsa_keygen_bits(kctx, static_cast<int>(keySize)) <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to set RSA key length"));
+    NDN_THROW(PrivateKey::Error("Failed to set RSA key length"));
 
   auto privateKey = make_unique<PrivateKey>();
   if (EVP_PKEY_keygen(kctx, &privateKey->m_impl->key) <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to generate RSA key"));
+    NDN_THROW(PrivateKey::Error("Failed to generate RSA key"));
 
   return privateKey;
 }
@@ -397,7 +397,7 @@ PrivateKey::generateEcKey(uint32_t keySize)
   detail::EvpPkeyCtx pctx(EVP_PKEY_EC);
 
   if (EVP_PKEY_paramgen_init(pctx) <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to initialize EC paramgen context"));
+    NDN_THROW(PrivateKey::Error("Failed to initialize EC paramgen context"));
 
   int ret;
   switch (keySize) {
@@ -414,22 +414,22 @@ PrivateKey::generateEcKey(uint32_t keySize)
     ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_secp521r1);
     break;
   default:
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Unsupported EC key length " + to_string(keySize)));
+    NDN_THROW(std::invalid_argument("Unsupported EC key length " + to_string(keySize)));
   }
   if (ret <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to set EC curve"));
+    NDN_THROW(PrivateKey::Error("Failed to set EC curve"));
 
   Impl params;
   if (EVP_PKEY_paramgen(pctx, &params.key) <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to generate EC parameters"));
+    NDN_THROW(PrivateKey::Error("Failed to generate EC parameters"));
 
   detail::EvpPkeyCtx kctx(params.key);
   if (EVP_PKEY_keygen_init(kctx) <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to initialize EC keygen context"));
+    NDN_THROW(PrivateKey::Error("Failed to initialize EC keygen context"));
 
   auto privateKey = make_unique<PrivateKey>();
   if (EVP_PKEY_keygen(kctx, &privateKey->m_impl->key) <= 0)
-    BOOST_THROW_EXCEPTION(PrivateKey::Error("Failed to generate EC key"));
+    NDN_THROW(PrivateKey::Error("Failed to generate EC key"));
 
   return privateKey;
 }
@@ -447,8 +447,8 @@ generatePrivateKey(const KeyParams& keyParams)
       return PrivateKey::generateEcKey(ecParams.getKeySize());
     }
     default:
-      BOOST_THROW_EXCEPTION(std::invalid_argument("Unsupported asymmetric key type " +
-                                                  boost::lexical_cast<std::string>(keyParams.getKeyType())));
+      NDN_THROW(std::invalid_argument("Unsupported asymmetric key type " +
+                                      boost::lexical_cast<std::string>(keyParams.getKeyType())));
   }
 }
 

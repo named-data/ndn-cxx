@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,17 +73,17 @@ ControlResponse::wireDecode(const Block& wire)
   m_wire.parse();
 
   if (m_wire.type() != tlv::nfd::ControlResponse)
-    BOOST_THROW_EXCEPTION(Error("expected ControlResponse, got " + to_string(m_wire.type()) + " element"));
+    NDN_THROW(Error("ControlResponse", m_wire.type()));
 
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::StatusCode) {
-    BOOST_THROW_EXCEPTION(Error("missing StatusCode sub-element"));
+    NDN_THROW(Error("missing StatusCode sub-element"));
   }
   m_code = readNonNegativeIntegerAs<uint32_t>(*val);
   ++val;
 
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::StatusText) {
-    BOOST_THROW_EXCEPTION(Error("missing StatusText sub-element"));
+    NDN_THROW(Error("missing StatusText sub-element"));
   }
   m_text = readString(*val);
   ++val;
@@ -91,7 +91,7 @@ ControlResponse::wireDecode(const Block& wire)
   if (val != m_wire.elements_end())
     m_body = *val;
   else
-    m_body = Block();
+    m_body = {};
 }
 
 std::ostream&

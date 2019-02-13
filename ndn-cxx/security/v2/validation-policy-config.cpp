@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,7 +46,7 @@ ValidationPolicyConfig::load(const std::string& filename)
 {
   std::ifstream inputFile(filename);
   if (!inputFile) {
-    BOOST_THROW_EXCEPTION(Error("Failed to read configuration file: " + filename));
+    NDN_THROW(Error("Failed to read configuration file: " + filename));
   }
   load(inputFile, filename);
 }
@@ -66,8 +66,8 @@ ValidationPolicyConfig::load(std::istream& input, const std::string& filename)
     boost::property_tree::read_info(input, tree);
   }
   catch (const boost::property_tree::info_parser_error& e) {
-    BOOST_THROW_EXCEPTION(Error("Failed to parse configuration file " + filename +
-                                " line " + to_string(e.line()) + ": " + e.message()));
+    NDN_THROW(Error("Failed to parse configuration file " + filename +
+                    " line " + to_string(e.line()) + ": " + e.message()));
   }
   load(tree, filename);
 }
@@ -76,7 +76,7 @@ void
 ValidationPolicyConfig::load(const ConfigSection& configSection, const std::string& filename)
 {
   if (m_validator == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Validator instance not assigned on the policy"));
+    NDN_THROW(Error("Validator instance not assigned on the policy"));
   }
   if (m_isConfigured) {
     m_shouldBypass = false;
@@ -90,7 +90,7 @@ ValidationPolicyConfig::load(const ConfigSection& configSection, const std::stri
   BOOST_ASSERT(!filename.empty());
 
   if (configSection.begin() == configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Error processing configuration file " + filename + ": no data"));
+    NDN_THROW(Error("Error processing configuration file " + filename + ": no data"));
   }
 
   for (const auto& subSection : configSection) {
@@ -110,8 +110,8 @@ ValidationPolicyConfig::load(const ConfigSection& configSection, const std::stri
       processConfigTrustAnchor(section, filename);
     }
     else {
-      BOOST_THROW_EXCEPTION(Error("Error processing configuration file " + filename +
-                                  ": unrecognized section " + sectionName));
+      NDN_THROW(Error("Error processing configuration file " + filename +
+                      ": unrecognized section " + sectionName));
     }
   }
 }
@@ -126,7 +126,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
 
   // Get trust-anchor.type
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type")) {
-    BOOST_THROW_EXCEPTION(Error("Expecting <trust-anchor.type>"));
+    NDN_THROW(Error("Expecting <trust-anchor.type>"));
   }
 
   std::string type = propertyIt->second.data();
@@ -135,7 +135,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
   if (boost::iequals(type, "file")) {
     // Get trust-anchor.file
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "file-name")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <trust-anchor.file-name>"));
+      NDN_THROW(Error("Expecting <trust-anchor.file-name>"));
     }
 
     std::string file = propertyIt->second.data();
@@ -143,7 +143,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
 
     time::nanoseconds refresh = getRefreshPeriod(propertyIt, configSection.end());
     if (propertyIt != configSection.end())
-      BOOST_THROW_EXCEPTION(Error("Expecting end of <trust-anchor>"));
+      NDN_THROW(Error("Expecting end of <trust-anchor>"));
 
     m_validator->loadAnchor(filename, absolute(file, path(filename).parent_path()).string(),
                             refresh, false);
@@ -151,32 +151,32 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
   else if (boost::iequals(type, "base64")) {
     // Get trust-anchor.base64-string
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "base64-string"))
-      BOOST_THROW_EXCEPTION(Error("Expecting <trust-anchor.base64-string>"));
+      NDN_THROW(Error("Expecting <trust-anchor.base64-string>"));
 
     std::stringstream ss(propertyIt->second.data());
     propertyIt++;
 
     if (propertyIt != configSection.end())
-      BOOST_THROW_EXCEPTION(Error("Expecting end of <trust-anchor>"));
+      NDN_THROW(Error("Expecting end of <trust-anchor>"));
 
     auto idCert = io::load<Certificate>(ss);
     if (idCert != nullptr) {
       m_validator->loadAnchor("", std::move(*idCert));
     }
     else {
-      BOOST_THROW_EXCEPTION(Error("Cannot decode certificate from base64-string"));
+      NDN_THROW(Error("Cannot decode certificate from base64-string"));
     }
   }
   else if (boost::iequals(type, "dir")) {
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "dir"))
-      BOOST_THROW_EXCEPTION(Error("Expecting <trust-anchor.dir>"));
+      NDN_THROW(Error("Expecting <trust-anchor.dir>"));
 
     std::string dirString(propertyIt->second.data());
     propertyIt++;
 
     time::nanoseconds refresh = getRefreshPeriod(propertyIt, configSection.end());
     if (propertyIt != configSection.end())
-      BOOST_THROW_EXCEPTION(Error("Expecting end of <trust-anchor>"));
+      NDN_THROW(Error("Expecting end of <trust-anchor>"));
 
     path dirPath = absolute(dirString, path(filename).parent_path());
     m_validator->loadAnchor(dirString, dirPath.string(), refresh, true);
@@ -185,7 +185,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     m_shouldBypass = true;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unrecognized <trust-anchor.type>: " + type));
+    NDN_THROW(Error("Unrecognized <trust-anchor.type>: " + type));
   }
 }
 
@@ -199,7 +199,7 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
   }
 
   if (!boost::iequals(it->first, "refresh")) {
-    BOOST_THROW_EXCEPTION(Error("Expecting <trust-anchor.refresh>"));
+    NDN_THROW(Error("Expecting <trust-anchor.refresh>"));
   }
 
   std::string inputString = it->second.data();
@@ -215,7 +215,7 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
     // pass
   }
   if (refreshPeriod < 0) {
-    BOOST_THROW_EXCEPTION(Error("Bad refresh value: " + refreshString));
+    NDN_THROW(Error("Bad refresh value: " + refreshString));
   }
 
   if (refreshPeriod == 0) {
@@ -230,7 +230,7 @@ ValidationPolicyConfig::getRefreshPeriod(ConfigSection::const_iterator& it,
     case 's':
       return time::seconds(refreshPeriod);
     default:
-      BOOST_THROW_EXCEPTION(Error("Bad refresh time unit: "s + unit));
+      NDN_THROW(Error("Bad refresh time unit: "s + unit));
   }
 }
 

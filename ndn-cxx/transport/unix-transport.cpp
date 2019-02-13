@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,8 +52,7 @@ UnixTransport::getSocketNameFromUri(const std::string& uriString)
     const FaceUri uri(uriString);
 
     if (uri.getScheme() != "unix") {
-      BOOST_THROW_EXCEPTION(Error("Cannot create UnixTransport from \"" +
-                                  uri.getScheme() + "\" URI"));
+      NDN_THROW(Error("Cannot create UnixTransport from \"" + uri.getScheme() + "\" URI"));
     }
 
     if (!uri.getPath().empty()) {
@@ -61,7 +60,7 @@ UnixTransport::getSocketNameFromUri(const std::string& uriString)
     }
   }
   catch (const FaceUri::Error& error) {
-    BOOST_THROW_EXCEPTION(Error(error.what()));
+    NDN_THROW_NESTED(Error(error.what()));
   }
 
   return path;

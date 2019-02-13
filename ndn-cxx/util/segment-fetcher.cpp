@@ -1,8 +1,8 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019, Regents of the University of California,
- *                          Colorado State University,
- *                          University Pierre & Marie Curie, Sorbonne University.
+ * Copyright (c) 2013-2019 Regents of the University of California,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,19 +46,19 @@ void
 SegmentFetcher::Options::validate()
 {
   if (maxTimeout < 1_ms) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("maxTimeout must be greater than or equal to 1 millisecond"));
+    NDN_THROW(std::invalid_argument("maxTimeout must be greater than or equal to 1 millisecond"));
   }
 
   if (initCwnd < 1.0) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("initCwnd must be greater than or equal to 1"));
+    NDN_THROW(std::invalid_argument("initCwnd must be greater than or equal to 1"));
   }
 
   if (aiStep < 0.0) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("aiStep must be greater than or equal to 0"));
+    NDN_THROW(std::invalid_argument("aiStep must be greater than or equal to 0"));
   }
 
   if (mdCoef < 0.0 || mdCoef > 1.0) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("mdCoef must be in range [0, 1]"));
+    NDN_THROW(std::invalid_argument("mdCoef must be in range [0, 1]"));
   }
 }
 

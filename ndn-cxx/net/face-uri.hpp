@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California,
+ * Copyright (c) 2013-2019 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -47,11 +47,7 @@ public:
   class Error : public std::invalid_argument
   {
   public:
-    explicit
-    Error(const std::string& what)
-      : std::invalid_argument(what)
-    {
-    }
+    using std::invalid_argument::invalid_argument;
   };
 
   FaceUri();

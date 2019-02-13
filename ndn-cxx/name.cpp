@@ -158,7 +158,7 @@ void
 Name::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::Name)
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Name"));
+    NDN_THROW(tlv::Error("Name", wire.type()));
 
   m_wire = wire;
   m_wire.parse();
@@ -183,7 +183,7 @@ Name::at(ssize_t i) const
   }
 
   if (i < 0 || static_cast<size_t>(i) >= size()) {
-    BOOST_THROW_EXCEPTION(Error("Requested component does not exist (out of bounds)"));
+    NDN_THROW(Error("Requested component does not exist (out of bounds)"));
   }
 
   return reinterpret_cast<const Component&>(m_wire.elements()[i]);

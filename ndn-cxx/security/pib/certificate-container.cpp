@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -116,8 +116,8 @@ void
 CertificateContainer::add(const v2::Certificate& certificate)
 {
   if (m_keyName != certificate.getKeyName())
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certificate.getKeyName().toUri() + "` "
-                                                "does not match key name"));
+    NDN_THROW(std::invalid_argument("Certificate name `" + certificate.getKeyName().toUri() + "` "
+                                    "does not match key name"));
 
   const Name& certName = certificate.getName();
   m_certNames.insert(certName);
@@ -130,8 +130,8 @@ CertificateContainer::remove(const Name& certName)
 {
   if (!v2::Certificate::isValidName(certName) ||
       v2::extractKeyNameFromCertName(certName) != m_keyName) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
-                                                "is invalid or does not match key name"));
+    NDN_THROW(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                    "is invalid or does not match key name"));
   }
 
   m_certNames.erase(certName);
@@ -149,8 +149,8 @@ CertificateContainer::get(const Name& certName) const
 
   if (!v2::Certificate::isValidName(certName) ||
       v2::extractKeyNameFromCertName(certName) != m_keyName) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
-                                                "is invalid or does not match key name"));
+    NDN_THROW(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                    "is invalid or does not match key name"));
   }
 
   m_certs[certName] = m_pib->getCertificate(certName);

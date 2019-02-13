@@ -1,8 +1,8 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019, Regents of the University of California,
- *                          Colorado State University,
- *                          University Pierre & Marie Curie, Sorbonne University.
+ * Copyright (c) 2013-2019 Regents of the University of California,
+ *                         Colorado State University,
+ *                         University Pierre & Marie Curie, Sorbonne University.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *

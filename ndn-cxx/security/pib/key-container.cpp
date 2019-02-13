@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -116,8 +116,8 @@ Key
 KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
   if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
-                                                "`" + m_identity.toUri() + "`"));
+    NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
+                                    "`" + m_identity.toUri() + "`"));
   }
 
   m_keyNames.insert(keyName);
@@ -130,8 +130,8 @@ void
 KeyContainer::remove(const Name& keyName)
 {
   if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
-                                                "`" + m_identity.toUri() + "`"));
+    NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
+                                    "`" + m_identity.toUri() + "`"));
   }
 
   m_keyNames.erase(keyName);
@@ -143,8 +143,8 @@ Key
 KeyContainer::get(const Name& keyName) const
 {
   if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
-                                                "`" + m_identity.toUri() + "`"));
+    NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
+                                    "`" + m_identity.toUri() + "`"));
   }
 
   shared_ptr<detail::KeyImpl> key;

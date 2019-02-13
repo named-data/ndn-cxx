@@ -81,7 +81,7 @@ public:
   IfAddrs()
   {
     if (::getifaddrs(&m_ifaList) < 0) {
-      BOOST_THROW_EXCEPTION(NetworkMonitorImplOsx::Error("getifaddrs() failed: "s + strerror(errno)));
+      NDN_THROW_ERRNO(NetworkMonitorImplOsx::Error("getifaddrs() failed"));
     }
   }
 
@@ -140,7 +140,7 @@ NetworkMonitorImplOsx::NetworkMonitorImplOsx(boost::asio::io_service& io)
   CFArrayAppendValue(patterns, CFSTR("State:/Network/Interface/.*/IPv6"));
 
   if (!SCDynamicStoreSetNotificationKeys(m_scStore.get(), nullptr, patterns)) {
-    BOOST_THROW_EXCEPTION(Error("SCDynamicStoreSetNotificationKeys failed"));
+    NDN_THROW(Error("SCDynamicStoreSetNotificationKeys failed"));
   }
 
   io.post([this] { enumerateInterfaces(); });

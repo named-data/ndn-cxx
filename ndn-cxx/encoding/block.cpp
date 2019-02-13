@@ -67,14 +67,14 @@ Block::Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_
   , m_size(m_end - m_begin)
 {
   if (m_buffer->size() == 0) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("buffer is empty"));
+    NDN_THROW(std::invalid_argument("Buffer is empty"));
   }
 
   const uint8_t* bufferBegin = &m_buffer->front();
   const uint8_t* bufferEnd = bufferBegin + m_buffer->size();
   if (&*begin < bufferBegin || &*begin > bufferEnd ||
       &*end   < bufferBegin || &*end   > bufferEnd) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("begin/end iterators points out of the buffer"));
+    NDN_THROW(std::invalid_argument("Begin/end iterators point outside the buffer"));
   }
 
   m_type = tlv::readType(m_valueBegin, m_valueEnd);
@@ -82,7 +82,7 @@ Block::Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_
   // m_valueBegin now points to TLV-VALUE
 
   if (verifyLength && length != static_cast<uint64_t>(m_valueEnd - m_valueBegin)) {
-    BOOST_THROW_EXCEPTION(Error("TLV-LENGTH doesn't match buffer size"));
+    NDN_THROW(Error("TLV-LENGTH does not match buffer size"));
   }
 }
 
@@ -116,7 +116,7 @@ Block::Block(const uint8_t* buf, size_t bufSize)
 
   BOOST_ASSERT(pos <= end);
   if (length > static_cast<uint64_t>(end - pos)) {
-    BOOST_THROW_EXCEPTION(Error("Not enough bytes in the buffer to fully parse TLV"));
+    NDN_THROW(Error("Not enough bytes in the buffer to fully parse TLV"));
   }
 
   BOOST_ASSERT(pos > buf);
@@ -171,14 +171,14 @@ Block::fromStream(std::istream& is)
 
   size_t tlSize = tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(length);
   if (tlSize + length > MAX_SIZE_OF_BLOCK_FROM_STREAM) {
-    BOOST_THROW_EXCEPTION(Error("TLV-LENGTH from stream exceeds limit"));
+    NDN_THROW(Error("TLV-LENGTH from stream exceeds limit"));
   }
 
   EncodingBuffer eb(tlSize + length, length);
   uint8_t* valueBuf = eb.buf();
   is.read(reinterpret_cast<char*>(valueBuf), length);
   if (length != static_cast<uint64_t>(is.gcount())) {
-    BOOST_THROW_EXCEPTION(Error("Not enough bytes from stream to fully parse TLV"));
+    NDN_THROW(Error("Not enough bytes from stream to fully parse TLV"));
   }
 
   eb.prependVarNumber(length);
@@ -262,7 +262,7 @@ Buffer::const_iterator
 Block::begin() const
 {
   if (!hasWire())
-    BOOST_THROW_EXCEPTION(Error("Underlying wire buffer is empty"));
+    NDN_THROW(Error("Underlying wire buffer is empty"));
 
   return m_begin;
 }
@@ -271,7 +271,7 @@ Buffer::const_iterator
 Block::end() const
 {
   if (!hasWire())
-    BOOST_THROW_EXCEPTION(Error("Underlying wire buffer is empty"));
+    NDN_THROW(Error("Underlying wire buffer is empty"));
 
   return m_end;
 }
@@ -280,7 +280,7 @@ const uint8_t*
 Block::wire() const
 {
   if (!hasWire())
-    BOOST_THROW_EXCEPTION(Error("Underlying wire buffer is empty"));
+    NDN_THROW(Error("Underlying wire buffer is empty"));
 
   return &*m_begin;
 }
@@ -289,7 +289,7 @@ size_t
 Block::size() const
 {
   if (empty()) {
-    BOOST_THROW_EXCEPTION(Error("Block size cannot be determined (undefined block size)"));
+    NDN_THROW(Error("Block size cannot be determined (undefined block size)"));
   }
 
   return m_size;
@@ -313,7 +313,7 @@ Block
 Block::blockFromValue() const
 {
   if (!hasValue())
-    BOOST_THROW_EXCEPTION(Error("Block has no TLV-VALUE"));
+    NDN_THROW(Error("Block has no TLV-VALUE"));
 
   return Block(*this, m_valueBegin, m_valueEnd, true);
 }
@@ -336,8 +336,8 @@ Block::parse() const
     uint64_t length = tlv::readVarNumber(pos, end);
     if (length > static_cast<uint64_t>(end - pos)) {
       m_elements.clear();
-      BOOST_THROW_EXCEPTION(Error("TLV-LENGTH of sub-element of type " + to_string(type) +
-                                  " exceeds TLV-VALUE boundary of parent block"));
+      NDN_THROW(Error("TLV-LENGTH of sub-element of type " + to_string(type) +
+                      " exceeds TLV-VALUE boundary of parent block"));
     }
     // pos now points to TLV-VALUE of sub element
 
@@ -417,8 +417,8 @@ Block::get(uint32_t type) const
     return *it;
   }
 
-  BOOST_THROW_EXCEPTION(Error("No sub-element of type " + to_string(type) +
-                              " is found in block of type " + to_string(m_type)));
+  NDN_THROW(Error("No sub-element of type " + to_string(type) +
+                  " found in block of type " + to_string(m_type)));
 }
 
 Block::element_const_iterator
@@ -527,7 +527,7 @@ operator "" _block(const char* input, std::size_t len)
     ss.end();
   }
   catch (const t::Error&) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("input has odd number of hexadecimal digits"));
+    NDN_THROW(std::invalid_argument("Input has odd number of hexadecimal digits"));
   }
 
   return Block(os.buf());

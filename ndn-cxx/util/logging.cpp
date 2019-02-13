@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -181,7 +181,7 @@ Logging::setLevelImpl(const std::string& config)
   while (std::getline(ss, configModule, ':')) {
     size_t ind = configModule.find('=');
     if (ind == std::string::npos) {
-      BOOST_THROW_EXCEPTION(std::invalid_argument("malformed logging config: '=' is missing"));
+      NDN_THROW(std::invalid_argument("malformed logging config: '=' is missing"));
     }
 
     std::string moduleName = configModule.substr(0, ind);

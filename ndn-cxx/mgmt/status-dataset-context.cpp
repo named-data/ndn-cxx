@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,11 +36,11 @@ StatusDatasetContext&
 StatusDatasetContext::setPrefix(const Name& prefix)
 {
   if (!m_interest.getName().isPrefixOf(prefix)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("prefix does not start with Interest Name"));
+    NDN_THROW(std::invalid_argument("prefix does not start with Interest Name"));
   }
 
   if (m_state != State::INITIAL) {
-    BOOST_THROW_EXCEPTION(std::domain_error("state is not in INITIAL"));
+    NDN_THROW(std::domain_error("state is not in INITIAL"));
   }
 
   m_prefix = prefix;
@@ -69,7 +69,7 @@ void
 StatusDatasetContext::append(const Block& block)
 {
   if (m_state == State::FINALIZED) {
-    BOOST_THROW_EXCEPTION(std::domain_error("state is in FINALIZED"));
+    NDN_THROW(std::domain_error("state is in FINALIZED"));
   }
 
   m_state = State::RESPONDED;
@@ -95,11 +95,10 @@ void
 StatusDatasetContext::end()
 {
   if (m_state == State::FINALIZED) {
-    BOOST_THROW_EXCEPTION(std::domain_error("state is in FINALIZED"));
+    NDN_THROW(std::domain_error("state is in FINALIZED"));
   }
 
   m_state = State::FINALIZED;
-
   m_dataSender(Name(m_prefix).appendSegment(m_segmentNo),
                makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size()),
                m_expiry, true);
@@ -109,7 +108,7 @@ void
 StatusDatasetContext::reject(const ControlResponse& resp /*= a ControlResponse with 400*/)
 {
   if (m_state != State::INITIAL) {
-    BOOST_THROW_EXCEPTION(std::domain_error("state is in REPONSED or FINALIZED"));
+    NDN_THROW(std::domain_error("state is in RESPONDED or FINALIZED"));
   }
 
   m_state = State::FINALIZED;

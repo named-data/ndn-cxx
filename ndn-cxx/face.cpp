@@ -138,14 +138,14 @@ Face::makeDefaultTransport()
       return TcpTransport::create(transportUri);
     }
     else {
-      BOOST_THROW_EXCEPTION(ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\""));
+      NDN_THROW(ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\""));
     }
   }
-  catch (const Transport::Error& error) {
-    BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
+  catch (const Transport::Error&) {
+    NDN_THROW_NESTED(ConfigFile::Error("Failed to create transport"));
   }
-  catch (const FaceUri::Error& error) {
-    BOOST_THROW_EXCEPTION(ConfigFile::Error(error.what()));
+  catch (const FaceUri::Error&) {
+    NDN_THROW_NESTED(ConfigFile::Error("Failed to create transport"));
   }
 }
 

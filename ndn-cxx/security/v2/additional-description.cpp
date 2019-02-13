@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,7 +47,7 @@ AdditionalDescription::get(const std::string& key) const
 {
   auto it = m_info.find(key);
   if (it == m_info.end())
-    BOOST_THROW_EXCEPTION(Error("Entry does not exist for key (" + key + ")"));
+    NDN_THROW(Error("Entry does not exist for key (" + key + ")"));
 
   return it->second;
 }
@@ -133,29 +133,29 @@ void
 AdditionalDescription::wireDecode(const Block& wire)
 {
    if (!wire.hasWire()) {
-     BOOST_THROW_EXCEPTION(Error("The supplied block does not contain wire format"));
+     NDN_THROW(Error("The supplied block does not contain wire format"));
   }
 
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.type() != tlv::AdditionalDescription)
-    BOOST_THROW_EXCEPTION(Error("Unexpected TLV type when decoding AdditionalDescription"));
+    NDN_THROW(Error("AdditionalDescription", m_wire.type()));
 
-  Block::element_const_iterator it = m_wire.elements_begin();
+  auto it = m_wire.elements_begin();
   while (it != m_wire.elements_end()) {
     const Block& entry = *it;
     entry.parse();
 
     if (entry.type() != tlv::DescriptionEntry)
-      BOOST_THROW_EXCEPTION(Error("Unexpected TLV type when decoding DescriptionEntry"));
+      NDN_THROW(Error("DescriptionEntry", entry.type()));
 
     if (entry.elements_size() != 2)
-      BOOST_THROW_EXCEPTION(Error("DescriptionEntry does not have two sub-TLVs"));
+      NDN_THROW(Error("DescriptionEntry does not have two sub-TLVs"));
 
     if (entry.elements()[KEY_OFFSET].type() != tlv::DescriptionKey ||
         entry.elements()[VALUE_OFFSET].type() != tlv::DescriptionValue)
-      BOOST_THROW_EXCEPTION(Error("Invalid DescriptionKey or DescriptionValue field"));
+      NDN_THROW(Error("Invalid DescriptionKey or DescriptionValue field"));
 
     m_info[readString(entry.elements()[KEY_OFFSET])] = readString(entry.elements()[VALUE_OFFSET]);
     it++;

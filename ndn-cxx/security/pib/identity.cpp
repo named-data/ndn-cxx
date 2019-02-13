@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,7 +92,7 @@ Identity::lock() const
   auto impl = m_impl.lock();
 
   if (impl == nullptr)
-    BOOST_THROW_EXCEPTION(std::domain_error("Invalid Identity instance"));
+    NDN_THROW(std::domain_error("Invalid Identity instance"));
 
   return impl;
 }

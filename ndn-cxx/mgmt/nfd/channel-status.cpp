@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,18 +69,19 @@ void
 ChannelStatus::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::ChannelStatus) {
-    BOOST_THROW_EXCEPTION(Error("Expecting ChannelStatus block"));
+    NDN_THROW(Error("ChannelStatus", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
     m_localUri = readString(*val);
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Missing required LocalUri field"));
+    NDN_THROW(Error("Missing required LocalUri field"));
   }
 }
 

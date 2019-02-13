@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -105,21 +105,18 @@ const ConfigFile::Parsed&
 ConfigFile::parse()
 {
   if (m_path.empty()) {
-    BOOST_THROW_EXCEPTION(Error("Failed to locate configuration file for parsing"));
+    NDN_THROW(Error("Failed to locate configuration file for parsing"));
   }
   if (!m_input.is_open() && !open()) {
-    BOOST_THROW_EXCEPTION(Error("Failed to open configuration file for parsing"));
+    NDN_THROW(Error("Failed to open configuration file for parsing"));
   }
 
   try {
     boost::property_tree::read_ini(m_input, m_config);
   }
   catch (const boost::property_tree::ini_parser_error& error) {
-    std::ostringstream msg;
-    msg << "Failed to parse configuration file";
-    msg << " " << m_path;
-    msg << " " << error.message() << " line " << error.line();
-    BOOST_THROW_EXCEPTION(Error(msg.str()));
+    NDN_THROW(Error("Failed to parse configuration file " + error.filename() +
+                    " line " + to_string(error.line()) + ": " + error.message()));
   }
   return m_config;
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -84,8 +84,7 @@ public: // field access
   count() const
   {
     return std::count_if(m_wire.elements_begin(), m_wire.elements_end(),
-                         [] (const Block& block) {
-                           return block.type() == FIELD::TlvType::value; });
+                         [] (const Block& block) { return block.type() == FIELD::TlvType::value; });
   }
 
   /**
@@ -106,7 +105,7 @@ public: // field access
       }
     }
 
-    BOOST_THROW_EXCEPTION(std::out_of_range("Index out of range"));
+    NDN_THROW(std::out_of_range("lp::Packet::get: index out of range"));
   }
 
   /**
@@ -142,14 +141,14 @@ public: // field access
 
   /**
    * \brief add a FIELD with value
-   * \throw std::length_error if field already exists and is not repeatable
+   * \throw std::invalid_argument if field already exists and is not repeatable
    */
   template<typename FIELD>
   Packet&
   add(const typename FIELD::ValueType& value)
   {
     if (!FIELD::IsRepeatable::value && has<FIELD>()) {
-      BOOST_THROW_EXCEPTION(std::length_error("Field cannot be repeated"));
+      NDN_THROW(std::invalid_argument("lp::Packet::add: field cannot be repeated"));
     }
 
     EncodingEstimator estimator;
@@ -184,7 +183,7 @@ public: // field access
       }
     }
 
-    BOOST_THROW_EXCEPTION(std::out_of_range("Index out of range"));
+    NDN_THROW(std::out_of_range("lp::Packet::remove: index out of range"));
   }
 
   /**

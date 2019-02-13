@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -130,8 +130,9 @@ void
 ControlParameters::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::ControlParameters) {
-    BOOST_THROW_EXCEPTION(Error("Expecting TLV-TYPE ControlParameters"));
+    NDN_THROW(Error("ControlParameters", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
   Block::element_const_iterator val;
@@ -201,7 +202,7 @@ ControlParameters::wireDecode(const Block& block)
   if (this->hasStrategy()) {
     val->parse();
     if (val->elements().empty()) {
-      BOOST_THROW_EXCEPTION(Error("Expecting Strategy/Name"));
+      NDN_THROW(Error("Expecting Strategy/Name"));
     }
     else {
       m_strategy.wireDecode(*val->elements_begin());
@@ -243,7 +244,7 @@ bool
 ControlParameters::hasFlagBit(size_t bit) const
 {
   if (bit >= 64) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+    NDN_THROW(std::out_of_range("bit must be within range [0, 64)"));
   }
 
   if (!hasMask()) {
@@ -257,7 +258,7 @@ bool
 ControlParameters::getFlagBit(size_t bit) const
 {
   if (bit >= 64) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+    NDN_THROW(std::out_of_range("bit must be within range [0, 64)"));
   }
 
   if (!hasFlags()) {
@@ -271,7 +272,7 @@ ControlParameters&
 ControlParameters::setFlagBit(size_t bit, bool value, bool wantMask/* = true*/)
 {
   if (bit >= 64) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+    NDN_THROW(std::out_of_range("bit must be within range [0, 64)"));
   }
 
   uint64_t flags = hasFlags() ? getFlags() : 0;
@@ -296,7 +297,7 @@ ControlParameters&
 ControlParameters::unsetFlagBit(size_t bit)
 {
   if (bit >= 64) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+    NDN_THROW(std::out_of_range("bit must be within range [0, 64)"));
   }
 
   uint64_t mask = hasMask() ? getMask() : 0;

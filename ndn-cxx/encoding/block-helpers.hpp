@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,8 +73,7 @@ readNonNegativeIntegerAs(const Block& block)
 {
   uint64_t value = readNonNegativeInteger(block);
   if (value > std::numeric_limits<R>::max()) {
-    BOOST_THROW_EXCEPTION(tlv::Error("Value in TLV element of type " + to_string(block.type()) +
-                          " is too large"));
+    NDN_THROW(tlv::Error("Value in TLV element of type " + to_string(block.type()) + " is too large"));
   }
   return static_cast<R>(value);
 }

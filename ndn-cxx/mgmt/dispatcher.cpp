@@ -63,7 +63,7 @@ Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
                                   return x.first.isPrefixOf(prefix) || prefix.isPrefixOf(x.first);
                                 });
   if (hasOverlap) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("top-level prefix overlaps"));
+    NDN_THROW(std::out_of_range("top-level prefix overlaps"));
   }
 
   TopPrefixEntry& topPrefixEntry = m_topLevelPrefixes[prefix];
@@ -72,7 +72,7 @@ Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
     topPrefixEntry.registeredPrefix = m_face.registerPrefix(prefix,
       nullptr,
       [] (const Name&, const std::string& reason) {
-        BOOST_THROW_EXCEPTION(std::runtime_error("prefix registration failed: " + reason));
+        NDN_THROW(std::runtime_error("prefix registration failed: " + reason));
       },
       signingInfo);
   }
@@ -225,11 +225,11 @@ Dispatcher::addStatusDataset(const PartialName& relPrefix,
                              StatusDatasetHandler handle)
 {
   if (!m_topLevelPrefixes.empty()) {
-    BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));
+    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
   }
 
   if (isOverlappedWithOthers(relPrefix)) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("status dataset name overlaps"));
+    NDN_THROW(std::out_of_range("status dataset name overlaps"));
   }
 
   AuthorizationAcceptedCallback accepted =
@@ -300,11 +300,11 @@ PostNotification
 Dispatcher::addNotificationStream(const PartialName& relPrefix)
 {
   if (!m_topLevelPrefixes.empty()) {
-    BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));
+    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
   }
 
   if (isOverlappedWithOthers(relPrefix)) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("notification stream name overlaps"));
+    NDN_THROW(std::out_of_range("notification stream name overlaps"));
   }
 
   // register a handler for the subscriber of this notification stream

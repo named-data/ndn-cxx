@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,24 +73,25 @@ void
 StrategyChoice::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::StrategyChoice) {
-    BOOST_THROW_EXCEPTION(Error("expecting StrategyChoice block"));
+    NDN_THROW(Error("StrategyChoice", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::Name) {
     m_name.wireDecode(*val);
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Name field"));
+    NDN_THROW(Error("missing required Name field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Strategy) {
     val->parse();
     if (val->elements().empty()) {
-      BOOST_THROW_EXCEPTION(Error("expecting Strategy/Name"));
+      NDN_THROW(Error("expecting Strategy/Name"));
     }
     else {
       m_strategy.wireDecode(*val->elements_begin());
@@ -98,7 +99,7 @@ StrategyChoice::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Strategy field"));
+    NDN_THROW(Error("missing required Strategy field"));
   }
 }
 

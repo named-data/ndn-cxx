@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,12 +40,10 @@ DigestFilter::DigestFilter(DigestAlgorithm algo)
 {
   const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
   if (md == nullptr)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
-                                boost::lexical_cast<std::string>(algo)));
+    NDN_THROW(Error(getIndex(), "Unsupported digest algorithm " + boost::lexical_cast<std::string>(algo)));
 
   if (EVP_DigestInit_ex(m_impl->ctx, md, nullptr) == 0)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Cannot initialize digest " +
-                                boost::lexical_cast<std::string>(algo)));
+    NDN_THROW(Error(getIndex(), "Cannot initialize digest " + boost::lexical_cast<std::string>(algo)));
 }
 
 DigestFilter::~DigestFilter() = default;
@@ -54,7 +52,7 @@ size_t
 DigestFilter::convert(const uint8_t* buf, size_t size)
 {
   if (EVP_DigestUpdate(m_impl->ctx, buf, size) == 0)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
+    NDN_THROW(Error(getIndex(), "Failed to accept more input"));
 
   return size;
 }
@@ -66,7 +64,7 @@ DigestFilter::finalize()
   unsigned int mdLen = 0;
 
   if (EVP_DigestFinal_ex(m_impl->ctx, buffer->data(), &mdLen) == 0)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to finalize digest"));
+    NDN_THROW(Error(getIndex(), "Failed to finalize digest"));
 
   buffer->erase(buffer->begin() + mdLen, buffer->end());
   setOutputBuffer(std::move(buffer));

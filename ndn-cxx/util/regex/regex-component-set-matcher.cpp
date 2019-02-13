@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,7 +38,7 @@ void
 RegexComponentSetMatcher::compile()
 {
   if (m_expr.size() < 2)
-    BOOST_THROW_EXCEPTION(Error("Regexp compile error (cannot parse " + m_expr + ")"));
+    NDN_THROW(Error("Regexp compile error (cannot parse " + m_expr + ")"));
 
   switch (m_expr[0]) {
     case '<':
@@ -46,7 +46,7 @@ RegexComponentSetMatcher::compile()
     case '[': {
       size_t lastIndex = m_expr.size() - 1;
       if (']' != m_expr[lastIndex])
-        BOOST_THROW_EXCEPTION(Error("Regexp compile error (no matching ']' in " + m_expr + ")"));
+        NDN_THROW(Error("Regexp compile error (no matching ']' in " + m_expr + ")"));
 
       if ('^' == m_expr[1]) {
         m_isInclusion = false;
@@ -57,7 +57,7 @@ RegexComponentSetMatcher::compile()
       break;
     }
     default:
-      BOOST_THROW_EXCEPTION(Error("Regexp compile error (cannot parse " + m_expr + ")"));
+      NDN_THROW(Error("Regexp compile error (cannot parse " + m_expr + ")"));
   }
 }
 
@@ -66,7 +66,7 @@ RegexComponentSetMatcher::compileSingleComponent()
 {
   size_t end = extractComponent(1);
   if (m_expr.size() != end)
-    BOOST_THROW_EXCEPTION(Error("Component expr error " + m_expr));
+    NDN_THROW(Error("Component expr error " + m_expr));
 
   m_components.push_back(make_shared<RegexComponentMatcher>(m_expr.substr(1, end - 2), m_backrefManager));
 }
@@ -79,7 +79,7 @@ RegexComponentSetMatcher::compileMultipleComponents(size_t start, size_t lastInd
 
   while (index < lastIndex) {
     if ('<' != m_expr[index])
-      BOOST_THROW_EXCEPTION(Error("Component expr error " + m_expr));
+      NDN_THROW(Error("Component expr error " + m_expr));
 
     tempIndex = index + 1;
     index = extractComponent(tempIndex);
@@ -88,7 +88,7 @@ RegexComponentSetMatcher::compileMultipleComponents(size_t start, size_t lastInd
   }
 
   if (index != lastIndex)
-    BOOST_THROW_EXCEPTION(Error("Not sufficient expr to parse " + m_expr));
+    NDN_THROW(Error("Not sufficient expr to parse " + m_expr));
 }
 
 bool
@@ -131,7 +131,7 @@ RegexComponentSetMatcher::extractComponent(size_t index) const
         rcount++;
         break;
       case 0:
-        BOOST_THROW_EXCEPTION(Error("Square brackets mismatch"));
+        NDN_THROW(Error("Square brackets mismatch"));
         break;
     }
     index++;

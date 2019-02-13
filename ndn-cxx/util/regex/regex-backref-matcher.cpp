@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@ void
 RegexBackrefMatcher::compile()
 {
   if (m_expr.size() < 2)
-    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
+    NDN_THROW(Error("Unrecognized format: " + m_expr));
 
   size_t lastIndex = m_expr.size() - 1;
   if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
@@ -44,7 +44,7 @@ RegexBackrefMatcher::compile()
                                                               m_backrefManager));
   }
   else
-    BOOST_THROW_EXCEPTION(Error("Unrecognized format: " + m_expr));
+    NDN_THROW(Error("Unrecognized format: " + m_expr));
 }
 
 } // namespace ndn

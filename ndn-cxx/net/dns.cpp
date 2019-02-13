@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -150,7 +150,7 @@ syncResolve(const std::string& host,
   auto it = resolver.syncResolve(Resolver::query(host, ""));
 
   if (it == Resolver::iterator()) {
-    BOOST_THROW_EXCEPTION(Error("No endpoints match the specified address selector"));
+    NDN_THROW(Error("No endpoints match the specified address selector"));
   }
 
   return it->endpoint().address();

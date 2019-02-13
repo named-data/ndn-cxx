@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,7 +26,6 @@
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-#include <cerrno>
 #include <linux/genetlink.h>
 #include <sys/socket.h>
 
@@ -63,7 +62,7 @@ NetlinkSocket::open(int protocol)
 {
   int fd = ::socket(AF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, protocol);
   if (fd < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot create netlink socket ("s + std::strerror(errno) + ")"));
+    NDN_THROW_ERRNO(Error("Cannot create netlink socket"));
   }
   m_sock->assign(fd);
 
@@ -77,25 +76,25 @@ NetlinkSocket::open(int protocol)
   // enable control messages for received packets to get the destination group
   const int one = 1;
   if (::setsockopt(fd, SOL_NETLINK, NETLINK_PKTINFO, &one, sizeof(one)) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot enable NETLINK_PKTINFO ("s + std::strerror(errno) + ")"));
+    NDN_THROW_ERRNO(Error("Cannot enable NETLINK_PKTINFO"));
   }
 
   sockaddr_nl addr{};
   addr.nl_family = AF_NETLINK;
   if (::bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot bind netlink socket ("s + std::strerror(errno) + ")"));
+    NDN_THROW_ERRNO(Error("Cannot bind netlink socket"));
   }
 
   // find out what pid has been assigned to us
   socklen_t len = sizeof(addr);
   if (::getsockname(fd, reinterpret_cast<sockaddr*>(&addr), &len) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot obtain netlink socket address ("s + std::strerror(errno) + ")"));
+    NDN_THROW_ERRNO(Error("Cannot obtain netlink socket address"));
   }
   if (len != sizeof(addr)) {
-    BOOST_THROW_EXCEPTION(Error("Wrong address length (" + to_string(len) + ")"));
+    NDN_THROW(Error("Wrong address length (" + to_string(len) + ")"));
   }
   if (addr.nl_family != AF_NETLINK) {
-    BOOST_THROW_EXCEPTION(Error("Wrong address family (" + to_string(addr.nl_family) + ")"));
+    NDN_THROW(Error("Wrong address family (" + to_string(addr.nl_family) + ")"));
   }
   m_pid = addr.nl_pid;
   NDN_LOG_TRACE("our pid is " << m_pid);
@@ -114,8 +113,7 @@ NetlinkSocket::joinGroup(int group)
 {
   if (::setsockopt(m_sock->native_handle(), SOL_NETLINK, NETLINK_ADD_MEMBERSHIP,
                    &group, sizeof(group)) < 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot join netlink group " + to_string(group) +
-                                " (" + std::strerror(errno) + ")"));
+    NDN_THROW_ERRNO(Error("Cannot join netlink group " + to_string(group)));
   }
 }
 
@@ -166,7 +164,7 @@ NetlinkSocket::asyncWait()
       }
       else if (ec) {
         NDN_LOG_ERROR("read failed: " << ec.message());
-        BOOST_THROW_EXCEPTION(Error("Netlink socket read error (" + ec.message() + ")"));
+        NDN_THROW(Error("Netlink socket read error (" + ec.message() + ")"));
       }
       else {
         receiveAndValidate();
@@ -194,21 +192,20 @@ NetlinkSocket::receiveAndValidate()
 
   ssize_t nBytesRead = ::recvmsg(m_sock->native_handle(), &msg, 0);
   if (nBytesRead < 0) {
-    std::string errorString = std::strerror(errno);
     if (errno == EAGAIN || errno == EINTR || errno == EWOULDBLOCK) {
       // not a fatal error
-      NDN_LOG_DEBUG("recvmsg failed: " << errorString);
+      NDN_LOG_DEBUG("recvmsg failed: " << std::strerror(errno));
       return;
     }
-    NDN_LOG_ERROR("recvmsg failed: " << errorString);
-    BOOST_THROW_EXCEPTION(Error("Netlink socket receive error (" + errorString + ")"));
+    NDN_LOG_ERROR("recvmsg failed: " << std::strerror(errno));
+    NDN_THROW_ERRNO(Error("Netlink socket receive error"));
   }
 
   NDN_LOG_TRACE("read " << nBytesRead << " bytes from netlink socket");
 
   if (msg.msg_flags & MSG_TRUNC) {
     NDN_LOG_ERROR("truncated message");
-    BOOST_THROW_EXCEPTION(Error("Received truncated netlink message"));
+    NDN_THROW(Error("Received truncated netlink message"));
     // TODO: grow the buffer and start over
   }
 
@@ -256,7 +253,7 @@ NetlinkSocket::receiveAndValidate()
     }
     else if (nlmsg->nlmsg_flags & NLM_F_DUMP_INTR) {
       NDN_LOG_ERROR("dump is inconsistent");
-      BOOST_THROW_EXCEPTION(Error("Inconsistency detected in netlink dump"));
+      NDN_THROW(Error("Inconsistency detected in netlink dump"));
       // TODO: discard the rest of the message and retry the dump
     }
     else {
@@ -322,7 +319,7 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, MessageCallback cb)
       }
       else if (ec != boost::asio::error::operation_aborted) {
         NDN_LOG_ERROR("write failed: " << ec.message());
-        BOOST_THROW_EXCEPTION(Error("Failed to send netlink request (" + ec.message() + ")"));
+        NDN_THROW(Error("Failed to send netlink request (" + ec.message() + ")"));
       }
   });
 }
@@ -433,7 +430,7 @@ GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
       }
       else if (ec != boost::asio::error::operation_aborted) {
         NDN_LOG_ERROR("write failed: " << ec.message());
-        BOOST_THROW_EXCEPTION(Error("Failed to send netlink request (" + ec.message() + ")"));
+        NDN_THROW(Error("Failed to send netlink request (" + ec.message() + ")"));
       }
   });
 }
@@ -443,7 +440,7 @@ GenlFamilyResolver::GenlFamilyResolver(std::string familyName, GenlSocket& socke
   , m_family(std::move(familyName))
 {
   if (m_family.size() >= GENL_NAMSIZ) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("netlink family name '" + m_family + "' too long"));
+    NDN_THROW(std::invalid_argument("netlink family name '" + m_family + "' too long"));
   }
 
   NDN_LOG_TRACE("resolving netlink family " << m_family);

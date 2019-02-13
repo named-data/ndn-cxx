@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -139,7 +139,7 @@ Packet::wireDecode(const Block& wire)
   }
 
   if (wire.type() != tlv::LpPacket) {
-    BOOST_THROW_EXCEPTION(Error("unrecognized TLV-TYPE " + to_string(wire.type())));
+    NDN_THROW(Error("LpPacket", wire.type()));
   }
 
   wire.parse();
@@ -150,16 +150,16 @@ Packet::wireDecode(const Block& wire)
     FieldInfo info(element.type());
 
     if (!info.isRecognized && !info.canIgnore) {
-      BOOST_THROW_EXCEPTION(Error("unrecognized field " + to_string(element.type()) + " cannot be ignored"));
+      NDN_THROW(Error("unrecognized field " + to_string(element.type()) + " cannot be ignored"));
     }
 
     if (!isFirst) {
       if (info.tlvType == prev.tlvType && !info.isRepeatable) {
-        BOOST_THROW_EXCEPTION(Error("non-repeatable field " + to_string(element.type()) + " cannot be repeated"));
+        NDN_THROW(Error("non-repeatable field " + to_string(element.type()) + " cannot be repeated"));
       }
 
       else if (info.tlvType != prev.tlvType && !compareFieldSortOrder(prev, info)) {
-        BOOST_THROW_EXCEPTION(Error("fields are not in correct sort order"));
+        NDN_THROW(Error("fields are not in correct sort order"));
       }
     }
 

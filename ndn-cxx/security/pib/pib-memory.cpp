@@ -118,7 +118,7 @@ PibMemory::getDefaultIdentity() const
     return m_defaultIdentity;
   }
 
-  BOOST_THROW_EXCEPTION(Pib::Error("No default identity"));
+  NDN_THROW(Pib::Error("No default identity"));
 }
 
 bool
@@ -158,7 +158,7 @@ Buffer
 PibMemory::getKeyBits(const Name& keyName) const
 {
   if (!hasKey(keyName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Key `" + keyName.toUri() + "` not found"));
+    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` not found"));
   }
 
   auto key = m_keys.find(keyName);
@@ -182,7 +182,7 @@ void
 PibMemory::setDefaultKeyOfIdentity(const Name& identity, const Name& keyName)
 {
   if (!hasKey(keyName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Key `" + keyName.toUri() + "` not found"));
+    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` not found"));
   }
 
   m_defaultKeys[identity] = keyName;
@@ -193,7 +193,7 @@ PibMemory::getDefaultKeyOfIdentity(const Name& identity) const
 {
   auto defaultKey = m_defaultKeys.find(identity);
   if (defaultKey == m_defaultKeys.end()) {
-    BOOST_THROW_EXCEPTION(Pib::Error("No default key for identity `" + identity.toUri() + "`"));
+    NDN_THROW(Pib::Error("No default key for identity `" + identity.toUri() + "`"));
   }
 
   return defaultKey->second;
@@ -234,7 +234,7 @@ v2::Certificate
 PibMemory::getCertificate(const Name& certName) const
 {
   if (!hasCertificate(certName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
+    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
   }
 
   auto it = m_certs.find(certName);
@@ -257,7 +257,7 @@ void
 PibMemory::setDefaultCertificateOfKey(const Name& keyName, const Name& certName)
 {
   if (!hasCertificate(certName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
+    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
   }
 
   m_defaultCerts[keyName] = certName;
@@ -268,7 +268,7 @@ PibMemory::getDefaultCertificateOfKey(const Name& keyName) const
 {
   auto it = m_defaultCerts.find(keyName);
   if (it == m_defaultCerts.end()) {
-    BOOST_THROW_EXCEPTION(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
+    NDN_THROW(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
   }
 
   auto certIt = m_certs.find(it->second);

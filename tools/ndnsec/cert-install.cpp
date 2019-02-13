@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,7 +51,7 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
 
   requestStream.connect(host, port);
   if (!requestStream) {
-    BOOST_THROW_EXCEPTION(HttpException("HTTP connection error"));
+    NDN_THROW(HttpException("HTTP connection error"));
   }
 
   requestStream << "GET " << path << " HTTP/1.0\r\n";
@@ -64,7 +64,7 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
   std::string statusLine;
   std::getline(requestStream, statusLine);
   if (!requestStream) {
-    BOOST_THROW_EXCEPTION(HttpException("HTTP communication error"));
+    NDN_THROW(HttpException("HTTP communication error"));
   }
 
   std::stringstream responseStream(statusLine);
@@ -76,10 +76,10 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
 
   std::getline(responseStream, statusMessage);
   if (!requestStream || httpVersion.substr(0, 5) != "HTTP/") {
-    BOOST_THROW_EXCEPTION(HttpException("HTTP communication error"));
+    NDN_THROW(HttpException("HTTP communication error"));
   }
   if (statusCode != 200) {
-    BOOST_THROW_EXCEPTION(HttpException("HTTP server error"));
+    NDN_THROW(HttpException("HTTP server error"));
   }
   std::string header;
   while (std::getline(requestStream, header) && header != "\r")
@@ -152,38 +152,37 @@ ndnsec_cert_install(int argc, char** argv)
   }
 
   security::v2::Certificate cert;
-
   try {
-  if (certFileName.find("http://") == 0) {
-    std::string host;
-    std::string port;
-    std::string path;
+    if (certFileName.find("http://") == 0) {
+      std::string host;
+      std::string port;
+      std::string path;
 
-    size_t pos = 7; // offset of "http://"
-    size_t posSlash = certFileName.find("/", pos);
+      size_t pos = 7; // offset of "http://"
+      size_t posSlash = certFileName.find("/", pos);
 
-    if (posSlash == std::string::npos)
-      BOOST_THROW_EXCEPTION(HttpException("Request line is not correctly formatted"));
+      if (posSlash == std::string::npos)
+        NDN_THROW(HttpException("Request line is not correctly formatted"));
 
-    size_t posPort = certFileName.find(":", pos);
+      size_t posPort = certFileName.find(":", pos);
 
-    if (posPort != std::string::npos && posPort < posSlash) {
-      // port is specified
-      port = certFileName.substr(posPort + 1, posSlash - posPort - 1);
-      host = certFileName.substr(pos, posPort - pos);
+      if (posPort != std::string::npos && posPort < posSlash) {
+        // port is specified
+        port = certFileName.substr(posPort + 1, posSlash - posPort - 1);
+        host = certFileName.substr(pos, posPort - pos);
+      }
+      else {
+        port = "80";
+        host = certFileName.substr(pos, posSlash - pos);
+      }
+
+      path = certFileName.substr(posSlash, certFileName.size() - posSlash);
+
+      cert = getCertificateHttp(host, port, path);
     }
     else {
-      port = "80";
-      host = certFileName.substr(pos, posSlash - pos);
+      cert = loadCertificate(certFileName);
     }
-
-    path = certFileName.substr(posSlash, certFileName.size() - posSlash);
-
-    cert = getCertificateHttp(host, port, path);
-  }
-  else {
-    cert = loadCertificate(certFileName);
-  }
   }
   catch (const CannotLoadCertificate&) {
     std::cerr << "ERROR: Cannot load the certificate " << certFileName << std::endl;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -111,7 +111,7 @@ Key::lock() const
   auto impl = m_impl.lock();
 
   if (impl == nullptr) {
-    BOOST_THROW_EXCEPTION(std::domain_error("Invalid key instance"));
+    NDN_THROW(std::domain_error("Invalid key instance"));
   }
 
   return impl;
@@ -160,14 +160,13 @@ Name
 extractIdentityFromKeyName(const Name& keyName)
 {
   if (!isValidKeyName(keyName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Key name `" + keyName.toUri() + "` "
-                                                "does not follow the naming conventions"));
+    NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` "
+                                    "does not respect the naming conventions"));
   }
 
   return keyName.getPrefix(-Certificate::MIN_KEY_NAME_LENGTH); // trim everything after and including "KEY"
 }
 
 } // namespace v2
-
 } // namespace security
 } // namespace ndn

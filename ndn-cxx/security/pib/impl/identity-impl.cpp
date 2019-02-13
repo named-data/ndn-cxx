@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,7 +40,7 @@ IdentityImpl::IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl
     m_pib->addIdentity(m_name);
   }
   else if (!m_pib->hasIdentity(m_name)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Identity " + m_name.toUri() + " does not exist"));
+    NDN_THROW(Pib::Error("Identity " + m_name.toUri() + " does not exist"));
   }
 }
 

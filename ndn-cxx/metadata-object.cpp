@@ -21,8 +21,6 @@
 
 #include "ndn-cxx/metadata-object.hpp"
 
-#include <boost/lexical_cast.hpp>
-
 namespace ndn {
 
 static_assert(std::is_base_of<tlv::Error, MetadataObject::Error>::value,
@@ -35,14 +33,11 @@ MetadataObject::MetadataObject() = default;
 MetadataObject::MetadataObject(const Data& data)
 {
   if (data.getContentType() != tlv::ContentType_Blob) {
-    BOOST_THROW_EXCEPTION(Error("Expected ContentType to be BLOB but " +
-                                boost::lexical_cast<std::string>(data.getContentType()) +
-                                " is provided"));
+    NDN_THROW(Error("Expecting ContentType Blob, got " + to_string(data.getContentType())));
   }
 
   if (!isValidName(data.getName())) {
-    BOOST_THROW_EXCEPTION(Error("Name " + data.getName().toUri() +
-                                " is not a valid MetadataObject name"));
+    NDN_THROW(Error("Name " + data.getName().toUri() + " is not a valid MetadataObject name"));
   }
 
   data.getContent().parse();
@@ -58,8 +53,8 @@ MetadataObject::makeData(Name discoveryInterestName,
                          time::milliseconds freshnessPeriod) const
 {
   if (discoveryInterestName.empty() || discoveryInterestName[-1] != KEYWORD_METADATA_COMP) {
-    BOOST_THROW_EXCEPTION(Error("Name " + discoveryInterestName.toUri() +
-                                " is not a valid discovery Interest name"));
+    NDN_THROW(Error("Name " + discoveryInterestName.toUri() +
+                    " is not a valid discovery Interest name"));
   }
   discoveryInterestName.appendVersion(version);
   discoveryInterestName.appendSegment(0);

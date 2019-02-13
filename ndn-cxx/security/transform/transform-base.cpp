@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,7 +41,7 @@ size_t
 Downstream::write(const uint8_t* buf, size_t size)
 {
   if (m_isEnd)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Module is closed, no more input"));
+    NDN_THROW(Error(getIndex(), "Module is closed, no more input"));
 
   size_t nBytesWritten = doWrite(buf, size);
   BOOST_ASSERT(nBytesWritten <= size);

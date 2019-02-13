@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -104,14 +104,15 @@ FaceQueryFilter::wireEncode() const
 void
 FaceQueryFilter::wireDecode(const Block& block)
 {
-  // all fields are optional
   if (block.type() != tlv::nfd::FaceQueryFilter) {
-    BOOST_THROW_EXCEPTION(Error("expecting FaceQueryFilter block"));
+    NDN_THROW(Error("FaceQueryFilter", block.type()));
   }
 
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
+
+  // all fields are optional
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
     m_faceId = readNonNegativeInteger(*val);

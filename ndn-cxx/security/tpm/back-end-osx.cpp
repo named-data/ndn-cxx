@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -86,7 +86,7 @@ getAsymKeyType(KeyType keyType)
   case KeyType::EC:
     return kSecAttrKeyTypeECDSA;
   default:
-    BOOST_THROW_EXCEPTION(Tpm::Error("Unsupported key type"));
+    NDN_THROW(Tpm::Error("Unsupported key type"));
   }
 }
 
@@ -147,7 +147,7 @@ getKeyRef(const Name& keyName)
     return nullptr;
   }
   else {
-    BOOST_THROW_EXCEPTION(BackEnd::Error("Key lookup in keychain failed: " + getErrorMessage(res)));
+    NDN_THROW(BackEnd::Error("Key lookup in keychain failed: " + getErrorMessage(res)));
   }
 }
 
@@ -174,7 +174,7 @@ exportItem(const KeyRefOsx& keyRef, transform::PrivateKey& outKey)
                                &exportedKey.get());    // exportedData
 
   if (res != errSecSuccess) {
-    BOOST_THROW_EXCEPTION(BackEnd::Error("Failed to export private key: "s + getErrorMessage(res)));
+    NDN_THROW(BackEnd::Error("Failed to export private key: "s + getErrorMessage(res)));
   }
 
   outKey.loadPkcs8(CFDataGetBytePtr(exportedKey.get()), CFDataGetLength(exportedKey.get()),
@@ -188,7 +188,7 @@ BackEndOsx::BackEndOsx(const std::string&)
 
   OSStatus res = SecKeychainCopyDefault(&m_impl->keyChainRef);
   if (res == errSecNoDefaultKeychain) {
-    BOOST_THROW_EXCEPTION(Error("No default keychain, create one first"));
+    NDN_THROW(Error("No default keychain, create one first"));
   }
 }
 
@@ -250,29 +250,26 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const uint8_t
   CFReleaser<CFErrorRef> error;
   CFReleaser<SecTransformRef> signer = SecSignTransformCreate(key.get(), &error.get());
   if (signer == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to create sign transform: " + getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to create sign transform: " + getFailureReason(error.get())));
   }
 
   // Set input
   auto data = makeCFDataNoCopy(buf, size);
   SecTransformSetAttribute(signer.get(), kSecTransformInputAttributeName, data.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to configure input of sign transform: " +
-                                getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to configure input of sign transform: " + getFailureReason(error.get())));
   }
 
   // Enable use of padding
   SecTransformSetAttribute(signer.get(), kSecPaddingKey, kSecPaddingPKCS1Key, &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to configure padding of sign transform: " +
-                                getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to configure padding of sign transform: " + getFailureReason(error.get())));
   }
 
   // Set digest type
   SecTransformSetAttribute(signer.get(), kSecDigestTypeAttribute, getDigestAlgorithm(digestAlgo), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to configure digest type of sign transform: " +
-                                getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to configure digest type of sign transform: " + getFailureReason(error.get())));
   }
 
   // Set digest length
@@ -280,15 +277,14 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const uint8_t
   CFReleaser<CFNumberRef> cfDigestSize = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &digestSize);
   SecTransformSetAttribute(signer.get(), kSecDigestLengthAttribute, cfDigestSize.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to configure digest length of sign transform: " +
-                                getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to configure digest length of sign transform: " + getFailureReason(error.get())));
   }
 
   // Actually sign
   // C-style cast is used as per Apple convention
   CFReleaser<CFDataRef> signature = (CFDataRef)SecTransformExecute(signer.get(), &error.get());
   if (signature == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to sign data: " + getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to sign data: " + getFailureReason(error.get())));
   }
 
   return make_shared<Buffer>(CFDataGetBytePtr(signature.get()), CFDataGetLength(signature.get()));
@@ -300,26 +296,24 @@ BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t ciph
   CFReleaser<CFErrorRef> error;
   CFReleaser<SecTransformRef> decryptor = SecDecryptTransformCreate(key.get(), &error.get());
   if (decryptor == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to create decrypt transform: " + getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to create decrypt transform: " + getFailureReason(error.get())));
   }
 
   auto data = makeCFDataNoCopy(cipherText, cipherSize);
   SecTransformSetAttribute(decryptor.get(), kSecTransformInputAttributeName, data.get(), &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to configure input of decrypt transform: " +
-                                getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to configure input of decrypt transform: " + getFailureReason(error.get())));
   }
 
   SecTransformSetAttribute(decryptor.get(), kSecPaddingKey, kSecPaddingOAEPKey, &error.get());
   if (error != nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to configure padding of decrypt transform: " +
-                                getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to configure padding of decrypt transform: " + getFailureReason(error.get())));
   }
 
   // C-style cast is used as per Apple convention
   CFReleaser<CFDataRef> plainText = (CFDataRef)SecTransformExecute(decryptor.get(), &error.get());
   if (plainText == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to decrypt data: " + getFailureReason(error.get())));
+    NDN_THROW(Error("Failed to decrypt data: " + getFailureReason(error.get())));
   }
 
   return make_shared<Buffer>(CFDataGetBytePtr(plainText.get()), CFDataGetLength(plainText.get()));
@@ -367,7 +361,7 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
       break;
     }
     default: {
-      BOOST_THROW_EXCEPTION(Tpm::Error("Failed to generate key pair: Unsupported key type"));
+      NDN_THROW(Tpm::Error("Failed to generate key pair: Unsupported key type"));
     }
   }
   CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &keySize);
@@ -382,7 +376,7 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
   privateKey.retain();
 
   if (res != errSecSuccess) {
-    BOOST_THROW_EXCEPTION(Error("Failed to generate key pair: " + getErrorMessage(res)));
+    NDN_THROW(Error("Failed to generate key pair: " + getErrorMessage(res)));
   }
 
   unique_ptr<KeyHandle> keyHandle = make_unique<KeyHandleOsx>(privateKey.get());
@@ -417,7 +411,7 @@ BackEndOsx::doDeleteKey(const Name& keyName)
   OSStatus res = SecItemDelete(query.get());
 
   if (res != errSecSuccess && res != errSecItemNotFound) {
-    BOOST_THROW_EXCEPTION(Error("Failed to delete key pair: " + getErrorMessage(res)));
+    NDN_THROW(Error("Failed to delete key pair: " + getErrorMessage(res)));
   }
 }
 
@@ -426,7 +420,7 @@ BackEndOsx::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
 {
   KeyRefOsx keychainItem = getKeyRef(keyName);
   if (keychainItem == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Failed to export private key: " + getErrorMessage(errSecItemNotFound)));
+    NDN_THROW(Error("Failed to export private key: " + getErrorMessage(errSecItemNotFound)));
   }
 
   transform::PrivateKey exportedKey;
@@ -435,8 +429,8 @@ BackEndOsx::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
     exportItem(keychainItem, exportedKey);
     exportedKey.savePkcs8(pkcs8, pw, pwLen);
   }
-  catch (const transform::PrivateKey::Error& e) {
-    BOOST_THROW_EXCEPTION(Error("Failed to export private key: "s + e.what()));
+  catch (const transform::PrivateKey::Error&) {
+    NDN_THROW_NESTED(Error("Failed to export private key"));
   }
   return pkcs8.buf();
 }
@@ -452,8 +446,8 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
     privKey.loadPkcs8(buf, size, pw, pwLen);
     privKey.savePkcs1(pkcs1);
   }
-  catch (const transform::PrivateKey::Error& e) {
-    BOOST_THROW_EXCEPTION(Error("Failed to import private key: "s + e.what()));
+  catch (const transform::PrivateKey::Error&) {
+    NDN_THROW_NESTED(Error("Failed to import private key"));
   }
   auto keyToImport = makeCFDataNoCopy(pkcs1.buf()->data(), pkcs1.buf()->size());
 
@@ -468,7 +462,7 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
                                  &access.get()); // accessRef
 
   if (res != errSecSuccess) {
-    BOOST_THROW_EXCEPTION(Error("Failed to import private key: " + getErrorMessage(res)));
+    NDN_THROW(Error("Failed to import private key: " + getErrorMessage(res)));
   }
 
   SecItemImportExportKeyParameters keyParams;
@@ -487,7 +481,7 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
                       &outItems.get());    // outItems
 
   if (res != errSecSuccess) {
-    BOOST_THROW_EXCEPTION(Error("Failed to import private key: " + getErrorMessage(res)));
+    NDN_THROW(Error("Failed to import private key: " + getErrorMessage(res)));
   }
 
   // C-style cast is used as per Apple convention

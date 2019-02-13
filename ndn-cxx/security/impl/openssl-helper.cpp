@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,7 +77,7 @@ EvpMdCtx::EvpMdCtx()
 #endif
 {
   if (m_ctx == nullptr)
-    BOOST_THROW_EXCEPTION(std::runtime_error("EVP_MD_CTX creation failed"));
+    NDN_THROW(std::runtime_error("EVP_MD_CTX creation failed"));
 }
 
 EvpMdCtx::~EvpMdCtx()
@@ -93,14 +93,14 @@ EvpPkeyCtx::EvpPkeyCtx(EVP_PKEY* key)
   : m_ctx(EVP_PKEY_CTX_new(key, nullptr))
 {
   if (m_ctx == nullptr)
-    BOOST_THROW_EXCEPTION(std::runtime_error("EVP_PKEY_CTX creation failed"));
+    NDN_THROW(std::runtime_error("EVP_PKEY_CTX creation failed"));
 }
 
 EvpPkeyCtx::EvpPkeyCtx(int id)
   : m_ctx(EVP_PKEY_CTX_new_id(id, nullptr))
 {
   if (m_ctx == nullptr)
-    BOOST_THROW_EXCEPTION(std::runtime_error("EVP_PKEY_CTX creation failed"));
+    NDN_THROW(std::runtime_error("EVP_PKEY_CTX creation failed"));
 }
 
 EvpPkeyCtx::~EvpPkeyCtx()
@@ -112,7 +112,7 @@ Bio::Bio(Bio::MethodPtr method)
   : m_bio(BIO_new(method))
 {
   if (m_bio == nullptr)
-    BOOST_THROW_EXCEPTION(std::runtime_error("BIO creation failed"));
+    NDN_THROW(std::runtime_error("BIO creation failed"));
 }
 
 Bio::~Bio()

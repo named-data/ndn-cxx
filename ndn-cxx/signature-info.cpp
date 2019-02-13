@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,7 +61,7 @@ size_t
 SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   if (m_type == -1) {
-    BOOST_THROW_EXCEPTION(Error("Cannot encode invalid SignatureInfo"));
+    NDN_THROW(Error("Cannot encode invalid SignatureInfo"));
   }
 
   // SignatureInfo ::= SIGNATURE-INFO-TLV TLV-LENGTH
@@ -116,13 +116,13 @@ SignatureInfo::wireDecode(const Block& wire)
   m_wire.parse();
 
   if (m_wire.type() != tlv::SignatureInfo)
-    BOOST_THROW_EXCEPTION(Error("Decoding SignatureInfo, but TLV-TYPE is " + to_string(m_wire.type())));
+    NDN_THROW(Error("SignatureInfo", m_wire.type()));
 
   auto it = m_wire.elements_begin();
 
   // the first sub-element must be SignatureType
   if (it == m_wire.elements_end() || it->type() != tlv::SignatureType)
-    BOOST_THROW_EXCEPTION(Error("Missing SignatureType in SignatureInfo"));
+    NDN_THROW(Error("Missing SignatureType in SignatureInfo"));
 
   m_type = readNonNegativeIntegerAs<tlv::SignatureTypeValue>(*it);
   ++it;
@@ -154,7 +154,7 @@ SignatureInfo::getKeyLocator() const
   if (m_hasKeyLocator)
     return m_keyLocator;
   else
-    BOOST_THROW_EXCEPTION(Error("KeyLocator does not exist in SignatureInfo"));
+    NDN_THROW(Error("KeyLocator does not exist in SignatureInfo"));
 }
 
 void
@@ -177,7 +177,7 @@ security::ValidityPeriod
 SignatureInfo::getValidityPeriod() const
 {
   if (m_otherTlvs.empty() || m_otherTlvs.front().type() != tlv::ValidityPeriod) {
-    BOOST_THROW_EXCEPTION(Error("ValidityPeriod does not exist in SignatureInfo"));
+    NDN_THROW(Error("ValidityPeriod does not exist in SignatureInfo"));
   }
 
   return security::ValidityPeriod(m_otherTlvs.front());
@@ -207,7 +207,7 @@ SignatureInfo::getTypeSpecificTlv(uint32_t type) const
       return block;
   }
 
-  BOOST_THROW_EXCEPTION(Error("TLV-TYPE " + to_string(type) + " sub-element does not exist in SignatureInfo"));
+  NDN_THROW(Error("TLV-TYPE " + to_string(type) + " sub-element does not exist in SignatureInfo"));
 }
 
 void

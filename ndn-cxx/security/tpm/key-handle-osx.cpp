@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ KeyHandleOsx::KeyHandleOsx(const KeyRefOsx& key)
   : m_key(key)
 {
   if (m_key.get() == 0)
-    BOOST_THROW_EXCEPTION(Error("key is not set"));
+    NDN_THROW(Error("Key is not set"));
 }
 
 ConstBufferPtr

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,7 +60,7 @@ RegexComponentMatcher::match(const Name& name, size_t offset, size_t len)
   }
 
   if (!m_isExactMatch)
-    BOOST_THROW_EXCEPTION(Error("Non-exact component search is not supported yet"));
+    NDN_THROW(Error("Non-exact component search is not supported yet"));
 
   std::smatch subResult;
   std::string targetStr = name.get(offset).toUri();

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,6 @@
 #include "ndn-cxx/prefix-announcement.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-#include <boost/lexical_cast.hpp>
-
 namespace ndn {
 
 static const name::Component KEYWORD_PA_COMP = "20025041"_block;
@@ -34,14 +32,14 @@ PrefixAnnouncement::PrefixAnnouncement(Data data)
   : m_data(std::move(data))
 {
   if (m_data->getContentType() != tlv::ContentType_PrefixAnn) {
-    BOOST_THROW_EXCEPTION(Error("Data is not a prefix announcement: ContentType is " +
-                                boost::lexical_cast<std::string>(m_data->getContentType())));
+    NDN_THROW(Error("Data is not a prefix announcement: ContentType is " +
+                    to_string(m_data->getContentType())));
   }
 
   const Name& dataName = m_data->getName();
   if (dataName.size() < 3 || dataName[-3] != KEYWORD_PA_COMP ||
       !dataName[-2].isVersion() || !dataName[-1].isSegment()) {
-    BOOST_THROW_EXCEPTION(Error("Data is not a prefix announcement: wrong name structure"));
+    NDN_THROW(Error("Data is not a prefix announcement: wrong name structure"));
   }
   m_announcedName = dataName.getPrefix(-3);
 
@@ -58,8 +56,7 @@ PrefixAnnouncement::PrefixAnnouncement(Data data)
   for (const Block& element : payload.elements()) {
     if (element.type() != tlv::nfd::ExpirationPeriod && element.type() != tlv::ValidityPeriod &&
         tlv::isCriticalType(element.type())) {
-      BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
-                                  to_string(element.type())));
+      NDN_THROW(Error("unrecognized element of critical type " + to_string(element.type())));
     }
   }
 }
@@ -102,7 +99,7 @@ PrefixAnnouncement&
 PrefixAnnouncement::setExpiration(time::milliseconds expiration)
 {
   if (expiration < 0_ms) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("expiration period is negative"));
+    NDN_THROW(std::invalid_argument("expiration period is negative"));
   }
   m_data.reset();
   m_expiration = expiration;

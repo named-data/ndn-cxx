@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -81,7 +81,7 @@ SigningInfo::SigningInfo(const std::string& signingStr)
 
   size_t pos = signingStr.find(':');
   if (pos == std::string::npos) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid signing string cannot represent SigningInfo"));
+    NDN_THROW(std::invalid_argument("Invalid signing string cannot represent SigningInfo"));
   }
 
   std::string scheme = signingStr.substr(0, pos);
@@ -102,7 +102,7 @@ SigningInfo::SigningInfo(const std::string& signingStr)
     setSigningCertName(nameArg);
   }
   else {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid signing string scheme"));
+    NDN_THROW(std::invalid_argument("Invalid signing string scheme"));
   }
 }
 
@@ -181,7 +181,7 @@ operator<<(std::ostream& os, const SigningInfo& si)
       return os << "id:" << SigningInfo::getDigestSha256Identity();
   }
 
-  BOOST_THROW_EXCEPTION(std::invalid_argument("Unknown signer type"));
+  NDN_THROW(std::invalid_argument("Unknown signer type"));
   return os;
 }
 

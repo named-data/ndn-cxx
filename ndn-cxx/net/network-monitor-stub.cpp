@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,7 +71,7 @@ public: // internal
     BOOST_ASSERT(netif != nullptr);
     bool isNew = m_interfaces.emplace(netif->getName(), netif).second;
     if (!isNew) {
-      BOOST_THROW_EXCEPTION(std::invalid_argument("duplicate ifname"));
+      NDN_THROW(std::invalid_argument("duplicate ifname"));
     }
     this->emitSignal(onInterfaceAdded, netif);
   }

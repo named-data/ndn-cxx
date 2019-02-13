@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -83,18 +83,19 @@ void
 FaceEventNotification::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::FaceEventNotification) {
-    BOOST_THROW_EXCEPTION(Error("expecting FaceEventNotification block"));
+    NDN_THROW(Error("FaceEventNotification", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceEventKind) {
     m_kind = readNonNegativeIntegerAs<FaceEventKind>(*val);
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FaceEventKind field"));
+    NDN_THROW(Error("missing required FaceEventKind field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
@@ -102,7 +103,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FaceId field"));
+    NDN_THROW(Error("missing required FaceId field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
@@ -110,7 +111,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Uri field"));
+    NDN_THROW(Error("missing required Uri field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
@@ -118,7 +119,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required LocalUri field"));
+    NDN_THROW(Error("missing required LocalUri field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
@@ -126,7 +127,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FaceScope field"));
+    NDN_THROW(Error("missing required FaceScope field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
@@ -134,7 +135,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FacePersistency field"));
+    NDN_THROW(Error("missing required FacePersistency field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
@@ -142,7 +143,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required LinkType field"));
+    NDN_THROW(Error("missing required LinkType field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
@@ -150,7 +151,7 @@ FaceEventNotification::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
+    NDN_THROW(Error("missing required Flags field"));
   }
 }
 

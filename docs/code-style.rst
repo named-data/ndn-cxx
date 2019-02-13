@@ -669,9 +669,9 @@ notation).
 2.24. Exceptions can be suffixed with either ``Exception`` (e.g., ``SecurityException``) or
 ``Error`` (e.g., ``SecurityError``).
 
-    The recommended method is to declare exception class ``Exception`` or ``Error`` as an
-    inner class, from which the exception is thrown.  For example, when declaring class
-    ``Foo`` that can throw errors, one can write the following:
+    The recommended method is to declare an exception class ``Exception`` or ``Error`` as
+    a nested type inside the class from which the exception is thrown.  For example, when
+    defining a class ``Foo`` that can throw errors, one can write the following:
 
     .. code-block:: c++
 
@@ -686,7 +686,7 @@ notation).
             // You can inherit constructors from std::runtime_error like this:
             using std::runtime_error::runtime_error;
 
-            // Additional constructors, if desired, can be declared like this:
+            // Additional constructors, if desired, can be declared as usual:
             Error(const std::string& what, const std::exception& inner)
               : std::runtime_error(what + ": " + inner.what())
             {
@@ -1084,7 +1084,6 @@ member function or a virtual destructor.
         };
 
 3.31. The recommended way to throw an exception derived from ``std::exception`` is to use
-the ``BOOST_THROW_EXCEPTION``
-`macro <https://www.boost.org/doc/libs/1_58_0/libs/exception/doc/BOOST_THROW_EXCEPTION.html>`__.
-Exceptions thrown using this macro will be augmented with additional diagnostic information,
-including file name, line number, and function name from where the exception was thrown.
+``NDN_THROW`` or one of the other ``NDN_THROW_*`` macros.
+Exceptions thrown using these macros will be augmented with additional diagnostic information,
+including the file name, line number, and function name from which the exception was thrown.

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -82,7 +82,7 @@ void
 CsInfo::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::CsInfo) {
-    BOOST_THROW_EXCEPTION(Error("expecting CsInfo block, got " + to_string(block.type())));
+    NDN_THROW(Error("CsInfo", block.type()));
   }
   m_wire = block;
   m_wire.parse();
@@ -93,7 +93,7 @@ CsInfo::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Capacity field"));
+    NDN_THROW(Error("missing required Capacity field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
@@ -101,7 +101,7 @@ CsInfo::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
+    NDN_THROW(Error("missing required Flags field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NCsEntries) {
@@ -109,7 +109,7 @@ CsInfo::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NCsEntries field"));
+    NDN_THROW(Error("missing required NCsEntries field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NHits) {
@@ -117,7 +117,7 @@ CsInfo::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NHits field"));
+    NDN_THROW(Error("missing required NHits field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NMisses) {
@@ -125,7 +125,7 @@ CsInfo::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NMisses field"));
+    NDN_THROW(Error("missing required NMisses field"));
   }
 }
 

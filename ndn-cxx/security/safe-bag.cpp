@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -87,40 +87,43 @@ SafeBag::wireEncode() const
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
-  this->m_wire = buffer.block();
+  m_wire = buffer.block();
   return m_wire;
 }
 
 void
 SafeBag::wireDecode(const Block& wire)
 {
-  if (wire.type() != tlv::security::SafeBag)
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding safebag"));
+  if (wire.type() != tlv::security::SafeBag) {
+    NDN_THROW(tlv::Error("SafeBag", wire.type()));
+  }
 
-  this->m_wire = wire;
+  m_wire = wire;
   m_wire.parse();
-
-  Block::element_const_iterator it = m_wire.elements_begin();
+  auto it = m_wire.elements_begin();
 
   // Certificate must be the first part
   if (it != m_wire.elements_end()) {
-    this->m_certificate.wireDecode(*it);
+    m_certificate.wireDecode(*it);
     it++;
   }
-  else
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV structure when decoding certificate"));
+  else {
+    NDN_THROW(tlv::Error("Unexpected TLV structure when decoding Certificate"));
+  }
 
   // EncryptedKeyBag
   if (it != m_wire.elements_end() && it->type() == tlv::security::EncryptedKeyBag) {
-    this->m_encryptedKeyBag = Buffer(it->value(), it->value_size());
+    m_encryptedKeyBag = Buffer(it->value(), it->value_size());
     it++;
   }
-  else
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV structure when decoding encryptedkeybag"));
+  else {
+    NDN_THROW(tlv::Error("Unexpected TLV structure when decoding EncryptedKeyBag"));
+  }
 
   // Check if end
-  if (it != m_wire.elements_end())
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV structure after decoding the block"));
+  if (it != m_wire.elements_end()) {
+    NDN_THROW(tlv::Error("Unexpected TLV element at the end of SafeBag"));
+  }
 }
 
 } // namespace security

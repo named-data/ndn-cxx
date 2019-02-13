@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -145,7 +145,7 @@ public:
   getFlagBit(size_t bit) const
   {
     if (bit >= 64) {
-      BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+      NDN_THROW(std::out_of_range("bit must be within range [0, 64)"));
     }
     return m_flags & (1 << bit);
   }
@@ -154,7 +154,7 @@ public:
   setFlagBit(size_t bit, bool value)
   {
     if (bit >= 64) {
-      BOOST_THROW_EXCEPTION(std::out_of_range("bit must be within range [0, 64)"));
+      NDN_THROW(std::out_of_range("bit must be within range [0, 64)"));
     }
 
     m_wire.reset();

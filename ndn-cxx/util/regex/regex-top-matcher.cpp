@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -118,7 +118,7 @@ RegexTopMatcher::expand(const std::string& expandStr)
           result.append(i);
       }
       else
-        BOOST_THROW_EXCEPTION(Error("Exceed the range of back reference"));
+        NDN_THROW(Error("Exceeded the range of back reference"));
     }
   }
 
@@ -133,22 +133,22 @@ RegexTopMatcher::getItemFromExpand(const std::string& expand, size_t& offset)
   if (expand[offset] == '\\') {
     offset++;
     if (offset >= expand.size())
-      BOOST_THROW_EXCEPTION(Error("Wrong format of expand string"));
+      NDN_THROW(Error("Wrong format of expand string"));
 
     while (expand[offset] <= '9' and expand[offset] >= '0') {
       offset++;
       if (offset > expand.size())
-        BOOST_THROW_EXCEPTION(Error("Wrong format of expand string"));
+        NDN_THROW(Error("Wrong format of expand string"));
     }
     if (offset > begin + 1)
       return expand.substr(begin, offset - begin);
     else
-      BOOST_THROW_EXCEPTION(Error("Wrong format of expand string"));
+      NDN_THROW(Error("Wrong format of expand string"));
   }
   else if (expand[offset] == '<') {
     offset++;
     if (offset >= expand.size())
-      BOOST_THROW_EXCEPTION(Error("Wrong format of expand string"));
+      NDN_THROW(Error("Wrong format of expand string"));
 
     size_t left = 1;
     size_t right = 0;
@@ -159,12 +159,12 @@ RegexTopMatcher::getItemFromExpand(const std::string& expand, size_t& offset)
         right++;
       offset++;
       if (offset >= expand.size())
-        BOOST_THROW_EXCEPTION(Error("Wrong format of expand string"));
+        NDN_THROW(Error("Wrong format of expand string"));
     }
     return expand.substr(begin, offset - begin);
   }
   else
-    BOOST_THROW_EXCEPTION(Error("Wrong format of expand string"));
+    NDN_THROW(Error("Wrong format of expand string"));
 }
 
 shared_ptr<RegexTopMatcher>

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,23 +47,23 @@ const name::Component Certificate::KEY_COMPONENT("KEY");
 
 Certificate::Certificate()
 {
-  setContentType(tlv::ContentTypeValue::ContentType_Key);
+  setContentType(tlv::ContentType_Key);
 }
 
 Certificate::Certificate(Data&& data)
   : Data(data)
 {
   if (!isValidName(getName())) {
-    BOOST_THROW_EXCEPTION(Data::Error("Name does not follow the naming convention for certificate"));
+    NDN_THROW(Data::Error("Name does not follow the naming convention for certificate"));
   }
-  if (getContentType() != tlv::ContentTypeValue::ContentType_Key) {
-    BOOST_THROW_EXCEPTION(Data::Error("ContentType is not KEY"));
+  if (getContentType() != tlv::ContentType_Key) {
+    NDN_THROW(Data::Error("Expecting ContentType Key, got " + to_string(getContentType())));
   }
   if (getFreshnessPeriod() < time::seconds::zero()) {
-    BOOST_THROW_EXCEPTION(Data::Error("FreshnessPeriod is not set"));
+    NDN_THROW(Data::Error("FreshnessPeriod is not set"));
   }
   if (getContent().value_size() == 0) {
-    BOOST_THROW_EXCEPTION(Data::Error("Content is empty"));
+    NDN_THROW(Data::Error("Content is empty"));
   }
 }
 
@@ -105,7 +105,7 @@ Buffer
 Certificate::getPublicKey() const
 {
   if (getContent().value_size() == 0)
-    BOOST_THROW_EXCEPTION(Data::Error("Content is empty"));
+    NDN_THROW(Data::Error("Content is empty"));
   return Buffer(getContent().value(), getContent().value_size());
 }
 
@@ -185,8 +185,8 @@ Name
 extractIdentityFromCertName(const Name& certName)
 {
   if (!Certificate::isValidName(certName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
-                                                "does not follow the naming conventions"));
+    NDN_THROW(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                    "does not respect the naming conventions"));
   }
 
   return certName.getPrefix(Certificate::KEY_COMPONENT_OFFSET); // trim everything after and including "KEY"
@@ -196,8 +196,8 @@ Name
 extractKeyNameFromCertName(const Name& certName)
 {
   if (!Certificate::isValidName(certName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
-                                                "does not follow the naming conventions"));
+    NDN_THROW(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
+                                    "does not respect the naming conventions"));
   }
 
   return certName.getPrefix(Certificate::KEY_ID_OFFSET + 1); // trim everything after key id

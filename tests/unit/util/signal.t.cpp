@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -424,14 +424,17 @@ BOOST_AUTO_TEST_CASE(ThrowInHandler)
 {
   SignalOwner0 so;
 
-  struct HandlerError : public std::exception
+  class HandlerError : public std::exception
   {
   };
 
   int hit = 0;
   so.sig.connect([&] {
     ++hit;
-    BOOST_THROW_EXCEPTION(HandlerError());
+    // use plain 'throw' to ensure that Signal does not depend on the internal
+    // machinery of NDN_THROW and that it can catch all exceptions regardless
+    // of how they are thrown by the application
+    throw HandlerError{};
   });
 
   BOOST_CHECK_THROW(so.emitSignal(sig), HandlerError);

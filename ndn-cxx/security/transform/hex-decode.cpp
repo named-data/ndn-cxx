@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,7 +77,7 @@ void
 HexDecode::finalize()
 {
   if (m_hasOddByte)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Incomplete input"));
+    NDN_THROW(Error(getIndex(), "Incomplete input"));
 }
 
 unique_ptr<Transform::OBuffer>
@@ -89,7 +89,7 @@ HexDecode::toBytes(const uint8_t* hex, size_t hexLen)
 
   if (m_hasOddByte) {
     if (C2H[hex[0]] < 0 || C2H[m_oddByte] < 0)
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Wrong input byte"));
+      NDN_THROW(Error(getIndex(), "Wrong input byte"));
 
     *it = (C2H[m_oddByte] << 4) + C2H[hex[0]];
     ++it;
@@ -99,7 +99,7 @@ HexDecode::toBytes(const uint8_t* hex, size_t hexLen)
 
   while (hexLen >= 2) {
     if (C2H[hex[0]] < 0 || C2H[hex[1]] < 0)
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Wrong input byte"));
+      NDN_THROW(Error(getIndex(), "Wrong input byte"));
 
     *it = (C2H[hex[0]] << 4) + C2H[hex[1]];
     ++it;

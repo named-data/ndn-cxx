@@ -137,7 +137,7 @@ InMemoryStorage::setCapacity(size_t capacity)
     ssize_t nAllowedFailures = size() - m_capacity;
     while (size() > m_capacity) {
       if (!evictItem() && --nAllowedFailures < 0) {
-        BOOST_THROW_EXCEPTION(Error());
+        NDN_THROW(Error());
       }
     }
   }

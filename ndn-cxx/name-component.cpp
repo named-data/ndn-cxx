@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,7 +44,7 @@ void
 Component::ensureValid() const
 {
   if (type() < tlv::NameComponentMin || type() > tlv::NameComponentMax) {
-    BOOST_THROW_EXCEPTION(Error("TLV-TYPE " + to_string(type()) + " is not a valid NameComponent"));
+    NDN_THROW(Error("TLV-TYPE " + to_string(type()) + " is not a valid NameComponent"));
   }
   detail::getComponentTypeTable().get(type()).check(*this);
 }
@@ -91,7 +91,7 @@ parseUriEscapedValue(uint32_t type, const char* input, size_t len)
   std::string value = oss.str();
   if (value.find_first_not_of('.') == std::string::npos) { // all periods
     if (value.size() < 3) {
-      BOOST_THROW_EXCEPTION(Component::Error("Illegal URI (name component cannot be . or ..)"));
+      NDN_THROW(Component::Error("Illegal URI (name component cannot be . or ..)"));
     }
     return Component(type, reinterpret_cast<const uint8_t*>(value.data()), value.size() - 3);
   }
@@ -117,7 +117,7 @@ Component::fromEscapedString(const std::string& input)
   auto typePrefix = input.substr(0, equalPos);
   auto ct = detail::getComponentTypeTable().findByUriPrefix(typePrefix);
   if (ct == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Incorrect TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
+    NDN_THROW(Error("Incorrect TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
   }
   return ct->parseAltUriValue(input.substr(equalPos + 1));
 }
@@ -189,7 +189,7 @@ uint64_t
 Component::toNumber() const
 {
   if (!isNumber())
-    BOOST_THROW_EXCEPTION(Error("Name component does not have nonNegativeInteger value"));
+    NDN_THROW(Error("Name component does not have nonNegativeInteger value"));
 
   return readNonNegativeInteger(*this);
 }
@@ -198,8 +198,8 @@ uint64_t
 Component::toNumberWithMarker(uint8_t marker) const
 {
   if (!isNumberWithMarker(marker))
-    BOOST_THROW_EXCEPTION(Error("Name component does not have the requested marker "
-                                "or the value is not a nonNegativeInteger"));
+    NDN_THROW(Error("Name component does not have the requested marker "
+                    "or the value is not a nonNegativeInteger"));
 
   Buffer::const_iterator valueBegin = value_begin() + 1;
   return tlv::readNonNegativeInteger(value_size() - 1, valueBegin, value_end());

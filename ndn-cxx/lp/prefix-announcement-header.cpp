@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@ PrefixAnnouncementHeader::PrefixAnnouncementHeader(PrefixAnnouncement prefixAnn)
   : m_prefixAnn(std::move(prefixAnn))
 {
   if (m_prefixAnn->getData() == nullopt) {
-    BOOST_THROW_EXCEPTION(Error("PrefixAnnouncement does not contain Data"));
+    NDN_THROW(Error("PrefixAnnouncement does not contain Data"));
   }
 }
 
@@ -45,7 +45,7 @@ size_t
 PrefixAnnouncementHeader::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   if (m_prefixAnn == nullopt) {
-    BOOST_THROW_EXCEPTION(Error("PrefixAnnouncementHeader does not contain a PrefixAnnouncement"));
+    NDN_THROW(Error("PrefixAnnouncementHeader does not contain a PrefixAnnouncement"));
   }
 
   size_t length = 0;
@@ -61,7 +61,7 @@ void
 PrefixAnnouncementHeader::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::PrefixAnnouncement) {
-    BOOST_THROW_EXCEPTION(Error("Unexpected TLV-TYPE " + to_string(wire.type())));
+    NDN_THROW(Error("PrefixAnnouncement", wire.type()));
   }
 
   wire.parse();

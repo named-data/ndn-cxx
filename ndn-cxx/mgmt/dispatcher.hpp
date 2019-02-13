@@ -463,11 +463,11 @@ Dispatcher::addControlCommand(const PartialName& relPrefix,
                               ControlCommandHandler handle)
 {
   if (!m_topLevelPrefixes.empty()) {
-    BOOST_THROW_EXCEPTION(std::domain_error("one or more top-level prefix has been added"));
+    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
   }
 
   if (isOverlappedWithOthers(relPrefix)) {
-    BOOST_THROW_EXCEPTION(std::out_of_range("relPrefix overlaps with another relPrefix"));
+    NDN_THROW(std::out_of_range("relPrefix overlaps with another relPrefix"));
   }
 
   auto parser = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {

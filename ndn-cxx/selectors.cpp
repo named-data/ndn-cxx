@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -131,7 +131,7 @@ void
 Selectors::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::Selectors)
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Selectors"));
+    NDN_THROW(tlv::Error("Selectors", wire.type()));
 
   *this = Selectors();
 
@@ -214,7 +214,7 @@ Selectors&
 Selectors::setChildSelector(int childSelector)
 {
   if (childSelector != 0 && childSelector != 1) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("ChildSelector must be 0 or 1"));
+    NDN_THROW(std::invalid_argument("ChildSelector must be 0 or 1"));
   }
   m_childSelector = childSelector;
   m_wire.reset();

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,13 +69,13 @@ protected:
       if (error == boost::system::errc::operation_canceled)
         return;
 
-      BOOST_THROW_EXCEPTION(Transport::Error(error, "Error during resolution of host or port"));
+      NDN_THROW(Transport::Error(error, "Error during resolution of host or port"));
     }
 
     typename Protocol::resolver::iterator end;
     if (endpoint == end) {
       this->m_transport.close();
-      BOOST_THROW_EXCEPTION(Transport::Error(error, "Unable to resolve host or port"));
+      NDN_THROW(Transport::Error(error, "Unable to resolve host or port"));
     }
 
     this->m_socket.async_connect(*endpoint, bind(&Impl::connectHandler, this->shared_from_this(), _1));

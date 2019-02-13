@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,7 +45,7 @@ RegexPatternListMatcher::compile()
     subHead = index;
 
     if (!extractPattern(subHead, &index))
-      BOOST_THROW_EXCEPTION(Error("Compile error"));
+      NDN_THROW(Error("Compile error"));
   }
 }
 
@@ -93,7 +93,7 @@ RegexPatternListMatcher::extractPattern(size_t index, size_t* next)
     break;
 
   default:
-    BOOST_THROW_EXCEPTION(Error("Unexpected syntax"));
+    NDN_THROW(Error("Unexpected character "s + m_expr[index]));
   }
 
   *next = end;
@@ -108,7 +108,7 @@ RegexPatternListMatcher::extractSubPattern(const char left, const char right, si
 
   while (lcount > rcount) {
     if (index >= m_expr.size())
-      BOOST_THROW_EXCEPTION(Error("Parenthesis mismatch"));
+      NDN_THROW(Error("Parenthesis mismatch"));
 
     if (left == m_expr[index])
       lcount++;
@@ -141,7 +141,7 @@ RegexPatternListMatcher::extractRepetition(size_t index)
         break;
     }
     if (index == exprSize)
-      BOOST_THROW_EXCEPTION(Error("Missing right brace bracket"));
+      NDN_THROW(Error("Missing closing brace"));
     else
       return ++index;
   }

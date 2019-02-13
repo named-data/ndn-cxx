@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -96,23 +96,23 @@ void
 ValidityPeriod::wireDecode(const Block& wire)
 {
   if (!wire.hasWire()) {
-    BOOST_THROW_EXCEPTION(Error("The supplied block does not contain wire format"));
+    NDN_THROW(Error("The supplied block does not contain wire format"));
   }
 
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.type() != tlv::ValidityPeriod)
-    BOOST_THROW_EXCEPTION(Error("Unexpected TLV type when decoding ValidityPeriod"));
+    NDN_THROW(Error("ValidityPeriod", m_wire.type()));
 
   if (m_wire.elements_size() != 2)
-    BOOST_THROW_EXCEPTION(Error("Does not have two sub-TLVs"));
+    NDN_THROW(Error("ValidityPeriod does not have two sub-TLVs"));
 
   if (m_wire.elements()[NOT_BEFORE_OFFSET].type() != tlv::NotBefore ||
       m_wire.elements()[NOT_BEFORE_OFFSET].value_size() != ISO_DATETIME_SIZE ||
       m_wire.elements()[NOT_AFTER_OFFSET].type() != tlv::NotAfter ||
       m_wire.elements()[NOT_AFTER_OFFSET].value_size() != ISO_DATETIME_SIZE) {
-    BOOST_THROW_EXCEPTION(Error("Invalid NotBefore or NotAfter field"));
+    NDN_THROW(Error("Invalid NotBefore or NotAfter field"));
   }
 
   try {
@@ -122,7 +122,7 @@ ValidityPeriod::wireDecode(const Block& wire)
                    time::fromIsoString(readString(m_wire.elements()[NOT_AFTER_OFFSET])));
   }
   catch (const std::bad_cast&) {
-    BOOST_THROW_EXCEPTION(Error("Invalid date format in NOT-BEFORE or NOT-AFTER field"));
+    NDN_THROW(Error("Invalid date format in NOT-BEFORE or NOT-AFTER field"));
   }
 }
 

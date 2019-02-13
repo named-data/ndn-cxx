@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,7 +53,7 @@ operator<<(std::ostream& os, LogLevel level)
     return os << "ALL";
   }
 
-  BOOST_THROW_EXCEPTION(std::invalid_argument("unknown log level " + to_string(static_cast<int>(level))));
+  NDN_THROW(std::invalid_argument("unknown log level " + to_string(static_cast<int>(level))));
 }
 
 LogLevel
@@ -76,7 +76,7 @@ parseLogLevel(const std::string& s)
   else if (s == "ALL")
     return LogLevel::ALL;
 
-  BOOST_THROW_EXCEPTION(std::invalid_argument("unrecognized log level '" + s + "'"));
+  NDN_THROW(std::invalid_argument("unrecognized log level '" + s + "'"));
 }
 
 /**
@@ -104,7 +104,7 @@ Logger::Logger(const char* name)
   : m_moduleName(name)
 {
   if (!isValidLoggerName(m_moduleName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name '" + m_moduleName + "' is invalid"));
+    NDN_THROW(std::invalid_argument("Logger name '" + m_moduleName + "' is invalid"));
   }
   this->setLevel(LogLevel::NONE);
   Logging::get().addLoggerImpl(*this);
@@ -115,7 +115,7 @@ Logger::registerModuleName(const char* name)
 {
   std::string moduleName(name);
   if (!isValidLoggerName(moduleName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Logger name '" + moduleName + "' is invalid"));
+    NDN_THROW(std::invalid_argument("Logger name '" + moduleName + "' is invalid"));
   }
   Logging::get().registerLoggerNameImpl(std::move(moduleName));
 }

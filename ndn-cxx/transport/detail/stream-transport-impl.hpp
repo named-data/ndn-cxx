@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -145,7 +145,7 @@ protected:
     else {
       m_transport.m_isConnected = false;
       m_transport.close();
-      BOOST_THROW_EXCEPTION(Transport::Error(error, "error while connecting to the forwarder"));
+      NDN_THROW(Transport::Error(error, "error while connecting to the forwarder"));
     }
   }
 
@@ -156,7 +156,7 @@ protected:
       return;
 
     m_transport.close();
-    BOOST_THROW_EXCEPTION(Transport::Error(error, "error while connecting to the forwarder"));
+    NDN_THROW(Transport::Error(error, "error while connecting to the forwarder"));
   }
 
   void
@@ -190,7 +190,7 @@ protected:
       }
 
       m_transport.close();
-      BOOST_THROW_EXCEPTION(Transport::Error(error, "error while sending data to socket"));
+      NDN_THROW(Transport::Error(error, "error while sending data to socket"));
     }
 
     if (!m_transport.m_isConnected) {
@@ -222,7 +222,7 @@ protected:
       }
 
       m_transport.close();
-      BOOST_THROW_EXCEPTION(Transport::Error(error, "error while receiving data from socket"));
+      NDN_THROW(Transport::Error(error, "error while receiving data from socket"));
     }
 
     m_inputBufferSize += nBytesRecvd;
@@ -232,9 +232,8 @@ protected:
     bool hasProcessedSome = processAllReceived(m_inputBuffer, offset, m_inputBufferSize);
     if (!hasProcessedSome && m_inputBufferSize == MAX_NDN_PACKET_SIZE && offset == 0) {
       m_transport.close();
-      BOOST_THROW_EXCEPTION(Transport::Error(boost::system::error_code(),
-                                             "input buffer full, but a valid TLV cannot be "
-                                             "decoded"));
+      NDN_THROW(Transport::Error(boost::system::error_code(),
+                                 "input buffer full, but a valid TLV cannot be decoded"));
     }
 
     if (offset > 0) {

@@ -53,6 +53,8 @@ class Error : public std::runtime_error
 {
 public:
   using std::runtime_error::runtime_error;
+
+  Error(const char* expectedType, uint32_t actualType);
 };
 
 /** @brief TLV-TYPE numbers defined in NDN Packet Format v0.3
@@ -420,13 +422,13 @@ uint64_t
 readVarNumber(Iterator& begin, Iterator end)
 {
   if (begin == end) {
-    BOOST_THROW_EXCEPTION(Error("Empty buffer during TLV parsing"));
+    NDN_THROW(Error("Empty buffer during TLV parsing"));
   }
 
   uint64_t value = 0;
   bool isOk = readVarNumber(begin, end, value);
   if (!isOk) {
-    BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV parsing"));
+    NDN_THROW(Error("Insufficient data during TLV parsing"));
   }
 
   return value;
@@ -438,7 +440,7 @@ readType(Iterator& begin, Iterator end)
 {
   uint64_t type = readVarNumber(begin, end);
   if (type > std::numeric_limits<uint32_t>::max()) {
-    BOOST_THROW_EXCEPTION(Error("TLV-TYPE number exceeds allowed maximum"));
+    NDN_THROW(Error("TLV-TYPE number exceeds allowed maximum"));
   }
 
   return static_cast<uint32_t>(type);
@@ -484,14 +486,13 @@ uint64_t
 readNonNegativeInteger(size_t size, Iterator& begin, Iterator end)
 {
   if (size != 1 && size != 2 && size != 4 && size != 8) {
-    BOOST_THROW_EXCEPTION(Error("Invalid length for nonNegativeInteger "
-                                "(only 1, 2, 4, and 8 are allowed)"));
+    NDN_THROW(Error("Invalid length " + to_string(size) + " for nonNegativeInteger"));
   }
 
   uint64_t number = 0;
   bool isOk = detail::ReadNumber<Iterator>()(size, begin, end, number);
   if (!isOk) {
-    BOOST_THROW_EXCEPTION(Error("Insufficient data during TLV parsing"));
+    NDN_THROW(Error("Insufficient data during nonNegativeInteger parsing"));
   }
 
   return number;

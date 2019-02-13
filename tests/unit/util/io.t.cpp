@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,7 +93,7 @@ public:
   wireEncode() const
   {
     if (shouldThrow) {
-      BOOST_THROW_EXCEPTION(tlv::Error("encode error"));
+      NDN_THROW(tlv::Error("encode error"));
     }
 
     // block will be 0xAA, 0x01, 0xDD
@@ -120,7 +120,7 @@ public:
   wireDecode(const Block& block)
   {
     if (m_shouldThrow) {
-      BOOST_THROW_EXCEPTION(tlv::Error("decode error"));
+      NDN_THROW(tlv::Error("decode error"));
     }
 
     // block must be 0xBB, 0x01, 0xEE

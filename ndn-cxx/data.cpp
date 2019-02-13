@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,7 +59,7 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
   // SignatureValue
   if (!wantUnsignedPortionOnly) {
     if (!m_signature) {
-      BOOST_THROW_EXCEPTION(Error("Requested wire format, but Data has not been signed"));
+      NDN_THROW(Error("Requested wire format, but Data has not been signed"));
     }
     totalLength += encoder.prependBlock(m_signature.getValue());
   }
@@ -133,7 +133,7 @@ Data::wireDecode(const Block& wire)
 
   auto element = m_wire.elements_begin();
   if (element == m_wire.elements_end() || element->type() != tlv::Name) {
-    BOOST_THROW_EXCEPTION(Error("Name element is missing or out of order"));
+    NDN_THROW(Error("Name element is missing or out of order"));
   }
   m_name.wireDecode(*element);
   int lastElement = 1; // last recognized element index, in spec order
@@ -147,7 +147,7 @@ Data::wireDecode(const Block& wire)
     switch (element->type()) {
       case tlv::MetaInfo: {
         if (lastElement >= 2) {
-          BOOST_THROW_EXCEPTION(Error("MetaInfo element is out of order"));
+          NDN_THROW(Error("MetaInfo element is out of order"));
         }
         m_metaInfo.wireDecode(*element);
         lastElement = 2;
@@ -155,7 +155,7 @@ Data::wireDecode(const Block& wire)
       }
       case tlv::Content: {
         if (lastElement >= 3) {
-          BOOST_THROW_EXCEPTION(Error("Content element is out of order"));
+          NDN_THROW(Error("Content element is out of order"));
         }
         m_content = *element;
         lastElement = 3;
@@ -163,7 +163,7 @@ Data::wireDecode(const Block& wire)
       }
       case tlv::SignatureInfo: {
         if (lastElement >= 4) {
-          BOOST_THROW_EXCEPTION(Error("SignatureInfo element is out of order"));
+          NDN_THROW(Error("SignatureInfo element is out of order"));
         }
         m_signature.setInfo(*element);
         lastElement = 4;
@@ -171,7 +171,7 @@ Data::wireDecode(const Block& wire)
       }
       case tlv::SignatureValue: {
         if (lastElement >= 5) {
-          BOOST_THROW_EXCEPTION(Error("SignatureValue element is out of order"));
+          NDN_THROW(Error("SignatureValue element is out of order"));
         }
         m_signature.setValue(*element);
         lastElement = 5;
@@ -179,8 +179,7 @@ Data::wireDecode(const Block& wire)
       }
       default: {
         if (tlv::isCriticalType(element->type())) {
-          BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
-                                      to_string(element->type())));
+          NDN_THROW(Error("unrecognized element of critical type " + to_string(element->type())));
         }
         break;
       }
@@ -188,7 +187,7 @@ Data::wireDecode(const Block& wire)
   }
 
   if (!m_signature) {
-    BOOST_THROW_EXCEPTION(Error("SignatureInfo element is missing"));
+    NDN_THROW(Error("SignatureInfo element is missing"));
   }
 }
 
@@ -197,7 +196,7 @@ Data::getFullName() const
 {
   if (m_fullName.empty()) {
     if (!m_wire.hasWire()) {
-      BOOST_THROW_EXCEPTION(Error("Cannot compute full name because Data has no wire encoding (not signed)"));
+      NDN_THROW(Error("Cannot compute full name because Data has no wire encoding (not signed)"));
     }
     m_fullName = m_name;
     m_fullName.appendImplicitSha256Digest(util::Sha256::computeDigest(m_wire.wire(), m_wire.size()));

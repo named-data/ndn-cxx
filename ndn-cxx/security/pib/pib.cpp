@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,7 +62,7 @@ Pib::getTpmLocator() const
 {
   std::string tpmLocator = m_impl->getTpmLocator();
   if (tpmLocator.empty()) {
-    BOOST_THROW_EXCEPTION(Pib::Error("TPM info does not exist"));
+    NDN_THROW(Pib::Error("TPM info does not exist"));
   }
   return tpmLocator;
 }

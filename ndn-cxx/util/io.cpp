@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,11 +79,11 @@ saveBlock(const Block& block, std::ostream& os, IoEncoding encoding)
         t::bufferSource(block.wire(), block.size()) >> t::hexEncode(true) >> t::streamSink(os);
         break;
       default:
-        BOOST_THROW_EXCEPTION(Error("unrecognized IoEncoding"));
+        NDN_THROW(Error("Unknown IoEncoding " + to_string(encoding)));
     }
   }
-  catch (const t::Error& e) {
-    BOOST_THROW_EXCEPTION(Error(e.what()));
+  catch (const t::Error&) {
+    NDN_THROW_NESTED(Error("Transform error during save"));
   }
 }
 

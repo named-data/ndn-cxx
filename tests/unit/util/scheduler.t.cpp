@@ -85,7 +85,12 @@ BOOST_AUTO_TEST_CASE(CallbackException)
   class MyException : public std::exception
   {
   };
-  scheduler.scheduleEvent(10_ms, [] { BOOST_THROW_EXCEPTION(MyException()); });
+  scheduler.scheduleEvent(10_ms, [] {
+    // use plain 'throw' to ensure that Scheduler does not depend on the
+    // internal machinery of NDN_THROW and that it can catch all exceptions
+    // regardless of how they are thrown by the application
+    throw MyException{};
+  });
 
   bool isCallbackInvoked = false;
   scheduler.scheduleEvent(20_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@ Sqlite3Statement::Sqlite3Statement(sqlite3* database, const std::string& stateme
 {
   int res = sqlite3_prepare_v2(database, statement.data(), -1, &m_stmt, nullptr);
   if (res != SQLITE_OK)
-    BOOST_THROW_EXCEPTION(std::domain_error("bad SQL statement: " + statement));
+    NDN_THROW(std::domain_error("bad SQL statement: " + statement));
 }
 
 int

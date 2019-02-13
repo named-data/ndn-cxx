@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,7 +54,7 @@ TrustAnchorContainer::insert(const std::string& groupId, Certificate&& cert)
   }
   auto* staticGroup = dynamic_cast<StaticTrustAnchorGroup*>(&**group);
   if (staticGroup == nullptr) {
-    BOOST_THROW_EXCEPTION(Error("Cannot add static anchor to a non-static anchor group " + groupId));
+    NDN_THROW(Error("Cannot add static anchor to a non-static anchor group " + groupId));
   }
   staticGroup->add(std::move(cert));
 }
@@ -64,7 +64,7 @@ TrustAnchorContainer::insert(const std::string& groupId, const boost::filesystem
                              time::nanoseconds refreshPeriod, bool isDir)
 {
   if (m_groups.count(groupId) != 0) {
-    BOOST_THROW_EXCEPTION(Error("Cannot create dynamic group, because group " + groupId + " already exists"));
+    NDN_THROW(Error("Cannot create dynamic group, because group " + groupId + " already exists"));
   }
 
   m_groups.insert(make_shared<DynamicTrustAnchorGroup>(m_anchors, groupId, path, refreshPeriod, isDir));
@@ -109,7 +109,7 @@ TrustAnchorContainer::getGroup(const std::string& groupId) const
 {
   auto group = m_groups.find(groupId);
   if (group == m_groups.end()) {
-    BOOST_THROW_EXCEPTION(Error("Trust anchor group " + groupId + " does not exist"));
+    NDN_THROW(Error("Trust anchor group " + groupId + " does not exist"));
   }
   return **group;
 }

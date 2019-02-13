@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -55,16 +55,15 @@ HmacFilter::HmacFilter(DigestAlgorithm algo, const uint8_t* key, size_t keyLen)
 
   const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
   if (md == nullptr)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
-                                boost::lexical_cast<std::string>(algo)));
+    NDN_THROW(Error(getIndex(), "Unsupported digest algorithm " + boost::lexical_cast<std::string>(algo)));
 
   m_impl->key = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, nullptr, key, static_cast<int>(keyLen));
   if (m_impl->key == nullptr)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to create HMAC key"));
+    NDN_THROW(Error(getIndex(), "Failed to create HMAC key"));
 
   if (EVP_DigestSignInit(m_impl->ctx, nullptr, md, nullptr, m_impl->key) != 1)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to initialize HMAC context with " +
-                                boost::lexical_cast<std::string>(algo) + " digest"));
+    NDN_THROW(Error(getIndex(), "Failed to initialize HMAC context with " +
+                    boost::lexical_cast<std::string>(algo) + " digest"));
 }
 
 HmacFilter::~HmacFilter() = default;
@@ -73,7 +72,7 @@ size_t
 HmacFilter::convert(const uint8_t* buf, size_t size)
 {
   if (EVP_DigestSignUpdate(m_impl->ctx, buf, size) != 1)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
+    NDN_THROW(Error(getIndex(), "Failed to accept more input"));
 
   return size;
 }
@@ -85,7 +84,7 @@ HmacFilter::finalize()
   size_t hmacLen = 0;
 
   if (EVP_DigestSignFinal(m_impl->ctx, buffer->data(), &hmacLen) != 1)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to finalize HMAC"));
+    NDN_THROW(Error(getIndex(), "Failed to finalize HMAC"));
 
   buffer->erase(buffer->begin() + hmacLen, buffer->end());
   setOutputBuffer(std::move(buffer));

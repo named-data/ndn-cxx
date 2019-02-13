@@ -416,7 +416,7 @@ private:
     }
 
     if (wire.size() > MAX_NDN_PACKET_SIZE) {
-      BOOST_THROW_EXCEPTION(Face::OversizedPacketError(pktType, name, wire.size()));
+      NDN_THROW(Face::OversizedPacketError(pktType, name, wire.size()));
     }
 
     return wire;

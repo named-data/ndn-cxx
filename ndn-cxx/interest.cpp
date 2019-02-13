@@ -49,7 +49,7 @@ Interest::Interest(const Name& name, time::milliseconds lifetime)
   , m_interestLifetime(lifetime)
 {
   if (lifetime < 0_ms) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
+    NDN_THROW(std::invalid_argument("InterestLifetime must be >= 0"));
   }
 
   if (!boost::logic::indeterminate(s_defaultCanBePrefix)) {
@@ -78,7 +78,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
     }
 #ifdef NDN_CXX_HAVE_TESTS
     if (s_errorIfCanBePrefixUnset) {
-      BOOST_THROW_EXCEPTION(std::logic_error("Interest.CanBePrefix is unset"));
+      NDN_THROW(std::logic_error("Interest.CanBePrefix is unset"));
     }
 #endif // NDN_CXX_HAVE_TESTS
   }
@@ -220,7 +220,7 @@ Interest::wireDecode(const Block& wire)
   m_wire.parse();
 
   if (m_wire.type() != tlv::Interest) {
-    BOOST_THROW_EXCEPTION(Error("expecting Interest element, got " + to_string(m_wire.type())));
+    NDN_THROW(Error("Interest", m_wire.type()));
   }
 
   if (!decode02()) {
@@ -260,7 +260,7 @@ Interest::decode02()
   if (element != m_wire.elements_end() && element->type() == tlv::Nonce) {
     uint32_t nonce = 0;
     if (element->value_size() != sizeof(nonce)) {
-      BOOST_THROW_EXCEPTION(Error("Nonce element is malformed"));
+      NDN_THROW(Error("Nonce element is malformed"));
     }
     std::memcpy(&nonce, element->value(), sizeof(nonce));
     m_nonce = nonce;
@@ -306,11 +306,11 @@ Interest::decode03()
 
   auto element = m_wire.elements_begin();
   if (element == m_wire.elements_end() || element->type() != tlv::Name) {
-    BOOST_THROW_EXCEPTION(Error("Name element is missing or out of order"));
+    NDN_THROW(Error("Name element is missing or out of order"));
   }
   m_name.wireDecode(*element);
   if (m_name.empty()) {
-    BOOST_THROW_EXCEPTION(Error("Name has zero name components"));
+    NDN_THROW(Error("Name has zero name components"));
   }
   int lastElement = 1; // last recognized element index, in spec order
 
@@ -324,10 +324,10 @@ Interest::decode03()
     switch (element->type()) {
       case tlv::CanBePrefix: {
         if (lastElement >= 2) {
-          BOOST_THROW_EXCEPTION(Error("CanBePrefix element is out of order"));
+          NDN_THROW(Error("CanBePrefix element is out of order"));
         }
         if (element->value_size() != 0) {
-          BOOST_THROW_EXCEPTION(Error("CanBePrefix element has non-zero TLV-LENGTH"));
+          NDN_THROW(Error("CanBePrefix element has non-zero TLV-LENGTH"));
         }
         m_selectors.setMaxSuffixComponents(-1);
         lastElement = 2;
@@ -335,10 +335,10 @@ Interest::decode03()
       }
       case tlv::MustBeFresh: {
         if (lastElement >= 3) {
-          BOOST_THROW_EXCEPTION(Error("MustBeFresh element is out of order"));
+          NDN_THROW(Error("MustBeFresh element is out of order"));
         }
         if (element->value_size() != 0) {
-          BOOST_THROW_EXCEPTION(Error("MustBeFresh element has non-zero TLV-LENGTH"));
+          NDN_THROW(Error("MustBeFresh element has non-zero TLV-LENGTH"));
         }
         m_selectors.setMustBeFresh(true);
         lastElement = 3;
@@ -346,7 +346,7 @@ Interest::decode03()
       }
       case tlv::ForwardingHint: {
         if (lastElement >= 4) {
-          BOOST_THROW_EXCEPTION(Error("ForwardingHint element is out of order"));
+          NDN_THROW(Error("ForwardingHint element is out of order"));
         }
         m_forwardingHint.wireDecode(*element);
         lastElement = 4;
@@ -354,11 +354,11 @@ Interest::decode03()
       }
       case tlv::Nonce: {
         if (lastElement >= 5) {
-          BOOST_THROW_EXCEPTION(Error("Nonce element is out of order"));
+          NDN_THROW(Error("Nonce element is out of order"));
         }
         uint32_t nonce = 0;
         if (element->value_size() != sizeof(nonce)) {
-          BOOST_THROW_EXCEPTION(Error("Nonce element is malformed"));
+          NDN_THROW(Error("Nonce element is malformed"));
         }
         std::memcpy(&nonce, element->value(), sizeof(nonce));
         m_nonce = nonce;
@@ -367,7 +367,7 @@ Interest::decode03()
       }
       case tlv::InterestLifetime: {
         if (lastElement >= 6) {
-          BOOST_THROW_EXCEPTION(Error("InterestLifetime element is out of order"));
+          NDN_THROW(Error("InterestLifetime element is out of order"));
         }
         m_interestLifetime = time::milliseconds(readNonNegativeInteger(*element));
         lastElement = 6;
@@ -378,7 +378,7 @@ Interest::decode03()
           break; // HopLimit is non-critical, ignore out-of-order appearance
         }
         if (element->value_size() != 1) {
-          BOOST_THROW_EXCEPTION(Error("HopLimit element is malformed"));
+          NDN_THROW(Error("HopLimit element is malformed"));
         }
         // TLV-VALUE is ignored
         lastElement = 7;
@@ -394,8 +394,7 @@ Interest::decode03()
       }
       default: {
         if (tlv::isCriticalType(element->type())) {
-          BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
-                                      to_string(element->type())));
+          NDN_THROW(Error("Unrecognized element of critical type " + to_string(element->type())));
         }
         break;
       }
@@ -567,7 +566,7 @@ Interest&
 Interest::setInterestLifetime(time::milliseconds lifetime)
 {
   if (lifetime < 0_ms) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("InterestLifetime must be >= 0"));
+    NDN_THROW(std::invalid_argument("InterestLifetime must be >= 0"));
   }
   m_interestLifetime = lifetime;
   m_wire.reset();

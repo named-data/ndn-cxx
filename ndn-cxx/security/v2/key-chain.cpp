@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -202,8 +202,8 @@ KeyChain::KeyChain(const std::string& pibLocator, const std::string& tpmLocator,
       if (allowReset)
         m_pib->reset();
       else
-        BOOST_THROW_EXCEPTION(LocatorMismatchError("TPM locator supplied does not match TPM locator in PIB: " +
-                                                   oldTpmLocator + " != " + canonicalTpmLocator));
+        NDN_THROW(LocatorMismatchError("TPM locator supplied does not match TPM locator in PIB: " +
+                                       oldTpmLocator + " != " + canonicalTpmLocator));
     }
   }
 
@@ -290,8 +290,8 @@ KeyChain::deleteKey(const Identity& identity, const Key& key)
 
   Name keyName = key.getName();
   if (identity.getName() != key.getIdentity()) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
-                                                "does not match key `" + keyName.toUri() + "`"));
+    NDN_THROW(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
+                                    "does not match key `" + keyName.toUri() + "`"));
   }
 
   identity.removeKey(keyName);
@@ -305,8 +305,8 @@ KeyChain::setDefaultKey(const Identity& identity, const Key& key)
   BOOST_ASSERT(static_cast<bool>(key));
 
   if (identity.getName() != key.getIdentity())
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
-                                                "does not match key `" + key.getName().toUri() + "`"));
+    NDN_THROW(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
+                                    "does not match key `" + key.getName().toUri() + "`"));
 
   identity.setDefaultKey(key.getName());
 }
@@ -319,8 +319,8 @@ KeyChain::addCertificate(const Key& key, const Certificate& certificate)
   if (key.getName() != certificate.getKeyName() ||
       !std::equal(certificate.getContent().value_begin(), certificate.getContent().value_end(),
                   key.getPublicKey().begin()))
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Key `" + key.getName().toUri() + "` "
-                                                "does not match certificate `" + certificate.getName().toUri() + "`"));
+    NDN_THROW(std::invalid_argument("Key `" + key.getName().toUri() + "` "
+                                    "does not match certificate `" + certificate.getName().toUri() + "`"));
 
   key.addCertificate(certificate);
 }
@@ -331,7 +331,7 @@ KeyChain::deleteCertificate(const Key& key, const Name& certificateName)
   BOOST_ASSERT(static_cast<bool>(key));
 
   if (!Certificate::isValidName(certificateName)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Wrong certificate name `" + certificateName.toUri() + "`"));
+    NDN_THROW(std::invalid_argument("Wrong certificate name `" + certificateName.toUri() + "`"));
   }
 
   key.removeCertificate(certificateName);
@@ -356,8 +356,8 @@ KeyChain::exportSafeBag(const Certificate& certificate, const char* pw, size_t p
   try {
     encryptedKey = m_tpm->exportPrivateKey(keyName, pw, pwLen);
   }
-  catch (const tpm::BackEnd::Error& e) {
-    BOOST_THROW_EXCEPTION(Error("Failed to export private key `" + keyName.toUri() + "`: " + e.what()));
+  catch (const tpm::BackEnd::Error&) {
+    NDN_THROW_NESTED(Error("Failed to export private key `" + keyName.toUri() + "`"));
   }
 
   return make_shared<SafeBag>(certificate, *encryptedKey);
@@ -373,13 +373,13 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   const Buffer publicKeyBits = cert.getPublicKey();
 
   if (m_tpm->hasKey(keyName)) {
-    BOOST_THROW_EXCEPTION(Error("Private key `" + keyName.toUri() + "` already exists"));
+    NDN_THROW(Error("Private key `" + keyName.toUri() + "` already exists"));
   }
 
   try {
     Identity existingId = m_pib->getIdentity(identity);
     existingId.getKey(keyName);
-    BOOST_THROW_EXCEPTION(Error("Public key `" + keyName.toUri() + "` already exists"));
+    NDN_THROW(Error("Public key `" + keyName.toUri() + "` already exists"));
   }
   catch (const Pib::Error&) {
     // Either identity or key doesn't exist. OK to import.
@@ -390,8 +390,8 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
                             safeBag.getEncryptedKeyBag().data(), safeBag.getEncryptedKeyBag().size(),
                             pw, pwLen);
   }
-  catch (const tpm::BackEnd::Error& e) {
-    BOOST_THROW_EXCEPTION(Error("Failed to import private key `" + keyName.toUri() + "`: " + e.what()));
+  catch (const tpm::BackEnd::Error&) {
+    NDN_THROW_NESTED(Error("Failed to import private key `" + keyName.toUri() + "`"));
   }
 
   // check the consistency of private key and certificate
@@ -402,7 +402,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   }
   catch (const std::runtime_error&) {
     m_tpm->deleteKey(keyName);
-    BOOST_THROW_EXCEPTION(Error("Invalid private key `" + keyName.toUri() + "`"));
+    NDN_THROW(Error("Invalid private key `" + keyName.toUri() + "`"));
   }
   bool isVerified = false;
   {
@@ -415,8 +415,8 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   }
   if (!isVerified) {
     m_tpm->deleteKey(keyName);
-    BOOST_THROW_EXCEPTION(Error("Certificate `" + cert.getName().toUri() + "` "
-                                "and private key `" + keyName.toUri() + "` do not match"));
+    NDN_THROW(Error("Certificate `" + cert.getName().toUri() + "` "
+                    "and private key `" + keyName.toUri() + "` do not match"));
   }
 
   Identity id = m_pib->addIdentity(identity);
@@ -497,7 +497,7 @@ KeyChain::parseAndCheckPibLocator(const std::string& pibLocator)
 
   auto pibFactory = getPibFactories().find(pibScheme);
   if (pibFactory == getPibFactories().end()) {
-    BOOST_THROW_EXCEPTION(KeyChain::Error("PIB scheme `" + pibScheme + "` is not supported"));
+    NDN_THROW(KeyChain::Error("PIB scheme `" + pibScheme + "` is not supported"));
   }
 
   return std::make_tuple(pibScheme, pibLocation);
@@ -524,7 +524,7 @@ KeyChain::parseAndCheckTpmLocator(const std::string& tpmLocator)
   }
   auto tpmFactory = getTpmFactories().find(tpmScheme);
   if (tpmFactory == getTpmFactories().end()) {
-    BOOST_THROW_EXCEPTION(KeyChain::Error("TPM scheme `" + tpmScheme + "` is not supported"));
+    NDN_THROW(KeyChain::Error("TPM scheme `" + tpmScheme + "` is not supported"));
   }
 
   return std::make_tuple(tpmScheme, tpmLocation);
@@ -578,11 +578,8 @@ std::tuple<Name, SignatureInfo>
 KeyChain::prepareSignatureInfo(const SigningInfo& params)
 {
   SignatureInfo sigInfo = params.getSignatureInfo();
-
-  Name identityName;
   name::Component keyId;
   Name certificateName;
-
   pib::Identity identity;
   pib::Key key;
 
@@ -604,8 +601,8 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
           identity = m_pib->getIdentity(params.getSignerName());
         }
         catch (const Pib::Error&) {
-          BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing identity `" +
-                                                        params.getSignerName().toUri() + "` does not exist"));
+          NDN_THROW_NESTED(InvalidSigningInfoError("Signing identity `" +
+                                                   params.getSignerName().toUri() + "` does not exist"));
         }
       }
       break;
@@ -614,15 +611,14 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
       key = params.getPibKey();
       if (!key) {
         Name identityName = extractIdentityFromKeyName(params.getSignerName());
-
         try {
           identity = m_pib->getIdentity(identityName);
           key = identity.getKey(params.getSignerName());
           identity = Identity(); // we will use the PIB key instance, so reset identity;
         }
         catch (const Pib::Error&) {
-          BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing key `" +
-                                                        params.getSignerName().toUri() + "` does not exist"));
+          NDN_THROW_NESTED(InvalidSigningInfoError("Signing key `" +
+                                                   params.getSignerName().toUri() + "` does not exist"));
         }
       }
       break;
@@ -630,16 +626,14 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
     case SigningInfo::SIGNER_TYPE_CERT: {
       Name identityName = extractIdentityFromCertName(params.getSignerName());
       Name keyName = extractKeyNameFromCertName(params.getSignerName());
-
       try {
         identity = m_pib->getIdentity(identityName);
         key = identity.getKey(keyName);
       }
       catch (const Pib::Error&) {
-        BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing certificate `" +
-                                                      params.getSignerName().toUri() + "` does not exist"));
+        NDN_THROW_NESTED(InvalidSigningInfoError("Signing certificate `" +
+                                                 params.getSignerName().toUri() + "` does not exist"));
       }
-
       break;
     }
     case SigningInfo::SIGNER_TYPE_SHA256: {
@@ -647,13 +641,13 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
       return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
     }
     default: {
-      BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Unrecognized signer type " +
-                                                    boost::lexical_cast<std::string>(params.getSignerType())));
+      NDN_THROW(InvalidSigningInfoError("Unrecognized signer type " +
+                                        boost::lexical_cast<std::string>(params.getSignerType())));
     }
   }
 
   if (!identity && !key) {
-    BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Cannot determine signing parameters"));
+    NDN_THROW(InvalidSigningInfoError("Cannot determine signing parameters"));
   }
 
   if (identity && !key) {
@@ -661,8 +655,8 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
       key = identity.getDefaultKey();
     }
     catch (const Pib::Error&) {
-      BOOST_THROW_EXCEPTION(InvalidSigningInfoError("Signing identity `" + identity.getName().toUri() +
-                                                    "` does not have a default certificate"));
+      NDN_THROW_NESTED(InvalidSigningInfoError("Signing identity `" + identity.getName().toUri() +
+                                               "` does not have a default certificate"));
     }
   }
 
@@ -686,7 +680,7 @@ KeyChain::sign(const uint8_t* buf, size_t size,
 }
 
 tlv::SignatureTypeValue
-KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm)
+KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm)
 {
   switch (keyType) {
   case KeyType::RSA:
@@ -694,7 +688,7 @@ KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm)
   case KeyType::EC:
     return tlv::SignatureSha256WithEcdsa;
   default:
-    BOOST_THROW_EXCEPTION(Error("Unsupported key types"));
+    NDN_THROW(Error("Unsupported key type " + boost::lexical_cast<std::string>(keyType)));
   }
 }
 

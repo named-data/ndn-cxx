@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,8 +59,8 @@ BlockCipher::BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
     initializeAesCbc(key, keyLen, iv, ivLen, op);
     break;
   default:
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported block cipher algorithm " +
-                                boost::lexical_cast<std::string>(algo)));
+    NDN_THROW(Error(getIndex(), "Unsupported block cipher algorithm " +
+                    boost::lexical_cast<std::string>(algo)));
   }
 }
 
@@ -83,7 +83,7 @@ BlockCipher::convert(const uint8_t* data, size_t dataLen)
   if (wLen <= 0) { // failed to write data
     if (!BIO_should_retry(m_impl->m_cipher)) {
       // we haven't written everything but some error happens, and we cannot retry
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
+      NDN_THROW(Error(getIndex(), "Failed to accept more input"));
     }
     return 0;
   }
@@ -97,7 +97,7 @@ void
 BlockCipher::finalize()
 {
   if (BIO_flush(m_impl->m_cipher) != 1)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to flush"));
+    NDN_THROW(Error(getIndex(), "Failed to flush"));
 
   while (!isConverterEmpty()) {
     fillOutputBuffer();
@@ -146,12 +146,12 @@ BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
     cipherType = EVP_aes_256_cbc();
     break;
   default:
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
   }
 
   size_t requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
   if (ivLen != requiredIvLen)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "IV length must be " + to_string(requiredIvLen)));
+    NDN_THROW(Error(getIndex(), "IV length must be " + to_string(requiredIvLen)));
 
   BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv, static_cast<int>(op));
 }

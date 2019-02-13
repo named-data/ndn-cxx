@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -112,18 +112,19 @@ void
 FaceStatus::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::FaceStatus) {
-    BOOST_THROW_EXCEPTION(Error("expecting FaceStatus block"));
+    NDN_THROW(Error("FaceStatus", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
     m_faceId = readNonNegativeInteger(*val);
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FaceId field"));
+    NDN_THROW(Error("missing required FaceId field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Uri) {
@@ -131,7 +132,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Uri field"));
+    NDN_THROW(Error("missing required Uri field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LocalUri) {
@@ -139,7 +140,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required LocalUri field"));
+    NDN_THROW(Error("missing required LocalUri field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::ExpirationPeriod) {
@@ -155,7 +156,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FaceScope field"));
+    NDN_THROW(Error("missing required FaceScope field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
@@ -163,7 +164,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FacePersistency field"));
+    NDN_THROW(Error("missing required FacePersistency field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
@@ -171,7 +172,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required LinkType field"));
+    NDN_THROW(Error("missing required LinkType field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::BaseCongestionMarkingInterval) {
@@ -203,7 +204,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NInInterests field"));
+    NDN_THROW(Error("missing required NInInterests field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInData) {
@@ -211,7 +212,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NInData field"));
+    NDN_THROW(Error("missing required NInData field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInNacks) {
@@ -219,7 +220,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NInNacks field"));
+    NDN_THROW(Error("missing required NInNacks field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutInterests) {
@@ -227,7 +228,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NOutInterests field"));
+    NDN_THROW(Error("missing required NOutInterests field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutData) {
@@ -235,7 +236,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NOutData field"));
+    NDN_THROW(Error("missing required NOutData field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutNacks) {
@@ -243,7 +244,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NOutNacks field"));
+    NDN_THROW(Error("missing required NOutNacks field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInBytes) {
@@ -251,7 +252,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NInBytes field"));
+    NDN_THROW(Error("missing required NInBytes field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NOutBytes) {
@@ -259,7 +260,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required NOutBytes field"));
+    NDN_THROW(Error("missing required NOutBytes field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
@@ -267,7 +268,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
+    NDN_THROW(Error("missing required Flags field"));
   }
 }
 

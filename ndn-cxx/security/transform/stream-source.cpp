@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,7 +56,7 @@ StreamSource::doPump()
       dataLen -= nBytesWritten;
     }
     else if (!m_is) {
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Input stream in bad state"));
+      NDN_THROW(Error(getIndex(), "Input stream in bad state"));
     }
     else if (m_is.good()) {
       m_is.read(reinterpret_cast<char*>(&buffer.front()), buffer.size());

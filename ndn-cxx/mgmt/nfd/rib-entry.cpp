@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -140,18 +140,19 @@ void
 Route::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::Route) {
-    BOOST_THROW_EXCEPTION(Error("expecting Route, but Block has type " + to_string(block.type())));
+    NDN_THROW(Error("Route", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceId) {
     m_faceId = readNonNegativeInteger(*val);
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required FaceId field"));
+    NDN_THROW(Error("missing required FaceId field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Origin) {
@@ -159,7 +160,7 @@ Route::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Origin field"));
+    NDN_THROW(Error("missing required Origin field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Cost) {
@@ -167,7 +168,7 @@ Route::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Cost field"));
+    NDN_THROW(Error("missing required Cost field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Flags) {
@@ -175,7 +176,7 @@ Route::wireDecode(const Block& block)
     ++val;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("missing required Flags field"));
+    NDN_THROW(Error("missing required Flags field"));
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::ExpirationPeriod) {
@@ -287,17 +288,18 @@ void
 RibEntry::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::RibEntry) {
-    BOOST_THROW_EXCEPTION(Error("expecting RibEntry, but Block has type " + to_string(block.type())));
+    NDN_THROW(Error("RibEntry", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val == m_wire.elements_end()) {
-    BOOST_THROW_EXCEPTION(Error("unexpected end of RibEntry"));
+    NDN_THROW(Error("unexpected end of RibEntry"));
   }
   else if (val->type() != tlv::Name) {
-    BOOST_THROW_EXCEPTION(Error("expecting Name, but Block has type " + to_string(val->type())));
+    NDN_THROW(Error("Name", val->type()));
   }
   m_prefix.wireDecode(*val);
   ++val;
@@ -305,7 +307,7 @@ RibEntry::wireDecode(const Block& block)
   m_routes.clear();
   for (; val != m_wire.elements_end(); ++val) {
     if (val->type() != tlv::nfd::Route) {
-      BOOST_THROW_EXCEPTION(Error("expecting Route, but Block has type " + to_string(val->type())));
+      NDN_THROW(Error("Route", val->type()));
     }
     m_routes.emplace_back(*val);
   }

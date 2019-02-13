@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,8 +48,8 @@ InterestFilter::InterestFilter(const Name& prefix, const std::string& regexFilte
 InterestFilter::operator const Name&() const
 {
   if (hasRegexFilter()) {
-    BOOST_THROW_EXCEPTION(Error("Please update InterestCallback to accept const InterestFilter&"
-                                " (non-trivial InterestFilter is being used)"));
+    NDN_THROW(Error("Please update InterestCallback to accept `const InterestFilter&'"
+                    " (non-trivial InterestFilter is being used)"));
   }
   return m_prefix;
 }

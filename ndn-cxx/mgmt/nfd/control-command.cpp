@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -81,17 +81,17 @@ ControlCommand::FieldValidator::validate(const ControlParameters& parameters) co
     bool isPresent = presentFields[i];
     if (m_required[i]) {
       if (!isPresent) {
-        BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but missing"));
+        NDN_THROW(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but missing"));
       }
     }
     else if (isPresent && !m_optional[i]) {
-      BOOST_THROW_EXCEPTION(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but present"));
+      NDN_THROW(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but present"));
     }
   }
 
   if (m_optional[CONTROL_PARAMETER_FLAGS] && m_optional[CONTROL_PARAMETER_MASK]) {
     if (parameters.hasFlags() != parameters.hasMask()) {
-      BOOST_THROW_EXCEPTION(ArgumentError("Flags must be accompanied by Mask"));
+      NDN_THROW(ArgumentError("Flags must be accompanied by Mask"));
     }
   }
 }
@@ -133,7 +133,7 @@ FaceCreateCommand::validateResponse(const ControlParameters& parameters) const
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == INVALID_FACE_ID) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
+    NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -169,7 +169,7 @@ FaceUpdateCommand::validateResponse(const ControlParameters& parameters) const
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == INVALID_FACE_ID) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
+    NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -187,7 +187,7 @@ FaceDestroyCommand::validateRequest(const ControlParameters& parameters) const
   this->ControlCommand::validateRequest(parameters);
 
   if (parameters.getFaceId() == INVALID_FACE_ID) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
+    NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -227,7 +227,7 @@ FibAddNextHopCommand::validateResponse(const ControlParameters& parameters) cons
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == INVALID_FACE_ID) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
+    NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -256,7 +256,7 @@ FibRemoveNextHopCommand::validateResponse(const ControlParameters& parameters) c
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == INVALID_FACE_ID) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
+    NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -290,7 +290,7 @@ CsEraseCommand::validateRequest(const ControlParameters& parameters) const
   this->ControlCommand::validateRequest(parameters);
 
   if (parameters.hasCount() && parameters.getCount() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("Count must be positive"));
+    NDN_THROW(ArgumentError("Count must be positive"));
   }
 }
 
@@ -300,7 +300,7 @@ CsEraseCommand::validateResponse(const ControlParameters& parameters) const
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.hasCapacity() && parameters.getCapacity() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("Capacity must be positive"));
+    NDN_THROW(ArgumentError("Capacity must be positive"));
   }
 }
 
@@ -327,7 +327,7 @@ StrategyChoiceUnsetCommand::validateRequest(const ControlParameters& parameters)
   this->ControlCommand::validateRequest(parameters);
 
   if (parameters.getName().size() == 0) {
-    BOOST_THROW_EXCEPTION(ArgumentError("Name must not be ndn:/"));
+    NDN_THROW(ArgumentError("Name must not be ndn:/"));
   }
 }
 
@@ -379,7 +379,7 @@ RibRegisterCommand::validateResponse(const ControlParameters& parameters) const
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == INVALID_FACE_ID) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
+    NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
@@ -413,7 +413,7 @@ RibUnregisterCommand::validateResponse(const ControlParameters& parameters) cons
   this->ControlCommand::validateResponse(parameters);
 
   if (parameters.getFaceId() == INVALID_FACE_ID) {
-    BOOST_THROW_EXCEPTION(ArgumentError("FaceId must be valid"));
+    NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 

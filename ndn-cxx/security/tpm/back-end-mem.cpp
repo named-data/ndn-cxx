@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -101,8 +101,8 @@ BackEndMem::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, co
     key->loadPkcs8(buf, size, pw, pwLen);
     m_impl->keys[keyName] = key;
   }
-  catch (const PrivateKey::Error& e) {
-    BOOST_THROW_EXCEPTION(Error("Cannot import private key: "s + e.what()));
+  catch (const PrivateKey::Error&) {
+    NDN_THROW_NESTED(Error("Cannot import private key"));
   }
 }
 

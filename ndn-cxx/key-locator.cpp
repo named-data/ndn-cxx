@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -66,7 +66,7 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
     totalLength += encoder.prependBlock(m_keyDigest);
     break;
   default:
-    BOOST_THROW_EXCEPTION(Error("Unsupported KeyLocator type"));
+    NDN_THROW(Error("Unsupported KeyLocator type " + to_string(m_type)));
   }
 
   totalLength += encoder.prependVarNumber(totalLength);
@@ -96,7 +96,7 @@ void
 KeyLocator::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::KeyLocator)
-    BOOST_THROW_EXCEPTION(Error("Unexpected TLV type during KeyLocator decoding"));
+    NDN_THROW(Error("KeyLocator", wire.type()));
 
   m_wire = wire;
   m_wire.parse();
@@ -135,7 +135,7 @@ const Name&
 KeyLocator::getName() const
 {
   if (m_type != KeyLocator_Name)
-    BOOST_THROW_EXCEPTION(Error("KeyLocator type is not Name"));
+    NDN_THROW(Error("KeyLocator type is not Name"));
 
   return m_name;
 }
@@ -153,7 +153,7 @@ const Block&
 KeyLocator::getKeyDigest() const
 {
   if (m_type != KeyLocator_KeyDigest)
-    BOOST_THROW_EXCEPTION(Error("KeyLocator type is not KeyDigest"));
+    NDN_THROW(Error("KeyLocator type is not KeyDigest"));
 
   return m_keyDigest;
 }
@@ -162,7 +162,7 @@ KeyLocator&
 KeyLocator::setKeyDigest(const Block& keyDigest)
 {
   if (keyDigest.type() != tlv::KeyDigest)
-    BOOST_THROW_EXCEPTION(Error("expecting KeyDigest block"));
+    NDN_THROW(Error("KeyDigest", keyDigest.type()));
 
   this->clear();
   m_type = KeyLocator_KeyDigest;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -77,7 +77,7 @@ Base64Encode::convert(const uint8_t* data, size_t dataLen)
   if (wLen <= 0) { // fail to write data
     if (!BIO_should_retry(m_impl->m_base64)) {
       // we haven't written everything but some error happens, and we cannot retry
-      BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
+      NDN_THROW(Error(getIndex(), "Failed to accept more input"));
     }
     return 0;
   }
@@ -91,7 +91,7 @@ void
 Base64Encode::finalize()
 {
   if (BIO_flush(m_impl->m_base64) != 1)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to flush"));
+    NDN_THROW(Error(getIndex(), "Failed to flush"));
 
   while (!isConverterEmpty()) {
     fillOutputBuffer();

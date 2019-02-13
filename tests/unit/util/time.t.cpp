@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 
 #include "tests/boost-test.hpp"
 
+#include <boost/lexical_cast.hpp>
 #include <thread>
 
 namespace ndn {
@@ -125,8 +126,10 @@ BOOST_AUTO_TEST_CASE(Year2038)
   auto year2042 = fromIsoString("20420101T000001.042000");
   auto year2010 = fromIsoString("20100101T000001.042000");
 
-  BOOST_CHECK_EQUAL(to_string(year2010), "1262304001042000000 nanoseconds since Jan 1, 1970");
-  BOOST_CHECK_EQUAL(to_string(year2042), "2272147201042000000 nanoseconds since Jan 1, 1970");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(year2010),
+                    "1262304001042000000 nanoseconds since Jan 1, 1970");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(year2042),
+                    "2272147201042000000 nanoseconds since Jan 1, 1970");
   BOOST_CHECK_GT(year2042, year2010);
 }
 

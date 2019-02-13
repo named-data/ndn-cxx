@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -55,7 +55,7 @@ MetaInfo&
 MetaInfo::setFreshnessPeriod(time::milliseconds freshnessPeriod)
 {
   if (freshnessPeriod < time::milliseconds::zero()) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("FreshnessPeriod must be >= 0"));
+    NDN_THROW(std::invalid_argument("FreshnessPeriod must be >= 0"));
   }
   m_wire.reset();
   m_freshnessPeriod = freshnessPeriod;
@@ -81,7 +81,7 @@ MetaInfo::setAppMetaInfo(const std::list<Block>& info)
 {
   for (const auto& block : info) {
     if (block.type() < 128 || block.type() > 252)
-      BOOST_THROW_EXCEPTION(Error("AppMetaInfo block has type outside the application range [128, 252]"));
+      NDN_THROW(Error("AppMetaInfo block has type outside the application range [128, 252]"));
   }
 
   m_wire.reset();
@@ -93,8 +93,7 @@ MetaInfo&
 MetaInfo::addAppMetaInfo(const Block& block)
 {
   if (!(128 <= block.type() && block.type() <= 252))
-    BOOST_THROW_EXCEPTION(Error("AppMetaInfo block has type outside the application range "
-                                "[128, 252]"));
+    NDN_THROW(Error("AppMetaInfo block has type outside the application range [128, 252]"));
 
   m_wire.reset();
   m_appMetaInfo.push_back(block);

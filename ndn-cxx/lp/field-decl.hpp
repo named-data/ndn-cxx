@@ -59,10 +59,9 @@ struct DecodeHelper<TlvType, EmptyValue>
   decode(const Block& wire)
   {
     if (wire.value_size() != 0) {
-      BOOST_THROW_EXCEPTION(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
-                                            " must be empty"));
+      NDN_THROW(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
+                                " must be empty"));
     }
-
     return EmptyValue{};
   }
 };
@@ -84,8 +83,8 @@ struct DecodeHelper<TlvType, uint64_t>
   decode(const Block& wire)
   {
     if (wire.value_size() != sizeof(uint64_t)) {
-      BOOST_THROW_EXCEPTION(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
-                                            " should contain a 64-bit integer"));
+      NDN_THROW(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
+                                " must contain a 64-bit integer"));
     }
     uint64_t n = 0;
     std::memcpy(&n, wire.value(), sizeof(n));
@@ -100,10 +99,9 @@ struct DecodeHelper<TlvType, std::pair<Buffer::const_iterator, Buffer::const_ite
   decode(const Block& wire)
   {
     if (wire.value_size() == 0) {
-      BOOST_THROW_EXCEPTION(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
-                                            " cannot be empty"));
+      NDN_THROW(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
+                                " cannot be empty"));
     }
-
     return std::make_pair(wire.value_begin(), wire.value_end());
   }
 };
@@ -195,7 +193,7 @@ public:
   decode(const Block& wire)
   {
     if (wire.type() != TlvType::value) {
-      BOOST_THROW_EXCEPTION(ndn::tlv::Error("Unexpected TLV-TYPE " + to_string(wire.type())));
+      NDN_THROW(ndn::tlv::Error("Unexpected TLV-TYPE " + to_string(wire.type())));
     }
 
     return DecodeHelper<TlvType, DECODER_TAG>::decode(wire);

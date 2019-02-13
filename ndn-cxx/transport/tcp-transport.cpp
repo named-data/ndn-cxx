@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,7 +59,7 @@ TcpTransport::getSocketHostAndPortFromUri(const std::string& uriString)
 
     const std::string scheme = uri.getScheme();
     if (scheme != "tcp" && scheme != "tcp4" && scheme != "tcp6") {
-      BOOST_THROW_EXCEPTION(Error("Cannot create TcpTransport from \"" + scheme + "\" URI"));
+      NDN_THROW(Error("Cannot create TcpTransport from \"" + scheme + "\" URI"));
     }
 
     if (!uri.getHost().empty()) {
@@ -71,7 +71,7 @@ TcpTransport::getSocketHostAndPortFromUri(const std::string& uriString)
     }
   }
   catch (const FaceUri::Error& error) {
-    BOOST_THROW_EXCEPTION(Error(error.what()));
+    NDN_THROW_NESTED(Error(error.what()));
   }
 
   return {host, port};

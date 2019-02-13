@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,11 +26,6 @@ namespace ndn {
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<DelegationList>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<DelegationList>));
 BOOST_CONCEPT_ASSERT((WireDecodable<DelegationList>));
-
-DelegationList::Error::Error(const std::string& what, const std::exception& innerException)
-  : Error(what + ": "s + innerException.what())
-{
-}
 
 DelegationList::DelegationList()
   : m_isSorted(true)
@@ -67,12 +62,12 @@ size_t
 DelegationList::wireEncode(EncodingImpl<TAG>& encoder, uint32_t type) const
 {
   if (!isValidTlvType(type)) {
-    BOOST_THROW_EXCEPTION(std::invalid_argument("Invalid TLV-TYPE " + to_string(type) +
-                                                " when encoding DelegationList"));
+    NDN_THROW(std::invalid_argument("Unexpected TLV-TYPE " + to_string(type) +
+                                    " while encoding DelegationList"));
   }
 
   if (this->size() == 0) {
-    BOOST_THROW_EXCEPTION(Error("Empty DelegationList"));
+    NDN_THROW(Error("Empty DelegationList"));
   }
 
   // LinkContent ::= (type) TLV-LENGTH
@@ -109,8 +104,7 @@ void
 DelegationList::wireDecode(const Block& block, bool wantSort)
 {
   if (!isValidTlvType(block.type())) {
-    BOOST_THROW_EXCEPTION(Error("Unexpected TLV-TYPE " + to_string(block.type()) +
-                                " when decoding DelegationList"));
+    NDN_THROW(Error("Unexpected TLV-TYPE " + to_string(block.type()) + " while decoding DelegationList"));
   }
 
   m_isSorted = wantSort;
@@ -119,40 +113,39 @@ DelegationList::wireDecode(const Block& block, bool wantSort)
   block.parse();
   for (const auto& del : block.elements()) {
     if (del.type() != tlv::LinkDelegation) {
-      BOOST_THROW_EXCEPTION(Error("Unexpected TLV-TYPE " + to_string(del.type()) +
-                                  " when decoding Delegation"));
+      NDN_THROW(Error("Unexpected TLV-TYPE " + to_string(del.type()) + " while decoding Delegation"));
     }
     del.parse();
 
     auto val = del.elements_begin();
     if (val == del.elements_end() || val->type() != tlv::LinkPreference) {
-      BOOST_THROW_EXCEPTION(Error("Missing Preference field in Delegation"));
+      NDN_THROW(Error("Missing Preference field in Delegation"));
     }
     uint64_t preference = 0;
     try {
       preference = readNonNegativeInteger(*val);
     }
-    catch (const tlv::Error& inner) {
-      BOOST_THROW_EXCEPTION(Error("Invalid Preference field in Delegation", inner));
+    catch (const tlv::Error&) {
+      NDN_THROW_NESTED(Error("Invalid Preference field in Delegation"));
     }
 
     ++val;
     if (val == del.elements_end() || val->type() != tlv::Name) {
-      BOOST_THROW_EXCEPTION(Error("Missing Name field in Delegation"));
+      NDN_THROW(Error("Missing Name field in Delegation"));
     }
     Name name;
     try {
       name.wireDecode(*val);
     }
-    catch (const tlv::Error& inner) {
-      BOOST_THROW_EXCEPTION(Error("Invalid Name field in Delegation", inner));
+    catch (const tlv::Error&) {
+      NDN_THROW_NESTED(Error("Invalid Name field in Delegation"));
     }
 
     this->insertImpl(preference, name);
   }
 
   if (this->size() == 0) {
-    BOOST_THROW_EXCEPTION(Error("Empty DelegationList"));
+    NDN_THROW(Error("Empty DelegationList"));
   }
 }
 

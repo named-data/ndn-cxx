@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,7 +44,7 @@ tlv::SignatureTypeValue
 Signature::getType() const
 {
   if (!*this) {
-    BOOST_THROW_EXCEPTION(Error("Signature is invalid"));
+    NDN_THROW(Error("Signature is invalid"));
   }
   return static_cast<tlv::SignatureTypeValue>(m_info.getSignatureType());
 }
@@ -59,7 +59,7 @@ void
 Signature::setValue(const Block& value)
 {
   if (value.type() != tlv::SignatureValue) {
-    BOOST_THROW_EXCEPTION(Error("Expecting SignatureValue, but TLV-TYPE is " + to_string(value.type())));
+    NDN_THROW(Error("SignatureValue", value.type()));
   }
   m_value = value;
 }

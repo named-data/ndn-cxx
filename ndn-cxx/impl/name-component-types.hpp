@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -189,8 +189,7 @@ public:
   check(const Component& comp) const final
   {
     if (!match(comp)) {
-      BOOST_THROW_EXCEPTION(Error(m_typeName + " TLV-LENGTH must be " +
-                                  to_string(util::Sha256::DIGEST_SIZE)));
+      NDN_THROW(Error(m_typeName + " TLV-LENGTH must be " + to_string(util::Sha256::DIGEST_SIZE)));
     }
   }
 
@@ -239,7 +238,7 @@ public:
       value = fromHex(input);
     }
     catch (const StringHelperError&) {
-      BOOST_THROW_EXCEPTION(Error("Cannot convert to " + m_typeName + " (invalid hex encoding)"));
+      NDN_THROW(Error("Cannot convert to " + m_typeName + " (invalid hex encoding)"));
     }
     return Component(m_type, std::move(value));
   }

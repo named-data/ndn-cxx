@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,7 +69,7 @@ getNameRelationFromString(const std::string& relationString)
     return NameRelation::IS_STRICT_PREFIX_OF;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unsupported relation: " + relationString));
+    NDN_THROW(Error("Unsupported relation: " + relationString));
   }
 }
 

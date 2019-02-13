@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,8 +54,8 @@ Rule::match(uint32_t pktType, const Name& pktName) const
 {
   NDN_LOG_TRACE("Trying to match " << pktName);
   if (pktType != m_pktType) {
-    BOOST_THROW_EXCEPTION(Error("Invalid packet type supplied (" +
-                                to_string(pktType) + " != " + to_string(m_pktType) + ")"));
+    NDN_THROW(Error("Invalid packet type supplied (" + to_string(pktType) +
+                    " != " + to_string(m_pktType) + ")"));
   }
 
   if (m_filters.empty()) {
@@ -79,8 +79,8 @@ Rule::check(uint32_t pktType, const Name& pktName, const Name& klName,
   NDN_LOG_TRACE("Trying to check " << pktName << " with keyLocator " << klName);
 
   if (pktType != m_pktType) {
-    BOOST_THROW_EXCEPTION(Error("Invalid packet type supplied (" +
-                                to_string(pktType) + " != " + to_string(m_pktType) + ")"));
+    NDN_THROW(Error("Invalid packet type supplied (" + to_string(pktType) +
+                    " != " + to_string(m_pktType) + ")"));
   }
 
   bool hasPendingResult = false;
@@ -102,7 +102,7 @@ Rule::create(const ConfigSection& configSection, const std::string& configFilena
 
   // Get rule.id
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "id")) {
-    BOOST_THROW_EXCEPTION(Error("Expecting <rule.id>"));
+    NDN_THROW(Error("Expecting <rule.id>"));
   }
 
   std::string ruleId = propertyIt->second.data();
@@ -110,7 +110,7 @@ Rule::create(const ConfigSection& configSection, const std::string& configFilena
 
   // Get rule.for
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "for")) {
-    BOOST_THROW_EXCEPTION(Error("Expecting <rule.for> in rule: " + ruleId));
+    NDN_THROW(Error("Expecting <rule.for> in rule: " + ruleId));
   }
 
   std::string usage = propertyIt->second.data();
@@ -124,7 +124,7 @@ Rule::create(const ConfigSection& configSection, const std::string& configFilena
     isForData = false;
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unrecognized <rule.for>: " + usage + " in rule: " + ruleId));
+    NDN_THROW(Error("Unrecognized <rule.for>: " + usage + " in rule: " + ruleId));
   }
 
   auto rule = make_unique<Rule>(ruleId, isForData ? tlv::Data : tlv::Interest);
@@ -135,7 +135,7 @@ Rule::create(const ConfigSection& configSection, const std::string& configFilena
       if (boost::iequals(propertyIt->first, "checker")) {
         break;
       }
-      BOOST_THROW_EXCEPTION(Error("Expecting <rule.filter> in rule: " + ruleId));
+      NDN_THROW(Error("Expecting <rule.filter> in rule: " + ruleId));
     }
 
     rule->addFilter(Filter::create(propertyIt->second, configFilename));
@@ -145,7 +145,7 @@ Rule::create(const ConfigSection& configSection, const std::string& configFilena
   bool hasCheckers = false;
   for (; propertyIt != configSection.end(); propertyIt++) {
     if (!boost::iequals(propertyIt->first, "checker")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <rule.checker> in rule: " + ruleId));
+      NDN_THROW(Error("Expecting <rule.checker> in rule: " + ruleId));
     }
 
     rule->addChecker(Checker::create(propertyIt->second, configFilename));
@@ -153,11 +153,11 @@ Rule::create(const ConfigSection& configSection, const std::string& configFilena
   }
 
   if (propertyIt != configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Expecting end of <rule>: " + ruleId));
+    NDN_THROW(Error("Expecting end of <rule>: " + ruleId));
   }
 
   if (!hasCheckers) {
-    BOOST_THROW_EXCEPTION(Error("No <rule.checker> is specified in rule: " + ruleId));
+    NDN_THROW(Error("No <rule.checker> is specified in rule: " + ruleId));
   }
 
   return rule;

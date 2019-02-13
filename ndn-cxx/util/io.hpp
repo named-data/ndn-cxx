@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -140,8 +140,8 @@ save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
   try {
     block = obj.wireEncode();
   }
-  catch (const tlv::Error& e) {
-    BOOST_THROW_EXCEPTION(Error(e.what()));
+  catch (const tlv::Error&) {
+    NDN_THROW_NESTED(Error("Encode error during save"));
   }
 
   saveBlock(block, os, encoding);

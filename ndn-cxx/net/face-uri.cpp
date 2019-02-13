@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California,
+ * Copyright (c) 2013-2019 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -50,7 +50,7 @@ FaceUri::FaceUri()
 FaceUri::FaceUri(const std::string& uri)
 {
   if (!parse(uri)) {
-    BOOST_THROW_EXCEPTION(Error("Malformed URI: " + uri));
+    NDN_THROW(Error("Malformed URI: " + uri));
   }
 }
 

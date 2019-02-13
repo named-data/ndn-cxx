@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -87,7 +87,7 @@ fromHex(const std::string& hexString)
     tr::bufferSource(hexString) >> tr::hexDecode() >> tr::streamSink(os);
   }
   catch (const tr::Error& e) {
-    BOOST_THROW_EXCEPTION(StringHelperError("Conversion from hex failed: "s + e.what()));
+    NDN_THROW_NESTED(StringHelperError("Conversion from hex failed: "s + e.what()));
   }
 
   return os.buf();

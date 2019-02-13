@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(FieldAccess)
   packet.set<FragIndexField>(1234);
   BOOST_CHECK(!packet.empty());
   BOOST_CHECK(packet.has<FragIndexField>());
-  BOOST_CHECK_THROW(packet.add<FragIndexField>(5678), std::length_error);
+  BOOST_CHECK_THROW(packet.add<FragIndexField>(5678), std::invalid_argument);
   BOOST_CHECK_EQUAL(packet.count<FragIndexField>(), 1);
   BOOST_CHECK_EQUAL(packet.get<FragIndexField>(0), 1234);
   BOOST_CHECK_THROW(packet.get<FragIndexField>(1), std::out_of_range);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -128,8 +128,8 @@ BackEndFile::doCreateKey(const Name& identityName, const KeyParams& params)
     saveKey(keyHandle->getKeyName(), *key);
     return keyHandle;
   }
-  catch (const std::runtime_error& e) {
-    BOOST_THROW_EXCEPTION(Error("Cannot write key to file: "s + e.what()));
+  catch (const std::runtime_error&) {
+    NDN_THROW_NESTED(Error("Cannot write key to file"));
   }
 }
 
@@ -143,8 +143,8 @@ BackEndFile::doDeleteKey(const Name& keyName)
   try {
     boost::filesystem::remove(keyPath);
   }
-  catch (const boost::filesystem::filesystem_error& e) {
-    BOOST_THROW_EXCEPTION(Error("Cannot remove key file: "s + e.what()));
+  catch (const boost::filesystem::filesystem_error&) {
+    NDN_THROW_NESTED(Error("Cannot remove key file"));
   }
 }
 
@@ -155,8 +155,8 @@ BackEndFile::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
   try {
     key = loadKey(keyName);
   }
-  catch (const PrivateKey::Error& e) {
-    BOOST_THROW_EXCEPTION(Error("Cannot export private key: "s + e.what()));
+  catch (const PrivateKey::Error&) {
+    NDN_THROW_NESTED(Error("Cannot export private key"));
   }
 
   OBufferStream os;
@@ -172,8 +172,8 @@ BackEndFile::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, c
     key.loadPkcs8(buf, size, pw, pwLen);
     saveKey(keyName, key);
   }
-  catch (const PrivateKey::Error& e) {
-    BOOST_THROW_EXCEPTION(Error("Cannot import private key: "s + e.what()));
+  catch (const PrivateKey::Error&) {
+    NDN_THROW_NESTED(Error("Cannot import private key"));
   }
 }
 

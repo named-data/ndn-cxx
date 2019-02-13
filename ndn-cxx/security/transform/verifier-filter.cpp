@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,14 +51,14 @@ VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key,
 {
   const EVP_MD* md = detail::digestAlgorithmToEvpMd(algo);
   if (md == nullptr)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Unsupported digest algorithm " +
-                                boost::lexical_cast<std::string>(algo)));
+    NDN_THROW(Error(getIndex(), "Unsupported digest algorithm " +
+                    boost::lexical_cast<std::string>(algo)));
 
   if (EVP_DigestVerifyInit(m_impl->ctx, nullptr, md, nullptr,
                            reinterpret_cast<EVP_PKEY*>(key.getEvpPkey())) != 1)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to initialize verification context with " +
-                                boost::lexical_cast<std::string>(algo) + " digest and " +
-                                boost::lexical_cast<std::string>(key.getKeyType()) + " key"));
+    NDN_THROW(Error(getIndex(), "Failed to initialize verification context with " +
+                    boost::lexical_cast<std::string>(algo) + " digest and " +
+                    boost::lexical_cast<std::string>(key.getKeyType()) + " key"));
 }
 
 VerifierFilter::~VerifierFilter() = default;
@@ -67,7 +67,7 @@ size_t
 VerifierFilter::convert(const uint8_t* buf, size_t size)
 {
   if (EVP_DigestVerifyUpdate(m_impl->ctx, buf, size) != 1)
-    BOOST_THROW_EXCEPTION(Error(getIndex(), "Failed to accept more input"));
+    NDN_THROW(Error(getIndex(), "Failed to accept more input"));
 
   return size;
 }

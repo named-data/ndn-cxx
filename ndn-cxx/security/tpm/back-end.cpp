@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -55,7 +55,7 @@ BackEnd::createKey(const Name& identity, const KeyParams& params)
     case KeyIdType::USER_SPECIFIED: { // keyId is pre-set.
       Name keyName = v2::constructKeyName(identity, params.getKeyId());
       if (hasKey(keyName)) {
-        BOOST_THROW_EXCEPTION(Tpm::Error("Key `" + keyName.toUri() + "` already exists"));
+        NDN_THROW(Tpm::Error("Key `" + keyName.toUri() + "` already exists"));
       }
       break;
     }
@@ -75,7 +75,7 @@ BackEnd::createKey(const Name& identity, const KeyParams& params)
       break;
     }
     default: {
-      BOOST_THROW_EXCEPTION(Error("Unsupported key id type"));
+      NDN_THROW(Error("Unsupported key id type"));
     }
   }
 
@@ -92,7 +92,7 @@ ConstBufferPtr
 BackEnd::exportKey(const Name& keyName, const char* pw, size_t pwLen)
 {
   if (!hasKey(keyName)) {
-    BOOST_THROW_EXCEPTION(Error("Key `" + keyName.toUri() + "` does not exist"));
+    NDN_THROW(Error("Key `" + keyName.toUri() + "` does not exist"));
   }
   return doExportKey(keyName, pw, pwLen);
 }
@@ -101,7 +101,7 @@ void
 BackEnd::importKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen)
 {
   if (hasKey(keyName)) {
-    BOOST_THROW_EXCEPTION(Error("Key `" + keyName.toUri() + "` already exists"));
+    NDN_THROW(Error("Key `" + keyName.toUri() + "` already exists"));
   }
   doImportKey(keyName, pkcs8, pkcs8Len, pw, pwLen);
 }
@@ -131,7 +131,7 @@ BackEnd::setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams&
       break;
     }
     default: {
-      BOOST_THROW_EXCEPTION(Error("Unsupported key id type"));
+      NDN_THROW(Error("Unsupported key id type"));
     }
   }
 

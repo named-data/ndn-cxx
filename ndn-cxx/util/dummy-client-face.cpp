@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -292,7 +292,7 @@ DummyClientFace::linkTo(DummyClientFace& other)
   if (m_bcastLink != nullptr && other.m_bcastLink != nullptr) {
     if (m_bcastLink != other.m_bcastLink) {
       // already on different links
-      BOOST_THROW_EXCEPTION(AlreadyLinkedError());
+      NDN_THROW(AlreadyLinkedError());
     }
   }
   else if (m_bcastLink == nullptr && other.m_bcastLink != nullptr) {

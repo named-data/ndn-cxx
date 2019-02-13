@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,7 +57,7 @@ size_t
 CachePolicy::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   if (m_policy == CachePolicyType::NONE) {
-    BOOST_THROW_EXCEPTION(Error("CachePolicyType must be set"));
+    NDN_THROW(Error("CachePolicyType must be set"));
   }
 
   size_t length = 0;
@@ -73,7 +73,7 @@ const Block&
 CachePolicy::wireEncode() const
 {
   if (m_policy == CachePolicyType::NONE) {
-    BOOST_THROW_EXCEPTION(Error("CachePolicyType must be set"));
+    NDN_THROW(Error("CachePolicyType must be set"));
   }
 
   if (m_wire.hasWire()) {
@@ -95,21 +95,25 @@ void
 CachePolicy::wireDecode(const Block& wire)
 {
   if (wire.type() != tlv::CachePolicy) {
-    BOOST_THROW_EXCEPTION(Error("expecting CachePolicy block"));
+    NDN_THROW(Error("CachePolicy", wire.type()));
   }
 
   m_wire = wire;
   m_wire.parse();
 
-  Block::element_const_iterator it = m_wire.elements_begin();
-  if (it != m_wire.elements_end() && it->type() == tlv::CachePolicyType) {
+  auto it = m_wire.elements_begin();
+  if (it == m_wire.elements_end()) {
+    NDN_THROW(Error("Empty CachePolicy"));
+  }
+
+  if (it->type() == tlv::CachePolicyType) {
     m_policy = static_cast<CachePolicyType>(readNonNegativeInteger(*it));
     if (this->getPolicy() == CachePolicyType::NONE) {
-      BOOST_THROW_EXCEPTION(Error("unknown CachePolicyType"));
+      NDN_THROW(Error("Unknown CachePolicyType"));
     }
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("expecting CachePolicyType block"));
+    NDN_THROW(Error("CachePolicyType", it->type()));
   }
 }
 

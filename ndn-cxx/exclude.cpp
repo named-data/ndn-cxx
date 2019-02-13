@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -122,7 +122,7 @@ size_t
 Exclude::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   if (m_entries.empty()) {
-    BOOST_THROW_EXCEPTION(Error("cannot encode empty Exclude selector"));
+    NDN_THROW(Error("cannot encode empty Exclude selector"));
   }
 
   size_t totalLength = 0;
@@ -168,13 +168,13 @@ Exclude::wireDecode(const Block& wire)
   clear();
 
   if (wire.type() != tlv::Exclude)
-    BOOST_THROW_EXCEPTION(tlv::Error("Unexpected TLV type when decoding Exclude"));
+    NDN_THROW(tlv::Error("Unexpected TLV type when decoding Exclude"));
 
   m_wire = wire;
   m_wire.parse();
 
   if (m_wire.elements_size() == 0) {
-    BOOST_THROW_EXCEPTION(Error("Exclude element cannot be empty"));
+    NDN_THROW(Error("Exclude element cannot be empty"));
   }
 
   // Exclude ::= EXCLUDE-TYPE TLV-LENGTH Any? (GenericNameComponent (Any)?)+
@@ -192,10 +192,10 @@ Exclude::wireDecode(const Block& wire)
       component = name::Component(*i);
     }
     catch (const name::Component::Error&) {
-      BOOST_THROW_EXCEPTION(Error("Incorrect format of Exclude filter"));
+      NDN_THROW_NESTED(Error("Incorrect format of Exclude filter"));
     }
     if (!component.isGeneric() && !component.isImplicitSha256Digest()) {
-      BOOST_THROW_EXCEPTION(Error("Excluded component must be generic or ImplicitSha256Digest"));
+      NDN_THROW(Error("Excluded component must be generic or ImplicitSha256Digest"));
     }
     ++i;
 
@@ -274,8 +274,8 @@ Exclude&
 Exclude::excludeRange(const ExcludeComponent& from, const name::Component& to)
 {
   if (!from.isNegInf && from.component >= to) {
-    BOOST_THROW_EXCEPTION(Error("Invalid exclude range [" + from.component.toUri() + ", " + to.toUri() + "] "
-                                "(for single name exclude use Exclude::excludeOne)"));
+    NDN_THROW(Error("Invalid exclude range [" + from.component.toUri() + ", " + to.toUri() + "] "
+                    "(for single name exclude use Exclude::excludeOne)"));
   }
 
   ExcludeMap::iterator newFrom = m_entries.lower_bound(from);

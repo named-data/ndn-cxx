@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -81,7 +81,6 @@ CREATE TRIGGER IF NOT EXISTS
   BEGIN
     UPDATE identities SET is_default=0;
   END;
-
 
 CREATE TABLE IF NOT EXISTS
   keys(
@@ -222,18 +221,19 @@ PibSqlite3::PibSqlite3(const std::string& location)
                                );
 
   if (result != SQLITE_OK) {
-    BOOST_THROW_EXCEPTION(PibImpl::Error("PIB database cannot be opened/created in " + location));
+    NDN_THROW(PibImpl::Error("PIB database cannot be opened/created in " + dbDir.string()));
   }
 
   // enable foreign key
   sqlite3_exec(m_database, "PRAGMA foreign_keys=ON", nullptr, nullptr, nullptr);
 
   // initialize PIB tables
-  char* errorMessage = nullptr;
-  result = sqlite3_exec(m_database, INITIALIZATION.c_str(), nullptr, nullptr, &errorMessage);
-  if (result != SQLITE_OK && errorMessage != nullptr) {
-    sqlite3_free(errorMessage);
-    BOOST_THROW_EXCEPTION(PibImpl::Error("PIB DB cannot be initialized"));
+  char* errmsg = nullptr;
+  result = sqlite3_exec(m_database, INITIALIZATION.c_str(), nullptr, nullptr, &errmsg);
+  if (result != SQLITE_OK && errmsg != nullptr) {
+    std::string what = "PIB database cannot be initialized: "s + errmsg;
+    sqlite3_free(errmsg);
+    NDN_THROW(PibImpl::Error(what));
   }
 }
 
@@ -280,7 +280,7 @@ PibSqlite3::hasIdentity(const Name& identity) const
 {
   Sqlite3Statement statement(m_database, "SELECT id FROM identities WHERE identity=?");
   statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
-  return (statement.step() == SQLITE_ROW);
+  return statement.step() == SQLITE_ROW;
 }
 
 void
@@ -340,7 +340,7 @@ PibSqlite3::getDefaultIdentity() const
   if (statement.step() == SQLITE_ROW)
     return Name(statement.getBlock(0));
   else
-    BOOST_THROW_EXCEPTION(Pib::Error("No default identity"));
+    NDN_THROW(Pib::Error("No default identity"));
 }
 
 bool
@@ -405,7 +405,7 @@ PibSqlite3::getKeyBits(const Name& keyName) const
   if (statement.step() == SQLITE_ROW)
     return Buffer(statement.getBlob(0), statement.getSize(0));
   else
-    BOOST_THROW_EXCEPTION(Pib::Error("Key `" + keyName.toUri() + "` does not exist"));
+    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` does not exist"));
 }
 
 std::set<Name>
@@ -430,7 +430,7 @@ void
 PibSqlite3::setDefaultKeyOfIdentity(const Name& identity, const Name& keyName)
 {
   if (!hasKey(keyName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Key `" + keyName.toUri() + "` does not exist"));
+    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` does not exist"));
   }
 
   Sqlite3Statement statement(m_database, "UPDATE keys SET is_default=1 WHERE key_name=?");
@@ -442,7 +442,7 @@ Name
 PibSqlite3::getDefaultKeyOfIdentity(const Name& identity) const
 {
   if (!hasIdentity(identity)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Identity `" + identity.toUri() + "` does not exist"));
+    NDN_THROW(Pib::Error("Identity `" + identity.toUri() + "` does not exist"));
   }
 
   Sqlite3Statement statement(m_database,
@@ -455,7 +455,7 @@ PibSqlite3::getDefaultKeyOfIdentity(const Name& identity) const
     return Name(statement.getBlock(0));
   }
   else
-    BOOST_THROW_EXCEPTION(Pib::Error("No default key for identity `" + identity.toUri() + "`"));
+    NDN_THROW(Pib::Error("No default key for identity `" + identity.toUri() + "`"));
 }
 
 bool
@@ -526,7 +526,7 @@ PibSqlite3::getCertificate(const Name& certName) const
   if (statement.step() == SQLITE_ROW)
     return v2::Certificate(statement.getBlock(0));
   else
-    BOOST_THROW_EXCEPTION(Pib::Error("Certificate `" + certName.toUri() + "` does not exit"));
+    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() + "` does not exit"));
 }
 
 std::set<Name>
@@ -550,7 +550,7 @@ void
 PibSqlite3::setDefaultCertificateOfKey(const Name& keyName, const Name& certName)
 {
   if (!hasCertificate(certName)) {
-    BOOST_THROW_EXCEPTION(Pib::Error("Certificate `" + certName.toUri() + "` does not exist"));
+    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() + "` does not exist"));
   }
 
   Sqlite3Statement statement(m_database,
@@ -571,7 +571,7 @@ PibSqlite3::getDefaultCertificateOfKey(const Name& keyName) const
   if (statement.step() == SQLITE_ROW)
     return v2::Certificate(statement.getBlock(0));
   else
-    BOOST_THROW_EXCEPTION(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
+    NDN_THROW(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
 }
 
 bool
@@ -583,7 +583,7 @@ PibSqlite3::hasDefaultCertificateOfKey(const Name& keyName) const
                              "WHERE certificates.is_default=1 AND keys.key_name=?");
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
 
-  return (statement.step() == SQLITE_ROW);
+  return statement.step() == SQLITE_ROW;
 }
 
 } // namespace pib

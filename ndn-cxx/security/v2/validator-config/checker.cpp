@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -128,7 +128,7 @@ Checker::create(const ConfigSection& configSection, const std::string& configFil
 
   // Get checker.type
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type")) {
-    BOOST_THROW_EXCEPTION(Error("Expecting <checker.type>"));
+    NDN_THROW(Error("Expecting <checker.type>"));
   }
 
   std::string type = propertyIt->second.data();
@@ -139,7 +139,7 @@ Checker::create(const ConfigSection& configSection, const std::string& configFil
     return createHierarchicalChecker(configSection, configFilename);
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unrecognized <checker.type>: " + type));
+    NDN_THROW(Error("Unrecognized <checker.type>: " + type));
   }
 }
 
@@ -159,14 +159,14 @@ Checker::createCustomizedChecker(const ConfigSection& configSection,
 
   // Get checker.key-locator
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "key-locator")) {
-    BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator>"));
+    NDN_THROW(Error("Expecting <checker.key-locator>"));
   }
 
   auto checker = createKeyLocatorChecker(propertyIt->second, configFilename);
   propertyIt++;
 
   if (propertyIt != configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Expecting end of <checker>"));
+    NDN_THROW(Error("Expecting end of <checker>"));
   }
   return checker;
 }
@@ -186,7 +186,7 @@ Checker::createHierarchicalChecker(const ConfigSection& configSection,
   }
 
   if (propertyIt != configSection.end()) {
-    BOOST_THROW_EXCEPTION(Error("Expecting end of <checker>"));
+    NDN_THROW(Error("Expecting end of <checker>"));
   }
   return make_unique<HyperRelationChecker>("^(<>*)$",        "\\1",
                                            "^(<>*)<KEY><>$", "\\1",
@@ -201,13 +201,13 @@ Checker::createKeyLocatorChecker(const ConfigSection& configSection,
 
   // Get checker.key-locator.type
   if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "type"))
-    BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.type>"));
+    NDN_THROW(Error("Expecting <checker.key-locator.type>"));
 
   std::string type = propertyIt->second.data();
   if (boost::iequals(type, "name"))
     return createKeyLocatorNameChecker(configSection, configFilename);
   else
-    BOOST_THROW_EXCEPTION(Error("Unrecognized <checker.key-locator.type>: " + type));
+    NDN_THROW(Error("Unrecognized <checker.key-locator.type>: " + type));
 }
 
 unique_ptr<Checker>
@@ -218,7 +218,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
   propertyIt++;
 
   if (propertyIt == configSection.end())
-    BOOST_THROW_EXCEPTION(Error("Unexpected end of <checker.key-locator>"));
+    NDN_THROW(Error("Unexpected end of <checker.key-locator>"));
 
   if (boost::iequals(propertyIt->first, "name")) {
     Name name;
@@ -226,12 +226,12 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
       name = Name(propertyIt->second.data());
     }
     catch (const Name::Error&) {
-      BOOST_THROW_EXCEPTION(Error("Invalid <checker.key-locator.name>: " + propertyIt->second.data()));
+      NDN_THROW_NESTED(Error("Invalid <checker.key-locator.name>: " + propertyIt->second.data()));
     }
     propertyIt++;
 
     if (propertyIt == configSection.end() || !boost::iequals(propertyIt->first, "relation")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.relation>"));
+      NDN_THROW(Error("Expecting <checker.key-locator.relation>"));
     }
 
     std::string relationString = propertyIt->second.data();
@@ -240,7 +240,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
     NameRelation relation = getNameRelationFromString(relationString);
 
     if (propertyIt != configSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expecting end of <checker.key-locator>"));
+      NDN_THROW(Error("Expecting end of <checker.key-locator>"));
     }
     return make_unique<NameRelationChecker>(name, relation);
   }
@@ -249,23 +249,23 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
     propertyIt++;
 
     if (propertyIt != configSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expecting end of <checker.key-locator>"));
+      NDN_THROW(Error("Expecting end of <checker.key-locator>"));
     }
 
     try {
       return make_unique<RegexChecker>(Regex(regexString));
     }
     catch (const Regex::Error&) {
-      BOOST_THROW_EXCEPTION(Error("Invalid <checker.key-locator.regex>: " + regexString));
+      NDN_THROW_NESTED(Error("Invalid <checker.key-locator.regex>: " + regexString));
     }
   }
   else if (boost::iequals(propertyIt->first, "hyper-relation")) {
     const ConfigSection& hSection = propertyIt->second;
-    ConfigSection::const_iterator hPropertyIt = hSection.begin();
+    auto hPropertyIt = hSection.begin();
 
     // Get k-regex
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "k-regex")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.k-regex>"));
+      NDN_THROW(Error("Expecting <checker.key-locator.hyper-relation.k-regex>"));
     }
 
     std::string kRegex = hPropertyIt->second.data();
@@ -273,7 +273,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
 
     // Get k-expand
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "k-expand")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.k-expand>"));
+      NDN_THROW(Error("Expecting <checker.key-locator.hyper-relation.k-expand>"));
     }
 
     std::string kExpand = hPropertyIt->second.data();
@@ -281,7 +281,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
 
     // Get h-relation
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "h-relation")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.h-relation>"));
+      NDN_THROW(Error("Expecting <checker.key-locator.hyper-relation.h-relation>"));
     }
 
     std::string hRelation = hPropertyIt->second.data();
@@ -289,7 +289,7 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
 
     // Get p-regex
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "p-regex")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.p-regex>"));
+      NDN_THROW(Error("Expecting <checker.key-locator.hyper-relation.p-regex>"));
     }
 
     std::string pRegex = hPropertyIt->second.data();
@@ -297,14 +297,14 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
 
     // Get p-expand
     if (hPropertyIt == hSection.end() || !boost::iequals(hPropertyIt->first, "p-expand")) {
-      BOOST_THROW_EXCEPTION(Error("Expecting <checker.key-locator.hyper-relation.p-expand>"));
+      NDN_THROW(Error("Expecting <checker.key-locator.hyper-relation.p-expand>"));
     }
 
     std::string pExpand = hPropertyIt->second.data();
     hPropertyIt++;
 
     if (hPropertyIt != hSection.end()) {
-      BOOST_THROW_EXCEPTION(Error("Expecting end of <checker.key-locator.hyper-relation>"));
+      NDN_THROW(Error("Expecting end of <checker.key-locator.hyper-relation>"));
     }
 
     NameRelation relation = getNameRelationFromString(hRelation);
@@ -312,11 +312,11 @@ Checker::createKeyLocatorNameChecker(const ConfigSection& configSection,
       return make_unique<HyperRelationChecker>(pRegex, pExpand, kRegex, kExpand, relation);
     }
     catch (const Regex::Error&) {
-      BOOST_THROW_EXCEPTION(Error("Invalid regex for <key-locator.hyper-relation>"));
+      NDN_THROW_NESTED(Error("Invalid regex for <key-locator.hyper-relation>"));
     }
   }
   else {
-    BOOST_THROW_EXCEPTION(Error("Unrecognized <checker.key-locator>: " + propertyIt->first));
+    NDN_THROW(Error("Unrecognized <checker.key-locator>: " + propertyIt->first));
   }
 }
 

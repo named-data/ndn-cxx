@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,7 +53,7 @@ uint32_t
 RsaKeyParamsInfo::checkKeySize(uint32_t size)
 {
   if (size < MIN_RSA_KEY_SIZE)
-    BOOST_THROW_EXCEPTION(KeyParams::Error("Unsupported RSA key size " + to_string(size)));
+    NDN_THROW(KeyParams::Error("Unsupported RSA key size " + to_string(size)));
   return size;
 }
 
@@ -70,7 +70,7 @@ EcKeyParamsInfo::checkKeySize(uint32_t size)
     if (EC_KEY_SIZES[i] == size)
       return size;
   }
-  BOOST_THROW_EXCEPTION(KeyParams::Error("Unsupported EC key size " + to_string(size)));
+  NDN_THROW(KeyParams::Error("Unsupported EC key size " + to_string(size)));
 }
 
 uint32_t
@@ -86,7 +86,7 @@ AesKeyParamsInfo::checkKeySize(uint32_t size)
     if (AES_KEY_SIZES[i] == size)
       return size;
   }
-  BOOST_THROW_EXCEPTION(KeyParams::Error("Unsupported AES key size " + to_string(size)));
+  NDN_THROW(KeyParams::Error("Unsupported AES key size " + to_string(size)));
 }
 
 uint32_t

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,17 +32,17 @@ SignatureSha256WithEcdsa::SignatureSha256WithEcdsa(const Signature& signature)
   : Signature(signature)
 {
   if (getType() != tlv::SignatureSha256WithEcdsa)
-    BOOST_THROW_EXCEPTION(Error("Cannot construct Sha256WithEcdsa from SignatureType " + to_string(getType())));
+    NDN_THROW(Error("Cannot construct Sha256WithEcdsa from SignatureType " + to_string(getType())));
 
   if (!hasKeyLocator()) {
-    BOOST_THROW_EXCEPTION(Error("KeyLocator is missing in Sha256WithEcdsa signature"));
+    NDN_THROW(Error("KeyLocator is missing in Sha256WithEcdsa signature"));
   }
 }
 
 void
 SignatureSha256WithEcdsa::unsetKeyLocator()
 {
-  BOOST_THROW_EXCEPTION(Error("KeyLocator cannot be unset in Sha256WithEcdsa signature"));
+  NDN_THROW(Error("KeyLocator cannot be unset in Sha256WithEcdsa signature"));
 }
 
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -96,26 +96,27 @@ void
 NextHopRecord::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::NextHopRecord) {
-    BOOST_THROW_EXCEPTION(Error("expecting NextHopRecord, but Block has type " + to_string(block.type())));
+    NDN_THROW(Error("NextHopRecord", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val == m_wire.elements_end()) {
-    BOOST_THROW_EXCEPTION(Error("unexpected end of NextHopRecord"));
+    NDN_THROW(Error("unexpected end of NextHopRecord"));
   }
   else if (val->type() != tlv::nfd::FaceId) {
-    BOOST_THROW_EXCEPTION(Error("expecting FaceId, but Block has type " + to_string(val->type())));
+    NDN_THROW(Error("FaceId", val->type()));
   }
   m_faceId = readNonNegativeInteger(*val);
   ++val;
 
   if (val == m_wire.elements_end()) {
-    BOOST_THROW_EXCEPTION(Error("unexpected end of NextHopRecord"));
+    NDN_THROW(Error("unexpected end of NextHopRecord"));
   }
   else if (val->type() != tlv::nfd::Cost) {
-    BOOST_THROW_EXCEPTION(Error("expecting Cost, but Block has type " + to_string(val->type())));
+    NDN_THROW(Error("Cost", val->type()));
   }
   m_cost = readNonNegativeInteger(*val);
   ++val;
@@ -208,17 +209,18 @@ void
 FibEntry::wireDecode(const Block& block)
 {
   if (block.type() != tlv::nfd::FibEntry) {
-    BOOST_THROW_EXCEPTION(Error("expecting FibEntry, but Block has type " + to_string(block.type())));
+    NDN_THROW(Error("FibEntry", block.type()));
   }
+
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val = m_wire.elements_begin();
+  auto val = m_wire.elements_begin();
 
   if (val == m_wire.elements_end()) {
-    BOOST_THROW_EXCEPTION(Error("unexpected end of FibEntry"));
+    NDN_THROW(Error("unexpected end of FibEntry"));
   }
   else if (val->type() != tlv::Name) {
-    BOOST_THROW_EXCEPTION(Error("expecting Name, but Block has type " + to_string(val->type())));
+    NDN_THROW(Error("Name", val->type()));
   }
   m_prefix.wireDecode(*val);
   ++val;
@@ -226,7 +228,7 @@ FibEntry::wireDecode(const Block& block)
   m_nextHopRecords.clear();
   for (; val != m_wire.elements_end(); ++val) {
     if (val->type() != tlv::nfd::NextHopRecord) {
-      BOOST_THROW_EXCEPTION(Error("expecting NextHopRecord, but Block has type " + to_string(val->type())));
+      NDN_THROW(Error("NextHopRecord", val->type()));
     }
     m_nextHopRecords.emplace_back(*val);
   }
