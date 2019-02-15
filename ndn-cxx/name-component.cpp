@@ -40,6 +40,53 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
 static_assert(std::is_base_of<tlv::Error, Component::Error>::value,
               "name::Component::Error must inherit from tlv::Error");
 
+static Convention g_conventionEncoding = Convention::MARKER;
+static Convention g_conventionDecoding = Convention::EITHER;
+
+Convention
+getConventionEncoding()
+{
+  return g_conventionEncoding;
+}
+
+void
+setConventionEncoding(Convention convention)
+{
+  switch (convention) {
+    case Convention::MARKER:
+    case Convention::TYPED:
+      g_conventionEncoding = convention;
+      break;
+    default:
+      NDN_THROW(std::invalid_argument("Unknown naming convention"));
+      break;
+  }
+}
+
+Convention
+getConventionDecoding()
+{
+  return g_conventionDecoding;
+}
+
+void
+setConventionDecoding(Convention convention)
+{
+  g_conventionDecoding = convention;
+}
+
+static bool
+canDecodeMarkerConvention()
+{
+  return (static_cast<int>(g_conventionDecoding) & static_cast<int>(Convention::MARKER)) != 0;
+}
+
+static bool
+canDecodeTypedConvention()
+{
+  return (static_cast<int>(g_conventionDecoding) & static_cast<int>(Convention::TYPED)) != 0;
+}
+
 void
 Component::ensureValid() const
 {
@@ -156,31 +203,36 @@ Component::isNumberWithMarker(uint8_t marker) const
 bool
 Component::isVersion() const
 {
-  return isNumberWithMarker(VERSION_MARKER);
+  return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(VERSION_MARKER)) ||
+         (canDecodeTypedConvention() && type() == tlv::VersionNameComponent && isNumber());
 }
 
 bool
 Component::isSegment() const
 {
-  return isNumberWithMarker(SEGMENT_MARKER);
+  return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEGMENT_MARKER)) ||
+         (canDecodeTypedConvention() && type() == tlv::SegmentNameComponent && isNumber());
 }
 
 bool
-Component::isSegmentOffset() const
+Component::isByteOffset() const
 {
-  return isNumberWithMarker(SEGMENT_OFFSET_MARKER);
+  return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEGMENT_OFFSET_MARKER)) ||
+         (canDecodeTypedConvention() && type() == tlv::ByteOffsetNameComponent && isNumber());
 }
 
 bool
 Component::isTimestamp() const
 {
-  return isNumberWithMarker(TIMESTAMP_MARKER);
+  return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(TIMESTAMP_MARKER)) ||
+         (canDecodeTypedConvention() && type() == tlv::TimestampNameComponent && isNumber());
 }
 
 bool
 Component::isSequenceNumber() const
 {
-  return isNumberWithMarker(SEQUENCE_NUMBER_MARKER);
+  return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEQUENCE_NUMBER_MARKER)) ||
+         (canDecodeTypedConvention() && type() == tlv::SequenceNumNameComponent && isNumber());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,40 +260,73 @@ Component::toNumberWithMarker(uint8_t marker) const
 uint64_t
 Component::toVersion() const
 {
-  return toNumberWithMarker(VERSION_MARKER);
+  if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
+    return toNumberWithMarker(VERSION_MARKER);
+  }
+  if (canDecodeTypedConvention() && type() == tlv::VersionNameComponent) {
+    return toNumber();
+  }
+  NDN_THROW(Error("Not a Version component"));
 }
 
 uint64_t
 Component::toSegment() const
 {
-  return toNumberWithMarker(SEGMENT_MARKER);
+  if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
+    return toNumberWithMarker(SEGMENT_MARKER);
+  }
+  if (canDecodeTypedConvention() && type() == tlv::SegmentNameComponent) {
+    return toNumber();
+  }
+  NDN_THROW(Error("Not a Segment component"));
 }
 
 uint64_t
-Component::toSegmentOffset() const
+Component::toByteOffset() const
 {
-  return toNumberWithMarker(SEGMENT_OFFSET_MARKER);
+  if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
+    return toNumberWithMarker(SEGMENT_OFFSET_MARKER);
+  }
+  if (canDecodeTypedConvention() && type() == tlv::ByteOffsetNameComponent) {
+    return toNumber();
+  }
+  NDN_THROW(Error("Not a ByteOffset component"));
 }
 
 time::system_clock::TimePoint
 Component::toTimestamp() const
 {
-  uint64_t value = toNumberWithMarker(TIMESTAMP_MARKER);
+  uint64_t value = 0;
+  if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
+    value = toNumberWithMarker(TIMESTAMP_MARKER);
+  }
+  else if (canDecodeTypedConvention() && type() == tlv::TimestampNameComponent) {
+    value = toNumber();
+  }
+  else {
+    NDN_THROW(Error("Not a Timestamp component"));
+  }
   return time::getUnixEpoch() + time::microseconds(value);
 }
 
 uint64_t
 Component::toSequenceNumber() const
 {
-  return toNumberWithMarker(SEQUENCE_NUMBER_MARKER);
+  if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
+    return toNumberWithMarker(SEQUENCE_NUMBER_MARKER);
+  }
+  if (canDecodeTypedConvention() && type() == tlv::SequenceNumNameComponent) {
+    return toNumber();
+  }
+  NDN_THROW(Error("Not a SequenceNumber component"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Component
-Component::fromNumber(uint64_t number)
+Component::fromNumber(uint64_t number, uint32_t type)
 {
-  return makeNonNegativeIntegerBlock(tlv::GenericNameComponent, number);
+  return makeNonNegativeIntegerBlock(type, number);
 }
 
 Component
@@ -267,33 +352,42 @@ Component::fromNumberWithMarker(uint8_t marker, uint64_t number)
 Component
 Component::fromVersion(uint64_t version)
 {
-  return fromNumberWithMarker(VERSION_MARKER, version);
+  return g_conventionEncoding == Convention::MARKER ?
+         fromNumberWithMarker(VERSION_MARKER, version) :
+         fromNumber(version, tlv::VersionNameComponent);
 }
 
 Component
 Component::fromSegment(uint64_t segmentNo)
 {
-  return fromNumberWithMarker(SEGMENT_MARKER, segmentNo);
+  return g_conventionEncoding == Convention::MARKER ?
+         fromNumberWithMarker(SEGMENT_MARKER, segmentNo) :
+         fromNumber(segmentNo, tlv::SegmentNameComponent);
 }
 
 Component
-Component::fromSegmentOffset(uint64_t offset)
+Component::fromByteOffset(uint64_t offset)
 {
-  return fromNumberWithMarker(SEGMENT_OFFSET_MARKER, offset);
+  return g_conventionEncoding == Convention::MARKER ?
+         fromNumberWithMarker(SEGMENT_OFFSET_MARKER, offset) :
+         fromNumber(offset, tlv::ByteOffsetNameComponent);
 }
 
 Component
 Component::fromTimestamp(const time::system_clock::TimePoint& timePoint)
 {
-  using namespace time;
-  uint64_t value = duration_cast<microseconds>(timePoint - getUnixEpoch()).count();
-  return fromNumberWithMarker(TIMESTAMP_MARKER, value);
+  uint64_t value = time::duration_cast<time::microseconds>(timePoint - time::getUnixEpoch()).count();
+  return g_conventionEncoding == Convention::MARKER ?
+         fromNumberWithMarker(TIMESTAMP_MARKER, value) :
+         fromNumber(value, tlv::TimestampNameComponent);
 }
 
 Component
 Component::fromSequenceNumber(uint64_t seqNo)
 {
-  return fromNumberWithMarker(SEQUENCE_NUMBER_MARKER, seqNo);
+  return g_conventionEncoding == Convention::MARKER ?
+         fromNumberWithMarker(SEQUENCE_NUMBER_MARKER, seqNo) :
+         fromNumber(seqNo, tlv::SequenceNumNameComponent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

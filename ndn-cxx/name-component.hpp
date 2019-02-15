@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,16 +30,50 @@
 namespace ndn {
 namespace name {
 
-/// @brief Segment marker for NDN naming conventions
-static const uint8_t SEGMENT_MARKER = 0x00;
-/// @brief Segment offset marker for NDN naming conventions
-static const uint8_t SEGMENT_OFFSET_MARKER = 0xFB;
-/// @brief Version marker for NDN naming conventions
-static const uint8_t VERSION_MARKER = 0xFD;
-/// @brief Timestamp marker for NDN naming conventions
-static const uint8_t TIMESTAMP_MARKER = 0xFC;
-/// @brief Sequence number marker for NDN naming conventions
-static const uint8_t SEQUENCE_NUMBER_MARKER = 0xFE;
+/** @brief Identify a style of NDN Naming Conventions.
+ */
+enum class Convention {
+  MARKER = 1 << 0, ///< component markers (revision 1)
+  TYPED  = 1 << 1, ///< typed name components (revision 2)
+  EITHER = MARKER | TYPED,
+};
+
+/** @brief Markers in Naming Conventions rev1
+ */
+enum : uint8_t {
+  SEGMENT_MARKER = 0x00,
+  SEGMENT_OFFSET_MARKER = 0xFB,
+  VERSION_MARKER = 0xFD,
+  TIMESTAMP_MARKER = 0xFC,
+  SEQUENCE_NUMBER_MARKER = 0xFE,
+};
+
+/** @brief Return which Naming Conventions style to use while encoding.
+ *
+ *  The current library default is Convention::MARKER, but this will change in the future.
+ */
+Convention
+getConventionEncoding();
+
+/** @brief Set which Naming Conventions style to use while encoding.
+ *  @param convention either Convention::MARKER or Convention::TYPED.
+ */
+void
+setConventionEncoding(Convention convention);
+
+/** @brief Return which Naming Conventions style(s) to accept while decoding.
+ *
+ *  The current library default is Convention::EITHER, but this will change in the future.
+ */
+Convention
+getConventionDecoding();
+
+/** @brief Set which Naming Conventions style(s) to accept while decoding.
+ *  @param convention Convention::MARKER or Convention::TYPED accepts the specified style only;
+ *                    Convention::EITHER accepts either.
+ */
+void
+setConventionDecoding(Convention convention);
 
 /** @brief Represents a name component.
  *
@@ -236,49 +270,56 @@ public: // encoding and URI
 
 public: // naming conventions
   /**
-   * @brief Check if the component is nonNegativeInteger
+   * @brief Check if the component is a nonNegativeInteger
    * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
    */
   bool
   isNumber() const;
 
   /**
-   * @brief Check if the component is NameComponentWithMarker per NDN naming conventions
+   * @brief Check if the component is a NameComponentWithMarker per NDN naming conventions rev1
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isNumberWithMarker(uint8_t marker) const;
 
   /**
-   * @brief Check if the component is version per NDN naming conventions
+   * @brief Check if the component is a version per NDN naming conventions
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isVersion() const;
 
   /**
-   * @brief Check if the component is segment number per NDN naming conventions
+   * @brief Check if the component is a segment number per NDN naming conventions
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isSegment() const;
 
   /**
-   * @brief Check if the component is segment offset per NDN naming conventions
+   * @brief Check if the component is a byte offset per NDN naming conventions
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
-  isSegmentOffset() const;
+  isByteOffset() const;
+
+  /// @deprecated use isByteOffset
+  bool
+  isSegmentOffset() const
+  {
+    return isByteOffset();
+  }
 
   /**
-   * @brief Check if the component is timestamp per NDN naming conventions
+   * @brief Check if the component is a timestamp per NDN naming conventions
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
   isTimestamp() const;
 
   /**
-   * @brief Check if the component is sequence number per NDN naming conventions
+   * @brief Check if the component is a sequence number per NDN naming conventions
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   bool
@@ -312,8 +353,7 @@ public: // naming conventions
    *
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
-   * @throws Error if name component does not have the specified marker.
-   *         tlv::Error if format does not follow NameComponentWithMarker specification.
+   * @throw tlv::Error not a Version component interpreted by the chosen convention(s).
    */
   uint64_t
   toVersion() const;
@@ -323,30 +363,34 @@ public: // naming conventions
    *
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
-   * @throws Error if name component does not have the specified marker.
-   *         tlv::Error if format does not follow NameComponentWithMarker specification.
+   * @throw tlv::Error not a Segment component interpreted by the chosen convention(s).
    */
   uint64_t
   toSegment() const;
 
   /**
-   * @brief Interpret as segment offset component using NDN naming conventions
+   * @brief Interpret as byte offset component using NDN naming conventions
    *
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
-   * @throws Error if name component does not have the specified marker.
-   *         tlv::Error if format does not follow NameComponentWithMarker specification.
+   * @throw tlv::Error not a ByteOffset component interpreted by the chosen convention(s).
    */
   uint64_t
-  toSegmentOffset() const;
+  toByteOffset() const;
+
+  /// @deprecated use toByteOffset
+  uint64_t
+  toSegmentOffset() const
+  {
+    return toByteOffset();
+  }
 
   /**
    * @brief Interpret as timestamp component using NDN naming conventions
    *
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
-   * @throws Error if name component does not have the specified marker.
-   *         tlv::Error if format does not follow NameComponentWithMarker specification.
+   * @throw tlv::Error not a Timestamp component interpreted by the chosen convention(s).
    */
   time::system_clock::TimePoint
   toTimestamp() const;
@@ -356,8 +400,7 @@ public: // naming conventions
    *
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    *
-   * @throws Error if name component does not have the specified marker.
-   *         tlv::Error if format does not follow NameComponentWithMarker specification.
+   * @throw tlv::Error not a SequenceNumber component interpreted by the chosen convention(s).
    */
   uint64_t
   toSequenceNumber() const;
@@ -368,10 +411,10 @@ public: // naming conventions
    * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
    *
    * @param number The non-negative number
-   * @return The component value.
+   * @param type TLV-TYPE
    */
   static Component
-  fromNumber(uint64_t number);
+  fromNumber(uint64_t number, uint32_t type = tlv::GenericNameComponent);
 
   /**
    * @brief Create a component encoded as NameComponentWithMarker
@@ -392,7 +435,6 @@ public: // naming conventions
    *
    * @param marker 1-byte marker octet
    * @param number The non-negative number
-   * @return The component value.
    */
   static Component
   fromNumberWithMarker(uint8_t marker, uint64_t number);
@@ -414,12 +456,19 @@ public: // naming conventions
   fromSegment(uint64_t segmentNo);
 
   /**
-   * @brief Create segment offset component using NDN naming conventions
+   * @brief Create byte offset component using NDN naming conventions
    *
    * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   static Component
-  fromSegmentOffset(uint64_t offset);
+  fromByteOffset(uint64_t offset);
+
+  /// @deprecated use fromByteOffset
+  static Component
+  fromSegmentOffset(uint64_t offset)
+  {
+    return fromByteOffset(offset);
+  }
 
   /**
    * @brief Create sequence number component using NDN naming conventions

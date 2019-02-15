@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -251,9 +251,29 @@ struct ConventionTest
   function<bool(const Component&)> isComponent;
 };
 
+class ConventionMarker
+{
+};
+
+class ConventionTyped
+{
+public:
+  ConventionTyped()
+  {
+    name::setConventionEncoding(name::Convention::TYPED);
+  }
+
+  ~ConventionTyped()
+  {
+    name::setConventionEncoding(name::Convention::MARKER);
+  }
+};
+
 class NumberWithMarker
 {
 public:
+  using ConventionRev = ConventionMarker;
+
   ConventionTest<uint64_t>
   operator()() const
   {
@@ -266,9 +286,11 @@ public:
   }
 };
 
-class Segment
+class SegmentMarker
 {
 public:
+  using ConventionRev = ConventionMarker;
+
   ConventionTest<uint64_t>
   operator()() const
   {
@@ -281,9 +303,28 @@ public:
   }
 };
 
-class SegmentOffset
+class SegmentTyped
 {
 public:
+  using ConventionRev = ConventionTyped;
+
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&Component::fromSegment,
+            bind(&Component::toSegment, _1),
+            bind(&Name::appendSegment, _1, _2),
+            Name("/33=%27%10"),
+            10000,
+            bind(&Component::isSegment, _1)};
+  }
+};
+
+class SegmentOffsetMarker
+{
+public:
+  using ConventionRev = ConventionMarker;
+
   ConventionTest<uint64_t>
   operator()() const
   {
@@ -296,9 +337,28 @@ public:
   }
 };
 
-class Version
+class ByteOffsetTyped
 {
 public:
+  using ConventionRev = ConventionTyped;
+
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&Component::fromByteOffset,
+            bind(&Component::toByteOffset, _1),
+            bind(&Name::appendByteOffset, _1, _2),
+            Name("/34=%00%01%86%A0"),
+            100000,
+            bind(&Component::isByteOffset, _1)};
+  }
+};
+
+class VersionMarker
+{
+public:
+  using ConventionRev = ConventionMarker;
+
   ConventionTest<uint64_t>
   operator()() const
   {
@@ -311,9 +371,28 @@ public:
   }
 };
 
-class Timestamp
+class VersionTyped
 {
 public:
+  using ConventionRev = ConventionTyped;
+
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&Component::fromVersion,
+            bind(&Component::toVersion, _1),
+            [] (Name& name, uint64_t version) -> Name& { return name.appendVersion(version); },
+            Name("/35=%00%0FB%40"),
+            1000000,
+            bind(&Component::isVersion, _1)};
+  }
+};
+
+class TimestampMarker
+{
+public:
+  using ConventionRev = ConventionMarker;
+
   ConventionTest<time::system_clock::TimePoint>
   operator()() const
   {
@@ -326,9 +405,28 @@ public:
   }
 };
 
-class SequenceNumber
+class TimestampTyped
 {
 public:
+  using ConventionRev = ConventionTyped;
+
+  ConventionTest<time::system_clock::TimePoint>
+  operator()() const
+  {
+    return {&Component::fromTimestamp,
+            bind(&Component::toTimestamp, _1),
+            [] (Name& name, time::system_clock::TimePoint t) -> Name& { return name.appendTimestamp(t); },
+            Name("/36=%00%04%7BE%E3%1B%00%00"),
+            time::getUnixEpoch() + 14600_days, // 40 years
+            bind(&Component::isTimestamp, _1)};
+  }
+};
+
+class SequenceNumberMarker
+{
+public:
+  using ConventionRev = ConventionMarker;
+
   ConventionTest<uint64_t>
   operator()() const
   {
@@ -341,16 +439,38 @@ public:
   }
 };
 
+class SequenceNumberTyped
+{
+public:
+  using ConventionRev = ConventionTyped;
+
+  ConventionTest<uint64_t>
+  operator()() const
+  {
+    return {&Component::fromSequenceNumber,
+            bind(&Component::toSequenceNumber, _1),
+            bind(&Name::appendSequenceNumber, _1, _2),
+            Name("/37=%00%98%96%80"),
+            10000000,
+            bind(&Component::isSequenceNumber, _1)};
+  }
+};
+
 using ConventionTests = boost::mpl::vector<
   NumberWithMarker,
-  Segment,
-  SegmentOffset,
-  Version,
-  Timestamp,
-  SequenceNumber
+  SegmentMarker,
+  SegmentTyped,
+  SegmentOffsetMarker,
+  ByteOffsetTyped,
+  VersionMarker,
+  VersionTyped,
+  TimestampMarker,
+  TimestampTyped,
+  SequenceNumberMarker,
+  SequenceNumberTyped
 >;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(Convention, T, ConventionTests)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(Convention, T, ConventionTests, T::ConventionRev)
 {
   Component invalidComponent1;
   Component invalidComponent2("1234567890");
@@ -359,8 +479,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Convention, T, ConventionTests)
 
   const Name& expected = test.expected;
   BOOST_TEST_MESSAGE("Check " << expected[0].toUri());
-
-  BOOST_CHECK_EQUAL(expected[0].isGeneric(), true);
 
   Component actualComponent = test.makeComponent(test.value);
   BOOST_CHECK_EQUAL(actualComponent, expected[0]);

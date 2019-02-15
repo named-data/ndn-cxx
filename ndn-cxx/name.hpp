@@ -373,14 +373,21 @@ public: // modifiers
     return append(Component::fromSegment(segmentNo));
   }
 
-  /** @brief Append a segment byte offset component
+  /** @brief Append a byte offset component
    *  @return a reference to this name, to allow chaining
    *  @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
    */
   Name&
+  appendByteOffset(uint64_t offset)
+  {
+    return append(Component::fromByteOffset(offset));
+  }
+
+  /// @deprecated use appendByteOffset
+  Name&
   appendSegmentOffset(uint64_t offset)
   {
-    return append(Component::fromSegmentOffset(offset));
+    return appendByteOffset(offset);
   }
 
   /** @brief Append a timestamp component
