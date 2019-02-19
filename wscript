@@ -17,31 +17,7 @@ def options(opt):
               'doxygen', 'sphinx_build'],
              tooldir=['.waf-tools'])
 
-    opt = opt.add_option_group('Library Options')
-
-    opt.add_option('--with-examples', action='store_true', default=False,
-                   help='Build examples')
-
-    opt.add_option('--with-tests', action='store_true', default=False,
-                   help='Build tests')
-
-    opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
-                   help='Do not build tools')
-
-    stacktrace_choices = ['backtrace', 'addr2line', 'basic', 'noop']
-    opt.add_option('--with-stacktrace', action='store', default=None, choices=stacktrace_choices,
-                   help='Select the stacktrace backend implementation: '
-                        '%s [default=auto-detect]' % ', '.join(stacktrace_choices))
-    opt.add_option('--without-stacktrace', action='store_const', const='', dest='with_stacktrace',
-                   help='Disable stacktrace support')
-
-    opt.add_option('--without-sqlite-locking', action='store_false', default=True, dest='with_sqlite_locking',
-                   help='Disable filesystem locking in sqlite3 database '
-                        '(use unix-dot locking mechanism instead). '
-                        'This option may be necessary if the home directory is hosted on NFS.')
-
-    opt.add_option('--without-osx-keychain', action='store_false', default=True,
-                   dest='with_osx_keychain', help='Do not use macOS Keychain as default TPM (macOS only)')
+    opt = opt.add_option_group('ndn-cxx Options')
 
     opt.add_option('--enable-static', action='store_true', default=False,
                    dest='enable_static', help='Build static library (disabled by default)')
@@ -52,6 +28,30 @@ def options(opt):
                    dest='enable_shared', help='Build shared library (enabled by default)')
     opt.add_option('--disable-shared', action='store_false', default=True,
                    dest='enable_shared', help='Do not build shared library (enabled by default)')
+
+    opt.add_option('--without-osx-keychain', action='store_false', default=True,
+                   dest='with_osx_keychain', help='Do not use macOS Keychain as default TPM (macOS only)')
+
+    opt.add_option('--without-sqlite-locking', action='store_false', default=True, dest='with_sqlite_locking',
+                   help='Disable filesystem locking in sqlite3 database '
+                        '(use unix-dot locking mechanism instead). '
+                        'This option may be necessary if the home directory is hosted on NFS.')
+
+    stacktrace_choices = ['backtrace', 'addr2line', 'basic', 'noop']
+    opt.add_option('--with-stacktrace', action='store', default=None, choices=stacktrace_choices,
+                   help='Select the stacktrace backend implementation: '
+                        '%s [default=auto-detect]' % ', '.join(stacktrace_choices))
+    opt.add_option('--without-stacktrace', action='store_const', const='', dest='with_stacktrace',
+                   help='Disable stacktrace support')
+
+    opt.add_option('--with-examples', action='store_true', default=False,
+                   help='Build examples')
+
+    opt.add_option('--with-tests', action='store_true', default=False,
+                   help='Build tests')
+
+    opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
+                   help='Do not build tools')
 
 def configure(conf):
     conf.start_msg('Building static library')
@@ -80,7 +80,7 @@ def configure(conf):
     conf.env.WITH_TOOLS = conf.options.with_tools
     conf.env.WITH_EXAMPLES = conf.options.with_examples
 
-    conf.find_program('sh', var='SH', mandatory=True)
+    conf.find_program('sh', var='SH')
 
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
@@ -100,12 +100,10 @@ def configure(conf):
                                    int main() { return IFA_FLAGS; }''')
 
     conf.check_osx_frameworks()
+    conf.check_sqlite3()
+    conf.check_openssl(lib='crypto', atleast_version=0x1000200f) # 1.0.2
 
-    conf.check_sqlite3(mandatory=True)
-    conf.check_openssl(mandatory=True, atleast_version=0x1000200f) # 1.0.2
-
-    boost_libs = ['system', 'filesystem', 'date_time', 'iostreams',
-                  'program_options', 'chrono', 'thread', 'log', 'log_setup']
+    boost_libs = ['system', 'program_options', 'chrono', 'date_time', 'filesystem', 'thread', 'log']
 
     stacktrace_backend = conf.options.with_stacktrace
     if stacktrace_backend is None:

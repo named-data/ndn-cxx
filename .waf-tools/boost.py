@@ -56,6 +56,7 @@ from waflib.TaskGen import feature, after_method
 
 BOOST_LIBS = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
 BOOST_INCLUDES = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
+
 BOOST_VERSION_FILE = 'boost/version.hpp'
 BOOST_VERSION_CODE = '''
 #include <iostream>
@@ -90,13 +91,18 @@ int main() { boost::thread t; }
 
 BOOST_LOG_CODE = '''
 #include <boost/log/trivial.hpp>
+int main() { BOOST_LOG_TRIVIAL(info) << "boost_log is working"; }
+'''
+
+BOOST_LOG_SETUP_CODE = '''
+#include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 int main() {
 	using namespace boost::log;
 	add_common_attributes();
 	add_console_log(std::clog, keywords::format = "%Message%");
-	BOOST_LOG_TRIVIAL(debug) << "log is working" << std::endl;
+	BOOST_LOG_TRIVIAL(info) << "boost_log_setup is working";
 }
 '''
 
@@ -452,12 +458,15 @@ def check_boost(self, *k, **kw):
 			self.check_cxx(fragment=BOOST_ERROR_CODE, use=var, execute=False)
 		if has_lib('thread'):
 			self.check_cxx(fragment=BOOST_THREAD_CODE, use=var, execute=False)
-		if has_lib('log'):
+		if has_lib('log') or has_lib('log_setup'):
 			if not has_lib('thread'):
 				self.env['DEFINES_%s' % var] += ['BOOST_LOG_NO_THREADS']
-			if has_shlib('log'):
+			if has_shlib('log') or has_shlib('log_setup'):
 				self.env['DEFINES_%s' % var] += ['BOOST_LOG_DYN_LINK']
-			self.check_cxx(fragment=BOOST_LOG_CODE, use=var, execute=False)
+			if has_lib('log_setup'):
+				self.check_cxx(fragment=BOOST_LOG_SETUP_CODE, use=var, execute=False)
+			else:
+				self.check_cxx(fragment=BOOST_LOG_CODE, use=var, execute=False)
 
 	if params.get('linkage_autodetect', False):
 		self.start_msg('Attempting to detect boost linkage flags')

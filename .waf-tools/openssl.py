@@ -19,23 +19,20 @@ When using this tool, the wscript will look like:
 '''
 
 import re
-from waflib import Utils, Logs
+from waflib import Utils
 from waflib.Configure import conf
 
-OPENSSL_VERSION_FILE = 'opensslv.h'
 OPENSSL_DIR_OSX = ['/usr/local', '/opt/local', '/usr/local/opt/openssl']
 OPENSSL_DIR = ['/usr', '/usr/local', '/opt/local', '/sw']
 
 def options(opt):
     opt.add_option('--with-openssl', type='string', default=None, dest='openssl_dir',
-                   help='''Path to where OpenSSL is installed, e.g., /usr/local''')
-
+                   help='directory where OpenSSL is installed, e.g., /usr/local')
 
 @conf
 def __openssl_get_version_file(self, dir):
     try:
-        return self.root.find_dir(dir).find_node('%s/%s' % ('include/openssl',
-                                                            OPENSSL_VERSION_FILE))
+        return self.root.find_dir(dir).find_node('include/openssl/opensslv.h')
     except:
         return None
 
@@ -47,8 +44,8 @@ def __openssl_find_root_and_version_file(self, *k, **kw):
     if root and file:
         return (root, file)
 
-    openssl_dir = [];
-    if Utils.unversioned_sys_platform() == "darwin":
+    openssl_dir = []
+    if Utils.unversioned_sys_platform() == 'darwin':
         openssl_dir = OPENSSL_DIR_OSX
     else:
         openssl_dir = OPENSSL_DIR
@@ -66,10 +63,7 @@ def __openssl_find_root_and_version_file(self, *k, **kw):
 
 @conf
 def check_openssl(self, *k, **kw):
-    atleast_version = kw.get('atleast_version', 0)
-    var = kw.get('uselib_store', 'OPENSSL')
-
-    self.start_msg('Checking for OpenSSL lib')
+    self.start_msg('Checking for OpenSSL version')
     (root, file) = self.__openssl_find_root_and_version_file(*k, **kw)
 
     try:
@@ -88,18 +82,21 @@ def check_openssl(self, *k, **kw):
     except:
         self.fatal('OpenSSL version file is not found or is not usable')
 
+    atleast_version = kw.get('atleast_version', 0)
     if int(version, 16) < atleast_version:
-        self.fatal("The version of OpenSSL is too old\n" +
-                   "Please upgrade your distribution or install newer version of OpenSSL library")
+        self.fatal('The version of OpenSSL is too old\n'
+                   'Please upgrade your distribution or manually install a newer version of OpenSSL')
 
-    kwargs = {}
+    if 'msg' not in kw:
+        kw['msg'] = 'Checking if OpenSSL library works'
+    if 'lib' not in kw:
+        kw['lib'] = ['ssl', 'crypto']
+    if 'uselib_store' not in kw:
+        kw['uselib_store'] = 'OPENSSL'
+    if 'define_name' not in kw:
+        kw['define_name'] = 'HAVE_%s' % kw['uselib_store']
     if root:
-        kwargs['includes'] = "%s/include" % root
-        kwargs['libpath'] = "%s/lib" % root
+        kw['includes'] = '%s/include' % root
+        kw['libpath'] = '%s/lib' % root
 
-    libcrypto = self.check_cxx(lib=['ssl', 'crypto'],
-                               msg='Checking if OpenSSL library works',
-                               define_name='HAVE_%s' % var,
-                               uselib_store=var,
-                               mandatory=True,
-                               **kwargs)
+    self.check_cxx(**kw)
