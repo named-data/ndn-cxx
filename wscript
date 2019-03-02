@@ -129,6 +129,10 @@ def configure(conf):
                    'Please upgrade your distribution or manually install a newer version of Boost'
                    ' (https://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)')
 
+    # Workaround for bug 4860
+    if conf.env.BOOST_VERSION_NUMBER < 106900 and conf.env.CXX_NAME == 'clang':
+        conf.env.append_unique('DEFINES_BOOST', ['BOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW'])
+
     conf.check_compiler_flags()
 
     # Loading "late" to prevent tests from being compiled with profiling flags
