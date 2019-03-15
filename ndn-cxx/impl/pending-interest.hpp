@@ -210,7 +210,7 @@ private:
   DataCallback m_dataCallback;
   NackCallback m_nackCallback;
   TimeoutCallback m_timeoutCallback;
-  util::scheduler::ScopedEventId m_timeoutEvent;
+  scheduler::ScopedEventId m_timeoutEvent;
   int m_nNotNacked; ///< number of Interest destinations that have not Nacked
   optional<lp::Nack> m_leastSevereNack;
   std::function<void()> m_deleter;

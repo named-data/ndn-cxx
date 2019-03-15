@@ -31,9 +31,7 @@ namespace util {
 namespace scheduler {
 namespace tests {
 
-using namespace ndn::tests;
-
-class SchedulerFixture : public UnitTestTimeFixture
+class SchedulerFixture : public ndn::tests::UnitTestTimeFixture
 {
 public:
   SchedulerFixture()

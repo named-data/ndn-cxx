@@ -135,21 +135,12 @@ public:
    */
   [[deprecated]]
   explicit
-  ScopedEventId(Scheduler& scheduler) noexcept
+  ScopedEventId(Scheduler&) noexcept
   {
   }
 };
 
-class EventQueueCompare
-{
-public:
-  bool
-  operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const noexcept;
-};
-
-using EventQueue = std::multiset<shared_ptr<EventInfo>, EventQueueCompare>;
-
-/** \brief Generic scheduler
+/** \brief Generic time-based scheduler
  */
 class Scheduler : noncopyable
 {
@@ -163,7 +154,7 @@ public:
    *  \return EventId that can be used to cancel the scheduled event
    */
   EventId
-  scheduleEvent(time::nanoseconds after, const EventCallback& callback);
+  scheduleEvent(time::nanoseconds after, EventCallback callback);
 
   /** \brief Cancel a scheduled event
    *
@@ -198,22 +189,35 @@ private:
   executeEvent(const boost::system::error_code& code);
 
 private:
-  unique_ptr<detail::SteadyTimer> m_timer;
+  class EventQueueCompare
+  {
+  public:
+    bool
+    operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const noexcept;
+  };
+
+  using EventQueue = std::multiset<shared_ptr<EventInfo>, EventQueueCompare>;
   EventQueue m_queue;
-  bool m_isEventExecuting;
+
+  unique_ptr<util::detail::SteadyTimer> m_timer;
+  bool m_isEventExecuting = false;
 
   friend EventId;
+  friend EventInfo;
 };
 
 } // namespace scheduler
 
-using util::scheduler::Scheduler;
+// for backwards compatibility
+using Scheduler [[deprecated]] = scheduler::Scheduler;
 
 } // namespace util
 
+namespace scheduler = util::scheduler;
+using scheduler::Scheduler;
+
 // for backwards compatibility
-using util::scheduler::Scheduler;
-using util::scheduler::EventId;
+using EventId [[deprecated]] = util::scheduler::EventId;
 
 } // namespace ndn
 

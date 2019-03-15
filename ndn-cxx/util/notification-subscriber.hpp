@@ -137,8 +137,8 @@ private:
   uint64_t m_lastSequenceNum;
   uint64_t m_lastNackSequenceNum;
   uint64_t m_attempts;
-  util::scheduler::Scheduler m_scheduler;
-  util::scheduler::ScopedEventId m_nackEvent;
+  Scheduler m_scheduler;
+  scheduler::ScopedEventId m_nackEvent;
   ScopedPendingInterestHandle m_lastInterest;
   time::milliseconds m_interestLifetime;
 };

@@ -124,8 +124,8 @@ private:
   SuccessCallback m_onSuccess;
   ErrorCallback m_onError;
 
-  util::scheduler::Scheduler m_scheduler;
-  util::scheduler::EventId m_resolveTimeout;
+  Scheduler m_scheduler;
+  scheduler::EventId m_resolveTimeout;
 };
 
 void

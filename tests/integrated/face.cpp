@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,7 +79,7 @@ protected:
    *  \param[out] outcome the response, initially '?', 'D' for Data, 'N' for Nack, 'T' for timeout
    *  \return scheduled event id
    */
-  EventId
+  scheduler::EventId
   sendInterest(time::nanoseconds delay, const Interest& interest, char& outcome)
   {
     if (face2 == nullptr) {
@@ -95,7 +95,7 @@ protected:
     });
   }
 
-  EventId
+  scheduler::EventId
   sendInterest(time::nanoseconds delay, const Interest& interest)
   {
     static char ignoredOutcome;
@@ -105,7 +105,7 @@ protected:
   /** \brief Stop io_service after a delay
    *  \return scheduled event id
    */
-  EventId
+  scheduler::EventId
   terminateAfter(time::nanoseconds delay)
   {
     return sched.scheduleEvent(delay, [this] { face.getIoService().stop(); });
@@ -114,7 +114,6 @@ protected:
 protected:
   Face face;
   Scheduler sched;
-
   unique_ptr<Face> face2;
 };
 

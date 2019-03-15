@@ -424,8 +424,8 @@ private:
 
 private:
   Face& m_face;
-  util::Scheduler m_scheduler;
-  util::scheduler::ScopedEventId m_processEventsTimeoutEvent;
+  Scheduler m_scheduler;
+  scheduler::ScopedEventId m_processEventsTimeoutEvent;
 
   std::atomic_uintptr_t m_lastPendingInterestId;
   PendingInterestTable m_pendingInterestTable;

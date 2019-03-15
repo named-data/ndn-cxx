@@ -33,10 +33,9 @@ namespace scheduler {
 class EventInfo : noncopyable
 {
 public:
-  EventInfo(time::nanoseconds after, const EventCallback& callback)
-    : expireTime(time::steady_clock::now() + after)
-    , isExpired(false)
-    , callback(callback)
+  EventInfo(time::nanoseconds after, EventCallback&& cb)
+    : callback(std::move(cb))
+    , expireTime(time::steady_clock::now() + after)
   {
   }
 
@@ -47,10 +46,10 @@ public:
   }
 
 public:
-  time::steady_clock::TimePoint expireTime;
-  bool isExpired;
   EventCallback callback;
-  EventQueue::const_iterator queueIt;
+  Scheduler::EventQueue::const_iterator queueIt;
+  time::steady_clock::TimePoint expireTime;
+  bool isExpired = false;
 };
 
 EventId::EventId(Scheduler& sched, weak_ptr<EventInfo> info)
@@ -85,25 +84,25 @@ operator<<(std::ostream& os, const EventId& eventId)
 }
 
 bool
-EventQueueCompare::operator()(const shared_ptr<EventInfo>& a, const shared_ptr<EventInfo>& b) const noexcept
+Scheduler::EventQueueCompare::operator()(const shared_ptr<EventInfo>& a,
+                                         const shared_ptr<EventInfo>& b) const noexcept
 {
   return a->expireTime < b->expireTime;
 }
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
   : m_timer(make_unique<detail::SteadyTimer>(ioService))
-  , m_isEventExecuting(false)
 {
 }
 
 Scheduler::~Scheduler() = default;
 
 EventId
-Scheduler::scheduleEvent(time::nanoseconds after, const EventCallback& callback)
+Scheduler::scheduleEvent(time::nanoseconds after, EventCallback callback)
 {
   BOOST_ASSERT(callback != nullptr);
 
-  EventQueue::iterator i = m_queue.insert(make_shared<EventInfo>(after, callback));
+  auto i = m_queue.insert(make_shared<EventInfo>(after, std::move(callback)));
   (*i)->queueIt = i;
 
   if (!m_isEventExecuting && i == m_queue.begin()) {

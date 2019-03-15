@@ -101,8 +101,8 @@ private:
 private:
   std::map<std::string, shared_ptr<NetworkInterface>> m_interfaces; ///< ifname => interface
 
-  util::Scheduler m_scheduler;
-  util::scheduler::ScopedEventId m_cfLoopEvent;
+  Scheduler m_scheduler;
+  scheduler::ScopedEventId m_cfLoopEvent;
 
   SCDynamicStoreContext m_context;
   detail::CFReleaser<SCDynamicStoreRef> m_scStore;

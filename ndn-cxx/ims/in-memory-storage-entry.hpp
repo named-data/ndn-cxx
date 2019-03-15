@@ -77,7 +77,7 @@ public:
   /** @brief Schedule an event to mark this entry as non-fresh.
    */
   void
-  scheduleMarkStale(util::Scheduler& sched, time::nanoseconds after);
+  scheduleMarkStale(Scheduler& sched, time::nanoseconds after);
 
   /** @brief Check if the data can satisfy an interest with MustBeFresh
    */
@@ -91,7 +91,7 @@ private:
   shared_ptr<const Data> m_dataPacket;
 
   bool m_isFresh;
-  util::scheduler::ScopedEventId m_markStaleEventId;
+  scheduler::ScopedEventId m_markStaleEventId;
 };
 
 } // namespace ndn

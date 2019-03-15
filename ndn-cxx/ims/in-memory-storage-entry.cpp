@@ -43,7 +43,7 @@ InMemoryStorageEntry::setData(const Data& data)
 }
 
 void
-InMemoryStorageEntry::scheduleMarkStale(util::Scheduler& sched, time::nanoseconds after)
+InMemoryStorageEntry::scheduleMarkStale(Scheduler& sched, time::nanoseconds after)
 {
   m_markStaleEventId = sched.scheduleEvent(after, [this] { m_isFresh = false; });
 }
