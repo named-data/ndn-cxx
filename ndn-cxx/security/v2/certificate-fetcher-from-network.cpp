@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -85,8 +85,8 @@ CertificateFetcherFromNetwork::nackCallback(const lp::Nack& nack,
 
   --certRequest->nRetriesLeft;
   if (certRequest->nRetriesLeft >= 0) {
-    m_scheduler.scheduleEvent(certRequest->waitAfterNack,
-                              [=] { fetch(certRequest, state, continueValidation); });
+    m_scheduler.schedule(certRequest->waitAfterNack,
+                         [=] { fetch(certRequest, state, continueValidation); });
     certRequest->waitAfterNack *= 2;
   }
   else {

@@ -189,6 +189,9 @@ private:
   fetchSegmentsInWindow(const Interest& origInterest);
 
   void
+  sendInterest(uint64_t segNum, const Interest& interest, bool isRetransmission);
+
+  void
   afterSegmentReceivedCb(const Interest& origInterest, const Data& data,
                          const weak_ptr<SegmentFetcher>& weakSelf);
 

@@ -318,7 +318,7 @@ Face::doProcessEvents(time::milliseconds timeout, bool keepThread)
     }
 
     if (timeout > time::milliseconds::zero()) {
-      m_impl->m_processEventsTimeoutEvent = m_impl->m_scheduler.scheduleEvent(timeout,
+      m_impl->m_processEventsTimeoutEvent = m_impl->m_scheduler.schedule(timeout,
         [&io = m_ioService, &work = m_impl->m_ioServiceWork] {
           io.stop();
           work.reset();

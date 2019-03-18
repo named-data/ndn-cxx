@@ -184,7 +184,7 @@ void
 NetworkMonitorImplOsx::scheduleCfLoop()
 {
   // poll each second for new events
-  m_cfLoopEvent = m_scheduler.scheduleEvent(1_s, [this] {
+  m_cfLoopEvent = m_scheduler.schedule(1_s, [this] {
     // this should dispatch ready events and exit
     CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true);
     scheduleCfLoop();

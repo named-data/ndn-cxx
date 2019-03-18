@@ -48,7 +48,7 @@ using EventCallback = std::function<void()>;
 /** \brief A handle of scheduled event.
  *
  *  \code
- *  EventId eid = scheduler.scheduleEvent(10_ms, [] { doSomething(); });
+ *  EventId eid = scheduler.schedule(10_ms, [] { doSomething(); });
  *  eid.cancel(); // cancel the event
  *  \endcode
  *
@@ -116,7 +116,7 @@ operator<<(std::ostream& os, const EventId& eventId);
  *
  *  \code
  *  {
- *    ScopedEventId eid = scheduler.scheduleEvent(10_ms, [] { doSomething(); });
+ *    ScopedEventId eid = scheduler.schedule(10_ms, [] { doSomething(); });
  *  } // eid goes out of scope, canceling the event
  *  \endcode
  *
@@ -154,12 +154,20 @@ public:
    *  \return EventId that can be used to cancel the scheduled event
    */
   EventId
-  scheduleEvent(time::nanoseconds after, EventCallback callback);
+  schedule(time::nanoseconds after, EventCallback callback);
 
-  /** \brief Cancel a scheduled event
-   *
-   *  You may also invoke `eid.cancel()`
+  /** \deprecated use schedule(after, callback)
    */
+  [[deprecated("use schedule(after, callback)")]]
+  EventId
+  scheduleEvent(time::nanoseconds after, EventCallback callback)
+  {
+    return schedule(after, std::move(callback));
+  }
+
+  /** \deprecated use EventId::cancel()
+   */
+  [[deprecated("use EventId::cancel()")]]
   void
   cancelEvent(const EventId& eid)
   {

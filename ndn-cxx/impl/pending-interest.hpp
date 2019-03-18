@@ -185,8 +185,8 @@ private:
   void
   scheduleTimeoutEvent(Scheduler& scheduler)
   {
-    m_timeoutEvent = scheduler.scheduleEvent(m_interest->getInterestLifetime(),
-                                             [=] { this->invokeTimeoutCallback(); });
+    m_timeoutEvent = scheduler.schedule(m_interest->getInterestLifetime(),
+                                        [=] { this->invokeTimeoutCallback(); });
   }
 
   /**

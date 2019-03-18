@@ -87,7 +87,7 @@ protected:
     }
 
     outcome = '?';
-    return sched.scheduleEvent(delay, [this, interest, &outcome] {
+    return sched.schedule(delay, [this, interest, &outcome] {
       face2->expressInterest(interest,
         [&] (const Interest&, const Data&) { outcome = 'D'; },
         [&] (const Interest&, const lp::Nack&) { outcome = 'N'; },
@@ -108,7 +108,7 @@ protected:
   scheduler::EventId
   terminateAfter(time::nanoseconds delay)
   {
-    return sched.scheduleEvent(delay, [this] { face.getIoService().stop(); });
+    return sched.schedule(delay, [this] { face.getIoService().stop(); });
   }
 
 protected:
@@ -184,19 +184,19 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegisterUnregisterPrefix, TransportType, Transp
     [&] (const Name&) { ++nRegSuccess; },
     [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
-  this->sched.scheduleEvent(1_s, [&nRegSuccess] {
+  this->sched.schedule(1_s, [&nRegSuccess] {
     BOOST_CHECK_EQUAL(nRegSuccess, 1);
     std::string output = executeCommand("nfdc route list | grep /Hello/World");
     BOOST_CHECK(!output.empty());
   });
 
-  this->sched.scheduleEvent(2_s, [this, id, &nUnregSuccess] {
+  this->sched.schedule(2_s, [this, id, &nUnregSuccess] {
     this->face.unregisterPrefix(id,
       [&] { ++nUnregSuccess; },
       [] (const std::string& msg) { BOOST_ERROR("unexpected unregister prefix failure: " << msg); });
   });
 
-  this->sched.scheduleEvent(3_s, [&nUnregSuccess] {
+  this->sched.schedule(3_s, [&nUnregSuccess] {
     BOOST_CHECK_EQUAL(nUnregSuccess, 1);
 
     // Boost.Test would fail if a child process exits with non-zero. http://stackoverflow.com/q/5325202
@@ -221,7 +221,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegularFilter, TransportType, Transports, FaceF
     [&] (const Name&) { ++nRegSuccess2; },
     [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
-  this->sched.scheduleEvent(500_ms, [] {
+  this->sched.schedule(500_ms, [] {
     std::string output = executeCommand("nfdc route list | grep /Hello/World");
     BOOST_CHECK(!output.empty());
   });
@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilter, TransportType, Transports, FaceFix
     [&] (const Name&) { ++nRegSuccess; },
     [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
-  this->sched.scheduleEvent(700_ms, [] {
+  this->sched.schedule(700_ms, [] {
     std::string output = executeCommand("nfdc route list | grep /Hello/World");
     BOOST_CHECK(!output.empty());
   });
@@ -272,7 +272,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilterNoRegister, TransportType, Transport
   this->face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
     [&] (const InterestFilter&, const Interest& interest) { BOOST_ERROR("unexpected Interest"); });
 
-  this->sched.scheduleEvent(700_ms, [] {
+  this->sched.schedule(700_ms, [] {
     // Boost.Test would fail if a child process exits with non-zero. http://stackoverflow.com/q/5325202
     std::string output = executeCommand("nfdc route list | grep /Hello/World || true");
     BOOST_CHECK(output.empty());

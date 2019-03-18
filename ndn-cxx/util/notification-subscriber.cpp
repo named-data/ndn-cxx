@@ -151,7 +151,7 @@ NotificationSubscriberBase::afterReceiveNack(const lp::Nack& nack)
   onNack(nack);
 
   time::milliseconds delay = exponentialBackoff(nack);
-  m_nackEvent = m_scheduler.scheduleEvent(delay, [this] { sendInitialInterest(); });
+  m_nackEvent = m_scheduler.schedule(delay, [this] { sendInitialInterest(); });
 }
 
 void

@@ -53,25 +53,21 @@ BOOST_AUTO_TEST_CASE(Events)
   size_t count1 = 0;
   size_t count2 = 0;
 
-  scheduler.scheduleEvent(500_ms, [&] {
-      ++count1;
-      BOOST_CHECK_EQUAL(count2, 1);
-    });
+  scheduler.schedule(500_ms, [&] {
+    ++count1;
+    BOOST_CHECK_EQUAL(count2, 1);
+  });
 
-  EventId i = scheduler.scheduleEvent(1_s, [&] {
-      BOOST_ERROR("This event should not have been fired");
-    });
-  scheduler.cancelEvent(i);
+  EventId i = scheduler.schedule(1_s, [] { BOOST_ERROR("This event should not have been fired"); });
+  i.cancel();
 
-  scheduler.scheduleEvent(250_ms, [&] {
-      BOOST_CHECK_EQUAL(count1, 0);
-      ++count2;
-    });
+  scheduler.schedule(250_ms, [&] {
+    BOOST_CHECK_EQUAL(count1, 0);
+    ++count2;
+  });
 
-  i = scheduler.scheduleEvent(50_ms, [&] {
-      BOOST_ERROR("This event should not have been fired");
-    });
-  scheduler.cancelEvent(i);
+  i = scheduler.schedule(50_ms, [&] { BOOST_ERROR("This event should not have been fired"); });
+  i.cancel();
 
   advanceClocks(25_ms, 1000_ms);
   BOOST_CHECK_EQUAL(count1, 1);
@@ -83,7 +79,7 @@ BOOST_AUTO_TEST_CASE(CallbackException)
   class MyException : public std::exception
   {
   };
-  scheduler.scheduleEvent(10_ms, [] {
+  scheduler.schedule(10_ms, [] {
     // use plain 'throw' to ensure that Scheduler does not depend on the
     // internal machinery of NDN_THROW and that it can catch all exceptions
     // regardless of how they are thrown by the application
@@ -91,7 +87,7 @@ BOOST_AUTO_TEST_CASE(CallbackException)
   });
 
   bool isCallbackInvoked = false;
-  scheduler.scheduleEvent(20_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });
+  scheduler.schedule(20_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });
 
   BOOST_CHECK_THROW(this->advanceClocks(6_ms, 2), MyException);
   this->advanceClocks(6_ms, 2);
@@ -101,7 +97,7 @@ BOOST_AUTO_TEST_CASE(CallbackException)
 BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
 {
   EventId i;
-  scheduler.cancelEvent(i);
+  i.cancel();
 
   // avoid "test case [...] did not check any assertions" message from Boost.Test
   BOOST_CHECK(true);
@@ -110,43 +106,33 @@ BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
 BOOST_AUTO_TEST_CASE(SelfCancel)
 {
   EventId selfEventId;
-  selfEventId = scheduler.scheduleEvent(100_ms, [&] {
-      scheduler.cancelEvent(selfEventId);
-    });
-
+  selfEventId = scheduler.schedule(100_ms, [&] { selfEventId.cancel(); });
   BOOST_REQUIRE_NO_THROW(advanceClocks(100_ms, 10));
 }
 
 class SelfRescheduleFixture : public SchedulerFixture
 {
 public:
-  SelfRescheduleFixture()
-    : count(0)
-  {
-  }
-
   void
   reschedule()
   {
-    EventId eventId = scheduler.scheduleEvent(100_ms,
-                                              bind(&SelfRescheduleFixture::reschedule, this));
-    scheduler.cancelEvent(selfEventId);
+    EventId eventId = scheduler.schedule(100_ms, bind(&SelfRescheduleFixture::reschedule, this));
+    selfEventId.cancel();
     selfEventId = eventId;
 
     if (count < 5)
       count++;
     else
-      scheduler.cancelEvent(selfEventId);
+      selfEventId.cancel();
   }
 
   void
   reschedule2()
   {
-    scheduler.cancelEvent(selfEventId);
+    selfEventId.cancel();
 
     if (count < 5)  {
-      selfEventId = scheduler.scheduleEvent(100_ms,
-                                            bind(&SelfRescheduleFixture::reschedule2, this));
+      selfEventId = scheduler.schedule(100_ms, bind(&SelfRescheduleFixture::reschedule2, this));
       count++;
     }
   }
@@ -154,90 +140,70 @@ public:
   void
   reschedule3()
   {
-    scheduler.cancelEvent(selfEventId);
+    selfEventId.cancel();
 
-    scheduler.scheduleEvent(100_ms, [&] { ++count; });
-    scheduler.scheduleEvent(100_ms, [&] { ++count; });
-    scheduler.scheduleEvent(100_ms, [&] { ++count; });
-    scheduler.scheduleEvent(100_ms, [&] { ++count; });
-    scheduler.scheduleEvent(100_ms, [&] { ++count; });
-    scheduler.scheduleEvent(100_ms, [&] { ++count; });
+    scheduler.schedule(100_ms, [&] { ++count; });
+    scheduler.schedule(100_ms, [&] { ++count; });
+    scheduler.schedule(100_ms, [&] { ++count; });
+    scheduler.schedule(100_ms, [&] { ++count; });
+    scheduler.schedule(100_ms, [&] { ++count; });
+    scheduler.schedule(100_ms, [&] { ++count; });
   }
 
 public:
   EventId selfEventId;
-  size_t count;
+  size_t count = 0;
 };
 
 BOOST_FIXTURE_TEST_CASE(Reschedule, SelfRescheduleFixture)
 {
-  selfEventId = scheduler.scheduleEvent(0_s,
-                                        bind(&SelfRescheduleFixture::reschedule, this));
-
+  selfEventId = scheduler.schedule(0_s, bind(&SelfRescheduleFixture::reschedule, this));
   BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
-
   BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule2, SelfRescheduleFixture)
 {
-  selfEventId = scheduler.scheduleEvent(0_s,
-                                        bind(&SelfRescheduleFixture::reschedule2, this));
-
+  selfEventId = scheduler.schedule(0_s, bind(&SelfRescheduleFixture::reschedule2, this));
   BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
-
   BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
 {
-  selfEventId = scheduler.scheduleEvent(0_s,
-                                        bind(&SelfRescheduleFixture::reschedule3, this));
-
+  selfEventId = scheduler.schedule(0_s, bind(&SelfRescheduleFixture::reschedule3, this));
   BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
-
   BOOST_CHECK_EQUAL(count, 6);
 }
 
 class CancelAllFixture : public SchedulerFixture
 {
 public:
-  CancelAllFixture()
-    : count(0)
-  {
-  }
-
   void
   event()
   {
     ++count;
-
-    scheduler.scheduleEvent(1_s, [&] { event(); });
+    scheduler.schedule(1_s, [&] { event(); });
   }
 
 public:
-  uint32_t count;
+  uint32_t count = 0;
 };
 
 BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
 {
-  scheduler.scheduleEvent(500_ms, [&] { scheduler.cancelAllEvents(); });
-
-  scheduler.scheduleEvent(1_s, [&] { event(); });
-
-  scheduler.scheduleEvent(3_s, [] {
-      BOOST_ERROR("This event should have been cancelled" );
-    });
+  scheduler.schedule(500_ms, [&] { scheduler.cancelAllEvents(); });
+  scheduler.schedule(1_s, [&] { event(); });
+  scheduler.schedule(3_s, [] { BOOST_ERROR("This event should have been cancelled" ); });
 
   advanceClocks(100_ms, 100);
-
   BOOST_CHECK_EQUAL(count, 0);
 }
 
 BOOST_AUTO_TEST_CASE(CancelAllWithScopedEventId) // Bug 3691
 {
   Scheduler sched(io);
-  ScopedEventId eid = sched.scheduleEvent(10_ms, []{});
+  ScopedEventId eid = sched.schedule(10_ms, []{});
   sched.cancelAllEvents();
   eid.cancel(); // should not crash
 
@@ -263,7 +229,7 @@ BOOST_AUTO_TEST_CASE(Compare)
   BOOST_CHECK_EQUAL(eid == eid2, true);
   BOOST_CHECK_EQUAL(eid != eid2, false);
 
-  eid = scheduler.scheduleEvent(10_ms, []{});
+  eid = scheduler.schedule(10_ms, []{});
   BOOST_CHECK_EQUAL(eid == eid2, false);
   BOOST_CHECK_EQUAL(eid != eid2, true);
 
@@ -271,7 +237,7 @@ BOOST_AUTO_TEST_CASE(Compare)
   BOOST_CHECK_EQUAL(eid, eid2);
   BOOST_CHECK_EQUAL(eid != eid2, false);
 
-  eid2 = scheduler.scheduleEvent(10_ms, []{});
+  eid2 = scheduler.schedule(10_ms, []{});
   BOOST_CHECK_EQUAL(eid == eid2, false);
   BOOST_CHECK_NE(eid, eid2);
 }
@@ -282,12 +248,12 @@ BOOST_AUTO_TEST_CASE(Valid)
   BOOST_CHECK_EQUAL(static_cast<bool>(eid), false);
   BOOST_CHECK_EQUAL(!eid, true);
 
-  eid = scheduler.scheduleEvent(10_ms, []{});
+  eid = scheduler.schedule(10_ms, []{});
   BOOST_CHECK_EQUAL(static_cast<bool>(eid), true);
   BOOST_CHECK_EQUAL(!eid, false);
 
   EventId eid2 = eid;
-  scheduler.cancelEvent(eid2);
+  eid2.cancel();
   BOOST_CHECK(!eid);
   BOOST_CHECK(!eid2);
 }
@@ -295,17 +261,17 @@ BOOST_AUTO_TEST_CASE(Valid)
 BOOST_AUTO_TEST_CASE(DuringCallback)
 {
   EventId eid;
-  EventId eid2 = scheduler.scheduleEvent(20_ms, []{});
+  EventId eid2 = scheduler.schedule(20_ms, []{});
 
   bool isCallbackInvoked = false;
-  eid = scheduler.scheduleEvent(10_ms, [this, &eid, &eid2, &isCallbackInvoked] {
+  eid = scheduler.schedule(10_ms, [&eid, &eid2, &isCallbackInvoked] {
     isCallbackInvoked = true;
 
     // eid is "expired" during callback execution
     BOOST_CHECK(!eid);
     BOOST_CHECK_NE(eid, eid2);
 
-    scheduler.cancelEvent(eid2);
+    eid2.cancel();
     BOOST_CHECK_EQUAL(eid, eid2);
   });
 
@@ -316,7 +282,7 @@ BOOST_AUTO_TEST_CASE(DuringCallback)
 BOOST_AUTO_TEST_CASE(Reset)
 {
   bool isCallbackInvoked = false;
-  EventId eid = scheduler.scheduleEvent(10_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });
+  EventId eid = scheduler.schedule(10_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });
   eid.reset();
   BOOST_CHECK(!eid);
 
@@ -331,7 +297,7 @@ BOOST_AUTO_TEST_CASE(ToString)
   EventId eid;
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(eid), nullString);
 
-  eid = scheduler.scheduleEvent(10_ms, []{});
+  eid = scheduler.schedule(10_ms, []{});
   BOOST_TEST_MESSAGE("eid=" << eid);
   BOOST_CHECK_NE(boost::lexical_cast<std::string>(eid), nullString);
 }
@@ -346,7 +312,7 @@ BOOST_AUTO_TEST_CASE(Destruct)
 {
   int hit = 0;
   {
-    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.schedule(10_ms, [&] { ++hit; });
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
   BOOST_CHECK_EQUAL(hit, 0);
@@ -355,8 +321,8 @@ BOOST_AUTO_TEST_CASE(Destruct)
 BOOST_AUTO_TEST_CASE(Assign)
 {
   int hit1 = 0, hit2 = 0;
-  ScopedEventId se1 = scheduler.scheduleEvent(10_ms, [&] { ++hit1; });
-  se1 = scheduler.scheduleEvent(10_ms, [&] { ++hit2; });
+  ScopedEventId se1 = scheduler.schedule(10_ms, [&] { ++hit1; });
+  se1 = scheduler.schedule(10_ms, [&] { ++hit2; });
   this->advanceClocks(1_ms, 15);
   BOOST_CHECK_EQUAL(hit1, 0);
   BOOST_CHECK_EQUAL(hit2, 1);
@@ -366,7 +332,7 @@ BOOST_AUTO_TEST_CASE(Release)
 {
   int hit = 0;
   {
-    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.schedule(10_ms, [&] { ++hit; });
     se.release();
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
@@ -378,7 +344,7 @@ BOOST_AUTO_TEST_CASE(Move)
   int hit = 0;
   unique_ptr<ScopedEventId> se2;
   {
-    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.schedule(10_ms, [&] { ++hit; });
     se2 = make_unique<ScopedEventId>(std::move(se)); // move constructor
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
@@ -386,7 +352,7 @@ BOOST_AUTO_TEST_CASE(Move)
 
   ScopedEventId se3;
   {
-    ScopedEventId se = scheduler.scheduleEvent(10_ms, [&] { ++hit; });
+    ScopedEventId se = scheduler.schedule(10_ms, [&] { ++hit; });
     se3 = std::move(se); // move assignment
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);

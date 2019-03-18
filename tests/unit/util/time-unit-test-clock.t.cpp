@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(Scheduler)
   ndn::Scheduler scheduler(io);
 
   bool hasFired = false;
-  scheduler.scheduleEvent(100_s, [&] { hasFired = true; });
+  scheduler.schedule(100_s, [&] { hasFired = true; });
 
   io.poll();
   BOOST_CHECK_EQUAL(hasFired, false);

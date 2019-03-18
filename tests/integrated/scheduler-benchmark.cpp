@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,13 +45,13 @@ BOOST_AUTO_TEST_CASE(ScheduleCancel)
 
   auto d1 = timedExecute([&] {
     for (size_t i = 0; i < nEvents; ++i) {
-      eventIds[i] = sched.scheduleEvent(1_s, []{});
+      eventIds[i] = sched.schedule(1_s, []{});
     }
   });
 
   auto d2 = timedExecute([&] {
     for (size_t i = 0; i < nEvents; ++i) {
-      sched.cancelEvent(eventIds[i]);
+      eventIds[i].cancel();
     }
   });
 
@@ -72,13 +72,13 @@ BOOST_AUTO_TEST_CASE(Execute)
   time::steady_clock::TimePoint t2;
   // +1ms ensures this extra event is executed last. In case the overhead is less than 1ms,
   // it will be reported as 1ms.
-  sched.scheduleEvent(t1 - time::steady_clock::now() + 1_ms, [&] {
+  sched.schedule(t1 - time::steady_clock::now() + 1_ms, [&] {
     t2 = time::steady_clock::now();
     BOOST_REQUIRE_EQUAL(nExpired, nEvents);
   });
 
   for (size_t i = 0; i < nEvents; ++i) {
-    sched.scheduleEvent(t1 - time::steady_clock::now(), [&] { ++nExpired; });
+    sched.schedule(t1 - time::steady_clock::now(), [&] { ++nExpired; });
   }
 
   io.run();

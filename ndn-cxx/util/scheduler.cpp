@@ -98,7 +98,7 @@ Scheduler::Scheduler(boost::asio::io_service& ioService)
 Scheduler::~Scheduler() = default;
 
 EventId
-Scheduler::scheduleEvent(time::nanoseconds after, EventCallback callback)
+Scheduler::schedule(time::nanoseconds after, EventCallback callback)
 {
   BOOST_ASSERT(callback != nullptr);
 

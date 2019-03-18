@@ -57,7 +57,7 @@ public:
 
     m_resolver.async_resolve(q, bind(&Resolver::onResolveResult, this, _1, _2, self));
 
-    m_resolveTimeout = m_scheduler.scheduleEvent(timeout, [=] { onResolveTimeout(self); });
+    m_resolveTimeout = m_scheduler.schedule(timeout, [=] { onResolveTimeout(self); });
   }
 
   iterator
@@ -71,7 +71,7 @@ private:
   onResolveResult(const boost::system::error_code& error,
                   iterator it, const shared_ptr<Resolver>& self)
   {
-    m_scheduler.cancelEvent(m_resolveTimeout);
+    m_resolveTimeout.cancel();
     // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
     m_resolver.get_io_service().post([self] {});
 

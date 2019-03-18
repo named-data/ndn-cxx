@@ -126,34 +126,12 @@ SegmentFetcher::fetchFirstSegment(const Interest& baseInterest, bool isRetransmi
     interest.refreshNonce();
   }
 
-  weak_ptr<SegmentFetcher> weakSelf = m_this;
-
-  m_nSegmentsInFlight++;
-  auto pendingInterest = m_face.expressInterest(interest,
-                                                bind(&SegmentFetcher::afterSegmentReceivedCb,
-                                                     this, _1, _2, weakSelf),
-                                                bind(&SegmentFetcher::afterNackReceivedCb,
-                                                     this, _1, _2, weakSelf),
-                                                nullptr);
-  auto timeoutEvent =
-    m_scheduler.scheduleEvent(m_options.useConstantInterestTimeout ? m_options.maxTimeout : getEstimatedRto(),
-                              bind(&SegmentFetcher::afterTimeoutCb, this, interest, weakSelf));
-
-  if (isRetransmission) {
-    updateRetransmittedSegment(0, pendingInterest, timeoutEvent);
-  }
-  else {
-    BOOST_ASSERT(m_pendingSegments.count(0) == 0);
-    m_pendingSegments.emplace(0, PendingSegment{SegmentState::FirstInterest, time::steady_clock::now(),
-                                                pendingInterest, timeoutEvent});
-  }
+  sendInterest(0, interest, isRetransmission);
 }
 
 void
 SegmentFetcher::fetchSegmentsInWindow(const Interest& origInterest)
 {
-  weak_ptr<SegmentFetcher> weakSelf = m_this;
-
   if (checkAllSegmentsReceived()) {
     // All segments have been retrieved
     return finalizeFetch();
@@ -194,29 +172,40 @@ SegmentFetcher::fetchSegmentsInWindow(const Interest& origInterest)
     interest.setMustBeFresh(false);
     interest.setInterestLifetime(m_options.interestLifetime);
     interest.refreshNonce();
-
-    m_nSegmentsInFlight++;
-    auto pendingInterest = m_face.expressInterest(interest,
-                                                  bind(&SegmentFetcher::afterSegmentReceivedCb,
-                                                       this, _1, _2, weakSelf),
-                                                  bind(&SegmentFetcher::afterNackReceivedCb,
-                                                       this, _1, _2, weakSelf),
-                                                  nullptr);
-    auto timeoutEvent =
-      m_scheduler.scheduleEvent(m_options.useConstantInterestTimeout ? m_options.maxTimeout : getEstimatedRto(),
-                                bind(&SegmentFetcher::afterTimeoutCb, this, interest, weakSelf));
-
-    if (segment.second) { // Retransmission
-      updateRetransmittedSegment(segment.first, pendingInterest, timeoutEvent);
-    }
-    else { // First request for segment
-      BOOST_ASSERT(m_pendingSegments.count(segment.first) == 0);
-      m_pendingSegments.emplace(segment.first, PendingSegment{SegmentState::FirstInterest,
-                                                              time::steady_clock::now(),
-                                                              pendingInterest, timeoutEvent});
-      m_highInterest = segment.first;
-    }
+    sendInterest(segment.first, interest, segment.second);
   }
+}
+
+void
+SegmentFetcher::sendInterest(uint64_t segNum, const Interest& interest, bool isRetransmission)
+{
+  weak_ptr<SegmentFetcher> weakSelf = m_this;
+
+  ++m_nSegmentsInFlight;
+  auto pendingInterest = m_face.expressInterest(interest,
+    [this, weakSelf] (const Interest& interest, const Data& data) {
+      afterSegmentReceivedCb(interest, data, weakSelf);
+    },
+    [this, weakSelf] (const Interest& interest, const lp::Nack& nack) {
+      afterNackReceivedCb(interest, nack, weakSelf);
+    },
+    nullptr);
+
+  auto timeout = m_options.useConstantInterestTimeout ? m_options.maxTimeout : getEstimatedRto();
+  auto timeoutEvent = m_scheduler.schedule(timeout, [this, interest, weakSelf] {
+    afterTimeoutCb(interest, weakSelf);
+  });
+
+  if (isRetransmission) {
+    updateRetransmittedSegment(segNum, pendingInterest, timeoutEvent);
+    return;
+  }
+
+  PendingSegment pendingSegment{SegmentState::FirstInterest, time::steady_clock::now(),
+                                pendingInterest, timeoutEvent};
+  bool isNew = m_pendingSegments.emplace(segNum, std::move(pendingSegment)).second;
+  BOOST_VERIFY(isNew);
+  m_highInterest = segNum;
 }
 
 void

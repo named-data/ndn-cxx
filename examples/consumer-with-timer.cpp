@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,7 +56,7 @@ public:
     std::cout << "Sending " << interest << std::endl;
 
     // Schedule a new event
-    m_scheduler.scheduleEvent(3_s, [this] { delayedInterest(); });
+    m_scheduler.schedule(3_s, [this] { delayedInterest(); });
 
     // m_ioService.run() will block until all events finished or m_ioService.stop() is called
     m_ioService.run();
