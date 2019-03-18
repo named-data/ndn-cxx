@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,6 +45,7 @@ public:
     , validator(make_unique<ValidationPolicy>(), make_unique<CertificateFetcher>(face))
     , policy(static_cast<ValidationPolicy&>(validator.getPolicy()))
     , cache(100_days)
+    , lastError(ValidationError::Code::NO_ERROR)
   {
     processInterest = [this] (const Interest& interest) {
       auto cert = cache.find(interest);
@@ -70,6 +71,7 @@ public:
                             (expectSuccess ? "OK: " : "FAILED: ") + detailedInfo);
       },
       [&] (const Packet&, const ValidationError& error) {
+        lastError = error;
         ++nCallbacks;
         BOOST_CHECK_MESSAGE(!expectSuccess,
                             (!expectSuccess ? "OK: " : "FAILED: ") + detailedInfo +
@@ -106,6 +108,7 @@ public:
   ValidationPolicy& policy;
 
   CertificateCache cache;
+  ValidationError lastError;
 
 private:
   const static int s_mockPeriod;

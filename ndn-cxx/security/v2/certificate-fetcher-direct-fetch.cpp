@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,6 +33,12 @@ CertificateFetcherDirectFetch::CertificateFetcherDirectFetch(Face& face)
 }
 
 void
+CertificateFetcherDirectFetch::setSendDirectInterestOnly(bool wantDirectInterestOnly)
+{
+  m_wantDirectInterestOnly = wantDirectInterestOnly;
+}
+
+void
 CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& keyRequest,
                                        const shared_ptr<ValidationState>& state,
                                        const ValidationContinuation& continueValidation)
@@ -56,11 +62,33 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
     Interest directInterest(keyRequest->interest);
     directInterest.refreshNonce();
     directInterest.setTag(make_shared<lp::NextHopFaceIdTag>(incomingFaceId));
-    m_face.expressInterest(directInterest, nullptr, nullptr, nullptr);
+
+    if (!m_wantDirectInterestOnly) {
+      // disable callbacks
+      m_face.expressInterest(directInterest, nullptr, nullptr, nullptr);
+    }
+    else {
+      m_face.expressInterest(directInterest,
+                             [=] (const Interest& interest, const Data& data) {
+                               dataCallback(data, keyRequest, state, continueValidation);
+                             },
+                             [=] (const Interest& interest, const lp::Nack& nack) {
+                               nackCallback(nack, keyRequest, state, continueValidation);
+                             },
+                             [=] (const Interest& interest) {
+                               timeoutCallback(keyRequest, state, continueValidation);
+                             });
+    }
   }
 
-  // send infrastructure Interest
-  CertificateFetcherFromNetwork::doFetch(keyRequest, state, continueValidation);
+  if (!m_wantDirectInterestOnly) {
+    // send infrastructure Interest
+    CertificateFetcherFromNetwork::doFetch(keyRequest, state, continueValidation);
+  }
+  else if (incomingFaceId == 0) {
+    state->fail({ValidationError::Code::CANNOT_RETRIEVE_CERT,
+          "Cannot direct fetch certificate as IncomingFaceId tag is not set"});
+  }
 }
 
 } // namespace v2
