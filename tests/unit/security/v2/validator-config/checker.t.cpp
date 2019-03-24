@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,6 @@ namespace validator_config {
 namespace tests {
 
 using namespace ndn::tests;
-using namespace ndn::security::v2::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(V2)
@@ -52,13 +51,13 @@ public:
     names.push_back("/other/prefix");
   }
 
-  Name
+  static Name
   makeSignedInterestName(const Name& name)
   {
     return Name(name).append("SignatureInfo").append("SignatureValue");
   }
 
-  Name
+  static Name
   makeKeyLocatorName(const Name& name)
   {
     return Name(name).append("KEY").append("v=1");
@@ -325,19 +324,19 @@ public:
                                              {false, false, false, true}};
 };
 
-
 using Tests = boost::mpl::vector<NameRelationEqual, NameRelationIsPrefixOf, NameRelationIsStrictPrefixOf,
                                  RegexEqual, RegexIsPrefixOf, RegexIsStrictPrefixOf,
                                  HyperRelationEqual, HyperRelationIsPrefixOf, HyperRelationIsStrictPrefixOf,
                                  Hierarchical,
                                  CustomizedNameRelation, CustomizedRegex, CustomizedHyperRelation>;
 
-
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, T)
 {
-  BOOST_ASSERT(this->outcomes.size() == this->names.size());
+  using namespace ndn::security::v2::tests;
+
+  BOOST_REQUIRE_EQUAL(this->outcomes.size(), this->names.size());
   for (size_t i = 0; i < this->names.size(); ++i) {
-    BOOST_ASSERT(this->outcomes[i].size() == this->names.size());
+    BOOST_REQUIRE_EQUAL(this->outcomes[i].size(), this->names.size());
     for (size_t j = 0; j < this->names.size(); ++j) {
       const Name& pktName = this->names[i];
       Name klName = this->makeKeyLocatorName(this->names[j]);
@@ -346,17 +345,13 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, T)
       auto dataState = make_shared<DummyValidationState>();
       BOOST_CHECK_EQUAL(this->checker.check(tlv::Data, pktName, klName, dataState), expectedOutcome);
       BOOST_CHECK_EQUAL(boost::logic::indeterminate(dataState->getOutcome()), expectedOutcome);
-      if (boost::logic::indeterminate(dataState->getOutcome()) == !expectedOutcome) {
-        BOOST_CHECK_EQUAL(dataState->getOutcome(), !expectedOutcome);
-      }
+      BOOST_CHECK_EQUAL(bool(dataState->getOutcome()), false);
 
       auto interestState = make_shared<DummyValidationState>();
       BOOST_CHECK_EQUAL(this->checker.check(tlv::Interest, this->makeSignedInterestName(pktName),
                                             klName, interestState), expectedOutcome);
       BOOST_CHECK_EQUAL(boost::logic::indeterminate(interestState->getOutcome()), expectedOutcome);
-      if (boost::logic::indeterminate(interestState->getOutcome()) == !expectedOutcome) {
-        BOOST_CHECK_EQUAL(interestState->getOutcome(), !expectedOutcome);
-      }
+      BOOST_CHECK_EQUAL(bool(interestState->getOutcome()), false);
     }
   }
 }
