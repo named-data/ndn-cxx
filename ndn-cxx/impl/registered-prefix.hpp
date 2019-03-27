@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #ifndef NDN_IMPL_REGISTERED_PREFIX_HPP
 #define NDN_IMPL_REGISTERED_PREFIX_HPP
 
-#include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/impl/interest-filter-record.hpp"
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
@@ -30,17 +29,23 @@
 namespace ndn {
 
 /**
+ * @brief Opaque type to identify a RegisteredPrefix
+ */
+class RegisteredPrefixId;
+
+static_assert(sizeof(const RegisteredPrefixId*) == sizeof(RecordId), "");
+
+/**
  * @brief stores information about a prefix registered in NDN forwarder
  */
-class RegisteredPrefix : noncopyable
+class RegisteredPrefix : public RecordBase<RegisteredPrefix>
 {
 public:
-  RegisteredPrefix(const Name& prefix,
-                   shared_ptr<InterestFilterRecord> filter,
-                   const nfd::CommandOptions& options)
+  RegisteredPrefix(const Name& prefix, const nfd::CommandOptions& options,
+                   RecordId filterId = 0)
     : m_prefix(prefix)
-    , m_filter(filter)
     , m_options(options)
+    , m_filterId(filterId)
   {
   }
 
@@ -50,49 +55,22 @@ public:
     return m_prefix;
   }
 
-  const shared_ptr<InterestFilterRecord>&
-  getFilter() const
-  {
-    return m_filter;
-  }
-
   const nfd::CommandOptions&
   getCommandOptions() const
   {
     return m_options;
   }
 
+  RecordId
+  getFilterId() const
+  {
+    return m_filterId;
+  }
+
 private:
   Name m_prefix;
-  shared_ptr<InterestFilterRecord> m_filter;
   nfd::CommandOptions m_options;
-};
-
-/**
- * @brief Opaque type to identify a RegisteredPrefix
- */
-class RegisteredPrefixId;
-
-/**
- * @brief Functor to match RegisteredPrefixId
- */
-class MatchRegisteredPrefixId
-{
-public:
-  explicit
-  MatchRegisteredPrefixId(const RegisteredPrefixId* registeredPrefixId)
-    : m_id(registeredPrefixId)
-  {
-  }
-
-  bool
-  operator()(const shared_ptr<RegisteredPrefix>& registeredPrefix) const
-  {
-    return reinterpret_cast<const RegisteredPrefixId*>(registeredPrefix.get()) == m_id;
-  }
-
-private:
-  const RegisteredPrefixId* m_id;
+  RecordId m_filterId;
 };
 
 } // namespace ndn

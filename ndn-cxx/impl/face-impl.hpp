@@ -23,7 +23,6 @@
 #define NDN_IMPL_FACE_IMPL_HPP
 
 #include "ndn-cxx/face.hpp"
-#include "ndn-cxx/impl/container-with-on-empty-signal.hpp"
 #include "ndn-cxx/impl/lp-field-tag.hpp"
 #include "ndn-cxx/impl/pending-interest.hpp"
 #include "ndn-cxx/impl/registered-prefix.hpp"
@@ -59,15 +58,14 @@ namespace ndn {
 class Face::Impl : noncopyable
 {
 public:
-  using PendingInterestTable = ContainerWithOnEmptySignal<shared_ptr<PendingInterest>>;
-  using InterestFilterTable = std::list<shared_ptr<InterestFilterRecord>>;
-  using RegisteredPrefixTable = ContainerWithOnEmptySignal<shared_ptr<RegisteredPrefix>>;
+  using PendingInterestTable = RecordContainer<PendingInterest>;
+  using InterestFilterTable = RecordContainer<InterestFilterRecord>;
+  using RegisteredPrefixTable = RecordContainer<RegisteredPrefix>;
 
   explicit
   Impl(Face& face)
     : m_face(face)
     , m_scheduler(m_face.getIoService())
-    , m_lastPendingInterestId(0)
   {
     auto postOnEmptyPitOrNoRegisteredPrefixes = [this] {
       this->m_face.getIoService().post([this] { this->onEmptyPitOrNoRegisteredPrefixes(); });
@@ -82,16 +80,8 @@ public:
   }
 
 public: // consumer
-  const PendingInterestId*
-  generatePendingInterestId()
-  {
-    auto id = ++m_lastPendingInterestId;
-    return reinterpret_cast<const PendingInterestId*>(id);
-  }
-
   void
-  asyncExpressInterest(const PendingInterestId* id,
-                       shared_ptr<const Interest> interest,
+  asyncExpressInterest(RecordId id, shared_ptr<const Interest> interest,
                        const DataCallback& afterSatisfied,
                        const NackCallback& afterNacked,
                        const TimeoutCallback& afterTimeout)
@@ -100,28 +90,23 @@ public: // consumer
     this->ensureConnected(true);
 
     const Interest& interest2 = *interest;
-    auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
-      id, std::move(interest), afterSatisfied, afterNacked, afterTimeout, ref(m_scheduler))).first;
-    // In dispatchInterest, an InterestCallback may respond with Data right away and delete
-    // the PendingInterestTable entry. shared_ptr is retained to ensure PendingInterest instance
-    // remains valid in this case.
-    shared_ptr<PendingInterest> entry = *i;
-    entry->setDeleter([this, i] { m_pendingInterestTable.erase(i); });
+    auto& entry = m_pendingInterestTable.put(id, std::move(interest), afterSatisfied, afterNacked,
+                                             afterTimeout, ref(m_scheduler));
 
     lp::Packet lpPacket;
     addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest2);
     addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, interest2);
 
-    entry->recordForwarding();
+    entry.recordForwarding();
     m_face.m_transport->send(finishEncoding(std::move(lpPacket), interest2.wireEncode(),
                                             'I', interest2.getName()));
-    dispatchInterest(*entry, interest2);
+    dispatchInterest(entry, interest2);
   }
 
   void
-  asyncRemovePendingInterest(const PendingInterestId* pendingInterestId)
+  asyncRemovePendingInterest(RecordId id)
   {
-    m_pendingInterestTable.remove_if(MatchPendingInterestId(pendingInterestId));
+    m_pendingInterestTable.erase(id);
   }
 
   void
@@ -136,24 +121,22 @@ public: // consumer
   satisfyPendingInterests(const Data& data)
   {
     bool hasAppMatch = false, hasForwarderMatch = false;
-    for (auto i = m_pendingInterestTable.begin(); i != m_pendingInterestTable.end(); ) {
-      shared_ptr<PendingInterest> entry = *i;
-      if (!entry->getInterest()->matchesData(data)) {
-        ++i;
-        continue;
+    m_pendingInterestTable.removeIf([&] (PendingInterest& entry) {
+      if (!entry.getInterest()->matchesData(data)) {
+        return false;
       }
+      NDN_LOG_DEBUG("   satisfying " << *entry.getInterest() << " from " << entry.getOrigin());
 
-      NDN_LOG_DEBUG("   satisfying " << *entry->getInterest() << " from " << entry->getOrigin());
-      i = m_pendingInterestTable.erase(i);
-
-      if (entry->getOrigin() == PendingInterestOrigin::APP) {
+      if (entry.getOrigin() == PendingInterestOrigin::APP) {
         hasAppMatch = true;
-        entry->invokeDataCallback(data);
+        entry.invokeDataCallback(data);
       }
       else {
         hasForwarderMatch = true;
       }
-    }
+
+      return true;
+    });
     // if Data matches no pending Interest record, it is sent to the forwarder as unsolicited Data
     return hasForwarderMatch || !hasAppMatch;
   }
@@ -164,29 +147,25 @@ public: // consumer
   nackPendingInterests(const lp::Nack& nack)
   {
     optional<lp::Nack> outNack;
-    for (auto i = m_pendingInterestTable.begin(); i != m_pendingInterestTable.end(); ) {
-      shared_ptr<PendingInterest> entry = *i;
-      if (!nack.getInterest().matchesInterest(*entry->getInterest())) {
-        ++i;
-        continue;
+    m_pendingInterestTable.removeIf([&] (PendingInterest& entry) {
+      if (!nack.getInterest().matchesInterest(*entry.getInterest())) {
+        return false;
       }
+      NDN_LOG_DEBUG("   nacking " << *entry.getInterest() << " from " << entry.getOrigin());
 
-      NDN_LOG_DEBUG("   nacking " << *entry->getInterest() << " from " << entry->getOrigin());
-
-      optional<lp::Nack> outNack1 = entry->recordNack(nack);
+      optional<lp::Nack> outNack1 = entry.recordNack(nack);
       if (!outNack1) {
-        ++i;
-        continue;
+        return false;
       }
 
-      if (entry->getOrigin() == PendingInterestOrigin::APP) {
-        entry->invokeNackCallback(*outNack1);
+      if (entry.getOrigin() == PendingInterestOrigin::APP) {
+        entry.invokeNackCallback(*outNack1);
       }
       else {
         outNack = outNack1;
       }
-      i = m_pendingInterestTable.erase(i);
-    }
+      return true;
+    });
     // send "least severe" Nack from any PendingInterest record originated from forwarder, because
     // it is unimportant to consider Nack reason for the unlikely case when forwarder sends multiple
     // Interests to an app in a short while
@@ -195,21 +174,20 @@ public: // consumer
 
 public: // producer
   void
-  asyncSetInterestFilter(shared_ptr<InterestFilterRecord> interestFilterRecord)
+  asyncSetInterestFilter(RecordId id, const InterestFilter& filter,
+                         const InterestCallback& onInterest)
   {
-    NDN_LOG_INFO("setting InterestFilter: " << interestFilterRecord->getFilter());
-    m_interestFilterTable.push_back(std::move(interestFilterRecord));
+    NDN_LOG_INFO("setting InterestFilter: " << filter);
+    m_interestFilterTable.put(id, filter, onInterest);
   }
 
   void
-  asyncUnsetInterestFilter(const InterestFilterId* interestFilterId)
+  asyncUnsetInterestFilter(RecordId id)
   {
-    InterestFilterTable::iterator i = std::find_if(m_interestFilterTable.begin(),
-                                                   m_interestFilterTable.end(),
-                                                   MatchInterestFilterId(interestFilterId));
-    if (i != m_interestFilterTable.end()) {
-      NDN_LOG_INFO("unsetting InterestFilter: " << (*i)->getFilter());
-      m_interestFilterTable.erase(i);
+    const InterestFilterRecord* record = m_interestFilterTable.get(id);
+    if (record != nullptr) {
+      NDN_LOG_INFO("unsetting InterestFilter: " << record->getFilter());
+      m_interestFilterTable.erase(id);
     }
   }
 
@@ -217,27 +195,21 @@ public: // producer
   processIncomingInterest(shared_ptr<const Interest> interest)
   {
     const Interest& interest2 = *interest;
-    auto i = m_pendingInterestTable.insert(make_shared<PendingInterest>(
-      std::move(interest), ref(m_scheduler))).first;
-    // In dispatchInterest, an InterestCallback may respond with Data right away and delete
-    // the PendingInterestTable entry. shared_ptr is retained to ensure PendingInterest instance
-    // remains valid in this case.
-    shared_ptr<PendingInterest> entry = *i;
-    entry->setDeleter([this, i] { m_pendingInterestTable.erase(i); });
-
-    this->dispatchInterest(*entry, interest2);
+    auto& entry = m_pendingInterestTable.insert(std::move(interest), ref(m_scheduler));
+    dispatchInterest(entry, interest2);
   }
 
   void
   dispatchInterest(PendingInterest& entry, const Interest& interest)
   {
-    for (const auto& filter : m_interestFilterTable) {
-      if (filter->doesMatch(entry)) {
-        NDN_LOG_DEBUG("   matches " << filter->getFilter());
-        entry.recordForwarding();
-        filter->invokeInterestCallback(interest);
+    m_interestFilterTable.forEach([&] (const InterestFilterRecord& filter) {
+      if (!filter.doesMatch(entry)) {
+        return;
       }
-    }
+      NDN_LOG_DEBUG("   matches " << filter.getFilter());
+      entry.recordForwarding();
+      filter.invokeInterestCallback(interest);
+    });
   }
 
   void
@@ -280,98 +252,76 @@ public: // producer
   }
 
 public: // prefix registration
-  const RegisteredPrefixId*
+  RecordId
   registerPrefix(const Name& prefix,
-                 shared_ptr<InterestFilterRecord> filter,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
-                 uint64_t flags,
-                 const nfd::CommandOptions& options)
+                 uint64_t flags, const nfd::CommandOptions& options,
+                 const optional<InterestFilter>& filter, const InterestCallback& onInterest)
   {
     NDN_LOG_INFO("registering prefix: " << prefix);
-    auto record = make_shared<RegisteredPrefix>(prefix, filter, options);
+    auto id = m_registeredPrefixTable.allocateId();
 
-    nfd::ControlParameters params;
-    params.setName(prefix);
-    params.setFlags(flags);
     m_face.m_nfdController->start<nfd::RibRegisterCommand>(
-      params,
-      [=] (const nfd::ControlParameters&) { this->afterPrefixRegistered(record, onSuccess); },
+      nfd::ControlParameters().setName(prefix).setFlags(flags),
+      [=] (const nfd::ControlParameters&) {
+        NDN_LOG_INFO("registered prefix: " << prefix);
+
+        RecordId filterId = 0;
+        if (filter) {
+          NDN_LOG_INFO("setting InterestFilter: " << *filter);
+          InterestFilterRecord& filterRecord = m_interestFilterTable.insert(*filter, onInterest);
+          filterId = filterRecord.getId();
+        }
+
+        m_registeredPrefixTable.put(id, prefix, options, filterId);
+
+        if (onSuccess != nullptr) {
+          onSuccess(prefix);
+        }
+      },
       [=] (const nfd::ControlResponse& resp) {
-        NDN_LOG_INFO("register prefix failed: " << record->getPrefix());
-        onFailure(record->getPrefix(), resp.getText());
+        NDN_LOG_INFO("register prefix failed: " << prefix);
+        onFailure(prefix, resp.getText());
       },
       options);
 
-    return reinterpret_cast<const RegisteredPrefixId*>(record.get());
+    return id;
   }
 
   void
-  afterPrefixRegistered(shared_ptr<RegisteredPrefix> registeredPrefix,
-                        const RegisterPrefixSuccessCallback& onSuccess)
-  {
-    NDN_LOG_INFO("registered prefix: " << registeredPrefix->getPrefix());
-    m_registeredPrefixTable.insert(registeredPrefix);
-
-    if (registeredPrefix->getFilter() != nullptr) {
-      // it was a combined operation
-      m_interestFilterTable.push_back(registeredPrefix->getFilter());
-    }
-
-    if (onSuccess != nullptr) {
-      onSuccess(registeredPrefix->getPrefix());
-    }
-  }
-
-  void
-  asyncUnregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
+  asyncUnregisterPrefix(RecordId id,
                         const UnregisterPrefixSuccessCallback& onSuccess,
                         const UnregisterPrefixFailureCallback& onFailure)
   {
-    auto i = std::find_if(m_registeredPrefixTable.begin(),
-                          m_registeredPrefixTable.end(),
-                          MatchRegisteredPrefixId(registeredPrefixId));
-    if (i != m_registeredPrefixTable.end()) {
-      RegisteredPrefix& record = **i;
-      const shared_ptr<InterestFilterRecord>& filter = record.getFilter();
-
-      if (filter != nullptr) {
-        // it was a combined operation
-        m_interestFilterTable.remove(filter);
-      }
-
-      NDN_LOG_INFO("unregistering prefix: " << record.getPrefix());
-
-      nfd::ControlParameters params;
-      params.setName(record.getPrefix());
-      m_face.m_nfdController->start<nfd::RibUnregisterCommand>(
-        params,
-        [=] (const nfd::ControlParameters&) { this->finalizeUnregisterPrefix(i, onSuccess); },
-        [=] (const nfd::ControlResponse& resp) {
-          NDN_LOG_INFO("unregister prefix failed: " << params.getName());
-          onFailure(resp.getText());
-        },
-        record.getCommandOptions());
-    }
-    else {
+    const RegisteredPrefix* record = m_registeredPrefixTable.get(id);
+    if (record == nullptr) {
       if (onFailure != nullptr) {
-        onFailure("Unrecognized PrefixId");
+        onFailure("Unrecognized RegisteredPrefixHandle");
       }
+      return;
     }
 
-    // there cannot be two registered prefixes with the same id
-  }
-
-  void
-  finalizeUnregisterPrefix(RegisteredPrefixTable::iterator item,
-                           const UnregisterPrefixSuccessCallback& onSuccess)
-  {
-    NDN_LOG_INFO("unregistered prefix: " << (*item)->getPrefix());
-    m_registeredPrefixTable.erase(item);
-
-    if (onSuccess != nullptr) {
-      onSuccess();
+    if (record->getFilterId() != 0) {
+      asyncUnsetInterestFilter(record->getFilterId());
     }
+
+    NDN_LOG_INFO("unregistering prefix: " << record->getPrefix());
+    m_face.m_nfdController->start<nfd::RibUnregisterCommand>(
+      nfd::ControlParameters().setName(record->getPrefix()),
+      [=] (const nfd::ControlParameters&) {
+        NDN_LOG_INFO("unregistered prefix: " << record->getPrefix());
+        m_registeredPrefixTable.erase(id);
+
+        if (onSuccess != nullptr) {
+          onSuccess();
+        }
+      },
+      [=] (const nfd::ControlResponse& resp) {
+        NDN_LOG_INFO("unregister prefix failed: " << record->getPrefix());
+        onFailure(resp.getText());
+      },
+      record->getCommandOptions());
   }
 
 public: // IO routine
@@ -427,7 +377,6 @@ private:
   Scheduler m_scheduler;
   scheduler::ScopedEventId m_processEventsTimeoutEvent;
 
-  std::atomic_uintptr_t m_lastPendingInterestId;
   PendingInterestTable m_pendingInterestTable;
   InterestFilterTable m_interestFilterTable;
   RegisteredPrefixTable m_registeredPrefixTable;

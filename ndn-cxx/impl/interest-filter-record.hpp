@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,9 +27,16 @@
 namespace ndn {
 
 /**
+ * @brief Opaque type to identify an InterestFilterRecord
+ */
+class InterestFilterId;
+
+static_assert(sizeof(const InterestFilterId*) == sizeof(RecordId), "");
+
+/**
  * @brief associates an InterestFilter with Interest callback
  */
-class InterestFilterRecord : noncopyable
+class InterestFilterRecord : public RecordBase<InterestFilterRecord>
 {
 public:
   /**
@@ -45,9 +52,6 @@ public:
   {
   }
 
-  /**
-   * @return the filter
-   */
   const InterestFilter&
   getFilter() const
   {
@@ -80,33 +84,6 @@ public:
 private:
   InterestFilter m_filter;
   InterestCallback m_interestCallback;
-};
-
-/**
- * @brief Opaque type to identify an InterestFilterRecord
- */
-class InterestFilterId;
-
-/**
- * @brief Functor to match InterestFilterId
- */
-class MatchInterestFilterId
-{
-public:
-  explicit
-  MatchInterestFilterId(const InterestFilterId* interestFilterId)
-    : m_id(interestFilterId)
-  {
-  }
-
-  bool
-  operator()(const shared_ptr<InterestFilterRecord>& interestFilterId) const
-  {
-    return reinterpret_cast<const InterestFilterId*>(interestFilterId.get()) == m_id;
-  }
-
-private:
-  const InterestFilterId* m_id;
 };
 
 } // namespace ndn

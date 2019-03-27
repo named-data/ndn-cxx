@@ -273,18 +273,17 @@ public: // producer
    * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
    * a series of setInterestFilter calls.
    *
-   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest     A callback to be called when a matching interest is received
-   * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param flags          (optional) RIB flags
-   * @param signingInfo    (optional) Signing parameters.  When omitted, a default parameters
-   *                       used in the signature will be used.
+   * @param filter      Interest filter (prefix part will be registered with the forwarder)
+   * @param onInterest  A callback to be called when a matching interest is received
+   * @param onFailure   A callback to be called when prefixRegister command fails
+   * @param signingInfo Signing parameters. When omitted, a default parameters used in the
+   *                    signature will be used.
+   * @param flags       Prefix registration flags
    *
-   * @return A handle for unregistering the prefix.
+   * @return A handle for unregistering the prefix and unsetting the Interest filter.
    */
   RegisteredPrefixHandle
-  setInterestFilter(const InterestFilter& interestFilter,
-                    const InterestCallback& onInterest,
+  setInterestFilter(const InterestFilter& filter, const InterestCallback& onInterest,
                     const RegisterPrefixFailureCallback& onFailure,
                     const security::SigningInfo& signingInfo = security::SigningInfo(),
                     uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
@@ -299,19 +298,18 @@ public: // producer
    * different callbacks, use one registerPrefix call, followed (in onSuccess callback) by
    * a series of setInterestFilter calls.
    *
-   * @param interestFilter Interest filter (prefix part will be registered with the forwarder)
-   * @param onInterest     A callback to be called when a matching interest is received
-   * @param onSuccess      A callback to be called when prefixRegister command succeeds
-   * @param onFailure      A callback to be called when prefixRegister command fails
-   * @param flags          (optional) RIB flags
-   * @param signingInfo    (optional) Signing parameters.  When omitted, a default parameters
-   *                       used in the signature will be used.
+   * @param filter      Interest filter (prefix part will be registered with the forwarder)
+   * @param onInterest  A callback to be called when a matching interest is received
+   * @param onSuccess   A callback to be called when prefixRegister command succeeds
+   * @param onFailure   A callback to be called when prefixRegister command fails
+   * @param signingInfo Signing parameters. When omitted, a default parameters used in the
+   *                    signature will be used.
+   * @param flags       Prefix registration flags
    *
-   * @return A handle for unregistering the prefix.
+   * @return A handle for unregistering the prefix and unsetting the Interest filter.
    */
   RegisteredPrefixHandle
-  setInterestFilter(const InterestFilter& interestFilter,
-                    const InterestCallback& onInterest,
+  setInterestFilter(const InterestFilter& filter, const InterestCallback& onInterest,
                     const RegisterPrefixSuccessCallback& onSuccess,
                     const RegisterPrefixFailureCallback& onFailure,
                     const security::SigningInfo& signingInfo = security::SigningInfo(),
@@ -320,7 +318,7 @@ public: // producer
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest callback
    *
-   * @param interestFilter Interest
+   * @param filter     Interest filter
    * @param onInterest A callback to be called when a matching interest is received
    *
    * This method modifies library's FIB only, and does not register the prefix with the
@@ -330,8 +328,7 @@ public: // producer
    * @return A handle for unsetting the Interest filter.
    */
   InterestFilterHandle
-  setInterestFilter(const InterestFilter& interestFilter,
-                    const InterestCallback& onInterest);
+  setInterestFilter(const InterestFilter& filter, const InterestCallback& onInterest);
 
   /**
    * @brief Register prefix with the connected NDN forwarder
@@ -343,8 +340,8 @@ public: // producer
    * @param prefix      A prefix to register with the connected NDN forwarder
    * @param onSuccess   A callback to be called when prefixRegister command succeeds
    * @param onFailure   A callback to be called when prefixRegister command fails
-   * @param signingInfo (optional) Signing parameters.  When omitted, a default parameters
-   *                    used in the signature will be used.
+   * @param signingInfo Signing parameters. When omitted, a default parameters used in the
+   *                    signature will be used.
    * @param flags       Prefix registration flags
    *
    * @return A handle for unregistering the prefix.

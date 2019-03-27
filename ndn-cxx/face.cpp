@@ -179,7 +179,7 @@ Face::expressInterest(const Interest& interest,
                       const NackCallback& afterNacked,
                       const TimeoutCallback& afterTimeout)
 {
-  auto id = m_impl->generatePendingInterestId();
+  auto id = m_impl->m_pendingInterestTable.allocateId();
 
   auto interest2 = make_shared<Interest>(interest);
   interest2->getNonce();
@@ -188,14 +188,14 @@ Face::expressInterest(const Interest& interest,
     impl->asyncExpressInterest(id, interest2, afterSatisfied, afterNacked, afterTimeout);
   } IO_CAPTURE_WEAK_IMPL_END
 
-  return PendingInterestHandle(*this, id);
+  return PendingInterestHandle(*this, reinterpret_cast<const PendingInterestId*>(id));
 }
 
 void
 Face::cancelPendingInterest(const PendingInterestId* pendingInterestId)
 {
   IO_CAPTURE_WEAK_IMPL(post) {
-    impl->asyncRemovePendingInterest(pendingInterestId);
+    impl->asyncRemovePendingInterest(reinterpret_cast<RecordId>(pendingInterestId));
   } IO_CAPTURE_WEAK_IMPL_END
 }
 
@@ -230,52 +230,44 @@ Face::put(lp::Nack nack)
 }
 
 RegisteredPrefixHandle
-Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const InterestCallback& onInterest,
+Face::setInterestFilter(const InterestFilter& filter, const InterestCallback& onInterest,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const security::SigningInfo& signingInfo,
-                        uint64_t flags)
+                        const security::SigningInfo& signingInfo, uint64_t flags)
 {
-  return setInterestFilter(interestFilter, onInterest, nullptr, onFailure, signingInfo, flags);
+  return setInterestFilter(filter, onInterest, nullptr, onFailure, signingInfo, flags);
 }
 
 RegisteredPrefixHandle
-Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const InterestCallback& onInterest,
+Face::setInterestFilter(const InterestFilter& filter, const InterestCallback& onInterest,
                         const RegisterPrefixSuccessCallback& onSuccess,
                         const RegisterPrefixFailureCallback& onFailure,
-                        const security::SigningInfo& signingInfo,
-                        uint64_t flags)
+                        const security::SigningInfo& signingInfo, uint64_t flags)
 {
-  auto filter = make_shared<InterestFilterRecord>(interestFilter, onInterest);
-
   nfd::CommandOptions options;
   options.setSigningInfo(signingInfo);
 
-  auto id = m_impl->registerPrefix(interestFilter.getPrefix(), filter,
-                                   onSuccess, onFailure, flags, options);
-  return RegisteredPrefixHandle(*this, id);
+  auto id = m_impl->registerPrefix(filter.getPrefix(), onSuccess, onFailure, flags, options,
+                                   filter, onInterest);
+  return RegisteredPrefixHandle(*this, reinterpret_cast<const RegisteredPrefixId*>(id));
 }
 
 InterestFilterHandle
-Face::setInterestFilter(const InterestFilter& interestFilter,
-                        const InterestCallback& onInterest)
+Face::setInterestFilter(const InterestFilter& filter, const InterestCallback& onInterest)
 {
-  auto filter = make_shared<InterestFilterRecord>(interestFilter, onInterest);
+  auto id = m_impl->m_interestFilterTable.allocateId();
 
   IO_CAPTURE_WEAK_IMPL(post) {
-    impl->asyncSetInterestFilter(filter);
+    impl->asyncSetInterestFilter(id, filter, onInterest);
   } IO_CAPTURE_WEAK_IMPL_END
 
-  auto id = reinterpret_cast<const InterestFilterId*>(filter.get());
-  return InterestFilterHandle(*this, id);
+  return InterestFilterHandle(*this, reinterpret_cast<const InterestFilterId*>(id));
 }
 
 void
 Face::clearInterestFilter(const InterestFilterId* interestFilterId)
 {
   IO_CAPTURE_WEAK_IMPL(post) {
-    impl->asyncUnsetInterestFilter(interestFilterId);
+    impl->asyncUnsetInterestFilter(reinterpret_cast<RecordId>(interestFilterId));
   } IO_CAPTURE_WEAK_IMPL_END
 }
 
@@ -289,8 +281,8 @@ Face::registerPrefix(const Name& prefix,
   nfd::CommandOptions options;
   options.setSigningInfo(signingInfo);
 
-  auto id = m_impl->registerPrefix(prefix, nullptr, onSuccess, onFailure, flags, options);
-  return RegisteredPrefixHandle(*this, id);
+  auto id = m_impl->registerPrefix(prefix, onSuccess, onFailure, flags, options, nullopt, nullptr);
+  return RegisteredPrefixHandle(*this, reinterpret_cast<const RegisteredPrefixId*>(id));
 }
 
 void
@@ -299,7 +291,8 @@ Face::unregisterPrefixImpl(const RegisteredPrefixId* registeredPrefixId,
                            const UnregisterPrefixFailureCallback& onFailure)
 {
   IO_CAPTURE_WEAK_IMPL(post) {
-    impl->asyncUnregisterPrefix(registeredPrefixId, onSuccess, onFailure);
+    impl->asyncUnregisterPrefix(reinterpret_cast<RecordId>(registeredPrefixId),
+                                onSuccess, onFailure);
   } IO_CAPTURE_WEAK_IMPL_END
 }
 

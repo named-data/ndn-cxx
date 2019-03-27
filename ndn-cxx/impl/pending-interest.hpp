@@ -25,6 +25,7 @@
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/face.hpp"
 #include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/impl/record-container.hpp"
 #include "ndn-cxx/lp/nack.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 
@@ -34,6 +35,8 @@ namespace ndn {
  * @brief Opaque type to identify a PendingInterest
  */
 class PendingInterestId;
+
+static_assert(sizeof(const PendingInterestId*) == sizeof(RecordId), "");
 
 /**
  * @brief Indicates where a pending Interest came from
@@ -60,7 +63,7 @@ operator<<(std::ostream& os, PendingInterestOrigin origin)
 /**
  * @brief Stores a pending Interest and associated callbacks
  */
-class PendingInterest : noncopyable
+class PendingInterest : public RecordBase<PendingInterest>
 {
 public:
   /**
@@ -69,14 +72,10 @@ public:
    * The timeout is set based on the current time and InterestLifetime.
    * This class will invoke the timeout callback unless the record is deleted before timeout.
    */
-  PendingInterest(const PendingInterestId* id,
-                  shared_ptr<const Interest> interest,
-                  const DataCallback& dataCallback,
-                  const NackCallback& nackCallback,
-                  const TimeoutCallback& timeoutCallback,
+  PendingInterest(shared_ptr<const Interest> interest, const DataCallback& dataCallback,
+                  const NackCallback& nackCallback, const TimeoutCallback& timeoutCallback,
                   Scheduler& scheduler)
-    : m_id(id)
-    , m_interest(std::move(interest))
+    : m_interest(std::move(interest))
     , m_origin(PendingInterestOrigin::APP)
     , m_dataCallback(dataCallback)
     , m_nackCallback(nackCallback)
@@ -88,23 +87,13 @@ public:
 
   /**
    * @brief Construct a pending Interest record for an Interest from NFD
-   *
-   * @param interest the Interest
-   * @param scheduler Scheduler for scheduling the timeout event
    */
   PendingInterest(shared_ptr<const Interest> interest, Scheduler& scheduler)
-    : m_id(nullptr)
-    , m_interest(std::move(interest))
+    : m_interest(std::move(interest))
     , m_origin(PendingInterestOrigin::FORWARDER)
     , m_nNotNacked(0)
   {
     scheduleTimeoutEvent(scheduler);
-  }
-
-  const PendingInterestId*
-  getId() const
-  {
-    return m_id;
   }
 
   shared_ptr<const Interest>
@@ -172,15 +161,6 @@ public:
     }
   }
 
-  /**
-   * @brief Set cleanup function to be invoked when Interest times out
-   */
-  void
-  setDeleter(const std::function<void()>& deleter)
-  {
-    m_deleter = deleter;
-  }
-
 private:
   void
   scheduleTimeoutEvent(Scheduler& scheduler)
@@ -199,12 +179,10 @@ private:
       m_timeoutCallback(*m_interest);
     }
 
-    BOOST_ASSERT(m_deleter);
-    m_deleter();
+    deleteSelf();
   }
 
 private:
-  const PendingInterestId* m_id;
   shared_ptr<const Interest> m_interest;
   PendingInterestOrigin m_origin;
   DataCallback m_dataCallback;
@@ -214,28 +192,6 @@ private:
   int m_nNotNacked; ///< number of Interest destinations that have not Nacked
   optional<lp::Nack> m_leastSevereNack;
   std::function<void()> m_deleter;
-};
-
-/**
- * @brief Functor to match PendingInterestId
- */
-class MatchPendingInterestId
-{
-public:
-  explicit
-  MatchPendingInterestId(const PendingInterestId* pendingInterestId)
-    : m_id(pendingInterestId)
-  {
-  }
-
-  bool
-  operator()(const shared_ptr<const PendingInterest>& pendingInterest) const
-  {
-    return pendingInterest->getId() == m_id;
-  }
-
-private:
-  const PendingInterestId* m_id;
 };
 
 } // namespace ndn
