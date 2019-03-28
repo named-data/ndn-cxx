@@ -23,6 +23,8 @@
 
 #include "ndn-cxx/security/impl/openssl.hpp"
 
+#include <unistd.h>
+
 namespace ndn {
 namespace ndnsec {
 
@@ -42,7 +44,7 @@ getPassword(std::string& password, const std::string& prompt, bool shouldConfirm
     return true;
   }
 
-  pw0 = getpass("Confirm:");
+  pw0 = getpass("Confirm: ");
   if (!pw0) {
     OPENSSL_cleanse(&password1.front(), password1.size());
     return false;

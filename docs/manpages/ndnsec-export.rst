@@ -6,7 +6,7 @@ Usage
 
 ::
 
-    $ ndnsec-export [-h] [-o output] identity
+    ndnsec-export [-h] [-o output] identity
 
 Description
 -----------

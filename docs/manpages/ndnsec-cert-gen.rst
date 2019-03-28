@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-cert-gen [-h] [-S timestamp] [-E timestamp] [-I info] [-s sign-id] [-i issuer-id] request
+    ndnsec-cert-gen [-h] [-S timestamp] [-E timestamp] [-I info] [-s sign-id] [-i issuer-id] request
 
 Description
 -----------

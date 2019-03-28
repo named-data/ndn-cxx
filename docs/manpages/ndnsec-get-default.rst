@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-get-default [-h] [-kc] [-i identity|-K key] [-q]
+    ndnsec-get-default [-h] [-kc] [-i identity|-K key] [-q]
 
 Description
 -----------

@@ -9,7 +9,7 @@ Usage
 
 ::
 
-    $ ndnsec-cert-dump [-h] [-p] [-ikf] name
+    ndnsec-cert-dump [-h] [-p] [-ikf] name
 
 Description
 -----------

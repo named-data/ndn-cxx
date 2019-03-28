@@ -6,7 +6,7 @@ Usage
 
 ::
 
-    $ ndnsec-import [-h] input
+    ndnsec-import [-h] input
 
 Description
 -----------

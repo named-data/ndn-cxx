@@ -1,89 +1,71 @@
 ndnsec
 ======
 
-``ndnsec`` is a command-line toolkit to perform various NDN security management
-operation.
+:program:`ndnsec` is a command-line toolkit to perform various NDN security
+management operations.
 
-Usage
------
+Synopsis
+--------
 
-::
+**ndnsec** *command* [*argument*]...
 
-    $ ndnsec <command> [<args>]
-
-or alternatively
-
-::
-
-    $ ndnsec-command [<args>]
+**ndnsec-**\ *command* [*argument*]...
 
 Description
 -----------
 
-The NDN security data are stored and managed in two places: **Public Information Base** and
-**Trusted Platform Module**. ``ndnsec`` toolkit provides a command-line interface of managing and
-using the NDN security data.
+The NDN security data are stored in two places: **Public Information Base**
+(PIB) and **Trusted Platform Module** (TPM). The :program:`ndnsec` toolkit
+provides a command-line interface for managing and using the NDN security data.
 
-ndnsec commands
----------------
+Commands
+--------
 
-ndnsec-list_
-  Display information in PublicInfo.
+list_
+  List all known identities/keys/certificates.
 
-ndnsec-get-default_
-  Get default setting info.
+get-default_
+  Show the default identity/key/certificate.
 
-ndnsec-set-default_
-  Configure default setting.
+set-default_
+  Change the default identity/key/certificate.
 
-ndnsec-key-gen_
-  Generate a Key-Signing-Key for an identity.
+delete_
+  Delete an identity/key/certificate.
 
-ndnsec-dsk-gen_
-  Generate a Data-Signing-Key (DSK) for an identity and sign the DSK using the corresponding KSK.
+key-gen_
+  Generate a key for an identity.
 
-ndnsec-sign-req_
+sign-req_
   Generate a certificate signing request.
 
-ndnsec-cert-gen_
-  Generate an identity certificate.
+cert-gen_
+  Create a certificate for an identity.
 
-ndnsec-cert-dump_
-  Dump a certificate from PublicInfo.
+cert-dump_
+  Export a certificate.
 
-ndnsec-cert-install_
-  Install a certificate into PublicInfo.
+cert-install_
+  Import a certificate from a file.
 
-ndnsec-delete_
-  Delete identity/key/certificate.
+export_
+  Export an identity as a SafeBag.
 
-ndnsec-export_
-  Export an identity package.
+import_
+  Import an identity from a SafeBag.
 
-ndnsec-import_
-  Import an identity package.
+unlock-tpm_
+  Unlock the TPM.
 
-ndnsec-set-acl_
-  Configure ACL of a private key.
-
-ndnsec-unlock-tpm_
-  Unlock Tpm.
-
-ndnsec-op-tool_
-  Operator tool.
-
-.. _ndnsec-list: ndnsec-list.html
-.. _ndnsec-get-default: ndnsec-get-default.html
-.. _ndnsec-set-default: ndnsec-set-default.html
-.. _ndnsec-key-gen: ndnsec-key-gen.html
-.. _ndnsec-dsk-gen: ndnsec-dsk-gen.html
-.. _ndnsec-sign-req: ndnsec-sign-req.html
-.. _ndnsec-cert-gen: ndnsec-cert-gen.html
-.. _ndnsec-cert-dump: ndnsec-cert-dump.html
-.. _ndnsec-cert-install: ndnsec-cert-install.html
-.. _ndnsec-delete: ndnsec-delete.html
-.. _ndnsec-export: ndnsec-export.html
-.. _ndnsec-import: ndnsec-import.html
-.. _ndnsec-set-acl: ndnsec-set-acl.html
-.. _ndnsec-unlock-tpm: ndnsec-unlock-tpm.html
-.. _ndnsec-op-tool: ndnsec-op-tool.html
+.. _list: ndnsec-list.html
+.. _get-default: ndnsec-get-default.html
+.. _set-default: ndnsec-set-default.html
+.. _delete: ndnsec-delete.html
+.. _key-gen: ndnsec-key-gen.html
+.. _sign-req: ndnsec-sign-req.html
+.. _cert-gen: ndnsec-cert-gen.html
+.. _cert-dump: ndnsec-cert-dump.html
+.. _cert-install: ndnsec-cert-install.html
+.. _export: ndnsec-export.html
+.. _import: ndnsec-import.html
+.. _unlock-tpm: ndnsec-unlock-tpm.html

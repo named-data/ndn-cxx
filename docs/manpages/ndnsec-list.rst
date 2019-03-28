@@ -9,7 +9,7 @@ Usage
 
 ::
 
-    $ ndnsec-list [-h] [-KkCc]
+    ndnsec-list [-h] [-KkCc]
 
 Description
 -----------

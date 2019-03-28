@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-key-gen [-h] [-n] [-d] [-t keyType] identity
+    ndnsec-key-gen [-h] [-n] [-d] [-t keyType] identity
 
 Description
 -----------

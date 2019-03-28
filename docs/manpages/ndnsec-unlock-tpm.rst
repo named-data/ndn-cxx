@@ -9,7 +9,7 @@ Usage
 
 ::
 
-    $ ndnsec-unlock-tpm [-h]
+    ndnsec-unlock-tpm [-h]
 
 Description
 -----------

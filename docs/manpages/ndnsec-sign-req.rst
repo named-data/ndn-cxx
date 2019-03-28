@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-sign-req [-h] [-k] name
+    ndnsec-sign-req [-h] [-k] name
 
 Description
 -----------

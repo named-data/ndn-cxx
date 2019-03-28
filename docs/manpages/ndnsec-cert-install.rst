@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-cert-install [-h] [-IKN] cert-source
+    ndnsec-cert-install [-h] [-IKN] cert-source
 
 Description
 -----------

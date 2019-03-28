@@ -8,7 +8,7 @@ Usage
 
 ::
 
-    $ ndnsec-set-default [-h] [-k|c] name
+    ndnsec-set-default [-h] [-k|c] name
 
 Description
 -----------
