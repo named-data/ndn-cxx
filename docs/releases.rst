@@ -1,5 +1,5 @@
-ndn-cxx Versions
-++++++++++++++++
+All ndn-cxx Releases
+++++++++++++++++++++
 
 .. toctree::
    :hidden:
@@ -27,6 +27,8 @@ ndn-cxx Versions
 
   `src (git) <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.6.5>`__,
   `src (tarball) <https://named-data.net/downloads/nfd-0.6.5.tar.bz2>`__ (`checksum <https://named-data.net/downloads/nfd-0.6.5.tar.bz2.sha256>`__)
+
+* **ndn-cxx version 0.6.4 was skipped**
 
 * **ndn-cxx version 0.6.3**
   (:doc:`Release Notes <release-notes/release-notes-0.6.3>`, `Documentation <https://named-data.net/doc/ndn-cxx/0.6.3/>`__)

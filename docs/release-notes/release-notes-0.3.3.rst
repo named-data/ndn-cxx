@@ -117,7 +117,7 @@ Removed:
 Upcoming features (partially finished in development branches):
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- NDNLPv2 (http://redmine.named-data.net/projects/nfd/wiki/NDNLPv2, :issue:`2520`,
+- NDNLPv2 (https://redmine.named-data.net/projects/nfd/wiki/NDNLPv2, :issue:`2520`,
   :issue:`2879`, :issue:`2763`, :issue:`2883`, :issue:`2841`, :issue:`2866`)
 
 - New NDN certificate format (:issue:`2861`, :issue:`2868`)

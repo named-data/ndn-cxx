@@ -7,19 +7,18 @@ If you are new to the NDN community of software generally, read the
 Code style
 ----------
 
-ndn-cxx code is subject to [ndn-cxx code style](http://named-data.net/doc/ndn-cxx/current/code-style.html).
+ndn-cxx code is subject to [ndn-cxx code style](https://named-data.net/doc/ndn-cxx/current/code-style.html).
 
 Licensing
 ---------
 
-Contributions to the library must be licensed under LGPL 3.0 or compatible license.  If
-you are choosing LGPL 3.0, please use the following license boilerplate in all `.hpp` and
+Contributions to the library must be licensed under the LGPL v3 or compatible license.  If
+you are choosing LGPL v3, please use the following license boilerplate in all `.hpp` and
 `.cpp` files:
-
 
     /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
     /*
-     * Copyright (c) [Year(s)] [Copyright Holder].
+     * Copyright (c) [Year(s)] [Copyright Holder(s)].
      *
      * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
      *
@@ -52,7 +51,7 @@ Running unit tests
 To run the unit tests, ndn-cxx needs to be built with unit test support and installed
 into the configured location.  For example:
 
-    ./waf configure --with-tests # --debug is also recommended while developing
+    ./waf configure --with-tests # --debug is also strongly recommended while developing
     ./waf
     sudo ./waf install
 

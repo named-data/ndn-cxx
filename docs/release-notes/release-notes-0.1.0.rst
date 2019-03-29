@@ -49,11 +49,11 @@ The current features include:
     <https://github.com/named-data/NFD>`_
 
     - Full support for `NFD management protocols
-      <http://redmine.named-data.net/projects/nfd/wiki/Management>`_ to NFD status
+      <https://redmine.named-data.net/projects/nfd/wiki/Management>`_ to NFD status
       information, create and manage NFD Faces, receive NFD Face status change
       notifications, update StrategyChoice for namespaces, and manage routes in RIB
     - Support for `LocalControlHeader
-      <http://redmine.named-data.net/projects/nfd/wiki/LocalControlHeader>`_ to implement
+      <https://redmine.named-data.net/projects/nfd/wiki/LocalControlHeader>`_ to implement
       special NDN applications that need low-level control of NDN packet forwarding
 
 - **Security support**
