@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK(!i.hasNonce());
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(!i.hasSelectors());
-  BOOST_CHECK(!i.hasParameters());
-  BOOST_CHECK(i.getParameters().empty());
+  BOOST_CHECK(!i.hasApplicationParameters());
+  BOOST_CHECK(i.getApplicationParameters().empty());
 }
 
 BOOST_AUTO_TEST_CASE(DecodeNotInterest)
@@ -131,14 +131,14 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Basic)
                 0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, // GenericNameComponent
           0x0a, 0x04, // Nonce
                 0x01, 0x00, 0x00, 0x00,
-          0x24, 0x04, // Parameters
+          0x24, 0x04, // ApplicationParameters
                 0xc0, 0xc1, 0xc2, 0xc3};
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
   i1.setCanBePrefix(false);
   i1.setNonce(1);
-  i1.setParameters("2404C0C1C2C3"_block);
+  i1.setApplicationParameters("2404C0C1C2C3"_block);
   Block wire1 = i1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
 
@@ -149,8 +149,8 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Basic)
   BOOST_CHECK(i2.getForwardingHint().empty());
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i2.hasParameters());
-  BOOST_CHECK_EQUAL(i2.getParameters(), "2404C0C1C2C3"_block);
+  BOOST_CHECK(i2.hasApplicationParameters());
+  BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK(i2.getPublisherPublicKeyLocator().empty());
 }
 
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
                 0x4a, 0xcb, 0x1e, 0x4c,
           0x0c, 0x02, // Interest Lifetime
                 0x76, 0xa1,
-          0x24, 0x04, // Parameters
+          0x24, 0x04, // ApplicationParameters
                 0xc0, 0xc1, 0xc2, 0xc3};
   Interest i1;
   i1.setName("/local/ndn/prefix");
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
   i1.setForwardingHint(DelegationList({{15893, "/H"}}));
   i1.setNonce(0x4c1ecb4a);
   i1.setInterestLifetime(30369_ms);
-  i1.setParameters("2404C0C1C2C3"_block);
+  i1.setApplicationParameters("2404C0C1C2C3"_block);
   i1.setMinSuffixComponents(1); // v0.2-only elements will not be encoded
   i1.setExclude(Exclude().excludeAfter(name::Component("J"))); // v0.2-only elements will not be encoded
   Block wire1 = i1.wireEncode();
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
   BOOST_CHECK(i2.hasNonce());
   BOOST_CHECK_EQUAL(i2.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 30369_ms);
-  BOOST_CHECK_EQUAL(i2.getParameters(), "2404C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), -1); // Default because minSuffixComponents was not encoded
   BOOST_CHECK(i2.getExclude().empty()); // Exclude was not encoded
 }
@@ -213,7 +213,7 @@ protected:
     i.setNonce(0x03d645a8);
     i.setInterestLifetime(18554_ms);
     i.setPublisherPublicKeyLocator(Name("/K"));
-    i.setParameters("2404A0A1A2A3"_block);
+    i.setApplicationParameters("2404A0A1A2A3"_block);
   }
 
 protected:
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(Minimal)
   BOOST_CHECK(i.hasNonce()); // a random nonce is generated
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i.getPublisherPublicKeyLocator().empty());
-  BOOST_CHECK(!i.hasParameters());
+  BOOST_CHECK(!i.hasApplicationParameters());
 
   BOOST_CHECK(!i.hasWire()); // nonce generation resets wire encoding
 
@@ -298,13 +298,13 @@ BOOST_AUTO_TEST_CASE(NonCriticalElementOutOfOrder)
   i.wireDecode("0514 0703080149 2201D6 2200 2404C0C1C2C3 22020101"_block);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
   // HopLimit=214 is not stored
-  BOOST_CHECK_EQUAL(i.getParameters(), "2404C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
 
-  // Parameters
+  // ApplicationParameters
   i.wireDecode("051F 0703080149 2100 1200 0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3 2401EE"_block);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
-  BOOST_CHECK_EQUAL(i.hasParameters(), true);
-  BOOST_CHECK_EQUAL(i.getParameters(), "2404C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
 }
 
 BOOST_AUTO_TEST_CASE(NameMissing)
@@ -578,26 +578,26 @@ BOOST_AUTO_TEST_CASE(SetInterestLifetime)
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 1_ms);
 }
 
-BOOST_AUTO_TEST_CASE(SetParameters)
+BOOST_AUTO_TEST_CASE(SetApplicationParameters)
 {
   const uint8_t PARAMETERS1[] = {0xc1};
   const uint8_t PARAMETERS2[] = {0xc2};
 
   Interest i;
-  BOOST_CHECK(!i.hasParameters());
-  i.setParameters("2400"_block);
-  BOOST_CHECK(i.hasParameters());
-  i.unsetParameters();
-  BOOST_CHECK(!i.hasParameters());
+  BOOST_CHECK(!i.hasApplicationParameters());
+  i.setApplicationParameters("2400"_block);
+  BOOST_CHECK(i.hasApplicationParameters());
+  i.unsetApplicationParameters();
+  BOOST_CHECK(!i.hasApplicationParameters());
 
-  i.setParameters("2401C0"_block); // Block overload
-  BOOST_CHECK_EQUAL(i.getParameters(), "2401C0"_block);
-  i.setParameters(PARAMETERS1, sizeof(PARAMETERS1)); // raw buffer overload
-  BOOST_CHECK_EQUAL(i.getParameters(), "2401C1"_block);
-  i.setParameters(make_shared<Buffer>(PARAMETERS2, sizeof(PARAMETERS2))); // ConstBufferPtr overload
-  BOOST_CHECK_EQUAL(i.getParameters(), "2401C2"_block);
-  i.setParameters("8001C1"_block); // Block of non-Parameters type
-  BOOST_CHECK_EQUAL(i.getParameters(), "24038001C1"_block);
+  i.setApplicationParameters("2401C0"_block); // Block overload
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C0"_block);
+  i.setApplicationParameters(PARAMETERS1, sizeof(PARAMETERS1)); // raw buffer overload
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C1"_block);
+  i.setApplicationParameters(make_shared<Buffer>(PARAMETERS2, sizeof(PARAMETERS2))); // ConstBufferPtr overload
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C2"_block);
+  i.setApplicationParameters("8001C1"_block); // Block of non-ApplicationParameters type
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "24038001C1"_block);
 }
 
 // ---- operators ----
@@ -663,12 +663,12 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  // compare Parameters
-  a.setParameters("2404C0C1C2C3"_block);
+  // compare ApplicationParameters
+  a.setApplicationParameters("2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setParameters("2404C0C1C2C3"_block);
+  b.setApplicationParameters("2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 }

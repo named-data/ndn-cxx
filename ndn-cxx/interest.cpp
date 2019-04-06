@@ -98,7 +98,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 #endif // NDN_CXX_HAVE_TESTS
   }
 
-  if (hasParameters()) {
+  if (hasApplicationParameters()) {
     return encode03(encoder);
   }
   else {
@@ -165,22 +165,21 @@ Interest::encode03(EncodingImpl<TAG>& encoder) const
   //                Nonce?
   //                InterestLifetime?
   //                HopLimit?
-  //                Parameters?
+  //                ApplicationParameters?
 
   // (reverse encoding)
 
-  // Parameters
-  if (hasParameters()) {
-    totalLength += encoder.prependBlock(getParameters());
+  // ApplicationParameters
+  if (hasApplicationParameters()) {
+    totalLength += encoder.prependBlock(getApplicationParameters());
   }
 
   // HopLimit: not yet supported
 
   // InterestLifetime
   if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    totalLength += prependNonNegativeIntegerBlock(encoder,
-                                                  tlv::InterestLifetime,
-                                                  getInterestLifetime().count());
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::InterestLifetime,
+                                                  static_cast<uint64_t>(getInterestLifetime().count()));
   }
 
   // Nonce
@@ -317,7 +316,7 @@ Interest::decode03()
   //                Nonce?
   //                InterestLifetime?
   //                HopLimit?
-  //                Parameters?
+  //                ApplicationParameters?
 
   auto element = m_wire.elements_begin();
   if (element == m_wire.elements_end() || element->type() != tlv::Name) {
@@ -399,9 +398,9 @@ Interest::decode03()
         lastElement = 7;
         break;
       }
-      case tlv::Parameters: {
+      case tlv::ApplicationParameters: {
         if (lastElement >= 8) {
-          break; // Parameters is non-critical, ignore out-of-order appearance
+          break; // ApplicationParameters is non-critical, ignore out-of-order appearance
         }
         m_parameters = *element;
         lastElement = 8;
@@ -597,36 +596,36 @@ Interest::setForwardingHint(const DelegationList& value)
 }
 
 Interest&
-Interest::setParameters(const Block& parameters)
+Interest::setApplicationParameters(const Block& parameters)
 {
-  if (parameters.type() == tlv::Parameters) {
+  if (parameters.type() == tlv::ApplicationParameters) {
     m_parameters = parameters;
   }
   else {
-    m_parameters = Block(tlv::Parameters, parameters);
+    m_parameters = Block(tlv::ApplicationParameters, parameters);
   }
   m_wire.reset();
   return *this;
 }
 
 Interest&
-Interest::setParameters(const uint8_t* buffer, size_t bufferSize)
+Interest::setApplicationParameters(const uint8_t* buffer, size_t bufferSize)
 {
-  m_parameters = makeBinaryBlock(tlv::Parameters, buffer, bufferSize);
+  m_parameters = makeBinaryBlock(tlv::ApplicationParameters, buffer, bufferSize);
   m_wire.reset();
   return *this;
 }
 
 Interest&
-Interest::setParameters(ConstBufferPtr buffer)
+Interest::setApplicationParameters(ConstBufferPtr buffer)
 {
-  m_parameters = Block(tlv::Parameters, std::move(buffer));
+  m_parameters = Block(tlv::ApplicationParameters, std::move(buffer));
   m_wire.reset();
   return *this;
 }
 
 Interest&
-Interest::unsetParameters()
+Interest::unsetApplicationParameters()
 {
   m_parameters = {};
   m_wire.reset();

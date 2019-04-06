@@ -73,7 +73,7 @@ enum {
   Nonce                           = 10,
   InterestLifetime                = 12,
   HopLimit                        = 34,
-  Parameters                      = 36,
+  ApplicationParameters           = 36,
   MetaInfo                        = 20,
   Content                         = 21,
   SignatureInfo                   = 22,

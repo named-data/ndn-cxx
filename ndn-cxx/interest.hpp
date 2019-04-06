@@ -73,8 +73,8 @@ public:
 
   /** @brief Encode to a @c Block.
    *
-   *  Encodes into NDN Packet Format v0.3 if Parameters element is present. In this case, Selectors
-   *  are not encoded. Otherwise, encodes into NDN Packet Format v0.2.
+   *  Encodes into NDN Packet Format v0.3 if ApplicationParameters element is present, in which
+   *  case Selectors are not encoded. Otherwise, encodes into NDN Packet Format v0.2.
    */
   const Block&
   wireEncode() const;
@@ -288,49 +288,51 @@ public: // element access
   setInterestLifetime(time::milliseconds lifetime);
 
   bool
-  hasParameters() const
+  hasApplicationParameters() const
   {
     return !m_parameters.empty();
   }
 
   const Block&
-  getParameters() const
+  getApplicationParameters() const
   {
     return m_parameters;
   }
 
-  /** @brief Set parameters from a Block
+  /** @brief Set ApplicationParameters from a Block
    *
-   *  If the block's TLV-TYPE is Parameters, it will be used directly as this Interest's Parameters element.
-   *  If the block's TLV-TYPE is not Parameters, it will be nested into a Parameters element.
+   *  If the block's TLV-TYPE is ApplicationParameters, it will be used directly as
+   *  this Interest's ApplicationParameters element.
+   *  If the block's TLV-TYPE is not ApplicationParameters, it will be nested into
+   *  an ApplicationParameters element.
    *  @return a reference to this Interest
    */
   Interest&
-  setParameters(const Block& parameters);
+  setApplicationParameters(const Block& parameters);
 
-  /** @brief Copy parameters from raw buffer
+  /** @brief Copy ApplicationParameters from raw buffer
    *
    *  @param buffer pointer to the first octet of parameters
    *  @param bufferSize size of the raw buffer
    *  @return a reference to this Interest
    */
   Interest&
-  setParameters(const uint8_t* buffer, size_t bufferSize);
+  setApplicationParameters(const uint8_t* buffer, size_t bufferSize);
 
-  /** @brief Set parameters from a wire buffer
+  /** @brief Set ApplicationParameters from a wire buffer
    *
-   *  @param buffer containing the Interest parameters
+   *  @param buffer buffer containing the parameters
    *  @return a reference to this Interest
    */
   Interest&
-  setParameters(ConstBufferPtr buffer);
+  setApplicationParameters(ConstBufferPtr buffer);
 
-  /** @brief Remove the Parameters element from this Interest
+  /** @brief Remove the ApplicationParameters element from this Interest
    *
-   *  @post hasParameters() == false
+   *  @post hasApplicationParameters() == false
    */
   Interest&
-  unsetParameters();
+  unsetApplicationParameters();
 
 public: // Selectors (deprecated)
   /** @brief Check if Interest has any selector present.
