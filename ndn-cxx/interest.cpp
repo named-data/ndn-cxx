@@ -25,6 +25,10 @@
 
 #include <boost/scope_exit.hpp>
 
+#ifdef NDN_CXX_HAVE_STACKTRACE
+#include <boost/stacktrace/stacktrace.hpp>
+#endif
+
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -53,7 +57,7 @@ Interest::Interest(const Name& name, time::milliseconds lifetime)
   }
 
   if (!boost::logic::indeterminate(s_defaultCanBePrefix)) {
-    setCanBePrefix(static_cast<bool>(s_defaultCanBePrefix));
+    setCanBePrefix(bool(s_defaultCanBePrefix));
   }
 }
 
@@ -65,17 +69,28 @@ Interest::Interest(const Block& wire)
 
 // ---- encode and decode ----
 
+static void
+warnOnceCanBePrefixUnset()
+{
+  static bool didWarn = false;
+  if (!didWarn) {
+    didWarn = true;
+    std::cerr << "WARNING: Interest.CanBePrefix will be set to false in the near future. "
+              << "Please declare a preferred setting via Interest::setDefaultCanBePrefix.\n";
+#ifdef NDN_CXX_HAVE_STACKTRACE
+    if (std::getenv("NDN_CXX_VERBOSE_CANBEPREFIX_UNSET_WARNING") != nullptr) {
+      std::cerr << boost::stacktrace::stacktrace(2, 64);
+    }
+#endif
+  }
+}
+
 template<encoding::Tag TAG>
 size_t
 Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 {
-  static bool hasDefaultCanBePrefixWarning = false;
   if (!m_isCanBePrefixSet) {
-    if (!hasDefaultCanBePrefixWarning) {
-      std::cerr << "WARNING: Interest.CanBePrefix will be set to 0 in the near future. "
-                << "Please declare a preferred setting via Interest::setDefaultCanBePrefix.";
-      hasDefaultCanBePrefixWarning = true;
-    }
+    warnOnceCanBePrefixUnset();
 #ifdef NDN_CXX_HAVE_TESTS
     if (s_errorIfCanBePrefixUnset) {
       NDN_THROW(std::logic_error("Interest.CanBePrefix is unset"));
