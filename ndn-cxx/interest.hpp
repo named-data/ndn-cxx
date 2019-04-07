@@ -301,10 +301,11 @@ public: // element access
 
   /** @brief Set ApplicationParameters from a Block
    *
-   *  If the block's TLV-TYPE is ApplicationParameters, it will be used directly as
-   *  this Interest's ApplicationParameters element.
-   *  If the block's TLV-TYPE is not ApplicationParameters, it will be nested into
-   *  an ApplicationParameters element.
+   *  If the block is default-constructed, this will set a zero-length
+   *  ApplicationParameters element.
+   *  Else, if the block's TLV-TYPE is ApplicationParameters, it will be
+   *  used directly as this Interest's ApplicationParameters element.
+   *  Else, the block will be nested into an ApplicationParameters element.
    *  @return a reference to this Interest
    */
   Interest&
@@ -321,7 +322,7 @@ public: // element access
 
   /** @brief Set ApplicationParameters from a wire buffer
    *
-   *  @param buffer buffer containing the parameters
+   *  @param buffer buffer containing the parameters, must not be nullptr
    *  @return a reference to this Interest
    */
   Interest&

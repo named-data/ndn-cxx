@@ -2058,10 +2058,10 @@ PREDEFINED             = DOXYGEN \
                          NDN_LOG_MEMBER_DECL_SPECIALIZED(x)= \
                          NDN_LOG_MEMBER_INIT(x,y)= \
                          NDN_LOG_MEMBER_INIT_SPECIALIZED(x,y)= \
-                         PUBLIC_WITH_TESTS_ELSE_PROTECTED=protected \
-                         PUBLIC_WITH_TESTS_ELSE_PRIVATE=private \
-                         PROTECTED_WITH_TESTS_ELSE_PRIVATE=private \
-                         VIRTUAL_WITH_TESTS=
+                         NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED=protected \
+                         NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE=private \
+                         NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE=private \
+                         NDN_CXX_VIRTUAL_WITH_TESTS=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

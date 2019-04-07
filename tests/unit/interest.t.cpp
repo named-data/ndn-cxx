@@ -590,14 +590,27 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
   i.unsetApplicationParameters();
   BOOST_CHECK(!i.hasApplicationParameters());
 
-  i.setApplicationParameters("2401C0"_block); // Block overload
+  // Block overload
+  i.setApplicationParameters(Block{});
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
+  i.setApplicationParameters("2401C0"_block);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C0"_block);
-  i.setApplicationParameters(PARAMETERS1, sizeof(PARAMETERS1)); // raw buffer overload
-  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C1"_block);
-  i.setApplicationParameters(make_shared<Buffer>(PARAMETERS2, sizeof(PARAMETERS2))); // ConstBufferPtr overload
-  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C2"_block);
-  i.setApplicationParameters("8001C1"_block); // Block of non-ApplicationParameters type
+  i.setApplicationParameters("8001C1"_block);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "24038001C1"_block);
+
+  // raw buffer+size overload
+  i.setApplicationParameters(PARAMETERS1, sizeof(PARAMETERS1));
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C1"_block);
+  i.setApplicationParameters(nullptr, 0);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
+  BOOST_CHECK_THROW(i.setApplicationParameters(nullptr, 42), std::invalid_argument);
+
+  // ConstBufferPtr overload
+  i.setApplicationParameters(make_shared<Buffer>(PARAMETERS2, sizeof(PARAMETERS2)));
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C2"_block);
+  i.setApplicationParameters(make_shared<Buffer>());
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
+  BOOST_CHECK_THROW(i.setApplicationParameters(nullptr), std::invalid_argument);
 }
 
 // ---- operators ----

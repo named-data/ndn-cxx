@@ -598,7 +598,10 @@ Interest::setForwardingHint(const DelegationList& value)
 Interest&
 Interest::setApplicationParameters(const Block& parameters)
 {
-  if (parameters.type() == tlv::ApplicationParameters) {
+  if (parameters.empty()) {
+    m_parameters = Block(tlv::ApplicationParameters);
+  }
+  else if (parameters.type() == tlv::ApplicationParameters) {
     m_parameters = parameters;
   }
   else {
@@ -611,6 +614,9 @@ Interest::setApplicationParameters(const Block& parameters)
 Interest&
 Interest::setApplicationParameters(const uint8_t* buffer, size_t bufferSize)
 {
+  if (buffer == nullptr && bufferSize != 0) {
+    NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
+  }
   m_parameters = makeBinaryBlock(tlv::ApplicationParameters, buffer, bufferSize);
   m_wire.reset();
   return *this;
@@ -619,6 +625,9 @@ Interest::setApplicationParameters(const uint8_t* buffer, size_t bufferSize)
 Interest&
 Interest::setApplicationParameters(ConstBufferPtr buffer)
 {
+  if (buffer == nullptr) {
+    NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
+  }
   m_parameters = Block(tlv::ApplicationParameters, std::move(buffer));
   m_wire.reset();
   return *this;
