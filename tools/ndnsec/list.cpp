@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,13 +30,14 @@ namespace ndnsec {
 class Printer
 {
 public:
+  explicit
   Printer(int verboseLevel)
     : m_verboseLevel(verboseLevel)
   {
   }
 
   void
-  printIdentity(const security::Identity& identity, bool isDefault)
+  printIdentity(const security::Identity& identity, bool isDefault) const
   {
     if (isDefault)
       std::cout << "* ";
@@ -63,7 +64,7 @@ public:
   }
 
   void
-  printKey(const security::Key& key, bool isDefault)
+  printKey(const security::Key& key, bool isDefault) const
   {
     if (isDefault)
       std::cout << "  +->* ";
@@ -88,7 +89,7 @@ public:
   }
 
   void
-  printCertificate(const security::v2::Certificate& cert, bool isDefault)
+  printCertificate(const security::v2::Certificate& cert, bool isDefault) const
   {
     if (isDefault)
       std::cout << "       +->* ";
@@ -110,52 +111,49 @@ private:
 int
 ndnsec_list(int argc, char** argv)
 {
-  using namespace ndn;
   namespace po = boost::program_options;
 
+  bool wantKey = false;
+  bool wantCert = false;
   int verboseLevel = 0; // 0 print identity only
                         // 1 print key name
                         // 2 print cert name
                         // 3 print cert content
 
-  po::options_description options("General Usage\n  ndnsec list [-h] [-k|c]\nGeneral options");
-  options.add_options()
-    ("help,h",    "produce help message")
-    ("key,k",     "granularity: key")
-    ("cert,c",    "granularity: certificate")
+  po::options_description description(
+    "Usage: ndnsec list [-h] [-k] [-c] [-v]\n"
+    "\n"
+    "Options");
+  description.add_options()
+    ("help,h", "produce help message")
+    ("key,k",     po::bool_switch(&wantKey), "list all keys associated with each identity")
+    ("cert,c",    po::bool_switch(&wantCert), "list all certificates associated with each key")
     ("verbose,v", accumulator<int>(&verboseLevel),
-                  "verbose mode: -v is equivalent to -k, -vv is equivalent to -c")
+                  "verbose mode, can be repeated for increased verbosity: -v is equivalent to -k, "
+                  "-vv is equivalent to -c, -vvv shows detailed information for each certificate")
     ;
 
   po::variables_map vm;
   try {
-    po::store(po::parse_command_line(argc, argv, options), vm);
+    po::store(po::parse_command_line(argc, argv, description), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << options << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << options << std::endl;
-    ;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
-  int tmpVerboseLevel = 0;
-  if (vm.count("cert") != 0)
-    tmpVerboseLevel = 2;
-  else if (vm.count("key") != 0)
-    tmpVerboseLevel = 1;
-
-  verboseLevel = std::max(verboseLevel, tmpVerboseLevel);
+  verboseLevel = std::max(verboseLevel, wantCert ? 2 : wantKey ? 1 : 0);
 
   security::v2::KeyChain keyChain;
-  Printer printer(verboseLevel);
 
-  // TODO add API to check for default identity (may be from the identity itself)
+  // TODO: add API to check for default identity (may be from the identity itself)
   security::Identity defaultIdentity;
   try {
     defaultIdentity = keyChain.getPib().getDefaultIdentity();
@@ -163,6 +161,8 @@ ndnsec_list(int argc, char** argv)
   catch (const security::Pib::Error&) {
     // no default identity
   }
+
+  Printer printer(verboseLevel);
   for (const auto& identity : keyChain.getPib().getIdentities()) {
     printer.printIdentity(identity, identity == defaultIdentity);
   }

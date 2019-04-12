@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,13 +34,14 @@ ndnsec_sign_req(int argc, char** argv)
   bool isKeyName = false;
 
   po::options_description description(
-    "General Usage\n  ndnsec sign-req [-h] [-k] name\nGeneral options");
-  description
-    .add_options()
+    "Usage: ndnsec sign-req [-h] [-k] [-n] NAME\n"
+    "\n"
+    "Options");
+  description.add_options()
     ("help,h", "produce help message")
-    ("key,k", "optional, if specified, name is keyName (e.g., /ndn/edu/ucla/alice/KEY/ksk-123456789), "
-              "otherwise identity name")
-    ("name,n", po::value<Name>(&name), "name, for example, /ndn/edu/ucla/alice");
+    ("name,n", po::value<Name>(&name), "identity or key name, e.g., /ndn/edu/ucla/alice")
+    ("key,k",  po::bool_switch(&isKeyName), "the specified name is a key name rather than an identity")
+    ;
 
   po::positional_options_description p;
   p.add("name", 1);
@@ -51,24 +52,19 @@ ndnsec_sign_req(int argc, char** argv)
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
   if (vm.count("name") == 0) {
-    std::cerr << "ERROR: name must be specified" << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
-  }
-
-  if (vm.count("key") != 0) {
-    isKeyName = true;
+    std::cerr << "ERROR: you must specify a name" << std::endl;
+    return 2;
   }
 
   security::v2::KeyChain keyChain;
@@ -109,6 +105,7 @@ ndnsec_sign_req(int argc, char** argv)
   keyChain.sign(certificate, security::SigningInfo(key).setSignatureInfo(signatureInfo));
 
   io::save(certificate, std::cout);
+
   return 0;
 }
 

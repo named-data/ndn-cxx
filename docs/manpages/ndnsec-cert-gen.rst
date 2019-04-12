@@ -1,60 +1,64 @@
 ndnsec-cert-gen
 ===============
 
-``ndnsec-cert-gen`` is a tool to issue an identity certificate.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-cert-gen [-h] [-S timestamp] [-E timestamp] [-I info] [-s sign-id] [-i issuer-id] request
+**ndnsec-cert-gen** [**-h**] [**-S** *timestamp*] [**-E** *timestamp*]
+[**-I** *info*]... [**-s** *signer*] [**-i** *issuer*] *file*
 
 Description
 -----------
 
-``ndnsec-cert-gen`` takes signing request as input and issues an identity certificate for the key in
-the signing request. The signing request can be created during ``ndnsec-keygen`` and can be
-re-generated with ``ndnsec-sign-req``.
+:program:`ndnsec-cert-gen` takes a signing request as input and issues an
+identity certificate for the key in the signing request. The signing request
+can be created with :program:`ndnsec-key-gen` and can be re-generated with
+:program:`ndnsec-sign-req`.
 
-By default, the default key/certificate will be used to sign the issued certificate.
+By default, the default key is used to sign the issued certificate.
 
-``request`` could be a path to a file that contains the signing request. If ``request`` is ``-``,
-then signing request will be read from standard input.
+*file* is the name of a file that contains the signing request. If *file* is
+"-", the signing request is read from the standard input.
 
-The generated certificate will be written to standard output in base64 encoding.
+The generated certificate is written to the standard output in base64 encoding.
 
 Options
 -------
 
-``-S timestamp``
-  Timestamp when the certificate becomes valid. The default value is now.
+.. option:: -S <timestamp>, --not-before <timestamp>
 
-``-E timestamp``
-  Timestamp when the certificate expires. The default value is one year from now.
+   Date and time when the certificate becomes valid, in "YYYYMMDDhhmmss" format.
+   The default value is now.
 
-``-I info``
-  Other information to be included in the issued certificate.  For example,
+.. option:: -E <timestamp>, --not-after <timestamp>
 
-   ::
+   Date and time when the certificate expires, in "YYYYMMDDhhmmss" format.
+   The default value is 365 days after the **--not-before** timestamp.
+
+.. option:: -I <info>, --info <info>
+
+   Other information to be included in the issued certificate. For example::
 
       -I "affiliation Some Organization" -I "homepage http://home.page/"
 
-``-s sign-id``
-  Signing identity. The default key/certificate of ``sign-id`` will be used to sign the requested
-  certificate. If this option is not specified, the system default identity will be used.
+.. option:: -s <signer>, --sign-id <signer>
 
-``-s issuer-id``
-  Issuer's ID to be included as part of the issued certificate name.  If not specified, "NA"
-  value will be used
+   Signing identity. The default key/certificate of *signer* will be used to
+   sign the requested certificate. If this option is not specified, the system
+   default identity will be used.
 
-Examples
---------
+.. option:: -i <issuer>, --issuer-id <issuer>
+
+   Issuer's ID to be included in the issued certificate name. The default
+   value is "NA".
+
+Example
+-------
 
 ::
 
     $ ndnsec-cert-gen -S 20140401000000 -E 20150331235959 -N "David"
-    -I "2.5.4.10 'Some Organization'" -s /ndn/test sign_request.cert
+    -I "2.5.4.10 'Some Organization'" -s /ndn/test request.cert
     Bv0C9wc9CANuZG4IBHRlc3QIA0tFWQgFZGF2aWQIEWtzay0xMzk2OTEzMDU4MTk2
     CAdJRC1DRVJUCAgAAAFFPp2g3hQDGAECFf0BdjCCAXIwIhgPMjAxNDA0MDEwMDAw
     MDBaGA8yMDE1MDMzMTIzNTk1OVowKDAMBgNVBCkTBURhdmlkMBgGA1UEChMRU29t

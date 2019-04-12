@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,20 +30,22 @@ ndnsec_delete(int argc, char** argv)
 {
   namespace po = boost::program_options;
 
-  bool isDeleteKey = false;
-  bool isDeleteCert = false;
+  bool wantDeleteKey = false;
+  bool wantDeleteCert = false;
   std::string name;
 
-  po::options_description description("General Usage\n"
-                                      "ndnsec delete [-h] [-k|c] name\n"
-                                      "General options");
+  po::options_description description(
+    "Usage: ndnsec delete [-h] [-k|-c] [-n] NAME\n"
+    "\n"
+    "Options");
   description.add_options()
     ("help,h", "produce help message")
-    ("delete-key,k", "(Optional) delete a key if specified.")
-    ("delete-cert,c", "(Optional) delete a certificate if specified.")
-    ("name,n", po::value<std::string>(&name), "By default, it refers to an identity."
-     "If -k is specified, it refers to a key."
-     "If -c is specified, it refers to a certificate.");
+    ("delete-key,k",  po::bool_switch(&wantDeleteKey), "delete a key")
+    ("delete-cert,c", po::bool_switch(&wantDeleteCert), "delete a certificate")
+    ("name,n",        po::value<std::string>(&name),
+                      "name of the item to delete. By default, it refers to an identity. "
+                      "If -k is specified, it refers to a key. "
+                      "If -c is specified, it refers to a certificate.");
     ;
 
   po::positional_options_description p;
@@ -55,63 +57,56 @@ ndnsec_delete(int argc, char** argv)
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << description << std::endl;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
     return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
   if (vm.count("name") == 0) {
-    std::cerr << "ERROR: name must be specified" << std::endl;
-    std::cerr << description << std::endl;
+    std::cerr << "ERROR: you must specify a name" << std::endl;
     return 2;
   }
 
-  if (vm.count("delete-cert") != 0) {
-    isDeleteCert = true;
-  }
-  else if (vm.count("delete-key") != 0) {
-    isDeleteKey = true;
+  if (wantDeleteKey && wantDeleteCert) {
+    std::cerr << "ERROR: cannot specify both '--delete-key' and '--delete-cert'" << std::endl;
+    return 2;
   }
 
   security::v2::KeyChain keyChain;
 
   try {
-    if (isDeleteCert) {
+    if (wantDeleteCert) {
       security::Key key = keyChain.getPib()
         .getIdentity(security::v2::extractIdentityFromCertName(name))
         .getKey(security::v2::extractKeyNameFromCertName(name));
 
       keyChain.deleteCertificate(key, key.getCertificate(name).getName());
-      std::cerr << "OK: Delete certificate: " << name << std::endl;
+      std::cerr << "OK: certificate deleted: " << name << std::endl;
     }
-    else if (isDeleteKey) {
+    else if (wantDeleteKey) {
       security::Identity identity = keyChain.getPib()
         .getIdentity(security::v2::extractIdentityFromKeyName(name));
 
       keyChain.deleteKey(identity, identity.getKey(name));
-      std::cerr << "OK: Delete key: " << name << std::endl;
+      std::cerr << "OK: key deleted: " << name << std::endl;
     }
     else {
       keyChain.deleteIdentity(keyChain.getPib().getIdentity(name));
-      std::cerr << "OK: Delete identity: " << name << std::endl;
+      std::cerr << "OK: identity deleted: " << name << std::endl;
     }
   }
   catch (const security::Pib::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
-    return 2;
+    return 1;
   }
   catch (const security::Tpm::Error& e) {
     std::cerr << "ERROR: Cannot delete the item: " << e.what() << std::endl;
-    return 2;
-  }
-  catch (const security::v2::KeyChain::Error& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    return 2;
+    return 1;
   }
 
   return 0;

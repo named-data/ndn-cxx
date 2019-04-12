@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,45 +22,55 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#include "ndn-cxx/security/impl/openssl.hpp"
+
+#include <cerrno>
+#include <cstring>
+#include <unistd.h>
+
 namespace ndn {
 namespace ndnsec {
 
 int
 ndnsec_unlock_tpm(int argc, char** argv)
 {
-#ifdef NDN_CXX_HAVE_GETPASS
   namespace po = boost::program_options;
 
-  std::string keyName;
-
-  po::options_description description("General Usage\n  ndnsec unlock-tpm [-h] \nGeneral options");
-  description.add_options()("help,h", "produce help message");
+  po::options_description description(
+    "Usage: ndnsec unlock-tpm [-h]\n"
+    "\n"
+    "Options");
+  description.add_options()
+    ("help,h", "produce help message")
+    ;
 
   po::variables_map vm;
-
   try {
     po::store(po::parse_command_line(argc, argv, description), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
-  bool isUnlocked = false;
-
+#ifdef NDN_CXX_HAVE_GETPASS
   security::v2::KeyChain keyChain;
 
-  char* password;
-  password = getpass("Password to unlock the TPM: ");
-  isUnlocked = keyChain.getTpm().unlockTpm(password, strlen(password));
-  memset(password, 0, strlen(password));
+  char* password = ::getpass("Password to unlock the TPM: ");
+  if (password == nullptr) {
+    std::cerr << "ERROR: getpass() failed: " << std::strerror(errno) << std::endl;
+    return 1;
+  }
+
+  bool isUnlocked = keyChain.getTpm().unlockTpm(password, std::strlen(password));
+  OPENSSL_cleanse(password, std::strlen(password));
 
   if (isUnlocked) {
     std::cerr << "OK: TPM is unlocked" << std::endl;

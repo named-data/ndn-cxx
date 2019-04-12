@@ -22,6 +22,12 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/base64-decode.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/security/transform/stream-source.hpp"
+
+#include <boost/asio/ip/tcp.hpp>
 #if BOOST_VERSION < 106700
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
 #endif // BOOST_VERSION < 106700
@@ -44,9 +50,9 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
 {
   boost::asio::ip::tcp::iostream requestStream;
 #if BOOST_VERSION >= 106700
-  requestStream.expires_after(std::chrono::seconds(3));
+  requestStream.expires_after(std::chrono::seconds(10));
 #else
-  requestStream.expires_from_now(boost::posix_time::seconds(3));
+  requestStream.expires_from_now(boost::posix_time::seconds(10));
 #endif // BOOST_VERSION >= 106700
 
   requestStream.connect(host, port);
@@ -85,7 +91,7 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
   while (std::getline(requestStream, header) && header != "\r")
     ;
 
-  ndn::OBufferStream os;
+  OBufferStream os;
   {
     using namespace ndn::security::transform;
     streamSource(requestStream) >> base64Decode(true) >> streamSink(os);
@@ -99,21 +105,29 @@ ndnsec_cert_install(int argc, char** argv)
 {
   namespace po = boost::program_options;
 
-  std::string certFileName;
-  bool isSystemDefault = true;
+  std::string certFile;
   bool isIdentityDefault = false;
   bool isKeyDefault = false;
+  bool isNoDefault = false;
 
-  po::options_description description("General Usage\n  ndnsec cert-install [-h] [-I|K|N] cert-file\nGeneral options");
+  po::options_description description(
+    "Usage: ndnsec cert-install [-h] [-I|-K|-N] [-f] FILE\n"
+    "\n"
+    "Options");
   description.add_options()
     ("help,h", "produce help message")
-    ("cert-file,f", po::value<std::string>(&certFileName), "file name of the ceritificate, - for stdin. "
-                                                      "If starts with http://, will try to fetch "
-                                                      "the certificate using HTTP GET request")
-    ("identity-default,I", "optional, if specified, the certificate will be set as the default certificate of the identity")
-    ("key-default,K", "optional, if specified, the certificate will be set as the default certificate of the key")
-    ("no-default,N", "optional, if specified, the certificate will be simply installed")
+    ("cert-file,f",        po::value<std::string>(&certFile),
+                           "file name of the certificate to be imported, '-' for stdin; "
+                           "if it starts with 'http://', the certificate will be fetched "
+                           "using a plain HTTP/1.0 GET request")
+    ("identity-default,I", po::bool_switch(&isIdentityDefault),
+                           "set the imported certificate as the default certificate for the identity")
+    ("key-default,K",      po::bool_switch(&isKeyDefault),
+                           "set the imported certificate as the default certificate for the key")
+    ("no-default,N",       po::bool_switch(&isNoDefault),
+                           "do not change any default settings")
     ;
+
   po::positional_options_description p;
   p.add("cert-file", 1);
 
@@ -123,95 +137,82 @@ ndnsec_cert_install(int argc, char** argv)
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
   if (vm.count("cert-file") == 0) {
-    std::cerr << "cert_file must be specified" << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: you must specify a file name" << std::endl;
+    return 2;
   }
 
-  if (vm.count("identity-default") != 0) {
-    isIdentityDefault = true;
-    isSystemDefault = false;
-  }
-  else if (vm.count("key-default") != 0) {
-    isKeyDefault = true;
-    isSystemDefault = false;
-  }
-  else if (vm.count("no-default") != 0) {
-    // noDefault = true;
-    isSystemDefault = false;
+  if (isIdentityDefault + isKeyDefault + isNoDefault > 1) {
+    std::cerr << "ERROR: at most one of '--identity-default', '--key-default', "
+                 "or '--no-default' may be specified" << std::endl;
+    return 2;
   }
 
   security::v2::Certificate cert;
   try {
-    if (certFileName.find("http://") == 0) {
+    if (certFile.find("http://") == 0) {
       std::string host;
       std::string port;
       std::string path;
 
       size_t pos = 7; // offset of "http://"
-      size_t posSlash = certFileName.find("/", pos);
+      size_t posSlash = certFile.find("/", pos);
 
       if (posSlash == std::string::npos)
         NDN_THROW(HttpException("Request line is not correctly formatted"));
 
-      size_t posPort = certFileName.find(":", pos);
+      size_t posPort = certFile.find(":", pos);
 
       if (posPort != std::string::npos && posPort < posSlash) {
         // port is specified
-        port = certFileName.substr(posPort + 1, posSlash - posPort - 1);
-        host = certFileName.substr(pos, posPort - pos);
+        port = certFile.substr(posPort + 1, posSlash - posPort - 1);
+        host = certFile.substr(pos, posPort - pos);
       }
       else {
         port = "80";
-        host = certFileName.substr(pos, posSlash - pos);
+        host = certFile.substr(pos, posSlash - pos);
       }
 
-      path = certFileName.substr(posSlash, certFileName.size() - posSlash);
+      path = certFile.substr(posSlash, certFile.size() - posSlash);
 
       cert = getCertificateHttp(host, port, path);
     }
     else {
-      cert = loadCertificate(certFileName);
+      cert = loadCertificate(certFile);
     }
   }
   catch (const CannotLoadCertificate&) {
-    std::cerr << "ERROR: Cannot load the certificate " << certFileName << std::endl;
+    std::cerr << "ERROR: Cannot load the certificate from `" << certFile << "`" << std::endl;
     return 1;
   }
 
   security::v2::KeyChain keyChain;
-  security::Identity id;
-  security::Key key;
-  try {
-    id = keyChain.getPib().getIdentity(cert.getIdentity());
-    key = id.getKey(cert.getKeyName());
-  }
-  catch (const security::Pib::Error& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-  }
+
+  auto id = keyChain.getPib().getIdentity(cert.getIdentity());
+  auto key = id.getKey(cert.getKeyName());
 
   keyChain.addCertificate(key, cert);
 
-  if (isSystemDefault) {
-    keyChain.setDefaultIdentity(id);
-    keyChain.setDefaultKey(id, key);
-    keyChain.setDefaultCertificate(key, cert);
-  }
-  else if (isIdentityDefault) {
+  if (isIdentityDefault) {
     keyChain.setDefaultKey(id, key);
     keyChain.setDefaultCertificate(key, cert);
   }
   else if (isKeyDefault) {
+    keyChain.setDefaultCertificate(key, cert);
+  }
+  else if (!isNoDefault) {
+    keyChain.setDefaultIdentity(id);
+    keyChain.setDefaultKey(id, key);
     keyChain.setDefaultCertificate(key, cert);
   }
 

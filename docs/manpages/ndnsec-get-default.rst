@@ -1,61 +1,56 @@
 ndnsec-get-default
 ==================
 
-``ndnsec-get-default`` is a tool to display the default setting of a particular entity.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-get-default [-h] [-kc] [-i identity|-K key] [-q]
+**ndnsec-get-default** [**-h**] [**-k**\|\ **-c**] [**-i** *identity*\|\ **-K** *key*] [**-q**]
 
 Description
 -----------
 
-Given a particular entity, ``ndnsec-get-default`` can display its default setting as specified in
-options. If ``identity`` is specified, the given entity becomes the identity. If ``key`` is
-specified, the given identity becomes the key. If no entity is specified, the command will take the
-system default identity as the given entity.
+Given a particular entity, :program:`ndnsec-get-default` shows its default settings
+according to the command-line options. By default, if neither **-i** nor **-K** is
+given, the command displays the default identity or the default key/certificate of
+the default identity.
 
 Options
 -------
 
-``-k``
-  Display the given entity's default key name.
+.. option:: -k, --default-key
 
-``-c``
-  Display the given entity's default certificate name.
+   Display the chosen entity's default key name.
 
-``-i identity``
-  Display default setting of the ``identity``
+.. option:: -c, --default-cert
 
-``-K key``
-  Display default setting of the ``key``.
+   Display the chosen entity's default certificate name.
 
-``-q``
-  Disable trailling new line character.
+.. option:: -i <identity>, --identity <identity>
 
-Examples
---------
+   Display default settings of *identity*.
 
-Display an identity's default key name.
+.. option:: -K <key>, --key <key>
 
-::
+   Display default settings of *key*.
+
+.. option:: -q, --quiet
+
+   Disable printing the trailing newline character.
+
+Example
+-------
+
+Display an identity's default key name::
 
     $ ndnsec-get-default -k -i /ndn/test/alice
     /ndn/test/alice/ksk-1394129695025
 
-Display an identity's default certificate name.
-
-::
+Display an identity's default certificate name::
 
     $ ndnsec-get-default -c -i /ndn/test/alice
     /ndn/test/KEY/alice/ksk-1394129695025/ID-CERT/%FD%01D%98%9A%F2%3F
 
-Display a key's default certificate name.
-
-::
+Display a key's default certificate name::
 
     $ ndnsec-get-default -c -K /ndn/test/alice/ksk-1394129695025
     /ndn/test/KEY/alice/ksk-1394129695025/ID-CERT/%FD%01D%98%9A%F2%3F

@@ -1,37 +1,35 @@
 ndnsec-sign-req
 ===============
 
-``ndnsec-sign-req`` is a tool to generate a signing request for a particular key.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-sign-req [-h] [-k] name
+**ndnsec-sign-req** [**-h**] [**-k**] *name*
 
 Description
 -----------
 
-The signing request of a key is actually a self-signed certificate. Given key's information,
-``ndnsec-sign-req`` looks up the key in PIB. If such a key exists, a self-signed certificate of the
-key, or its signing request, will be outputed to **stdout** with base64 encoding.
+:program:`ndnsec-sign-req` generates a signing request for a key.
 
-By default, ``name`` is interpreted as an identity name. ``ndnsec-sign-req`` will generate a
-signing request for the identity's default key.
+The signing request of a key is actually a self-signed certificate. Given the
+key's information, :program:`ndnsec-sign-req` looks up the key in the PIB.
+If such a key exists, a self-signed certificate for the key, i.e. its signing
+request, is written to the standard output in base64 encoding.
+
+By default, *name* is interpreted as an identity name, and the signing request
+will be generated for that identity's default key.
 
 Options
 -------
 
-``-k``
-  Interpret ``name`` as a key name.
+.. option:: -k, --key
 
-Examples
---------
+   Interpret *name* as a key name, instead of an identity name.
 
-Create a signing request for an identity's default key.
+Example
+-------
 
-::
+Create a signing request for an identity's default key::
 
     $ ndnsec-sign-req /ndn/test/david
     Bv0DAAc9CANuZG4IBHRlc3QIBWRhdmlkCANLRVkIEWtzay0xMzk2OTk4Mzg5MjU3
@@ -52,10 +50,7 @@ Create a signing request for an identity's default key.
     0wHjvDS1cuIH2j6XveoUYapRjZXaEZqB/YoBwRqEYq2KVn/ol5knLM6FIISXXjxn
     cIh62A==
 
-
-Create a signing request for a particular key.
-
-::
+Create a signing request for a particular key::
 
     $ ndnsec-sign-req -k /ndn/test/david/ksk-1396913058196
     Bv0DAAc9CANuZG4IBHRlc3QIBWRhdmlkCANLRVkIEWtzay0xMzk2OTEzMDU4MTk2

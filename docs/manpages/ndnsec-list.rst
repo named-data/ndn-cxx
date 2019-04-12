@@ -1,24 +1,20 @@
 ndnsec-list
 ===========
 
-``ndnsec-list`` is a tool to display entities stored in **Public Information Base (PIB)**, such as
-identities, keys, and certificates.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-list [-h] [-KkCc]
+**ndnsec-list** [**-h**] [**-k**\|\ **-c**]
 
 Description
 -----------
 
-``ndnsec-list`` lists names of all the entities according to the granularity specified in options
-(The default granularity is identity). The default entities will be marked with ``*`` in front of
-their names. For example:
+:program:`ndnsec-list` prints the names of all the entities stored in the
+**Public Information Base (PIB)**, such as identities, keys, and certificates,
+up to the given granularity level. By default, only the identity names are
+shown. The default entities will be marked with a "*" in front of their names.
 
-::
+For example::
 
     $ ndnsec list
     * /ndn/edu/ucla/cs/yingdi
@@ -26,24 +22,23 @@ their names. For example:
       /ndn/test/bob
       /ndn/test/alice
 
-
 Options
 -------
 
-``-K, -k``
-  Display key names for each identity. The key name with ``*`` in front is the default key name of
-  the corresponding identity.
+.. option:: -k, --key
 
-``-C, -c``
-  Display certificate names for each key. The certificate name with ``*`` in front is the default
-  certificate name of the corresponding key.
+   Display key names for each identity. The key name with a "*" in front is
+   the default key name of the corresponding identity.
 
-Examples
---------
+.. option:: -c, --cert
 
-Display all the key names in PIB.
+   Display certificate names for each key. The certificate name with a "*"
+   in front is the default certificate name of the corresponding key.
 
-::
+Example
+-------
+
+Display all the key names in PIB::
 
     $ ndnsec-list -k
     * /ndn/edu/ucla/cs/yingdi
@@ -59,9 +54,7 @@ Display all the key names in PIB.
       /ndn/test/alice
       +->* /ndn/test/alice/ksk-1394129695025
 
-Display all the certificate names in PIB.
-
-::
+Display all the certificate names in PIB::
 
     $ ndnsec-list -c
     * /ndn/edu/ucla/cs/yingdi

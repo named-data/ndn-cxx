@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,10 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#include "ndn-cxx/security/impl/openssl.hpp"
+
+#include <boost/scope_exit.hpp>
+
 namespace ndn {
 namespace ndnsec {
 
@@ -32,16 +36,23 @@ ndnsec_export(int argc, char** argv)
 
   Name identityName;
   std::string output;
-  std::string exportPassword;
+  std::string password;
 
-  po::options_description description("General Usage\n"
-                                      "  ndnsec export [-h] [-o output] [-P passphrase] identity \n"
-                                      "General options");
+  BOOST_SCOPE_EXIT(&password) {
+    OPENSSL_cleanse(&password.front(), password.size());
+  } BOOST_SCOPE_EXIT_END
+
+  po::options_description description(
+    "Usage: ndnsec export [-h] [-o FILE] [-P PASSPHRASE] [-i] IDENTITY\n"
+    "\n"
+    "Options");
   description.add_options()
-    ("help,h", "Produce help message")
-    ("output,o", po::value<std::string>(&output), "(Optional) output file, stdout if not specified")
-    ("identity,i", po::value<Name>(&identityName), "Identity to export")
-    ("password,P", po::value<std::string>(&exportPassword), "Passphrase (will prompt if empty or not specified)")
+    ("help,h", "produce help message")
+    ("identity,i", po::value<Name>(&identityName), "name of the identity to export")
+    ("output,o",   po::value<std::string>(&output)->default_value("-"),
+                   "output file, '-' for stdout (the default)")
+    ("password,P", po::value<std::string>(&password),
+                   "passphrase, will prompt if empty or not specified")
     ;
 
   po::positional_options_description p;
@@ -53,58 +64,46 @@ ndnsec_export(int argc, char** argv)
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
   if (vm.count("identity") == 0) {
-    std::cerr << "ERROR: identity must be specified" << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: you must specify an identity" << std::endl;
+    return 2;
   }
 
-  if (vm.count("output") == 0)
-    output = "-";
+  security::v2::KeyChain keyChain;
 
-  try {
-    if (exportPassword.empty()) {
-      int count = 3;
-      while (!getPassword(exportPassword, "Passphrase for the private key: ")) {
-        count--;
-        if (count <= 0) {
-          std::cerr << "ERROR: invalid password" << std::endl;
-          memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-          return 1;
-        }
+  auto id = keyChain.getPib().getIdentity(identityName);
+
+  if (password.empty()) {
+    int count = 3;
+    while (!getPassword(password, "Passphrase for the private key: ")) {
+      count--;
+      if (count <= 0) {
+        std::cerr << "ERROR: invalid password" << std::endl;
+        return 1;
       }
     }
-
-    security::v2::KeyChain keyChain;
-    security::Identity id = keyChain.getPib().getIdentity(identityName);
-
-    // @TODO export all certificates, selected key pair, selected certificate
-    shared_ptr<security::SafeBag> safeBag = keyChain.exportSafeBag(id.getDefaultKey().getDefaultCertificate(),
-                                                                   exportPassword.c_str(), exportPassword.size());
-    memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-
-    if (output == "-")
-      io::save(*safeBag, std::cout);
-    else
-      io::save(*safeBag, output);
-
-    return 0;
   }
-  catch (const std::runtime_error& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    memset(const_cast<char*>(exportPassword.c_str()), 0, exportPassword.size());
-    return 1;
-  }
+
+  // TODO: export all certificates, selected key pair, selected certificate
+  auto safeBag = keyChain.exportSafeBag(id.getDefaultKey().getDefaultCertificate(),
+                                        password.data(), password.size());
+
+  if (output == "-")
+    io::save(*safeBag, std::cout);
+  else
+    io::save(*safeBag, output);
+
+  return 0;
 }
 
 } // namespace ndnsec

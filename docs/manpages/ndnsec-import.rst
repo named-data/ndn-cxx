@@ -1,39 +1,33 @@
 ndnsec-import
 =============
 
-Usage
------
+Synopsis
+--------
 
-::
-
-    ndnsec-import [-h] input
+**ndnsec-import** [**-h**] [**-P** *passphrase*] *file*
 
 Description
 -----------
 
-``ndnsec-import`` imports a certificate and private key from a file created by ``ndnsec-export``. It
-will ask for the passphrase used to encrypt the private key.
+:program:`ndnsec-import` imports a certificate and its private key from a file
+created by :program:`ndnsec-export`. It will ask for the passphrase used to
+encrypt the private key.
+
+If *file* is "-", read from the standard input.
 
 Options
 -------
 
-``-h``
-  Print a help message.
+.. option:: -P <passphrase>, --password <passphrase>
 
-``-P passphrase``
-  Passphrase to use for the export. If not specified (or specified an empty passphrase), the
-  user is interactively asked to input the passphrase on the terminal. Note that specifying
-  passphrase via -P is insecure, as it can potentially end up in shell history, be visible in
-  ps output, etc.
+   Passphrase to use for the export. If empty or not specified, the user is
+   interactively asked to type the passphrase on the terminal. Note that
+   specifying the passphrase via this option is insecure, as it can potentially
+   end up in the shell's history, be visible in :command:`ps` output, and so on.
 
-``input``
-  Read from an input file. Specify ``-`` to read from the standard input.
+Example
+-------
 
-Examples
---------
-
-Import a certificate and private key from a file:
-
-::
+Import a certificate and private key from a file::
 
     $ ndnsec-import alice.ndnkey

@@ -1,38 +1,42 @@
 ndnsec-key-gen
 ==============
 
-``ndnsec-key-gen`` is tool to generate a pair of key.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-key-gen [-h] [-n] [-d] [-t keyType] identity
+**ndnsec-key-gen** [**-h**] [**-n**] [**-t** *type*] [**-k** *keyidtype*] *identity*
 
 Description
 -----------
 
-``ndnsec-key-gen`` creates a key pair for the specified ``identity`` and sets the key as the
-identity's default key. ``ndnsec-key-gen`` will also create a signing request for the generated key.
-The signing request will be written to standard output in base64 encoding.
+:program:`ndnsec-key-gen` generates a key pair for the specified *identity* and
+sets the generated public key as the identity's default key.
+:program:`ndnsec-key-gen` will also create a signing request for the generated key.
+The signing request will be written to the standard output in base64 encoding.
 
-By default, it will also set the identity as the system default identity.
+By default, it will also set the identity as the user's default identity.
 
 Options
 -------
 
-``-n``
-  Do not set the identity as the system default identity.
+.. option:: -n, --not-default
 
-  Note that if it is the first identity/key/certificate, then it will be
-  set as default regardless of ``-n`` flag.
+   Do not set the identity as the user's default identity.
 
-``-t keyType``
-  Specify the key type. ``r`` (default) for RSA key. ``e`` for ECDSA key.
+   Note that if no other identity/key/certificate exists, then the identity
+   will become the default regardless of this option.
 
-Examples
---------
+.. option:: -t <type>, --type <type>
+
+   Type of key to generate. "r" for RSA (default), "e" for ECDSA.
+
+.. option:: -k <keyidtype>, --keyid-type <keyidtype>
+
+   Type of KeyId for the generated key. "r" for 64-bit random number (default),
+   "h" for SHA256 of the public key.
+
+Example
+-------
 
 ::
 

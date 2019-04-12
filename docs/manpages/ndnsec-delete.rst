@@ -1,32 +1,32 @@
 ndnsec-delete
 =============
 
-``ndnsec-delete`` is a tool to delete security data from both **Public Info Base** and
-**Trusted Platform Module**.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-delete [-h] [-kc] name
+**ndnsec-delete** [**-h**] [**-k**\|\ **-c**] *name*
 
 Description
 -----------
 
-By default, ``ndnsec-delete`` interpret ``name`` as an identity name. If an identity is deleted,
-all the keys and certificates belonging to the identity will be deleted as well. If a key is
-deleted,  all the certificate belonging to the key will be deleted as well.
+:program:`ndnsec-delete` allows to delete security data from both the
+**Public Info Base (PIB)** and the **Trusted Platform Module (TPM)**.
 
+By default, :program:`ndnsec-delete` will interpret *name* as an identity name.
+If an identity is deleted, all keys and certificates belonging to that identity
+will be deleted as well. If a key is deleted, all certificates associated with
+that key will be deleted as well.
 
 Options
 -------
 
-``-k``
-  Interpret ``name`` as a key name and delete the key and its related data.
+.. option:: -k, --delete-key
 
-``-c``
-  Interpret ``name`` as a certificate name and delete the certificate.
+   Interpret *name* as a key name and delete the key and its associated data.
+
+.. option:: -c, --delete-cert
+
+   Interpret *name* as a certificate name and delete the certificate.
 
 Exit Status
 -----------
@@ -35,11 +35,9 @@ Normally, the exit status is 0 if the requested entity is deleted successfully.
 If the entity to be deleted does not exist, the exit status is 1.
 For other errors, the exit status is 2.
 
-Examples
---------
+Example
+-------
 
-Delete all data related to an identity:
-
-::
+Delete all data related to an identity::
 
     $ ndnsec-delete /ndn/test/david

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,10 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#include "ndn-cxx/security/impl/openssl.hpp"
+
+#include <boost/scope_exit.hpp>
+
 namespace ndn {
 namespace ndnsec {
 
@@ -30,16 +34,23 @@ ndnsec_import(int argc, char** argv)
 {
   namespace po = boost::program_options;
 
-  std::string input("-");
-  std::string importPassword;
+  std::string input;
+  std::string password;
 
-  po::options_description description("General Usage\n"
-                                      "  ndnsec import [-h] [-P passphrase] input \n"
-                                      "General options");
+  BOOST_SCOPE_EXIT(&password) {
+    OPENSSL_cleanse(&password.front(), password.size());
+  } BOOST_SCOPE_EXIT_END
+
+  po::options_description description(
+    "Usage: ndnsec import [-h] [-P PASSPHRASE] [-i] FILE\n"
+    "\n"
+    "Options");
   description.add_options()
     ("help,h", "produce help message")
-    ("input,i", po::value<std::string>(&input), "input source, stdin if -")
-    ("password,P", po::value<std::string>(&importPassword), "Passphrase (will prompt if empty or not specified)")
+    ("input,i",    po::value<std::string>(&input)->default_value("-"),
+                   "input file, '-' for stdin (the default)")
+    ("password,P", po::value<std::string>(&password),
+                   "passphrase, will prompt if empty or not specified")
     ;
 
   po::positional_options_description p;
@@ -51,46 +62,38 @@ ndnsec_import(int argc, char** argv)
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
-  try {
-    security::v2::KeyChain keyChain;
+  security::v2::KeyChain keyChain;
 
-    shared_ptr<security::SafeBag> safeBag;
-    if (input == "-")
-      safeBag = io::load<security::SafeBag>(std::cin);
-    else
-      safeBag = io::load<security::SafeBag>(input);
+  shared_ptr<security::SafeBag> safeBag;
+  if (input == "-")
+    safeBag = io::load<security::SafeBag>(std::cin);
+  else
+    safeBag = io::load<security::SafeBag>(input);
 
-    if (importPassword.empty()) {
-      int count = 3;
-      while (!getPassword(importPassword, "Passphrase for the private key: ", false)) {
-        count--;
-        if (count <= 0) {
-          std::cerr << "ERROR: Fail to get password" << std::endl;
-          memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-          return 1;
-        }
+  if (password.empty()) {
+    int count = 3;
+    while (!getPassword(password, "Passphrase for the private key: ", false)) {
+      count--;
+      if (count <= 0) {
+        std::cerr << "ERROR: invalid password" << std::endl;
+        return 1;
       }
     }
+  }
 
-    keyChain.importSafeBag(*safeBag, importPassword.c_str(), importPassword.size());
-    memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-    return 0;
-  }
-  catch (const std::runtime_error& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    memset(const_cast<char*>(importPassword.c_str()), 0, importPassword.size());
-    return 1;
-  }
+  keyChain.importSafeBag(*safeBag, password.data(), password.size());
+
+  return 0;
 }
 
 } // namespace ndnsec

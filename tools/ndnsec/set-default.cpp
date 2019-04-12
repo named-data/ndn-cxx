@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,70 +30,69 @@ ndnsec_set_default(int argc, char** argv)
 {
   namespace po = boost::program_options;
 
-  std::string certFileName;
-  bool isSetDefaultId = true;
-  bool isSetDefaultKey = false;
-  bool isSetDefaultCert = false;
   Name name;
+  bool wantSetDefaultKey = false;
+  bool wantSetDefaultCert = false;
 
-  po::options_description description("General Usage\n  ndnsec set-default [-h] [-k|c] name\nGeneral options");
+  po::options_description description(
+    "Usage: ndnsec set-default [-h] [-k|-c] [-n] NAME\n"
+    "\n"
+    "Options");
   description.add_options()
     ("help,h", "produce help message")
-    ("default_key,k", po::bool_switch(&isSetDefaultKey), "set default key of the identity")
-    ("default_cert,c", po::bool_switch(&isSetDefaultCert), "set default certificate of the key")
-    ("name,n", po::value<Name>(&name), "the identity/key/certificate name to set")
+    ("name,n",         po::value<Name>(&name), "the identity/key/certificate name to set")
+    ("default-key,k",  po::bool_switch(&wantSetDefaultKey), "set default key of the identity")
+    ("default-cert,c", po::bool_switch(&wantSetDefaultCert), "set default certificate of the key")
     ;
 
   po::positional_options_description p;
   p.add("name", 1);
+
   po::variables_map vm;
   try {
     po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
   if (vm.count("name") == 0) {
-    std::cerr << "ERROR: name is required!" << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: you must specify a name" << std::endl;
+    return 2;
   }
 
-  isSetDefaultId = !isSetDefaultKey && !isSetDefaultCert;
+  if (wantSetDefaultKey && wantSetDefaultCert) {
+    std::cerr << "ERROR: cannot specify both '--default-key' and '--default-cert'" << std::endl;
+    return 2;
+  }
 
   security::v2::KeyChain keyChain;
 
-  if (isSetDefaultId) {
-    security::Identity identity = keyChain.getPib().getIdentity(name);
-    keyChain.setDefaultIdentity(identity);
-    return 0;
-  }
-
-  if (isSetDefaultKey) {
-    security::Identity identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromKeyName(name));
-    security::Key key = identity.getKey(name);
+  if (wantSetDefaultKey) {
+    auto identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromKeyName(name));
+    auto key = identity.getKey(name);
     keyChain.setDefaultKey(identity, key);
-    return 0;
   }
-
-  if (isSetDefaultCert) {
-    security::Identity identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromCertName(name));
-    security::Key key = identity.getKey(security::v2::extractKeyNameFromCertName(name));
-    security::v2::Certificate cert = key.getCertificate(name);
+  else if (wantSetDefaultCert) {
+    auto identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromCertName(name));
+    auto key = identity.getKey(security::v2::extractKeyNameFromCertName(name));
+    auto cert = key.getCertificate(name);
     keyChain.setDefaultCertificate(key, cert);
-    return 0;
+  }
+  else {
+    auto identity = keyChain.getPib().getIdentity(name);
+    keyChain.setDefaultIdentity(identity);
   }
 
-  return 1;
+  return 0;
 }
 
 } // namespace ndnsec

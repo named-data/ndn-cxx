@@ -1,49 +1,39 @@
 ndnsec-export
 =============
 
-Usage
------
+Synopsis
+--------
 
-::
-
-    ndnsec-export [-h] [-o output] identity
+**ndnsec-export** [**-h**] [**-o** *file*] [**-P** *passphrase*] *identity*
 
 Description
 -----------
 
-``ndnsec-export`` exports the default certificate of an identity and its private key as a file. It
-will ask for a passphrase to encrypt the private key. The output file can be imported again with
-``ndnsec-import`` command.
+:program:`ndnsec-export` exports the default certificate of *identity* and its
+private key to a file. It will ask for a passphrase to encrypt the private key.
+The resulting file can be imported again using :program:`ndnsec-import`.
 
 Options
 -------
 
-``-h``
-  Print a help message.
+.. option:: -o <file>, --output <file>
 
-``-o output``
-  Write to an output file instead of the standard output.
+   Write to the specified output file instead of the standard output.
 
-``-P passphrase``
-  Passphrase to use for the export. If not specified (or specified an empty passphrase), the
-  user is interactively asked to input the passphrase on the terminal. Note that specifying
-  passphrase via -P is insecure, as it can potentially end up in shell history, be visible in
-  ps output, etc.
+.. option:: -P <passphrase>, --password <passphrase>
 
-``identity``
-  The identity name.
+   Passphrase to use for the export. If empty or not specified, the user is
+   interactively asked to type the passphrase on the terminal. Note that
+   specifying the passphrase via this option is insecure, as it can potentially
+   end up in the shell's history, be visible in :command:`ps` output, and so on.
 
-Examples
---------
+Example
+-------
 
-Export an identity's default certificate and private key into a file:
-
-::
+Export an identity's default certificate and private key into a file::
 
     $ ndnsec-export -o alice.ndnkey /ndn/test/alice
 
-Export an identity's default certificate and private key to the standard output:
-
-::
+Export an identity's default certificate and private key to the standard output::
 
     $ ndnsec-export /ndn/test/alice

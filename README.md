@@ -4,9 +4,9 @@
 [![Build Status](https://travis-ci.org/named-data/ndn-cxx.svg?branch=master)](https://travis-ci.org/named-data/ndn-cxx)
 ![Latest Version](https://img.shields.io/github/tag/named-data/ndn-cxx.svg?color=darkkhaki&label=latest%20version)
 
-ndn-cxx is a C++14 library, implementing Named Data Networking (NDN) primitives
-that can be used to write various NDN applications. The library is currently
-being used by the following projects:
+**ndn-cxx** is a C++14 library implementing Named Data Networking (NDN) primitives
+that can be used to write various NDN applications. The library is currently being
+used by the following projects:
 
 * [NFD - NDN Forwarding Daemon](https://github.com/named-data/NFD)
 * [NLSR - Named-data Link-State Routing protocol](https://github.com/named-data/NLSR)

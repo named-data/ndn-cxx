@@ -1,17 +1,13 @@
 ndnsec-unlock-tpm
 =================
 
-``ndnsec-unlock-tpm`` is a tool to (temporarily) unlock the **Trusted Platform Module (TPM)** that
-manages private keys.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-unlock-tpm [-h]
+ndnsec-unlock-tpm [**-h**]
 
 Description
 -----------
 
-``ndnsec-unlock-tpm`` will ask for password to unlock the TPM.
+:program:`ndnsec-unlock-tpm` can be used to (temporarily) unlock the
+**Trusted Platform Module (TPM)** that manages private keys.

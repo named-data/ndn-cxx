@@ -297,9 +297,10 @@ def build(bld):
             builder='man',
             config='docs/conf.py',
             outdir='docs/manpages',
-            source=bld.path.ant_glob('docs/manpages/**/*.rst'),
+            source=bld.path.ant_glob('docs/manpages/*.rst'),
             install_path='${MANDIR}',
-            VERSION=VERSION)
+            version=VERSION_BASE,
+            release=VERSION)
 
 def docs(bld):
     from waflib import Options
@@ -337,7 +338,8 @@ def sphinx(bld):
         config='docs/conf.py',
         outdir='docs',
         source=bld.path.ant_glob('docs/**/*.rst'),
-        VERSION=VERSION)
+        version=VERSION_BASE,
+        release=VERSION)
 
 def version(ctx):
     # don't execute more than once

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,37 +28,28 @@ namespace ndnsec {
 int
 ndnsec_key_gen(int argc, char** argv)
 {
-  using namespace ndn;
   namespace po = boost::program_options;
 
   Name identityName;
-  bool isDefault = true;
-  bool isUserSpecified = false;
-  char keyType = 'r';
-  char keyIdTypeChoice = 'r';
-  std::string specifiedKeyId;
-  Name::Component specifiedKeyIdComponent;
-  std::string outputFilename;
-  KeyIdType keyIdType = KeyIdType::RANDOM;
+  bool wantNotDefault = false;
+  char keyTypeChoice;
+  char keyIdTypeChoice;
+  std::string userKeyId;
 
-  po::options_description description("General Usage\n"
-                                      "  ndnsec key-gen [-h] [-n] identity\n"
-                                      "General options");
+  po::options_description description(
+    "Usage: ndnsec key-gen [-h] [-n] [-t TYPE] [-k IDTYPE] [-i] IDENTITY\n"
+    "\n"
+    "Options");
   description.add_options()
     ("help,h", "produce help message")
-    ("identity,i", po::value<Name>(&identityName),
-     "identity name, for example, /ndn/edu/ucla/alice")
-    ("not_default,n",
-     "optional, if not specified, the target identity will be set as "
-     "the default identity of the system")
-    ("type,t", po::value<char>(&keyType),
-     "optional, key type, r for RSA key (default), e for EC key")
-    ("key_id_type,k", po::value<char>(&keyIdTypeChoice),
-     "optional, key id type, r for 64-bit random number (default), h for SHA256 of the public key")
-    ("key_id", po::value<std::string>(&specifiedKeyId),
-     "optional, user-specified key id, cannot be used with key_id_type")
-    // ("size,s", po::value<int>(&keySize)->default_value(2048),
-    // "optional, key size, 2048 (default)")
+    ("identity,i",    po::value<Name>(&identityName), "identity name, e.g., /ndn/edu/ucla/alice")
+    ("not-default,n", po::bool_switch(&wantNotDefault), "do not set the identity as default")
+    ("type,t",        po::value<char>(&keyTypeChoice)->default_value('r'),
+                      "key type, 'r' for RSA, 'e' for ECDSA")
+    ("keyid-type,k",  po::value<char>(&keyIdTypeChoice)->default_value('r'),
+                      "key id type, 'r' for 64-bit random number, 'h' for SHA256 of the public key")
+    ("keyid",         po::value<std::string>(&userKeyId), "user-specified key id")
+    //("size,s",        po::value<int>(&keySize)->default_value(2048), "key size in bits")
     ;
 
   po::positional_options_description p;
@@ -70,101 +61,100 @@ ndnsec_key_gen(int argc, char** argv)
     po::notify(vm);
   }
   catch (const std::exception& e) {
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: " << e.what() << "\n\n"
+              << description << std::endl;
+    return 2;
   }
 
-  if (vm.count("help") != 0) {
-    std::cerr << description << std::endl;
+  if (vm.count("help") > 0) {
+    std::cout << description << std::endl;
     return 0;
   }
 
   if (vm.count("identity") == 0) {
-    std::cerr << "identity must be specified\n" << description << std::endl;
-    return 1;
+    std::cerr << "ERROR: you must specify an identity" << std::endl;
+    return 2;
   }
 
-  if (vm.count("not_default") != 0) {
-    isDefault = false;
-  }
+  KeyIdType keyIdType = KeyIdType::RANDOM;
+  Name::Component userKeyIdComponent;
 
-  if (vm.count("key_id_type") != 0) {
-    if (keyIdTypeChoice == 'r') {
-      // KeyIdType has already been set to KeyIdType::RANDOM
+  if (vm.count("keyid") > 0) {
+    keyIdType = KeyIdType::USER_SPECIFIED;
+    userKeyIdComponent = name::Component::fromEscapedString(userKeyId);
+    if (userKeyIdComponent.empty()) {
+      std::cerr << "ERROR: key id cannot be an empty name component" << std::endl;
+      return 2;
     }
-    else if (keyIdTypeChoice == 'h') {
+    if (!userKeyIdComponent.isGeneric()) {
+      std::cerr << "ERROR: key id must be a GenericNameComponent" << std::endl;
+      return 2;
+    }
+  }
+
+  if (vm.count("keyid-type") > 0) {
+    if (keyIdType == KeyIdType::USER_SPECIFIED) {
+      std::cerr << "ERROR: cannot specify both '--keyid' and '--keyid-type'" << std::endl;
+      return 2;
+    }
+
+    switch (keyIdTypeChoice) {
+    case 'r':
+      // KeyIdType::RANDOM is the default
+      break;
+    case 'h':
       keyIdType = KeyIdType::SHA256;
+      break;
+    default:
+      std::cerr << "ERROR: unrecognized key id type '" << keyIdTypeChoice << "'" << std::endl;
+      return 2;
+    }
+  }
+
+  unique_ptr<KeyParams> params;
+  switch (keyTypeChoice) {
+  case 'r':
+    if (keyIdType == KeyIdType::USER_SPECIFIED) {
+      params = make_unique<RsaKeyParams>(userKeyIdComponent);
     }
     else {
-      std::cerr << "Unrecognized key id type\n" << description << std::endl;
-      return 1;
+      params = make_unique<RsaKeyParams>(detail::RsaKeyParamsInfo::getDefaultSize(), keyIdType);
     }
-    if (vm.count("key_id") != 0) {
-      std::cerr << "key_id cannot be used with key_id_type\n" << description << std::endl;
-      return 1;
+    break;
+  case 'e':
+    if (keyIdType == KeyIdType::USER_SPECIFIED) {
+      params = make_unique<EcKeyParams>(userKeyIdComponent);
     }
+    else {
+      params = make_unique<EcKeyParams>(detail::EcKeyParamsInfo::getDefaultSize(), keyIdType);
+    }
+    break;
+  default:
+    std::cerr << "ERROR: unrecognized key type '" << keyTypeChoice << "'" << std::endl;
+    return 2;
   }
 
-  if (vm.count("key_id") != 0) {
-    isUserSpecified = true;
-    specifiedKeyIdComponent = name::Component::fromEscapedString(specifiedKeyId);
-    if (specifiedKeyIdComponent.empty()) {
-      std::cerr << "Key id cannot be an empty name component\n" << description << std::endl;
-      return 1;
-    }
-    if (!specifiedKeyIdComponent.isGeneric()) {
-      std::cerr << "Key id must be a generic name component\n" << description << std::endl;
-      return 1;
-    }
-  }
+  security::v2::KeyChain keyChain;
 
+  security::Identity identity;
+  security::Key key;
   try {
-    unique_ptr<KeyParams> params;
-    if (keyType == 'r') {
-      if (isUserSpecified) {
-        params = make_unique<RsaKeyParams>(specifiedKeyIdComponent);
-      }
-      else {
-        params = make_unique<RsaKeyParams>(detail::RsaKeyParamsInfo::getDefaultSize(), keyIdType);
-      }
-    }
-    else if (keyType == 'e') {
-      if (isUserSpecified) {
-        params = make_unique<EcKeyParams>(specifiedKeyIdComponent);
-      }
-      else {
-        params = make_unique<EcKeyParams>(detail::EcKeyParamsInfo::getDefaultSize(), keyIdType);
-      }
-    }
-    else {
-      std::cerr << "Unrecognized key type\n" << description << std::endl;
-      return 1;
-    }
-
-    security::v2::KeyChain keyChain;
-    security::Identity identity;
-    security::Key key;
-    try {
-      identity = keyChain.getPib().getIdentity(identityName);
-      key = keyChain.createKey(identity, *params);
-    }
-    catch (const security::Pib::Error&) {
-      // identity doesn't exist, so create it and generate key
-      identity = keyChain.createIdentity(identityName, *params);
-      key = identity.getDefaultKey();
-    }
-
-    if (isDefault) {
-      keyChain.setDefaultKey(identity, key);
-      keyChain.setDefaultIdentity(identity);
-    }
-
-    io::save(key.getDefaultCertificate(), std::cout);
+    identity = keyChain.getPib().getIdentity(identityName);
+    key = keyChain.createKey(identity, *params);
   }
-  catch (const std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
+  catch (const security::Pib::Error&) {
+    // identity doesn't exist, so create it and generate key
+    identity = keyChain.createIdentity(identityName, *params);
+    key = identity.getDefaultKey();
   }
+
+  if (!wantNotDefault) {
+    keyChain.setDefaultKey(identity, key);
+    keyChain.setDefaultIdentity(identity);
+  }
+
+  io::save(key.getDefaultCertificate(), std::cout);
+
   return 0;
 }
 

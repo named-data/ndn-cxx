@@ -1,56 +1,50 @@
 ndnsec-cert-install
 ===================
 
-``ndnsec-cert-install`` is a tool to install a certificate into **Public Information Base (PIB)**.
+Synopsis
+--------
 
-Usage
------
-
-::
-
-    ndnsec-cert-install [-h] [-IKN] cert-source
+**ndnsec-cert-install** [**-h**] [**-I**\|\ **-K**\|\ **-N**] *file*
 
 Description
 -----------
 
-``ndnsec-cert-install`` can insert a certificate into PIB. By default, the installed certificate
-will be set as the default certificate of its corresponding identity and the identity is set as
-the system default identity.
+:program:`ndnsec-cert-install` allows importing a certificate into the
+**Public Information Base (PIB)**. By default, the installed certificate
+will be set as the default certificate for the corresponding identity and
+the identity will be set as the user's default identity.
 
-``cert-source`` could be a filesystem path or an HTTP URL of a file containing to certificate to
-install or . If ``cert-file`` is ``-``, the certificate will be read from standard input.
+*file* can be a filesystem path or an HTTP URL of a file containing the certificate
+to install. If *file* is "-", the certificate will be read from the standard input.
 
 Options
 -------
 
-``-I``
-  Set the certificate as the default certificate of its corresponding identity, but do not change
-  the system default identity.
+.. option:: -I, --identity-default
 
-``-K``
-  Set the certificate as the default certificate of its corresponding key, but do not change the
-  corresponding identity's default key and the system default identity.
+   Set the certificate as the default certificate for the corresponding identity,
+   but do not change the user's default identity.
 
-``-N``
-  Install the certificate but do not change any default settings.
+.. option:: -K, --key-default
 
-Examples
---------
+   Set the certificate as the default certificate for the corresponding key, but
+   do not change the identity's default key or the user's default identity.
 
-Install a certificate and set it as the system default certificate:
+.. option:: -N, --no-default
 
-::
+   Install the certificate but do not change any default settings.
+
+Example
+-------
+
+Install a certificate and set it as the default certificate::
 
     $ ndnsec-cert-install cert_file.cert
 
-Install a certificate with HTTP URL and set it as the system default certificate:
-
-::
+Install a certificate via HTTP and set it as the default certificate::
 
     $ ndnsec-install-cert "http://ndncert.domain.com/cert/get/my-certificate.ndncert"
 
-Install a certificate but do not change any default settings:
-
-::
+Install a certificate but do not change any default settings::
 
     $ ndnsec-cert-install -N cert_file.cert

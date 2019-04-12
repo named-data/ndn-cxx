@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,9 +22,7 @@
 #ifndef NDN_TOOLS_NDNSEC_UTIL_HPP
 #define NDN_TOOLS_NDNSEC_UTIL_HPP
 
-#include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
-#include "ndn-cxx/security/transform.hpp"
 #include "ndn-cxx/security/v2/additional-description.hpp"
 #include "ndn-cxx/util/io.hpp"
 
@@ -32,8 +30,6 @@
 #include <iostream>
 #include <string>
 
-#include <boost/asio.hpp>
-#include <boost/exception/all.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
