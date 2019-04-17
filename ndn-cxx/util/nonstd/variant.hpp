@@ -223,6 +223,11 @@ namespace nonstd {
 # include <stdexcept>
 #endif
 
+// variant-lite type and visitor argument count configuration (script/generate_header.py):
+
+#define variant_CONFIG_MAX_TYPE_COUNT  16
+#define variant_CONFIG_MAX_VISITOR_ARG_COUNT  5
+
 // variant-lite alignment configuration:
 
 #ifndef  variant_CONFIG_MAX_ALIGN_HACK
@@ -385,14 +390,17 @@ namespace nonstd {
 
 #if variant_CPP11_OR_GREATER
 
-# define variant_REQUIRES_T(...) \
-    , typename = typename std::enable_if<__VA_ARGS__>::type
+#define variant_REQUIRES_0(...) \
+    template< bool B = (__VA_ARGS__), typename std::enable_if<B, int>::type = 0 >
 
-# define variant_REQUIRES_R(R, ...) \
-    typename std::enable_if<__VA_ARGS__, R>::type
+#define variant_REQUIRES_T(...) \
+    , typename = typename std::enable_if< (__VA_ARGS__), nonstd::variants::detail::enabler >::type
 
-# define variant_REQUIRES_A(...) \
-    , typename std::enable_if<__VA_ARGS__, void*>::type = variant_nullptr
+#define variant_REQUIRES_R(R, ...) \
+    typename std::enable_if< (__VA_ARGS__), R>::type
+
+#define variant_REQUIRES_A(...) \
+    , typename std::enable_if< (__VA_ARGS__), void*>::type = nullptr
 
 #endif
 
@@ -402,9 +410,9 @@ namespace nonstd {
 
 namespace nonstd { namespace variants {
 
-namespace detail {
-
 // C++11 emulation:
+
+namespace std11 {
 
 #if variant_HAVE_STD_ADD_POINTER
 
@@ -462,6 +470,71 @@ template< class Then, class Else >
 struct conditional< false, Then, Else > { typedef Else type; };
 
 #endif // variant_HAVE_CONDITIONAL
+
+} // namespace std11
+
+/// type traits C++17:
+
+namespace std17 {
+
+#if variant_CPP17_OR_GREATER
+
+using std::is_swappable;
+using std::is_nothrow_swappable;
+
+#elif variant_CPP11_OR_GREATER
+
+namespace detail {
+
+using std::swap;
+
+struct is_swappable
+{
+    template< typename T, typename = decltype( swap( std::declval<T&>(), std::declval<T&>() ) ) >
+    static std::true_type test( int );
+
+    template< typename >
+    static std::false_type test(...);
+};
+
+struct is_nothrow_swappable
+{
+    // wrap noexcept(epr) in separate function as work-around for VC140 (VS2015):
+
+    template< typename T >
+    static constexpr bool test()
+    {
+        return noexcept( swap( std::declval<T&>(), std::declval<T&>() ) );
+    }
+
+    template< typename T >
+    static auto test( int ) -> std::integral_constant<bool, test<T>()>{}
+
+    template< typename >
+    static std::false_type test(...);
+};
+
+} // namespace detail
+
+// is [nothow] swappable:
+
+template< typename T >
+struct is_swappable : decltype( detail::is_swappable::test<T>(0) ){};
+
+template< typename T >
+struct is_nothrow_swappable : decltype( detail::is_nothrow_swappable::test<T>(0) ){};
+
+#endif // variant_CPP17_OR_GREATER
+
+} // namespace std17
+
+// detail:
+
+namespace detail {
+
+// for variant_REQUIRES_T():
+
+/*enum*/ class enabler{};
 
 // typelist:
 
@@ -567,7 +640,7 @@ private:
 public:
     enum V { value = (sizeof( Head ) > tail_value) ? sizeof( Head ) : std::size_t( tail_value ) } ;
 
-    typedef typename conditional< (sizeof( Head ) > tail_value), Head, tail_type>::type type;
+    typedef typename std11::conditional< (sizeof( Head ) > tail_value), Head, tail_type>::type type;
 };
 
 #if variant_CPP11_OR_GREATER
@@ -767,7 +840,7 @@ struct alignment_of
 template< typename List, size_t N >
 struct type_of_size
 {
-    typedef typename conditional<
+    typedef typename std11::conditional<
         N == sizeof( typename List::head ),
             typename List::head,
             typename type_of_size<typename List::tail, N >::type >::type type;
@@ -818,23 +891,33 @@ typedef
 
 #endif // variant_CONFIG_MAX_ALIGN_HACK
 
+#if variant_CPP11_OR_GREATER
+
 template< typename T>
 inline std::size_t hash( T const & v )
 {
-    // primes:
-    unsigned const int a  = 54059;
-    unsigned const int b  = 76963;
-    unsigned const int h0 = 37;
-
-    unsigned int h = h0;
-    unsigned char const * s = reinterpret_cast<unsigned char const *>( &v );
-
-    for ( std::size_t i = 0; i < sizeof(v); ++i, ++s )
-    {
-        h = (h * a) ^ (*s * b);
-    }
-    return h;
+    return std::hash<T>()( v );
 }
+
+inline std::size_t hash( T0 const & ) { return 0; }
+inline std::size_t hash( T1 const & ) { return 0; }
+inline std::size_t hash( T2 const & ) { return 0; }
+inline std::size_t hash( T3 const & ) { return 0; }
+inline std::size_t hash( T4 const & ) { return 0; }
+inline std::size_t hash( T5 const & ) { return 0; }
+inline std::size_t hash( T6 const & ) { return 0; }
+inline std::size_t hash( T7 const & ) { return 0; }
+inline std::size_t hash( T8 const & ) { return 0; }
+inline std::size_t hash( T9 const & ) { return 0; }
+inline std::size_t hash( T10 const & ) { return 0; }
+inline std::size_t hash( T11 const & ) { return 0; }
+inline std::size_t hash( T12 const & ) { return 0; }
+inline std::size_t hash( T13 const & ) { return 0; }
+inline std::size_t hash( T14 const & ) { return 0; }
+inline std::size_t hash( T15 const & ) { return 0; }
+
+
+#endif // variant_CPP11_OR_GREATER
 
 
 
@@ -910,22 +993,22 @@ struct helper
     {
         switch ( from_index )
         {
-        case 0: new( to_value ) T0( std::forward<T0>( *as<T0>( from_value ) ) ); break;
-        case 1: new( to_value ) T1( std::forward<T1>( *as<T1>( from_value ) ) ); break;
-        case 2: new( to_value ) T2( std::forward<T2>( *as<T2>( from_value ) ) ); break;
-        case 3: new( to_value ) T3( std::forward<T3>( *as<T3>( from_value ) ) ); break;
-        case 4: new( to_value ) T4( std::forward<T4>( *as<T4>( from_value ) ) ); break;
-        case 5: new( to_value ) T5( std::forward<T5>( *as<T5>( from_value ) ) ); break;
-        case 6: new( to_value ) T6( std::forward<T6>( *as<T6>( from_value ) ) ); break;
-        case 7: new( to_value ) T7( std::forward<T7>( *as<T7>( from_value ) ) ); break;
-        case 8: new( to_value ) T8( std::forward<T8>( *as<T8>( from_value ) ) ); break;
-        case 9: new( to_value ) T9( std::forward<T9>( *as<T9>( from_value ) ) ); break;
-        case 10: new( to_value ) T10( std::forward<T10>( *as<T10>( from_value ) ) ); break;
-        case 11: new( to_value ) T11( std::forward<T11>( *as<T11>( from_value ) ) ); break;
-        case 12: new( to_value ) T12( std::forward<T12>( *as<T12>( from_value ) ) ); break;
-        case 13: new( to_value ) T13( std::forward<T13>( *as<T13>( from_value ) ) ); break;
-        case 14: new( to_value ) T14( std::forward<T14>( *as<T14>( from_value ) ) ); break;
-        case 15: new( to_value ) T15( std::forward<T15>( *as<T15>( from_value ) ) ); break;
+        case 0: new( to_value ) T0( std::move( *as<T0>( from_value ) ) ); break;
+        case 1: new( to_value ) T1( std::move( *as<T1>( from_value ) ) ); break;
+        case 2: new( to_value ) T2( std::move( *as<T2>( from_value ) ) ); break;
+        case 3: new( to_value ) T3( std::move( *as<T3>( from_value ) ) ); break;
+        case 4: new( to_value ) T4( std::move( *as<T4>( from_value ) ) ); break;
+        case 5: new( to_value ) T5( std::move( *as<T5>( from_value ) ) ); break;
+        case 6: new( to_value ) T6( std::move( *as<T6>( from_value ) ) ); break;
+        case 7: new( to_value ) T7( std::move( *as<T7>( from_value ) ) ); break;
+        case 8: new( to_value ) T8( std::move( *as<T8>( from_value ) ) ); break;
+        case 9: new( to_value ) T9( std::move( *as<T9>( from_value ) ) ); break;
+        case 10: new( to_value ) T10( std::move( *as<T10>( from_value ) ) ); break;
+        case 11: new( to_value ) T11( std::move( *as<T11>( from_value ) ) ); break;
+        case 12: new( to_value ) T12( std::move( *as<T12>( from_value ) ) ); break;
+        case 13: new( to_value ) T13( std::move( *as<T13>( from_value ) ) ); break;
+        case 14: new( to_value ) T14( std::move( *as<T14>( from_value ) ) ); break;
+        case 15: new( to_value ) T15( std::move( *as<T15>( from_value ) ) ); break;
         
         }
         return from_index;
@@ -1017,7 +1100,11 @@ struct helper
 template< class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15 >
 class variant;
 
+// 19.7.8 Class monostate
+
 class monostate{};
+
+// 19.7.9 monostate relational operators
 
 inline variant_constexpr bool operator< ( monostate, monostate ) variant_noexcept { return false; }
 inline variant_constexpr bool operator> ( monostate, monostate ) variant_noexcept { return false; }
@@ -1025,6 +1112,8 @@ inline variant_constexpr bool operator<=( monostate, monostate ) variant_noexcep
 inline variant_constexpr bool operator>=( monostate, monostate ) variant_noexcept { return true;  }
 inline variant_constexpr bool operator==( monostate, monostate ) variant_noexcept { return true;  }
 inline variant_constexpr bool operator!=( monostate, monostate ) variant_noexcept { return false; }
+
+// 19.7.4 variant helper classes
 
 // obtain the size of the variant's list of alternatives at compile time
 
@@ -1077,6 +1166,10 @@ variant_constexpr std::size_t variant_npos = static_cast<std::size_t>( -1 );
 static const std::size_t variant_npos = static_cast<std::size_t>( -1 );
 #endif
 
+#if ! variant_CONFIG_NO_EXCEPTIONS
+
+// 19.7.11 Class bad_variant_access
+
 class bad_variant_access : public std::exception
 {
 public:
@@ -1089,6 +1182,10 @@ public:
         return "bad variant access";
     }
 };
+
+#endif // variant_CONFIG_NO_EXCEPTIONS
+
+// 19.7.3 Class template variant
 
 template<
     class T0,
@@ -1114,6 +1211,8 @@ class variant
     typedef variant_TL16( T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15 ) variant_types;
 
 public:
+    // 19.7.3.1 Constructors
+    
     variant() : type_index( 0 ) { new( ptr() ) T0(); }
 
     variant( T0 const & t0 ) : type_index( 0 ) { new( ptr() ) T0( t0 ); }
@@ -1225,11 +1324,18 @@ public:
 
 #endif // variant_CPP11_OR_GREATER
 
+    // 19.7.3.2 Destructor
+    
     ~variant()
     {
-        helper_type::destroy( type_index, ptr() );
+        if ( ! valueless_by_exception() )
+        {
+            helper_type::destroy( type_index, ptr() );
+        }
     }
 
+    // 19.7.3.3 Assignment
+    
     variant & operator=( variant const & other )
     {
         return copy_assign( other );
@@ -1255,56 +1361,54 @@ public:
         std::is_nothrow_move_assignable<T14>::value &&
         std::is_nothrow_move_assignable<T15>::value)
         {
-        return move_assign( std::forward<variant>( other ) );
+        return move_assign( std::move( other ) );
     }
 
-    variant & operator=( T0 &&      t0 ) { return move_assign_value<T0,0>( std::forward<T0>( t0 ) ); }
-    variant & operator=( T1 &&      t1 ) { return move_assign_value<T1,1>( std::forward<T1>( t1 ) ); }
-    variant & operator=( T2 &&      t2 ) { return move_assign_value<T2,2>( std::forward<T2>( t2 ) ); }
-    variant & operator=( T3 &&      t3 ) { return move_assign_value<T3,3>( std::forward<T3>( t3 ) ); }
-    variant & operator=( T4 &&      t4 ) { return move_assign_value<T4,4>( std::forward<T4>( t4 ) ); }
-    variant & operator=( T5 &&      t5 ) { return move_assign_value<T5,5>( std::forward<T5>( t5 ) ); }
-    variant & operator=( T6 &&      t6 ) { return move_assign_value<T6,6>( std::forward<T6>( t6 ) ); }
-    variant & operator=( T7 &&      t7 ) { return move_assign_value<T7,7>( std::forward<T7>( t7 ) ); }
-    variant & operator=( T8 &&      t8 ) { return move_assign_value<T8,8>( std::forward<T8>( t8 ) ); }
-    variant & operator=( T9 &&      t9 ) { return move_assign_value<T9,9>( std::forward<T9>( t9 ) ); }
-    variant & operator=( T10 &&      t10 ) { return move_assign_value<T10,10>( std::forward<T10>( t10 ) ); }
-    variant & operator=( T11 &&      t11 ) { return move_assign_value<T11,11>( std::forward<T11>( t11 ) ); }
-    variant & operator=( T12 &&      t12 ) { return move_assign_value<T12,12>( std::forward<T12>( t12 ) ); }
-    variant & operator=( T13 &&      t13 ) { return move_assign_value<T13,13>( std::forward<T13>( t13 ) ); }
-    variant & operator=( T14 &&      t14 ) { return move_assign_value<T14,14>( std::forward<T14>( t14 ) ); }
-    variant & operator=( T15 &&      t15 ) { return move_assign_value<T15,15>( std::forward<T15>( t15 ) ); }
+    variant & operator=( T0 &&      t0 ) { return assign_value<0>( std::move( t0 ) ); }
+    variant & operator=( T1 &&      t1 ) { return assign_value<1>( std::move( t1 ) ); }
+    variant & operator=( T2 &&      t2 ) { return assign_value<2>( std::move( t2 ) ); }
+    variant & operator=( T3 &&      t3 ) { return assign_value<3>( std::move( t3 ) ); }
+    variant & operator=( T4 &&      t4 ) { return assign_value<4>( std::move( t4 ) ); }
+    variant & operator=( T5 &&      t5 ) { return assign_value<5>( std::move( t5 ) ); }
+    variant & operator=( T6 &&      t6 ) { return assign_value<6>( std::move( t6 ) ); }
+    variant & operator=( T7 &&      t7 ) { return assign_value<7>( std::move( t7 ) ); }
+    variant & operator=( T8 &&      t8 ) { return assign_value<8>( std::move( t8 ) ); }
+    variant & operator=( T9 &&      t9 ) { return assign_value<9>( std::move( t9 ) ); }
+    variant & operator=( T10 &&      t10 ) { return assign_value<10>( std::move( t10 ) ); }
+    variant & operator=( T11 &&      t11 ) { return assign_value<11>( std::move( t11 ) ); }
+    variant & operator=( T12 &&      t12 ) { return assign_value<12>( std::move( t12 ) ); }
+    variant & operator=( T13 &&      t13 ) { return assign_value<13>( std::move( t13 ) ); }
+    variant & operator=( T14 &&      t14 ) { return assign_value<14>( std::move( t14 ) ); }
+    variant & operator=( T15 &&      t15 ) { return assign_value<15>( std::move( t15 ) ); }
     
-#else
-    variant & operator=( T0 const & t0 ) { return copy_assign_value<T0,0>( t0 ); }
-    variant & operator=( T1 const & t1 ) { return copy_assign_value<T1,1>( t1 ); }
-    variant & operator=( T2 const & t2 ) { return copy_assign_value<T2,2>( t2 ); }
-    variant & operator=( T3 const & t3 ) { return copy_assign_value<T3,3>( t3 ); }
-    variant & operator=( T4 const & t4 ) { return copy_assign_value<T4,4>( t4 ); }
-    variant & operator=( T5 const & t5 ) { return copy_assign_value<T5,5>( t5 ); }
-    variant & operator=( T6 const & t6 ) { return copy_assign_value<T6,6>( t6 ); }
-    variant & operator=( T7 const & t7 ) { return copy_assign_value<T7,7>( t7 ); }
-    variant & operator=( T8 const & t8 ) { return copy_assign_value<T8,8>( t8 ); }
-    variant & operator=( T9 const & t9 ) { return copy_assign_value<T9,9>( t9 ); }
-    variant & operator=( T10 const & t10 ) { return copy_assign_value<T10,10>( t10 ); }
-    variant & operator=( T11 const & t11 ) { return copy_assign_value<T11,11>( t11 ); }
-    variant & operator=( T12 const & t12 ) { return copy_assign_value<T12,12>( t12 ); }
-    variant & operator=( T13 const & t13 ) { return copy_assign_value<T13,13>( t13 ); }
-    variant & operator=( T14 const & t14 ) { return copy_assign_value<T14,14>( t14 ); }
-    variant & operator=( T15 const & t15 ) { return copy_assign_value<T15,15>( t15 ); }
-    
+
 #endif
+
+    variant & operator=( T0 const & t0 ) { return assign_value<0>( t0 ); }
+    variant & operator=( T1 const & t1 ) { return assign_value<1>( t1 ); }
+    variant & operator=( T2 const & t2 ) { return assign_value<2>( t2 ); }
+    variant & operator=( T3 const & t3 ) { return assign_value<3>( t3 ); }
+    variant & operator=( T4 const & t4 ) { return assign_value<4>( t4 ); }
+    variant & operator=( T5 const & t5 ) { return assign_value<5>( t5 ); }
+    variant & operator=( T6 const & t6 ) { return assign_value<6>( t6 ); }
+    variant & operator=( T7 const & t7 ) { return assign_value<7>( t7 ); }
+    variant & operator=( T8 const & t8 ) { return assign_value<8>( t8 ); }
+    variant & operator=( T9 const & t9 ) { return assign_value<9>( t9 ); }
+    variant & operator=( T10 const & t10 ) { return assign_value<10>( t10 ); }
+    variant & operator=( T11 const & t11 ) { return assign_value<11>( t11 ); }
+    variant & operator=( T12 const & t12 ) { return assign_value<12>( t12 ); }
+    variant & operator=( T13 const & t13 ) { return assign_value<13>( t13 ); }
+    variant & operator=( T14 const & t14 ) { return assign_value<14>( t14 ); }
+    variant & operator=( T15 const & t15 ) { return assign_value<15>( t15 ); }
+    
 
     std::size_t index() const
     {
         return variant_npos_internal() == type_index ? variant_npos : static_cast<std::size_t>( type_index );
     }
 
-    bool valueless_by_exception() const
-    {
-        return type_index == variant_npos_internal();
-    }
-
+    // 19.7.3.4 Modifiers
+    
 #if variant_CPP11_OR_GREATER
     template< class T, class... Args
         variant_REQUIRES_T( std::is_constructible< T, Args...>::value )
@@ -1348,7 +1452,37 @@ public:
 
 #endif // variant_CPP11_OR_GREATER
 
-    void swap( variant & other ) variant_noexcept
+    // 19.7.3.5 Value status
+    
+    bool valueless_by_exception() const
+    {
+        return type_index == variant_npos_internal();
+    }
+
+    // 19.7.3.6 Swap
+    
+    void swap( variant & other )
+#if variant_CPP11_OR_GREATER
+        noexcept(
+            std::is_nothrow_move_constructible<T0>::value && std17::is_nothrow_swappable<T0>::value &&
+            std::is_nothrow_move_constructible<T1>::value && std17::is_nothrow_swappable<T1>::value &&
+            std::is_nothrow_move_constructible<T2>::value && std17::is_nothrow_swappable<T2>::value &&
+            std::is_nothrow_move_constructible<T3>::value && std17::is_nothrow_swappable<T3>::value &&
+            std::is_nothrow_move_constructible<T4>::value && std17::is_nothrow_swappable<T4>::value &&
+            std::is_nothrow_move_constructible<T5>::value && std17::is_nothrow_swappable<T5>::value &&
+            std::is_nothrow_move_constructible<T6>::value && std17::is_nothrow_swappable<T6>::value &&
+            std::is_nothrow_move_constructible<T7>::value && std17::is_nothrow_swappable<T7>::value &&
+            std::is_nothrow_move_constructible<T8>::value && std17::is_nothrow_swappable<T8>::value &&
+            std::is_nothrow_move_constructible<T9>::value && std17::is_nothrow_swappable<T9>::value &&
+            std::is_nothrow_move_constructible<T10>::value && std17::is_nothrow_swappable<T10>::value &&
+            std::is_nothrow_move_constructible<T11>::value && std17::is_nothrow_swappable<T11>::value &&
+            std::is_nothrow_move_constructible<T12>::value && std17::is_nothrow_swappable<T12>::value &&
+            std::is_nothrow_move_constructible<T13>::value && std17::is_nothrow_swappable<T13>::value &&
+            std::is_nothrow_move_constructible<T14>::value && std17::is_nothrow_swappable<T14>::value &&
+            std::is_nothrow_move_constructible<T15>::value && std17::is_nothrow_swappable<T15>::value 
+            
+        )
+#endif
     {
         if ( valueless_by_exception() && other.valueless_by_exception() )
         {
@@ -1360,9 +1494,15 @@ public:
         }
         else
         {
+#if variant_CPP11_OR_GREATER
+            variant tmp( std::move( *this ) );
+            *this = std::move( other );
+            other = std::move( tmp );
+#else
             variant tmp( *this );
             *this = other;
             other = tmp;
+#endif
         }
     }
 
@@ -1373,7 +1513,7 @@ public:
     template< class T >
     static variant_constexpr std::size_t index_of() variant_noexcept
     {
-        return to_size_t( detail::typelist_index_of<variant_types, typename detail::remove_cv<T>::type >::value );
+        return to_size_t( detail::typelist_index_of<variant_types, typename std11::remove_cv<T>::type >::value );
     }
 
     template< class T >
@@ -1384,7 +1524,7 @@ public:
 #if variant_CONFIG_NO_EXCEPTIONS
         assert( i == index() );
 #else
-        if ( i != index() || i == max_index() )
+        if ( i != index() )
         {
             throw bad_variant_access();
         }
@@ -1400,7 +1540,7 @@ public:
 #if variant_CONFIG_NO_EXCEPTIONS
         assert( i == index() );
 #else
-        if ( i != index() || i == max_index() )
+        if ( i != index() )
         {
             throw bad_variant_access();
         }
@@ -1453,11 +1593,6 @@ private:
         return static_cast<std::size_t>( index );
     }
 
-    variant_constexpr std::size_t max_index() const variant_noexcept
-    {
-        return data_size;
-    }
-
     variant_constexpr type_index_t variant_npos_internal() const variant_noexcept
     {
         return static_cast<type_index_t>( -1 );
@@ -1476,20 +1611,13 @@ private:
         }
         else if ( index() == other.index() )
         {
-            type_index = variant_npos_internal();
             type_index = helper_type::copy_assign( other.type_index, other.ptr(), ptr() );
         }
         else
         {
-            // for exception safety, first move to an intermediate copy:
-            variant tmp( other );
             helper_type::destroy( type_index, ptr() );
             type_index = variant_npos_internal();
-#if variant_CPP11_OR_GREATER
-            type_index = helper_type::move_construct( other.type_index, tmp.ptr(), ptr() );
-#else
-            type_index = helper_type::copy_construct( other.type_index, tmp.ptr(), ptr() );
-#endif
+            type_index = helper_type::copy_construct( other.type_index, other.ptr(), ptr() );
         }
         return *this;
     }
@@ -1509,22 +1637,19 @@ private:
         }
         else if ( index() == other.index() )
         {
-            type_index = variant_npos_internal();
             type_index = helper_type::move_assign( other.type_index, other.ptr(), ptr() );
         }
         else
         {
-            // for exception safety, first move to an intermediate copy:
-            variant tmp( std::move( other ) );
             helper_type::destroy( type_index, ptr() );
             type_index = variant_npos_internal();
-            type_index = helper_type::move_construct( other.type_index, tmp.ptr(), ptr() );
+            type_index = helper_type::move_construct( other.type_index, other.ptr(), ptr() );
         }
         return *this;
     }
 
-    template< class T, std::size_t K >
-    variant & move_assign_value( T && value )
+    template< std::size_t K, class T >
+    variant & assign_value( T && value )
     {
         if( index() == K )
         {
@@ -1539,9 +1664,11 @@ private:
         }
         return *this;
     }
-#else
-    template< class T, std::size_t K >
-    variant & copy_assign_value( T const & value )
+
+#endif // variant_CPP11_OR_GREATER
+
+    template< std::size_t K, class T >
+    variant & assign_value( T const & value )
     {
         if( index() == K )
         {
@@ -1556,8 +1683,6 @@ private:
         }
         return *this;
     }
-
-#endif // variant_CPP11_OR_GREATER
 
     void swap_value( type_index_t index, variant & other )
     {
@@ -1615,6 +1740,8 @@ private:
 
     type_index_t type_index;
 };
+
+// 19.7.5 Value access
 
 template< class T, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15 >
 inline bool holds_alternative( variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> const & v ) variant_noexcept
@@ -1711,40 +1838,68 @@ get( variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T1
 #endif // variant_CPP11_OR_GREATER
 
 template< class T, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15 >
-inline typename detail::add_pointer<T>::type
+inline typename std11::add_pointer<T>::type
 get_if( variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> * pv, nonstd_lite_in_place_type_t(T) = nonstd_lite_in_place_type(T) )
 {
     return ( pv->index() == variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>::template index_of<T>() ) ? &get<T>( *pv ) : variant_nullptr;
 }
 
 template< class T, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15 >
-inline typename detail::add_pointer<const T>::type
+inline typename std11::add_pointer<const T>::type
 get_if( variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> const * pv, nonstd_lite_in_place_type_t(T) = nonstd_lite_in_place_type(T))
 {
     return ( pv->index() == variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>::template index_of<T>() ) ? &get<T>( *pv ) : variant_nullptr;
 }
 
 template< std::size_t K, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15 >
-inline typename detail::add_pointer< typename variant_alternative<K, variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> >::type >::type
+inline typename std11::add_pointer< typename variant_alternative<K, variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> >::type >::type
 get_if( variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> * pv, nonstd_lite_in_place_index_t(K) = nonstd_lite_in_place_index(K) )
 {
     return ( pv->index() == K ) ? &get<K>( *pv ) : variant_nullptr;
 }
 
 template< std::size_t K, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15 >
-inline typename detail::add_pointer< const typename variant_alternative<K, variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> >::type >::type
+inline typename std11::add_pointer< const typename variant_alternative<K, variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> >::type >::type
 get_if( variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> const * pv, nonstd_lite_in_place_index_t(K) = nonstd_lite_in_place_index(K) )
 {
     return ( pv->index() == K ) ? &get<K>( *pv )  : variant_nullptr;
 }
 
-template< class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15 >
+// 19.7.10 Specialized algorithms
+
+template< class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15
+#if variant_CPP11_OR_GREATER
+    variant_REQUIRES_T(
+        std::is_move_constructible<T0>::value && std17::is_swappable<T0>::value &&
+        std::is_move_constructible<T1>::value && std17::is_swappable<T1>::value &&
+        std::is_move_constructible<T2>::value && std17::is_swappable<T2>::value &&
+        std::is_move_constructible<T3>::value && std17::is_swappable<T3>::value &&
+        std::is_move_constructible<T4>::value && std17::is_swappable<T4>::value &&
+        std::is_move_constructible<T5>::value && std17::is_swappable<T5>::value &&
+        std::is_move_constructible<T6>::value && std17::is_swappable<T6>::value &&
+        std::is_move_constructible<T7>::value && std17::is_swappable<T7>::value &&
+        std::is_move_constructible<T8>::value && std17::is_swappable<T8>::value &&
+        std::is_move_constructible<T9>::value && std17::is_swappable<T9>::value &&
+        std::is_move_constructible<T10>::value && std17::is_swappable<T10>::value &&
+        std::is_move_constructible<T11>::value && std17::is_swappable<T11>::value &&
+        std::is_move_constructible<T12>::value && std17::is_swappable<T12>::value &&
+        std::is_move_constructible<T13>::value && std17::is_swappable<T13>::value &&
+        std::is_move_constructible<T14>::value && std17::is_swappable<T14>::value &&
+        std::is_move_constructible<T15>::value && std17::is_swappable<T15>::value 
+         )
+#endif
+>
 inline void swap(
     variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> & a,
-    variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> & b ) variant_noexcept
+    variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> & b ) 
+#if variant_CPP11_OR_GREATER
+    noexcept( noexcept( a.swap( b ) ) )
+#endif
 {
     a.swap( b );
 }
+
+// 19.7.7 Visitation
 
 // Variant 'visitor' implementation
 
@@ -2067,6 +2222,7 @@ inline R visit(const Visitor& v, V1 const& arg1, V2 const& arg2, V3 const& arg3,
 
 #endif
 
+// 19.7.6 Relational operators
 
 namespace detail {
 
@@ -2188,7 +2344,7 @@ using namespace variants;
 
 #if variant_CPP11_OR_GREATER
 
-// specialize the std::hash algorithm:
+// 19.7.12 Hash support
 
 namespace std {
 
@@ -2206,7 +2362,29 @@ struct hash< nonstd::variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 {
     std::size_t operator()( nonstd::variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> const & v ) const variant_noexcept
     {
-        return nonstd::variants::detail::hash( v );
+        namespace nvd = nonstd::variants::detail;
+
+        switch( v.index() )
+        {
+            case 0: return nvd::hash( 0 ) ^ nvd::hash( get<0>( v ) );
+            case 1: return nvd::hash( 1 ) ^ nvd::hash( get<1>( v ) );
+            case 2: return nvd::hash( 2 ) ^ nvd::hash( get<2>( v ) );
+            case 3: return nvd::hash( 3 ) ^ nvd::hash( get<3>( v ) );
+            case 4: return nvd::hash( 4 ) ^ nvd::hash( get<4>( v ) );
+            case 5: return nvd::hash( 5 ) ^ nvd::hash( get<5>( v ) );
+            case 6: return nvd::hash( 6 ) ^ nvd::hash( get<6>( v ) );
+            case 7: return nvd::hash( 7 ) ^ nvd::hash( get<7>( v ) );
+            case 8: return nvd::hash( 8 ) ^ nvd::hash( get<8>( v ) );
+            case 9: return nvd::hash( 9 ) ^ nvd::hash( get<9>( v ) );
+            case 10: return nvd::hash( 10 ) ^ nvd::hash( get<10>( v ) );
+            case 11: return nvd::hash( 11 ) ^ nvd::hash( get<11>( v ) );
+            case 12: return nvd::hash( 12 ) ^ nvd::hash( get<12>( v ) );
+            case 13: return nvd::hash( 13 ) ^ nvd::hash( get<13>( v ) );
+            case 14: return nvd::hash( 14 ) ^ nvd::hash( get<14>( v ) );
+            case 15: return nvd::hash( 15 ) ^ nvd::hash( get<15>( v ) );
+            
+            default: return false;
+        }
     }
 };
 
