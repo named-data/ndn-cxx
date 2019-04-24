@@ -288,8 +288,8 @@ Block::wire() const
 size_t
 Block::size() const
 {
-  if (empty()) {
-    NDN_THROW(Error("Block size cannot be determined (undefined block size)"));
+  if (!isValid()) {
+    NDN_THROW(Error("Cannot determine size of invalid block"));
   }
 
   return m_size;
@@ -487,7 +487,7 @@ operator<<(std::ostream& os, const Block& block)
 {
   auto oldFmt = os.flags(std::ios_base::dec);
 
-  if (block.empty()) {
+  if (!block.isValid()) {
     os << "[invalid]";
   }
   else if (!block.m_elements.empty()) {

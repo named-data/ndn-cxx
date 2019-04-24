@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(OtherType)
 BOOST_AUTO_TEST_CASE(InvalidType)
 {
   Component comp;
-  BOOST_CHECK_THROW(comp.wireDecode("0001 80"_block), Component::Error);
+  BOOST_CHECK_THROW(comp.wireDecode(Block{}), Component::Error);
   BOOST_CHECK_THROW(comp.wireDecode("FE0001000001 80"_block), Component::Error);
 
   BOOST_CHECK_THROW(Component::fromEscapedString("0=A"), Component::Error);

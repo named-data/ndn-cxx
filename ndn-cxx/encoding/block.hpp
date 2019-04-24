@@ -53,8 +53,8 @@ public:
   };
 
 public: // construction, assignment
-  /** @brief Create an empty Block
-   *  @sa empty()
+  /** @brief Create an invalid Block
+   *  @post `isValid() == false`
    */
   Block();
 
@@ -136,7 +136,6 @@ public: // construction, assignment
 
   /** @brief Create a zero-length Block with the specified TLV-TYPE
    *  @param type TLV-TYPE
-   *  @post empty() == false
    */
   explicit
   Block(uint32_t type);
@@ -149,7 +148,7 @@ public: // construction, assignment
 
   /** @brief Create a Block with the specified TLV-TYPE and TLV-VALUE
    *  @param type TLV-TYPE
-   *  @param value a Block to be nested as TLV-VALUE, must not be empty
+   *  @param value a Block to be nested as TLV-VALUE, must be valid
    */
   Block(uint32_t type, const Block& value);
 
@@ -164,7 +163,7 @@ public: // construction, assignment
    *  @param buffer a Buffer containing a TLV element at offset @p offset
    *  @param offset begin position of the TLV element within @p buffer
    *  @note This function does not throw upon decoding failure.
-   *  @return true and the parsed Block if parsing succeeds; otherwise false and an empty Block
+   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
    */
   static std::tuple<bool, Block>
   fromBuffer(ConstBufferPtr buffer, size_t offset);
@@ -174,33 +173,49 @@ public: // construction, assignment
    *  @param bufSize size of the raw buffer; may be greater than the actual size of the TLV element
    *  @note This function does not throw upon decoding failure.
    *  @note This overload copies the TLV element octets into an internal wire buffer.
-   *  @return true and the parsed Block if parsing succeeds; otherwise false and an empty Block
+   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
    */
   static std::tuple<bool, Block>
   fromBuffer(const uint8_t* buf, size_t bufSize);
 
 public: // wire format
+  /** @brief Check if the Block is valid
+   *
+   *  A Block is valid unless it has an invalid TLV-TYPE or is default-constructed.
+   *  In particular, a Block with zero-length TLV-VALUE *is* valid.
+   */
+  bool
+  isValid() const noexcept
+  {
+    return m_type != tlv::Invalid;
+  }
+
   /** @brief Check if the Block is empty
    *
-   *  A Block is considered empty only if it is default-constructed. A Block with a zero-length
-   *  TLV-VALUE is not considered empty.
+   *  A Block is considered empty *iff* it is not valid, i.e., isValid() returns false.
+   *
+   *  @warning Note that an empty Block is *not* the same as a valid but zero-length Block.
+   *  @deprecated Use Block::isValid()
    */
   bool
   empty() const noexcept
   {
-    return m_type == std::numeric_limits<uint32_t>::max();
+    return !isValid();
   }
 
-  /** @brief Reset wire buffer of the element
-   *  @post empty() == true
+  /** @brief Reset the Block to a default-constructed state
+   *
+   *  Equivalent to `*this = Block()`.
+   *
+   *  @post `isValid() == false`
    *  @sa resetWire()
    */
   void
   reset() noexcept;
 
   /** @brief Reset wire buffer but keep TLV-TYPE and sub-elements (if any)
-   *  @post hasWire() == false
-   *  @post hasValue() == false
+   *  @post `hasWire() == false`
+   *  @post `hasValue() == false`
    *  @sa reset()
    */
   void
@@ -218,26 +233,26 @@ public: // wire format
   }
 
   /** @brief Get begin iterator of encoded wire
-   *  @pre hasWire() == true
+   *  @pre `hasWire() == true`
    */
   Buffer::const_iterator
   begin() const;
 
   /** @brief Get end iterator of encoded wire
-   *  @pre hasWire() == true
+   *  @pre `hasWire() == true`
    */
   Buffer::const_iterator
   end() const;
 
   /** @brief Return a raw pointer to the beginning of the encoded wire
-   *  @pre hasWire() == true
+   *  @pre `hasWire() == true`
    *  @sa value()
    */
   const uint8_t*
   wire() const;
 
   /** @brief Return the size of the encoded wire, i.e. of the whole TLV
-   *  @pre empty() == false
+   *  @pre `isValid() == true`
    *  @sa value_size()
    */
   size_t
@@ -253,7 +268,7 @@ public: // wire format
 
 public: // type and value
   /** @brief Return the TLV-TYPE of the Block
-   *  @pre empty() == false
+   *  @note This will return tlv::Invalid if isValid() is false.
    */
   uint32_t
   type() const
@@ -275,7 +290,7 @@ public: // type and value
   }
 
   /** @brief Get begin iterator of TLV-VALUE
-   *  @pre hasValue() == true
+   *  @pre `hasValue() == true`
    */
   Buffer::const_iterator
   value_begin() const
@@ -284,7 +299,7 @@ public: // type and value
   }
 
   /** @brief Get end iterator of TLV-VALUE
-   *  @pre hasValue() == true
+   *  @pre `hasValue() == true`
    */
   Buffer::const_iterator
   value_end() const
@@ -341,7 +356,7 @@ public: // sub-elements
 
   /** @brief Remove all sub-elements of the specified TLV-TYPE
    *  @pre parse() has been executed
-   *  @post find(type) == elements_end()
+   *  @post `find(type) == elements_end()`
    */
   void
   remove(uint32_t type);
@@ -428,7 +443,7 @@ private:
 protected:
   /** @brief Underlying buffer storing TLV-VALUE and possibly TLV-TYPE and TLV-LENGTH fields
    *
-   *  If m_buffer is nullptr, this is an empty or zero-length Block with TLV-TYPE given in m_type.
+   *  If m_buffer is nullptr, this is an invalid or zero-length Block with TLV-TYPE given in m_type.
    *  Otherwise,
    *  - [m_valueBegin, m_valueEnd) point to the TLV-VALUE inside m_buffer.
    *  - If m_begin != m_end, [m_begin, m_end) point to Type-Length-Value of this Block in m_buffer.
@@ -441,11 +456,11 @@ protected:
   Buffer::const_iterator m_valueBegin; ///< @sa m_buffer
   Buffer::const_iterator m_valueEnd; ///< @sa m_buffer
 
-  uint32_t m_type = std::numeric_limits<uint32_t>::max(); ///< TLV-TYPE
+  uint32_t m_type = tlv::Invalid; ///< TLV-TYPE
 
   /** @brief Total size including Type-Length-Value
    *
-   *  This field is valid only if empty() is false.
+   *  This field is meaningful only if isValid() is true.
    */
   size_t m_size = 0;
 

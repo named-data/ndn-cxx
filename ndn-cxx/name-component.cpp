@@ -59,7 +59,6 @@ setConventionEncoding(Convention convention)
       break;
     default:
       NDN_THROW(std::invalid_argument("Unknown naming convention"));
-      break;
   }
 }
 
@@ -153,15 +152,15 @@ Component::fromEscapedString(const std::string& input)
     return parseUriEscapedValue(tlv::GenericNameComponent, input.data(), input.size());
   }
 
-  long type = std::strtol(input.data(), nullptr, 10);
+  auto typePrefix = input.substr(0, equalPos);
+  auto type = std::strtoul(typePrefix.data(), nullptr, 10);
   if (type >= tlv::NameComponentMin && type <= tlv::NameComponentMax &&
-      to_string(type).size() == equalPos) {
+      to_string(type) == typePrefix) {
     size_t valuePos = equalPos + 1;
-    return parseUriEscapedValue(static_cast<uint32_t>(type), input.data() + valuePos,
-                                input.size() - valuePos);
+    return parseUriEscapedValue(static_cast<uint32_t>(type),
+                                input.data() + valuePos, input.size() - valuePos);
   }
 
-  auto typePrefix = input.substr(0, equalPos);
   auto ct = detail::getComponentTypeTable().findByUriPrefix(typePrefix);
   if (ct == nullptr) {
     NDN_THROW(Error("Incorrect TLV-TYPE '" + typePrefix + "' in NameComponent URI"));

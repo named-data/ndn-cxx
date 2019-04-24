@@ -25,6 +25,8 @@
 #include "tests/boost-test.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/mpl/vector.hpp>
+
 #include <cstring>
 #include <sstream>
 
@@ -37,15 +39,27 @@ BOOST_AUTO_TEST_SUITE(TestBlock)
 BOOST_AUTO_TEST_SUITE(Construction)
 
 static const uint8_t TEST_BUFFER[] = {
-  0x00, 0x01, 0xfa, // ok
-  0x01, 0x01, 0xfb, // ok
-  0x03, 0x02, 0xff // bad: TLV-LENGTH is 2 but there's only 1-octet TLV-VALUE
+  0x42, 0x01, 0xfa,
+  0x01, 0x01, 0xfb,
+  0xfe, 0xff, 0xff, 0xff, 0xff, 0x00, // bug #4726
 };
 
-BOOST_AUTO_TEST_CASE(Empty)
+BOOST_AUTO_TEST_CASE(Default)
 {
   Block b;
+
+  BOOST_CHECK_EQUAL(b.isValid(), false);
   BOOST_CHECK_EQUAL(b.empty(), true);
+  BOOST_CHECK_EQUAL(b.type(), tlv::Invalid);
+  BOOST_CHECK_EQUAL(b.hasValue(), false);
+  BOOST_CHECK_EQUAL(b.value_size(), 0);
+  BOOST_CHECK(b.value() == nullptr);
+
+  BOOST_CHECK_THROW(b.size(), Block::Error);
+  BOOST_CHECK_THROW(b.begin(), Block::Error);
+  BOOST_CHECK_THROW(b.end(), Block::Error);
+  BOOST_CHECK_THROW(b.wire(), Block::Error);
+  BOOST_CHECK_THROW(b.blockFromValue(), Block::Error);
 }
 
 BOOST_AUTO_TEST_CASE(FromEncodingBuffer)
@@ -134,18 +148,25 @@ BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyCopy)
 BOOST_AUTO_TEST_CASE(FromType)
 {
   Block b1(4);
-  BOOST_CHECK_EQUAL(b1.empty(), false);
+  BOOST_CHECK_EQUAL(b1.isValid(), true);
   BOOST_CHECK_EQUAL(b1.type(), 4);
   BOOST_CHECK_EQUAL(b1.size(), 2); // 1-octet TLV-TYPE and 1-octet TLV-LENGTH
   BOOST_CHECK_EQUAL(b1.hasValue(), false);
   BOOST_CHECK_EQUAL(b1.value_size(), 0);
 
   Block b2(258);
-  BOOST_CHECK_EQUAL(b2.empty(), false);
+  BOOST_CHECK_EQUAL(b2.isValid(), true);
   BOOST_CHECK_EQUAL(b2.type(), 258);
   BOOST_CHECK_EQUAL(b2.size(), 4); // 3-octet TLV-TYPE and 1-octet TLV-LENGTH
   BOOST_CHECK_EQUAL(b2.hasValue(), false);
   BOOST_CHECK_EQUAL(b2.value_size(), 0);
+
+  Block b3(tlv::Invalid);
+  BOOST_CHECK_EQUAL(b3.isValid(), false);
+  BOOST_CHECK_EQUAL(b3.type(), tlv::Invalid);
+  BOOST_CHECK_EQUAL(b3.hasValue(), false);
+  BOOST_CHECK_EQUAL(b3.value_size(), 0);
+  BOOST_CHECK(b3.value() == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(FromTypeAndBuffer)
@@ -154,7 +175,7 @@ BOOST_AUTO_TEST_CASE(FromTypeAndBuffer)
   auto bufferPtr = make_shared<Buffer>(VALUE, sizeof(VALUE));
 
   Block b(42, bufferPtr);
-  BOOST_CHECK_EQUAL(b.empty(), false);
+  BOOST_CHECK_EQUAL(b.isValid(), true);
   BOOST_CHECK_EQUAL(b.type(), 42);
   BOOST_CHECK_EQUAL(b.size(), 6);
   BOOST_CHECK_EQUAL(b.hasValue(), true);
@@ -167,7 +188,7 @@ BOOST_AUTO_TEST_CASE(FromTypeAndBlock)
   Block nested(BUFFER, sizeof(BUFFER));
 
   Block b(84, nested);
-  BOOST_CHECK_EQUAL(b.empty(), false);
+  BOOST_CHECK_EQUAL(b.isValid(), true);
   BOOST_CHECK_EQUAL(b.type(), 84);
   BOOST_CHECK_EQUAL(b.size(), 10);
   BOOST_CHECK_EQUAL(b.hasValue(), true);
@@ -181,10 +202,10 @@ BOOST_AUTO_TEST_CASE(FromStream)
   stream.seekg(0);
 
   Block b = Block::fromStream(stream);
-  BOOST_CHECK_EQUAL(b.type(), 0);
+  BOOST_CHECK_EQUAL(b.type(), 66);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x42);
   BOOST_CHECK_EQUAL(*b.value(), 0xfa);
 
   b = Block::fromStream(stream);
@@ -194,6 +215,13 @@ BOOST_AUTO_TEST_CASE(FromStream)
   BOOST_CHECK_EQUAL(*b.wire(),  0x01);
   BOOST_CHECK_EQUAL(*b.value(), 0xfb);
 
+  b = Block::fromStream(stream);
+  BOOST_CHECK_EQUAL(b.type(), 0xffffffff);
+  BOOST_CHECK_EQUAL(b.size(), 6);
+  BOOST_CHECK_EQUAL(b.value_size(), 0);
+  BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
+
+  BOOST_CHECK(stream.eof());
   BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
 }
 
@@ -222,6 +250,7 @@ BOOST_AUTO_TEST_CASE(FromStreamWhitespace) // Bug 2728
   BOOST_CHECK_EQUAL(b.type(), 6);
   BOOST_CHECK_EQUAL(b.value_size(), 32);
   b.parse();
+  BOOST_CHECK_EQUAL(b.elements_size(), 5);
 }
 
 BOOST_AUTO_TEST_CASE(FromStreamZeroLength)
@@ -268,17 +297,17 @@ BOOST_AUTO_TEST_CASE(FromStreamPacketTooLarge)
 
 BOOST_AUTO_TEST_CASE(FromWireBuffer)
 {
-  ConstBufferPtr buffer = make_shared<Buffer>(TEST_BUFFER, sizeof(TEST_BUFFER));
+  auto buffer = make_shared<Buffer>(TEST_BUFFER, sizeof(TEST_BUFFER));
 
   size_t offset = 0;
   bool isOk = false;
   Block b;
   std::tie(isOk, b) = Block::fromBuffer(buffer, offset);
   BOOST_CHECK(isOk);
-  BOOST_CHECK_EQUAL(b.type(), 0);
+  BOOST_CHECK_EQUAL(b.type(), 66);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x42);
   BOOST_CHECK_EQUAL(*b.value(), 0xfa);
   offset += b.size();
 
@@ -292,7 +321,11 @@ BOOST_AUTO_TEST_CASE(FromWireBuffer)
   offset += b.size();
 
   std::tie(isOk, b) = Block::fromBuffer(buffer, offset);
-  BOOST_CHECK(!isOk);
+  BOOST_CHECK(isOk);
+  BOOST_CHECK_EQUAL(b.type(), 0xffffffff);
+  BOOST_CHECK_EQUAL(b.size(), 6);
+  BOOST_CHECK_EQUAL(b.value_size(), 0);
+  BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
 }
 
 BOOST_AUTO_TEST_CASE(FromRawBuffer)
@@ -302,10 +335,10 @@ BOOST_AUTO_TEST_CASE(FromRawBuffer)
   Block b;
   std::tie(isOk, b) = Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset);
   BOOST_CHECK(isOk);
-  BOOST_CHECK_EQUAL(b.type(), 0);
+  BOOST_CHECK_EQUAL(b.type(), 66);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x00);
+  BOOST_CHECK_EQUAL(*b.wire(),  0x42);
   BOOST_CHECK_EQUAL(*b.value(), 0xfa);
   offset += b.size();
 
@@ -319,7 +352,66 @@ BOOST_AUTO_TEST_CASE(FromRawBuffer)
   offset += b.size();
 
   std::tie(isOk, b) = Block::fromBuffer(TEST_BUFFER + offset, sizeof(TEST_BUFFER) - offset);
+  BOOST_CHECK(isOk);
+  BOOST_CHECK_EQUAL(b.type(), 0xffffffff);
+  BOOST_CHECK_EQUAL(b.size(), 6);
+  BOOST_CHECK_EQUAL(b.value_size(), 0);
+  BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
+}
+
+template<typename T>
+struct MalformedInput
+{
+  static const std::vector<uint8_t> INPUT;
+};
+
+template<>
+const std::vector<uint8_t> MalformedInput<struct TlvTypeZero>::INPUT{
+  0x00, 0x00
+};
+template<>
+const std::vector<uint8_t> MalformedInput<struct TlvTypeTooLarge>::INPUT{
+  0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+template<>
+const std::vector<uint8_t> MalformedInput<struct BadTlvLength>::INPUT{
+  0x01, 0xff, 0x42, 0x42
+};
+template<>
+const std::vector<uint8_t> MalformedInput<struct TruncatedTlvValue>::INPUT{
+  0x01, 0x02, 0x03
+};
+
+using MalformedInputs = boost::mpl::vector<
+  MalformedInput<TlvTypeZero>,
+  MalformedInput<TlvTypeTooLarge>,
+  MalformedInput<BadTlvLength>,
+  MalformedInput<TruncatedTlvValue>
+>;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(Malformed, T, MalformedInputs)
+{
+  // constructor from raw buffer
+  BOOST_CHECK_THROW(Block(T::INPUT.data(), T::INPUT.size()), tlv::Error);
+
+  // fromStream()
+  std::stringstream stream;
+  stream.write(reinterpret_cast<const char*>(T::INPUT.data()), T::INPUT.size());
+  stream.seekg(0);
+  BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
+
+  // fromBuffer(), ConstBufferPtr overload
+  auto buf = make_shared<Buffer>(T::INPUT.begin(), T::INPUT.end());
+  bool isOk;
+  Block b;
+  std::tie(isOk, b) = Block::fromBuffer(buf, 0);
   BOOST_CHECK(!isOk);
+  BOOST_CHECK(!b.isValid());
+
+  // fromBuffer(), raw buffer overload
+  std::tie(isOk, b) = Block::fromBuffer(T::INPUT.data(), T::INPUT.size());
+  BOOST_CHECK(!isOk);
+  BOOST_CHECK(!b.isValid());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Construction
@@ -341,7 +433,6 @@ BOOST_AUTO_TEST_CASE(Parse)
                 0x1c, 0x00, // KeyLocator empty
           0x17, 0x00 // SignatureValue empty
   };
-
   Block data(PACKET, sizeof(PACKET));
   data.parse();
 
@@ -354,6 +445,13 @@ BOOST_AUTO_TEST_CASE(Parse)
 
   BOOST_CHECK(data.find(0x15) == data.elements_begin() + 2);
   BOOST_CHECK(data.find(0x01) == data.elements_end());
+
+  const uint8_t MALFORMED[] = {
+    // TLV-LENGTH of nested element is greater than TLV-LENGTH of enclosing element
+    0x05, 0x05, 0x07, 0x07, 0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f
+  };
+  Block bad(MALFORMED, sizeof(MALFORMED));
+  BOOST_CHECK_THROW(bad.parse(), Block::Error);
 }
 
 BOOST_AUTO_TEST_CASE(InsertBeginning)
@@ -483,15 +581,14 @@ BOOST_AUTO_TEST_CASE(Remove)
   block.push_back(makeNonNegativeIntegerBlock(tlv::ContentType, 1));
 
   BOOST_CHECK_EQUAL(5, block.elements_size());
-  BOOST_REQUIRE_NO_THROW(block.remove(tlv::ContentType));
-  BOOST_CHECK_EQUAL(2, block.elements_size());
+  BOOST_CHECK_NO_THROW(block.remove(tlv::ContentType));
+  BOOST_REQUIRE_EQUAL(2, block.elements_size());
 
-  Block::element_container elements = block.elements();
-
+  auto elements = block.elements();
   BOOST_CHECK_EQUAL(tlv::FreshnessPeriod, elements[0].type());
   BOOST_CHECK_EQUAL(123, readNonNegativeInteger(elements[0]));
   BOOST_CHECK_EQUAL(tlv::Name, elements[1].type());
-  BOOST_CHECK(readString(elements[1]).compare("ndn:/test-prefix") == 0);
+  BOOST_CHECK_EQUAL(readString(elements[1]).compare("ndn:/test-prefix"), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // SubElements
@@ -557,8 +654,8 @@ BOOST_AUTO_TEST_SUITE(BlockLiteral)
 
 BOOST_AUTO_TEST_CASE(Simple)
 {
-  Block b0 = "0000"_block;
-  BOOST_CHECK_EQUAL(b0.type(), 0x00);
+  Block b0 = "4200"_block;
+  BOOST_CHECK_EQUAL(b0.type(), 0x42);
   BOOST_CHECK_EQUAL(b0.value_size(), 0);
 
   Block b1 = "0101A0"_block;
@@ -581,9 +678,11 @@ BOOST_AUTO_TEST_CASE(BadInput)
   BOOST_CHECK_THROW(""_block, std::invalid_argument);
   BOOST_CHECK_THROW("1"_block, std::invalid_argument);
   BOOST_CHECK_THROW("333"_block, std::invalid_argument);
+  BOOST_CHECK_THROW("xx yy zz"_block, std::invalid_argument); // only comments
 
-  BOOST_CHECK_THROW("0202C0"_block, tlv::Error);
-  BOOST_CHECK_THROW("0201C0C1"_block, tlv::Error);
+  BOOST_CHECK_THROW("0000"_block, tlv::Error); // invalid type
+  BOOST_CHECK_THROW("0202C0"_block, tlv::Error); // truncated value
+  BOOST_CHECK_THROW("0201C0C1"_block, tlv::Error); // trailing garbage
 }
 
 BOOST_AUTO_TEST_SUITE_END() // BlockLiteral

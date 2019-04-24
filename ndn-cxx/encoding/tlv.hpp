@@ -60,7 +60,8 @@ public:
 /** @brief TLV-TYPE numbers defined in NDN Packet Format v0.3
  *  @sa https://named-data.net/doc/NDN-packet-spec/current/types.html
  */
-enum {
+enum : uint32_t {
+  Invalid                         = 0,
   Interest                        = 5,
   Data                            = 6,
   Name                            = 7,
@@ -97,7 +98,7 @@ enum {
 /** @brief TLV-TYPE numbers defined in NDN Packet Format v0.2 but not in v0.3
  *  @sa https://named-data.net/doc/NDN-packet-spec/0.2.1/types.html
  */
-enum {
+enum : uint32_t {
   Selectors                 = 9,
   MinSuffixComponents       = 13,
   MaxSuffixComponents       = 14,
@@ -113,7 +114,7 @@ constexpr int NameComponent = GenericNameComponent;
 /** @brief TLV-TYPE numbers for typed name components.
  *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
  */
-enum {
+enum : uint32_t {
   KeywordNameComponent     = 32,
   SegmentNameComponent     = 33,
   ByteOffsetNameComponent  = 34,
@@ -194,14 +195,14 @@ readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept;
  * @brief Read TLV-TYPE.
  * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
- * @param [inout] begin  Begin of the buffer, will be incremented to point to the first byte after
- *                       the read TLV-TYPE
+ * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
+ *                      the read TLV-TYPE
  * @param [in]    end   End of the buffer
  * @param [out]   type  Read TLV-TYPE
  *
  * @return true if TLV-TYPE was successfully read from input, false otherwise
  * @note This function is largely equivalent to readVarNumber(), except that it returns false if
- *       the TLV-TYPE is larger than 2^32-1 (TLV-TYPE in this library is implemented as `uint32_t`)
+ *       the TLV-TYPE is zero or larger than 2^32-1 (maximum allowed by the packet format).
  */
 template<typename Iterator>
 bool
@@ -231,7 +232,7 @@ readVarNumber(Iterator& begin, Iterator end);
  *
  * @throw tlv::Error TLV-TYPE cannot be read
  * @note This function is largely equivalent to readVarNumber(), except that it throws if
- *       the TLV-TYPE is larger than 2^32-1 (TLV-TYPE in this library is implemented as `uint32_t`)
+ *       the TLV-TYPE is zero or larger than 2^32-1 (maximum allowed by the packet format).
  */
 template<typename Iterator>
 uint32_t
@@ -409,7 +410,7 @@ readType(Iterator& begin, Iterator end, uint32_t& type) noexcept
 {
   uint64_t number = 0;
   bool isOk = readVarNumber(begin, end, number);
-  if (!isOk || number > std::numeric_limits<uint32_t>::max()) {
+  if (!isOk || number == Invalid || number > std::numeric_limits<uint32_t>::max()) {
     return false;
   }
 
@@ -439,8 +440,8 @@ uint32_t
 readType(Iterator& begin, Iterator end)
 {
   uint64_t type = readVarNumber(begin, end);
-  if (type > std::numeric_limits<uint32_t>::max()) {
-    NDN_THROW(Error("TLV-TYPE number exceeds allowed maximum"));
+  if (type == Invalid || type > std::numeric_limits<uint32_t>::max()) {
+    NDN_THROW(Error("Illegal TLV-TYPE " + to_string(type)));
   }
 
   return static_cast<uint32_t>(type);
