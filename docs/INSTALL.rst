@@ -11,9 +11,11 @@ platforms:
 
 -  Ubuntu 16.04 (amd64, armhf, i386)
 -  Ubuntu 18.04 (amd64)
+-  Ubuntu 19.04 (amd64)
 -  macOS 10.12
 -  macOS 10.13
 -  macOS 10.14
+-  CentOS 7 (with gcc 7 and boost 1.58.0)
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
@@ -22,7 +24,6 @@ supported:
 -  Fedora >= 24
 -  Gentoo Linux
 -  Raspbian >= 2017-08-16
--  OS X 10.11
 -  FreeBSD 11.2
 
 
@@ -61,7 +62,7 @@ development tools and libraries, and ndn-cxx prerequisites.
 
     In a terminal, enter::
 
-        sudo apt install build-essential libsqlite3-dev libboost-all-dev libssl-dev
+        sudo apt install build-essential libboost-all-dev libssl-dev libsqlite3-dev pkg-config python-minimal
 
 - Fedora
 
