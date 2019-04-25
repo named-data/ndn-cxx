@@ -24,6 +24,9 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/udp.hpp>
+#if BOOST_VERSION >= 106600
+#include <boost/asio/post.hpp>
+#endif
 
 namespace ndn {
 namespace dns {
@@ -72,8 +75,13 @@ private:
                   iterator it, const shared_ptr<Resolver>& self)
   {
     m_resolveTimeout.cancel();
+
     // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
+#if BOOST_VERSION >= 106600
+    boost::asio::post(m_resolver.get_executor(), [self] {});
+#else
     m_resolver.get_io_service().post([self] {});
+#endif
 
     if (error) {
       if (error == boost::asio::error::operation_aborted)
@@ -99,8 +107,13 @@ private:
   onResolveTimeout(const shared_ptr<Resolver>& self)
   {
     m_resolver.cancel();
+
     // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
+#if BOOST_VERSION >= 106600
+    boost::asio::post(m_resolver.get_executor(), [self] {});
+#else
     m_resolver.get_io_service().post([self] {});
+#endif
 
     if (m_onError)
       m_onError("Hostname resolution timed out");

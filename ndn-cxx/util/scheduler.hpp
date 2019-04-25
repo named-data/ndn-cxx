@@ -183,7 +183,7 @@ private:
   void
   cancelImpl(const shared_ptr<EventInfo>& info);
 
-  /** \brief Schedule the next event on the deadline timer
+  /** \brief Schedule the next event on the internal timer
    */
   void
   scheduleNext();

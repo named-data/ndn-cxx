@@ -24,7 +24,7 @@
 
 #include "ndn-cxx/transport/transport.hpp"
 
-#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/steady_timer.hpp>
 #include <boost/asio/write.hpp>
 
 #include <list>
@@ -62,11 +62,15 @@ public:
 
       // Wait at most 4 seconds to connect
       /// @todo Decide whether this number should be configurable
-      m_connectTimer.expires_from_now(boost::posix_time::seconds(4));
-      m_connectTimer.async_wait(bind(&Impl::connectTimeoutHandler, this->shared_from_this(), _1));
+      m_connectTimer.expires_from_now(std::chrono::seconds(4));
+      m_connectTimer.async_wait([self = this->shared_from_this()] (const auto& error) {
+        self->connectTimeoutHandler(error);
+      });
 
       m_socket.open();
-      m_socket.async_connect(endpoint, bind(&Impl::connectHandler, this->shared_from_this(), _1));
+      m_socket.async_connect(endpoint, [self = this->shared_from_this()] (const auto& error) {
+        self->connectHandler(error);
+      });
     }
   }
 
@@ -275,7 +279,7 @@ protected:
   TransmissionQueue m_transmissionQueue;
   bool m_isConnecting;
 
-  boost::asio::deadline_timer m_connectTimer;
+  boost::asio::steady_timer m_connectTimer;
 };
 
 } // namespace detail

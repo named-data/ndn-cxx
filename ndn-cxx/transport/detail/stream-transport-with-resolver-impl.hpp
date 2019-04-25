@@ -34,8 +34,6 @@ template<typename BaseTransport, typename Protocol>
 class StreamTransportWithResolverImpl : public StreamTransportImpl<BaseTransport, Protocol>
 {
 public:
-  using Impl = StreamTransportWithResolverImpl<BaseTransport,Protocol>;
-
   StreamTransportWithResolverImpl(BaseTransport& transport, boost::asio::io_service& ioService)
     : StreamTransportImpl<BaseTransport, Protocol>(transport, ioService)
   {
@@ -47,16 +45,25 @@ public:
     if (this->m_isConnecting) {
       return;
     }
-
     this->m_isConnecting = true;
 
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable
-    this->m_connectTimer.expires_from_now(boost::posix_time::seconds(4));
-    this->m_connectTimer.async_wait(bind(&Impl::connectTimeoutHandler, this->shared_from_this(), _1));
+    this->m_connectTimer.expires_from_now(std::chrono::seconds(4));
+    this->m_connectTimer.async_wait([self = this->shared_from_base()] (const auto& ec) {
+      self->connectTimeoutHandler(ec);
+    });
 
-    auto resolver = make_shared<typename Protocol::resolver>(ref(this->m_socket.get_io_service()));
-    resolver->async_resolve(query, bind(&Impl::resolveHandler, this->shared_from_base(), _1, _2, resolver));
+    auto resolver = make_shared<typename Protocol::resolver>(this->m_socket
+#if BOOST_VERSION >= 107000
+                                                             .get_executor()
+#else
+                                                             .get_io_service()
+#endif
+                                                             );
+    resolver->async_resolve(query, [self = this->shared_from_base(), resolver] (auto&&... args) {
+      self->resolveHandler(std::forward<decltype(args)>(args)..., resolver);
+    });
   }
 
 protected:
@@ -78,10 +85,14 @@ protected:
       NDN_THROW(Transport::Error(error, "Unable to resolve host or port"));
     }
 
-    this->m_socket.async_connect(*endpoint, bind(&Impl::connectHandler, this->shared_from_this(), _1));
+    this->m_socket.async_connect(*endpoint, [self = this->shared_from_base()] (const auto& ec) {
+      self->connectHandler(ec);
+    });
   }
 
 private:
+  using Impl = StreamTransportWithResolverImpl<BaseTransport, Protocol>;
+
   shared_ptr<Impl>
   shared_from_base()
   {
