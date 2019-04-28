@@ -34,6 +34,9 @@
 #ifndef SOL_NETLINK
 #define SOL_NETLINK 270
 #endif
+#ifndef NETLINK_CAP_ACK
+#define NETLINK_CAP_ACK 10
+#endif
 #ifndef RTEXT_FILTER_SKIP_STATS
 #define RTEXT_FILTER_SKIP_STATS (1 << 3)
 #endif
@@ -98,6 +101,12 @@ NetlinkSocket::open(int protocol)
   }
   m_pid = addr.nl_pid;
   NDN_LOG_TRACE("our pid is " << m_pid);
+
+  // tell the kernel it doesn't need to include the original payload in ACK messages
+  if (::setsockopt(fd, SOL_NETLINK, NETLINK_CAP_ACK, &one, sizeof(one)) < 0) {
+    // not a fatal error
+    NDN_LOG_DEBUG("setting NETLINK_CAP_ACK failed: " << std::strerror(errno));
+  }
 
 #ifdef NDN_CXX_HAVE_NETLINK_EXT_ACK
   // enable extended ACK reporting
