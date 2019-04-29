@@ -27,7 +27,6 @@
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
-namespace util {
 namespace scheduler {
 namespace tests {
 
@@ -366,5 +365,4 @@ BOOST_AUTO_TEST_SUITE_END() // Util
 
 } // namespace tests
 } // namespace scheduler
-} // namespace util
 } // namespace ndn

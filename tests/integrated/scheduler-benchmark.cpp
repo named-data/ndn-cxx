@@ -29,7 +29,6 @@
 #include <iostream>
 
 namespace ndn {
-namespace util {
 namespace scheduler {
 namespace tests {
 
@@ -89,5 +88,4 @@ BOOST_AUTO_TEST_CASE(Execute)
 
 } // namespace tests
 } // namespace scheduler
-} // namespace util
 } // namespace ndn

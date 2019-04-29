@@ -30,11 +30,12 @@
 #include <set>
 
 namespace ndn {
-namespace util {
 
+namespace util {
 namespace detail {
 class SteadyTimer;
 } // namespace detail
+} // namespace util
 
 namespace scheduler {
 
@@ -45,7 +46,7 @@ class EventInfo;
  */
 using EventCallback = std::function<void()>;
 
-/** \brief A handle of scheduled event.
+/** \brief A handle for a scheduled event.
  *
  *  \code
  *  EventId eid = scheduler.schedule(10_ms, [] { doSomething(); });
@@ -56,19 +57,12 @@ using EventCallback = std::function<void()>;
  *  \warning Canceling an event after the scheduler has been destructed may trigger undefined
  *           behavior.
  */
-class EventId : public ndn::detail::CancelHandle
+class EventId : public detail::CancelHandle
 {
 public:
   /** \brief Constructs an empty EventId
    */
   EventId() noexcept = default;
-
-  /** \brief Allow implicit conversion from nullptr.
-   */
-  [[deprecated]]
-  EventId(std::nullptr_t) noexcept
-  {
-  }
 
   /** \brief Determine whether the event is valid.
    *  \retval true The event is valid.
@@ -108,7 +102,7 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const EventId& eventId);
 
-/** \brief A scoped handle of scheduled event.
+/** \brief A scoped handle for a scheduled event.
  *
  *  Upon destruction of this handle, the event is canceled automatically.
  *  Most commonly, the application keeps a ScopedEventId as a class member field, so that it can
@@ -124,20 +118,10 @@ operator<<(std::ostream& os, const EventId& eventId);
  *  \warning Canceling an event after the scheduler has been destructed may trigger undefined
  *           behavior.
  */
-class ScopedEventId : public ndn::detail::ScopedCancelHandle
+class ScopedEventId : public detail::ScopedCancelHandle
 {
 public:
   using ScopedCancelHandle::ScopedCancelHandle;
-
-  ScopedEventId() noexcept = default;
-
-  /** \deprecated Scheduler argument is no longer necessary. Use default construction instead.
-   */
-  [[deprecated]]
-  explicit
-  ScopedEventId(Scheduler&) noexcept
-  {
-  }
 };
 
 /** \brief Generic time-based scheduler
@@ -155,24 +139,6 @@ public:
    */
   EventId
   schedule(time::nanoseconds after, EventCallback callback);
-
-  /** \deprecated use schedule(after, callback)
-   */
-  [[deprecated("use schedule(after, callback)")]]
-  EventId
-  scheduleEvent(time::nanoseconds after, EventCallback callback)
-  {
-    return schedule(after, std::move(callback));
-  }
-
-  /** \deprecated use EventId::cancel()
-   */
-  [[deprecated("use EventId::cancel()")]]
-  void
-  cancelEvent(const EventId& eid)
-  {
-    eid.cancel();
-  }
 
   /** \brief Cancel all scheduled events
    */
@@ -216,16 +182,7 @@ private:
 
 } // namespace scheduler
 
-// for backwards compatibility
-using Scheduler [[deprecated]] = scheduler::Scheduler;
-
-} // namespace util
-
-namespace scheduler = util::scheduler;
 using scheduler::Scheduler;
-
-// for backwards compatibility
-using EventId [[deprecated]] = util::scheduler::EventId;
 
 } // namespace ndn
 

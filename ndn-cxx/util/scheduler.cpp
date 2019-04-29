@@ -25,7 +25,6 @@
 #include <boost/scope_exit.hpp>
 
 namespace ndn {
-namespace util {
 namespace scheduler {
 
 /** \brief Stores internal information about a scheduled event
@@ -91,7 +90,7 @@ Scheduler::EventQueueCompare::operator()(const shared_ptr<EventInfo>& a,
 }
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_timer(make_unique<detail::SteadyTimer>(ioService))
+  : m_timer(make_unique<util::detail::SteadyTimer>(ioService))
 {
 }
 
@@ -176,5 +175,4 @@ Scheduler::executeEvent(const boost::system::error_code& error)
 }
 
 } // namespace scheduler
-} // namespace util
 } // namespace ndn
