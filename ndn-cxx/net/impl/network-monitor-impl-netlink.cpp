@@ -112,21 +112,7 @@ NetworkMonitorImplNetlink::parseRtnlMessage(const NetlinkMessage& nlmsg)
     break;
 
   case NLMSG_DONE:
-    if (m_isEnumeratingLinks) {
-      // links enumeration complete, now request all the addresses
-      m_isEnumeratingLinks = false;
-      NDN_LOG_TRACE("enumerating addresses");
-      m_rtnlSocket.sendDumpRequest(RTM_GETADDR,
-                                   [this] (const auto& msg) { this->parseRtnlMessage(msg); });
-      m_isEnumeratingAddresses = true;
-    }
-    else if (m_isEnumeratingAddresses) {
-      // links and addresses enumeration complete
-      m_isEnumeratingAddresses = false;
-      // TODO: enumerate routes
-      NDN_LOG_DEBUG("enumeration complete");
-      this->emitSignal(onEnumerationCompleted);
-    }
+    parseDoneMessage(nlmsg);
     break;
 
   case NLMSG_ERROR:
@@ -197,6 +183,22 @@ updateInterfaceState(NetworkInterface& interface, uint8_t operState)
   }
 }
 
+#ifdef NDN_CXX_HAVE_NETLINK_EXT_ACK
+static void
+parseExtAckAttributes(const NetlinkMessageAttributes<nlattr>& attrs, bool isError)
+{
+  NDN_LOG_TRACE("  message contains " << attrs.size() << " attributes");
+
+  auto msg = attrs.getAttributeByType<std::string>(NLMSGERR_ATTR_MSG);
+  if (msg && !msg->empty()) {
+    if (isError)
+      NDN_LOG_ERROR("  extended err: " << *msg);
+    else
+      NDN_LOG_DEBUG("  extended msg: " << *msg);
+  }
+}
+#endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
+
 void
 NetworkMonitorImplNetlink::parseLinkMessage(const NetlinkMessage& nlmsg)
 {
@@ -207,7 +209,7 @@ NetworkMonitorImplNetlink::parseLinkMessage(const NetlinkMessage& nlmsg)
   }
 
   if (ifiTypeToInterfaceType(ifi->ifi_type) == InterfaceType::UNKNOWN) {
-    NDN_LOG_DEBUG("unhandled interface type " << ifi->ifi_type);
+    NDN_LOG_DEBUG("  unhandled interface type " << ifi->ifi_type);
     return;
   }
 
@@ -221,7 +223,7 @@ NetworkMonitorImplNetlink::parseLinkMessage(const NetlinkMessage& nlmsg)
 
   if (nlmsg->nlmsg_type == RTM_DELLINK) {
     if (interface != nullptr) {
-      NDN_LOG_DEBUG("removing interface " << interface->getName());
+      NDN_LOG_DEBUG("  removing interface " << interface->getName());
       m_interfaces.erase(it);
       this->emitSignal(onInterfaceRemoved, interface);
     }
@@ -236,7 +238,7 @@ NetworkMonitorImplNetlink::parseLinkMessage(const NetlinkMessage& nlmsg)
   interface->setFlags(ifi->ifi_flags);
 
   auto attrs = nlmsg.getAttributes<rtattr>(ifi);
-  NDN_LOG_TRACE("message contains " << attrs.size() << " attributes");
+  NDN_LOG_TRACE("  message contains " << attrs.size() << " attributes");
 
   auto address = attrs.getAttributeByType<ethernet::Address>(IFLA_ADDRESS);
   if (address)
@@ -258,7 +260,7 @@ NetworkMonitorImplNetlink::parseLinkMessage(const NetlinkMessage& nlmsg)
   updateInterfaceState(*interface, state ? *state : linux_if::OPER_STATE_UNKNOWN);
 
   if (it == m_interfaces.end()) {
-    NDN_LOG_DEBUG("adding interface " << interface->getName());
+    NDN_LOG_DEBUG("  adding interface " << interface->getName());
     m_interfaces[interface->getIndex()] = interface;
     this->emitSignal(onInterfaceAdded, interface);
   }
@@ -276,14 +278,14 @@ NetworkMonitorImplNetlink::parseAddressMessage(const NetlinkMessage& nlmsg)
   auto it = m_interfaces.find(ifa->ifa_index);
   if (it == m_interfaces.end()) {
     // unknown interface, ignore message
-    NDN_LOG_TRACE("unknown interface index " << ifa->ifa_index);
+    NDN_LOG_TRACE("  unknown interface index " << ifa->ifa_index);
     return;
   }
   auto interface = it->second;
   BOOST_ASSERT(interface != nullptr);
 
   auto attrs = nlmsg.getAttributes<rtattr>(ifa);
-  NDN_LOG_TRACE("message contains " << attrs.size() << " attributes");
+  NDN_LOG_TRACE("  message contains " << attrs.size() << " attributes");
 
   namespace ip = boost::asio::ip;
   ip::address ipAddr, broadcastAddr;
@@ -334,21 +336,52 @@ NetworkMonitorImplNetlink::parseRouteMessage(const NetlinkMessage& nlmsg)
 }
 
 void
+NetworkMonitorImplNetlink::parseDoneMessage(const NetlinkMessage& nlmsg)
+{
+  const int* errcode = nlmsg.getPayload<int>();
+  if (errcode == nullptr) {
+    NDN_LOG_WARN("malformed NLMSG_DONE");
+  }
+  else {
+    if (*errcode != 0) {
+      NDN_LOG_ERROR("NLMSG_DONE err=" << *errcode << " " << std::strerror(std::abs(*errcode)));
+    }
+#ifdef NDN_CXX_HAVE_NETLINK_EXT_ACK
+    if (nlmsg->nlmsg_flags & NLM_F_ACK_TLVS) {
+      parseExtAckAttributes(nlmsg.getAttributes<nlattr>(errcode), *errcode != 0);
+    }
+#endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
+  }
+
+  if (m_isEnumeratingLinks) {
+    // links enumeration complete, now request all the addresses
+    m_isEnumeratingLinks = false;
+    NDN_LOG_TRACE("enumerating addresses");
+    m_rtnlSocket.sendDumpRequest(RTM_GETADDR,
+                                 [this] (const auto& msg) { this->parseRtnlMessage(msg); });
+    m_isEnumeratingAddresses = true;
+  }
+  else if (m_isEnumeratingAddresses) {
+    // links and addresses enumeration complete
+    m_isEnumeratingAddresses = false;
+    // TODO: enumerate routes
+    NDN_LOG_DEBUG("enumeration complete");
+    this->emitSignal(onEnumerationCompleted);
+  }
+}
+
+void
 NetworkMonitorImplNetlink::parseErrorMessage(const NetlinkMessage& nlmsg)
 {
   const nlmsgerr* err = nlmsg.getPayload<nlmsgerr>();
   if (err == nullptr) {
-    NDN_LOG_WARN("malformed nlmsgerr");
+    NDN_LOG_WARN("malformed NLMSG_ERROR");
     return;
   }
 
-  if (err->error == 0) {
-    // an error code of zero indicates an ACK message, not an error
-    NDN_LOG_TRACE("ACK");
-    return;
-  }
-
-  NDN_LOG_ERROR("NLMSG_ERROR: " << std::strerror(std::abs(err->error)));
+  if (err->error != 0)
+    NDN_LOG_ERROR("NLMSG_ERROR for seq=" << err->msg.nlmsg_seq
+                  << " err=" << err->error << " " << std::strerror(std::abs(err->error)));
 
 #ifdef NDN_CXX_HAVE_NETLINK_EXT_ACK
   if (!(nlmsg->nlmsg_flags & NLM_F_ACK_TLVS))
@@ -363,9 +396,7 @@ NetworkMonitorImplNetlink::parseErrorMessage(const NetlinkMessage& nlmsg)
 
   auto nla = reinterpret_cast<const nlattr*>(reinterpret_cast<const uint8_t*>(&*nlmsg) + errLen);
   auto attrs = NetlinkMessageAttributes<nlattr>(nla, nlmsg->nlmsg_len - errLen);
-  auto msg = attrs.getAttributeByType<std::string>(NLMSGERR_ATTR_MSG);
-  if (msg && !msg->empty())
-    NDN_LOG_ERROR("kernel message: " << *msg);
+  parseExtAckAttributes(attrs, err->error != 0);
 #endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
 }
 

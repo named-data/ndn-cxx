@@ -252,12 +252,12 @@ NetlinkSocket::receiveAndValidate()
       cbIt = m_pendingRequests.find(nlmsg->nlmsg_seq);
     }
     else {
-      NDN_LOG_TRACE("pid mismatch, ignoring");
+      NDN_LOG_TRACE("  pid mismatch, ignoring");
       continue;
     }
 
     if (cbIt == m_pendingRequests.end()) {
-      NDN_LOG_TRACE("no handler registered, ignoring");
+      NDN_LOG_TRACE("  no handler registered, ignoring");
       continue;
     }
     else if (nlmsg->nlmsg_flags & NLM_F_DUMP_INTR) {
@@ -485,8 +485,8 @@ GenlFamilyResolver::handleResolve(const NetlinkMessage& nlmsg)
         NDN_LOG_WARN("malformed nlmsgerr");
       }
       else if (err->error != 0) {
-        NDN_LOG_DEBUG("failed to resolve netlink family " << m_family << ": "
-                      << std::strerror(std::abs(err->error)));
+        NDN_LOG_DEBUG("  failed to resolve netlink family " << m_family
+                      << ": " << std::strerror(std::abs(err->error)));
       }
       onError();
       break;
@@ -519,7 +519,7 @@ GenlFamilyResolver::handleResolve(const NetlinkMessage& nlmsg)
         return onError();
       }
 
-      NDN_LOG_TRACE("resolved netlink family name=" << m_family << " id=" << *familyId);
+      NDN_LOG_TRACE("  resolved netlink family name=" << m_family << " id=" << *familyId);
       onResolved(*familyId);
       break;
     }
