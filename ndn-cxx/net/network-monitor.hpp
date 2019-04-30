@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -111,16 +111,16 @@ private:
   // be assigned to references below.
 
 public: // signals
-  /// Fires when network interfaces enumeration is complete
+  /// Fires when the enumeration of all network interfaces on the system is complete.
   util::Signal<NetworkMonitorImpl>& onEnumerationCompleted;
 
-  /// Fires when a new interface is added
+  /// Fires whenever a new interface is detected on the system.
   util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceAdded;
 
   /**
-   * @brief Fires when an interface is removed
-   * @note The NetworkInterface object is no longer present in the internal list of
-   *       network interfaces when this signal is emitted.
+   * @brief Fires whenever an interface disappears from the system.
+   * @note The NetworkInterface object has already been removed from the list
+   *       returned by listNetworkInterfaces() when this signal is emitted.
    */
   util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceRemoved;
 

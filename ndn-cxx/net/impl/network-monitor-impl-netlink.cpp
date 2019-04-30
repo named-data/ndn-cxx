@@ -43,8 +43,6 @@ namespace net {
 NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io)
   : m_rtnlSocket(io)
   , m_genlSocket(io)
-  , m_isEnumeratingLinks(false)
-  , m_isEnumeratingAddresses(false)
 {
   m_rtnlSocket.open();
 
@@ -55,10 +53,10 @@ NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io
   }
   m_rtnlSocket.registerNotificationCallback([this] (const auto& msg) { this->parseRtnlMessage(msg); });
 
+  m_phase = ENUMERATING_LINKS;
   NDN_LOG_TRACE("enumerating links");
   m_rtnlSocket.sendDumpRequest(RTM_GETLINK,
                                [this] (const auto& msg) { this->parseRtnlMessage(msg); });
-  m_isEnumeratingLinks = true;
 }
 
 shared_ptr<const NetworkInterface>
@@ -80,12 +78,6 @@ NetworkMonitorImplNetlink::listNetworkInterfaces() const
   return v;
 }
 
-bool
-NetworkMonitorImplNetlink::isEnumerating() const
-{
-  return m_isEnumeratingLinks || m_isEnumeratingAddresses;
-}
-
 void
 NetworkMonitorImplNetlink::parseRtnlMessage(const NetlinkMessage& nlmsg)
 {
@@ -93,21 +85,21 @@ NetworkMonitorImplNetlink::parseRtnlMessage(const NetlinkMessage& nlmsg)
   case RTM_NEWLINK:
   case RTM_DELLINK:
     parseLinkMessage(nlmsg);
-    if (!isEnumerating())
+    if (m_phase == ENUMERATION_COMPLETE)
       this->emitSignal(onNetworkStateChanged); // backward compat
     break;
 
   case RTM_NEWADDR:
   case RTM_DELADDR:
     parseAddressMessage(nlmsg);
-    if (!isEnumerating())
+    if (m_phase == ENUMERATION_COMPLETE)
       this->emitSignal(onNetworkStateChanged); // backward compat
     break;
 
   case RTM_NEWROUTE:
   case RTM_DELROUTE:
     parseRouteMessage(nlmsg);
-    if (!isEnumerating())
+    if (m_phase == ENUMERATION_COMPLETE)
       this->emitSignal(onNetworkStateChanged); // backward compat
     break;
 
@@ -353,20 +345,22 @@ NetworkMonitorImplNetlink::parseDoneMessage(const NetlinkMessage& nlmsg)
 #endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
   }
 
-  if (m_isEnumeratingLinks) {
+  switch (m_phase) {
+  case ENUMERATING_LINKS:
     // links enumeration complete, now request all the addresses
-    m_isEnumeratingLinks = false;
+    m_phase = ENUMERATING_ADDRS;
     NDN_LOG_TRACE("enumerating addresses");
     m_rtnlSocket.sendDumpRequest(RTM_GETADDR,
                                  [this] (const auto& msg) { this->parseRtnlMessage(msg); });
-    m_isEnumeratingAddresses = true;
-  }
-  else if (m_isEnumeratingAddresses) {
+    break;
+  case ENUMERATING_ADDRS:
     // links and addresses enumeration complete
-    m_isEnumeratingAddresses = false;
-    // TODO: enumerate routes
+    m_phase = ENUMERATION_COMPLETE; // TODO: enumerate routes
     NDN_LOG_DEBUG("enumeration complete");
     this->emitSignal(onEnumerationCompleted);
+    break;
+  default:
+    break;
   }
 }
 

@@ -63,9 +63,6 @@ public:
   listNetworkInterfaces() const final;
 
 private:
-  bool
-  isEnumerating() const;
-
   void
   parseRtnlMessage(const NetlinkMessage& nlmsg);
 
@@ -88,8 +85,14 @@ private:
   std::map<int, shared_ptr<NetworkInterface>> m_interfaces; ///< ifindex => interface
   RtnlSocket m_rtnlSocket; ///< rtnetlink socket
   GenlSocket m_genlSocket; ///< generic netlink socket to communicate with nl80211
-  bool m_isEnumeratingLinks; ///< true if a dump of all links is in progress
-  bool m_isEnumeratingAddresses; ///< true if a dump of all addresses is in progress
+
+  enum {
+    ENUMERATION_NOT_STARTED,
+    ENUMERATING_LINKS,    ///< a dump of all links (RTM_GETLINK) is in progress
+    ENUMERATING_ADDRS,    ///< a dump of all addresses (RTM_GETADDR) is in progress
+    ENUMERATING_ROUTES,   ///< a dump of all routes (RTM_GETROUTE) is in progress (unimplemented)
+    ENUMERATION_COMPLETE,
+  } m_phase = ENUMERATION_NOT_STARTED;
 };
 
 } // namespace net
