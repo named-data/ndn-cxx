@@ -29,8 +29,6 @@
 #include <linux/genetlink.h>
 #include <sys/socket.h>
 
-#include <boost/asio/write.hpp>
-
 #ifndef SOL_NETLINK
 #define SOL_NETLINK 270
 #endif
@@ -46,8 +44,51 @@ NDN_LOG_INIT(ndn.NetworkMonitor);
 namespace ndn {
 namespace net {
 
+// satisfies Asio's SettableSocketOption type requirements
+template<int OptName>
+class NetlinkSocketOption
+{
+public:
+  explicit
+  NetlinkSocketOption(int val)
+    : m_value(val)
+  {
+  }
+
+  template<typename Protocol>
+  int
+  level(const Protocol&) const
+  {
+    return SOL_NETLINK;
+  }
+
+  template<typename Protocol>
+  int
+  name(const Protocol&) const
+  {
+    return OptName;
+  }
+
+  template<typename Protocol>
+  const int*
+  data(const Protocol&) const
+  {
+    return &m_value;
+  }
+
+  template<typename Protocol>
+  std::size_t
+  size(const Protocol&) const
+  {
+    return sizeof(m_value);
+  }
+
+private:
+  int m_value;
+};
+
 NetlinkSocket::NetlinkSocket(boost::asio::io_service& io)
-  : m_sock(make_shared<boost::asio::posix::stream_descriptor>(io))
+  : m_sock(make_shared<boost::asio::generic::raw_protocol::socket>(io))
   , m_pid(0)
   , m_seqNum(static_cast<uint32_t>(time::system_clock::now().time_since_epoch().count()))
   , m_buffer(16 * 1024) // 16 KiB
@@ -63,34 +104,41 @@ NetlinkSocket::~NetlinkSocket()
 void
 NetlinkSocket::open(int protocol)
 {
-  int fd = ::socket(AF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, protocol);
+  boost::asio::generic::raw_protocol proto(AF_NETLINK, protocol);
+  // open socket manually to set the close-on-exec flag atomically on creation
+  int fd = ::socket(proto.family(), proto.type() | SOCK_CLOEXEC, proto.protocol());
   if (fd < 0) {
     NDN_THROW_ERRNO(Error("Cannot create netlink socket"));
   }
-  m_sock->assign(fd);
+
+  boost::system::error_code ec;
+  m_sock->assign(proto, fd, ec);
+  if (ec) {
+    NDN_THROW(Error("Cannot assign descriptor: " + ec.message()));
+  }
 
   // increase socket receive buffer to 1MB to avoid losing messages
-  const int bufsize = 1 * 1024 * 1024;
-  if (::setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) < 0) {
+  m_sock->set_option(boost::asio::socket_base::receive_buffer_size(1 * 1024 * 1024), ec);
+  if (ec) {
     // not a fatal error
-    NDN_LOG_DEBUG("setting SO_RCVBUF failed: " << std::strerror(errno));
+    NDN_LOG_DEBUG("setting receive buffer size failed: " << ec.message());
   }
 
   // enable control messages for received packets to get the destination group
-  const int one = 1;
-  if (::setsockopt(fd, SOL_NETLINK, NETLINK_PKTINFO, &one, sizeof(one)) < 0) {
-    NDN_THROW_ERRNO(Error("Cannot enable NETLINK_PKTINFO"));
+  m_sock->set_option(NetlinkSocketOption<NETLINK_PKTINFO>(true), ec);
+  if (ec) {
+    NDN_THROW(Error("Cannot enable NETLINK_PKTINFO: " + ec.message()));
   }
 
   sockaddr_nl addr{};
   addr.nl_family = AF_NETLINK;
-  if (::bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
+  if (::bind(m_sock->native_handle(), reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
     NDN_THROW_ERRNO(Error("Cannot bind netlink socket"));
   }
 
   // find out what pid has been assigned to us
   socklen_t len = sizeof(addr);
-  if (::getsockname(fd, reinterpret_cast<sockaddr*>(&addr), &len) < 0) {
+  if (::getsockname(m_sock->native_handle(), reinterpret_cast<sockaddr*>(&addr), &len) < 0) {
     NDN_THROW_ERRNO(Error("Cannot obtain netlink socket address"));
   }
   if (len != sizeof(addr)) {
@@ -103,16 +151,18 @@ NetlinkSocket::open(int protocol)
   NDN_LOG_TRACE("our pid is " << m_pid);
 
   // tell the kernel it doesn't need to include the original payload in ACK messages
-  if (::setsockopt(fd, SOL_NETLINK, NETLINK_CAP_ACK, &one, sizeof(one)) < 0) {
+  m_sock->set_option(NetlinkSocketOption<NETLINK_CAP_ACK>(true), ec);
+  if (ec) {
     // not a fatal error
-    NDN_LOG_DEBUG("setting NETLINK_CAP_ACK failed: " << std::strerror(errno));
+    NDN_LOG_DEBUG("setting NETLINK_CAP_ACK failed: " << ec.message());
   }
 
 #ifdef NDN_CXX_HAVE_NETLINK_EXT_ACK
   // enable extended ACK reporting
-  if (::setsockopt(fd, SOL_NETLINK, NETLINK_EXT_ACK, &one, sizeof(one)) < 0) {
+  m_sock->set_option(NetlinkSocketOption<NETLINK_EXT_ACK>(true), ec);
+  if (ec) {
     // not a fatal error
-    NDN_LOG_DEBUG("setting NETLINK_EXT_ACK failed: " << std::strerror(errno));
+    NDN_LOG_DEBUG("setting NETLINK_EXT_ACK failed: " << ec.message());
   }
 #endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
 }
@@ -120,9 +170,10 @@ NetlinkSocket::open(int protocol)
 void
 NetlinkSocket::joinGroup(int group)
 {
-  if (::setsockopt(m_sock->native_handle(), SOL_NETLINK, NETLINK_ADD_MEMBERSHIP,
-                   &group, sizeof(group)) < 0) {
-    NDN_THROW_ERRNO(Error("Cannot join netlink group " + to_string(group)));
+  boost::system::error_code ec;
+  m_sock->set_option(NetlinkSocketOption<NETLINK_ADD_MEMBERSHIP>(group), ec);
+  if (ec) {
+    NDN_THROW(Error("Cannot join netlink group " + to_string(group) + ": " + ec.message()));
   }
 }
 
@@ -164,23 +215,29 @@ NetlinkSocket::nlmsgTypeToString(uint16_t type) const
 void
 NetlinkSocket::asyncWait()
 {
-  m_sock->async_read_some(boost::asio::null_buffers(),
-    // capture a copy of 'm_sock' to prevent its deallocation while the handler is still pending
-    [this, sock = m_sock] (const boost::system::error_code& ec, size_t) {
-      if (!sock->is_open() || ec == boost::asio::error::operation_aborted) {
-        // socket was closed, ignore the error
-        NDN_LOG_DEBUG("netlink socket closed or operation aborted");
-      }
-      else if (ec) {
-        NDN_LOG_ERROR("read failed: " << ec.message());
-        NDN_THROW(Error("Netlink socket read error (" + ec.message() + ")"));
-      }
-      else {
-        receiveAndValidate();
-        if (!m_pendingRequests.empty())
-          asyncWait();
-      }
-  });
+  // capture a copy of 'm_sock' to prevent its deallocation while the handler is still pending
+  auto handler = [this, sock = m_sock] (const boost::system::error_code& ec) {
+    if (!sock->is_open() || ec == boost::asio::error::operation_aborted) {
+      // socket was closed, ignore the error
+      NDN_LOG_DEBUG("netlink socket closed or operation aborted");
+    }
+    else if (ec) {
+      NDN_LOG_ERROR("read failed: " << ec.message());
+      NDN_THROW(Error("Netlink socket read error (" + ec.message() + ")"));
+    }
+    else {
+      receiveAndValidate();
+      if (!m_pendingRequests.empty())
+        asyncWait();
+    }
+  };
+
+#if BOOST_VERSION >= 106600
+  m_sock->async_wait(boost::asio::socket_base::wait_read, std::move(handler));
+#else
+  m_sock->async_receive(boost::asio::null_buffers(),
+                        [h = std::move(handler)] (const boost::system::error_code& ec, size_t) { h(ec); });
+#endif
 }
 
 void
@@ -319,7 +376,7 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, MessageCallback cb)
 
   registerRequestCallback(request->nlh.nlmsg_seq, std::move(cb));
 
-  boost::asio::async_write(*m_sock, boost::asio::buffer(request.get(), request->nlh.nlmsg_len),
+  m_sock->async_send(boost::asio::buffer(request.get(), request->nlh.nlmsg_len),
     // capture 'request' to prevent its premature deallocation
     [this, request] (const boost::system::error_code& ec, size_t) {
       if (!ec) {
@@ -327,7 +384,7 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, MessageCallback cb)
                       << " seq=" << request->nlh.nlmsg_seq);
       }
       else if (ec != boost::asio::error::operation_aborted) {
-        NDN_LOG_ERROR("write failed: " << ec.message());
+        NDN_LOG_ERROR("send failed: " << ec.message());
         NDN_THROW(Error("Failed to send netlink request (" + ec.message() + ")"));
       }
   });
@@ -429,7 +486,7 @@ GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
     boost::asio::buffer(hdr.get(), sizeof(GenlRequestHeader)),
     boost::asio::buffer(payload, payloadLen)
   };
-  boost::asio::async_write(*m_sock, bufs,
+  m_sock->async_send(bufs,
     // capture 'hdr' to prevent its premature deallocation
     [this, hdr] (const boost::system::error_code& ec, size_t) {
       if (!ec) {
@@ -438,7 +495,7 @@ GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
                       " seq=" << hdr->nlh.nlmsg_seq);
       }
       else if (ec != boost::asio::error::operation_aborted) {
-        NDN_LOG_ERROR("write failed: " << ec.message());
+        NDN_LOG_ERROR("send failed: " << ec.message());
         NDN_THROW(Error("Failed to send netlink request (" + ec.message() + ")"));
       }
   });

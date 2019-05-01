@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,7 @@
 #include "ndn-cxx/net/network-monitor.hpp"
 #include "ndn-cxx/util/signal/signal.hpp"
 
-#include <boost/asio/posix/stream_descriptor.hpp>
+#include <boost/asio/generic/raw_protocol.hpp>
 #include <map>
 #include <vector>
 
@@ -75,7 +75,7 @@ private:
   receiveAndValidate();
 
 protected:
-  shared_ptr<boost::asio::posix::stream_descriptor> m_sock; ///< netlink socket descriptor
+  shared_ptr<boost::asio::generic::raw_protocol::socket> m_sock; ///< netlink socket descriptor
   uint32_t m_pid; ///< port ID of this socket
   uint32_t m_seqNum; ///< sequence number of the last netlink request sent to the kernel
 
