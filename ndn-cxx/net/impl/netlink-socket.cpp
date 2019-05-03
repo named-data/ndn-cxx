@@ -35,6 +35,9 @@
 #ifndef NETLINK_CAP_ACK
 #define NETLINK_CAP_ACK 10
 #endif
+#ifndef NETLINK_GET_STRICT_CHK
+#define NETLINK_GET_STRICT_CHK 12
+#endif
 
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
@@ -162,6 +165,13 @@ NetlinkSocket::open(int protocol)
     NDN_LOG_DEBUG("setting NETLINK_EXT_ACK failed: " << ec.message());
   }
 #endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
+
+  // enable strict checking of get/dump requests
+  m_sock->set_option(NetlinkSocketOption<NETLINK_GET_STRICT_CHK>(true), ec);
+  if (ec) {
+    // not a fatal error
+    NDN_LOG_DEBUG("setting NETLINK_GET_STRICT_CHK failed: " << ec.message());
+  }
 }
 
 void
