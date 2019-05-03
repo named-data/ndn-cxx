@@ -94,7 +94,9 @@ public:
   open();
 
   void
-  sendDumpRequest(uint16_t nlmsgType, MessageCallback cb);
+  sendDumpRequest(uint16_t nlmsgType,
+                  const void* payload, size_t payloadLen,
+                  MessageCallback cb);
 
 protected:
   std::string

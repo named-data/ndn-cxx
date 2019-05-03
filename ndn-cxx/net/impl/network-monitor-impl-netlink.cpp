@@ -35,6 +35,10 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm_ext/push_back.hpp>
 
+#ifndef RTEXT_FILTER_SKIP_STATS
+#define RTEXT_FILTER_SKIP_STATS (1 << 3)
+#endif
+
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
 namespace ndn {
@@ -53,10 +57,7 @@ NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io
   }
   m_rtnlSocket.registerNotificationCallback([this] (const auto& msg) { this->parseRtnlMessage(msg); });
 
-  m_phase = ENUMERATING_LINKS;
-  NDN_LOG_TRACE("enumerating links");
-  m_rtnlSocket.sendDumpRequest(RTM_GETLINK,
-                               [this] (const auto& msg) { this->parseRtnlMessage(msg); });
+  enumerateLinks();
 }
 
 shared_ptr<const NetworkInterface>
@@ -76,6 +77,61 @@ NetworkMonitorImplNetlink::listNetworkInterfaces() const
   v.reserve(m_interfaces.size());
   boost::push_back(v, m_interfaces | boost::adaptors::map_values);
   return v;
+}
+
+void
+NetworkMonitorImplNetlink::enumerateLinks()
+{
+  NDN_LOG_TRACE("enumerating links");
+  m_phase = ENUMERATING_LINKS;
+
+  struct IfInfoMessage
+  {
+    alignas(NLMSG_ALIGNTO) ifinfomsg ifi;
+    alignas(RTA_ALIGNTO) rtattr rta;
+    alignas(RTA_ALIGNTO) uint32_t rtext; // space for IFLA_EXT_MASK
+  };
+
+  auto payload = make_shared<IfInfoMessage>();
+  payload->ifi.ifi_family = AF_UNSPEC;
+  payload->rta.rta_type = IFLA_EXT_MASK;
+  payload->rta.rta_len = RTA_LENGTH(sizeof(payload->rtext));
+  payload->rtext = RTEXT_FILTER_SKIP_STATS;
+
+  m_rtnlSocket.sendDumpRequest(RTM_GETLINK, payload.get(), sizeof(IfInfoMessage),
+                               // capture 'payload' to prevent its premature deallocation
+                               [this, payload] (const auto& msg) { this->parseRtnlMessage(msg); });
+}
+
+void
+NetworkMonitorImplNetlink::enumerateAddrs()
+{
+  NDN_LOG_TRACE("enumerating addresses");
+  m_phase = ENUMERATING_ADDRS;
+
+  struct IfAddrMessage
+  {
+    alignas(NLMSG_ALIGNTO) ifaddrmsg ifa;
+  };
+
+  auto payload = make_shared<IfAddrMessage>();
+  payload->ifa.ifa_family = AF_UNSPEC;
+
+  m_rtnlSocket.sendDumpRequest(RTM_GETADDR, payload.get(), sizeof(IfAddrMessage),
+                               // capture 'payload' to prevent its premature deallocation
+                               [this, payload] (const auto& msg) { this->parseRtnlMessage(msg); });
+}
+
+void
+NetworkMonitorImplNetlink::enumerateRoutes()
+{
+  // TODO: enumerate routes
+  //NDN_LOG_TRACE("enumerating routes");
+  //m_phase = ENUMERATING_ROUTES;
+
+  NDN_LOG_DEBUG("enumeration complete");
+  m_phase = ENUMERATION_COMPLETE;
+  this->emitSignal(onEnumerationCompleted);
 }
 
 void
@@ -348,16 +404,11 @@ NetworkMonitorImplNetlink::parseDoneMessage(const NetlinkMessage& nlmsg)
   switch (m_phase) {
   case ENUMERATING_LINKS:
     // links enumeration complete, now request all the addresses
-    m_phase = ENUMERATING_ADDRS;
-    NDN_LOG_TRACE("enumerating addresses");
-    m_rtnlSocket.sendDumpRequest(RTM_GETADDR,
-                                 [this] (const auto& msg) { this->parseRtnlMessage(msg); });
+    enumerateAddrs();
     break;
   case ENUMERATING_ADDRS:
-    // links and addresses enumeration complete
-    m_phase = ENUMERATION_COMPLETE; // TODO: enumerate routes
-    NDN_LOG_DEBUG("enumeration complete");
-    this->emitSignal(onEnumerationCompleted);
+    // links and addresses enumeration complete, now request all the routes
+    enumerateRoutes();
     break;
   default:
     break;

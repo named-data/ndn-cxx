@@ -64,6 +64,15 @@ public:
 
 private:
   void
+  enumerateLinks();
+
+  void
+  enumerateAddrs();
+
+  void
+  enumerateRoutes();
+
+  void
   parseRtnlMessage(const NetlinkMessage& nlmsg);
 
   void

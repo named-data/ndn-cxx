@@ -35,9 +35,6 @@
 #ifndef NETLINK_CAP_ACK
 #define NETLINK_CAP_ACK 10
 #endif
-#ifndef RTEXT_FILTER_SKIP_STATS
-#define RTEXT_FILTER_SKIP_STATS (1 << 3)
-#endif
 
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
@@ -353,35 +350,34 @@ RtnlSocket::open()
 }
 
 void
-RtnlSocket::sendDumpRequest(uint16_t nlmsgType, MessageCallback cb)
+RtnlSocket::sendDumpRequest(uint16_t nlmsgType, const void* payload, size_t payloadLen,
+                            MessageCallback cb)
 {
-  struct RtnlRequest
+  struct RtnlMessageHeader
   {
-    nlmsghdr nlh;
-    alignas(NLMSG_ALIGNTO) ifinfomsg ifi;
-    alignas(NLMSG_ALIGNTO) rtattr rta;
-    alignas(NLMSG_ALIGNTO) uint32_t rtext; // space for IFLA_EXT_MASK
+    alignas(NLMSG_ALIGNTO) nlmsghdr nlh;
   };
+  static_assert(sizeof(RtnlMessageHeader) == NLMSG_HDRLEN, "");
 
-  auto request = make_shared<RtnlRequest>();
-  request->nlh.nlmsg_type = nlmsgType;
-  request->nlh.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
-  request->nlh.nlmsg_seq = ++m_seqNum;
-  request->nlh.nlmsg_pid = m_pid;
-  request->ifi.ifi_family = AF_UNSPEC;
-  request->rta.rta_type = IFLA_EXT_MASK;
-  request->rta.rta_len = RTA_LENGTH(sizeof(request->rtext));
-  request->rtext = RTEXT_FILTER_SKIP_STATS;
-  request->nlh.nlmsg_len = NLMSG_SPACE(sizeof(ifinfomsg)) + request->rta.rta_len;
+  auto hdr = make_shared<RtnlMessageHeader>();
+  hdr->nlh.nlmsg_len = sizeof(RtnlMessageHeader) + payloadLen;
+  hdr->nlh.nlmsg_type = nlmsgType;
+  hdr->nlh.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
+  hdr->nlh.nlmsg_seq = ++m_seqNum;
+  hdr->nlh.nlmsg_pid = m_pid;
 
-  registerRequestCallback(request->nlh.nlmsg_seq, std::move(cb));
+  registerRequestCallback(hdr->nlh.nlmsg_seq, std::move(cb));
 
-  m_sock->async_send(boost::asio::buffer(request.get(), request->nlh.nlmsg_len),
-    // capture 'request' to prevent its premature deallocation
-    [this, request] (const boost::system::error_code& ec, size_t) {
+  std::array<boost::asio::const_buffer, 2> bufs = {
+    boost::asio::buffer(hdr.get(), sizeof(RtnlMessageHeader)),
+    boost::asio::buffer(payload, payloadLen)
+  };
+  m_sock->async_send(bufs,
+    // capture 'hdr' to prevent its premature deallocation
+    [this, hdr] (const boost::system::error_code& ec, size_t) {
       if (!ec) {
-        NDN_LOG_TRACE("sent dump request type=" << nlmsgTypeToString(request->nlh.nlmsg_type)
-                      << " seq=" << request->nlh.nlmsg_seq);
+        NDN_LOG_TRACE("sent dump request type=" << nlmsgTypeToString(hdr->nlh.nlmsg_type)
+                      << " seq=" << hdr->nlh.nlmsg_seq);
       }
       else if (ec != boost::asio::error::operation_aborted) {
         NDN_LOG_ERROR("send failed: " << ec.message());
@@ -464,15 +460,15 @@ void
 GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
                         const void* payload, size_t payloadLen, MessageCallback cb)
 {
-  struct GenlRequestHeader
+  struct GenlMessageHeader
   {
     alignas(NLMSG_ALIGNTO) nlmsghdr nlh;
     alignas(NLMSG_ALIGNTO) genlmsghdr genlh;
   };
-  static_assert(sizeof(GenlRequestHeader) == NLMSG_SPACE(GENL_HDRLEN), "");
+  static_assert(sizeof(GenlMessageHeader) == NLMSG_SPACE(GENL_HDRLEN), "");
 
-  auto hdr = make_shared<GenlRequestHeader>();
-  hdr->nlh.nlmsg_len = sizeof(GenlRequestHeader) + payloadLen;
+  auto hdr = make_shared<GenlMessageHeader>();
+  hdr->nlh.nlmsg_len = sizeof(GenlMessageHeader) + payloadLen;
   hdr->nlh.nlmsg_type = familyId;
   hdr->nlh.nlmsg_flags = NLM_F_REQUEST;
   hdr->nlh.nlmsg_seq = ++m_seqNum;
@@ -483,7 +479,7 @@ GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
   registerRequestCallback(hdr->nlh.nlmsg_seq, std::move(cb));
 
   std::array<boost::asio::const_buffer, 2> bufs = {
-    boost::asio::buffer(hdr.get(), sizeof(GenlRequestHeader)),
+    boost::asio::buffer(hdr.get(), sizeof(GenlMessageHeader)),
     boost::asio::buffer(payload, payloadLen)
   };
   m_sock->async_send(bufs,
@@ -518,8 +514,8 @@ GenlFamilyResolver::asyncResolve()
 {
   struct FamilyNameAttribute
   {
-    alignas(NLMSG_ALIGNTO) nlattr nla;
-    alignas(NLMSG_ALIGNTO) char name[GENL_NAMSIZ];
+    alignas(NLA_ALIGNTO) nlattr nla;
+    alignas(NLA_ALIGNTO) char name[GENL_NAMSIZ];
   };
 
   auto attr = make_shared<FamilyNameAttribute>();
