@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,7 @@
 namespace ndn {
 
 /**
- * @brief Base class of key parameters.
+ * @brief Base class for key parameters.
  *
  * Its subclasses are used to store parameters for key generation.
  */
@@ -70,7 +70,7 @@ public:
 
 protected:
   /**
-   * @brief Create a key generation parameter
+   * @brief Constructor
    *
    * @param keyType Type of the created key
    * @param keyIdType The method how the key id should be generated; must not be
@@ -79,7 +79,7 @@ protected:
   KeyParams(KeyType keyType, KeyIdType keyIdType);
 
   /**
-   * @brief Create a key generation parameter
+   * @brief Constructor
    *
    * @param keyType Type of the created key
    * @param keyId The user-specified key id. The keyIdType will be set to KeyIdType::USER_SPECIFIED.
@@ -149,7 +149,7 @@ template<typename KeyParamsInfo>
 class SimplePublicKeyParams : public KeyParams
 {
 public:
-  /// @brief Create key parameter with user specified @p keyId.
+  /// @brief Create key parameters with user-specified key id.
   explicit
   SimplePublicKeyParams(const name::Component& keyId,
                         uint32_t size = KeyParamsInfo::getDefaultSize())
@@ -159,10 +159,10 @@ public:
   }
 
   /**
-   * @brief Create key parameter with auto-created keyId.
+   * @brief Create key parameters with auto-generated key id.
    *
    * This method is used only if user does not want to maintain the uniqueness of key name.
-   * By default, an 8-byte random number will be used as the key Id.
+   * By default, an 8-byte random number will be used as key id.
    */
   explicit
   SimplePublicKeyParams(uint32_t size = KeyParamsInfo::getDefaultSize(),
@@ -217,7 +217,29 @@ public:
   /**
    * @brief check if @p size is valid and supported for this key type.
    *
-   * @return KeyParams::Error if the key size is not supported.
+   * @throw KeyParams::Error if the key size is not supported.
+   */
+  static uint32_t
+  checkKeySize(uint32_t size);
+
+  static uint32_t
+  getDefaultSize();
+};
+
+/// @brief HmacKeyParamsInfo is used to instantiate SimpleSymmetricKeyParams for HMAC keys.
+class HmacKeyParamsInfo
+{
+public:
+  static constexpr KeyType
+  getType()
+  {
+    return KeyType::HMAC;
+  }
+
+  /**
+   * @brief check if @p size is valid and supported for this key type.
+   *
+   * @throw KeyParams::Error if the key size is not supported.
    */
   static uint32_t
   checkKeySize(uint32_t size);
@@ -234,7 +256,7 @@ template<typename KeyParamsInfo>
 class SimpleSymmetricKeyParams : public KeyParams
 {
 public:
-  /// @brief Create key parameter with user specified @p keyId.
+  /// @brief Create key parameters with user-specified key id.
   explicit
   SimpleSymmetricKeyParams(const name::Component& keyId,
                            uint32_t size = KeyParamsInfo::getDefaultSize())
@@ -244,10 +266,10 @@ public:
   }
 
   /**
-   * @brief Create key parameter with auto-created keyId.
+   * @brief Create key parameters with auto-generated key id.
    *
    * This method is used only if user does not want to maintain the uniqueness of key name.
-   * By default, an 8-byte random number will be used as the key Id.
+   * By default, an 8-byte random number will be used as key id.
    */
   explicit
   SimpleSymmetricKeyParams(uint32_t size = KeyParamsInfo::getDefaultSize(),
@@ -282,6 +304,9 @@ private:
 
 /// @brief AesKeyParams carries parameters for AES key.
 typedef SimpleSymmetricKeyParams<detail::AesKeyParamsInfo> AesKeyParams;
+
+/// @brief HmacKeyParams carries parameters for HMAC key.
+typedef SimpleSymmetricKeyParams<detail::HmacKeyParamsInfo> HmacKeyParams;
 
 } // namespace ndn
 

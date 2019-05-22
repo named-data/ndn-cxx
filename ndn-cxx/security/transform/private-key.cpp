@@ -28,6 +28,7 @@
 #include "ndn-cxx/security/impl/openssl-helper.hpp"
 #include "ndn-cxx/security/key-params.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/util/random.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <cstring>
@@ -60,21 +61,16 @@ opensslInitAlgorithms()
 #endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
 }
 
-class PrivateKey::Impl
+class PrivateKey::Impl : noncopyable
 {
 public:
-  Impl() noexcept
-    : key(nullptr)
-  {
-  }
-
   ~Impl()
   {
     EVP_PKEY_free(key);
   }
 
 public:
-  EVP_PKEY* key;
+  EVP_PKEY* key = nullptr;
 };
 
 PrivateKey::PrivateKey()
@@ -95,6 +91,8 @@ PrivateKey::getKeyType() const
     return KeyType::RSA;
   case EVP_PKEY_EC:
     return KeyType::EC;
+  case EVP_PKEY_HMAC:
+    return KeyType::HMAC;
   default:
     return KeyType::NONE;
   }
@@ -388,6 +386,7 @@ PrivateKey::generateRsaKey(uint32_t keySize)
   if (EVP_PKEY_keygen(kctx, &privateKey->m_impl->key) <= 0)
     NDN_THROW(PrivateKey::Error("Failed to generate RSA key"));
 
+  privateKey->m_keySize = keySize;
   return privateKey;
 }
 
@@ -431,6 +430,27 @@ PrivateKey::generateEcKey(uint32_t keySize)
   if (EVP_PKEY_keygen(kctx, &privateKey->m_impl->key) <= 0)
     NDN_THROW(PrivateKey::Error("Failed to generate EC key"));
 
+  privateKey->m_keySize = keySize;
+  return privateKey;
+}
+
+unique_ptr<PrivateKey>
+PrivateKey::generateHmacKey(uint32_t keySize)
+{
+  std::vector<uint8_t> rawKey(keySize / 8);
+  random::generateSecureBytes(rawKey.data(), rawKey.size());
+
+  auto privateKey = make_unique<PrivateKey>();
+  privateKey->m_impl->key =
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
+      EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, nullptr, rawKey.data(), rawKey.size());
+#else
+      EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, nullptr, rawKey.data(), static_cast<int>(rawKey.size()));
+#endif
+  if (privateKey->m_impl->key == nullptr)
+    NDN_THROW(PrivateKey::Error("Failed to generate HMAC key"));
+
+  privateKey->m_keySize = keySize;
   return privateKey;
 }
 
@@ -445,6 +465,10 @@ generatePrivateKey(const KeyParams& keyParams)
     case KeyType::EC: {
       const EcKeyParams& ecParams = static_cast<const EcKeyParams&>(keyParams);
       return PrivateKey::generateEcKey(ecParams.getKeySize());
+    }
+    case KeyType::HMAC: {
+      const HmacKeyParams& hmacParams = static_cast<const HmacKeyParams&>(keyParams);
+      return PrivateKey::generateHmacKey(hmacParams.getKeySize());
     }
     default:
       NDN_THROW(std::invalid_argument("Unsupported asymmetric key type " +

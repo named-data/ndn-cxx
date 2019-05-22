@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "ndn-cxx/security/transform/verifier-filter.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/key-params.hpp"
 #include "ndn-cxx/security/transform/base64-decode.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
@@ -40,6 +41,8 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
 BOOST_AUTO_TEST_SUITE(TestVerifierFilter)
+
+const uint8_t DATA[] = {0x01, 0x02, 0x03, 0x04};
 
 BOOST_AUTO_TEST_CASE(Rsa)
 {
@@ -78,7 +81,6 @@ BOOST_AUTO_TEST_CASE(Rsa)
     "/YnHJC50/dIKbZakaapXOFFgiep5q1jmxR2U8seb+nvtFPsTLFAdOXCfwUk+4z/h\n"
     "kfWtB3+8H5jyoC1gkJ7EMyxu8tb4mz5U6+SPB4QLSetwvfWP2YXS/PkTq19G7iGE\n"
     "novjJ9azSBJ6OyR5UH/DxBji\n";
-  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
@@ -91,13 +93,14 @@ BOOST_AUTO_TEST_CASE(Rsa)
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
 
   OBufferStream os2;
-  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
 
   bool result = false;
-  bufferSource(data, sizeof(data)) >>
+  bufferSource(DATA, sizeof(DATA)) >>
     verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
     boolSink(result);
 
@@ -123,7 +126,6 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
     "RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA\n"
     "//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABGhuFibgwLdEJBDOLdvSg1Hc\n"
     "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
-  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
@@ -136,14 +138,33 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
 
   OBufferStream os2;
-  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
 
   bool result = false;
-  bufferSource(data, sizeof(data)) >>
+  bufferSource(DATA, sizeof(DATA)) >>
     verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
+    boolSink(result);
+
+  BOOST_CHECK_EQUAL(result, true);
+}
+
+BOOST_AUTO_TEST_CASE(Hmac)
+{
+  auto sKey = generatePrivateKey(HmacKeyParams());
+
+  OBufferStream os;
+  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, *sKey) >> streamSink(os);
+  auto sig = os.buf();
+
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, sig->data(), sig->size()), Error);
+
+  bool result = false;
+  bufferSource(DATA, sizeof(DATA)) >>
+    verifierFilter(DigestAlgorithm::SHA256, *sKey, sig->data(), sig->size()) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
@@ -151,8 +172,10 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
 
 BOOST_AUTO_TEST_CASE(InvalidKey)
 {
-  PublicKey pKey;
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pKey, nullptr, 0), Error);
+  PublicKey pubKey;
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pubKey, nullptr, 0), Error);
+  PrivateKey privKey;
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, privKey, nullptr, 0), Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestVerifierFilter

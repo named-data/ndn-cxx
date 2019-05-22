@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -87,6 +87,7 @@ enum class KeyType {
   RSA  = 1,   ///< RSA key, supports sign/verify and encrypt/decrypt operations
   EC   = 2,   ///< Elliptic Curve key (e.g. for ECDSA), supports sign/verify operations
   AES  = 128, ///< AES key, supports encrypt/decrypt operations
+  HMAC = 256, ///< HMAC key, supports sign/verify operations
 };
 
 std::ostream&

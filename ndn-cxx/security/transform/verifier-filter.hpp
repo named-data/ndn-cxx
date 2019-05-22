@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,26 +29,33 @@ namespace ndn {
 namespace security {
 namespace transform {
 
+class PrivateKey;
 class PublicKey;
 
 /**
  * @brief The module to verify signatures.
  *
  * The next module in the chain is usually BoolSink.
- *
- * @note This module cannot be used to verify HMACs.
  */
 class VerifierFilter : public Transform
 {
 public:
   /**
-   * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and key @p key
+   * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and public key @p key
    */
   VerifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen);
+
+  /**
+   * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and HMAC key @p key
+   */
+  VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen);
 
   ~VerifierFilter();
 
 private:
+  void
+  init(DigestAlgorithm algo, void* pkey);
+
   /**
    * @brief Write data @p buf into verifier
    *
@@ -66,10 +73,15 @@ private:
 private:
   class Impl;
   const unique_ptr<Impl> m_impl;
+
+  KeyType m_keyType;
 };
 
 unique_ptr<Transform>
 verifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen);
+
+unique_ptr<Transform>
+verifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen);
 
 } // namespace transform
 } // namespace security

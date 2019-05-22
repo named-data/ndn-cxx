@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,20 +36,20 @@ BOOST_AUTO_TEST_CASE(Rsa)
   RsaKeyParams params;
   BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::RSA);
   BOOST_CHECK_EQUAL(params.getKeySize(), 2048);
-  BOOST_CHECK(params.getKeyIdType() == KeyIdType::RANDOM);
+  BOOST_CHECK_EQUAL(params.getKeyIdType(), KeyIdType::RANDOM);
 
   RsaKeyParams params2(4096, KeyIdType::SHA256);
   BOOST_CHECK_EQUAL(params2.getKeyType(), KeyType::RSA);
   BOOST_CHECK_EQUAL(params2.getKeySize(), 4096);
-  BOOST_CHECK(params2.getKeyIdType() == KeyIdType::SHA256);
+  BOOST_CHECK_EQUAL(params2.getKeyIdType(), KeyIdType::SHA256);
 
   BOOST_CHECK_THROW(RsaKeyParams(1024), KeyParams::Error);
 
   name::Component keyId("keyId");
   RsaKeyParams params4(keyId);
-  BOOST_CHECK(params4.getKeyType() == KeyType::RSA);
+  BOOST_CHECK_EQUAL(params4.getKeyType(), KeyType::RSA);
   BOOST_CHECK_EQUAL(params4.getKeySize(), 2048);
-  BOOST_CHECK(params4.getKeyIdType() == KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params4.getKeyIdType(), KeyIdType::USER_SPECIFIED);
   BOOST_CHECK_EQUAL(params4.getKeyId(), keyId);
 }
 
@@ -58,20 +58,20 @@ BOOST_AUTO_TEST_CASE(Ec)
   EcKeyParams params;
   BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::EC);
   BOOST_CHECK_EQUAL(params.getKeySize(), 256);
-  BOOST_CHECK(params.getKeyIdType() == KeyIdType::RANDOM);
+  BOOST_CHECK_EQUAL(params.getKeyIdType(), KeyIdType::RANDOM);
 
   EcKeyParams params2(384, KeyIdType::SHA256);
   BOOST_CHECK_EQUAL(params2.getKeyType(), KeyType::EC);
   BOOST_CHECK_EQUAL(params2.getKeySize(), 384);
-  BOOST_CHECK(params2.getKeyIdType() == KeyIdType::SHA256);
+  BOOST_CHECK_EQUAL(params2.getKeyIdType(), KeyIdType::SHA256);
 
-  BOOST_CHECK_THROW(EcKeyParams(3), KeyParams::Error);
+  BOOST_CHECK_THROW(EcKeyParams(64), KeyParams::Error);
 
   name::Component keyId("keyId");
   EcKeyParams params4(keyId);
-  BOOST_CHECK(params4.getKeyType() == KeyType::EC);
+  BOOST_CHECK_EQUAL(params4.getKeyType(), KeyType::EC);
   BOOST_CHECK_EQUAL(params4.getKeySize(), 256);
-  BOOST_CHECK(params4.getKeyIdType() == KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params4.getKeyIdType(), KeyIdType::USER_SPECIFIED);
   BOOST_CHECK_EQUAL(params4.getKeyId(), keyId);
 }
 
@@ -82,32 +82,73 @@ BOOST_AUTO_TEST_CASE(Aes)
   BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::AES);
   BOOST_CHECK_EQUAL(params.getKeySize(), 128);
   BOOST_CHECK_EQUAL(params.getKeyIdType(), KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params.getKeyId(), keyId);
 
   AesKeyParams params2(keyId, 192);
-  BOOST_CHECK(params2.getKeyType() == KeyType::AES);
+  BOOST_CHECK_EQUAL(params2.getKeyType(), KeyType::AES);
   BOOST_CHECK_EQUAL(params2.getKeySize(), 192);
-  BOOST_CHECK(params.getKeyIdType() == KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params2.getKeyIdType(), KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params2.getKeyId(), keyId);
 
   AesKeyParams params3(keyId, 256);
   BOOST_CHECK_EQUAL(params3.getKeyType(), KeyType::AES);
   BOOST_CHECK_EQUAL(params3.getKeySize(), 256);
-  BOOST_CHECK(params.getKeyIdType() == KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params3.getKeyIdType(), KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params3.getKeyId(), keyId);
 
-  BOOST_CHECK_THROW(AesKeyParams(keyId, 4), KeyParams::Error);
+  BOOST_CHECK_THROW(AesKeyParams(keyId, 64), KeyParams::Error);
 
-  AesKeyParams params5(keyId);
+  AesKeyParams params4;
+  BOOST_CHECK_EQUAL(params4.getKeyType(), KeyType::AES);
+  BOOST_CHECK_EQUAL(params4.getKeySize(), 128);
+  BOOST_CHECK_EQUAL(params4.getKeyIdType(), KeyIdType::RANDOM);
+
+  AesKeyParams params5(192);
   BOOST_CHECK_EQUAL(params5.getKeyType(), KeyType::AES);
-  BOOST_CHECK_EQUAL(params5.getKeySize(), 128);
-  BOOST_CHECK_EQUAL(params5.getKeyIdType(), KeyIdType::USER_SPECIFIED);
-  BOOST_CHECK_EQUAL(params5.getKeyId(), keyId);
-
-  AesKeyParams params6(192);
-  BOOST_CHECK(params6.getKeyType() == KeyType::AES);
-  BOOST_CHECK_EQUAL(params6.getKeySize(), 192);
-  BOOST_CHECK(params6.getKeyIdType() == KeyIdType::RANDOM);
+  BOOST_CHECK_EQUAL(params5.getKeySize(), 192);
+  BOOST_CHECK_EQUAL(params5.getKeyIdType(), KeyIdType::RANDOM);
 }
 
-BOOST_AUTO_TEST_CASE(KeyIdTypeInfo)
+BOOST_AUTO_TEST_CASE(Hmac)
+{
+  name::Component keyId("keyId");
+  HmacKeyParams params(keyId);
+  BOOST_CHECK_EQUAL(params.getKeyType(), KeyType::HMAC);
+  BOOST_CHECK_EQUAL(params.getKeySize(), 256);
+  BOOST_CHECK_EQUAL(params.getKeyIdType(), KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params.getKeyId(), keyId);
+
+  HmacKeyParams params2(keyId, 384);
+  BOOST_CHECK_EQUAL(params2.getKeyType(), KeyType::HMAC);
+  BOOST_CHECK_EQUAL(params2.getKeySize(), 384);
+  BOOST_CHECK_EQUAL(params2.getKeyIdType(), KeyIdType::USER_SPECIFIED);
+  BOOST_CHECK_EQUAL(params2.getKeyId(), keyId);
+
+  BOOST_CHECK_THROW(HmacKeyParams(keyId, 192), KeyParams::Error); // too short
+  BOOST_CHECK_THROW(HmacKeyParams(keyId, 300), KeyParams::Error); // not a multiple of 8
+
+  HmacKeyParams params3;
+  BOOST_CHECK_EQUAL(params3.getKeyType(), KeyType::HMAC);
+  BOOST_CHECK_EQUAL(params3.getKeySize(), 256);
+  BOOST_CHECK_EQUAL(params3.getKeyIdType(), KeyIdType::RANDOM);
+
+  HmacKeyParams params4(1024);
+  BOOST_CHECK_EQUAL(params4.getKeyType(), KeyType::HMAC);
+  BOOST_CHECK_EQUAL(params4.getKeySize(), 1024);
+  BOOST_CHECK_EQUAL(params4.getKeyIdType(), KeyIdType::RANDOM);
+}
+
+BOOST_AUTO_TEST_CASE(KeyTypeToString)
+{
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyType::NONE), "NONE");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyType::RSA), "RSA");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyType::EC), "EC");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyType::AES), "AES");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyType::HMAC), "HMAC");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<KeyType>(12345)), "12345");
+}
+
+BOOST_AUTO_TEST_CASE(KeyIdTypeToString)
 {
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyIdType::USER_SPECIFIED), "USER_SPECIFIED");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyIdType::SHA256), "SHA256");

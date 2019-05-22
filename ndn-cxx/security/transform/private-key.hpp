@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,6 +69,18 @@ public:
    */
   KeyType
   getKeyType() const;
+
+  /**
+   * @brief Get the size of the private key in bits
+   *
+   * @note The return value is meaningful only if the PrivateKey was created via
+   *       generatePrivateKey(), otherwise this function will always return zero.
+   */
+  size_t
+  getKeySize() const
+  {
+    return m_keySize;
+  }
 
   /**
    * @brief Load the private key in PKCS#1 format from a buffer @p buf
@@ -218,6 +230,7 @@ public:
 
 private:
   friend class SignerFilter;
+  friend class VerifierFilter;
 
   /**
    * @return A pointer to an OpenSSL EVP_PKEY instance.
@@ -249,9 +262,14 @@ private:
   static unique_ptr<PrivateKey>
   generateEcKey(uint32_t keySize);
 
+  static unique_ptr<PrivateKey>
+  generateHmacKey(uint32_t keySize);
+
 private:
   class Impl;
   const unique_ptr<Impl> m_impl;
+
+  size_t m_keySize = 0;
 };
 
 /**

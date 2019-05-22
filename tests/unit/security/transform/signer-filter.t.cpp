@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "ndn-cxx/security/transform/signer-filter.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/key-params.hpp"
 #include "ndn-cxx/security/transform/base64-decode.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
@@ -38,6 +39,8 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
 BOOST_AUTO_TEST_SUITE(TestSignerFilter)
+
+const uint8_t DATA[] = {0x01, 0x02, 0x03, 0x04};
 
 BOOST_AUTO_TEST_CASE(Rsa)
 {
@@ -75,7 +78,6 @@ BOOST_AUTO_TEST_CASE(Rsa)
     "cuHICmsCgYAtFJ1idqMoHxES3mlRpf2JxyQudP3SCm2WpGmqVzhRYInqeatY5sUd\n"
     "lPLHm/p77RT7EyxQHTlwn8FJPuM/4ZH1rQd/vB+Y8qAtYJCexDMsbvLW+Js+VOvk\n"
     "jweEC0nrcL31j9mF0vz5E6tfRu4hhJ6L4yfWs0gSejskeVB/w8QY4g==\n";
-  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
@@ -87,10 +89,10 @@ BOOST_AUTO_TEST_CASE(Rsa)
   BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, sKey), Error);
 
   OBufferStream os2;
-  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK(verifySignature(data, sizeof(data), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_CHECK(verifySignature(DATA, sizeof(DATA), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_CASE(Ecdsa)
@@ -112,7 +114,6 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
     "RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA\n"
     "//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABGhuFibgwLdEJBDOLdvSg1Hc\n"
     "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
-  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
@@ -124,10 +125,34 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, sKey), Error);
 
   OBufferStream os2;
-  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK(verifySignature(data, sizeof(data), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_CHECK(verifySignature(DATA, sizeof(DATA), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+}
+
+BOOST_AUTO_TEST_CASE(Hmac)
+{
+  auto sKey = generatePrivateKey(HmacKeyParams());
+
+  BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, *sKey), Error);
+
+  OBufferStream os;
+  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, *sKey) >> streamSink(os);
+  auto sig = os.buf();
+
+  BOOST_CHECK_EQUAL(sig->size(), 32);
+}
+
+BOOST_AUTO_TEST_CASE(HmacKeyTooShort)
+{
+  auto sKey = generatePrivateKey(HmacKeyParams(256));
+
+  OBufferStream os;
+  BOOST_CHECK_THROW(bufferSource(DATA, sizeof(DATA)) >>
+                    signerFilter(DigestAlgorithm::SHA512, *sKey) >>
+                    streamSink(os),
+                    Error);
 }
 
 BOOST_AUTO_TEST_CASE(InvalidKey)

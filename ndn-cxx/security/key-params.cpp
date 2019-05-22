@@ -23,13 +23,6 @@
 
 namespace ndn {
 
-static const uint32_t MIN_RSA_KEY_SIZE = 2048;
-static const uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
-static const uint32_t EC_KEY_SIZES[] = {224, 256, 384, 521};
-static const uint32_t DEFAULT_EC_KEY_SIZE = 256;
-static const uint32_t AES_KEY_SIZES[] = {128, 192, 256};
-static const uint32_t DEFAULT_AES_KEY_SIZE = 128;
-
 KeyParams::KeyParams(KeyType keyType, KeyIdType keyIdType)
   : m_keyType(keyType)
   , m_keyIdType(keyIdType)
@@ -48,6 +41,15 @@ KeyParams::KeyParams(KeyType keyType, const name::Component& keyId)
 KeyParams::~KeyParams() = default;
 
 namespace detail {
+
+const uint32_t MIN_RSA_KEY_SIZE = 2048;
+const uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
+const uint32_t EC_KEY_SIZES[] = {224, 256, 384, 521};
+const uint32_t DEFAULT_EC_KEY_SIZE = 256;
+const uint32_t AES_KEY_SIZES[] = {128, 192, 256};
+const uint32_t DEFAULT_AES_KEY_SIZE = 128;
+const uint32_t MIN_HMAC_KEY_SIZE = 224;
+const uint32_t DEFAULT_HMAC_KEY_SIZE = 256;
 
 uint32_t
 RsaKeyParamsInfo::checkKeySize(uint32_t size)
@@ -93,6 +95,23 @@ uint32_t
 AesKeyParamsInfo::getDefaultSize()
 {
   return DEFAULT_AES_KEY_SIZE;
+}
+
+uint32_t
+HmacKeyParamsInfo::checkKeySize(uint32_t size)
+{
+  // the minimum key size depends on the exact digest algorithm used in the HMAC, so we
+  // only do a basic sanity check here and postpone stricter checking until the actual
+  // HMAC computation in SignerFilter/VerifierFilter, where the digest algorithm is known
+  if (size < MIN_HMAC_KEY_SIZE || size % 8 != 0)
+    NDN_THROW(KeyParams::Error("Unsupported HMAC key size " + to_string(size)));
+  return size;
+}
+
+uint32_t
+HmacKeyParamsInfo::getDefaultSize()
+{
+  return DEFAULT_HMAC_KEY_SIZE;
 }
 
 } // namespace detail

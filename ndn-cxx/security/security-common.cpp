@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,6 +51,8 @@ operator<<(std::ostream& os, KeyType keyType)
       return os << "EC";
     case KeyType::AES:
       return os << "AES";
+    case KeyType::HMAC:
+      return os << "HMAC";
   }
   return os << static_cast<int>(keyType);
 }
