@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -81,21 +81,6 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
 
   advanceClocks(12_s);
   BOOST_CHECK(certCache.find(Interest(cert.getIdentity())) == nullptr);
-
-  Certificate cert3 = addCertificate(identity.getDefaultKey(), "3");
-  Certificate cert4 = addCertificate(identity.getDefaultKey(), "4");
-  Certificate cert5 = addCertificate(identity.getDefaultKey(), "5");
-
-  certCache.insert(cert3);
-  certCache.insert(cert4);
-  certCache.insert(cert5);
-
-  Interest interest4(cert3.getKeyName());
-  interest4.setExclude(Exclude().excludeOne(cert3.getName().at(Certificate::ISSUER_ID_OFFSET)));
-  BOOST_CHECK(certCache.find(interest4) != nullptr);
-  BOOST_CHECK_NE(certCache.find(interest4)->getName(), cert3.getName());
-
-  // TODO cover more cases with different interests
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateCache

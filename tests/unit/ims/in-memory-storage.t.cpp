@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -378,256 +378,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
   BOOST_CHECK_EQUAL(ims.size(), 6);
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(ImplicitDigestSelector, T, InMemoryStorages)
-{
-  T ims;
-
-  Name name("/digest/works");
-  shared_ptr<Data> data = makeData(name);
-  ims.insert(*data);
-
-  shared_ptr<Data> data2 = makeData("/a");
-  ims.insert(*data2);
-
-  shared_ptr<Data> data3 = makeData("/z/z/z");
-  ims.insert(*data3);
-
-  ConstBufferPtr digest1 = util::Sha256::computeDigest(data->wireEncode().wire(), data->wireEncode().size());
-
-  shared_ptr<Interest> interest = makeInterest("");
-  interest->setName(Name(name).appendImplicitSha256Digest(digest1->data(), digest1->size()));
-  interest->setMinSuffixComponents(0);
-  interest->setMaxSuffixComponents(0);
-
-  shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_REQUIRE(found != nullptr);
-  BOOST_CHECK_EQUAL(found->getName(), name);
-
-  shared_ptr<Interest> interest2 = makeInterest("");
-  uint8_t digest2[32] = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1};
-  interest2->setName(Name(name).appendImplicitSha256Digest(digest2, 32));
-  interest2->setMinSuffixComponents(0);
-  interest2->setMaxSuffixComponents(0);
-
-  shared_ptr<const Data> notfound = ims.find(*interest2);
-  BOOST_CHECK(notfound == nullptr);
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(ChildSelector, T, InMemoryStorages)
-{
-  T ims;
-
-  shared_ptr<Data> data = makeData("/a");
-  ims.insert(*data);
-
-  shared_ptr<Data> data2 = makeData("/b");
-  ims.insert(*data2);
-
-  shared_ptr<Data> data4 = makeData("/d");
-  ims.insert(*data4);
-
-  shared_ptr<Data> data5 = makeData("/c/c");
-  ims.insert(*data5);
-
-  shared_ptr<Data> data6 = makeData("/c/f");
-  ims.insert(*data6);
-
-  shared_ptr<Data> data7 = makeData("/c/n");
-  ims.insert(*data7);
-
-  shared_ptr<Interest> interest = makeInterest("/c", true);
-  interest->setChildSelector(1);
-
-  shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_REQUIRE(found != nullptr);
-  BOOST_CHECK_EQUAL(found->getName(), "/c/n");
-
-  shared_ptr<Interest> interest2 = makeInterest("/c", true);
-  interest2->setChildSelector(0);
-
-  shared_ptr<const Data> found2 = ims.find(*interest2);
-  BOOST_REQUIRE(found2 != nullptr);
-  BOOST_CHECK_EQUAL(found2->getName(), "/c/c");
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(ChildSelector2, T, InMemoryStorages)
-{
-  T ims;
-
-  shared_ptr<Data> data = makeData("/a/b/1");
-  ims.insert(*data);
-
-  shared_ptr<Data> data2 = makeData("/a/b/2");
-  ims.insert(*data2);
-
-  shared_ptr<Data> data3 = makeData("/a/z/1");
-  ims.insert(*data3);
-
-  shared_ptr<Data> data4 = makeData("/a/z/2");
-  ims.insert(*data4);
-
-  shared_ptr<Interest> interest = makeInterest("/a", true);
-  interest->setChildSelector(1);
-
-  shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_REQUIRE(found != nullptr);
-  BOOST_CHECK_EQUAL(found->getName(), "/a/z/1");
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector, T, InMemoryStorages)
-{
-  T ims;
-
-  Name name("/insert/withkey");
-  shared_ptr<Data> data = makeData(name);
-  ims.insert(*data);
-
-  shared_ptr<Interest> interest = makeInterest(name);
-  Name keyName("/somewhere/key");
-
-  KeyLocator locator(keyName);
-  interest->setPublisherPublicKeyLocator(locator);
-
-  shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_CHECK(found == nullptr);
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(PublisherKeySelector2, T, InMemoryStorages)
-{
-  T ims;
-  Name name("/insert/withkey");
-  shared_ptr<Data> data = makeData(name);
-  ims.insert(*data);
-
-  Name name2("/insert/withkey2");
-  shared_ptr<Data> data2 = make_shared<Data>(name2);
-
-  Name keyName("/somewhere/key");
-  const KeyLocator locator(keyName);
-
-  SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(makeEmptyBlock(tlv::SignatureValue));
-  fakeSignature.setKeyLocator(locator);
-  data2->setSignature(fakeSignature);
-  data2->wireEncode();
-
-  ims.insert(*data2);
-
-  shared_ptr<Interest> interest = makeInterest(name2);
-  interest->setPublisherPublicKeyLocator(locator);
-
-  shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_CHECK(found != nullptr);
-  BOOST_CHECK_EQUAL(found->getName(), data2->getName());
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(MinMaxComponentsSelector, T, InMemoryStorages)
-{
-  T ims;
-
-  shared_ptr<Data> data = makeData("/a");
-  ims.insert(*data);
-
-  shared_ptr<Data> data2 = makeData("/b");
-  ims.insert(*data2);
-
-  shared_ptr<Data> data4 = makeData("/d");
-  ims.insert(*data4);
-
-  shared_ptr<Data> data5 = makeData("/c/c/1/2/3/4/5/6");
-  ims.insert(*data5);
-
-  shared_ptr<Data> data6 = makeData("/c/c/6/7/8/9");
-  ims.insert(*data6);
-
-  shared_ptr<Data> data7 = makeData("/c/c/1/2/3");
-  ims.insert(*data7);
-
-  shared_ptr<Data> data8 = makeData("/c/c/1");
-  ims.insert(*data8);
-
-  shared_ptr<Interest> interest = makeInterest("/c/c", true);
-  interest->setMinSuffixComponents(3);
-  interest->setChildSelector(0);
-
-  shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_REQUIRE(found != nullptr);
-  BOOST_CHECK_EQUAL(found->getName(), "/c/c/1/2/3");
-
-  shared_ptr<Interest> interest2 = makeInterest("/c/c", true);
-  interest2->setMinSuffixComponents(4);
-  interest2->setChildSelector(1);
-
-  shared_ptr<const Data> found2 = ims.find(*interest2);
-  BOOST_REQUIRE(found2 != nullptr);
-  BOOST_CHECK_EQUAL(found2->getName(), "/c/c/6/7/8/9");
-
-  shared_ptr<Interest> interest3 = makeInterest("/c/c");
-  interest3->setMaxSuffixComponents(2);
-  interest3->setChildSelector(1);
-
-  shared_ptr<const Data> found3 = ims.find(*interest3);
-  BOOST_REQUIRE(found3 != nullptr);
-  BOOST_CHECK_EQUAL(found3->getName(), "/c/c/1");
-}
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(ExcludeSelector, T, InMemoryStorages)
-{
-  T ims;
-
-  shared_ptr<Data> data = makeData("/a");
-  ims.insert(*data);
-
-  shared_ptr<Data> data2 = makeData("/b");
-  ims.insert(*data2);
-
-  shared_ptr<Data> data3 = makeData("/c/a");
-  ims.insert(*data3);
-
-  shared_ptr<Data> data4 = makeData("/d");
-  ims.insert(*data4);
-
-  shared_ptr<Data> data5 = makeData("/c/c");
-  ims.insert(*data5);
-
-  shared_ptr<Data> data6 = makeData("/c/f");
-  ims.insert(*data6);
-
-  shared_ptr<Data> data7 = makeData("/c/n");
-  ims.insert(*data7);
-
-  shared_ptr<Interest> interest = makeInterest("/c", true);
-  interest->setChildSelector(1);
-  Exclude e;
-  e.excludeOne(Name::Component("n"));
-  interest->setExclude(e);
-
-  shared_ptr<const Data> found = ims.find(*interest);
-  BOOST_REQUIRE(found != nullptr);
-  BOOST_CHECK_EQUAL(found->getName(), "/c/f");
-
-  shared_ptr<Interest> interest2 = makeInterest("/c", true);
-  interest2->setChildSelector(0);
-  Exclude e2;
-  e2.excludeOne(Name::Component("a"));
-  interest2->setExclude(e2);
-
-  shared_ptr<const Data> found2 = ims.find(*interest2);
-  BOOST_REQUIRE(found2 != nullptr);
-  BOOST_CHECK_EQUAL(found2->getName(), "/c/c");
-
-  shared_ptr<Interest> interest3 = makeInterest("/c", true);
-  interest3->setChildSelector(0);
-  Exclude e3;
-  e3.excludeOne(Name::Component("c"));
-  interest3->setExclude(e3);
-
-  shared_ptr<const Data> found3 = ims.find(*interest3);
-  BOOST_REQUIRE(found3 != nullptr);
-  BOOST_CHECK_EQUAL(found3->getName(), "/c/a");
-}
-
 using InMemoryStoragesLimited = boost::mpl::vector<InMemoryStorageFifo,
                                                    InMemoryStorageLfu,
                                                    InMemoryStorageLru>;
@@ -705,13 +455,17 @@ protected:
 
   Name
   insert(uint32_t id, const Name& name,
+         const std::function<void(Data&)>& modifyData = nullptr,
          const time::milliseconds& freshWindow = InMemoryStorage::INFINITE_WINDOW)
   {
-    shared_ptr<Data> data = makeData(name);
-    data->setFreshnessPeriod(99999_ms);
+    auto data = makeData(name);
     data->setContent(reinterpret_cast<const uint8_t*>(&id), sizeof(id));
-    signData(data);
 
+    if (modifyData != nullptr) {
+      modifyData(*data);
+    }
+
+    data->wireEncode();
     m_ims.insert(*data, freshWindow);
 
     return data->getFullName();
@@ -720,7 +474,7 @@ protected:
   Interest&
   startInterest(const Name& name)
   {
-    m_interest = makeInterest(name, true);
+    m_interest = makeInterest(name, false);
     return *m_interest;
   }
 
@@ -747,38 +501,35 @@ protected:
 
 BOOST_FIXTURE_TEST_SUITE(Find, FindFixture)
 
-BOOST_AUTO_TEST_CASE(EmptyDataName)
-{
-  insert(1, "ndn:/");
-
-  startInterest("ndn:/");
-  BOOST_CHECK_EQUAL(find(), 1);
-}
-
-BOOST_AUTO_TEST_CASE(EmptyInterestName)
-{
-  insert(1, "ndn:/A");
-
-  startInterest("ndn:/");
-  BOOST_CHECK_EQUAL(find(), 1);
-}
-
 BOOST_AUTO_TEST_CASE(ExactName)
 {
-  insert(1, "ndn:/");
-  insert(2, "ndn:/A");
-  insert(3, "ndn:/A/B");
-  insert(4, "ndn:/A/C");
-  insert(5, "ndn:/D");
+  insert(1, "/");
+  insert(2, "/A");
+  insert(3, "/A/B");
+  insert(4, "/A/C");
+  insert(5, "/D");
 
-  startInterest("ndn:/A");
+  startInterest("/A");
+  BOOST_CHECK_EQUAL(find(), 2);
+}
+
+BOOST_AUTO_TEST_CASE(ExactName_CanBePrefix)
+{
+  insert(1, "/");
+  insert(2, "/A");
+  insert(3, "/A/B");
+  insert(4, "/A/C");
+  insert(5, "/D");
+
+  startInterest("/A")
+    .setCanBePrefix(true);
   BOOST_CHECK_EQUAL(find(), 2);
 }
 
 BOOST_AUTO_TEST_CASE(FullName)
 {
-  Name n1 = insert(1, "ndn:/A");
-  Name n2 = insert(2, "ndn:/A");
+  Name n1 = insert(1, "/A");
+  Name n2 = insert(2, "/A");
 
   startInterest(n1);
   BOOST_CHECK_EQUAL(find(), 1);
@@ -787,266 +538,71 @@ BOOST_AUTO_TEST_CASE(FullName)
   BOOST_CHECK_EQUAL(find(), 2);
 }
 
-BOOST_AUTO_TEST_CASE(Leftmost)
+BOOST_AUTO_TEST_CASE(FullName_EmptyDataName)
 {
-  insert(1, "ndn:/A");
-  insert(2, "ndn:/B/p/1");
-  insert(3, "ndn:/B/p/2");
-  insert(4, "ndn:/B/q/1");
-  insert(5, "ndn:/B/q/2");
-  insert(6, "ndn:/C");
+  Name n1 = insert(1, "/");
+  Name n2 = insert(2, "/");
 
-  startInterest("ndn:/B");
+  startInterest(n1);
+  BOOST_CHECK_EQUAL(find(), 1);
+
+  startInterest(n2);
   BOOST_CHECK_EQUAL(find(), 2);
 }
 
-BOOST_AUTO_TEST_CASE(Rightmost)
+BOOST_AUTO_TEST_CASE(PrefixName)
 {
-  insert(1, "ndn:/A");
-  insert(2, "ndn:/B/p/1");
-  insert(3, "ndn:/B/p/2");
-  insert(4, "ndn:/B/q/1");
-  insert(5, "ndn:/B/q/2");
-  insert(6, "ndn:/C");
+  insert(1, "/A");
+  insert(2, "/B/p/1");
+  insert(3, "/B/p/2");
+  insert(4, "/B/q/1");
+  insert(5, "/B/q/2");
+  insert(6, "/C");
 
-  startInterest("ndn:/B")
-    .setChildSelector(1);
-  BOOST_CHECK_EQUAL(find(), 4);
+  startInterest("/B")
+    .setCanBePrefix(true);
+  BOOST_CHECK_EQUAL(find(), 2);
 }
 
-BOOST_AUTO_TEST_CASE(MinSuffixComponents)
+BOOST_AUTO_TEST_CASE(PrefixName_NoCanBePrefix)
 {
-  insert(1, "ndn:/");
-  insert(2, "ndn:/A");
-  insert(3, "ndn:/B/1");
-  insert(4, "ndn:/C/1/2");
-  insert(5, "ndn:/D/1/2/3");
-  insert(6, "ndn:/E/1/2/3/4");
+  insert(1, "/B/p/1");
 
-  startInterest("ndn:/")
-    .setMinSuffixComponents(0);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/")
-    .setMinSuffixComponents(1);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/")
-    .setMinSuffixComponents(2);
-  BOOST_CHECK_EQUAL(find(), 2);
-
-  startInterest("ndn:/")
-    .setMinSuffixComponents(3);
-  BOOST_CHECK_EQUAL(find(), 3);
-
-  startInterest("ndn:/")
-    .setMinSuffixComponents(4);
-  BOOST_CHECK_EQUAL(find(), 4);
-
-  startInterest("ndn:/")
-    .setMinSuffixComponents(5);
-  BOOST_CHECK_EQUAL(find(), 5);
-
-  startInterest("ndn:/")
-    .setMinSuffixComponents(6);
-  BOOST_CHECK_EQUAL(find(), 6);
-
-  startInterest("ndn:/")
-    .setMinSuffixComponents(7);
+  startInterest("/B");
   BOOST_CHECK_EQUAL(find(), 0);
-}
-
-BOOST_AUTO_TEST_CASE(MaxSuffixComponents)
-{
-  insert(1, "ndn:/");
-  insert(2, "ndn:/A");
-  insert(3, "ndn:/B/2");
-  insert(4, "ndn:/C/2/3");
-  insert(5, "ndn:/D/2/3/4");
-  insert(6, "ndn:/E/2/3/4/5");
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(0);
-  BOOST_CHECK_EQUAL(find(), 0);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(1);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(2);
-  BOOST_CHECK_EQUAL(find(), 2);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(3);
-  BOOST_CHECK_EQUAL(find(), 3);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(4);
-  BOOST_CHECK_EQUAL(find(), 4);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(5);
-  BOOST_CHECK_EQUAL(find(), 5);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(6);
-  BOOST_CHECK_EQUAL(find(), 6);
-
-  startInterest("ndn:/")
-    .setChildSelector(1)
-    .setMaxSuffixComponents(7);
-  BOOST_CHECK_EQUAL(find(), 6);
-}
-
-BOOST_AUTO_TEST_CASE(DigestOrder)
-{
-  insert(1, "ndn:/A");
-  insert(2, "ndn:/A");
-  // We don't know which comes first, but there must be some order
-
-  startInterest("ndn:/A")
-    .setChildSelector(0);
-  uint32_t leftmost = find();
-
-  startInterest("ndn:/A")
-    .setChildSelector(1);
-  uint32_t rightmost = find();
-
-  BOOST_CHECK_NE(leftmost, rightmost);
-}
-
-BOOST_AUTO_TEST_CASE(DigestExclude)
-{
-  insert(1, "ndn:/A");
-  Name n2 = insert(2, "ndn:/A");
-  insert(3, "ndn:/A/B");
-
-  uint8_t digest00[util::Sha256::DIGEST_SIZE];
-  std::fill_n(digest00, sizeof(digest00), 0x00);
-  uint8_t digestFF[util::Sha256::DIGEST_SIZE];
-  std::fill_n(digestFF, sizeof(digestFF), 0xFF);
-
-  Exclude excludeDigest;
-  excludeDigest.excludeRange(
-    name::Component::fromImplicitSha256Digest(digest00, sizeof(digest00)),
-    name::Component::fromImplicitSha256Digest(digestFF, sizeof(digestFF)));
-
-  startInterest("ndn:/A")
-    .setChildSelector(0)
-    .setExclude(excludeDigest);
-  BOOST_CHECK_EQUAL(find(), 3);
-
-  startInterest("ndn:/A")
-    .setChildSelector(1)
-    .setExclude(excludeDigest);
-  BOOST_CHECK_EQUAL(find(), 3);
-
-  Exclude excludeGeneric;
-  excludeGeneric.excludeAfter(name::Component(static_cast<uint8_t*>(nullptr), 0));
-
-  startInterest("ndn:/A")
-    .setChildSelector(0)
-    .setExclude(excludeGeneric);
-  int found1 = find();
-  BOOST_CHECK(found1 == 1 || found1 == 2);
-
-  startInterest("ndn:/A")
-    .setChildSelector(1)
-    .setExclude(excludeGeneric);
-  int found2 = find();
-  BOOST_CHECK(found2 == 1 || found2 == 2);
-
-  Exclude exclude2 = excludeGeneric;
-  exclude2.excludeOne(n2.get(-1));
-
-  startInterest("ndn:/A")
-    .setChildSelector(0)
-    .setExclude(exclude2);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/A")
-    .setChildSelector(1)
-    .setExclude(exclude2);
-  BOOST_CHECK_EQUAL(find(), 1);
 }
 
 BOOST_AUTO_TEST_CASE(MustBeFresh)
 {
-  Name data1Name = insert(1, "ndn:/A/1", 500_ms);
-  insert(2, "ndn:/A/2", 2500_ms);
-  insert(3, "ndn:/A/3", 3500_ms);
-  insert(4, "ndn:/A/4", 1500_ms);
+  insert(1, "/A/1"); // omitted FreshnessPeriod means FreshnessPeriod = 0 ms
+  insert(2, "/A/2", [] (Data& data) { data.setFreshnessPeriod(0_s); });
+  insert(3, "/A/3", [] (Data& data) { data.setFreshnessPeriod(1_s); }, 1_s);
+  insert(4, "/A/4", [] (Data& data) { data.setFreshnessPeriod(1_h); }, 1_h);
 
-  // @0s, all Data are fresh
-  startInterest("ndn:/A/1")
+  // lookup at exact same moment as insertion is not tested because this won't happen in reality
+
+  advanceClocks(500_ms); // @500ms
+  startInterest("/A")
+    .setCanBePrefix(true)
     .setMustBeFresh(true);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/A/1")
-    .setMustBeFresh(false);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/A")
-    .setMustBeFresh(true)
-    .setChildSelector(0);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/A")
-    .setMustBeFresh(true)
-    .setChildSelector(1);
-  BOOST_CHECK_EQUAL(find(), 4);
-
-  advanceClocks(1000_ms);
-  // @1s, /A/1 is stale
-  startInterest("ndn:/A/1")
-    .setMustBeFresh(true);
-  BOOST_CHECK_EQUAL(find(), 0);
-  startInterest("ndn:/A/1")
-    .setMustBeFresh(false);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  // MustBeFresh is ignored when full Name is specified
-  startInterest(data1Name)
-    .setMustBeFresh(true);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  startInterest("ndn:/A")
-    .setMustBeFresh(true)
-    .setChildSelector(0);
-  BOOST_CHECK_EQUAL(find(), 2);
-  startInterest("ndn:/A")
-    .setMustBeFresh(false)
-    .setChildSelector(0);
-  BOOST_CHECK_EQUAL(find(), 1);
-
-  advanceClocks(1000_ms);
-  // @2s, /A/1 and /A/4 are stale
-  startInterest("ndn:/A")
-    .setMustBeFresh(true)
-    .setChildSelector(1);
   BOOST_CHECK_EQUAL(find(), 3);
-  startInterest("ndn:/A")
-    .setMustBeFresh(false)
-    .setChildSelector(1);
+
+  advanceClocks(1500_ms); // @2s
+  startInterest("/A")
+    .setCanBePrefix(true)
+    .setMustBeFresh(true);
   BOOST_CHECK_EQUAL(find(), 4);
 
-  advanceClocks(2000_ms);
-  // @4s, all Data are stale
-  startInterest("ndn:/A")
-    .setMustBeFresh(true)
-    .setChildSelector(0);
-  BOOST_CHECK_EQUAL(find(), 0);
-  startInterest("ndn:/A")
-    .setMustBeFresh(true)
-    .setChildSelector(1);
+  advanceClocks(3500_s); // @3502s
+  startInterest("/A")
+    .setCanBePrefix(true)
+    .setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(find(), 4);
+
+  advanceClocks(3500_s); // @7002s
+  startInterest("/A")
+    .setCanBePrefix(true)
+    .setMustBeFresh(true);
   BOOST_CHECK_EQUAL(find(), 0);
 }
 

@@ -106,25 +106,21 @@ public: // matching
    *  @param name The name to be matched. If this is a Data name, it shall contain the
    *              implicit digest component
    */
+  [[deprecated("use matchesData")]]
   bool
   matchesName(const Name& name) const;
 
   /** @brief Check if Interest can be satisfied by @p data.
    *
-   *  This method considers Name, MinSuffixComponents, MaxSuffixComponents,
-   *  PublisherPublicKeyLocator, and Exclude.
-   *  This method does not consider ChildSelector and MustBeFresh.
+   *  This method considers Name, CanBePrefix, and MustBeFresh. However, MustBeFresh processing
+   *  is limited to rejecting Data with zero/omitted FreshnessPeriod.
    */
   bool
   matchesData(const Data& data) const;
 
-  /** @brief Check if Interest matches @p other interest
+  /** @brief Check if this Interest matches @p other
    *
-   *  Interest matches @p other if both have the same name, selectors, and link.  Other fields
-   *  (e.g., Nonce) may be different.
-   *
-   *  @todo Implement distinguishing Interests by forwarding hint. The current implementation
-   *        checks only name+selectors (Issue #3162).
+   *  Two Interests match if both have the same Name, CanBePrefix, and MustBeFresh.
    */
   bool
   matchesInterest(const Interest& other) const;

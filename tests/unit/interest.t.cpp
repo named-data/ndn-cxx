@@ -25,7 +25,7 @@
 #include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/make-interest-data.hpp"
 
 namespace ndn {
 namespace tests {
@@ -357,98 +357,44 @@ BOOST_AUTO_TEST_SUITE_END() // Decode03
 
 BOOST_AUTO_TEST_CASE(MatchesData)
 {
-  Interest interest;
-  interest.setName("ndn:/A")
-          .setMinSuffixComponents(2)
-          .setMaxSuffixComponents(2)
-          .setPublisherPublicKeyLocator(KeyLocator("ndn:/B"))
-          .setExclude(Exclude().excludeAfter(name::Component("J")));
+  auto interest = makeInterest("/A");
 
-  Data data("ndn:/A/D");
-  SignatureSha256WithRsa signature(KeyLocator("ndn:/B"));
-  signature.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
-  data.setSignature(signature);
-  data.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data), true);
+  auto data = makeData("/A");
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
-  Data data1 = data;
-  data1.setName("ndn:/A"); // violates MinSuffixComponents
-  data1.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data1), false);
+  data->setName("/A/D");
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates CanBePrefix
 
-  Interest interest1 = interest;
-  interest1.setMinSuffixComponents(1);
-  BOOST_CHECK_EQUAL(interest1.matchesData(data1), true);
+  interest->setCanBePrefix(true);
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
-  Data data2 = data;
-  data2.setName("ndn:/A/E/F"); // violates MaxSuffixComponents
-  data2.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data2), false);
+  interest->setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates MustBeFresh
 
-  Interest interest2 = interest;
-  interest2.setMaxSuffixComponents(3);
-  BOOST_CHECK_EQUAL(interest2.matchesData(data2), true);
+  data->setFreshnessPeriod(1_s);
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
-  Data data3 = data;
-  SignatureSha256WithRsa signature3(KeyLocator("ndn:/G")); // violates PublisherPublicKeyLocator
-  signature3.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
-  data3.setSignature(signature3);
-  data3.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data3), false);
+  data->setName("/H/I");
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // Name does not match
 
-  Interest interest3 = interest;
-  interest3.setPublisherPublicKeyLocator(KeyLocator("ndn:/G"));
-  BOOST_CHECK_EQUAL(interest3.matchesData(data3), true);
+  data->wireEncode();
+  interest = makeInterest(data->getFullName());
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
-  Data data4 = data;
-  DigestSha256 signature4; // violates PublisherPublicKeyLocator
-  signature4.setValue(encoding::makeEmptyBlock(tlv::SignatureValue));
-  data4.setSignature(signature4);
-  data4.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data4), false);
-
-  Interest interest4 = interest;
-  interest4.setPublisherPublicKeyLocator(KeyLocator());
-  BOOST_CHECK_EQUAL(interest4.matchesData(data4), true);
-
-  Data data5 = data;
-  data5.setName("ndn:/A/J"); // violates Exclude
-  data5.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data5), false);
-
-  Interest interest5 = interest;
-  interest5.setExclude(Exclude().excludeAfter(name::Component("K")));
-  BOOST_CHECK_EQUAL(interest5.matchesData(data5), true);
-
-  Data data6 = data;
-  data6.setName("ndn:/H/I"); // violates Name
-  data6.wireEncode();
-  BOOST_CHECK_EQUAL(interest.matchesData(data6), false);
-
-  Data data7 = data;
-  data7.setName("ndn:/A/B");
-  data7.wireEncode();
-
-  Interest interest7("/A/B/sha256digest=54008e240a7eea2714a161dfddf0dd6ced223b3856e9da96792151e180f3b128");
-  BOOST_CHECK_EQUAL(interest7.matchesData(data7), true);
-
-  Interest interest7b("/A/B/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
-  BOOST_CHECK_EQUAL(interest7b.matchesData(data7), false); // violates implicit digest
+  setNameComponent(*interest, -1, Name("/sha256digest=000000000000000000000000"
+                                       "0000000000000000000000000000000000000000").at(0));
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates implicit digest
 }
 
 BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MatchesInterest, 1)
 BOOST_AUTO_TEST_CASE(MatchesInterest)
 {
-  Interest interest;
-  interest
-    .setName("/A")
-    .setMinSuffixComponents(2)
-    .setMaxSuffixComponents(2)
-    .setPublisherPublicKeyLocator(KeyLocator("/B"))
-    .setExclude(Exclude().excludeAfter(name::Component("J")))
-    .setNonce(10)
-    .setInterestLifetime(5_s)
-    .setForwardingHint({{1, "/H"}});
+  Interest interest("/A");
+  interest.setCanBePrefix(true)
+          .setMustBeFresh(true)
+          .setForwardingHint({{1, "/H"}})
+          .setNonce(2228)
+          .setInterestLifetime(5_s);
 
   Interest other;
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), false);
@@ -456,16 +402,19 @@ BOOST_AUTO_TEST_CASE(MatchesInterest)
   other.setName(interest.getName());
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), false);
 
-  other.setSelectors(interest.getSelectors());
+  other.setCanBePrefix(interest.getCanBePrefix());
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), false);
+
+  other.setMustBeFresh(interest.getMustBeFresh());
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), false); // will match until #3162 implemented
 
-  other.setForwardingHint({{1, "/H"}});
+  other.setForwardingHint(interest.getForwardingHint());
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 
-  other.setNonce(200);
+  other.setNonce(9336);
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 
-  other.setInterestLifetime(5_h);
+  other.setInterestLifetime(3_s);
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 }
 

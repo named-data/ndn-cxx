@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -99,6 +99,7 @@ private:
     }
 
     auto data = make_shared<Data>(name);
+    data->setFreshnessPeriod(1_s);
     data->setFinalBlock(name[-1]);
     return data;
   }
@@ -132,7 +133,9 @@ BOOST_AUTO_TEST_CASE(DataHasNoSegment)
     datasetFailCallback);
   this->advanceClocks(500_ms);
 
-  face.receive(*makeData("/localhost/nfd/faces/list/%FD%00"));
+  auto data = makeData("/localhost/nfd/faces/list/%FD%00");
+  data->setFreshnessPeriod(1_s);
+  face.receive(*data);
   this->advanceClocks(500_ms);
 
   BOOST_REQUIRE_EQUAL(failCodes.size(), 1);

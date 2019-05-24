@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,6 +52,7 @@ public:
     const uint8_t buffer[] = "Hello, world!";
 
     auto data = make_shared<Data>(Name(baseName).appendSegment(segment));
+    data->setFreshnessPeriod(1_s);
     data->setContent(buffer, sizeof(buffer));
     if (isFinal) {
       data->setFinalBlock(data->getName()[-1]);
@@ -525,6 +526,7 @@ BOOST_AUTO_TEST_CASE(MissingSegmentNum)
 
   const uint8_t buffer[] = "Hello, world!";
   auto data = makeData("/hello/world/version0/no-segment");
+  data->setFreshnessPeriod(1_s);
   data->setContent(buffer, sizeof(buffer));
 
   face.receive(*data);

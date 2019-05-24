@@ -460,22 +460,12 @@ Interest::matchesData(const Data& data) const
   const Name& dataName = data.getName();
   size_t fullNameLength = dataName.size() + 1;
 
-  // check MinSuffixComponents
-  size_t minSuffixComponents = static_cast<size_t>(std::max(0, getMinSuffixComponents()));
-  if (!(interestNameLength + minSuffixComponents <= fullNameLength))
-    return false;
-
-  // check MaxSuffixComponents
-  bool hasMaxSuffixComponents = getMaxSuffixComponents() >= 0;
-  if (hasMaxSuffixComponents &&
-      !(interestNameLength + getMaxSuffixComponents() >= fullNameLength))
-    return false;
-
-  // check prefix
+  // check Name and CanBePrefix
   if (interestNameLength == fullNameLength) {
     if (m_name.get(-1).isImplicitSha256Digest()) {
-      if (m_name != data.getFullName())
+      if (m_name != data.getFullName()) {
         return false;
+      }
     }
     else {
       // Interest Name is same length as Data full Name, but last component isn't digest
@@ -483,53 +473,13 @@ Interest::matchesData(const Data& data) const
       return false;
     }
   }
-  else {
-    // Interest Name is a strict prefix of Data full Name
-    if (!m_name.isPrefixOf(dataName))
-      return false;
+  else if (getCanBePrefix() ? !m_name.isPrefixOf(dataName) : (m_name != dataName)) {
+    return false;
   }
 
-  // check Exclude
-  // Exclude won't be violated if Interest Name is same as Data full Name
-  if (!getExclude().empty() && fullNameLength > interestNameLength) {
-    if (interestNameLength == fullNameLength - 1) {
-      // component to exclude is the digest
-      if (getExclude().isExcluded(data.getFullName().get(interestNameLength)))
-        return false;
-      // There's opportunity to inspect the Exclude filter and determine whether
-      // the digest would make a difference.
-      // eg. "<GenericNameComponent>AA</GenericNameComponent><Any/>" doesn't exclude
-      //     any digest - fullName not needed;
-      //     "<Any/><GenericNameComponent>AA</GenericNameComponent>" and
-      //     "<Any/><ImplicitSha256DigestComponent>ffffffffffffffffffffffffffffffff
-      //      </ImplicitSha256DigestComponent>"
-      //     excludes all digests - fullName not needed;
-      //     "<Any/><ImplicitSha256DigestComponent>80000000000000000000000000000000
-      //      </ImplicitSha256DigestComponent>"
-      //     excludes some digests - fullName required
-      // But Interests that contain the exact Data Name before digest and also
-      // contain Exclude filter is too rare to optimize for, so we request
-      // fullName no matter what's in the Exclude filter.
-    }
-    else {
-      // component to exclude is not the digest
-      if (getExclude().isExcluded(dataName.get(interestNameLength)))
-        return false;
-    }
-  }
-
-  // check PublisherPublicKeyLocator
-  const KeyLocator& publisherPublicKeyLocator = getPublisherPublicKeyLocator();
-  if (!publisherPublicKeyLocator.empty()) {
-    const Signature& signature = data.getSignature();
-    const Block& signatureInfo = signature.getInfo();
-    Block::element_const_iterator it = signatureInfo.find(tlv::KeyLocator);
-    if (it == signatureInfo.elements_end()) {
-      return false;
-    }
-    if (publisherPublicKeyLocator.wireEncode() != *it) {
-      return false;
-    }
+  // check MustBeFresh
+  if (getMustBeFresh() && data.getFreshnessPeriod() <= 0_ms) {
+    return false;
   }
 
   return true;
@@ -538,9 +488,9 @@ Interest::matchesData(const Data& data) const
 bool
 Interest::matchesInterest(const Interest& other) const
 {
-  /// @todo #3162 match ForwardingHint field
-  return this->getName() == other.getName() &&
-         this->getSelectors() == other.getSelectors();
+  return getName() == other.getName() &&
+         getCanBePrefix() == other.getCanBePrefix() &&
+         getMustBeFresh() == other.getMustBeFresh();
 }
 
 // ---- field accessors ----
