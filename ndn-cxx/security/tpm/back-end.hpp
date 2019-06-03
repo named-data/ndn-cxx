@@ -28,6 +28,11 @@
 
 namespace ndn {
 namespace security {
+
+namespace transform {
+class PrivateKey;
+} // namespace transform
+
 namespace tpm {
 
 class KeyHandle;
@@ -119,6 +124,14 @@ public: // key management
   importKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen);
 
   /**
+   * @brief Import a private key.
+   *
+   * @throw Error The key could not be imported.
+   */
+  void
+  importKey(const Name& keyName, shared_ptr<transform::PrivateKey> key);
+
+  /**
    * @brief Check if the TPM is in terminal mode.
    *
    * The default implementation always returns true.
@@ -162,10 +175,16 @@ public: // key management
 
 protected: // static helper methods
   /**
-   * @brief Set the key name in @p keyHandle according to @p identity and @p params.
+   * @brief Construct and return the name of a RSA or EC key, based on @p identity and @p params.
    */
-  static void
-  setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams& params);
+  static Name
+  constructAsymmetricKeyName(const KeyHandle& key, const Name& identity, const KeyParams& params);
+
+  /**
+   * @brief Construct and return the name of a HMAC key, based on @p identity and @p params.
+   */
+  static Name
+  constructHmacKeyName(const transform::PrivateKey& key, const Name& identity, const KeyParams& params);
 
 private: // pure virtual methods
   virtual bool
@@ -185,6 +204,9 @@ private: // pure virtual methods
 
   virtual void
   doImportKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, const char* pw, size_t pwLen) = 0;
+
+  virtual void
+  doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key) = 0;
 };
 
 } // namespace tpm

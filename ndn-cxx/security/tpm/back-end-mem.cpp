@@ -26,6 +26,8 @@
 
 #include <unordered_map>
 
+#include <boost/lexical_cast.hpp>
+
 namespace ndn {
 namespace security {
 namespace tpm {
@@ -39,7 +41,7 @@ public:
 };
 
 BackEndMem::BackEndMem(const std::string&)
-  : m_impl(new Impl)
+  : m_impl(make_unique<Impl>())
 {
 }
 
@@ -70,12 +72,29 @@ BackEndMem::doGetKeyHandle(const Name& keyName) const
 unique_ptr<KeyHandle>
 BackEndMem::doCreateKey(const Name& identityName, const KeyParams& params)
 {
+  switch (params.getKeyType()) {
+  case KeyType::RSA:
+  case KeyType::EC:
+  case KeyType::HMAC:
+    break;
+  default:
+    NDN_THROW(Error("Memory-based TPM does not support creating a key of type " +
+                    boost::lexical_cast<std::string>(params.getKeyType())));
+  }
+
   shared_ptr<PrivateKey> key(transform::generatePrivateKey(params).release());
   unique_ptr<KeyHandle> keyHandle = make_unique<KeyHandleMem>(key);
 
-  setKeyName(*keyHandle, identityName, params);
+  Name keyName;
+  if (params.getKeyType() == KeyType::HMAC) {
+    keyName = constructHmacKeyName(*key, identityName, params);
+  }
+  else {
+    keyName = constructAsymmetricKeyName(*keyHandle, identityName, params);
+  }
+  keyHandle->setKeyName(keyName);
 
-  m_impl->keys[keyHandle->getKeyName()] = key;
+  m_impl->keys[keyName] = std::move(key);
   return keyHandle;
 }
 
@@ -96,14 +115,20 @@ BackEndMem::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
 void
 BackEndMem::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen)
 {
+  auto key = make_shared<PrivateKey>();
   try {
-    auto key = make_shared<PrivateKey>();
     key->loadPkcs8(buf, size, pw, pwLen);
-    m_impl->keys[keyName] = key;
   }
   catch (const PrivateKey::Error&) {
     NDN_THROW_NESTED(Error("Cannot import private key"));
   }
+  doImportKey(keyName, std::move(key));
+}
+
+void
+BackEndMem::doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key)
+{
+  m_impl->keys[keyName] = std::move(key);
 }
 
 } // namespace tpm

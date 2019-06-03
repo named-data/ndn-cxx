@@ -52,18 +52,6 @@ KeyHandle::derivePublicKey() const
   return doDerivePublicKey();
 }
 
-void
-KeyHandle::setKeyName(const Name& keyName)
-{
-  m_keyName = keyName;
-}
-
-Name
-KeyHandle::getKeyName() const
-{
-  return m_keyName;
-}
-
 } // namespace tpm
 } // namespace security
 } // namespace ndn

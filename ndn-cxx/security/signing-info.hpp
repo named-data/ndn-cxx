@@ -27,6 +27,7 @@
 #include "ndn-cxx/security/pib/identity.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
 
 namespace ndn {
 namespace security {
@@ -47,21 +48,23 @@ public:
   };
 
   enum SignerType {
-    /// @brief no signer is specified, use default setting or follow the trust schema
+    /// No signer is specified, use default setting or follow the trust schema.
     SIGNER_TYPE_NULL = 0,
-    /// @brief signer is an identity, use its default key and default certificate
+    /// Signer is an identity, use its default key and default certificate.
     SIGNER_TYPE_ID = 1,
-    /// @brief signer is a key, use its default certificate
+    /// Signer is a key, use its default certificate.
     SIGNER_TYPE_KEY = 2,
-    /// @brief signer is a certificate, use it directly
+    /// Signer is a certificate, use it directly.
     SIGNER_TYPE_CERT = 3,
-    /// @brief use sha256 digest, no signer needs to be specified
+    /// Use a SHA-256 digest only, no signer needs to be specified.
     SIGNER_TYPE_SHA256 = 4,
+    /// Signer is a HMAC key.
+    SIGNER_TYPE_HMAC = 5,
   };
 
 public:
   /**
-   * @brief Constructor
+   * @brief Constructor.
    *
    * @param signerType The type of signer
    * @param signerName The name of signer; interpretation differs per signerType
@@ -75,28 +78,29 @@ public:
               const SignatureInfo& signatureInfo = getEmptySignatureInfo());
 
   /**
-   * @brief Create a signingInfo using pib identity;
+   * @brief Construct from a PIB identity.
    */
   explicit
   SigningInfo(const Identity& identity);
 
   /**
-   * @brief Create a signingInfo using pib key;
+   * @brief Construct from a PIB key.
    */
   explicit
   SigningInfo(const Key& key);
 
   /**
-   * @brief Construct SigningInfo from its string representation
+   * @brief Construct SigningInfo from its string representation.
    *
    * @param signingStr The representative signing string for SigningInfo signing method
    *
-   * Structure of the representative string is as follows:
+   * Syntax of the representative string is as follows:
    * - default signing: "" (empty string)
-   * - signing with a default certificate of a default key for the identity: `id:/my-identity`
-   * - signing with a default certificate of the key: `key:/my-identity/ksk-1`
-   * - signing with the certificate: `cert:/my-identity/KEY/ksk-1/ID-CERT/%FD%01`
-   * - signing with sha256 digest: `id:/localhost/identity/digest-sha256`
+   * - sign with the default certificate of the default key of an identity: `id:/<my-identity>`
+   * - sign with the default certificate of a specific key: `key:/<my-identity>/ksk-1`
+   * - sign with a specific certificate: `cert:/<my-identity>/KEY/ksk-1/ID-CERT/%FD%01`
+   * - sign with HMAC-SHA-256: `hmac-sha256:<base64-encoded-key>`
+   * - sign with SHA-256 (digest only): `id:/localhost/identity/digest-sha256`
    */
   explicit
   SigningInfo(const std::string& signingStr);
@@ -123,7 +127,14 @@ public:
   setSigningCertName(const Name& certificateName);
 
   /**
-   * @brief Set Sha256 as the signing method
+   * @brief Set signer to a base64-encoded HMAC key
+   * @post Change the signerType to SIGNER_TYPE_HMAC
+   */
+  SigningInfo&
+  setSigningHmacKey(const std::string& hmacKey);
+
+  /**
+   * @brief Set SHA-256 as the signing method
    * @post Reset signerName, also change the signerType to SIGNER_TYPE_SHA256
    */
   SigningInfo&
@@ -184,8 +195,15 @@ public:
     return m_key;
   }
 
+  shared_ptr<transform::PrivateKey>
+  getHmacKey() const
+  {
+    BOOST_ASSERT(m_type == SIGNER_TYPE_HMAC);
+    return m_hmacKey;
+  }
+
   /**
-   * @brief Set the digest algorithm for public key operations
+   * @brief Set the digest algorithm for signing operations
    */
   SigningInfo&
   setDigestAlgorithm(const DigestAlgorithm& algorithm)
@@ -195,7 +213,7 @@ public:
   }
 
   /**
-   * @return The digest algorithm for public key operations
+   * @return The digest algorithm for signing operations
    */
   DigestAlgorithm
   getDigestAlgorithm() const
@@ -231,6 +249,12 @@ public:
   static const Name&
   getDigestSha256Identity();
 
+  /**
+   * @brief A localhost identity to indicate that the signature is generated using an HMAC key.
+   */
+  static const Name&
+  getHmacIdentity();
+
 private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
@@ -255,6 +279,7 @@ private:
   Name m_name;
   Identity m_identity;
   Key m_key;
+  shared_ptr<transform::PrivateKey> m_hmacKey;
   DigestAlgorithm m_digestAlgorithm;
   SignatureInfo m_info;
 };

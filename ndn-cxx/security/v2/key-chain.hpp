@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -147,20 +147,33 @@ public: // Identity management
 
 public: // Key management
   /**
-   * @brief Create a key for @p identity according to @p params.
+   * @brief Create a new key for @p identity.
    *
-   * @param identity reference to a valid Identity object
-   * @param params The key parameters if a key needs to be created for the identity (default:
-   *               EC key with random key id)
+   * @param identity Reference to a valid Identity object
+   * @param params Key creation parameters (default: EC key with random key id)
+   * @pre @p identity must be valid.
    *
    * If @p identity had no default key selected, the created key will be set as the default for
    * this identity.
    *
    * This method will also create a self-signed certificate for the created key.
-   * @pre @p identity must be valid.
    */
   Key
   createKey(const Identity& identity, const KeyParams& params = getDefaultKeyParams());
+
+   /**
+   * @brief Create a new HMAC key.
+   *
+   * @param prefix Prefix used to construct the key name (default: `/localhost/identity/hmac`);
+   *               the full key name will include additional components according to @p params
+   * @param params Key creation parameters
+   * @return A name that can be subsequently used to reference the created key.
+   *
+   * The newly created key will be inserted in the TPM. HMAC keys don't have any PIB entries.
+   */
+  Name
+  createHmacKey(const Name& prefix = SigningInfo::getHmacIdentity(),
+                const HmacKeyParams& params = HmacKeyParams());
 
   /**
    * @brief Delete a key @p key of @p identity.
@@ -304,7 +317,7 @@ public: // export & import
   exportSafeBag(const Certificate& certificate, const char* pw, size_t pwLen);
 
   /**
-   * @brief Import a pair of certificate and its corresponding private key encapsulated in a SafeBag.
+   * @brief Import a certificate and its corresponding private key from a SafeBag.
    *
    * If the certificate and key are imported properly, the default setting will be updated as if
    * a new key and certificate is added into KeyChain.
@@ -320,6 +333,12 @@ public: // export & import
    */
   void
   importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen);
+
+  /**
+   * @brief Import a private key into the TPM.
+   */
+  void
+  importPrivateKey(const Name& keyName, shared_ptr<transform::PrivateKey> key);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
@@ -394,19 +413,15 @@ private: // signing
   /**
    * @brief Generate a self-signed certificate for a public key.
    *
-   * The self-signed certificate will also be added into PIB
-   *
-   * @param keyName The name of the public key
-   * @return The generated certificate
+   * The self-signed certificate will also be added to the PIB.
    */
   Certificate
   selfSign(Key& key);
 
   /**
    * @brief Prepare a SignatureInfo TLV according to signing information and return the signing
-   *        key name
+   *        key name.
    *
-   * @param sigInfo The SignatureInfo to prepare.
    * @param params The signing parameters.
    * @return The signing key name and prepared SignatureInfo.
    * @throw InvalidSigningInfoError when the requested signing method cannot be satisfied.
@@ -415,7 +430,7 @@ private: // signing
   prepareSignatureInfo(const SigningInfo& params);
 
   /**
-   * @brief Generate a SignatureValue block for a buffer @p buf with size @p size using
+   * @brief Generate a SignatureValue block for a buffer @p buf of size @p size using
    *        a key with name @p keyName and digest algorithm @p digestAlgorithm.
    */
   Block

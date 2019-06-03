@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -88,6 +88,16 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(infoSha.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
   BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::getEmptyName());
   BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DigestAlgorithm::SHA256);
+
+  std::string encodedKey("QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENUI0OTdGRE"
+                         "ZGMUE4RUE2RkYxMkY2RkI2NUFGMjcyMEI1OUNDRg==");
+  info.setSigningHmacKey(encodedKey);
+  BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_HMAC);
+  BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
+
+  SigningInfo infoHmac(SigningInfo::SIGNER_TYPE_HMAC, info.getSignerName());
+  BOOST_CHECK_EQUAL(infoHmac.getSignerType(), SigningInfo::SIGNER_TYPE_HMAC);
+  BOOST_CHECK_EQUAL(infoHmac.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 }
 
 BOOST_AUTO_TEST_CASE(CustomSignatureInfo)
@@ -127,6 +137,12 @@ BOOST_AUTO_TEST_CASE(FromString)
   BOOST_CHECK_EQUAL(infoCert.getSignerName(), "/my-cert");
   BOOST_CHECK_EQUAL(infoCert.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
+  SigningInfo infoHmac("hmac-sha256:QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENU"
+                       "I0OTdGREZGMUE4RUE2RkYxMkY2RkI2NUFGMjcyMEI1OUNDRg==");
+  BOOST_CHECK_EQUAL(infoHmac.getSignerType(), SigningInfo::SIGNER_TYPE_HMAC);
+  BOOST_CHECK_EQUAL(infoHmac.getSignerName().getPrefix(3), SigningInfo::getHmacIdentity());
+  BOOST_CHECK_EQUAL(infoHmac.getDigestAlgorithm(), DigestAlgorithm::SHA256);
+
   SigningInfo infoSha("id:/localhost/identity/digest-sha256");
   BOOST_CHECK_EQUAL(infoSha.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);
   BOOST_CHECK_EQUAL(infoSha.getSignerName(), SigningInfo::getEmptyName());
@@ -149,6 +165,9 @@ BOOST_AUTO_TEST_CASE(ToString)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(
                     SigningInfo(SigningInfo::SIGNER_TYPE_SHA256)),
                     "id:/localhost/identity/digest-sha256");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(
+                    SigningInfo(SigningInfo::SIGNER_TYPE_HMAC, "/localhost/identity/hmac/1234")),
+                    "id:/localhost/identity/hmac/1234");
 }
 
 BOOST_AUTO_TEST_CASE(Chaining)

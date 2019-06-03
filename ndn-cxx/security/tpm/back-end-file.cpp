@@ -30,11 +30,13 @@
 #include <sys/stat.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace security {
 namespace tpm {
 
+namespace fs = boost::filesystem;
 using transform::PrivateKey;
 
 class BackEndFile::Impl
@@ -44,42 +46,44 @@ public:
   Impl(const std::string& dir)
   {
     if (!dir.empty()) {
-      keystorePath = boost::filesystem::path(dir);
+      m_keystorePath = fs::path(dir);
     }
 #ifdef NDN_CXX_HAVE_TESTS
     else if (std::getenv("TEST_HOME") != nullptr) {
-      keystorePath = boost::filesystem::path(std::getenv("TEST_HOME")) / ".ndn";
+      m_keystorePath = fs::path(std::getenv("TEST_HOME")) / ".ndn";
     }
 #endif // NDN_CXX_HAVE_TESTS
     else if (std::getenv("HOME") != nullptr) {
-      keystorePath = boost::filesystem::path(std::getenv("HOME")) / ".ndn";
+      m_keystorePath = fs::path(std::getenv("HOME")) / ".ndn";
     }
     else {
-      keystorePath = boost::filesystem::current_path() / ".ndn";
+      m_keystorePath = fs::current_path() / ".ndn";
     }
 
-    keystorePath /= "ndnsec-key-file";
-    boost::filesystem::create_directories(keystorePath);
+    m_keystorePath /= "ndnsec-key-file";
+    fs::create_directories(m_keystorePath);
   }
 
-  boost::filesystem::path
-  toFileName(const Name& keyName)
+  fs::path
+  toFileName(const Name& keyName) const
   {
-    std::stringstream os;
+    std::ostringstream os;
     {
       using namespace transform;
-      bufferSource(keyName.wireEncode().wire(), keyName.wireEncode().size()) >>
-        digestFilter(DigestAlgorithm::SHA256) >> hexEncode() >> streamSink(os);
+      bufferSource(keyName.wireEncode().wire(), keyName.wireEncode().size())
+        >> digestFilter(DigestAlgorithm::SHA256)
+        >> hexEncode()
+        >> streamSink(os);
     }
-    return keystorePath / (os.str() + ".privkey");
+    return m_keystorePath / (os.str() + ".privkey");
   }
 
-public:
-  boost::filesystem::path keystorePath;
+private:
+  fs::path m_keystorePath;
 };
 
 BackEndFile::BackEndFile(const std::string& location)
-  : m_impl(new Impl(location))
+  : m_impl(make_unique<Impl>(location))
 {
 }
 
@@ -95,7 +99,7 @@ BackEndFile::getScheme()
 bool
 BackEndFile::doHasKey(const Name& keyName) const
 {
-  if (!boost::filesystem::exists(m_impl->toFileName(keyName)))
+  if (!fs::exists(m_impl->toFileName(keyName)))
     return false;
 
   try {
@@ -119,13 +123,23 @@ BackEndFile::doGetKeyHandle(const Name& keyName) const
 unique_ptr<KeyHandle>
 BackEndFile::doCreateKey(const Name& identityName, const KeyParams& params)
 {
+  switch (params.getKeyType()) {
+  case KeyType::RSA:
+  case KeyType::EC:
+    break;
+  default:
+    NDN_THROW(Error("File-based TPM does not support creating a key of type " +
+                    boost::lexical_cast<std::string>(params.getKeyType())));
+  }
+
   shared_ptr<PrivateKey> key(transform::generatePrivateKey(params).release());
   unique_ptr<KeyHandle> keyHandle = make_unique<KeyHandleMem>(key);
 
-  setKeyName(*keyHandle, identityName, params);
+  Name keyName = constructAsymmetricKeyName(*keyHandle, identityName, params);
+  keyHandle->setKeyName(keyName);
 
   try {
-    saveKey(keyHandle->getKeyName(), *key);
+    saveKey(keyName, *key);
     return keyHandle;
   }
   catch (const std::runtime_error&) {
@@ -136,14 +150,14 @@ BackEndFile::doCreateKey(const Name& identityName, const KeyParams& params)
 void
 BackEndFile::doDeleteKey(const Name& keyName)
 {
-  boost::filesystem::path keyPath(m_impl->toFileName(keyName));
-  if (!boost::filesystem::exists(keyPath))
+  auto keyPath = m_impl->toFileName(keyName);
+  if (!fs::exists(keyPath))
     return;
 
   try {
-    boost::filesystem::remove(keyPath);
+    fs::remove(keyPath);
   }
-  catch (const boost::filesystem::filesystem_error&) {
+  catch (const fs::filesystem_error&) {
     NDN_THROW_NESTED(Error("Cannot remove key file"));
   }
 }
@@ -171,6 +185,17 @@ BackEndFile::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, c
     PrivateKey key;
     key.loadPkcs8(buf, size, pw, pwLen);
     saveKey(keyName, key);
+  }
+  catch (const PrivateKey::Error&) {
+    NDN_THROW_NESTED(Error("Cannot import private key"));
+  }
+}
+
+void
+BackEndFile::doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key)
+{
+  try {
+    saveKey(keyName, *key);
   }
   catch (const PrivateKey::Error&) {
     NDN_THROW_NESTED(Error("Cannot import private key"));

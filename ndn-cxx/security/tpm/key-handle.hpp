@@ -72,11 +72,17 @@ public:
   ConstBufferPtr
   derivePublicKey() const;
 
-  void
-  setKeyName(const Name& keyName);
-
   Name
-  getKeyName() const;
+  getKeyName() const
+  {
+    return m_keyName;
+  }
+
+  void
+  setKeyName(const Name& keyName)
+  {
+    m_keyName = keyName;
+  }
 
 private:
   virtual ConstBufferPtr

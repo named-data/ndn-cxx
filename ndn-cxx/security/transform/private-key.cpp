@@ -23,6 +23,7 @@
 #include "ndn-cxx/security/transform/base64-decode.hpp"
 #include "ndn-cxx/security/transform/base64-encode.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/security/transform/stream-source.hpp"
 #include "ndn-cxx/security/impl/openssl-helper.hpp"
@@ -121,6 +122,32 @@ PrivateKey::getKeySize() const
     default:
       return 0;
   }
+}
+
+ConstBufferPtr
+PrivateKey::getKeyDigest(DigestAlgorithm algo) const
+{
+  if (getKeyType() != KeyType::HMAC)
+    NDN_THROW(Error("Digest is not supported for key type " +
+                    boost::lexical_cast<std::string>(getKeyType())));
+
+  const uint8_t* buf = nullptr;
+  size_t len = 0;
+#if OPENSSL_VERSION_NUMBER >= 0x1010000fL
+  buf = EVP_PKEY_get0_hmac(m_impl->key, &len);
+#else
+  const auto* octstr = reinterpret_cast<ASN1_OCTET_STRING*>(EVP_PKEY_get0(m_impl->key));
+  buf = octstr->data;
+  len = octstr->length;
+#endif
+  if (buf == nullptr)
+    NDN_THROW(Error("Failed to obtain raw key pointer"));
+  if (len * 8 != getKeySize())
+    NDN_THROW(Error("Key length mismatch"));
+
+  OBufferStream os;
+  bufferSource(buf, len) >> digestFilter(algo) >> streamSink(os);
+  return os.buf();
 }
 
 void

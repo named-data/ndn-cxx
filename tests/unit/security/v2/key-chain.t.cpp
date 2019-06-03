@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "ndn-cxx/security/v2/key-chain.hpp"
 #include "ndn-cxx/security/signing-helpers.hpp"
 #include "ndn-cxx/security/verification-helpers.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/identity-management-fixture.hpp"
@@ -222,12 +223,11 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
   BOOST_CHECK(id);
   BOOST_CHECK(m_keyChain.getPib().getIdentities().find(identityName) != m_keyChain.getPib().getIdentities().end());
   // The first added identity becomes the default identity
-  BOOST_REQUIRE_NO_THROW(m_keyChain.getPib().getDefaultIdentity());
+  BOOST_CHECK_NO_THROW(m_keyChain.getPib().getDefaultIdentity());
   // The default key of the added identity must exist
-  Key key;
-  BOOST_REQUIRE_NO_THROW(key = id.getDefaultKey());
+  Key key = id.getDefaultKey();
   // The default certificate of the default key must exist
-  BOOST_REQUIRE_NO_THROW(key.getDefaultCertificate());
+  BOOST_CHECK_NO_THROW(key.getDefaultCertificate());
 
   // Delete key
   Name key1Name = key.getName();
@@ -242,12 +242,11 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
   // Create another key
   m_keyChain.createKey(id);
   // The added key becomes the default key.
-  BOOST_REQUIRE_NO_THROW(id.getDefaultKey());
   Key key2 = id.getDefaultKey();
   BOOST_REQUIRE(key2);
   BOOST_CHECK_NE(key2.getName(), key1Name);
   BOOST_CHECK_EQUAL(id.getKeys().size(), 1);
-  BOOST_REQUIRE_NO_THROW(key2.getDefaultCertificate());
+  BOOST_CHECK_NO_THROW(key2.getDefaultCertificate());
 
   // Create the third key
   Key key3 = m_keyChain.createKey(id);
@@ -255,7 +254,7 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
   // The added key will not be the default key, because the default key already exists
   BOOST_CHECK_EQUAL(id.getDefaultKey().getName(), key2.getName());
   BOOST_CHECK_EQUAL(id.getKeys().size(), 2);
-  BOOST_REQUIRE_NO_THROW(key3.getDefaultCertificate());
+  BOOST_CHECK_NO_THROW(key3.getDefaultCertificate());
 
   // Delete cert
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 1);
@@ -268,7 +267,7 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
   // Add cert
   m_keyChain.addCertificate(key3, key3Cert1);
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 1);
-  BOOST_REQUIRE_NO_THROW(key3.getDefaultCertificate());
+  BOOST_CHECK_NO_THROW(key3.getDefaultCertificate());
   m_keyChain.addCertificate(key3, key3Cert1); // overwriting the cert should work
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 1);
   // Add another cert
@@ -310,7 +309,10 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
   Key key = id.getDefaultKey();
   Certificate cert = key.getDefaultCertificate();
 
-  std::list<SigningInfo> signingInfos = {
+  Name hmacKeyName = m_keyChain.createHmacKey();
+  const Tpm& tpm = m_keyChain.getTpm();
+
+  std::vector<SigningInfo> signingInfos = {
     SigningInfo(),
 
     SigningInfo(SigningInfo::SIGNER_TYPE_ID, id.getName()),
@@ -328,6 +330,9 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
     SigningInfo(SigningInfo::SIGNER_TYPE_CERT, cert.getName()),
     signingByCertificate(cert.getName()),
     signingByCertificate(cert),
+
+    SigningInfo(SigningInfo::SIGNER_TYPE_HMAC, hmacKeyName),
+    SigningInfo("hmac-sha256:QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENUI0OTdGREZGMUE4RUE2RkYxMkY2RkI2NUFGMjcyMEI1OUNDRg=="),
 
     SigningInfo(SigningInfo::SIGNER_TYPE_SHA256),
     signingWithSha256()
@@ -355,6 +360,25 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
 
       BOOST_CHECK(verifyDigest(data, DigestAlgorithm::SHA256));
       BOOST_CHECK(verifyDigest(interest, DigestAlgorithm::SHA256));
+    }
+    else if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_HMAC) {
+      Name keyName = signingInfo.getSignerName();
+      BOOST_CHECK_EQUAL(data.getSignature().getType(), tlv::SignatureHmacWithSha256);
+      BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::SignatureHmacWithSha256);
+
+      BOOST_CHECK(bool(tpm.verify(data.wireEncode().value(),
+                                  data.wireEncode().value_size() - data.getSignature().getValue().size(),
+                                  data.getSignature().getValue().value(),
+                                  data.getSignature().getValue().value_size(),
+                                  keyName, DigestAlgorithm::SHA256)));
+
+      const Name& interestName = interest.getName();
+      auto nameBlock = interestName.wireEncode();
+      BOOST_CHECK(bool(tpm.verify(nameBlock.value(),
+                                  nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size(),
+                                  interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value(),
+                                  interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value_size(),
+                                  keyName, DigestAlgorithm::SHA256)));
     }
     else {
       BOOST_CHECK_EQUAL(data.getSignature().getType(), tlv::SignatureSha256WithEcdsa);
@@ -391,9 +415,21 @@ BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, IdentityManagementFixture)
   BOOST_CHECK(id.getName().isPrefixOf(data.getSignature().getKeyLocator().getName()));
 }
 
+BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, IdentityManagementFixture)
+{
+  Name keyName("/test/device2");
+  std::string rawKey("nPSNOHyZKsg2WLqHAs7MXGb0sjQb4zCT");
+  auto key = make_shared<transform::PrivateKey>();
+  key->loadRaw(KeyType::HMAC, reinterpret_cast<const uint8_t*>(rawKey.data()), rawKey.size());
+
+  m_keyChain.importPrivateKey(keyName, key);
+  BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(keyName), true);
+  BOOST_CHECK_THROW(m_keyChain.importPrivateKey(keyName, key), KeyChain::Error);
+}
+
 BOOST_FIXTURE_TEST_CASE(ExportImport, IdentityManagementFixture)
 {
-  Identity id = addIdentity("/TestKeyChain/ExportIdentity/");
+  Identity id = addIdentity("/TestKeyChain/ExportIdentity");
   Certificate cert = id.getDefaultKey().getDefaultCertificate();
 
   shared_ptr<SafeBag> exported = m_keyChain.exportSafeBag(cert, "1234", 4);
@@ -412,13 +448,11 @@ BOOST_FIXTURE_TEST_CASE(ExportImport, IdentityManagementFixture)
 
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), true);
   BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 1);
-  BOOST_REQUIRE_NO_THROW(m_keyChain.getPib().getIdentity(cert.getIdentity()));
   Identity newId = m_keyChain.getPib().getIdentity(cert.getIdentity());
   BOOST_CHECK_EQUAL(newId.getKeys().size(), 1);
-  BOOST_REQUIRE_NO_THROW(newId.getKey(cert.getKeyName()));
   Key newKey = newId.getKey(cert.getKeyName());
   BOOST_CHECK_EQUAL(newKey.getCertificates().size(), 1);
-  BOOST_REQUIRE_NO_THROW(newKey.getCertificate(cert.getName()));
+  BOOST_CHECK_NO_THROW(newKey.getCertificate(cert.getName()));
 
   m_keyChain.deleteIdentity(newId);
   BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 0);

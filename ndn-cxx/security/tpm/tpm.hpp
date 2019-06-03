@@ -32,6 +32,10 @@
 namespace ndn {
 namespace security {
 
+namespace transform {
+class PrivateKey;
+} // namespace transform
+
 namespace v2 {
 class KeyChain;
 } // namespace v2
@@ -105,8 +109,9 @@ public:
   /**
    * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
    *
-   * @return true if the signature is valid; false if the signature is not valid;
-   *         `boost::logic::indeterminate` if the key does not exist.
+   * @retval true the signature is valid
+   * @retval false the signature is not valid
+   * @retval indeterminate the key does not exist
    */
   boost::logic::tribool
   verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
@@ -163,7 +168,9 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
    * @brief Create key for @p identityName according to @p params.
    *
-   * The created key is named as: /<identityName>/[keyId]/KEY
+   * The created key is named as follows:
+   * - RSA and EC keys: `/<identityName>/KEY/<keyId>`
+   * - HMAC keys: `/<identityName>/<keyDigest>`
    *
    * @return The key name.
    * @throw Tpm::Error the key already exists or @p params is invalid.
@@ -204,6 +211,12 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   void
   importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
                    const char* pw, size_t pwLen);
+
+  /**
+   * @brief Import a private key.
+   */
+  void
+  importPrivateKey(const Name& keyName, shared_ptr<transform::PrivateKey> key);
 
   /**
    * @brief Clear the key cache.

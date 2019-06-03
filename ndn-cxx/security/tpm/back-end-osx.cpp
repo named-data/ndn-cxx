@@ -29,6 +29,8 @@
 #include <Security/Security.h>
 #include <cstring>
 
+#include <boost/lexical_cast.hpp>
+
 namespace ndn {
 namespace security {
 namespace tpm {
@@ -361,7 +363,8 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
       break;
     }
     default: {
-      NDN_THROW(Tpm::Error("Failed to generate key pair: Unsupported key type"));
+      NDN_THROW(Error("macOS-based TPM does not support creating a key of type " +
+                      boost::lexical_cast<std::string>(keyType)));
     }
   }
   CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &keySize);
@@ -380,11 +383,12 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
   }
 
   unique_ptr<KeyHandle> keyHandle = make_unique<KeyHandleOsx>(privateKey.get());
-  setKeyName(*keyHandle, identityName, params);
+  Name keyName = constructAsymmetricKeyName(*keyHandle, identityName, params);
+  keyHandle->setKeyName(keyName);
 
   SecKeychainAttribute attrs[1]; // maximum number of attributes
   SecKeychainAttributeList attrList = {0, attrs};
-  std::string keyUri = keyHandle->getKeyName().toUri();
+  std::string keyUri = keyName.toUri();
   {
     attrs[attrList.count].tag = kSecKeyPrintName;
     attrs[attrList.count].length = keyUri.size();
@@ -495,6 +499,12 @@ BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
     attrList.count++;
   }
   SecKeychainItemModifyAttributesAndData(keychainItem, &attrList, 0, nullptr);
+}
+
+void
+BackEndOsx::doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key)
+{
+  NDN_THROW(Error("macOS-based TPM does not support importing a transform::PrivateKey"));
 }
 
 } // namespace tpm

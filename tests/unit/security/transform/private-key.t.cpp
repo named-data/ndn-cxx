@@ -53,6 +53,7 @@ BOOST_AUTO_TEST_CASE(Empty)
   PrivateKey sKey;
   BOOST_CHECK_EQUAL(sKey.getKeyType(), KeyType::NONE);
   BOOST_CHECK_EQUAL(sKey.getKeySize(), 0);
+  BOOST_CHECK_THROW(sKey.getKeyDigest(DigestAlgorithm::SHA256), PrivateKey::Error);
   BOOST_CHECK_THROW(sKey.derivePublicKey(), PrivateKey::Error);
   const uint8_t theAnswer = 42;
   BOOST_CHECK_THROW(sKey.decrypt(&theAnswer, sizeof(theAnswer)), PrivateKey::Error);
@@ -60,6 +61,21 @@ BOOST_AUTO_TEST_CASE(Empty)
   BOOST_CHECK_THROW(sKey.savePkcs1(os), PrivateKey::Error);
   std::string passwd("password");
   BOOST_CHECK_THROW(sKey.savePkcs8(os, passwd.data(), passwd.size()), PrivateKey::Error);
+}
+
+BOOST_AUTO_TEST_CASE(KeyDigest)
+{
+  const Buffer buf(16);
+  PrivateKey sKey;
+  sKey.loadRaw(KeyType::HMAC, buf.data(), buf.size());
+  auto digest = sKey.getKeyDigest(DigestAlgorithm::SHA256);
+
+  const uint8_t expected[] = {
+    0x37, 0x47, 0x08, 0xff, 0xf7, 0x71, 0x9d, 0xd5, 0x97, 0x9e, 0xc8, 0x75, 0xd5, 0x6c, 0xd2, 0x28,
+    0x6f, 0x6d, 0x3c, 0xf7, 0xec, 0x31, 0x7a, 0x3b, 0x25, 0x63, 0x2a, 0xab, 0x28, 0xec, 0x37, 0xbb,
+  };
+  BOOST_CHECK_EQUAL_COLLECTIONS(digest->begin(), digest->end(),
+                                expected, expected + sizeof(expected));
 }
 
 BOOST_AUTO_TEST_CASE(LoadRaw)

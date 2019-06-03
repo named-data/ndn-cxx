@@ -87,6 +87,28 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(KeyManagement, T, TestBackEnds)
   BOOST_CHECK(tpm.getKeyHandle(keyName) == nullptr);
 }
 
+BOOST_AUTO_TEST_CASE(CreateHmacKey)
+{
+  Name identity("/Test/Identity/HMAC");
+
+  BackEndWrapperMem mem;
+  BackEnd& memTpm = mem.getTpm();
+  auto key = memTpm.createKey(identity, HmacKeyParams());
+  BOOST_REQUIRE(key != nullptr);
+  BOOST_CHECK(!key->getKeyName().empty());
+  BOOST_CHECK(memTpm.hasKey(key->getKeyName()));
+
+  BackEndWrapperFile file;
+  BackEnd& fileTpm = file.getTpm();
+  BOOST_CHECK_THROW(fileTpm.createKey(identity, HmacKeyParams()), BackEnd::Error);
+
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
+  BackEndWrapperOsx osx;
+  BackEnd& osxTpm = osx.getTpm();
+  BOOST_CHECK_THROW(osxTpm.createKey(identity, HmacKeyParams()), BackEnd::Error);
+#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
+}
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
 {
   T wrapper;

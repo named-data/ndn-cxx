@@ -25,6 +25,7 @@
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/util/random.hpp"
@@ -50,6 +51,10 @@ BackEnd::getKeyHandle(const Name& keyName) const
 unique_ptr<KeyHandle>
 BackEnd::createKey(const Name& identity, const KeyParams& params)
 {
+  if (params.getKeyType() == KeyType::HMAC) {
+    return doCreateKey(identity, params);
+  }
+
   // key name checking
   switch (params.getKeyIdType()) {
     case KeyIdType::USER_SPECIFIED: { // keyId is pre-set.
@@ -107,7 +112,17 @@ BackEnd::importKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len, c
 }
 
 void
-BackEnd::setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams& params)
+BackEnd::importKey(const Name& keyName, shared_ptr<transform::PrivateKey> key)
+{
+  if (hasKey(keyName)) {
+    NDN_THROW(Error("Key `" + keyName.toUri() + "` already exists"));
+  }
+  doImportKey(keyName, key);
+}
+
+Name
+BackEnd::constructAsymmetricKeyName(const KeyHandle& keyHandle, const Name& identity,
+                                    const KeyParams& params)
 {
   name::Component keyId;
 
@@ -135,7 +150,14 @@ BackEnd::setKeyName(KeyHandle& keyHandle, const Name& identity, const KeyParams&
     }
   }
 
-  keyHandle.setKeyName(v2::constructKeyName(identity, keyId));
+  return v2::constructKeyName(identity, keyId);
+}
+
+Name
+BackEnd::constructHmacKeyName(const transform::PrivateKey& key, const Name& identity,
+                              const KeyParams& params)
+{
+  return Name(identity).append(name::Component(key.getKeyDigest(DigestAlgorithm::SHA256)));
 }
 
 bool

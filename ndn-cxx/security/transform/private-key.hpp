@@ -77,6 +77,14 @@ public:
   getKeySize() const;
 
   /**
+   * @brief Returns a digest of the private key.
+   *
+   * @note Currently supports only HMAC keys.
+   */
+  ConstBufferPtr
+  getKeyDigest(DigestAlgorithm algo) const;
+
+  /**
    * @brief Load a raw private key from a buffer @p buf
    *
    * @note Currently supports only HMAC keys.

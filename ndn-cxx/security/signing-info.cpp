@@ -21,6 +21,12 @@
 
 #include "ndn-cxx/security/signing-info.hpp"
 
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/transform/base64-decode.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
+
 namespace ndn {
 namespace security {
 
@@ -45,6 +51,13 @@ SigningInfo::getDigestSha256Identity()
   return digestSha256Identity;
 }
 
+const Name&
+SigningInfo::getHmacIdentity()
+{
+  static Name hmacIdentity("/localhost/identity/hmac");
+  return hmacIdentity;
+}
+
 SigningInfo::SigningInfo(SignerType signerType,
                          const Name& signerName,
                          const SignatureInfo& signatureInfo)
@@ -53,11 +66,7 @@ SigningInfo::SigningInfo(SignerType signerType,
   , m_digestAlgorithm(DigestAlgorithm::SHA256)
   , m_info(signatureInfo)
 {
-  BOOST_ASSERT(signerType == SIGNER_TYPE_NULL ||
-               signerType == SIGNER_TYPE_ID ||
-               signerType == SIGNER_TYPE_KEY ||
-               signerType == SIGNER_TYPE_CERT ||
-               signerType == SIGNER_TYPE_SHA256);
+  BOOST_ASSERT(signerType >= SIGNER_TYPE_NULL && signerType <= SIGNER_TYPE_HMAC);
 }
 
 SigningInfo::SigningInfo(const Identity& identity)
@@ -101,6 +110,10 @@ SigningInfo::SigningInfo(const std::string& signingStr)
   else if (scheme == "cert") {
     setSigningCertName(nameArg);
   }
+  else if (scheme == "hmac-sha256") {
+    setSigningHmacKey(nameArg);
+    setDigestAlgorithm(DigestAlgorithm::SHA256);
+  }
   else {
     NDN_THROW(std::invalid_argument("Invalid signing string scheme"));
   }
@@ -129,6 +142,25 @@ SigningInfo::setSigningCertName(const Name& certificateName)
 {
   m_type = SIGNER_TYPE_CERT;
   m_name = certificateName;
+  return *this;
+}
+
+SigningInfo&
+SigningInfo::setSigningHmacKey(const std::string& hmacKey)
+{
+  m_type = SIGNER_TYPE_HMAC;
+
+  OBufferStream os;
+  transform::bufferSource(hmacKey) >>
+    transform::base64Decode(false) >>
+    transform::streamSink(os);
+  m_hmacKey = make_shared<transform::PrivateKey>();
+  m_hmacKey->loadRaw(KeyType::HMAC, os.buf()->data(), os.buf()->size());
+
+  // generate key name
+  m_name = getHmacIdentity();
+  m_name.append(name::Component(m_hmacKey->getKeyDigest(DigestAlgorithm::SHA256)));
+
   return *this;
 }
 
@@ -179,8 +211,9 @@ operator<<(std::ostream& os, const SigningInfo& si)
       return os << "cert:" << si.getSignerName();
     case SigningInfo::SIGNER_TYPE_SHA256:
       return os << "id:" << SigningInfo::getDigestSha256Identity();
+    case SigningInfo::SIGNER_TYPE_HMAC:
+      return os << "id:" << si.getSignerName();
   }
-
   NDN_THROW(std::invalid_argument("Unknown signer type"));
   return os;
 }

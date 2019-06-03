@@ -53,19 +53,10 @@ Tpm::hasKey(const Name& keyName) const
 Name
 Tpm::createKey(const Name& identityName, const KeyParams& params)
 {
-  switch (params.getKeyType()) {
-    case KeyType::RSA:
-    case KeyType::EC: {
-      unique_ptr<KeyHandle> keyHandle = m_backEnd->createKey(identityName, params);
-      Name keyName = keyHandle->getKeyName();
-      m_keys[keyName] = std::move(keyHandle);
-      return keyName;
-    }
-    default: {
-      NDN_THROW(Error("Failed to create key pair: Unsupported key type " +
-                      boost::lexical_cast<std::string>(params.getKeyType())));
-    }
-  }
+  auto keyHandle = m_backEnd->createKey(identityName, params);
+  auto keyName = keyHandle->getKeyName();
+  m_keys[keyName] = std::move(keyHandle);
+  return keyName;
 }
 
 void
@@ -158,6 +149,12 @@ Tpm::importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len
                       const char* pw, size_t pwLen)
 {
   m_backEnd->importKey(keyName, pkcs8, pkcs8Len, pw, pwLen);
+}
+
+void
+Tpm::importPrivateKey(const Name& keyName, shared_ptr<transform::PrivateKey> key)
+{
+  m_backEnd->importKey(keyName, std::move(key));
 }
 
 const KeyHandle*
