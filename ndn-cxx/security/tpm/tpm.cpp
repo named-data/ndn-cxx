@@ -100,6 +100,18 @@ Tpm::sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm 
     return key->sign(digestAlgorithm, buf, size);
 }
 
+boost::logic::tribool
+Tpm::verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
+            const Name& keyName, DigestAlgorithm digestAlgorithm) const
+{
+  const KeyHandle* key = findKey(keyName);
+
+  if (key == nullptr)
+    return boost::logic::indeterminate;
+  else
+    return key->verify(digestAlgorithm, buf, bufLen, sig, sigLen);
+}
+
 ConstBufferPtr
 Tpm::decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
 {

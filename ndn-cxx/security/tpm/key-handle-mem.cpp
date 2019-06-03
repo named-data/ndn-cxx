@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,10 +20,12 @@
  */
 
 #include "ndn-cxx/security/tpm/key-handle-mem.hpp"
+#include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
 #include "ndn-cxx/security/transform/signer-filter.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/security/transform/verifier-filter.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 
 namespace ndn {
@@ -44,6 +46,18 @@ KeyHandleMem::doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t
   OBufferStream sigOs;
   bufferSource(buf, size) >> signerFilter(digestAlgorithm, *m_key) >> streamSink(sigOs);
   return sigOs.buf();
+}
+
+bool
+KeyHandleMem::doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+                       const uint8_t* sig, size_t sigLen) const
+{
+  using namespace transform;
+
+  bool result = false;
+  bufferSource(buf, size) >> verifierFilter(digestAlgorithm, *m_key, sig, sigLen)
+                          >> boolSink(result);
+  return result;
 }
 
 ConstBufferPtr

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,12 +93,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
   BackEnd& tpm = wrapper.getTpm();
 
   // create an RSA key
-  Name identity("/Test/KeyName");
+  Name identity("/Test/RSA/KeyName");
   unique_ptr<KeyHandle> key = tpm.createKey(identity, RsaKeyParams());
   Name keyName = key->getKeyName();
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
-  Block sigBlock(tlv::SignatureValue, key->sign(DigestAlgorithm::SHA256, content, sizeof(content)));
+  auto sigValue = key->sign(DigestAlgorithm::SHA256, content, sizeof(content));
+  BOOST_REQUIRE(sigValue != nullptr);
+  Block sigBlock(tlv::SignatureValue, sigValue);
 
   transform::PublicKey pubKey;
   ConstBufferPtr pubKeyBits = key->derivePublicKey();
@@ -149,12 +151,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   BackEnd& tpm = wrapper.getTpm();
 
   // create an EC key
-  Name identity("/Test/Ec/KeyName");
+  Name identity("/Test/EC/KeyName");
   unique_ptr<KeyHandle> key = tpm.createKey(identity, EcKeyParams());
   Name ecKeyName = key->getKeyName();
 
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
-  Block sigBlock(tlv::SignatureValue, key->sign(DigestAlgorithm::SHA256, content, sizeof(content)));
+  auto sigValue = key->sign(DigestAlgorithm::SHA256, content, sizeof(content));
+  BOOST_REQUIRE(sigValue != nullptr);
+  Block sigBlock(tlv::SignatureValue, sigValue);
 
   transform::PublicKey pubKey;
   ConstBufferPtr pubKeyBits = key->derivePublicKey();
@@ -163,14 +167,37 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   bool result;
   {
     using namespace transform;
-    bufferSource(content, sizeof(content)) >> verifierFilter(DigestAlgorithm::SHA256, pubKey,
-                                                             sigBlock.value(), sigBlock.value_size())
-                                           >> boolSink(result);
+    bufferSource(content, sizeof(content)) >>
+      verifierFilter(DigestAlgorithm::SHA256, pubKey, sigBlock.value(), sigBlock.value_size()) >>
+      boolSink(result);
   }
   BOOST_CHECK_EQUAL(result, true);
 
   tpm.deleteKey(ecKeyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(ecKeyName), false);
+}
+
+BOOST_AUTO_TEST_CASE(HmacSigningAndVerifying)
+{
+  BackEndWrapperMem wrapper;
+  BackEnd& tpm = wrapper.getTpm();
+
+  // create an HMAC key
+  Name identity("/Test/HMAC/KeyName");
+  unique_ptr<KeyHandle> key = tpm.createKey(identity, HmacKeyParams());
+  Name hmacKeyName = key->getKeyName();
+
+  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
+  auto sigValue = key->sign(DigestAlgorithm::SHA256, content, sizeof(content));
+  BOOST_REQUIRE(sigValue != nullptr);
+  Block sigBlock(tlv::SignatureValue, sigValue);
+
+  bool result = key->verify(DigestAlgorithm::SHA256, content, sizeof(content),
+                            sigBlock.value(), sigBlock.value_size());
+  BOOST_CHECK_EQUAL(result, true);
+
+  tpm.deleteKey(hmacKeyName);
+  BOOST_CHECK_EQUAL(tpm.hasKey(hmacKeyName), false);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)

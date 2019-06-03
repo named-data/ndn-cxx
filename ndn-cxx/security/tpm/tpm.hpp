@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,7 @@
 #include "ndn-cxx/security/tpm/key-handle.hpp"
 
 #include <unordered_map>
+#include <boost/logic/tribool.hpp>
 
 namespace ndn {
 namespace security {
@@ -100,6 +101,16 @@ public:
    */
   ConstBufferPtr
   sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+
+  /**
+   * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
+   *
+   * @return true if the signature is valid; false if the signature is not valid;
+   *         `boost::logic::indeterminate` if the key does not exist.
+   */
+  boost::logic::tribool
+  verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
+         const Name& keyName, DigestAlgorithm digestAlgorithm) const;
 
   /**
    * @brief Decrypt blob using the key with name @p keyName.

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@ namespace tpm {
 /**
  * @brief Abstraction of TPM key handle.
  *
- * Handle provides an interface to perform crypto operations with a key in TPM.
+ * KeyHandle provides an interface to perform crypto operations with a key stored in the TPM.
  */
 class KeyHandle : noncopyable
 {
@@ -52,6 +52,13 @@ public:
    */
   ConstBufferPtr
   sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const;
+
+  /**
+   * @brief Verify the signature @p sig created on @p buf using this key and @p digestAlgorithm.
+   */
+  bool
+  verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
+         const uint8_t* sig, size_t sigLen) const;
 
   /**
    * @return plain text content decrypted from @p cipherText using this key.
@@ -74,6 +81,10 @@ public:
 private:
   virtual ConstBufferPtr
   doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const = 0;
+
+  virtual bool
+  doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
+           const uint8_t* sig, size_t sigLen) const = 0;
 
   virtual ConstBufferPtr
   doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const = 0;

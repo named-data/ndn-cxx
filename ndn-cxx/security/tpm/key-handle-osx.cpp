@@ -39,6 +39,13 @@ KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t
   return BackEndOsx::sign(m_key, digestAlgorithm, buf, size);
 }
 
+bool
+KeyHandleOsx::doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+                       const uint8_t* sig, size_t sigLen) const
+{
+  NDN_THROW(Error("Signature verification is not supported with macOS Keychain-based TPM"));
+}
+
 ConstBufferPtr
 KeyHandleOsx::doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const
 {
