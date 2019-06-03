@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (C) 2016-2018, Arizona Board of Regents.
+ * Copyright (C) 2016-2019, Arizona Board of Regents.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,6 @@ class RttEstimator
 public:
   using MillisecondsDouble = time::duration<double, time::milliseconds::period>;
 
-public:
   class Options
   {
   public:
@@ -53,38 +52,42 @@ public:
     }
 
   public:
-    double alpha = 0.125; ///< weight of exponential moving average for meanRtt
-    double beta = 0.25; ///< weight of exponential moving average for varRtt
-    int k = 4; ///< factor of RTT variation when calculating RTO
-    MillisecondsDouble initialRto = MillisecondsDouble(1000.0); ///< initial RTO value
-    MillisecondsDouble minRto = MillisecondsDouble(200.0); ///< lower bound of RTO
-    MillisecondsDouble maxRto = MillisecondsDouble(20000.0); ///< upper bound of RTO
-    int rtoBackoffMultiplier = 2;
+    double alpha = 0.125; ///< weight of exponential moving average for smoothed RTT
+    double beta = 0.25; ///< weight of exponential moving average for RTT variation
+    MillisecondsDouble initialRto{1000.0}; ///< initial RTO value
+    MillisecondsDouble minRto{200.0}; ///< lower bound of RTO
+    MillisecondsDouble maxRto{60000.0}; ///< upper bound of RTO
+    int k = 4; ///< RTT variation multiplier used when calculating RTO
+    int rtoBackoffMultiplier = 2; ///< RTO multiplier used in backoff operation
   };
 
   /**
-   * @brief Create a RTT Estimator
+   * @brief Creates an RTT estimator.
    *
-   * Configures the RTT Estimator with the default parameters if an instance of Options
+   * Configures the RTT estimator with the default parameters if an instance of Options
    * is not passed to the constructor.
    */
   explicit
   RttEstimator(const Options& options = Options());
 
   /**
-   * @brief Add a new RTT measurement to the estimator.
+   * @brief Records a new RTT measurement.
    *
-   * @param rtt the sampled rtt
-   * @param nExpectedSamples number of expected samples, must be greater than 0.
-   *        It should be set to current number of in-flight Interests. Please
-   *        refer to Appendix G of RFC 7323 for details.
-   * @note Don't add RTT measurements for retransmissions
+   * @param rtt the sampled RTT
+   * @param nExpectedSamples number of expected samples, must be greater than 0. It should be
+   *                         set to the current number of in-flight Interests. Please refer to
+   *                         Appendix G of RFC 7323 for details.
+   * @param segNum segment number or other opaque sample identifier. This value is not used by
+   *               the estimator, but is passed verbatim to afterMeasurement() signal subscribers.
+   *
+   * @note Do not call this function with RTT samples from retransmitted Interests (per Karn's algorithm).
    */
   void
-  addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples);
+  addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples,
+                 optional<uint64_t> segNum = nullopt);
 
   /**
-   * @brief Returns the estimated RTO value
+   * @brief Returns the estimated RTO value.
    */
   MillisecondsDouble
   getEstimatedRto() const
@@ -93,7 +96,7 @@ public:
   }
 
   /**
-   * @brief Returns the minimum RTT observed
+   * @brief Returns the minimum RTT observed.
    */
   MillisecondsDouble
   getMinRtt() const
@@ -102,7 +105,7 @@ public:
   }
 
   /**
-   * @brief Returns the maximum RTT observed
+   * @brief Returns the maximum RTT observed.
    */
   MillisecondsDouble
   getMaxRtt() const
@@ -111,7 +114,7 @@ public:
   }
 
   /**
-   * @brief Returns the average RTT
+   * @brief Returns the average RTT.
    */
   MillisecondsDouble
   getAvgRtt() const
@@ -120,20 +123,36 @@ public:
   }
 
   /**
-   * @brief Backoff RTO by a factor of Options::rtoBackoffMultiplier
+   * @brief Backoff RTO by a factor of Options::rtoBackoffMultiplier.
    */
   void
   backoffRto();
 
+public:
+  struct Sample
+  {
+    MillisecondsDouble rtt;     ///< measured RTT
+    MillisecondsDouble sRtt;    ///< smoothed RTT
+    MillisecondsDouble rttVar;  ///< RTT variation
+    MillisecondsDouble rto;     ///< retransmission timeout
+    optional<uint64_t> segNum;  ///< segment number, see description in addMeasurement()
+  };
+
+  Signal<RttEstimator, Sample> afterMeasurement;
+
 private:
   const Options m_options;
-  MillisecondsDouble m_sRtt; ///< smoothed round-trip time
-  MillisecondsDouble m_rttVar; ///< round-trip time variation
-  MillisecondsDouble m_rto; ///< retransmission timeout
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  MillisecondsDouble m_sRtt;    ///< smoothed round-trip time
+  MillisecondsDouble m_rttVar;  ///< round-trip time variation
+  MillisecondsDouble m_rto;     ///< retransmission timeout
+
+private:
   MillisecondsDouble m_rttMin;
   MillisecondsDouble m_rttMax;
   MillisecondsDouble m_rttAvg;
-  int64_t m_nRttSamples; ///< number of RTT samples
+  int64_t m_nRttSamples;
 };
 
 } // namespace util

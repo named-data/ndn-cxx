@@ -267,7 +267,8 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
   // Add measurement to RTO estimator (if not retransmission)
   if (pendingSegmentIt->second.state == SegmentState::FirstInterest) {
     m_rttEstimator.addMeasurement(m_timeLastSegmentReceived - pendingSegmentIt->second.sendTime,
-                                  std::max<int64_t>(m_nSegmentsInFlight + 1, 1));
+                                  std::max<int64_t>(m_nSegmentsInFlight + 1, 1),
+                                  currentSegment);
   }
 
   // Remove from pending segments map

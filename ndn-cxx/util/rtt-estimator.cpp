@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (C) 2016-2018, Arizona Board of Regents.
+ * Copyright (C) 2016-2019, Arizona Board of Regents.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,9 +25,6 @@
 
 #include "ndn-cxx/util/rtt-estimator.hpp"
 
-#include <cmath>
-#include <limits>
-
 namespace ndn {
 namespace util {
 
@@ -35,7 +32,7 @@ RttEstimator::RttEstimator(const Options& options)
   : m_options(options)
   , m_sRtt(std::numeric_limits<double>::quiet_NaN())
   , m_rttVar(std::numeric_limits<double>::quiet_NaN())
-  , m_rto(m_options.initialRto.count())
+  , m_rto(m_options.initialRto)
   , m_rttMin(std::numeric_limits<double>::max())
   , m_rttMax(std::numeric_limits<double>::min())
   , m_rttAvg(0.0)
@@ -44,7 +41,8 @@ RttEstimator::RttEstimator(const Options& options)
 }
 
 void
-RttEstimator::addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples)
+RttEstimator::addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples,
+                             optional<uint64_t> segNum)
 {
   BOOST_ASSERT(nExpectedSamples > 0);
 
@@ -62,10 +60,11 @@ RttEstimator::addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples)
   }
 
   m_rto = clamp(m_rto, m_options.minRto, m_options.maxRto);
+  afterMeasurement({rtt, m_sRtt, m_rttVar, m_rto, segNum});
 
-  m_rttAvg = MillisecondsDouble((m_nRttSamples * m_rttAvg.count() + rtt.count()) / (m_nRttSamples + 1));
-  m_rttMax = std::max<MillisecondsDouble>(rtt, m_rttMax);
-  m_rttMin = std::min<MillisecondsDouble>(rtt, m_rttMin);
+  m_rttAvg = (m_nRttSamples * m_rttAvg + rtt) / (m_nRttSamples + 1);
+  m_rttMax = std::max(rtt, m_rttMax);
+  m_rttMin = std::min(rtt, m_rttMin);
   m_nRttSamples++;
 }
 
