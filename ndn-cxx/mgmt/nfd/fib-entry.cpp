@@ -53,6 +53,22 @@ NextHopRecord::setFaceId(uint64_t faceId)
 }
 
 NextHopRecord&
+NextHopRecord::setEndpointId(uint64_t endpointId)
+{
+  m_endpointId = endpointId;
+  m_wire.reset();
+  return *this;
+}
+
+NextHopRecord&
+NextHopRecord::unsetEndpointId()
+{
+  m_endpointId = nullopt;
+  m_wire.reset();
+  return *this;
+}
+
+NextHopRecord&
 NextHopRecord::setCost(uint64_t cost)
 {
   m_cost = cost;
@@ -66,6 +82,9 @@ NextHopRecord::wireEncode(EncodingImpl<TAG>& block) const
 {
   size_t totalLength = 0;
 
+  if (m_endpointId) {
+    totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::EndpointId, *m_endpointId);
+  }
   totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::Cost, m_cost);
   totalLength += prependNonNegativeIntegerBlock(block, ndn::tlv::nfd::FaceId, m_faceId);
 
@@ -120,22 +139,38 @@ NextHopRecord::wireDecode(const Block& block)
   }
   m_cost = readNonNegativeInteger(*val);
   ++val;
+
+  if (val != m_wire.elements_end() && val->type() == tlv::nfd::EndpointId) {
+    m_endpointId = readNonNegativeInteger(*val);
+    ++val;
+  }
+  else {
+    m_endpointId = nullopt;
+  }
 }
 
 bool
 operator==(const NextHopRecord& a, const NextHopRecord& b)
 {
   return a.getFaceId() == b.getFaceId() &&
+      a.hasEndpointId() == b.hasEndpointId() &&
+      (!a.hasEndpointId() || a.getEndpointId() == b.getEndpointId()) &&
       a.getCost() == b.getCost();
 }
 
 std::ostream&
 operator<<(std::ostream& os, const NextHopRecord& nh)
 {
-  return os << "NextHopRecord("
-            << "FaceId: " << nh.getFaceId() << ", "
-            << "Cost: " << nh.getCost()
-            << ")";
+  os << "NextHopRecord("
+     << "FaceId: " << nh.getFaceId() << ", ";
+
+  if (nh.hasEndpointId()) {
+    os << "EndpointId: " << nh.getEndpointId() << ", ";
+  }
+
+  os << "Cost: " << nh.getCost();
+
+  return os << ")";
 }
 
 ////////////////////

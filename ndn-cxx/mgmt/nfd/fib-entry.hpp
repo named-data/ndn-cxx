@@ -54,6 +54,25 @@ public:
   NextHopRecord&
   setFaceId(uint64_t faceId);
 
+  bool
+  hasEndpointId() const
+  {
+    return m_endpointId.has_value();
+  }
+
+  uint64_t
+  getEndpointId() const
+  {
+    BOOST_ASSERT(hasEndpointId());
+    return *m_endpointId;
+  }
+
+  NextHopRecord&
+  setEndpointId(uint64_t endpointId);
+
+  NextHopRecord&
+  unsetEndpointId();
+
   uint64_t
   getCost() const
   {
@@ -75,6 +94,7 @@ public:
 
 private:
   uint64_t m_faceId;
+  optional<uint64_t> m_endpointId;
   uint64_t m_cost;
 
   mutable Block m_wire;
