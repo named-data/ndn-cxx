@@ -52,6 +52,7 @@ verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t 
 
 /**
  * @brief Verify @p blob using @p key against @p sig.
+ * @note @p key must be a public key in PKCS #8 format.
  */
 bool
 verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t sigLen,
@@ -59,12 +60,14 @@ verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t 
 
 /**
  * @brief Verify @p data using @p key.
+ * @note @p key must be a public key in PKCS #8 format.
  */
 bool
 verifySignature(const Data& data, const uint8_t* key, size_t keyLen);
 
 /**
  * @brief Verify @p interest using @p key.
+ * @note @p key must be a public key in PKCS #8 format.
  * @note This method verifies only signature of the signed interest.
  * @sa docs/specs/signed-interest.rst
  */

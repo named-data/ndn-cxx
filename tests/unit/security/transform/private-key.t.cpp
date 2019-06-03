@@ -47,6 +47,21 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
 BOOST_AUTO_TEST_SUITE(TestPrivateKey)
 
+BOOST_AUTO_TEST_CASE(LoadRaw)
+{
+  const Buffer buf(32);
+  PrivateKey sKey;
+  sKey.loadRaw(KeyType::HMAC, buf.data(), buf.size());
+  BOOST_CHECK_EQUAL(sKey.getKeyType(), KeyType::HMAC);
+  BOOST_CHECK_EQUAL(sKey.getKeySize(), 256);
+
+  PrivateKey sKey2;
+  BOOST_CHECK_THROW(sKey2.loadRaw(KeyType::NONE, buf.data(), buf.size()), std::invalid_argument);
+  BOOST_CHECK_THROW(sKey2.loadRaw(KeyType::RSA, buf.data(), buf.size()), std::invalid_argument);
+  BOOST_CHECK_THROW(sKey2.loadRaw(KeyType::EC, buf.data(), buf.size()), std::invalid_argument);
+  BOOST_CHECK_THROW(sKey2.loadRaw(KeyType::AES, buf.data(), buf.size()), std::invalid_argument);
+}
+
 struct RsaKeyTestData
 {
   const std::string privateKeyPkcs1 =

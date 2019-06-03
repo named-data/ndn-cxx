@@ -74,13 +74,22 @@ public:
    * @brief Get the size of the private key in bits
    *
    * @note The return value is meaningful only if the PrivateKey was created via
-   *       generatePrivateKey(), otherwise this function will always return zero.
+   *       generatePrivateKey() or loaded via loadRaw(), otherwise this function
+   *       will always return zero.
    */
   size_t
   getKeySize() const
   {
     return m_keySize;
   }
+
+  /**
+   * @brief Load a raw private key from a buffer @p buf
+   *
+   * @note Currently supports only HMAC keys.
+   */
+  void
+  loadRaw(KeyType type, const uint8_t* buf, size_t size);
 
   /**
    * @brief Load the private key in PKCS#1 format from a buffer @p buf

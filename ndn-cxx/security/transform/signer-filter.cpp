@@ -48,7 +48,7 @@ SignerFilter::SignerFilter(DigestAlgorithm algo, const PrivateKey& key)
     size_t mdSize = static_cast<size_t>(EVP_MD_size(md)) * 8;
     if (key.getKeySize() < mdSize)
       NDN_THROW(Error(getIndex(), "HMAC key is shorter than the digest output (" +
-                      to_string(key.getKeySize()) + " < " + to_string(mdSize) + ")"));
+                      to_string(key.getKeySize()) + " < " + to_string(mdSize) + " bits)"));
   }
 
   if (EVP_DigestSignInit(m_impl->ctx, nullptr, md, nullptr,

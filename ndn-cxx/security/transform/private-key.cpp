@@ -99,6 +99,32 @@ PrivateKey::getKeyType() const
 }
 
 void
+PrivateKey::loadRaw(KeyType type, const uint8_t* buf, size_t size)
+{
+  ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
+
+  int pkeyType;
+  switch (type) {
+  case KeyType::HMAC:
+    pkeyType = EVP_PKEY_HMAC;
+    break;
+  default:
+    NDN_THROW(std::invalid_argument("Unsupported key type " + boost::lexical_cast<std::string>(type)));
+  }
+
+  m_impl->key =
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
+      EVP_PKEY_new_raw_private_key(pkeyType, nullptr, buf, size);
+#else
+      EVP_PKEY_new_mac_key(pkeyType, nullptr, buf, static_cast<int>(size));
+#endif
+  if (m_impl->key == nullptr)
+    NDN_THROW(Error("Failed to load private key"));
+
+  m_keySize = size * 8;
+}
+
+void
 PrivateKey::loadPkcs1(const uint8_t* buf, size_t size)
 {
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
@@ -441,16 +467,13 @@ PrivateKey::generateHmacKey(uint32_t keySize)
   random::generateSecureBytes(rawKey.data(), rawKey.size());
 
   auto privateKey = make_unique<PrivateKey>();
-  privateKey->m_impl->key =
-#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
-      EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, nullptr, rawKey.data(), rawKey.size());
-#else
-      EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, nullptr, rawKey.data(), static_cast<int>(rawKey.size()));
-#endif
-  if (privateKey->m_impl->key == nullptr)
+  try {
+    privateKey->loadRaw(KeyType::HMAC, rawKey.data(), rawKey.size());
+  }
+  catch (const PrivateKey::Error&) {
     NDN_THROW(PrivateKey::Error("Failed to generate HMAC key"));
+  }
 
-  privateKey->m_keySize = keySize;
   return privateKey;
 }
 
@@ -471,7 +494,7 @@ generatePrivateKey(const KeyParams& keyParams)
       return PrivateKey::generateHmacKey(hmacParams.getKeySize());
     }
     default:
-      NDN_THROW(std::invalid_argument("Unsupported asymmetric key type " +
+      NDN_THROW(std::invalid_argument("Unsupported key type " +
                                       boost::lexical_cast<std::string>(keyParams.getKeyType())));
   }
 }
