@@ -153,7 +153,7 @@ BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
   if (ivLen != requiredIvLen)
     NDN_THROW(Error(getIndex(), "IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv, static_cast<int>(op));
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv, op == CipherOperator::ENCRYPT ? 1 : 0);
 }
 
 unique_ptr<Transform>

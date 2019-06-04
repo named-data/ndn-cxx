@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,7 @@
 #include "tests/identity-management-fixture.hpp"
 #include "tests/make-interest-data.hpp"
 
-#include <boost/mpl/list.hpp>
+#include <boost/mpl/vector.hpp>
 
 namespace ndn {
 namespace security {
@@ -422,14 +422,14 @@ struct Sha256Dataset
 // - .badSigInterest a valid and signed interest packet that cannot be verified by cert
 //   (signed by a different private key)
 
-typedef boost::mpl::list<EcdsaDataset, RsaDataset> SignatureDatasets;
+using SignatureDatasets = boost::mpl::vector<EcdsaDataset, RsaDataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
 {
   Dataset dataset;
   v2::Certificate cert(Block(dataset.cert.data(), dataset.cert.size()));
   Buffer keyRaw = cert.getPublicKey();
-  v2::PublicKey key;
+  transform::PublicKey key;
   key.loadPkcs8(keyRaw.data(), keyRaw.size());
   Data data(Block(dataset.goodData.data(), dataset.goodData.size()));
   Data badSigData(Block(dataset.badSigData.data(), dataset.badSigData.size()));
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   // - pib::Key version is tested as part of v2/key-chain.t.cpp (Security/V2/TestKeyChain)
 }
 
-typedef boost::mpl::list<Sha256Dataset> DigestDatasets;
+using DigestDatasets = boost::mpl::vector<Sha256Dataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
 {

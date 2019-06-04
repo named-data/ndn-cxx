@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(KeyTypeToString)
 
 BOOST_AUTO_TEST_CASE(KeyIdTypeToString)
 {
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyIdType::USER_SPECIFIED), "USER_SPECIFIED");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyIdType::USER_SPECIFIED), "USER-SPECIFIED");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyIdType::SHA256), "SHA256");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(KeyIdType::RANDOM), "RANDOM");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<KeyIdType>(12345)), "12345");

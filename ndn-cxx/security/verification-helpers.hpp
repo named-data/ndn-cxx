@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,19 +35,20 @@ namespace pib {
 class Key;
 } // namespace pib
 
+namespace transform {
+class PublicKey;
+} // namespace transform
+
 namespace v2 {
 class Certificate;
 } // namespace v2
 
 /**
  * @brief Verify @p blob using @p key against @p sig.
- *
- * This is the core function, all other verifySignature overloads are implemented in terms
- * of this function.
  */
 bool
 verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t sigLen,
-                const v2::PublicKey& pKey);
+                const transform::PublicKey& key);
 
 /**
  * @brief Verify @p blob using @p key against @p sig.
@@ -64,7 +65,7 @@ verifySignature(const Data& data, const uint8_t* key, size_t keyLen);
 
 /**
  * @brief Verify @p interest using @p key.
- * @note This method verifies only signature of the signed interest
+ * @note This method verifies only signature of the signed interest.
  * @sa docs/specs/signed-interest.rst
  */
 bool
@@ -74,15 +75,15 @@ verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen);
  * @brief Verify @p data using @p key.
  */
 bool
-verifySignature(const Data& data, const v2::PublicKey& key);
+verifySignature(const Data& data, const transform::PublicKey& key);
 
 /**
  * @brief Verify @p interest using @p key.
- * @note This method verifies only signature of the signed interest
+ * @note This method verifies only signature of the signed interest.
  * @sa docs/specs/signed-interest.rst
  */
 bool
-verifySignature(const Interest& interest, const v2::PublicKey& key);
+verifySignature(const Interest& interest, const transform::PublicKey& key);
 
 /**
  * @brief Verify @p data using @p key.
@@ -92,7 +93,7 @@ verifySignature(const Data& data, const pib::Key& key);
 
 /**
  * @brief Verify @p interest using @p key.
- * @note This method verifies only signature of the signed interest
+ * @note This method verifies only signature of the signed interest.
  * @sa docs/specs/signed-interest.rst
  */
 bool
@@ -106,7 +107,7 @@ verifySignature(const Data& data, const v2::Certificate& cert);
 
 /**
  * @brief Verify @p interest using @p cert.
- * @note This method verifies only signature of the signed interest
+ * @note This method verifies only signature of the signed interest.
  * @sa docs/specs/signed-interest.rst
  */
 bool
@@ -116,9 +117,6 @@ verifySignature(const Interest& interest, const v2::Certificate& cert);
 
 /**
  * @brief Verify @p blob against @p digest using @p algorithm.
- *
- * This is the core function, all other verifyDigest overloads are implemented in terms
- * of this function.
  */
 bool
 verifyDigest(const uint8_t* blob, size_t blobLen, const uint8_t* digest, size_t digestLen,
@@ -132,7 +130,7 @@ verifyDigest(const Data& data, DigestAlgorithm algorithm);
 
 /**
  * @brief Verify @p interest against digest @p algorithm.
- * @note This method verifies only signature of the signed interest
+ * @note This method verifies only signature of the signed interest.
  * @sa docs/specs/signed-interest.rst
  */
 bool

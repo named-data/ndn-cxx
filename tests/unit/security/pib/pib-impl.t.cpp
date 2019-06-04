@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,7 @@
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/mpl/list.hpp>
+#include <boost/mpl/vector.hpp>
 
 namespace ndn {
 namespace security {
@@ -68,8 +68,7 @@ public:
   PibSqlite3 pib;
 };
 
-typedef boost::mpl::list<PibMemoryFixture,
-                         PibSqlite3Fixture> PibImpls;
+using PibImpls = boost::mpl::vector<PibMemoryFixture, PibSqlite3Fixture>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(TpmLocator, T, PibImpls, T)
 {
@@ -288,13 +287,16 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(DefaultsManagement, T, PibImpls, T)
 
   this->pib.addCertificate(this->id2Key2Cert1);
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id2), this->id2Key2Name);
-  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(), this->id2Key2Cert1.getName());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(),
+                    this->id2Key2Cert1.getName());
 
   this->pib.addCertificate(this->id2Key2Cert2);
-  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(), this->id2Key2Cert1.getName());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(),
+                    this->id2Key2Cert1.getName());
 
   this->pib.removeCertificate(this->id2Key2Cert2.getName());
-  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(), this->id2Key2Cert1.getName());
+  BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id2Key2Name).getName(),
+                    this->id2Key2Cert1.getName());
 }
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Overwrite, T, PibImpls, T)

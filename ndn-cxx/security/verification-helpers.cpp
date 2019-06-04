@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,12 +39,12 @@ namespace security {
 
 bool
 verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t sigLen,
-                const v2::PublicKey& pKey)
+                const transform::PublicKey& key)
 {
   bool result = false;
   try {
     using namespace transform;
-    bufferSource(blob, blobLen) >> verifierFilter(DigestAlgorithm::SHA256, pKey, sig, sigLen)
+    bufferSource(blob, blobLen) >> verifierFilter(DigestAlgorithm::SHA256, key, sig, sigLen)
                                 >> boolSink(result);
   }
   catch (const transform::Error&) {
@@ -57,7 +57,7 @@ bool
 verifySignature(const uint8_t* data, size_t dataLen, const uint8_t* sig, size_t sigLen,
                 const uint8_t* key, size_t keyLen)
 {
-  v2::PublicKey pKey;
+  transform::PublicKey pKey;
   try {
     pKey.loadPkcs8(key, keyLen);
   }
@@ -106,7 +106,7 @@ parse(const Interest& interest)
 
 static bool
 verifySignature(const std::tuple<bool, const uint8_t*, size_t, const uint8_t*, size_t>& params,
-                const v2::PublicKey& pKey)
+                const transform::PublicKey& key)
 {
   bool isParsable = false;
   const uint8_t* buf = nullptr;
@@ -117,7 +117,7 @@ verifySignature(const std::tuple<bool, const uint8_t*, size_t, const uint8_t*, s
   std::tie(isParsable, buf, bufLen, sig, sigLen) = params;
 
   if (isParsable)
-    return verifySignature(buf, bufLen, sig, sigLen, pKey);
+    return verifySignature(buf, bufLen, sig, sigLen, key);
   else
     return false;
 }
@@ -141,13 +141,13 @@ verifySignature(const std::tuple<bool, const uint8_t*, size_t, const uint8_t*, s
 }
 
 bool
-verifySignature(const Data& data, const v2::PublicKey& key)
+verifySignature(const Data& data, const transform::PublicKey& key)
 {
   return verifySignature(parse(data), key);
 }
 
 bool
-verifySignature(const Interest& interest, const v2::PublicKey& key)
+verifySignature(const Interest& interest, const transform::PublicKey& key)
 {
   return verifySignature(parse(interest), key);
 }

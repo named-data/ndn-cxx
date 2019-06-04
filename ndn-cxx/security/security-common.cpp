@@ -30,7 +30,7 @@ operator<<(std::ostream& os, KeyIdType keyIdType)
 {
   switch (keyIdType) {
     case KeyIdType::USER_SPECIFIED:
-      return os << "USER_SPECIFIED";
+      return os << "USER-SPECIFIED";
     case KeyIdType::SHA256:
       return os << "SHA256";
     case KeyIdType::RANDOM:
@@ -55,22 +55,6 @@ operator<<(std::ostream& os, KeyType keyType)
       return os << "HMAC";
   }
   return os << static_cast<int>(keyType);
-}
-
-std::ostream&
-operator<<(std::ostream& os, KeyClass keyClass)
-{
-  switch (keyClass) {
-    case KeyClass::NONE:
-      return os << "NONE";
-    case KeyClass::PUBLIC:
-      return os << "PUBLIC";
-    case KeyClass::PRIVATE:
-      return os << "PRIVATE";
-    case KeyClass::SYMMETRIC:
-      return os << "SYMMETRIC";
-  }
-  return os << static_cast<int>(keyClass);
 }
 
 std::ostream&
@@ -110,7 +94,7 @@ operator<<(std::ostream& os, BlockCipherAlgorithm algorithm)
     case BlockCipherAlgorithm::NONE:
       return os << "NONE";
     case BlockCipherAlgorithm::AES_CBC:
-      return os << "AES_CBC";
+      return os << "AES-CBC";
   }
   return os << static_cast<int>(algorithm);
 }
@@ -125,20 +109,6 @@ operator<<(std::ostream& os, CipherOperator op)
       return os << "ENCRYPT";
   }
   return os << static_cast<int>(op);
-}
-
-std::ostream&
-operator<<(std::ostream& os, AclType aclType)
-{
-  switch (aclType) {
-    case AclType::NONE:
-      return os << "NONE";
-    case AclType::PUBLIC:
-      return os << "PUBLIC";
-    case AclType::PRIVATE:
-      return os << "PRIVATE";
-  }
-  return os << static_cast<int>(aclType);
 }
 
 } // namespace ndn

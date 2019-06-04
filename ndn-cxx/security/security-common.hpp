@@ -53,25 +53,25 @@ const size_t MIN_SIZE = 4;
 } // namespace command_interest
 
 /**
- * @brief The type of KeyId component in a key name
+ * @brief The type of KeyId component in a key name.
  */
 enum class KeyIdType {
   /**
-   * @brief User-specified key ID
+   * @brief User-specified key id.
    *
-   * It is user's responsibility to assure the uniqueness of the key names.
+   * It is the user's responsibility to ensure the uniqueness of the key names.
    */
   USER_SPECIFIED = 0,
   /**
-   * @brief Use the SHA256 hash of the public key as the key id
+   * @brief Use the SHA256 hash of the public key as key id.
    *
-   * This KeyId type guarantees the uniqueness of the key names.
+   * This KeyIdType guarantees the uniqueness of the key names.
    */
   SHA256 = 1,
   /**
-   * @brief Use a 64-bit random number as the key id
+   * @brief Use a 64-bit random number as key id.
    *
-   * This KeyId provides roughly uniqueness of the key names.
+   * This KeyIdType provides uniqueness (with very high probability) of the key names.
    */
   RANDOM = 2,
 };
@@ -80,41 +80,31 @@ std::ostream&
 operator<<(std::ostream& os, KeyIdType keyIdType);
 
 /**
- * @brief The type of a cryptographic key
+ * @brief The type of a cryptographic key.
  */
 enum class KeyType {
-  NONE = 0,   ///< Unknown key type
-  RSA  = 1,   ///< RSA key, supports sign/verify and encrypt/decrypt operations
-  EC   = 2,   ///< Elliptic Curve key (e.g. for ECDSA), supports sign/verify operations
-  AES  = 128, ///< AES key, supports encrypt/decrypt operations
-  HMAC = 256, ///< HMAC key, supports sign/verify operations
+  NONE = 0, ///< Unknown or unsupported key type
+  RSA,      ///< RSA key, supports sign/verify and encrypt/decrypt operations
+  EC,       ///< Elliptic Curve key (e.g. for ECDSA), supports sign/verify operations
+  AES,      ///< AES key, supports encrypt/decrypt operations
+  HMAC,     ///< HMAC key, supports sign/verify operations
 };
 
 std::ostream&
 operator<<(std::ostream& os, KeyType keyType);
 
-enum class KeyClass {
-  NONE,
-  PUBLIC,
-  PRIVATE,
-  SYMMETRIC,
-};
-
-std::ostream&
-operator<<(std::ostream& os, KeyClass keyClass);
-
 enum class DigestAlgorithm {
-  NONE   = 0,
-  SHA224 = 2,
-  SHA256 = 1,
-  SHA384 = 3,
-  SHA512 = 4,
-  BLAKE2B_512 = 10,
-  BLAKE2S_256 = 11,
-  SHA3_224 = 20,
-  SHA3_256 = 21,
-  SHA3_384 = 22,
-  SHA3_512 = 23,
+  NONE = 0,
+  SHA224,
+  SHA256,
+  SHA384,
+  SHA512,
+  BLAKE2B_512,
+  BLAKE2S_256,
+  SHA3_224,
+  SHA3_256,
+  SHA3_384,
+  SHA3_512,
 };
 
 std::ostream&
@@ -129,30 +119,12 @@ std::ostream&
 operator<<(std::ostream& os, BlockCipherAlgorithm algorithm);
 
 enum class CipherOperator {
-  DECRYPT = 0,
-  ENCRYPT = 1,
+  DECRYPT,
+  ENCRYPT,
 };
 
 std::ostream&
 operator<<(std::ostream& os, CipherOperator op);
-
-enum class AclType {
-  NONE,
-  PUBLIC,
-  PRIVATE,
-};
-
-std::ostream&
-operator<<(std::ostream& os, AclType aclType);
-
-namespace security {
-namespace transform {
-class PublicKey;
-} // namespace transform
-namespace v2 {
-using transform::PublicKey;
-} // namespace v2
-} // namespace security
 
 } // namespace ndn
 
