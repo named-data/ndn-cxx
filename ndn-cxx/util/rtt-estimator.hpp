@@ -123,6 +123,15 @@ public:
   }
 
   /**
+   * @brief Returns the smoothed RTT.
+   */
+  MillisecondsDouble
+  getSmoothedRtt() const
+  {
+    return m_sRtt;
+  }
+
+  /**
    * @brief Backoff RTO by a factor of Options::rtoBackoffMultiplier.
    */
   void

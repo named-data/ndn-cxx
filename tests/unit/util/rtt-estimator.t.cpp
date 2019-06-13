@@ -92,14 +92,14 @@ BOOST_AUTO_TEST_CASE(EstimatedRto)
 
   rttEstimator.addMeasurement(Millis(100), 1);
 
-  BOOST_CHECK_CLOSE(rttEstimator.m_sRtt.count(), 450.0, 0.001);
+  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 450.0, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 175.0, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 1150.0, 0.001);
 
   // expected samples larger than 1
   rttEstimator.addMeasurement(Millis(100), 5);
 
-  BOOST_CHECK_CLOSE(rttEstimator.m_sRtt.count(), 441.25, 0.001);
+  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 441.25, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 183.75, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 1176.25, 0.001);
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(EstimatedRto)
   // check if minRto works
   rttEstimator.addMeasurement(Millis(100), 1);
 
-  BOOST_CHECK_CLOSE(rttEstimator.m_sRtt.count(), 100.0, 0.001);
+  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 100.0, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 22.5, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 200.0, 0.001);
 
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(EstimatedRto)
   // check if maxRto works
   rttEstimator.addMeasurement(Millis(100), 1);
 
-  BOOST_CHECK_CLOSE(rttEstimator.m_sRtt.count(), 1762.5, 0.001);
+  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 1762.5, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 775.0, 0.001);
   BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 4000.0, 0.001);
 }
