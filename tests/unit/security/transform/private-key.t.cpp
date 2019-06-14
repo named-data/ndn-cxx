@@ -47,6 +47,21 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
 BOOST_AUTO_TEST_SUITE(TestPrivateKey)
 
+BOOST_AUTO_TEST_CASE(Empty)
+{
+  // test invoking member functions on an empty (default-constructed) PrivateKey
+  PrivateKey sKey;
+  BOOST_CHECK_EQUAL(sKey.getKeyType(), KeyType::NONE);
+  BOOST_CHECK_EQUAL(sKey.getKeySize(), 0);
+  BOOST_CHECK_THROW(sKey.derivePublicKey(), PrivateKey::Error);
+  const uint8_t theAnswer = 42;
+  BOOST_CHECK_THROW(sKey.decrypt(&theAnswer, sizeof(theAnswer)), PrivateKey::Error);
+  std::ostringstream os;
+  BOOST_CHECK_THROW(sKey.savePkcs1(os), PrivateKey::Error);
+  std::string passwd("password");
+  BOOST_CHECK_THROW(sKey.savePkcs8(os, passwd.data(), passwd.size()), PrivateKey::Error);
+}
+
 BOOST_AUTO_TEST_CASE(LoadRaw)
 {
   const Buffer buf(32);
@@ -64,6 +79,7 @@ BOOST_AUTO_TEST_CASE(LoadRaw)
 
 struct RsaKeyTestData
 {
+  const size_t keySize = 2048;
   const std::string privateKeyPkcs1 =
       "MIIEpAIBAAKCAQEAw0WM1/WhAxyLtEqsiAJgWDZWuzkYpeYVdeeZcqRZzzfRgBQT\n"
       "sNozS5t4HnwTZhwwXbH7k3QN0kRTV826Xobws3iigohnM9yTK+KKiayPhIAm/+5H\n"
@@ -130,6 +146,7 @@ struct RsaKeyTestData
 
 struct EcKeyTestData
 {
+  const size_t keySize = 256;
   const std::string privateKeyPkcs1 =
       "MIIBaAIBAQQgRxwcbzK9RV6AHYFsDcykI86o3M/a1KlJn0z8PcLMBZOggfowgfcC\n"
       "AQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAAAAAAAAAAAAAA////////////////\n"
@@ -196,6 +213,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   // load key in base64-encoded pkcs1 format
   PrivateKey sKey;
   BOOST_CHECK_NO_THROW(sKey.loadPkcs1Base64(sKeyPkcs1Base64, sKeyPkcs1Base64Len));
+  BOOST_CHECK_EQUAL(sKey.getKeySize(), dataSet.keySize);
 
   std::stringstream ss2(dataSet.privateKeyPkcs1);
   PrivateKey sKey2;
@@ -204,6 +222,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   // load key in pkcs1 format
   PrivateKey sKey3;
   BOOST_CHECK_NO_THROW(sKey3.loadPkcs1(sKeyPkcs1, sKeyPkcs1Len));
+  BOOST_CHECK_EQUAL(sKey3.getKeySize(), dataSet.keySize);
 
   std::stringstream ss4;
   ss4.write(reinterpret_cast<const char*>(sKeyPkcs1), sKeyPkcs1Len);
@@ -241,6 +260,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   PrivateKey sKey5;
   BOOST_CHECK_NO_THROW(sKey5.loadPkcs8Base64(sKeyPkcs8Base64, sKeyPkcs8Base64Len,
                                              password.data(), password.size()));
+  BOOST_CHECK_EQUAL(sKey5.getKeySize(), dataSet.keySize);
 
   PrivateKey sKey6;
   BOOST_CHECK_NO_THROW(sKey6.loadPkcs8Base64(sKeyPkcs8Base64, sKeyPkcs8Base64Len, pwCallback));
@@ -256,6 +276,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   // load key in pkcs8 format
   PrivateKey sKey9;
   BOOST_CHECK_NO_THROW(sKey9.loadPkcs8(sKeyPkcs8, sKeyPkcs8Len, password.data(), password.size()));
+  BOOST_CHECK_EQUAL(sKey9.getKeySize(), dataSet.keySize);
 
   PrivateKey sKey10;
   BOOST_CHECK_NO_THROW(sKey10.loadPkcs8(sKeyPkcs8, sKeyPkcs8Len, pwCallback));
@@ -274,6 +295,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
   PrivateKey sKey13;
   BOOST_CHECK_THROW(sKey13.loadPkcs8Base64(sKeyPkcs8Base64, sKeyPkcs8Base64Len, wrongpw.data(), wrongpw.size()),
                     PrivateKey::Error);
+  BOOST_CHECK_EQUAL(sKey13.getKeyType(), KeyType::NONE);
+  BOOST_CHECK_EQUAL(sKey13.getKeySize(), 0);
 
   // save key in base64-encoded pkcs8 format
   OBufferStream os14;
@@ -398,9 +421,10 @@ using KeyGenParams = boost::mpl::vector<RsaKeyGenParams,
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyGenParams)
 {
-  unique_ptr<PrivateKey> sKey = generatePrivateKey(typename T::Params());
-  BOOST_CHECK_NE(sKey->getKeyType(), KeyType::NONE);
-  BOOST_CHECK_GT(sKey->getKeySize(), 0);
+  typename T::Params params;
+  auto sKey = generatePrivateKey(params);
+  BOOST_CHECK_EQUAL(sKey->getKeyType(), params.getKeyType());
+  BOOST_CHECK_EQUAL(sKey->getKeySize(), params.getKeySize());
 
   const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
   OBufferStream os;
@@ -429,7 +453,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyGenParams)
   BOOST_CHECK(result);
 
   if (typename T::canSavePkcs1()) {
-    unique_ptr<PrivateKey> sKey2 = generatePrivateKey(typename T::Params());
+    auto sKey2 = generatePrivateKey(params);
 
     OBufferStream os1;
     sKey->savePkcs1(os1);

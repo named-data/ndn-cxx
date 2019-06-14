@@ -71,6 +71,10 @@ public:
 
 public:
   EVP_PKEY* key = nullptr;
+
+#if OPENSSL_VERSION_NUMBER < 0x1010100fL
+  size_t keySize = 0; // in bits, used only for HMAC
+#endif
 };
 
 PrivateKey::PrivateKey()
@@ -98,6 +102,27 @@ PrivateKey::getKeyType() const
   }
 }
 
+size_t
+PrivateKey::getKeySize() const
+{
+  switch (getKeyType()) {
+    case KeyType::RSA:
+    case KeyType::EC:
+      return static_cast<size_t>(EVP_PKEY_bits(m_impl->key));
+    case KeyType::HMAC: {
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
+      size_t nBytes = 0;
+      EVP_PKEY_get_raw_private_key(m_impl->key, nullptr, &nBytes);
+      return nBytes * 8;
+#else
+      return m_impl->keySize;
+#endif
+    }
+    default:
+      return 0;
+  }
+}
+
 void
 PrivateKey::loadRaw(KeyType type, const uint8_t* buf, size_t size)
 {
@@ -121,7 +146,9 @@ PrivateKey::loadRaw(KeyType type, const uint8_t* buf, size_t size)
   if (m_impl->key == nullptr)
     NDN_THROW(Error("Failed to load private key"));
 
-  m_keySize = size * 8;
+#if OPENSSL_VERSION_NUMBER < 0x1010100fL
+  m_impl->keySize = size * 8;
+#endif
 }
 
 void
@@ -412,7 +439,6 @@ PrivateKey::generateRsaKey(uint32_t keySize)
   if (EVP_PKEY_keygen(kctx, &privateKey->m_impl->key) <= 0)
     NDN_THROW(PrivateKey::Error("Failed to generate RSA key"));
 
-  privateKey->m_keySize = keySize;
   return privateKey;
 }
 
@@ -456,7 +482,6 @@ PrivateKey::generateEcKey(uint32_t keySize)
   if (EVP_PKEY_keygen(kctx, &privateKey->m_impl->key) <= 0)
     NDN_THROW(PrivateKey::Error("Failed to generate EC key"));
 
-  privateKey->m_keySize = keySize;
   return privateKey;
 }
 

@@ -45,7 +45,7 @@ public:
   };
 
   /**
-   * @brief Callback for application to handle password input
+   * @brief Callback for application to handle password input.
    *
    * The password must be written to @p buf and must not be longer than @p bufSize chars.
    * It is recommended to ask the user to verify the password if @p shouldConfirm is true,
@@ -56,32 +56,25 @@ public:
 
 public:
   /**
-   * @brief Create an empty private key instance
+   * @brief Creates an empty private key instance.
    *
-   * One must call loadXXXX(...) to load a private key.
+   * One must call `loadXXXX(...)` to load a private key.
    */
   PrivateKey();
 
   ~PrivateKey();
 
   /**
-   * @brief Get the type of the private key
+   * @brief Returns the type of the private key.
    */
   KeyType
   getKeyType() const;
 
   /**
-   * @brief Get the size of the private key in bits
-   *
-   * @note The return value is meaningful only if the PrivateKey was created via
-   *       generatePrivateKey() or loaded via loadRaw(), otherwise this function
-   *       will always return zero.
+   * @brief Returns the size of the private key in bits.
    */
   size_t
-  getKeySize() const
-  {
-    return m_keySize;
-  }
+  getKeySize() const;
 
   /**
    * @brief Load a raw private key from a buffer @p buf
@@ -277,8 +270,6 @@ private:
 private:
   class Impl;
   const unique_ptr<Impl> m_impl;
-
-  size_t m_keySize = 0;
 };
 
 /**
