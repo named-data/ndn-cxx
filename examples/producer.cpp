@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,15 +23,16 @@
 
 #include <ndn-cxx/face.hpp>
 #include <ndn-cxx/security/key-chain.hpp>
+#include <ndn-cxx/security/signing-helpers.hpp>
 
 #include <iostream>
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
-// Additional nested namespaces can be used to prevent/limit name conflicts
+// Additional nested namespaces should be used to prevent/limit name conflicts
 namespace examples {
 
-class Producer : noncopyable
+class Producer
 {
 public:
   void
@@ -39,48 +40,41 @@ public:
   {
     m_face.setInterestFilter("/example/testApp",
                              bind(&Producer::onInterest, this, _1, _2),
-                             RegisterPrefixSuccessCallback(),
+                             nullptr, // RegisterPrefixSuccessCallback is optional
                              bind(&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents();
   }
 
 private:
   void
-  onInterest(const InterestFilter& filter, const Interest& interest)
+  onInterest(const InterestFilter&, const Interest& interest)
   {
-    std::cout << "<< I: " << interest << std::endl;
+    std::cout << ">> I: " << interest << std::endl;
 
-    // Create new name, based on Interest's name
-    Name dataName(interest.getName());
-    dataName
-      .append("testApp") // add "testApp" component to Interest name
-      .appendVersion();  // add "version" component (current UNIX timestamp in milliseconds)
-
-    static const std::string content = "HELLO KITTY";
+    static const std::string content("Hello, world!");
 
     // Create Data packet
-    shared_ptr<Data> data = make_shared<Data>();
-    data->setName(dataName);
-    data->setFreshnessPeriod(10_s); // 10 seconds
+    auto data = make_shared<Data>(interest.getName());
+    data->setFreshnessPeriod(10_s);
     data->setContent(reinterpret_cast<const uint8_t*>(content.data()), content.size());
 
     // Sign Data packet with default identity
     m_keyChain.sign(*data);
-    // m_keyChain.sign(data, <identityName>);
-    // m_keyChain.sign(data, <certificate>);
+    // m_keyChain.sign(*data, signingByIdentity(<identityName>));
+    // m_keyChain.sign(*data, signingByKey(<keyName>));
+    // m_keyChain.sign(*data, signingByCertificate(<certName>));
+    // m_keyChain.sign(*data, signingWithSha256());
 
     // Return Data packet to the requester
-    std::cout << ">> D: " << *data << std::endl;
+    std::cout << "<< D: " << *data << std::endl;
     m_face.put(*data);
   }
-
 
   void
   onRegisterFailed(const Name& prefix, const std::string& reason)
   {
-    std::cerr << "ERROR: Failed to register prefix \""
-              << prefix << "\" in local hub's daemon (" << reason << ")"
-              << std::endl;
+    std::cerr << "ERROR: Failed to register prefix '" << prefix
+              << "' with the local forwarder (" << reason << ")" << std::endl;
     m_face.shutdown();
   }
 
@@ -95,12 +89,13 @@ private:
 int
 main(int argc, char** argv)
 {
-  ndn::examples::Producer producer;
   try {
+    ndn::examples::Producer producer;
     producer.run();
+    return 0;
   }
   catch (const std::exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
   }
-  return 0;
 }

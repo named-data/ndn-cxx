@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,48 +27,50 @@
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
-// Additional nested namespaces can be used to prevent/limit name conflicts
+// Additional nested namespaces should be used to prevent/limit name conflicts
 namespace examples {
 
-class Consumer : noncopyable
+class Consumer
 {
 public:
   void
   run()
   {
-    Interest interest(Name("/example/testApp/randomData"));
-    interest.setInterestLifetime(2_s); // 2 seconds
-    interest.setMustBeFresh(true);
+    Name interestName("/example/testApp/randomData");
+    interestName.appendVersion();
 
+    Interest interest(interestName);
+    interest.setCanBePrefix(false);
+    interest.setMustBeFresh(true);
+    interest.setInterestLifetime(6_s); // The default is 4 seconds
+
+    std::cout << "Sending Interest " << interest << std::endl;
     m_face.expressInterest(interest,
                            bind(&Consumer::onData, this,  _1, _2),
                            bind(&Consumer::onNack, this, _1, _2),
                            bind(&Consumer::onTimeout, this, _1));
 
-    std::cout << "Sending " << interest << std::endl;
-
-    // processEvents will block until the requested data received or timeout occurs
+    // processEvents will block until the requested data is received or a timeout occurs
     m_face.processEvents();
   }
 
 private:
   void
-  onData(const Interest& interest, const Data& data)
+  onData(const Interest&, const Data& data) const
   {
-    std::cout << data << std::endl;
+    std::cout << "Received Data " << data << std::endl;
   }
 
   void
-  onNack(const Interest& interest, const lp::Nack& nack)
+  onNack(const Interest&, const lp::Nack& nack) const
   {
-    std::cout << "received Nack with reason " << nack.getReason()
-              << " for interest " << interest << std::endl;
+    std::cout << "Received Nack with reason " << nack.getReason() << std::endl;
   }
 
   void
-  onTimeout(const Interest& interest)
+  onTimeout(const Interest& interest) const
   {
-    std::cout << "Timeout " << interest << std::endl;
+    std::cout << "Timeout for " << interest << std::endl;
   }
 
 private:
@@ -81,12 +83,13 @@ private:
 int
 main(int argc, char** argv)
 {
-  ndn::examples::Consumer consumer;
   try {
+    ndn::examples::Consumer consumer;
     consumer.run();
+    return 0;
   }
   catch (const std::exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
   }
-  return 0;
 }

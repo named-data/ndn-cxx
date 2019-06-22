@@ -29,7 +29,7 @@
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
 namespace ndn {
-// Additional nested namespaces can be used to prevent/limit name conflicts
+// Additional nested namespaces should be used to prevent/limit name conflicts
 namespace examples {
 
 class ConsumerWithTimer
@@ -44,16 +44,19 @@ public:
   void
   run()
   {
-    Interest interest(Name("/example/testApp/randomData"));
-    interest.setInterestLifetime(2_s); // 2 seconds
-    interest.setMustBeFresh(true);
+    Name interestName("/example/testApp/randomData");
+    interestName.appendVersion();
 
+    Interest interest(interestName);
+    interest.setCanBePrefix(false);
+    interest.setMustBeFresh(true);
+    interest.setInterestLifetime(2_s);
+
+    std::cout << "Sending Interest " << interest << std::endl;
     m_face.expressInterest(interest,
                            bind(&ConsumerWithTimer::onData, this, _1, _2),
                            bind(&ConsumerWithTimer::onNack, this, _1, _2),
                            bind(&ConsumerWithTimer::onTimeout, this, _1));
-
-    std::cout << "Sending " << interest << std::endl;
 
     // Schedule a new event
     m_scheduler.schedule(3_s, [this] { delayedInterest(); });
@@ -68,22 +71,22 @@ public:
 
 private:
   void
-  onData(const Interest& interest, const Data& data)
+  onData(const Interest&, const Data& data) const
   {
-    std::cout << data << std::endl;
+    std::cout << "Received Data " << data << std::endl;
   }
 
   void
-  onNack(const Interest& interest, const lp::Nack& nack)
+  onNack(const Interest& interest, const lp::Nack& nack) const
   {
-    std::cout << "received Nack with reason " << nack.getReason()
-              << " for interest " << interest << std::endl;
+    std::cout << "Received Nack with reason " << nack.getReason()
+              << " for " << interest << std::endl;
   }
 
   void
-  onTimeout(const Interest& interest)
+  onTimeout(const Interest& interest) const
   {
-    std::cout << "Timeout " << interest << std::endl;
+    std::cout << "Timeout for " << interest << std::endl;
   }
 
   void
@@ -91,20 +94,23 @@ private:
   {
     std::cout << "One more Interest, delayed by the scheduler" << std::endl;
 
-    Interest interest(Name("/example/testApp/randomData"));
-    interest.setInterestLifetime(2_s); // 2 seconds
-    interest.setMustBeFresh(true);
+    Name interestName("/example/testApp/randomData");
+    interestName.appendVersion();
 
+    Interest interest(interestName);
+    interest.setCanBePrefix(false);
+    interest.setMustBeFresh(true);
+    interest.setInterestLifetime(2_s);
+
+    std::cout << "Sending Interest " << interest << std::endl;
     m_face.expressInterest(interest,
                            bind(&ConsumerWithTimer::onData, this, _1, _2),
                            bind(&ConsumerWithTimer::onNack, this, _1, _2),
                            bind(&ConsumerWithTimer::onTimeout, this, _1));
-
-    std::cout << "Sending " << interest << std::endl;
   }
 
 private:
-  // Explicitly create io_service object, which can be shared between Face and Scheduler
+  // Explicitly create io_service object, which will be shared between Face and Scheduler
   boost::asio::io_service m_ioService;
   Face m_face;
   Scheduler m_scheduler;
@@ -116,12 +122,13 @@ private:
 int
 main(int argc, char** argv)
 {
-  ndn::examples::ConsumerWithTimer consumer;
   try {
+    ndn::examples::ConsumerWithTimer consumer;
     consumer.run();
+    return 0;
   }
   catch (const std::exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
+    return 1;
   }
-  return 0;
 }
