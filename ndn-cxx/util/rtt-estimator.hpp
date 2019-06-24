@@ -41,8 +41,6 @@ namespace util {
 class RttEstimator
 {
 public:
-  using MillisecondsDouble = time::duration<double, time::milliseconds::period>;
-
   class Options
   {
   public:
@@ -54,9 +52,9 @@ public:
   public:
     double alpha = 0.125; ///< weight of exponential moving average for smoothed RTT
     double beta = 0.25; ///< weight of exponential moving average for RTT variation
-    MillisecondsDouble initialRto{1000.0}; ///< initial RTO value
-    MillisecondsDouble minRto{200.0}; ///< lower bound of RTO
-    MillisecondsDouble maxRto{60000.0}; ///< upper bound of RTO
+    time::nanoseconds initialRto = 1_s; ///< initial RTO value
+    time::nanoseconds minRto = 200_ms; ///< lower bound of RTO
+    time::nanoseconds maxRto = 1_min; ///< upper bound of RTO
     int k = 4; ///< RTT variation multiplier used when calculating RTO
     int rtoBackoffMultiplier = 2; ///< RTO multiplier used in backoff operation
   };
@@ -83,13 +81,13 @@ public:
    * @note Do not call this function with RTT samples from retransmitted Interests (per Karn's algorithm).
    */
   void
-  addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples,
+  addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples,
                  optional<uint64_t> segNum = nullopt);
 
   /**
    * @brief Returns the estimated RTO value.
    */
-  MillisecondsDouble
+  time::nanoseconds
   getEstimatedRto() const
   {
     return m_rto;
@@ -98,7 +96,7 @@ public:
   /**
    * @brief Returns the minimum RTT observed.
    */
-  MillisecondsDouble
+  time::nanoseconds
   getMinRtt() const
   {
     return m_rttMin;
@@ -107,7 +105,7 @@ public:
   /**
    * @brief Returns the maximum RTT observed.
    */
-  MillisecondsDouble
+  time::nanoseconds
   getMaxRtt() const
   {
     return m_rttMax;
@@ -116,19 +114,28 @@ public:
   /**
    * @brief Returns the average RTT.
    */
-  MillisecondsDouble
+  time::nanoseconds
   getAvgRtt() const
   {
     return m_rttAvg;
   }
 
   /**
-   * @brief Returns the smoothed RTT.
+   * @brief Returns the smoothed RTT value (SRTT).
    */
-  MillisecondsDouble
+  time::nanoseconds
   getSmoothedRtt() const
   {
     return m_sRtt;
+  }
+
+  /**
+   * @brief Returns the RTT variation (RTTVAR).
+   */
+  time::nanoseconds
+  getRttVariation() const
+  {
+    return m_rttVar;
   }
 
   /**
@@ -140,10 +147,10 @@ public:
 public:
   struct Sample
   {
-    MillisecondsDouble rtt;     ///< measured RTT
-    MillisecondsDouble sRtt;    ///< smoothed RTT
-    MillisecondsDouble rttVar;  ///< RTT variation
-    MillisecondsDouble rto;     ///< retransmission timeout
+    time::nanoseconds rtt;      ///< measured RTT
+    time::nanoseconds sRtt;     ///< smoothed RTT
+    time::nanoseconds rttVar;   ///< RTT variation
+    time::nanoseconds rto;      ///< retransmission timeout
     optional<uint64_t> segNum;  ///< segment number, see description in addMeasurement()
   };
 
@@ -151,16 +158,12 @@ public:
 
 private:
   const Options m_options;
-
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  MillisecondsDouble m_sRtt;    ///< smoothed round-trip time
-  MillisecondsDouble m_rttVar;  ///< round-trip time variation
-  MillisecondsDouble m_rto;     ///< retransmission timeout
-
-private:
-  MillisecondsDouble m_rttMin;
-  MillisecondsDouble m_rttMax;
-  MillisecondsDouble m_rttAvg;
+  time::nanoseconds m_sRtt;   ///< smoothed round-trip time
+  time::nanoseconds m_rttVar; ///< round-trip time variation
+  time::nanoseconds m_rto;    ///< retransmission timeout
+  time::nanoseconds m_rttMin;
+  time::nanoseconds m_rttMax;
+  time::nanoseconds m_rttAvg;
   int64_t m_nRttSamples;
 };
 

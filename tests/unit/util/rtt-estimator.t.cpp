@@ -34,117 +34,110 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestRttEstimator)
 
-using Millis = RttEstimator::MillisecondsDouble;
-
 BOOST_AUTO_TEST_CASE(MinAvgMaxRtt)
 {
   RttEstimator rttEstimator;
 
   // check initial values
-  BOOST_CHECK_CLOSE(rttEstimator.getMinRtt().count(), std::numeric_limits<double>::max(), 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getAvgRtt().count(), 0.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getMaxRtt().count(), std::numeric_limits<double>::min(), 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getMinRtt().count(), std::numeric_limits<time::nanoseconds::rep>::max());
+  BOOST_CHECK_EQUAL(rttEstimator.getAvgRtt().count(), 0);
+  BOOST_CHECK_EQUAL(rttEstimator.getMaxRtt().count(), std::numeric_limits<time::nanoseconds::rep>::min());
 
   // start with three samples
-  rttEstimator.addMeasurement(Millis(100), 1);
-  rttEstimator.addMeasurement(Millis(400), 1);
-  rttEstimator.addMeasurement(Millis(250), 1);
+  rttEstimator.addMeasurement(100_ms, 1);
+  rttEstimator.addMeasurement(400_ms, 1);
+  rttEstimator.addMeasurement(250_ms, 1);
 
-  BOOST_CHECK_CLOSE(rttEstimator.getMinRtt().count(), 100.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getAvgRtt().count(), 250.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getMaxRtt().count(), 400.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getMinRtt(), 100_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getAvgRtt(), 250_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getMaxRtt(), 400_ms);
 
   // add another sample (new minimum)
-  rttEstimator.addMeasurement(Millis(50), 2);
-  BOOST_CHECK_CLOSE(rttEstimator.getMinRtt().count(), 50.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getAvgRtt().count(), 200.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getMaxRtt().count(), 400.0, 0.001);
+  rttEstimator.addMeasurement(50_ms, 2);
+  BOOST_CHECK_EQUAL(rttEstimator.getMinRtt(), 50_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getAvgRtt(), 200_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getMaxRtt(), 400_ms);
 
   // add another sample (new maximum)
-  rttEstimator.addMeasurement(Millis(700), 1);
-  BOOST_CHECK_CLOSE(rttEstimator.getMinRtt().count(), 50.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getAvgRtt().count(), 300.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getMaxRtt().count(), 700.0, 0.001);
+  rttEstimator.addMeasurement(700_ms, 1);
+  BOOST_CHECK_EQUAL(rttEstimator.getMinRtt(), 50_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getAvgRtt(), 300_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getMaxRtt(), 700_ms);
 }
 
 BOOST_AUTO_TEST_CASE(EstimatedRto)
 {
   RttEstimator::Options opts;
-  opts.initialRto = Millis(1000);
-  opts.maxRto = Millis(4000);
+  opts.initialRto = 400_ms;
+  opts.maxRto = 2_s;
   RttEstimator rttEstimator(opts);
 
   // check initial values
-  BOOST_CHECK(std::isnan(rttEstimator.m_sRtt.count()));
-  BOOST_CHECK(std::isnan(rttEstimator.m_rttVar.count()));
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 1000.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getSmoothedRtt(), 0_ns);
+  BOOST_CHECK_EQUAL(rttEstimator.getRttVariation(), 0_ns);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), opts.initialRto);
 
   // first measurement
-  rttEstimator.addMeasurement(Millis(100), 1);
+  rttEstimator.addMeasurement(200_ms, 1);
 
-  BOOST_CHECK_CLOSE(rttEstimator.m_sRtt.count(), 100.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 50.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 300.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getSmoothedRtt(), 200_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getRttVariation(), 100_ms);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), 600_ms);
 
-  rttEstimator.m_sRtt = Millis(500);
-  rttEstimator.m_rttVar = Millis(100);
-  rttEstimator.m_rto = Millis(900);
+  rttEstimator.addMeasurement(100_ms, 1);
 
-  rttEstimator.addMeasurement(Millis(100), 1);
-
-  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 450.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 175.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 1150.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getSmoothedRtt(), 187500_us);
+  BOOST_CHECK_EQUAL(rttEstimator.getRttVariation(), 100000_us);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), 587500_us);
 
   // expected samples larger than 1
-  rttEstimator.addMeasurement(Millis(100), 5);
+  rttEstimator.addMeasurement(50_ms, 5);
 
-  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 441.25, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 183.75, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 1176.25, 0.001);
-
-  rttEstimator.m_sRtt = Millis(100.0);
-  rttEstimator.m_rttVar = Millis(30.0);
-  rttEstimator.m_rto = Millis(220.0);
+  BOOST_CHECK_EQUAL(rttEstimator.getSmoothedRtt(), 184062500_ns);
+  BOOST_CHECK_EQUAL(rttEstimator.getRttVariation(), 101875000_ns);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), 591562500_ns);
 
   // check if minRto works
-  rttEstimator.addMeasurement(Millis(100), 1);
+  for (int i = 0; i < 20; i++) {
+    rttEstimator.addMeasurement(10_ms, 1);
+  }
 
-  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 100.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 22.5, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 200.0, 0.001);
-
-  rttEstimator.m_sRtt = Millis(2000);
-  rttEstimator.m_rttVar = Millis(400);
-  rttEstimator.m_rto = Millis(3600);
+  BOOST_CHECK_EQUAL(rttEstimator.getSmoothedRtt(), 22046646_ns);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), opts.minRto);
 
   // check if maxRto works
-  rttEstimator.addMeasurement(Millis(100), 1);
+  for (int i = 0; i < 10; i++) {
+    rttEstimator.addMeasurement(1_s, 1);
+    rttEstimator.addMeasurement(10_ms, 1);
+  }
 
-  BOOST_CHECK_CLOSE(rttEstimator.getSmoothedRtt().count(), 1762.5, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.m_rttVar.count(), 775.0, 0.001);
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 4000.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getSmoothedRtt(), 440859284_ns);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), opts.maxRto);
 }
 
 BOOST_AUTO_TEST_CASE(BackoffRto)
 {
   RttEstimator::Options opts;
-  opts.initialRto = Millis(500);
-  opts.maxRto = Millis(4000);
+  opts.initialRto = 500_ms;
+  opts.maxRto = 4_s;
   RttEstimator rttEstimator(opts);
 
   rttEstimator.backoffRto();
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 1000.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), 1_s);
 
   // check if minRto works
-  rttEstimator.m_rto = Millis(10);
+  for (int i = 0; i < 10; i++) {
+    rttEstimator.addMeasurement(5_ms, 1);
+  }
   rttEstimator.backoffRto();
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 200.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), 400_ms);
 
   // check if maxRto works
-  rttEstimator.m_rto = Millis(3000);
+  for (int i = 0; i < 10; i++) {
+    rttEstimator.addMeasurement(5_s, 1);
+  }
   rttEstimator.backoffRto();
-  BOOST_CHECK_CLOSE(rttEstimator.getEstimatedRto().count(), 4000.0, 0.001);
+  BOOST_CHECK_EQUAL(rttEstimator.getEstimatedRto(), 4_s);
 }
 
 BOOST_AUTO_TEST_CASE(AfterMeasurement)
@@ -154,24 +147,24 @@ BOOST_AUTO_TEST_CASE(AfterMeasurement)
   int nHandlerInvocations = 0;
   rttEstimator.afterMeasurement.connectSingleShot([&nHandlerInvocations] (const auto& sample) {
     ++nHandlerInvocations;
-    BOOST_CHECK_CLOSE(sample.rtt.count(), 80.0, 0.001);
-    BOOST_CHECK_CLOSE(sample.sRtt.count(), 80.0, 0.001);
-    BOOST_CHECK_CLOSE(sample.rttVar.count(), 40.0, 0.001);
-    BOOST_CHECK_CLOSE(sample.rto.count(), 240.0, 0.001);
+    BOOST_CHECK_EQUAL(sample.rtt, 80_ms);
+    BOOST_CHECK_EQUAL(sample.sRtt, 80_ms);
+    BOOST_CHECK_EQUAL(sample.rttVar, 40_ms);
+    BOOST_CHECK_EQUAL(sample.rto, 240_ms);
     BOOST_CHECK(!sample.segNum.has_value());
   });
-  rttEstimator.addMeasurement(Millis(80), 1);
+  rttEstimator.addMeasurement(80_ms, 1);
   BOOST_CHECK_EQUAL(nHandlerInvocations, 1);
 
   rttEstimator.afterMeasurement.connectSingleShot([&nHandlerInvocations] (const auto& sample) {
     ++nHandlerInvocations;
-    BOOST_CHECK_CLOSE(sample.rtt.count(), 40.0, 0.001);
-    BOOST_CHECK_CLOSE(sample.sRtt.count(), 75.0, 0.001);
-    BOOST_CHECK_CLOSE(sample.rttVar.count(), 40.0, 0.001);
-    BOOST_CHECK_CLOSE(sample.rto.count(), 235.0, 0.001);
+    BOOST_CHECK_EQUAL(sample.rtt, 40_ms);
+    BOOST_CHECK_EQUAL(sample.sRtt, 75_ms);
+    BOOST_CHECK_EQUAL(sample.rttVar, 40_ms);
+    BOOST_CHECK_EQUAL(sample.rto, 235_ms);
     BOOST_CHECK(sample.segNum == 42U);
   });
-  rttEstimator.addMeasurement(Millis(40), 1, 42);
+  rttEstimator.addMeasurement(40_ms, 1, 42);
   BOOST_CHECK_EQUAL(nHandlerInvocations, 2);
 }
 

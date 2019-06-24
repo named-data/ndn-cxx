@@ -30,18 +30,25 @@ namespace util {
 
 RttEstimator::RttEstimator(const Options& options)
   : m_options(options)
-  , m_sRtt(std::numeric_limits<double>::quiet_NaN())
-  , m_rttVar(std::numeric_limits<double>::quiet_NaN())
+  , m_sRtt(0)
+  , m_rttVar(0)
   , m_rto(m_options.initialRto)
-  , m_rttMin(std::numeric_limits<double>::max())
-  , m_rttMax(std::numeric_limits<double>::min())
-  , m_rttAvg(0.0)
+  , m_rttMin(time::nanoseconds::max())
+  , m_rttMax(time::nanoseconds::min())
+  , m_rttAvg(0)
   , m_nRttSamples(0)
 {
+  BOOST_ASSERT(m_options.alpha >= 0 && m_options.alpha <= 1);
+  BOOST_ASSERT(m_options.beta >= 0 && m_options.beta <= 1);
+  BOOST_ASSERT(m_options.initialRto >= 0_ns);
+  BOOST_ASSERT(m_options.minRto >= 0_ns);
+  BOOST_ASSERT(m_options.maxRto >= m_options.minRto);
+  BOOST_ASSERT(m_options.k >= 0);
+  BOOST_ASSERT(m_options.rtoBackoffMultiplier >= 1);
 }
 
 void
-RttEstimator::addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples,
+RttEstimator::addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples,
                              optional<uint64_t> segNum)
 {
   BOOST_ASSERT(nExpectedSamples > 0);
@@ -49,17 +56,17 @@ RttEstimator::addMeasurement(MillisecondsDouble rtt, size_t nExpectedSamples,
   if (m_nRttSamples == 0) { // first measurement
     m_sRtt = rtt;
     m_rttVar = m_sRtt / 2;
-    m_rto = m_sRtt + m_options.k * m_rttVar;
   }
   else {
     double alpha = m_options.alpha / nExpectedSamples;
     double beta = m_options.beta / nExpectedSamples;
-    m_rttVar = (1 - beta) * m_rttVar + beta * time::abs(m_sRtt - rtt);
-    m_sRtt = (1 - alpha) * m_sRtt + alpha * rtt;
-    m_rto = m_sRtt + m_options.k * m_rttVar;
+    m_rttVar = time::duration_cast<time::nanoseconds>((1 - beta) * m_rttVar +
+                                                      beta * time::abs(m_sRtt - rtt));
+    m_sRtt = time::duration_cast<time::nanoseconds>((1 - alpha) * m_sRtt + alpha * rtt);
   }
+  m_rto = clamp(m_sRtt + m_options.k * m_rttVar,
+                m_options.minRto, m_options.maxRto);
 
-  m_rto = clamp(m_rto, m_options.minRto, m_options.maxRto);
   afterMeasurement({rtt, m_sRtt, m_rttVar, m_rto, segNum});
 
   m_rttAvg = (m_nRttSamples * m_rttAvg + rtt) / (m_nRttSamples + 1);
