@@ -22,6 +22,7 @@
 #ifndef NDN_SECURITY_VERIFICATION_HELPERS_HPP
 #define NDN_SECURITY_VERIFICATION_HELPERS_HPP
 
+#include "ndn-cxx/name.hpp"
 #include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
@@ -34,6 +35,10 @@ namespace security {
 namespace pib {
 class Key;
 } // namespace pib
+
+namespace tpm {
+class Tpm;
+} // namespace tpm
 
 namespace transform {
 class PublicKey;
@@ -115,6 +120,22 @@ verifySignature(const Data& data, const v2::Certificate& cert);
  */
 bool
 verifySignature(const Interest& interest, const v2::Certificate& cert);
+
+/**
+ * @brief Verify @p data using @p tpm and @p keyName with the @p digestAlgorithm.
+ */
+bool
+verifySignature(const Data& data, const tpm::Tpm& tpm, const Name& keyName,
+                DigestAlgorithm digestAlgorithm);
+
+/**
+ * @brief Verify @p interest using @p tpm and @p keyName with the @p digestAlgorithm.
+ * @note This method verifies only signature of the signed interest.
+ * @sa docs/specs/signed-interest.rst
+ */
+bool
+verifySignature(const Interest& interest, const tpm::Tpm& tpm, const Name& keyName,
+                DigestAlgorithm digestAlgorithm);
 
 //////////////////////////////////////////////////////////////////
 

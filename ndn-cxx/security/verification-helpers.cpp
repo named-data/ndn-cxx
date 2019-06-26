@@ -26,6 +26,8 @@
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/digest-filter.hpp"
@@ -36,6 +38,19 @@
 
 namespace ndn {
 namespace security {
+
+namespace {
+
+struct ParseResult
+{
+  bool isParsable = false;
+  const uint8_t* buf = nullptr;
+  size_t bufLen = 0;
+  const uint8_t* sig = nullptr;
+  size_t sigLen = 0;
+};
+
+} // namespace
 
 bool
 verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t sigLen,
@@ -68,76 +83,62 @@ verifySignature(const uint8_t* data, size_t dataLen, const uint8_t* sig, size_t 
   return verifySignature(data, dataLen, sig, sigLen, pKey);
 }
 
-static std::tuple<bool, const uint8_t*, size_t, const uint8_t*, size_t>
+static ParseResult
 parse(const Data& data)
 {
   try {
-    return std::make_tuple(true,
-                           data.wireEncode().value(),
-                           data.wireEncode().value_size() - data.getSignature().getValue().size(),
-                           data.getSignature().getValue().value(),
-                           data.getSignature().getValue().value_size());
+    return {true,
+            data.wireEncode().value(),
+            data.wireEncode().value_size() - data.getSignature().getValue().size(),
+            data.getSignature().getValue().value(),
+            data.getSignature().getValue().value_size()};
   }
   catch (const tlv::Error&) {
-    return std::make_tuple(false, nullptr, 0, nullptr, 0);
+    return ParseResult();
   }
 }
 
-static std::tuple<bool, const uint8_t*, size_t, const uint8_t*, size_t>
+static ParseResult
 parse(const Interest& interest)
 {
   const Name& interestName = interest.getName();
 
   if (interestName.size() < signed_interest::MIN_SIZE)
-    return std::make_tuple(false, nullptr, 0, nullptr, 0);
+    return ParseResult();
 
   try {
     const Block& nameBlock = interestName.wireEncode();
-
-    return std::make_tuple(true,
-                           nameBlock.value(), nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size(),
-                           interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value(),
-                           interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value_size());
+    return {true,
+            nameBlock.value(),
+            nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size(),
+            interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value(),
+            interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value_size()};
   }
   catch (const tlv::Error&) {
-    return std::make_tuple(false, nullptr, 0, nullptr, 0);
+    return ParseResult();
   }
 }
 
 static bool
-verifySignature(const std::tuple<bool, const uint8_t*, size_t, const uint8_t*, size_t>& params,
-                const transform::PublicKey& key)
+verifySignature(ParseResult params, const transform::PublicKey& key)
 {
-  bool isParsable = false;
-  const uint8_t* buf = nullptr;
-  size_t bufLen = 0;
-  const uint8_t* sig = nullptr;
-  size_t sigLen = 0;
-
-  std::tie(isParsable, buf, bufLen, sig, sigLen) = params;
-
-  if (isParsable)
-    return verifySignature(buf, bufLen, sig, sigLen, key);
-  else
-    return false;
+  return params.isParsable && verifySignature(params.buf, params.bufLen,
+                                              params.sig, params.sigLen, key);
 }
 
 static bool
-verifySignature(const std::tuple<bool, const uint8_t*, size_t, const uint8_t*, size_t>& params,
-                const uint8_t* key, size_t keyLen)
+verifySignature(ParseResult params, const tpm::Tpm& tpm, const Name& keyName,
+                DigestAlgorithm digestAlgorithm)
 {
-  bool isParsable = false;
-  const uint8_t* buf = nullptr;
-  size_t bufLen = 0;
-  const uint8_t* sig = nullptr;
-  size_t sigLen = 0;
+  return params.isParsable && bool(tpm.verify(params.buf, params.bufLen,
+                                         params.sig, params.sigLen, keyName, digestAlgorithm));
+}
 
-  std::tie(isParsable, buf, bufLen, sig, sigLen) = params;
-
-  if (isParsable)
-    return verifySignature(buf, bufLen, sig, sigLen, key, keyLen);
-  else
-    return false;
+static bool
+verifySignature(ParseResult params, const uint8_t* key, size_t keyLen)
+{
+  return params.isParsable && verifySignature(params.buf, params.bufLen,
+                                              params.sig, params.sigLen, key, keyLen);
 }
 
 bool
@@ -188,6 +189,20 @@ verifySignature(const Interest& interest, const v2::Certificate& cert)
   return verifySignature(parse(interest), cert.getContent().value(), cert.getContent().value_size());
 }
 
+bool
+verifySignature(const Data& data, const tpm::Tpm& tpm,
+                const Name& keyName, DigestAlgorithm digestAlgorithm)
+{
+  return verifySignature(parse(data), tpm, keyName, digestAlgorithm);
+}
+
+bool
+verifySignature(const Interest& interest, const tpm::Tpm& tpm,
+                const Name& keyName, DigestAlgorithm digestAlgorithm)
+{
+  return verifySignature(parse(interest), tpm, keyName, digestAlgorithm);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 bool
@@ -215,39 +230,17 @@ verifyDigest(const uint8_t* blob, size_t blobLen, const uint8_t* digest, size_t 
 bool
 verifyDigest(const Data& data, DigestAlgorithm algorithm)
 {
-  bool isParsable = false;
-  const uint8_t* buf = nullptr;
-  size_t bufLen = 0;
-  const uint8_t* sig = nullptr;
-  size_t sigLen = 0;
-
-  std::tie(isParsable, buf, bufLen, sig, sigLen) = parse(data);
-
-  if (isParsable) {
-    return verifyDigest(buf, bufLen, sig, sigLen, algorithm);
-  }
-  else {
-    return false;
-  }
+  ParseResult parseResult = parse(data);
+  return parseResult.isParsable && verifyDigest(parseResult.buf, parseResult.bufLen,
+                                                parseResult.sig, parseResult.sigLen, algorithm);
 }
 
 bool
 verifyDigest(const Interest& interest, DigestAlgorithm algorithm)
 {
-  bool isParsable = false;
-  const uint8_t* buf = nullptr;
-  size_t bufLen = 0;
-  const uint8_t* sig = nullptr;
-  size_t sigLen = 0;
-
-  std::tie(isParsable, buf, bufLen, sig, sigLen) = parse(interest);
-
-  if (isParsable) {
-    return verifyDigest(buf, bufLen, sig, sigLen, algorithm);
-  }
-  else {
-    return false;
-  }
+  ParseResult parseResult = parse(interest);
+  return parseResult.isParsable && verifyDigest(parseResult.buf, parseResult.bufLen,
+                                                parseResult.sig, parseResult.sigLen, algorithm);
 }
 
 } // namespace security

@@ -469,6 +469,25 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   // - pib::Key version is tested as part of v2/key-chain.t.cpp (Security/V2/TestKeyChain)
 }
 
+BOOST_FIXTURE_TEST_CASE(VerifyHmac, IdentityManagementFixture)
+{
+  const Tpm& tpm = m_keyChain.getTpm();
+  Data data("/data");
+  Interest interest("/interest");
+  SigningInfo signingInfo;
+  signingInfo.setSigningHmacKey("QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENUI0OTdGREZGMUE4RUE2RkYxMkY2"
+                                "RkI2NUFGMjcyMEI1OUNDRg==");
+  signingInfo.setDigestAlgorithm(DigestAlgorithm::SHA256);
+
+  BOOST_CHECK(!verifySignature(data, tpm, signingInfo.getSignerName(), DigestAlgorithm::SHA256));
+  BOOST_CHECK(!verifySignature(interest, tpm, signingInfo.getSignerName(), DigestAlgorithm::SHA256));
+
+  m_keyChain.sign(data, signingInfo);
+  m_keyChain.sign(interest, signingInfo);
+  BOOST_CHECK(verifySignature(data, tpm, signingInfo.getSignerName(), DigestAlgorithm::SHA256));
+  BOOST_CHECK(verifySignature(interest, tpm, signingInfo.getSignerName(), DigestAlgorithm::SHA256));
+}
+
 using DigestDatasets = boost::mpl::vector<Sha256Dataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)

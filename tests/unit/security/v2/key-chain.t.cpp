@@ -366,19 +366,8 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
       BOOST_CHECK_EQUAL(data.getSignature().getType(), tlv::SignatureHmacWithSha256);
       BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::SignatureHmacWithSha256);
 
-      BOOST_CHECK(bool(tpm.verify(data.wireEncode().value(),
-                                  data.wireEncode().value_size() - data.getSignature().getValue().size(),
-                                  data.getSignature().getValue().value(),
-                                  data.getSignature().getValue().value_size(),
-                                  keyName, DigestAlgorithm::SHA256)));
-
-      const Name& interestName = interest.getName();
-      auto nameBlock = interestName.wireEncode();
-      BOOST_CHECK(bool(tpm.verify(nameBlock.value(),
-                                  nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size(),
-                                  interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value(),
-                                  interestName[signed_interest::POS_SIG_VALUE].blockFromValue().value_size(),
-                                  keyName, DigestAlgorithm::SHA256)));
+      BOOST_CHECK(bool(verifySignature(data, tpm, keyName, DigestAlgorithm::SHA256)));
+      BOOST_CHECK(bool(verifySignature(interest, tpm, keyName, DigestAlgorithm::SHA256)));
     }
     else {
       BOOST_CHECK_EQUAL(data.getSignature().getType(), tlv::SignatureSha256WithEcdsa);
