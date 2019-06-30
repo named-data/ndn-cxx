@@ -133,7 +133,7 @@ public: // constructors, encoding, decoding
   deepCopy() const;
 
 public: // access
-  /** @brief Check if name is empty
+  /** @brief Checks if the name is empty, i.e. has no components.
    */
   bool
   empty() const
@@ -141,7 +141,7 @@ public: // access
     return m_wire.elements().empty();
   }
 
-  /** @brief Get number of components
+  /** @brief Returns the number of components.
    */
   size_t
   size() const
@@ -149,20 +149,21 @@ public: // access
     return m_wire.elements_size();
   }
 
-  /** @brief Get the component at the given index
-   *  @param i zero-based index; if negative, it starts at the end of this name
-   *  @warning Indexing out of bounds triggers undefined behavior.
+  /** @brief Returns an immutable reference to the component at the specified index.
+   *  @param i zero-based index of the component to return;
+   *           if negative, it is interpreted as offset from the end of the name
+   *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
    */
   const Component&
   get(ssize_t i) const
   {
     if (i < 0) {
-      i += size();
+      i += static_cast<ssize_t>(size());
     }
     return reinterpret_cast<const Component&>(m_wire.elements()[i]);
   }
 
-  /** @brief Equivalent to get(i)
+  /** @brief Equivalent to `get(i)`.
    */
   const Component&
   operator[](ssize_t i) const
@@ -170,34 +171,35 @@ public: // access
     return get(i);
   }
 
-  /** @brief Get the component at the given index
-   *  @param i zero-based index; if negative, size()+i is used instead
-   *  @throws Name::Error index is out of bounds
+  /** @brief Returns an immutable reference to the component at the specified index,
+   *         with bounds checking.
+   *  @param i zero-based index of the component to return;
+   *           if negative, it is interpreted as offset from the end of the name
+   *  @throws Error The index is out of bounds.
    */
   const Component&
   at(ssize_t i) const;
 
-  /** @brief Extract some components as a sub-name (PartialName)
+  /** @brief Extracts some components as a sub-name (PartialName).
    *  @param iStartComponent zero-based index of the first component;
    *                         if negative, size()+iStartComponent is used instead
-   *  @param nComponents Number of components starting at iStartComponent.
-   *                     Use @p npos to get the PartialName until the end of this Name.
+   *  @param nComponents number of desired components, starting at @p iStartComponent;
+   *                     use @c npos to return all components until the end of the name
    *  @return a new PartialName containing the extracted components
    *
-   *  If iStartComponent is positive and indexes out of bounds, returns an empty PartialName.
-   *  If iStartComponent is negative and indexes out of bounds, returns components starting from the
-   *  beginning of the Name. If nComponents is out of bounds, returns the components until the end
-   *  of this Name.
+   *  If @p iStartComponent is positive and indexes out of bounds, returns an empty PartialName.
+   *  If @p iStartComponent is negative and indexes out of bounds, the sub-name will start from
+   *  the beginning of the name instead. If @p nComponents is out of bounds, returns all components
+   *  until the end of the name.
    */
   PartialName
   getSubName(ssize_t iStartComponent, size_t nComponents = npos) const;
 
-  /** @brief Extract a prefix of the name
-   *  @param nComponents Number of components; if negative, size()+nComponents is used instead
-   *  @return a new Name containing the prefix
-   *                    the prefix up to name.size() - N. For example getPrefix(-1)
-   *                    returns the name without the final component.
-   * @return A new partial name
+  /** @brief Returns a prefix of the name.
+   *  @param nComponents number of components; if negative, size()+nComponents is used instead
+   *
+   *  Returns a new PartialName containing a prefix of this name up to `size() - nComponents`.
+   *  For example, `getPrefix(-1)` returns the name without the final component.
    */
   PartialName
   getPrefix(ssize_t nComponents) const
@@ -242,6 +244,26 @@ public: // iterators
   }
 
 public: // modifiers
+  /** @brief Replace the component at the specified index.
+   *  @param i zero-based index of the component to replace;
+   *           if negative, it is interpreted as offset from the end of the name
+   *  @param component the new component to use as a replacement
+   *  @return a reference to this name, to allow chaining.
+   *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
+   */
+  Name&
+  set(ssize_t i, const Component& component);
+
+  /** @brief Replace the component at the specified index.
+   *  @param i zero-based index of the component to replace;
+   *           if negative, it is interpreted as offset from the end of the name
+   *  @param component the new component to use as a replacement
+   *  @return a reference to this name, to allow chaining.
+   *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
+   */
+  Name&
+  set(ssize_t i, Component&& component);
+
   /** @brief Append a component.
    *  @return a reference to this name, to allow chaining.
    */
@@ -249,6 +271,16 @@ public: // modifiers
   append(const Component& component)
   {
     m_wire.push_back(component);
+    return *this;
+  }
+
+  /** @brief Append a component.
+   *  @return a reference to this name, to allow chaining.
+   */
+  Name&
+  append(Component&& component)
+  {
+    m_wire.push_back(std::move(component));
     return *this;
   }
 
@@ -312,21 +344,28 @@ public: // modifiers
   }
 
   /** @brief Append a GenericNameComponent from a TLV element.
-   *  @param value a TLV element. If its type is @c tlv::GenericNameComponent, it is used as is.
-   *               Otherwise, it is encapsulated into a GenericNameComponent.
+   *  @param value a TLV element. If its TLV-TYPE is tlv::GenericNameComponent, it is
+   *               appended as is. Otherwise, it is nested into a GenericNameComponent.
    *  @return a reference to this name, to allow chaining.
    */
   Name&
-  append(const Block& value)
+  append(Block value)
   {
     if (value.type() == tlv::GenericNameComponent) {
-      m_wire.push_back(value);
+      m_wire.push_back(std::move(value));
     }
     else {
-      m_wire.push_back(Block(tlv::GenericNameComponent, value));
+      m_wire.push_back(Block(tlv::GenericNameComponent, std::move(value)));
     }
     return *this;
   }
+
+  /** @brief Append a PartialName.
+   *  @param name the components to append
+   *  @return a reference to this name, to allow chaining
+   */
+  Name&
+  append(const PartialName& name);
 
   /** @brief Append a component with a nonNegativeInteger
    *  @sa number the number
@@ -408,7 +447,7 @@ public: // modifiers
     return append(Component::fromSequenceNumber(seqNo));
   }
 
-  /** @brief Append an ImplicitSha256Digest component
+  /** @brief Append an ImplicitSha256Digest component.
    *  @return a reference to this name, to allow chaining
    */
   Name&
@@ -417,7 +456,7 @@ public: // modifiers
     return append(Component::fromImplicitSha256Digest(std::move(digest)));
   }
 
-  /** @brief Append an ImplicitSha256Digest component
+  /** @brief Append an ImplicitSha256Digest component.
    *  @return a reference to this name, to allow chaining
    */
   Name&
@@ -426,12 +465,29 @@ public: // modifiers
     return append(Component::fromImplicitSha256Digest(digest, digestSize));
   }
 
-  /** @brief Append a PartialName
-   *  @param name the components to append
+  /** @brief Append a ParametersSha256Digest component.
    *  @return a reference to this name, to allow chaining
    */
   Name&
-  append(const PartialName& name);
+  appendParametersSha256Digest(ConstBufferPtr digest)
+  {
+    return append(Component::fromParametersSha256Digest(std::move(digest)));
+  }
+
+  /** @brief Append a ParametersSha256Digest component.
+   *  @return a reference to this name, to allow chaining
+   */
+  Name&
+  appendParametersSha256Digest(const uint8_t* digest, size_t digestSize)
+  {
+    return append(Component::fromParametersSha256Digest(digest, digestSize));
+  }
+
+  /** @brief Append a placeholder for a ParametersSha256Digest component.
+   *  @return a reference to this name, to allow chaining
+   */
+  Name&
+  appendParametersSha256DigestPlaceholder();
 
   /** @brief Append a component
    *  @note This makes push_back an alias of append, giving Name a similar API as STL vector.
@@ -443,14 +499,19 @@ public: // modifiers
     append(component);
   }
 
-  /** @brief Remove all components
-   *  @post empty() == true
+  /** @brief Erase the component at the specified index.
+   *  @param i zero-based index of the component to replace;
+   *           if negative, it is interpreted as offset from the end of the name
+   *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
    */
   void
-  clear()
-  {
-    m_wire = Block(tlv::Name);
-  }
+  erase(ssize_t i);
+
+  /** @brief Remove all components.
+   *  @post `empty() == true`
+   */
+  void
+  clear();
 
 public: // algorithms
   /** @brief Get the successor of a name
@@ -529,7 +590,7 @@ public: // algorithms
   /** @brief compares [pos1, pos1+count1) components in this Name
    *         to [pos2, pos2+count2) components in @p other
    *
-   *  This is equivalent to this->getSubName(pos1, count1).compare(other.getSubName(pos2, count2));
+   *  Equivalent to `getSubName(pos1, count1).compare(other.getSubName(pos2, count2))`.
    */
   int
   compare(size_t pos1, size_t count1,
@@ -576,7 +637,7 @@ private: // non-member operators
   }
 
 public:
-  /** @brief indicates "until the end" in getSubName and compare
+  /** @brief Indicates "until the end" in getSubName() and compare().
    */
   static const size_t npos;
 

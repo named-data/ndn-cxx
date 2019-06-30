@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -197,6 +197,29 @@ BOOST_AUTO_TEST_CASE(ReverseIterator)
 
 // ---- modifiers ----
 
+BOOST_AUTO_TEST_CASE(SetComponent)
+{
+  Name name("/A/B");
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080141 080142"_block);
+  BOOST_CHECK_EQUAL(name.hasWire(), true);
+
+  // pass by const lvalue ref
+  const Component c("C");
+  name.set(0, c);
+  BOOST_CHECK_EQUAL(name.hasWire(), false);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080143 080142"_block);
+
+  // pass by rvalue ref
+  Component d("D");
+  name.set(1, std::move(d));
+  BOOST_CHECK_EQUAL(name.hasWire(), false);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080143 080144"_block);
+
+  // negative index
+  name.set(-1, Component("E"));
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080143 080145"_block);
+}
+
 BOOST_AUTO_TEST_CASE(AppendComponent)
 {
   Name name;
@@ -239,6 +262,10 @@ BOOST_AUTO_TEST_CASE(AppendPartialName)
   name.append(PartialName("/6=C/D"))
       .append(PartialName("/E"));
   BOOST_CHECK_EQUAL(name.wireEncode(), "070F 080141 080142 060143 080144 080145"_block);
+
+  name = "/A/B";
+  name.append(name);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "070C 080141 080142 080141 080142"_block);
 }
 
 BOOST_AUTO_TEST_CASE(AppendNumber)
@@ -252,6 +279,26 @@ BOOST_AUTO_TEST_CASE(AppendNumber)
   for (uint32_t i = 0; i < 10; i++) {
     BOOST_CHECK_EQUAL(name[i].toNumber(), i);
   }
+}
+
+BOOST_AUTO_TEST_CASE(AppendParametersSha256Digest)
+{
+  auto digest = make_shared<Buffer>(32);
+
+  Name name("/P");
+  name.appendParametersSha256Digest(digest);
+  BOOST_CHECK_EQUAL(name.wireEncode(),
+                    "0725 080150 02200000000000000000000000000000000000000000000000000000000000000000"_block);
+
+  name = "/P";
+  name.appendParametersSha256Digest(digest->data(), digest->size());
+  BOOST_CHECK_EQUAL(name.wireEncode(),
+                    "0725 080150 02200000000000000000000000000000000000000000000000000000000000000000"_block);
+
+  name = "/P";
+  name.appendParametersSha256DigestPlaceholder();
+  BOOST_CHECK_EQUAL(name.wireEncode(),
+                    "0725 080150 0220E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"_block);
 }
 
 BOOST_AUTO_TEST_CASE(Markers)
@@ -280,6 +327,32 @@ BOOST_AUTO_TEST_CASE(Markers)
 
   BOOST_REQUIRE_NO_THROW(number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber());
   BOOST_CHECK_EQUAL(number, 11676);
+}
+
+BOOST_AUTO_TEST_CASE(EraseComponent)
+{
+  Name name("/A/B/C");
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0709 080141 080142 080143"_block);
+  BOOST_CHECK_EQUAL(name.hasWire(), true);
+
+  name.erase(1);
+  BOOST_CHECK_EQUAL(name.size(), 2);
+  BOOST_CHECK_EQUAL(name.hasWire(), false);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080141 080143"_block);
+
+  name.erase(-1);
+  BOOST_CHECK_EQUAL(name.size(), 1);
+  BOOST_CHECK_EQUAL(name.hasWire(), false);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0703 080141"_block);
+}
+
+BOOST_AUTO_TEST_CASE(Clear)
+{
+  Name name("/A/B/C");
+  BOOST_CHECK_EQUAL(name.empty(), false);
+  name.clear();
+  BOOST_CHECK_EQUAL(name.empty(), true);
+  BOOST_CHECK(name.begin() == name.end());
 }
 
 // ---- algorithms ----

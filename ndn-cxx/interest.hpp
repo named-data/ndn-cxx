@@ -51,7 +51,8 @@ public:
   };
 
   /** @brief Construct an Interest with given @p name and @p lifetime.
-   *  @throw std::invalid_argument @p lifetime is negative
+   *
+   *  @throw std::invalid_argument @p name is invalid or @p lifetime is negative
    *  @warning In certain contexts that use `Interest::shared_from_this()`, Interest must be created
    *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
    */
@@ -59,6 +60,7 @@ public:
   Interest(const Name& name = Name(), time::milliseconds lifetime = DEFAULT_INTEREST_LIFETIME);
 
   /** @brief Construct an Interest by decoding from @p wire.
+   *
    *  @warning In certain contexts that use `Interest::shared_from_this()`, Interest must be created
    *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
    */
@@ -132,13 +134,11 @@ public: // element access
     return m_name;
   }
 
+  /** @brief Set the Interest's name.
+   *  @throw std::invalid_argument @p name is invalid
+   */
   Interest&
-  setName(const Name& name)
-  {
-    m_name = name;
-    m_wire.reset();
-    return *this;
-  }
+  setName(const Name& name);
 
   /** @brief Declare the default CanBePrefix setting of the application.
    *
@@ -246,7 +246,7 @@ public: // element access
   /** @brief Check if the Nonce element is present.
    */
   bool
-  hasNonce() const
+  hasNonce() const noexcept
   {
     return m_nonce.has_value();
   }
@@ -277,59 +277,96 @@ public: // element access
     return m_interestLifetime;
   }
 
-  /** @brief Set Interest's lifetime
+  /** @brief Set the Interest's lifetime.
    *  @throw std::invalid_argument @p lifetime is negative
    */
   Interest&
   setInterestLifetime(time::milliseconds lifetime);
 
   bool
-  hasApplicationParameters() const
+  hasApplicationParameters() const noexcept
   {
     return !m_parameters.empty();
   }
 
-  const Block&
+  Block
   getApplicationParameters() const
   {
-    return m_parameters;
+    if (m_parameters.empty())
+      return {};
+    else
+      return m_parameters.front();
   }
 
-  /** @brief Set ApplicationParameters from a Block
-   *
-   *  If the block is default-constructed, this will set a zero-length
-   *  ApplicationParameters element.
-   *  Else, if the block's TLV-TYPE is ApplicationParameters, it will be
-   *  used directly as this Interest's ApplicationParameters element.
-   *  Else, the block will be nested into an ApplicationParameters element.
+  /** @brief Set ApplicationParameters from a Block.
    *  @return a reference to this Interest
+   *
+   *  If the block is default-constructed, this will set a zero-length ApplicationParameters
+   *  element. Else, if the block's TLV-TYPE is ApplicationParameters, it will be used directly
+   *  as this Interest's ApplicationParameters element. Else, the block will be nested into an
+   *  ApplicationParameters element.
+   *
+   *  This function will also recompute the value of the ParametersSha256DigestComponent in the
+   *  Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   *  be appended to it.
    */
   Interest&
   setApplicationParameters(const Block& parameters);
 
-  /** @brief Copy ApplicationParameters from raw buffer
-   *
-   *  @param buffer pointer to the first octet of parameters
-   *  @param bufferSize size of the raw buffer
+  /** @brief Set ApplicationParameters by copying from a raw buffer.
+   *  @param value points to a buffer from which the TLV-VALUE of the parameters will be copied;
+   *               may be nullptr if @p length is zero
+   *  @param length size of the buffer
    *  @return a reference to this Interest
+   *
+   *  This function will also recompute the value of the ParametersSha256DigestComponent in the
+   *  Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   *  be appended to it.
    */
   Interest&
-  setApplicationParameters(const uint8_t* buffer, size_t bufferSize);
+  setApplicationParameters(const uint8_t* value, size_t length);
 
-  /** @brief Set ApplicationParameters from a wire buffer
-   *
-   *  @param buffer buffer containing the parameters, must not be nullptr
+  /** @brief Set ApplicationParameters from a shared buffer.
+   *  @param value buffer containing the TLV-VALUE of the parameters; must not be nullptr
    *  @return a reference to this Interest
+   *
+   *  This function will also recompute the value of the ParametersSha256DigestComponent in the
+   *  Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   *  be appended to it.
    */
   Interest&
-  setApplicationParameters(ConstBufferPtr buffer);
+  setApplicationParameters(ConstBufferPtr value);
 
-  /** @brief Remove the ApplicationParameters element from this Interest
-   *
+  /** @brief Remove the ApplicationParameters element from this Interest.
    *  @post hasApplicationParameters() == false
+   *
+   *  This function will also remove any ParametersSha256DigestComponents from the Interest's name.
    */
   Interest&
   unsetApplicationParameters();
+
+public: // ParametersSha256DigestComponent support
+  static bool
+  getAutoCheckParametersDigest()
+  {
+    return s_autoCheckParametersDigest;
+  }
+
+  static void
+  setAutoCheckParametersDigest(bool b)
+  {
+    s_autoCheckParametersDigest = b;
+  }
+
+  /** @brief Check if the ParametersSha256DigestComponent in the name is valid.
+   *
+   *  Returns true if there is a single ParametersSha256DigestComponent in the name and the digest
+   *  value is correct, or if there is no ParametersSha256DigestComponent in the name and the
+   *  Interest does not contain any parameters.
+   *  Returns false otherwise.
+   */
+  bool
+  isParametersDigestValid() const;
 
 public: // Selectors (deprecated)
   /** @brief Check if Interest has any selector present.
@@ -453,7 +490,7 @@ private:
   /** @brief Decode @c m_wire as NDN Packet Format v0.2.
    *  @retval true decoding successful.
    *  @retval false decoding failed due to structural error.
-   *  @throw tlv::Error decoding error within a sub-element.
+   *  @throw tlv::Error decoding error.
    */
   bool
   decode02();
@@ -464,23 +501,55 @@ private:
   void
   decode03();
 
+  void
+  setApplicationParametersInternal(Block parameters);
+
+  shared_ptr<Buffer>
+  computeParametersDigest() const;
+
+  /** @brief Append a ParametersSha256DigestComponent to the Interest's name
+   *         or update the digest value in the existing component.
+   *
+   *  @pre The name is assumed to be valid, i.e., it must not contain more than one
+   *       ParametersSha256DigestComponent.
+   *  @pre hasApplicationParameters() == true
+   */
+  void
+  addOrReplaceParametersDigestComponent();
+
+  /** @brief Return the index of the ParametersSha256DigestComponent in @p name.
+   *
+   *  @retval pos The name contains exactly one ParametersSha256DigestComponent at index `pos`.
+   *  @retval -1  The name contains zero ParametersSha256DigestComponents.
+   *  @retval -2  The name contains more than one ParametersSha256DigestComponents.
+   */
+  static ssize_t
+  findParametersDigestComponent(const Name& name);
+
 #ifdef NDN_CXX_HAVE_TESTS
 public:
-  /** @brief If true, not setting CanBePrefix results in an error in wireEncode().
-   */
+  /// If true, not setting CanBePrefix results in an error in wireEncode().
   static bool s_errorIfCanBePrefixUnset;
 #endif // NDN_CXX_HAVE_TESTS
 
 private:
   static boost::logic::tribool s_defaultCanBePrefix;
+  static bool s_autoCheckParametersDigest;
 
   Name m_name;
   Selectors m_selectors; // NDN Packet Format v0.2 only
-  mutable bool m_isCanBePrefixSet;
+  mutable bool m_isCanBePrefixSet = false;
   mutable optional<uint32_t> m_nonce;
   time::milliseconds m_interestLifetime;
   DelegationList m_forwardingHint;
-  Block m_parameters; // NDN Packet Format v0.3 only
+
+  // Stores the "Interest parameters", i.e., all maybe-unrecognized non-critical TLV
+  // elements that appear at the end of the Interest, starting from ApplicationParameters.
+  // If the Interest does not contain any ApplicationParameters TLV, this vector will
+  // be empty. Conversely, if this vector is not empty, the first element will always
+  // be an ApplicationParameters block. All blocks in this vector are covered by the
+  // digest in the ParametersSha256DigestComponent.
+  std::vector<Block> m_parameters; // NDN Packet Format v0.3 only
 
   mutable Block m_wire;
 

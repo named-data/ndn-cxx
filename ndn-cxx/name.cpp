@@ -179,7 +179,7 @@ const name::Component&
 Name::at(ssize_t i) const
 {
   if (i < 0) {
-    i = size() + i;
+    i += static_cast<ssize_t>(size());
   }
 
   if (i < 0 || static_cast<size_t>(i) >= size()) {
@@ -194,13 +194,13 @@ Name::getSubName(ssize_t iStartComponent, size_t nComponents) const
 {
   PartialName result;
 
-  ssize_t iStart = iStartComponent < 0 ? this->size() + iStartComponent : iStartComponent;
-  size_t iEnd = this->size();
+  if (iStartComponent < 0)
+    iStartComponent += static_cast<ssize_t>(size());
+  size_t iStart = iStartComponent < 0 ? 0 : static_cast<size_t>(iStartComponent);
 
-  iStart = std::max(iStart, static_cast<ssize_t>(0));
-
+  size_t iEnd = size();
   if (nComponents != npos)
-    iEnd = std::min(this->size(), iStart + nComponents);
+    iEnd = std::min(size(), iStart + nComponents);
 
   for (size_t i = iStart; i < iEnd; ++i)
     result.append(at(i));
@@ -209,6 +209,30 @@ Name::getSubName(ssize_t iStartComponent, size_t nComponents) const
 }
 
 // ---- modifiers ----
+
+Name&
+Name::set(ssize_t i, const Component& component)
+{
+  if (i < 0) {
+    i += static_cast<ssize_t>(size());
+  }
+
+  const_cast<Block::element_container&>(m_wire.elements())[i] = component;
+  m_wire.resetWire();
+  return *this;
+}
+
+Name&
+Name::set(ssize_t i, Component&& component)
+{
+  if (i < 0) {
+    i += static_cast<ssize_t>(size());
+  }
+
+  const_cast<Block::element_container&>(m_wire.elements())[i] = std::move(component);
+  m_wire.resetWire();
+  return *this;
+}
 
 Name&
 Name::appendVersion(optional<uint64_t> version)
@@ -235,13 +259,45 @@ Name::append(const PartialName& name)
   return *this;
 }
 
+static constexpr uint8_t SHA256_OF_EMPTY_STRING[] = {
+  0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14,
+  0x9a, 0xfb, 0xf4, 0xc8, 0x99, 0x6f, 0xb9, 0x24,
+  0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c,
+  0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55,
+};
+
+Name&
+Name::appendParametersSha256DigestPlaceholder()
+{
+  static const Component placeholder(tlv::ParametersSha256DigestComponent,
+                                     SHA256_OF_EMPTY_STRING, sizeof(SHA256_OF_EMPTY_STRING));
+  return append(placeholder);
+}
+
+void
+Name::erase(ssize_t i)
+{
+  if (i < 0) {
+    i += static_cast<ssize_t>(size());
+  }
+
+  m_wire.erase(m_wire.elements_begin() + i);
+}
+
+void
+Name::clear()
+{
+  m_wire = Block(tlv::Name);
+}
+
 // ---- algorithms ----
 
 Name
 Name::getSuccessor() const
 {
   if (empty()) {
-    return Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
+    static const Name n("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000");
+    return n;
   }
 
   return getPrefix(-1).append(get(-1).getSuccessor());

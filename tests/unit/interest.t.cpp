@@ -32,21 +32,38 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
-// ---- constructor, encode, decode ----
+class DisableAutoCheckParametersDigest
+{
+public:
+  DisableAutoCheckParametersDigest()
+    : m_saved(Interest::getAutoCheckParametersDigest())
+  {
+    Interest::setAutoCheckParametersDigest(false);
+  }
+
+  ~DisableAutoCheckParametersDigest()
+  {
+    Interest::setAutoCheckParametersDigest(m_saved);
+  }
+
+private:
+  bool m_saved;
+};
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
   Interest i;
-  BOOST_CHECK(!i.hasWire());
+  BOOST_CHECK_EQUAL(i.hasWire(), false);
   BOOST_CHECK_EQUAL(i.getName(), "/");
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
-  BOOST_CHECK(i.getForwardingHint().empty());
-  BOOST_CHECK(!i.hasNonce());
+  BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
+  BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(!i.hasSelectors());
-  BOOST_CHECK(!i.hasApplicationParameters());
-  BOOST_CHECK(i.getApplicationParameters().empty());
+  BOOST_CHECK_EQUAL(i.hasSelectors(), false);
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
 }
 
 BOOST_AUTO_TEST_CASE(DecodeNotInterest)
@@ -54,7 +71,9 @@ BOOST_AUTO_TEST_CASE(DecodeNotInterest)
   BOOST_CHECK_THROW(Interest("4202CAFE"_block), tlv::Error);
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDecode02Basic)
+BOOST_AUTO_TEST_SUITE(EncodeDecode02)
+
+BOOST_AUTO_TEST_CASE(Basic)
 {
   const uint8_t WIRE[] = {
     0x05, 0x1c, // Interest
@@ -77,11 +96,13 @@ BOOST_AUTO_TEST_CASE(EncodeDecode02Basic)
   BOOST_CHECK(i2.getSelectors().empty());
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
+  BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
 
   BOOST_CHECK_EQUAL(i1, i2);
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDecode02Full)
+BOOST_AUTO_TEST_CASE(Full)
 {
   const uint8_t WIRE[] = {
     0x05, 0x31, // Interest
@@ -117,51 +138,146 @@ BOOST_AUTO_TEST_CASE(EncodeDecode02Full)
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 1000_ms);
   BOOST_CHECK_EQUAL(i2.getForwardingHint(), DelegationList({{1, "/A"}}));
+  BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
+  BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
 
   BOOST_CHECK_EQUAL(i1, i2);
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDecode03Basic)
+BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
 {
   const uint8_t WIRE[] = {
-    0x05, 0x22, // Interest
-          0x07, 0x14, // Name
+    0x05, 0x60, // Interest
+          0x07, 0x58, // Name
                 0x08, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, // GenericNameComponent
                 0x08, 0x03, 0x6e, 0x64, 0x6e, // GenericNameComponent
                 0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, // GenericNameComponent
+                0x02, 0x20, // ParametersSha256DigestComponent
+                      0xff, 0x91, 0x00, 0xe0, 0x4e, 0xaa, 0xdc, 0xf3, 0x06, 0x74, 0xd9, 0x80,
+                      0x26, 0xa0, 0x51, 0xba, 0x25, 0xf5, 0x6b, 0x69, 0xbf, 0xa0, 0x26, 0xdc,
+                      0xcc, 0xd7, 0x2c, 0x6e, 0xa0, 0xf7, 0x31, 0x5a,
+                0x02, 0x20, // ParametersSha256DigestComponent
+                      0xff, 0x91, 0x00, 0xe0, 0x4e, 0xaa, 0xdc, 0xf3, 0x06, 0x74, 0xd9, 0x80,
+                      0x26, 0xa0, 0x51, 0xba, 0x25, 0xf5, 0x6b, 0x69, 0xbf, 0xa0, 0x26, 0xdc,
+                      0xcc, 0xd7, 0x2c, 0x6e, 0xa0, 0xf7, 0x31, 0x5a,
+          0x0a, 0x04, // Nonce
+                0x01, 0x00, 0x00, 0x00,
+  };
+
+  Interest i1("/I");
+  BOOST_CHECK_THROW(i1.wireDecode(Block(WIRE, sizeof(WIRE))), tlv::Error);
+
+  // i1 is still in a valid state
+  BOOST_CHECK_EQUAL(i1.getName(), "/I");
+  BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
+
+  Interest i2("/I/params-sha256=f16db273f40436a852063f864d5072b01ead53151f5a688ea1560492bebedd05");
+  i2.setCanBePrefix(true);
+  i2.setNonce(2);
+  BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), false);
+  // encoding in v0.2 format does not validate the ParametersSha256DigestComponent
+  Block wire2 = i2.wireEncode();
+  BOOST_CHECK_EQUAL(wire2, "052D 0725(080149 "
+                           "0220F16DB273F40436A852063F864D5072B01EAD53151F5A688EA1560492BEBEDD05) "
+                           "0A0402000000"_block);
+
+  // decoding from v0.2 format does not validate the ParametersSha256DigestComponent
+  Interest i3(wire2);
+  BOOST_CHECK_EQUAL(i3.getName(), i2.getName());
+  BOOST_CHECK_EQUAL(i3.isParametersDigestValid(), false);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // EncodeDecode02
+
+BOOST_AUTO_TEST_SUITE(Encode03)
+
+// Enable after #4567
+//BOOST_AUTO_TEST_CASE(Basic)
+//{
+//  const uint8_t WIRE[] = {
+//    0x05, 0x1c, // Interest
+//          0x07, 0x14, // Name
+//                0x08, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, // GenericNameComponent
+//                0x08, 0x03, 0x6e, 0x64, 0x6e, // GenericNameComponent
+//                0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, // GenericNameComponent
+//          0x0a, 0x04, // Nonce
+//                0x01, 0x00, 0x00, 0x00,
+//  };
+
+//  Interest i1;
+//  i1.setName("/local/ndn/prefix");
+//  i1.setCanBePrefix(false);
+//  i1.setNonce(1);
+//  BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
+
+//  Block wire1 = i1.wireEncode();
+//  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
+
+//  Interest i2(wire1);
+//  BOOST_CHECK_EQUAL(i2.getName(), "/local/ndn/prefix");
+//  BOOST_CHECK_EQUAL(i2.getCanBePrefix(), false);
+//  BOOST_CHECK_EQUAL(i2.getMustBeFresh(), false);
+//  BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
+//  BOOST_CHECK_EQUAL(i2.getNonce(), 1);
+//  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+//  BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
+//  BOOST_CHECK_EQUAL(i2.getApplicationParameters().isValid(), false);
+//  BOOST_CHECK_EQUAL(i2.getPublisherPublicKeyLocator().empty(), true);
+//}
+
+BOOST_AUTO_TEST_CASE(WithParameters)
+{
+  const uint8_t WIRE[] = {
+    0x05, 0x44, // Interest
+          0x07, 0x36, // Name
+                0x08, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, // GenericNameComponent
+                0x08, 0x03, 0x6e, 0x64, 0x6e, // GenericNameComponent
+                0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, // GenericNameComponent
+                0x02, 0x20, // ParametersSha256DigestComponent
+                      0xff, 0x91, 0x00, 0xe0, 0x4e, 0xaa, 0xdc, 0xf3, 0x06, 0x74, 0xd9, 0x80,
+                      0x26, 0xa0, 0x51, 0xba, 0x25, 0xf5, 0x6b, 0x69, 0xbf, 0xa0, 0x26, 0xdc,
+                      0xcc, 0xd7, 0x2c, 0x6e, 0xa0, 0xf7, 0x31, 0x5a,
           0x0a, 0x04, // Nonce
                 0x01, 0x00, 0x00, 0x00,
           0x24, 0x04, // ApplicationParameters
-                0xc0, 0xc1, 0xc2, 0xc3};
+                0xc0, 0xc1, 0xc2, 0xc3
+  };
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
   i1.setCanBePrefix(false);
   i1.setNonce(1);
   i1.setApplicationParameters("2404C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
+
   Block wire1 = i1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
 
   Interest i2(wire1);
-  BOOST_CHECK_EQUAL(i2.getName(), "/local/ndn/prefix");
+  BOOST_CHECK_EQUAL(i2.getName(),
+                    "/local/ndn/prefix/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
   BOOST_CHECK_EQUAL(i2.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(i2.getMustBeFresh(), false);
-  BOOST_CHECK(i2.getForwardingHint().empty());
+  BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i2.hasApplicationParameters());
+  BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
-  BOOST_CHECK(i2.getPublisherPublicKeyLocator().empty());
+  BOOST_CHECK_EQUAL(i2.getPublisherPublicKeyLocator().empty(), true);
 }
 
-BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
+BOOST_AUTO_TEST_CASE(Full)
 {
   const uint8_t WIRE[] = {
-    0x05, 0x37, // Interest
-          0x07, 0x14, // Name
+    0x05, 0x59, // Interest
+          0x07, 0x36, // Name
                 0x08, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, // GenericNameComponent
                 0x08, 0x03, 0x6e, 0x64, 0x6e, // GenericNameComponent
                 0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, // GenericNameComponent
+                0x02, 0x20, // ParametersSha256DigestComponent
+                      0xff, 0x91, 0x00, 0xe0, 0x4e, 0xaa, 0xdc, 0xf3, 0x06, 0x74, 0xd9, 0x80,
+                      0x26, 0xa0, 0x51, 0xba, 0x25, 0xf5, 0x6b, 0x69, 0xbf, 0xa0, 0x26, 0xdc,
+                      0xcc, 0xd7, 0x2c, 0x6e, 0xa0, 0xf7, 0x31, 0x5a,
           0x21, 0x00, // CanBePrefix
           0x12, 0x00, // MustBeFresh
           0x1e, 0x0b, // ForwardingHint
@@ -175,7 +291,9 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
           0x0c, 0x02, // Interest Lifetime
                 0x76, 0xa1,
           0x24, 0x04, // ApplicationParameters
-                0xc0, 0xc1, 0xc2, 0xc3};
+                0xc0, 0xc1, 0xc2, 0xc3
+  };
+
   Interest i1;
   i1.setName("/local/ndn/prefix");
   i1.setMustBeFresh(true);
@@ -186,21 +304,50 @@ BOOST_AUTO_TEST_CASE(EncodeDecode03Full)
   i1.setApplicationParameters("2404C0C1C2C3"_block);
   i1.setMinSuffixComponents(1); // v0.2-only elements will not be encoded
   i1.setExclude(Exclude().excludeAfter(name::Component("J"))); // v0.2-only elements will not be encoded
+  BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
+
   Block wire1 = i1.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
 
   Interest i2(wire1);
-  BOOST_CHECK_EQUAL(i2.getName(), "/local/ndn/prefix");
+  BOOST_CHECK_EQUAL(i2.getName(),
+                    "/local/ndn/prefix/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
   BOOST_CHECK_EQUAL(i2.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(i2.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(i2.getForwardingHint(), DelegationList({{15893, "/H"}}));
-  BOOST_CHECK(i2.hasNonce());
+  BOOST_CHECK_EQUAL(i2.hasNonce(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 30369_ms);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), -1); // Default because minSuffixComponents was not encoded
-  BOOST_CHECK(i2.getExclude().empty()); // Exclude was not encoded
+  BOOST_CHECK_EQUAL(i2.getExclude().empty(), true); // Exclude was not encoded
 }
+
+// Enable after #4567
+//BOOST_AUTO_TEST_CASE(MissingApplicationParameters)
+//{
+//  Interest i;
+//  i.setName(Name("/A").appendParametersSha256DigestPlaceholder());
+//  i.setCanBePrefix(false);
+//  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
+//  BOOST_CHECK_THROW(i.wireEncode(), tlv::Error);
+//}
+
+BOOST_AUTO_TEST_CASE(MissingParametersSha256DigestComponent)
+{
+  // there's no way to create an Interest that fails this check via programmatic construction,
+  // so we have to decode an invalid Interest and force reencoding
+
+  DisableAutoCheckParametersDigest disabler;
+  Interest i("050F 0703(080149) 0A04F000F000 2402CAFE"_block);
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
+  BOOST_CHECK_NO_THROW(i.wireEncode()); // this succeeds because it uses the cached wire encoding
+
+  i.setNonce(42); // trigger reencoding
+  BOOST_CHECK_THROW(i.wireEncode(), tlv::Error); // now the check fails while attempting to reencode
+}
+
+BOOST_AUTO_TEST_SUITE_END() // Encode03
 
 class Decode03Fixture
 {
@@ -222,38 +369,54 @@ protected:
 
 BOOST_FIXTURE_TEST_SUITE(Decode03, Decode03Fixture)
 
-BOOST_AUTO_TEST_CASE(Minimal)
+BOOST_AUTO_TEST_CASE(NameOnly)
 {
-  i.wireDecode("0505 0703080149"_block);
+  i.wireDecode("0505 0703(080149)"_block);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
-  BOOST_CHECK(i.getForwardingHint().empty());
-  BOOST_CHECK(i.hasNonce()); // a random nonce is generated
+  BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
+  BOOST_CHECK_EQUAL(i.hasNonce(), true); // a random nonce is generated
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i.getPublisherPublicKeyLocator().empty());
-  BOOST_CHECK(!i.hasApplicationParameters());
+  BOOST_CHECK_EQUAL(i.getPublisherPublicKeyLocator().empty(), true);
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 
   BOOST_CHECK(!i.hasWire()); // nonce generation resets wire encoding
 
   // modify then re-encode as v0.2 format
   i.setNonce(0x54657c95);
-  BOOST_CHECK_EQUAL(i.wireEncode(), "0510 0703080149 09030E0101 0A04957C6554"_block);
+  BOOST_CHECK_EQUAL(i.wireEncode(), "0510 0703(080149) 09030E0101 0A04957C6554"_block);
 }
 
-BOOST_AUTO_TEST_CASE(Full)
+BOOST_AUTO_TEST_CASE(NameCanBePrefix)
 {
-  i.wireDecode("0531 0703080149 FC00 2100 FC00 1200 "
-               "FC00 1E0B(1F09 1E023E15 0703080148) FC00 0A044ACB1E4C "
-               "FC00 0C0276A1 FC00 2201D6 FC00"_block);
+  i.wireDecode("0507 0703(080149) 2100"_block);
+  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
+  BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
+  BOOST_CHECK_EQUAL(i.hasNonce(), true); // a random nonce is generated
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
+}
+
+BOOST_AUTO_TEST_CASE(FullWithoutParameters)
+{
+  i.wireDecode("0531 0703(080149) "
+               "FC00 2100 FC00 1200 FC00 1E0B(1F09 1E023E15 0703080148) "
+               "FC00 0A044ACB1E4C FC00 0C0276A1 FC00 2201D6 FC00"_block);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{15893, "/H"}}));
-  BOOST_CHECK(i.hasNonce());
+  BOOST_CHECK_EQUAL(i.hasNonce(), true);
   BOOST_CHECK_EQUAL(i.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 30369_ms);
   // HopLimit=214 is not stored
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 
   // encode without modification: retain original wire encoding
   BOOST_CHECK_EQUAL(i.wireEncode().value_size(), 49);
@@ -261,7 +424,46 @@ BOOST_AUTO_TEST_CASE(Full)
   // modify then re-encode as v0.2 format
   i.setName("/J");
   BOOST_CHECK_EQUAL(i.wireEncode(),
-    "0520 070308014A 09021200 0A044ACB1E4C 0C0276A1 1E0B(1F09 1E023E15 0703080148)"_block);
+                    "0520 0703(08014A) 09021200 0A044ACB1E4C 0C0276A1 1E0B(1F09 1E023E15 0703080148)"_block);
+}
+
+BOOST_AUTO_TEST_CASE(FullWithParameters)
+{
+  i.wireDecode("055B 0725(080149 0220F16DB273F40436A852063F864D5072B01EAD53151F5A688EA1560492BEBEDD05) "
+               "FC00 2100 FC00 1200 FC00 1E0B(1F09 1E023E15 0703080148) "
+               "FC00 0A044ACB1E4C FC00 0C0276A1 FC00 2201D6 FC00 2404C0C1C2C3 FC00"_block);
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/I/params-sha256=f16db273f40436a852063f864d5072b01ead53151f5a688ea1560492bebedd05");
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(i.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{15893, "/H"}}));
+  BOOST_CHECK_EQUAL(i.hasNonce(), true);
+  BOOST_CHECK_EQUAL(i.getNonce(), 0x4c1ecb4a);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), 30369_ms);
+  // HopLimit=214 is not stored
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
+
+  // encode without modification: retain original wire encoding
+  BOOST_CHECK_EQUAL(i.wireEncode().value_size(), 91);
+
+  // modify then re-encode as v0.3 format:
+  //  - unrecognized elements after ApplicationParameters are preserved, the rest are discarded
+  //  - HopLimit is dropped (encoding not implemented)
+  i.setName("/J");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+  BOOST_CHECK_EQUAL(i.wireEncode(),
+                    "054A 0725(08014A 0220F16DB273F40436A852063F864D5072B01EAD53151F5A688EA1560492BEBEDD05) "
+                    "2100 1200 1E0B(1F09 1E023E15 0703080148) "
+                    "0A044ACB1E4C 0C0276A1 2404C0C1C2C3 FC00"_block);
+
+  // modify ApplicationParameters: unrecognized elements are preserved
+  i.setApplicationParameters("2402CAFE"_block);
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+  BOOST_CHECK_EQUAL(i.wireEncode(),
+                    "0548 0725(08014A 02205FDA67967EE302FC457E41B7D3D51BA6A9379574D193FD88F64954BF16C2927A) "
+                    "2100 1200 1E0B(1F09 1E023E15 0703080148) "
+                    "0A044ACB1E4C 0C0276A1 2402CAFE FC00"_block);
 }
 
 BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
@@ -294,28 +496,41 @@ BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
 
 BOOST_AUTO_TEST_CASE(NonCriticalElementOutOfOrder)
 {
-  // HopLimit
-  i.wireDecode("0514 0703080149 2201D6 2200 2404C0C1C2C3 22020101"_block);
-  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  // duplicate HopLimit
+  i.wireDecode("0536 0725(080149 0220FF9100E04EAADCF30674D98026A051BA25F56B69BFA026DCCCD72C6EA0F7315A)"
+               "2201D6 2200 2404C0C1C2C3 22020101"_block);
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/I/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
   // HopLimit=214 is not stored
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
 
-  // ApplicationParameters
-  i.wireDecode("051F 0703080149 2100 1200 0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3 2401EE"_block);
-  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  // duplicate ApplicationParameters
+  i.wireDecode("0541 0725(080149 0220FF9100E04EAADCF30674D98026A051BA25F56B69BFA026DCCCD72C6EA0F7315A)"
+               "2100 1200 0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3 2401EE"_block);
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/I/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
 }
 
-BOOST_AUTO_TEST_CASE(NameMissing)
+BOOST_AUTO_TEST_CASE(MissingName)
 {
   BOOST_CHECK_THROW(i.wireDecode("0500"_block), tlv::Error);
   BOOST_CHECK_THROW(i.wireDecode("0502 1200"_block), tlv::Error);
 }
 
-BOOST_AUTO_TEST_CASE(NameEmpty)
+BOOST_AUTO_TEST_CASE(BadName)
 {
+  // empty
   BOOST_CHECK_THROW(i.wireDecode("0502 0700"_block), tlv::Error);
+
+  // more than one ParametersSha256DigestComponent
+  BOOST_CHECK_THROW(i.wireDecode("054C 074A(080149"
+                                 "02200000000000000000000000000000000000000000000000000000000000000000"
+                                 "080132"
+                                 "02200000000000000000000000000000000000000000000000000000000000000000)"_block),
+                    tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(BadCanBePrefix)
@@ -341,6 +556,29 @@ BOOST_AUTO_TEST_CASE(BadHopLimit)
   BOOST_CHECK_THROW(i.wireDecode("0509 0703080149 22021356"_block), tlv::Error);
 }
 
+BOOST_AUTO_TEST_CASE(BadParametersDigest)
+{
+  // ApplicationParameters without ParametersSha256DigestComponent
+  Block b1("0509 0703(080149) 2402CAFE"_block);
+  // ParametersSha256DigestComponent without ApplicationParameters
+  Block b2("0527 0725(080149 0220E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855)"_block);
+  // digest mismatch
+  Block b3("052B 0725(080149 02200000000000000000000000000000000000000000000000000000000000000000) "
+           "2402CAFE"_block);
+
+  BOOST_CHECK_THROW(i.wireDecode(b1), tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(b2), tlv::Error);
+  BOOST_CHECK_THROW(i.wireDecode(b3), tlv::Error);
+
+  DisableAutoCheckParametersDigest disabler;
+  BOOST_CHECK_NO_THROW(i.wireDecode(b1));
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
+  BOOST_CHECK_NO_THROW(i.wireDecode(b2));
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
+  BOOST_CHECK_NO_THROW(i.wireDecode(b3));
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
+}
+
 BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
 {
   BOOST_CHECK_THROW(i.wireDecode("0507 FC00 0703080149"_block), tlv::Error);
@@ -352,8 +590,6 @@ BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Decode03
-
-// ---- matching ----
 
 BOOST_AUTO_TEST_CASE(MatchesData)
 {
@@ -381,8 +617,8 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   interest = makeInterest(data->getFullName());
   BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
-  setNameComponent(*interest, -1, Name("/sha256digest=000000000000000000000000"
-                                       "0000000000000000000000000000000000000000").at(0));
+  setNameComponent(*interest, -1, name::Component::fromEscapedString(
+                     "sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
   BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates implicit digest
 }
 
@@ -418,9 +654,22 @@ BOOST_AUTO_TEST_CASE(MatchesInterest)
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 }
 
-// ---- field accessors ----
+BOOST_AUTO_TEST_CASE(SetName)
+{
+  Interest i;
+  BOOST_CHECK_EQUAL(i.getName(), "/");
+  i.setName("/A/B");
+  BOOST_CHECK_EQUAL(i.getName(), "/A/B");
+  i.setName("/I/params-sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/I/params-sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+  BOOST_CHECK_THROW(i.setName("/I"
+                              "/params-sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                              "/params-sha256=0000000000000000000000000000000000000000000000000000000000000000"),
+                    std::invalid_argument);
+}
 
-BOOST_AUTO_TEST_CASE(CanBePrefix)
+BOOST_AUTO_TEST_CASE(SetCanBePrefix)
 {
   Interest i;
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
@@ -432,7 +681,7 @@ BOOST_AUTO_TEST_CASE(CanBePrefix)
   BOOST_CHECK_EQUAL(i.getSelectors().getMaxSuffixComponents(), -1);
 }
 
-BOOST_AUTO_TEST_CASE(MustBeFresh)
+BOOST_AUTO_TEST_CASE(SetMustBeFresh)
 {
   Interest i;
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
@@ -562,7 +811,46 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
   BOOST_CHECK_THROW(i.setApplicationParameters(nullptr), std::invalid_argument);
 }
 
-// ---- operators ----
+BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
+{
+  Interest i("/I");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+
+  i.setApplicationParameters("2404C0C1C2C3"_block); // auto-appends ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/I/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+
+  i.setApplicationParameters(nullptr, 0); // updates ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/I/params-sha256=33b67cb5385ceddad93d0ee960679041613bed34b8b4a5e6362fe7539ba2d3ce");
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+
+  i.unsetApplicationParameters(); // removes ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(), "/I");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+
+  i.setName(Name("/P").appendParametersSha256DigestPlaceholder().append("Q"));
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
+
+  i.unsetApplicationParameters(); // removes ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(), "/P/Q");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+
+  i.setName(Name("/P").appendParametersSha256DigestPlaceholder().append("Q"));
+  i.setApplicationParameters("2404C0C1C2C3"_block); // updates ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/P/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a/Q");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+
+  i.setName("/A/B/C"); // auto-appends ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/A/B/C/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
+  BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+}
 
 BOOST_AUTO_TEST_CASE(Equality)
 {

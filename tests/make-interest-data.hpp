@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,27 +68,17 @@ signData(shared_ptr<Data> data)
 lp::Nack
 makeNack(const Interest& interest, lp::NackReason reason);
 
-/** \brief replace a name component
- *  \param[inout] name name
- *  \param index name component index
- *  \param a arguments to name::Component constructor
+/** \brief replace a name component in a packet
+ *  \param[inout] pkt the packet
+ *  \param index the index of the name component to replace
+ *  \param args arguments to name::Component constructor
  */
-template<typename...A>
+template<typename Packet, typename ...Args>
 void
-setNameComponent(Name& name, ssize_t index, const A& ...a)
-{
-  Name name2 = name.getPrefix(index);
-  name2.append(name::Component(a...));
-  name2.append(name.getSubName(name2.size()));
-  name = name2;
-}
-
-template<typename PKT, typename...A>
-void
-setNameComponent(PKT& pkt, ssize_t index, const A& ...a)
+setNameComponent(Packet& pkt, ssize_t index, Args&& ...args)
 {
   Name name = pkt.getName();
-  setNameComponent(name, index, a...);
+  name.set(index, name::Component(std::forward<Args>(args)...));
   pkt.setName(name);
 }
 

@@ -588,10 +588,11 @@ public: // comparison
 
 private:
   /**
-   * @brief Throw @c Error if this NameComponent is invalid.
+   * @brief Throw Error if this Component is invalid.
    *
-   * A NameComponent is invalid if its TLV-TYPE is outside the 1-65535 range.
-   * Additionally, if this is an ImplicitSha256DigestComponent, the TLV-LENGTH must be 32.
+   * A name component is invalid if its TLV-TYPE is outside the [1, 65535] range.
+   * Additionally, if it is an ImplicitSha256DigestComponent or a ParametersSha256DigestComponent,
+   * its TLV-LENGTH must be 32.
    */
   void
   ensureValid() const;
