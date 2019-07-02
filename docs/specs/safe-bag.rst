@@ -11,14 +11,17 @@ The format of **SafeBag** is defined as:
 
 ::
 
-    SafeBag ::= SAFE-BAG-TYPE TLV-LENGTH
-                  Certificate ; a data packet following certificate format spec
-                  EncryptedKeyBag ; private key encrypted in PKCS#8 format
+    SafeBag = SAFE-BAG-TYPE TLV-LENGTH
+                CertificateV2   ; a data packet following certificate format spec
+                EncryptedKeyBag
+
+    EncryptedKeyBag = ENCRYPTED-KEY-BAG-TYPE TLV-LENGTH
+                        *OCTET ; private key encrypted in PKCS#8 format
 
 All TLV-TYPE codes are application specific:
 
 +---------------------------------------------+-------------------+----------------+
-| TLV-TYPE                                    | Assigned code     | Assigned code  |
+| TLV-TYPE                                    | Assigned number   | Assigned number|
 |                                             | (decimal)         | (hexadecimal)  |
 +=============================================+===================+================+
 | SafeBag                                     | 128               | 0x80           |

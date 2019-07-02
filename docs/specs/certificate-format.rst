@@ -47,22 +47,18 @@ specification.
                                  +--------------------------+
 
 
-     CertificateV2 ::= DATA-TLV TLV-LENGTH
-                         Name      (= /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version])
-                         MetaInfo  (.ContentType = KEY,
-                                    .FreshnessPeriod >~ 1h))
-                         Content   (= X509PublicKeyContent)
-                         SignatureInfo (= CertificateV2SignatureInfo)
-                         SignatureValue
+     CertificateV2 = DATA-TYPE TLV-LENGTH
+                       Name ; /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
+                       MetaInfo ; ContentType = KEY, FreshnessPeriod required
+                       Content ; X509PublicKey
+                       CertificateV2SignatureInfo
+                       SignatureValue
 
-     X509PublicKeyContent ::= CONTENT-TLV TLV-LENGTH
-                                BYTE+ (= public key bits in PKCS#8 format)
-
-     CertificateV2SignatureInfo ::= SIGNATURE-INFO-TYPE TLV-LENGTH
-                                      SignatureType
-                                      KeyLocator
-                                      ValidityPeriod
-                                      ... optional critical or non-critical extension blocks ...
+     CertificateV2SignatureInfo = SIGNATURE-INFO-TYPE TLV-LENGTH
+                                    SignatureType
+                                    KeyLocator
+                                    ValidityPeriod
+                                    *CertificateV2Extension
 
 
 Name
@@ -126,15 +122,13 @@ certificate expires.
 
 ::
 
-    ValidityPeriod ::= VALIDITY-PERIOD-TYPE TLV-LENGTH
-                         NotBefore
-                         NotAfter
+    ValidityPeriod = VALIDITY-PERIOD-TYPE TLV-LENGTH
+                       NotBefore
+                       NotAfter
 
-    NotBefore ::= NOT-BEFORE-TYPE TLV-LENGTH
-                    BYTE{15}
+    NotBefore = NOT-BEFORE-TYPE TLV-LENGTH 8DIGIT "T" 6DIGIT
 
-    NotAfter ::= NOT-AFTER-TYPE TLV-LENGTH
-                   BYTE{15}
+    NotAfter = NOT-AFTER-TYPE TLV-LENGTH 8DIGIT "T" 6DIGIT
 
 For each TLV, the TLV-TYPE codes are assigned as below:
 
@@ -171,7 +165,7 @@ Extensions
 We list currently defined extensions:
 
 +---------------------------------------------+-------------------+----------------+
-| TLV-TYPE                                    | Assigned code     | Assigned code  |
+| TLV-TYPE                                    | Assigned number   | Assigned number|
 |                                             | (decimal)         | (hexadecimal)  |
 +=============================================+===================+================+
 | AdditionalDescription (non-critical)        | 258               | 0x0102         |
@@ -188,21 +182,21 @@ key-value pair to provide additional description about the certificate.
 
 ::
 
-    AdditionalDescription ::= ADDITIONAL-DESCRIPTION-TYPE TLV-LENGTH
-                                DescriptionEntry+
+    CertificateV2Extension = AdditionalDescription
 
-    DescriptionEntry ::= DESCRIPTION-ENTRY-TYPE TLV-LENGTH
-                           DescriptionKey
-                           DescriptionValue
+    AdditionalDescription = ADDITIONAL-DESCRIPTION-TYPE TLV-LENGTH
+                              1*DescriptionEntry
 
-    DescriptionKey ::= DESCRIPTION-KEY-TYPE TLV-LENGTH
-                         BYTE+
+    DescriptionEntry = DESCRIPTION-ENTRY-TYPE TLV-LENGTH
+                         DescriptionKey
+                         DescriptionValue
 
-    DescriptionValue ::= DESCRIPTION-VALUE-TYPE TLV-LENGTH
-                           BYTE+
+    DescriptionKey = DESCRIPTION-KEY-TYPE TLV-LENGTH 1*OCTET
+
+    DescriptionValue = DESCRIPTION-VALUE-TYPE TLV-LENGTH 1*OCTET
 
 +---------------------------------------------+-------------------+----------------+
-| TLV-TYPE                                    | Assigned code     | Assigned code  |
+| TLV-TYPE                                    | Assigned number   | Assigned number|
 |                                             | (decimal)         | (hexadecimal)  |
 +=============================================+===================+================+
 | DescriptionEntry                            | 512               | 0x0200         |
