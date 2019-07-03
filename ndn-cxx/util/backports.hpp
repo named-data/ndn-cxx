@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -104,10 +104,11 @@ using ::nonstd::make_optional;
 using ::nonstd::variant;
 using ::nonstd::bad_variant_access;
 using ::nonstd::monostate;
-using ::nonstd::visit;
-using ::nonstd::holds_alternative;
-using ::nonstd::get_if;
 using ::nonstd::variant_npos;
+using ::nonstd::get;
+using ::nonstd::get_if;
+using ::nonstd::holds_alternative;
+using ::nonstd::visit;
 
 } // namespace ndn
 
