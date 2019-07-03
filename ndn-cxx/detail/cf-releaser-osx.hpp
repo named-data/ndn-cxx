@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -100,18 +100,6 @@ public: // Access
     return m_typeRef;
   }
 
-  bool
-  operator==(const std::nullptr_t&)
-  {
-    return m_typeRef == nullptr;
-  }
-
-  bool
-  operator!=(const std::nullptr_t&)
-  {
-    return m_typeRef != nullptr;
-  }
-
 public: // Miscellaneous
   void
   retain(const T& typeRef)
@@ -138,6 +126,19 @@ public: // Miscellaneous
       CFRelease(m_typeRef);
       m_typeRef = nullptr;
     }
+  }
+
+private: // Comparison with nullptr
+  friend bool
+  operator==(const CFReleaser& lhs, std::nullptr_t)
+  {
+    return lhs.m_typeRef == nullptr;
+  }
+
+  friend bool
+  operator!=(const CFReleaser& lhs, std::nullptr_t)
+  {
+    return lhs.m_typeRef != nullptr;
   }
 
 private:

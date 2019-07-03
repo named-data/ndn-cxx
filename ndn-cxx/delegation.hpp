@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,44 +26,63 @@
 
 namespace ndn {
 
-/** \brief represents a delegation
- *  \sa https://named-data.net/doc/ndn-tlv/link.html
+/** \brief Represents a Delegation.
+ *  \sa https://named-data.net/doc/NDN-packet-spec/current/link.html
  */
-struct Delegation
+class Delegation
 {
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  friend bool
+  operator==(const Delegation& lhs, const Delegation& rhs)
+  {
+    return !(lhs != rhs);
+  }
+
+  friend bool
+  operator!=(const Delegation& lhs, const Delegation& rhs)
+  {
+    return lhs.preference != rhs.preference ||
+           lhs.name != rhs.name;
+  }
+
+  friend bool
+  operator<(const Delegation& lhs, const Delegation& rhs)
+  {
+    return std::tie(lhs.preference, lhs.name) <
+           std::tie(rhs.preference, rhs.name);
+  }
+
+  friend bool
+  operator<=(const Delegation& lhs, const Delegation& rhs)
+  {
+    return !(rhs < lhs);
+  }
+
+  friend bool
+  operator>(const Delegation& lhs, const Delegation& rhs)
+  {
+    return rhs < lhs;
+  }
+
+  friend bool
+  operator>=(const Delegation& lhs, const Delegation& rhs)
+  {
+    return !(lhs < rhs);
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const Delegation& d)
+  {
+    return os << d.name << '(' << d.preference << ')';
+  }
+
+public:
   uint64_t preference;
   Name name;
 };
-
-bool
-operator==(const Delegation& lhs, const Delegation& rhs);
-
-inline bool
-operator!=(const Delegation& lhs, const Delegation& rhs)
-{
-  return !(lhs == rhs);
-}
-
-bool
-operator<(const Delegation& lhs, const Delegation& rhs);
-
-bool
-operator<=(const Delegation& lhs, const Delegation& rhs);
-
-inline bool
-operator>(const Delegation& lhs, const Delegation& rhs)
-{
-  return !(lhs <= rhs);
-}
-
-inline bool
-operator>=(const Delegation& lhs, const Delegation& rhs)
-{
-  return !(lhs < rhs);
-}
-
-std::ostream&
-operator<<(std::ostream& os, const Delegation& del);
 
 } // namespace ndn
 

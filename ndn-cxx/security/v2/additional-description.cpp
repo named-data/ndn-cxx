@@ -162,32 +162,17 @@ AdditionalDescription::wireDecode(const Block& wire)
   }
 }
 
-bool
-AdditionalDescription::operator==(const AdditionalDescription& other) const
-{
-  return (m_info == other.m_info);
-}
-
-bool
-AdditionalDescription::operator!=(const AdditionalDescription& other) const
-{
-  return !(*this == other);
-}
-
 std::ostream&
-operator<<(std::ostream& os, const AdditionalDescription& other)
+operator<<(std::ostream& os, const AdditionalDescription& desc)
 {
-  size_t count = 0;
-  os << "(";
-  for (const auto& entry : other) {
-    if (count > 0)
-      os << ", ";
-    os << "(" << entry.first << ":" << entry.second << ")";
-    count++;
-  }
-  os << ")";
+  os << "[";
 
-  return os;
+  auto join = make_ostream_joiner(os, ", ");
+  for (const auto& entry : desc) {
+    join = "(" + entry.first + ":" + entry.second + ")";
+  }
+
+  return os << "]";
 }
 
 } // namespace v2

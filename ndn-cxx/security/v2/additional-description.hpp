@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -110,12 +110,21 @@ public:
   void
   wireDecode(const Block& wire);
 
-public: // EqualityComparable concept
-  bool
-  operator==(const AdditionalDescription& other) const;
+private: // EqualityComparable concept
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
 
-  bool
-  operator!=(const AdditionalDescription& other) const;
+  friend bool
+  operator==(const AdditionalDescription& lhs, const AdditionalDescription& rhs)
+  {
+    return lhs.m_info == rhs.m_info;
+  }
+
+  friend bool
+  operator!=(const AdditionalDescription& lhs, const AdditionalDescription& rhs)
+  {
+    return lhs.m_info != rhs.m_info;
+  }
 
 private:
   std::map<std::string, std::string> m_info;
@@ -126,7 +135,7 @@ private:
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(AdditionalDescription);
 
 std::ostream&
-operator<<(std::ostream& os, const AdditionalDescription& period);
+operator<<(std::ostream& os, const AdditionalDescription& desc);
 
 } // namespace v2
 

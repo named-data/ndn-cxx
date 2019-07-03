@@ -149,19 +149,6 @@ ValidityPeriod::isValid(const time::system_clock::TimePoint& now) const
   return m_notBefore <= now && now <= m_notAfter;
 }
 
-bool
-ValidityPeriod::operator==(const ValidityPeriod& other) const
-{
-  return (this->m_notBefore == other.m_notBefore &&
-          this->m_notAfter == other.m_notAfter);
-}
-
-bool
-ValidityPeriod::operator!=(const ValidityPeriod& other) const
-{
-  return !(*this == other);
-}
-
 std::ostream&
 operator<<(std::ostream& os, const ValidityPeriod& period)
 {

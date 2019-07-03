@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -105,12 +105,22 @@ public:
   void
   wireDecode(const Block& wire);
 
-public: // EqualityComparable concept
-  bool
-  operator==(const ValidityPeriod& other) const;
+private: // EqualityComparable concept
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
 
-  bool
-  operator!=(const ValidityPeriod& other) const;
+  friend bool
+  operator==(const ValidityPeriod& lhs, const ValidityPeriod& rhs)
+  {
+    return !(lhs != rhs);
+  }
+
+  friend bool
+  operator!=(const ValidityPeriod& lhs, const ValidityPeriod& rhs)
+  {
+    return lhs.m_notBefore != rhs.m_notBefore ||
+           lhs.m_notAfter != rhs.m_notAfter;
+  }
 
 private:
   typedef boost::chrono::time_point<time::system_clock, time::seconds> TimePoint;

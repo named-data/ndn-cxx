@@ -529,7 +529,7 @@ public: // commonly used TLV-TYPEs
   static Component
   fromParametersSha256Digest(const uint8_t* digest, size_t digestSize);
 
-public: // operators
+public: // comparison
   bool
   empty() const
   {
@@ -557,77 +557,6 @@ public: // operators
    */
   int
   compare(const Component& other) const;
-
-  /**
-   * @brief Check if this is the same component as other
-   *
-   * @param other The other Component to compare with.
-   * @return true if the components are equal, otherwise false.
-   */
-  bool
-  operator==(const Component& other) const
-  {
-    return equals(other);
-  }
-
-  /**
-   * @brief Check if this is not the same component as other
-   * @param other The other Component to compare with
-   * @return true if the components are not equal, otherwise false
-   */
-  bool
-  operator!=(const Component& other) const
-  {
-    return !equals(other);
-  }
-
-  /**
-   * @brief Check if the *this is less than or equal to the other in NDN canonical ordering
-   * @param other The other Component to compare with
-   *
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
-   */
-  bool
-  operator<=(const Component& other) const
-  {
-    return compare(other) <= 0;
-  }
-
-  /**
-   * @brief Check if the *this is less than the other in NDN canonical ordering
-   * @param other The other Component to compare with
-   *
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
-   */
-  bool
-  operator<(const Component& other) const
-  {
-    return compare(other) < 0;
-  }
-
-  /**
-   * @brief Check if the *this is greater or equal than the other in NDN canonical ordering
-   * @param other The other Component to compare with
-   *
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
-   */
-  bool
-  operator>=(const Component& other) const
-  {
-    return compare(other) >= 0;
-  }
-
-  /**
-   * @brief Check if the *this is greater than the other in NDN canonical ordering
-   * @param other The other Component to compare with
-   *
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
-   */
-  bool
-  operator>(const Component& other) const
-  {
-    return compare(other) > 0;
-  }
 
   /**
    * @brief Get the successor of this name component.
@@ -667,6 +596,53 @@ private:
   void
   ensureValid() const;
 
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  friend bool
+  operator==(const Component& lhs, const Component& rhs)
+  {
+    return lhs.equals(rhs);
+  }
+
+  friend bool
+  operator!=(const Component& lhs, const Component& rhs)
+  {
+    return !lhs.equals(rhs);
+  }
+
+  friend bool
+  operator<(const Component& lhs, const Component& rhs)
+  {
+    return lhs.compare(rhs) < 0;
+  }
+
+  friend bool
+  operator<=(const Component& lhs, const Component& rhs)
+  {
+    return lhs.compare(rhs) <= 0;
+  }
+
+  friend bool
+  operator>(const Component& lhs, const Component& rhs)
+  {
+    return lhs.compare(rhs) > 0;
+  }
+
+  friend bool
+  operator>=(const Component& lhs, const Component& rhs)
+  {
+    return lhs.compare(rhs) >= 0;
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const Component& component)
+  {
+    component.toUri(os);
+    return os;
+  }
+
   // !!! NOTE TO IMPLEMENTOR !!!
   //
   // This class MUST NOT contain any data fields.
@@ -674,13 +650,6 @@ private:
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Component);
-
-inline std::ostream&
-operator<<(std::ostream& os, const Component& component)
-{
-  component.toUri(os);
-  return os;
-}
 
 } // namespace name
 } // namespace ndn

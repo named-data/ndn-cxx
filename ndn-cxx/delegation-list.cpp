@@ -219,12 +219,6 @@ DelegationList::eraseImpl(optional<uint64_t> preference, const Name& name)
   return nErased;
 }
 
-bool
-operator==(const DelegationList& lhs, const DelegationList& rhs)
-{
-  return lhs.m_dels == rhs.m_dels;
-}
-
 std::ostream&
 operator<<(std::ostream& os, const DelegationList& dl)
 {

@@ -535,6 +535,46 @@ public: // algorithms
   compare(size_t pos1, size_t count1,
           const Name& other, size_t pos2 = 0, size_t count2 = npos) const;
 
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  friend bool
+  operator==(const Name& lhs, const Name& rhs)
+  {
+    return lhs.equals(rhs);
+  }
+
+  friend bool
+  operator!=(const Name& lhs, const Name& rhs)
+  {
+    return !lhs.equals(rhs);
+  }
+
+  friend bool
+  operator<(const Name& lhs, const Name& rhs)
+  {
+    return lhs.compare(rhs) < 0;
+  }
+
+  friend bool
+  operator<=(const Name& lhs, const Name& rhs)
+  {
+    return lhs.compare(rhs) <= 0;
+  }
+
+  friend bool
+  operator>(const Name& lhs, const Name& rhs)
+  {
+    return lhs.compare(rhs) > 0;
+  }
+
+  friend bool
+  operator>=(const Name& lhs, const Name& rhs)
+  {
+    return lhs.compare(rhs) >= 0;
+  }
+
 public:
   /** @brief indicates "until the end" in getSubName and compare
    */
@@ -545,42 +585,6 @@ private:
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Name);
-
-inline bool
-operator==(const Name& lhs, const Name& rhs)
-{
-  return lhs.equals(rhs);
-}
-
-inline bool
-operator!=(const Name& lhs, const Name& rhs)
-{
-  return !lhs.equals(rhs);
-}
-
-inline bool
-operator<=(const Name& lhs, const Name& rhs)
-{
-  return lhs.compare(rhs) <= 0;
-}
-
-inline bool
-operator<(const Name& lhs, const Name& rhs)
-{
-  return lhs.compare(rhs) < 0;
-}
-
-inline bool
-operator>=(const Name& lhs, const Name& rhs)
-{
-  return lhs.compare(rhs) >= 0;
-}
-
-inline bool
-operator>(const Name& lhs, const Name& rhs)
-{
-  return lhs.compare(rhs) > 0;
-}
 
 /** @brief Print URI representation of a name
  *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme

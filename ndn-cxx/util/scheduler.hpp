@@ -71,23 +71,32 @@ public:
   explicit
   operator bool() const noexcept;
 
-  /** \brief Determine whether this and other refer to the same event, or are both
-   *         empty/expired/cancelled.
-   */
-  bool
-  operator==(const EventId& other) const noexcept;
-
-  bool
-  operator!=(const EventId& other) const noexcept
-  {
-    return !this->operator==(other);
-  }
-
   /** \brief Clear this EventId without canceling.
    *  \post !(*this)
    */
   void
   reset() noexcept;
+
+private:
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  /** \brief Determine whether this and other refer to the same event, or are both
+   *         empty/expired/cancelled.
+   */
+  friend bool
+  operator==(const EventId& lhs, const EventId& rhs) noexcept
+  {
+    return (!lhs && !rhs) ||
+        (!lhs.m_info.owner_before(rhs.m_info) &&
+         !rhs.m_info.owner_before(lhs.m_info));
+  }
+
+  friend bool
+  operator!=(const EventId& lhs, const EventId& rhs) noexcept
+  {
+    return !(lhs == rhs);
+  }
 
 private:
   EventId(Scheduler& sched, weak_ptr<EventInfo> info);

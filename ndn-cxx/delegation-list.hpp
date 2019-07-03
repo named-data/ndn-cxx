@@ -215,6 +215,26 @@ private:
   size_t
   eraseImpl(optional<uint64_t> preference, const Name& name);
 
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  /** \brief Compare whether two DelegationLists are equal.
+   *  \note Order matters! If two DelegationLists contain the same Delegations but at least one is
+   *        unsorted, they may compare unequal if the Delegations appear in different order.
+   */
+  friend bool
+  operator==(const DelegationList& lhs, const DelegationList& rhs)
+  {
+    return lhs.m_dels == rhs.m_dels;
+  }
+
+  friend bool
+  operator!=(const DelegationList& lhs, const DelegationList& rhs)
+  {
+    return lhs.m_dels != rhs.m_dels;
+  }
+
 private:
   bool m_isSorted;
 
@@ -226,8 +246,6 @@ private:
    *        therefore the overhead of moving items during insertion and deletion is small.
    */
   std::vector<Delegation> m_dels;
-
-  friend bool operator==(const DelegationList&, const DelegationList&);
 };
 
 #ifndef DOXYGEN
@@ -237,19 +255,6 @@ DelegationList::wireEncode<encoding::EncoderTag>(EncodingBuffer&, uint32_t) cons
 extern template size_t
 DelegationList::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, uint32_t) const;
 #endif
-
-/** \brief compare whether two DelegationLists are equal
- *  \note Order matters! If two DelegationLists contain the same Delegations but at least one is
- *        unsorted, they may compare unequal if the Delegations appear in different order.
- */
-bool
-operator==(const DelegationList& lhs, const DelegationList& rhs);
-
-inline bool
-operator!=(const DelegationList& lhs, const DelegationList& rhs)
-{
-  return !(lhs == rhs);
-}
 
 std::ostream&
 operator<<(std::ostream& os, const DelegationList& dl);

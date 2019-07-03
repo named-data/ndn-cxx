@@ -222,23 +222,31 @@ BOOST_AUTO_TEST_CASE(ConstructEmpty)
   BOOST_CHECK(!eid);
 }
 
-BOOST_AUTO_TEST_CASE(Compare)
+BOOST_AUTO_TEST_CASE(Equality)
 {
   EventId eid, eid2;
-  BOOST_CHECK_EQUAL(eid == eid2, true);
-  BOOST_CHECK_EQUAL(eid != eid2, false);
+  BOOST_CHECK(eid == eid2);
 
   eid = scheduler.schedule(10_ms, []{});
-  BOOST_CHECK_EQUAL(eid == eid2, false);
-  BOOST_CHECK_EQUAL(eid != eid2, true);
-
-  eid2 = eid;
-  BOOST_CHECK_EQUAL(eid, eid2);
-  BOOST_CHECK_EQUAL(eid != eid2, false);
+  BOOST_CHECK(eid != eid2);
 
   eid2 = scheduler.schedule(10_ms, []{});
-  BOOST_CHECK_EQUAL(eid == eid2, false);
-  BOOST_CHECK_NE(eid, eid2);
+  BOOST_CHECK(eid != eid2);
+
+  eid.cancel();
+  BOOST_CHECK(eid != eid2);
+  BOOST_CHECK(eid == EventId{});
+
+  eid2.cancel();
+  BOOST_CHECK(eid == eid2);
+
+  eid = eid2 = scheduler.schedule(20_ms, []{});
+  BOOST_CHECK(eid == eid2);
+  BOOST_CHECK(eid != EventId{});
+
+  eid.cancel();
+  BOOST_CHECK(eid == eid2);
+  BOOST_CHECK(eid == EventId{});
 }
 
 BOOST_AUTO_TEST_CASE(Valid)

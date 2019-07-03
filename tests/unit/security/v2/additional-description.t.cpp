@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,7 +44,7 @@ const uint8_t description[] = {
         0x76, 0x61, 0x6c, 0x32, // "val2"
 };
 
-const std::string text = "((key1:val1), (key2:val2))";
+const std::string text = "[(key1:val1), (key2:val2)]";
 
 BOOST_AUTO_TEST_CASE(Basic)
 {

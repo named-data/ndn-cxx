@@ -444,6 +444,35 @@ BOOST_AUTO_TEST_CASE(ThrowInHandler)
   BOOST_CHECK_EQUAL(hit, 2); // handler called
 }
 
+BOOST_AUTO_TEST_CASE(ConnectionEquality)
+{
+  SignalOwner0 so;
+
+  Connection conn1, conn2;
+  BOOST_CHECK(conn1 == conn2);
+
+  conn1 = so.sig.connect([]{});
+  BOOST_CHECK(conn1 != conn2);
+
+  conn2 = so.sig.connect([]{});
+  BOOST_CHECK(conn1 != conn2);
+
+  conn1.disconnect();
+  BOOST_CHECK(conn1 != conn2);
+  BOOST_CHECK(conn1 == Connection{});
+
+  conn2.disconnect();
+  BOOST_CHECK(conn1 == conn2);
+
+  conn1 = conn2 = so.sig.connect([]{});
+  BOOST_CHECK(conn1 == conn2);
+  BOOST_CHECK(conn1 != Connection{});
+
+  conn1.disconnect();
+  BOOST_CHECK(conn1 == conn2);
+  BOOST_CHECK(conn1 == Connection{});
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestSignal
 BOOST_AUTO_TEST_SUITE_END() // Util
 

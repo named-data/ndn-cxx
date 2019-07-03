@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -100,13 +100,6 @@ private: // API for owner
 
 private: // internal implementation
   typedef Signal<Owner, TArgs...> Self;
-  struct Slot;
-
-  /** \brief stores slots
-   *  \note std::list is used because iterators must not be invalidated
-   *        when other slots are added or removed
-   */
-  typedef std::list<Slot> SlotList;
 
   /** \brief stores a handler function, and a function to disconnect this handler
    */
@@ -126,11 +119,14 @@ private: // internal implementation
      *  When the slot is erased or the signal is destructed, this function object is
      *  destructed, and the related Connections cannot disconnect this slot again.
      */
-    shared_ptr<function<void()>> disconnect;
+    shared_ptr<DisconnectFunction> disconnect;
   };
 
   /** \brief stores slots
+   *  \note std::list is used because iterators must not be invalidated
+   *        when other slots are added or removed
    */
+  typedef std::list<Slot> SlotList;
   SlotList m_slots;
 
   /** \brief is a signal handler executing?
@@ -165,9 +161,9 @@ Connection
 Signal<Owner, TArgs...>::connect(Handler handler)
 {
   auto it = m_slots.insert(m_slots.end(), {std::move(handler), nullptr});
-  it->disconnect = make_shared<function<void()>>([=] { disconnect(it); });
+  it->disconnect = make_shared<DisconnectFunction>([=] { disconnect(it); });
 
-  return signal::Connection(weak_ptr<function<void()>>(it->disconnect));
+  return signal::Connection(it->disconnect);
 }
 
 template<typename Owner, typename ...TArgs>
@@ -175,8 +171,8 @@ Connection
 Signal<Owner, TArgs...>::connectSingleShot(Handler handler)
 {
   auto it = m_slots.insert(m_slots.end(), {nullptr, nullptr});
-  it->disconnect = make_shared<function<void()>>([=] { disconnect(it); });
-  signal::Connection conn(weak_ptr<function<void()>>(it->disconnect));
+  it->disconnect = make_shared<DisconnectFunction>([=] { disconnect(it); });
+  signal::Connection conn(it->disconnect);
 
   it->handler = [conn, handler = std::move(handler)] (const TArgs&... args) mutable {
     handler(args...);

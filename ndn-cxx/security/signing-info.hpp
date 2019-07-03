@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -231,13 +231,23 @@ public:
   static const Name&
   getDigestSha256Identity();
 
-  bool
-  operator==(const SigningInfo& rhs) const;
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
 
-  bool
-  operator!=(const SigningInfo& rhs) const
+  friend bool
+  operator==(const SigningInfo& lhs, const SigningInfo& rhs)
   {
-    return !(*this == rhs);
+    return !(lhs != rhs);
+  }
+
+  friend bool
+  operator!=(const SigningInfo& lhs, const SigningInfo& rhs)
+  {
+    return lhs.m_type != rhs.m_type ||
+           lhs.m_name != rhs.m_name ||
+           lhs.m_digestAlgorithm != rhs.m_digestAlgorithm ||
+           lhs.m_info != rhs.m_info;
   }
 
 private:

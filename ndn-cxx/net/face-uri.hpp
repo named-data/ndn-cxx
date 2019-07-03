@@ -136,13 +136,6 @@ public: // getters
   std::string
   toString() const;
 
-public: // EqualityComparable concept
-  bool
-  operator==(const FaceUri& rhs) const;
-
-  bool
-  operator!=(const FaceUri& rhs) const;
-
 public: // canonical FaceUri
   /** \return whether a FaceUri of the scheme can be canonized
    */
@@ -174,6 +167,26 @@ public: // canonical FaceUri
            const CanonizeFailureCallback& onFailure,
            boost::asio::io_service& io,
            time::nanoseconds timeout) const;
+
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  friend bool
+  operator==(const FaceUri& lhs, const FaceUri& rhs)
+  {
+    return !(lhs != rhs);
+  }
+
+  friend bool
+  operator!=(const FaceUri& lhs, const FaceUri& rhs)
+  {
+    return lhs.m_isV6 != rhs.m_isV6 ||
+           lhs.m_scheme != rhs.m_scheme ||
+           lhs.m_host != rhs.m_host ||
+           lhs.m_port != rhs.m_port ||
+           lhs.m_path != rhs.m_path;
+  }
 
 private:
   std::string m_scheme;

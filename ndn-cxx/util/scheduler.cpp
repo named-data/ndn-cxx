@@ -63,13 +63,6 @@ EventId::operator bool() const noexcept
   return sp != nullptr && !sp->isExpired;
 }
 
-bool
-EventId::operator==(const EventId& other) const noexcept
-{
-  return (!*this && !other) ||
-         !(m_info.owner_before(other.m_info) || other.m_info.owner_before(m_info));
-}
-
 void
 EventId::reset() noexcept
 {

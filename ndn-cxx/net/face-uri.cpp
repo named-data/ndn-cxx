@@ -184,22 +184,6 @@ FaceUri::fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, const std::s
   return uri;
 }
 
-bool
-FaceUri::operator==(const FaceUri& rhs) const
-{
-  return m_isV6 == rhs.m_isV6 &&
-         m_scheme == rhs.m_scheme &&
-         m_host == rhs.m_host &&
-         m_port == rhs.m_port &&
-         m_path == rhs.m_path;
-}
-
-bool
-FaceUri::operator!=(const FaceUri& rhs) const
-{
-  return !(*this == rhs);
-}
-
 std::string
 FaceUri::toString() const
 {
