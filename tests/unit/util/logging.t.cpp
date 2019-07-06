@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(Warn)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n"
     ));
@@ -218,8 +218,8 @@ BOOST_AUTO_TEST_CASE(Info)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " INFO: [Module1] info1\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module1] info1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n"
     ));
@@ -233,8 +233,8 @@ BOOST_AUTO_TEST_CASE(Debug)
   Logging::flush();
   BOOST_CHECK(os.is_equal(
     LOG_SYSTIME_STR + " DEBUG: [Module1] debug1\n" +
-    LOG_SYSTIME_STR + " INFO: [Module1] info1\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module1] info1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n"
     ));
@@ -249,8 +249,8 @@ BOOST_AUTO_TEST_CASE(Trace)
   BOOST_CHECK(os.is_equal(
     LOG_SYSTIME_STR + " TRACE: [Module1] trace1\n" +
     LOG_SYSTIME_STR + " DEBUG: [Module1] debug1\n" +
-    LOG_SYSTIME_STR + " INFO: [Module1] info1\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module1] info1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n"
     ));
@@ -265,8 +265,8 @@ BOOST_AUTO_TEST_CASE(All)
   BOOST_CHECK(os.is_equal(
     LOG_SYSTIME_STR + " TRACE: [Module1] trace1\n" +
     LOG_SYSTIME_STR + " DEBUG: [Module1] debug1\n" +
-    LOG_SYSTIME_STR + " INFO: [Module1] info1\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module1] info1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n"
     ));
@@ -293,8 +293,8 @@ BOOST_AUTO_TEST_CASE(NamespaceLogger)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ns1] hello world from ns1\n" +
-    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ns2] hi there from ns2\n"
+    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ns1] hello world from ns1\n" +
+    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ns2] hi there from ns2\n"
     ));
 }
 
@@ -314,8 +314,8 @@ BOOST_AUTO_TEST_CASE(MemberLogger)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ClassWithLogger] static member function\n" +
-    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.ClassWithLogger] const member function\n"
+    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ClassWithLogger] static member function\n" +
+    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ClassWithLogger] const member function\n"
     ));
 
   ClassTemplateWithLogger<int, double>::logFromStaticMemberFunction();
@@ -325,8 +325,8 @@ BOOST_AUTO_TEST_CASE(MemberLogger)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.Specialized1] class template static member function\n" +
-    LOG_SYSTIME_STR + " INFO: [ndn.util.tests.Specialized1] class template non-static member function\n"
+    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.Specialized1] class template static member function\n" +
+    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.Specialized1] class template non-static member function\n"
     ));
 }
 
@@ -340,10 +340,10 @@ BOOST_AUTO_TEST_CASE(SameNameLoggers)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module1] warnModule1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warnModule1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] errorModule1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatalModule1\n"
     ));
@@ -357,8 +357,8 @@ BOOST_AUTO_TEST_CASE(LateRegistration)
   Logging::flush();
   BOOST_CHECK(os.is_equal(
     LOG_SYSTIME_STR + " DEBUG: [Module3] debugModule3\n" +
-    LOG_SYSTIME_STR + " INFO: [Module3] infoModule3\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module3] warnModule3\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module3] infoModule3\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module3] warnModule3\n" +
     LOG_SYSTIME_STR + " ERROR: [Module3] errorModule3\n" +
     LOG_SYSTIME_STR + " FATAL: [Module3] fatalModule3\n"
     ));
@@ -386,10 +386,10 @@ BOOST_AUTO_TEST_CASE(NoOverride)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module2] warn2\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module2] warn2\n" +
     LOG_SYSTIME_STR + " ERROR: [Module2] error2\n" +
     LOG_SYSTIME_STR + " FATAL: [Module2] fatal2\n"
     ));
@@ -404,12 +404,12 @@ BOOST_AUTO_TEST_CASE(Override)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
     LOG_SYSTIME_STR + " DEBUG: [Module2] debug2\n" +
-    LOG_SYSTIME_STR + " INFO: [Module2] info2\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module2] warn2\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module2] info2\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module2] warn2\n" +
     LOG_SYSTIME_STR + " ERROR: [Module2] error2\n" +
     LOG_SYSTIME_STR + " FATAL: [Module2] fatal2\n"
     ));
@@ -446,10 +446,10 @@ BOOST_AUTO_TEST_CASE(SetDefault)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module2] warn2\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module2] warn2\n" +
     LOG_SYSTIME_STR + " ERROR: [Module2] error2\n" +
     LOG_SYSTIME_STR + " FATAL: [Module2] fatal2\n"
     ));
@@ -485,12 +485,12 @@ BOOST_AUTO_TEST_CASE(SetOverride)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
     LOG_SYSTIME_STR + " DEBUG: [Module2] debug2\n" +
-    LOG_SYSTIME_STR + " INFO: [Module2] info2\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module2] warn2\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module2] info2\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module2] warn2\n" +
     LOG_SYSTIME_STR + " ERROR: [Module2] error2\n" +
     LOG_SYSTIME_STR + " FATAL: [Module2] fatal2\n"
     ));
@@ -510,12 +510,12 @@ BOOST_AUTO_TEST_CASE(SetTwice)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " WARNING: [Module1] warn1\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module1] warn1\n" +
     LOG_SYSTIME_STR + " ERROR: [Module1] error1\n" +
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
     LOG_SYSTIME_STR + " DEBUG: [Module2] debug2\n" +
-    LOG_SYSTIME_STR + " INFO: [Module2] info2\n" +
-    LOG_SYSTIME_STR + " WARNING: [Module2] warn2\n" +
+    LOG_SYSTIME_STR + "  INFO: [Module2] info2\n" +
+    LOG_SYSTIME_STR + "  WARN: [Module2] warn2\n" +
     LOG_SYSTIME_STR + " ERROR: [Module2] error2\n" +
     LOG_SYSTIME_STR + " FATAL: [Module2] fatal2\n"
     ));
@@ -563,8 +563,8 @@ BOOST_AUTO_TEST_CASE(SetFilter)
   BOOST_CHECK(os.is_equal(
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
     LOG_SYSTIME_STR + " DEBUG: [fm.FilterModule] debugFM\n" +
-    LOG_SYSTIME_STR + " INFO: [fm.FilterModule] infoFM\n" +
-    LOG_SYSTIME_STR + " WARNING: [fm.FilterModule] warnFM\n" +
+    LOG_SYSTIME_STR + "  INFO: [fm.FilterModule] infoFM\n" +
+    LOG_SYSTIME_STR + "  WARN: [fm.FilterModule] warnFM\n" +
     LOG_SYSTIME_STR + " ERROR: [fm.FilterModule] errorFM\n" +
     LOG_SYSTIME_STR + " FATAL: [fm.FilterModule] fatalFM\n"
     ));
@@ -586,8 +586,8 @@ BOOST_AUTO_TEST_CASE(SetOverrideFilter)
   Logging::flush();
   BOOST_CHECK(os.is_equal(
     LOG_SYSTIME_STR + " FATAL: [Module1] fatal1\n" +
-    LOG_SYSTIME_STR + " INFO: [fm.FilterModule] infoFM\n" +
-    LOG_SYSTIME_STR + " WARNING: [fm.FilterModule] warnFM\n" +
+    LOG_SYSTIME_STR + "  INFO: [fm.FilterModule] infoFM\n" +
+    LOG_SYSTIME_STR + "  WARN: [fm.FilterModule] warnFM\n" +
     LOG_SYSTIME_STR + " ERROR: [fm.FilterModule] errorFM\n" +
     LOG_SYSTIME_STR + " FATAL: [fm.FilterModule] fatalFM\n"
     ));
@@ -603,8 +603,8 @@ BOOST_AUTO_TEST_CASE(FindPrefixRule)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + " INFO: [fm.a.b] infofm.a.b\n" +
-    LOG_SYSTIME_STR + " WARNING: [fm.a.b] warnfm.a.b\n" +
+    LOG_SYSTIME_STR + "  INFO: [fm.a.b] infofm.a.b\n" +
+    LOG_SYSTIME_STR + "  WARN: [fm.a.b] warnfm.a.b\n" +
     LOG_SYSTIME_STR + " ERROR: [fm.a.b] errorfm.a.b\n" +
     LOG_SYSTIME_STR + " FATAL: [fm.a.b] fatalfm.a.b\n" +
     LOG_SYSTIME_STR + " ERROR: [fm.a.b.c] errorfm.a.b.c\n" +

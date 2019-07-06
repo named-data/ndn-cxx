@@ -21,15 +21,22 @@
 
 #include "ndn-cxx/util/logging.hpp"
 #include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/time.hpp"
 
+#include <boost/log/attributes/function.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/log/expressions/attr.hpp>
+#include <boost/log/expressions/formatters/date_time.hpp>
+#include <boost/log/support/date_time.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/range/iterator_range.hpp>
 
-#include <cstdlib>
+#include <cinttypes> // for PRIdLEAST64
+#include <cstdlib>   // for std::abs()
 #include <iostream>
 #include <sstream>
+#include <stdio.h>   // for snprintf()
 
 // suppress warning caused by <boost/log/sinks/text_ostream_backend.hpp>
 #ifdef __clang__
@@ -38,6 +45,37 @@
 
 namespace ndn {
 namespace util {
+namespace log {
+
+static std::string
+makeTimestamp()
+{
+  using namespace ndn::time;
+
+  const auto sinceEpoch = system_clock::now().time_since_epoch();
+  BOOST_ASSERT(sinceEpoch.count() >= 0);
+  // use abs() to silence truncation warning in snprintf(), see #4365
+  const auto usecs = std::abs(duration_cast<microseconds>(sinceEpoch).count());
+  const auto usecsPerSec = microseconds::period::den;
+
+  // 10 (whole seconds) + '.' + 6 (fraction) + '\0'
+  std::string buffer(10 + 1 + 6 + 1, '\0'); // note 1 extra byte still needed for snprintf
+  BOOST_ASSERT_MSG(usecs / usecsPerSec <= 9999999999, "whole seconds cannot fit in 10 characters");
+
+  static_assert(std::is_same<microseconds::rep, int_least64_t>::value,
+                "PRIdLEAST64 is incompatible with microseconds::rep");
+  // std::snprintf unavailable on some platforms, see #2299
+  ::snprintf(&buffer.front(), buffer.size(), "%" PRIdLEAST64 ".%06" PRIdLEAST64,
+             usecs / usecsPerSec, usecs % usecsPerSec);
+
+  // need to remove extra 1 byte ('\0')
+  buffer.pop_back();
+  return buffer;
+}
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "Timestamp", std::string)
+
+} // namespace log
 
 static const LogLevel INITIAL_DEFAULT_LEVEL = LogLevel::NONE;
 
@@ -58,6 +96,8 @@ Logging::Logging()
   if (environ != nullptr) {
     this->setLevelImpl(environ);
   }
+
+  boost::log::core::get()->add_global_attribute("Timestamp", boost::log::attributes::make_function(&log::makeTimestamp));
 }
 
 void
@@ -222,8 +262,13 @@ Logging::setDestinationImpl(shared_ptr<std::ostream> os)
     m_sink.reset();
   }
 
+  namespace expr = boost::log::expressions;
   m_sink = boost::make_shared<Sink>(backend);
-  m_sink->set_formatter(boost::log::expressions::stream << boost::log::expressions::message);
+  m_sink->set_formatter(expr::stream
+                        << expr::attr<std::string>(log::timestamp.get_name())
+                        << " " << std::setw(5) << expr::attr<LogLevel>(log::severity.get_name()) << ": "
+                        << "[" << expr::attr<std::string>(log::module.get_name()) << "] "
+                        << expr::smessage);
   boost::log::core::get()->add_sink(m_sink);
 }
 

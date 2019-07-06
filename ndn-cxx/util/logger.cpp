@@ -21,12 +21,8 @@
 
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/logging.hpp"
-#include "ndn-cxx/util/time.hpp"
 
-#include <cinttypes> // for PRIdLEAST64
-#include <cstdlib>   // for std::abs()
-#include <cstring>   // for std::strspn()
-#include <stdio.h>   // for snprintf()
+#include <cstring> // for std::strspn()
 
 namespace ndn {
 namespace util {
@@ -107,6 +103,7 @@ Logger::Logger(const char* name)
     NDN_THROW(std::invalid_argument("Logger name '" + m_moduleName + "' is invalid"));
   }
   this->setLevel(LogLevel::NONE);
+  this->add_attribute(log::module.get_name(), boost::log::attributes::constant<std::string>(m_moduleName));
   Logging::get().addLoggerImpl(*this);
 }
 
@@ -120,32 +117,5 @@ Logger::registerModuleName(const char* name)
   Logging::get().registerLoggerNameImpl(std::move(moduleName));
 }
 
-namespace detail {
-
-std::ostream&
-operator<<(std::ostream& os, LoggerTimestamp)
-{
-  using namespace ndn::time;
-
-  const auto sinceEpoch = system_clock::now().time_since_epoch();
-  BOOST_ASSERT(sinceEpoch.count() >= 0);
-  // use abs() to silence truncation warning in snprintf(), see #4365
-  const auto usecs = std::abs(duration_cast<microseconds>(sinceEpoch).count());
-  const auto usecsPerSec = microseconds::period::den;
-
-  // 10 (whole seconds) + '.' + 6 (fraction) + '\0'
-  char buffer[10 + 1 + 6 + 1];
-  BOOST_ASSERT_MSG(usecs / usecsPerSec <= 9999999999, "whole seconds cannot fit in 10 characters");
-
-  static_assert(std::is_same<microseconds::rep, int_least64_t>::value,
-                "PRIdLEAST64 is incompatible with microseconds::rep");
-  // std::snprintf unavailable on some platforms, see #2299
-  ::snprintf(buffer, sizeof(buffer), "%" PRIdLEAST64 ".%06" PRIdLEAST64,
-             usecs / usecsPerSec, usecs % usecsPerSec);
-
-  return os << buffer;
-}
-
-} // namespace detail
 } // namespace util
 } // namespace ndn

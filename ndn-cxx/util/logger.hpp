@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,9 @@
 #else
 
 #include <boost/log/common.hpp>
-#include <boost/log/sources/logger.hpp>
+#include <boost/log/expressions/keyword.hpp>
+#include <boost/log/sources/severity_logger.hpp>
+
 #include <atomic>
 
 namespace ndn {
@@ -60,12 +62,19 @@ operator<<(std::ostream& os, LogLevel level);
 LogLevel
 parseLogLevel(const std::string& s);
 
+namespace log {
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(module, "Module", std::string)
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", LogLevel)
+
+} // namespace log
+
 /** \brief Represents a log module in the logging facility.
  *
  *  \note Normally, loggers should be defined using #NDN_LOG_INIT, #NDN_LOG_MEMBER_INIT,
  *        or #NDN_LOG_MEMBER_INIT_SPECIALIZED.
  */
-class Logger : public boost::log::sources::logger_mt
+class Logger : public boost::log::sources::severity_logger_mt<LogLevel>
 {
 public:
   explicit
@@ -98,21 +107,6 @@ private:
 };
 
 namespace detail {
-
-/** \brief A tag type used to output a timestamp to a stream.
- *  \code
- *  std::clog << LoggerTimestamp();
- *  \endcode
- */
-struct LoggerTimestamp
-{
-};
-
-/** \brief Write a timestamp to \p os.
- *  \note This function is thread-safe.
- */
-std::ostream&
-operator<<(std::ostream& os, LoggerTimestamp);
 
 /** \cond */
 template<class T>
@@ -235,51 +229,51 @@ using ArgumentType = typename ExtractArgument<T>::type;
 /** \cond */
 #if BOOST_VERSION == 105900
 // workaround Boost bug 11549
-#define NDN_BOOST_LOG(x) BOOST_LOG(x) << ""
+#define NDN_BOOST_LOG(x, sev) BOOST_LOG_SEV(x, sev) << ""
 #else
-#define NDN_BOOST_LOG(x) BOOST_LOG(x)
+#define NDN_BOOST_LOG(x, sev) BOOST_LOG_SEV(x, sev)
 #endif
 
 // implementation detail
-#define NDN_LOG_INTERNAL(lvl, lvlstr, expression) \
+#define NDN_LOG_INTERNAL(lvl, expression) \
   do { \
     if (ndn_cxx_getLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
-      NDN_BOOST_LOG(ndn_cxx_getLogger()) << ::ndn::util::detail::LoggerTimestamp{} \
-        << " " BOOST_STRINGIZE(lvlstr) ": [" << ndn_cxx_getLogger().getModuleName() << "] " \
+      NDN_BOOST_LOG(ndn_cxx_getLogger(), ::ndn::util::LogLevel::lvl)  \
         << expression; \
     } \
   } while (false)
+
 /** \endcond */
 
 /** \brief Log at TRACE level.
  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_TRACE(expression) NDN_LOG_INTERNAL(TRACE, TRACE, expression)
+#define NDN_LOG_TRACE(expression) NDN_LOG_INTERNAL(TRACE, expression)
 
 /** \brief Log at DEBUG level.
  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_DEBUG(expression) NDN_LOG_INTERNAL(DEBUG, DEBUG, expression)
+#define NDN_LOG_DEBUG(expression) NDN_LOG_INTERNAL(DEBUG, expression)
 
 /** \brief Log at INFO level.
  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_INFO(expression) NDN_LOG_INTERNAL(INFO, INFO, expression)
+#define NDN_LOG_INFO(expression) NDN_LOG_INTERNAL(INFO, expression)
 
 /** \brief Log at WARN level.
  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_WARN(expression) NDN_LOG_INTERNAL(WARN, WARNING, expression)
+#define NDN_LOG_WARN(expression) NDN_LOG_INTERNAL(WARN, expression)
 
 /** \brief Log at ERROR level.
  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_ERROR(expression) NDN_LOG_INTERNAL(ERROR, ERROR, expression)
+#define NDN_LOG_ERROR(expression) NDN_LOG_INTERNAL(ERROR, expression)
 
 /** \brief Log at FATAL level.
  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
  */
-#define NDN_LOG_FATAL(expression) NDN_LOG_INTERNAL(FATAL, FATAL, expression)
+#define NDN_LOG_FATAL(expression) NDN_LOG_INTERNAL(FATAL, expression)
 
 } // namespace util
 } // namespace ndn
