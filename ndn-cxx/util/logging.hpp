@@ -103,7 +103,7 @@ public:
    *
    */
   static void
-  setDestination(std::ostream& os, bool wantAutoFlush = true);
+  setDestination(std::ostream& os, bool wantAutoFlush);
 
   /** \brief Flush log backend.
    *

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,10 @@
 #include "ndn-cxx/util/logging.hpp"
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/time.hpp"
+
+#ifdef __ANDROID__
+#include "ndn-cxx/util/impl/logger-android.hpp"
+#endif
 
 #include <boost/log/attributes/function.hpp>
 #include <boost/log/expressions.hpp>
@@ -90,14 +94,19 @@ Logging::get()
 
 Logging::Logging()
 {
+  // cannot call the static setDestination, as the singleton object is not yet constructed
+#ifndef __ANDROID__
   bool wantAutoFlush = true;
   const char* environ = std::getenv("NDN_LOG_NOFLUSH");
   if (environ != nullptr) {
     wantAutoFlush = false;
   }
 
-  // cannot call the static setDestination that uses the singleton Logging object that is not yet constructed
-  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&std::clog, [] (auto) {}), wantAutoFlush);
+  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&std::clog, [] (auto) {}),
+                                                  wantAutoFlush);
+#else
+  auto destination = detail::makeAndroidLogger();
+#endif // __ANDROID__
   this->setDestinationImpl(std::move(destination));
 
   environ = std::getenv("NDN_LOG");
@@ -105,7 +114,8 @@ Logging::Logging()
     this->setLevelImpl(environ);
   }
 
-  boost::log::core::get()->add_global_attribute("Timestamp", boost::log::attributes::make_function(&log::makeTimestamp));
+  boost::log::core::get()->add_global_attribute("Timestamp",
+                                                boost::log::attributes::make_function(&log::makeTimestamp));
 }
 
 void

@@ -11,7 +11,7 @@ GIT_TAG_PREFIX = 'ndn-cxx-'
 
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
-    opt.load(['default-compiler-flags', 'compiler-features',
+    opt.load(['cross', 'default-compiler-flags', 'compiler-features',
               'coverage', 'pch', 'sanitizers', 'osx-frameworks',
               'boost', 'openssl', 'sqlite3',
               'doxygen', 'sphinx_build'],
@@ -71,7 +71,7 @@ def configure(conf):
     if not conf.options.enable_shared and not conf.options.enable_static:
         conf.fatal('Either static library or shared library must be enabled')
 
-    conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
+    conf.load(['cross', 'compiler_cxx', 'gnu_dirs', 'c_osx',
                'default-compiler-flags', 'compiler-features',
                'pch', 'osx-frameworks', 'boost', 'openssl', 'sqlite3',
                'doxygen', 'sphinx_build'])
@@ -190,9 +190,10 @@ def build(bld):
     libndn_cxx = dict(
         target='ndn-cxx',
         source=bld.path.ant_glob('ndn-cxx/**/*.cpp',
-                                 excl=['ndn-cxx/**/*-osx.cpp',
-                                       'ndn-cxx/**/*netlink*.cpp',
-                                       'ndn-cxx/**/*-sqlite3.cpp']),
+                                 excl=['ndn-cxx/**/*-android.cpp',
+                                       'ndn-cxx/**/*-osx.cpp',
+                                       'ndn-cxx/**/*-sqlite3.cpp',
+                                       'ndn-cxx/**/*netlink*.cpp']),
         features='pch',
         headers='ndn-cxx/impl/common-pch.hpp',
         use='ndn-cxx-mm-objects version BOOST OPENSSL SQLITE3 ATOMIC RT PTHREAD',
@@ -200,15 +201,18 @@ def build(bld):
         export_includes='.',
         install_path='${LIBDIR}')
 
+    if bld.env.HOST == 'android':
+        libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*-android.cpp')
+
     if bld.env.HAVE_OSX_FRAMEWORKS:
         libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*-osx.cpp')
         libndn_cxx['use'] += ' OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN'
 
-    if bld.env.HAVE_NETLINK:
-        libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*netlink*.cpp')
-
     # In case we want to make it optional later
     libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*-sqlite3.cpp')
+
+    if bld.env.HAVE_NETLINK:
+        libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*netlink*.cpp')
 
     if bld.env.enable_shared:
         bld.shlib(name='ndn-cxx',
@@ -274,19 +278,23 @@ def build(bld):
         bld.recurse('examples')
 
     headers = bld.path.ant_glob('ndn-cxx/**/*.hpp',
-                                excl=['ndn-cxx/**/*-osx.hpp',
-                                      'ndn-cxx/**/*netlink*.hpp',
+                                excl=['ndn-cxx/**/*-android.hpp',
+                                      'ndn-cxx/**/*-osx.hpp',
                                       'ndn-cxx/**/*-sqlite3.hpp',
+                                      'ndn-cxx/**/*netlink*.hpp',
                                       'ndn-cxx/**/impl/**/*'])
+
+    if bld.env.HOST == 'android':
+        headers += bld.path.ant_glob('ndn-cxx/**/*-android.hpp', excl='ndn-cxx/**/impl/**/*')
 
     if bld.env.HAVE_OSX_FRAMEWORKS:
         headers += bld.path.ant_glob('ndn-cxx/**/*-osx.hpp', excl='ndn-cxx/**/impl/**/*')
 
-    if bld.env.HAVE_NETLINK:
-        headers += bld.path.ant_glob('ndn-cxx/**/*netlink*.hpp', excl='ndn-cxx/**/impl/**/*')
-
     # In case we want to make it optional later
     headers += bld.path.ant_glob('ndn-cxx/**/*-sqlite3.hpp', excl='ndn-cxx/**/impl/**/*')
+
+    if bld.env.HAVE_NETLINK:
+        headers += bld.path.ant_glob('ndn-cxx/**/*netlink*.hpp', excl='ndn-cxx/**/impl/**/*')
 
     bld.install_files(bld.env.INCLUDEDIR, headers, relative_trick=True)
 
