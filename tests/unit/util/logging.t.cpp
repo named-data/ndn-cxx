@@ -156,7 +156,7 @@ protected:
 
 private:
   std::unordered_map<std::string, LogLevel> m_oldEnabledLevel;
-  shared_ptr<std::ostream> m_oldDestination;
+  boost::shared_ptr<boost::log::sinks::sink> m_oldDestination;
 };
 
 BOOST_AUTO_TEST_SUITE(Util)
@@ -624,7 +624,7 @@ BOOST_AUTO_TEST_CASE(ChangeDestination)
   logFromModule1();
 
   auto os2 = make_shared<output_test_stream>();
-  Logging::setDestination(os2);
+  Logging::setDestination(Logging::makeDefaultStreamDestination(os2));
   weak_ptr<output_test_stream> os2weak(os2);
   os2.reset();
 
@@ -644,6 +644,16 @@ BOOST_AUTO_TEST_CASE(ChangeDestination)
   os2.reset();
   Logging::setDestination(os);
   BOOST_CHECK(os2weak.expired());
+}
+
+BOOST_AUTO_TEST_CASE(SetNullptrDestination)
+{
+  Logging::setDestination(nullptr);
+  logFromModule1();
+
+  Logging::flush();
+  BOOST_CHECK(os.is_equal(""));
+  // The default Boost.Log output is still expected
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestLogging

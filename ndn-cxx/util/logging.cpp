@@ -90,7 +90,9 @@ Logging::get()
 
 Logging::Logging()
 {
-  this->setDestinationImpl(shared_ptr<std::ostream>(&std::clog, [] (auto) {}));
+  // cannot call the static setDestination that uses the singleton Logging object that is not yet constructed
+  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&std::clog, [] (auto) {}));
+  this->setDestinationImpl(std::move(destination));
 
   const char* environ = std::getenv("NDN_LOG");
   if (environ != nullptr) {
@@ -242,38 +244,64 @@ Logging::resetLevels()
 void
 Logging::setDestination(std::ostream& os)
 {
-  setDestination(shared_ptr<std::ostream>(&os, [] (auto) {}));
+  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, [] (auto) {}));
+  setDestination(std::move(destination));
+}
+
+class TextOstreamBackend : public boost::log::sinks::text_ostream_backend
+{
+public:
+  TextOstreamBackend(std::shared_ptr<std::ostream> os)
+    : m_stdPtr(std::move(os))
+  {
+    auto_flush(true);
+    add_stream(boost::shared_ptr<std::ostream>(m_stdPtr.get(), [] (auto) {}));
+  }
+
+private:
+  // Quite a mess right now because Boost.Log uses boost::shared_ptr and we are using
+  // std::shared_ptr. When it is finally fixed, we can remove this mess.
+  std::shared_ptr<std::ostream> m_stdPtr;
+};
+
+boost::shared_ptr<boost::log::sinks::sink>
+Logging::makeDefaultStreamDestination(shared_ptr<std::ostream> os)
+{
+  auto backend = boost::make_shared<TextOstreamBackend>(std::move(os));
+  auto destination = boost::make_shared<boost::log::sinks::asynchronous_sink<TextOstreamBackend>>(backend);
+
+  namespace expr = boost::log::expressions;
+  destination->set_formatter(expr::stream
+                             << expr::attr<std::string>(log::timestamp.get_name())
+                             << " " << std::setw(5) << expr::attr<LogLevel>(log::severity.get_name()) << ": "
+                             << "[" << expr::attr<std::string>(log::module.get_name()) << "] "
+                             << expr::smessage);
+  return destination;
 }
 
 void
-Logging::setDestinationImpl(shared_ptr<std::ostream> os)
+Logging::setDestinationImpl(boost::shared_ptr<boost::log::sinks::sink> destination)
 {
   std::lock_guard<std::mutex> lock(m_mutex);
 
-  m_destination = std::move(os);
-
-  auto backend = boost::make_shared<boost::log::sinks::text_ostream_backend>();
-  backend->auto_flush(true);
-  backend->add_stream(boost::shared_ptr<std::ostream>(m_destination.get(), [] (auto) {}));
-
-  if (m_sink != nullptr) {
-    boost::log::core::get()->remove_sink(m_sink);
-    m_sink->flush();
-    m_sink.reset();
+  if (destination == m_destination) {
+    return;
   }
 
-  namespace expr = boost::log::expressions;
-  m_sink = boost::make_shared<Sink>(backend);
-  m_sink->set_formatter(expr::stream
-                        << expr::attr<std::string>(log::timestamp.get_name())
-                        << " " << std::setw(5) << expr::attr<LogLevel>(log::severity.get_name()) << ": "
-                        << "[" << expr::attr<std::string>(log::module.get_name()) << "] "
-                        << expr::smessage);
-  boost::log::core::get()->add_sink(m_sink);
+  if (m_destination != nullptr) {
+    boost::log::core::get()->remove_sink(m_destination);
+    m_destination->flush();
+  }
+
+  m_destination = std::move(destination);
+
+  if (m_destination != nullptr) {
+    boost::log::core::get()->add_sink(m_destination);
+  }
 }
 
 #ifdef NDN_CXX_HAVE_TESTS
-shared_ptr<std::ostream>
+boost::shared_ptr<boost::log::sinks::sink>
 Logging::getDestination() const
 {
   return m_destination;
@@ -298,7 +326,11 @@ Logging::getLevels() const
 void
 Logging::flushImpl()
 {
-  m_sink->flush();
+  std::lock_guard<std::mutex> lock(m_mutex);
+
+  if (m_destination != nullptr) {
+    m_destination->flush();
+  }
 }
 
 } // namespace util

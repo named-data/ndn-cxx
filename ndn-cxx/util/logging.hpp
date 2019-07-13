@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -80,19 +80,26 @@ public:
   static void
   setLevel(const std::string& config);
 
-  /** \brief Set log destination.
-   *  \param os a stream for log output
+  /** \brief Set or replace log destination.
+   *  \param destination log backend, e.g., returned by `makeDefaultStreamDestination`
    *
    *  The initial destination is `std::clog`.
+   *
+   *  Note that if \p destination is nullptr, the destination will be removed and the
+   *  application is expected to add its own.  If the application does not set a custom
+   *  destination (using this function or directly using Boost.Log routines), the default
+   *  Boost.Log destination will be used.  Refer to Boost.Log documentation and source code
+   *  for details.
    */
   static void
-  setDestination(shared_ptr<std::ostream> os);
+  setDestination(boost::shared_ptr<boost::log::sinks::sink> destination);
 
-  /** \brief Set log destination.
+  /** \brief Helper method to set stream log destination.
    *  \param os a stream for log output; caller must ensure it remains valid
    *            until setDestination() is invoked again or program exits
+   *`
+   *  This is equivalent to `setDestination(makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, nullDeleter)))`.
    *
-   *  This is equivalent to `setDestination(shared_ptr<std::ostream>(&os, nullDeleter))`.
    */
   static void
   setDestination(std::ostream& os);
@@ -103,6 +110,11 @@ public:
    */
   static void
   flush();
+
+  /** \brief Create stream log destination using default formatting
+   */
+  static boost::shared_ptr<boost::log::sinks::sink>
+  makeDefaultStreamDestination(shared_ptr<std::ostream> os);
 
 private:
   Logging();
@@ -138,7 +150,7 @@ private:
   setLevelImpl(const std::string& config);
 
   void
-  setDestinationImpl(shared_ptr<std::ostream> os);
+  setDestinationImpl(boost::shared_ptr<boost::log::sinks::sink> sink);
 
   void
   flushImpl();
@@ -154,7 +166,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   void
   resetLevels();
 
-  shared_ptr<std::ostream>
+  boost::shared_ptr<boost::log::sinks::sink>
   getDestination() const;
 
   void
@@ -171,9 +183,7 @@ private:
   std::unordered_map<std::string, LogLevel> m_enabledLevel; ///< module prefix => minimum level
   std::unordered_multimap<std::string, Logger*> m_loggers; ///< module name => logger instance
 
-  using Sink = boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend>;
-  boost::shared_ptr<Sink> m_sink;
-  shared_ptr<std::ostream> m_destination;
+  boost::shared_ptr<boost::log::sinks::sink> m_destination;
 };
 
 inline std::set<std::string>
@@ -195,9 +205,9 @@ Logging::setLevel(const std::string& config)
 }
 
 inline void
-Logging::setDestination(shared_ptr<std::ostream> os)
+Logging::setDestination(boost::shared_ptr<boost::log::sinks::sink> destination)
 {
-  get().setDestinationImpl(std::move(os));
+  get().setDestinationImpl(std::move(destination));
 }
 
 inline void
