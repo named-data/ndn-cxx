@@ -267,25 +267,6 @@ BOOST_AUTO_TEST_CASE(ExpressInterestEmptyNackCallback)
   } while (false));
 }
 
-BOOST_AUTO_TEST_CASE(RemovePendingInterestId)
-{
-  const PendingInterestId* interestId =
-    face.expressInterest(*makeInterest("/Hello/World", true, 50_ms),
-                         bind([] { BOOST_FAIL("Unexpected data"); }),
-                         bind([] { BOOST_FAIL("Unexpected nack"); }),
-                         bind([] { BOOST_FAIL("Unexpected timeout"); }));
-  advanceClocks(10_ms);
-
-  face.removePendingInterest(interestId);
-  advanceClocks(10_ms);
-
-  face.receive(*makeData("/Hello/World/%21"));
-  advanceClocks(200_ms, 5);
-
-  // avoid "test case [...] did not check any assertions" message from Boost.Test
-  BOOST_CHECK(true);
-}
-
 BOOST_AUTO_TEST_CASE(CancelPendingInterestHandle)
 {
   auto hdl = face.expressInterest(*makeInterest("/Hello/World", true, 50_ms),
@@ -391,7 +372,7 @@ BOOST_AUTO_TEST_CASE(PutDataLoopback)
   bool hasInterest1 = false, hasData = false;
 
   // first InterestFilter allows loopback and should receive Interest
-  face.setInterestFilter("/", [&] (const InterestFilter&, const Interest& interest) {
+  face.setInterestFilter("/", [&] (const InterestFilter&, const Interest&) {
     hasInterest1 = true;
     // do not respond with Data right away, so Face must send Interest to forwarder
   });
@@ -534,11 +515,10 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
 {
   size_t nInterests = 0;
   size_t nRegs = 0;
-  const RegisteredPrefixId* regPrefixId =
-    face.setInterestFilter("/Hello/World",
-                           bind([&nInterests] { ++nInterests; }),
-                           bind([&nRegs] { ++nRegs; }),
-                           bind([] {  BOOST_FAIL("Unexpected setInterestFilter failure"); }));
+  auto hdl = face.setInterestFilter("/Hello/World",
+                                    bind([&nInterests] { ++nInterests; }),
+                                    bind([&nRegs] { ++nRegs; }),
+                                    bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
   advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nRegs, 1);
   BOOST_CHECK_EQUAL(nInterests, 0);
@@ -558,7 +538,7 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilter)
   BOOST_CHECK_EQUAL(nInterests, 2);
 
   // removing filter
-  face.unsetInterestFilter(regPrefixId);
+  hdl.cancel();
   advanceClocks(25_ms, 4);
 
   face.receive(*makeInterest("/Hello/World/%21/3"));
@@ -585,10 +565,9 @@ BOOST_AUTO_TEST_CASE(SetInterestFilterEmptyInterestCallback)
 BOOST_AUTO_TEST_CASE(SetUnsetInterestFilterWithoutSucessCallback)
 {
   size_t nInterests = 0;
-  const RegisteredPrefixId* regPrefixId =
-    face.setInterestFilter("/Hello/World",
-                           bind([&nInterests] { ++nInterests; }),
-                           bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
+  auto hdl = face.setInterestFilter("/Hello/World",
+                                    bind([&nInterests] { ++nInterests; }),
+                                    bind([] { BOOST_FAIL("Unexpected setInterestFilter failure"); }));
   advanceClocks(25_ms, 4);
   BOOST_CHECK_EQUAL(nInterests, 0);
 
@@ -606,7 +585,7 @@ BOOST_AUTO_TEST_CASE(SetUnsetInterestFilterWithoutSucessCallback)
   BOOST_CHECK_EQUAL(nInterests, 2);
 
   // removing filter
-  face.unsetInterestFilter(regPrefixId);
+  hdl.cancel();
   advanceClocks(25_ms, 4);
 
   face.receive(*makeInterest("/Hello/World/%21/3"));
@@ -648,18 +627,6 @@ BOOST_FIXTURE_TEST_CASE(SetInterestFilterFailWithoutSuccessCallback, FaceFixture
 
   advanceClocks(2000_ms, 5);
   BOOST_CHECK_EQUAL(nRegFailed, 1);
-}
-
-BOOST_AUTO_TEST_CASE(RegisterUnregisterPrefixFunc)
-{
-  const RegisteredPrefixId* regPrefixId = nullptr;
-  BOOST_CHECK(runPrefixReg([&] (const auto& success, const auto& failure) {
-    regPrefixId = face.registerPrefix("/Hello/World", success, failure);
-  }));
-
-  BOOST_CHECK(runPrefixUnreg([&] (const auto& success, const auto& failure) {
-    face.unregisterPrefix(regPrefixId, success, failure);
-  }));
 }
 
 BOOST_FIXTURE_TEST_CASE(RegisterUnregisterPrefixFail, FaceFixture<NoPrefixRegReply>)

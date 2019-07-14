@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK(eid == EventId{});
 }
 
-BOOST_AUTO_TEST_CASE(Valid)
+BOOST_AUTO_TEST_CASE(OperatorBool)
 {
   EventId eid;
   BOOST_CHECK_EQUAL(static_cast<bool>(eid), false);
@@ -364,6 +364,26 @@ BOOST_AUTO_TEST_CASE(Move)
   } // se goes out of scope
   this->advanceClocks(1_ms, 15);
   BOOST_CHECK_EQUAL(hit, 2);
+}
+
+BOOST_AUTO_TEST_CASE(OperatorBool)
+{
+  ScopedEventId se;
+  BOOST_CHECK_EQUAL(static_cast<bool>(se), false);
+  BOOST_CHECK_EQUAL(!se, true);
+
+  se = scheduler.schedule(10_ms, []{});
+  BOOST_CHECK_EQUAL(static_cast<bool>(se), true);
+  BOOST_CHECK_EQUAL(!se, false);
+
+  se.cancel();
+  BOOST_CHECK(!se);
+
+  se = scheduler.schedule(10_ms, []{});
+  BOOST_CHECK(se);
+
+  se.release();
+  BOOST_CHECK(!se);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // ScopedEventId

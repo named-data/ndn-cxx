@@ -180,9 +180,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegisterUnregisterPrefix, TransportType, Transp
   this->terminateAfter(4_s);
 
   int nRegSuccess = 0, nUnregSuccess = 0;
-  auto id = this->face.registerPrefix("/Hello/World",
+  auto handle = this->face.registerPrefix("/Hello/World",
     [&] (const Name&) { ++nRegSuccess; },
-    [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
+    [] (const Name&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
   this->sched.schedule(1_s, [&nRegSuccess] {
     BOOST_CHECK_EQUAL(nRegSuccess, 1);
@@ -190,10 +190,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegisterUnregisterPrefix, TransportType, Transp
     BOOST_CHECK(!output.empty());
   });
 
-  this->sched.schedule(2_s, [this, id, &nUnregSuccess] {
-    this->face.unregisterPrefix(id,
+  this->sched.schedule(2_s, [&] {
+    handle.unregister(
       [&] { ++nUnregSuccess; },
-      [] (const std::string& msg) { BOOST_ERROR("unexpected unregister prefix failure: " << msg); });
+      [] (const auto& msg) { BOOST_ERROR("unexpected unregister prefix failure: " << msg); });
   });
 
   this->sched.schedule(3_s, [&nUnregSuccess] {
@@ -215,11 +215,11 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegularFilter, TransportType, Transports, FaceF
   this->face.setInterestFilter("/Hello/World",
     [&] (const InterestFilter&, const Interest&) { ++nInterests1; },
     [&] (const Name&) { ++nRegSuccess1; },
-    [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
+    [] (const Name&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
   this->face.setInterestFilter("/Los/Angeles/Lakers",
     [&] (const InterestFilter&, const Interest&) { BOOST_ERROR("unexpected Interest"); },
     [&] (const Name&) { ++nRegSuccess2; },
-    [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
+    [] (const Name&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
   this->sched.schedule(500_ms, [] {
     std::string output = executeCommand("nfdc route list | grep /Hello/World");
@@ -245,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilter, TransportType, Transports, FaceFix
   this->face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
     [&] (const InterestFilter&, const Interest& interest) { receivedInterests.insert(interest.getName()); },
     [&] (const Name&) { ++nRegSuccess; },
-    [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
+    [] (const Name&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
   this->sched.schedule(700_ms, [] {
     std::string output = executeCommand("nfdc route list | grep /Hello/World");
@@ -270,7 +270,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilterNoRegister, TransportType, Transport
 
   // no Interest shall arrive because prefix isn't registered in forwarder
   this->face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
-    [&] (const InterestFilter&, const Interest& interest) { BOOST_ERROR("unexpected Interest"); });
+    [&] (const InterestFilter&, const Interest&) { BOOST_ERROR("unexpected Interest"); });
 
   this->sched.schedule(700_ms, [] {
     // Boost.Test would fail if a child process exits with non-zero. http://stackoverflow.com/q/5325202
@@ -300,7 +300,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(PutDataNack, TransportType, Transports, FaceFix
       }
     },
     nullptr,
-    [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
+    [] (const Name&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
   char outcome1, outcome2;
   this->sendInterest(700_ms, *makeInterest("/Hello/World/data", false, 50_ms), outcome1);
@@ -320,7 +320,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(OversizedData, TransportType, Transports, FaceF
       this->face.put(*makeData(makeVeryLongName(interest.getName())));
     },
     nullptr,
-    [] (const Name&, const std::string& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
+    [] (const Name&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
   this->sendInterest(1_s, *makeInterest("/Hello/World/oversized", true, 50_ms));
 

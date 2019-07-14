@@ -55,11 +55,13 @@ BOOST_AUTO_TEST_SUITE_END() // PlainHandle
 
 BOOST_AUTO_TEST_SUITE(ScopedHandle)
 
+using ScopedTestHandle = ScopedCancelHandle<CancelHandle>;
+
 BOOST_AUTO_TEST_CASE(ManualCancel)
 {
   int nCancels = 0;
   {
-    ScopedCancelHandle hdl = makeDummyCancelHandle(nCancels);
+    ScopedTestHandle hdl = makeDummyCancelHandle(nCancels);
     BOOST_CHECK_EQUAL(nCancels, 0);
 
     hdl.cancel();
@@ -72,7 +74,7 @@ BOOST_AUTO_TEST_CASE(Destruct)
 {
   int nCancels = 0;
   {
-    ScopedCancelHandle hdl = makeDummyCancelHandle(nCancels);
+    ScopedTestHandle hdl = makeDummyCancelHandle(nCancels);
     BOOST_CHECK_EQUAL(nCancels, 0);
   } // hdl goes out of scope
   BOOST_CHECK_EQUAL(nCancels, 1);
@@ -82,7 +84,7 @@ BOOST_AUTO_TEST_CASE(Assign)
 {
   int nCancels1 = 0, nCancels2 = 0;
   {
-    ScopedCancelHandle hdl = makeDummyCancelHandle(nCancels1);
+    ScopedTestHandle hdl = makeDummyCancelHandle(nCancels1);
     hdl = makeDummyCancelHandle(nCancels2);
     BOOST_CHECK_EQUAL(nCancels1, 1);
     BOOST_CHECK_EQUAL(nCancels2, 0);
@@ -94,7 +96,7 @@ BOOST_AUTO_TEST_CASE(Release)
 {
   int nCancels = 0;
   {
-    ScopedCancelHandle hdl = makeDummyCancelHandle(nCancels);
+    ScopedTestHandle hdl = makeDummyCancelHandle(nCancels);
     hdl.release();
     hdl.cancel(); // no effect
   } // hdl goes out of scope
@@ -104,10 +106,10 @@ BOOST_AUTO_TEST_CASE(Release)
 BOOST_AUTO_TEST_CASE(MoveConstruct)
 {
   int nCancels = 0;
-  unique_ptr<ScopedCancelHandle> hdl1;
+  unique_ptr<ScopedTestHandle> hdl1;
   {
-    ScopedCancelHandle hdl2 = makeDummyCancelHandle(nCancels);
-    hdl1 = make_unique<ScopedCancelHandle>(std::move(hdl2));
+    ScopedTestHandle hdl2 = makeDummyCancelHandle(nCancels);
+    hdl1 = make_unique<ScopedTestHandle>(std::move(hdl2));
   } // hdl2 goes out of scope
   BOOST_CHECK_EQUAL(nCancels, 0);
   hdl1.reset();
@@ -118,9 +120,9 @@ BOOST_AUTO_TEST_CASE(MoveAssign)
 {
   int nCancels = 0;
   {
-    ScopedCancelHandle hdl1;
+    ScopedTestHandle hdl1;
     {
-      ScopedCancelHandle hdl2 = makeDummyCancelHandle(nCancels);
+      ScopedTestHandle hdl2 = makeDummyCancelHandle(nCancels);
       hdl1 = std::move(hdl2);
     } // hdl2 goes out of scope
     BOOST_CHECK_EQUAL(nCancels, 0);

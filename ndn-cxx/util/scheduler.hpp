@@ -127,11 +127,7 @@ operator<<(std::ostream& os, const EventId& eventId);
  *  \warning Canceling an event after the scheduler has been destructed may trigger undefined
  *           behavior.
  */
-class ScopedEventId : public detail::ScopedCancelHandle
-{
-public:
-  using ScopedCancelHandle::ScopedCancelHandle;
-};
+using ScopedEventId = detail::ScopedCancelHandle<EventId>;
 
 /** \brief Generic time-based scheduler
  */

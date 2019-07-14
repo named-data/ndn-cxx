@@ -551,15 +551,6 @@ public:
   PendingInterestHandle() noexcept = default;
 
   PendingInterestHandle(Face& face, const PendingInterestId* id);
-
-  [[deprecated]]
-  operator const PendingInterestId*() const noexcept
-  {
-    return m_id;
-  }
-
-private:
-  const PendingInterestId* m_id = nullptr;
 };
 
 /** \brief A scoped handle of pending Interest.
@@ -577,7 +568,7 @@ private:
  *  \warning Canceling a pending Interest after the face has been destructed may trigger undefined
  *           behavior.
  */
-using ScopedPendingInterestHandle = detail::ScopedCancelHandle;
+using ScopedPendingInterestHandle = detail::ScopedCancelHandle<PendingInterestHandle>;
 
 /** \brief A handle of registered prefix.
  */
@@ -591,12 +582,6 @@ public:
   }
 
   RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id);
-
-  [[deprecated]]
-  operator const RegisteredPrefixId*() const noexcept
-  {
-    return m_id;
-  }
 
   /** \brief Unregister the prefix.
    *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
@@ -627,7 +612,7 @@ private:
  *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
  *           behavior.
  */
-using ScopedRegisteredPrefixHandle = detail::ScopedCancelHandle;
+using ScopedRegisteredPrefixHandle = detail::ScopedCancelHandle<RegisteredPrefixHandle>;
 
 /** \brief A handle of registered Interest filter.
  *
@@ -645,15 +630,6 @@ public:
   InterestFilterHandle() noexcept = default;
 
   InterestFilterHandle(Face& face, const InterestFilterId* id);
-
-  [[deprecated]]
-  operator const InterestFilterId*() const noexcept
-  {
-    return m_id;
-  }
-
-private:
-  const InterestFilterId* m_id = nullptr;
 };
 
 /** \brief A scoped handle of registered Interest filter.
@@ -671,7 +647,7 @@ private:
  *  \warning Unsetting an Interest filter after the face has been destructed may trigger
  *           undefined behavior.
  */
-using ScopedInterestFilterHandle = detail::ScopedCancelHandle;
+using ScopedInterestFilterHandle = detail::ScopedCancelHandle<InterestFilterHandle>;
 
 } // namespace ndn
 

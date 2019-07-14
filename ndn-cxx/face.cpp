@@ -396,7 +396,6 @@ Face::onReceiveElement(const Block& blockFromDaemon)
 
 PendingInterestHandle::PendingInterestHandle(Face& face, const PendingInterestId* id)
   : CancelHandle([&face, id] { face.cancelPendingInterest(id); })
-  , m_id(id)
 {
 }
 
@@ -427,7 +426,6 @@ RegisteredPrefixHandle::unregister(const UnregisterPrefixSuccessCallback& onSucc
 
 InterestFilterHandle::InterestFilterHandle(Face& face, const InterestFilterId* id)
   : CancelHandle([&face, id] { face.clearInterestFilter(id); })
-  , m_id(id)
 {
 }
 

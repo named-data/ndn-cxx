@@ -32,10 +32,13 @@ namespace detail {
 class CancelHandle
 {
 public:
-  CancelHandle() noexcept = default;
+  CancelHandle() noexcept;
 
   explicit
-  CancelHandle(function<void()> cancel);
+  CancelHandle(std::function<void()> cancel) noexcept
+    : m_cancel(std::move(cancel))
+  {
+  }
 
   /** \brief Cancel the operation.
    */
@@ -43,19 +46,29 @@ public:
   cancel() const;
 
 private:
-  mutable function<void()> m_cancel;
+  mutable std::function<void()> m_cancel;
 };
+
+inline
+CancelHandle::CancelHandle() noexcept = default;
 
 /** \brief Cancels an operation automatically upon destruction.
  */
+template<typename HandleT>
 class ScopedCancelHandle
 {
-public:
-  ScopedCancelHandle() noexcept = default;
+  static_assert(std::is_convertible<HandleT*, CancelHandle*>::value,
+                "HandleT must publicly derive from CancelHandle");
 
-  /** \brief Implicit constructor from CancelHandle.
+public:
+  ScopedCancelHandle() noexcept;
+
+  /** \brief Implicit constructor from HandleT.
    */
-  ScopedCancelHandle(CancelHandle hdl);
+  ScopedCancelHandle(HandleT hdl) noexcept
+    : m_hdl(std::move(hdl))
+  {
+  }
 
   /** \brief Copy construction is disallowed.
    */
@@ -63,7 +76,10 @@ public:
 
   /** \brief Move constructor.
    */
-  ScopedCancelHandle(ScopedCancelHandle&& other);
+  ScopedCancelHandle(ScopedCancelHandle&& other) noexcept
+    : m_hdl(other.release())
+  {
+  }
 
   /** \brief Copy assignment is disallowed.
    */
@@ -73,27 +89,49 @@ public:
   /** \brief Move assignment operator.
    */
   ScopedCancelHandle&
-  operator=(ScopedCancelHandle&& other);
+  operator=(ScopedCancelHandle&& other)
+  {
+    m_hdl.cancel();
+    m_hdl = other.release();
+    return *this;
+  }
 
   /** \brief Cancel the operation.
    */
-  ~ScopedCancelHandle();
+  ~ScopedCancelHandle()
+  {
+    m_hdl.cancel();
+  }
 
   /** \brief Cancel the operation.
    */
   void
-  cancel();
+  cancel()
+  {
+    release().cancel();
+  }
 
   /** \brief Release the operation so that it won't be cancelled when this ScopedCancelHandle is
    *         destructed.
-   *  \return the CancelHandle.
    */
-  CancelHandle
-  release();
+  HandleT
+  release() noexcept
+  {
+    return std::exchange(m_hdl, HandleT{});
+  }
+
+  explicit
+  operator bool() const noexcept
+  {
+    return !!m_hdl;
+  }
 
 private:
-  CancelHandle m_hdl;
+  HandleT m_hdl;
 };
+
+template<typename T>
+ScopedCancelHandle<T>::ScopedCancelHandle() noexcept = default;
 
 } // namespace detail
 } // namespace ndn

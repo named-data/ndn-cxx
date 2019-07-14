@@ -24,11 +24,6 @@
 namespace ndn {
 namespace detail {
 
-CancelHandle::CancelHandle(function<void()> cancel)
-  : m_cancel(std::move(cancel))
-{
-}
-
 void
 CancelHandle::cancel() const
 {
@@ -36,43 +31,6 @@ CancelHandle::cancel() const
     m_cancel();
     m_cancel = nullptr;
   }
-}
-
-ScopedCancelHandle::ScopedCancelHandle(CancelHandle hdl)
-  : m_hdl(std::move(hdl))
-{
-}
-
-ScopedCancelHandle::ScopedCancelHandle(ScopedCancelHandle&& other)
-  : m_hdl(other.release())
-{
-}
-
-ScopedCancelHandle&
-ScopedCancelHandle::operator=(ScopedCancelHandle&& other)
-{
-  cancel();
-  m_hdl = other.release();
-  return *this;
-}
-
-ScopedCancelHandle::~ScopedCancelHandle()
-{
-  m_hdl.cancel();
-}
-
-void
-ScopedCancelHandle::cancel()
-{
-  release().cancel();
-}
-
-CancelHandle
-ScopedCancelHandle::release()
-{
-  CancelHandle hdl;
-  std::swap(hdl, m_hdl);
-  return hdl;
 }
 
 } // namespace detail
