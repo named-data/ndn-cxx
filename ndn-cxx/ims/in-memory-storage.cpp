@@ -114,7 +114,7 @@ InMemoryStorage::init()
 InMemoryStorage::~InMemoryStorage()
 {
   // evict all items from cache
-  Cache::iterator it = m_cache.begin();
+  auto it = m_cache.begin();
   while (it != m_cache.end()) {
     it = freeEntry(it);
   }
@@ -268,10 +268,7 @@ InMemoryStorage::selectChild(const Interest& interest,
     BOOST_ASSERT((*startingPoint)->getFullName() < interest.getName());
   }
 
-  bool hasLeftmostSelector = (interest.getChildSelector() <= 0);
-  bool hasRightmostSelector = !hasLeftmostSelector;
-
-  // filter out "stale" data
+  // filter out non-fresh data
   if (interest.getMustBeFresh()) {
     startingPoint = findNextFresh(startingPoint);
   }
@@ -280,60 +277,30 @@ InMemoryStorage::selectChild(const Interest& interest,
     return nullptr;
   }
 
-  if (hasLeftmostSelector) {
-    if (interest.matchesData((*startingPoint)->getData())) {
-      return *startingPoint;
-    }
+  if (interest.matchesData((*startingPoint)->getData())) {
+    return *startingPoint;
   }
 
   // iterate to the right
-  auto rightmost = startingPoint;
-  if (startingPoint != m_cache.get<byFullName>().end()) {
-    auto rightmostCandidate = startingPoint;
-    Name currentChildPrefix("");
+  auto rightmostCandidate = startingPoint;
+  while (true) {
+    ++rightmostCandidate;
+    // filter out non-fresh data
+    if (interest.getMustBeFresh()) {
+      rightmostCandidate = findNextFresh(rightmostCandidate);
+    }
 
-    while (true) {
-      ++rightmostCandidate;
-      // filter out "stale" data
-      if (interest.getMustBeFresh()) {
-        rightmostCandidate = findNextFresh(rightmostCandidate);
-      }
-
-      bool isInBoundaries = (rightmostCandidate != m_cache.get<byFullName>().end());
-      bool isInPrefix = false;
-      if (isInBoundaries) {
-        isInPrefix = interest.getName().isPrefixOf((*rightmostCandidate)->getFullName());
-      }
-
-      if (isInPrefix) {
-        if (interest.matchesData((*rightmostCandidate)->getData())) {
-          if (hasLeftmostSelector) {
-            return *rightmostCandidate;
-          }
-
-          if (hasRightmostSelector) {
-            // get prefix which is one component longer than Interest name
-            const Name& childPrefix = (*rightmostCandidate)->getFullName().getPrefix(interest.getName().size() + 1);
-            if (currentChildPrefix.empty() || (childPrefix != currentChildPrefix)) {
-              currentChildPrefix = childPrefix;
-              rightmost = rightmostCandidate;
-            }
-          }
-        }
-      }
-      else {
-        break;
+    bool isInPrefix = false;
+    if (rightmostCandidate != m_cache.get<byFullName>().end()) {
+      isInPrefix = interest.getName().isPrefixOf((*rightmostCandidate)->getFullName());
+    }
+    if (isInPrefix) {
+      if (interest.matchesData((*rightmostCandidate)->getData())) {
+        return *rightmostCandidate;
       }
     }
-  }
-
-  if (rightmost != startingPoint) {
-    return *rightmost;
-  }
-
-  if (hasRightmostSelector) { // if rightmost was not found, try starting point
-    if (interest.matchesData((*startingPoint)->getData())) {
-      return *startingPoint;
+    else {
+      break;
     }
   }
 
