@@ -55,12 +55,13 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   Interest i;
   BOOST_CHECK_EQUAL(i.hasWire(), false);
   BOOST_CHECK_EQUAL(i.getName(), "/");
+  BOOST_CHECK_EQUAL(i.hasSelectors(), false);
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK_EQUAL(i.hasSelectors(), false);
+  BOOST_CHECK(i.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
@@ -94,8 +95,10 @@ BOOST_AUTO_TEST_CASE(Basic)
   Interest i2(wire1);
   BOOST_CHECK_EQUAL(i2.getName(), "/local/ndn/prefix");
   BOOST_CHECK(i2.getSelectors().empty());
+  BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
 
@@ -135,9 +138,10 @@ BOOST_AUTO_TEST_CASE(Full)
   Interest i2(wire1);
   BOOST_CHECK_EQUAL(i2.getName(), "/local/ndn/prefix");
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), 1);
+  BOOST_CHECK_EQUAL(i2.getForwardingHint(), DelegationList({{1, "/A"}}));
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 1000_ms);
-  BOOST_CHECK_EQUAL(i2.getForwardingHint(), DelegationList({{1, "/A"}}));
+  BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
 
@@ -220,6 +224,7 @@ BOOST_AUTO_TEST_SUITE(Encode03)
 //  BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
 //  BOOST_CHECK_EQUAL(i2.getNonce(), 1);
 //  BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+//  BOOST_CHECK(i2.getHopLimit() == nullopt);
 //  BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
 //  BOOST_CHECK_EQUAL(i2.getApplicationParameters().isValid(), false);
 //  BOOST_CHECK_EQUAL(i2.getPublisherPublicKeyLocator().empty(), true);
@@ -261,6 +266,7 @@ BOOST_AUTO_TEST_CASE(WithParameters)
   BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i2.getPublisherPublicKeyLocator().empty(), true);
@@ -269,7 +275,7 @@ BOOST_AUTO_TEST_CASE(WithParameters)
 BOOST_AUTO_TEST_CASE(Full)
 {
   const uint8_t WIRE[] = {
-    0x05, 0x59, // Interest
+    0x05, 0x5c, // Interest
           0x07, 0x36, // Name
                 0x08, 0x05, 0x6c, 0x6f, 0x63, 0x61, 0x6c, // GenericNameComponent
                 0x08, 0x03, 0x6e, 0x64, 0x6e, // GenericNameComponent
@@ -288,8 +294,10 @@ BOOST_AUTO_TEST_CASE(Full)
                             0x08, 0x01, 0x48,
           0x0a, 0x04, // Nonce
                 0x4a, 0xcb, 0x1e, 0x4c,
-          0x0c, 0x02, // Interest Lifetime
+          0x0c, 0x02, // InterestLifetime
                 0x76, 0xa1,
+          0x22, 0x01, // HopLimit
+                0xdc,
           0x24, 0x04, // ApplicationParameters
                 0xc0, 0xc1, 0xc2, 0xc3
   };
@@ -301,6 +309,7 @@ BOOST_AUTO_TEST_CASE(Full)
   i1.setForwardingHint(DelegationList({{15893, "/H"}}));
   i1.setNonce(0x4c1ecb4a);
   i1.setInterestLifetime(30369_ms);
+  i1.setHopLimit(220);
   i1.setApplicationParameters("2404C0C1C2C3"_block);
   i1.setMinSuffixComponents(1); // v0.2-only elements will not be encoded
   i1.setExclude(Exclude().excludeAfter(name::Component("J"))); // v0.2-only elements will not be encoded
@@ -318,6 +327,7 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(i2.hasNonce(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 30369_ms);
+  BOOST_CHECK_EQUAL(*i2.getHopLimit(), 220);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i2.getMinSuffixComponents(), -1); // Default because minSuffixComponents was not encoded
   BOOST_CHECK_EQUAL(i2.getExclude().empty(), true); // Exclude was not encoded
@@ -359,6 +369,7 @@ protected:
     i.setForwardingHint({{10309, "/F"}});
     i.setNonce(0x03d645a8);
     i.setInterestLifetime(18554_ms);
+    i.setHopLimit(64);
     i.setPublisherPublicKeyLocator(Name("/K"));
     i.setApplicationParameters("2404A0A1A2A3"_block);
   }
@@ -378,6 +389,7 @@ BOOST_AUTO_TEST_CASE(NameOnly)
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i.hasNonce(), true); // a random nonce is generated
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK(i.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i.getPublisherPublicKeyLocator().empty(), true);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
@@ -398,6 +410,7 @@ BOOST_AUTO_TEST_CASE(NameCanBePrefix)
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i.hasNonce(), true); // a random nonce is generated
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
+  BOOST_CHECK(i.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 }
@@ -414,17 +427,19 @@ BOOST_AUTO_TEST_CASE(FullWithoutParameters)
   BOOST_CHECK_EQUAL(i.hasNonce(), true);
   BOOST_CHECK_EQUAL(i.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 30369_ms);
-  // HopLimit=214 is not stored
+  BOOST_CHECK_EQUAL(*i.getHopLimit(), 214);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 
   // encode without modification: retain original wire encoding
   BOOST_CHECK_EQUAL(i.wireEncode().value_size(), 49);
 
-  // modify then re-encode as v0.2 format
+  // modify then re-encode as v0.3 format: unrecognized elements are discarded
   i.setName("/J");
   BOOST_CHECK_EQUAL(i.wireEncode(),
-                    "0520 0703(08014A) 09021200 0A044ACB1E4C 0C0276A1 1E0B(1F09 1E023E15 0703080148)"_block);
+                    "0523 0703(08014A) "
+                    "2100 1200 1E0B(1F09 1E023E15 0703080148) "
+                    "0A044ACB1E4C 0C0276A1 2201D6"_block);
 }
 
 BOOST_AUTO_TEST_CASE(FullWithParameters)
@@ -440,30 +455,29 @@ BOOST_AUTO_TEST_CASE(FullWithParameters)
   BOOST_CHECK_EQUAL(i.hasNonce(), true);
   BOOST_CHECK_EQUAL(i.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 30369_ms);
-  // HopLimit=214 is not stored
+  BOOST_CHECK_EQUAL(*i.getHopLimit(), 214);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
 
   // encode without modification: retain original wire encoding
   BOOST_CHECK_EQUAL(i.wireEncode().value_size(), 91);
 
-  // modify then re-encode as v0.3 format:
-  //  - unrecognized elements after ApplicationParameters are preserved, the rest are discarded
-  //  - HopLimit is dropped (encoding not implemented)
+  // modify then re-encode as v0.3 format: unrecognized elements
+  // after ApplicationParameters are preserved, the rest are discarded
   i.setName("/J");
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
   BOOST_CHECK_EQUAL(i.wireEncode(),
-                    "054A 0725(08014A 0220F16DB273F40436A852063F864D5072B01EAD53151F5A688EA1560492BEBEDD05) "
+                    "054D 0725(08014A 0220F16DB273F40436A852063F864D5072B01EAD53151F5A688EA1560492BEBEDD05) "
                     "2100 1200 1E0B(1F09 1E023E15 0703080148) "
-                    "0A044ACB1E4C 0C0276A1 2404C0C1C2C3 FC00"_block);
+                    "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3 FC00"_block);
 
   // modify ApplicationParameters: unrecognized elements are preserved
   i.setApplicationParameters("2402CAFE"_block);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
   BOOST_CHECK_EQUAL(i.wireEncode(),
-                    "0548 0725(08014A 02205FDA67967EE302FC457E41B7D3D51BA6A9379574D193FD88F64954BF16C2927A) "
+                    "054B 0725(08014A 02205FDA67967EE302FC457E41B7D3D51BA6A9379574D193FD88F64954BF16C2927A) "
                     "2100 1200 1E0B(1F09 1E023E15 0703080148) "
-                    "0A044ACB1E4C 0C0276A1 2402CAFE FC00"_block);
+                    "0A044ACB1E4C 0C0276A1 2201D6 2402CAFE FC00"_block);
 }
 
 BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
@@ -501,7 +515,7 @@ BOOST_AUTO_TEST_CASE(NonCriticalElementOutOfOrder)
                "2201D6 2200 2404C0C1C2C3 22020101"_block);
   BOOST_CHECK_EQUAL(i.getName(),
                     "/I/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
-  // HopLimit=214 is not stored
+  BOOST_CHECK_EQUAL(*i.getHopLimit(), 214);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
 
@@ -510,6 +524,7 @@ BOOST_AUTO_TEST_CASE(NonCriticalElementOutOfOrder)
                "2100 1200 0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3 2401EE"_block);
   BOOST_CHECK_EQUAL(i.getName(),
                     "/I/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
+  BOOST_CHECK_EQUAL(*i.getHopLimit(), 214);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404C0C1C2C3"_block);
 }
@@ -625,12 +640,14 @@ BOOST_AUTO_TEST_CASE(MatchesData)
 BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MatchesInterest, 1)
 BOOST_AUTO_TEST_CASE(MatchesInterest)
 {
-  Interest interest("/A");
-  interest.setCanBePrefix(true)
+  Interest interest;
+  interest.setName("/A")
+          .setCanBePrefix(true)
           .setMustBeFresh(true)
           .setForwardingHint({{1, "/H"}})
           .setNonce(2228)
-          .setInterestLifetime(5_s);
+          .setInterestLifetime(5_s)
+          .setHopLimit(90);
 
   Interest other;
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), false);
@@ -651,6 +668,9 @@ BOOST_AUTO_TEST_CASE(MatchesInterest)
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 
   other.setInterestLifetime(3_s);
+  BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
+
+  other.setHopLimit(31);
   BOOST_CHECK_EQUAL(interest.matchesInterest(other), true);
 }
 
@@ -765,8 +785,7 @@ BOOST_AUTO_TEST_CASE(SetInterestLifetime)
   BOOST_CHECK_THROW(Interest("/A", -1_ms), std::invalid_argument);
   BOOST_CHECK_NO_THROW(Interest("/A", 0_ms));
 
-  Interest i("/local/ndn/prefix");
-  i.setNonce(1);
+  Interest i;
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK_THROW(i.setInterestLifetime(-1_ms), std::invalid_argument);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
@@ -774,6 +793,19 @@ BOOST_AUTO_TEST_CASE(SetInterestLifetime)
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 0_ms);
   i.setInterestLifetime(1_ms);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 1_ms);
+
+  i = Interest("/B", 15_s);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), 15_s);
+}
+
+BOOST_AUTO_TEST_CASE(SetHopLimit)
+{
+  Interest i;
+  BOOST_CHECK(i.getHopLimit() == nullopt);
+  i.setHopLimit(42);
+  BOOST_CHECK(i.getHopLimit() == 42);
+  i.setHopLimit(nullopt);
+  BOOST_CHECK(i.getHopLimit() == nullopt);
 }
 
 BOOST_AUTO_TEST_CASE(SetApplicationParameters)
@@ -886,6 +918,15 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
+  // compare ForwardingHint
+  a.setForwardingHint({{1, "/H"}});
+  BOOST_CHECK_EQUAL(a == b, false);
+  BOOST_CHECK_EQUAL(a != b, true);
+
+  b.setForwardingHint({{1, "/H"}});
+  BOOST_CHECK_EQUAL(a == b, true);
+  BOOST_CHECK_EQUAL(a != b, false);
+
   // compare Nonce
   a.setNonce(100);
   BOOST_CHECK_EQUAL(a == b, false);
@@ -904,12 +945,12 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  // compare ForwardingHint
-  a.setForwardingHint({{1, "/H"}});
+  // compare HopLimit
+  a.setHopLimit(255);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setForwardingHint({{1, "/H"}});
+  b.setHopLimit(255);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 

@@ -283,6 +283,19 @@ public: // element access
   Interest&
   setInterestLifetime(time::milliseconds lifetime);
 
+  optional<uint8_t>
+  getHopLimit() const
+  {
+    return m_hopLimit;
+  }
+
+  /** @brief Set the Interest's hop limit.
+   *
+   *  Use `setHopLimit(nullopt)` to remove any hop limit from the Interest.
+   */
+  Interest&
+  setHopLimit(optional<uint8_t> hopLimit);
+
   bool
   hasApplicationParameters() const noexcept
   {
@@ -539,9 +552,10 @@ private:
   Name m_name;
   Selectors m_selectors; // NDN Packet Format v0.2 only
   mutable bool m_isCanBePrefixSet = false;
+  DelegationList m_forwardingHint;
   mutable optional<uint32_t> m_nonce;
   time::milliseconds m_interestLifetime;
-  DelegationList m_forwardingHint;
+  optional<uint8_t> m_hopLimit;
 
   // Stores the "Interest parameters", i.e., all maybe-unrecognized non-critical TLV
   // elements that appear at the end of the Interest, starting from ApplicationParameters.

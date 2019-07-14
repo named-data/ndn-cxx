@@ -98,7 +98,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 #endif // NDN_CXX_HAVE_TESTS
   }
 
-  if (hasApplicationParameters()) {
+  if (getHopLimit() || hasApplicationParameters()) {
     return encode03(encoder);
   }
   else {
@@ -133,7 +133,7 @@ Interest::encode02(EncodingImpl<TAG>& encoder) const
   }
 
   // Nonce
-  uint32_t nonce = getNonce(); // if nonce was unset, getNonce generates a random nonce
+  uint32_t nonce = getNonce(); // if nonce was unset, this generates a fresh nonce
   totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
 
   // Selectors
@@ -183,7 +183,11 @@ Interest::encode03(EncodingImpl<TAG>& encoder) const
     totalLength += encoder.prependBlock(b);
   });
 
-  // HopLimit: not yet supported
+  // HopLimit
+  if (getHopLimit()) {
+    uint8_t hopLimit = *getHopLimit();
+    totalLength += encoder.prependByteArrayBlock(tlv::HopLimit, &hopLimit, sizeof(hopLimit));
+  }
 
   // InterestLifetime
   if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
@@ -192,7 +196,7 @@ Interest::encode03(EncodingImpl<TAG>& encoder) const
   }
 
   // Nonce
-  uint32_t nonce = getNonce(); // if nonce was unset, getNonce generates a random nonce
+  uint32_t nonce = getNonce(); // if nonce was unset, this generates a fresh nonce
   totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
 
   // ForwardingHint
@@ -229,10 +233,10 @@ Interest::wireEncode() const
   EncodingEstimator estimator;
   size_t estimatedSize = wireEncode(estimator);
 
-  EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
+  EncodingBuffer encoder(estimatedSize, 0);
+  wireEncode(encoder);
 
-  const_cast<Interest*>(this)->wireDecode(buffer.block());
+  const_cast<Interest*>(this)->wireDecode(encoder.block());
   return m_wire;
 }
 
@@ -248,9 +252,7 @@ Interest::wireDecode(const Block& wire)
 
   if (!decode02()) {
     decode03();
-    if (!hasNonce()) {
-      setNonce(getNonce());
-    }
+    getNonce(); // force generation of nonce
   }
 
   m_isCanBePrefixSet = true; // don't trigger warning from decoded packet
@@ -351,9 +353,10 @@ Interest::decode03()
   m_name = std::move(tempName);
 
   m_selectors = Selectors().setMaxSuffixComponents(1); // CanBePrefix=0
+  m_forwardingHint = {};
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
-  m_forwardingHint = {};
+  m_hopLimit.reset();
   m_parameters.clear();
 
   int lastElement = 1; // last recognized element index, in spec order
@@ -417,7 +420,7 @@ Interest::decode03()
         if (element->value_size() != 1) {
           NDN_THROW(Error("HopLimit element is malformed"));
         }
-        // TLV-VALUE is ignored
+        m_hopLimit = *element->value();
         lastElement = 7;
         break;
       }
@@ -536,10 +539,20 @@ Interest::setName(const Name& name)
   if (digestIndex == -2) {
     NDN_THROW(std::invalid_argument("Name cannot have more than one ParametersSha256DigestComponent"));
   }
-  m_name = name;
-  if (hasApplicationParameters()) {
-    addOrReplaceParametersDigestComponent();
+  if (name != m_name) {
+    m_name = name;
+    if (hasApplicationParameters()) {
+      addOrReplaceParametersDigestComponent();
+    }
+    m_wire.reset();
   }
+  return *this;
+}
+
+Interest&
+Interest::setForwardingHint(const DelegationList& value)
+{
+  m_forwardingHint = value;
   m_wire.reset();
   return *this;
 }
@@ -547,8 +560,9 @@ Interest::setName(const Name& name)
 uint32_t
 Interest::getNonce() const
 {
-  if (!m_nonce) {
+  if (!hasNonce()) {
     m_nonce = random::generateWord32();
+    m_wire.reset();
   }
   return *m_nonce;
 }
@@ -556,8 +570,10 @@ Interest::getNonce() const
 Interest&
 Interest::setNonce(uint32_t nonce)
 {
-  m_nonce = nonce;
-  m_wire.reset();
+  if (nonce != m_nonce) {
+    m_nonce = nonce;
+    m_wire.reset();
+  }
   return *this;
 }
 
@@ -567,12 +583,11 @@ Interest::refreshNonce()
   if (!hasNonce())
     return;
 
-  uint32_t oldNonce = getNonce();
-  uint32_t newNonce = oldNonce;
-  while (newNonce == oldNonce)
-    newNonce = random::generateWord32();
+  uint32_t oldNonce = *m_nonce;
+  while (m_nonce == oldNonce)
+    m_nonce = random::generateWord32();
 
-  setNonce(newNonce);
+  m_wire.reset();
 }
 
 Interest&
@@ -581,16 +596,20 @@ Interest::setInterestLifetime(time::milliseconds lifetime)
   if (lifetime < 0_ms) {
     NDN_THROW(std::invalid_argument("InterestLifetime must be >= 0"));
   }
-  m_interestLifetime = lifetime;
-  m_wire.reset();
+  if (lifetime != m_interestLifetime) {
+    m_interestLifetime = lifetime;
+    m_wire.reset();
+  }
   return *this;
 }
 
 Interest&
-Interest::setForwardingHint(const DelegationList& value)
+Interest::setHopLimit(optional<uint8_t> hopLimit)
 {
-  m_forwardingHint = value;
-  m_wire.reset();
+  if (hopLimit != m_hopLimit) {
+    m_hopLimit = hopLimit;
+    m_wire.reset();
+  }
   return *this;
 }
 
