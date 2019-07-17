@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,6 @@
 #define NDN_KEY_LOCATOR_HPP
 
 #include "ndn-cxx/name.hpp"
-#include "ndn-cxx/encoding/encoding-buffer.hpp"
 
 namespace ndn {
 
@@ -36,52 +35,49 @@ public:
     using tlv::Error::Error;
   };
 
-  enum Type {
-    /** \brief indicates KeyLocator is empty (internal use only)
-     */
-    KeyLocator_None = 65535,
-    /** \brief indicates KeyLocator contains a Name
-     */
-    KeyLocator_Name = 0,
-    /** \brief indicates KeyLocator contains a KeyDigest
-     */
-    KeyLocator_KeyDigest = 1,
-    /** \brief indicates KeyLocator contains an unknown element
-     */
-    KeyLocator_Unknown = 255
+  enum
+#ifndef DOXYGEN
+  [[deprecated]] // apparently doxygen can't handle this attribute on enums
+#endif
+  Type {
+    /// KeyLocator is empty
+    KeyLocator_None = tlv::Invalid,
+    /// KeyLocator contains a Name
+    KeyLocator_Name = tlv::Name,
+    /// KeyLocator contains a KeyDigest
+    KeyLocator_KeyDigest = tlv::KeyDigest,
   };
 
 public: // constructors
-  /** \brief construct an empty KeyLocator
+  /** \brief Construct an empty KeyLocator.
+   *  \post `empty() == true`
    */
   KeyLocator();
 
-  /** \brief construct from wire encoding
+  /** \brief Construct from Name.
+   *  \note Implicit conversion is permitted.
+   *  \post `getType() == tlv::Name`
+   */
+  KeyLocator(const Name& name);
+
+  /** \brief Construct from wire encoding.
    */
   explicit
   KeyLocator(const Block& wire);
 
-  /** \brief construct from Name
-   *  \note implicit conversion is permitted
-   */
-  KeyLocator(const Name& name);
-
 public: // encode and decode
-  /** \brief prepend wire encoding
-   *  \param encoder EncodingBuffer or Estimator
+  /** \brief Prepend wire encoding to \p encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** \return wire encoding
-   */
   const Block&
   wireEncode() const;
 
-  /** \brief decode from wire encoding
+  /** \brief Decode from wire encoding.
    *  \throw Error outer TLV type is not KeyLocator
-   *  \note No error is thrown for unrecognized inner TLV, but type becomes KeyLocator_Unknown.
+   *  \note No error is raised for an unrecognized nested TLV, but attempting to reencode will throw.
    */
   void
   wireDecode(const Block& wire);
@@ -90,72 +86,81 @@ public: // attributes
   bool
   empty() const
   {
-    return m_type == KeyLocator_None;
+    return holds_alternative<monostate>(m_locator);
   }
 
-  Type
-  getType() const
-  {
-    return m_type;
-  }
+  uint32_t
+  getType() const;
 
-  /** \brief clear KeyLocator
-   *  \details type becomes KeyLocator_None
+  /** \brief Reset KeyLocator to its default-constructed state.
+   *  \post `empty() == true`
+   *  \post `getType() == tlv::Invalid`
    *  \return self
    */
   KeyLocator&
   clear();
 
-  /** \brief get Name element
-   *  \throw Error if type is not KeyLocator_Name
+  /** \brief Get nested Name element.
+   *  \throw Error if type is not tlv::Name
    */
   const Name&
   getName() const;
 
-  /** \brief set Name element
-   *  \details type becomes KeyLocator_Name
+  /** \brief Set nested Name element.
+   *  \post `getType() == tlv::Name`
    *  \return self
    */
   KeyLocator&
   setName(const Name& name);
 
-  /** \brief get KeyDigest element
-   *  \throw Error if type is not KeyLocator_KeyDigest
+  /** \brief Get nested KeyDigest element.
+   *  \throw Error if type is not tlv::KeyDigest
    */
   const Block&
   getKeyDigest() const;
 
-  /** \brief set KeyDigest element
-   *  \details type becomes KeyLocator_KeyDigest
-   *  \throw Error if Block type is not KeyDigest
+  /** \brief Set nested KeyDigest element (whole TLV).
+   *  \post `getType() == tlv::KeyDigest`
+   *  \throw std::invalid_argument Block type is not tlv::KeyDigest
    *  \return self
    */
   KeyLocator&
   setKeyDigest(const Block& keyDigest);
 
-  /** \brief set KeyDigest value
-   *  \details type becomes KeyLocator_KeyDigest
+  /** \brief Set nested KeyDigest element value.
+   *  \param keyDigest buffer to use as TLV-VALUE of the nested KeyDigest element.
+   *  \post `getType() == tlv::KeyDigest`
    *  \return self
    */
   KeyLocator&
   setKeyDigest(const ConstBufferPtr& keyDigest);
 
-public: // EqualityComparable concept
-  bool
-  operator==(const KeyLocator& other) const;
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
 
-  bool
-  operator!=(const KeyLocator& other) const
+  friend bool
+  operator==(const KeyLocator& lhs, const KeyLocator& rhs)
   {
-    return !this->operator==(other);
+    return lhs.m_locator == rhs.m_locator;
+  }
+
+  friend bool
+  operator!=(const KeyLocator& lhs, const KeyLocator& rhs)
+  {
+    return lhs.m_locator != rhs.m_locator;
   }
 
 private:
-  Type m_type;
-  Name m_name;
-  Block m_keyDigest;
+  // - monostate represents an empty KeyLocator, without any nested TLVs
+  // - Name is used when the nested TLV contains a name
+  // - Block is used when the nested TLV is a KeyDigest
+  // - in all other (unsupported) cases the nested TLV type is stored as uint32_t
+  variant<monostate, Name, Block, uint32_t> m_locator;
 
   mutable Block m_wire;
+
+  friend std::ostream& operator<<(std::ostream&, const KeyLocator&);
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(KeyLocator);

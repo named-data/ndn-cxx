@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,14 +33,13 @@ BOOST_AUTO_TEST_SUITE(TestKeyLocator)
 BOOST_AUTO_TEST_CASE(TypeNone)
 {
   KeyLocator a;
-  BOOST_CHECK_EQUAL(a.getType(), KeyLocator::KeyLocator_None);
+  BOOST_CHECK_EQUAL(a.empty(), true);
+  BOOST_CHECK_EQUAL(a.getType(), tlv::Invalid);
   BOOST_CHECK_THROW(a.getName(), KeyLocator::Error);
   BOOST_CHECK_THROW(a.getKeyDigest(), KeyLocator::Error);
 
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = a.wireEncode());
-
-  // These octets are obtained by the snippet below.
+  Block wire = a.wireEncode();
+  // These octets are obtained from the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
   // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
@@ -53,10 +52,10 @@ BOOST_AUTO_TEST_CASE(TypeNone)
 
   KeyLocator b(wire);
   BOOST_CHECK_EQUAL(a, b);
-  BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_None);
+  BOOST_CHECK_EQUAL(a.empty(), true);
+  BOOST_CHECK_EQUAL(b.getType(), tlv::Invalid);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
   BOOST_CHECK_THROW(b.getKeyDigest(), KeyLocator::Error);
-
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "None");
 }
 
@@ -64,14 +63,13 @@ BOOST_AUTO_TEST_CASE(TypeName)
 {
   KeyLocator a;
   a.setName("/N");
-  BOOST_CHECK_EQUAL(a.getType(), KeyLocator::KeyLocator_Name);
+  BOOST_CHECK_EQUAL(a.empty(), false);
+  BOOST_CHECK_EQUAL(a.getType(), tlv::Name);
   BOOST_CHECK_EQUAL(a.getName(), Name("/N"));
   BOOST_CHECK_THROW(a.getKeyDigest(), KeyLocator::Error);
 
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = a.wireEncode());
-
-  // These octets are obtained by the snippet below.
+  Block wire = a.wireEncode();
+  // These octets are obtained from the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
   // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
@@ -84,29 +82,30 @@ BOOST_AUTO_TEST_CASE(TypeName)
 
   KeyLocator b(wire);
   BOOST_CHECK_EQUAL(a, b);
-  BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_Name);
+  BOOST_CHECK_EQUAL(b.getType(), tlv::Name);
   BOOST_CHECK_EQUAL(b.getName(), Name("/N"));
   BOOST_CHECK_THROW(b.getKeyDigest(), KeyLocator::Error);
-
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "Name=/N");
+
+  KeyLocator c("/N");
+  BOOST_CHECK_EQUAL(a, c);
 }
 
 BOOST_AUTO_TEST_CASE(TypeKeyDigest)
 {
   std::string digestOctets = "\x12\x34\x56\x78\x9a\xbc\xde\xf1\x23\x45";
-  ConstBufferPtr digestBuffer = make_shared<Buffer>(digestOctets.c_str(), digestOctets.size());
-  Block expectedDigestBlock = makeBinaryBlock(tlv::KeyDigest, digestOctets.c_str(), digestOctets.size());
+  ConstBufferPtr digestBuffer = make_shared<Buffer>(digestOctets.data(), digestOctets.size());
+  Block expectedDigestBlock = makeBinaryBlock(tlv::KeyDigest, digestOctets.data(), digestOctets.size());
 
   KeyLocator a;
   a.setKeyDigest(digestBuffer);
-  BOOST_CHECK_EQUAL(a.getType(), KeyLocator::KeyLocator_KeyDigest);
+  BOOST_CHECK_EQUAL(a.empty(), false);
+  BOOST_CHECK_EQUAL(a.getType(), tlv::KeyDigest);
   BOOST_CHECK_EQUAL(a.getKeyDigest(), expectedDigestBlock);
   BOOST_CHECK_THROW(a.getName(), KeyLocator::Error);
 
-  Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = a.wireEncode());
-
-  // These octets are obtained by the snippet below.
+  Block wire = a.wireEncode();
+  // These octets are obtained from the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
   // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
@@ -119,15 +118,43 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
 
   KeyLocator b(wire);
   BOOST_CHECK_EQUAL(a, b);
-  BOOST_CHECK_EQUAL(b.getType(), KeyLocator::KeyLocator_KeyDigest);
+  BOOST_CHECK_EQUAL(b.getType(), tlv::KeyDigest);
   BOOST_CHECK_EQUAL(b.getKeyDigest(), expectedDigestBlock);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
-
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=123456789A...");
 
-  std::string shortDigest = "\xbc\xde\xf1";
-  b.setKeyDigest(make_shared<Buffer>(shortDigest.c_str(), shortDigest.size()));
+  b.setKeyDigest("1D03BCDEF1"_block);
+  BOOST_CHECK_EQUAL(b.getType(), tlv::KeyDigest);
+  BOOST_CHECK_EQUAL(b.getKeyDigest(), "1D03BCDEF1"_block);
+  BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=BCDEF1");
+}
+
+BOOST_AUTO_TEST_CASE(TypeUnknown)
+{
+  const auto wire = "1C037F01CC"_block;
+  KeyLocator a(wire);
+  BOOST_CHECK_EQUAL(a.empty(), false);
+  BOOST_CHECK_EQUAL(a.getType(), 127);
+
+  KeyLocator b(wire);
+  BOOST_CHECK_EQUAL(a, b);
+  BOOST_CHECK_EQUAL(b.getType(), 127);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "Unknown(127)");
+
+  b.setName("/N");
+  BOOST_CHECK_NE(a, b);
+}
+
+BOOST_AUTO_TEST_CASE(Clear)
+{
+  KeyLocator a("/foo");
+  BOOST_CHECK_EQUAL(a.empty(), false);
+
+  a.clear();
+  BOOST_CHECK_EQUAL(a.empty(), true);
+  BOOST_CHECK_EQUAL(a.getType(), tlv::Invalid);
+  BOOST_CHECK_EQUAL(a, KeyLocator{});
 }
 
 BOOST_AUTO_TEST_CASE(Equality)
@@ -149,8 +176,8 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  char digestOctets[] = "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD";
-  ConstBufferPtr digestBuffer = make_shared<Buffer>(digestOctets, 8);
+  const char digestOctets[] = "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD";
+  auto digestBuffer = make_shared<Buffer>(digestOctets, 8);
 
   a.setKeyDigest(digestBuffer);
   BOOST_CHECK_EQUAL(a == b, false);
@@ -159,26 +186,6 @@ BOOST_AUTO_TEST_CASE(Equality)
   b.setKeyDigest(digestBuffer);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
-}
-
-BOOST_AUTO_TEST_CASE(UnknownType)
-{
-  static const uint8_t wireOctets[] = {
-    0x1c, 0x03, 0x7f, 0x01, 0xcc
-  };
-  Block wire(wireOctets, sizeof(wireOctets));
-  KeyLocator a(wire);
-  BOOST_CHECK_EQUAL(a.getType(), KeyLocator::KeyLocator_Unknown);
-
-  KeyLocator b(wire);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "Unknown");
-
-  b.setName("/N");
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyLocator
