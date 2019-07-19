@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -107,15 +107,15 @@ BOOST_AUTO_TEST_CASE(Print)
 {
   CsInfo csi;
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi),
-    "CS: 0 entries, 0 max, admit disabled, serve disabled, 0 hits, 0 misses");
+    "CsInfo: 0 entries, 0 max, admit disabled, serve disabled, 0 hits, 0 misses");
 
   csi = makeCsInfo();
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi),
-    "CS: 5509 entries, 20177 max, admit disabled, serve enabled, 12951 hits, 28179 misses");
+    "CsInfo: 5509 entries, 20177 max, admit disabled, serve enabled, 12951 hits, 28179 misses");
 
   csi.setEnableAdmit(true).setNHits(1).setNMisses(1);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(csi),
-    "CS: 5509 entries, 20177 max, admit enabled, serve enabled, 1 hit, 1 miss");
+    "CsInfo: 5509 entries, 20177 max, admit enabled, serve enabled, 1 hit, 1 miss");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCsInfo

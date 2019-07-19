@@ -180,19 +180,23 @@ CsInfo::setNMisses(uint64_t nMisses)
 bool
 operator==(const CsInfo& a, const CsInfo& b)
 {
-  return a.wireEncode() == b.wireEncode();
+  return a.getCapacity() == b.getCapacity() &&
+      a.getEnableAdmit() == b.getEnableAdmit() &&
+      a.getEnableServe() == b.getEnableServe() &&
+      a.getNEntries() == b.getNEntries() &&
+      a.getNHits() == b.getNHits() &&
+      a.getNMisses() == b.getNMisses();
 }
 
 std::ostream&
 operator<<(std::ostream& os, const CsInfo& csi)
 {
-  os << "CS: "
-     << csi.getNEntries() << " entries, " << csi.getCapacity() << " max, "
-     << (csi.getEnableAdmit() ? "admit enabled, " : "admit disabled, ")
-     << (csi.getEnableServe() ? "serve enabled, " : "serve disabled, ")
-     << csi.getNHits() << (csi.getNHits() == 1 ? " hit, " : " hits, ")
-     << csi.getNMisses() << (csi.getNMisses() == 1 ? " miss" : " misses");
-  return os;
+  return os << "CsInfo: "
+            << csi.getNEntries() << " entries, " << csi.getCapacity() << " max, "
+            << (csi.getEnableAdmit() ? "admit enabled, " : "admit disabled, ")
+            << (csi.getEnableServe() ? "serve enabled, " : "serve disabled, ")
+            << csi.getNHits() << (csi.getNHits() == 1 ? " hit, " : " hits, ")
+            << csi.getNMisses() << (csi.getNMisses() == 1 ? " miss" : " misses");
 }
 
 } // namespace nfd

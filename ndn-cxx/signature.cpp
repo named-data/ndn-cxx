@@ -23,7 +23,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Signature>));
 static_assert(std::is_base_of<tlv::Error, Signature::Error>::value,
               "Signature::Error must inherit from tlv::Error");
 
@@ -62,12 +61,6 @@ Signature::setValue(const Block& value)
     NDN_THROW(Error("SignatureValue", value.type()));
   }
   m_value = value;
-}
-
-bool
-operator==(const Signature& lhs, const Signature& rhs)
-{
-  return lhs.getSignatureInfo() == rhs.getSignatureInfo() && lhs.getValue() == rhs.getValue();
 }
 
 } // namespace ndn

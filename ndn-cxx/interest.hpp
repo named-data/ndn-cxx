@@ -566,23 +566,12 @@ private:
   std::vector<Block> m_parameters; // NDN Packet Format v0.3 only
 
   mutable Block m_wire;
-
-  friend bool operator==(const Interest& lhs, const Interest& rhs);
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Interest);
 
 std::ostream&
 operator<<(std::ostream& os, const Interest& interest);
-
-bool
-operator==(const Interest& lhs, const Interest& rhs);
-
-inline bool
-operator!=(const Interest& lhs, const Interest& rhs)
-{
-  return !(lhs == rhs);
-}
 
 } // namespace ndn
 

@@ -199,13 +199,6 @@ public: // app-defined MetaInfo items
   const Block*
   findAppMetaInfo(uint32_t tlvType) const;
 
-public: // EqualityComparable concept
-  bool
-  operator==(const MetaInfo& other) const;
-
-  bool
-  operator!=(const MetaInfo& other) const;
-
 private:
   uint32_t m_type;
   time::milliseconds m_freshnessPeriod;
@@ -219,18 +212,6 @@ NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(MetaInfo);
 
 std::ostream&
 operator<<(std::ostream& os, const MetaInfo& info);
-
-inline bool
-MetaInfo::operator==(const MetaInfo& other) const
-{
-  return wireEncode() == other.wireEncode();
-}
-
-inline bool
-MetaInfo::operator!=(const MetaInfo& other) const
-{
-  return !(*this == other);
-}
 
 } // namespace ndn
 

@@ -101,8 +101,6 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
-
-  BOOST_CHECK_EQUAL(i1, i2);
 }
 
 BOOST_AUTO_TEST_CASE(Full)
@@ -144,8 +142,6 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
-
-  BOOST_CHECK_EQUAL(i1, i2);
 }
 
 BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
@@ -882,86 +878,6 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
                     "/A/B/C/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
-}
-
-BOOST_AUTO_TEST_CASE(Equality)
-{
-  Interest a;
-  Interest b;
-
-  // if nonce is not set, it would be set to a random value
-  a.setNonce(1);
-  b.setNonce(1);
-
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // compare Name
-  a.setName("/A");
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setName("/B");
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setName("/A");
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // compare Selectors
-  a.setChildSelector(1);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setChildSelector(1);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // compare ForwardingHint
-  a.setForwardingHint({{1, "/H"}});
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setForwardingHint({{1, "/H"}});
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // compare Nonce
-  a.setNonce(100);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setNonce(100);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // compare InterestLifetime
-  a.setInterestLifetime(10_s);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setInterestLifetime(10_s);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // compare HopLimit
-  a.setHopLimit(255);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setHopLimit(255);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
-
-  // compare ApplicationParameters
-  a.setApplicationParameters("2404C0C1C2C3"_block);
-  BOOST_CHECK_EQUAL(a == b, false);
-  BOOST_CHECK_EQUAL(a != b, true);
-
-  b.setApplicationParameters("2404C0C1C2C3"_block);
-  BOOST_CHECK_EQUAL(a == b, true);
-  BOOST_CHECK_EQUAL(a != b, false);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestInterest

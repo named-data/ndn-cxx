@@ -312,9 +312,10 @@ bool
 operator==(const Data& lhs, const Data& rhs)
 {
   return lhs.getName() == rhs.getName() &&
-         lhs.getMetaInfo() == rhs.getMetaInfo() &&
+         lhs.getMetaInfo().wireEncode() == rhs.getMetaInfo().wireEncode() &&
          lhs.getContent() == rhs.getContent() &&
-         lhs.getSignature() == rhs.getSignature();
+         lhs.getSignature().getSignatureInfo() == rhs.getSignature().getSignatureInfo() &&
+         lhs.getSignature().getValue() == rhs.getSignature().getValue();
 }
 
 std::ostream&

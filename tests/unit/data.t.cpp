@@ -79,8 +79,6 @@ const uint8_t DATA1[] = {
         0xfc, 0x90, 0x7a, 0xb8, 0x66, 0x9c, 0x0e, 0xf6, 0xb7, 0x64, 0xd1
 };
 
-// ---- constructor, encode, decode ----
-
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
   Data d;
@@ -251,7 +249,9 @@ BOOST_AUTO_TEST_CASE(MinimalNoSigValue)
 {
   d.wireDecode("0607 0700 16031B0100"_block);
   BOOST_CHECK_EQUAL(d.getName(), "/"); // empty Name is allowed in Data
-  BOOST_CHECK_EQUAL(d.getMetaInfo(), MetaInfo());
+  BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
+  BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 0);
@@ -262,7 +262,9 @@ BOOST_AUTO_TEST_CASE(Minimal)
   d.wireDecode("062C 0703080144 16031B0100 "
                "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block);
   BOOST_CHECK_EQUAL(d.getName(), "/D");
-  BOOST_CHECK_EQUAL(d.getMetaInfo(), MetaInfo());
+  BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
+  BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 32);
@@ -282,7 +284,9 @@ BOOST_AUTO_TEST_CASE(Full)
   d.wireDecode("063A 0703080144 FC00 1400 FC00 1500 FC00 16031B0100 FC00 "
                "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76 FC00"_block);
   BOOST_CHECK_EQUAL(d.getName(), "/D");
-  BOOST_CHECK_EQUAL(d.getMetaInfo(), MetaInfo());
+  BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
+  BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 32);
@@ -378,8 +382,6 @@ BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
     "/local/ndn/prefix/"
     "sha256digest=28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
 }
-
-// ---- operators ----
 
 BOOST_AUTO_TEST_CASE(Equality)
 {

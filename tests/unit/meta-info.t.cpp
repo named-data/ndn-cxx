@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,51 +29,49 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestMetaInfo)
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(EncodeDecodeEquality, 1)
-BOOST_AUTO_TEST_CASE(EncodeDecodeEquality)
+BOOST_AUTO_TEST_CASE(EncodeDecode)
 {
   // default values
   MetaInfo a("1406 type=180100 freshness=190100"_block);
   BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 0_ms);
-  BOOST_CHECK(!a.getFinalBlock());
-  BOOST_CHECK_EQUAL(a, a);
+  BOOST_CHECK(a.getFinalBlock() == nullopt);
 
   MetaInfo b;
-  BOOST_CHECK_NE(a, b);
+  BOOST_CHECK_NE(a.wireEncode(), b.wireEncode());
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
   b.setFinalBlock(a.getFinalBlock());
+  BOOST_CHECK_NE(a.wireEncode(), b.wireEncode());
   BOOST_CHECK_EQUAL(b.wireEncode(), "1400"_block);
-  BOOST_CHECK_EQUAL(a, b); // expected failure #4569
 
   // non-default values
-  Block wire2 = "140C type=180101 freshness=190266B2 finalblock=1A03080141"_block;
+  Block wire2("140C type=180101 freshness=190266B2 finalblock=1A03080141"_block);
   a.wireDecode(wire2);
   BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Link);
   BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 26290_ms);
+  BOOST_REQUIRE(a.getFinalBlock().has_value());
   BOOST_CHECK_EQUAL(*a.getFinalBlock(), name::Component("A"));
-  BOOST_CHECK_NE(a, b);
+  BOOST_CHECK_NE(a.wireEncode(), b.wireEncode());
 
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
   b.setFinalBlock(a.getFinalBlock());
   BOOST_CHECK_EQUAL(b.wireEncode(), wire2);
-  BOOST_CHECK_EQUAL(a, b);
 
-  // FinalBlockId is typed name component
+  // FinalBlockId is a typed name component
   Block wire3 = "1405 finalblock=1A03DD0141"_block;
   a.wireDecode(wire3);
   BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 0_ms);
+  BOOST_REQUIRE(a.getFinalBlock().has_value());
   BOOST_CHECK_EQUAL(*a.getFinalBlock(), name::Component::fromEscapedString("221=A"));
-  BOOST_CHECK_NE(a, b);
+  BOOST_CHECK_NE(a.wireEncode(), b.wireEncode());
 
   b.setType(a.getType());
   b.setFreshnessPeriod(a.getFreshnessPeriod());
   b.setFinalBlock(a.getFinalBlock());
   BOOST_CHECK_EQUAL(b.wireEncode(), wire3);
-  BOOST_CHECK_EQUAL(a, b);
 }
 
 BOOST_AUTO_TEST_CASE(AppMetaInfo)

@@ -25,7 +25,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodable<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireDecodable<MetaInfo>));

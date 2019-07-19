@@ -27,8 +27,6 @@
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/util/random.hpp"
 
-#include <boost/scope_exit.hpp>
-
 #ifdef NDN_CXX_HAVE_STACKTRACE
 #include <boost/stacktrace/stacktrace.hpp>
 #endif
@@ -39,7 +37,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Interest>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Interest>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Interest>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
@@ -754,21 +751,6 @@ Interest::findParametersDigestComponent(const Name& name)
 }
 
 // ---- operators ----
-
-bool
-operator==(const Interest& lhs, const Interest& rhs)
-{
-  bool wasCanBePrefixSetOnLhs = lhs.m_isCanBePrefixSet;
-  bool wasCanBePrefixSetOnRhs = rhs.m_isCanBePrefixSet;
-  lhs.m_isCanBePrefixSet = true;
-  rhs.m_isCanBePrefixSet = true;
-  BOOST_SCOPE_EXIT_ALL(&) {
-    lhs.m_isCanBePrefixSet = wasCanBePrefixSetOnLhs;
-    rhs.m_isCanBePrefixSet = wasCanBePrefixSetOnRhs;
-  };
-
-  return lhs.wireEncode() == rhs.wireEncode();
-}
 
 std::ostream&
 operator<<(std::ostream& os, const Interest& interest)
