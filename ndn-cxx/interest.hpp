@@ -24,7 +24,6 @@
 
 #include "ndn-cxx/delegation-list.hpp"
 #include "ndn-cxx/name.hpp"
-#include "ndn-cxx/selectors.hpp"
 #include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/util/time.hpp"
 
@@ -73,15 +72,12 @@ public:
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** @brief Encode to a @c Block.
-   *
-   *  Encodes into NDN Packet Format v0.3 if ApplicationParameters element is present, in which
-   *  case Selectors are not encoded. Otherwise, encodes into NDN Packet Format v0.2.
+  /** @brief Encode into a Block according to NDN Packet Format v0.3.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode from @p wire in NDN Packet Format v0.2 or v0.3.
+  /** @brief Decode from @p wire according to NDN Packet Format v0.3.
    */
   void
   wireDecode(const Block& wire);
@@ -104,14 +100,6 @@ public:
   toUri() const;
 
 public: // matching
-  /** @brief Check if Interest, including selectors, matches the given @p name
-   *  @param name The name to be matched. If this is a Data name, it shall contain the
-   *              implicit digest component
-   */
-  [[deprecated("use matchesData")]]
-  bool
-  matchesName(const Name& name) const;
-
   /** @brief Check if Interest can be satisfied by @p data.
    *
    *  This method considers Name, CanBePrefix, and MustBeFresh. However, MustBeFresh processing
@@ -129,7 +117,7 @@ public: // matching
 
 public: // element access
   const Name&
-  getName() const
+  getName() const noexcept
   {
     return m_name;
   }
@@ -161,62 +149,46 @@ public: // element access
   }
 
   /** @brief Check whether the CanBePrefix element is present.
-   *
-   *  This is a getter for the CanBePrefix element as defined in NDN Packet Format v0.3.
-   *  In this implementation, it is mapped to the closest v0.2 semantics:
-   *  MaxSuffixComponents=1 means CanBePrefix is absent.
    */
   bool
-  getCanBePrefix() const
+  getCanBePrefix() const noexcept
   {
-    return m_selectors.getMaxSuffixComponents() != 1;
+    return m_canBePrefix;
   }
 
   /** @brief Add or remove CanBePrefix element.
    *  @param canBePrefix whether CanBePrefix element should be present.
-   *
-   *  This is a setter for the CanBePrefix element as defined in NDN Packet Format v0.3.
-   *  In this implementation, it is mapped to the closest v0.2 semantics:
-   *  MaxSuffixComponents=1 means CanBePrefix is absent.
    */
   Interest&
   setCanBePrefix(bool canBePrefix)
   {
-    m_selectors.setMaxSuffixComponents(canBePrefix ? -1 : 1);
+    m_canBePrefix = canBePrefix;
     m_wire.reset();
     m_isCanBePrefixSet = true;
     return *this;
   }
 
   /** @brief Check whether the MustBeFresh element is present.
-   *
-   *  This is a getter for the MustBeFresh element as defined in NDN Packet Format v0.3.
-   *  In this implementation, it is mapped to the closest v0.2 semantics and appears as
-   *  MustBeFresh element under Selectors.
    */
   bool
-  getMustBeFresh() const
+  getMustBeFresh() const noexcept
   {
-    return m_selectors.getMustBeFresh();
+    return m_mustBeFresh;
   }
 
   /** @brief Add or remove MustBeFresh element.
    *  @param mustBeFresh whether MustBeFresh element should be present.
-   *
-   *  This is a setter for the MustBeFresh element as defined in NDN Packet Format v0.3.
-   *  In this implementation, it is mapped to the closest v0.2 semantics and appears as
-   *  MustBeFresh element under Selectors.
    */
   Interest&
   setMustBeFresh(bool mustBeFresh)
   {
-    m_selectors.setMustBeFresh(mustBeFresh);
+    m_mustBeFresh = mustBeFresh;
     m_wire.reset();
     return *this;
   }
 
   const DelegationList&
-  getForwardingHint() const
+  getForwardingHint() const noexcept
   {
     return m_forwardingHint;
   }
@@ -272,7 +244,7 @@ public: // element access
   refreshNonce();
 
   time::milliseconds
-  getInterestLifetime() const
+  getInterestLifetime() const noexcept
   {
     return m_interestLifetime;
   }
@@ -284,7 +256,7 @@ public: // element access
   setInterestLifetime(time::milliseconds lifetime);
 
   optional<uint8_t>
-  getHopLimit() const
+  getHopLimit() const noexcept
   {
     return m_hopLimit;
   }
@@ -381,132 +353,12 @@ public: // ParametersSha256DigestComponent support
   bool
   isParametersDigestValid() const;
 
-public: // Selectors (deprecated)
-  /** @brief Check if Interest has any selector present.
-   */
-  [[deprecated]]
-  bool
-  hasSelectors() const
-  {
-    return !m_selectors.empty();
-  }
-
-  [[deprecated]]
-  const Selectors&
-  getSelectors() const
-  {
-    return m_selectors;
-  }
-
-  [[deprecated]]
-  Interest&
-  setSelectors(const Selectors& selectors)
-  {
-    m_selectors = selectors;
-    m_wire.reset();
-    return *this;
-  }
-
-  [[deprecated]]
-  int
-  getMinSuffixComponents() const
-  {
-    return m_selectors.getMinSuffixComponents();
-  }
-
-  [[deprecated]]
-  Interest&
-  setMinSuffixComponents(int minSuffixComponents)
-  {
-    m_selectors.setMinSuffixComponents(minSuffixComponents);
-    m_wire.reset();
-    return *this;
-  }
-
-  [[deprecated]]
-  int
-  getMaxSuffixComponents() const
-  {
-    return m_selectors.getMaxSuffixComponents();
-  }
-
-  [[deprecated]]
-  Interest&
-  setMaxSuffixComponents(int maxSuffixComponents)
-  {
-    m_selectors.setMaxSuffixComponents(maxSuffixComponents);
-    m_wire.reset();
-    return *this;
-  }
-
-  [[deprecated]]
-  const KeyLocator&
-  getPublisherPublicKeyLocator() const
-  {
-    return m_selectors.getPublisherPublicKeyLocator();
-  }
-
-  [[deprecated]]
-  Interest&
-  setPublisherPublicKeyLocator(const KeyLocator& keyLocator)
-  {
-    m_selectors.setPublisherPublicKeyLocator(keyLocator);
-    m_wire.reset();
-    return *this;
-  }
-
-  [[deprecated]]
-  const Exclude&
-  getExclude() const
-  {
-    return m_selectors.getExclude();
-  }
-
-  [[deprecated]]
-  Interest&
-  setExclude(const Exclude& exclude)
-  {
-    m_selectors.setExclude(exclude);
-    m_wire.reset();
-    return *this;
-  }
-
-  [[deprecated]]
-  int
-  getChildSelector() const
-  {
-    return m_selectors.getChildSelector();
-  }
-
-  [[deprecated]]
-  Interest&
-  setChildSelector(int childSelector)
-  {
-    m_selectors.setChildSelector(childSelector);
-    m_wire.reset();
-    return *this;
-  }
-
 private:
-  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.2.
-   */
-  template<encoding::Tag TAG>
-  size_t
-  encode02(EncodingImpl<TAG>& encoder) const;
-
   /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.3.
    */
   template<encoding::Tag TAG>
   size_t
   encode03(EncodingImpl<TAG>& encoder) const;
-
-  /** @brief Decode @c m_wire as NDN Packet Format v0.2.
-   *  @retval true decoding successful.
-   *  @retval false decoding failed due to structural error.
-   *  @throw tlv::Error decoding error.
-   */
-  bool
-  decode02();
 
   /** @brief Decode @c m_wire as NDN Packet Format v0.3.
    *  @throw tlv::Error decoding error.
@@ -550,8 +402,9 @@ private:
   static bool s_autoCheckParametersDigest;
 
   Name m_name;
-  Selectors m_selectors; // NDN Packet Format v0.2 only
   mutable bool m_isCanBePrefixSet = false;
+  bool m_canBePrefix = true;
+  bool m_mustBeFresh = false;
   DelegationList m_forwardingHint;
   mutable optional<uint32_t> m_nonce;
   time::milliseconds m_interestLifetime;
@@ -563,7 +416,7 @@ private:
   // be empty. Conversely, if this vector is not empty, the first element will always
   // be an ApplicationParameters block. All blocks in this vector are covered by the
   // digest in the ParametersSha256DigestComponent.
-  std::vector<Block> m_parameters; // NDN Packet Format v0.3 only
+  std::vector<Block> m_parameters;
 
   mutable Block m_wire;
 };

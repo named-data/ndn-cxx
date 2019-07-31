@@ -95,55 +95,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 #endif // NDN_CXX_HAVE_TESTS
   }
 
-  if (getHopLimit() || hasApplicationParameters()) {
-    return encode03(encoder);
-  }
-  else {
-    return encode02(encoder);
-  }
-}
-
-template<encoding::Tag TAG>
-size_t
-Interest::encode02(EncodingImpl<TAG>& encoder) const
-{
-  // Encode as NDN Packet Format v0.2
-  // Interest ::= INTEREST-TYPE TLV-LENGTH
-  //                Name
-  //                Selectors?
-  //                Nonce
-  //                InterestLifetime?
-  //                ForwardingHint?
-  // (elements are encoded in reverse order)
-
-  size_t totalLength = 0;
-
-  // ForwardingHint
-  if (getForwardingHint().size() > 0) {
-    totalLength += getForwardingHint().wireEncode(encoder);
-  }
-
-  // InterestLifetime
-  if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::InterestLifetime,
-                                                  static_cast<uint64_t>(getInterestLifetime().count()));
-  }
-
-  // Nonce
-  uint32_t nonce = getNonce(); // if nonce was unset, this generates a fresh nonce
-  totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
-
-  // Selectors
-  if (hasSelectors()) {
-    totalLength += getSelectors().wireEncode(encoder);
-  }
-
-  // Name
-  totalLength += getName().wireEncode(encoder);
-
-  totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(tlv::Interest);
-  return totalLength;
+  return encode03(encoder);
 }
 
 template<encoding::Tag TAG>
@@ -247,77 +199,9 @@ Interest::wireDecode(const Block& wire)
   m_wire = wire;
   m_wire.parse();
 
-  if (!decode02()) {
-    decode03();
-    getNonce(); // force generation of nonce
-  }
-
+  decode03();
+  getNonce(); // force generation of nonce
   m_isCanBePrefixSet = true; // don't trigger warning from decoded packet
-}
-
-bool
-Interest::decode02()
-{
-  auto element = m_wire.elements_begin();
-
-  // Name
-  if (element != m_wire.elements_end() && element->type() == tlv::Name) {
-    // decode into a temporary object until we determine that the name is valid, in order
-    // to maintain class invariants and thus provide a basic form of exception safety
-    Name tempName(*element);
-    ssize_t digestIndex = findParametersDigestComponent(tempName);
-    if (digestIndex == -2) {
-      NDN_THROW(Error("Name has more than one ParametersSha256DigestComponent"));
-    }
-    m_name = std::move(tempName);
-    ++element;
-  }
-  else {
-    return false;
-  }
-
-  // Selectors?
-  if (element != m_wire.elements_end() && element->type() == tlv::Selectors) {
-    m_selectors.wireDecode(*element);
-    ++element;
-  }
-  else {
-    m_selectors = {};
-  }
-
-  // Nonce
-  if (element != m_wire.elements_end() && element->type() == tlv::Nonce) {
-    uint32_t nonce = 0;
-    if (element->value_size() != sizeof(nonce)) {
-      NDN_THROW(Error("Nonce element is malformed"));
-    }
-    std::memcpy(&nonce, element->value(), sizeof(nonce));
-    m_nonce = nonce;
-    ++element;
-  }
-  else {
-    return false;
-  }
-
-  // InterestLifetime?
-  if (element != m_wire.elements_end() && element->type() == tlv::InterestLifetime) {
-    m_interestLifetime = time::milliseconds(readNonNegativeInteger(*element));
-    ++element;
-  }
-  else {
-    m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
-  }
-
-  // ForwardingHint?
-  if (element != m_wire.elements_end() && element->type() == tlv::ForwardingHint) {
-    m_forwardingHint.wireDecode(*element, false);
-    ++element;
-  }
-  else {
-    m_forwardingHint = {};
-  }
-
-  return element == m_wire.elements_end();
 }
 
 void
@@ -349,7 +233,7 @@ Interest::decode03()
   }
   m_name = std::move(tempName);
 
-  m_selectors = Selectors().setMaxSuffixComponents(1); // CanBePrefix=0
+  m_canBePrefix = m_mustBeFresh = false;
   m_forwardingHint = {};
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
@@ -366,7 +250,7 @@ Interest::decode03()
         if (element->value_size() != 0) {
           NDN_THROW(Error("CanBePrefix element has non-zero TLV-LENGTH"));
         }
-        m_selectors.setMaxSuffixComponents(-1);
+        m_canBePrefix = true;
         lastElement = 2;
         break;
       }
@@ -377,7 +261,7 @@ Interest::decode03()
         if (element->value_size() != 0) {
           NDN_THROW(Error("MustBeFresh element has non-zero TLV-LENGTH"));
         }
-        m_selectors.setMustBeFresh(true);
+        m_mustBeFresh = true;
         lastElement = 3;
         break;
       }
@@ -459,33 +343,6 @@ Interest::toUri() const
 }
 
 // ---- matching ----
-
-bool
-Interest::matchesName(const Name& name) const
-{
-  if (name.size() < m_name.size())
-    return false;
-
-  if (!m_name.isPrefixOf(name))
-    return false;
-
-  if (getMinSuffixComponents() >= 0 &&
-      // name must include implicit digest
-      !(name.size() - m_name.size() >= static_cast<size_t>(getMinSuffixComponents())))
-    return false;
-
-  if (getMaxSuffixComponents() >= 0 &&
-      // name must include implicit digest
-      !(name.size() - m_name.size() <= static_cast<size_t>(getMaxSuffixComponents())))
-    return false;
-
-  if (!getExclude().empty() &&
-      name.size() > m_name.size() &&
-      getExclude().isExcluded(name[m_name.size()]))
-    return false;
-
-  return true;
-}
 
 bool
 Interest::matchesData(const Data& data) const
@@ -758,19 +615,6 @@ operator<<(std::ostream& os, const Interest& interest)
   os << interest.getName();
 
   char delim = '?';
-
-  if (interest.getMinSuffixComponents() >= 0) {
-    os << delim << "ndn.MinSuffixComponents=" << interest.getMinSuffixComponents();
-    delim = '&';
-  }
-  if (interest.getMaxSuffixComponents() >= 0) {
-    os << delim << "ndn.MaxSuffixComponents=" << interest.getMaxSuffixComponents();
-    delim = '&';
-  }
-  if (interest.getChildSelector() != DEFAULT_CHILD_SELECTOR) {
-    os << delim << "ndn.ChildSelector=" << interest.getChildSelector();
-    delim = '&';
-  }
   if (interest.getMustBeFresh()) {
     os << delim << "ndn.MustBeFresh=" << interest.getMustBeFresh();
     delim = '&';
@@ -781,10 +625,6 @@ operator<<(std::ostream& os, const Interest& interest)
   }
   if (interest.hasNonce()) {
     os << delim << "ndn.Nonce=" << interest.getNonce();
-    delim = '&';
-  }
-  if (!interest.getExclude().empty()) {
-    os << delim << "ndn.Exclude=" << interest.getExclude();
     delim = '&';
   }
 
