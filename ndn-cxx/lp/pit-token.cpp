@@ -19,60 +19,31 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_LP_TLV_HPP
-#define NDN_CXX_LP_TLV_HPP
+#include "ndn-cxx/lp/pit-token.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 namespace ndn {
 namespace lp {
-namespace tlv {
 
-/**
- * \brief TLV-TYPE numbers for NDNLPv2
- */
-enum {
-  LpPacket = 100,
-  Fragment = 80,
-  Sequence = 81,
-  FragIndex = 82,
-  FragCount = 83,
-  PitToken = 98,
-  Nack = 800,
-  NackReason = 801,
-  NextHopFaceId = 816,
-  IncomingFaceId = 817,
-  CachePolicy = 820,
-  CachePolicyType = 821,
-  CongestionMark = 832,
-  Ack = 836,
-  TxSequence = 840,
-  NonDiscovery = 844,
-  PrefixAnnouncement = 848,
-};
+static constexpr size_t LENGTH_MIN = 1;
+static constexpr size_t LENGTH_MAX = 32;
 
-enum {
-  /**
-   * \brief lower bound of 1-octet header field
-   */
-  HEADER1_MIN = 81,
+void
+PitToken::validate() const
+{
+  if (size() < LENGTH_MIN || size() > LENGTH_MAX) {
+    NDN_THROW(ndn::tlv::Error("PitToken length must be between " +
+      to_string(LENGTH_MIN) + " and " + to_string(LENGTH_MAX)));
+  }
+}
 
-  /**
-   * \brief upper bound of 1-octet header field
-   */
-  HEADER1_MAX = 99,
+std::ostream&
+operator<<(std::ostream& os, const PitToken& pitToken)
+{
+  printHex(os, pitToken, false);
+  return os;
+}
 
-  /**
-   * \brief lower bound of 3-octet header field
-   */
-  HEADER3_MIN = 800,
-
-  /**
-   * \brief upper bound of 3-octet header field
-   */
-  HEADER3_MAX = 959
-};
-
-} // namespace tlv
 } // namespace lp
 } // namespace ndn
-
-#endif // NDN_CXX_LP_TLV_HPP

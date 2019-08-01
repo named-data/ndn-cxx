@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,6 +53,11 @@ typedef FieldDecl<field_location_tags::Header,
                   NonNegativeIntegerTag,
                   NonNegativeIntegerTag> FragCountField;
 BOOST_CONCEPT_ASSERT((Field<FragCountField>));
+
+typedef FieldDecl<field_location_tags::Header,
+                  std::pair<Buffer::const_iterator, Buffer::const_iterator>,
+                  tlv::PitToken> PitTokenField;
+BOOST_CONCEPT_ASSERT((Field<PitTokenField>));
 
 typedef FieldDecl<field_location_tags::Header,
                   NackHeader,
@@ -126,10 +131,11 @@ typedef boost::mpl::set<
   SequenceField,
   FragIndexField,
   FragCountField,
+  PitTokenField,
   NackField,
   NextHopFaceIdField,
-  CachePolicyField,
   IncomingFaceIdField,
+  CachePolicyField,
   CongestionMarkField,
   AckField,
   TxSequenceField,

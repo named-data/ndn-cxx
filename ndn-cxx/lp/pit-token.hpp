@@ -19,60 +19,55 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_LP_TLV_HPP
-#define NDN_CXX_LP_TLV_HPP
+#ifndef NDN_CXX_LP_PIT_TOKEN_HPP
+#define NDN_CXX_LP_PIT_TOKEN_HPP
+
+#include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/tag.hpp"
 
 namespace ndn {
 namespace lp {
-namespace tlv {
 
-/**
- * \brief TLV-TYPE numbers for NDNLPv2
+/** \brief represent a PIT token field
+ *  \sa https://redmine.named-data.net/projects/nfd/wiki/NDNLPv2#PIT-Token
  */
-enum {
-  LpPacket = 100,
-  Fragment = 80,
-  Sequence = 81,
-  FragIndex = 82,
-  FragCount = 83,
-  PitToken = 98,
-  Nack = 800,
-  NackReason = 801,
-  NextHopFaceId = 816,
-  IncomingFaceId = 817,
-  CachePolicy = 820,
-  CachePolicyType = 821,
-  CongestionMark = 832,
-  Ack = 836,
-  TxSequence = 840,
-  NonDiscovery = 844,
-  PrefixAnnouncement = 848,
+class PitToken : public Buffer, public Tag
+{
+public:
+  static constexpr int
+  getTypeId() noexcept
+  {
+    return 98;
+  }
+
+  /** \brief Construct from header field.
+   *  \throw ndn::tlv::Error element length is out of range.
+   */
+  explicit
+  PitToken(const std::pair<Buffer::const_iterator, Buffer::const_iterator>& value)
+    : Buffer(value.first, value.second)
+  {
+    validate();
+  }
+
+  /** \brief Convert to header field.
+   *  \throw ndn::tlv::Error element length is out of range.
+   */
+  operator std::pair<Buffer::const_iterator, Buffer::const_iterator>() const
+  {
+    validate();
+    return std::make_pair(begin(), end());
+  }
+
+private:
+  void
+  validate() const;
 };
 
-enum {
-  /**
-   * \brief lower bound of 1-octet header field
-   */
-  HEADER1_MIN = 81,
+std::ostream&
+operator<<(std::ostream& os, const PitToken& pitToken);
 
-  /**
-   * \brief upper bound of 1-octet header field
-   */
-  HEADER1_MAX = 99,
-
-  /**
-   * \brief lower bound of 3-octet header field
-   */
-  HEADER3_MIN = 800,
-
-  /**
-   * \brief upper bound of 3-octet header field
-   */
-  HEADER3_MAX = 959
-};
-
-} // namespace tlv
 } // namespace lp
 } // namespace ndn
 
-#endif // NDN_CXX_LP_TLV_HPP
+#endif // NDN_CXX_LP_PIT_TOKEN_HPP
