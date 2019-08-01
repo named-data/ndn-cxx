@@ -748,6 +748,39 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
 }
 
+BOOST_AUTO_TEST_CASE(ToUri)
+{
+  Interest i;
+  i.setCanBePrefix(false);
+  BOOST_CHECK_EQUAL(i.toUri(), "/");
+
+  i.setName("/foo");
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo");
+
+  i.setCanBePrefix(true);
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix");
+
+  i.setMustBeFresh(true);
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh");
+
+  i.setNonce(1234);
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=1234");
+
+  i.setInterestLifetime(2_s);
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=1234&Lifetime=2000");
+
+  i.setHopLimit(18);
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=1234&Lifetime=2000&HopLimit=18");
+
+  i.setCanBePrefix(false);
+  i.setMustBeFresh(false);
+  i.setHopLimit(nullopt);
+  i.setApplicationParameters("2402CAFE"_block);
+  BOOST_CHECK_EQUAL(i.toUri(),
+                    "/foo/params-sha256=8621f5e8321f04104640c8d02877d7c5142cad6e203c5effda1783b1a0e476d6"
+                    "?Nonce=1234&Lifetime=2000");
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestInterest
 
 } // namespace tests

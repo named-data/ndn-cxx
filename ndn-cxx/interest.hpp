@@ -92,9 +92,10 @@ public:
 
   /** @brief Return a URI-like string that represents the Interest.
    *
-   *  The string starts with `getName().toUri()`.
-   *  If the Interest contains selectors, they are included as a query string.
-   *  Example: "/test/name?ndn.MustBeFresh=1"
+   *  The string always starts with `getName().toUri()`. After the name, if any of the
+   *  Interest's CanBePrefix, MustBeFresh, Nonce, InterestLifetime, or HopLimit fields
+   *  are present, their textual representation is appended as a query string.
+   *  Example: "/test/name?MustBeFresh&Nonce=123456"
    */
   std::string
   toUri() const;

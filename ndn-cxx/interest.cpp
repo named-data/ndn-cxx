@@ -615,17 +615,27 @@ operator<<(std::ostream& os, const Interest& interest)
   os << interest.getName();
 
   char delim = '?';
-  if (interest.getMustBeFresh()) {
-    os << delim << "ndn.MustBeFresh=" << interest.getMustBeFresh();
+  auto printOne = [&] (const auto&... args) {
+    os << delim;
     delim = '&';
+    using expand = int[];
+    (void)expand{(os << args, 0)...}; // use a fold expression when we switch to C++17
+  };
+
+  if (interest.getCanBePrefix()) {
+    printOne("CanBePrefix");
   }
-  if (interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    os << delim << "ndn.InterestLifetime=" << interest.getInterestLifetime().count();
-    delim = '&';
+  if (interest.getMustBeFresh()) {
+    printOne("MustBeFresh");
   }
   if (interest.hasNonce()) {
-    os << delim << "ndn.Nonce=" << interest.getNonce();
-    delim = '&';
+    printOne("Nonce=", interest.getNonce());
+  }
+  if (interest.getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
+    printOne("Lifetime=", interest.getInterestLifetime().count());
+  }
+  if (interest.getHopLimit()) {
+    printOne("HopLimit=", static_cast<unsigned>(*interest.getHopLimit()));
   }
 
   return os;
