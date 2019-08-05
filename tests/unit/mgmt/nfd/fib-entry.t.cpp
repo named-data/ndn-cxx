@@ -39,10 +39,8 @@ makeFibEntry()
   for (size_t i = 1; i < 4; i++) {
     nexthops.push_back(NextHopRecord()
                        .setFaceId(i * 10)
-                       .setEndpointId(i * 10 + 1)
                        .setCost(i * 100 + 100));
   }
-  nexthops.front().unsetEndpointId();
 
   return FibEntry()
       .setPrefix("/this/is/a/test")
@@ -53,15 +51,13 @@ BOOST_AUTO_TEST_CASE(NextHopRecordEncode)
 {
   NextHopRecord record1;
   record1.setFaceId(10)
-      .setEndpointId(7)
       .setCost(200);
   const Block& wire = record1.wireEncode();
 
   static const uint8_t expected[] = {
-    0x81, 0x09, // NextHopRecord
+    0x81, 0x06, // NextHopRecord
           0x69, 0x01, 0x0a, // FaceId
           0x6a, 0x01, 0xc8, // Cost
-          0x71, 0x01, 0x07 // EndpointId
   };
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
@@ -79,19 +75,11 @@ BOOST_AUTO_TEST_CASE(NextHopRecordEquality)
   record2 = record1;
   BOOST_CHECK_EQUAL(record1, record2);
 
-  record1.setEndpointId(7);
-  record2.setEndpointId(7);
-  BOOST_CHECK_EQUAL(record1, record2);
-
   record2.setFaceId(42);
   BOOST_CHECK_NE(record1, record2);
 
   record2 = record1;
   record2.setCost(42);
-  BOOST_CHECK_NE(record1, record2);
-
-  record2 = record1;
-  record2.setEndpointId(42);
   BOOST_CHECK_NE(record1, record2);
 }
 
@@ -119,34 +107,30 @@ BOOST_AUTO_TEST_CASE(FibEntryEncode)
   FibEntry entry1 = makeFibEntry();
   NextHopRecord oneMore;
   oneMore.setFaceId(40);
-  oneMore.setEndpointId(8);
   oneMore.setCost(500);
   entry1.addNextHopRecord(oneMore);
   const Block& wire = entry1.wireEncode();
 
-static const uint8_t expected[] = {
-     0x80, 0x41, // FibEntry
-           0x07, 0x13, // Name
-                 0x08, 0x04, 0x74, 0x68, 0x69, 0x73, // GenericNameComponent
-                 0x08, 0x02, 0x69, 0x73, // GenericNameComponent
-                 0x08, 0x01, 0x61, // GenericNameComponent
-                 0x08, 0x04, 0x74, 0x65, 0x73, 0x74, // GenericNameComponent
-           0x81, 0x06, // NextHopRecord
-                 0x69, 0x01, 0x0a, // FaceId
-                 0x6a, 0x01, 0xc8, // Cost
-           0x81, 0x0a, // NextHopRecord
-                 0x69, 0x01, 0x14, // FaceId
-                 0x6a, 0x02, 0x01, 0x2c, // Cost
-                 0x71, 0x01, 0x15, // EndpointId
-           0x81, 0x0a, // NextHopRecord
-                 0x69, 0x01, 0x1e, // FaceId
-                 0x6a, 0x02, 0x01, 0x90, // Cost
-                 0x71, 0x01, 0x1f, // EndpointId
-           0x81, 0x0a, // NextHopRecord
-                 0x69, 0x01, 0x28, // FaceId
-                 0x6a, 0x02, 0x01, 0xf4, // Cost
-                 0x71, 0x01, 0x08 // EndpointId
-   };
+  static const uint8_t expected[] = {
+    0x80, 0x38, // FibEntry
+          0x07, 0x13, // Name
+                0x08, 0x04, 0x74, 0x68, 0x69, 0x73, // GenericNameComponent
+                0x08, 0x02, 0x69, 0x73, // GenericNameComponent
+                0x08, 0x01, 0x61, // GenericNameComponent
+                0x08, 0x04, 0x74, 0x65, 0x73, 0x74, // GenericNameComponent
+          0x81, 0x06, // NextHopRecord
+                0x69, 0x01, 0x0a, // FaceId
+                0x6a, 0x01, 0xc8, // Cost
+          0x81, 0x07, // NextHopRecord
+                0x69, 0x01, 0x14, // FaceId
+                0x6a, 0x02, 0x01, 0x2c, // Cost
+          0x81, 0x07, // NextHopRecord
+                0x69, 0x01, 0x1e, // FaceId
+                0x6a, 0x02, 0x01, 0x90, // Cost
+          0x81, 0x07, // NextHopRecord
+                0x69, 0x01, 0x28, // FaceId
+                0x6a, 0x02, 0x01, 0xf4, // Cost
+  };
   BOOST_CHECK_EQUAL_COLLECTIONS(expected, expected + sizeof(expected),
                                 wire.begin(), wire.end());
 
@@ -175,7 +159,6 @@ BOOST_AUTO_TEST_CASE(FibEntryEquality)
   entry2 = entry1;
   auto nh1 = NextHopRecord()
              .setFaceId(1)
-             .setEndpointId(7)
              .setCost(1000);
   entry1.addNextHopRecord(nh1);
   BOOST_CHECK_NE(entry1, entry2);
@@ -183,7 +166,6 @@ BOOST_AUTO_TEST_CASE(FibEntryEquality)
 
   auto nh42 = NextHopRecord()
               .setFaceId(42)
-              .setEndpointId(22)
               .setCost(42);
   entry1.addNextHopRecord(nh42);
   entry2.addNextHopRecord(nh42)
@@ -216,8 +198,8 @@ BOOST_AUTO_TEST_CASE(Print)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(entry),
                     "FibEntry(Prefix: /this/is/a/test,\n"
                     "         NextHops: [NextHopRecord(FaceId: 10, Cost: 200),\n"
-                    "                    NextHopRecord(FaceId: 20, EndpointId: 21, Cost: 300),\n"
-                    "                    NextHopRecord(FaceId: 30, EndpointId: 31, Cost: 400)]\n"
+                    "                    NextHopRecord(FaceId: 20, Cost: 300),\n"
+                    "                    NextHopRecord(FaceId: 30, Cost: 400)]\n"
                     "         )");
 }
 

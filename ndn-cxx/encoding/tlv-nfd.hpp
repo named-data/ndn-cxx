@@ -94,7 +94,6 @@ enum {
   // FIB Management
   FibEntry      = 128,
   NextHopRecord = 129,
-  EndpointId    = 113,
 
   // Strategy Choice Management
   StrategyChoice = 128,
