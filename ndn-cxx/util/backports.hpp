@@ -24,6 +24,10 @@
 
 #include "ndn-cxx/detail/common.hpp"
 
+#include <boost/predef/compiler/clang.h>
+#include <boost/predef/compiler/gcc.h>
+#include <boost/predef/compiler/visualc.h>
+
 #ifdef __has_cpp_attribute
 #  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
 #else
@@ -42,10 +46,21 @@
 #  define NDN_CXX_FALLTHROUGH [[clang::fallthrough]]
 #elif NDN_CXX_HAS_CPP_ATTRIBUTE(gnu::fallthrough)
 #  define NDN_CXX_FALLTHROUGH [[gnu::fallthrough]]
-#elif defined(__GNUC__) && (__GNUC__ >= 7)
+#elif BOOST_COMP_GNUC >= BOOST_VERSION_NUMBER(7,0,0)
 #  define NDN_CXX_FALLTHROUGH __attribute__((fallthrough))
 #else
 #  define NDN_CXX_FALLTHROUGH ((void)0)
+#endif
+
+#ifndef NDEBUG
+#  define NDN_CXX_UNREACHABLE BOOST_ASSERT(false)
+#elif BOOST_COMP_GNUC || BOOST_COMP_CLANG
+#  define NDN_CXX_UNREACHABLE __builtin_unreachable()
+#elif BOOST_COMP_MSVC
+#  define NDN_CXX_UNREACHABLE __assume(0)
+#else
+#  include <cstdlib>
+#  define NDN_CXX_UNREACHABLE std::abort()
 #endif
 
 #include "ndn-cxx/util/backports-ostream-joiner.hpp"

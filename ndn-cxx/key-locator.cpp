@@ -127,7 +127,7 @@ KeyLocator::getType() const
   case 3:
     return get<uint32_t>(m_locator);
   default:
-    BOOST_ASSERT(false);
+    NDN_CXX_UNREACHABLE;
   }
 }
 

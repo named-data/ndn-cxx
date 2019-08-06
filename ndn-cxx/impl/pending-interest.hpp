@@ -56,8 +56,7 @@ operator<<(std::ostream& os, PendingInterestOrigin origin)
     case PendingInterestOrigin::FORWARDER:
       return os << "forwarder";
   }
-  BOOST_ASSERT(false);
-  return os;
+  NDN_CXX_UNREACHABLE;
 }
 
 /**

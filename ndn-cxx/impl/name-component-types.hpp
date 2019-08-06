@@ -91,10 +91,9 @@ public:
    *  \pre getAltUriPrefix() != nullptr
    */
   virtual Component
-  parseAltUriValue(const std::string& input) const
+  parseAltUriValue(const std::string&) const
   {
-    BOOST_ASSERT(false);
-    return Component();
+    NDN_CXX_UNREACHABLE;
   }
 
   /** \brief Write URI representation of \p comp to \p os.

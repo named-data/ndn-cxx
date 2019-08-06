@@ -352,8 +352,7 @@ public:
         return true;
       }
       default: {
-        BOOST_ASSERT(false);
-        return false;
+        NDN_CXX_UNREACHABLE;
       }
     }
   }

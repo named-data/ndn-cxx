@@ -185,8 +185,8 @@ DelegationList::insert(uint64_t preference, const Name& name,
       }
       return false;
   }
-  BOOST_ASSERT_MSG(false, "Unknown onConflict");
-  return false;
+
+  NDN_THROW(std::invalid_argument("Unknown InsertConflictResolution"));
 }
 
 void

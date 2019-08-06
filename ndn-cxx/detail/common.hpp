@@ -20,8 +20,8 @@
  */
 
 /** \file
- *  \brief import common constructs for ndn-cxx library internal use
- *  \warning This file is an implementation detail of ndn-cxx library.
+ *  \brief Common includes and macros used throughout the library.
+ *  \warning This file is an implementation detail of the ndn-cxx library.
  *           Aliases imported in this file MUST NOT be used outside of ndn-cxx.
  */
 
@@ -29,6 +29,11 @@
 #define NDN_DETAIL_COMMON_HPP
 
 #include "ndn-cxx/detail/config.hpp"
+
+// require C++14
+#if __cplusplus < 201402L
+#error "ndn-cxx applications must be compiled using the C++14 standard (-std=c++14)"
+#endif
 
 // ndn-cxx specific macros declared in this and other headers must have NDN_CXX_ prefix
 // to avoid conflicts with other projects that include ndn-cxx headers.
@@ -42,11 +47,6 @@
 #define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED protected
 #define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE private
 #define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE private
-#endif
-
-// require C++14
-#if __cplusplus < 201402L
-#error "ndn-cxx applications must be compiled using the C++14 standard (-std=c++14)"
 #endif
 
 #include <algorithm>
