@@ -25,21 +25,88 @@
 #include "tests/identity-management-fixture.hpp"
 
 #include <boost/filesystem.hpp>
+#include <boost/mpl/vector.hpp>
 
 namespace ndn {
 namespace tests {
 
-class IoFixture
+BOOST_AUTO_TEST_SUITE(Util)
+BOOST_AUTO_TEST_SUITE(TestIo)
+
+struct NoEncoding
+{
+  const io::IoEncoding encoding{io::NO_ENCODING};
+  const std::vector<uint8_t> blob{0xd1, 0x0, 0xb0, 0x1a};
+  std::istringstream stream{std::string("\xd1\x00\xb0\x1a", 4), std::ios_base::binary};
+};
+
+struct Base64Encoding
+{
+  const io::IoEncoding encoding = io::BASE64;
+  const std::vector<uint8_t> blob{0x42, 0x61, 0x73, 0x65, 0x36, 0x34, 0x45, 0x6e, 0x63};
+  std::istringstream stream{"QmFzZTY0RW5j\n", std::ios_base::binary};
+};
+
+struct HexEncoding
+{
+  const io::IoEncoding encoding = io::HEX;
+  const std::vector<uint8_t> blob{0x48, 0x65, 0x78, 0x45, 0x6e, 0x63};
+  std::istringstream stream{"486578456E63", std::ios_base::binary};
+};
+
+using Encodings = boost::mpl::vector<NoEncoding, Base64Encoding, HexEncoding>;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(LoadBuffer, T, Encodings)
+{
+  T t;
+  shared_ptr<Buffer> buf = io::loadBuffer(t.stream, t.encoding);
+  BOOST_CHECK_EQUAL_COLLECTIONS(buf->begin(), buf->end(), t.blob.begin(), t.blob.end());
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(SaveBuffer, T, Encodings)
+{
+  T t;
+  std::ostringstream os(std::ios_base::binary);
+  io::saveBuffer(t.blob.data(), t.blob.size(), os, t.encoding);
+  BOOST_CHECK_EQUAL(os.str(), t.stream.str());
+}
+
+BOOST_AUTO_TEST_CASE(LoadBufferException)
+{
+  std::ifstream in("this-file-does-not-exist", std::ios_base::binary);
+  BOOST_CHECK_THROW(io::loadBuffer(in, io::NO_ENCODING), io::Error);
+}
+
+BOOST_AUTO_TEST_CASE(SaveBufferException)
+{
+  class NullStreambuf : public std::streambuf
+  {
+  };
+
+  NullStreambuf nullbuf;
+  std::ostream out(&nullbuf);
+  const Buffer buffer(1);
+  BOOST_CHECK_THROW(io::saveBuffer(buffer.data(), buffer.size(), out, io::NO_ENCODING), io::Error);
+}
+
+BOOST_AUTO_TEST_CASE(UnknownIoEncoding)
+{
+  std::stringstream ss;
+  BOOST_CHECK_THROW(io::loadBuffer(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
+  BOOST_CHECK_THROW(io::saveBuffer(nullptr, 0, ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
+}
+
+class FileIoFixture
 {
 protected:
-  IoFixture()
-    : filepath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) /= "TestIo")
+  FileIoFixture()
+    : filepath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "TestIo")
     , filename(filepath.string())
   {
     boost::filesystem::create_directories(filepath.parent_path());
   }
 
-  ~IoFixture()
+  ~FileIoFixture()
   {
     boost::system::error_code ec;
     boost::filesystem::remove(filepath, ec); // ignore error
@@ -53,28 +120,29 @@ protected:
     boost::filesystem::create_directory(filepath);
   }
 
-  template<typename Container, typename CharT = typename Container::value_type>
+  template<typename Container>
   Container
   readFile() const
   {
     Container container;
     std::ifstream fs(filename, std::ios_base::binary);
+    BOOST_REQUIRE_MESSAGE(fs, "error opening file");
     char ch;
     while (fs.get(ch)) {
-      container.push_back(static_cast<CharT>(ch));
+      container.push_back(static_cast<typename Container::value_type>(ch));
     }
     return container;
   }
 
-  template<typename Container, typename CharT = typename Container::value_type>
+  template<typename Container>
   void
   writeFile(const Container& content) const
   {
     std::ofstream fs(filename, std::ios_base::binary);
-    for (CharT ch : content) {
+    BOOST_REQUIRE_MESSAGE(fs, "error opening file");
+    for (auto ch : content) {
       fs.put(static_cast<char>(ch));
     }
-    fs.close();
     BOOST_REQUIRE_MESSAGE(fs, "error writing file");
   }
 
@@ -83,8 +151,7 @@ protected:
   const std::string filename;
 };
 
-BOOST_AUTO_TEST_SUITE(Util)
-BOOST_FIXTURE_TEST_SUITE(TestIo, IoFixture)
+BOOST_FIXTURE_TEST_SUITE(FileIo, FileIoFixture)
 
 class EncodableType
 {
@@ -104,7 +171,7 @@ public:
   bool shouldThrow = false;
 };
 
-template<bool SHOULD_THROW = false>
+template<bool SHOULD_THROW>
 class DecodableTypeTpl
 {
 public:
@@ -119,7 +186,7 @@ public:
   void
   wireDecode(const Block& block)
   {
-    if (m_shouldThrow) {
+    if (SHOULD_THROW) {
       NDN_THROW(tlv::Error("decode error"));
     }
 
@@ -128,13 +195,10 @@ public:
     BOOST_REQUIRE_EQUAL(block.value_size(), 1);
     BOOST_CHECK_EQUAL(block.value()[0], 0xEE);
   }
-
-private:
-  bool m_shouldThrow = SHOULD_THROW;
 };
 
-typedef DecodableTypeTpl<false> DecodableType;
-typedef DecodableTypeTpl<true> DecodableTypeThrow;
+using DecodableType = DecodableTypeTpl<false>;
+using DecodableTypeThrow = DecodableTypeTpl<true>;
 
 BOOST_AUTO_TEST_CASE(LoadNoEncoding)
 {
@@ -260,7 +324,9 @@ BOOST_AUTO_TEST_CASE(SaveFileNotWritable)
   BOOST_CHECK_THROW(io::save(encoded, filename, io::NO_ENCODING), io::Error);
 }
 
-class IdCertFixture : public IoFixture
+BOOST_AUTO_TEST_SUITE_END() // FileIo
+
+class IdCertFixture : public FileIoFixture
                     , public IdentityManagementFixture
 {
 };

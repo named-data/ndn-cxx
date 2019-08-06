@@ -36,25 +36,25 @@ public:
   using std::runtime_error::runtime_error;
 };
 
-/** \brief indicates how a file or stream is encoded
+/** \brief Indicates how a file or stream of bytes is encoded.
  */
 enum IoEncoding {
-  /** \brief binary without encoding
+  /** \brief Raw binary, without encoding
    */
   NO_ENCODING,
 
-  /** \brief base64 encoding
+  /** \brief Base64 encoding
    *
-   *  \p save() inserts a newline after every 64 characters,
-   *  \p load() can accept base64 text with or without newlines
+   *  `save()` inserts a newline after every 64 characters,
+   *  `load()` can accept base64 text with or without newlines.
    */
   BASE64,
 
-  /** \brief hexadecimal encoding
+  /** \brief Hexadecimal encoding
    *
-   *  \p save() uses uppercase letters A-F, \p load() can accept mixed-case
+   *  `save()` uses uppercase letters A-F, `load()` can accept mixed-case.
    */
-  HEX
+  HEX,
 };
 
 namespace detail {
@@ -63,29 +63,36 @@ template<typename T>
 static void
 checkInnerError(typename T::Error*)
 {
-  static_assert(std::is_base_of<tlv::Error, typename T::Error>::value,
-                "T::Error, if declared, must inherit from ndn::tlv::Error");
+  static_assert(std::is_convertible<typename T::Error*, tlv::Error*>::value,
+                "T::Error, if defined, must be a subclass of ndn::tlv::Error");
 }
 
 template<typename T>
 static void
 checkInnerError(...)
 {
-  // T::Error is not declared
+  // T::Error is not defined
 }
 
 } // namespace detail
 
-/** \brief loads a TLV block from a stream
- *  \return if success, the Block and true
- *          otherwise, a default-constructed Block and false
+/** \brief Reads bytes from a stream until EOF.
+ *  \return a Buffer containing the bytes read from the stream
+ *  \throw Error error during loading
+ *  \throw std::invalid_argument the specified encoding is not supported
+ */
+shared_ptr<Buffer>
+loadBuffer(std::istream& is, IoEncoding encoding = BASE64);
+
+/** \brief Reads a TLV block from a stream.
+ *  \return a Block, or nullopt if an error occurs
  */
 optional<Block>
 loadBlock(std::istream& is, IoEncoding encoding = BASE64);
 
-/** \brief loads a TLV element from a stream
- *  \tparam T type of TLV element; T must be WireDecodable,
- *            and must have a Error nested type
+/** \brief Reads a TLV element from a stream.
+ *  \tparam T type of TLV element; `T` must be WireDecodable and the nested type
+ *            `T::Error`, if defined, must be a subclass of ndn::tlv::Error
  *  \return the TLV element, or nullptr if an error occurs
  */
 template<typename T>
@@ -95,7 +102,7 @@ load(std::istream& is, IoEncoding encoding = BASE64)
   BOOST_CONCEPT_ASSERT((WireDecodable<T>));
   detail::checkInnerError<T>(nullptr);
 
-  optional<Block> block = loadBlock(is, encoding);
+  auto block = loadBlock(is, encoding);
   if (!block) {
     return nullptr;
   }
@@ -108,7 +115,10 @@ load(std::istream& is, IoEncoding encoding = BASE64)
   }
 }
 
-/** \brief loads a TLV element from a file
+/** \brief Reads a TLV element from a file.
+ *  \tparam T type of TLV element; `T` must be WireDecodable and the nested type
+ *            `T::Error`, if defined, must be a subclass of ndn::tlv::Error
+ *  \return the TLV element, or nullptr if an error occurs
  */
 template<typename T>
 shared_ptr<T>
@@ -118,16 +128,25 @@ load(const std::string& filename, IoEncoding encoding = BASE64)
   return load<T>(is, encoding);
 }
 
-/** \brief saves a TLV block to a stream
+/** \brief Writes a byte buffer to a stream.
  *  \throw Error error during saving
+ *  \throw std::invalid_argument the specified encoding is not supported
+ */
+void
+saveBuffer(const uint8_t* buf, size_t size, std::ostream& os, IoEncoding encoding = BASE64);
+
+/** \brief Writes a TLV block to a stream.
+ *  \throw Error error during saving
+ *  \throw std::invalid_argument the specified encoding is not supported
  */
 void
 saveBlock(const Block& block, std::ostream& os, IoEncoding encoding = BASE64);
 
-/** \brief saves a TLV element to a stream
- *  \tparam T type of TLV element; T must be WireEncodable,
- *            and must have a Error nested type
+/** \brief Writes a TLV element to a stream.
+ *  \tparam T type of TLV element; `T` must be WireEncodable and the nested type
+ *            `T::Error`, if defined, must be a subclass of ndn::tlv::Error
  *  \throw Error error during encoding or saving
+ *  \throw std::invalid_argument the specified encoding is not supported
  */
 template<typename T>
 void
@@ -147,7 +166,11 @@ save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
   saveBlock(block, os, encoding);
 }
 
-/** \brief saves a TLV element to a file
+/** \brief Writes a TLV element to a file.
+ *  \tparam T type of TLV element; `T` must be WireEncodable and the nested type
+ *            `T::Error`, if defined, must be a subclass of ndn::tlv::Error
+ *  \throw Error error during encoding or saving
+ *  \throw std::invalid_argument the specified encoding is not supported
  */
 template<typename T>
 void
