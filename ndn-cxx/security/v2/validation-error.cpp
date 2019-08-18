@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,10 +57,10 @@ operator<<(std::ostream& os, ValidationError::Code code)
       break;
   }
   if (code >= ValidationError::Code::USER_MIN) {
-    return os << "Custom error code " << static_cast<uint32_t>(code);
+    return os << "Custom error code " << to_underlying(code);
   }
   else {
-    return os << "Unrecognized error code " << static_cast<uint32_t>(code);
+    return os << "Unrecognized error code " << to_underlying(code);
   }
 }
 

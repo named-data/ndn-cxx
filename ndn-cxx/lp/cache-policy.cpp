@@ -32,14 +32,10 @@ operator<<(std::ostream& os, CachePolicyType policy)
 {
   switch (policy) {
   case CachePolicyType::NO_CACHE:
-    os << "NoCache";
-    break;
+    return os << "NoCache";
   default:
-    os << "None";
-    break;
+    return os << "None";
   }
-
-  return os;
 }
 
 CachePolicy::CachePolicy()

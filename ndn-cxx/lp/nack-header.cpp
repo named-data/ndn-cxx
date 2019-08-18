@@ -31,19 +31,14 @@ operator<<(std::ostream& os, NackReason reason)
 {
   switch (reason) {
   case NackReason::CONGESTION:
-    os << "Congestion";
-    break;
+    return os << "Congestion";
   case NackReason::DUPLICATE:
-    os << "Duplicate";
-    break;
+    return os << "Duplicate";
   case NackReason::NO_ROUTE:
-    os << "NoRoute";
-    break;
+    return os << "NoRoute";
   default:
-    os << "None";
-    break;
+    return os << "None";
   }
-  return os;
 }
 
 bool
@@ -56,7 +51,7 @@ isLessSevere(lp::NackReason x, lp::NackReason y)
     return true;
   }
 
-  return static_cast<int>(x) < static_cast<int>(y);
+  return to_underlying(x) < to_underlying(y);
 }
 
 NackHeader::NackHeader()

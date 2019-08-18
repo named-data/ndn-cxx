@@ -77,13 +77,13 @@ setConventionDecoding(Convention convention)
 static bool
 canDecodeMarkerConvention()
 {
-  return (static_cast<int>(g_conventionDecoding) & static_cast<int>(Convention::MARKER)) != 0;
+  return (to_underlying(g_conventionDecoding) & to_underlying(Convention::MARKER)) != 0;
 }
 
 static bool
 canDecodeTypedConvention()
 {
-  return (static_cast<int>(g_conventionDecoding) & static_cast<int>(Convention::TYPED)) != 0;
+  return (to_underlying(g_conventionDecoding) & to_underlying(Convention::TYPED)) != 0;
 }
 
 void

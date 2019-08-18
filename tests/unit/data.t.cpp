@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -211,7 +211,7 @@ BOOST_FIXTURE_TEST_CASE(Decode02, DataSigningKeyFixture)
   Data d(dataBlock);
 
   BOOST_CHECK_EQUAL(d.getName().toUri(), "/local/ndn/prefix");
-  BOOST_CHECK_EQUAL(d.getContentType(), static_cast<uint32_t>(tlv::ContentType_Blob));
+  BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
                                 d.getContent().value_size()), "SUCCESS!");

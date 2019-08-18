@@ -49,7 +49,7 @@ operator<<(std::ostream& os, LogLevel level)
     return os << "ALL";
   }
 
-  NDN_THROW(std::invalid_argument("unknown log level " + to_string(static_cast<int>(level))));
+  NDN_THROW(std::invalid_argument("unknown log level " + to_string(to_underlying(level))));
 }
 
 LogLevel

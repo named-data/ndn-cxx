@@ -40,6 +40,10 @@
 #  define NDN_CXX_HAS_INCLUDE(x) 0
 #endif
 
+//
+// http://wg21.link/P0188
+// [[fallthrough]] attribute (C++17)
+//
 #if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)
 #  define NDN_CXX_FALLTHROUGH [[fallthrough]]
 #elif NDN_CXX_HAS_CPP_ATTRIBUTE(clang::fallthrough)
@@ -74,24 +78,33 @@
 
 namespace ndn {
 
+//
+// https://redmine.named-data.net/issues/2743
+// std::to_string() (C++11)
+//
 #ifdef NDN_CXX_HAVE_STD_TO_STRING
 using std::to_string;
 #else
-template<typename V>
+template<typename T>
 inline std::string
-to_string(const V& v)
+to_string(const T& val)
 {
-  return boost::lexical_cast<std::string>(v);
+  return boost::lexical_cast<std::string>(val);
 }
 #endif // NDN_CXX_HAVE_STD_TO_STRING
 
-#if __cpp_lib_clamp >= 201603
+//
+// https://wg21.link/P0025
+// std::clamp() (C++17)
+//
+#if __cpp_lib_clamp >= 201603L
 using std::clamp;
 #else
 template<typename T, typename Compare>
 constexpr const T&
 clamp(const T& v, const T& lo, const T& hi, Compare comp)
 {
+  BOOST_ASSERT(!comp(hi, lo));
   return comp(v, lo) ? lo : comp(hi, v) ? hi : v;
 }
 
@@ -99,9 +112,26 @@ template<typename T>
 constexpr const T&
 clamp(const T& v, const T& lo, const T& hi)
 {
+  BOOST_ASSERT(!(hi < lo));
   return (v < lo) ? lo : (hi < v) ? hi : v;
 }
 #endif // __cpp_lib_clamp
+
+//
+// https://wg21.link/P1682
+// std::to_underlying() (approved for LWG as of July 2019)
+//
+#if __cpp_lib_to_underlying >= 202002L
+using std::to_underlying;
+#else
+template<typename T>
+constexpr std::underlying_type_t<T>
+to_underlying(T val) noexcept
+{
+  static_assert(std::is_enum<T>::value, "");
+  return static_cast<std::underlying_type_t<T>>(val);
+}
+#endif // __cpp_lib_to_underlying
 
 using ::nonstd::any;
 using ::nonstd::any_cast;

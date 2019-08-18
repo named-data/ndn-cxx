@@ -36,7 +36,7 @@ operator<<(std::ostream& os, KeyIdType keyIdType)
     case KeyIdType::RANDOM:
       return os << "RANDOM";
   }
-  return os << static_cast<int>(keyIdType);
+  return os << to_underlying(keyIdType);
 }
 
 std::ostream&
@@ -54,7 +54,7 @@ operator<<(std::ostream& os, KeyType keyType)
     case KeyType::HMAC:
       return os << "HMAC";
   }
-  return os << static_cast<int>(keyType);
+  return os << to_underlying(keyType);
 }
 
 std::ostream&
@@ -84,7 +84,7 @@ operator<<(std::ostream& os, DigestAlgorithm algorithm)
     case DigestAlgorithm::SHA3_512:
       return os << "SHA3-512";
   }
-  return os << static_cast<int>(algorithm);
+  return os << to_underlying(algorithm);
 }
 
 std::ostream&
@@ -96,7 +96,7 @@ operator<<(std::ostream& os, BlockCipherAlgorithm algorithm)
     case BlockCipherAlgorithm::AES_CBC:
       return os << "AES-CBC";
   }
-  return os << static_cast<int>(algorithm);
+  return os << to_underlying(algorithm);
 }
 
 std::ostream&
@@ -108,7 +108,7 @@ operator<<(std::ostream& os, CipherOperator op)
     case CipherOperator::ENCRYPT:
       return os << "ENCRYPT";
   }
-  return os << static_cast<int>(op);
+  return os << to_underlying(op);
 }
 
 } // namespace ndn
