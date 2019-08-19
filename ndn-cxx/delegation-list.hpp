@@ -98,7 +98,7 @@ public:
     return m_dels.end();
   }
 
-  bool
+  NDN_CXX_NODISCARD bool
   empty() const noexcept
   {
     return m_dels.empty();

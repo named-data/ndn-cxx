@@ -83,7 +83,7 @@ public: // encode and decode
   wireDecode(const Block& wire);
 
 public: // attributes
-  bool
+  NDN_CXX_NODISCARD bool
   empty() const
   {
     return holds_alternative<monostate>(m_locator);

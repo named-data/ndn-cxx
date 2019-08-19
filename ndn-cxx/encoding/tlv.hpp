@@ -188,7 +188,7 @@ isCriticalType(uint32_t type)
  * @return true if number was successfully read from input, false otherwise
  */
 template<typename Iterator>
-bool
+NDN_CXX_NODISCARD bool
 readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept;
 
 /**
@@ -205,7 +205,7 @@ readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept;
  *       the TLV-TYPE is zero or larger than 2^32-1 (maximum allowed by the packet format).
  */
 template<typename Iterator>
-bool
+NDN_CXX_NODISCARD bool
 readType(Iterator& begin, Iterator end, uint32_t& type) noexcept;
 
 /**

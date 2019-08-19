@@ -172,7 +172,7 @@ public:
     });
   }
 
-  bool
+  NDN_CXX_NODISCARD bool
   empty() const noexcept
   {
     return m_container.empty();

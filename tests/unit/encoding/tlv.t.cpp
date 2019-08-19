@@ -106,9 +106,10 @@ checkArchetype()
 {
   boost::input_iterator_archetype<uint8_t> begin, end;
   uint64_t number = readVarNumber(begin, end);
-  uint32_t type = readType(begin, end);;
-  readVarNumber(begin, end, number);
-  readType(begin, end, type);
+  uint32_t type = readType(begin, end);
+  bool ok = readVarNumber(begin, end, number);
+  ok = readType(begin, end, type);
+  static_cast<void>(ok);
 }
 
 static const uint8_t BUFFER[] = {

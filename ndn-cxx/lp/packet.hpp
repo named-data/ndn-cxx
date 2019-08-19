@@ -58,7 +58,7 @@ public:
    * \retval true packet has no field
    * \retval false packet has one or more fields
    */
-  bool
+  NDN_CXX_NODISCARD bool
   empty() const
   {
     return m_wire.elements_size() == 0;
@@ -70,7 +70,7 @@ public: // field access
    * \details This is equivalent to count() > 0
    */
   template<typename FIELD>
-  bool
+  NDN_CXX_NODISCARD bool
   has() const
   {
     return count<FIELD>() > 0;
@@ -80,7 +80,7 @@ public: // field access
    * \return number of occurrences of FIELD
    */
   template<typename FIELD>
-  size_t
+  NDN_CXX_NODISCARD size_t
   count() const
   {
     return std::count_if(m_wire.elements_begin(), m_wire.elements_end(),
@@ -112,7 +112,7 @@ public: // field access
    * \return values of all occurrences of FIELD
    */
   template<typename FIELD>
-  std::vector<typename FIELD::ValueType>
+  NDN_CXX_NODISCARD std::vector<typename FIELD::ValueType>
   list() const
   {
     std::vector<typename FIELD::ValueType> output;

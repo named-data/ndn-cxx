@@ -135,7 +135,7 @@ public: // constructors, encoding, decoding
 public: // access
   /** @brief Checks if the name is empty, i.e. has no components.
    */
-  bool
+  NDN_CXX_NODISCARD bool
   empty() const
   {
     return m_wire.elements().empty();

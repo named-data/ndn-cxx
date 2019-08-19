@@ -165,7 +165,7 @@ public: // construction, assignment
    *  @note This function does not throw upon decoding failure.
    *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
    */
-  static std::tuple<bool, Block>
+  NDN_CXX_NODISCARD static std::tuple<bool, Block>
   fromBuffer(ConstBufferPtr buffer, size_t offset);
 
   /** @brief Try to parse Block from a raw buffer
@@ -175,7 +175,7 @@ public: // construction, assignment
    *  @note This overload copies the TLV element octets into an internal wire buffer.
    *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
    */
-  static std::tuple<bool, Block>
+  NDN_CXX_NODISCARD static std::tuple<bool, Block>
   fromBuffer(const uint8_t* buf, size_t bufSize);
 
 public: // wire format
@@ -197,7 +197,7 @@ public: // wire format
    *  @warning Note that an empty Block is *not* the same as a valid but zero-length Block.
    *  @deprecated Use Block::isValid()
    */
-  bool
+  NDN_CXX_NODISCARD bool
   empty() const noexcept
   {
     return !isValid();

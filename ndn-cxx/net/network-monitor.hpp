@@ -92,7 +92,7 @@ public:
    * @warning May return incomplete results if called before the
    *          #onEnumerationCompleted signal has been emitted.
    */
-  std::vector<shared_ptr<const NetworkInterface>>
+  NDN_CXX_NODISCARD std::vector<shared_ptr<const NetworkInterface>>
   listNetworkInterfaces() const;
 
 protected:

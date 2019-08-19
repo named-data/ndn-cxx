@@ -56,6 +56,18 @@
 #  define NDN_CXX_FALLTHROUGH ((void)0)
 #endif
 
+//
+// http://wg21.link/P0189
+// [[nodiscard]] attribute (C++17)
+//
+#if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(nodiscard)
+#  define NDN_CXX_NODISCARD [[nodiscard]]
+#elif NDN_CXX_HAS_CPP_ATTRIBUTE(gnu::warn_unused_result)
+#  define NDN_CXX_NODISCARD [[gnu::warn_unused_result]]
+#else
+#  define NDN_CXX_NODISCARD
+#endif
+
 #ifndef NDEBUG
 #  define NDN_CXX_UNREACHABLE BOOST_ASSERT(false)
 #elif BOOST_COMP_GNUC || BOOST_COMP_CLANG

@@ -517,7 +517,7 @@ private:
   void
   setApplicationParametersInternal(Block parameters);
 
-  shared_ptr<Buffer>
+  NDN_CXX_NODISCARD shared_ptr<Buffer>
   computeParametersDigest() const;
 
   /** @brief Append a ParametersSha256DigestComponent to the Interest's name

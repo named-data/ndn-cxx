@@ -125,7 +125,7 @@ printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase = true);
  *
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
-std::string
+NDN_CXX_NODISCARD std::string
 toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true);
 
 /**
@@ -134,7 +134,7 @@ toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true);
  * @param buffer Buffer of bytes to convert to hexadecimal format
  * @param wantUpperCase if true (the default) use uppercase hex chars
  */
-std::string
+NDN_CXX_NODISCARD std::string
 toHex(const Buffer& buffer, bool wantUpperCase = true);
 
 /**
@@ -149,7 +149,7 @@ fromHex(const std::string& hexString);
 /**
  * @brief Convert (the least significant nibble of) @p n to the corresponding hex character
  */
-constexpr char
+NDN_CXX_NODISCARD constexpr char
 toHexChar(unsigned int n, bool wantUpperCase = true) noexcept
 {
   return wantUpperCase ?
@@ -160,7 +160,7 @@ toHexChar(unsigned int n, bool wantUpperCase = true) noexcept
 /**
  * @brief Convert the hex character @p c to an integer in [0, 15], or -1 if it's not a hex character
  */
-constexpr int
+NDN_CXX_NODISCARD constexpr int
 fromHexChar(char c) noexcept
 {
   return (c >= '0' && c <= '9') ? int(c - '0') :
@@ -185,7 +185,7 @@ fromHexChar(char c) noexcept
  * escape("100%") == "100%25"
  * @endcode
  */
-std::string
+NDN_CXX_NODISCARD std::string
 escape(const std::string& str);
 
 void
@@ -204,7 +204,7 @@ escape(std::ostream& os, const char* str, size_t len);
  * unescape("hello%20world%FooBar") == "hello world%FooBar"
  * @endcode
  */
-std::string
+NDN_CXX_NODISCARD std::string
 unescape(const std::string& str);
 
 void

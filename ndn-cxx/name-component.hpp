@@ -530,7 +530,7 @@ public: // commonly used TLV-TYPEs
   fromParametersSha256Digest(const uint8_t* digest, size_t digestSize);
 
 public: // comparison
-  bool
+  NDN_CXX_NODISCARD bool
   empty() const
   {
     return value_size() == 0;

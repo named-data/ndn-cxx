@@ -66,7 +66,7 @@ public:
   FaceUri(const char* uri);
 
   /// exception-safe parsing
-  bool
+  NDN_CXX_NODISCARD bool
   parse(const std::string& uri);
 
 public: // scheme-specific construction

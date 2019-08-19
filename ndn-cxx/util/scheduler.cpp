@@ -38,7 +38,7 @@ public:
   {
   }
 
-  time::nanoseconds
+  NDN_CXX_NODISCARD time::nanoseconds
   expiresFromNow() const
   {
     return std::max(expireTime - time::steady_clock::now(), 0_ns);

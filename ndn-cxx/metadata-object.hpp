@@ -76,7 +76,7 @@ public:
    *
    * @throw tlv::Error @p discoveryInterestName is not valid
    */
-  Data
+  NDN_CXX_NODISCARD Data
   makeData(Name discoveryInterestName,
            KeyChain& keyChain,
            const ndn::security::SigningInfo& si = KeyChain::getDefaultSigningInfo(),
@@ -114,7 +114,7 @@ public: // static methods
    *
    * @param name prefix of data collection
    */
-  static Interest
+  NDN_CXX_NODISCARD static Interest
   makeDiscoveryInterest(Name name);
 
 private:

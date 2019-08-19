@@ -147,7 +147,7 @@ public: // Management
    * @param password The password to unlock the TPM.
    * @param passwordLength The password size.
    */
-  bool
+  NDN_CXX_NODISCARD bool
   unlockTpm(const char* password, size_t passwordLength) const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:

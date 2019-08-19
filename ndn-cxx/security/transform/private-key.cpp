@@ -360,7 +360,8 @@ PrivateKey::toPkcs1() const
     NDN_THROW(Error("Cannot convert key to PKCS #1 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  membio.read(buffer->data(), buffer->size());
+  if (!membio.read(buffer->data(), buffer->size()))
+    NDN_THROW(Error("Read error during PKCS #1 conversion"));
 
   return buffer;
 }
@@ -378,7 +379,8 @@ PrivateKey::toPkcs8(const char* pw, size_t pwLen) const
     NDN_THROW(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  membio.read(buffer->data(), buffer->size());
+  if (!membio.read(buffer->data(), buffer->size()))
+    NDN_THROW(Error("Read error during PKCS #8 conversion"));
 
   return buffer;
 }
@@ -395,7 +397,8 @@ PrivateKey::toPkcs8(PasswordCallback pwCallback) const
     NDN_THROW(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  membio.read(buffer->data(), buffer->size());
+  if (!membio.read(buffer->data(), buffer->size()))
+    NDN_THROW(Error("Read error during PKCS #8 conversion"));
 
   return buffer;
 }
