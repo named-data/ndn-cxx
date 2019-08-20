@@ -69,7 +69,7 @@ SegmentFetcher::SegmentFetcher(Face& face,
   , m_face(face)
   , m_scheduler(m_face.getIoService())
   , m_validator(validator)
-  , m_rttEstimator(options.rttOptions)
+  , m_rttEstimator(make_shared<RttEstimator::Options>(options.rttOptions))
   , m_timeLastSegmentReceived(time::steady_clock::now())
   , m_nextSegmentNum(0)
   , m_cwnd(options.initCwnd)
@@ -266,9 +266,9 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
   uint64_t currentSegment = data.getName().get(-1).toSegment();
   // Add measurement to RTO estimator (if not retransmission)
   if (pendingSegmentIt->second.state == SegmentState::FirstInterest) {
+    BOOST_ASSERT(m_nSegmentsInFlight >= 0);
     m_rttEstimator.addMeasurement(m_timeLastSegmentReceived - pendingSegmentIt->second.sendTime,
-                                  std::max<int64_t>(m_nSegmentsInFlight + 1, 1),
-                                  currentSegment);
+                                  static_cast<size_t>(m_nSegmentsInFlight) + 1);
   }
 
   // Remove from pending segments map

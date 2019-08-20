@@ -21,19 +21,19 @@
  * @author Shuo Yang
  * @author Weiwei Liu
  * @author Chavoosh Ghasemi
+ * @author Davide Pesavento
  */
 
 #ifndef NDN_CXX_UTIL_RTT_ESTIMATOR_HPP
 #define NDN_CXX_UTIL_RTT_ESTIMATOR_HPP
 
-#include "ndn-cxx/util/signal.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace util {
 
 /**
- * @brief RTT Estimator.
+ * @brief RTT/RTO estimator.
  *
  * This class implements the "Mean-Deviation" RTT estimator, as discussed in RFC 6298,
  * with the modifications to RTO calculation described in RFC 7323 Appendix G.
@@ -41,15 +41,8 @@ namespace util {
 class RttEstimator
 {
 public:
-  class Options
+  struct Options
   {
-  public:
-    constexpr
-    Options() noexcept
-    {
-    }
-
-  public:
     double alpha = 0.125; ///< weight of exponential moving average for smoothed RTT
     double beta = 0.25; ///< weight of exponential moving average for RTT variation
     time::nanoseconds initialRto = 1_s; ///< initial RTO value
@@ -60,29 +53,28 @@ public:
   };
 
   /**
-   * @brief Creates an RTT estimator.
-   *
-   * Configures the RTT estimator with the default parameters if an instance of Options
-   * is not passed to the constructor.
+   * @brief Constructor.
+   * @param options options for the estimator; if nullptr, a default set of options is used
    */
   explicit
-  RttEstimator(const Options& options = Options());
+  RttEstimator(shared_ptr<const Options> options = nullptr);
 
   /**
    * @brief Records a new RTT measurement.
-   *
    * @param rtt the sampled RTT
    * @param nExpectedSamples number of expected samples, must be greater than 0. It should be
    *                         set to the current number of in-flight Interests. Please refer to
    *                         Appendix G of RFC 7323 for details.
-   * @param segNum segment number or other opaque sample identifier. This value is not used by
-   *               the estimator, but is passed verbatim to afterMeasurement() signal subscribers.
-   *
    * @note Do not call this function with RTT samples from retransmitted Interests (per Karn's algorithm).
    */
   void
-  addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples,
-                 optional<uint64_t> segNum = nullopt);
+  addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples = 1);
+
+  bool
+  hasSamples() const
+  {
+    return m_sRtt != -1_ns;
+  }
 
   /**
    * @brief Returns the estimated RTO value.
@@ -92,6 +84,67 @@ public:
   {
     return m_rto;
   }
+
+  /**
+   * @brief Returns the smoothed RTT value (SRTT).
+   * @pre `hasSamples() == true`
+   */
+  time::nanoseconds
+  getSmoothedRtt() const
+  {
+    return m_sRtt;
+  }
+
+  /**
+   * @brief Returns the RTT variation (RTTVAR).
+   * @pre `hasSamples() == true`
+   */
+  time::nanoseconds
+  getRttVariation() const
+  {
+    return m_rttVar;
+  }
+
+  /**
+   * @brief Backoff RTO by a factor of Options::rtoBackoffMultiplier.
+   */
+  void
+  backoffRto();
+
+protected:
+  shared_ptr<const Options> m_options;
+
+private:
+  time::nanoseconds m_sRtt{-1};   ///< smoothed round-trip time
+  time::nanoseconds m_rttVar{-1}; ///< round-trip time variation
+  time::nanoseconds m_rto;        ///< retransmission timeout
+};
+
+/**
+ * @brief RTT/RTO estimator that also maintains min/max/average RTT statistics.
+ */
+class RttEstimatorWithStats : private RttEstimator
+{
+public:
+  using RttEstimator::Options;
+  using RttEstimator::RttEstimator;
+
+  using RttEstimator::hasSamples;
+  using RttEstimator::getEstimatedRto;
+  using RttEstimator::getSmoothedRtt;
+  using RttEstimator::getRttVariation;
+  using RttEstimator::backoffRto;
+
+  /**
+   * @brief Records a new RTT measurement.
+   * @param rtt the sampled RTT
+   * @param nExpectedSamples number of expected samples, must be greater than 0. It should be
+   *                         set to the current number of in-flight Interests. Please refer to
+   *                         Appendix G of RFC 7323 for details.
+   * @note Do not call this function with RTT samples from retransmitted Interests (per Karn's algorithm).
+   */
+  void
+  addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples = 1);
 
   /**
    * @brief Returns the minimum RTT observed.
@@ -120,51 +173,11 @@ public:
     return m_rttAvg;
   }
 
-  /**
-   * @brief Returns the smoothed RTT value (SRTT).
-   */
-  time::nanoseconds
-  getSmoothedRtt() const
-  {
-    return m_sRtt;
-  }
-
-  /**
-   * @brief Returns the RTT variation (RTTVAR).
-   */
-  time::nanoseconds
-  getRttVariation() const
-  {
-    return m_rttVar;
-  }
-
-  /**
-   * @brief Backoff RTO by a factor of Options::rtoBackoffMultiplier.
-   */
-  void
-  backoffRto();
-
-public:
-  struct Sample
-  {
-    time::nanoseconds rtt;      ///< measured RTT
-    time::nanoseconds sRtt;     ///< smoothed RTT
-    time::nanoseconds rttVar;   ///< RTT variation
-    time::nanoseconds rto;      ///< retransmission timeout
-    optional<uint64_t> segNum;  ///< segment number, see description in addMeasurement()
-  };
-
-  Signal<RttEstimator, Sample> afterMeasurement;
-
 private:
-  const Options m_options;
-  time::nanoseconds m_sRtt;   ///< smoothed round-trip time
-  time::nanoseconds m_rttVar; ///< round-trip time variation
-  time::nanoseconds m_rto;    ///< retransmission timeout
-  time::nanoseconds m_rttMin;
-  time::nanoseconds m_rttMax;
-  time::nanoseconds m_rttAvg;
-  int64_t m_nRttSamples;
+  time::nanoseconds m_rttMin = time::nanoseconds::max();
+  time::nanoseconds m_rttMax = time::nanoseconds::min();
+  time::nanoseconds m_rttAvg = 0_ns;
+  int64_t m_nRttSamples = 0;
 };
 
 } // namespace util

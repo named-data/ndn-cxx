@@ -21,6 +21,7 @@
  * @author Shuo Yang
  * @author Weiwei Liu
  * @author Chavoosh Ghasemi
+ * @author Davide Pesavento
  */
 
 #include "ndn-cxx/util/rtt-estimator.hpp"
@@ -28,58 +29,56 @@
 namespace ndn {
 namespace util {
 
-RttEstimator::RttEstimator(const Options& options)
-  : m_options(options)
-  , m_sRtt(0)
-  , m_rttVar(0)
-  , m_rto(m_options.initialRto)
-  , m_rttMin(time::nanoseconds::max())
-  , m_rttMax(time::nanoseconds::min())
-  , m_rttAvg(0)
-  , m_nRttSamples(0)
+RttEstimator::RttEstimator(shared_ptr<const Options> options)
+  : m_options(options ? std::move(options) : make_shared<const Options>())
+  , m_rto(m_options->initialRto)
 {
-  BOOST_ASSERT(m_options.alpha >= 0 && m_options.alpha <= 1);
-  BOOST_ASSERT(m_options.beta >= 0 && m_options.beta <= 1);
-  BOOST_ASSERT(m_options.initialRto >= 0_ns);
-  BOOST_ASSERT(m_options.minRto >= 0_ns);
-  BOOST_ASSERT(m_options.maxRto >= m_options.minRto);
-  BOOST_ASSERT(m_options.k >= 0);
-  BOOST_ASSERT(m_options.rtoBackoffMultiplier >= 1);
+  BOOST_ASSERT(m_options->alpha >= 0 && m_options->alpha <= 1);
+  BOOST_ASSERT(m_options->beta >= 0 && m_options->beta <= 1);
+  BOOST_ASSERT(m_options->initialRto >= 0_ns);
+  BOOST_ASSERT(m_options->minRto >= 0_ns);
+  BOOST_ASSERT(m_options->maxRto >= m_options->minRto);
+  BOOST_ASSERT(m_options->k >= 0);
+  BOOST_ASSERT(m_options->rtoBackoffMultiplier >= 1);
 }
 
 void
-RttEstimator::addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples,
-                             optional<uint64_t> segNum)
+RttEstimator::addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples)
 {
+  BOOST_ASSERT(rtt >= 0_ns);
   BOOST_ASSERT(nExpectedSamples > 0);
 
-  if (m_nRttSamples == 0) { // first measurement
+  if (!hasSamples()) { // first measurement
     m_sRtt = rtt;
     m_rttVar = m_sRtt / 2;
   }
   else {
-    double alpha = m_options.alpha / nExpectedSamples;
-    double beta = m_options.beta / nExpectedSamples;
+    double alpha = m_options->alpha / nExpectedSamples;
+    double beta = m_options->beta / nExpectedSamples;
     m_rttVar = time::duration_cast<time::nanoseconds>((1 - beta) * m_rttVar +
                                                       beta * time::abs(m_sRtt - rtt));
     m_sRtt = time::duration_cast<time::nanoseconds>((1 - alpha) * m_sRtt + alpha * rtt);
   }
-  m_rto = clamp(m_sRtt + m_options.k * m_rttVar,
-                m_options.minRto, m_options.maxRto);
-
-  afterMeasurement({rtt, m_sRtt, m_rttVar, m_rto, segNum});
-
-  m_rttAvg = (m_nRttSamples * m_rttAvg + rtt) / (m_nRttSamples + 1);
-  m_rttMax = std::max(rtt, m_rttMax);
-  m_rttMin = std::min(rtt, m_rttMin);
-  m_nRttSamples++;
+  m_rto = clamp(m_sRtt + m_options->k * m_rttVar,
+                m_options->minRto, m_options->maxRto);
 }
 
 void
 RttEstimator::backoffRto()
 {
-  m_rto = clamp(m_rto * m_options.rtoBackoffMultiplier,
-                m_options.minRto, m_options.maxRto);
+  m_rto = clamp(m_rto * m_options->rtoBackoffMultiplier,
+                m_options->minRto, m_options->maxRto);
+}
+
+void
+RttEstimatorWithStats::addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples)
+{
+  RttEstimator::addMeasurement(rtt, nExpectedSamples);
+
+  m_rttAvg = (m_nRttSamples * m_rttAvg + rtt) / (m_nRttSamples + 1);
+  m_rttMax = std::max(rtt, m_rttMax);
+  m_rttMin = std::min(rtt, m_rttMin);
+  m_nRttSamples++;
 }
 
 } // namespace util
