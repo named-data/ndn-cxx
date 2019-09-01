@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,11 +21,11 @@
 
 /** \file
  *  \brief Backport of ostream_joiner from the Library Fundamentals v2 TS
- *  \sa http://en.cppreference.com/w/cpp/experimental/ostream_joiner
+ *  \sa https://en.cppreference.com/w/cpp/experimental/ostream_joiner
  */
 
-#ifndef NDN_UTIL_BACKPORTS_OSTREAM_JOINER_HPP
-#define NDN_UTIL_BACKPORTS_OSTREAM_JOINER_HPP
+#ifndef NDN_UTIL_OSTREAM_JOINER_HPP
+#define NDN_UTIL_OSTREAM_JOINER_HPP
 
 #include "ndn-cxx/util/backports.hpp"
 
@@ -122,4 +122,4 @@ make_ostream_joiner(std::basic_ostream<CharT, Traits>& os, DelimT&& delimiter)
 } // namespace ndn
 
 #endif // NDN_CXX_HAVE_EXPERIMENTAL_OSTREAM_JOINER
-#endif // NDN_UTIL_BACKPORTS_OSTREAM_JOINER_HPP
+#endif // NDN_UTIL_OSTREAM_JOINER_HPP

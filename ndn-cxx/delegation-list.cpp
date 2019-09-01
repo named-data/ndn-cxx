@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/delegation-list.hpp"
+#include "ndn-cxx/util/ostream-joiner.hpp"
 
 namespace ndn {
 

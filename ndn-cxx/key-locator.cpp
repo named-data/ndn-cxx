@@ -20,8 +20,8 @@
  */
 
 #include "ndn-cxx/key-locator.hpp"
-#include "ndn-cxx/detail/overload.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/overload.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 namespace ndn {
@@ -56,7 +56,7 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
 
   size_t totalLength = 0;
 
-  auto visitor = detail::overload(
+  auto visitor = overload(
     []  (monostate)           {}, // nothing to encode, TLV-VALUE is empty
     [&] (const Name& name)    { totalLength += name.wireEncode(encoder); },
     [&] (const Block& digest) { totalLength += encoder.prependBlock(digest); },
@@ -192,7 +192,7 @@ KeyLocator::setKeyDigest(const ConstBufferPtr& keyDigest)
 std::ostream&
 operator<<(std::ostream& os, const KeyLocator& keyLocator)
 {
-  auto visitor = detail::overload(
+  auto visitor = overload(
     [&] (monostate) {
       os << "None";
     },

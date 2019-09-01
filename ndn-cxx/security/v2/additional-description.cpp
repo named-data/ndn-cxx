@@ -22,6 +22,7 @@
 #include "ndn-cxx/security/v2/additional-description.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/util/concepts.hpp"
+#include "ndn-cxx/util/ostream-joiner.hpp"
 
 namespace ndn {
 namespace security {

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/encoding/nfd-constants.hpp"
+#include "ndn-cxx/util/ostream-joiner.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 #include <boost/algorithm/string.hpp>

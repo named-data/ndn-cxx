@@ -19,26 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DETAIL_OVERLOAD_HPP
-#define NDN_DETAIL_OVERLOAD_HPP
+#ifndef NDN_UTIL_OVERLOAD_HPP
+#define NDN_UTIL_OVERLOAD_HPP
 
+#include <boost/predef/compiler/gcc.h>
 #include <boost/version.hpp>
 
-#if BOOST_VERSION >= 106100
+// Hana does not support GCC < 6.0.0
+#if (BOOST_VERSION >= 106100) && (!BOOST_COMP_GNUC || (BOOST_COMP_GNUC >= BOOST_VERSION_NUMBER(6,0,0)))
+
 #include <boost/hana/functional/overload.hpp>
 
 namespace ndn {
-namespace detail {
 constexpr boost::hana::make_overload_t overload{};
-} // namespace detail
 } // namespace ndn
 
 #else
+
 #include <type_traits>
 
 namespace ndn {
 namespace detail {
-namespace hana_backports {
 
 // The following code is copied from the Boost.Hana library.
 // Copyright Louis Dionne 2013-2017
@@ -102,12 +103,11 @@ struct make_overload_t {
 };
 #endif // DOXYGEN
 
-} // namespace hana_backports
-
-constexpr hana_backports::make_overload_t overload{};
-
 } // namespace detail
+
+constexpr detail::make_overload_t overload{};
+
 } // namespace ndn
 
 #endif // BOOST_VERSION >= 106100
-#endif // NDN_DETAIL_OVERLOAD_HPP
+#endif // NDN_UTIL_OVERLOAD_HPP

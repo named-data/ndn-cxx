@@ -73,7 +73,7 @@ getKeyLocatorName(const SignatureInfo& si, ValidationState& state)
   }
 
   const KeyLocator& kl = si.getKeyLocator();
-  if (kl.getType() != KeyLocator::KeyLocator_Name) {
+  if (kl.getType() != tlv::Name) {
     state.fail({ValidationError::Code::INVALID_KEY_LOCATOR, "KeyLocator type is not Name"});
     return Name();
   }

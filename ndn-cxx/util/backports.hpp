@@ -79,10 +79,10 @@
 #  define NDN_CXX_UNREACHABLE std::abort()
 #endif
 
-#include "ndn-cxx/util/backports-ostream-joiner.hpp"
 #include "ndn-cxx/util/nonstd/any.hpp"
 #include "ndn-cxx/util/nonstd/optional.hpp"
 #include "ndn-cxx/util/nonstd/variant.hpp"
+#include "ndn-cxx/util/ostream-joiner.hpp"
 
 #ifndef NDN_CXX_HAVE_STD_TO_STRING
 #include <boost/lexical_cast.hpp>

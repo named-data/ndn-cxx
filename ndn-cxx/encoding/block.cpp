@@ -26,6 +26,7 @@
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/util/ostream-joiner.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 #include <boost/asio/buffer.hpp>

@@ -170,8 +170,8 @@ operator<<(std::ostream& os, const Certificate& cert)
 
     if (cert.getSignature().hasKeyLocator()) {
       os << "  Key Locator: ";
-      const KeyLocator& keyLocator = cert.getSignature().getKeyLocator();
-      if (keyLocator.getType() == KeyLocator::KeyLocator_Name && keyLocator.getName() == cert.getKeyName()) {
+      const auto& keyLocator = cert.getSignature().getKeyLocator();
+      if (keyLocator.getType() == tlv::Name && keyLocator.getName() == cert.getKeyName()) {
         os << "Self-Signed ";
       }
       os << keyLocator << "\n";

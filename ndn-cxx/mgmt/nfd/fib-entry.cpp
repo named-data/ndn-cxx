@@ -24,6 +24,7 @@
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 #include "ndn-cxx/util/concepts.hpp"
+#include "ndn-cxx/util/ostream-joiner.hpp"
 
 #include <boost/range/adaptor/reversed.hpp>
 
