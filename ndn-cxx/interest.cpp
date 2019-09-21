@@ -95,13 +95,6 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 #endif // NDN_CXX_HAVE_TESTS
   }
 
-  return encode03(encoder);
-}
-
-template<encoding::Tag TAG>
-size_t
-Interest::encode03(EncodingImpl<TAG>& encoder) const
-{
   // Encode as NDN Packet Format v0.3
   // Interest = INTEREST-TYPE TLV-LENGTH
   //              Name
@@ -195,18 +188,9 @@ Interest::wireDecode(const Block& wire)
   if (wire.type() != tlv::Interest) {
     NDN_THROW(Error("Interest", wire.type()));
   }
-
   m_wire = wire;
   m_wire.parse();
 
-  decode03();
-  getNonce(); // force generation of nonce
-  m_isCanBePrefixSet = true; // don't trigger warning from decoded packet
-}
-
-void
-Interest::decode03()
-{
   // Interest = INTEREST-TYPE TLV-LENGTH
   //              Name
   //              [CanBePrefix]
@@ -233,6 +217,7 @@ Interest::decode03()
   }
   m_name = std::move(tempName);
 
+  m_isCanBePrefixSet = true; // don't trigger warning from decoded packet
   m_canBePrefix = m_mustBeFresh = false;
   m_forwardingHint = {};
   m_nonce.reset();
@@ -332,6 +317,8 @@ Interest::decode03()
   if (s_autoCheckParametersDigest && !isParametersDigestValid()) {
     NDN_THROW(Error("ParametersSha256DigestComponent does not match the SHA-256 of Interest parameters"));
   }
+
+  getNonce(); // force generation of nonce
 }
 
 std::string

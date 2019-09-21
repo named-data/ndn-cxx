@@ -66,7 +66,7 @@ public:
   explicit
   Interest(const Block& wire);
 
-  /** @brief Prepend wire encoding to @p encoder.
+  /** @brief Prepend wire encoding to @p encoder according to NDN Packet Format v0.3.
    */
   template<encoding::Tag TAG>
   size_t
@@ -355,18 +355,6 @@ public: // ParametersSha256DigestComponent support
   isParametersDigestValid() const;
 
 private:
-  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.3.
-   */
-  template<encoding::Tag TAG>
-  size_t
-  encode03(EncodingImpl<TAG>& encoder) const;
-
-  /** @brief Decode @c m_wire as NDN Packet Format v0.3.
-   *  @throw tlv::Error decoding error.
-   */
-  void
-  decode03();
-
   void
   setApplicationParametersInternal(Block parameters);
 
@@ -403,13 +391,13 @@ private:
   static bool s_autoCheckParametersDigest;
 
   Name m_name;
-  mutable bool m_isCanBePrefixSet = false;
-  bool m_canBePrefix = true;
-  bool m_mustBeFresh = false;
   DelegationList m_forwardingHint;
   mutable optional<uint32_t> m_nonce;
   time::milliseconds m_interestLifetime;
   optional<uint8_t> m_hopLimit;
+  mutable bool m_isCanBePrefixSet = false;
+  bool m_canBePrefix = true;
+  bool m_mustBeFresh = false;
 
   // Stores the "Interest parameters", i.e., all maybe-unrecognized non-critical TLV
   // elements that appear at the end of the Interest, starting from ApplicationParameters.
