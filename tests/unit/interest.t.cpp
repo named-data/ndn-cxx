@@ -92,6 +92,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(i2.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(i2.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
+  BOOST_CHECK_EQUAL(i2.hasNonce(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i2.getHopLimit() == nullopt);
@@ -133,6 +134,7 @@ BOOST_AUTO_TEST_CASE(WithParameters)
   BOOST_CHECK_EQUAL(i2.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(i2.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
+  BOOST_CHECK_EQUAL(i2.hasNonce(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i2.getHopLimit() == nullopt);
@@ -250,31 +252,32 @@ BOOST_AUTO_TEST_CASE(NotAnInterest)
 BOOST_AUTO_TEST_CASE(NameOnly)
 {
   i.wireDecode("0505 0703(080149)"_block);
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
-  BOOST_CHECK_EQUAL(i.hasNonce(), true); // a random nonce is generated
+  BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 
-  BOOST_CHECK(!i.hasWire()); // nonce generation resets wire encoding
-
   // modify then re-encode
   i.setNonce(0x54657c95);
+  BOOST_CHECK_EQUAL(i.hasWire(), false);
   BOOST_CHECK_EQUAL(i.wireEncode(), "050B 0703(080149) 0A04957C6554"_block);
 }
 
 BOOST_AUTO_TEST_CASE(NameCanBePrefix)
 {
   i.wireDecode("0507 0703(080149) 2100"_block);
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
   BOOST_CHECK_EQUAL(i.getName(), "/I");
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
-  BOOST_CHECK_EQUAL(i.hasNonce(), true); // a random nonce is generated
+  BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);

@@ -317,8 +317,6 @@ Interest::wireDecode(const Block& wire)
   if (s_autoCheckParametersDigest && !isParametersDigestValid()) {
     NDN_THROW(Error("ParametersSha256DigestComponent does not match the SHA-256 of Interest parameters"));
   }
-
-  getNonce(); // force generation of nonce
 }
 
 std::string
