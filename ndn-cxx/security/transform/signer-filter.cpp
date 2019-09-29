@@ -44,13 +44,6 @@ SignerFilter::SignerFilter(DigestAlgorithm algo, const PrivateKey& key)
     NDN_THROW(Error(getIndex(), "Unsupported digest algorithm " +
                     boost::lexical_cast<std::string>(algo)));
 
-  if (key.getKeyType() == KeyType::HMAC) {
-    size_t mdSize = static_cast<size_t>(EVP_MD_size(md)) * 8;
-    if (key.getKeySize() < mdSize)
-      NDN_THROW(Error(getIndex(), "HMAC key is shorter than the digest output (" +
-                      to_string(key.getKeySize()) + " < " + to_string(mdSize) + " bits)"));
-  }
-
   if (EVP_DigestSignInit(m_impl->ctx, nullptr, md, nullptr,
                          reinterpret_cast<EVP_PKEY*>(key.getEvpPkey())) != 1)
     NDN_THROW(Error(getIndex(), "Failed to initialize signing context with " +

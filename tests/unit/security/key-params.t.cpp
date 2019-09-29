@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(Hmac)
   BOOST_CHECK_EQUAL(params2.getKeyIdType(), KeyIdType::USER_SPECIFIED);
   BOOST_CHECK_EQUAL(params2.getKeyId(), keyId);
 
-  BOOST_CHECK_THROW(HmacKeyParams(keyId, 192), KeyParams::Error); // too short
+  BOOST_CHECK_THROW(HmacKeyParams(keyId, 0), KeyParams::Error);
   BOOST_CHECK_THROW(HmacKeyParams(keyId, 300), KeyParams::Error); // not a multiple of 8
 
   HmacKeyParams params3;
