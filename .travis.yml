@@ -97,6 +97,8 @@ install:
 before_script:
   - if [[ ${TRAVIS_OS_NAME} == linux ]]; then export NODE_LABELS="Linux Ubuntu Ubuntu-18.04"; fi
   - if [[ ${TRAVIS_OS_NAME} == osx ]]; then export NODE_LABELS="OSX OSX-${OSX_VERSION}"; fi
+  # do not waste time upgrading useless packages
+  - if [[ ${TRAVIS_OS_NAME} == osx ]]; then brew pin cgal gdal numpy postgis sfcgal || true; fi
   - if [[ ${OSX_VERSION} == 10.12 ]]; then brew update; fi
   # workaround for https://github.com/Homebrew/homebrew-core/issues/26358
   - if [[ ${OSX_VERSION} == 10.12 ]]; then brew outdated python || brew upgrade python; fi
