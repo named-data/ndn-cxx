@@ -20,15 +20,18 @@
  */
 
 #include "ndn-cxx/security/tpm/back-end.hpp"
+
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/tpm/key-handle.hpp"
 #include "ndn-cxx/security/tpm/tpm.hpp"
-#include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
-#include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/util/random.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace security {
@@ -55,33 +58,21 @@ BackEnd::createKey(const Name& identity, const KeyParams& params)
     return doCreateKey(identity, params);
   }
 
-  // key name checking
   switch (params.getKeyIdType()) {
-    case KeyIdType::USER_SPECIFIED: { // keyId is pre-set.
+    case KeyIdType::USER_SPECIFIED: {
+      // check that the provided key id isn't already taken
       Name keyName = v2::constructKeyName(identity, params.getKeyId());
       if (hasKey(keyName)) {
         NDN_THROW(Tpm::Error("Key `" + keyName.toUri() + "` already exists"));
       }
       break;
     }
-    case KeyIdType::SHA256: {
-      // KeyName will be assigned in setKeyName after key is generated
+    case KeyIdType::SHA256:
+    case KeyIdType::RANDOM:
+      // key id will be determined after key is generated
       break;
-    }
-    case KeyIdType::RANDOM: {
-      Name keyName;
-      name::Component keyId;
-      do {
-        keyId = name::Component::fromNumber(random::generateSecureWord64());
-        keyName = v2::constructKeyName(identity, keyId);
-      } while (hasKey(keyName));
-
-      const_cast<KeyParams&>(params).setKeyId(keyId);
-      break;
-    }
-    default: {
-      NDN_THROW(Error("Unsupported key id type"));
-    }
+    default:
+      NDN_THROW(Error("Unsupported key id type " + boost::lexical_cast<std::string>(params.getKeyIdType())));
   }
 
   return doCreateKey(identity, params);
@@ -122,14 +113,11 @@ BackEnd::importKey(const Name& keyName, shared_ptr<transform::PrivateKey> key)
 
 Name
 BackEnd::constructAsymmetricKeyName(const KeyHandle& keyHandle, const Name& identity,
-                                    const KeyParams& params)
+                                    const KeyParams& params) const
 {
-  name::Component keyId;
-
   switch (params.getKeyIdType()) {
     case KeyIdType::USER_SPECIFIED: {
-      keyId = params.getKeyId();
-      break;
+      return v2::constructKeyName(identity, params.getKeyId());
     }
     case KeyIdType::SHA256: {
       using namespace transform;
@@ -137,25 +125,25 @@ BackEnd::constructAsymmetricKeyName(const KeyHandle& keyHandle, const Name& iden
       bufferSource(*keyHandle.derivePublicKey()) >>
         digestFilter(DigestAlgorithm::SHA256) >>
         streamSink(os);
-      keyId = name::Component(os.buf());
-      break;
+      return v2::constructKeyName(identity, name::Component(os.buf()));
     }
     case KeyIdType::RANDOM: {
-      BOOST_ASSERT(!params.getKeyId().empty());
-      keyId = params.getKeyId();
-      break;
+      Name keyName;
+      do {
+        auto keyId = name::Component::fromNumber(random::generateSecureWord64());
+        keyName = v2::constructKeyName(identity, keyId);
+      } while (hasKey(keyName));
+      return keyName;
     }
     default: {
-      NDN_THROW(Error("Unsupported key id type"));
+      NDN_THROW(Error("Unsupported key id type " + boost::lexical_cast<std::string>(params.getKeyIdType())));
     }
   }
-
-  return v2::constructKeyName(identity, keyId);
 }
 
 Name
 BackEnd::constructHmacKeyName(const transform::PrivateKey& key, const Name& identity,
-                              const KeyParams& params)
+                              const KeyParams& params) const
 {
   return Name(identity).append(name::Component(key.getKeyDigest(DigestAlgorithm::SHA256)));
 }

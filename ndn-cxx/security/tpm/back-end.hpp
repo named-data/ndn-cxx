@@ -173,18 +173,20 @@ public: // key management
   NDN_CXX_NODISCARD virtual bool
   unlockTpm(const char* pw, size_t pwLen) const;
 
-protected: // static helper methods
+protected: // helper methods
   /**
    * @brief Construct and return the name of a RSA or EC key, based on @p identity and @p params.
    */
-  static Name
-  constructAsymmetricKeyName(const KeyHandle& key, const Name& identity, const KeyParams& params);
+  Name
+  constructAsymmetricKeyName(const KeyHandle& key, const Name& identity,
+                             const KeyParams& params) const;
 
   /**
    * @brief Construct and return the name of a HMAC key, based on @p identity and @p params.
    */
-  static Name
-  constructHmacKeyName(const transform::PrivateKey& key, const Name& identity, const KeyParams& params);
+  Name
+  constructHmacKeyName(const transform::PrivateKey& key, const Name& identity,
+                       const KeyParams& params) const;
 
 private: // pure virtual methods
   virtual bool
