@@ -78,8 +78,8 @@ BackEndMem::doCreateKey(const Name& identityName, const KeyParams& params)
   case KeyType::HMAC:
     break;
   default:
-    NDN_THROW(Error("Memory-based TPM does not support creating a key of type " +
-                    boost::lexical_cast<std::string>(params.getKeyType())));
+    NDN_THROW(std::invalid_argument("Memory-based TPM does not support creating a key of type " +
+                                    boost::lexical_cast<std::string>(params.getKeyType())));
   }
 
   shared_ptr<PrivateKey> key(transform::generatePrivateKey(params).release());

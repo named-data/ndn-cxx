@@ -88,7 +88,7 @@ getAsymKeyType(KeyType keyType)
   case KeyType::EC:
     return kSecAttrKeyTypeECDSA;
   default:
-    NDN_THROW(Tpm::Error("Unsupported key type"));
+    NDN_CXX_UNREACHABLE;
   }
 }
 
@@ -149,7 +149,7 @@ getKeyRef(const Name& keyName)
     return nullptr;
   }
   else {
-    NDN_THROW(BackEnd::Error("Key lookup in keychain failed: " + getErrorMessage(res)));
+    NDN_THROW(Tpm::Error("Key lookup in keychain failed: " + getErrorMessage(res)));
   }
 }
 
@@ -176,7 +176,7 @@ exportItem(const KeyRefOsx& keyRef, transform::PrivateKey& outKey)
                                &exportedKey.get());    // exportedData
 
   if (res != errSecSuccess) {
-    NDN_THROW(BackEnd::Error("Failed to export private key: "s + getErrorMessage(res)));
+    NDN_THROW(Tpm::Error("Failed to export private key: "s + getErrorMessage(res)));
   }
 
   outKey.loadPkcs8(CFDataGetBytePtr(exportedKey.get()), CFDataGetLength(exportedKey.get()),
@@ -363,8 +363,8 @@ BackEndOsx::doCreateKey(const Name& identityName, const KeyParams& params)
       break;
     }
     default: {
-      NDN_THROW(Error("macOS-based TPM does not support creating a key of type " +
-                      boost::lexical_cast<std::string>(keyType)));
+      NDN_THROW(std::invalid_argument("macOS-based TPM does not support creating a key of type " +
+                                      boost::lexical_cast<std::string>(keyType)));
     }
   }
   CFReleaser<CFNumberRef> cfKeySize = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &keySize);

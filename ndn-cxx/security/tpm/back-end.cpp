@@ -23,8 +23,6 @@
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
-#include "ndn-cxx/security/tpm/key-handle.hpp"
-#include "ndn-cxx/security/tpm/tpm.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
@@ -63,7 +61,7 @@ BackEnd::createKey(const Name& identity, const KeyParams& params)
       // check that the provided key id isn't already taken
       Name keyName = v2::constructKeyName(identity, params.getKeyId());
       if (hasKey(keyName)) {
-        NDN_THROW(Tpm::Error("Key `" + keyName.toUri() + "` already exists"));
+        NDN_THROW(Error("Key `" + keyName.toUri() + "` already exists"));
       }
       break;
     }
@@ -72,7 +70,8 @@ BackEnd::createKey(const Name& identity, const KeyParams& params)
       // key id will be determined after key is generated
       break;
     default:
-      NDN_THROW(Error("Unsupported key id type " + boost::lexical_cast<std::string>(params.getKeyIdType())));
+      NDN_THROW(std::invalid_argument("Unsupported key id type " +
+                                      boost::lexical_cast<std::string>(params.getKeyIdType())));
   }
 
   return doCreateKey(identity, params);

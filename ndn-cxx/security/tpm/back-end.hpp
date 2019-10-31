@@ -22,20 +22,11 @@
 #ifndef NDN_SECURITY_TPM_BACK_END_HPP
 #define NDN_SECURITY_TPM_BACK_END_HPP
 
-#include "ndn-cxx/security/key-params.hpp"
-#include "ndn-cxx/encoding/buffer.hpp"
-#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
 
 namespace ndn {
 namespace security {
-
-namespace transform {
-class PrivateKey;
-} // namespace transform
-
 namespace tpm {
-
-class KeyHandle;
 
 /**
  * @brief Abstract interface for a TPM backend implementation.
@@ -45,13 +36,8 @@ class KeyHandle;
 class BackEnd : noncopyable
 {
 public:
-  class Error : public std::runtime_error
-  {
-  public:
-    using std::runtime_error::runtime_error;
-  };
+  using Error = Tpm::Error;
 
-public:
   virtual
   ~BackEnd();
 
@@ -79,7 +65,7 @@ public: // key management
    * @brief Create a key for @p identityName according to @p params.
    *
    * @return The handle of the created key.
-   * @throw Tpm::Error @p params are invalid.
+   * @throw std::invalid_argument @p params are invalid.
    * @throw Error The key could not be created.
    */
   unique_ptr<KeyHandle>

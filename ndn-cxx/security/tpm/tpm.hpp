@@ -45,7 +45,7 @@ namespace tpm {
 class BackEnd;
 
 /**
- * @brief represents the front-end of TPM
+ * @brief TPM front-end class.
  *
  * The TPM (Trusted Platform Module) stores the private portion of a user's cryptography keys.
  * The format and location of stored information is indicated by the TpmLocator.
@@ -61,9 +61,6 @@ class BackEnd;
  *       returns a const reference to the managed Tpm instance, through which it is possible to
  *       check existence of private keys, get public keys for the private keys, sign, and decrypt
  *       the supplied buffers using managed private keys.
- *
- * @throw BackEnd::Error Failure with the underlying implementation having non-semantic errors
- * @throw Tpm::Error Failure with semantic error in the underlying implementation
  */
 class Tpm : noncopyable
 {
@@ -74,7 +71,6 @@ public:
     using std::runtime_error::runtime_error;
   };
 
-public:
   ~Tpm();
 
   std::string
@@ -173,7 +169,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * - HMAC keys: `/<identityName>/<keyDigest>`
    *
    * @return The key name.
-   * @throw Tpm::Error the key already exists or @p params is invalid.
+   * @throw Error The key already exists or @p params is invalid.
    */
   Name
   createKey(const Name& identityName, const KeyParams& params);
@@ -193,7 +189,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
    * @return The encoded private key wrapper.
-   * @throw BackEnd::Error The key does not exist or it could not be exported.
+   * @throw Error The key does not exist or it could not be exported.
    */
   ConstBufferPtr
   exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const;
@@ -206,7 +202,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param pkcs8Len The length of the private key wrapper
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
-   * @throw BackEnd::Error The key could not be imported.
+   * @throw Error The key could not be imported.
    */
   void
   importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,

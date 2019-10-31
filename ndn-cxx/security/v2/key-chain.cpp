@@ -362,7 +362,7 @@ KeyChain::exportSafeBag(const Certificate& certificate, const char* pw, size_t p
   try {
     encryptedKey = m_tpm->exportPrivateKey(keyName, pw, pwLen);
   }
-  catch (const tpm::BackEnd::Error&) {
+  catch (const Tpm::Error&) {
     NDN_THROW_NESTED(Error("Failed to export private key `" + keyName.toUri() + "`"));
   }
 
@@ -396,7 +396,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
                             safeBag.getEncryptedKeyBag().data(), safeBag.getEncryptedKeyBag().size(),
                             pw, pwLen);
   }
-  catch (const tpm::BackEnd::Error&) {
+  catch (const Tpm::Error&) {
     NDN_THROW_NESTED(Error("Failed to import private key `" + keyName.toUri() + "`"));
   }
 
@@ -440,7 +440,7 @@ KeyChain::importPrivateKey(const Name& keyName, shared_ptr<transform::PrivateKey
   try {
     m_tpm->importPrivateKey(keyName, std::move(key));
   }
-  catch (const tpm::BackEnd::Error&) {
+  catch (const Tpm::Error&) {
     NDN_THROW_NESTED(Error("Failed to import private key `" + keyName.toUri() + "`"));
   }
 }

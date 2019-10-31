@@ -23,8 +23,6 @@
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
-#include "ndn-cxx/security/tpm/key-handle.hpp"
-#include "ndn-cxx/security/tpm/tpm.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
@@ -100,12 +98,12 @@ BOOST_AUTO_TEST_CASE(CreateHmacKey)
 
   BackEndWrapperFile file;
   BackEnd& fileTpm = file.getTpm();
-  BOOST_CHECK_THROW(fileTpm.createKey(identity, HmacKeyParams()), BackEnd::Error);
+  BOOST_CHECK_THROW(fileTpm.createKey(identity, HmacKeyParams()), std::invalid_argument);
 
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
   BackEndWrapperOsx osx;
   BackEnd& osxTpm = osx.getTpm();
-  BOOST_CHECK_THROW(osxTpm.createKey(identity, HmacKeyParams()), BackEnd::Error);
+  BOOST_CHECK_THROW(osxTpm.createKey(identity, HmacKeyParams()), std::invalid_argument);
 #endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 }
 
@@ -268,7 +266,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
 
   // import with wrong password
   BOOST_CHECK_THROW(tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), wrongPassword.data(), wrongPassword.size()),
-                    BackEnd::Error);
+                    Tpm::Error);
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
 
   // import with correct password
@@ -277,7 +275,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
 
   // import already present key
   BOOST_CHECK_THROW(tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), password.data(), password.size()),
-                    BackEnd::Error);
+                    Tpm::Error);
 
   // test derivePublicKey with the imported key
   auto keyHdl = tpm.getKeyHandle(keyName);
@@ -301,7 +299,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
   // export nonexistent key
   tpm.deleteKey(keyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
-  BOOST_CHECK_THROW(tpm.exportKey(keyName, password.data(), password.size()), BackEnd::Error);
+  BOOST_CHECK_THROW(tpm.exportKey(keyName, password.data(), password.size()), Tpm::Error);
 }
 
 BOOST_AUTO_TEST_CASE(RandomKeyId)
