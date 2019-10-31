@@ -26,13 +26,13 @@
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/sha256.hpp"
 
-#include "ndn-cxx/security/pib/pib-memory.hpp"
-#include "ndn-cxx/security/pib/pib-sqlite3.hpp"
+#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
+#include "ndn-cxx/security/pib/impl/pib-sqlite3.hpp"
 
-#include "ndn-cxx/security/tpm/back-end-file.hpp"
-#include "ndn-cxx/security/tpm/back-end-mem.hpp"
+#include "ndn-cxx/security/tpm/impl/back-end-file.hpp"
+#include "ndn-cxx/security/tpm/impl/back-end-mem.hpp"
 #ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#include "ndn-cxx/security/tpm/back-end-osx.hpp"
+#include "ndn-cxx/security/tpm/impl/back-end-osx.hpp"
 #endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 
 #include "ndn-cxx/security/transform/bool-sink.hpp"
@@ -59,7 +59,6 @@ namespace tpm {
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
 NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndOsx);
 #endif // defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
-
 NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndFile);
 NDN_CXX_V2_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndMem);
 } // namespace tpm

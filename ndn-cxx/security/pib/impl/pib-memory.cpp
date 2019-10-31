@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/security/pib/pib-memory.hpp"
+#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 #include "ndn-cxx/security/pib/pib.hpp"
 #include "ndn-cxx/security/security-common.hpp"
 

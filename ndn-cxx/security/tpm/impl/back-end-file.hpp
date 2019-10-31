@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_BACK_END_FILE_HPP
-#define NDN_SECURITY_TPM_BACK_END_FILE_HPP
+#ifndef NDN_SECURITY_TPM_IMPL_BACK_END_FILE_HPP
+#define NDN_SECURITY_TPM_IMPL_BACK_END_FILE_HPP
 
 #include "ndn-cxx/security/tpm/back-end.hpp"
 
@@ -99,4 +99,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_TPM_BACK_END_FILE_HPP
+#endif // NDN_SECURITY_TPM_IMPL_BACK_END_FILE_HPP

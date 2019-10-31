@@ -19,49 +19,45 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_KEY_HANDLE_MEM_HPP
-#define NDN_SECURITY_TPM_KEY_HANDLE_MEM_HPP
-
-#include "ndn-cxx/security/tpm/key-handle.hpp"
+#include "ndn-cxx/security/tpm/impl/key-handle-osx.hpp"
+#include "ndn-cxx/security/tpm/impl/back-end-osx.hpp"
 
 namespace ndn {
 namespace security {
-
-namespace transform {
-class PrivateKey;
-} // namespace transform
-
 namespace tpm {
 
-/**
- * @brief A TPM key handle that keeps the private key in memory
- */
-class KeyHandleMem : public KeyHandle
+KeyHandleOsx::KeyHandleOsx(const KeyRefOsx& key)
+  : m_key(key)
 {
-public:
-  explicit
-  KeyHandleMem(shared_ptr<transform::PrivateKey> key);
+  if (m_key.get() == 0)
+    NDN_THROW(Error("Key is not set"));
+}
 
-private:
-  ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const final;
+ConstBufferPtr
+KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
+{
+  return BackEndOsx::sign(m_key, digestAlgorithm, buf, size);
+}
 
-  bool
-  doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
-           const uint8_t* sig, size_t sigLen) const final;
+bool
+KeyHandleOsx::doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+                       const uint8_t* sig, size_t sigLen) const
+{
+  NDN_THROW(Error("Signature verification is not supported with macOS Keychain-based TPM"));
+}
 
-  ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+ConstBufferPtr
+KeyHandleOsx::doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const
+{
+  return BackEndOsx::decrypt(m_key, cipherText, cipherTextLen);
+}
 
-  ConstBufferPtr
-  doDerivePublicKey() const final;
-
-private:
-  shared_ptr<transform::PrivateKey> m_key;
-};
+ConstBufferPtr
+KeyHandleOsx::doDerivePublicKey() const
+{
+  return BackEndOsx::derivePublicKey(m_key);
+}
 
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-
-#endif // NDN_SECURITY_TPM_KEY_HANDLE_MEM_HPP

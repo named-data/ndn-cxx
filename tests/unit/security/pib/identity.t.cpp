@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,9 +20,9 @@
  */
 
 #include "ndn-cxx/security/pib/identity.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
-#include "ndn-cxx/security/pib/pib-memory.hpp"
 #include "ndn-cxx/security/pib/impl/identity-impl.hpp"
+#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
@@ -38,44 +38,24 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestIdentity, PibDataFixture)
 
-using pib::Pib;
-
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
-  using security::pib::detail::IdentityImpl;
-
   Identity id;
-
+  BOOST_CHECK(!id);
   BOOST_CHECK_EQUAL(static_cast<bool>(id), false);
-  BOOST_CHECK_EQUAL(!id, true);
 
-  if (id)
-    BOOST_CHECK(false);
-  else
-    BOOST_CHECK(true);
-
-  auto identityImpl = make_shared<IdentityImpl>(id1, make_shared<PibMemory>(), true);
+  auto identityImpl = make_shared<detail::IdentityImpl>(id1, make_shared<PibMemory>(), true);
   id = Identity(identityImpl);
-
-  BOOST_CHECK_EQUAL(static_cast<bool>(id), true);
+  BOOST_CHECK(id);
   BOOST_CHECK_EQUAL(!id, false);
-
-  if (id)
-    BOOST_CHECK(true);
-  else
-    BOOST_CHECK(false);
 }
 
-/**
- * pib::Identity is a wrapper of pib::detail::IdentityImpl.  Since the functionalities of
- * IdentityImpl have already been tested in detail/identity-impl.t.cpp, we only test the shared
- * property of pib::Identity in this test case.
- */
-BOOST_AUTO_TEST_CASE(Share)
+// pib::Identity is a wrapper of pib::detail::IdentityImpl.  Since the functionalities of
+// IdentityImpl have already been tested in detail/identity-impl.t.cpp, we only test the shared
+// property of pib::Identity in this test case.
+BOOST_AUTO_TEST_CASE(SharedImpl)
 {
-  using security::pib::detail::IdentityImpl;
-
-  auto identityImpl = make_shared<IdentityImpl>(id1, make_shared<pib::PibMemory>(), true);
+  auto identityImpl = make_shared<detail::IdentityImpl>(id1, make_shared<pib::PibMemory>(), true);
   Identity identity1(identityImpl);
   Identity identity2(identityImpl);
   BOOST_CHECK_EQUAL(identity1, identity2);
@@ -85,7 +65,7 @@ BOOST_AUTO_TEST_CASE(Share)
   identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
   BOOST_CHECK_NO_THROW(identity2.getKey(id1Key1Name));
   identity2.removeKey(id1Key1Name);
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
+  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), pib::Pib::Error);
 
   identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
   BOOST_CHECK_NO_THROW(identity2.getDefaultKey());

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,26 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/security/pib/pib-sqlite3.hpp"
+#ifndef NDN_SECURITY_TPM_IMPL_KEY_REF_OSX_HPP
+#define NDN_SECURITY_TPM_IMPL_KEY_REF_OSX_HPP
 
-#include "tests/boost-test.hpp"
+#include "ndn-cxx/detail/common.hpp"
+
+#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
+#error "This file should not be compiled ..."
+#endif
+
+#include "ndn-cxx/detail/cf-releaser-osx.hpp"
+
+#include <Security/Security.h>
 
 namespace ndn {
 namespace security {
-namespace pib {
-namespace tests {
+namespace tpm {
 
-BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(Pib)
-BOOST_AUTO_TEST_SUITE(TestPibSqlite3)
+using KeyRefOsx = detail::CFReleaser<SecKeyRef>;
 
-// Functionality is tested as part of pib-impl.t.cpp
-
-BOOST_AUTO_TEST_SUITE_END() // TestPibSqlite3
-BOOST_AUTO_TEST_SUITE_END() // Pib
-BOOST_AUTO_TEST_SUITE_END() // Security
-
-} // namespace tests
-} // namespace pib
+} // namespace tpm
 } // namespace security
 } // namespace ndn
+
+#endif // NDN_SECURITY_TPM_IMPL_KEY_REF_OSX_HPP

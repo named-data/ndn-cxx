@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,26 +19,49 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/security/pib/pib-memory.hpp"
+#ifndef NDN_SECURITY_TPM_IMPL_KEY_HANDLE_MEM_HPP
+#define NDN_SECURITY_TPM_IMPL_KEY_HANDLE_MEM_HPP
 
-#include "tests/boost-test.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
 
 namespace ndn {
 namespace security {
-namespace pib {
-namespace tests {
 
-BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(Pib)
-BOOST_AUTO_TEST_SUITE(TestPibMemory)
+namespace transform {
+class PrivateKey;
+} // namespace transform
 
-// Functionality is tested as part of pib-impl.t.cpp
+namespace tpm {
 
-BOOST_AUTO_TEST_SUITE_END() // TestPibMemory
-BOOST_AUTO_TEST_SUITE_END() // Pib
-BOOST_AUTO_TEST_SUITE_END() // Security
+/**
+ * @brief A TPM key handle that keeps the private key in memory
+ */
+class KeyHandleMem : public KeyHandle
+{
+public:
+  explicit
+  KeyHandleMem(shared_ptr<transform::PrivateKey> key);
 
-} // namespace tests
-} // namespace pib
+private:
+  ConstBufferPtr
+  doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const final;
+
+  bool
+  doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+           const uint8_t* sig, size_t sigLen) const final;
+
+  ConstBufferPtr
+  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+
+  ConstBufferPtr
+  doDerivePublicKey() const final;
+
+private:
+  shared_ptr<transform::PrivateKey> m_key;
+};
+
+} // namespace tpm
 } // namespace security
 } // namespace ndn
+
+#endif // NDN_SECURITY_TPM_IMPL_KEY_HANDLE_MEM_HPP

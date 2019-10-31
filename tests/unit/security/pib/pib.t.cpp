@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/security/pib/pib.hpp"
-#include "ndn-cxx/security/pib/pib-memory.hpp"
+#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
@@ -43,25 +43,12 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   Pib pib("pib-memory", "", make_shared<PibMemory>());
 
   Identity id = pib.addIdentity(id1);
-
-  BOOST_CHECK_EQUAL(static_cast<bool>(id), true);
+  BOOST_CHECK(id);
   BOOST_CHECK_EQUAL(!id, false);
 
-  if (id)
-    BOOST_CHECK(true);
-  else
-    BOOST_CHECK(false);
-
-  // key
   Key key = id.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
-
-  BOOST_CHECK_EQUAL(static_cast<bool>(key), true);
+  BOOST_CHECK(key);
   BOOST_CHECK_EQUAL(!key, false);
-
-  if (key)
-    BOOST_CHECK(true);
-  else
-    BOOST_CHECK(false);
 }
 
 BOOST_AUTO_TEST_CASE(TpmLocator)

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,27 +19,50 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_KEY_REF_OSX_HPP
-#define NDN_SECURITY_TPM_KEY_REF_OSX_HPP
+#ifndef NDN_SECURITY_TPM_IMPL_KEY_HANDLE_OSX_HPP
+#define NDN_SECURITY_TPM_IMPL_KEY_HANDLE_OSX_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/security/tpm/key-handle.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be compiled ..."
 #endif
 
-#include "ndn-cxx/detail/cf-releaser-osx.hpp"
-
-#include <Security/Security.h>
+#include "ndn-cxx/security/tpm/impl/key-ref-osx.hpp"
 
 namespace ndn {
 namespace security {
 namespace tpm {
 
-using KeyRefOsx = detail::CFReleaser<SecKeyRef>;
+/**
+ * @brief Abstraction of TPM key handle used by the TPM based on macOS Keychain Services.
+ */
+class KeyHandleOsx : public KeyHandle
+{
+public:
+  explicit
+  KeyHandleOsx(const KeyRefOsx& key);
+
+private:
+  ConstBufferPtr
+  doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const final;
+
+  bool
+  doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+           const uint8_t* sig, size_t sigLen) const final;
+
+  ConstBufferPtr
+  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+
+  ConstBufferPtr
+  doDerivePublicKey() const final;
+
+private:
+  KeyRefOsx m_key;
+};
 
 } // namespace tpm
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_TPM_KEY_REF_OSX_HPP
+#endif // NDN_SECURITY_TPM_IMPL_KEY_HANDLE_OSX_HPP

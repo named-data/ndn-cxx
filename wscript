@@ -255,7 +255,7 @@ def build(bld):
          EXTRA_LDFLAGS=' '.join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
          EXTRA_LINKFLAGS=' '.join(uniq(pkgconfig_linkflags)),
          EXTRA_INCLUDES=' '.join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
-         EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags)) + ' ' + ' '.join([('-D%s' % i) for i in uniq(pkgconfig_defines)]),
+         EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags) + [('-D%s' % i) for i in uniq(pkgconfig_defines)]),
          EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS)
 
     if bld.env.WITH_TESTS:

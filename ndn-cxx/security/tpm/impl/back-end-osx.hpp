@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_BACK_END_OSX_HPP
-#define NDN_SECURITY_TPM_BACK_END_OSX_HPP
+#ifndef NDN_SECURITY_TPM_IMPL_BACK_END_OSX_HPP
+#define NDN_SECURITY_TPM_IMPL_BACK_END_OSX_HPP
 
 #include "ndn-cxx/security/tpm/back-end.hpp"
 
@@ -28,7 +28,7 @@
 #error "This file should not be compiled ..."
 #endif
 
-#include "ndn-cxx/security/tpm/key-ref-osx.hpp"
+#include "ndn-cxx/security/tpm/impl/key-ref-osx.hpp"
 
 namespace ndn {
 namespace security {
@@ -110,4 +110,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_TPM_BACK_END_OSX_HPP
+#endif // NDN_SECURITY_TPM_IMPL_BACK_END_OSX_HPP

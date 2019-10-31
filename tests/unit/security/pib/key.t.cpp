@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,9 +20,9 @@
  */
 
 #include "ndn-cxx/security/pib/key.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
-#include "ndn-cxx/security/pib/pib-memory.hpp"
 #include "ndn-cxx/security/pib/impl/key-impl.hpp"
+#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
+#include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
@@ -38,47 +38,26 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestKey, PibDataFixture)
 
-using pib::Pib;
-
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
-  using security::pib::detail::KeyImpl;
-
   Key key;
-
+  BOOST_CHECK(!key);
   BOOST_CHECK_EQUAL(static_cast<bool>(key), false);
-  BOOST_CHECK_EQUAL(!key, true);
 
-  if (key)
-    BOOST_CHECK(false);
-  else
-    BOOST_CHECK(true);
-
-  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
-                                      make_shared<pib::PibMemory>());
+  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
+                                              make_shared<pib::PibMemory>());
   key = Key(keyImpl);
-
-  BOOST_CHECK_EQUAL(static_cast<bool>(key), true);
+  BOOST_CHECK(key);
   BOOST_CHECK_EQUAL(!key, false);
-
-  if (key)
-    BOOST_CHECK(true);
-  else
-    BOOST_CHECK(false);
 }
 
-/**
- * pib::Key is a wrapper of pib::detail::KeyImpl.  Since the functionalities of KeyImpl
- * have already been tested in detail/key-impl.t.cpp, we only test the shared property
- * of pib::Key in this test case.
- */
-
-BOOST_AUTO_TEST_CASE(Share)
+// pib::Key is a wrapper of pib::detail::KeyImpl.  Since the functionalities of KeyImpl
+// have already been tested in detail/key-impl.t.cpp, we only test the shared property
+// of pib::Key in this test case.
+BOOST_AUTO_TEST_CASE(SharedImpl)
 {
-  using security::pib::detail::KeyImpl;
-
-  auto keyImpl = make_shared<KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
-                                      make_shared<pib::PibMemory>());
+  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
+                                              make_shared<pib::PibMemory>());
   Key key1(keyImpl);
   Key key2(keyImpl);
   BOOST_CHECK_EQUAL(key1, key2);
@@ -88,7 +67,7 @@ BOOST_AUTO_TEST_CASE(Share)
   key1.addCertificate(id1Key1Cert1);
   BOOST_CHECK_NO_THROW(key2.getCertificate(id1Key1Cert1.getName()));
   key2.removeCertificate(id1Key1Cert1.getName());
-  BOOST_CHECK_THROW(key1.getCertificate(id1Key1Cert1.getName()), Pib::Error);
+  BOOST_CHECK_THROW(key1.getCertificate(id1Key1Cert1.getName()), pib::Pib::Error);
 
   key1.setDefaultCertificate(id1Key1Cert1);
   BOOST_CHECK_NO_THROW(key2.getDefaultCertificate());

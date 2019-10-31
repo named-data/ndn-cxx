@@ -19,50 +19,63 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
-#define NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
+#ifndef NDN_SECURITY_TPM_IMPL_BACK_END_MEM_HPP
+#define NDN_SECURITY_TPM_IMPL_BACK_END_MEM_HPP
 
-#include "ndn-cxx/security/tpm/key-handle.hpp"
-
-#ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
-#error "This file should not be compiled ..."
-#endif
-
-#include "ndn-cxx/security/tpm/key-ref-osx.hpp"
+#include "ndn-cxx/security/tpm/back-end.hpp"
 
 namespace ndn {
 namespace security {
 namespace tpm {
 
 /**
- * @brief Abstraction of TPM key handle used by the TPM based on macOS Keychain Services.
+ * @brief The back-end implementation of an in-memory TPM.
  */
-class KeyHandleOsx : public KeyHandle
+class BackEndMem final : public BackEnd
 {
 public:
+  /**
+   * @brief Create memory-based TPM backend.
+   *
+   * @param location Not used (required by the TPM registration interface).
+   */
   explicit
-  KeyHandleOsx(const KeyRefOsx& key);
+  BackEndMem(const std::string& location = "");
 
-private:
-  ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const final;
+  ~BackEndMem() final;
 
+  static const std::string&
+  getScheme();
+
+private: // inherited from tpm::BackEnd
   bool
-  doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
-           const uint8_t* sig, size_t sigLen) const final;
+  doHasKey(const Name& keyName) const final;
+
+  unique_ptr<KeyHandle>
+  doGetKeyHandle(const Name& keyName) const final;
+
+  unique_ptr<KeyHandle>
+  doCreateKey(const Name& identityName, const KeyParams& params) final;
+
+  void
+  doDeleteKey(const Name& keyName) final;
 
   ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+  doExportKey(const Name& keyName, const char* pw, size_t pwLen) final;
 
-  ConstBufferPtr
-  doDerivePublicKey() const final;
+  void
+  doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen) final;
+
+  void
+  doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key) final;
 
 private:
-  KeyRefOsx m_key;
+  class Impl;
+  const unique_ptr<Impl> m_impl;
 };
 
 } // namespace tpm
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_TPM_KEY_HANDLE_OSX_HPP
+#endif // NDN_SECURITY_TPM_IMPL_BACK_END_MEM_HPP

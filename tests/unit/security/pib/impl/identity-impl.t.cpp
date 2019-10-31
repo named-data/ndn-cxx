@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,8 +20,8 @@
  */
 
 #include "ndn-cxx/security/pib/impl/identity-impl.hpp"
+#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 #include "ndn-cxx/security/pib/pib.hpp"
-#include "ndn-cxx/security/pib/pib-memory.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
