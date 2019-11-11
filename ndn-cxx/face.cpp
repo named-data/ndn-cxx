@@ -24,7 +24,6 @@
 #include "ndn-cxx/impl/face-impl.hpp"
 #include "ndn-cxx/net/face-uri.hpp"
 #include "ndn-cxx/security/signing-helpers.hpp"
-#include "ndn-cxx/util/random.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 // NDN_LOG_INIT(ndn.Face) is declared in face-impl.hpp
@@ -59,7 +58,6 @@ Face::Face(shared_ptr<Transport> transport)
   : m_internalIoService(make_unique<boost::asio::io_service>())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(make_unique<KeyChain>())
-  , m_impl(make_shared<Impl>(*this))
 {
   construct(std::move(transport), *m_internalKeyChain);
 }
@@ -67,7 +65,6 @@ Face::Face(shared_ptr<Transport> transport)
 Face::Face(boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(make_unique<KeyChain>())
-  , m_impl(make_shared<Impl>(*this))
 {
   construct(nullptr, *m_internalKeyChain);
 }
@@ -76,7 +73,6 @@ Face::Face(const std::string& host, const std::string& port)
   : m_internalIoService(make_unique<boost::asio::io_service>())
   , m_ioService(*m_internalIoService)
   , m_internalKeyChain(make_unique<KeyChain>())
-  , m_impl(make_shared<Impl>(*this))
 {
   construct(make_shared<TcpTransport>(host, port), *m_internalKeyChain);
 }
@@ -84,7 +80,6 @@ Face::Face(const std::string& host, const std::string& port)
 Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
   : m_internalIoService(make_unique<boost::asio::io_service>())
   , m_ioService(*m_internalIoService)
-  , m_impl(make_shared<Impl>(*this))
 {
   construct(std::move(transport), keyChain);
 }
@@ -92,14 +87,12 @@ Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
 Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService)
   : m_ioService(ioService)
   , m_internalKeyChain(make_unique<KeyChain>())
-  , m_impl(make_shared<Impl>(*this))
 {
   construct(std::move(transport), *m_internalKeyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain)
   : m_ioService(ioService)
-  , m_impl(make_shared<Impl>(*this))
 {
   construct(std::move(transport), keyChain);
 }
@@ -152,13 +145,14 @@ Face::makeDefaultTransport()
 void
 Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 {
+  BOOST_ASSERT(m_impl == nullptr);
+  m_impl = make_shared<Impl>(*this, keyChain);
+
   if (transport == nullptr) {
     transport = makeDefaultTransport();
+    BOOST_ASSERT(transport != nullptr);
   }
-  BOOST_ASSERT(transport != nullptr);
   m_transport = std::move(transport);
-
-  m_nfdController = make_unique<nfd::Controller>(*this, keyChain);
 
   IO_CAPTURE_WEAK_IMPL(post) {
     impl->ensureConnected(false);
@@ -166,12 +160,6 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
 }
 
 Face::~Face() = default;
-
-shared_ptr<Transport>
-Face::getTransport()
-{
-  return m_transport;
-}
 
 PendingInterestHandle
 Face::expressInterest(const Interest& interest,
@@ -326,9 +314,7 @@ Face::doProcessEvents(time::milliseconds timeout, bool keepThread)
     m_ioService.run();
   }
   catch (...) {
-    m_impl->m_ioServiceWork.reset();
-    m_impl->m_pendingInterestTable.clear();
-    m_impl->m_registeredPrefixTable.clear();
+    m_impl->shutdown();
     throw;
   }
 }
@@ -337,13 +323,9 @@ void
 Face::shutdown()
 {
   IO_CAPTURE_WEAK_IMPL(post) {
-    impl->m_pendingInterestTable.clear();
-    impl->m_registeredPrefixTable.clear();
-
+    impl->shutdown();
     if (m_transport->isConnected())
       m_transport->close();
-
-    impl->m_ioServiceWork.reset();
   } IO_CAPTURE_WEAK_IMPL_END
 }
 

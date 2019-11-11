@@ -30,7 +30,7 @@
 
 namespace ndn {
 
-/** \brief provides TLV-block delivery service
+/** \brief Provides TLV-block delivery service.
  */
 class Transport : noncopyable
 {
@@ -43,21 +43,19 @@ public:
     Error(const boost::system::error_code& code, const std::string& msg);
   };
 
-  typedef function<void(const Block& wire)> ReceiveCallback;
-  typedef function<void()> ErrorCallback;
-
-  Transport();
+  using ReceiveCallback = std::function<void(const Block& wire)>;
+  using ErrorCallback = std::function<void()>;
 
   virtual
   ~Transport() = default;
 
-  /** \brief asynchronously open the connection
+  /** \brief Asynchronously open the connection.
    *  \param ioService io_service to create socket on
    *  \param receiveCallback callback function when a TLV block is received; must not be empty
    *  \throw boost::system::system_error connection cannot be established
    */
   virtual void
-  connect(boost::asio::io_service& ioService, const ReceiveCallback& receiveCallback);
+  connect(boost::asio::io_service& ioService, ReceiveCallback receiveCallback);
 
   /** \brief Close the connection.
    */
@@ -78,7 +76,7 @@ public:
   send(const Block& header, const Block& payload) = 0;
 
   /** \brief pause the transport
-   *  \post receiveCallback will not be invoked
+   *  \post the receive callback will not be invoked
    *  \note This operation has no effect if transport has been paused,
    *        or when connection is being established.
    */
@@ -86,7 +84,7 @@ public:
   pause() = 0;
 
   /** \brief resume the transport
-   *  \post receiveCallback will be invoked
+   *  \post the receive callback will be invoked
    *  \note This operation has no effect if transport is not paused,
    *        or when connection is being established.
    */
@@ -97,44 +95,26 @@ public:
    *  \retval false connection is not yet established or has been closed
    */
   bool
-  isConnected() const;
+  isConnected() const noexcept
+  {
+    return m_isConnected;
+  }
 
-  /** \retval true incoming packets are expected, receiveCallback will be invoked
-   *  \retval false incoming packets are not expected, receiveCallback will not be invoked
+  /** \retval true incoming packets are expected, the receive callback will be invoked
+   *  \retval false incoming packets are not expected, the receive callback will not be invoked
    */
   bool
-  isReceiving() const;
+  isReceiving() const noexcept
+  {
+    return m_isReceiving;
+  }
 
 protected:
-  /** \brief invoke the receive callback
-   */
-  void
-  receive(const Block& wire);
-
-protected:
-  boost::asio::io_service* m_ioService;
-  bool m_isConnected;
-  bool m_isReceiving;
+  boost::asio::io_service* m_ioService = nullptr;
   ReceiveCallback m_receiveCallback;
+  bool m_isConnected = false;
+  bool m_isReceiving = false;
 };
-
-inline bool
-Transport::isConnected() const
-{
-  return m_isConnected;
-}
-
-inline bool
-Transport::isReceiving() const
-{
-  return m_isReceiving;
-}
-
-inline void
-Transport::receive(const Block& wire)
-{
-  m_receiveCallback(wire);
-}
 
 } // namespace ndn
 

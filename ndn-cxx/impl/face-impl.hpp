@@ -43,8 +43,8 @@ NDN_LOG_INIT(ndn.Face);
 // DEBUG level: packet logging.
 // Each log entry starts with a direction symbol ('<' denotes an outgoing packet, '>' denotes an
 // incoming packet) and a packet type symbol ('I' denotes an Interest, 'D' denotes a Data, 'N'
-// denotes a Nack). Interest is printed as its string representation, Data is printed as name only,
-// Nack is printed as the Interest followed by the Nack reason and delimited by a '~' symbol. A
+// denotes a Nack). Interest is printed in its URI string representation, Data is printed as name
+// only, Nack is printed as the Interest followed by the Nack reason separated by a '~' symbol. A
 // log line about an incoming packet may be followed by zero or more lines about Interest matching
 // InterestFilter, Data satisfying Interest, or Nack rejecting Interest, which are also written at
 // DEBUG level.
@@ -62,10 +62,10 @@ public:
   using InterestFilterTable = RecordContainer<InterestFilterRecord>;
   using RegisteredPrefixTable = RecordContainer<RegisteredPrefix>;
 
-  explicit
-  Impl(Face& face)
+  Impl(Face& face, KeyChain& keyChain)
     : m_face(face)
     , m_scheduler(m_face.getIoService())
+    , m_nfdController(m_face, keyChain)
   {
     auto postOnEmptyPitOrNoRegisteredPrefixes = [this] {
       this->m_face.getIoService().post([this] { this->onEmptyPitOrNoRegisteredPrefixes(); });
@@ -137,6 +137,7 @@ public: // consumer
 
       return true;
     });
+
     // if Data matches no pending Interest record, it is sent to the forwarder as unsolicited Data
     return hasForwarderMatch || !hasAppMatch;
   }
@@ -166,6 +167,7 @@ public: // consumer
       }
       return true;
     });
+
     // send "least severe" Nack from any PendingInterest record originated from forwarder, because
     // it is unimportant to consider Nack reason for the unlikely case when forwarder sends multiple
     // Interests to an app in a short while
@@ -262,7 +264,7 @@ public: // prefix registration
     NDN_LOG_INFO("registering prefix: " << prefix);
     auto id = m_registeredPrefixTable.allocateId();
 
-    m_face.m_nfdController->start<nfd::RibRegisterCommand>(
+    m_nfdController.start<nfd::RibRegisterCommand>(
       nfd::ControlParameters().setName(prefix).setFlags(flags),
       [=] (const nfd::ControlParameters&) {
         NDN_LOG_INFO("registered prefix: " << prefix);
@@ -307,7 +309,8 @@ public: // prefix registration
     }
 
     NDN_LOG_INFO("unregistering prefix: " << record->getPrefix());
-    m_face.m_nfdController->start<nfd::RibUnregisterCommand>(
+
+    m_nfdController.start<nfd::RibUnregisterCommand>(
       nfd::ControlParameters().setName(record->getPrefix()),
       [=] (const nfd::ControlParameters&) {
         NDN_LOG_INFO("unregistered prefix: " << record->getPrefix());
@@ -328,9 +331,10 @@ public: // IO routine
   void
   ensureConnected(bool wantResume)
   {
-    if (!m_face.m_transport->isConnected())
-      m_face.m_transport->connect(m_face.m_ioService,
-                                  [=] (const Block& wire) { m_face.onReceiveElement(wire); });
+    if (!m_face.m_transport->isConnected()) {
+      m_face.m_transport->connect(m_face.getIoService(),
+                                  [this] (const Block& wire) { m_face.onReceiveElement(wire); });
+    }
 
     if (wantResume && !m_face.m_transport->isReceiving()) {
       m_face.m_transport->resume();
@@ -346,6 +350,14 @@ public: // IO routine
         m_processEventsTimeoutEvent.cancel();
       }
     }
+  }
+
+  void
+  shutdown()
+  {
+    m_ioServiceWork.reset();
+    m_pendingInterestTable.clear();
+    m_registeredPrefixTable.clear();
   }
 
 private:
@@ -376,6 +388,7 @@ private:
   Face& m_face;
   Scheduler m_scheduler;
   scheduler::ScopedEventId m_processEventsTimeoutEvent;
+  nfd::Controller m_nfdController;
 
   PendingInterestTable m_pendingInterestTable;
   InterestFilterTable m_interestFilterTable;

@@ -43,10 +43,6 @@ class RegisteredPrefixHandle;
 class InterestFilterId;
 class InterestFilterHandle;
 
-namespace nfd {
-class Controller;
-} // namespace nfd
-
 /**
  * @brief Callback invoked when expressed Interest gets satisfied with a Data packet
  */
@@ -461,7 +457,7 @@ public: // IO routine
   shutdown();
 
   /**
-   * @return reference to io_service object
+   * @brief Returns a reference to the io_service used by this face.
    */
   boost::asio::io_service&
   getIoService()
@@ -471,10 +467,13 @@ public: // IO routine
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /**
-   * @return underlying transport
+   * @brief Returns the underlying transport.
    */
   shared_ptr<Transport>
-  getTransport();
+  getTransport() const
+  {
+    return m_transport;
+  }
 
 protected:
   virtual void
@@ -509,7 +508,7 @@ private:
                        const UnregisterPrefixFailureCallback& onFailure);
 
 private:
-  /// the io_service owned by this Face, could be null
+  /// the io_service owned by this Face, may be null
   unique_ptr<boost::asio::io_service> m_internalIoService;
   /// the io_service used by this Face
   boost::asio::io_service& m_ioService;
@@ -517,15 +516,13 @@ private:
   shared_ptr<Transport> m_transport;
 
   /**
-   * @brief if not null, a pointer to an internal KeyChain owned by Face
-   * @note if a KeyChain is supplied to constructor, this pointer will be null,
-   *       and the passed KeyChain is given to nfdController;
-   *       currently Face does not keep the KeyChain passed in constructor
-   *       because it's not needed, but this may change in the future
+   * @brief If not null, a pointer to an internal KeyChain owned by this Face.
+   * @note If a KeyChain is supplied to constructor, this pointer will be null,
+   *       and the supplied KeyChain is passed to Face::Impl constructor;
+   *       currently Face does not keep a ref to the provided KeyChain
+   *       because it's not needed, but this may change in the future.
    */
   unique_ptr<KeyChain> m_internalKeyChain;
-
-  unique_ptr<nfd::Controller> m_nfdController;
 
   class Impl;
   shared_ptr<Impl> m_impl;

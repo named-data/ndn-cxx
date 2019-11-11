@@ -41,15 +41,13 @@ template<typename BaseTransport, typename Protocol>
 class StreamTransportImpl : public std::enable_shared_from_this<StreamTransportImpl<BaseTransport, Protocol>>
 {
 public:
-  typedef StreamTransportImpl<BaseTransport, Protocol> Impl;
-  typedef std::list<Block> BlockSequence;
-  typedef std::list<BlockSequence> TransmissionQueue;
+  using Impl = StreamTransportImpl<BaseTransport, Protocol>;
+  using BlockSequence = std::list<Block>;
+  using TransmissionQueue = std::list<BlockSequence>;
 
   StreamTransportImpl(BaseTransport& transport, boost::asio::io_service& ioService)
     : m_transport(transport)
     , m_socket(ioService)
-    , m_inputBufferSize(0)
-    , m_isConnecting(false)
     , m_connectTimer(ioService)
   {
   }
@@ -57,21 +55,22 @@ public:
   void
   connect(const typename Protocol::endpoint& endpoint)
   {
-    if (!m_isConnecting) {
-      m_isConnecting = true;
-
-      // Wait at most 4 seconds to connect
-      /// @todo Decide whether this number should be configurable
-      m_connectTimer.expires_from_now(std::chrono::seconds(4));
-      m_connectTimer.async_wait([self = this->shared_from_this()] (const auto& error) {
-        self->connectTimeoutHandler(error);
-      });
-
-      m_socket.open();
-      m_socket.async_connect(endpoint, [self = this->shared_from_this()] (const auto& error) {
-        self->connectHandler(error);
-      });
+    if (m_isConnecting) {
+      return;
     }
+    m_isConnecting = true;
+
+    // Wait at most 4 seconds to connect
+    /// @todo Decide whether this number should be configurable
+    m_connectTimer.expires_from_now(std::chrono::seconds(4));
+    m_connectTimer.async_wait([self = this->shared_from_this()] (const auto& error) {
+      self->connectTimeoutHandler(error);
+    });
+
+    m_socket.open();
+    m_socket.async_connect(endpoint, [self = this->shared_from_this()] (const auto& error) {
+      self->connectHandler(error);
+    });
   }
 
   void
@@ -138,18 +137,17 @@ protected:
     m_isConnecting = false;
     m_connectTimer.cancel();
 
-    if (!error) {
-      m_transport.m_isConnected = true;
-
-      if (!m_transmissionQueue.empty()) {
-        resume();
-        asyncWrite();
-      }
-    }
-    else {
+    if (error) {
       m_transport.m_isConnected = false;
       m_transport.close();
       NDN_THROW(Transport::Error(error, "error while connecting to the forwarder"));
+    }
+
+    m_transport.m_isConnected = true;
+
+    if (!m_transmissionQueue.empty()) {
+      resume();
+      asyncWrite();
     }
   }
 
@@ -181,7 +179,8 @@ protected:
   {
     BOOST_ASSERT(!m_transmissionQueue.empty());
     boost::asio::async_write(m_socket, m_transmissionQueue.front(),
-      bind(&Impl::handleAsyncWrite, this->shared_from_this(), _1, m_transmissionQueue.begin()));
+                             bind(&Impl::handleAsyncWrite, this->shared_from_this(), _1,
+                                  m_transmissionQueue.begin()));
   }
 
   void
@@ -192,9 +191,8 @@ protected:
         // async receive has been explicitly cancelled (e.g., socket close)
         return;
       }
-
       m_transport.close();
-      NDN_THROW(Transport::Error(error, "error while sending data to socket"));
+      NDN_THROW(Transport::Error(error, "error while writing data to socket"));
     }
 
     if (!m_transport.m_isConnected) {
@@ -224,7 +222,6 @@ protected:
         // async receive has been explicitly cancelled (e.g., socket close)
         return;
       }
-
       m_transport.close();
       NDN_THROW(Transport::Error(error, "error while receiving data from socket"));
     }
@@ -236,8 +233,7 @@ protected:
     bool hasProcessedSome = processAllReceived(m_inputBuffer, offset, m_inputBufferSize);
     if (!hasProcessedSome && m_inputBufferSize == MAX_NDN_PACKET_SIZE && offset == 0) {
       m_transport.close();
-      NDN_THROW(Transport::Error(boost::system::error_code(),
-                                 "input buffer full, but a valid TLV cannot be decoded"));
+      NDN_THROW(Transport::Error("input buffer full, but a valid TLV cannot be decoded"));
     }
 
     if (offset > 0) {
@@ -263,7 +259,7 @@ protected:
       if (!isOk)
         return false;
 
-      m_transport.receive(element);
+      m_transport.m_receiveCallback(element);
       offset += element.size();
     }
     return true;
@@ -274,12 +270,11 @@ protected:
 
   typename Protocol::socket m_socket;
   uint8_t m_inputBuffer[MAX_NDN_PACKET_SIZE];
-  size_t m_inputBufferSize;
+  size_t m_inputBufferSize = 0;
 
   TransmissionQueue m_transmissionQueue;
-  bool m_isConnecting;
-
   boost::asio::steady_timer m_connectTimer;
+  bool m_isConnecting = false;
 };
 
 } // namespace detail

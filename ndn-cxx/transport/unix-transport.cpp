@@ -73,15 +73,13 @@ UnixTransport::create(const std::string& uri)
 }
 
 void
-UnixTransport::connect(boost::asio::io_service& ioService,
-                       const ReceiveCallback& receiveCallback)
+UnixTransport::connect(boost::asio::io_service& ioService, ReceiveCallback receiveCallback)
 {
   NDN_LOG_DEBUG("connect path=" << m_unixSocket);
 
   if (m_impl == nullptr) {
-    Transport::connect(ioService, receiveCallback);
-
-    m_impl = make_shared<Impl>(ref(*this), ref(ioService));
+    Transport::connect(ioService, std::move(receiveCallback));
+    m_impl = make_shared<Impl>(*this, ioService);
   }
 
   m_impl->connect(boost::asio::local::stream_protocol::endpoint(m_unixSocket));
