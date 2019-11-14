@@ -35,12 +35,6 @@ namespace security {
 namespace v2 {
 namespace validator_config {
 
-ValidationPolicyConfig::ValidationPolicyConfig()
-  : m_shouldBypass(false)
-  , m_isConfigured(false)
-{
-}
-
 void
 ValidationPolicyConfig::load(const std::string& filename)
 {
@@ -75,6 +69,8 @@ ValidationPolicyConfig::load(std::istream& input, const std::string& filename)
 void
 ValidationPolicyConfig::load(const ConfigSection& configSection, const std::string& filename)
 {
+  BOOST_ASSERT(!filename.empty());
+
   if (m_validator == nullptr) {
     NDN_THROW(Error("Validator instance not assigned on the policy"));
   }
@@ -86,12 +82,6 @@ ValidationPolicyConfig::load(const ConfigSection& configSection, const std::stri
     m_validator->resetVerifiedCertificates();
   }
   m_isConfigured = true;
-
-  BOOST_ASSERT(!filename.empty());
-
-  if (configSection.begin() == configSection.end()) {
-    NDN_THROW(Error("Error processing configuration file " + filename + ": no data"));
-  }
 
   for (const auto& subSection : configSection) {
     const std::string& sectionName = subSection.first;

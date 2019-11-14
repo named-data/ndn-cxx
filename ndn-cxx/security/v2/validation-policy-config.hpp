@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,6 @@
 
 #include "ndn-cxx/security/v2/validation-policy.hpp"
 #include "ndn-cxx/security/v2/validator-config/rule.hpp"
-#include "ndn-cxx/security/v2/validator-config/common.hpp"
 
 namespace ndn {
 namespace security {
@@ -32,7 +31,7 @@ namespace v2 {
 namespace validator_config {
 
 /**
- * @brief The validator which can be set up via a configuration file.
+ * @brief A validator that can be set up via a configuration file.
  *
  * @note For command Interest validation, this policy must be combined with
  *       @p ValidationPolicyCommandInterest, in order to guard against replay attacks.
@@ -42,8 +41,6 @@ namespace validator_config {
 class ValidationPolicyConfig : public ValidationPolicy
 {
 public:
-  ValidationPolicyConfig();
-
   /**
    * @brief Load policy from file @p filename
    * @throw Error Validator instance not assigned to the policy (m_validator == nullptr)
@@ -92,13 +89,13 @@ private:
   getDefaultRefreshPeriod();
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  /** @brief whether to always bypass validation
+  /** @brief Whether to always bypass validation.
    *
    *  This is set to true when 'any' is specified as a trust anchor.
    *  It causes all packets to bypass validation.
    */
-  bool m_shouldBypass;
-  bool m_isConfigured;
+  bool m_shouldBypass = false;
+  bool m_isConfigured = false;
 
   std::vector<unique_ptr<Rule>> m_dataRules;
   std::vector<unique_ptr<Rule>> m_interestRules;

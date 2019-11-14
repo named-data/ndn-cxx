@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2019 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,10 +39,27 @@ namespace tests {
 using namespace ndn::tests;
 using namespace ndn::security::v2::tests;
 
-
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(V2)
 BOOST_AUTO_TEST_SUITE(TestValidationPolicyConfig)
+
+BOOST_FIXTURE_TEST_CASE(EmptyConfig, HierarchicalValidatorFixture<ValidationPolicyConfig>)
+{
+  this->policy.load(ConfigSection{}, "<empty>");
+
+  BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
+  BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, false);
+  BOOST_CHECK_EQUAL(this->policy.m_dataRules.size(), 0);
+  BOOST_CHECK_EQUAL(this->policy.m_interestRules.size(), 0);
+
+  Data d("/Security/V2/ValidationPolicyConfig/D");
+  this->m_keyChain.sign(d, signingByIdentity(this->identity));
+  VALIDATE_FAILURE(d, "Empty policy should reject everything");
+
+  Interest i("/Security/V2/ValidationPolicyConfig/I");
+  this->m_keyChain.sign(i, signingByIdentity(this->identity));
+  VALIDATE_FAILURE(i, "Empty policy should reject everything");
+}
 
 template<typename Packet>
 class PacketName;
@@ -99,10 +116,11 @@ public:
 
   ~ValidationPolicyConfigFixture()
   {
-    boost::filesystem::remove_all(path);
+    boost::system::error_code ec;
+    boost::filesystem::remove_all(path, ec);
   }
 
-public:
+protected:
   using Packet = PacketType;
 
   const boost::filesystem::path path;
@@ -139,15 +157,16 @@ public:
   {
     std::string configFile = (this->path / "config.conf").string();
     {
-      std::ofstream config(configFile.c_str());
+      std::ofstream config(configFile);
       config << this->baseConfig << R"CONF(
-        trust-anchor
-        {
-          type file
-          file-name "trust-anchor.ndncert"
-        }
-      )CONF";
+          trust-anchor
+          {
+            type file
+            file-name "trust-anchor.ndncert"
+          }
+        )CONF";
     }
+
     this->saveCertificate(this->identity, (this->path / "identity.ndncert").string());
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
@@ -193,9 +212,11 @@ public:
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
     std::ostringstream os;
-    using namespace ndn::security::transform;
-    const auto& cert = this->identity.getDefaultKey().getDefaultCertificate();
-    bufferSource(cert.wireEncode().wire(), cert.wireEncode().size()) >> base64Encode(false) >> streamSink(os);
+    {
+      using namespace ndn::security::transform;
+      const auto& cert = this->identity.getDefaultKey().getDefaultCertificate().wireEncode();
+      bufferSource(cert.wire(), cert.size()) >> base64Encode(false) >> streamSink(os);
+    }
 
     this->policy.load(this->baseConfig + R"CONF(
         trust-anchor
@@ -481,11 +502,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(TrustAnchorWildcard, Packet, Packets, Validatio
 
 using RefreshPolicies = boost::mpl::vector<Refresh1h, Refresh1m, Refresh1s>;
 
-// Somehow, didn't work without this wrapper
 template<typename RefreshPolicy>
 class RefreshPolicyFixture : public LoadStringWithDirAnchor<Data, RefreshPolicy>
 {
-public:
 };
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateRefresh, Refresh, RefreshPolicies, RefreshPolicyFixture<Refresh>)
