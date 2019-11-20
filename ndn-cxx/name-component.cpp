@@ -163,7 +163,7 @@ Component::fromEscapedString(const std::string& input)
 
   auto ct = detail::getComponentTypeTable().findByUriPrefix(typePrefix);
   if (ct == nullptr) {
-    NDN_THROW(Error("Incorrect TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
+    NDN_THROW(Error("Unknown TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
   }
   return ct->parseAltUriValue(input.substr(equalPos + 1));
 }
@@ -187,16 +187,15 @@ Component::toUri() const
 bool
 Component::isNumber() const
 {
-  return (value_size() == 1 || value_size() == 2 ||
-          value_size() == 4 || value_size() == 8);
+  return value_size() == 1 || value_size() == 2 ||
+         value_size() == 4 || value_size() == 8;
 }
 
 bool
 Component::isNumberWithMarker(uint8_t marker) const
 {
-  return (!empty() && value()[0] == marker &&
-          (value_size() == 2 || value_size() == 3 ||
-           value_size() == 5 || value_size() == 9));
+  return (value_size() == 2 || value_size() == 3 ||
+          value_size() == 5 || value_size() == 9) && value()[0] == marker;
 }
 
 bool

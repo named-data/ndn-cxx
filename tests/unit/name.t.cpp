@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(Markers)
   const time::system_clock::TimePoint tp = time::system_clock::now();
   time::system_clock::TimePoint tp2;
   BOOST_REQUIRE_NO_THROW(tp2 = name.appendTimestamp(tp).at(-1).toTimestamp());
-  BOOST_CHECK_LE(std::abs(time::duration_cast<time::microseconds>(tp2 - tp).count()), 1);
+  BOOST_CHECK_LE(time::abs(tp2 - tp), 1_us);
 
   BOOST_REQUIRE_NO_THROW(number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber());
   BOOST_CHECK_EQUAL(number, 11676);

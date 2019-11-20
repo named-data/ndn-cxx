@@ -33,7 +33,7 @@ namespace ndn {
 namespace name {
 namespace detail {
 
-/** \brief Declare rules regarding a NameComponent type.
+/** \brief Declare rules for a NameComponent type.
  */
 class ComponentType : noncopyable
 {
@@ -151,7 +151,7 @@ protected:
   }
 };
 
-/** \brief Rules regarding GenericNameComponent.
+/** \brief Rules for GenericNameComponent.
  *
  *  GenericNameComponent has an alternate URI representation that omits the `<type-number>` prefix.
  *  This must be special-cased in the caller, and is not handled by this class.
@@ -166,7 +166,8 @@ public:
   }
 };
 
-/** \brief Rules regarding a component type holding a SHA256 digest value.
+/** \brief Rules for a component type holding a SHA256 digest value, written as
+ *         a hex string in URI representation.
  */
 class Sha256ComponentType final : public ComponentType
 {
@@ -187,7 +188,8 @@ public:
   void
   check(const Component& comp) const final
   {
-    if (!match(comp)) {
+    BOOST_ASSERT(comp.type() == m_type);
+    if (comp.value_size() != util::Sha256::DIGEST_SIZE) {
       NDN_THROW(Error(m_typeName + " TLV-LENGTH must be " + to_string(util::Sha256::DIGEST_SIZE)));
     }
   }
@@ -250,26 +252,86 @@ public:
   }
 
 private:
-  uint32_t m_type;
-  std::string m_typeName;
-  std::string m_uriPrefix;
+  const uint32_t m_type;
+  const std::string m_typeName;
+  const std::string m_uriPrefix;
 };
 
 inline const Sha256ComponentType&
 getComponentType1()
 {
-  static Sha256ComponentType ct1(tlv::ImplicitSha256DigestComponent,
-                                 "ImplicitSha256DigestComponent", "sha256digest");
+  static const Sha256ComponentType ct1(tlv::ImplicitSha256DigestComponent,
+                                       "ImplicitSha256DigestComponent", "sha256digest");
   return ct1;
 }
 
 inline const Sha256ComponentType&
 getComponentType2()
 {
-  static Sha256ComponentType ct2(tlv::ParametersSha256DigestComponent,
-                                 "ParametersSha256DigestComponent", "params-sha256");
+  static const Sha256ComponentType ct2(tlv::ParametersSha256DigestComponent,
+                                       "ParametersSha256DigestComponent", "params-sha256");
   return ct2;
 }
+
+/** \brief Rules for a component type holding a nonNegativeInteger value, written as
+ *         a decimal number in URI representation.
+ */
+class DecimalComponentType final : public ComponentType
+{
+public:
+  DecimalComponentType(uint32_t type, const std::string& typeName, const std::string& uriPrefix)
+    : m_type(type)
+    , m_typeName(typeName)
+    , m_uriPrefix(uriPrefix)
+  {
+  }
+
+  // NOTE:
+  // We do not override check() and ensure that the component value is a well-formed
+  // nonNegativeInteger, because the application may be using the same typed component
+  // with different syntax and semantics.
+
+  const char*
+  getAltUriPrefix() const final
+  {
+    return m_uriPrefix.data();
+  }
+
+  Component
+  parseAltUriValue(const std::string& input) const final
+  {
+    uint64_t n = 0;
+    try {
+      n = std::stoull(input);
+    }
+    catch (const std::invalid_argument&) {
+      NDN_THROW(Error("Cannot convert to " + m_typeName + " (invalid format)"));
+    }
+    catch (const std::out_of_range&) {
+      NDN_THROW(Error("Cannot convert to " + m_typeName + " (out of range)"));
+    }
+    if (to_string(n) != input) {
+      NDN_THROW(Error("Cannot convert to " + m_typeName + " (invalid format)"));
+    }
+    return Component::fromNumber(n, m_type);
+  }
+
+  void
+  writeUri(std::ostream& os, const Component& comp) const final
+  {
+    if (comp.isNumber()) {
+      os << m_uriPrefix << '=' << comp.toNumber();
+    }
+    else {
+      ComponentType::writeUri(os, comp);
+    }
+  }
+
+private:
+  const uint32_t m_type;
+  const std::string m_typeName;
+  const std::string m_uriPrefix;
+};
 
 /** \brief Rules regarding NameComponent types.
  */
@@ -312,8 +374,8 @@ private:
   }
 
 private:
-  ComponentType m_baseType;
-  std::array<const ComponentType*, 32> m_table;
+  const ComponentType m_baseType;
+  std::array<const ComponentType*, 38> m_table;
   std::unordered_map<std::string, const ComponentType*> m_uriPrefixes;
 };
 
@@ -322,11 +384,22 @@ ComponentTypeTable::ComponentTypeTable()
 {
   m_table.fill(nullptr);
 
-  static GenericNameComponentType ct8;
-  set(tlv::GenericNameComponent, ct8);
-
   set(tlv::ImplicitSha256DigestComponent, getComponentType1());
   set(tlv::ParametersSha256DigestComponent, getComponentType2());
+
+  static const GenericNameComponentType ct8;
+  set(tlv::GenericNameComponent, ct8);
+
+  static const DecimalComponentType ct33(tlv::SegmentNameComponent, "SegmentNameComponent", "seg");
+  set(tlv::SegmentNameComponent, ct33);
+  static const DecimalComponentType ct34(tlv::ByteOffsetNameComponent, "ByteOffsetNameComponent", "off");
+  set(tlv::ByteOffsetNameComponent, ct34);
+  static const DecimalComponentType ct35(tlv::VersionNameComponent, "VersionNameComponent", "v");
+  set(tlv::VersionNameComponent, ct35);
+  static const DecimalComponentType ct36(tlv::TimestampNameComponent, "TimestampNameComponent", "t");
+  set(tlv::TimestampNameComponent, ct36);
+  static const DecimalComponentType ct37(tlv::SequenceNumNameComponent, "SequenceNumNameComponent", "seq");
+  set(tlv::SequenceNumNameComponent, ct37);
 }
 
 /** \brief Get the global ComponentTypeTable.

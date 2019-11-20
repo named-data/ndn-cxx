@@ -31,6 +31,7 @@ namespace ndn {
 namespace name {
 
 /** @brief Identify a style of NDN Naming Conventions.
+ *  @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
  */
 enum class Convention {
   MARKER = 1 << 0, ///< component markers (revision 1)
@@ -249,21 +250,17 @@ public: // encoding and URI
   fromEscapedString(const std::string& input);
 
   /**
-   * @brief Write *this to the output stream, escaping characters according to the NDN URI Scheme
-   *
-   * This also adds "..." to a value with zero or more "."
-   *
+   * @brief Write *this to the output stream, escaping characters according to the NDN URI format.
    * @param os The output stream where to write the URI escaped version of *this
+   * @sa http://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    */
   void
   toUri(std::ostream& os) const;
 
   /**
-   * @brief Convert *this by escaping characters according to the NDN URI Scheme
-   *
-   * This also adds "..." to a value with zero or more "."
-   *
+   * @brief Convert *this by escaping characters according to the NDN URI format.
    * @return The escaped string
+   * @sa http://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    */
   std::string
   toUri() const;
@@ -278,28 +275,29 @@ public: // naming conventions
 
   /**
    * @brief Check if the component is a NameComponentWithMarker per NDN naming conventions rev1
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions revision 1:
+   *     https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
    */
   bool
   isNumberWithMarker(uint8_t marker) const;
 
   /**
    * @brief Check if the component is a version per NDN naming conventions
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   bool
   isVersion() const;
 
   /**
    * @brief Check if the component is a segment number per NDN naming conventions
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   bool
   isSegment() const;
 
   /**
    * @brief Check if the component is a byte offset per NDN naming conventions
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   bool
   isByteOffset() const;
@@ -313,14 +311,14 @@ public: // naming conventions
 
   /**
    * @brief Check if the component is a timestamp per NDN naming conventions
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   bool
   isTimestamp() const;
 
   /**
    * @brief Check if the component is a sequence number per NDN naming conventions
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   bool
   isSequenceNumber() const;
@@ -338,7 +336,8 @@ public: // naming conventions
   /**
    * @brief Interpret this name component as NameComponentWithMarker
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions revision 1:
+   *     https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
    *
    * @param marker 1-byte octet of the marker
    * @return The integer number.
@@ -351,7 +350,7 @@ public: // naming conventions
   /**
    * @brief Interpret as version component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    *
    * @throw tlv::Error not a Version component interpreted by the chosen convention(s).
    */
@@ -361,7 +360,7 @@ public: // naming conventions
   /**
    * @brief Interpret as segment number component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    *
    * @throw tlv::Error not a Segment component interpreted by the chosen convention(s).
    */
@@ -371,7 +370,7 @@ public: // naming conventions
   /**
    * @brief Interpret as byte offset component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    *
    * @throw tlv::Error not a ByteOffset component interpreted by the chosen convention(s).
    */
@@ -388,7 +387,7 @@ public: // naming conventions
   /**
    * @brief Interpret as timestamp component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    *
    * @throw tlv::Error not a Timestamp component interpreted by the chosen convention(s).
    */
@@ -398,7 +397,7 @@ public: // naming conventions
   /**
    * @brief Interpret as sequence number component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    *
    * @throw tlv::Error not a SequenceNumber component interpreted by the chosen convention(s).
    */
@@ -421,17 +420,14 @@ public: // naming conventions
    *
    * NameComponentWithMarker is defined as:
    *
-   *     NameComponentWithMarker ::= NAME-COMPONENT-TYPE TLV-LEGTH
+   *     NameComponentWithMarker ::= NAME-COMPONENT-TYPE TLV-LENGTH
    *                                   Marker
    *                                   includedNonNegativeInteger
    *     Marker ::= BYTE
    *     includedNonNegativeInteger ::= BYTE{1,2,4,8}
-   *     NDN-TLV := TLV-TYPE TLV-LENGTH TLV-VALUE?
-   *     TLV-TYPE := VAR-NUMBER
-   *     TLV-LENGTH := VAR-NUMBER
-   *     TLV-VALUE := BYTE+
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa NDN Naming Conventions revision 1:
+   *     https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
    *
    * @param marker 1-byte marker octet
    * @param number The non-negative number
@@ -442,7 +438,7 @@ public: // naming conventions
   /**
    * @brief Create version component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   static Component
   fromVersion(uint64_t version);
@@ -450,7 +446,7 @@ public: // naming conventions
   /**
    * @brief Create segment number component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   static Component
   fromSegment(uint64_t segmentNo);
@@ -458,7 +454,7 @@ public: // naming conventions
   /**
    * @brief Create byte offset component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   static Component
   fromByteOffset(uint64_t offset);
@@ -473,7 +469,7 @@ public: // naming conventions
   /**
    * @brief Create sequence number component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   static Component
   fromTimestamp(const time::system_clock::TimePoint& timePoint);
@@ -481,7 +477,7 @@ public: // naming conventions
   /**
    * @brief Create sequence number component using NDN naming conventions
    *
-   * @sa NDN Naming Conventions https://named-data.net/doc/tech-memos/naming-conventions.pdf
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
    */
   static Component
   fromSequenceNumber(uint64_t seqNo);

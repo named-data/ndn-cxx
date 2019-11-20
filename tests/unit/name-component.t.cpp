@@ -26,6 +26,8 @@
 #include "tests/boost-test.hpp"
 
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 
 namespace ndn {
@@ -36,11 +38,17 @@ BOOST_AUTO_TEST_SUITE(TestNameComponent)
 
 BOOST_AUTO_TEST_SUITE(Decode)
 
+#define CHECK_COMP_ERR(expr, whatstring) \
+  BOOST_CHECK_EXCEPTION(expr, Component::Error, \
+                        [] (const auto& e) { return boost::contains(e.what(), whatstring); })
+
 BOOST_AUTO_TEST_CASE(Generic)
 {
   Component comp("0807 6E646E2D637878"_block);
   BOOST_CHECK_EQUAL(comp.type(), tlv::GenericNameComponent);
+  BOOST_CHECK_EQUAL(comp.isGeneric(), true);
   BOOST_CHECK_EQUAL(comp.toUri(), "ndn-cxx");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), "ndn-cxx");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("ndn-cxx"), comp);
   BOOST_CHECK_EQUAL(Component::fromEscapedString("8=ndn-cxx"), comp);
 
@@ -82,38 +90,96 @@ BOOST_AUTO_TEST_CASE(Generic)
 }
 
 static void
-testSha256(uint32_t type, const std::string& uriPrefix)
+testSha256Component(uint32_t type, const std::string& uriPrefix)
 {
-  std::string hexLower = "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548";
-  std::string hexUpper = boost::to_upper_copy(hexLower);
+  const std::string hexLower = "28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548";
+  const std::string hexUpper = boost::to_upper_copy(hexLower);
   std::string hexPct;
   for (size_t i = 0; i < hexUpper.size(); i += 2) {
     hexPct += "%" + hexUpper.substr(i, 2);
   }
 
   Component comp(Block(type, fromHex(hexLower)));
+
   BOOST_CHECK_EQUAL(comp.type(), type);
   BOOST_CHECK_EQUAL(comp.toUri(), uriPrefix + hexLower);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString(uriPrefix + hexLower), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString(uriPrefix + hexUpper), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString(to_string(type) + "=" + hexPct), comp);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), uriPrefix + hexLower);
+  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexLower));
+  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexUpper));
+  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=" + hexPct));
 
-  BOOST_CHECK_THROW(comp.wireDecode(Block(type, fromHex("A791806951F25C4D"))), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString(uriPrefix), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString(uriPrefix + "a791806951f25c4d"),
-                    Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString(boost::to_upper_copy(uriPrefix) + hexLower),
-                    Component::Error);
+  CHECK_COMP_ERR(comp.wireDecode(Block(type, fromHex("A791806951F25C4D"))), "TLV-LENGTH must be 32");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix), "TLV-LENGTH must be 32");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "a791806951f25c4d"), "TLV-LENGTH must be 32");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "foo"), "invalid hex encoding");
+  CHECK_COMP_ERR(Component::fromEscapedString(boost::to_upper_copy(uriPrefix) + hexLower), "Unknown TLV-TYPE");
 }
 
-BOOST_AUTO_TEST_CASE(Digest)
+BOOST_AUTO_TEST_CASE(ImplicitDigest)
 {
-  testSha256(tlv::ImplicitSha256DigestComponent, "sha256digest=");
+  testSha256Component(tlv::ImplicitSha256DigestComponent, "sha256digest=");
 }
 
-BOOST_AUTO_TEST_CASE(Params)
+BOOST_AUTO_TEST_CASE(ParametersDigest)
 {
-  testSha256(tlv::ParametersSha256DigestComponent, "params-sha256=");
+  testSha256Component(tlv::ParametersSha256DigestComponent, "params-sha256=");
+}
+
+static void
+testDecimalComponent(uint32_t type, const std::string& uriPrefix)
+{
+  const Component comp(makeNonNegativeIntegerBlock(type, 42)); // TLV-VALUE is a nonNegativeInteger
+  BOOST_CHECK_EQUAL(comp.type(), type);
+  BOOST_CHECK_EQUAL(comp.isNumber(), true);
+  const auto compUri = uriPrefix + "42";
+  BOOST_CHECK_EQUAL(comp.toUri(), compUri);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), compUri);
+  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(compUri));
+  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=%2A"));
+  BOOST_CHECK_EQUAL(comp, Component::fromNumber(42, type));
+
+  const Component comp2(Block(type, fromHex("010203"))); // TLV-VALUE is *not* a nonNegativeInteger
+  BOOST_CHECK_EQUAL(comp2.type(), type);
+  BOOST_CHECK_EQUAL(comp2.isNumber(), false);
+  const auto comp2Uri = to_string(type) + "=%01%02%03";
+  BOOST_CHECK_EQUAL(comp2.toUri(), comp2Uri);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp2), comp2Uri);
+  BOOST_CHECK_EQUAL(comp2, Component::fromEscapedString(comp2Uri));
+
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix), "invalid format");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "foo"), "invalid format");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "00"), "invalid format");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "-1"), "invalid format");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "9.3"), "invalid format");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + " 84"), "invalid format");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "0xAF"), "invalid format");
+  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "18446744073709551616"), "out of range");
+  CHECK_COMP_ERR(Component::fromEscapedString(boost::to_upper_copy(uriPrefix) + "42"), "Unknown TLV-TYPE");
+}
+
+BOOST_AUTO_TEST_CASE(Segment)
+{
+  testDecimalComponent(tlv::SegmentNameComponent, "seg=");
+}
+
+BOOST_AUTO_TEST_CASE(ByteOffset)
+{
+  testDecimalComponent(tlv::ByteOffsetNameComponent, "off=");
+}
+
+BOOST_AUTO_TEST_CASE(Version)
+{
+  testDecimalComponent(tlv::VersionNameComponent, "v=");
+}
+
+BOOST_AUTO_TEST_CASE(Timestamp)
+{
+  testDecimalComponent(tlv::TimestampNameComponent, "t=");
+}
+
+BOOST_AUTO_TEST_CASE(SequenceNum)
+{
+  testDecimalComponent(tlv::SequenceNumNameComponent, "seq=");
 }
 
 BOOST_AUTO_TEST_CASE(OtherType)
@@ -165,7 +231,7 @@ BOOST_AUTO_TEST_SUITE_END() // Decode
 
 BOOST_AUTO_TEST_CASE(Compare)
 {
-  std::vector<Component> comps = {
+  const std::vector<Component> comps = {
     Component("0120 0000000000000000000000000000000000000000000000000000000000000000"_block),
     Component("0120 0000000000000000000000000000000000000000000000000000000000000001"_block),
     Component("0120 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"_block),
@@ -202,12 +268,10 @@ BOOST_AUTO_TEST_CASE(Compare)
 
 BOOST_AUTO_TEST_SUITE(CreateFromIterators) // Bug 2490
 
-typedef boost::mpl::vector<
-  std::vector<uint8_t>,
-  std::list<uint8_t>,
-  std::vector<int8_t>,
-  std::list<int8_t>
-> ContainerTypes;
+using ContainerTypes = boost::mpl::vector<std::vector<uint8_t>,
+                                          std::list<uint8_t>,
+                                          std::vector<int8_t>,
+                                          std::list<int8_t>>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ZeroOctet, T, ContainerTypes)
 {
@@ -243,12 +307,12 @@ BOOST_AUTO_TEST_SUITE(NamingConvention)
 template<typename ArgType>
 struct ConventionTest
 {
-  function<Component(ArgType)> makeComponent;
-  function<ArgType(const Component&)> getValue;
-  function<Name&(Name&, ArgType)> append;
+  std::function<Component(ArgType)> makeComponent;
+  std::function<ArgType(const Component&)> getValue;
+  std::function<Name&(Name&, ArgType)> append;
   Name expected;
   ArgType value;
-  function<bool(const Component&)> isComponent;
+  std::function<bool(const Component&)> isComponent;
 };
 
 class ConventionMarker
@@ -478,7 +542,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Convention, T, ConventionTests, T::ConventionRe
   auto test = T()();
 
   const Name& expected = test.expected;
-  BOOST_TEST_MESSAGE("Check " << expected[0].toUri());
+  BOOST_TEST_MESSAGE("Check " << expected[0]);
 
   Component actualComponent = test.makeComponent(test.value);
   BOOST_CHECK_EQUAL(actualComponent, expected[0]);
