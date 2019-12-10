@@ -55,7 +55,7 @@ executeCommand(const std::string& cmd)
   std::string output;
   char buf[256];
   FILE* pipe = popen(cmd.data(), "r");
-  BOOST_REQUIRE_MESSAGE(pipe != nullptr, "cannot execute '" << cmd << "'");
+  BOOST_REQUIRE_MESSAGE(pipe != nullptr, "popen(" << cmd << ")");
   while (fgets(buf, sizeof(buf), pipe) != nullptr) {
     output += buf;
   }
@@ -113,8 +113,8 @@ protected:
 
 protected:
   Face face;
-  Scheduler sched;
   unique_ptr<Face> face2;
+  Scheduler sched;
 };
 
 using Transports = boost::mpl::vector<UnixTransport, TcpTransport>;
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_SUITE(Consumer)
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ExpressInterestData, TransportType, Transports, FaceFixture<TransportType>)
 {
   int nData = 0;
-  this->face.expressInterest(*makeInterest("/", true),
+  this->face.expressInterest(*makeInterest("/localhost", true),
     [&] (const Interest&, const Data&) { ++nData; },
     [] (const Interest&, const lp::Nack&) { BOOST_ERROR("unexpected Nack"); },
     [] (const Interest&) { BOOST_ERROR("unexpected timeout"); });
