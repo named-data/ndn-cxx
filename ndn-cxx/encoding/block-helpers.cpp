@@ -21,8 +21,12 @@
 
 #include "ndn-cxx/encoding/block-helpers.hpp"
 
+#include <boost/endian/conversion.hpp>
+
 namespace ndn {
 namespace encoding {
+
+namespace endian = boost::endian;
 
 // ---- non-negative integer ----
 
@@ -130,7 +134,7 @@ prependDoubleBlock(EncodingImpl<TAG>& encoder, uint32_t type, double value)
 {
   uint64_t temp = 0;
   std::memcpy(&temp, &value, 8);
-  boost::endian::native_to_big_inplace(temp);
+  endian::native_to_big_inplace(temp);
   return encoder.prependByteArrayBlock(type, reinterpret_cast<const uint8_t*>(&temp), 8);
 }
 
@@ -159,12 +163,16 @@ readDouble(const Block& block)
     NDN_THROW(tlv::Error("Invalid length for double (must be 8)"));
   }
 
+#if BOOST_VERSION >= 107100
+  return endian::endian_load<double, 8, endian::order::big>(block.value());
+#else
   uint64_t temp = 0;
   std::memcpy(&temp, block.value(), 8);
-  boost::endian::big_to_native_inplace(temp);
+  endian::big_to_native_inplace(temp);
   double d = 0;
   std::memcpy(&d, &temp, 8);
   return d;
+#endif
 }
 
 // ---- binary ----
