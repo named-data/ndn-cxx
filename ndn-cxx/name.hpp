@@ -92,13 +92,19 @@ public: // constructors, encoding, decoding
    */
   Name(std::string uri);
 
+  /** @brief Write URI representation of the name to the output stream
+   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   */
+  void
+  toUri(std::ostream& os, name::UriFormat format = name::UriFormat::DEFAULT) const;
+
   /** @brief Get URI representation of the name
    *  @return URI representation; "ndn:" scheme identifier is not included
    *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    *  @note To print URI representation into a stream, it is more efficient to use ``os << name``.
    */
   std::string
-  toUri() const;
+  toUri(name::UriFormat format = name::UriFormat::DEFAULT) const;
 
   /** @brief Check if this Name instance already has wire encoding
    */
@@ -636,6 +642,16 @@ private: // non-member operators
     return lhs.compare(rhs) >= 0;
   }
 
+  /** @brief Print URI representation of a name
+   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   */
+  friend std::ostream&
+  operator<<(std::ostream& os, const Name& name)
+  {
+    name.toUri(os);
+    return os;
+  }
+
 public:
   /** @brief Indicates "until the end" in getSubName() and compare().
    */
@@ -646,12 +662,6 @@ private:
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Name);
-
-/** @brief Print URI representation of a name
- *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
- */
-std::ostream&
-operator<<(std::ostream& os, const Name& name);
 
 /** @brief Parse URI from stream as Name
  *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme

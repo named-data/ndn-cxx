@@ -48,6 +48,8 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_EQUAL(comp.type(), tlv::GenericNameComponent);
   BOOST_CHECK_EQUAL(comp.isGeneric(), true);
   BOOST_CHECK_EQUAL(comp.toUri(), "ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), "8=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), "ndn-cxx");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), "ndn-cxx");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("ndn-cxx"), comp);
   BOOST_CHECK_EQUAL(Component::fromEscapedString("8=ndn-cxx"), comp);
@@ -98,15 +100,19 @@ testSha256Component(uint32_t type, const std::string& uriPrefix)
   for (size_t i = 0; i < hexUpper.size(); i += 2) {
     hexPct += "%" + hexUpper.substr(i, 2);
   }
+  const std::string hexPctCanonical = "%28%BA%D4%B5%27%5B%D3%92%DB%B6p%C7%5C%F0%B6o%13%F7%94%2B%21%E8%0FU%C0%E8k7GS%A5H";
 
   Component comp(Block(type, fromHex(hexLower)));
 
   BOOST_CHECK_EQUAL(comp.type(), type);
   BOOST_CHECK_EQUAL(comp.toUri(), uriPrefix + hexLower);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), to_string(type) + "=" + hexPctCanonical);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexLower));
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexUpper));
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=" + hexPct));
+  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=" + hexPctCanonical));
 
   CHECK_COMP_ERR(comp.wireDecode(Block(type, fromHex("A791806951F25C4D"))), "TLV-LENGTH must be 32");
   CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix), "TLV-LENGTH must be 32");
@@ -133,6 +139,8 @@ testDecimalComponent(uint32_t type, const std::string& uriPrefix)
   BOOST_CHECK_EQUAL(comp.isNumber(), true);
   const auto compUri = uriPrefix + "42";
   BOOST_CHECK_EQUAL(comp.toUri(), compUri);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), to_string(type) + "=%2A");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), compUri);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), compUri);
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(compUri));
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=%2A"));

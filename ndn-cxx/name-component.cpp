@@ -86,6 +86,17 @@ canDecodeTypedConvention()
   return (to_underlying(g_conventionDecoding) & to_underlying(Convention::TYPED)) != 0;
 }
 
+static bool
+chooseAltUri(UriFormat format)
+{
+  if (format == UriFormat::DEFAULT) {
+    static const char* env = std::getenv("NDN_NAME_ALT_URI");
+    static bool defaultSetting = env == nullptr || env[0] != '0';
+    return defaultSetting;
+  }
+  return format == UriFormat::ALTERNATE;
+}
+
 void
 Component::ensureValid() const
 {
@@ -169,16 +180,21 @@ Component::fromEscapedString(const std::string& input)
 }
 
 void
-Component::toUri(std::ostream& os) const
+Component::toUri(std::ostream& os, UriFormat format) const
 {
-  detail::getComponentTypeTable().get(type()).writeUri(os, *this);
+  if (chooseAltUri(format)) {
+    detail::getComponentTypeTable().get(type()).writeUri(os, *this);
+  }
+  else {
+    detail::ComponentType().writeUri(os, *this);
+  }
 }
 
 std::string
-Component::toUri() const
+Component::toUri(UriFormat format) const
 {
   std::ostringstream os;
-  toUri(os);
+  toUri(os, format);
   return os.str();
 }
 

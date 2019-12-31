@@ -112,14 +112,6 @@ Name::Name(std::string uri)
   }
 }
 
-std::string
-Name::toUri() const
-{
-  std::ostringstream os;
-  os << *this;
-  return os.str();
-}
-
 template<encoding::Tag TAG>
 size_t
 Name::wireEncode(EncodingImpl<TAG>& encoder) const
@@ -350,21 +342,28 @@ Name::compare(size_t pos1, size_t count1, const Name& other, size_t pos2, size_t
   return count1 - count2;
 }
 
-// ---- stream operators ----
+// ---- URI representation ----
 
-std::ostream&
-operator<<(std::ostream& os, const Name& name)
+void
+Name::toUri(std::ostream& os, name::UriFormat format) const
 {
-  if (name.empty()) {
+  if (empty()) {
     os << "/";
+    return;
   }
-  else {
-    for (const auto& component : name) {
-      os << "/";
-      component.toUri(os);
-    }
+
+  for (const auto& component : *this) {
+    os << "/";
+    component.toUri(os, format);
   }
-  return os;
+}
+
+std::string
+Name::toUri(name::UriFormat format) const
+{
+  std::ostringstream os;
+  toUri(os, format);
+  return os.str();
 }
 
 std::istream&

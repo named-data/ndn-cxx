@@ -29,6 +29,7 @@ namespace ndn {
 namespace tests {
 
 using Component = name::Component;
+using UriFormat = name::UriFormat;
 
 BOOST_AUTO_TEST_SUITE(TestName)
 
@@ -47,6 +48,10 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   BOOST_CHECK_EQUAL(name[4], Component("\x1C\x9F"));
   BOOST_CHECK(name[5].isImplicitSha256Digest());
 
+  BOOST_CHECK_EQUAL(name.toUri(UriFormat::CANONICAL),
+                    "/8=Emid/25042=P3/8=.../8=..../8=%1C%9F/"
+                    "1=%04%15%E3bJ%15%18P%AChl%84%F1U%F2%98%08%C0%DDs%81%9A%A4%A4%C2%0B%E7%3AM%8A%87L");
+
   Block wire = name.wireEncode();
   BOOST_CHECK_EQUAL(wire,
     "0737 0804456D6964 FD61D2025033 0800 08012E 08021C9F "
@@ -58,6 +63,9 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
 
 BOOST_AUTO_TEST_CASE(ParseUri)
 {
+  // canonical URI
+  BOOST_CHECK_EQUAL(Name("/8=hello/8=world").toUri(), "/hello/world");
+
   // URI with correct scheme
   BOOST_CHECK_EQUAL(Name("ndn:/hello/world").toUri(), "/hello/world");
 

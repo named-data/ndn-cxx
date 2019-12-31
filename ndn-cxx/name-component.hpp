@@ -30,6 +30,14 @@
 namespace ndn {
 namespace name {
 
+/** @brief Identify a format of URI representation.
+ */
+enum class UriFormat {
+  DEFAULT,   ///< ALTERNATE, unless `NDN_NAME_ALT_URI` environment variable is set to '0'
+  CANONICAL, ///< always use <type-number>=<percent-encoded-value> format
+  ALTERNATE, ///< prefer alternate format when available
+};
+
 /** @brief Identify a style of NDN Naming Conventions.
  *  @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
  */
@@ -251,19 +259,17 @@ public: // encoding and URI
 
   /**
    * @brief Write *this to the output stream, escaping characters according to the NDN URI format.
-   * @param os The output stream where to write the URI escaped version of *this
-   * @sa http://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    */
   void
-  toUri(std::ostream& os) const;
+  toUri(std::ostream& os, UriFormat format = UriFormat::DEFAULT) const;
 
   /**
    * @brief Convert *this by escaping characters according to the NDN URI format.
-   * @return The escaped string
-   * @sa http://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
    */
   std::string
-  toUri() const;
+  toUri(UriFormat format = UriFormat::DEFAULT) const;
 
 public: // naming conventions
   /**
