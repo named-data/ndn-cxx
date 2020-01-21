@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California,
+ * Copyright (c) 2013-2020 Regents of the University of California,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University.
  *
@@ -301,7 +301,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   Scheduler m_scheduler;
   security::v2::Validator& m_validator;
   RttEstimator m_rttEstimator;
-  time::milliseconds m_timeout;
 
   time::steady_clock::TimePoint m_timeLastSegmentReceived;
   std::queue<uint64_t> m_retxQueue;
