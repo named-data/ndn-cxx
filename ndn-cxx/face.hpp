@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,30 +36,31 @@ namespace ndn {
 
 class Transport;
 
-class PendingInterestId;
 class PendingInterestHandle;
-class RegisteredPrefixId;
 class RegisteredPrefixHandle;
-class InterestFilterId;
 class InterestFilterHandle;
 
+namespace detail {
+using RecordId = uint64_t;
+} // namespace detail
+
 /**
- * @brief Callback invoked when expressed Interest gets satisfied with a Data packet
+ * @brief Callback invoked when an expressed Interest is satisfied by a Data packet
  */
 typedef function<void(const Interest&, const Data&)> DataCallback;
 
 /**
- * @brief Callback invoked when Nack is sent in response to expressed Interest
+ * @brief Callback invoked when a Nack is received in response to an expressed Interest
  */
 typedef function<void(const Interest&, const lp::Nack&)> NackCallback;
 
 /**
- * @brief Callback invoked when expressed Interest times out
+ * @brief Callback invoked when an expressed Interest times out
  */
 typedef function<void(const Interest&)> TimeoutCallback;
 
 /**
- * @brief Callback invoked when incoming Interest matches the specified InterestFilter
+ * @brief Callback invoked when an incoming Interest matches the specified InterestFilter
  */
 typedef function<void(const InterestFilter&, const Interest&)> InterestCallback;
 
@@ -74,12 +75,12 @@ typedef function<void(const Name&)> RegisterPrefixSuccessCallback;
 typedef function<void(const Name&, const std::string&)> RegisterPrefixFailureCallback;
 
 /**
- * @brief Callback invoked when unregisterPrefix or unsetInterestFilter command succeeds
+ * @brief Callback invoked when unregistering a prefix succeeds
  */
 typedef function<void()> UnregisterPrefixSuccessCallback;
 
 /**
- * @brief Callback invoked when unregisterPrefix or unsetInterestFilter command fails
+ * @brief Callback invoked when unregistering a prefix fails
  */
 typedef function<void(const std::string&)> UnregisterPrefixFailureCallback;
 
@@ -237,16 +238,6 @@ public: // consumer
                   const TimeoutCallback& afterTimeout);
 
   /**
-   * @deprecated use PendingInterestHandle::cancel()
-   */
-  [[deprecated]]
-  void
-  removePendingInterest(const PendingInterestId* pendingInterestId)
-  {
-    cancelPendingInterest(pendingInterestId);
-  }
-
-  /**
    * @brief Cancel all previously expressed Interests
    */
   void
@@ -312,14 +303,14 @@ public: // producer
                     uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
-   * @brief Set InterestFilter to dispatch incoming matching interest to onInterest callback
+   * @brief Set an InterestFilter to dispatch matching incoming Interests to @p onInterest callback.
    *
    * @param filter     Interest filter
    * @param onInterest A callback to be called when a matching interest is received
    *
    * This method modifies library's FIB only, and does not register the prefix with the
-   * forwarder.  It will always succeed.  To register prefix with the forwarder, use
-   * registerPrefix, or use the setInterestFilter overload taking two callbacks.
+   * forwarder. It will always succeed. To register a prefix with the forwarder, use
+   * registerPrefix() or one of the other two setInterestFilter() overloads.
    *
    * @return A handle for unsetting the Interest filter.
    */
@@ -351,38 +342,6 @@ public: // producer
                  uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
-   * @deprecated use RegisteredPrefixHandle::unregister()
-   */
-  [[deprecated]]
-  void
-  unsetInterestFilter(const RegisteredPrefixId* registeredPrefixId)
-  {
-    unregisterPrefixImpl(registeredPrefixId, nullptr, nullptr);
-  }
-
-  /**
-   * @deprecated use InterestFilterHandle::cancel()
-   */
-  [[deprecated]]
-  void
-  unsetInterestFilter(const InterestFilterId* interestFilterId)
-  {
-    clearInterestFilter(interestFilterId);
-  }
-
-  /**
-   * @deprecated use RegisteredPrefixHandle::unregister()
-   */
-  [[deprecated]]
-  void
-  unregisterPrefix(const RegisteredPrefixId* registeredPrefixId,
-                   const UnregisterPrefixSuccessCallback& onSuccess,
-                   const UnregisterPrefixFailureCallback& onFailure)
-  {
-    unregisterPrefixImpl(registeredPrefixId, onSuccess, onFailure);
-  }
-
-  /**
    * @brief Publish data packet
    * @param data the Data; a copy will be made, so that the caller is not required to
    *             maintain the argument unchanged
@@ -408,9 +367,9 @@ public: // IO routine
   /**
    * @brief Process any data to receive or call timeout callbacks.
    *
-   * This call will block forever (default timeout == 0) to process IO on the face.
-   * To exit cleanly on a producer, unset any Interest filters with unsetInterestFilter() and wait
-   * for processEvents() to return. To exit after an error, one can call shutdown().
+   * This call will block forever (with the default timeout of 0) to process I/O on the face.
+   * To exit cleanly on a producer, clear any Interest filters and wait for processEvents() to
+   * return. To exit after an error, one can call shutdown().
    * In consumer applications, processEvents() will return when all expressed Interests have been
    * satisfied, Nacked, or timed out. To terminate earlier, a consumer application should cancel
    * all previously expressed and still-pending Interests.
@@ -442,16 +401,17 @@ public: // IO routine
   }
 
   /**
-   * @brief Shutdown face operations
+   * @brief Shutdown face operations.
    *
-   * This method cancels all pending operations and closes connection to NDN Forwarder.
+   * This method cancels all pending operations and closes the connection to the NDN forwarder.
    *
    * Note that this method does not stop the io_service if it is shared between multiple Faces or
    * with other IO objects (e.g., Scheduler).
    *
-   * @warning Calling this method could cause outgoing packets to be lost. Producers that shut down
-   *          immediately after sending a Data packet should instead use unsetInterestFilter() to
+   * @warning Calling this method may cause outgoing packets to be lost. Producers that shut down
+   *          immediately after sending a Data packet should instead clear all Interest filters to
    *          shut down cleanly.
+   * @sa processEvents()
    */
   void
   shutdown();
@@ -488,24 +448,12 @@ private:
 
   /**
    * @throw Face::Error on unsupported protocol
-   * @note shared_ptr is passed by value because ownership is transferred to this function
    */
   void
   construct(shared_ptr<Transport> transport, KeyChain& keyChain);
 
   void
   onReceiveElement(const Block& blockFromDaemon);
-
-  void
-  cancelPendingInterest(const PendingInterestId* pendingInterestId);
-
-  void
-  clearInterestFilter(const InterestFilterId* interestFilterId);
-
-  void
-  unregisterPrefixImpl(const RegisteredPrefixId* registeredPrefixId,
-                       const UnregisterPrefixSuccessCallback& onSuccess,
-                       const UnregisterPrefixFailureCallback& onFailure);
 
 private:
   /// the io_service owned by this Face, may be null
@@ -532,25 +480,25 @@ private:
   friend InterestFilterHandle;
 };
 
-/** \brief A handle of pending Interest.
+/** \brief Handle for a pending Interest.
  *
  *  \code
  *  PendingInterestHandle hdl = face.expressInterest(interest, satisfyCb, nackCb, timeoutCb);
  *  hdl.cancel(); // cancel the pending Interest
  *  \endcode
- *
- *  \warning Canceling a pending Interest after the face has been destructed may trigger undefined
- *           behavior.
  */
 class PendingInterestHandle : public detail::CancelHandle
 {
 public:
   PendingInterestHandle() noexcept = default;
 
-  PendingInterestHandle(Face& face, const PendingInterestId* id);
+private:
+  PendingInterestHandle(weak_ptr<Face::Impl> impl, detail::RecordId id);
+
+  friend Face;
 };
 
-/** \brief A scoped handle of pending Interest.
+/** \brief Scoped handle for a pending Interest.
  *
  *  Upon destruction of this handle, the pending Interest is canceled automatically.
  *  Most commonly, the application keeps a ScopedPendingInterestHandle as a class member field,
@@ -561,13 +509,10 @@ public:
  *    ScopedPendingInterestHandle hdl = face.expressInterest(interest, satisfyCb, nackCb, timeoutCb);
  *  } // hdl goes out of scope, canceling the pending Interest
  *  \endcode
- *
- *  \warning Canceling a pending Interest after the face has been destructed may trigger undefined
- *           behavior.
  */
 using ScopedPendingInterestHandle = detail::ScopedCancelHandle<PendingInterestHandle>;
 
-/** \brief A handle of registered prefix.
+/** \brief Handle for a registered prefix.
  */
 class RegisteredPrefixHandle : public detail::CancelHandle
 {
@@ -578,22 +523,28 @@ public:
     // see https://stackoverflow.com/a/44693603
   }
 
-  RegisteredPrefixHandle(Face& face, const RegisteredPrefixId* id);
-
   /** \brief Unregister the prefix.
-   *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
-   *           behavior.
    */
   void
   unregister(const UnregisterPrefixSuccessCallback& onSuccess = nullptr,
              const UnregisterPrefixFailureCallback& onFailure = nullptr);
 
 private:
-  Face* m_face = nullptr;
-  const RegisteredPrefixId* m_id = nullptr;
+  RegisteredPrefixHandle(weak_ptr<Face::Impl> impl, detail::RecordId id);
+
+  static void
+  unregister(const weak_ptr<Face::Impl>& impl, detail::RecordId id,
+             const UnregisterPrefixSuccessCallback& onSuccess,
+             const UnregisterPrefixFailureCallback& onFailure);
+
+private:
+  weak_ptr<Face::Impl> m_weakImpl;
+  detail::RecordId m_id = 0;
+
+  friend Face;
 };
 
-/** \brief A scoped handle of registered prefix.
+/** \brief Scoped handle for a registered prefix.
  *
  *  Upon destruction of this handle, the prefix is unregistered automatically.
  *  Most commonly, the application keeps a ScopedRegisteredPrefixHandle as a class member field,
@@ -605,33 +556,30 @@ private:
  *    ScopedRegisteredPrefixHandle hdl = face.registerPrefix(prefix, onSuccess, onFailure);
  *  } // hdl goes out of scope, unregistering the prefix
  *  \endcode
- *
- *  \warning Unregistering a prefix after the face has been destructed may trigger undefined
- *           behavior.
  */
 using ScopedRegisteredPrefixHandle = detail::ScopedCancelHandle<RegisteredPrefixHandle>;
 
-/** \brief A handle of registered Interest filter.
+/** \brief Handle for a registered Interest filter.
  *
  *  \code
  *  InterestFilterHandle hdl = face.setInterestFilter(prefix, onInterest);
  *  hdl.cancel(); // unset the Interest filter
  *  \endcode
- *
- *  \warning Unsetting an Interest filter after the face has been destructed may trigger
- *           undefined behavior.
  */
 class InterestFilterHandle : public detail::CancelHandle
 {
 public:
   InterestFilterHandle() noexcept = default;
 
-  InterestFilterHandle(Face& face, const InterestFilterId* id);
+private:
+  InterestFilterHandle(weak_ptr<Face::Impl> impl, detail::RecordId id);
+
+  friend Face;
 };
 
-/** \brief A scoped handle of registered Interest filter.
+/** \brief Scoped handle for a registered Interest filter.
  *
- *  Upon destruction of this handle, the Interest filter is unset automatically.
+ *  Upon destruction of this handle, the Interest filter is canceled automatically.
  *  Most commonly, the application keeps a ScopedInterestFilterHandle as a class member field,
  *  so that it can cleanup its Interest filter when the class instance is destructed.
  *
@@ -640,9 +588,6 @@ public:
  *    ScopedInterestFilterHandle hdl = face.setInterestFilter(prefix, onInterest);
  *  } // hdl goes out of scope, unsetting the Interest filter
  *  \endcode
- *
- *  \warning Unsetting an Interest filter after the face has been destructed may trigger
- *           undefined behavior.
  */
 using ScopedInterestFilterHandle = detail::ScopedCancelHandle<InterestFilterHandle>;
 

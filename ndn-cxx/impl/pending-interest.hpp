@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,14 +32,7 @@
 namespace ndn {
 
 /**
- * @brief Opaque type to identify a PendingInterest
- */
-class PendingInterestId;
-
-static_assert(sizeof(const PendingInterestId*) == sizeof(RecordId), "");
-
-/**
- * @brief Indicates where a pending Interest came from
+ * @brief Indicates where a pending Interest came from.
  */
 enum class PendingInterestOrigin
 {
@@ -60,9 +53,9 @@ operator<<(std::ostream& os, PendingInterestOrigin origin)
 }
 
 /**
- * @brief Stores a pending Interest and associated callbacks
+ * @brief Stores a pending Interest and associated callbacks.
  */
-class PendingInterest : public RecordBase<PendingInterest>
+class PendingInterest : public detail::RecordBase<PendingInterest>
 {
 public:
   /**
@@ -79,18 +72,16 @@ public:
     , m_dataCallback(dataCallback)
     , m_nackCallback(nackCallback)
     , m_timeoutCallback(timeoutCallback)
-    , m_nNotNacked(0)
   {
     scheduleTimeoutEvent(scheduler);
   }
 
   /**
-   * @brief Construct a pending Interest record for an Interest from NFD
+   * @brief Construct a pending Interest record for an Interest from the forwarder
    */
   PendingInterest(shared_ptr<const Interest> interest, Scheduler& scheduler)
     : m_interest(std::move(interest))
     , m_origin(PendingInterestOrigin::FORWARDER)
-    , m_nNotNacked(0)
   {
     scheduleTimeoutEvent(scheduler);
   }
@@ -121,7 +112,7 @@ public:
   /**
    * @brief Record an incoming Nack against a forwarded Interest
    * @return least severe Nack if all destinations where the Interest was forwarded have Nacked;
-   *          otherwise, nullopt
+   *         otherwise, nullopt
    */
   optional<lp::Nack>
   recordNack(const lp::Nack& nack)
@@ -143,7 +134,7 @@ public:
   void
   invokeDataCallback(const Data& data)
   {
-    if (m_dataCallback != nullptr) {
+    if (m_dataCallback) {
       m_dataCallback(*m_interest, data);
     }
   }
@@ -155,7 +146,7 @@ public:
   void
   invokeNackCallback(const lp::Nack& nack)
   {
-    if (m_nackCallback != nullptr) {
+    if (m_nackCallback) {
       m_nackCallback(*m_interest, nack);
     }
   }
@@ -188,9 +179,8 @@ private:
   NackCallback m_nackCallback;
   TimeoutCallback m_timeoutCallback;
   scheduler::ScopedEventId m_timeoutEvent;
-  int m_nNotNacked; ///< number of Interest destinations that have not Nacked
+  int m_nNotNacked = 0; ///< number of Interest destinations that have not Nacked
   optional<lp::Nack> m_leastSevereNack;
-  std::function<void()> m_deleter;
 };
 
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,32 +23,25 @@
 #define NDN_IMPL_INTEREST_FILTER_RECORD_HPP
 
 #include "ndn-cxx/impl/pending-interest.hpp"
+#include "ndn-cxx/impl/record-container.hpp"
 
 namespace ndn {
 
 /**
- * @brief Opaque type to identify an InterestFilterRecord
+ * @brief Associates an InterestFilter with an Interest callback.
  */
-class InterestFilterId;
-
-static_assert(sizeof(const InterestFilterId*) == sizeof(RecordId), "");
-
-/**
- * @brief associates an InterestFilter with Interest callback
- */
-class InterestFilterRecord : public RecordBase<InterestFilterRecord>
+class InterestFilterRecord : public detail::RecordBase<InterestFilterRecord>
 {
 public:
   /**
    * @brief Construct an Interest filter record
    *
    * @param filter an InterestFilter that represents what Interest should invoke the callback
-   * @param interestCallback invoked when matching Interest is received
+   * @param callback invoked when matching Interest is received
    */
-  InterestFilterRecord(const InterestFilter& filter,
-                       const InterestCallback& interestCallback)
+  InterestFilterRecord(const InterestFilter& filter, const InterestCallback& callback)
     : m_filter(filter)
-    , m_interestCallback(interestCallback)
+    , m_interestCallback(callback)
   {
   }
 

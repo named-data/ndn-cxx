@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_IMPL_FACE_IMPL_HPP
 
 #include "ndn-cxx/face.hpp"
+#include "ndn-cxx/impl/interest-filter-record.hpp"
 #include "ndn-cxx/impl/lp-field-tag.hpp"
 #include "ndn-cxx/impl/pending-interest.hpp"
 #include "ndn-cxx/impl/registered-prefix.hpp"
@@ -55,36 +56,39 @@ namespace ndn {
 
 /** @brief implementation detail of Face
  */
-class Face::Impl : noncopyable
+class Face::Impl : public std::enable_shared_from_this<Face::Impl>
 {
 public:
-  using PendingInterestTable = RecordContainer<PendingInterest>;
-  using InterestFilterTable = RecordContainer<InterestFilterRecord>;
-  using RegisteredPrefixTable = RecordContainer<RegisteredPrefix>;
-
   Impl(Face& face, KeyChain& keyChain)
     : m_face(face)
     , m_scheduler(m_face.getIoService())
     , m_nfdController(m_face, keyChain)
   {
-    auto postOnEmptyPitOrNoRegisteredPrefixes = [this] {
-      this->m_face.getIoService().post([this] { this->onEmptyPitOrNoRegisteredPrefixes(); });
-      // without this extra "post", transport can get paused (-async_read) and then resumed
+    auto onEmptyPitOrNoRegisteredPrefixes = [this] {
+      // Without this extra "post", transport can get paused (-async_read) and then resumed
       // (+async_read) from within onInterest/onData callback.  After onInterest/onData
       // finishes, there is another +async_read with the same memory block.  A few of such
       // async_read duplications can cause various effects and result in segfault.
+      m_face.getIoService().post([this] {
+        if (m_pendingInterestTable.empty() && m_registeredPrefixTable.empty()) {
+          m_face.m_transport->pause();
+          if (!m_ioServiceWork) {
+            m_processEventsTimeoutEvent.cancel();
+          }
+        }
+      });
     };
 
-    m_pendingInterestTable.onEmpty.connect(postOnEmptyPitOrNoRegisteredPrefixes);
-    m_registeredPrefixTable.onEmpty.connect(postOnEmptyPitOrNoRegisteredPrefixes);
+    m_pendingInterestTable.onEmpty.connect(onEmptyPitOrNoRegisteredPrefixes);
+    m_registeredPrefixTable.onEmpty.connect(onEmptyPitOrNoRegisteredPrefixes);
   }
 
 public: // consumer
   void
-  asyncExpressInterest(RecordId id, shared_ptr<const Interest> interest,
-                       const DataCallback& afterSatisfied,
-                       const NackCallback& afterNacked,
-                       const TimeoutCallback& afterTimeout)
+  expressInterest(detail::RecordId id, shared_ptr<const Interest> interest,
+                  const DataCallback& afterSatisfied,
+                  const NackCallback& afterNacked,
+                  const TimeoutCallback& afterTimeout)
   {
     NDN_LOG_DEBUG("<I " << *interest);
     this->ensureConnected(true);
@@ -104,13 +108,18 @@ public: // consumer
   }
 
   void
-  asyncRemovePendingInterest(RecordId id)
+  asyncRemovePendingInterest(detail::RecordId id)
   {
-    m_pendingInterestTable.erase(id);
+    m_face.getIoService().post([id, w = weak_ptr<Impl>{shared_from_this()}] { // use weak_from_this() in C++17
+      auto impl = w.lock();
+      if (impl != nullptr) {
+        impl->m_pendingInterestTable.erase(id);
+      }
+    });
   }
 
   void
-  asyncRemoveAllPendingInterests()
+  removeAllPendingInterests()
   {
     m_pendingInterestTable.clear();
   }
@@ -176,21 +185,21 @@ public: // consumer
 
 public: // producer
   void
-  asyncSetInterestFilter(RecordId id, const InterestFilter& filter,
-                         const InterestCallback& onInterest)
+  setInterestFilter(detail::RecordId id, const InterestFilter& filter, const InterestCallback& onInterest)
   {
     NDN_LOG_INFO("setting InterestFilter: " << filter);
     m_interestFilterTable.put(id, filter, onInterest);
   }
 
   void
-  asyncUnsetInterestFilter(RecordId id)
+  asyncUnsetInterestFilter(detail::RecordId id)
   {
-    const InterestFilterRecord* record = m_interestFilterTable.get(id);
-    if (record != nullptr) {
-      NDN_LOG_INFO("unsetting InterestFilter: " << record->getFilter());
-      m_interestFilterTable.erase(id);
-    }
+    m_face.getIoService().post([id, w = weak_ptr<Impl>{shared_from_this()}] { // use weak_from_this() in C++17
+      auto impl = w.lock();
+      if (impl != nullptr) {
+        impl->unsetInterestFilter(id);
+      }
+    });
   }
 
   void
@@ -202,20 +211,7 @@ public: // producer
   }
 
   void
-  dispatchInterest(PendingInterest& entry, const Interest& interest)
-  {
-    m_interestFilterTable.forEach([&] (const InterestFilterRecord& filter) {
-      if (!filter.doesMatch(entry)) {
-        return;
-      }
-      NDN_LOG_DEBUG("   matches " << filter.getFilter());
-      entry.recordForwarding();
-      filter.invokeInterestCallback(interest);
-    });
-  }
-
-  void
-  asyncPutData(const Data& data)
+  putData(const Data& data)
   {
     NDN_LOG_DEBUG("<D " << data.getName());
     bool shouldSendToForwarder = satisfyPendingInterests(data);
@@ -234,7 +230,7 @@ public: // producer
   }
 
   void
-  asyncPutNack(const lp::Nack& nack)
+  putNack(const lp::Nack& nack)
   {
     NDN_LOG_DEBUG("<N " << nack.getInterest() << '~' << nack.getHeader().getReason());
     optional<lp::Nack> outNack = nackPendingInterests(nack);
@@ -254,7 +250,7 @@ public: // producer
   }
 
 public: // prefix registration
-  RecordId
+  detail::RecordId
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
@@ -269,16 +265,15 @@ public: // prefix registration
       [=] (const nfd::ControlParameters&) {
         NDN_LOG_INFO("registered prefix: " << prefix);
 
-        RecordId filterId = 0;
+        detail::RecordId filterId = 0;
         if (filter) {
           NDN_LOG_INFO("setting InterestFilter: " << *filter);
-          InterestFilterRecord& filterRecord = m_interestFilterTable.insert(*filter, onInterest);
+          auto& filterRecord = m_interestFilterTable.insert(*filter, onInterest);
           filterId = filterRecord.getId();
         }
-
         m_registeredPrefixTable.put(id, prefix, options, filterId);
 
-        if (onSuccess != nullptr) {
+        if (onSuccess) {
           onSuccess(prefix);
         }
       },
@@ -292,39 +287,16 @@ public: // prefix registration
   }
 
   void
-  asyncUnregisterPrefix(RecordId id,
+  asyncUnregisterPrefix(detail::RecordId id,
                         const UnregisterPrefixSuccessCallback& onSuccess,
                         const UnregisterPrefixFailureCallback& onFailure)
   {
-    const RegisteredPrefix* record = m_registeredPrefixTable.get(id);
-    if (record == nullptr) {
-      if (onFailure != nullptr) {
-        onFailure("Unrecognized RegisteredPrefixHandle");
+    m_face.getIoService().post([=, w = weak_ptr<Impl>{shared_from_this()}] { // use weak_from_this() in C++17
+      auto impl = w.lock();
+      if (impl != nullptr) {
+        impl->unregisterPrefix(id, onSuccess, onFailure);
       }
-      return;
-    }
-
-    if (record->getFilterId() != 0) {
-      asyncUnsetInterestFilter(record->getFilterId());
-    }
-
-    NDN_LOG_INFO("unregistering prefix: " << record->getPrefix());
-
-    m_nfdController.start<nfd::RibUnregisterCommand>(
-      nfd::ControlParameters().setName(record->getPrefix()),
-      [=] (const nfd::ControlParameters&) {
-        NDN_LOG_INFO("unregistered prefix: " << record->getPrefix());
-        m_registeredPrefixTable.erase(id);
-
-        if (onSuccess != nullptr) {
-          onSuccess();
-        }
-      },
-      [=] (const nfd::ControlResponse& resp) {
-        NDN_LOG_INFO("unregister prefix failed: " << record->getPrefix());
-        onFailure(resp.getText());
-      },
-      record->getCommandOptions());
+    });
   }
 
 public: // IO routine
@@ -338,17 +310,6 @@ public: // IO routine
 
     if (wantResume && !m_face.m_transport->isReceiving()) {
       m_face.m_transport->resume();
-    }
-  }
-
-  void
-  onEmptyPitOrNoRegisteredPrefixes()
-  {
-    if (m_pendingInterestTable.empty() && m_registeredPrefixTable.empty()) {
-      m_face.m_transport->pause();
-      if (!m_ioServiceWork) {
-        m_processEventsTimeoutEvent.cancel();
-      }
     }
   }
 
@@ -384,15 +345,75 @@ private:
     return wire;
   }
 
+  void
+  dispatchInterest(PendingInterest& entry, const Interest& interest)
+  {
+    m_interestFilterTable.forEach([&] (const InterestFilterRecord& filter) {
+      if (!filter.doesMatch(entry)) {
+        return;
+      }
+      NDN_LOG_DEBUG("   matches " << filter.getFilter());
+      entry.recordForwarding();
+      filter.invokeInterestCallback(interest);
+    });
+  }
+
+  void
+  unsetInterestFilter(detail::RecordId id)
+  {
+    const auto* record = m_interestFilterTable.get(id);
+    if (record != nullptr) {
+      NDN_LOG_INFO("unsetting InterestFilter: " << record->getFilter());
+      m_interestFilterTable.erase(id);
+    }
+  }
+
+  void
+  unregisterPrefix(detail::RecordId id,
+                   const UnregisterPrefixSuccessCallback& onSuccess,
+                   const UnregisterPrefixFailureCallback& onFailure)
+  {
+    const auto* record = m_registeredPrefixTable.get(id);
+    if (record == nullptr) {
+      if (onFailure) {
+        onFailure("Unrecognized RegisteredPrefixHandle");
+      }
+      return;
+    }
+
+    if (record->getFilterId() != 0) {
+      unsetInterestFilter(record->getFilterId());
+    }
+
+    NDN_LOG_INFO("unregistering prefix: " << record->getPrefix());
+
+    m_nfdController.start<nfd::RibUnregisterCommand>(
+      nfd::ControlParameters().setName(record->getPrefix()),
+      [=] (const nfd::ControlParameters&) {
+        NDN_LOG_INFO("unregistered prefix: " << record->getPrefix());
+        m_registeredPrefixTable.erase(id);
+        if (onSuccess) {
+          onSuccess();
+        }
+      },
+      [=] (const nfd::ControlResponse& resp) {
+        NDN_LOG_INFO("unregister prefix failed: " << record->getPrefix());
+        if (onFailure) {
+          onFailure(resp.getText());
+        }
+      },
+      record->getCommandOptions());
+  }
+
 private:
   Face& m_face;
   Scheduler m_scheduler;
   scheduler::ScopedEventId m_processEventsTimeoutEvent;
   nfd::Controller m_nfdController;
 
-  PendingInterestTable m_pendingInterestTable;
-  InterestFilterTable m_interestFilterTable;
-  RegisteredPrefixTable m_registeredPrefixTable;
+  detail::RecordContainer<PendingInterest> m_pendingInterestTable;
+  detail::RecordContainer<InterestFilterRecord> m_interestFilterTable;
+  detail::RecordContainer<RegisteredPrefix> m_registeredPrefixTable;
 
   unique_ptr<boost::asio::io_service::work> m_ioServiceWork; // if thread needs to be preserved
 

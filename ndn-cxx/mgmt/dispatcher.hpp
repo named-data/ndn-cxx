@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -151,17 +151,16 @@ public:
    *
    *  Procedure for adding a top-level prefix:
    *  1. if the new top-level prefix overlaps with an existing top-level prefix
-   *     (one top-level prefix is a prefix of another top-level prefix), throw std::domain_error
-   *  2. if wantRegister is true, invoke face.registerPrefix for the top-level prefix;
+   *     (one top-level prefix is a prefix of another top-level prefix), throw std::domain_error.
+   *  2. if \p wantRegister is true, invoke Face::registerPrefix for the top-level prefix;
    *     the returned RegisteredPrefixHandle shall be recorded internally, indexed by the top-level
-   *     prefix
-   *  3. foreach relPrefix from ControlCommands and StatusDatasets,
-   *     join the top-level prefix with the relPrefix to obtain the full prefix,
-   *     and invoke non-registering overload of face.setInterestFilter,
+   *     prefix.
+   *  3. for each `relPrefix` from ControlCommands and StatusDatasets,
+   *     join the top-level prefix with `relPrefix` to obtain the full prefix,
+   *     and invoke non-registering overload of Face::setInterestFilter,
    *     with the InterestHandler set to an appropriate private method to handle incoming Interests
-   *     for the ControlCommand or StatusDataset;
-   *     the returned InterestFilterHandle shall be recorded internally, indexed by the top-level
-   *     prefix
+   *     for the ControlCommand or StatusDataset; the returned InterestFilterHandle shall be
+   *     recorded internally, indexed by the top-level prefix.
    */
   void
   addTopPrefix(const Name& prefix, bool wantRegister = true,
@@ -171,9 +170,9 @@ public:
    *  \param prefix a top-level prefix, e.g., "/localhost/nfd"
    *
    *  Procedure for removing a top-level prefix:
-   *  1. if the top-level prefix has not been added, abort these steps
-   *  2. if the top-level prefix has been added with wantRegister, unregister the prefix
-   *  3. unset each Interest filter recorded during addTopPrefix,
+   *  1. if the top-level prefix has not been added, abort these steps.
+   *  2. if the top-level prefix has been added with `wantRegister`, unregister the prefix.
+   *  3. clear all Interest filters set during addTopPrefix().
    */
   void
   removeTopPrefix(const Name& prefix);

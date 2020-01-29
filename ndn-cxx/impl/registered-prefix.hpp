@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,27 +22,19 @@
 #ifndef NDN_IMPL_REGISTERED_PREFIX_HPP
 #define NDN_IMPL_REGISTERED_PREFIX_HPP
 
-#include "ndn-cxx/impl/interest-filter-record.hpp"
+#include "ndn-cxx/impl/record-container.hpp"
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
-#include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 
 namespace ndn {
 
 /**
- * @brief Opaque type to identify a RegisteredPrefix
+ * @brief Stores information about a prefix registered in an NDN forwarder.
  */
-class RegisteredPrefixId;
-
-static_assert(sizeof(const RegisteredPrefixId*) == sizeof(RecordId), "");
-
-/**
- * @brief stores information about a prefix registered in NDN forwarder
- */
-class RegisteredPrefix : public RecordBase<RegisteredPrefix>
+class RegisteredPrefix : public detail::RecordBase<RegisteredPrefix>
 {
 public:
   RegisteredPrefix(const Name& prefix, const nfd::CommandOptions& options,
-                   RecordId filterId = 0)
+                   detail::RecordId filterId = 0)
     : m_prefix(prefix)
     , m_options(options)
     , m_filterId(filterId)
@@ -61,7 +53,7 @@ public:
     return m_options;
   }
 
-  RecordId
+  detail::RecordId
   getFilterId() const
   {
     return m_filterId;
@@ -70,7 +62,7 @@ public:
 private:
   Name m_prefix;
   nfd::CommandOptions m_options;
-  RecordId m_filterId;
+  detail::RecordId m_filterId;
 };
 
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,8 +28,9 @@
 #include <atomic>
 
 namespace ndn {
+namespace detail {
 
-using RecordId = uintptr_t;
+using RecordId = uint64_t;
 
 template<typename T>
 class RecordContainer;
@@ -194,6 +195,7 @@ private:
   std::atomic<RecordId> m_lastId{0};
 };
 
+} // namespace detail
 } // namespace ndn
 
 #endif // NDN_IMPL_RECORD_CONTAINER_HPP
