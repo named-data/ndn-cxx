@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -145,6 +145,7 @@ FaceUpdateCommand::FaceUpdateCommand()
     .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
     .optional(CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL)
     .optional(CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD)
+    .optional(CONTROL_PARAMETER_MTU)
     .optional(CONTROL_PARAMETER_FLAGS)
     .optional(CONTROL_PARAMETER_MASK);
   m_responseValidator
@@ -152,6 +153,7 @@ FaceUpdateCommand::FaceUpdateCommand()
     .required(CONTROL_PARAMETER_FACE_PERSISTENCY)
     .optional(CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL)
     .optional(CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD)
+    .optional(CONTROL_PARAMETER_MTU)
     .required(CONTROL_PARAMETER_FLAGS);
 }
 

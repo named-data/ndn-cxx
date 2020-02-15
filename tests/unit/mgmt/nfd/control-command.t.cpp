@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -66,6 +66,7 @@ BOOST_AUTO_TEST_CASE(FaceCreateRequest)
   p5.setFlags(0x3);
   BOOST_CHECK_THROW(command.validateRequest(p5), ControlCommand::ArgumentError);
 
+  // Flags and Mask must be specified together
   ControlParameters p6(p1);
   p6.setMask(0x1);
   BOOST_CHECK_THROW(command.validateRequest(p6), ControlCommand::ArgumentError);
@@ -112,80 +113,87 @@ BOOST_AUTO_TEST_CASE(FaceUpdate)
 {
   FaceUpdateCommand command;
 
+  // FaceId must be valid
   ControlParameters p1;
   p1.setFaceId(0);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
   p1.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
 
+  // Persistency and Flags are required in response
   p1.setFaceId(1);
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
   BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
   command.applyDefaultsToRequest(p1);
   BOOST_CHECK_EQUAL(p1.getFaceId(), 1);
 
+  // Good request, bad response (Mask is forbidden but present)
   ControlParameters p2;
   p2.setFaceId(1)
     .setFacePersistency(FACE_PERSISTENCY_PERSISTENT)
     .setBaseCongestionMarkingInterval(765_ns)
     .setDefaultCongestionThreshold(54321)
+    .setMtu(8192)
     .setFlagBit(BIT_LOCAL_FIELDS_ENABLED, false);
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
-  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError); // Mask forbidden but present
+  BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
-  // Flags without Mask
+  // Flags without Mask (good response, bad request)
   p2.unsetMask();
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
   BOOST_CHECK_NO_THROW(command.validateResponse(p2));
 
+  // FaceId is optional in request
   p2.setFlagBit(BIT_LOCAL_FIELDS_ENABLED, false);
   p2.unsetFaceId();
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
 
+  // Name is forbidden
   ControlParameters p3;
   p3.setFaceId(1)
     .setName("/ndn/name");
   BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p3), ControlCommand::ArgumentError);
 
+  // Uri is forbidden
   ControlParameters p4;
   p4.setFaceId(1)
     .setUri("tcp4://192.0.2.1");
   BOOST_CHECK_THROW(command.validateRequest(p4), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p4), ControlCommand::ArgumentError);
 
+  // Empty request is valid, empty response is invalid
   ControlParameters p5;
   BOOST_CHECK_NO_THROW(command.validateRequest(p5));
   BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
   BOOST_CHECK(!p5.hasFaceId());
+
+  // Default request, not valid response due to missing FacePersistency and Flags
   command.applyDefaultsToRequest(p5);
   BOOST_REQUIRE(p5.hasFaceId());
   BOOST_CHECK_NO_THROW(command.validateRequest(p5));
   BOOST_CHECK_THROW(command.validateResponse(p5), ControlCommand::ArgumentError);
   BOOST_CHECK_EQUAL(p5.getFaceId(), 0);
-
-  ControlParameters p6;
-  p6.setFaceId(1)
-    .setMtu(1024);
-  BOOST_CHECK_THROW(command.validateRequest(p6), ControlCommand::ArgumentError);
-  BOOST_CHECK_THROW(command.validateResponse(p6), ControlCommand::ArgumentError);
 }
 
 BOOST_AUTO_TEST_CASE(FaceDestroy)
 {
   FaceDestroyCommand command;
 
+  // Uri is forbidden
   ControlParameters p1;
   p1.setUri("tcp4://192.0.2.1")
     .setFaceId(4);
   BOOST_CHECK_THROW(command.validateRequest(p1), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p1), ControlCommand::ArgumentError);
 
+  // FaceId must be valid
   ControlParameters p2;
   p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
+  // Good request, good response
   ControlParameters p3;
   p3.setFaceId(6);
   BOOST_CHECK_NO_THROW(command.validateRequest(p3));
@@ -199,6 +207,7 @@ BOOST_AUTO_TEST_CASE(FibAddNextHop)
 {
   FibAddNextHopCommand command;
 
+  // Cost required in response
   ControlParameters p1;
   p1.setName("ndn:/")
     .setFaceId(22);
@@ -208,6 +217,7 @@ BOOST_AUTO_TEST_CASE(FibAddNextHop)
   BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
   BOOST_CHECK(Name("ndn:/PREFIX/fib/add-nexthop").isPrefixOf(n1));
 
+  // Good request, bad response (FaceId must be valid)
   ControlParameters p2;
   p2.setName("ndn:/example")
     .setFaceId(0)
@@ -216,10 +226,12 @@ BOOST_AUTO_TEST_CASE(FibAddNextHop)
   p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
+  // Default request
   command.applyDefaultsToRequest(p1);
   BOOST_REQUIRE(p1.hasCost());
   BOOST_CHECK_EQUAL(p1.getCost(), 0);
 
+  // FaceId optional in request
   p1.unsetFaceId();
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
   command.applyDefaultsToRequest(p1);
@@ -231,6 +243,7 @@ BOOST_AUTO_TEST_CASE(FibRemoveNextHop)
 {
   FibRemoveNextHopCommand command;
 
+  // Good request, good response
   ControlParameters p1;
   p1.setName("ndn:/")
     .setFaceId(22);
@@ -240,6 +253,7 @@ BOOST_AUTO_TEST_CASE(FibRemoveNextHop)
   BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
   BOOST_CHECK(Name("ndn:/PREFIX/fib/remove-nexthop").isPrefixOf(n1));
 
+  // Good request, bad response (FaceId must be valid)
   ControlParameters p2;
   p2.setName("ndn:/example")
     .setFaceId(0);
@@ -247,6 +261,7 @@ BOOST_AUTO_TEST_CASE(FibRemoveNextHop)
   p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
+  // FaceId is optional in request
   p1.unsetFaceId();
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
   command.applyDefaultsToRequest(p1);
@@ -373,6 +388,7 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceSet)
 {
   StrategyChoiceSetCommand command;
 
+  // Good request, good response
   ControlParameters p1;
   p1.setName("ndn:/")
     .setStrategy("ndn:/strategy/P");
@@ -382,6 +398,7 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceSet)
   BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
   BOOST_CHECK(Name("ndn:/PREFIX/strategy-choice/set").isPrefixOf(n1));
 
+  // Strategy is required in both requests and responses
   ControlParameters p2;
   p2.setName("ndn:/example");
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
@@ -392,6 +409,7 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceUnset)
 {
   StrategyChoiceUnsetCommand command;
 
+  // Good request, good response
   ControlParameters p1;
   p1.setName("ndn:/example");
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
@@ -400,12 +418,14 @@ BOOST_AUTO_TEST_CASE(StrategyChoiceUnset)
   BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
   BOOST_CHECK(Name("ndn:/PREFIX/strategy-choice/unset").isPrefixOf(n1));
 
+  // Strategy is forbidden
   ControlParameters p2;
   p2.setName("ndn:/example")
     .setStrategy("ndn:/strategy/P");
   BOOST_CHECK_THROW(command.validateRequest(p2), ControlCommand::ArgumentError);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
+  // Name must have at least one component
   ControlParameters p3;
   p3.setName("ndn:/");
   BOOST_CHECK_THROW(command.validateRequest(p3), ControlCommand::ArgumentError);
@@ -416,6 +436,7 @@ BOOST_AUTO_TEST_CASE(RibRegister)
 {
   RibRegisterCommand command;
 
+  // Good request, response missing many fields
   ControlParameters p1;
   p1.setName("ndn:/");
   BOOST_CHECK_NO_THROW(command.validateRequest(p1));
@@ -424,6 +445,7 @@ BOOST_AUTO_TEST_CASE(RibRegister)
   BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
   BOOST_CHECK(Name("ndn:/PREFIX/rib/register").isPrefixOf(n1));
 
+  // Default request
   command.applyDefaultsToRequest(p1);
   BOOST_REQUIRE(p1.hasOrigin());
   BOOST_CHECK_EQUAL(p1.getOrigin(), ROUTE_ORIGIN_APP);
@@ -433,6 +455,7 @@ BOOST_AUTO_TEST_CASE(RibRegister)
   BOOST_CHECK_EQUAL(p1.getFlags(), static_cast<uint64_t>(ROUTE_FLAG_CHILD_INHERIT));
   BOOST_CHECK_EQUAL(p1.hasExpirationPeriod(), false);
 
+  // Good request, good response
   ControlParameters p2;
   p2.setName("ndn:/example")
     .setFaceId(2)
@@ -447,6 +470,7 @@ BOOST_AUTO_TEST_CASE(RibUnregister)
 {
   RibUnregisterCommand command;
 
+  // Good request, good response
   ControlParameters p1;
   p1.setName("ndn:/")
     .setFaceId(22)
@@ -457,6 +481,7 @@ BOOST_AUTO_TEST_CASE(RibUnregister)
   BOOST_CHECK_NO_THROW(n1 = command.getRequestName("/PREFIX", p1));
   BOOST_CHECK(Name("ndn:/PREFIX/rib/unregister").isPrefixOf(n1));
 
+  // Good request, bad response (FaceId must be valid)
   ControlParameters p2;
   p2.setName("ndn:/example")
     .setFaceId(0)
@@ -465,6 +490,7 @@ BOOST_AUTO_TEST_CASE(RibUnregister)
   p2.setFaceId(INVALID_FACE_ID);
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
 
+  // FaceId is optional in request, required in response
   p2.unsetFaceId();
   BOOST_CHECK_NO_THROW(command.validateRequest(p2));
   BOOST_CHECK_THROW(command.validateResponse(p2), ControlCommand::ArgumentError);
