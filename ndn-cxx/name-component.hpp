@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,24 +30,33 @@
 namespace ndn {
 namespace name {
 
-/** @brief Identify a format of URI representation.
+/** @brief Format used for the URI representation of a name.
+ *  @sa http://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
  */
 enum class UriFormat {
-  DEFAULT,   ///< ALTERNATE, unless `NDN_NAME_ALT_URI` environment variable is set to '0'
-  CANONICAL, ///< always use <type-number>=<percent-encoded-value> format
-  ALTERNATE, ///< prefer alternate format when available
+  /// Always use `<type-number>=<percent-encoded-value>` format
+  CANONICAL,
+  /// Always prefer the alternate format when available
+  ALTERNATE,
+  /// Same as UriFormat::CANONICAL, unless `NDN_NAME_ALT_URI` environment variable is set to '1'
+  ENV_OR_CANONICAL,
+  /// Same as UriFormat::ALTERNATE, unless `NDN_NAME_ALT_URI` environment variable is set to '0'
+  ENV_OR_ALTERNATE,
+  /// Use the library's default format; currently equivalent to UriFormat::ENV_OR_ALTERNATE
+  DEFAULT = ENV_OR_ALTERNATE,
 };
 
 /** @brief Identify a style of NDN Naming Conventions.
  *  @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
  */
 enum class Convention {
-  MARKER = 1 << 0, ///< component markers (revision 1)
-  TYPED  = 1 << 1, ///< typed name components (revision 2)
+  MARKER = 1 << 0, ///< Component markers (revision 1)
+  TYPED  = 1 << 1, ///< Typed name components (revision 2)
   EITHER = MARKER | TYPED,
 };
 
-/** @brief Markers in Naming Conventions rev1
+/** @brief Name component markers defined in Naming Conventions revision 1.
+ *  @sa https://named-data.net/publications/techreports/ndn-tr-22-ndn-memo-naming-conventions/
  */
 enum : uint8_t {
   SEGMENT_MARKER = 0x00,

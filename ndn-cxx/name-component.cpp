@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,6 +29,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
+
+#include <boost/logic/tribool.hpp>
 
 namespace ndn {
 namespace name {
@@ -87,14 +89,31 @@ canDecodeTypedConvention()
 }
 
 static bool
-chooseAltUri(UriFormat format)
+wantAltUri(UriFormat format)
 {
-  if (format == UriFormat::DEFAULT) {
-    static const char* env = std::getenv("NDN_NAME_ALT_URI");
-    static bool defaultSetting = env == nullptr || env[0] != '0';
-    return defaultSetting;
+  static const auto wantAltEnv = []() -> boost::tribool {
+    const char* env = std::getenv("NDN_NAME_ALT_URI");
+    if (env == nullptr)
+      return boost::indeterminate;
+    else if (env[0] == '0')
+      return false;
+    else if (env[0] == '1')
+      return true;
+    else
+      return boost::indeterminate;
+  }();
+
+  if (format == UriFormat::ENV_OR_CANONICAL) {
+    static const bool wantAlt = boost::indeterminate(wantAltEnv) ? false : bool(wantAltEnv);
+    return wantAlt;
   }
-  return format == UriFormat::ALTERNATE;
+  else if (format == UriFormat::ENV_OR_ALTERNATE) {
+    static const bool wantAlt = boost::indeterminate(wantAltEnv) ? true : bool(wantAltEnv);
+    return wantAlt;
+  }
+  else {
+    return format == UriFormat::ALTERNATE;
+  }
 }
 
 void
@@ -182,7 +201,7 @@ Component::fromEscapedString(const std::string& input)
 void
 Component::toUri(std::ostream& os, UriFormat format) const
 {
-  if (chooseAltUri(format)) {
+  if (wantAltUri(format)) {
     detail::getComponentTypeTable().get(type()).writeUri(os, *this);
   }
   else {

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -98,8 +98,8 @@ public:
 
   /** \brief Write URI representation of \p comp to \p os.
    *
-   *  This base class implementation encodes the component in the plain
-   *  `<type-number>=<escaped-value>` syntax.
+   *  This base class implementation encodes the component using the plain
+   *  `<type-number>=<escaped-value>` syntax (aka canonical format).
    */
   virtual void
   writeUri(std::ostream& os, const Component& comp) const

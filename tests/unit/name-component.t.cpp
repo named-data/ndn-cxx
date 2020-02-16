@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,6 +50,8 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_EQUAL(comp.toUri(), "ndn-cxx");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), "8=ndn-cxx");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), "ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), "8=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), "ndn-cxx");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), "ndn-cxx");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("ndn-cxx"), comp);
   BOOST_CHECK_EQUAL(Component::fromEscapedString("8=ndn-cxx"), comp);
@@ -108,6 +110,8 @@ testSha256Component(uint32_t type, const std::string& uriPrefix)
   BOOST_CHECK_EQUAL(comp.toUri(), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), to_string(type) + "=" + hexPctCanonical);
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), uriPrefix + hexLower);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), to_string(type) + "=" + hexPctCanonical);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexLower));
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexUpper));
@@ -141,6 +145,8 @@ testDecimalComponent(uint32_t type, const std::string& uriPrefix)
   BOOST_CHECK_EQUAL(comp.toUri(), compUri);
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), to_string(type) + "=%2A");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), compUri);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), to_string(type) + "=%2A");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), compUri);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), compUri);
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(compUri));
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=%2A"));
@@ -195,6 +201,10 @@ BOOST_AUTO_TEST_CASE(OtherType)
   Component comp("0907 6E646E2D637878"_block);
   BOOST_CHECK_EQUAL(comp.type(), 0x09);
   BOOST_CHECK_EQUAL(comp.toUri(), "9=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), "9=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), "9=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), "9=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), "9=ndn-cxx");
   BOOST_CHECK_EQUAL(Component::fromEscapedString("9=ndn-cxx"), comp);
 
   comp.wireDecode("FDFFFF00"_block);
