@@ -7,13 +7,7 @@ source "$JDIR"/util.sh
 set -x
 
 if has OSX $NODE_LABELS; then
-    FORMULAE=(boost pkg-config)
-    if [[ -n $USE_OPENSSL_1_1 ]]; then
-        FORMULAE+=(openssl@1.1)
-    else
-        FORMULAE+=(openssl)
-    fi
-
+    FORMULAE=(boost openssl pkg-config)
     brew update
     if [[ -n $TRAVIS ]]; then
         # Travis images come with a large number of brew packages
