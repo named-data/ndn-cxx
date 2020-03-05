@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -127,8 +127,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 
   // HopLimit
   if (getHopLimit()) {
-    uint8_t hopLimit = *getHopLimit();
-    totalLength += encoder.prependByteArrayBlock(tlv::HopLimit, &hopLimit, sizeof(hopLimit));
+    totalLength += encoder.prependByteArrayBlock(tlv::HopLimit, &*m_hopLimit, 1);
   }
 
   // InterestLifetime
@@ -138,8 +137,9 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // Nonce
-  uint32_t nonce = getNonce(); // if nonce was unset, this generates a fresh nonce
-  totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
+  getNonce(); // if nonce was unset, this generates a fresh nonce
+  BOOST_ASSERT(hasNonce());
+  totalLength += encoder.prependByteArrayBlock(tlv::Nonce, m_nonce->data(), m_nonce->size());
 
   // ForwardingHint
   if (!getForwardingHint().empty()) {
@@ -262,12 +262,11 @@ Interest::wireDecode(const Block& wire)
         if (lastElement >= 5) {
           NDN_THROW(Error("Nonce element is out of order"));
         }
-        uint32_t nonce = 0;
-        if (element->value_size() != sizeof(nonce)) {
+        if (element->value_size() != Nonce().size()) {
           NDN_THROW(Error("Nonce element is malformed"));
         }
-        std::memcpy(&nonce, element->value(), sizeof(nonce));
-        m_nonce = nonce;
+        m_nonce.emplace();
+        std::memcpy(m_nonce->data(), element->value(), m_nonce->size());
         lastElement = 5;
         break;
       }
@@ -396,18 +395,27 @@ Interest::setForwardingHint(const DelegationList& value)
   return *this;
 }
 
-uint32_t
+static auto
+generateNonce()
+{
+  uint32_t r = random::generateWord32();
+  Interest::Nonce n;
+  std::memcpy(n.data(), &r, sizeof(r));
+  return n;
+}
+
+Interest::Nonce
 Interest::getNonce() const
 {
   if (!hasNonce()) {
-    m_nonce = random::generateWord32();
+    m_nonce = generateNonce();
     m_wire.reset();
   }
   return *m_nonce;
 }
 
 Interest&
-Interest::setNonce(uint32_t nonce)
+Interest::setNonce(optional<Interest::Nonce> nonce)
 {
   if (nonce != m_nonce) {
     m_nonce = nonce;
@@ -422,9 +430,9 @@ Interest::refreshNonce()
   if (!hasNonce())
     return;
 
-  uint32_t oldNonce = *m_nonce;
+  auto oldNonce = *m_nonce;
   while (m_nonce == oldNonce)
-    m_nonce = random::generateWord32();
+    m_nonce = generateNonce();
 
   m_wire.reset();
 }

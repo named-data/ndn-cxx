@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,13 +75,13 @@ BOOST_AUTO_TEST_CASE(Basic)
                 0x08, 0x03, 0x6e, 0x64, 0x6e, // GenericNameComponent
                 0x08, 0x06, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, // GenericNameComponent
           0x0a, 0x04, // Nonce
-                0x01, 0x00, 0x00, 0x00,
+                0x01, 0x02, 0x03, 0x04,
   };
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
   i1.setCanBePrefix(false);
-  i1.setNonce(1);
+  i1.setNonce(0x01020304);
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
   Block wire1 = i1.wireEncode();
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(i2.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i2.hasNonce(), true);
-  BOOST_CHECK_EQUAL(i2.getNonce(), 1);
+  BOOST_CHECK_EQUAL(i2.getNonce(), 0x01020304);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(WithParameters)
                       0x26, 0xa0, 0x51, 0xba, 0x25, 0xf5, 0x6b, 0x69, 0xbf, 0xa0, 0x26, 0xdc,
                       0xcc, 0xd7, 0x2c, 0x6e, 0xa0, 0xf7, 0x31, 0x5a,
           0x0a, 0x04, // Nonce
-                0x01, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x01,
           0x24, 0x04, // ApplicationParameters
                 0xc0, 0xc1, 0xc2, 0xc3
   };
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(WithParameters)
   Interest i1;
   i1.setName("/local/ndn/prefix");
   i1.setCanBePrefix(false);
-  i1.setNonce(1);
+  i1.setNonce(0x1);
   i1.setApplicationParameters("2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(WithParameters)
   BOOST_CHECK_EQUAL(i2.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i2.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i2.hasNonce(), true);
-  BOOST_CHECK_EQUAL(i2.getNonce(), 1);
+  BOOST_CHECK_EQUAL(i2.getNonce(), 0x1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
   BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), true);
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(Full)
                       0x07, 0x03,
                             0x08, 0x01, 0x48,
           0x0a, 0x04, // Nonce
-                0x4a, 0xcb, 0x1e, 0x4c,
+                0x4c, 0x1e, 0xcb, 0x4a,
           0x0c, 0x02, // InterestLifetime
                 0x76, 0xa1,
           0x22, 0x01, // HopLimit
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(NameOnly)
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 
   // modify then re-encode
-  i.setNonce(0x54657c95);
+  i.setNonce(0x957c6554);
   BOOST_CHECK_EQUAL(i.hasWire(), false);
   BOOST_CHECK_EQUAL(i.wireEncode(), "050B 0703(080149) 0A04957C6554"_block);
 }
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(FullWithoutParameters)
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{15893, "/H"}}));
   BOOST_CHECK_EQUAL(i.hasNonce(), true);
-  BOOST_CHECK_EQUAL(i.getNonce(), 0x4c1ecb4a);
+  BOOST_CHECK_EQUAL(i.getNonce(), 0x4acb1e4c);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 30369_ms);
   BOOST_CHECK_EQUAL(*i.getHopLimit(), 214);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(FullWithParameters)
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), true);
   BOOST_CHECK_EQUAL(i.getForwardingHint(), DelegationList({{15893, "/H"}}));
   BOOST_CHECK_EQUAL(i.hasNonce(), true);
-  BOOST_CHECK_EQUAL(i.getNonce(), 0x4c1ecb4a);
+  BOOST_CHECK_EQUAL(i.getNonce(), 0x4acb1e4c);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), 30369_ms);
   BOOST_CHECK_EQUAL(*i.getHopLimit(), 214);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
@@ -503,8 +503,9 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   interest = makeInterest(data->getFullName());
   BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
-  setNameComponent(*interest, -1, name::Component::fromEscapedString(
-                     "sha256digest=0000000000000000000000000000000000000000000000000000000000000000"));
+  setNameComponent(*interest, -1,
+                   name::Component::fromEscapedString("sha256digest=00000000000000000000000000"
+                                                      "00000000000000000000000000000000000000"));
   BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates implicit digest
 }
 
@@ -596,12 +597,12 @@ BOOST_AUTO_TEST_CASE(ModifyForwardingHint)
 BOOST_AUTO_TEST_CASE(GetNonce)
 {
   unique_ptr<Interest> i1, i2;
+  Interest::Nonce nonce1(0), nonce2(0);
 
   // getNonce automatically assigns a random Nonce.
   // It's possible to assign the same Nonce to two Interest, but it's unlikely to get 100 pairs of
-  // same Nonces in a row.
+  // identical Nonces in a row.
   int nIterations = 0;
-  uint32_t nonce1 = 0, nonce2 = 0;
   do {
     i1 = make_unique<Interest>();
     nonce1 = i1->getNonce();
@@ -609,28 +610,37 @@ BOOST_AUTO_TEST_CASE(GetNonce)
     nonce2 = i2->getNonce();
   }
   while (nonce1 == nonce2 && ++nIterations < 100);
+
   BOOST_CHECK_NE(nonce1, nonce2);
   BOOST_CHECK(i1->hasNonce());
   BOOST_CHECK(i2->hasNonce());
 
   // Once a Nonce is assigned, it should not change.
   BOOST_CHECK_EQUAL(i1->getNonce(), nonce1);
+  BOOST_CHECK_EQUAL(i2->getNonce(), nonce2);
 }
 
 BOOST_AUTO_TEST_CASE(SetNonce)
 {
   Interest i1("/A");
   i1.setCanBePrefix(false);
+  BOOST_CHECK(!i1.hasNonce());
+
   i1.setNonce(1);
   i1.wireEncode();
+  BOOST_CHECK(i1.hasNonce());
   BOOST_CHECK_EQUAL(i1.getNonce(), 1);
 
   Interest i2(i1);
+  BOOST_CHECK(i2.hasNonce());
   BOOST_CHECK_EQUAL(i2.getNonce(), 1);
 
   i2.setNonce(2);
   BOOST_CHECK_EQUAL(i2.getNonce(), 2);
-  BOOST_CHECK_EQUAL(i1.getNonce(), 1); // should not affect i1 Nonce (Bug #4168)
+  BOOST_CHECK_EQUAL(i1.getNonce(), 1); // should not affect i1's Nonce (Bug #4168)
+
+  i2.setNonce(nullopt);
+  BOOST_CHECK(!i2.hasNonce());
 }
 
 BOOST_AUTO_TEST_CASE(RefreshNonce)
@@ -645,6 +655,31 @@ BOOST_AUTO_TEST_CASE(RefreshNonce)
   i.refreshNonce();
   BOOST_CHECK(i.hasNonce());
   BOOST_CHECK_NE(i.getNonce(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(NonceConversions)
+{
+  Interest i;
+  i.setCanBePrefix(false);
+
+  // 4-arg constructor
+  Interest::Nonce n1(1, 2, 3, 4);
+  i.setNonce(n1);
+  BOOST_CHECK_EQUAL(i.getNonce(), 0x01020304);
+
+  // 4-arg constructor + assignment
+  n1 = {0xf, 0xe, 0xd, 0xc};
+  i.setNonce(n1);
+  BOOST_CHECK_EQUAL(i.getNonce(), 0x0f0e0d0c);
+
+  // 1-arg constructor + assignment (implicit conversion)
+  Interest::Nonce n2;
+  n2 = 42;
+  BOOST_CHECK_NE(n1, n2);
+  i.setNonce(n2);
+  n2 = 21; // should not affect i's Nonce
+  BOOST_CHECK_EQUAL(i.getNonce(), 42);
+  BOOST_CHECK_EQUAL(i.toUri(), "/?Nonce=0000002a"); // stored in big-endian
 }
 
 BOOST_AUTO_TEST_CASE(SetInterestLifetime)
@@ -766,14 +801,14 @@ BOOST_AUTO_TEST_CASE(ToUri)
   i.setMustBeFresh(true);
   BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh");
 
-  i.setNonce(1234);
-  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=1234");
+  i.setNonce(0xa1b2c3);
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=00a1b2c3");
 
   i.setInterestLifetime(2_s);
-  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=1234&Lifetime=2000");
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=00a1b2c3&Lifetime=2000");
 
   i.setHopLimit(18);
-  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=1234&Lifetime=2000&HopLimit=18");
+  BOOST_CHECK_EQUAL(i.toUri(), "/foo?CanBePrefix&MustBeFresh&Nonce=00a1b2c3&Lifetime=2000&HopLimit=18");
 
   i.setCanBePrefix(false);
   i.setMustBeFresh(false);
@@ -781,7 +816,7 @@ BOOST_AUTO_TEST_CASE(ToUri)
   i.setApplicationParameters("2402CAFE"_block);
   BOOST_CHECK_EQUAL(i.toUri(),
                     "/foo/params-sha256=8621f5e8321f04104640c8d02877d7c5142cad6e203c5effda1783b1a0e476d6"
-                    "?Nonce=1234&Lifetime=2000");
+                    "?Nonce=00a1b2c3&Lifetime=2000");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestInterest

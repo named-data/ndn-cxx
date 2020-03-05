@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,18 +28,21 @@
 #include "ndn-cxx/detail/common.hpp"
 
 // STL headers to precompile
+#include <array>
+#include <cstring>
 #include <fstream>
+#include <iterator>
 #include <list>
 #include <map>
 #include <set>
 #include <sstream>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 // Boost headers to precompile
 #include <boost/algorithm/string.hpp>
 #include <boost/chrono.hpp>
+#include <boost/endian/conversion.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>

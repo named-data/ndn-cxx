@@ -10,14 +10,10 @@ arch:
   - s390x
 
 env:
-  global:
-    - JOB_NAME=limited-build
-    - WAF_JOBS=2
-  jobs:
-    - COMPILER=g++-7
-    - COMPILER=g++-9
-    - COMPILER=clang++-6.0
-    - COMPILER=clang++-9
+  - COMPILER=g++-7
+  - COMPILER=g++-9
+  - COMPILER=clang++-6.0
+  - COMPILER=clang++-9
 
 jobs:
   include:
@@ -76,13 +72,15 @@ install:
 before_script:
   - |
     : Setting environment variables
+    if [[ -n ${COMPILER} ]]; then
+      export CXX=${COMPILER}
+    fi
     case ${TRAVIS_OS_NAME} in
       linux)  export NODE_LABELS="Linux Ubuntu Ubuntu-18.04" ;;
       osx)    export NODE_LABELS="OSX OSX-$(sw_vers -productVersion | cut -d . -f -2)" ;;
     esac
-    if [[ -n ${COMPILER} ]]; then
-      export CXX=${COMPILER}
-    fi
+    export JOB_NAME=limited-build
+    export WAF_JOBS=2
   - |
     : Enabling workarounds
     case "${TRAVIS_CPU_ARCH},${COMPILER}" in

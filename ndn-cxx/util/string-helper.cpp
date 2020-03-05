@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/util/string-helper.hpp"
-#include "ndn-cxx/encoding/buffer.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/hex-decode.hpp"
@@ -30,13 +29,6 @@
 #include <sstream>
 
 namespace ndn {
-
-std::ostream&
-operator<<(std::ostream& os, const AsHex& hex)
-{
-  printHex(os, hex.m_value, os.flags() & std::ostream::uppercase);
-  return os;
-}
 
 void
 printHex(std::ostream& os, uint64_t num, bool wantUpperCase)
@@ -57,24 +49,12 @@ printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperC
   tr::bufferSource(buffer, length) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(os);
 }
 
-void
-printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase)
-{
-  return printHex(os, buffer.data(), buffer.size(), wantUpperCase);
-}
-
 std::string
 toHex(const uint8_t* buffer, size_t length, bool wantUpperCase)
 {
   std::ostringstream result;
   printHex(result, buffer, length, wantUpperCase);
   return result.str();
-}
-
-std::string
-toHex(const Buffer& buffer, bool wantUpperCase)
-{
-  return toHex(buffer.data(), buffer.size(), wantUpperCase);
 }
 
 shared_ptr<Buffer>

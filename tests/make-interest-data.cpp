@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,13 +27,12 @@ namespace ndn {
 namespace tests {
 
 shared_ptr<Interest>
-makeInterest(const Name& name, bool canBePrefix, time::milliseconds lifetime, uint32_t nonce)
+makeInterest(const Name& name, bool canBePrefix, time::milliseconds lifetime,
+             optional<Interest::Nonce> nonce)
 {
   auto interest = make_shared<Interest>(name, lifetime);
   interest->setCanBePrefix(canBePrefix);
-  if (nonce != 0) {
-    interest->setNonce(nonce);
-  }
+  interest->setNonce(nonce);
   return interest;
 }
 
@@ -55,19 +54,11 @@ signData(Data& data)
 }
 
 lp::Nack
-makeNack(const Interest& interest, lp::NackReason reason)
+makeNack(Interest interest, lp::NackReason reason)
 {
-  lp::Nack nack(interest);
+  lp::Nack nack(std::move(interest));
   nack.setReason(reason);
   return nack;
-}
-
-lp::Nack
-makeNack(const Name& name, uint32_t nonce, lp::NackReason reason)
-{
-  Interest interest(name);
-  interest.setNonce(nonce);
-  return makeNack(interest, reason);
 }
 
 } // namespace tests

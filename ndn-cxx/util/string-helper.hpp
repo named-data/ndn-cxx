@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,46 +22,15 @@
 #ifndef NDN_UTIL_STRING_HELPER_HPP
 #define NDN_UTIL_STRING_HELPER_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
 
 namespace ndn {
-
-class Buffer;
 
 class StringHelperError : public std::invalid_argument
 {
 public:
   using std::invalid_argument::invalid_argument;
 };
-
-/**
- * @brief Helper class to convert a number to hexadecimal
- *        format, for use with stream insertion operators
- *
- * Example usage:
- *
- * @code
- * std::cout << AsHex{42};                   // outputs "0x2a"
- * std::cout << std::uppercase << AsHex{42}; // outputs "0x2A"
- * @endcode
- */
-class AsHex
-{
-public:
-  constexpr explicit
-  AsHex(uint64_t val) noexcept
-    : m_value(val)
-  {
-  }
-
-private:
-  uint64_t m_value;
-
-  friend std::ostream& operator<<(std::ostream&, const AsHex&);
-};
-
-std::ostream&
-operator<<(std::ostream& os, const AsHex& hex);
 
 /**
  * @brief Output the hex representation of @p num to the output stream @p os
@@ -104,8 +73,43 @@ printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperC
  * @param buffer Buffer of bytes to print in hexadecimal format
  * @param wantUpperCase if true (the default) print uppercase hex chars
  */
-void
-printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase = true);
+inline void
+printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase = true)
+{
+  return printHex(os, buffer.data(), buffer.size(), wantUpperCase);
+}
+
+/**
+ * @brief Helper class to convert a number to hexadecimal
+ *        format, for use with stream insertion operators
+ *
+ * Example usage:
+ *
+ * @code
+ * std::cout << AsHex{42};                   // outputs "0x2a"
+ * std::cout << std::uppercase << AsHex{42}; // outputs "0x2A"
+ * @endcode
+ */
+class AsHex
+{
+public:
+  constexpr explicit
+  AsHex(uint64_t val) noexcept
+    : m_value(val)
+  {
+  }
+
+private:
+  friend std::ostream&
+  operator<<(std::ostream& os, const AsHex& hex)
+  {
+    printHex(os, hex.m_value, os.flags() & std::ostream::uppercase);
+    return os;
+  }
+
+private:
+  uint64_t m_value;
+};
 
 /**
  * @brief Return a string containing the hex representation of the bytes in @p buffer
@@ -134,8 +138,11 @@ toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true);
  * @param buffer Buffer of bytes to convert to hexadecimal format
  * @param wantUpperCase if true (the default) use uppercase hex chars
  */
-NDN_CXX_NODISCARD std::string
-toHex(const Buffer& buffer, bool wantUpperCase = true);
+NDN_CXX_NODISCARD inline std::string
+toHex(const Buffer& buffer, bool wantUpperCase = true)
+{
+  return toHex(buffer.data(), buffer.size(), wantUpperCase);
+}
 
 /**
  * @brief Convert the hex string to buffer

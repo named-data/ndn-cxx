@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,14 @@
 #define NDN_INTEREST_HPP
 
 #include "ndn-cxx/delegation-list.hpp"
-#include "ndn-cxx/name.hpp"
 #include "ndn-cxx/detail/packet-base.hpp"
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 #include "ndn-cxx/util/time.hpp"
 
+#include <array>
+
+#include <boost/endian/conversion.hpp>
 #include <boost/logic/tribool.hpp>
 
 namespace ndn {
@@ -47,6 +51,52 @@ public:
   {
   public:
     using tlv::Error::Error;
+  };
+
+  class Nonce final : public std::array<uint8_t, 4>
+  {
+    using Base = std::array<uint8_t, 4>;
+
+  public:
+    Nonce() = default;
+
+    // implicit conversion from uint32_t
+    Nonce(uint32_t n) noexcept
+    {
+      boost::endian::native_to_big_inplace(n);
+      std::memcpy(data(), &n, sizeof(n));
+    }
+
+    Nonce(uint8_t n1, uint8_t n2, uint8_t n3, uint8_t n4) noexcept
+    {
+      data()[0] = n1;
+      data()[1] = n2;
+      data()[2] = n3;
+      data()[3] = n4;
+    }
+
+  private: // non-member operators
+    // NOTE: the following "hidden friend" operators are available via
+    //       argument-dependent lookup only and must be defined inline.
+
+    friend bool
+    operator==(const Nonce& lhs, const Nonce& rhs) noexcept
+    {
+      return static_cast<const Base&>(lhs) == static_cast<const Base&>(rhs);
+    }
+
+    friend bool
+    operator!=(const Nonce& lhs, const Nonce& rhs) noexcept
+    {
+      return static_cast<const Base&>(lhs) != static_cast<const Base&>(rhs);
+    }
+
+    friend std::ostream&
+    operator<<(std::ostream& os, const Nonce& nonce)
+    {
+      printHex(os, nonce.data(), nonce.size(), false);
+      return os;
+    }
   };
 
   /** @brief Construct an Interest with given @p name and @p lifetime.
@@ -228,13 +278,15 @@ public: // element access
    *
    *  If nonce was not present, it is added and assigned a random value.
    */
-  uint32_t
+  Nonce
   getNonce() const;
 
-  /** @brief Set nonce value.
+  /** @brief Set the Interest's nonce.
+   *
+   *  Use `setNonce(nullopt)` to remove any nonce from the Interest.
    */
   Interest&
-  setNonce(uint32_t nonce);
+  setNonce(optional<Nonce> nonce);
 
   /** @brief Change nonce value.
    *
@@ -392,7 +444,7 @@ private:
 
   Name m_name;
   DelegationList m_forwardingHint;
-  mutable optional<uint32_t> m_nonce;
+  mutable optional<Nonce> m_nonce;
   time::milliseconds m_interestLifetime;
   optional<uint8_t> m_hopLimit;
   mutable bool m_isCanBePrefixSet = false;
