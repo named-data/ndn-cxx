@@ -24,7 +24,7 @@ supported:
 -  Fedora >= 24
 -  Gentoo Linux
 -  Raspbian >= 2017-08-16
--  FreeBSD 11.2
+-  FreeBSD >= 11.3
 
 Prerequisites
 -------------
@@ -33,20 +33,31 @@ Required:
 ~~~~~~~~~
 
 -  GCC >= 5.3, or clang >= 3.6
--  ``python2`` >= 2.7, or ``python3`` >= 3.4
--  Boost libraries >= 1.58
+-  Python >= 3.5
 -  ``pkg-config``
--  SQLite 3.x
+-  Boost >= 1.58
 -  OpenSSL >= 1.0.2
--  Apple Security framework (on macOS only)
+-  SQLite 3.x
 
-Following are the detailed steps for each platform to install the compiler, all necessary
-development tools and libraries, and ndn-cxx prerequisites.
+Following are the detailed steps for each platform to install the compiler and all necessary
+development tools and libraries that are required to build ndn-cxx from source.
+
+- Ubuntu
+
+    In a terminal, enter::
+
+        sudo apt install build-essential pkg-config python3-minimal libboost-all-dev libssl-dev libsqlite3-dev
+
+- Fedora
+
+    In a terminal, enter::
+
+        sudo yum install gcc-g++ boost-devel openssl-devel sqlite-devel
 
 - macOS
 
-    * Install Xcode from the App Store, or at least the Command Line Tools
-      (``xcode-select --install``)
+    * Install either Xcode (from the App Store) or the Command Line Tools
+      (with ``xcode-select --install``)
 
     * If using Homebrew (recommended), enter the following in a terminal::
 
@@ -57,23 +68,11 @@ development tools and libraries, and ndn-cxx prerequisites.
         If a major OS upgrade is performed after installing the dependencies
         with Homebrew, remember to reinstall all packages.
 
-- Ubuntu
-
-    In a terminal, enter::
-
-        sudo apt install build-essential libboost-all-dev libssl-dev libsqlite3-dev pkg-config python-minimal
-
-- Fedora
-
-    In a terminal, enter::
-
-        sudo yum install gcc-g++ sqlite-devel boost-devel openssl-devel
-
 - FreeBSD
 
     In a terminal, enter::
 
-        sudo pkg install python pkgconf sqlite3 boost-libs
+        sudo pkg install pkgconf python3 boost-libs openssl sqlite3
 
 Optional:
 ~~~~~~~~~
@@ -83,15 +82,10 @@ dependencies need to be installed:
 
 -  ``doxygen``
 -  ``graphviz``
--  ``python-sphinx``
+-  ``sphinx``
 -  ``sphinxcontrib-doxylink``
 
-The following lists steps for common platforms to install these prerequisites:
-
-- On macOS with Homebrew and pip::
-
-    brew install doxygen graphviz
-    sudo pip install sphinx sphinxcontrib-doxylink
+The following lists the steps to install these prerequisites on various common platforms.
 
 - On Ubuntu::
 
@@ -103,9 +97,14 @@ The following lists steps for common platforms to install these prerequisites:
     sudo yum install doxygen graphviz python-sphinx
     sudo pip install sphinxcontrib-doxylink
 
+- On macOS::
+
+    brew install doxygen graphviz
+    sudo pip install sphinx sphinxcontrib-doxylink
+
 - On FreeBSD::
 
-    sudo pkg install doxygen graphviz py27-sphinx
+    sudo pkg install doxygen graphviz py37-sphinx
 
 
 .. _build:

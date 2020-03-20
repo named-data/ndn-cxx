@@ -97,12 +97,6 @@ before_script:
         export DISABLE_ASAN=yes
         ;;
     esac
-    if [[ ${TRAVIS_OS_NAME} == osx ]]; then
-      # Do not waste time upgrading useless packages
-      brew pin cgal gdal postgis sfcgal || true
-      # Ensure /usr/local/opt/openssl exists
-      brew reinstall openssl || true
-    fi
   - ${CXX:-c++} --version
 
 script:

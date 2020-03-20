@@ -15,7 +15,7 @@ fi
 
 ndnsec-keygen "/tmp/jenkins/$NODE_NAME" | ndnsec-install-cert -
 
-BOOST_VERSION=$(python -c "import sys; sys.path.append('build/c4che'); import _cache; print(_cache.BOOST_VERSION_NUMBER);")
+BOOST_VERSION=$(python3 -c "import sys; sys.path.append('build/c4che'); import _cache; print(_cache.BOOST_VERSION_NUMBER);")
 
 ut_log_args() {
     if (( BOOST_VERSION >= 106200 )); then

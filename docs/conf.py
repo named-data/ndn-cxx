@@ -58,12 +58,7 @@ def addExtensionIfExists(extension):
         sys.stderr.write("Extension '%s' not found. "
                          "Some documentation may not build correctly.\n" % extension)
 
-if sys.version_info[0] >= 3:
-    addExtensionIfExists('sphinxcontrib.doxylink')
-
-# sphinxcontrib.googleanalytics is currently not working with the latest version of Sphinx
-# if os.getenv('GOOGLE_ANALYTICS', None):
-#     addExtensionIfExists('sphinxcontrib.googleanalytics')
+addExtensionIfExists('sphinxcontrib.doxylink')
 
 # The master toctree document.
 master_doc = 'index'
@@ -157,7 +152,3 @@ doxylink = {
 extlinks = {
     'issue': ('https://redmine.named-data.net/issues/%s', 'issue #'),
 }
-
-if os.getenv('GOOGLE_ANALYTICS', None):
-    googleanalytics_id = os.environ['GOOGLE_ANALYTICS']
-    googleanalytics_enabled = True

@@ -6,10 +6,8 @@ source "$JDIR"/util.sh
 
 set -x
 
-sudo rm -f /usr/local/bin/ndnsec*
-sudo rm -fr /usr/local/include/ndn-cxx
-sudo rm -f /usr/local/lib{,64}/libndn-cxx*
-sudo rm -f /usr/local/lib{,64}/pkgconfig/libndn-cxx.pc
+git submodule sync
+git submodule update --init
 
 if [[ $JOB_NAME == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
@@ -17,23 +15,20 @@ elif [[ -z $DISABLE_ASAN ]]; then
     ASAN="--with-sanitizer=address"
 fi
 
-# Cleanup
-sudo_preserve_env PATH -- ./waf --color=yes distclean
-
 if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
     # Build static library in release mode with tests and without precompiled headers
     ./waf --color=yes configure --enable-static --disable-shared --with-tests --without-pch
     ./waf --color=yes build -j${WAF_JOBS:-1}
 
     # Cleanup
-    sudo_preserve_env PATH -- ./waf --color=yes distclean
+    ./waf --color=yes distclean
 
     # Build static and shared library in release mode without tests
     ./waf --color=yes configure --enable-static --enable-shared
     ./waf --color=yes build -j${WAF_JOBS:-1}
 
     # Cleanup
-    sudo_preserve_env PATH -- ./waf --color=yes distclean
+    ./waf --color=yes distclean
 fi
 
 # Build shared library in debug mode with tests and examples

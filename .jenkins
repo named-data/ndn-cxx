@@ -3,7 +3,7 @@ set -e
 
 nanos() {
     # Cannot use date(1) because macOS does not support %N format specifier
-    python -c 'import time; print(int(time.time() * 1e9))'
+    python3 -c 'import time; print(int(time.time() * 1e9))'
 }
 
 for file in .jenkins.d/*; do
