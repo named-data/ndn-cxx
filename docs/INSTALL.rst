@@ -6,22 +6,21 @@ Getting started with ndn-cxx
 Supported platforms
 -------------------
 
-ndn-cxx uses continuous integration and has been tested on the following
-platforms:
+ndn-cxx uses continuous integration and has been tested on the following platforms:
 
--  Ubuntu 16.04 (amd64, armhf, i386)
--  Ubuntu 18.04 (amd64)
+-  Ubuntu 16.04 (amd64)
+-  Ubuntu 18.04 (amd64, armhf, i386)
 -  Ubuntu 19.10 (amd64)
 -  macOS 10.13
 -  macOS 10.14
 -  macOS 10.15
--  CentOS 7 (with gcc 7 and boost 1.58.0)
+-  CentOS 8
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
 
 -  Debian >= 9
--  Fedora >= 24
+-  Fedora >= 29
 -  Gentoo Linux
 -  Raspbian >= 2017-08-16
 -  FreeBSD >= 11.3
@@ -46,13 +45,13 @@ development tools and libraries that are required to build ndn-cxx from source.
 
     In a terminal, enter::
 
-        sudo apt install build-essential pkg-config python3-minimal libboost-all-dev libssl-dev libsqlite3-dev
+        sudo apt install g++ pkg-config python3-minimal libboost-all-dev libssl-dev libsqlite3-dev
 
-- Fedora
+- CentOS and Fedora
 
     In a terminal, enter::
 
-        sudo yum install gcc-g++ boost-devel openssl-devel sqlite-devel
+        sudo dnf install gcc-c++ pkgconf-pkg-config python3 boost-devel openssl-devel sqlite-devel
 
 - macOS
 
@@ -92,10 +91,11 @@ The following lists the steps to install these prerequisites on various common p
     sudo apt install doxygen graphviz python3-pip
     sudo pip3 install sphinx sphinxcontrib-doxylink
 
-- On Fedora::
+- On CentOS and Fedora::
 
-    sudo yum install doxygen graphviz python-sphinx
-    sudo pip install sphinxcontrib-doxylink
+    sudo dnf config-manager --enable PowerTools  # on CentOS only
+    sudo dnf install doxygen graphviz python3-pip
+    pip3 install --user sphinx sphinxcontrib-doxylink
 
 - On macOS::
 
@@ -118,7 +118,7 @@ Build
 
 To build in a terminal, change directory to the ndn-cxx root, then enter::
 
-    ./waf configure
+    ./waf configure  # on CentOS, add --without-pch
     ./waf
     sudo ./waf install
 
@@ -189,7 +189,7 @@ By default, examples in ``examples/`` are not built.  To enable them, use the
     ./waf configure --with-examples
     ./waf
     sudo ./waf install
-    sudo ldconfig # (on Linux only)
+    sudo ldconfig  # on Linux only
 
 To run examples::
 
@@ -208,7 +208,7 @@ folder and it will be compiled on the next run on ``./waf``.  For example::
     cp examples/consumer.cpp examples/my-new-consumer-app.cpp
     ./waf
     sudo ./waf install
-    sudo ldconfig # (on Linux only)
+    sudo ldconfig  # on Linux only
     ./build/examples/my-new-consumer-app
 
 Debug symbols
@@ -234,10 +234,10 @@ commands::
     # Full set of documentation (tutorials + API) in build/docs
     ./waf docs
 
-    # Only tutorials in `build/docs`
+    # Only tutorials in build/docs
     ./waf sphinx
 
-    # Only API docs in `build/docs/doxygen`
+    # Only API docs in build/docs/doxygen
     ./waf doxygen
 
 Manpages are automatically created and installed during the normal build
@@ -259,7 +259,7 @@ The following is the suggested configure command for development builds::
     ./waf configure --debug --with-tests
     ./waf
     sudo ./waf install
-    sudo ldconfig # (on Linux only)
+    sudo ldconfig  # on Linux only
 
 In the development build most compiler optimizations are disabled by
 default and all warnings are treated as errors. The default behavior can

@@ -10,9 +10,13 @@ if [[ -n $DISABLE_HEADERS_CHECK ]]; then
   exit 0
 fi
 
+if has CentOS-8 $NODE_LABELS; then
+  export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
+fi
+
 CXX=${CXX:-g++}
 STD=-std=c++14
-CXXFLAGS="-O2 -Wall -Wno-unused-const-variable -Wno-unused-local-typedef $(pkg-config --cflags libndn-cxx)"
+CXXFLAGS="-O2 -Wall -Wno-unneeded-internal-declaration -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx)"
 INCLUDEDIR="$(pkg-config --variable=includedir libndn-cxx)"/ndn-cxx
 
 echo "Using: $CXX $STD $CXXFLAGS"

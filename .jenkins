@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -e
+source .jenkins.d/util.sh
+
+export WAF_JOBS=${WAF_JOBS:-1}
 
 nanos() {
     # Cannot use date(1) because macOS does not support %N format specifier

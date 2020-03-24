@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
-set -e
-
-JDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-source "$JDIR"/util.sh
-
-set -x
+set -ex
 
 sudo rm -f /usr/local/bin/ndnsec*
 sudo rm -fr /usr/local/include/ndn-cxx

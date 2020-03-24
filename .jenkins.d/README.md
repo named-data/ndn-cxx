@@ -1,33 +1,25 @@
-CONTINUOUS INTEGRATION SCRIPTS
-==============================
+# CONTINUOUS INTEGRATION SCRIPTS
 
-Environment Variables Used in Build Scripts
--------------------------------------------
+## Environment Variables Used in Build Scripts
 
-- `NODE_LABELS`: the variable defines a list of OS properties.  The set values are used by the
-  build scripts to select proper behavior for different OS.
+- `NODE_LABELS`: space-separated list of platform properties. The included values are used by
+  the build scripts to select the proper behavior for different operating systems and versions.
 
-  The list should include at least `[OS_TYPE]`, `[DISTRO_TYPE]`, and `[DISTRO_VERSION]`.
+  The list should normally contain `[OS_TYPE]`, `[DISTRO_TYPE]`, and `[DISTRO_VERSION]`.
 
-  Possible values for Linux:
+  Example values:
 
-  * `[OS_TYPE]`: `Linux`
-  * `[DISTRO_TYPE]`: `Ubuntu`
-  * `[DISTRO_VERSION]`: `Ubuntu-16.04`, `Ubuntu-18.04`
+  - `[OS_TYPE]`: `Linux`, `OSX`
+  - `[DISTRO_TYPE]`: `Ubuntu`, `CentOS`
+  - `[DISTRO_VERSION]`: `Ubuntu-16.04`, `Ubuntu-18.04`, `CentOS-8`, `OSX-10.14`, `OSX-10.15`
 
-  Possible values for macOS:
-
-  * `[OS_TYPE]`: `OSX`
-  * `[DISTRO_TYPE]`: `OSX` (can be absent)
-  * `[DISTRO_VERSION]`: `OSX-10.12`, `OSX-10.13`, `OSX-10.14`
-
-- `JOB_NAME`: optional variable to define type of the job.  Depending on the defined job type,
+- `JOB_NAME`: optional variable that defines the type of build job. Depending on the job type,
   the build scripts can perform different tasks.
 
   Possible values:
 
-  * empty: default build process
-  * `code-coverage` (Ubuntu Linux is assumed): debug build with tests and code coverage analysis
-  * `limited-build`: only a single debug build with tests
+  - empty: default build task
+  - `code-coverage`: debug build with tests and code coverage analysis (Ubuntu Linux is assumed)
+  - `limited-build`: only a single debug build with tests
 
-- `WAF_JOBS`: number of parallel build jobs used by waf, defaults to 1.
+- `WAF_JOBS`: number of parallel build threads used by waf, defaults to 1.
