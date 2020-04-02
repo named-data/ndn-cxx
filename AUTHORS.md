@@ -10,6 +10,7 @@ If you would like to become a contributor to the official repository, please fol
 * Hila Ben Abraham <https://sites.wustl.edu/hbabraham>
 * Shuo Chen <https://github.com/chenatu>
 * Muktadir R. Chowdhury <https://github.com/alvyC>
+* Jeremy Clark <https://github.com/jrandallclark>
 * Damian Coomes <https://github.com/dmcoomes>
 * Stephanie DiBenedetto
 * Qiuhan Ding <https://irl.cs.ucla.edu/~qiuhanding>

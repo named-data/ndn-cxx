@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California,
+ * Copyright (c) 2013-2020 Regents of the University of California,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University.
  *
@@ -19,10 +19,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Shuo Yang
- * @author Weiwei Liu
- * @author Chavoosh Ghasemi
  */
 
 #include "ndn-cxx/util/segment-fetcher.hpp"
@@ -71,16 +67,8 @@ SegmentFetcher::SegmentFetcher(Face& face,
   , m_validator(validator)
   , m_rttEstimator(make_shared<RttEstimator::Options>(options.rttOptions))
   , m_timeLastSegmentReceived(time::steady_clock::now())
-  , m_nextSegmentNum(0)
   , m_cwnd(options.initCwnd)
   , m_ssthresh(options.initSsthresh)
-  , m_nSegmentsInFlight(0)
-  , m_nSegments(0)
-  , m_highInterest(0)
-  , m_highData(0)
-  , m_recPoint(0)
-  , m_nReceived(0)
-  , m_nBytesReceived(0)
 {
   m_options.validate();
 }
@@ -137,7 +125,15 @@ SegmentFetcher::fetchSegmentsInWindow(const Interest& origInterest)
     return finalizeFetch();
   }
 
-  int64_t availableWindowSize = static_cast<int64_t>(m_cwnd) - m_nSegmentsInFlight;
+  int64_t availableWindowSize;
+  if (m_options.inOrder) {
+    availableWindowSize = std::min<int64_t>(m_cwnd, m_options.flowControlWindow - m_segmentBuffer.size());
+  }
+  else {
+    availableWindowSize = static_cast<int64_t>(m_cwnd);
+  }
+  availableWindowSize -= m_nSegmentsInFlight;
+
   std::vector<std::pair<uint64_t, bool>> segmentsToRequest; // The boolean indicates whether a retx or not
 
   while (availableWindowSize > 0) {
@@ -152,7 +148,7 @@ SegmentFetcher::fetchSegmentsInWindow(const Interest& origInterest)
       segmentsToRequest.emplace_back(pendingSegmentIt->first, true);
     }
     else if (m_nSegments == 0 || m_nextSegmentNum < static_cast<uint64_t>(m_nSegments)) {
-      if (m_receivedSegments.count(m_nextSegmentNum) > 0) {
+      if (m_segmentBuffer.count(m_nextSegmentNum) > 0) {
         // Don't request a segment a second time if received in response to first "discovery" Interest
         m_nextSegmentNum++;
         continue;
@@ -264,6 +260,8 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
 
   // It was verified in afterSegmentReceivedCb that the last Data name component is a segment number
   uint64_t currentSegment = data.getName().get(-1).toSegment();
+  m_receivedSegments.insert(currentSegment);
+
   // Add measurement to RTO estimator (if not retransmission)
   if (pendingSegmentIt->second.state == SegmentState::FirstInterest) {
     BOOST_ASSERT(m_nSegmentsInFlight >= 0);
@@ -275,9 +273,9 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
   m_pendingSegments.erase(pendingSegmentIt);
 
   // Copy data in segment to temporary buffer
-  auto receivedSegmentIt = m_receivedSegments.emplace(std::piecewise_construct,
-                                                      std::forward_as_tuple(currentSegment),
-                                                      std::forward_as_tuple(data.getContent().value_size()));
+  auto receivedSegmentIt = m_segmentBuffer.emplace(std::piecewise_construct,
+                                                   std::forward_as_tuple(currentSegment),
+                                                   std::forward_as_tuple(data.getContent().value_size()));
   std::copy(data.getContent().value_begin(), data.getContent().value_end(),
             receivedSegmentIt.first->second.begin());
   m_nBytesReceived += data.getContent().value_size();
@@ -293,6 +291,13 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
       m_nSegments = data.getFinalBlock()->toSegment() + 1;
       cancelExcessInFlightSegments();
     }
+  }
+
+  if (m_options.inOrder && m_nextSegmentInOrder == currentSegment) {
+    do {
+      onInOrderData(std::make_shared<const Buffer>(m_segmentBuffer[m_nextSegmentInOrder]));
+      m_segmentBuffer.erase(m_nextSegmentInOrder++);
+    } while (m_segmentBuffer.count(m_nextSegmentInOrder) > 0);
   }
 
   if (m_receivedSegments.size() == 1) {
@@ -405,16 +410,20 @@ SegmentFetcher::afterNackOrTimeout(const Interest& origInterest)
 void
 SegmentFetcher::finalizeFetch()
 {
-  // Combine segments into final buffer
-  OBufferStream buf;
-  // We may have received more segments than exist in the object.
-  BOOST_ASSERT(m_receivedSegments.size() >= static_cast<uint64_t>(m_nSegments));
-
-  for (int64_t i = 0; i < m_nSegments; i++) {
-    buf.write(m_receivedSegments[i].get<const char>(), m_receivedSegments[i].size());
+  if (m_options.inOrder) {
+    onInOrderComplete();
   }
+  else {
+    // Combine segments into final buffer
+    OBufferStream buf;
+    // We may have received more segments than exist in the object.
+    BOOST_ASSERT(m_receivedSegments.size() >= static_cast<uint64_t>(m_nSegments));
 
-  onComplete(buf.buf());
+    for (int64_t i = 0; i < m_nSegments; i++) {
+      buf.write(m_segmentBuffer[i].get<const char>(), m_segmentBuffer[i].size());
+    }
+    onComplete(buf.buf());
+  }
   stop();
 }
 
