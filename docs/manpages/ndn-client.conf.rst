@@ -19,10 +19,11 @@ NFD
 ---
 
 transport
-  FaceUri for default connection toward local NDN forwarder.  Only ``unix`` and ``tcp4`` FaceUris
-  can be specified here.
+  FaceUri for default connection toward local NDN forwarder.  Only ``unix``, ``tcp``, ``tcp4``, and
+  ``tcp6`` FaceUris can be specified here.
 
-  By default, ``unix:///var/run/nfd.sock`` is used.
+  By default, ``unix:///run/nfd.sock`` is used on Linux and ``unix:///var/run/nfd.sock`` is used on
+  other platforms.
 
   .. note::
     This value can be overridden using the ``NDN_CLIENT_TRANSPORT`` environment variable.

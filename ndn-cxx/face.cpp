@@ -100,9 +100,6 @@ Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, 
 shared_ptr<Transport>
 Face::makeDefaultTransport()
 {
-  // transport=unix:///var/run/nfd.sock
-  // transport=tcp://localhost:6363
-
   std::string transportUri;
 
   const char* transportEnviron = getenv("NDN_CLIENT_TRANSPORT");

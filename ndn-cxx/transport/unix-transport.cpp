@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,7 +42,11 @@ std::string
 UnixTransport::getSocketNameFromUri(const std::string& uriString)
 {
   // Assume the default nfd.sock location.
+#ifdef __linux__
+  std::string path = "/run/nfd.sock";
+#else
   std::string path = "/var/run/nfd.sock";
+#endif // __linux__
 
   if (uriString.empty()) {
     return path;

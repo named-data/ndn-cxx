@@ -6,7 +6,10 @@
 ;   tcp://192.0.2.1
 ;   tcp4://example.com:6363
 ;
-transport=unix:///var/run/nfd.sock
+; The default value of this field is platform-dependent, being unix:///run/nfd.sock on Linux and
+; unix:///var/run/nfd.sock on other platforms.
+;
+;transport=unix:///var/run/nfd.sock
 
 ; "pib" determines which Public Info Base (PIB) should used by default in applications.
 ; If "pib" is not specified, a platform-dependent default will be used.
