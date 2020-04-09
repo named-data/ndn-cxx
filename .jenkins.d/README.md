@@ -22,4 +22,7 @@
   - `code-coverage`: debug build with tests and code coverage analysis (Ubuntu Linux is assumed)
   - `limited-build`: only a single debug build with tests
 
+- `CACHE_DIR`: directory containing cached files from previous builds, e.g., a compiled version
+  of ndn-cxx. If not set, `/tmp` is used.
+
 - `WAF_JOBS`: number of parallel build threads used by waf, defaults to 1.

@@ -4,15 +4,15 @@ set -ex
 git submodule sync
 git submodule update --init
 
+if [[ -z $DISABLE_ASAN ]]; then
+    ASAN="--with-sanitizer=address"
+fi
+if [[ $JOB_NAME == *"code-coverage" ]]; then
+    COVERAGE="--with-coverage"
+fi
 if has CentOS-8 $NODE_LABELS; then
     # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
     PCH="--without-pch"
-fi
-
-if [[ $JOB_NAME == *"code-coverage" ]]; then
-    COVERAGE="--with-coverage"
-elif [[ -z $DISABLE_ASAN ]]; then
-    ASAN="--with-sanitizer=address"
 fi
 
 if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then

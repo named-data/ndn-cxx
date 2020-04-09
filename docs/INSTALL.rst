@@ -1,12 +1,11 @@
-.. _Getting Started with ndn-cxx:
-
 Getting started with ndn-cxx
 ============================
 
 Supported platforms
 -------------------
 
-ndn-cxx uses continuous integration and has been tested on the following platforms:
+ndn-cxx is built against a continuous integration system and has been tested on the
+following platforms:
 
 -  Ubuntu 16.04 (amd64)
 -  Ubuntu 18.04 (amd64, armhf, i386)
@@ -28,18 +27,18 @@ supported:
 Prerequisites
 -------------
 
-Required:
-~~~~~~~~~
+Required
+~~~~~~~~
 
--  GCC >= 5.3, or clang >= 3.6
+-  GCC >= 5.3 or clang >= 3.6
 -  Python >= 3.5
--  ``pkg-config``
+-  pkg-config
 -  Boost >= 1.58
 -  OpenSSL >= 1.0.2
 -  SQLite 3.x
 
-Following are the detailed steps for each platform to install the compiler and all necessary
-development tools and libraries that are required to build ndn-cxx from source.
+To build ndn-cxx from source, one must first install a C++ compiler and all necessary
+development tools and libraries:
 
 - Ubuntu
 
@@ -73,16 +72,16 @@ development tools and libraries that are required to build ndn-cxx from source.
 
         sudo pkg install pkgconf python3 boost-libs openssl sqlite3
 
-Optional:
-~~~~~~~~~
+Optional
+~~~~~~~~
 
-To build tutorials, manpages, and API documentation the following
-dependencies need to be installed:
+To build tutorials, manpages, and API documentation the following additional dependencies
+need to be installed:
 
--  ``doxygen``
--  ``graphviz``
--  ``sphinx``
--  ``sphinxcontrib-doxylink``
+-  doxygen
+-  graphviz
+-  sphinx
+-  sphinxcontrib-doxylink
 
 The following lists the steps to install these prerequisites on various common platforms.
 
@@ -106,15 +105,12 @@ The following lists the steps to install these prerequisites on various common p
 
     sudo pkg install doxygen graphviz py37-sphinx
 
-
-.. _build:
-
 Build
 -----
 
 .. note::
-  These are instructions for regular builds of ndn-cxx (release mode).
-  To do development of ndn-cxx code itself, see "Development build" below.
+  These are instructions for regular builds of ndn-cxx (release mode). If you are
+  planning to develop the ndn-cxx code itself, you should do a :ref:`Development build`.
 
 To build in a terminal, change directory to the ndn-cxx root, then enter::
 
@@ -122,20 +118,21 @@ To build in a terminal, change directory to the ndn-cxx root, then enter::
     ./waf
     sudo ./waf install
 
-By default, only the shared version of ndn-cxx library is built.  To build the static library,
-use ``--enable-static`` option for ``./waf configure`` command::
+By default, only the shared variant of the ndn-cxx library will be built. To build the
+static library, pass ``--enable-static`` to the ``./waf configure`` command::
 
     ./waf configure --enable-static
 
-To disable build of the shared library and build only the static library, use additional
-``--disable-shared`` option.  Note that at least one version of the library needs to be
-enabled.
+To disable the build of the shared library and build only the static library, use the
+additional ``--disable-shared`` option.  Note that at least one variant of the library
+needs to be enabled.
 
 ::
 
     ./waf configure --enable-static --disable-shared
 
-After the shared library is installed, on Linux it is also necessary to run::
+On Linux, it is necessary to run the following command after the shared library has
+been installed::
 
     sudo ldconfig
 
@@ -160,38 +157,37 @@ The ``./waf install`` command installs the following files:
 -  ``<LIBPATH>/libndn-cxx.so``, ``<LIBPATH>/libndn-cxx.so.<VERSION>`` (on Linux),
    ``<LIBPATH>/libndn-cxx.dylib``, ``<LIBPATH>/libndn-cxx.<VERSION>.dylib`` (on macOS):
    shared NDN C++ library (if enabled).
--  ``<LIBPATH>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all
-   neccessary flags to build against the library. For example, if
-   pkg-config or pkgconf package is installed and ``PKG_CONFIG_PATH`` is
-   configured properly (or ``<LIBPATH>/pkgconfig`` is a default path),
-   ``pkgconfig --libs --clflags libndn-cxx`` will return all necessary
-   compile and link flags for the library.
+-  ``<LIBPATH>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all necessary flags to
+   build against the library. For example, if the ``pkg-config`` or ``pkgconf-pkg-config``
+   package is installed and ``PKG_CONFIG_PATH`` is configured properly (or if
+   ``<LIBPATH>/pkgconfig`` is a default search path), the command ``pkg-config --cflags
+   --libs libndn-cxx`` will return all necessary compile and link flags for the library.
 -  ``<BINPATH>/ndnsec``: tool to manage NDN keys and certificates.
 -  ``<BINPATH>/ndnsec-*``: convenience aliases for ``ndnsec`` tools.
 
-If configured with tests (``./waf configure --with-tests``), the above
-commands will also produce:
+If configured with tests (``./waf configure --with-tests``), the above commands
+will also produce:
 
 -  ``build/unit-tests``: a unit test binary for the library.
 
-1.5GB available memory per CPU core is necessary for efficient compilation.
-On a multi-core machine with less than 1.5GB available memory per CPU core,
-limit the objects being compiled in parallel with ``./waf -jN`` where N is the amount
-of available memory divided by 1.5GB (eg. ``./waf -j1`` for 1.5GB memory),
-which should usually avoid memory thrashing and result in faster compilation.
+1.5 GB available memory per CPU core is necessary for efficient compilation. On a
+multi-core machine with less than 1.5 GB available memory per CPU core, limit the
+objects being compiled in parallel with ``./waf -jN``, where N is the amount of
+available memory divided by 1.5 GB (e.g., ``./waf -j2`` for 3 GB of memory). This
+should avoid memory thrashing and result in faster compilation.
 
 Build with examples
 -------------------
 
-By default, examples in ``examples/`` are not built.  To enable them, use the
-``--with-examples`` configure option::
+By default, the examples in the ``examples/`` directory will not be built. To enable
+them, pass ``--with-examples`` during the configuration step::
 
-    ./waf configure --with-examples
+    ./waf configure --with-examples  # on CentOS, add --without-pch
     ./waf
     sudo ./waf install
     sudo ldconfig  # on Linux only
 
-To run examples::
+To run the examples::
 
     # trivial producer app
     ./build/examples/producer
@@ -202,34 +198,45 @@ To run examples::
     # trivial consumer app with timers
     ./build/examples/consumer-with-timer
 
-If you want to test out a sample application, just create a ``.cpp`` file in ``examples/``
-folder and it will be compiled on the next run on ``./waf``.  For example::
+If you want to make a new sample application, just create a ``.cpp`` file inside the
+``examples/`` directory and it will be compiled during the next run of ``./waf``::
 
-    cp examples/consumer.cpp examples/my-new-consumer-app.cpp
+    cp examples/consumer.cpp examples/my-new-app.cpp
+    ... # edit examples/my-new-app.cpp with your preferred editor
     ./waf
     sudo ./waf install
     sudo ldconfig  # on Linux only
-    ./build/examples/my-new-consumer-app
+    ./build/examples/my-new-app
 
 Debug symbols
-~~~~~~~~~~~~~
+-------------
 
-The default compiler flags enable debug symbols to be included in binaries (i.e., ``-g``
-flag for ``./waf configure`` and ``-g3`` for ``./waf configure --debug``).  This
-potentially allows more meaningful debugging information if your application crashes.
+The default compiler flags include debug symbols in binaries. This should provide
+more meaningful debugging information if ndn-cxx or your application crashes.
 
-The default build flags can easily be overridden::
+If this is undesirable, the default flags can be overridden to disable debug symbols.
+The following example shows how to completely disable debug symbols and configure
+ndn-cxx to be installed into ``/usr`` with configuration in the ``/etc`` directory.
+
+::
 
     CXXFLAGS="-O2" ./waf configure --prefix=/usr --sysconfdir=/etc
     ./waf
     sudo ./waf install
 
+Customizing the compiler
+------------------------
 
-Documentation
--------------
+To build ndn-cxx with a different compiler (rather than the platform default), set the
+``CXX`` environment variable to point to the compiler binary. For example, to build
+with clang on Linux, use the following::
 
-ndn-cxx tutorials and API documentation can be built using the following
-commands::
+    CXX=clang++ ./waf configure
+
+Building the documentation
+--------------------------
+
+ndn-cxx tutorials and API documentation can be built using the following commands::
 
     # Full set of documentation (tutorials + API) in build/docs
     ./waf docs
@@ -240,41 +247,30 @@ commands::
     # Only API docs in build/docs/doxygen
     ./waf doxygen
 
-Manpages are automatically created and installed during the normal build
-process (e.g., during ``./waf`` and ``./waf install``), if
-``python-sphinx`` module is detected during ``./waf configure`` stage.
-By default, manpages are installed into ``${PREFIX}/share/man`` (where
-default value for ``PREFIX`` is ``/usr/local``). This location can be
-changed during ``./waf configure`` stage using ``--prefix``,
-``--datarootdir``, or ``--mandir`` options.
+If ``sphinx-build`` is detected during ``./waf configure``, manpages will automatically
+be built and installed during the normal build process (i.e., during ``./waf`` and
+``./waf install``). By default, manpages will be installed into ``${PREFIX}/share/man``
+(the default value for ``PREFIX`` is ``/usr/local``). This location can be changed
+during the ``./waf configure`` stage using the ``--prefix``, ``--datarootdir``, or
+``--mandir`` options.
 
-For more details, refer to ``./waf --help``.
+For further details, please refer to ``./waf --help``.
 
+.. _Development build:
 
 Development build
 -----------------
 
-The following is the suggested configure command for development builds::
+The following is the suggested build procedure for development builds::
 
-    ./waf configure --debug --with-tests
+    ./waf configure --debug --with-tests  # on CentOS, add --without-pch
     ./waf
     sudo ./waf install
     sudo ldconfig  # on Linux only
 
-In the development build most compiler optimizations are disabled by
-default and all warnings are treated as errors. The default behavior can
-be overridden by setting ``CXXFLAGS`` environment variable before
-running ``./waf configure``::
+In a development build, most compiler optimizations will be disabled and all warnings
+will be treated as errors. This default behavior can be overridden by setting the
+``CXXFLAGS`` environment variable before running ``./waf configure``, for example::
 
     CXXFLAGS="-O1 -g3" ./waf configure --debug --with-tests
     ...
-
-
-Customizing the compiler
-------------------------
-
-To choose a custom C++ compiler for building ndn-cxx, set the ``CXX`` environment
-variable to point to the compiler binary. For example, to build with clang on
-Linux, use the following::
-
-    CXX=clang++ ./waf configure

@@ -12,7 +12,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
+# import os
 import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -20,7 +20,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = u'ndn-cxx: NDN C++ library with eXperimental eXtensions'
-copyright = u'Copyright © 2013-2019 Regents of the University of California.'
+copyright = u'Copyright © 2013-2020 Regents of the University of California.'
 author = u'Named Data Networking Project'
 
 # The short X.Y version
@@ -135,7 +135,7 @@ man_pages = [
     ('manpages/ndnsec-set-default',  'ndnsec-set-default',  'change the default NDN identity, key, or certificate for the current user', None, 1),
     ('manpages/ndnsec-sign-req',     'ndnsec-sign-req',     'generate an NDN certificate signing request',  None, 1),
     ('manpages/ndnsec-unlock-tpm',   'ndnsec-unlock-tpm',   'unlock the TPM',                               None, 1),
-    ('manpages/ndn-client.conf',     'ndn-client.conf',     'configuration file for NDN platform',          None, 5),
+    ('manpages/ndn-client.conf',     'ndn-client.conf',     'configuration file for NDN applications',      None, 5),
     ('manpages/ndn-log',             'ndn-log',             'ndn-cxx logging',                              None, 7),
 ]
 
