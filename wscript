@@ -82,6 +82,8 @@ def configure(conf):
 
     conf.find_program('sh', var='SH')
 
+    conf.check_cxx(lib='atomic', uselib_store='ATOMIC', define_name='HAVE_ATOMIC', mandatory=False)
+
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
     conf.check_cxx(msg='Checking for function getpass', define_name='HAVE_GETPASS', mandatory=False,
@@ -189,7 +191,7 @@ def build(bld):
                                        'ndn-cxx/**/*-sqlite3.cpp']),
         features='pch',
         headers='ndn-cxx/impl/common-pch.hpp',
-        use='ndn-cxx-mm-objects version BOOST OPENSSL SQLITE3 RT PTHREAD',
+        use='ndn-cxx-mm-objects version BOOST OPENSSL SQLITE3 ATOMIC RT PTHREAD',
         includes='.',
         export_includes='.',
         install_path='${LIBDIR}')
