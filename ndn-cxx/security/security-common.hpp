@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -63,7 +63,7 @@ enum class KeyIdType {
    */
   USER_SPECIFIED = 0,
   /**
-   * @brief Use the SHA256 hash of the public key as key id.
+   * @brief Use the SHA-256 hash of the public key as key id.
    *
    * This KeyIdType guarantees the uniqueness of the key names.
    */

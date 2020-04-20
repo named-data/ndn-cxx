@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,7 +37,7 @@ ndnsec_key_gen(int argc, char** argv)
   std::string userKeyId;
 
   po::options_description description(
-    "Usage: ndnsec key-gen [-h] [-n] [-t TYPE] [-k IDTYPE] [-i] IDENTITY\n"
+    "Usage: ndnsec key-gen [-h] [-n] [-t TYPE] [-k KEYIDTYPE|--keyid KEYID] [-i] IDENTITY\n"
     "\n"
     "Options");
   description.add_options()
@@ -45,11 +45,11 @@ ndnsec_key_gen(int argc, char** argv)
     ("identity,i",    po::value<Name>(&identityName), "identity name, e.g., /ndn/edu/ucla/alice")
     ("not-default,n", po::bool_switch(&wantNotDefault), "do not set the identity as default")
     ("type,t",        po::value<char>(&keyTypeChoice)->default_value('r'),
-                      "key type, 'r' for RSA, 'e' for ECDSA")
-    ("keyid-type,k",  po::value<char>(&keyIdTypeChoice)->default_value('r'),
-                      "key id type, 'r' for 64-bit random number, 'h' for SHA256 of the public key")
+                      "key type: 'r' for RSA, 'e' for ECDSA")
+    ("keyid-type,k",  po::value<char>(&keyIdTypeChoice),
+                      "key id type: 'h' for the SHA-256 of the public key, 'r' for a 64-bit "
+                      "random number (the default unless --keyid is specified)")
     ("keyid",         po::value<std::string>(&userKeyId), "user-specified key id")
-    //("size,s",        po::value<int>(&keySize)->default_value(2048), "key size in bits")
     ;
 
   po::positional_options_description p;
@@ -80,6 +80,11 @@ ndnsec_key_gen(int argc, char** argv)
   Name::Component userKeyIdComponent;
 
   if (vm.count("keyid") > 0) {
+    if (vm.count("keyid-type") > 0) {
+      std::cerr << "ERROR: cannot specify both '--keyid' and '--keyid-type'" << std::endl;
+      return 2;
+    }
+
     keyIdType = KeyIdType::USER_SPECIFIED;
     userKeyIdComponent = name::Component::fromEscapedString(userKeyId);
     if (userKeyIdComponent.empty()) {
@@ -93,17 +98,12 @@ ndnsec_key_gen(int argc, char** argv)
   }
 
   if (vm.count("keyid-type") > 0) {
-    if (keyIdType == KeyIdType::USER_SPECIFIED) {
-      std::cerr << "ERROR: cannot specify both '--keyid' and '--keyid-type'" << std::endl;
-      return 2;
-    }
-
     switch (keyIdTypeChoice) {
-    case 'r':
-      // KeyIdType::RANDOM is the default
-      break;
     case 'h':
       keyIdType = KeyIdType::SHA256;
+      break;
+    case 'r':
+      // KeyIdType::RANDOM is the default
       break;
     default:
       std::cerr << "ERROR: unrecognized key id type '" << keyIdTypeChoice << "'" << std::endl;

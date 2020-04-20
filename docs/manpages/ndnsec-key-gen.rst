@@ -4,7 +4,8 @@ ndnsec-key-gen
 Synopsis
 --------
 
-**ndnsec-key-gen** [**-h**] [**-n**] [**-t** *type*] [**-k** *keyidtype*] *identity*
+**ndnsec-key-gen** [**-h**] [**-n**] [**-t** *type*]
+[**-k** *keyidtype*\|\ **--keyid** *keyid*] *identity*
 
 Description
 -----------
@@ -28,12 +29,16 @@ Options
 
 .. option:: -t <type>, --type <type>
 
-   Type of key to generate. "r" for RSA (default), "e" for ECDSA.
+   Type of key to generate. "r" for RSA (the default), "e" for ECDSA.
 
 .. option:: -k <keyidtype>, --keyid-type <keyidtype>
 
-   Type of KeyId for the generated key. "r" for 64-bit random number (default),
-   "h" for SHA256 of the public key.
+   Type of KeyId for the generated key. "r" for a 64-bit random number (the default
+   unless **--keyid** is specified), "h" for the SHA-256 of the public key.
+
+.. option:: --keyid <keyid>
+
+   User-specified KeyId. Must be a non-empty generic name component.
 
 Example
 -------

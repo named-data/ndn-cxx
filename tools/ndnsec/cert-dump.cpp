@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,7 +62,7 @@ ndnsec_cert_dump(int argc, char** argv)
                    "unless overridden by -i/-k/-f, the name of the certificate to be exported "
                    "(e.g., /ndn/edu/ucla/KEY/cs/alice/ksk-1234567890/ID-CERT/%FD%FF%FF%FF%FF%FF%FF%FF)")
     ("repo-output,r", po::bool_switch(&isRepoOut),
-                      "publish the certificate into a repo-ng instance")
+                      "publish the certificate into an NDN repo instance")
     ("repo-host,H",   po::value<std::string>(&repoHost)->default_value("localhost"),
                       "repo hostname if --repo-output is specified")
     ("repo-port,P",   po::value<std::string>(&repoPort)->default_value("7376"),
