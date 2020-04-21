@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -233,22 +233,14 @@ using ArgumentType = typename ExtractArgument<T>::type;
   struct ndn_cxx_allow_trailing_semicolon
 
 /** \cond */
-#if BOOST_VERSION == 105900
-// workaround Boost bug 11549
-#define NDN_BOOST_LOG(x, sev) BOOST_LOG_SEV(x, sev) << ""
-#else
-#define NDN_BOOST_LOG(x, sev) BOOST_LOG_SEV(x, sev)
-#endif
-
 // implementation detail
 #define NDN_LOG_INTERNAL(lvl, expression) \
   do { \
     if (ndn_cxx_getLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
-      NDN_BOOST_LOG(ndn_cxx_getLogger(), ::ndn::util::LogLevel::lvl)  \
+      BOOST_LOG_SEV(ndn_cxx_getLogger(), ::ndn::util::LogLevel::lvl)  \
         << expression; \
     } \
   } while (false)
-
 /** \endcond */
 
 /** \brief Log at TRACE level.

@@ -18,8 +18,7 @@ callbacks to be called when Data/Nack is retrieved or Interest times out.
 .. literalinclude:: ../examples/consumer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 24-27,39,43-47,51,58,75
-
+   :emphasize-lines: 39-45,48,59,65,71
 
 Trivial producer
 ----------------
@@ -42,8 +41,7 @@ using :ndn-cxx:`Face::put` method.
 .. literalinclude:: ../examples/producer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 42,55-58,61,64,67,70,76
-
+   :emphasize-lines: 41,50,57-59,62,70,74
 
 Consumer that uses Scheduler
 ----------------------------
@@ -52,19 +50,18 @@ The following example demonstrates how to use :ndn-cxx:`Scheduler` to schedule a
 events for execution at specific points of time.
 
 The library internally uses `boost::asio::io_service
-<https://www.boost.org/doc/libs/1_58_0/doc/html/boost_asio/reference/io_service.html>`_ to
+<https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/reference/io_service.html>`_ to
 implement fully asynchronous NDN operations (i.e., sending and receiving Interests and
 Data).  In addition to network-related operations, ``boost::asio::io_service`` can be used
 to execute any arbitrary callback within the processing thread (run either explicitly via
-``io.run`` or implicitly via :ndn-cxx:`Face::processEvents` as in previous examples).
-:ndn-cxx:`Scheduler` is just a wrapper on top of ``boost::asio::io_service``,
-allowing simple interface to schedule tasks at specific times.
+``io_service::run()`` or implicitly via :ndn-cxx:`Face::processEvents` as in previous
+examples). :ndn-cxx:`Scheduler` is just a wrapper on top of ``io_service``, providing a
+simple interface to schedule tasks at specific times.
 
 The highlighted lines in the example demonstrate all that is needed to express a second
-Interest approximately 2 seconds after the first one.
+Interest approximately 3 seconds after the first one.
 
 .. literalinclude:: ../examples/consumer-with-timer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 39-40,51-55,59-60,62-63,108-109
-
+   :emphasize-lines: 39-40,56,62,93,106,114-116

@@ -5,8 +5,8 @@ NDN regular expression is a kind of regular expression that can match NDN names.
 performed at two levels: the name level and the name component level.
 
 A name component matcher, enclosed in ``<`` and ``>``, specifies the pattern of a name component. The
-component pattern is expressed with the `Perl Regular Expression Syntax
-<https://www.boost.org/doc/libs/1_58_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html>`__.
+component pattern is expressed using the `Modified ECMAScript Regular Expression Syntax
+<https://en.cppreference.com/w/cpp/regex/ecmascript>`_.
 For example, ``<ab*c>`` matches the 1st, 3rd, and 4th components of ``/ac/dc/abc/abbc``, but does
 not match the 2nd component. A special case is that ``<>`` denotes a wildcard matcher that can match
 **ANY** name component.

@@ -31,8 +31,10 @@ Please submit any bugs or feature requests to the
 
 ## Contributing
 
-You're encouraged to contribute to ndn-cxx! Check out the
-[Contributor's Guide](https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md) to get started.
+We greatly appreciate contributions to the ndn-cxx code base.
+If you are new to the NDN software community, please read the
+[Contributor's Guide](https://github.com/named-data/.github/blob/master/CONTRIBUTING.md)
+to get started.
 
 ## License
 

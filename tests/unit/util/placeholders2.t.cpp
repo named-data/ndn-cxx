@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,13 +21,14 @@
 
 // Bug 2109 test case
 
-// interest.hpp includes common.hpp; common.hpp shouldn't be used from external program
+// interest.hpp includes common.hpp; common.hpp is an implementation detail and should not
+// be directly included from an external program
 #include "ndn-cxx/interest.hpp"
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 void
-placeholders2TestFunction(int i)
+placeholders2TestFunction(int)
 {
 }
 

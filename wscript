@@ -83,9 +83,9 @@ def configure(conf):
     conf.find_program('sh', var='SH')
 
     conf.check_cxx(lib='atomic', uselib_store='ATOMIC', define_name='HAVE_ATOMIC', mandatory=False)
-
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
     conf.check_cxx(lib='rt', uselib_store='RT', define_name='HAVE_RT', mandatory=False)
+
     conf.check_cxx(msg='Checking for function getpass', define_name='HAVE_GETPASS', mandatory=False,
                    fragment='''#include <unistd.h>
                                int main() { getpass("Enter password"); }''')
@@ -127,9 +127,13 @@ def configure(conf):
 
     conf.check_boost(lib=boost_libs, mt=True)
     if conf.env.BOOST_VERSION_NUMBER < 105800:
-        conf.fatal('Minimum required Boost version is 1.58.0\n'
-                   'Please upgrade your distribution or manually install a newer version of Boost'
-                   ' (https://redmine.named-data.net/projects/nfd/wiki/Boost_FAQ)')
+        conf.fatal('The minimum supported version of Boost is 1.65.1.\n'
+                   'Please upgrade your distribution or manually install a newer version of Boost.\n'
+                   'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
+    elif conf.env.BOOST_VERSION_NUMBER < 106501:
+        Logs.warn('WARNING: Using a version of Boost older than 1.65.1 is not officially supported and may not work.\n'
+                  'If you encounter any problems, please upgrade your distribution or manually install a newer version of Boost.\n'
+                  'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
 
     # Workaround for bug 4860
     if conf.env.BOOST_VERSION_NUMBER < 106900 and conf.env.CXX_NAME == 'clang':

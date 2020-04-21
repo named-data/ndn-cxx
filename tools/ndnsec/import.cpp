@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,6 +37,8 @@ ndnsec_import(int argc, char** argv)
   std::string input;
   std::string password;
 
+  // ASan reports a stack-use-after-scope on armhf when
+  // BOOST_SCOPE_EXIT_ALL is used in place of BOOST_SCOPE_EXIT
   BOOST_SCOPE_EXIT(&password) {
     OPENSSL_cleanse(&password.front(), password.size());
   } BOOST_SCOPE_EXIT_END

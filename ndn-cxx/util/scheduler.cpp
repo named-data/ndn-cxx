@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -99,7 +99,7 @@ Scheduler::schedule(time::nanoseconds after, EventCallback callback)
 
   if (!m_isEventExecuting && i == m_queue.begin()) {
     // the new event is the first one to expire
-    this->scheduleNext();
+    scheduleNext();
   }
 
   return EventId(*this, *i);
@@ -118,7 +118,7 @@ Scheduler::cancelImpl(const shared_ptr<EventInfo>& info)
   m_queue.erase(info->queueIt);
 
   if (!m_isEventExecuting) {
-    this->scheduleNext();
+    scheduleNext();
   }
 }
 
@@ -147,6 +147,8 @@ Scheduler::executeEvent(const boost::system::error_code& error)
 
   m_isEventExecuting = true;
 
+  // ASan reports a stack-use-after-scope on armhf when
+  // BOOST_SCOPE_EXIT_ALL is used in place of BOOST_SCOPE_EXIT
   BOOST_SCOPE_EXIT(this_) {
     this_->m_isEventExecuting = false;
     this_->scheduleNext();
