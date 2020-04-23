@@ -29,7 +29,7 @@ Options
 
 .. option:: -t <type>, --type <type>
 
-   Type of key to generate. "r" for RSA (the default), "e" for ECDSA.
+   Type of key to generate. "r" for RSA, "e" for ECDSA (the default).
 
 .. option:: -k <keyidtype>, --keyid-type <keyidtype>
 

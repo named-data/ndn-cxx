@@ -44,7 +44,7 @@ ndnsec_key_gen(int argc, char** argv)
     ("help,h", "produce help message")
     ("identity,i",    po::value<Name>(&identityName), "identity name, e.g., /ndn/edu/ucla/alice")
     ("not-default,n", po::bool_switch(&wantNotDefault), "do not set the identity as default")
-    ("type,t",        po::value<char>(&keyTypeChoice)->default_value('r'),
+    ("type,t",        po::value<char>(&keyTypeChoice)->default_value('e'),
                       "key type: 'r' for RSA, 'e' for ECDSA")
     ("keyid-type,k",  po::value<char>(&keyIdTypeChoice),
                       "key id type: 'h' for the SHA-256 of the public key, 'r' for a 64-bit "
