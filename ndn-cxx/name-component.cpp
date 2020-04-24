@@ -474,8 +474,7 @@ Component::equals(const Component& other) const
 {
   return type() == other.type() &&
          value_size() == other.value_size() &&
-         (empty() || // needed with Apple clang < 9.0.0 due to libc++ bug
-          std::equal(value_begin(), value_end(), other.value_begin()));
+         std::equal(value_begin(), value_end(), other.value_begin());
 }
 
 int

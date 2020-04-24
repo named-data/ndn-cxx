@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2018 Regents of the University of California,
+ * Copyright (c) 2014-2020 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -124,14 +124,12 @@ class NotificationStreamItem : public detail::NfdMgmtProtocolStruct<X>
 {
 };
 
-// NDN_CXX_ASSERT_DEFAULT_CONSTRUCTIBLE and NDN_CXX_ASSERT_FORWARD_ITERATOR
-// originally written as part of NFD codebase
+// NDN_CXX_ASSERT_FORWARD_ITERATOR originally written as part of the NFD codebase
 
 namespace detail {
 
 // As of Boost 1.61.0, the internal implementation of BOOST_CONCEPT_ASSERT does not allow
 // multiple assertions on the same line, so we have to combine multiple concepts together.
-
 template<typename T>
 class StlForwardIteratorConcept : public boost::ForwardIterator<T>
                                 , public boost::DefaultConstructible<T>
@@ -139,15 +137,7 @@ class StlForwardIteratorConcept : public boost::ForwardIterator<T>
 };
 
 } // namespace detail
-
-// std::is_default_constructible is broken in gcc-4.8, see bug #3882
-/** \brief assert T is default constructible
- *  \sa http://en.cppreference.com/w/cpp/concept/DefaultConstructible
- */
-#define NDN_CXX_ASSERT_DEFAULT_CONSTRUCTIBLE(T) \
-  static_assert(std::is_default_constructible<T>::value, \
-                #T " must be default-constructible"); \
-  BOOST_CONCEPT_ASSERT((boost::DefaultConstructible<T>))
+} // namespace ndn
 
 /** \brief assert T is a forward iterator
  *  \sa http://en.cppreference.com/w/cpp/concept/ForwardIterator
@@ -158,7 +148,5 @@ class StlForwardIteratorConcept : public boost::ForwardIterator<T>
   static_assert(std::is_default_constructible<T>::value, \
                 #T " must be default-constructible"); \
   BOOST_CONCEPT_ASSERT((::ndn::detail::StlForwardIteratorConcept<T>))
-
-} // namespace ndn
 
 #endif // NDN_UTIL_CONCEPTS_HPP

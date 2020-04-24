@@ -29,7 +29,8 @@ Prerequisites
 Required
 ~~~~~~~~
 
--  GCC >= 5.3 or clang >= 3.6
+-  GCC >= 7.4 or clang >= 4.0 (on Linux and FreeBSD)
+-  Xcode >= 9.0 (on macOS)
 -  Python >= 3.6
 -  pkg-config
 -  Boost >= 1.65.1
