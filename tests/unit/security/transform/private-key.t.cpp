@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,6 +31,7 @@
 #include "ndn-cxx/security/transform/signer-filter.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/security/transform/verifier-filter.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include "tests/boost-test.hpp"
 
@@ -160,8 +161,11 @@ struct RsaKeyTestData
       "ywIDAQAB\n";
 };
 
-struct EcKeyTestData
+struct EcKeySpecificCurveTestData
 {
+  // EC keys are generated in named curve format only. However, old keys in specific curve format
+  // are still accepted. See https://redmine.named-data.net/issues/5037
+
   const size_t keySize = 256;
   const std::string privateKeyPkcs1 =
       "MIIBaAIBAQQgRxwcbzK9RV6AHYFsDcykI86o3M/a1KlJn0z8PcLMBZOggfowgfcC\n"
@@ -193,7 +197,31 @@ struct EcKeyTestData
       "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
 };
 
-using KeyTestDataSets = boost::mpl::vector<RsaKeyTestData, EcKeyTestData>;
+struct EcKeyNamedCurveTestData
+{
+  // openssl ecparam -name secp384r1 -genkey -out pvt1.pem
+  // openssl pkcs8 -topk8 -passout pass:password -in pvt1.pem -out pvt8.pem
+  // openssl ec -in pvt1.pem -pubout -out pub8.pem
+
+  const size_t keySize = 384;
+  const std::string privateKeyPkcs1 =
+      "MIGkAgEBBDCUsb7NymksCkQAjdLMjUilWhOEyeYmGi79sX1RbsmfnoF/8SesKBhO\n"
+      "or+TZ8g8/8igBwYFK4EEACKhZANiAARWGplLOGdQiXRFQcd0VLPeTt0zXEj5zvSv\n"
+      "aHx9MrzBy57wgz10wTAiR561wuLtFAYxmqL9Ikrzx/BaEg0+v2zQ05NCzMNN8v2c\n"
+      "7/FzOhD7fmZrlJsT6Q2aHGExW0Rj3GE=\n";
+  const std::string privateKeyPkcs8 =
+      "MIHgMBsGCSqGSIb3DQEFAzAOBAjniUjwJfWsMQICCAAEgcCakGTKa49csaPpmtzi\n"
+      "5sTJw+AH8ajUqcDbtp2pJP/Ni6M1p9fai9hOKPElf9uJuYh/S80FAU6WQmZBAxL4\n"
+      "bF598ncLPogpGvz21wLuSc1xnbD829zAsMmh0XZvMZpBWX2g0NnZJx7GOraskTSh\n"
+      "7qGu70B+uKzw+JxIzgBEeMcoBUg8mTEht5zghfLGYkQp6BpTPdpU64udpPAKzFNs\n"
+      "5X+BzBnT5Yy49/Lp4uYIji8qwJFF3VqTn8RFKunFYDDejRU=\n";
+  const std::string publicKeyPkcs8 =
+      "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEVhqZSzhnUIl0RUHHdFSz3k7dM1xI+c70\n"
+      "r2h8fTK8wcue8IM9dMEwIkeetcLi7RQGMZqi/SJK88fwWhINPr9s0NOTQszDTfL9\n"
+      "nO/xczoQ+35ma5SbE+kNmhxhMVtEY9xh\n";
+};
+
+using KeyTestDataSets = boost::mpl::vector<RsaKeyTestData, EcKeySpecificCurveTestData, EcKeyNamedCurveTestData>;
 
 static void
 checkPkcs8Encoding(ConstBufferPtr encoding, const std::string& password, ConstBufferPtr pkcs1)
@@ -410,25 +438,48 @@ BOOST_AUTO_TEST_CASE(UnsupportedDecryption)
   BOOST_CHECK_THROW(hmacKey->decrypt(os.buf()->data(), os.buf()->size()), PrivateKey::Error);
 }
 
-struct RsaKeyGenParams
+class RsaKeyGenParams
 {
+public:
   using Params = RsaKeyParams;
   using hasPublicKey = std::true_type;
   using canSavePkcs1 = std::true_type;
+
+  static void
+  checkPublicKey(const Buffer& bits)
+  {
+  }
 };
 
-struct EcKeyGenParams
+class EcKeyGenParams
 {
+public:
   using Params = EcKeyParams;
   using hasPublicKey = std::true_type;
   using canSavePkcs1 = std::true_type;
+
+  static void
+  checkPublicKey(const Buffer& bits)
+  {
+    // EC key generation should use named curve format. See https://redmine.named-data.net/issues/5037
+    // OBJECT IDENTIFIER 1.2.840.10045.3.1.7 prime256v1 (ANSI X9.62 named elliptic curve)
+    const uint8_t oid[] = {0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07};
+    BOOST_CHECK_MESSAGE(std::search(bits.begin(), bits.end(), oid, oid + sizeof(oid)) != bits.end(),
+                        "OID not found in " << toHex(bits));
+  }
 };
 
-struct HmacKeyGenParams
+class HmacKeyGenParams
 {
+public:
   using Params = HmacKeyParams;
   using hasPublicKey = std::false_type;
   using canSavePkcs1 = std::false_type;
+
+  static void
+  checkPublicKey(const Buffer& bits)
+  {
+  }
 };
 
 using KeyGenParams = boost::mpl::vector<RsaKeyGenParams,
@@ -452,6 +503,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyGenParams)
   bool result = false;
   if (typename T::hasPublicKey()) {
     auto pKeyBits = sKey->derivePublicKey();
+    BOOST_REQUIRE(pKeyBits != nullptr);
+    T::checkPublicKey(*pKeyBits);
     PublicKey pKey;
     pKey.loadPkcs8(pKeyBits->data(), pKeyBits->size());
     BOOST_CHECK_NO_THROW(bufferSource(data, sizeof(data)) >>
