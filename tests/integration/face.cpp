@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MODULE ndn-cxx Integrated Tests (Face)
+#define BOOST_TEST_MODULE ndn-cxx Integration (Face)
 #include "tests/boost-test.hpp"
 
 #include "ndn-cxx/face.hpp"
@@ -118,8 +118,6 @@ protected:
 };
 
 using Transports = boost::mpl::vector<UnixTransport, TcpTransport>;
-
-BOOST_FIXTURE_TEST_SUITE(TestFace, FaceFixture<UnixTransport>)
 
 BOOST_AUTO_TEST_SUITE(Consumer)
 
@@ -329,7 +327,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(OversizedData, TransportType, Transports, FaceF
 
 BOOST_AUTO_TEST_SUITE_END() // Producer
 
-BOOST_AUTO_TEST_SUITE(IoRoutine)
+BOOST_FIXTURE_TEST_SUITE(IoRoutine, FaceFixture<UnixTransport>)
 
 BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress) // Bug #3136
 {
@@ -379,8 +377,6 @@ BOOST_AUTO_TEST_CASE(ProcessEventsBlocksForeverWhenNothingScheduled) // Bug #395
 }
 
 BOOST_AUTO_TEST_SUITE_END() // IoRoutine
-
-BOOST_AUTO_TEST_SUITE_END() // TestFace
 
 } // namespace tests
 } // namespace ndn

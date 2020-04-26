@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MODULE ndn-cxx Integrated Tests (Network Monitor)
+#define BOOST_TEST_MODULE ndn-cxx Integration (NetworkMonitor)
 #include "tests/boost-test.hpp"
 
 #include "ndn-cxx/net/network-monitor.hpp"
@@ -36,8 +36,6 @@
 namespace ndn {
 namespace net {
 namespace tests {
-
-BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
 
 static std::ostream&
 logEvent(const shared_ptr<const NetworkInterface>& ni = nullptr, std::ostream& os = std::cout)
@@ -94,8 +92,6 @@ BOOST_AUTO_TEST_CASE(Signals)
 
   io.run();
 }
-
-BOOST_AUTO_TEST_SUITE_END() // TestNetworkMonitor
 
 } // namespace tests
 } // namespace net

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MODULE ndn-cxx Integrated Tests (DefaultCanBePrefix=0)
+#define BOOST_TEST_MODULE ndn-cxx Integration (DefaultCanBePrefix)
 #include "tests/boost-test.hpp"
 
 #include "ndn-cxx/interest.hpp"
@@ -27,17 +27,14 @@
 namespace ndn {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(TestInterest)
-
-BOOST_AUTO_TEST_CASE(DefaultCanBePrefix0)
+BOOST_AUTO_TEST_CASE(DefaultCanBePrefixUnset)
 {
-  Interest::setDefaultCanBePrefix(false);
-  Interest interest1;
+  Interest interest1("/I");
+  BOOST_CHECK_THROW(interest1.wireEncode(), std::logic_error);
+  Interest::s_errorIfCanBePrefixUnset = false;
   Interest interest2(interest1.wireEncode());
-  BOOST_CHECK_EQUAL(interest2.getCanBePrefix(), false);
+  BOOST_CHECK_EQUAL(interest2.getCanBePrefix(), true);
 }
-
-BOOST_AUTO_TEST_SUITE_END() // TestInterest
 
 } // namespace tests
 } // namespace ndn

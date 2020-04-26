@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_INTEGRATED_TIMED_EXECUTE_HPP
-#define NDN_TESTS_INTEGRATED_TIMED_EXECUTE_HPP
+#ifndef NDN_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP
+#define NDN_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP
 
 #include "ndn-cxx/util/time.hpp"
 
@@ -40,4 +40,4 @@ timedExecute(const F& f)
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_INTEGRATED_TIMED_EXECUTE_HPP
+#endif // NDN_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP

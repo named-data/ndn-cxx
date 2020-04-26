@@ -19,5 +19,5 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#define BOOST_TEST_MODULE ndn-cxx Unit Tests
+#define BOOST_TEST_MODULE ndn-cxx
 #include "tests/boost-test.hpp"

@@ -3,12 +3,13 @@
 top = '..'
 
 def build(bld):
-    # common objects that can be shared between unit and integrated tests
+    # common objects that can be shared among all tests
     bld.objects(target='tests-common',
                 features='pch',
                 source=bld.path.ant_glob('*.cpp'),
                 headers=['../ndn-cxx/impl/common-pch.hpp', 'boost-test.hpp'],
                 use='ndn-cxx BOOST')
 
-    bld.recurse('integrated')
+    bld.recurse('benchmarks')
+    bld.recurse('integration')
     bld.recurse('unit')

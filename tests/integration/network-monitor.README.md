@@ -2,9 +2,9 @@
 
 These instructions are only for Linux and macOS.
 
-Run the network-monitor integrated test binary, e.g.:
+Run the network-monitor integration test binary, e.g.:
 ```
-./build/tests/integrated/network-monitor
+./build/tests/integration/network-monitor
 ```
 Note: sudo is not required.
 

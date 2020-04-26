@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,7 @@
 #include "tests/boost-test.hpp"
 
 #include "ndn-cxx/encoding/tlv.hpp"
-#include "tests/integrated/timed-execute.hpp"
+#include "tests/benchmarks/timed-execute.hpp"
 
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/vector_c.hpp>
@@ -98,8 +98,6 @@ using ReadVarNumberTests = boost::mpl::vector<
 >;
 
 // Benchmark of ndn::tlv::readVarNumber with different number lengths and alignments.
-// Run this benchmark with:
-//    ./encoding-benchmark -t 'ReadVarNumber*'
 // For accurate results, it is required to compile ndn-cxx in release mode.
 // It is recommended to run the benchmark multiple times and take the average.
 BOOST_AUTO_TEST_CASE_TEMPLATE(ReadVarNumber, Test, ReadVarNumberTests)
