@@ -37,9 +37,14 @@ Options
 
 .. option:: -I <info>, --info <info>
 
-   Other information to be included in the issued certificate. For example::
+   Other information to be included in the issued certificate.  Must be in the
+   form of key and value pairs, where the key is an arbitrary string without
+   spaces, followed by one or more spaces, followed by an arbitrary string
+   representing the value. This option may be repeated multiple times.
 
-      -I "affiliation Some Organization" -I "homepage http://home.page/"
+   For example::
+
+      -I "affiliation Some Organization" -I "homepage https://home.page/"
 
 .. option:: -s <signer>, --sign-id <signer>
 
@@ -57,21 +62,30 @@ Example
 
 ::
 
-    $ ndnsec-cert-gen -S 20140401000000 -E 20150331235959 -N "David"
-    -I "2.5.4.10 'Some Organization'" -s /ndn/test request.cert
-    Bv0C9wc9CANuZG4IBHRlc3QIA0tFWQgFZGF2aWQIEWtzay0xMzk2OTEzMDU4MTk2
-    CAdJRC1DRVJUCAgAAAFFPp2g3hQDGAECFf0BdjCCAXIwIhgPMjAxNDA0MDEwMDAw
-    MDBaGA8yMDE1MDMzMTIzNTk1OVowKDAMBgNVBCkTBURhdmlkMBgGA1UEChMRU29t
-    ZSBPcmdhbml6YXRpb24wggEgMA0GCSqGSIb3DQEBAQUAA4IBDQAwggEIAoIBAQC0
-    urnS2nKcnXnMTESH2XqO+H8c6bCE6mmv+FMQ9hSfZVOHbX4kkiDmkcAAf8NCvwGr
-    kEat0NQIhKHFLFtofC5rXLheAo/UxgFA/9bNwiEjMH/c8EN2YTSMzdCDrK6TwE7B
-    623cLTsa3Bb11+BpzC1oLb3Egedgp+vIf+AFIgNQhvfwzsgsgOBB4iJBwcYegU7w
-    JsO0pjY69WQU2DGjABFef6C2Qh8x0TvtnynRLbWlh928+4ilVUvLuWcV3AbPIKLe
-    eZu13+v01JN6kFzNZDPMFtOFPvJ943IdYu7Q9k93PzhSk0+wFp3cHH21PfWeghWe
-    3zLIER8RTWPIQhWSbxRVAgERFjMbAQEcLgcsCANuZG4IA0tFWQgEdGVzdAgRa3Nr
-    LTEzOTQxMjk2OTQ3ODgIB0lELUNFUlQX/QEABUGcl7U+F8cwMHKckerv+1H2Nvsd
-    OfeqX0+4RzWU+wRx2emMGMZZdHSx8M/i45hb0P5hbNEF99L35/SrSTSzhTZdOriD
-    t/LQOcKBoNXY+iw3EUFM0gvRGU0kaEVBKAHtbYhtoHc48QLEyrsVaMqmrjCmpeF/
-    JOcClhzJfFW3cZ/SlhcTEayF0ntogYLR2cMzIwQhhSj5L/Kl7I7uxNxZhK1DS98n
-    q8oGAxHufEAluPrRpDQfI+jeQ4h/YYKcXPW3Vn7VQAGOqIi6gTlUxrmEbyCDF70E
-    xj5t3wfSUmDa1N+hLRMdEAI+IjRRHDSx2Lhj/QcoPIZPWwKjBz9CBL92og==
+    $ ndnsec-cert-gen -S 20200501000000 -E 20210101000000 -I "affiliation Some Organization" -I "foobar Foo Bar" -i "Universe" -s /ndn/test request.cert > signed.cert
+
+    $ cat signed.cert
+    Bv0BcgctCAdleGFtcGxlCANLRVkICOQUmX8oloLrCAhVbml2ZXJzZQgJ/QAAAXHR
+    Ak6CFAkYAQIZBAA27oAVWzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDpJsCkv
+    E5RMjxRVdyK6W6z+FoCq+qREEn/sxf+n2gnsl25qm1NarCfSGf96zIJy9BRA9btu
+    MMeuWlAN/ymvMFwWkBsBAxwcBxoIA25kbggEdGVzdAgDS0VZCAhJP1OaKLualf0A
+    /Sb9AP4PMjAyMDA1MDFUMDAwMDAw/QD/DzIwMjEwMTAxVDAwMDAwMP0BAkH9AgAk
+    /QIBC2FmZmlsaWF0aW9u/QICEVNvbWUgT3JnYW5pemF0aW9u/QIAFf0CAQZmb29i
+    YXL9AgIHRm9vIEJhchdHMEUCIQDPT9Hq1kvkE0r9W1aYSBVTnHlTEzgtz+v1DwkC
+    ug/vLAIgY3xJITCwf55sqey33q5GIQSk1TRCkNNl58ojvPs5sNU=
+
+    $ ndnsec-dump-certificate -p -f signed.cert
+    Certificate name:
+      /example/KEY/%E4%14%99%7F%28%96%82%EB/Universe/%FD%00%00%01q%D1%02N%82
+    Validity:
+      NotBefore: 20200501T000000
+      NotAfter: 20210101T000000
+    Additional Description:
+      affiliation: Some Organization
+      foobar: Foo Bar
+    Public key bits:
+      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEOkmwKS8TlEyPFFV3IrpbrP4WgKr6
+      pEQSf+zF/6faCeyXbmqbU1qsJ9IZ/3rMgnL0FED1u24wx65aUA3/Ka8wXA==
+    Signature Information:
+      Signature Type: SignatureSha256WithEcdsa
+      Key Locator: Name=/ndn/test/KEY/I%3FS%9A%28%BB%9A%95
