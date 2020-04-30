@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,10 @@
  */
 
 #include "ndn-cxx/security/v2/certificate-fetcher-from-network.hpp"
+
 #include "ndn-cxx/face.hpp"
+#include "ndn-cxx/security/v2/certificate-request.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
@@ -44,20 +47,20 @@ CertificateFetcherFromNetwork::doFetch(const shared_ptr<CertificateRequest>& cer
                                        const ValidationContinuation& continueValidation)
 {
   m_face.expressInterest(certRequest->interest,
-                         [=] (const Interest& interest, const Data& data) {
+                         [=] (const Interest&, const Data& data) {
                            dataCallback(data, certRequest, state, continueValidation);
                          },
-                         [=] (const Interest& interest, const lp::Nack& nack) {
+                         [=] (const Interest&, const lp::Nack& nack) {
                            nackCallback(nack, certRequest, state, continueValidation);
                          },
-                         [=] (const Interest& interest) {
+                         [=] (const Interest&) {
                            timeoutCallback(certRequest, state, continueValidation);
                          });
 }
 
 void
 CertificateFetcherFromNetwork::dataCallback(const Data& data,
-                                            const shared_ptr<CertificateRequest>& certRequest,
+                                            const shared_ptr<CertificateRequest>&,
                                             const shared_ptr<ValidationState>& state,
                                             const ValidationContinuation& continueValidation)
 {

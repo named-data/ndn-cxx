@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,11 @@
  */
 
 #include "ndn-cxx/security/v2/certificate-bundle-fetcher.hpp"
+
 #include "ndn-cxx/face.hpp"
+#include "ndn-cxx/security/v2/certificate-request.hpp"
+#include "ndn-cxx/security/v2/certificate-storage.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
@@ -100,13 +104,13 @@ CertificateBundleFetcher::fetchFirstBundleSegment(const Name& bundleNamePrefix,
   bundleInterest.setInterestLifetime(m_bundleInterestLifetime);
 
   m_face.expressInterest(bundleInterest,
-                         [=] (const Interest& interest, const Data& data) {
+                         [=] (const Interest&, const Data& data) {
                            dataCallback(data, true, certRequest, state, continueValidation);
                          },
-                         [=] (const Interest& interest, const lp::Nack& nack) {
+                         [=] (const Interest&, const lp::Nack& nack) {
                            nackCallback(nack, certRequest, state, continueValidation, bundleNamePrefix);
                          },
-                         [=] (const Interest& interest) {
+                         [=] (const Interest&) {
                            timeoutCallback(certRequest, state, continueValidation, bundleNamePrefix);
                          });
 }
@@ -128,13 +132,13 @@ CertificateBundleFetcher::fetchNextBundleSegment(const Name& fullBundleName, con
   bundleInterest.setInterestLifetime(m_bundleInterestLifetime);
 
   m_face.expressInterest(bundleInterest,
-                         [=] (const Interest& interest, const Data& data) {
+                         [=] (const Interest&, const Data& data) {
                            dataCallback(data, false, certRequest, state, continueValidation);
                          },
-                         [=] (const Interest& interest, const lp::Nack& nack) {
+                         [=] (const Interest&, const lp::Nack& nack) {
                            nackCallback(nack, certRequest, state, continueValidation, fullBundleName);
                          },
-                         [=] (const Interest& interest) {
+                         [=] (const Interest&) {
                            timeoutCallback(certRequest, state, continueValidation, fullBundleName);
                          });
 }
@@ -221,7 +225,7 @@ CertificateBundleFetcher::deriveBundleName(const Name& name)
     bundleName = name.getPrefix(-1);
   }
   bundleName.append("_BUNDLE");
-  bundleName.appendNumber(00);
+  bundleName.appendNumber(0);
 
   return bundleName;
 }

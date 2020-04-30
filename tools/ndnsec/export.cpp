@@ -23,6 +23,7 @@
 #include "util.hpp"
 
 #include "ndn-cxx/security/impl/openssl.hpp"
+#include "ndn-cxx/util/io.hpp"
 
 #include <boost/scope_exit.hpp>
 

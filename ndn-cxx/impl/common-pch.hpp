@@ -26,29 +26,32 @@
 // and included before anything else
 
 #include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 
 // STL headers to precompile
-#include <array>
-#include <cstring>
-#include <fstream>
+#include <atomic>
 #include <iterator>
 #include <list>
-#include <map>
-#include <set>
-#include <sstream>
+#include <ostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 // Boost headers to precompile
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/asio/basic_socket.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/chrono.hpp>
 #include <boost/endian/conversion.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/log/common.hpp>
+#include <boost/log/expressions/keyword.hpp>
 #include <boost/multi_index_container.hpp>
-#include <boost/range/adaptors.hpp>
-#include <boost/range/algorithm/copy.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/system/error_code.hpp>
 
 #endif // NDN_IMPL_COMMON_PCH_HPP

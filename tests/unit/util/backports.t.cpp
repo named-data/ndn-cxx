@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,17 +20,8 @@
  */
 
 #include "ndn-cxx/util/backports.hpp"
-#include "ndn-cxx/util/ostream-joiner.hpp"
 
 #include "tests/boost-test.hpp"
-
-#include <numeric>
-
-#if BOOST_VERSION >= 105900
-#include <boost/test/tools/output_test_stream.hpp>
-#else
-#include <boost/test/output_test_stream.hpp>
-#endif
 
 namespace ndn {
 namespace tests {
@@ -57,40 +48,6 @@ BOOST_AUTO_TEST_CASE(Clamp)
 
   x = clamp(15, 10, 1, std::greater<int>());
   BOOST_CHECK_EQUAL(x, 10);
-}
-
-BOOST_AUTO_TEST_CASE(OstreamJoiner)
-{
-  boost::test_tools::output_test_stream os;
-
-  auto joiner1 = ostream_joiner<char>(os, ' ');
-  auto joiner2 = make_ostream_joiner(os, ' ');
-  static_assert(std::is_same<decltype(joiner1), decltype(joiner2)>::value, "");
-
-  std::vector<int> v(5);
-  std::iota(v.begin(), v.end(), 1);
-  std::copy(v.begin(), v.end(), joiner2);
-  BOOST_CHECK(os.is_equal("1 2 3 4 5"));
-
-  auto joiner3 = make_ostream_joiner(os, "...");
-  std::copy(v.begin(), v.end(), joiner3);
-  BOOST_CHECK(os.is_equal("1...2...3...4...5"));
-
-  joiner3 = "one";
-  BOOST_CHECK(os.is_equal("one"));
-  joiner3 = "two";
-  BOOST_CHECK(os.is_equal("...two"));
-  ++joiner3 = "three";
-  BOOST_CHECK(os.is_equal("...three"));
-  joiner3++ = "four";
-  BOOST_CHECK(os.is_equal("...four"));
-
-  std::copy(v.begin(), v.end(), make_ostream_joiner(os, ""));
-  BOOST_CHECK(os.is_equal("12345"));
-
-  std::string delimiter("_");
-  std::copy(v.begin(), v.end(), make_ostream_joiner(os, delimiter));
-  BOOST_CHECK(os.is_equal("1_2_3_4_5"));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBackports

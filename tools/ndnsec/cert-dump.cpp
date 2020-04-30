@@ -22,6 +22,8 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#include "ndn-cxx/util/io.hpp"
+
 #include <boost/asio/ip/tcp.hpp>
 #if BOOST_VERSION < 106700
 #include <boost/date_time/posix_time/posix_time_duration.hpp>

@@ -19,47 +19,19 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "tests/make-interest-data.hpp"
+#ifndef NDN_TESTS_TESTS_PCH_HPP
+#define NDN_TESTS_TESTS_PCH_HPP
 
-#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
+#include "ndn-cxx/impl/common-pch.hpp"
 
-namespace ndn {
-namespace tests {
+#include "ndn-cxx/data.hpp"
+#include "ndn-cxx/interest.hpp"
+#include "ndn-cxx/lp/nack.hpp"
+#include "ndn-cxx/security/v2/key-chain.hpp"
 
-shared_ptr<Interest>
-makeInterest(const Name& name, bool canBePrefix, time::milliseconds lifetime,
-             optional<Interest::Nonce> nonce)
-{
-  auto interest = std::make_shared<Interest>(name, lifetime);
-  interest->setCanBePrefix(canBePrefix);
-  interest->setNonce(nonce);
-  return interest;
-}
+#include "tests/boost-test.hpp"
 
-shared_ptr<Data>
-makeData(const Name& name)
-{
-  auto data = std::make_shared<Data>(name);
-  return signData(data);
-}
+#include <fstream>
+#include <boost/filesystem.hpp>
 
-Data&
-signData(Data& data)
-{
-  ndn::SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(ndn::encoding::makeEmptyBlock(tlv::SignatureValue));
-  data.setSignature(fakeSignature);
-  data.wireEncode();
-  return data;
-}
-
-lp::Nack
-makeNack(Interest interest, lp::NackReason reason)
-{
-  lp::Nack nack(std::move(interest));
-  nack.setReason(reason);
-  return nack;
-}
-
-} // namespace tests
-} // namespace ndn
+#endif // NDN_TESTS_TESTS_PCH_HPP

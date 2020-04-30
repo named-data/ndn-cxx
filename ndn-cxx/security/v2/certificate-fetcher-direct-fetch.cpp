@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,8 +20,11 @@
  */
 
 #include "ndn-cxx/security/v2/certificate-fetcher-direct-fetch.hpp"
+
 #include "ndn-cxx/face.hpp"
 #include "ndn-cxx/lp/tags.hpp"
+#include "ndn-cxx/security/v2/certificate-request.hpp"
+#include "ndn-cxx/security/v2/validation-state.hpp"
 
 namespace ndn {
 namespace security {
@@ -69,13 +72,13 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
     }
     else {
       m_face.expressInterest(directInterest,
-                             [=] (const Interest& interest, const Data& data) {
+                             [=] (const Interest&, const Data& data) {
                                dataCallback(data, keyRequest, state, continueValidation);
                              },
-                             [=] (const Interest& interest, const lp::Nack& nack) {
+                             [=] (const Interest&, const lp::Nack& nack) {
                                nackCallback(nack, keyRequest, state, continueValidation);
                              },
-                             [=] (const Interest& interest) {
+                             [=] (const Interest&) {
                                timeoutCallback(keyRequest, state, continueValidation);
                              });
     }

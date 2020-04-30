@@ -181,7 +181,7 @@ def build(bld):
 
     if bld.env.HAVE_OSX_FRAMEWORKS:
         # Need to disable precompiled headers for Objective-C++ code
-        bld(features=['cxx'],
+        bld(features='cxx',
             target='ndn-cxx-mm-objects',
             source=bld.path.ant_glob('ndn-cxx/**/*-osx.mm'),
             use='BOOST PTHREAD OSX_COREFOUNDATION OSX_SECURITY OSX_SYSTEMCONFIGURATION OSX_FOUNDATION OSX_COREWLAN',

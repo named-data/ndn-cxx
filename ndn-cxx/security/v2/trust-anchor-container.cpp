@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,8 @@ TrustAnchorContainer::insert(const std::string& groupId, Certificate&& cert)
 {
   auto group = m_groups.find(groupId);
   if (group == m_groups.end()) {
-    std::tie(group, std::ignore) = m_groups.insert(make_shared<StaticTrustAnchorGroup>(m_anchors, groupId));
+    std::tie(group, std::ignore) = m_groups.insert(std::make_shared<StaticTrustAnchorGroup>(m_anchors,
+                                                                                            groupId));
   }
   auto* staticGroup = dynamic_cast<StaticTrustAnchorGroup*>(&**group);
   if (staticGroup == nullptr) {
@@ -67,7 +68,8 @@ TrustAnchorContainer::insert(const std::string& groupId, const boost::filesystem
     NDN_THROW(Error("Cannot create dynamic group, because group " + groupId + " already exists"));
   }
 
-  m_groups.insert(make_shared<DynamicTrustAnchorGroup>(m_anchors, groupId, path, refreshPeriod, isDir));
+  m_groups.insert(std::make_shared<DynamicTrustAnchorGroup>(m_anchors, groupId, path,
+                                                            refreshPeriod, isDir));
 }
 
 void

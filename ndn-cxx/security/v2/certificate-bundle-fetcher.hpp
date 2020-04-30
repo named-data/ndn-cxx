@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,8 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_BUNDLE_FETCHER_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_BUNDLE_FETCHER_HPP
 
+#include "ndn-cxx/name.hpp"
+#include "ndn-cxx/tag.hpp"
 #include "ndn-cxx/security/v2/certificate-fetcher-from-network.hpp"
 
 namespace ndn {

@@ -1,6 +1,6 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
-top = '../..'
+top = '../../'
 
 def build(bld):
     configPath = 'UNIT_TEST_CONFIG_PATH="%s"' % bld.bldnode.make_node('tmp-files')
@@ -18,11 +18,13 @@ def build(bld):
 
     bld.objects(target='unit-tests-objects',
                 source=srcFiles,
+                features='pch',
+                headers='unit-tests-pch.hpp',
                 use='tests-common',
                 defines=[configPath])
 
     # unit test binary
-    bld.program(target='../../unit-tests',
+    bld.program(target=top + 'unit-tests',
                 name='unit-tests',
                 source=['main.cpp'],
                 use='unit-tests-objects',

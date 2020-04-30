@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -82,7 +82,6 @@
 #include "ndn-cxx/util/nonstd/any.hpp"
 #include "ndn-cxx/util/nonstd/optional.hpp"
 #include "ndn-cxx/util/nonstd/variant.hpp"
-#include "ndn-cxx/util/ostream-joiner.hpp"
 
 #ifndef NDN_CXX_HAVE_STD_TO_STRING
 #include <boost/lexical_cast.hpp>

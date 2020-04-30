@@ -2,31 +2,36 @@
 
 from waflib import Utils
 
-top = '..'
+top = '../'
 
 def build(bld):
     # Single object tools:
-    # tools/example-tool.cpp is a self-contained tool with a main() function
-    # and is built as build/bin/example-tool.
-    # These tools cannot be unit-tested.
+    # tools/foo.cpp is a self-contained tool with a main() function
+    # and is built as build/bin/foo. These tools cannot be unit-tested.
     for tool in bld.path.ant_glob('*.cpp'):
         name = tool.change_ext('').path_from(bld.path.get_bld())
         bld.program(name='tool-%s' % name,
-                    target='../bin/%s' % name,
+                    target=top + 'bin/%s' % name,
                     source=[tool],
                     use='ndn-cxx')
 
     # Sub-directory tools:
-    # tools/example-tool/**/*.cpp is compiled and linked into build/bin/example-tool.
-    # tools/example-tool/main.cpp must exist and must contain the main() function.
-    # All other objects are collected into 'tools-objects' and can be unit-tested.
-    testableObjects = []
+    # tools/foo/**/*.cpp are compiled and linked into build/bin/foo.
+    # tools/foo/main.cpp must exist and must contain the main() function.
+    # All other objects are collected into 'tool-foo-objects' and can be unit-tested.
     for subdir in bld.path.ant_glob('*', dir=True, src=False):
+        name = subdir.path_from(bld.path)
+        subWscript = subdir.find_node('wscript')
+        if subWscript:
+            # if the subdir has a wscript, delegate to it
+            bld.recurse(name)
+            continue
+
         mainFile = subdir.find_node('main.cpp')
         if mainFile is None:
-            continue # not a C++ tool
+            # not a C++ tool, skip the subdir
+            continue
 
-        name = subdir.path_from(bld.path)
         srcFiles = subdir.ant_glob('**/*.cpp', excl=['main.cpp'])
         srcObjects = ''
         if srcFiles:
@@ -34,23 +39,17 @@ def build(bld):
             bld.objects(target=srcObjects,
                         source=srcFiles,
                         use='ndn-cxx')
-            testableObjects.append(srcObjects)
-
         bld.program(name='tool-%s' % name,
-                    target='../bin/%s' % name,
+                    target=top + 'bin/%s' % name,
                     source=[mainFile],
                     use='ndn-cxx ' + srcObjects)
-
-    bld.objects(target='tools-objects',
-                source=[],
-                use=testableObjects)
 
     # Tool wrappers
     wrapperFiles = bld.path.ant_glob('wrapper/*.sh')
     bld(name='tool-wrappers',
         features='subst',
         source=wrapperFiles,
-        target=['../bin/%s' % node.change_ext('', '.sh').path_from(bld.path.find_dir('wrapper').get_bld())
+        target=[top + 'bin/%s' % node.change_ext('', '.sh').path_from(bld.path.find_dir('wrapper').get_bld())
                 for node in wrapperFiles],
         install_path='${BINDIR}',
         chmod=Utils.O755)

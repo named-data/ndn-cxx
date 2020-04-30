@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,16 +22,16 @@
 #ifndef NDN_SECURITY_V2_CERTIFICATE_FETCHER_HPP
 #define NDN_SECURITY_V2_CERTIFICATE_FETCHER_HPP
 
-#include "ndn-cxx/security/v2/certificate-request.hpp"
-#include "ndn-cxx/security/v2/certificate-storage.hpp"
-#include "ndn-cxx/security/v2/validation-state.hpp"
+#include "ndn-cxx/detail/common.hpp"
 
 namespace ndn {
-
-class Face;
-
 namespace security {
 namespace v2 {
+
+class Certificate;
+class CertificateRequest;
+class CertificateStorage;
+class ValidationState;
 
 /**
  * @brief Interface used by the validator to fetch missing certificates
