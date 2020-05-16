@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,11 +27,16 @@
 namespace ndn {
 
 /** @brief Represents a signature of Sha256WithRsa type
+ *  @deprecated Use SignatureInfo with type SignatureSha256WithRsa instead
  *
  *  This signature type provides integrity and provenance protection using a RSA signature over a
  *  SHA-256 digest.
  */
-class SignatureSha256WithRsa : public Signature
+class
+#ifndef DOXYGEN // Older versions of doxygen can't parse deprecated decorators on classes
+[[deprecated("use SignatureInfo with type SignatureSha256WithRsa instead")]]
+#endif // DOXYGEN
+SignatureSha256WithRsa : public Signature
 {
 public:
   /** @brief Create Sha256WithRsa signature with specified KeyLocator

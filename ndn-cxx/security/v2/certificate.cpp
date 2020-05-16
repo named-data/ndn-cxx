@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -112,19 +112,19 @@ Certificate::getPublicKey() const
 ValidityPeriod
 Certificate::getValidityPeriod() const
 {
-  return getSignature().getSignatureInfo().getValidityPeriod();
+  return getSignatureInfo().getValidityPeriod();
 }
 
 bool
 Certificate::isValid(const time::system_clock::TimePoint& ts) const
 {
-  return getSignature().getSignatureInfo().getValidityPeriod().isValid(ts);
+  return getSignatureInfo().getValidityPeriod().isValid(ts);
 }
 
 const Block&
 Certificate::getExtension(uint32_t type) const
 {
-  return getSignature().getSignatureInfo().getTypeSpecificTlv(type);
+  return getSignatureInfo().getTypeSpecificTlv(type);
 }
 
 bool
@@ -147,7 +147,7 @@ operator<<(std::ostream& os, const Certificate& cert)
   }
 
   try {
-    const Block& info = cert.getSignature().getSignatureInfo().getTypeSpecificTlv(tlv::AdditionalDescription);
+    const Block& info = cert.getSignatureInfo().getTypeSpecificTlv(tlv::AdditionalDescription);
     os << "Additional Description:\n";
     for (const auto& item : v2::AdditionalDescription(info)) {
       os << "  " << item.first << ": " << item.second << "\n";
@@ -166,11 +166,12 @@ operator<<(std::ostream& os, const Certificate& cert)
 
   os << "Signature Information:\n";
   {
-    os << "  Signature Type: " << cert.getSignature().getType() << "\n";
+    os << "  Signature Type: "
+       << static_cast<tlv::SignatureTypeValue>(cert.getSignatureInfo().getSignatureType()) << "\n";
 
-    if (cert.getSignature().hasKeyLocator()) {
+    if (cert.getSignatureInfo().hasKeyLocator()) {
       os << "  Key Locator: ";
-      const auto& keyLocator = cert.getSignature().getKeyLocator();
+      const auto& keyLocator = cert.getSignatureInfo().getKeyLocator();
       if (keyLocator.getType() == tlv::Name && keyLocator.getName() == cert.getKeyName()) {
         os << "Self-Signed ";
       }

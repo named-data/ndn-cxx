@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -180,18 +180,42 @@ public: // Data fields
   setContent(ConstBufferPtr value);
 
   /** @brief Get Signature
+   *  @deprecated Use getSignatureInfo and getSignatureValue
    */
-  const Signature&
-  getSignature() const
-  {
-    return m_signature;
-  }
+  [[deprecated("use getSignatureInfo and getSignatureValue")]]
+  Signature
+  getSignature() const;
 
   /** @brief Set Signature
+   *  @deprecated Use setSignatureInfo and setSignatureValue
    *  @return a reference to this Data, to allow chaining
    */
+  [[deprecated("use setSignatureInfo and setSignatureValue")]]
   Data&
   setSignature(const Signature& signature);
+
+  /** @brief Get SignatureInfo
+   */
+  const SignatureInfo&
+  getSignatureInfo() const
+  {
+    return m_signatureInfo;
+  }
+
+  /** @brief Set SignatureInfo
+   *  @return a reference to this Data, to allow chaining
+   *  @throw tlv::Error TLV-TYPE of supplied block is not SignatureValue, or the block does not have TLV-VALUE
+   */
+  Data&
+  setSignatureInfo(const SignatureInfo& info);
+
+  /** @brief Get SignatureValue
+   */
+  const Block&
+  getSignatureValue() const
+  {
+    return m_signatureValue;
+  }
 
   /** @brief Set SignatureValue
    *  @return a reference to this Data, to allow chaining
@@ -238,7 +262,8 @@ private:
   Name m_name;
   MetaInfo m_metaInfo;
   Block m_content;
-  Signature m_signature;
+  SignatureInfo m_signatureInfo;
+  Block m_signatureValue;
 
   mutable Block m_wire;
   mutable Name m_fullName; ///< cached FullName computed from m_wire

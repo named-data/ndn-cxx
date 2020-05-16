@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,14 +58,14 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
 
   // SignatureValue
   if (!wantUnsignedPortionOnly) {
-    if (!m_signature) {
+    if (!m_signatureInfo) {
       NDN_THROW(Error("Requested wire format, but Data has not been signed"));
     }
-    totalLength += encoder.prependBlock(m_signature.getValue());
+    totalLength += encoder.prependBlock(m_signatureValue);
   }
 
   // SignatureInfo
-  totalLength += encoder.prependBlock(m_signature.getInfo());
+  totalLength += m_signatureInfo.wireEncode(encoder);
 
   // Content
   totalLength += encoder.prependBlock(getContent());
@@ -140,7 +140,8 @@ Data::wireDecode(const Block& wire)
 
   m_metaInfo = MetaInfo();
   m_content = Block(tlv::Content);
-  m_signature = Signature();
+  m_signatureInfo = SignatureInfo();
+  m_signatureValue = Block();
   m_fullName.clear();
 
   for (++element; element != m_wire.elements_end(); ++element) {
@@ -165,7 +166,7 @@ Data::wireDecode(const Block& wire)
         if (lastElement >= 4) {
           NDN_THROW(Error("SignatureInfo element is out of order"));
         }
-        m_signature.setInfo(*element);
+        m_signatureInfo.wireDecode(*element);
         lastElement = 4;
         break;
       }
@@ -173,7 +174,10 @@ Data::wireDecode(const Block& wire)
         if (lastElement >= 5) {
           NDN_THROW(Error("SignatureValue element is out of order"));
         }
-        m_signature.setValue(*element);
+        if (element->type() != tlv::SignatureValue) {
+          NDN_THROW(Error("SignatureValue", element->type()));
+        }
+        m_signatureValue = *element;
         lastElement = 5;
         break;
       }
@@ -186,8 +190,12 @@ Data::wireDecode(const Block& wire)
     }
   }
 
-  if (!m_signature) {
+  if (!m_signatureInfo) {
     NDN_THROW(Error("SignatureInfo element is missing"));
+  }
+
+  if (m_signatureValue.empty()) {
+    NDN_THROW(Error("SignatureValue element is missing"));
   }
 }
 
@@ -268,19 +276,37 @@ Data::setContent(ConstBufferPtr value)
   return *this;
 }
 
+Signature
+Data::getSignature() const
+{
+  return Signature(m_signatureInfo, m_signatureValue);
+}
+
 Data&
 Data::setSignature(const Signature& signature)
 {
   resetWire();
-  m_signature = signature;
+  m_signatureInfo = signature.getSignatureInfo();
+  m_signatureValue = signature.getValue();
+  return *this;
+}
+
+Data&
+Data::setSignatureInfo(const SignatureInfo& info)
+{
+  resetWire();
+  m_signatureInfo = info;
   return *this;
 }
 
 Data&
 Data::setSignatureValue(const Block& value)
 {
+  if (value.type() != tlv::SignatureValue) {
+    NDN_THROW(Error("SignatureValue", value.type()));
+  }
   resetWire();
-  m_signature.setValue(value);
+  m_signatureValue = value;
   return *this;
 }
 
@@ -314,8 +340,8 @@ operator==(const Data& lhs, const Data& rhs)
   return lhs.getName() == rhs.getName() &&
          lhs.getMetaInfo().wireEncode() == rhs.getMetaInfo().wireEncode() &&
          lhs.getContent() == rhs.getContent() &&
-         lhs.getSignature().getSignatureInfo() == rhs.getSignature().getSignatureInfo() &&
-         lhs.getSignature().getValue() == rhs.getSignature().getValue();
+         lhs.getSignatureInfo() == rhs.getSignatureInfo() &&
+         lhs.getSignatureValue() == rhs.getSignatureValue();
 }
 
 std::ostream&
@@ -324,8 +350,9 @@ operator<<(std::ostream& os, const Data& data)
   os << "Name: " << data.getName() << "\n";
   os << "MetaInfo: " << data.getMetaInfo() << "\n";
   os << "Content: (size: " << data.getContent().value_size() << ")\n";
-  os << "Signature: (type: " << data.getSignature().getType()
-     << ", value_length: "<< data.getSignature().getValue().value_size() << ")";
+  os << "Signature: (type: "
+     << static_cast<tlv::SignatureTypeValue>(data.getSignatureInfo().getSignatureType())
+     << ", value_length: "<< data.getSignatureValue().value_size() << ")";
   os << std::endl;
 
   return os;

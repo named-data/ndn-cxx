@@ -46,9 +46,8 @@ makeData(const Name& name)
 Data&
 signData(Data& data)
 {
-  ndn::SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(ndn::encoding::makeEmptyBlock(tlv::SignatureValue));
-  data.setSignature(fakeSignature);
+  data.setSignatureInfo(SignatureInfo(tlv::SignatureSha256WithRsa));
+  data.setSignatureValue(encoding::makeEmptyBlock(tlv::SignatureValue));
   data.wireEncode();
   return data;
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -432,9 +432,8 @@ BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, ndn::tests::IdentityManagement
 {
   // Construct Data which prefix announcement is attached to
   Data data0("/edu/ua/cs/news/index.html");
-  ndn::SignatureSha256WithRsa fakeSignature;
-  fakeSignature.setValue(ndn::encoding::makeEmptyBlock(ndn::tlv::SignatureValue));
-  data0.setSignature(fakeSignature);
+  data0.setSignatureInfo(SignatureInfo(ndn::tlv::SignatureSha256WithRsa));
+  data0.setSignatureValue(encoding::makeEmptyBlock(ndn::tlv::SignatureValue));
 
   Block wire;
   wire = data0.wireEncode();

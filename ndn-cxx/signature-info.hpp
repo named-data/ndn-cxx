@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,6 +58,14 @@ public:
    */
   explicit
   SignatureInfo(const Block& wire);
+
+  /** @brief Determine whether SignatureInfo is valid
+   */
+  explicit
+  operator bool() const
+  {
+    return m_type != -1;
+  }
 
   /** @brief Fast encoding or block size estimation
    *  @param encoder EncodingEstimator or EncodingBuffer instance

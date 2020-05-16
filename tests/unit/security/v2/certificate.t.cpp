@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -127,24 +127,16 @@ const uint8_t CERT[] = {
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
-Signature
-generateFakeSignature()
+static void
+generateFakeSignature(Data& data)
 {
-  Block block1(SIG_INFO, sizeof(SIG_INFO));
-  SignatureInfo signatureInfo(block1);
+  SignatureInfo signatureInfo(Block(SIG_INFO, sizeof(SIG_INFO)));
+  signatureInfo.setKeyLocator(KeyLocator(Name("/ndn/site1/KEY/ksk-2516425377094")));
+  signatureInfo.setValidityPeriod(ValidityPeriod(time::fromIsoString("20141111T050000"),
+                                                 time::fromIsoString("20141111T060000")));
 
-  Name keyLocatorName("/ndn/site1/KEY/ksk-2516425377094");
-  KeyLocator keyLocator(keyLocatorName);
-  signatureInfo.setKeyLocator(keyLocator);
-
-  ValidityPeriod period(time::fromIsoString("20141111T050000"), time::fromIsoString("20141111T060000"));
-  signatureInfo.setValidityPeriod(period);
-
-  Signature signature(signatureInfo);
-  Block block2(SIG_VALUE, sizeof(SIG_VALUE));
-  signature.setValue(block2);
-
-  return signature;
+  data.setSignatureInfo(signatureInfo);
+  data.setSignatureValue(Block(SIG_VALUE, sizeof(SIG_VALUE)));
 }
 
 BOOST_AUTO_TEST_CASE(Construction)
@@ -157,7 +149,7 @@ BOOST_AUTO_TEST_CASE(Construction)
   BOOST_CHECK_EQUAL(certificate.getIdentity(), "/ndn/site1");
   BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
   BOOST_CHECK_EQUAL(certificate.getKeyId(), name::Component("ksk-1416425377094"));
-  BOOST_CHECK_EQUAL(certificate.getSignature().getKeyLocator().getName(), "/ndn/site1/KEY/ksk-2516425377094");
+  BOOST_CHECK_EQUAL(certificate.getSignatureInfo().getKeyLocator().getName(), "/ndn/site1/KEY/ksk-2516425377094");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()), "(20150814T223739, 20150818T223738)");
 
   BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::SignatureInfo::Error);
@@ -174,14 +166,14 @@ BOOST_AUTO_TEST_CASE(Setters)
   certificate.setName("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
   certificate.setFreshnessPeriod(1_h);
   certificate.setContent(PUBLIC_KEY, sizeof(PUBLIC_KEY));
-  certificate.setSignature(generateFakeSignature());
+  generateFakeSignature(certificate);
 
   BOOST_CHECK_EQUAL(certificate.getName(), "/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
   BOOST_CHECK_EQUAL(certificate.getKeyName(), "/ndn/site1/KEY/ksk-1416425377094");
   BOOST_CHECK_EQUAL(certificate.getIdentity(), "/ndn/site1");
   BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
   BOOST_CHECK_EQUAL(certificate.getKeyId(), name::Component("ksk-1416425377094"));
-  BOOST_CHECK_EQUAL(certificate.getSignature().getKeyLocator().getName(), "/ndn/site1/KEY/ksk-2516425377094");
+  BOOST_CHECK_EQUAL(certificate.getSignatureInfo().getKeyLocator().getName(), "/ndn/site1/KEY/ksk-2516425377094");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()), "(20141111T050000, 20141111T060000)");
 
   BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::SignatureInfo::Error);
@@ -194,7 +186,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriodChecking)
   certificate.setName("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
   certificate.setFreshnessPeriod(1_h);
   certificate.setContent(PUBLIC_KEY, sizeof(PUBLIC_KEY));
-  certificate.setSignature(generateFakeSignature());
+  generateFakeSignature(certificate);
 
   BOOST_CHECK_EQUAL(certificate.isValid(), true);
   BOOST_CHECK_EQUAL(certificate.isValid(time::fromIsoString("20141111T045959")), false);
@@ -213,7 +205,7 @@ public:
     BOOST_CHECK_NO_THROW((Certificate(certBase)));
 
     m_certBase = Data(certBase);
-    m_certBase.setSignature(generateFakeSignature());
+    generateFakeSignature(m_certBase);
 
     BOOST_CHECK_NO_THROW((Certificate(m_certBase)));
   }
@@ -226,7 +218,7 @@ BOOST_FIXTURE_TEST_CASE(InvalidName, InvalidCertFixture)
 {
   Data data(m_certBase);
   data.setName("/ndn/site1/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
-  data.setSignature(generateFakeSignature());
+  generateFakeSignature(data);
 
   BOOST_CHECK_THROW((Certificate(data)), Certificate::Error);
   BOOST_CHECK_THROW((Certificate(std::move(data))), Certificate::Error);
@@ -236,7 +228,7 @@ BOOST_FIXTURE_TEST_CASE(InvalidType, InvalidCertFixture)
 {
   Data data(m_certBase);
   data.setContentType(tlv::ContentType_Blob);
-  data.setSignature(generateFakeSignature());
+  generateFakeSignature(data);
 
   BOOST_CHECK_THROW((Certificate(data)), Certificate::Error);
   BOOST_CHECK_THROW((Certificate(std::move(data))), Certificate::Error);
@@ -246,14 +238,14 @@ BOOST_FIXTURE_TEST_CASE(EmptyContent, InvalidCertFixture)
 {
   Data data(m_certBase);
   data.setContent(nullptr, 0);
-  data.setSignature(generateFakeSignature());
+  generateFakeSignature(data);
 
   BOOST_CHECK_THROW((Certificate(data)), Certificate::Error);
   BOOST_CHECK_THROW((Certificate(std::move(data))), Certificate::Error);
 
   Certificate cert(m_certBase);
   cert.setContent(nullptr, 0);
-  cert.setSignature(generateFakeSignature());
+  generateFakeSignature(cert);
   BOOST_CHECK_THROW(cert.getPublicKey(), Certificate::Error);
 }
 

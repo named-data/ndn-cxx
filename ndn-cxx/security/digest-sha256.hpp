@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,11 +27,16 @@
 namespace ndn {
 
 /** @brief Represents a signature of DigestSha256 type
+ *  @deprecated Use SignatureInfo with type DigestSha256 instead
  *
  *  This signature type provides integrity protection using SHA-256 digest, but no provenance of a
  *  Data packet or any kind of guarantee that packet is from the original source.
  */
-class DigestSha256 : public Signature
+class
+#ifndef DOXYGEN // Older versions of doxygen can't parse deprecated decorators on classes
+[[deprecated("use SignatureInfo with type DigestSha256 instead")]]
+#endif // DOXYGEN
+DigestSha256 : public Signature
 {
 public:
   /** @brief Create empty DigestSha256 signature

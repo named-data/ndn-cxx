@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,7 +60,7 @@ namespace tests {
 //         info.setKeyLocator(KeyLocator(keyName));
 //         info.setValidityPeriod(ValidityPeriod(time::fromIsoString("20170102T000000"),
 //                                               time::fromIsoString("20180102T000000")));
-//         cert.setSignature(Signature(info, Block()));
+//         cert.setSignatureInfo(info);
 
 //         EncodingBuffer buf;
 //         cert.wireEncode(buf, true);

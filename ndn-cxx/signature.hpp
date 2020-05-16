@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,7 @@
 namespace ndn {
 
 /** @brief Holds SignatureInfo and SignatureValue in a Data packet
+ *  @deprecated Use Data::get/setSignatureInfo and Data::get/setSignatureValue directly
  *
  *  A Signature is not a TLV element itself. It collects SignatureInfo and SignatureValue TLV
  *  elements together for easy access.
@@ -34,7 +35,11 @@ namespace ndn {
  *  SignatureSha256WithRsa , or @p SignatureSha256WithEcdsa instead of using @p Signature type
  *  directly.
  */
-class Signature
+class
+#ifndef DOXYGEN // Older versions of doxygen can't parse deprecated decorators on classes
+[[deprecated("use Data::get/setSignatureInfo and Data::get/setSignatureValue directly")]]
+#endif // DOXYGEN
+Signature
 {
 public:
   class Error : public tlv::Error

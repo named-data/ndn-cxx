@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK(!d.getFinalBlock());
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK(!d.getSignature());
+  BOOST_CHECK(!d.getSignatureInfo());
 }
 
 class DataSigningKeyFixture
@@ -195,8 +195,8 @@ BOOST_FIXTURE_TEST_CASE(Encode, DataSigningKeyFixture)
   os.write(buf->get<char>(), buf->size());
 
   Block signatureValue(os.buf());
-  Signature signature(signatureInfo, signatureValue);
-  d.setSignature(signature);
+  d.setSignatureInfo(SignatureInfo(signatureInfo));
+  d.setSignatureValue(signatureValue);
 
   Block dataBlock(d.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(DATA1, DATA1 + sizeof(DATA1),
@@ -213,9 +213,9 @@ BOOST_FIXTURE_TEST_CASE(Decode02, DataSigningKeyFixture)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
                                 d.getContent().value_size()), "SUCCESS!");
-  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::SignatureSha256WithRsa);
+  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::SignatureSha256WithRsa);
 
-  Block block = d.getSignature().getInfo();
+  Block block = d.getSignatureInfo().wireEncode();
   block.parse();
   KeyLocator keyLocator(block.get(tlv::KeyLocator));
   BOOST_CHECK_EQUAL(keyLocator.getName().toUri(), "/test/key/locator");
@@ -232,11 +232,11 @@ protected:
     d.setName("/A");
     d.setContentType(tlv::ContentType_Key);
     d.setContent("1504C0C1C2C3"_block);
-    d.setSignature(Signature("160A 1B0101 1C050703080142"_block,
-                   "1780 B48F1707A3BCA3CFC5F32DE51D9B46C32D7D262A21544EBDA88C3B415D637503"
-                        "FC9BEF20F88202A56AF9831E0D30205FD4154B08502BCDEE860267A5C3E03D8E"
-                        "A6CB74BE391C01E0A57B991B4404FC11B7D777F1B700A4B65F201118CF1840A8"
-                        "30A2A7C17DB4B7A8777E58515121AF9E2498627F8475414CDFD9801B8152AD5B"_block));
+    d.setSignatureInfo(SignatureInfo("160A 1B0101 1C050703080142"_block));
+    d.setSignatureValue("1780 B48F1707A3BCA3CFC5F32DE51D9B46C32D7D262A21544EBDA88C3B415D637503"
+                             "FC9BEF20F88202A56AF9831E0D30205FD4154B08502BCDEE860267A5C3E03D8E"
+                             "A6CB74BE391C01E0A57B991B4404FC11B7D777F1B700A4B65F201118CF1840A8"
+                             "30A2A7C17DB4B7A8777E58515121AF9E2498627F8475414CDFD9801B8152AD5B"_block);
   }
 
 protected:
@@ -244,18 +244,6 @@ protected:
 };
 
 BOOST_FIXTURE_TEST_SUITE(Decode03, Decode03Fixture)
-
-BOOST_AUTO_TEST_CASE(MinimalNoSigValue)
-{
-  d.wireDecode("0607 0700 16031B0100"_block);
-  BOOST_CHECK_EQUAL(d.getName(), "/"); // empty Name is allowed in Data
-  BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
-  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
-  BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
-  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
-  BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 0);
-}
 
 BOOST_AUTO_TEST_CASE(Minimal)
 {
@@ -266,8 +254,8 @@ BOOST_AUTO_TEST_CASE(Minimal)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
-  BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 32);
+  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 32);
 
   // encode without modification: retain original wire encoding
   BOOST_CHECK_EQUAL(d.wireEncode().value_size(), 44);
@@ -279,6 +267,18 @@ BOOST_AUTO_TEST_CASE(Minimal)
     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block);
 }
 
+BOOST_AUTO_TEST_CASE(MinimalEmptyName)
+{
+  d.wireDecode("0609 0700 16031B0100 1700"_block);
+  BOOST_CHECK_EQUAL(d.getName(), "/"); // empty Name is allowed in Data
+  BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
+  BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
+  BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(Full)
 {
   d.wireDecode("063A 0703080144 FC00 1400 FC00 1500 FC00 16031B0100 FC00 "
@@ -288,8 +288,8 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK_EQUAL(d.getSignature().getType(), tlv::DigestSha256);
-  BOOST_CHECK_EQUAL(d.getSignature().getValue().value_size(), 32);
+  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 32);
 
   // encode without modification: retain original wire encoding
   BOOST_CHECK_EQUAL(d.wireEncode().value_size(), 58);
@@ -328,12 +328,17 @@ BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
 
 BOOST_AUTO_TEST_CASE(NameMissing)
 {
-  BOOST_CHECK_THROW(d.wireDecode("0605 16031B0100"_block), tlv::Error);
+  BOOST_CHECK_THROW(d.wireDecode("0605 16031B0100 1700"_block), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(SigInfoMissing)
 {
-  BOOST_CHECK_THROW(d.wireDecode("0605 0703080144"_block), tlv::Error);
+  BOOST_CHECK_THROW(d.wireDecode("0605 0703080144 1700"_block), tlv::Error);
+}
+
+BOOST_AUTO_TEST_CASE(SigValueMissing)
+{
+  BOOST_CHECK_THROW(d.wireDecode("0607 0700 16031B0100"_block), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
@@ -419,11 +424,11 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  a.setSignature(SignatureSha256WithRsa());
+  a.setSignatureInfo(SignatureInfo(tlv::SignatureSha256WithRsa));
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setSignature(SignatureSha256WithRsa());
+  b.setSignatureInfo(SignatureInfo(tlv::SignatureSha256WithRsa));
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 }
