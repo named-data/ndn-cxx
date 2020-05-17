@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -237,71 +237,69 @@ public: // Certificate management
 
 public: // signing
   /**
-   * @brief Sign data according to the supplied signing information.
+   * @brief Sign a Data packet according to the supplied signing information
    *
-   * This method uses the supplied signing information @p params to create the SignatureInfo block:
-   * - it selects a private key and its certificate to sign the packet
-   * - sets the KeyLocator field with the certificate name, and
-   * - adds other requested information to the SignatureInfo block.
-   *
-   * After that, the method assigns the created SignatureInfo to the data packets, generate a
-   * signature and sets as part of the SignatureValue block.
-   *
-   * @note The exception throwing semantics has changed from v1::KeyChain.
-   *       If the requested identity/key/certificate does not exist, it will **not** be created
-   *       and exception will be thrown.
+   * This method uses the supplied signing information in @p params to sign @p data as follows:
+   * - It selects a private key and its associated certificate to sign the packet.
+   * - It generates a KeyLocator based upon the certificate name.
+   * - Using the SignatureInfo in @p params as a base, it generates the final SignatureInfo block
+   *   for @p data.
+   * - It adds the generated SignatureInfo block to @p data.
+   * - It generates a signature for @p data and adds it as the SignatureValue block of @p data.
    *
    * @param data The data to sign
-   * @param params The signing parameters.
-   * @throw Error signing fails
-   * @throw InvalidSigningInfoError invalid @p params is specified or specified identity, key,
+   * @param params The signing parameters
+   * @throw Error Signing failed
+   * @throw InvalidSigningInfoError Invalid @p params was specified or the specified identity, key,
    *                                or certificate does not exist
    * @see SigningInfo
+   * @see SignatureInfo
    */
   void
-  sign(Data& data, const SigningInfo& params = getDefaultSigningInfo());
+  sign(Data& data, const SigningInfo& params = SigningInfo());
 
   /**
-   * @brief Sign interest according to the supplied signing information
+   * @brief Sign an Interest according to the supplied signing information
    *
-   * This method uses the supplied signing information @p params to create the SignatureInfo block:
-   * - it selects a private key and its certificate to sign the packet
-   * - sets the KeyLocator field with the certificate name, and
-   * - adds other requested information to the SignatureInfo block.
-   *
-   * After that, the method appends the created SignatureInfo to the interest name, generate a
-   * signature and appends it as part of the SignatureValue block to the interest name.
-   *
-   * @note The exception throwing semantics has changed from v1::KeyChain.  If the requested
-   *       identity/key/certificate does not exist, it will **not** be created and exception
-   *       will be thrown.
+   * This method uses the supplied signing information in @p params to sign @p interest as follows:
+   * - It selects a private key and its associated certificate to sign the packet.
+   * - It generates a KeyLocator based upon the certificate name.
+   * - Using the SignatureInfo in @p params as a base, it generates the final SignatureInfo block
+   *   for @p interest.
+   * - It appends the generated SignatureInfo block to the end of the Name of @p interest.
+   * - It generates a signature for @p interest and appends it to the end of the Name of
+   *   @p interest as a SignatureValue block.
    *
    * @param interest The interest to sign
-   * @param params The signing parameters.
-   * @throw Error signing fails
-   * @throw InvalidSigningInfoError invalid @p params is specified or specified identity, key,
+   * @param params The signing parameters
+   * @throw Error Signing failed
+   * @throw InvalidSigningInfoError Invalid @p params was specified or the specified identity, key,
    *                                or certificate does not exist
    * @see SigningInfo
+   * @see SignatureInfo
    * @see docs/specs/signed-interest.rst
    */
   void
-  sign(Interest& interest, const SigningInfo& params = getDefaultSigningInfo());
+  sign(Interest& interest, const SigningInfo& params = SigningInfo());
 
   /**
    * @brief Sign buffer according to the supplied signing information @p params
+   * @deprecated Sign Interests and Data directly
    *
    * If @p params refers to an identity, the method selects the default key of the identity.
    * If @p params refers to a key or certificate, the method select the corresponding key.
    *
    * @param buffer The buffer to sign
    * @param bufferLength The buffer size
-   * @param params The signing parameters.
-   * @return a SignatureValue TLV block
-   * @throw Error signing fails
+   * @param params The signing parameters
+   * @return SignatureValue TLV block
+   * @throw Error Signing failed
    * @see SigningInfo
+   * @see SignatureInfo
    */
+  [[deprecated("sign Interests and Data directly")]]
   Block
-  sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& params = getDefaultSigningInfo());
+  sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& params = SigningInfo());
 
 public: // export & import
   /**
@@ -422,9 +420,9 @@ private: // signing
    * @brief Prepare a SignatureInfo TLV according to signing information and return the signing
    *        key name.
    *
-   * @param params The signing parameters.
-   * @return The signing key name and prepared SignatureInfo.
-   * @throw InvalidSigningInfoError when the requested signing method cannot be satisfied.
+   * @param params The signing parameters
+   * @return The signing key name and prepared SignatureInfo
+   * @throw InvalidSigningInfoError The requested signing method cannot be satisfied
    */
   std::tuple<Name, SignatureInfo>
   prepareSignatureInfo(const SigningInfo& params);
@@ -437,6 +435,10 @@ private: // signing
   sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
 
 public:
+  /**
+   * @deprecated Use default constructor for SigningInfo
+   */
+  [[deprecated("use default constructor for SigningInfo")]]
   static const SigningInfo&
   getDefaultSigningInfo();
 

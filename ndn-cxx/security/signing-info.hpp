@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,15 +67,15 @@ public:
    * @brief Constructor.
    *
    * @param signerType The type of signer
-   * @param signerName The name of signer; interpretation differs per signerType
-   * @param signatureInfo A semi-prepared SignatureInfo which contains other information except
-   *                      SignatureType and KeyLocator.  If SignatureType and KeyLocator are
-   *                      specified, they may be overwritten by KeyChain.
+   * @param signerName The name of the signer; interpretation differs with the type of signer
+   * @param signatureInfo A semi-prepared SignatureInfo that contains all necessary information
+   *                      except SignatureType and KeyLocator. If SignatureType and/or KeyLocator
+   *                      is set, they will be overwritten by KeyChain::sign().
    */
   explicit
   SigningInfo(SignerType signerType = SIGNER_TYPE_NULL,
-              const Name& signerName = getEmptyName(),
-              const SignatureInfo& signatureInfo = getEmptySignatureInfo());
+              const Name& signerName = Name(),
+              const SignatureInfo& signatureInfo = SignatureInfo());
 
   /**
    * @brief Construct from a PIB identity.
@@ -222,7 +222,7 @@ public:
   }
 
   /**
-   * @brief Set a semi-prepared SignatureInfo;
+   * @brief Set a semi-prepared SignatureInfo
    */
   SigningInfo&
   setSignatureInfo(const SignatureInfo& signatureInfo);
@@ -237,9 +237,18 @@ public:
   }
 
 public:
+  /**
+   * @deprecated Use default constructor for Name
+   */
+  [[deprecated("use default constructor for Name")]]
   static const Name&
   getEmptyName();
 
+  /**
+   * @brief Get a SignatureInfo constructed with default values.
+   * @deprecated Use default constructor for SignatureInfo
+   */
+  [[deprecated("use default constructor for SignatureInfo")]]
   static const SignatureInfo&
   getEmptySignatureInfo();
 
