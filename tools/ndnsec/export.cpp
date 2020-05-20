@@ -35,7 +35,10 @@ ndnsec_export(int argc, char** argv)
 {
   namespace po = boost::program_options;
 
-  Name identityName;
+  Name name;
+  bool isIdentityName = false;
+  bool isKeyName = false;
+  bool isCertName = false;
   std::string output;
   std::string password;
 
@@ -45,46 +48,69 @@ ndnsec_export(int argc, char** argv)
     OPENSSL_cleanse(&password.front(), password.size());
   } BOOST_SCOPE_EXIT_END
 
-  po::options_description description(
-    "Usage: ndnsec export [-h] [-o FILE] [-P PASSPHRASE] [-i] IDENTITY\n"
+  po::options_description visibleOptDesc(
+    "Usage: ndnsec export [-h] [-o FILE] [-P PASSPHRASE] [-i|-k|-c] NAME\n"
     "\n"
     "Options");
-  description.add_options()
+  visibleOptDesc.add_options()
     ("help,h", "produce help message")
-    ("identity,i", po::value<Name>(&identityName), "name of the identity to export")
+    ("identity,i", po::bool_switch(&isIdentityName),
+                   "treat the NAME argument as an identity name (e.g., /ndn/edu/ucla/alice)")
+    ("key,k",      po::bool_switch(&isKeyName),
+                   "treat the NAME argument as a key name (e.g., /ndn/edu/ucla/alice/KEY/1%5D%A7g%90%B2%CF%AA)")
+    ("cert,c",     po::bool_switch(&isCertName),
+                   "treat the NAME argument as a certificate name "
+                   "(e.g., /ndn/edu/ucla/alice/KEY/1%5D%A7g%90%B2%CF%AA/self/%FD%00%00%01r-%D3%DC%2A)")
     ("output,o",   po::value<std::string>(&output)->default_value("-"),
                    "output file, '-' for stdout (the default)")
     ("password,P", po::value<std::string>(&password),
                    "passphrase, will prompt if empty or not specified")
     ;
 
-  po::positional_options_description p;
-  p.add("identity", 1);
+  po::options_description hiddenOptDesc;
+  hiddenOptDesc.add_options()
+    ("name", po::value<Name>(&name));
+
+  po::options_description optDesc;
+  optDesc.add(visibleOptDesc).add(hiddenOptDesc);
+
+  po::positional_options_description optPos;
+  optPos.add("name", 1);
 
   po::variables_map vm;
   try {
-    po::store(po::command_line_parser(argc, argv).options(description).positional(p).run(), vm);
+    po::store(po::command_line_parser(argc, argv).options(optDesc).positional(optPos).run(), vm);
     po::notify(vm);
   }
   catch (const std::exception& e) {
     std::cerr << "ERROR: " << e.what() << "\n\n"
-              << description << std::endl;
+              << visibleOptDesc << std::endl;
     return 2;
   }
 
   if (vm.count("help") > 0) {
-    std::cout << description << std::endl;
+    std::cout << visibleOptDesc << std::endl;
     return 0;
   }
 
-  if (vm.count("identity") == 0) {
-    std::cerr << "ERROR: you must specify an identity" << std::endl;
+  if (vm.count("name") == 0) {
+    std::cerr << "ERROR: you must specify a name" << std::endl;
     return 2;
   }
 
-  security::v2::KeyChain keyChain;
+  int nIsNameOptions = isIdentityName + isKeyName + isCertName;
+  if (nIsNameOptions > 1) {
+    std::cerr << "ERROR: at most one of '--identity', '--key', "
+                 "or '--cert' may be specified" << std::endl;
+    return 2;
+  }
+  else if (nIsNameOptions == 0) {
+    isIdentityName = true;
+  }
 
-  auto id = keyChain.getPib().getIdentity(identityName);
+  security::v2::KeyChain keyChain;
+  auto cert = getCertificateFromPib(keyChain.getPib(), name,
+                                    isIdentityName, isKeyName, isCertName);
 
   if (password.empty()) {
     int count = 3;
@@ -97,9 +123,7 @@ ndnsec_export(int argc, char** argv)
     }
   }
 
-  // TODO: export all certificates, selected key pair, selected certificate
-  auto safeBag = keyChain.exportSafeBag(id.getDefaultKey().getDefaultCertificate(),
-                                        password.data(), password.size());
+  auto safeBag = keyChain.exportSafeBag(cert, password.data(), password.size());
 
   if (output == "-")
     io::save(*safeBag, std::cout);

@@ -4,17 +4,31 @@ ndnsec-export
 Synopsis
 --------
 
-**ndnsec-export** [**-h**] [**-o** *file*] [**-P** *passphrase*] *identity*
+**ndnsec-export** [**-h**] [**-o** *file*] [**-P** *passphrase*]
+[**-i**\|\ **-k**\|\ **-c**] *name*
 
 Description
 -----------
 
-:program:`ndnsec-export` exports the default certificate of *identity* and its
-private key to a file. It will ask for a passphrase to encrypt the private key.
+:program:`ndnsec-export` exports a certificate from the **Public Info Base (PIB)** and
+its private key to a file. It will ask for a passphrase to encrypt the private key.
 The resulting file can be imported again using :program:`ndnsec-import`.
 
 Options
 -------
+
+.. option:: -i, --identity
+
+   Interpret *name* as an identity name. The default certificate of the identity will be exported.
+   This is the default unless **-k** or **-c** is specified.
+
+.. option:: -k, --key
+
+   Interpret *name* as a key name. The default certificate of the key will be exported.
+
+.. option:: -c, --cert
+
+   Interpret *name* as a certificate name.
 
 .. option:: -o <file>, --output <file>
 
@@ -34,6 +48,6 @@ Export an identity's default certificate and private key into a file::
 
     $ ndnsec-export -o alice.ndnkey /ndn/test/alice
 
-Export an identity's default certificate and private key to the standard output::
+Export a specific certificate and its private key to the standard output::
 
-    $ ndnsec-export /ndn/test/alice
+    $ ndnsec-export -c /ndn/edu/ucla/alice/KEY/1%5D%A7g%90%B2%CF%AA/self/%FD%00%00%01r-%D3%DC%2A

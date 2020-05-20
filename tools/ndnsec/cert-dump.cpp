@@ -95,7 +95,8 @@ ndnsec_cert_dump(int argc, char** argv)
     return 2;
   }
 
-  if (isIdentityName + isKeyName + isFileName > 1) {
+  int nIsNameOptions = isIdentityName + isKeyName + isFileName;
+  if (nIsNameOptions > 1) {
     std::cerr << "ERROR: at most one of '--identity', '--key', "
                  "or '--file' may be specified" << std::endl;
     return 2;
@@ -106,35 +107,20 @@ ndnsec_cert_dump(int argc, char** argv)
     return 2;
   }
 
-  security::v2::KeyChain keyChain;
-
   security::v2::Certificate certificate;
-  try {
-    if (isIdentityName) {
-      certificate = keyChain.getPib()
-                    .getIdentity(name)
-                    .getDefaultKey()
-                    .getDefaultCertificate();
-    }
-    else if (isKeyName) {
-      certificate = keyChain.getPib()
-                    .getIdentity(security::v2::extractIdentityFromKeyName(name))
-                    .getKey(name)
-                    .getDefaultCertificate();
-    }
-    else if (isFileName) {
+  if (isFileName) {
+    try {
       certificate = loadCertificate(name);
     }
-    else {
-      certificate = keyChain.getPib()
-                    .getIdentity(security::v2::extractIdentityFromCertName(name))
-                    .getKey(security::v2::extractKeyNameFromCertName(name))
-                    .getCertificate(name);
+    catch (const CannotLoadCertificate&) {
+      std::cerr << "ERROR: Cannot load the certificate from `" << name << "`" << std::endl;
+      return 1;
     }
   }
-  catch (const CannotLoadCertificate&) {
-    std::cerr << "ERROR: Cannot load the certificate from `" << name << "`" << std::endl;
-    return 1;
+  else {
+    security::v2::KeyChain keyChain;
+    certificate = getCertificateFromPib(keyChain.getPib(), name,
+                                        isIdentityName, isKeyName, nIsNameOptions == 0);
   }
 
   if (isPretty) {

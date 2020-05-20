@@ -69,6 +69,28 @@ getPassword(std::string& password, const std::string& prompt, bool shouldConfirm
 }
 
 security::v2::Certificate
+getCertificateFromPib(const security::pib::Pib& pib, const Name& name,
+                      bool isIdentityName, bool isKeyName, bool isCertName)
+{
+  if (isIdentityName) {
+    return pib.getIdentity(name)
+           .getDefaultKey()
+           .getDefaultCertificate();
+  }
+  else if (isKeyName) {
+    return pib.getIdentity(security::v2::extractIdentityFromKeyName(name))
+           .getKey(name)
+           .getDefaultCertificate();
+  }
+  else if (isCertName) {
+    return pib.getIdentity(security::v2::extractIdentityFromCertName(name))
+           .getKey(security::v2::extractKeyNameFromCertName(name))
+           .getCertificate(name);
+  }
+  NDN_CXX_UNREACHABLE;
+}
+
+security::v2::Certificate
 loadCertificate(const std::string& fileName)
 {
   shared_ptr<security::v2::Certificate> cert;

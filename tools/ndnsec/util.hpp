@@ -33,6 +33,22 @@
 namespace ndn {
 namespace ndnsec {
 
+/**
+ * @brief Get certificate of given name from PIB.
+ * @param pib PIB instance, obtained from keyChain.getPib().
+ * @param name identity name, key name, or cert name.
+ * @param isIdentityName interpret @p name as identity name.
+ * @param isKeyName interpret @p name as key name.
+ * @param isCertName interpret @p name as certificate name.
+ * @pre exactly one of @p isIdentityName , @p isKeyName , @p isCertName must be true.
+ * @return a certificate.
+ * @throw std::invalid_argument name is invalid.
+ * @throw Pib::Error certificate does not exist.
+ */
+security::v2::Certificate
+getCertificateFromPib(const security::pib::Pib& pib, const Name& name,
+                      bool isIdentityName, bool isKeyName, bool isCertName);
+
 class CannotLoadCertificate : public std::runtime_error
 {
 public:
