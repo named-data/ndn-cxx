@@ -22,11 +22,11 @@
 #ifndef NDN_DATA_HPP
 #define NDN_DATA_HPP
 
+#include "ndn-cxx/detail/packet-base.hpp"
+#include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/meta-info.hpp"
 #include "ndn-cxx/name.hpp"
 #include "ndn-cxx/signature.hpp"
-#include "ndn-cxx/detail/packet-base.hpp"
-#include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn {
 
@@ -105,7 +105,7 @@ public:
   /** @brief Check if this instance has cached wire encoding.
    */
   bool
-  hasWire() const
+  hasWire() const noexcept
   {
     return m_wire.hasWire();
   }
@@ -121,7 +121,7 @@ public: // Data fields
   /** @brief Get name
    */
   const Name&
-  getName() const
+  getName() const noexcept
   {
     return m_name;
   }
@@ -135,7 +135,7 @@ public: // Data fields
   /** @brief Get MetaInfo
    */
   const MetaInfo&
-  getMetaInfo() const
+  getMetaInfo() const noexcept
   {
     return m_metaInfo;
   }
@@ -154,26 +154,26 @@ public: // Data fields
   const Block&
   getContent() const;
 
-  /** @brief Set Content from a block
+  /** @brief Set Content from a Block
    *
-   *  If block's TLV-TYPE is Content, it will be used directly as Data's Content element.
-   *  If block's TLV-TYPE is not Content, it will be nested into a Content element.
+   *  If the block's TLV-TYPE is Content, it will be used directly as this Data's Content element.
+   *  Otherwise, the block will be nested into a Content element.
    *
    *  @return a reference to this Data, to allow chaining
    */
   Data&
   setContent(const Block& block);
 
-  /** @brief Copy Content value from raw buffer
+  /** @brief Set Content by copying from a raw buffer
    *  @param value pointer to the first octet of the value
-   *  @param valueSize size of the raw buffer
+   *  @param valueSize size of the buffer
    *  @return a reference to this Data, to allow chaining
    */
   Data&
   setContent(const uint8_t* value, size_t valueSize);
 
-  /** @brief Set Content from wire buffer
-   *  @param value Content value, which does not need to be a TLV element
+  /** @brief Set Content from a shared buffer
+   *  @param value buffer containing the TLV-VALUE of the content; must not be nullptr
    *  @return a reference to this Data, to allow chaining
    */
   Data&
@@ -197,14 +197,19 @@ public: // Data fields
   /** @brief Get SignatureInfo
    */
   const SignatureInfo&
-  getSignatureInfo() const
+  getSignatureInfo() const noexcept
   {
     return m_signatureInfo;
   }
 
   /** @brief Set SignatureInfo
+   *
+   *  This is a low-level function that should not normally be called directly by applications.
+   *  Instead, provide a SignatureInfo to the SigningInfo object passed to KeyChain::sign().
+   *
    *  @return a reference to this Data, to allow chaining
-   *  @throw tlv::Error TLV-TYPE of supplied block is not SignatureValue, or the block does not have TLV-VALUE
+   *  @warning SignatureInfo is overwritten when the packet is signed via KeyChain::sign().
+   *  @sa SigningInfo
    */
   Data&
   setSignatureInfo(const SignatureInfo& info);
@@ -212,16 +217,22 @@ public: // Data fields
   /** @brief Get SignatureValue
    */
   const Block&
-  getSignatureValue() const
+  getSignatureValue() const noexcept
   {
     return m_signatureValue;
   }
 
   /** @brief Set SignatureValue
+   *  @param value buffer containing the TLV-VALUE of the SignatureValue; must not be nullptr
+   *
+   *  This is a low-level function that should not normally be called directly by applications.
+   *  Instead, use KeyChain::sign() to sign the packet.
+   *
    *  @return a reference to this Data, to allow chaining
+   *  @warning SignatureValue is overwritten when the packet is signed via KeyChain::sign().
    */
   Data&
-  setSignatureValue(const Block& value);
+  setSignatureValue(ConstBufferPtr value);
 
 public: // MetaInfo fields
   uint32_t
@@ -250,6 +261,24 @@ public: // MetaInfo fields
 
   Data&
   setFinalBlock(optional<name::Component> finalBlockId);
+
+public: // SignatureInfo fields
+  /** @brief Get SignatureType
+   *  @return tlv::SignatureTypeValue, or -1 to indicate the signature is invalid
+   */
+  int32_t
+  getSignatureType() const noexcept
+  {
+    return m_signatureInfo.getSignatureType();
+  }
+
+  /** @brief Get KeyLocator
+   */
+  optional<KeyLocator>
+  getKeyLocator() const noexcept
+  {
+    return m_signatureInfo.hasKeyLocator() ? make_optional(m_signatureInfo.getKeyLocator()) : nullopt;
+  }
 
 protected:
   /** @brief Clear wire encoding and cached FullName

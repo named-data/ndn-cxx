@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "ndn-cxx/signature-info.hpp"
 
 #include "tests/boost-test.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
@@ -30,17 +31,17 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(TestSignatureInfo)
 
 const uint8_t sigInfoRsa[] = {
-0x16, 0x1b, // SignatureInfo
-  0x1b, 0x01, // SignatureType
-    0x01, // Sha256WithRsa
-  0x1c, 0x16, // KeyLocator
-    0x07, 0x14, // Name
-      0x08, 0x04,
-        0x74, 0x65, 0x73, 0x74,
-      0x08, 0x03,
-        0x6b, 0x65, 0x79,
-      0x08, 0x07,
-        0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
+  0x16, 0x1b, // SignatureInfo
+    0x1b, 0x01, // SignatureType
+      0x01, // Sha256WithRsa
+    0x1c, 0x16, // KeyLocator
+      0x07, 0x14, // Name
+        0x08, 0x04,
+          0x74, 0x65, 0x73, 0x74,
+        0x08, 0x03,
+          0x6b, 0x65, 0x79,
+        0x08, 0x07,
+          0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
 };
 
 BOOST_AUTO_TEST_CASE(Constructor)
@@ -49,6 +50,8 @@ BOOST_AUTO_TEST_CASE(Constructor)
   BOOST_CHECK_EQUAL(info.getSignatureType(), -1);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
   BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
+  BOOST_CHECK_EQUAL(info.hasValidityPeriod(), false);
+  BOOST_CHECK_THROW(info.getValidityPeriod(), SignatureInfo::Error);
 
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(info), "Invalid SignatureInfo");
 
@@ -63,23 +66,21 @@ BOOST_AUTO_TEST_CASE(Constructor)
   SignatureInfo sha256RsaInfo(tlv::SignatureSha256WithRsa, keyLocator);
   BOOST_CHECK_EQUAL(sha256RsaInfo.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(sha256RsaInfo.hasKeyLocator(), true);
-  BOOST_CHECK_NO_THROW(sha256RsaInfo.getKeyLocator());
   BOOST_CHECK_EQUAL(sha256RsaInfo.getKeyLocator().getName(), Name("/test/key/locator"));
+  BOOST_CHECK_EQUAL(sha256RsaInfo.hasValidityPeriod(), false);
+  BOOST_CHECK_THROW(sha256RsaInfo.getValidityPeriod(), SignatureInfo::Error);
 
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(sha256RsaInfo), "SignatureSha256WithRsa Name=/test/key/locator");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(sha256RsaInfo),
+                    "SignatureSha256WithRsa Name=/test/key/locator");
 
-  const Block& encoded = sha256RsaInfo.wireEncode();
+  auto encoded = sha256RsaInfo.wireEncode();
   Block sigInfoBlock(sigInfoRsa, sizeof(sigInfoRsa));
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoBlock.wire(),
-                                sigInfoBlock.wire() + sigInfoBlock.size(),
-                                encoded.wire(),
-                                encoded.wire() + encoded.size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoBlock.wire(), sigInfoBlock.wire() + sigInfoBlock.size(),
+                                encoded.wire(), encoded.wire() + encoded.size());
 
   sha256RsaInfo = SignatureInfo(sigInfoBlock);
   BOOST_CHECK_EQUAL(sha256RsaInfo.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(sha256RsaInfo.hasKeyLocator(), true);
-  BOOST_CHECK_NO_THROW(sha256RsaInfo.getKeyLocator());
   BOOST_CHECK_EQUAL(sha256RsaInfo.getKeyLocator().getName(), Name("/test/key/locator"));
 }
 
@@ -132,37 +133,53 @@ BOOST_AUTO_TEST_CASE(ConstructorError)
 
 }
 
-BOOST_AUTO_TEST_CASE(SetterGetter)
+BOOST_AUTO_TEST_CASE(GetSetSignatureType)
 {
   SignatureInfo info;
   BOOST_CHECK_EQUAL(info.getSignatureType(), -1);
-  BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
-  BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
+  BOOST_CHECK_THROW(info.wireEncode(), SignatureInfo::Error);
 
-  info.setSignatureType(tlv::SignatureSha256WithRsa);
-  BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithRsa);
-  BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
+  info.setSignatureType(tlv::SignatureSha256WithEcdsa);
+  BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithEcdsa);
+  BOOST_CHECK_EQUAL(info.hasWire(), false);
 
-  KeyLocator keyLocator("/test/key/locator");
-  info.setKeyLocator(keyLocator);
-  BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
-  BOOST_CHECK_NO_THROW(info.getKeyLocator());
-  BOOST_CHECK_EQUAL(info.getKeyLocator().getName(), Name("/test/key/locator"));
+  info.wireEncode();
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
+  info.setSignatureType(tlv::SignatureSha256WithEcdsa);
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
 
-  const Block& encoded = info.wireEncode();
-  Block sigInfoBlock(sigInfoRsa, sizeof(sigInfoRsa));
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoBlock.wire(),
-                                sigInfoBlock.wire() + sigInfoBlock.size(),
-                                encoded.wire(),
-                                encoded.wire() + encoded.size());
-
-  info.unsetKeyLocator();
-  BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
-  BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
+  info.setSignatureType(static_cast<tlv::SignatureTypeValue>(1234));
+  BOOST_CHECK_EQUAL(info.getSignatureType(), 1234);
+  BOOST_CHECK_EQUAL(info.hasWire(), false);
 }
 
-BOOST_AUTO_TEST_CASE(ValidityPeriodExtension)
+BOOST_AUTO_TEST_CASE(GetSetKeyLocator)
+{
+  SignatureInfo info(tlv::SignatureSha256WithEcdsa);
+  BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
+  BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
+
+  info.setKeyLocator(Name("/test/key/locator"));
+  BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
+  BOOST_CHECK_EQUAL(info.getKeyLocator().getName(), "/test/key/locator");
+  BOOST_CHECK_EQUAL(info.hasWire(), false);
+
+  info.wireEncode();
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
+  info.setKeyLocator(Name("/test/key/locator"));
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
+  info.setKeyLocator(Name("/another/key/locator"));
+  BOOST_CHECK_EQUAL(info.hasWire(), false);
+
+  info.wireEncode();
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
+  info.setKeyLocator(nullopt);
+  BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
+  BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
+  BOOST_CHECK_EQUAL(info.hasWire(), false);
+}
+
+BOOST_AUTO_TEST_CASE(ValidityPeriod)
 {
   const uint8_t sigInfo[] = {
     0x16, 0x45, // SignatureInfo
@@ -185,50 +202,61 @@ BOOST_AUTO_TEST_CASE(ValidityPeriodExtension)
           0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30
   };
 
-  time::system_clock::TimePoint notBefore = time::getUnixEpoch();
-  time::system_clock::TimePoint notAfter = notBefore + 1_day;
+  const auto notBefore = time::getUnixEpoch();
+  const auto notAfter = notBefore + 1_day;
   security::ValidityPeriod vp1(notBefore, notAfter);
 
-  // encode
-  SignatureInfo info;
-  info.setSignatureType(tlv::SignatureSha256WithRsa);
-  info.setKeyLocator(KeyLocator("/test/key/locator"));
+  SignatureInfo info(tlv::SignatureSha256WithRsa, KeyLocator("/test/key/locator"));
+  BOOST_CHECK_EQUAL(info.hasValidityPeriod(), false);
+  BOOST_CHECK_THROW(info.getValidityPeriod(), SignatureInfo::Error);
+
+  info.wireEncode();
   info.setValidityPeriod(vp1);
-
+  BOOST_CHECK_EQUAL(info.hasValidityPeriod(), true);
   BOOST_CHECK_EQUAL(info.getValidityPeriod(), vp1);
+  BOOST_CHECK_EQUAL(info.hasWire(), false);
 
-  const Block& encoded = info.wireEncode();
-
+  // encode
+  auto encoded = info.wireEncode();
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
   BOOST_CHECK_EQUAL_COLLECTIONS(sigInfo, sigInfo + sizeof(sigInfo),
                                 encoded.wire(), encoded.wire() + encoded.size());
 
+  info.setValidityPeriod(vp1);
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
+
   // decode
   Block block(sigInfo, sizeof(sigInfo));
-  SignatureInfo info2;
-  info2.wireDecode(block);
+  SignatureInfo info2(block);
+  BOOST_CHECK_EQUAL(info2.hasValidityPeriod(), true);
   BOOST_CHECK_EQUAL(info2.getValidityPeriod(), vp1);
+  BOOST_CHECK_EQUAL(info2.hasWire(), true);
 
-  const security::ValidityPeriod& validityPeriod = info2.getValidityPeriod();
-  BOOST_CHECK(validityPeriod.getPeriod() == std::make_pair(notBefore, notAfter));
+  info2.setValidityPeriod(security::ValidityPeriod(notBefore, notBefore + 42_days));
+  BOOST_CHECK_EQUAL(info2.hasValidityPeriod(), true);
+  BOOST_CHECK_NE(info2.getValidityPeriod(), vp1);
+  BOOST_CHECK(info2.getValidityPeriod().getPeriod() == std::make_pair(notBefore, notBefore + 42_days));
+  BOOST_CHECK_EQUAL(info2.hasWire(), false);
+
+  info2.wireEncode();
+  BOOST_CHECK_EQUAL(info2.hasWire(), true);
+  info2.setValidityPeriod(nullopt);
+  BOOST_CHECK_EQUAL(info2.hasValidityPeriod(), false);
+  BOOST_CHECK_THROW(info2.getValidityPeriod(), SignatureInfo::Error);
+  BOOST_CHECK_EQUAL(info2.hasWire(), false);
 }
 
 BOOST_AUTO_TEST_CASE(OtherTlvs)
 {
-  SignatureInfo info;
-  BOOST_CHECK_EQUAL(info.getSignatureType(), -1);
-  BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
-  BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
-
-  const uint8_t tlv1[] = {
-    0x81, // T
-    0x01, // L
-    0x01, // V
-  };
-  Block block1(tlv1, sizeof(tlv1));
-
-  info.appendTypeSpecificTlv(block1);
+  SignatureInfo info(tlv::SignatureSha256WithEcdsa);
+  info.appendTypeSpecificTlv("810101"_block);
   BOOST_CHECK_THROW(info.getTypeSpecificTlv(0x82), SignatureInfo::Error);
-  BOOST_REQUIRE_NO_THROW(info.getTypeSpecificTlv(0x81));
+  BOOST_CHECK_EQUAL(info.getTypeSpecificTlv(0x81).type(), 0x81);
+
+  info.wireEncode();
+  BOOST_CHECK_EQUAL(info.hasWire(), true);
+  info.appendTypeSpecificTlv("82020202"_block);
+  BOOST_CHECK_EQUAL(info.hasWire(), false);
 }
 
 BOOST_AUTO_TEST_CASE(OtherTlvsEncoding) // Bug #3914

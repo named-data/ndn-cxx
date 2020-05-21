@@ -24,6 +24,7 @@
 // #include "ndn-cxx/security/pib/pib-memory.hpp"
 // #include "ndn-cxx/security/tpm/tpm.hpp"
 // #include "ndn-cxx/security/tpm/back-end-mem.hpp"
+
 // #include <fstream>
 
 namespace ndn {
@@ -54,7 +55,7 @@ namespace tests {
 //         cert.setFreshnessPeriod(1_h);
 //         cert.setContent(tpm.getPublicKey(keyName));
 
-//         // @TODO sign using the new KeyChain
+//         // TODO: sign using KeyChain
 //         SignatureInfo info;
 //         info.setSignatureType(tlv::SignatureSha256WithEcdsa);
 //         info.setKeyLocator(KeyLocator(keyName));
@@ -65,8 +66,7 @@ namespace tests {
 //         EncodingBuffer buf;
 //         cert.wireEncode(buf, true);
 
-//         cert.setSignatureValue(Block(tlv::SignatureValue,
-//                                      tpm.sign(buf.buf(), buf.size(), keyName, DigestAlgorithm::SHA256)));
+//         cert.setSignatureValue(tpm.sign(buf.buf(), buf.size(), keyName, DigestAlgorithm::SHA256));
 
 //         printBytes(prefix + "_KEY" + to_string(keyId) + "_CERT" + to_string(certVersion),
 //                    cert.wireEncode());

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,6 @@
 #include "ndn-cxx/interest-filter.hpp"
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
-#include "ndn-cxx/security/digest-sha256.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
 #include "tests/boost-test.hpp"

@@ -355,7 +355,7 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
     Signature interestSignature(interest.getName()[-2].blockFromValue(), interest.getName()[-1].blockFromValue());
 
     if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_SHA256) {
-      BOOST_CHECK_EQUAL(data.getSignatureInfo().getSignatureType(), tlv::DigestSha256);
+      BOOST_CHECK_EQUAL(data.getSignatureType(), tlv::DigestSha256);
       BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::DigestSha256);
 
       BOOST_CHECK(verifyDigest(data, DigestAlgorithm::SHA256));
@@ -363,17 +363,17 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
     }
     else if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_HMAC) {
       Name keyName = signingInfo.getSignerName();
-      BOOST_CHECK_EQUAL(data.getSignatureInfo().getSignatureType(), tlv::SignatureHmacWithSha256);
+      BOOST_CHECK_EQUAL(data.getSignatureType(), tlv::SignatureHmacWithSha256);
       BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::SignatureHmacWithSha256);
 
       BOOST_CHECK(bool(verifySignature(data, tpm, keyName, DigestAlgorithm::SHA256)));
       BOOST_CHECK(bool(verifySignature(interest, tpm, keyName, DigestAlgorithm::SHA256)));
     }
     else {
-      BOOST_CHECK_EQUAL(data.getSignatureInfo().getSignatureType(), tlv::SignatureSha256WithEcdsa);
+      BOOST_CHECK_EQUAL(data.getSignatureType(), tlv::SignatureSha256WithEcdsa);
       BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::SignatureSha256WithEcdsa);
 
-      BOOST_CHECK_EQUAL(data.getSignatureInfo().getKeyLocator().getName(), cert.getName().getPrefix(-2));
+      BOOST_CHECK_EQUAL(data.getKeyLocator()->getName(), cert.getName().getPrefix(-2));
       BOOST_CHECK_EQUAL(interestSignature.getKeyLocator().getName(), cert.getName().getPrefix(-2));
 
       BOOST_CHECK(verifySignature(data, key));
@@ -392,16 +392,18 @@ BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, IdentityManagementFixture)
   // Create identity with EC key and the corresponding self-signed certificate
   Identity id = addIdentity("/ndn/test/ec", EcKeyParams());
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(id.getName())));
-  BOOST_CHECK_EQUAL(data.getSignatureInfo().getSignatureType(),
+  BOOST_CHECK_EQUAL(data.getSignatureType(),
                     KeyChain::getSignatureType(EcKeyParams().getKeyType(), DigestAlgorithm::SHA256));
-  BOOST_CHECK(id.getName().isPrefixOf(data.getSignatureInfo().getKeyLocator().getName()));
+  BOOST_REQUIRE(data.getKeyLocator().has_value());
+  BOOST_CHECK(id.getName().isPrefixOf(data.getKeyLocator()->getName()));
 
   // Create identity with RSA key and the corresponding self-signed certificate
   id = addIdentity("/ndn/test/rsa", RsaKeyParams());
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(id.getName())));
-  BOOST_CHECK_EQUAL(data.getSignatureInfo().getSignatureType(),
+  BOOST_CHECK_EQUAL(data.getSignatureType(),
                     KeyChain::getSignatureType(RsaKeyParams().getKeyType(), DigestAlgorithm::SHA256));
-  BOOST_CHECK(id.getName().isPrefixOf(data.getSignatureInfo().getKeyLocator().getName()));
+  BOOST_REQUIRE(data.getKeyLocator().has_value());
+  BOOST_CHECK(id.getName().isPrefixOf(data.getKeyLocator()->getName()));
 }
 
 BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, IdentityManagementFixture)

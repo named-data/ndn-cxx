@@ -331,8 +331,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Overwrite, T, PibImpls, T)
   // Create a fake cert with the same name
   auto cert2 = this->id1Key2Cert1;
   cert2.setName(this->id1Key1Cert1.getName());
-  cert2.setSignatureInfo(this->id1Key2Cert1.getSignatureInfo());
-  cert2.setSignatureValue(this->id1Key2Cert1.getSignatureValue());
+  BOOST_CHECK_EQUAL(cert2.getSignatureInfo(), this->id1Key2Cert1.getSignatureInfo());
+  BOOST_CHECK_EQUAL(cert2.getSignatureValue(), this->id1Key2Cert1.getSignatureValue());
   this->pib.addCertificate(cert2);
 
   auto cert3 = this->pib.getCertificate(this->id1Key1Cert1.getName());

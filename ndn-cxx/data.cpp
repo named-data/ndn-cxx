@@ -271,6 +271,9 @@ Data::setContent(const uint8_t* value, size_t valueSize)
 Data&
 Data::setContent(ConstBufferPtr value)
 {
+  if (value == nullptr) {
+    NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
+  }
   resetWire();
   m_content = Block(tlv::Content, std::move(value));
   return *this;
@@ -300,13 +303,13 @@ Data::setSignatureInfo(const SignatureInfo& info)
 }
 
 Data&
-Data::setSignatureValue(const Block& value)
+Data::setSignatureValue(ConstBufferPtr value)
 {
-  if (value.type() != tlv::SignatureValue) {
-    NDN_THROW(Error("SignatureValue", value.type()));
+  if (value == nullptr) {
+    NDN_THROW(std::invalid_argument("SignatureValue buffer cannot be nullptr"));
   }
   resetWire();
-  m_signatureValue = value;
+  m_signatureValue = Block(tlv::SignatureValue, std::move(value));
   return *this;
 }
 
@@ -350,8 +353,7 @@ operator<<(std::ostream& os, const Data& data)
   os << "Name: " << data.getName() << "\n";
   os << "MetaInfo: " << data.getMetaInfo() << "\n";
   os << "Content: (size: " << data.getContent().value_size() << ")\n";
-  os << "Signature: (type: "
-     << static_cast<tlv::SignatureTypeValue>(data.getSignatureInfo().getSignatureType())
+  os << "Signature: (type: " << static_cast<tlv::SignatureTypeValue>(data.getSignatureType())
      << ", value_length: "<< data.getSignatureValue().value_size() << ")";
   os << std::endl;
 

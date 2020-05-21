@@ -148,7 +148,7 @@ public: // SignatureInfo fields
   void
   unsetKeyLocator()
   {
-    m_info.unsetKeyLocator();
+    m_info.setKeyLocator(nullopt);
   }
 
 protected:

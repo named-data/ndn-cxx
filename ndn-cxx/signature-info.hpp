@@ -44,14 +44,10 @@ public:
    */
   SignatureInfo();
 
-  /** @brief Create with specified type
+  /** @brief Create with the specified type and KeyLocator
    */
   explicit
-  SignatureInfo(tlv::SignatureTypeValue type);
-
-  /** @brief Create with specified type and KeyLocator
-   */
-  SignatureInfo(tlv::SignatureTypeValue type, const KeyLocator& keyLocator);
+  SignatureInfo(tlv::SignatureTypeValue type, optional<KeyLocator> keyLocator = nullopt);
 
   /** @brief Create from wire encoding
    *  @throw tlv::Error decode error
@@ -62,7 +58,7 @@ public:
   /** @brief Determine whether SignatureInfo is valid
    */
   explicit
-  operator bool() const
+  operator bool() const noexcept
   {
     return m_type != -1;
   }
@@ -85,58 +81,85 @@ public:
   void
   wireDecode(const Block& wire);
 
+  /** @brief Check if this instance has cached wire encoding.
+   */
+  bool
+  hasWire() const noexcept
+  {
+    return m_wire.hasWire();
+  }
+
 public: // field access
   /** @brief Get SignatureType
    *  @return tlv::SignatureTypeValue, or -1 to indicate invalid SignatureInfo
    */
   int32_t
-  getSignatureType() const
+  getSignatureType() const noexcept
   {
     return m_type;
   }
 
   /** @brief Set SignatureType
+   *  @return a reference to this SignatureInfo, to allow chaining
    */
-  void
+  SignatureInfo&
   setSignatureType(tlv::SignatureTypeValue type);
 
-  /** @brief Check if KeyLocator exists
+  /** @brief Check if KeyLocator is present
    */
   bool
-  hasKeyLocator() const
+  hasKeyLocator() const noexcept
   {
-    return m_hasKeyLocator;
+    return m_keyLocator.has_value();
   }
 
   /** @brief Get KeyLocator
-   *  @throw Error KeyLocator does not exist
+   *  @throw Error This SignatureInfo does not contain a KeyLocator
    */
   const KeyLocator&
   getKeyLocator() const;
 
   /** @brief Set KeyLocator
+   *  @return a reference to this SignatureInfo, to allow chaining
+   *
+   *  Passing `nullopt` will remove the KeyLocator.
    */
-  void
-  setKeyLocator(const KeyLocator& keyLocator);
+  SignatureInfo&
+  setKeyLocator(optional<KeyLocator> keyLocator);
 
-  /** @brief Unset KeyLocator
+  /** @brief Remove KeyLocator
+   *  @deprecated Use `setKeyLocator(nullopt)`
    */
+  [[deprecated("use setKeyLocator(nullopt)")]]
   void
   unsetKeyLocator();
 
+  /** @brief Check if ValidityPeriod is present
+   */
+  bool
+  hasValidityPeriod() const noexcept
+  {
+    return !m_otherTlvs.empty() && m_otherTlvs.front().type() == tlv::ValidityPeriod;
+  }
+
   /** @brief Get ValidityPeriod
-   *  @throw Error ValidityPeriod does not exist
+   *  @throw Error This SignatureInfo does not contain a ValidityPeriod
    */
   security::ValidityPeriod
   getValidityPeriod() const;
 
   /** @brief Set ValidityPeriod
+   *  @return a reference to this SignatureInfo, to allow chaining
+   *
+   *  Passing `nullopt` will remove the ValidityPeriod.
    */
-  void
-  setValidityPeriod(const security::ValidityPeriod& validityPeriod);
+  SignatureInfo&
+  setValidityPeriod(optional<security::ValidityPeriod> validityPeriod);
 
-  /** @brief Unset ValidityPeriod
+  /** @brief Remove ValidityPeriod
+   *  @deprecated Use `setValidityPeriod(nullopt)`
    */
+  [[deprecated("use setValidityPeriod(nullopt)")]]
   void
   unsetValidityPeriod();
 
@@ -153,9 +176,8 @@ public: // field access
   appendTypeSpecificTlv(const Block& element);
 
 private:
-  int32_t m_type;
-  bool m_hasKeyLocator;
-  KeyLocator m_keyLocator;
+  int32_t m_type = -1;
+  optional<KeyLocator> m_keyLocator;
   std::list<Block> m_otherTlvs;
 
   mutable Block m_wire;

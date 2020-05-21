@@ -21,10 +21,10 @@
 
 #include "ndn-cxx/lp/packet.hpp"
 #include "ndn-cxx/prefix-announcement.hpp"
-#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/identity-management-fixture.hpp"
+#include "tests/make-interest-data.hpp"
 
 namespace ndn {
 namespace lp {
@@ -431,14 +431,10 @@ BOOST_AUTO_TEST_CASE(DecodeUnrecognizedTlvType)
 BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, ndn::tests::IdentityManagementFixture)
 {
   // Construct Data which prefix announcement is attached to
-  Data data0("/edu/ua/cs/news/index.html");
-  data0.setSignatureInfo(SignatureInfo(ndn::tlv::SignatureSha256WithRsa));
-  data0.setSignatureValue(encoding::makeEmptyBlock(ndn::tlv::SignatureValue));
+  auto data0 = ndn::tests::makeData("/edu/ua/cs/news/index.html");
 
-  Block wire;
-  wire = data0.wireEncode();
   Packet packet0;
-  packet0.wireDecode(wire);
+  packet0.wireDecode(data0->wireEncode());
 
   // Construct Prefix Announcement
   PrefixAnnouncement pa;

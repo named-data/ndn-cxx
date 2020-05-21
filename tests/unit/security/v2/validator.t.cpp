@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -316,8 +316,8 @@ BOOST_AUTO_TEST_CASE(LoopedCertChain)
     request.setName(Name(key.getName()).append("looper").appendVersion());
 
     SignatureInfo info;
-    info.setValidityPeriod({time::system_clock::now() - 100_days,
-                            time::system_clock::now() + 100_days});
+    info.setValidityPeriod(ValidityPeriod(time::system_clock::now() - 100_days,
+                                          time::system_clock::now() + 100_days));
     m_keyChain.sign(request, signingByKey(signer).setSignatureInfo(info));
     m_keyChain.addCertificate(key, request);
 

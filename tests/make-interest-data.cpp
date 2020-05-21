@@ -21,8 +21,6 @@
 
 #include "tests/make-interest-data.hpp"
 
-#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
-
 namespace ndn {
 namespace tests {
 
@@ -47,7 +45,7 @@ Data&
 signData(Data& data)
 {
   data.setSignatureInfo(SignatureInfo(tlv::SignatureSha256WithRsa));
-  data.setSignatureValue(encoding::makeEmptyBlock(tlv::SignatureValue));
+  data.setSignatureValue(std::make_shared<Buffer>());
   data.wireEncode();
   return data;
 }

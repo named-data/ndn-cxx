@@ -21,7 +21,6 @@
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
 #include "ndn-cxx/security/transform/public-key.hpp"
 #include "ndn-cxx/security/transform/signer-filter.hpp"
@@ -29,9 +28,11 @@
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/security/verification-helpers.hpp"
 #include "ndn-cxx/util/sha256.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/identity-management-fixture.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
@@ -42,41 +43,42 @@ BOOST_AUTO_TEST_SUITE(TestData)
 const uint8_t CONTENT1[] = {0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21};
 
 const uint8_t DATA1[] = {
-0x06, 0xc5, // Data
+  0x06, 0xc5, // Data
     0x07, 0x14, // Name
-        0x08, 0x05,
-            0x6c, 0x6f, 0x63, 0x61, 0x6c,
-        0x08, 0x03,
-            0x6e, 0x64, 0x6e,
-        0x08, 0x06,
-            0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
+      0x08, 0x05,
+        0x6c, 0x6f, 0x63, 0x61, 0x6c,
+      0x08, 0x03,
+        0x6e, 0x64, 0x6e,
+      0x08, 0x06,
+        0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
     0x14, 0x04, // MetaInfo
-        0x19, 0x02, // FreshnessPeriod
-            0x27, 0x10,
+      0x19, 0x02, // FreshnessPeriod
+        0x27, 0x10,
     0x15, 0x08, // Content
-        0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21,
+      0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21,
     0x16, 0x1b, // SignatureInfo
-        0x1b, 0x01, // SignatureType
-            0x01,
-        0x1c, 0x16, // KeyLocator
-            0x07, 0x14, // Name
-                0x08, 0x04,
-                    0x74, 0x65, 0x73, 0x74,
-                0x08, 0x03,
-                    0x6b, 0x65, 0x79,
-                0x08, 0x07,
-                    0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
+      0x1b, 0x01, // SignatureType
+        0x01,
+      0x1c, 0x16, // KeyLocator
+        0x07, 0x14, // Name
+          0x08, 0x04,
+            0x74, 0x65, 0x73, 0x74,
+          0x08, 0x03,
+            0x6b, 0x65, 0x79,
+          0x08, 0x07,
+            0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
     0x17, 0x80, // SignatureValue
-        0x2f, 0xd6, 0xf1, 0x6e, 0x80, 0x6f, 0x10, 0xbe, 0xb1, 0x6f, 0x3e, 0x31, 0xec,
-        0xe3, 0xb9, 0xea, 0x83, 0x30, 0x40, 0x03, 0xfc, 0xa0, 0x13, 0xd9, 0xb3, 0xc6,
-        0x25, 0x16, 0x2d, 0xa6, 0x58, 0x41, 0x69, 0x62, 0x56, 0xd8, 0xb3, 0x6a, 0x38,
-        0x76, 0x56, 0xea, 0x61, 0xb2, 0x32, 0x70, 0x1c, 0xb6, 0x4d, 0x10, 0x1d, 0xdc,
-        0x92, 0x8e, 0x52, 0xa5, 0x8a, 0x1d, 0xd9, 0x96, 0x5e, 0xc0, 0x62, 0x0b, 0xcf,
-        0x3a, 0x9d, 0x7f, 0xca, 0xbe, 0xa1, 0x41, 0x71, 0x85, 0x7a, 0x8b, 0x5d, 0xa9,
-        0x64, 0xd6, 0x66, 0xb4, 0xe9, 0x8d, 0x0c, 0x28, 0x43, 0xee, 0xa6, 0x64, 0xe8,
-        0x55, 0xf6, 0x1c, 0x19, 0x0b, 0xef, 0x99, 0x25, 0x1e, 0xdc, 0x78, 0xb3, 0xa7,
-        0xaa, 0x0d, 0x14, 0x58, 0x30, 0xe5, 0x37, 0x6a, 0x6d, 0xdb, 0x56, 0xac, 0xa3,
-        0xfc, 0x90, 0x7a, 0xb8, 0x66, 0x9c, 0x0e, 0xf6, 0xb7, 0x64, 0xd1
+      0x2f, 0xd6, 0xf1, 0x6e, 0x80, 0x6f, 0x10, 0xbe, 0xb1, 0x6f, 0x3e, 0x31,
+      0xec, 0xe3, 0xb9, 0xea, 0x83, 0x30, 0x40, 0x03, 0xfc, 0xa0, 0x13, 0xd9,
+      0xb3, 0xc6, 0x25, 0x16, 0x2d, 0xa6, 0x58, 0x41, 0x69, 0x62, 0x56, 0xd8,
+      0xb3, 0x6a, 0x38, 0x76, 0x56, 0xea, 0x61, 0xb2, 0x32, 0x70, 0x1c, 0xb6,
+      0x4d, 0x10, 0x1d, 0xdc, 0x92, 0x8e, 0x52, 0xa5, 0x8a, 0x1d, 0xd9, 0x96,
+      0x5e, 0xc0, 0x62, 0x0b, 0xcf, 0x3a, 0x9d, 0x7f, 0xca, 0xbe, 0xa1, 0x41,
+      0x71, 0x85, 0x7a, 0x8b, 0x5d, 0xa9, 0x64, 0xd6, 0x66, 0xb4, 0xe9, 0x8d,
+      0x0c, 0x28, 0x43, 0xee, 0xa6, 0x64, 0xe8, 0x55, 0xf6, 0x1c, 0x19, 0x0b,
+      0xef, 0x99, 0x25, 0x1e, 0xdc, 0x78, 0xb3, 0xa7, 0xaa, 0x0d, 0x14, 0x58,
+      0x30, 0xe5, 0x37, 0x6a, 0x6d, 0xdb, 0x56, 0xac, 0xa3, 0xfc, 0x90, 0x7a,
+      0xb8, 0x66, 0x9c, 0x0e, 0xf6, 0xb7, 0x64, 0xd1,
 };
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
@@ -90,6 +92,9 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK(!d.getSignatureInfo());
+  BOOST_CHECK_EQUAL(d.getSignatureType(), -1);
+  BOOST_CHECK(!d.getKeyLocator());
+  BOOST_CHECK_EQUAL(d.getSignatureValue().isValid(), false);
 }
 
 class DataSigningKeyFixture
@@ -155,27 +160,15 @@ const uint8_t DataSigningKeyFixture::PRIVATE_KEY_DER[] = {
 
 BOOST_FIXTURE_TEST_CASE(Encode, DataSigningKeyFixture)
 {
-  // manual data packet creation for now
-
   Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(10_s);
   d.setContent(CONTENT1, sizeof(CONTENT1));
 
-  Block signatureInfo(tlv::SignatureInfo);
-  // SignatureType
-  signatureInfo.push_back(makeNonNegativeIntegerBlock(tlv::SignatureType, tlv::SignatureSha256WithRsa));
-  // KeyLocator
-  {
-    KeyLocator keyLocator;
-    keyLocator.setName("/test/key/locator");
-    signatureInfo.push_back(keyLocator.wireEncode());
-  }
-  signatureInfo.encode();
-
-  // SignatureValue
-  OBufferStream os;
-  tlv::writeVarNumber(os, tlv::SignatureValue);
+  SignatureInfo signatureInfo;
+  signatureInfo.setSignatureType(tlv::SignatureSha256WithRsa);
+  signatureInfo.setKeyLocator(Name("/test/key/locator"));
+  d.setSignatureInfo(signatureInfo);
 
   OBufferStream sig;
   {
@@ -187,16 +180,10 @@ BOOST_FIXTURE_TEST_CASE(Encode, DataSigningKeyFixture)
     input.write(d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
     input.write(d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
     input.write(d.getContent().              wire(), d.getContent().              size());
-    input.write(signatureInfo.               wire(), signatureInfo.               size());
+    input.write(signatureInfo.  wireEncode().wire(), signatureInfo.  wireEncode().size());
     input.end();
   }
-  auto buf = sig.buf();
-  tlv::writeVarNumber(os, buf->size());
-  os.write(buf->get<char>(), buf->size());
-
-  Block signatureValue(os.buf());
-  d.setSignatureInfo(SignatureInfo(signatureInfo));
-  d.setSignatureValue(signatureValue);
+  d.setSignatureValue(sig.buf());
 
   Block dataBlock(d.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(DATA1, DATA1 + sizeof(DATA1),
@@ -213,7 +200,7 @@ BOOST_FIXTURE_TEST_CASE(Decode02, DataSigningKeyFixture)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
                                 d.getContent().value_size()), "SUCCESS!");
-  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::SignatureSha256WithRsa);
+  BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::SignatureSha256WithRsa);
 
   Block block = d.getSignatureInfo().wireEncode();
   block.parse();
@@ -233,10 +220,10 @@ protected:
     d.setContentType(tlv::ContentType_Key);
     d.setContent("1504C0C1C2C3"_block);
     d.setSignatureInfo(SignatureInfo("160A 1B0101 1C050703080142"_block));
-    d.setSignatureValue("1780 B48F1707A3BCA3CFC5F32DE51D9B46C32D7D262A21544EBDA88C3B415D637503"
-                             "FC9BEF20F88202A56AF9831E0D30205FD4154B08502BCDEE860267A5C3E03D8E"
-                             "A6CB74BE391C01E0A57B991B4404FC11B7D777F1B700A4B65F201118CF1840A8"
-                             "30A2A7C17DB4B7A8777E58515121AF9E2498627F8475414CDFD9801B8152AD5B"_block);
+    d.setSignatureValue(fromHex("B48F1707A3BCA3CFC5F32DE51D9B46C32D7D262A21544EBDA88C3B415D637503"
+                                "FC9BEF20F88202A56AF9831E0D30205FD4154B08502BCDEE860267A5C3E03D8E"
+                                "A6CB74BE391C01E0A57B991B4404FC11B7D777F1B700A4B65F201118CF1840A8"
+                                "30A2A7C17DB4B7A8777E58515121AF9E2498627F8475414CDFD9801B8152AD5B"));
   }
 
 protected:
@@ -254,7 +241,8 @@ BOOST_AUTO_TEST_CASE(Minimal)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getKeyLocator().has_value(), false);
   BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 32);
 
   // encode without modification: retain original wire encoding
@@ -275,7 +263,8 @@ BOOST_AUTO_TEST_CASE(MinimalEmptyName)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getKeyLocator().has_value(), false);
   BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 0);
 }
 
@@ -288,7 +277,8 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK_EQUAL(d.getSignatureInfo().getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK_EQUAL(d.getKeyLocator().has_value(), false);
   BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 32);
 
   // encode without modification: retain original wire encoding
@@ -388,6 +378,57 @@ BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
     "sha256digest=28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
 }
 
+BOOST_AUTO_TEST_CASE(Content)
+{
+  Data d;
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+
+  const uint8_t direct[] = {0xca, 0xfe};
+  d.setContent("1502CAFE"_block); // Block overload, used directly as Content
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
+                                direct, direct + sizeof(direct));
+
+  const uint8_t nested[] = {0x99, 0x02, 0xca, 0xfe};
+  d.setContent(Block(nested, sizeof(nested))); // Block overload, nested inside Content element
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
+                                nested, nested + sizeof(nested));
+
+  d.setContent(nested, sizeof(nested)); // raw buffer overload
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
+                                nested, nested + sizeof(nested));
+
+  d.setContent(std::make_shared<Buffer>(direct, sizeof(direct))); // ConstBufferPtr overload
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
+                                direct, direct + sizeof(direct));
+
+  d.setContent(std::make_shared<Buffer>()); // ConstBufferPtr overload, empty buffer
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+
+  BOOST_CHECK_THROW(d.setContent(nullptr), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(SignatureValue)
+{
+  Data d;
+  BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::Invalid);
+
+  d.setSignatureValue(fromHex("FACADE"));
+  BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::SignatureValue);
+  BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 3);
+
+  d.setSignatureValue(std::make_shared<Buffer>()); // empty buffer
+  BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::SignatureValue);
+  BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 0);
+
+  BOOST_CHECK_THROW(d.setSignatureValue(nullptr), std::invalid_argument);
+}
+
 BOOST_AUTO_TEST_CASE(Equality)
 {
   Data a;
@@ -395,15 +436,15 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  a.setName("ndn:/A");
+  a.setName("/A");
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setName("ndn:/B");
+  b.setName("/B");
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setName("ndn:/A");
+  b.setName("/A");
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 

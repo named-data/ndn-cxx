@@ -166,16 +166,15 @@ operator<<(std::ostream& os, const Certificate& cert)
 
   os << "Signature Information:\n";
   {
-    os << "  Signature Type: "
-       << static_cast<tlv::SignatureTypeValue>(cert.getSignatureInfo().getSignatureType()) << "\n";
+    os << "  Signature Type: " << static_cast<tlv::SignatureTypeValue>(cert.getSignatureType()) << "\n";
 
-    if (cert.getSignatureInfo().hasKeyLocator()) {
+    auto keyLoc = cert.getKeyLocator();
+    if (keyLoc) {
       os << "  Key Locator: ";
-      const auto& keyLocator = cert.getSignatureInfo().getKeyLocator();
-      if (keyLocator.getType() == tlv::Name && keyLocator.getName() == cert.getKeyName()) {
+      if (keyLoc->getType() == tlv::Name && keyLoc->getName() == cert.getKeyName()) {
         os << "Self-Signed ";
       }
-      os << keyLocator << "\n";
+      os << *keyLoc << "\n";
     }
   }
 

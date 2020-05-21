@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,22 +32,11 @@ BOOST_CONCEPT_ASSERT((WireDecodable<SignatureInfo>));
 static_assert(std::is_base_of<tlv::Error, SignatureInfo::Error>::value,
               "SignatureInfo::Error must inherit from tlv::Error");
 
-SignatureInfo::SignatureInfo()
-  : m_type(-1)
-  , m_hasKeyLocator(false)
-{
-}
+SignatureInfo::SignatureInfo() = default;
 
-SignatureInfo::SignatureInfo(tlv::SignatureTypeValue type)
+SignatureInfo::SignatureInfo(tlv::SignatureTypeValue type, optional<KeyLocator> keyLocator)
   : m_type(type)
-  , m_hasKeyLocator(false)
-{
-}
-
-SignatureInfo::SignatureInfo(tlv::SignatureTypeValue type, const KeyLocator& keyLocator)
-  : m_type(type)
-  , m_hasKeyLocator(true)
-  , m_keyLocator(keyLocator)
+  , m_keyLocator(std::move(keyLocator))
 {
 }
 
@@ -64,11 +53,11 @@ SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
     NDN_THROW(Error("Cannot encode invalid SignatureInfo"));
   }
 
-  // SignatureInfo ::= SIGNATURE-INFO-TLV TLV-LENGTH
-  //                     SignatureType
-  //                     KeyLocator?
-  //                     ValidityPeriod? (if present, stored as first item of m_otherTlvs)
-  //                     other SignatureType-specific sub-elements*
+  // SignatureInfo = SIGNATURE-INFO-TYPE TLV-LENGTH
+  //                   SignatureType
+  //                   [KeyLocator]
+  //                   [ValidityPeriod] ; if present, stored as first item of m_otherTlvs
+  //                   *OtherSubelements
 
   size_t totalLength = 0;
 
@@ -76,8 +65,9 @@ SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
     totalLength += encoder.prependBlock(*i);
   }
 
-  if (m_hasKeyLocator)
-    totalLength += m_keyLocator.wireEncode(encoder);
+  if (m_keyLocator) {
+    totalLength += m_keyLocator->wireEncode(encoder);
+  }
 
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::SignatureType,
                                                 static_cast<uint64_t>(m_type));
@@ -109,7 +99,7 @@ void
 SignatureInfo::wireDecode(const Block& wire)
 {
   m_type = -1;
-  m_hasKeyLocator = false;
+  m_keyLocator = nullopt;
   m_otherTlvs.clear();
 
   m_wire = wire;
@@ -129,8 +119,7 @@ SignatureInfo::wireDecode(const Block& wire)
 
   // the second sub-element could be KeyLocator
   if (it != m_wire.elements_end() && it->type() == tlv::KeyLocator) {
-    m_keyLocator.wireDecode(*it);
-    m_hasKeyLocator = true;
+    m_keyLocator.emplace(*it);
     ++it;
   }
 
@@ -141,62 +130,75 @@ SignatureInfo::wireDecode(const Block& wire)
   }
 }
 
-void
+SignatureInfo&
 SignatureInfo::setSignatureType(tlv::SignatureTypeValue type)
 {
-  m_wire.reset();
-  m_type = type;
+  if (type != m_type) {
+    m_type = type;
+    m_wire.reset();
+  }
+  return *this;
 }
 
 const KeyLocator&
 SignatureInfo::getKeyLocator() const
 {
-  if (m_hasKeyLocator)
-    return m_keyLocator;
-  else
+  if (!hasKeyLocator()) {
     NDN_THROW(Error("KeyLocator does not exist in SignatureInfo"));
+  }
+  return *m_keyLocator;
 }
 
-void
-SignatureInfo::setKeyLocator(const KeyLocator& keyLocator)
+SignatureInfo&
+SignatureInfo::setKeyLocator(optional<KeyLocator> keyLocator)
 {
-  m_wire.reset();
-  m_keyLocator = keyLocator;
-  m_hasKeyLocator = true;
+  if (keyLocator != m_keyLocator) {
+    m_keyLocator = std::move(keyLocator);
+    m_wire.reset();
+  }
+  return *this;
 }
 
 void
 SignatureInfo::unsetKeyLocator()
 {
-  m_wire.reset();
-  m_keyLocator = KeyLocator();
-  m_hasKeyLocator = false;
+  setKeyLocator(nullopt);
 }
 
 security::ValidityPeriod
 SignatureInfo::getValidityPeriod() const
 {
-  if (m_otherTlvs.empty() || m_otherTlvs.front().type() != tlv::ValidityPeriod) {
+  if (!hasValidityPeriod()) {
     NDN_THROW(Error("ValidityPeriod does not exist in SignatureInfo"));
   }
-
   return security::ValidityPeriod(m_otherTlvs.front());
 }
 
-void
-SignatureInfo::setValidityPeriod(const security::ValidityPeriod& validityPeriod)
+SignatureInfo&
+SignatureInfo::setValidityPeriod(optional<security::ValidityPeriod> validityPeriod)
 {
-  unsetValidityPeriod();
-  m_otherTlvs.push_front(validityPeriod.wireEncode());
+  if (validityPeriod) {
+    auto block = validityPeriod->wireEncode();
+    if (!hasValidityPeriod()) {
+      m_otherTlvs.push_front(std::move(block));
+      m_wire.reset();
+    }
+    else if (m_otherTlvs.front() != block) {
+      m_otherTlvs.front() = std::move(block);
+      m_wire.reset();
+    }
+  }
+  else if (hasValidityPeriod()) {
+    m_otherTlvs.pop_front();
+    m_wire.reset();
+  }
+  return *this;
 }
 
 void
 SignatureInfo::unsetValidityPeriod()
 {
-  if (!m_otherTlvs.empty() && m_otherTlvs.front().type() == tlv::ValidityPeriod) {
-    m_otherTlvs.pop_front();
-    m_wire.reset();
-  }
+  setValidityPeriod(nullopt);
 }
 
 const Block&
@@ -213,15 +215,14 @@ SignatureInfo::getTypeSpecificTlv(uint32_t type) const
 void
 SignatureInfo::appendTypeSpecificTlv(const Block& block)
 {
-  m_wire.reset();
   m_otherTlvs.push_back(block);
+  m_wire.reset();
 }
 
 bool
 operator==(const SignatureInfo& lhs, const SignatureInfo& rhs)
 {
   return lhs.m_type == rhs.m_type &&
-         lhs.m_hasKeyLocator == rhs.m_hasKeyLocator &&
          lhs.m_keyLocator == rhs.m_keyLocator &&
          lhs.m_otherTlvs == rhs.m_otherTlvs;
 }

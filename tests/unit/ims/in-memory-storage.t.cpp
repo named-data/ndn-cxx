@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,6 @@
 #include "ndn-cxx/ims/in-memory-storage-lfu.hpp"
 #include "ndn-cxx/ims/in-memory-storage-lru.hpp"
 #include "ndn-cxx/ims/in-memory-storage-persistent.hpp"
-#include "ndn-cxx/security/signature-sha256-with-rsa.hpp"
 #include "ndn-cxx/util/sha256.hpp"
 
 #include "tests/boost-test.hpp"
