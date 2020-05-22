@@ -152,7 +152,7 @@ ndnsec_cert_gen(int argc, char** argv)
   SignatureInfo signatureInfo;
   signatureInfo.setValidityPeriod(security::ValidityPeriod(notBefore, notAfter));
   if (!additionalDescription.empty()) {
-    signatureInfo.appendTypeSpecificTlv(additionalDescription.wireEncode());
+    signatureInfo.addCustomTlv(additionalDescription.wireEncode());
   }
 
   security::Identity identity;

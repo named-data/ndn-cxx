@@ -121,10 +121,14 @@ Certificate::isValid(const time::system_clock::TimePoint& ts) const
   return getSignatureInfo().getValidityPeriod().isValid(ts);
 }
 
-const Block&
+Block
 Certificate::getExtension(uint32_t type) const
 {
-  return getSignatureInfo().getTypeSpecificTlv(type);
+  auto block = getSignatureInfo().getCustomTlv(type);
+  if (!block) {
+    NDN_THROW(Error("TLV-TYPE " + to_string(type) + " sub-element does not exist in SignatureInfo"));
+  }
+  return *block;
 }
 
 bool
@@ -146,15 +150,12 @@ operator<<(std::ostream& os, const Certificate& cert)
     os << "  NotAfter: "  << time::toIsoString(cert.getValidityPeriod().getPeriod().second)  << "\n";
   }
 
-  try {
-    const Block& info = cert.getSignatureInfo().getTypeSpecificTlv(tlv::AdditionalDescription);
+  auto additionalDescription = cert.getSignatureInfo().getCustomTlv(tlv::AdditionalDescription);
+  if (additionalDescription) {
     os << "Additional Description:\n";
-    for (const auto& item : v2::AdditionalDescription(info)) {
+    for (const auto& item : v2::AdditionalDescription(*additionalDescription)) {
       os << "  " << item.first << ": " << item.second << "\n";
     }
-  }
-  catch (const SignatureInfo::Error&) {
-    // ignore
   }
 
   os << "Public key bits:\n";

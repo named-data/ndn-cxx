@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -149,9 +149,9 @@ public:
 
   /**
    * @brief Get extension with TLV @p type
-   * @throw ndn::SignatureInfo::Error if the specified block type does not exist
+   * @throw Error The specified block type does not exist
    */
-  const Block&
+  Block
   getExtension(uint32_t type) const;
 
   // @TODO Implement extension enumeration (Issue #3907)

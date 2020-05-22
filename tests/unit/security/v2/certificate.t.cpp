@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(Construction)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()),
                     "(20150814T223739, 20150818T223738)");
 
-  BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::SignatureInfo::Error);
+  BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::Data::Error);
   BOOST_CHECK_NO_THROW(certificate.getPublicKey());
 
   Data data(block);
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(Setters)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()),
                     "(20141111T050000, 20141111T060000)");
 
-  BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::SignatureInfo::Error);
+  BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::Data::Error);
   BOOST_CHECK_NO_THROW(certificate.getPublicKey());
 }
 

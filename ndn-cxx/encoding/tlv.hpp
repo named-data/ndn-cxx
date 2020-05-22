@@ -74,6 +74,8 @@ enum : uint32_t {
   InterestLifetime                = 12,
   HopLimit                        = 34,
   ApplicationParameters           = 36,
+  InterestSignatureInfo           = 44,
+  InterestSignatureValue          = 46,
   MetaInfo                        = 20,
   Content                         = 21,
   SignatureInfo                   = 22,
@@ -84,6 +86,9 @@ enum : uint32_t {
   SignatureType                   = 27,
   KeyLocator                      = 28,
   KeyDigest                       = 29,
+  SignatureNonce                  = 38,
+  SignatureTime                   = 40,
+  SignatureSeqNum                 = 42,
   LinkDelegation                  = 31,
   LinkPreference                  = 30,
 
@@ -135,7 +140,7 @@ enum SignatureTypeValue : uint16_t {
 std::ostream&
 operator<<(std::ostream& os, SignatureTypeValue st);
 
-/** @brief TLV-TYPE numbers for SignatureInfo features
+/** @brief TLV-TYPE numbers for SignatureInfo extensions
  *  @sa docs/specs/certificate-format.rst
  */
 enum {

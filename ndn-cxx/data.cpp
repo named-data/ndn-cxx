@@ -65,7 +65,7 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
   }
 
   // SignatureInfo
-  totalLength += m_signatureInfo.wireEncode(encoder);
+  totalLength += m_signatureInfo.wireEncode(encoder, SignatureInfo::Type::Data);
 
   // Content
   totalLength += encoder.prependBlock(getContent());

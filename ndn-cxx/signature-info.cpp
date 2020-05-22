@@ -22,6 +22,9 @@
 #include "ndn-cxx/signature-info.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/util/concepts.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
+
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 
@@ -40,14 +43,14 @@ SignatureInfo::SignatureInfo(tlv::SignatureTypeValue type, optional<KeyLocator> 
 {
 }
 
-SignatureInfo::SignatureInfo(const Block& block)
+SignatureInfo::SignatureInfo(const Block& block, SignatureInfo::Type type)
 {
-  wireDecode(block);
+  wireDecode(block, type);
 }
 
 template<encoding::Tag TAG>
 size_t
-SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
+SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder, SignatureInfo::Type type) const
 {
   if (m_type == -1) {
     NDN_THROW(Error("Cannot encode invalid SignatureInfo"));
@@ -56,13 +59,23 @@ SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
   // SignatureInfo = SIGNATURE-INFO-TYPE TLV-LENGTH
   //                   SignatureType
   //                   [KeyLocator]
-  //                   [ValidityPeriod] ; if present, stored as first item of m_otherTlvs
+  //                   [ValidityPeriod]
   //                   *OtherSubelements
+
+  // InterestSignatureInfo = INTEREST-SIGNATURE-INFO-TYPE TLV-LENGTH
+  //                           SignatureType
+  //                           [KeyLocator]
+  //                           [SignatureNonce]
+  //                           [SignatureTime]
+  //                           [SignatureSeqNum]
+  //                           *OtherSubelements
 
   size_t totalLength = 0;
 
-  for (auto i = m_otherTlvs.rbegin(); i != m_otherTlvs.rend(); i++) {
-    totalLength += encoder.prependBlock(*i);
+  // m_otherTlvs contains (if set) SignatureNonce, SignatureTime, SignatureSeqNum, ValidityPeriod,
+  // and AdditionalDescription, as well as any custom elements added by the user
+  for (const auto& block : m_otherTlvs | boost::adaptors::reversed) {
+    totalLength += encoder.prependBlock(block);
   }
 
   if (m_keyLocator) {
@@ -71,32 +84,37 @@ SignatureInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 
   totalLength += prependNonNegativeIntegerBlock(encoder, tlv::SignatureType,
                                                 static_cast<uint64_t>(m_type));
+
   totalLength += encoder.prependVarNumber(totalLength);
-  totalLength += encoder.prependVarNumber(tlv::SignatureInfo);
+  totalLength += encoder.prependVarNumber(to_underlying(type));
 
   return totalLength;
 }
 
-NDN_CXX_DEFINE_WIRE_ENCODE_INSTANTIATIONS(SignatureInfo);
+template size_t
+SignatureInfo::wireEncode<encoding::EncoderTag>(encoding::EncodingBuffer&, SignatureInfo::Type) const;
+
+template size_t
+SignatureInfo::wireEncode<encoding::EstimatorTag>(encoding::EncodingEstimator&, SignatureInfo::Type) const;
 
 const Block&
-SignatureInfo::wireEncode() const
+SignatureInfo::wireEncode(SignatureInfo::Type type) const
 {
   if (m_wire.hasWire())
     return m_wire;
 
   EncodingEstimator estimator;
-  size_t estimatedSize = wireEncode(estimator);
+  size_t estimatedSize = wireEncode(estimator, type);
 
   EncodingBuffer buffer(estimatedSize, 0);
-  wireEncode(buffer);
+  wireEncode(buffer, type);
 
   m_wire = buffer.block();
   return m_wire;
 }
 
 void
-SignatureInfo::wireDecode(const Block& wire)
+SignatureInfo::wireDecode(const Block& wire, SignatureInfo::Type type)
 {
   m_type = -1;
   m_keyLocator = nullopt;
@@ -105,28 +123,56 @@ SignatureInfo::wireDecode(const Block& wire)
   m_wire = wire;
   m_wire.parse();
 
-  if (m_wire.type() != tlv::SignatureInfo)
+  if (m_wire.type() != to_underlying(type)) {
     NDN_THROW(Error("SignatureInfo", m_wire.type()));
-
-  auto it = m_wire.elements_begin();
-
-  // the first sub-element must be SignatureType
-  if (it == m_wire.elements_end() || it->type() != tlv::SignatureType)
-    NDN_THROW(Error("Missing SignatureType in SignatureInfo"));
-
-  m_type = readNonNegativeIntegerAs<tlv::SignatureTypeValue>(*it);
-  ++it;
-
-  // the second sub-element could be KeyLocator
-  if (it != m_wire.elements_end() && it->type() == tlv::KeyLocator) {
-    m_keyLocator.emplace(*it);
-    ++it;
   }
 
-  // store SignatureType-specific sub-elements, if any
-  while (it != m_wire.elements_end()) {
-    m_otherTlvs.push_back(*it);
-    ++it;
+  size_t lastCriticalElement = 0;
+  for (const auto& element : m_wire.elements()) {
+    switch (element.type()) {
+      case tlv::SignatureType: {
+        if (lastCriticalElement > 0) {
+          NDN_THROW(Error("SignatureType element is repeated or out-of-order"));
+        }
+        m_type = readNonNegativeIntegerAs<tlv::SignatureTypeValue>(element);
+        lastCriticalElement = 1;
+        break;
+      }
+      case tlv::KeyLocator: {
+        if (lastCriticalElement > 1) {
+          NDN_THROW(Error("KeyLocator element is repeated or out-of-order"));
+        }
+        m_keyLocator.emplace(element);
+        lastCriticalElement = 2;
+        break;
+      }
+      case tlv::SignatureNonce: {
+        // Must handle SignatureNonce specifically because we must check that its length is >0
+        if (element.value_size() < 1) {
+          NDN_THROW(Error("SignatureNonce element cannot be empty"));
+        }
+        m_otherTlvs.push_back(element);
+        break;
+      }
+      case tlv::ValidityPeriod:
+        // ValidityPeriod is treated differently than other "extension" TLVs for historical reasons:
+        // It is intended to be non-critical, but its TLV-TYPE is in the critical range. Therefore,
+        // we must handle it specifically.
+        m_otherTlvs.push_back(element);
+        break;
+      default: {
+        // If the TLV-TYPE is unrecognized and critical, abort decoding
+        if (tlv::isCriticalType(element.type())) {
+          NDN_THROW(Error("Unrecognized element of critical type " + to_string(element.type())));
+        }
+        // Otherwise, store in m_otherTlvs
+        m_otherTlvs.push_back(element);
+      }
+    }
+  }
+
+  if (m_type == -1) {
+    NDN_THROW(Error("Missing SignatureType in SignatureInfo"));
   }
 }
 
@@ -168,29 +214,21 @@ SignatureInfo::unsetKeyLocator()
 security::ValidityPeriod
 SignatureInfo::getValidityPeriod() const
 {
-  if (!hasValidityPeriod()) {
+  auto it = findOtherTlv(tlv::ValidityPeriod);
+  if (it == m_otherTlvs.end()) {
     NDN_THROW(Error("ValidityPeriod does not exist in SignatureInfo"));
   }
-  return security::ValidityPeriod(m_otherTlvs.front());
+  return security::ValidityPeriod(*it);
 }
 
 SignatureInfo&
 SignatureInfo::setValidityPeriod(optional<security::ValidityPeriod> validityPeriod)
 {
-  if (validityPeriod) {
-    auto block = validityPeriod->wireEncode();
-    if (!hasValidityPeriod()) {
-      m_otherTlvs.push_front(std::move(block));
-      m_wire.reset();
-    }
-    else if (m_otherTlvs.front() != block) {
-      m_otherTlvs.front() = std::move(block);
-      m_wire.reset();
-    }
+  if (!validityPeriod) {
+    removeCustomTlv(tlv::ValidityPeriod);
   }
-  else if (hasValidityPeriod()) {
-    m_otherTlvs.pop_front();
-    m_wire.reset();
+  else {
+    addCustomTlv(validityPeriod->wireEncode());
   }
   return *this;
 }
@@ -201,22 +239,133 @@ SignatureInfo::unsetValidityPeriod()
   setValidityPeriod(nullopt);
 }
 
+optional<std::vector<uint8_t>>
+SignatureInfo::getNonce() const
+{
+  auto it = findOtherTlv(tlv::SignatureNonce);
+  if (it == m_otherTlvs.end()) {
+    return nullopt;
+  }
+  return std::vector<uint8_t>(it->value_begin(), it->value_end());
+}
+
+SignatureInfo&
+SignatureInfo::setNonce(optional<std::vector<uint8_t>> nonce)
+{
+  if (!nonce) {
+    removeCustomTlv(tlv::SignatureNonce);
+  }
+  else {
+    addCustomTlv(makeBinaryBlock(tlv::SignatureNonce, nonce->data(), nonce->size()));
+  }
+  return *this;
+}
+
+optional<time::system_clock::time_point>
+SignatureInfo::getTime() const
+{
+  auto it = findOtherTlv(tlv::SignatureTime);
+  if (it == m_otherTlvs.end()) {
+    return nullopt;
+  }
+  return time::fromUnixTimestamp(time::milliseconds(readNonNegativeInteger(*it)));
+}
+
+SignatureInfo&
+SignatureInfo::setTime(optional<time::system_clock::time_point> time)
+{
+  if (!time) {
+    removeCustomTlv(tlv::SignatureTime);
+  }
+  else {
+    addCustomTlv(makeNonNegativeIntegerBlock(tlv::SignatureTime, time::toUnixTimestamp(*time).count()));
+  }
+  return *this;
+}
+
+optional<uint64_t>
+SignatureInfo::getSeqNum() const
+{
+  auto it = findOtherTlv(tlv::SignatureSeqNum);
+  if (it == m_otherTlvs.end()) {
+    return nullopt;
+  }
+  return readNonNegativeInteger(*it);
+}
+
+SignatureInfo&
+SignatureInfo::setSeqNum(optional<uint64_t> seqNum)
+{
+  if (!seqNum) {
+    removeCustomTlv(tlv::SignatureSeqNum);
+  }
+  else {
+    addCustomTlv(makeNonNegativeIntegerBlock(tlv::SignatureSeqNum, *seqNum));
+  }
+  return *this;
+}
+
+optional<Block>
+SignatureInfo::getCustomTlv(uint32_t type) const
+{
+  auto it = findOtherTlv(type);
+  if (it == m_otherTlvs.end()) {
+    return nullopt;
+  }
+  return *it;
+}
+
+void
+SignatureInfo::addCustomTlv(Block block)
+{
+  auto existingIt = std::find_if(m_otherTlvs.begin(), m_otherTlvs.end(), [&block] (const Block& b) {
+    return b.type() == block.type();
+  });
+  if (existingIt == m_otherTlvs.end()) {
+    m_otherTlvs.push_back(std::move(block));
+    m_wire.reset();
+  }
+  else if (*existingIt != block) {
+    *existingIt = std::move(block);
+    m_wire.reset();
+  }
+}
+
+void
+SignatureInfo::removeCustomTlv(uint32_t type)
+{
+  auto it = std::remove_if(m_otherTlvs.begin(), m_otherTlvs.end(), [type] (const Block& block) {
+    return block.type() == type;
+  });
+
+  if (it != m_otherTlvs.end()) {
+    m_otherTlvs.erase(it, m_otherTlvs.end());
+    m_wire.reset();
+  }
+}
+
 const Block&
 SignatureInfo::getTypeSpecificTlv(uint32_t type) const
 {
-  for (const Block& block : m_otherTlvs) {
-    if (block.type() == type)
-      return block;
+  auto it = findOtherTlv(type);
+  if (it == m_otherTlvs.end()) {
+    NDN_THROW(Error("TLV-TYPE " + to_string(type) + " sub-element does not exist in SignatureInfo"));
   }
-
-  NDN_THROW(Error("TLV-TYPE " + to_string(type) + " sub-element does not exist in SignatureInfo"));
+  return *it;
 }
 
 void
 SignatureInfo::appendTypeSpecificTlv(const Block& block)
 {
-  m_otherTlvs.push_back(block);
-  m_wire.reset();
+  addCustomTlv(block);
+}
+
+std::vector<Block>::const_iterator
+SignatureInfo::findOtherTlv(uint32_t type) const
+{
+  return std::find_if(m_otherTlvs.begin(), m_otherTlvs.end(), [type] (const Block& block) {
+    return block.type() == type;
+  });
 }
 
 bool
@@ -230,8 +379,9 @@ operator==(const SignatureInfo& lhs, const SignatureInfo& rhs)
 std::ostream&
 operator<<(std::ostream& os, const SignatureInfo& info)
 {
-  if (info.getSignatureType() == -1)
+  if (info.getSignatureType() == -1) {
     return os << "Invalid SignatureInfo";
+  }
 
   os << static_cast<tlv::SignatureTypeValue>(info.getSignatureType());
   if (info.hasKeyLocator()) {
@@ -240,7 +390,27 @@ operator<<(std::ostream& os, const SignatureInfo& info)
   if (!info.m_otherTlvs.empty()) {
     os << " { ";
     for (const auto& block : info.m_otherTlvs) {
-      os << block.type() << " ";
+      switch (block.type()) {
+        case tlv::SignatureNonce: {
+          os << "Nonce=";
+          auto nonce = *info.getNonce();
+          printHex(os, nonce.data(), nonce.size(), false);
+          os << " ";
+          break;
+        }
+        case tlv::SignatureTime:
+          os << "Time=" << time::toUnixTimestamp(*info.getTime()).count() << " ";
+          break;
+        case tlv::SignatureSeqNum:
+          os << "SeqNum=" << *info.getSeqNum() << " ";
+          break;
+        case tlv::ValidityPeriod:
+          os << "ValidityPeriod=" << info.getValidityPeriod() << " ";
+          break;
+        default:
+          os << block.type() << " ";
+          break;
+      }
     }
     os << "}";
   }

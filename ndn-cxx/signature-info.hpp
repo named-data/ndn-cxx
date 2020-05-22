@@ -25,11 +25,9 @@
 #include "ndn-cxx/key-locator.hpp"
 #include "ndn-cxx/security/validity-period.hpp"
 
-#include <list>
-
 namespace ndn {
 
-/** @brief Represents a SignatureInfo TLV element
+/** @brief Represents a SignatureInfo or InterestSignatureInfo TLV element
  */
 class SignatureInfo
 {
@@ -40,8 +38,12 @@ public:
     using tlv::Error::Error;
   };
 
-  /** @brief Create an invalid SignatureInfo
-   */
+  enum class Type : uint32_t {
+    Data = tlv::SignatureInfo,
+    Interest = tlv::InterestSignatureInfo
+  };
+
+public:
   SignatureInfo();
 
   /** @brief Create with the specified type and KeyLocator
@@ -50,10 +52,12 @@ public:
   SignatureInfo(tlv::SignatureTypeValue type, optional<KeyLocator> keyLocator = nullopt);
 
   /** @brief Create from wire encoding
-   *  @throw tlv::Error decode error
+   *  @param wire Wire to decode from
+   *  @param type Which type of SignatureInfo block decoding should expect
+   *  @throw tlv::Error Decode error
    */
   explicit
-  SignatureInfo(const Block& wire);
+  SignatureInfo(const Block& wire, Type type = Type::Data);
 
   /** @brief Determine whether SignatureInfo is valid
    */
@@ -65,21 +69,33 @@ public:
 
   /** @brief Fast encoding or block size estimation
    *  @param encoder EncodingEstimator or EncodingBuffer instance
+   *  @param type Which type of SignatureInfo block to encode
+   *
+   *  Elements are encoded in the following order: SignatureType, KeyLocator (if present), and
+   *  other elements in the order they were set (changing the value of an already present element
+   *  will not change that element's encoding order).
    */
   template<encoding::Tag TAG>
   size_t
-  wireEncode(EncodingImpl<TAG>& encoder) const;
+  wireEncode(EncodingImpl<TAG>& encoder, Type type = Type::Data) const;
 
   /** @brief Encode to wire format
+   *  @param type Which type of SignatureInfo block to encode
+   *
+   *  Elements are encoded in the following order: SignatureType, KeyLocator (if present), and
+   *  other elements in the order they were set (changing the value of an already present element
+   *  will not change that element's encoding order).
    */
   const Block&
-  wireEncode() const;
+  wireEncode(Type type = Type::Data) const;
 
   /** @brief Decode from wire format
-   *  @throw tlv::Error decode error
+   *  @param wire Wire to decode from
+   *  @param type Which type of SignatureInfo block decoding should expect
+   *  @throw tlv::Error Decode error
    */
   void
-  wireDecode(const Block& wire);
+  wireDecode(const Block& wire, Type type = Type::Data);
 
   /** @brief Check if this instance has cached wire encoding.
    */
@@ -91,7 +107,7 @@ public:
 
 public: // field access
   /** @brief Get SignatureType
-   *  @return tlv::SignatureTypeValue, or -1 to indicate invalid SignatureInfo
+   *  @return tlv::SignatureTypeValue, or -1 to indicate an invalid SignatureInfo
    */
   int32_t
   getSignatureType() const noexcept
@@ -100,7 +116,7 @@ public: // field access
   }
 
   /** @brief Set SignatureType
-   *  @return a reference to this SignatureInfo, to allow chaining
+   *  @return A reference to this SignatureInfo, to allow chaining
    */
   SignatureInfo&
   setSignatureType(tlv::SignatureTypeValue type);
@@ -120,7 +136,7 @@ public: // field access
   getKeyLocator() const;
 
   /** @brief Set KeyLocator
-   *  @return a reference to this SignatureInfo, to allow chaining
+   *  @return A reference to this SignatureInfo, to allow chaining
    *
    *  Passing `nullopt` will remove the KeyLocator.
    */
@@ -134,22 +150,14 @@ public: // field access
   void
   unsetKeyLocator();
 
-  /** @brief Check if ValidityPeriod is present
-   */
-  bool
-  hasValidityPeriod() const noexcept
-  {
-    return !m_otherTlvs.empty() && m_otherTlvs.front().type() == tlv::ValidityPeriod;
-  }
-
   /** @brief Get ValidityPeriod
    *  @throw Error This SignatureInfo does not contain a ValidityPeriod
    */
   security::ValidityPeriod
   getValidityPeriod() const;
 
-  /** @brief Set ValidityPeriod
-   *  @return a reference to this SignatureInfo, to allow chaining
+  /** @brief Append or replace ValidityPeriod
+   *  @return A reference to this SignatureInfo, to allow chaining
    *
    *  Passing `nullopt` will remove the ValidityPeriod.
    */
@@ -163,22 +171,92 @@ public: // field access
   void
   unsetValidityPeriod();
 
-  /** @brief Get SignatureType-specific sub-element
-   *  @param type TLV-TYPE of sub-element
-   *  @throw Error sub-element of specified type does not exist
+  /** @brief Get SignatureNonce
+   *  @retval nullopt SignatureNonce is not set
    */
+  optional<std::vector<uint8_t>>
+  getNonce() const;
+
+  /** @brief Append or replace SignatureNonce
+   *  @return A reference to this SignatureInfo, to allow chaining
+   *
+   *  Passing `nullopt` will remove the SignatureNonce.
+   */
+  SignatureInfo&
+  setNonce(optional<std::vector<uint8_t>> nonce);
+
+  /** @brief Get SignatureTime
+   *  @retval nullopt SignatureTime is not set
+   */
+  optional<time::system_clock::time_point>
+  getTime() const;
+
+  /** @brief Append or replace SignatureTime
+   *  @return A reference to this SignatureInfo, to allow chaining
+   *
+   *  Passing `nullopt` will remove the SignatureTime.
+   */
+  SignatureInfo&
+  setTime(optional<time::system_clock::time_point> time = time::system_clock::now());
+
+  /** @brief Get SignatureSeqNum
+   *  @retval nullopt SignatureSeqNum is not set
+   */
+  optional<uint64_t>
+  getSeqNum() const;
+
+  /** @brief Append or replace SignatureSeqNum
+   *  @return A reference to this SignatureInfo, to allow chaining
+   *
+   *  Passing `nullopt` will remove the SignatureSeqNum.
+   */
+  SignatureInfo&
+  setSeqNum(optional<uint64_t> seqNum);
+
+  /** @brief Get first custom TLV element with the specified TLV-TYPE
+   *  @param type TLV-TYPE of element to get
+   *  @retval nullopt No custom TLV elements with the specified TLV-TYPE exist
+   */
+  optional<Block>
+  getCustomTlv(uint32_t type) const;
+
+  /** @brief Append an arbitrary TLV element to this SignatureInfo
+   *
+   *  If an element of the same TLV-TYPE already exists, it will be replaced by the new element.
+   */
+  void
+  addCustomTlv(Block block);
+
+  /** @brief Remove all arbitrary TLV elements with the specified TLV-TYPE from this SignatureInfo
+   *  @param type TLV-TYPE of elements to remove
+   */
+  void
+  removeCustomTlv(uint32_t type);
+
+  /** @brief Get SignatureType-specific sub-element
+   *  @deprecated Use getCustomTlv
+   *  @param type TLV-TYPE of sub-element
+   *  @throw Error Sub-element of specified type does not exist
+   */
+  [[deprecated("use getCustomTlv")]]
   const Block&
   getTypeSpecificTlv(uint32_t type) const;
 
   /** @brief Append SignatureType-specific sub-element
+   *  @deprecated Use addCustomTlv
    */
+  [[deprecated("use addCustomTlv")]]
   void
-  appendTypeSpecificTlv(const Block& element);
+  appendTypeSpecificTlv(const Block& block);
+
+private:
+  std::vector<Block>::const_iterator
+  findOtherTlv(uint32_t type) const;
 
 private:
   int32_t m_type = -1;
   optional<KeyLocator> m_keyLocator;
-  std::list<Block> m_otherTlvs;
+  std::vector<Block> m_otherTlvs;
 
   mutable Block m_wire;
 
@@ -189,7 +267,11 @@ private:
   operator<<(std::ostream& os, const SignatureInfo& info);
 };
 
-NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(SignatureInfo);
+extern template size_t
+SignatureInfo::wireEncode<encoding::EncoderTag>(EncodingBuffer&, SignatureInfo::Type) const;
+
+extern template size_t
+SignatureInfo::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, SignatureInfo::Type) const;
 
 bool
 operator==(const SignatureInfo& lhs, const SignatureInfo& rhs);
