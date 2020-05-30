@@ -367,7 +367,7 @@ public: // PIB & TPM backend registry
   registerTpmBackend(const std::string& scheme);
 
 private:
-  typedef std::map<std::string, function<unique_ptr<pib::PibImpl>(const std::string& location)>> PibFactories;
+  typedef std::map<std::string, function<std::shared_ptr<pib::PibImpl>(const std::string& location)>> PibFactories;
   typedef std::map<std::string, function<unique_ptr<tpm::BackEnd>(const std::string& location)>> TpmFactories;
 
   static PibFactories&
@@ -458,7 +458,7 @@ inline void
 KeyChain::registerPibBackend(const std::string& scheme)
 {
   getPibFactories().emplace(scheme, [] (const std::string& locator) {
-      return unique_ptr<pib::PibImpl>(new PibType(locator));
+      return std::shared_ptr<pib::PibImpl>(new PibType(locator));
     });
 }
 
