@@ -62,6 +62,9 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+  BOOST_CHECK(i.getSignatureInfo() == nullopt);
+  BOOST_CHECK_EQUAL(i.getSignatureValue().isValid(), false);
+  BOOST_CHECK_EQUAL(i.isSigned(), false);
 }
 
 BOOST_AUTO_TEST_SUITE(Encode)
@@ -98,6 +101,9 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters().isValid(), false);
+  BOOST_CHECK(i2.getSignatureInfo() == nullopt);
+  BOOST_CHECK_EQUAL(i2.getSignatureValue().isValid(), false);
+  BOOST_CHECK_EQUAL(i2.isSigned(), false);
 }
 
 BOOST_AUTO_TEST_CASE(WithParameters)
@@ -140,6 +146,9 @@ BOOST_AUTO_TEST_CASE(WithParameters)
   BOOST_CHECK(i2.getHopLimit() == nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
+  BOOST_CHECK(i2.getSignatureInfo() == nullopt);
+  BOOST_CHECK_EQUAL(i2.getSignatureValue().isValid(), false);
+  BOOST_CHECK_EQUAL(i2.isSigned(), false);
 }
 
 BOOST_AUTO_TEST_CASE(Full)
@@ -197,6 +206,146 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), 30369_ms);
   BOOST_CHECK_EQUAL(*i2.getHopLimit(), 220);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
+}
+
+BOOST_AUTO_TEST_CASE(Signed)
+{
+  const uint8_t WIRE[] = {
+    0x05, 0x77, // Interest
+          0x07, 0x36, // Name
+                0x08, 0x05, // GenericNameComponent
+                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
+                0x08, 0x03, // GenericNameComponent
+                      0x6e, 0x64, 0x6e,
+                0x08, 0x06, // GenericNameComponent
+                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
+                0x02, 0x20, // ParametersSha256DigestComponent
+                      0x6f, 0x29, 0x58, 0x60, 0x53, 0xee, 0x9f, 0xcc,
+                      0xd8, 0xa4, 0x22, 0x12, 0x29, 0x25, 0x28, 0x7c,
+                      0x0a, 0x18, 0x43, 0x5f, 0x40, 0x74, 0xc4, 0x0a,
+                      0xbb, 0x0d, 0x5b, 0x30, 0xe4, 0xaa, 0x62, 0x20,
+          0x12, 0x00, // MustBeFresh
+          0x0a, 0x04, // Nonce
+                0x4c, 0x1e, 0xcb, 0x4a,
+          0x24, 0x04, // ApplicationParameters
+                0xc0, 0xc1, 0xc2, 0xc3,
+          0x2c, 0x0d, // InterestSignatureInfo
+                0x1b, 0x01, // SignatureType
+                      0x00,
+                0x26, 0x08, // SignatureNonce
+                      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+          0x2e, 0x20, // InterestSignatureValue
+                0x12, 0x47, 0x1a, 0xe0, 0xf8, 0x72, 0x3a, 0xc1,
+                0x15, 0x6c, 0x37, 0x0a, 0x38, 0x71, 0x1e, 0xbe,
+                0xbf, 0x28, 0x17, 0xde, 0x9b, 0x2d, 0xd9, 0x4e,
+                0x9b, 0x7e, 0x62, 0xf1, 0x17, 0xb8, 0x76, 0xc1,
+  };
+
+  SignatureInfo si(tlv::DigestSha256);
+  std::vector<uint8_t> nonce{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  si.setNonce(nonce);
+  Block sv("2E20 12471AE0F8723AC1156C370A38711EBEBF2817DE9B2DD94E9B7E62F117B876C1"_block);
+
+  Interest i1(Block(WIRE, sizeof(WIRE)));
+  BOOST_CHECK_EQUAL(i1.getName(),
+                    "/local/ndn/prefix/params-sha256=6f29586053ee9fccd8a422122925287c0a18435f4074c40abb0d5b30e4aa6220");
+  BOOST_CHECK_EQUAL(i1.getCanBePrefix(), false);
+  BOOST_CHECK_EQUAL(i1.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(i1.hasNonce(), true);
+  BOOST_CHECK_EQUAL(i1.getNonce(), 0x4c1ecb4a);
+  BOOST_CHECK_EQUAL(i1.getSignatureInfo()->getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK(i1.getSignatureInfo()->getNonce() == nonce);
+  BOOST_CHECK_EQUAL_COLLECTIONS(i1.getSignatureValue().begin(), i1.getSignatureValue().end(),
+                                sv.begin(), sv.end());
+  BOOST_CHECK_EQUAL(i1.getApplicationParameters(), "2404C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
+
+  // Reset wire
+  BOOST_CHECK_EQUAL(i1.hasWire(), true);
+  i1.setCanBePrefix(true);
+  i1.setCanBePrefix(false);
+  BOOST_CHECK_EQUAL(i1.hasWire(), false);
+
+  Block wire1 = i1.wireEncode();
+  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
+
+  Interest i2("/local/ndn/prefix");
+  i2.setCanBePrefix(false);
+  i2.setMustBeFresh(true);
+  i2.setNonce(0x4c1ecb4a);
+  i2.setApplicationParameters("2404C0C1C2C3"_block);
+  i2.setSignatureInfo(si);
+  i2.setSignatureValue(make_shared<Buffer>(sv.value(), sv.value_size()));
+  BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
+
+  Block wire2 = i2.wireEncode();
+  BOOST_CHECK_EQUAL_COLLECTIONS(wire2.begin(), wire2.end(), WIRE, WIRE + sizeof(WIRE));
+}
+
+BOOST_AUTO_TEST_CASE(SignedApplicationElements)
+{
+  const uint8_t WIRE[] = {
+    0x05, 0x8f, // Interest
+          0x07, 0x36, // Name
+                0x08, 0x05, // GenericNameComponent
+                      0x6c, 0x6f, 0x63, 0x61, 0x6c,
+                0x08, 0x03, // GenericNameComponent
+                      0x6e, 0x64, 0x6e,
+                0x08, 0x06, // GenericNameComponent
+                      0x70, 0x72, 0x65, 0x66, 0x69, 0x78,
+                0x02, 0x20, // ParametersSha256DigestComponent
+                      0xbc, 0x36, 0x30, 0xa4, 0xd6, 0x5e, 0x0d, 0xb5,
+                      0x48, 0x3d, 0xfa, 0x0d, 0x28, 0xb3, 0x31, 0x2f,
+                      0xca, 0xc1, 0xd4, 0x41, 0xec, 0x89, 0x61, 0xd4,
+                      0x17, 0x5e, 0x61, 0x75, 0x17, 0x78, 0x10, 0x8e,
+          0x12, 0x00, // MustBeFresh
+          0x0a, 0x04, // Nonce
+                0x4c, 0x1e, 0xcb, 0x4a,
+          0x24, 0x04, // ApplicationParameters
+                0xc0, 0xc1, 0xc2, 0xc3,
+          0xfd, 0x01, 0xfe, 0x08, // Application-specific element (Type 510)
+                0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80,
+          0x2c, 0x0d, // InterestSignatureInfo
+                0x1b, 0x01, // SignatureType
+                      0x00,
+                0x26, 0x08, // SignatureNonce
+                      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+          0x2e, 0x20, // InterestSignatureValue
+                0x12, 0x47, 0x1a, 0xe0, 0xf8, 0x72, 0x3a, 0xc1,
+                0x15, 0x6c, 0x37, 0x0a, 0x38, 0x71, 0x1e, 0xbe,
+                0xbf, 0x28, 0x17, 0xde, 0x9b, 0x2d, 0xd9, 0x4e,
+                0x9b, 0x7e, 0x62, 0xf1, 0x17, 0xb8, 0x76, 0xc1,
+          0xfd, 0x02, 0x00, 0x08, // Application-specific element (Type 512)
+                0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88
+  };
+
+  SignatureInfo si(tlv::DigestSha256);
+  std::vector<uint8_t> nonce{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  si.setNonce(nonce);
+  Block sv("2E20 12471AE0F8723AC1156C370A38711EBEBF2817DE9B2DD94E9B7E62F117B876C1"_block);
+
+  Interest i1(Block(WIRE, sizeof(WIRE)));
+  BOOST_CHECK_EQUAL(i1.getName(),
+                    "/local/ndn/prefix/params-sha256=bc3630a4d65e0db5483dfa0d28b3312fcac1d441ec8961d4175e61751778108e");
+  BOOST_CHECK_EQUAL(i1.getCanBePrefix(), false);
+  BOOST_CHECK_EQUAL(i1.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(i1.hasNonce(), true);
+  BOOST_CHECK_EQUAL(i1.getNonce(), 0x4c1ecb4a);
+  BOOST_CHECK_EQUAL(i1.getSignatureInfo()->getSignatureType(), tlv::DigestSha256);
+  BOOST_CHECK(i1.getSignatureInfo()->getNonce() == nonce);
+  BOOST_CHECK_EQUAL_COLLECTIONS(i1.getSignatureValue().begin(), i1.getSignatureValue().end(),
+                                sv.begin(), sv.end());
+  BOOST_CHECK_EQUAL(i1.getApplicationParameters(), "2404C0C1C2C3"_block);
+  BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
+
+  // Reset wire
+  BOOST_CHECK_EQUAL(i1.hasWire(), true);
+  i1.setCanBePrefix(true);
+  i1.setCanBePrefix(false);
+  BOOST_CHECK_EQUAL(i1.hasWire(), false);
+
+  Block wire1 = i1.wireEncode();
+  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
 }
 
 BOOST_AUTO_TEST_CASE(MissingApplicationParameters)
@@ -745,6 +894,75 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
   BOOST_CHECK_THROW(i.setApplicationParameters(nullptr), std::invalid_argument);
 }
 
+BOOST_AUTO_TEST_CASE(SetSignature)
+{
+  Interest i;
+  i.setCanBePrefix(false);
+  BOOST_CHECK(i.getSignatureInfo() == nullopt);
+  BOOST_CHECK_EQUAL(i.isSigned(), false);
+
+  // Throws because attempting to set InterestSignatureValue without set InterestSignatureInfo
+  Block sv1("2E04 01020304"_block);
+  auto svBuffer1 = make_shared<Buffer>(sv1.value(), sv1.value_size());
+  BOOST_CHECK_THROW(i.setSignatureValue(svBuffer1), tlv::Error);
+
+  // Simple set/get case for InterestSignatureInfo (no prior set)
+  SignatureInfo si1(tlv::SignatureSha256WithEcdsa);
+  i.setSignatureInfo(si1);
+  BOOST_CHECK(i.getSignatureInfo() == si1);
+  BOOST_CHECK_EQUAL(i.isSigned(), false);
+
+  // Simple set/get case for InterestSignatureValue (no prior set)
+  BOOST_CHECK_EQUAL(i.getSignatureValue().isValid(), false);
+  i.setSignatureValue(svBuffer1);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv1);
+  BOOST_CHECK_EQUAL(i.isSigned(), true);
+
+  // Throws because attempting to set InterestSignatureValue to nullptr
+  BOOST_CHECK_THROW(i.setSignatureValue(nullptr), std::invalid_argument);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv1);
+  BOOST_CHECK_EQUAL(i.isSigned(), true);
+
+  // Ensure that wire is not reset if specified InterestSignatureInfo is same
+  i.wireEncode();
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
+  i.setSignatureInfo(si1);
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
+  BOOST_CHECK(i.getSignatureInfo() == si1);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv1);
+  BOOST_CHECK_EQUAL(i.isSigned(), true);
+
+  // Ensure that wire is reset if specified InterestSignatureInfo is different
+  i.wireEncode();
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
+  SignatureInfo si2(tlv::SignatureSha256WithRsa);
+  i.setSignatureInfo(si2);
+  BOOST_CHECK_EQUAL(i.hasWire(), false);
+  BOOST_CHECK(i.getSignatureInfo() == si2);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv1);
+  BOOST_CHECK_EQUAL(i.isSigned(), true);
+
+  // Ensure that wire is not reset if specified InterestSignatureValue is same
+  i.wireEncode();
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
+  i.setSignatureValue(svBuffer1);
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
+  BOOST_CHECK(i.getSignatureInfo() == si2);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv1);
+  BOOST_CHECK_EQUAL(i.isSigned(), true);
+
+  // Ensure that wire is reset if specified InterestSignatureValue is different
+  i.wireEncode();
+  BOOST_CHECK_EQUAL(i.hasWire(), true);
+  Block sv2("2E04 99887766"_block);
+  auto svBuffer2 = make_shared<Buffer>(sv2.value(), sv2.value_size());
+  i.setSignatureValue(svBuffer2);
+  BOOST_CHECK_EQUAL(i.hasWire(), false);
+  BOOST_CHECK(i.getSignatureInfo() == si2);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv2);
+  BOOST_CHECK_EQUAL(i.isSigned(), true);
+}
+
 BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
 {
   Interest i("/I");
@@ -784,6 +1002,43 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
                     "/A/B/C/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+
+  SignatureInfo si(tlv::SignatureSha256WithEcdsa);
+  i.setSignatureInfo(si); // updates ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/A/B/C/params-sha256=6400cae1730c15fd7854b26be05794d53685423c94bc61e59c49bd640d646ae8");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404 C0C1C2C3"_block);
+  BOOST_CHECK(i.getSignatureInfo() == si);
+
+  i.unsetApplicationParameters(); // removes ParametersSha256DigestComponent and InterestSignatureInfo
+  BOOST_CHECK(i.getSignatureInfo() == nullopt);
+  BOOST_CHECK_EQUAL(i.getSignatureValue().isValid(), false);
+  BOOST_CHECK_EQUAL(i.getName(), "/A/B/C");
+
+  i.setSignatureInfo(si); // auto-adds an empty ApplicationParameters element
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/A/B/C/params-sha256=d2ac0eb1f60f60ab206fb80bf1d0f73cfef353bbec43ba6ea626117f671ca3bb");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
+  BOOST_CHECK(i.getSignatureInfo() == si);
+
+  Block sv("2E04 01020304"_block);
+  i.setSignatureValue(make_shared<Buffer>(sv.value(), sv.value_size())); // updates ParametersDigestSha256Component
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/A/B/C/params-sha256=f649845ef944638390d1c689e2f0618ea02e471eff236110cbeb822d5932d342");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
+  BOOST_CHECK(i.getSignatureInfo() == si);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv);
+
+  i.setApplicationParameters("2404C0C1C2C3"_block); // updates ParametersSha256DigestComponent
+  BOOST_CHECK_EQUAL(i.getName(),
+                    "/A/B/C/params-sha256=c5d7e567e6b251ddf36f7a6dbed95235b2d4a0b36215bb0f3cc403ac64ad0284");
+  BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
+  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2404 C0C1C2C3"_block);
+  BOOST_CHECK(i.getSignatureInfo() == si);
+  BOOST_CHECK_EQUAL(i.getSignatureValue(), sv);
 }
 
 BOOST_AUTO_TEST_CASE(ToUri)

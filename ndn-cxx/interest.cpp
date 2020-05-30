@@ -31,6 +31,8 @@
 #include <boost/stacktrace/stacktrace.hpp>
 #endif
 
+#include <boost/range/adaptor/reversed.hpp>
+
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -121,9 +123,9 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
 
   // ApplicationParameters and following elements (in reverse order)
-  std::for_each(m_parameters.rbegin(), m_parameters.rend(), [&] (const Block& b) {
-    totalLength += encoder.prependBlock(b);
-  });
+  for (const auto& block : m_parameters | boost::adaptors::reversed) {
+    totalLength += encoder.prependBlock(block);
+  }
 
   // HopLimit
   if (getHopLimit()) {
@@ -526,6 +528,110 @@ Interest::unsetApplicationParameters()
   return *this;
 }
 
+bool
+Interest::isSigned() const noexcept
+{
+  return m_parameters.size() >= 3 &&
+         getSignatureInfo().has_value() &&
+         getSignatureValue().isValid() &&
+         !m_name.empty() &&
+         m_name[-1].type() == tlv::ParametersSha256DigestComponent;
+}
+
+optional<SignatureInfo>
+Interest::getSignatureInfo() const
+{
+  auto blockIt = findFirstParameter(tlv::InterestSignatureInfo);
+  if (blockIt != m_parameters.end()) {
+    return make_optional<SignatureInfo>(*blockIt, SignatureInfo::Type::Interest);
+  }
+  return nullopt;
+}
+
+Interest&
+Interest::setSignatureInfo(const SignatureInfo& info)
+{
+  // Prepend empty ApplicationParameters element if none present
+  if (m_parameters.empty()) {
+    m_parameters.push_back(makeEmptyBlock(tlv::ApplicationParameters));
+  }
+
+  // Find first existing InterestSignatureInfo (if any)
+  auto infoIt = std::find_if(m_parameters.begin(), m_parameters.end(), [] (const Block& block) {
+    return block.type() == tlv::InterestSignatureInfo;
+  });
+
+  Block encodedInfo = info.wireEncode(SignatureInfo::Type::Interest);
+  if (infoIt != m_parameters.end()) {
+    if (*infoIt == encodedInfo) {
+      // New InterestSignatureInfo is the same as the old InterestSignatureInfo
+      return *this;
+    }
+
+    // Replace existing InterestSignatureInfo
+    *infoIt = std::move(encodedInfo);
+  }
+  else {
+    // Place before first InterestSignatureValue element (if any), else at end
+    auto valueIt = findFirstParameter(tlv::InterestSignatureValue);
+    m_parameters.insert(valueIt, std::move(encodedInfo));
+  }
+
+  addOrReplaceParametersDigestComponent();
+  m_wire.reset();
+  return *this;
+}
+
+Block
+Interest::getSignatureValue() const
+{
+  auto blockIt = findFirstParameter(tlv::InterestSignatureValue);
+  if (blockIt != m_parameters.end()) {
+    return *blockIt;
+  }
+  return {};
+}
+
+Interest&
+Interest::setSignatureValue(ConstBufferPtr value)
+{
+  if (value == nullptr) {
+    NDN_THROW(std::invalid_argument("InterestSignatureValue buffer cannot be nullptr"));
+  }
+
+  // Ensure presence of InterestSignatureInfo
+  auto infoIt = findFirstParameter(tlv::InterestSignatureInfo);
+  if (infoIt == m_parameters.end()) {
+    NDN_THROW(Error("InterestSignatureInfo must be present to set InterestSignatureValue"));
+  }
+
+  auto valueIt = std::find_if(m_parameters.begin(), m_parameters.end(), [] (const Block& block) {
+    return block.type() == tlv::InterestSignatureValue;
+  });
+
+  Block valueBlock(tlv::InterestSignatureValue, std::move(value));
+  if (valueIt != m_parameters.end()) {
+    if (*valueIt == valueBlock) {
+      // New InterestSignatureValue is the same as the old InterestSignatureValue
+      return *this;
+    }
+
+    // Replace existing InterestSignatureValue
+    *valueIt = std::move(valueBlock);
+  }
+  else {
+    // Place after first InterestSignatureInfo element
+    valueIt = m_parameters.insert(std::next(infoIt), std::move(valueBlock));
+  }
+
+  // computeParametersDigest needs encoded SignatureValue
+  valueIt->encode();
+
+  addOrReplaceParametersDigestComponent();
+  m_wire.reset();
+  return *this;
+}
+
 // ---- ParametersSha256DigestComponent support ----
 
 bool
@@ -558,9 +664,9 @@ Interest::computeParametersDigest() const
   OBufferStream out;
   in >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(out);
 
-  std::for_each(m_parameters.begin(), m_parameters.end(), [&] (const Block& b) {
-    in.write(b.wire(), b.size());
-  });
+  for (const auto& block : m_parameters) {
+    in.write(block.wire(), block.size());
+  }
   in.end();
 
   return out.buf();
@@ -598,6 +704,14 @@ Interest::findParametersDigestComponent(const Name& name)
     }
   }
   return pos;
+}
+
+std::vector<Block>::const_iterator
+Interest::findFirstParameter(uint32_t type) const
+{
+  return std::find_if(m_parameters.begin(), m_parameters.end(), [type] (const Block& block) {
+    return block.type() == type;
+  });
 }
 
 // ---- operators ----

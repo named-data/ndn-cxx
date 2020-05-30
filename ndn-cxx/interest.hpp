@@ -25,6 +25,7 @@
 #include "ndn-cxx/delegation-list.hpp"
 #include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/name.hpp"
+#include "ndn-cxx/signature-info.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 #include "ndn-cxx/util/time.hpp"
 
@@ -327,6 +328,10 @@ public: // element access
     return !m_parameters.empty();
   }
 
+  /** @brief Get the ApplicationParameters
+   *
+   *  If the element is not present, an invalid Block will be returned.
+   */
   Block
   getApplicationParameters() const
   {
@@ -378,10 +383,45 @@ public: // element access
   /** @brief Remove the ApplicationParameters element from this Interest.
    *  @post hasApplicationParameters() == false
    *
-   *  This function will also remove any ParametersSha256DigestComponents from the Interest's name.
+   *  This function will also remove any InterestSignatureInfo and InterestSignatureValue elements
+   *  in the Interest, as well as any ParametersSha256DigestComponents in the Interest's name.
    */
   Interest&
   unsetApplicationParameters();
+
+  /** @brief Return whether the Interest is signed
+   *  @warning This function only determines whether signature information is present in the
+   *           Interest and does not verify that the signature is valid.
+   */
+  bool
+  isSigned() const noexcept;
+
+  /** @brief Get the InterestSignatureInfo
+   *  @retval nullopt InterestSignatureInfo is not present
+   */
+  optional<SignatureInfo>
+  getSignatureInfo() const;
+
+  /** @brief Set the InterestSignatureInfo
+   */
+  Interest&
+  setSignatureInfo(const SignatureInfo& info);
+
+  /** @brief Get the InterestSignatureValue
+   *
+   *  If the element is not present, an invalid Block will be returned.
+   */
+  Block
+  getSignatureValue() const;
+
+  /** @brief Set the InterestSignatureValue
+   *  @param value Buffer containing the TLV-VALUE of the InterestSignatureValue; must not be nullptr
+   *  @throw Error InterestSignatureInfo is unset
+   *
+   *  InterestSignatureInfo must be set before setting InterestSignatureValue
+   */
+  Interest&
+  setSignatureValue(ConstBufferPtr value);
 
 public: // ParametersSha256DigestComponent support
   static bool
@@ -431,6 +471,9 @@ private:
    */
   static ssize_t
   findParametersDigestComponent(const Name& name);
+
+  std::vector<Block>::const_iterator
+  findFirstParameter(uint32_t type) const;
 
 #ifdef NDN_CXX_HAVE_TESTS
 public:
