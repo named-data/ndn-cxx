@@ -703,7 +703,14 @@ KeyChain::sign(const uint8_t* buf, size_t size,
   if (keyName == SigningInfo::getDigestSha256Identity())
     return Block(tlv::SignatureValue, util::Sha256::computeDigest(buf, size));
 
-  return Block(tlv::SignatureValue, m_tpm->sign(buf, size, keyName, digestAlgorithm));
+  auto signature = m_tpm->sign(buf, size, keyName, digestAlgorithm);
+  if (!signature) {
+    NDN_THROW(InvalidSigningInfoError("TPM signing failed for key `" + keyName.toUri() + "` "
+                                      "(e.g., PIB contains info about the key, but TPM is missing "
+                                      "the corresponding private key)"));
+  }
+
+  return Block(tlv::SignatureValue, std::move(signature));
 }
 
 tlv::SignatureTypeValue

@@ -210,6 +210,20 @@ BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-memory:");
 }
 
+BOOST_FIXTURE_TEST_CASE(SigningWithCorruptedPibTpm, IdentityManagementFixture)
+{
+  Identity id = m_keyChain.createIdentity("/test");
+
+  Data data("/foobar");
+  BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(id)));
+
+  // now, "corrupting TPM"
+  const_cast<Tpm&>(m_keyChain.getTpm()).deleteKey(id.getDefaultKey().getName());
+
+  BOOST_CHECK_NO_THROW(id.getDefaultKey());
+  BOOST_CHECK_THROW(m_keyChain.sign(data, signingByIdentity(id)), KeyChain::InvalidSigningInfoError);
+}
+
 BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
 {
   Name identityName("/test/id");
