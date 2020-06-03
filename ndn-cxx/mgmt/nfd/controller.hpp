@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,14 +22,14 @@
 #ifndef NDN_MGMT_NFD_CONTROLLER_HPP
 #define NDN_MGMT_NFD_CONTROLLER_HPP
 
+#include "ndn-cxx/mgmt/nfd/command-options.hpp"
 #include "ndn-cxx/mgmt/nfd/control-command.hpp"
 #include "ndn-cxx/mgmt/nfd/control-response.hpp"
 #include "ndn-cxx/mgmt/nfd/status-dataset.hpp"
-#include "ndn-cxx/mgmt/nfd/command-options.hpp"
 #include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
 #include "ndn-cxx/security/validator-null.hpp"
-#include "ndn-cxx/security/v2/key-chain.hpp"
-#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/util/segment-fetcher.hpp"
 
 namespace ndn {

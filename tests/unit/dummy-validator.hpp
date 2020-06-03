@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,9 +22,9 @@
 #ifndef NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP
 #define NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP
 
-#include "ndn-cxx/security/v2/validator.hpp"
-#include "ndn-cxx/security/v2/validation-policy.hpp"
-#include "ndn-cxx/security/v2/certificate-fetcher-offline.hpp"
+#include "ndn-cxx/security/validator.hpp"
+#include "ndn-cxx/security/validation-policy.hpp"
+#include "ndn-cxx/security/certificate-fetcher-offline.hpp"
 
 namespace ndn {
 namespace tests {

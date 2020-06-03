@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,9 +36,9 @@ namespace transform {
 class PrivateKey;
 } // namespace transform
 
-namespace v2 {
+inline namespace v2 {
 class KeyChain;
-} // namespace v2
+} // inline namespace v2
 
 namespace tpm {
 

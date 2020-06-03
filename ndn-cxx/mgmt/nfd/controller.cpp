@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,7 @@
 
 #include "ndn-cxx/mgmt/nfd/controller.hpp"
 #include "ndn-cxx/face.hpp"
-#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
 
 #include <boost/lexical_cast.hpp>
 

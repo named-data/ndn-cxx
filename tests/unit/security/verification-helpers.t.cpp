@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -466,7 +466,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   BOOST_CHECK(!verifySignature(unsignedInterest1, invalidKey, sizeof(invalidKey)));
 
   // - base version of verifySignature is tested transitively
-  // - pib::Key version is tested as part of v2/key-chain.t.cpp (Security/V2/TestKeyChain)
+  // - pib::Key version is tested as part of key-chain.t.cpp (Security/TestKeyChain)
 }
 
 BOOST_FIXTURE_TEST_CASE(VerifyHmac, IdentityManagementFixture)

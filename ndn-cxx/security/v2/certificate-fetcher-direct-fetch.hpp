@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,47 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_V2_CERTIFICATE_FETCHER_DIRECT_FETCH_HPP
-#define NDN_SECURITY_V2_CERTIFICATE_FETCHER_DIRECT_FETCH_HPP
+#ifndef NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_DIRECT_FETCH_HPP
+#define NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_DIRECT_FETCH_HPP
 
-#include "ndn-cxx/security/v2/certificate-fetcher-from-network.hpp"
+#warning This file is deprecated, include <ndn-cxx/security/certificate-fetcher-direct-fetch.hpp> instead
 
-namespace ndn {
-namespace security {
-namespace v2 {
+#include "ndn-cxx/security/certificate-fetcher-direct-fetch.hpp"
 
-/**
- * @brief Extends CertificateFetcherFromNetwork to fetch certificates from the incoming face of
- *   the packet
- *
- * During Interest and Data validation, if IncomingFaceId tag is present on the original Interest,
- * this fetcher will send a "direct Interest" to fetch certificates from the face where the original
- * packet was received, in addition to fetching from the infrastructure. The application must
- * enable NextHopFaceId privilege on the face used by this fetcher prior to the validation.
- */
-class CertificateFetcherDirectFetch : public CertificateFetcherFromNetwork
-{
-public:
-  explicit
-  CertificateFetcherDirectFetch(Face& face);
-
-  /**
-   * If \p wantDirectInterestOnly, only the direct Interest will be sent out.
-   */
-  void
-  setSendDirectInterestOnly(bool wantDirectInterestOnly);
-
-protected:
-  void
-  doFetch(const shared_ptr<CertificateRequest>& keyRequest, const shared_ptr<ValidationState>& state,
-          const ValidationContinuation& continueValidation) override;
-
-private:
-  bool m_wantDirectInterestOnly = false;
-};
-
-} // namespace v2
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_V2_CERTIFICATE_FETCHER_DIRECT_FETCH_HPP
+#endif // NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_DIRECT_FETCH_HPP

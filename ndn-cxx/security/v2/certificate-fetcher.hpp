@@ -19,73 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_V2_CERTIFICATE_FETCHER_HPP
-#define NDN_SECURITY_V2_CERTIFICATE_FETCHER_HPP
+#ifndef NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_HPP
+#define NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#warning This file is deprecated, include <ndn-cxx/security/certificate-fetcher.hpp> instead
 
-namespace ndn {
-namespace security {
-namespace v2 {
+#include "ndn-cxx/security/certificate-fetcher.hpp"
 
-class Certificate;
-class CertificateRequest;
-class CertificateStorage;
-class ValidationState;
-
-/**
- * @brief Interface used by the validator to fetch missing certificates
- */
-class CertificateFetcher : noncopyable
-{
-public:
-  using ValidationContinuation = std::function<void(const Certificate& cert,
-                                                    const shared_ptr<ValidationState>& state)>;
-
-  CertificateFetcher();
-
-  virtual
-  ~CertificateFetcher();
-
-  /**
-   * @brief Assign certificate storage to check known certificate and to cache unverified ones
-   * @note The supplied @p certStorage should be valid for the lifetime of CertificateFetcher
-   */
-  virtual void
-  setCertificateStorage(CertificateStorage& certStorage);
-
-  /**
-   * @brief Asynchronously fetch certificate
-   * @pre m_certStorage != nullptr
-   *
-   * If the requested certificate exists in the storage, then this method will immediately call
-   * continueValidation with the certification.  If certificate is not available, the
-   * implementation-specific doFetch will be called to asynchronously fetch certificate.  The
-   * successfully retrieved certificate will be automatically added to the unverified cache of
-   * the certificate storage.
-   *
-   * When the requested certificate is retrieved, continueValidation is called.  Otherwise, the
-   * fetcher implementation call state->failed() with the appropriate error code and diagnostic
-   * message.
-   */
-  void
-  fetch(const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
-        const ValidationContinuation& continueValidation);
-
-private:
-  /**
-   * @brief Asynchronous certificate fetching implementation
-   */
-  virtual void
-  doFetch(const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
-          const ValidationContinuation& continueValidation) = 0;
-
-protected:
-  CertificateStorage* m_certStorage;
-};
-
-} // namespace v2
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_V2_CERTIFICATE_FETCHER_HPP
+#endif // NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_HPP

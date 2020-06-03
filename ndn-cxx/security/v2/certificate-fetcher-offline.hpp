@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,28 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_V2_CERTIFICATE_FETCHER_OFFLINE_HPP
-#define NDN_SECURITY_V2_CERTIFICATE_FETCHER_OFFLINE_HPP
+#ifndef NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_OFFLINE_HPP
+#define NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_OFFLINE_HPP
 
-#include "ndn-cxx/security/v2/certificate-fetcher.hpp"
+#warning This file is deprecated, include <ndn-cxx/security/certificate-fetcher-offline.hpp> instead
 
-namespace ndn {
-namespace security {
-namespace v2 {
+#include "ndn-cxx/security/certificate-fetcher-offline.hpp"
 
-/**
- * @brief Certificate fetcher realization that does not fetch keys (always offline)
- */
-class CertificateFetcherOffline : public CertificateFetcher
-{
-protected:
-  void
-  doFetch(const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
-          const ValidationContinuation& continueValidation) override;
-};
-
-} // namespace v2
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_V2_CERTIFICATE_FETCHER_OFFLINE_HPP
+#endif // NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_OFFLINE_HPP

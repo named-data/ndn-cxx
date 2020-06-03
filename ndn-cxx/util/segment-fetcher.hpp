@@ -1,8 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California,
- *                         Colorado State University,
- *                         University Pierre & Marie Curie, Sorbonne University.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +23,7 @@
 #define NDN_UTIL_SEGMENT_FETCHER_HPP
 
 #include "ndn-cxx/face.hpp"
-#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/util/rtt-estimator.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 #include "ndn-cxx/util/signal.hpp"

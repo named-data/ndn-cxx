@@ -27,7 +27,7 @@
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/lp/nack.hpp"
-#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
 
 #include "tests/boost-test.hpp"
 

@@ -16,6 +16,8 @@
  * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
  * @author Chavoosh Ghasemi <chghasemi@cs.arizona.edu>
  */
 
@@ -24,7 +26,7 @@
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
-#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
 
 namespace ndn {
 

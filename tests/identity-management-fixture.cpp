@@ -21,7 +21,7 @@
 
 #include "tests/identity-management-fixture.hpp"
 
-#include "ndn-cxx/security/v2/additional-description.hpp"
+#include "ndn-cxx/security/additional-description.hpp"
 #include "ndn-cxx/util/io.hpp"
 
 #include <boost/filesystem.hpp>

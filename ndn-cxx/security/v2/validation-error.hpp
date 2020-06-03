@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,75 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_V2_VALIDATION_ERROR_HPP
-#define NDN_SECURITY_V2_VALIDATION_ERROR_HPP
+#ifndef NDN_CXX_SECURITY_V2_VALIDATION_ERROR_HPP
+#define NDN_CXX_SECURITY_V2_VALIDATION_ERROR_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#warning This file is deprecated, include <ndn-cxx/security/validation-error.hpp> instead
 
-namespace ndn {
-namespace security {
-namespace v2 {
+#include "ndn-cxx/security/validation-error.hpp"
 
-/**
- * @brief Validation error code and optional detailed error message
- */
-class ValidationError
-{
-public:
-  /**
-   * @brief Known validation error code
-   * @sa specs/validation-error-code.rst
-   */
-  enum Code : uint32_t {
-    NO_ERROR             = 0,
-    INVALID_SIGNATURE    = 1,
-    NO_SIGNATURE         = 2,
-    CANNOT_RETRIEVE_CERT = 3,
-    EXPIRED_CERT         = 4,
-    LOOP_DETECTED        = 5,
-    MALFORMED_CERT       = 6,
-    EXCEEDED_DEPTH_LIMIT = 7,
-    INVALID_KEY_LOCATOR  = 8,
-    POLICY_ERROR         = 9,
-    IMPLEMENTATION_ERROR = 255,
-    USER_MIN             = 256 // custom error codes should use >=256
-  };
-
-public:
-  /**
-   * @brief Validation error, implicitly convertible from an error code and info
-   */
-  ValidationError(uint32_t code, const std::string& info = "")
-    : m_code(code)
-    , m_info(info)
-  {
-  }
-
-  uint32_t
-  getCode() const
-  {
-    return m_code;
-  }
-
-  const std::string&
-  getInfo() const
-  {
-    return m_info;
-  }
-
-private:
-  uint32_t m_code;
-  std::string m_info;
-};
-
-std::ostream&
-operator<<(std::ostream& os, ValidationError::Code code);
-
-std::ostream&
-operator<<(std::ostream& os, const ValidationError& error);
-
-} // namespace v2
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_V2_VALIDATION_ERROR_HPP
+#endif // NDN_CXX_SECURITY_V2_VALIDATION_ERROR_HPP

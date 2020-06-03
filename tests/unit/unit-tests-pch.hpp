@@ -27,7 +27,7 @@
 #include "ndn-cxx/face.hpp"
 #include "ndn-cxx/ims/in-memory-storage.hpp"
 #include "ndn-cxx/security/transform.hpp"
-#include "ndn-cxx/security/v2/validator.hpp"
+#include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/util/config-file.hpp"
 
 #include "tests/identity-management-fixture.hpp"

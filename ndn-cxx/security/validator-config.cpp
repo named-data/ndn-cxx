@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,21 +20,21 @@
  */
 
 #include "ndn-cxx/security/validator-config.hpp"
-#include "ndn-cxx/security/v2/certificate-fetcher-from-network.hpp"
+#include "ndn-cxx/security/certificate-fetcher-from-network.hpp"
 
 namespace ndn {
 namespace security {
 
-ValidatorConfig::ValidatorConfig(std::unique_ptr<v2::CertificateFetcher> fetcher, const Options& options)
-  : v2::Validator(make_unique<v2::ValidationPolicyCommandInterest>(make_unique<v2::ValidationPolicyConfig>(),
-                                                                   options),
-                  std::move(fetcher))
-  , m_policyConfig(static_cast<v2::ValidationPolicyConfig&>(getPolicy().getInnerPolicy()))
+ValidatorConfig::ValidatorConfig(std::unique_ptr<CertificateFetcher> fetcher, const Options& options)
+  : Validator(make_unique<ValidationPolicyCommandInterest>(make_unique<ValidationPolicyConfig>(),
+                                                           options),
+              std::move(fetcher))
+  , m_policyConfig(static_cast<ValidationPolicyConfig&>(getPolicy().getInnerPolicy()))
 {
 }
 
 ValidatorConfig::ValidatorConfig(Face& face, const Options& options)
-  : ValidatorConfig(make_unique<v2::CertificateFetcherFromNetwork>(face), options)
+  : ValidatorConfig(make_unique<CertificateFetcherFromNetwork>(face), options)
 {
 }
 
@@ -57,7 +57,7 @@ ValidatorConfig::load(std::istream& input, const std::string& filename)
 }
 
 void
-ValidatorConfig::load(const v2::validator_config::ConfigSection& configSection,
+ValidatorConfig::load(const validator_config::ConfigSection& configSection,
                       const std::string& filename)
 {
   m_policyConfig.load(configSection, filename);

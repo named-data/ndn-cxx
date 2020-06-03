@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,40 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_V2_VALIDATION_CALLBACK_HPP
-#define NDN_SECURITY_V2_VALIDATION_CALLBACK_HPP
+#ifndef NDN_CXX_SECURITY_V2_VALIDATION_CALLBACK_HPP
+#define NDN_CXX_SECURITY_V2_VALIDATION_CALLBACK_HPP
 
-#include "ndn-cxx/data.hpp"
-#include "ndn-cxx/interest.hpp"
-#include "ndn-cxx/security/security-common.hpp"
-#include "ndn-cxx/security/v2/validation-error.hpp"
+#warning This file is deprecated, include <ndn-cxx/security/validation-callback.hpp> instead
 
-namespace ndn {
-namespace security {
-namespace v2 {
+#include "ndn-cxx/security/validation-callback.hpp"
 
-/**
- * @brief Callback to report a successful Data validation.
- */
-typedef function<void(const Data& data)> DataValidationSuccessCallback;
-
-/**
- * @brief Callback to report a failed Data validation.
- */
-typedef function<void(const Data& data, const ValidationError& error)> DataValidationFailureCallback;
-
-/**
- * @brief Callback to report a successful Interest validation.
- */
-typedef function<void(const Interest& interest)> InterestValidationSuccessCallback;
-
-/**
- * @brief Callback to report a failed Interest validation.
- */
-typedef function<void(const Interest& interest, const ValidationError& error)> InterestValidationFailureCallback;
-
-} // namespace v2
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_V2_VALIDATION_CALLBACK_HPP
+#endif // NDN_CXX_SECURITY_V2_VALIDATION_CALLBACK_HPP

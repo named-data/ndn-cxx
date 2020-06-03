@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP
 #define NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP
 
-#include "ndn-cxx/security/v2/certificate.hpp"
+#include "ndn-cxx/security/certificate.hpp"
 
 namespace ndn {
 namespace security {
@@ -34,14 +34,14 @@ public:
   PibDataFixture();
 
 public:
-  v2::Certificate id1Key1Cert1;
-  v2::Certificate id1Key1Cert2;
-  v2::Certificate id1Key2Cert1;
-  v2::Certificate id1Key2Cert2;
-  v2::Certificate id2Key1Cert1;
-  v2::Certificate id2Key1Cert2;
-  v2::Certificate id2Key2Cert1;
-  v2::Certificate id2Key2Cert2;
+  Certificate id1Key1Cert1;
+  Certificate id1Key1Cert2;
+  Certificate id1Key2Cert1;
+  Certificate id1Key2Cert2;
+  Certificate id2Key1Cert1;
+  Certificate id2Key1Cert2;
+  Certificate id2Key2Cert1;
+  Certificate id2Key2Cert2;
 
   Name id1;
   Name id2;

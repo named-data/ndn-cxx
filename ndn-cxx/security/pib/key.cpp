@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,7 @@
 
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/pib/impl/key-impl.hpp"
-#include "ndn-cxx/security/v2/certificate.hpp"
+#include "ndn-cxx/security/certificate.hpp"
 
 namespace ndn {
 namespace security {
@@ -137,7 +137,7 @@ operator<<(std::ostream& os, const Key& key)
 
 } // namespace pib
 
-namespace v2 {
+inline namespace v2 {
 
 Name
 constructKeyName(const Name& identity, const name::Component& keyId)
@@ -167,6 +167,6 @@ extractIdentityFromKeyName(const Name& keyName)
   return keyName.getPrefix(-Certificate::MIN_KEY_NAME_LENGTH); // trim everything after and including "KEY"
 }
 
-} // namespace v2
+} // inline namespace v2
 } // namespace security
 } // namespace ndn

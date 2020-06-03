@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,152 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_V2_VALIDATION_POLICY_HPP
-#define NDN_SECURITY_V2_VALIDATION_POLICY_HPP
+#ifndef NDN_CXX_SECURITY_V2_VALIDATION_POLICY_HPP
+#define NDN_CXX_SECURITY_V2_VALIDATION_POLICY_HPP
 
-#include "ndn-cxx/data.hpp"
-#include "ndn-cxx/interest.hpp"
-#include "ndn-cxx/security/v2/certificate-request.hpp"
-#include "ndn-cxx/security/v2/validation-state.hpp"
+#warning This file is deprecated, include <ndn-cxx/security/validation-policy.hpp> instead
 
-namespace ndn {
-namespace security {
-namespace v2 {
+#include "ndn-cxx/security/validation-policy.hpp"
 
-/**
- * @brief Abstraction that implements validation policy for Data and Interest packets
- */
-class ValidationPolicy : noncopyable
-{
-public:
-  using ValidationContinuation = std::function<void(const shared_ptr<CertificateRequest>& certRequest,
-                                                    const shared_ptr<ValidationState>& state)>;
-
-  virtual
-  ~ValidationPolicy() = default;
-
-  /**
-   * @brief Set inner policy
-   *
-   * Multiple assignments of the inner policy will create a "chain" of linked policies.
-   * The inner policy from the latest invocation of setInnerPolicy will be at the bottom
-   * of the policy list.
-   *
-   * For example, sequence of `this->setInnerPolicy(policy1)` and
-   * `this->setInnerPolicy(policy2)`, will result in `this->m_innerPolicy == policy1`,
-   * this->m_innerPolicy->m_innerPolicy == policy2', and
-   * `this->m_innerPolicy->m_innerPolicy->m_innerPolicy == nullptr`.
-   *
-   * @throw std::invalid_argument exception, if @p innerPolicy is nullptr.
-   */
-  void
-  setInnerPolicy(unique_ptr<ValidationPolicy> innerPolicy);
-
-  /**
-   * @brief Check if inner policy is set
-   */
-  bool
-  hasInnerPolicy() const
-  {
-    return m_innerPolicy != nullptr;
-  }
-
-  /**
-   * @brief Return the inner policy
-   *
-   * If the inner policy was not set, behavior is undefined.
-   */
-  ValidationPolicy&
-  getInnerPolicy();
-
-  /**
-   * @brief Set validator to which the policy is associated
-   */
-  void
-  setValidator(Validator& validator);
-
-  /**
-   * @brief Check @p data against the policy
-   *
-   * Depending on implementation of the policy, this check can be done synchronously or
-   * asynchronously.
-   *
-   * Semantics of checkPolicy has changed from v1::Validator
-   * - If packet violates policy, the policy should call `state->fail` with appropriate error
-   *   code and error description.
-   * - If packet conforms to the policy and no further certificate retrievals are necessary,
-   *   the policy should call continueValidation(nullptr, state)
-   * - If packet conforms to the policy and a certificate needs to be fetched, the policy should
-   *   call continueValidation(<appropriate-cert-request-instance>, state)
-   */
-  virtual void
-  checkPolicy(const Data& data, const shared_ptr<ValidationState>& state,
-              const ValidationContinuation& continueValidation) = 0;
-
-  /**
-   * @brief Check @p interest against the policy
-   *
-   * Depending on implementation of the policy, this check can be done synchronously or
-   * asynchronously.
-   *
-   * Semantics of checkPolicy has changed from v1::Validator
-   * - If packet violates policy, the policy should call `state->fail` with appropriate error
-   *   code and error description.
-   * - If packet conforms to the policy and no further certificate retrievals are necessary,
-   *   the policy should call continueValidation(nullptr, state)
-   * - If packet conforms to the policy and a certificate needs to be fetched, the policy should
-   *   call continueValidation(<appropriate-cert-request-instance>, state)
-   */
-  virtual void
-  checkPolicy(const Interest& interest, const shared_ptr<ValidationState>& state,
-              const ValidationContinuation& continueValidation) = 0;
-
-  /**
-   * @brief Check @p certificate against the policy
-   *
-   * Unless overridden by the policy, this check defaults to `checkPolicy(const Data&, ...)`.
-   *
-   * Depending on implementation of the policy, this check can be done synchronously or
-   * asynchronously.
-   *
-   * Semantics of checkPolicy has changed from v1::Validator
-   * - If packet violates policy, the policy should call `state->fail` with appropriate error
-   *   code and error description.
-   * - If packet conforms to the policy and no further certificate retrievals are necessary,
-   *   the policy should call continueValidation(nullptr, state)
-   * - If packet conforms to the policy and a certificate needs to be fetched, the policy should
-   *   call continueValidation(<appropriate-cert-request-instance>, state)
-   */
-  virtual void
-  checkPolicy(const Certificate& certificate, const shared_ptr<ValidationState>& state,
-              const ValidationContinuation& continueValidation)
-  {
-    checkPolicy(static_cast<const Data&>(certificate), state, continueValidation);
-  }
-
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
-  Validator* m_validator = nullptr;
-  unique_ptr<ValidationPolicy> m_innerPolicy;
-};
-
-/** \brief extract KeyLocator.Name from Data
- *
- *  Data must contain a KeyLocator of Name type.
- *  Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR error.
- */
-Name
-getKeyLocatorName(const Data& data, ValidationState& state);
-
-/** \brief extract KeyLocator.Name from signed Interest
- *
- *  Interest must have SignatureInfo and contain a KeyLocator of Name type.
- *  Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR error.
- */
-Name
-getKeyLocatorName(const Interest& interest, ValidationState& state);
-
-} // namespace v2
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_V2_VALIDATION_POLICY_HPP
+#endif // NDN_CXX_SECURITY_V2_VALIDATION_POLICY_HPP

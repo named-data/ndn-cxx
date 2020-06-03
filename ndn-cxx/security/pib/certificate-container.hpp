@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP
 #define NDN_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP
 
-#include "ndn-cxx/security/v2/certificate.hpp"
+#include "ndn-cxx/security/certificate.hpp"
 
 #include <iterator>
 #include <set>
@@ -51,7 +51,7 @@ public:
   {
   public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type        = const v2::Certificate;
+    using value_type        = const Certificate;
     using difference_type   = std::ptrdiff_t;
     using pointer           = value_type*;
     using reference         = value_type&;

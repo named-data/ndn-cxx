@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,9 +28,9 @@
 namespace ndn {
 namespace security {
 
-namespace v2 {
+inline namespace v2 {
 class KeyChain;
-} // namespace v2
+} // inline namespace v2
 
 namespace pib {
 
@@ -195,7 +195,7 @@ operator<<(std::ostream& os, const Key& key);
 
 using pib::Key;
 
-namespace v2 {
+inline namespace v2 {
 
 /**
  * @brief Construct key name based on the appropriate naming conventions
@@ -215,7 +215,7 @@ isValidKeyName(const Name& keyName);
 Name
 extractIdentityFromKeyName(const Name& keyName);
 
-} // namespace v2
+} // inline namespace v2
 
 } // namespace security
 } // namespace ndn

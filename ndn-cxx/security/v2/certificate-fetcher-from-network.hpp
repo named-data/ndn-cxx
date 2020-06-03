@@ -19,72 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
-#define NDN_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
+#ifndef NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
+#define NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
 
-#include "ndn-cxx/security/v2/certificate-fetcher.hpp"
-#include "ndn-cxx/util/scheduler.hpp"
+#warning This file is deprecated, include <ndn-cxx/security/certificate-fetcher-from-network.hpp> instead
 
-namespace ndn {
+#include "ndn-cxx/security/certificate-fetcher-from-network.hpp"
 
-class Data;
-class Face;
-
-namespace lp {
-class Nack;
-} // namespace lp
-
-namespace security {
-namespace v2 {
-
-/**
- * @brief Fetch missing keys from the network
- */
-class CertificateFetcherFromNetwork : public CertificateFetcher
-{
-public:
-  explicit
-  CertificateFetcherFromNetwork(Face& face);
-
-protected:
-  void
-  doFetch(const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
-          const ValidationContinuation& continueValidation) override;
-
-  /**
-   * @brief Callback invoked when certificate is retrieved.
-   */
-  void
-  dataCallback(const Data& data,
-               const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
-               const ValidationContinuation& continueValidation);
-
-  /**
-   * @brief Callback invoked when interest for fetching certificate gets NACKed.
-   *
-   * Retries with exponential backoff while `certRequest->nRetriesLeft > 0`
-   */
-  void
-  nackCallback(const lp::Nack& nack,
-               const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
-               const ValidationContinuation& continueValidation);
-
-  /**
-   * @brief Callback invoked when interest for fetching certificate times out.
-   *
-   * It will retry if `certRequest->nRetriesLeft > 0`
-   */
-  void
-  timeoutCallback(const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state,
-                  const ValidationContinuation& continueValidation);
-
-protected:
-  Face& m_face;
-  Scheduler m_scheduler;
-};
-
-} // namespace v2
-} // namespace security
-} // namespace ndn
-
-#endif // NDN_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
+#endif // NDN_CXX_SECURITY_V2_CERTIFICATE_FETCHER_FROM_NETWORK_HPP

@@ -22,7 +22,7 @@
 #ifndef NDN_TESTS_TEST_HOME_FIXTURE_HPP
 #define NDN_TESTS_TEST_HOME_FIXTURE_HPP
 
-#include "ndn-cxx/security/v2/key-chain.hpp"
+#include "ndn-cxx/security/key-chain.hpp"
 
 #include <cstdlib>
 #include <fstream>
@@ -76,8 +76,8 @@ public:
     }
 
     boost::filesystem::remove_all(m_pibDir);
-    const_cast<std::string&>(security::v2::KeyChain::getDefaultPibLocator()).clear();
-    const_cast<std::string&>(security::v2::KeyChain::getDefaultTpmLocator()).clear();
+    const_cast<std::string&>(KeyChain::getDefaultPibLocator()).clear();
+    const_cast<std::string&>(KeyChain::getDefaultTpmLocator()).clear();
   }
 
 protected:
