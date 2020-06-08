@@ -11,8 +11,8 @@
 #define NONSTD_VARIANT_LITE_HPP
 
 #define variant_lite_MAJOR  1
-#define variant_lite_MINOR  1
-#define variant_lite_PATCH  0
+#define variant_lite_MINOR  2
+#define variant_lite_PATCH  2
 
 #define variant_lite_VERSION  variant_STRINGIFY(variant_lite_MAJOR) "." variant_STRINGIFY(variant_lite_MINOR) "." variant_STRINGIFY(variant_lite_PATCH)
 
@@ -247,16 +247,17 @@ namespace nonstd {
 
 // Compiler versions:
 //
-// MSVC++ 6.0  _MSC_VER == 1200 (Visual Studio 6.0)
-// MSVC++ 7.0  _MSC_VER == 1300 (Visual Studio .NET 2002)
-// MSVC++ 7.1  _MSC_VER == 1310 (Visual Studio .NET 2003)
-// MSVC++ 8.0  _MSC_VER == 1400 (Visual Studio 2005)
-// MSVC++ 9.0  _MSC_VER == 1500 (Visual Studio 2008)
-// MSVC++ 10.0 _MSC_VER == 1600 (Visual Studio 2010)
-// MSVC++ 11.0 _MSC_VER == 1700 (Visual Studio 2012)
-// MSVC++ 12.0 _MSC_VER == 1800 (Visual Studio 2013)
-// MSVC++ 14.0 _MSC_VER == 1900 (Visual Studio 2015)
-// MSVC++ 14.1 _MSC_VER >= 1910 (Visual Studio 2017)
+// MSVC++  6.0  _MSC_VER == 1200  variant_COMPILER_MSVC_VERSION ==  60  (Visual Studio 6.0)
+// MSVC++  7.0  _MSC_VER == 1300  variant_COMPILER_MSVC_VERSION ==  70  (Visual Studio .NET 2002)
+// MSVC++  7.1  _MSC_VER == 1310  variant_COMPILER_MSVC_VERSION ==  71  (Visual Studio .NET 2003)
+// MSVC++  8.0  _MSC_VER == 1400  variant_COMPILER_MSVC_VERSION ==  80  (Visual Studio 2005)
+// MSVC++  9.0  _MSC_VER == 1500  variant_COMPILER_MSVC_VERSION ==  90  (Visual Studio 2008)
+// MSVC++ 10.0  _MSC_VER == 1600  variant_COMPILER_MSVC_VERSION == 100  (Visual Studio 2010)
+// MSVC++ 11.0  _MSC_VER == 1700  variant_COMPILER_MSVC_VERSION == 110  (Visual Studio 2012)
+// MSVC++ 12.0  _MSC_VER == 1800  variant_COMPILER_MSVC_VERSION == 120  (Visual Studio 2013)
+// MSVC++ 14.0  _MSC_VER == 1900  variant_COMPILER_MSVC_VERSION == 140  (Visual Studio 2015)
+// MSVC++ 14.1  _MSC_VER >= 1910  variant_COMPILER_MSVC_VERSION == 141  (Visual Studio 2017)
+// MSVC++ 14.2  _MSC_VER >= 1920  variant_COMPILER_MSVC_VERSION == 142  (Visual Studio 2019)
 
 #if defined(_MSC_VER ) && !defined(__clang__)
 # define variant_COMPILER_MSVC_VER      (_MSC_VER )
@@ -394,7 +395,7 @@ namespace nonstd {
     template< bool B = (__VA_ARGS__), typename std::enable_if<B, int>::type = 0 >
 
 #define variant_REQUIRES_T(...) \
-    , typename = typename std::enable_if< (__VA_ARGS__), nonstd::variants::detail::enabler >::type
+    , typename std::enable_if< (__VA_ARGS__), int >::type = 0
 
 #define variant_REQUIRES_R(R, ...) \
     typename std::enable_if< (__VA_ARGS__), R>::type
@@ -531,10 +532,6 @@ struct is_nothrow_swappable : decltype( detail::is_nothrow_swappable::test<T>(0)
 // detail:
 
 namespace detail {
-
-// for variant_REQUIRES_T():
-
-/*enum*/ class enabler{};
 
 // typelist:
 
@@ -1519,12 +1516,10 @@ public:
     template< class T >
     T & get()
     {
-        const std::size_t i = index_of<T>();
-
 #if variant_CONFIG_NO_EXCEPTIONS
-        assert( i == index() );
+        assert( index_of<T>() == index() );
 #else
-        if ( i != index() )
+        if ( index_of<T>() != index() )
         {
             throw bad_variant_access();
         }
@@ -1535,12 +1530,10 @@ public:
     template< class T >
     T const & get() const
     {
-        const std::size_t i = index_of<T>();
-
 #if variant_CONFIG_NO_EXCEPTIONS
-        assert( i == index() );
+        assert( index_of<T>() == index() );
 #else
-        if ( i != index() )
+        if ( index_of<T>() != index() )
         {
             throw bad_variant_access();
         }
@@ -1922,7 +1915,8 @@ struct VisitorApplicatorImpl<R, TX<VT> >
     template< typename Visitor, typename T >
     static R apply(Visitor const&, T)
     {
-        return R();
+        // prevent default construction of a const reference, see issue #39:
+        std::terminate();
     }
 };
 
@@ -2109,7 +2103,8 @@ struct VisitorApplicator
             case 14: return apply_visitor<14>(v, arg);
             case 15: return apply_visitor<15>(v, arg);
             
-            default: return R();
+            // prevent default construction of a const reference, see issue #39:
+            default: std::terminate();
         }
     }
 
@@ -2383,7 +2378,7 @@ struct hash< nonstd::variant<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
             case 14: return nvd::hash( 14 ) ^ nvd::hash( get<14>( v ) );
             case 15: return nvd::hash( 15 ) ^ nvd::hash( get<15>( v ) );
             
-            default: return false;
+            default: return 0;
         }
     }
 };
