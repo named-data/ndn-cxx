@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,7 +49,6 @@ BOOST_AUTO_TEST_CASE(Default)
   Block b;
 
   BOOST_CHECK_EQUAL(b.isValid(), false);
-  BOOST_CHECK_EQUAL(b.empty(), true);
   BOOST_CHECK_EQUAL(b.type(), tlv::Invalid);
   BOOST_CHECK_EQUAL(b.hasValue(), false);
   BOOST_CHECK_EQUAL(b.value_size(), 0);

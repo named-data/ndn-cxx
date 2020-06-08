@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -320,15 +320,12 @@ BOOST_AUTO_TEST_CASE(Markers)
   BOOST_REQUIRE_NO_THROW(number = name.appendSegment(30923).at(-1).toSegment());
   BOOST_CHECK_EQUAL(number, 30923);
 
-  BOOST_REQUIRE_NO_THROW(number = name.appendSegmentOffset(589).at(-1).toSegmentOffset());
-  BOOST_CHECK_EQUAL(number, 589);
-
   BOOST_REQUIRE_NO_THROW(number = name.appendVersion().at(-1).toVersion());
 
   BOOST_REQUIRE_NO_THROW(number = name.appendVersion(25912).at(-1).toVersion());
   BOOST_CHECK_EQUAL(number, 25912);
 
-  const time::system_clock::TimePoint tp = time::system_clock::now();
+  const auto tp = time::system_clock::now();
   time::system_clock::TimePoint tp2;
   BOOST_REQUIRE_NO_THROW(tp2 = name.appendTimestamp(tp).at(-1).toTimestamp());
   BOOST_CHECK_LE(time::abs(tp2 - tp), 1_us);

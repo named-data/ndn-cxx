@@ -112,9 +112,6 @@ enum : uint32_t {
   Any                       = 19,
 };
 
-[[deprecated("use GenericNameComponent")]]
-constexpr int NameComponent = GenericNameComponent;
-
 /** @brief TLV-TYPE numbers for typed name components.
  *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
  */

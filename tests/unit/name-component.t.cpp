@@ -402,23 +402,6 @@ public:
   }
 };
 
-class SegmentOffsetMarker
-{
-public:
-  using ConventionRev = ConventionMarker;
-
-  ConventionTest<uint64_t>
-  operator()() const
-  {
-    return {&Component::fromSegmentOffset,
-            bind(&Component::toSegmentOffset, _1),
-            bind(&Name::appendSegmentOffset, _1, _2),
-            Name("/%FB%00%01%86%A0"),
-            100000,
-            bind(&Component::isSegmentOffset, _1)};
-  }
-};
-
 class ByteOffsetTyped
 {
 public:
@@ -542,7 +525,6 @@ using ConventionTests = boost::mpl::vector<
   NumberWithMarker,
   SegmentMarker,
   SegmentTyped,
-  SegmentOffsetMarker,
   ByteOffsetTyped,
   VersionMarker,
   VersionTyped,

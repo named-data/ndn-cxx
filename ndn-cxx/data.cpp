@@ -194,7 +194,7 @@ Data::wireDecode(const Block& wire)
     NDN_THROW(Error("SignatureInfo element is missing"));
   }
 
-  if (m_signatureValue.empty()) {
+  if (!m_signatureValue.isValid()) {
     NDN_THROW(Error("SignatureValue element is missing"));
   }
 }

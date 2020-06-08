@@ -317,13 +317,6 @@ public: // naming conventions
   bool
   isByteOffset() const;
 
-  /// @deprecated use isByteOffset
-  bool
-  isSegmentOffset() const
-  {
-    return isByteOffset();
-  }
-
   /**
    * @brief Check if the component is a timestamp per NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/
@@ -391,13 +384,6 @@ public: // naming conventions
    */
   uint64_t
   toByteOffset() const;
-
-  /// @deprecated use toByteOffset
-  uint64_t
-  toSegmentOffset() const
-  {
-    return toByteOffset();
-  }
 
   /**
    * @brief Interpret as timestamp component using NDN naming conventions
@@ -473,13 +459,6 @@ public: // naming conventions
    */
   static Component
   fromByteOffset(uint64_t offset);
-
-  /// @deprecated use fromByteOffset
-  static Component
-  fromSegmentOffset(uint64_t offset)
-  {
-    return fromByteOffset(offset);
-  }
 
   /**
    * @brief Create sequence number component using NDN naming conventions
