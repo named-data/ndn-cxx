@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -106,7 +106,9 @@ PibMemory::getIdentities() const
 void
 PibMemory::setDefaultIdentity(const Name& identityName)
 {
-  addIdentity(identityName);
+  if (!hasIdentity(identityName)) {
+    NDN_THROW(Pib::Error("Cannot set non-existing identity `" + identityName.toUri() + "` as default"));
+  }
   m_defaultIdentity = identityName;
   m_hasDefaultIdentity = true;
 }

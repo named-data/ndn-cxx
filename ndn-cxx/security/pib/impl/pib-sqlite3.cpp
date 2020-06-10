@@ -327,6 +327,9 @@ PibSqlite3::getIdentities() const
 void
 PibSqlite3::setDefaultIdentity(const Name& identityName)
 {
+  if (!hasIdentity(identityName)) {
+    NDN_THROW(Pib::Error("Cannot set non-existing identity `" + identityName.toUri() + "` as default"));
+  }
   Sqlite3Statement statement(m_database, "UPDATE identities SET is_default=1 WHERE identity=?");
   statement.bind(1, identityName.wireEncode(), SQLITE_TRANSIENT);
   statement.step();

@@ -129,6 +129,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(IdentityManagement, T, PibImpls, T)
   this->pib.addIdentity(this->id2);
   BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id2);
 
+  // try to set non-existing identity as a default
+  BOOST_CHECK_THROW(this->pib.setDefaultIdentity("/non-existing-identity"), Pib::Error);
+
   // get all identities, should contain id1 and id2
   std::set<Name> idNames = this->pib.getIdentities();
   BOOST_CHECK_EQUAL(idNames.size(), 2);

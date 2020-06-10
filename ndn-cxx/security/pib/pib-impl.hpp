@@ -118,9 +118,9 @@ public: // Identity management
   /**
    * @brief Set an identity with name @p identityName as the default identity.
    *
-   * If @p identityName identity does not exist, it will be created.
-   *
    * @param identityName The name for the default identity.
+   * @throw Error If @p identityName identity does not exist.
+   *
    */
   virtual void
   setDefaultIdentity(const Name& identityName) = 0;
