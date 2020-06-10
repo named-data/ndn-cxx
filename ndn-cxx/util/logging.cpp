@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -90,11 +90,17 @@ Logging::get()
 
 Logging::Logging()
 {
+  bool wantAutoFlush = true;
+  const char* environ = std::getenv("NDN_LOG_NOFLUSH");
+  if (environ != nullptr) {
+    wantAutoFlush = false;
+  }
+
   // cannot call the static setDestination that uses the singleton Logging object that is not yet constructed
-  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&std::clog, [] (auto) {}));
+  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&std::clog, [] (auto) {}), wantAutoFlush);
   this->setDestinationImpl(std::move(destination));
 
-  const char* environ = std::getenv("NDN_LOG");
+  environ = std::getenv("NDN_LOG");
   if (environ != nullptr) {
     this->setLevelImpl(environ);
   }
@@ -242,19 +248,19 @@ Logging::resetLevels()
 #endif // NDN_CXX_HAVE_TESTS
 
 void
-Logging::setDestination(std::ostream& os)
+Logging::setDestination(std::ostream& os, bool wantAutoFlush)
 {
-  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, [] (auto) {}));
+  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, [] (auto) {}), wantAutoFlush);
   setDestination(std::move(destination));
 }
 
 class TextOstreamBackend : public boost::log::sinks::text_ostream_backend
 {
 public:
-  TextOstreamBackend(std::shared_ptr<std::ostream> os)
+  TextOstreamBackend(std::shared_ptr<std::ostream> os, bool wantAutoFlush)
     : m_stdPtr(std::move(os))
   {
-    auto_flush(true);
+    auto_flush(wantAutoFlush);
     add_stream(boost::shared_ptr<std::ostream>(m_stdPtr.get(), [] (auto) {}));
   }
 
@@ -265,9 +271,9 @@ private:
 };
 
 boost::shared_ptr<boost::log::sinks::sink>
-Logging::makeDefaultStreamDestination(shared_ptr<std::ostream> os)
+Logging::makeDefaultStreamDestination(shared_ptr<std::ostream> os, bool wantAutoFlush)
 {
-  auto backend = boost::make_shared<TextOstreamBackend>(std::move(os));
+  auto backend = boost::make_shared<TextOstreamBackend>(std::move(os), wantAutoFlush);
   auto destination = boost::make_shared<boost::log::sinks::asynchronous_sink<TextOstreamBackend>>(backend);
 
   namespace expr = boost::log::expressions;

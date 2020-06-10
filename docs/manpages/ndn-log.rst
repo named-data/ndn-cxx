@@ -18,6 +18,11 @@ distinguishing prefixes (``ndn.``, ``sync.``, etc.), which can be specified when
 setting the environment variable. Wildcards can be used to enable logging for all
 modules (just ``*``) or all modules under a selected prefix (e.g., ``ndn.*``).
 
+If an additional environment variable ``NDN_LOG_NOFLUSH`` is set, the automatic flushing
+after each log record will be disabled. This can improve logging performance but may
+cause the log records to appear delayed or, in case of application crash, the last
+few log records may be lost.
+
 ndn-cxx logging facility provides a mechanism to manage the type of log messages
 that are written by classifying log messages by severity levels. Listed below
 are the available log levels.
