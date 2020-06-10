@@ -47,12 +47,13 @@ template<encoding::Tag TAG>
 size_t
 Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
 {
-  // Data ::= DATA-TLV TLV-LENGTH
-  //            Name
-  //            MetaInfo?
-  //            Content?
-  //            SignatureInfo
-  //            SignatureValue
+  // Data = DATA-TYPE TLV-LENGTH
+  //          Name
+  //          [MetaInfo]
+  //          [Content]
+  //          SignatureInfo
+  //          SignatureValue
+  // (elements are encoded in reverse order)
 
   size_t totalLength = 0;
 
@@ -121,29 +122,32 @@ Data::wireEncode() const
 void
 Data::wireDecode(const Block& wire)
 {
-  // Data ::= DATA-TLV TLV-LENGTH
-  //            Name
-  //            MetaInfo?
-  //            Content?
-  //            SignatureInfo
-  //            SignatureValue
-
+  if (wire.type() != tlv::Data) {
+    NDN_THROW(Error("Data", wire.type()));
+  }
   m_wire = wire;
   m_wire.parse();
+
+  // Data = DATA-TYPE TLV-LENGTH
+  //          Name
+  //          [MetaInfo]
+  //          [Content]
+  //          SignatureInfo
+  //          SignatureValue
 
   auto element = m_wire.elements_begin();
   if (element == m_wire.elements_end() || element->type() != tlv::Name) {
     NDN_THROW(Error("Name element is missing or out of order"));
   }
   m_name.wireDecode(*element);
-  int lastElement = 1; // last recognized element index, in spec order
 
-  m_metaInfo = MetaInfo();
+  m_metaInfo = {};
   m_content = Block(tlv::Content);
-  m_signatureInfo = SignatureInfo();
-  m_signatureValue = Block();
+  m_signatureInfo = {};
+  m_signatureValue = {};
   m_fullName.clear();
 
+  int lastElement = 1; // last recognized element index, in spec order
   for (++element; element != m_wire.elements_end(); ++element) {
     switch (element->type()) {
       case tlv::MetaInfo: {
@@ -174,17 +178,16 @@ Data::wireDecode(const Block& wire)
         if (lastElement >= 5) {
           NDN_THROW(Error("SignatureValue element is out of order"));
         }
-        if (element->type() != tlv::SignatureValue) {
-          NDN_THROW(Error("SignatureValue", element->type()));
-        }
         m_signatureValue = *element;
         lastElement = 5;
         break;
       }
-      default: {
+      default: { // unrecognized element
+        // if the TLV-TYPE is critical, abort decoding
         if (tlv::isCriticalType(element->type())) {
-          NDN_THROW(Error("unrecognized element of critical type " + to_string(element->type())));
+          NDN_THROW(Error("Unrecognized element of critical type " + to_string(element->type())));
         }
+        // otherwise, ignore it
         break;
       }
     }
@@ -193,7 +196,6 @@ Data::wireDecode(const Block& wire)
   if (!m_signatureInfo) {
     NDN_THROW(Error("SignatureInfo element is missing"));
   }
-
   if (!m_signatureValue.isValid()) {
     NDN_THROW(Error("SignatureValue element is missing"));
   }
@@ -223,16 +225,18 @@ Data::resetWire()
 Data&
 Data::setName(const Name& name)
 {
-  resetWire();
-  m_name = name;
+  if (name != m_name) {
+    m_name = name;
+    resetWire();
+  }
   return *this;
 }
 
 Data&
 Data::setMetaInfo(const MetaInfo& metaInfo)
 {
-  resetWire();
   m_metaInfo = metaInfo;
+  resetWire();
   return *this;
 }
 
@@ -248,23 +252,21 @@ Data::getContent() const
 Data&
 Data::setContent(const Block& block)
 {
-  resetWire();
-
   if (block.type() == tlv::Content) {
     m_content = block;
   }
   else {
     m_content = Block(tlv::Content, block);
   }
-
+  resetWire();
   return *this;
 }
 
 Data&
 Data::setContent(const uint8_t* value, size_t valueSize)
 {
-  resetWire();
   m_content = makeBinaryBlock(tlv::Content, value, valueSize);
+  resetWire();
   return *this;
 }
 
@@ -274,8 +276,8 @@ Data::setContent(ConstBufferPtr value)
   if (value == nullptr) {
     NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
   }
-  resetWire();
   m_content = Block(tlv::Content, std::move(value));
+  resetWire();
   return *this;
 }
 
@@ -288,17 +290,17 @@ Data::getSignature() const
 Data&
 Data::setSignature(const Signature& signature)
 {
-  resetWire();
   m_signatureInfo = signature.getSignatureInfo();
   m_signatureValue = signature.getValue();
+  resetWire();
   return *this;
 }
 
 Data&
 Data::setSignatureInfo(const SignatureInfo& info)
 {
-  resetWire();
   m_signatureInfo = info;
+  resetWire();
   return *this;
 }
 
@@ -308,32 +310,38 @@ Data::setSignatureValue(ConstBufferPtr value)
   if (value == nullptr) {
     NDN_THROW(std::invalid_argument("SignatureValue buffer cannot be nullptr"));
   }
-  resetWire();
   m_signatureValue = Block(tlv::SignatureValue, std::move(value));
+  resetWire();
   return *this;
 }
 
 Data&
 Data::setContentType(uint32_t type)
 {
-  resetWire();
-  m_metaInfo.setType(type);
+  if (type != m_metaInfo.getType()) {
+    m_metaInfo.setType(type);
+    resetWire();
+  }
   return *this;
 }
 
 Data&
 Data::setFreshnessPeriod(time::milliseconds freshnessPeriod)
 {
-  resetWire();
-  m_metaInfo.setFreshnessPeriod(freshnessPeriod);
+  if (freshnessPeriod != m_metaInfo.getFreshnessPeriod()) {
+    m_metaInfo.setFreshnessPeriod(freshnessPeriod);
+    resetWire();
+  }
   return *this;
 }
 
 Data&
 Data::setFinalBlock(optional<name::Component> finalBlockId)
 {
-  resetWire();
-  m_metaInfo.setFinalBlock(std::move(finalBlockId));
+  if (finalBlockId != m_metaInfo.getFinalBlock()) {
+    m_metaInfo.setFinalBlock(std::move(finalBlockId));
+    resetWire();
+  }
   return *this;
 }
 

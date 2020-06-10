@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_INTEREST_HPP
-#define NDN_INTEREST_HPP
+#ifndef NDN_CXX_INTEREST_HPP
+#define NDN_CXX_INTEREST_HPP
 
 #include "ndn-cxx/delegation-list.hpp"
 #include "ndn-cxx/detail/packet-base.hpp"
@@ -43,7 +43,8 @@ class Data;
  */
 const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 
-/** @brief Represents an Interest packet.
+/** @brief Represents an %Interest packet.
+ *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/interest.html
  */
 class Interest : public PacketBase, public std::enable_shared_from_this<Interest>
 {
@@ -117,18 +118,18 @@ public:
   explicit
   Interest(const Block& wire);
 
-  /** @brief Prepend wire encoding to @p encoder according to NDN Packet Format v0.3.
+  /** @brief Prepend wire encoding to @p encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** @brief Encode into a Block according to NDN Packet Format v0.3.
+  /** @brief Encode into a Block.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode from @p wire according to NDN Packet Format v0.3.
+  /** @brief Decode from @p wire.
    */
   void
   wireDecode(const Block& wire);
@@ -136,7 +137,7 @@ public:
   /** @brief Check if this instance has cached wire encoding.
    */
   bool
-  hasWire() const
+  hasWire() const noexcept
   {
     return m_wire.hasWire();
   }
@@ -512,4 +513,4 @@ operator<<(std::ostream& os, const Interest& interest);
 
 } // namespace ndn
 
-#endif // NDN_INTEREST_HPP
+#endif // NDN_CXX_INTEREST_HPP

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_DATA_HPP
-#define NDN_DATA_HPP
+#ifndef NDN_CXX_DATA_HPP
+#define NDN_CXX_DATA_HPP
 
 #include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/encoding/block.hpp"
@@ -30,7 +30,8 @@
 
 namespace ndn {
 
-/** @brief Represents a Data packet.
+/** @brief Represents a %Data packet.
+ *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html
  */
 class Data : public PacketBase, public std::enable_shared_from_this<Data>
 {
@@ -42,27 +43,29 @@ public:
   };
 
   /** @brief Construct an unsigned Data packet with given @p name and empty Content.
-   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created
-   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
+   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created using
+   *           `std::make_shared`. Otherwise, `shared_from_this()` may trigger undefined behavior.
+   *           One example where this is necessary is storing Data into a subclass of InMemoryStorage.
    */
   explicit
   Data(const Name& name = Name());
 
   /** @brief Construct a Data packet by decoding from @p wire.
-   *  @param wire @c tlv::Data element as defined in NDN Packet Format v0.2 or v0.3.
-   *              It may be signed or unsigned.
-   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created
-   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
+   *  @param wire TLV block of type tlv::Data; may be signed or unsigned.
+   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created using
+   *           `std::make_shared`. Otherwise, `shared_from_this()` may trigger undefined behavior.
+   *           One example where this is necessary is storing Data into a subclass of InMemoryStorage.
    */
   explicit
   Data(const Block& wire);
 
-  /** @brief Prepend wire encoding to @p encoder in NDN Packet Format v0.2.
-   *  @param encoder EncodingEstimator or EncodingBuffer instance
-   *  @param wantUnsignedPortionOnly If true, only prepends Name, MetaInfo, Content, and
-   *         SignatureInfo to @p encoder, but omit SignatureValue and outmost Type-Length of Data
-   *         element. This is intended to be used with wireEncode(encoder, signatureValue).
-   *  @throw Error SignatureBits are not provided and wantUnsignedPortionOnly is false.
+  /** @brief Prepend wire encoding to @p encoder
+   *  @param encoder EncodingEstimator or EncodingBuffer instance.
+   *  @param wantUnsignedPortionOnly If true, prepend only Name, MetaInfo, Content, and
+   *         SignatureInfo to @p encoder, but omit SignatureValue and the outermost TLV
+   *         Type and Length of the Data element. This is intended to be used with
+   *         wireEncode(EncodingBuffer&, const Block&) const.
+   *  @throw Error %Signature is not present and @p wantUnsignedPortionOnly is false.
    */
   template<encoding::Tag TAG>
   size_t
@@ -70,10 +73,10 @@ public:
 
   /** @brief Finalize Data packet encoding with the specified SignatureValue
    *  @param encoder EncodingBuffer containing Name, MetaInfo, Content, and SignatureInfo, but
-   *                 without SignatureValue or outmost Type-Length of Data element
-   *  @param signatureValue SignatureValue element
+   *                 without SignatureValue and the outermost Type-Length of the Data element.
+   *  @param signatureValue SignatureValue element.
    *
-   *  This method is intended to be used in concert with Data::wireEncode(encoder, true)
+   *  This method is intended to be used in concert with `wireEncode(encoder, true)`, e.g.:
    *  @code
    *     Data data;
    *     ...
@@ -87,17 +90,13 @@ public:
   const Block&
   wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const;
 
-  /** @brief Encode to a @c Block.
-   *  @pre Data is signed.
-   *
-   *  Normally, this function encodes to NDN Packet Format v0.2. However, if this instance has
-   *  cached wire encoding (\c hasWire() is true), the cached encoding is returned and it might
-   *  be in v0.3 format.
+  /** @brief Encode into a Block.
+   *  @pre Data must be signed.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode from @p wire in NDN Packet Format v0.2 or v0.3.
+  /** @brief Decode from @p wire.
    */
   void
   wireDecode(const Block& wire);
@@ -320,4 +319,4 @@ operator!=(const Data& lhs, const Data& rhs)
 
 } // namespace ndn
 
-#endif // NDN_DATA_HPP
+#endif // NDN_CXX_DATA_HPP

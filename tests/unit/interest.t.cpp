@@ -354,7 +354,9 @@ BOOST_AUTO_TEST_CASE(MissingApplicationParameters)
   i.setName(Name("/A").appendParametersSha256DigestPlaceholder());
   i.setCanBePrefix(false);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
-  BOOST_CHECK_THROW(i.wireEncode(), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireEncode(), tlv::Error, [] (const auto& e) {
+    return e.what() == "Interest without parameters must not have a ParametersSha256DigestComponent"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(MissingParametersSha256DigestComponent)
@@ -367,8 +369,12 @@ BOOST_AUTO_TEST_CASE(MissingParametersSha256DigestComponent)
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
   BOOST_CHECK_NO_THROW(i.wireEncode()); // this succeeds because it uses the cached wire encoding
 
-  i.setNonce(42); // trigger reencoding
-  BOOST_CHECK_THROW(i.wireEncode(), tlv::Error); // now the check fails while attempting to reencode
+  // trigger reencoding
+  i.setNonce(42);
+  // now the check fails while attempting to reencode
+  BOOST_CHECK_EXCEPTION(i.wireEncode(), tlv::Error, [] (const auto& e) {
+    return e.what() == "Interest with parameters must have a ParametersSha256DigestComponent"s;
+  });
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Encode
@@ -395,7 +401,9 @@ BOOST_FIXTURE_TEST_SUITE(Decode, DecodeFixture)
 
 BOOST_AUTO_TEST_CASE(NotAnInterest)
 {
-  BOOST_CHECK_THROW(i.wireDecode("4202CAFE"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("4202CAFE"_block), tlv::Error, [] (const auto& e) {
+    return e.what() == "Expecting Interest element, but TLV has type 66"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(NameOnly)
@@ -500,30 +508,36 @@ BOOST_AUTO_TEST_CASE(FullWithParameters)
 
 BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
 {
-  BOOST_CHECK_THROW(i.wireDecode(
+  BOOST_CHECK_EXCEPTION(i.wireDecode(
     "0529 2100 0703080149 1200 1E0B(1F09 1E023E15 0703080148) "
     "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3"_block),
-    tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode(
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "Name element is missing or out of order"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode(
     "0529 0703080149 1200 2100 1E0B(1F09 1E023E15 0703080148) "
     "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3"_block),
-    tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode(
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "CanBePrefix element is out of order"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode(
     "0529 0703080149 2100 1E0B(1F09 1E023E15 0703080148) 1200 "
     "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3"_block),
-    tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode(
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "MustBeFresh element is out of order"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode(
     "0529 0703080149 2100 1200 0A044ACB1E4C "
     "1E0B(1F09 1E023E15 0703080148) 0C0276A1 2201D6 2404C0C1C2C3"_block),
-    tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode(
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "ForwardingHint element is out of order"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode(
     "0529 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
     "0C0276A1 0A044ACB1E4C 2201D6 2404C0C1C2C3"_block),
-    tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode(
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "Nonce element is out of order"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode(
     "0529 0703080149 2100 1200 1E0B(1F09 1E023E15 0703080148) "
     "0A044ACB1E4C 2201D6 0C0276A1 2404C0C1C2C3"_block),
-    tlv::Error);
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "InterestLifetime element is out of order"s; });
 }
 
 BOOST_AUTO_TEST_CASE(NonCriticalElementOutOfOrder)
@@ -549,44 +563,52 @@ BOOST_AUTO_TEST_CASE(NonCriticalElementOutOfOrder)
 
 BOOST_AUTO_TEST_CASE(MissingName)
 {
-  BOOST_CHECK_THROW(i.wireDecode("0500"_block), tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode("0502 1200"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0500"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0502 1200"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"s; });
 }
 
 BOOST_AUTO_TEST_CASE(BadName)
 {
-  // empty
-  BOOST_CHECK_THROW(i.wireDecode("0502 0700"_block), tlv::Error);
-
-  // more than one ParametersSha256DigestComponent
-  BOOST_CHECK_THROW(i.wireDecode("054C 074A(080149"
-                                 "02200000000000000000000000000000000000000000000000000000000000000000"
-                                 "080132"
-                                 "02200000000000000000000000000000000000000000000000000000000000000000)"_block),
-                    tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0502 0700"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Name has zero name components"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode("054C 074A(080149"
+    "02200000000000000000000000000000000000000000000000000000000000000000"
+    "080132"
+    "02200000000000000000000000000000000000000000000000000000000000000000)"_block),
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "Name has more than one ParametersSha256DigestComponent"s; });
 }
 
 BOOST_AUTO_TEST_CASE(BadCanBePrefix)
 {
-  BOOST_CHECK_THROW(i.wireDecode("0508 0703080149 210102"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0508 0703080149 210102"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "CanBePrefix element has non-zero TLV-LENGTH"s; });
 }
 
 BOOST_AUTO_TEST_CASE(BadMustBeFresh)
 {
-  BOOST_CHECK_THROW(i.wireDecode("0508 0703080149 120102"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0508 0703080149 120102"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "MustBeFresh element has non-zero TLV-LENGTH"s; });
 }
 
 BOOST_AUTO_TEST_CASE(BadNonce)
 {
-  BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 0A00"_block), tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode("050A 0703080149 0A0304C263"_block), tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode("050C 0703080149 0A05EFA420B262"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0507 0703080149 0A00"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Nonce element is malformed"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode("050A 0703080149 0A0304C263"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Nonce element is malformed"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode("050C 0703080149 0A05EFA420B262"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Nonce element is malformed"s; });
 }
 
 BOOST_AUTO_TEST_CASE(BadHopLimit)
 {
-  BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 2200"_block), tlv::Error);
-  BOOST_CHECK_THROW(i.wireDecode("0509 0703080149 22021356"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0507 0703080149 2200"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "HopLimit element is malformed"s; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0509 0703080149 22021356"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "HopLimit element is malformed"s; });
 }
 
 BOOST_AUTO_TEST_CASE(BadParametersDigest)
@@ -614,14 +636,17 @@ BOOST_AUTO_TEST_CASE(BadParametersDigest)
 
 BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
 {
-  BOOST_CHECK_THROW(i.wireDecode("0507 FC00 0703080149"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0507 FC00 0703080149"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"s; });
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
 {
-  BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 FB00"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0507 0703080149 FB00"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Unrecognized element of critical type 251"s; });
   // v0.2 packet with Selectors
-  BOOST_CHECK_THROW(i.wireDecode("0507 0703080149 09030D0101 0A0401000000"_block), tlv::Error);
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0510 0703080149 09030D0101 0A0401000000"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Unrecognized element of critical type 9"s; });
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Decode

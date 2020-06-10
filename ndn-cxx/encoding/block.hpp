@@ -21,8 +21,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_ENCODING_BLOCK_HPP
-#define NDN_ENCODING_BLOCK_HPP
+#ifndef NDN_CXX_ENCODING_BLOCK_HPP
+#define NDN_CXX_ENCODING_BLOCK_HPP
 
 #include "ndn-cxx/encoding/buffer.hpp"
 #include "ndn-cxx/encoding/encoding-buffer-fwd.hpp"
@@ -36,8 +36,8 @@ class const_buffer;
 
 namespace ndn {
 
-/** @brief Represents a TLV element of NDN packet format
- *  @sa https://named-data.net/doc/NDN-packet-spec/current/
+/** @brief Represents a TLV element of the NDN packet format.
+ *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#tlv-encoding
  */
 class Block
 {
@@ -505,4 +505,4 @@ operator "" _block(const char* input, std::size_t len);
 
 } // namespace ndn
 
-#endif // NDN_ENCODING_BLOCK_HPP
+#endif // NDN_CXX_ENCODING_BLOCK_HPP

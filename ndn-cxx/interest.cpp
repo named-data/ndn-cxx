@@ -97,7 +97,6 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 #endif // NDN_CXX_HAVE_TESTS
   }
 
-  // Encode as NDN Packet Format v0.3
   // Interest = INTEREST-TYPE TLV-LENGTH
   //              Name
   //              [CanBePrefix]

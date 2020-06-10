@@ -23,8 +23,8 @@
  * @author Zhenkai Zhu <http://irl.cs.ucla.edu/~zhenkai/>
  */
 
-#ifndef NDN_NAME_HPP
-#define NDN_NAME_HPP
+#ifndef NDN_CXX_NAME_HPP
+#define NDN_CXX_NAME_HPP
 
 #include "ndn-cxx/name-component.hpp"
 
@@ -39,6 +39,7 @@ class Name;
 using PartialName = Name;
 
 /** @brief Represents an absolute name
+ *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html
  */
 class Name
 {
@@ -82,34 +83,34 @@ public: // constructors, encoding, decoding
 
   /** @brief Parse name from NDN URI
    *  @param uri a null-terminated URI string
-   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   Name(const char* uri);
 
   /** @brief Create name from NDN URI
    *  @param uri a URI string
-   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   Name(std::string uri);
 
   /** @brief Write URI representation of the name to the output stream
-   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   void
   toUri(std::ostream& os, name::UriFormat format = name::UriFormat::DEFAULT) const;
 
   /** @brief Get URI representation of the name
-   *  @return URI representation; "ndn:" scheme identifier is not included
-   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
-   *  @note To print URI representation into a stream, it is more efficient to use ``os << name``.
+   *  @return URI representation; the "ndn:" scheme identifier is not included
+   *  @note To print URI representation into a stream, it is more efficient to use `os << name`.
+   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   std::string
   toUri(name::UriFormat format = name::UriFormat::DEFAULT) const;
 
-  /** @brief Check if this Name instance already has wire encoding
+  /** @brief Check if this instance already has wire encoding
    */
   bool
-  hasWire() const
+  hasWire() const noexcept
   {
     return m_wire.hasWire();
   }
@@ -374,9 +375,8 @@ public: // modifiers
   append(const PartialName& name);
 
   /** @brief Append a component with a nonNegativeInteger
-   *  @sa number the number
    *  @return a reference to this name, to allow chaining
-   *  @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
+   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    */
   Name&
   appendNumber(uint64_t number)
@@ -578,7 +578,7 @@ public: // algorithms
    *  @retval zero this equals other
    *  @retval positive this comes after other in canonical ordering
    *
-   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
+   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#canonical-order
    */
   int
   compare(const Name& other) const
@@ -635,8 +635,8 @@ private: // non-member operators
     return lhs.compare(rhs) >= 0;
   }
 
-  /** @brief Print URI representation of a name
-   *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+  /** @brief Print the URI representation of a name.
+   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   friend std::ostream&
   operator<<(std::ostream& os, const Name& name)
@@ -656,8 +656,8 @@ private:
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Name);
 
-/** @brief Parse URI from stream as Name
- *  @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+/** @brief Parse URI from stream as Name.
+ *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
  */
 std::istream&
 operator>>(std::istream& is, Name& name);
@@ -675,4 +675,4 @@ struct hash<ndn::Name>
 
 } // namespace std
 
-#endif // NDN_NAME_HPP
+#endif // NDN_CXX_NAME_HPP
