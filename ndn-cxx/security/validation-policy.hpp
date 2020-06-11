@@ -163,6 +163,14 @@ getKeyLocatorName(const Data& data, ValidationState& state);
 Name
 getKeyLocatorName(const Interest& interest, ValidationState& state);
 
+/**
+ * @brief Extract identity name from key, version-less certificate, or certificate name
+ *
+ * @throw KeyLocator::Error If @p keyLocator does not follow the naming conventions
+ */
+Name
+extractIdentityNameFromKeyLocator(const Name& keyLocator);
+
 } // inline namespace v2
 } // namespace security
 } // namespace ndn

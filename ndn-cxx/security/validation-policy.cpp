@@ -110,6 +110,24 @@ getKeyLocatorName(const Interest& interest, ValidationState& state)
   return getKeyLocatorName(si, state);
 }
 
+Name
+extractIdentityNameFromKeyLocator(const Name& keyLocator)
+{
+  // handling special cases
+  if (keyLocator == SigningInfo::getDigestSha256Identity() ||
+      keyLocator == SigningInfo::getHmacIdentity()) {
+    return keyLocator;
+  }
+
+  for (ssize_t i = 1; i <= std::min<ssize_t>(-Certificate::KEY_COMPONENT_OFFSET, keyLocator.size()); ++i) {
+    if (keyLocator[-i] == Certificate::KEY_COMPONENT) {
+      return keyLocator.getPrefix(-i);
+    }
+  }
+
+  NDN_THROW(KeyLocator::Error("KeyLocator name `" + keyLocator.toUri() + "` does not respect the naming conventions"));
+}
+
 } // inline namespace v2
 } // namespace security
 } // namespace ndn
