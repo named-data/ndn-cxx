@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -117,23 +117,40 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
   unique_ptr<KeyHandle> key = tpm.createKey(identity, RsaKeyParams());
   Name keyName = key->getKeyName();
 
-  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
-  auto sigValue = key->sign(DigestAlgorithm::SHA256, content, sizeof(content));
-  BOOST_REQUIRE(sigValue != nullptr);
-  Block sigBlock(tlv::SignatureValue, sigValue);
-
   transform::PublicKey pubKey;
   ConstBufferPtr pubKeyBits = key->derivePublicKey();
   pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
 
-  bool result;
+  // Sign using single buffer API
+  const uint8_t content1[] = {0x01, 0x02, 0x03, 0x04};
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1));
+  BOOST_REQUIRE(sigValueSingle != nullptr);
+
+  bool resultSingle;
   {
     using namespace transform;
-    bufferSource(content, sizeof(content)) >>
-      verifierFilter(DigestAlgorithm::SHA256, pubKey, sigBlock.value(), sigBlock.value_size()) >>
-      boolSink(result);
+    bufferSource(content1, sizeof(content1)) >>
+      verifierFilter(DigestAlgorithm::SHA256, pubKey,
+                     sigValueSingle->data(), sigValueSingle->size()) >>
+      boolSink(resultSingle);
   }
-  BOOST_CHECK_EQUAL(result, true);
+  BOOST_CHECK_EQUAL(resultSingle, true);
+
+  // Sign using vectored API
+  const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
+                                                            {content2, sizeof(content2)}});
+  BOOST_REQUIRE(sigValueVector != nullptr);
+
+  bool resultVector;
+  {
+    using namespace transform;
+    bufferSource({{content1, sizeof(content1)}, {content2, sizeof(content2)}}) >>
+      verifierFilter(DigestAlgorithm::SHA256, pubKey,
+                     sigValueVector->data(), sigValueVector->size()) >>
+      boolSink(resultVector);
+  }
+  BOOST_CHECK_EQUAL(resultVector, true);
 
   tpm.deleteKey(keyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
@@ -175,23 +192,40 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   unique_ptr<KeyHandle> key = tpm.createKey(identity, EcKeyParams());
   Name ecKeyName = key->getKeyName();
 
-  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
-  auto sigValue = key->sign(DigestAlgorithm::SHA256, content, sizeof(content));
-  BOOST_REQUIRE(sigValue != nullptr);
-  Block sigBlock(tlv::SignatureValue, sigValue);
-
   transform::PublicKey pubKey;
   ConstBufferPtr pubKeyBits = key->derivePublicKey();
   pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
 
-  bool result;
+  // Sign using single buffer API
+  const uint8_t content1[] = {0x01, 0x02, 0x03, 0x04};
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1));
+  BOOST_REQUIRE(sigValueSingle != nullptr);
+
+  bool resultSingle;
   {
     using namespace transform;
-    bufferSource(content, sizeof(content)) >>
-      verifierFilter(DigestAlgorithm::SHA256, pubKey, sigBlock.value(), sigBlock.value_size()) >>
-      boolSink(result);
+    bufferSource(content1, sizeof(content1)) >>
+      verifierFilter(DigestAlgorithm::SHA256, pubKey,
+                     sigValueSingle->data(), sigValueSingle->size()) >>
+      boolSink(resultSingle);
   }
-  BOOST_CHECK_EQUAL(result, true);
+  BOOST_CHECK_EQUAL(resultSingle, true);
+
+  // Sign using vectored API
+  const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
+                                                            {content2, sizeof(content2)}});
+  BOOST_REQUIRE(sigValueVector != nullptr);
+
+  bool resultVector;
+  {
+    using namespace transform;
+    bufferSource({{content1, sizeof(content1)}, {content2, sizeof(content2)}}) >>
+      verifierFilter(DigestAlgorithm::SHA256, pubKey,
+                     sigValueVector->data(), sigValueVector->size()) >>
+      boolSink(resultVector);
+  }
+  BOOST_CHECK_EQUAL(resultVector, true);
 
   tpm.deleteKey(ecKeyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(ecKeyName), false);
@@ -207,14 +241,24 @@ BOOST_AUTO_TEST_CASE(HmacSigningAndVerifying)
   unique_ptr<KeyHandle> key = tpm.createKey(identity, HmacKeyParams());
   Name hmacKeyName = key->getKeyName();
 
-  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
-  auto sigValue = key->sign(DigestAlgorithm::SHA256, content, sizeof(content));
-  BOOST_REQUIRE(sigValue != nullptr);
-  Block sigBlock(tlv::SignatureValue, sigValue);
+  // Sign and verify using single buffer API
+  const uint8_t content1[] = {0x01, 0x02, 0x03, 0x04};
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1));
+  BOOST_REQUIRE(sigValueSingle != nullptr);
+  bool resultSingle = key->verify(DigestAlgorithm::SHA256, content1, sizeof(content1),
+                                  sigValueSingle->data(), sigValueSingle->size());
+  BOOST_CHECK_EQUAL(resultSingle, true);
 
-  bool result = key->verify(DigestAlgorithm::SHA256, content, sizeof(content),
-                            sigBlock.value(), sigBlock.value_size());
-  BOOST_CHECK_EQUAL(result, true);
+  // Sign and verify using vectored API
+  const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
+                                                            {content2, sizeof(content2)}});
+  BOOST_REQUIRE(sigValueVector != nullptr);
+  bool resultVector = key->verify(DigestAlgorithm::SHA256,
+                                  {{content1, sizeof(content1)},
+                                   {content2, sizeof(content2)}},
+                                  sigValueVector->data(), sigValueVector->size());
+  BOOST_CHECK_EQUAL(resultVector, true);
 
   tpm.deleteKey(hmacKeyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(hmacKeyName), false);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,20 +26,22 @@ namespace security {
 namespace transform {
 
 BufferSource::BufferSource(const uint8_t* buf, size_t size)
-  : m_buf(buf)
-  , m_size(size)
+  : m_bufs({{buf, size}})
 {
 }
 
 BufferSource::BufferSource(const std::string& string)
-  : m_buf(reinterpret_cast<const uint8_t*>(string.data()))
-  , m_size(string.size())
+  : m_bufs({{reinterpret_cast<const uint8_t*>(string.data()), string.size()}})
 {
 }
 
 BufferSource::BufferSource(const Buffer& buffer)
-  : m_buf(buffer.data())
-  , m_size(buffer.size())
+  : m_bufs({{buffer.data(), buffer.size()}})
+{
+}
+
+BufferSource::BufferSource(InputBuffers buffers)
+  : m_bufs(std::move(buffers))
 {
 }
 
@@ -48,13 +50,15 @@ BufferSource::doPump()
 {
   BOOST_ASSERT(m_next != nullptr);
 
-  const uint8_t* buf = m_buf;
-  size_t size = m_size;
+  for (const auto& buffer : m_bufs) {
+    const uint8_t* buf = buffer.first;
+    size_t size = buffer.second;
 
-  while (0 < size) {
-    size_t nBytesWritten = m_next->write(buf, size);
-    buf += nBytesWritten;
-    size -= nBytesWritten;
+    while (size > 0) {
+      size_t nBytesWritten = m_next->write(buf, size);
+      buf += nBytesWritten;
+      size -= nBytesWritten;
+    }
   }
 
   m_next->end();

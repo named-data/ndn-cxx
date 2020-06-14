@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,13 +34,13 @@ KeyHandleOsx::KeyHandleOsx(const KeyRefOsx& key)
 }
 
 ConstBufferPtr
-KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
+KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const
 {
-  return BackEndOsx::sign(m_key, digestAlgorithm, buf, size);
+  return BackEndOsx::sign(m_key, digestAlgorithm, bufs);
 }
 
 bool
-KeyHandleOsx::doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+KeyHandleOsx::doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
                        const uint8_t* sig, size_t sigLen) const
 {
   NDN_THROW(Error("Signature verification is not supported with macOS Keychain-based TPM"));

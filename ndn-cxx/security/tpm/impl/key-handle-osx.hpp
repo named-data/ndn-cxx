@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,10 +45,10 @@ public:
 
 private:
   ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const final;
+  doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const final;
 
   bool
-  doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+  doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
            const uint8_t* sig, size_t sigLen) const final;
 
   ConstBufferPtr

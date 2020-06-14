@@ -24,6 +24,8 @@
 
 #include "ndn-cxx/detail/common.hpp"
 
+#include <vector>
+
 namespace ndn {
 
 namespace signed_interest {
@@ -51,6 +53,9 @@ const ssize_t POS_TIMESTAMP = -4;
 const size_t MIN_SIZE = 4;
 
 } // namespace command_interest
+
+/// Represents a range of distcontiguous buffers as input to a security operation
+typedef std::vector<std::pair<const uint8_t*, size_t>> InputBuffers;
 
 /**
  * @brief The type of KeyId component in a key name.

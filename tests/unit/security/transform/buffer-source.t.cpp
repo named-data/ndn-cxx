@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   std::ostringstream os1;
   bufferSource(in, sizeof(in)) >> streamSink(os1);
   std::string out1 = os1.str();
-  BOOST_CHECK_EQUAL_COLLECTIONS(in, in + sizeof(in), out1.begin(), out1.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(out1.begin(), out1.end(), in, in + sizeof(in));
 
   std::string in2 =
     "0123456701234567012345670123456701234567012345670123456701234567"
@@ -70,13 +70,23 @@ BOOST_AUTO_TEST_CASE(Basic)
   std::ostringstream os2;
   bufferSource(in2) >> streamSink(os2);
   std::string out2 = os2.str();
-  BOOST_CHECK_EQUAL_COLLECTIONS(in2.begin(), in2.end(), out2.begin(), out2.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(out2.begin(), out2.end(), in2.begin(), in2.end());
 
   Buffer in3(in, sizeof(in));
   std::ostringstream os3;
   bufferSource(in3) >> streamSink(os3);
   std::string out3 = os3.str();
-  BOOST_CHECK_EQUAL_COLLECTIONS(in3.begin(), in3.end(), out3.begin(), out3.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(out3.begin(), out3.end(), in3.begin(), in3.end());
+
+  InputBuffers in4{{in, sizeof(in)}, {reinterpret_cast<const uint8_t*>(in2.data()), in2.size()}};
+  std::ostringstream os4;
+  bufferSource(in4) >> streamSink(os4);
+  std::string out4 = os4.str();
+  BOOST_CHECK_EQUAL(out4.size(), sizeof(in) + in2.size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(out4.begin(), out4.begin() + in4[0].second,
+                                in4[0].first, in4[0].first + in4[0].second);
+  BOOST_CHECK_EQUAL_COLLECTIONS(out4.begin() + in4[0].second, out4.end(),
+                                in4[1].first, in4[1].first + in4[1].second);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBufferSource

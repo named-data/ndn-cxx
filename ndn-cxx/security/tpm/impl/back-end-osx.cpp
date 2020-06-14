@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,10 @@
 
 #include "ndn-cxx/security/tpm/impl/back-end-osx.hpp"
 #include "ndn-cxx/security/tpm/impl/key-handle-osx.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/detail/cf-string-osx.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 
@@ -246,7 +249,7 @@ BackEndOsx::unlockTpm(const char* pw, size_t pwLen) const
 }
 
 ConstBufferPtr
-BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const uint8_t* buf, size_t size)
+BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const InputBuffers& bufs)
 {
   CFReleaser<CFErrorRef> error;
   CFReleaser<SecTransformRef> signer = SecSignTransformCreate(key.get(), &error.get());
@@ -254,11 +257,24 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const uint8_t
     NDN_THROW(Error("Failed to create sign transform: " + getFailureReason(error.get())));
   }
 
+  // Generate digest
+  OBufferStream digestSink;
+  using namespace transform;
+  bufferSource(bufs) >> digestFilter(digestAlgo) >> streamSink(digestSink);
+
   // Set input
-  auto data = makeCFDataNoCopy(buf, size);
+  auto buffer = digestSink.buf();
+  BOOST_ASSERT(buffer->size() * 8 == static_cast<size_t>(getDigestSize(digestAlgo)));
+  auto data = makeCFDataNoCopy(buffer->data(), buffer->size());
   SecTransformSetAttribute(signer.get(), kSecTransformInputAttributeName, data.get(), &error.get());
   if (error != nullptr) {
     NDN_THROW(Error("Failed to configure input of sign transform: " + getFailureReason(error.get())));
+  }
+
+  // Configure input as digest
+  SecTransformSetAttribute(signer.get(), kSecInputIsAttributeName, kSecInputIsDigest, &error.get());
+  if (error != nullptr) {
+    NDN_THROW(Error("Failed to configure sign transform input as digest: " + getFailureReason(error.get())));
   }
 
   // Enable use of padding

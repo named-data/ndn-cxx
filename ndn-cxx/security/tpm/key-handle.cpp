@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,16 +28,29 @@ namespace tpm {
 KeyHandle::~KeyHandle() = default;
 
 ConstBufferPtr
+KeyHandle::sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const
+{
+  return doSign(digestAlgorithm, bufs);
+}
+
+ConstBufferPtr
 KeyHandle::sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
 {
-  return doSign(digestAlgorithm, buf, size);
+  return doSign(digestAlgorithm, {{buf, size}});
+}
+
+bool
+KeyHandle::verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
+                  const uint8_t* sig, size_t sigLen) const
+{
+  return doVerify(digestAlgorithm, bufs, sig, sigLen);
 }
 
 bool
 KeyHandle::verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
                   const uint8_t* sig, size_t sigLen) const
 {
-  return doVerify(digestAlgorithm, buf, bufLen, sig, sigLen);
+  return doVerify(digestAlgorithm, {{buf, bufLen}}, sig, sigLen);
 }
 
 ConstBufferPtr

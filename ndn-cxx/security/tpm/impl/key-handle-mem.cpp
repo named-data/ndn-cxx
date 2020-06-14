@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,24 +39,23 @@ KeyHandleMem::KeyHandleMem(shared_ptr<transform::PrivateKey> key)
 }
 
 ConstBufferPtr
-KeyHandleMem::doSign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
+KeyHandleMem::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const
 {
   using namespace transform;
 
   OBufferStream sigOs;
-  bufferSource(buf, size) >> signerFilter(digestAlgorithm, *m_key) >> streamSink(sigOs);
+  bufferSource(bufs) >> signerFilter(digestAlgorithm, *m_key) >> streamSink(sigOs);
   return sigOs.buf();
 }
 
 bool
-KeyHandleMem::doVerify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size,
+KeyHandleMem::doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
                        const uint8_t* sig, size_t sigLen) const
 {
   using namespace transform;
 
   bool result = false;
-  bufferSource(buf, size) >> verifierFilter(digestAlgorithm, *m_key, sig, sigLen)
-                          >> boolSink(result);
+  bufferSource(bufs) >> verifierFilter(digestAlgorithm, *m_key, sig, sigLen) >> boolSink(result);
   return result;
 }
 

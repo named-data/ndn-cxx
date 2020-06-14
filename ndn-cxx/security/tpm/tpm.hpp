@@ -95,12 +95,36 @@ public:
   getPublicKey(const Name& keyName) const;
 
   /**
+   * @brief Sign discontiguous ranges using the key with name @p keyName and using the digest
+   *        @p digestAlgorithm.
+   *
+   * @return The signature, or nullptr if the key does not exist.
+   */
+  ConstBufferPtr
+  sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+
+  /**
    * @brief Sign blob using the key with name @p keyName and using the digest @p digestAlgorithm.
    *
    * @return The signature, or nullptr if the key does not exist.
    */
   ConstBufferPtr
-  sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+  sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const
+  {
+    return sign({{buf, size}}, keyName, digestAlgorithm);
+  }
+
+  /**
+   * @brief Verify discontiguous ranges using the key with name @p keyName and using the digest
+   *        @p digestAlgorithm.
+   *
+   * @retval true the signature is valid
+   * @retval false the signature is not valid
+   * @retval indeterminate the key does not exist
+   */
+  boost::logic::tribool
+  verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName,
+         DigestAlgorithm digestAlgorithm) const;
 
   /**
    * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
@@ -111,7 +135,10 @@ public:
    */
   boost::logic::tribool
   verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
-         const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+         const Name& keyName, DigestAlgorithm digestAlgorithm) const
+  {
+    return verify({{buf, bufLen}}, sig, sigLen, keyName, digestAlgorithm);
+  }
 
   /**
    * @brief Decrypt blob using the key with name @p keyName.

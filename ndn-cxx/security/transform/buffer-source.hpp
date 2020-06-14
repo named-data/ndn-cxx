@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,28 +24,29 @@
 
 #include "ndn-cxx/security/transform/transform-base.hpp"
 #include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {
 namespace transform {
 
 /**
- * @brief A source taking a memory buffer as input
+ * @brief A source taking one or more memory buffers as input
  */
 class BufferSource : public Source
 {
 public:
   /**
-   * @brief Take a buffer @p buf with size of @p size as input.
+   * @brief Take a buffer @p buf with size @p size as input.
    *
-   * Caller must not destroy the buffer before transformation is done
+   * Caller must not destroy the buffer before the transformation is completed.
    */
   BufferSource(const uint8_t* buf, size_t size);
 
   /**
    * @brief Take @p string as input.
    *
-   * Caller must not destroy the string before transformation is done
+   * Caller must not destroy the string before the transformation is completed.
    */
   explicit
   BufferSource(const std::string& string);
@@ -53,10 +54,18 @@ public:
   /**
    * @brief Take @p buffer as input.
    *
-   * Caller must not destroy the buffer before transformation is done
+   * Caller must not destroy the buffer before the transformation is completed.
    */
   explicit
   BufferSource(const Buffer& buffer);
+
+  /**
+   * @brief Take @p buffers as input.
+   *
+   * Caller must not destroy any of the input buffers before the transformation is completed.
+   */
+  explicit
+  BufferSource(InputBuffers buffers);
 
 private:
   /**
@@ -66,8 +75,7 @@ private:
   doPump() final;
 
 private:
-  const uint8_t* m_buf;
-  size_t m_size;
+  InputBuffers m_bufs;
 };
 
 typedef BufferSource bufferSource;

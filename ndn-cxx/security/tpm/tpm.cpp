@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -81,26 +81,30 @@ Tpm::getPublicKey(const Name& keyName) const
 }
 
 ConstBufferPtr
-Tpm::sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const
+Tpm::sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
 
-  if (key == nullptr)
+  if (key == nullptr) {
     return nullptr;
-  else
-    return key->sign(digestAlgorithm, buf, size);
+  }
+  else {
+    return key->sign(digestAlgorithm, bufs);
+  }
 }
 
 boost::logic::tribool
-Tpm::verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
-            const Name& keyName, DigestAlgorithm digestAlgorithm) const
+Tpm::verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName,
+            DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
 
-  if (key == nullptr)
+  if (key == nullptr) {
     return boost::logic::indeterminate;
-  else
-    return key->verify(digestAlgorithm, buf, bufLen, sig, sigLen);
+  }
+  else {
+    return key->verify(digestAlgorithm, bufs, sig, sigLen);
+  }
 }
 
 ConstBufferPtr
