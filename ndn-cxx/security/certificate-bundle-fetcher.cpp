@@ -166,7 +166,7 @@ CertificateBundleFetcher::dataCallback(const Data& bundleData,
     state->setTag(make_shared<BundleNameTag>(bundleData.getName()));
 
     const auto& finalBlockId = bundleData.getFinalBlock();
-    if (!finalBlockId) {
+    if (finalBlockId) {
       state->setTag(make_shared<FinalBlockIdTag>(*finalBlockId));
     }
 
