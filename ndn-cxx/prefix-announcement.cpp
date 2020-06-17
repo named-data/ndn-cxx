@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,24 +24,28 @@
 
 namespace ndn {
 
-static const name::Component KEYWORD_PA_COMP = "20025041"_block;
+const name::Component KEYWORD_PA_COMP = "20 02 5041"_block; // 32=PA
 
 PrefixAnnouncement::PrefixAnnouncement() = default;
 
 PrefixAnnouncement::PrefixAnnouncement(Data data)
   : m_data(std::move(data))
 {
-  if (m_data->getContentType() != tlv::ContentType_PrefixAnn) {
-    NDN_THROW(Error("Data is not a prefix announcement: ContentType is " +
-                    to_string(m_data->getContentType())));
-  }
-
   const Name& dataName = m_data->getName();
   if (dataName.size() < 3 || dataName[-3] != KEYWORD_PA_COMP ||
       !dataName[-2].isVersion() || !dataName[-1].isSegment()) {
     NDN_THROW(Error("Data is not a prefix announcement: wrong name structure"));
   }
   m_announcedName = dataName.getPrefix(-3);
+
+  if (m_data->getContentType() != tlv::ContentType_PrefixAnn) {
+    NDN_THROW(Error("Data is not a prefix announcement: ContentType is " +
+                    to_string(m_data->getContentType())));
+  }
+
+  if (m_data->getContent().value_size() == 0) {
+    NDN_THROW(Error("Prefix announcement is empty"));
+  }
 
   const Block& payload = m_data->getContent();
   payload.parse();
@@ -56,7 +60,7 @@ PrefixAnnouncement::PrefixAnnouncement(Data data)
   for (const Block& element : payload.elements()) {
     if (element.type() != tlv::nfd::ExpirationPeriod && element.type() != tlv::ValidityPeriod &&
         tlv::isCriticalType(element.type())) {
-      NDN_THROW(Error("unrecognized element of critical type " + to_string(element.type())));
+      NDN_THROW(Error("Unrecognized element of critical type " + to_string(element.type())));
     }
   }
 }

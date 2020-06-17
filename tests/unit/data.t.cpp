@@ -89,7 +89,8 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), DEFAULT_FRESHNESS_PERIOD);
   BOOST_CHECK(!d.getFinalBlock());
-  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL(d.hasContent(), false);
+  BOOST_CHECK_EQUAL(d.getContent().isValid(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK(!d.getSignatureInfo());
   BOOST_CHECK_EQUAL(d.getSignatureType(), -1);
@@ -173,7 +174,7 @@ BOOST_AUTO_TEST_CASE(Minimal)
   Data d;
   d.setSignatureInfo(SignatureInfo(tlv::DigestSha256));
   d.setSignatureValue(std::make_shared<Buffer>());
-  BOOST_CHECK_EQUAL(d.wireEncode(), "060D 0700 1400 1500 16031B0100 1700"_block);
+  BOOST_CHECK_EQUAL(d.wireEncode(), "060B 0700 1400 16031B0100 1700"_block);
 }
 
 BOOST_FIXTURE_TEST_CASE(Full, DataSigningKeyFixture)
@@ -249,6 +250,7 @@ BOOST_AUTO_TEST_CASE(Minimal)
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
+  BOOST_CHECK_EQUAL(d.hasContent(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(d.getKeyLocator().has_value(), false);
@@ -262,7 +264,7 @@ BOOST_AUTO_TEST_CASE(Minimal)
   d.setName("/E");
   BOOST_CHECK_EQUAL(d.hasWire(), false);
   BOOST_CHECK_EQUAL(d.wireEncode(),
-                    "0630 0703080145 1400 1500 16031B0100 "
+                    "062E 0703(080145) 1400 1603(1B0100) "
                     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block);
 }
 
@@ -273,6 +275,7 @@ BOOST_AUTO_TEST_CASE(MinimalEmptyName)
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
+  BOOST_CHECK_EQUAL(d.hasContent(), false);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(d.getKeyLocator().has_value(), false);
@@ -286,6 +289,7 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
                                 d.getContent().value_size()), "SUCCESS!");
   BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::SignatureSha256WithRsa);
@@ -302,6 +306,7 @@ BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElements)
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 0_ms);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::DigestSha256);
   BOOST_CHECK_EQUAL(d.getKeyLocator().has_value(), false);
@@ -499,36 +504,58 @@ BOOST_AUTO_TEST_CASE(SetFinalBlock)
 BOOST_AUTO_TEST_CASE(SetContent)
 {
   Data d;
-  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL(d.hasContent(), false);
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Invalid);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
 
+  // Block overload, used directly as Content
   const uint8_t direct[] = {0xca, 0xfe};
-  d.setContent("1502CAFE"_block); // Block overload, used directly as Content
+  d.setContent("1502CAFE"_block);
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
                                 direct, direct + sizeof(direct));
 
+  // Block overload, nested inside Content element
   const uint8_t nested[] = {0x99, 0x02, 0xca, 0xfe};
-  d.setContent(Block(nested, sizeof(nested))); // Block overload, nested inside Content element
+  d.setContent(Block(nested, sizeof(nested)));
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
                                 nested, nested + sizeof(nested));
 
-  d.setContent(nested, sizeof(nested)); // raw buffer overload
+  // Block overload, default constructed (invalid)
+  BOOST_CHECK_THROW(d.setContent(Block{}), std::invalid_argument);
+
+  // raw buffer overload
+  d.setContent(nested, sizeof(nested));
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
                                 nested, nested + sizeof(nested));
-
-  d.setContent(std::make_shared<Buffer>(direct, sizeof(direct))); // ConstBufferPtr overload
-  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
-  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
-                                direct, direct + sizeof(direct));
-
-  d.setContent(std::make_shared<Buffer>()); // ConstBufferPtr overload, empty buffer
+  d.setContent(nullptr, 0);
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  BOOST_CHECK_THROW(d.setContent(nullptr, 1), std::invalid_argument);
 
+  // ConstBufferPtr overload
+  d.setContent(std::make_shared<Buffer>(direct, sizeof(direct)));
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
+                                direct, direct + sizeof(direct));
+  d.setContent(std::make_shared<Buffer>());
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
   BOOST_CHECK_THROW(d.setContent(nullptr), std::invalid_argument);
+
+  // unset
+  d.unsetContent();
+  BOOST_CHECK_EQUAL(d.hasContent(), false);
+  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Invalid);
+  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(SetSignatureValue)
@@ -594,12 +621,18 @@ BOOST_AUTO_TEST_CASE(Equality)
 
 BOOST_AUTO_TEST_CASE(Print)
 {
-  Data d(Block(DATA1, sizeof(DATA1)));
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(d),
+  Data d1(Block(DATA1, sizeof(DATA1)));
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(d1),
                     "Name: /local/ndn/prefix\n"
-                    "MetaInfo: ContentType: 0, FreshnessPeriod: 10000 milliseconds\n"
-                    "Content: (size: 8)\n"
-                    "Signature: (type: SignatureSha256WithRsa, value_length: 128)\n");
+                    "MetaInfo: [ContentType: 0, FreshnessPeriod: 10000 milliseconds]\n"
+                    "Content: [8 bytes]\n"
+                    "Signature: [type: SignatureSha256WithRsa, length: 128]\n");
+
+  Data d2("/foo");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(d2),
+                    "Name: /foo\n"
+                    "MetaInfo: [ContentType: 0]\n"
+                    "Signature: [type: Unknown(65535), length: 0]\n");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestData

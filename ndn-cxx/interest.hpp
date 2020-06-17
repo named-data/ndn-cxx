@@ -324,15 +324,21 @@ public: // element access
   Interest&
   setHopLimit(optional<uint8_t> hopLimit);
 
+  /**
+   * @brief Return whether this Interest has any ApplicationParameters.
+   */
   bool
   hasApplicationParameters() const noexcept
   {
     return !m_parameters.empty();
   }
 
-  /** @brief Get the ApplicationParameters
+  /**
+   * @brief Get the ApplicationParameters.
    *
-   *  If the element is not present, an invalid Block will be returned.
+   * If the element is not present, an invalid Block will be returned.
+   *
+   * @sa hasApplicationParameters()
    */
   Block
   getApplicationParameters() const
@@ -343,50 +349,55 @@ public: // element access
       return m_parameters.front();
   }
 
-  /** @brief Set ApplicationParameters from a Block.
-   *  @return a reference to this Interest
+  /**
+   * @brief Set ApplicationParameters from a Block.
+   * @param block TLV block to be used as ApplicationParameters; must be valid
+   * @return a reference to this Interest
    *
-   *  If the block is default-constructed, this will set a zero-length ApplicationParameters
-   *  element. Else, if the block's TLV-TYPE is ApplicationParameters, it will be used directly
-   *  as this Interest's ApplicationParameters element. Else, the block will be nested into an
-   *  ApplicationParameters element.
+   * If the block's TLV-TYPE is tlv::ApplicationParameters, it will be used directly as
+   * this Interest's ApplicationParameters element. Otherwise, the block will be nested
+   * into an ApplicationParameters element.
    *
-   *  This function will also recompute the value of the ParametersSha256DigestComponent in the
-   *  Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
-   *  be appended to it.
+   * This function will also recompute the value of the ParametersSha256DigestComponent in the
+   * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   * be appended to it.
    */
   Interest&
-  setApplicationParameters(const Block& parameters);
+  setApplicationParameters(const Block& block);
 
-  /** @brief Set ApplicationParameters by copying from a raw buffer.
-   *  @param value points to a buffer from which the TLV-VALUE of the parameters will be copied;
-   *               may be nullptr if @p length is zero
-   *  @param length size of the buffer
-   *  @return a reference to this Interest
+  /**
+   * @brief Set ApplicationParameters by copying from a raw buffer.
+   * @param value points to a buffer from which the TLV-VALUE of the parameters will be copied;
+   *              may be nullptr if @p length is zero
+   * @param length size of the buffer
+   * @return a reference to this Interest
    *
-   *  This function will also recompute the value of the ParametersSha256DigestComponent in the
-   *  Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
-   *  be appended to it.
+   * This function will also recompute the value of the ParametersSha256DigestComponent in the
+   * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   * be appended to it.
    */
   Interest&
   setApplicationParameters(const uint8_t* value, size_t length);
 
-  /** @brief Set ApplicationParameters from a shared buffer.
-   *  @param value buffer containing the TLV-VALUE of the parameters; must not be nullptr
-   *  @return a reference to this Interest
+  /**
+   * @brief Set ApplicationParameters from a shared buffer.
+   * @param value buffer containing the TLV-VALUE of the parameters; must not be nullptr
+   * @return a reference to this Interest
    *
-   *  This function will also recompute the value of the ParametersSha256DigestComponent in the
-   *  Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
-   *  be appended to it.
+   * This function will also recompute the value of the ParametersSha256DigestComponent in the
+   * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   * be appended to it.
    */
   Interest&
   setApplicationParameters(ConstBufferPtr value);
 
-  /** @brief Remove the ApplicationParameters element from this Interest.
-   *  @post hasApplicationParameters() == false
+  /**
+   * @brief Remove the ApplicationParameters element from this Interest.
+   * @return a reference to this Interest
+   * @post hasApplicationParameters() == false
    *
-   *  This function will also remove any InterestSignatureInfo and InterestSignatureValue elements
-   *  in the Interest, as well as any ParametersSha256DigestComponents in the Interest's name.
+   * This function will also remove any InterestSignatureInfo and InterestSignatureValue elements
+   * in the Interest, as well as any ParametersSha256DigestComponents in the Interest's name.
    */
   Interest&
   unsetApplicationParameters();

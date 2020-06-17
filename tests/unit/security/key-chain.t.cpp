@@ -291,6 +291,10 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
   key3Cert2.setName(key3Cert2Name);
   m_keyChain.addCertificate(key3, key3Cert2);
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 2);
+  // Add empty cert
+  Certificate key3Cert3 = key3Cert1;
+  key3Cert3.unsetContent();
+  BOOST_CHECK_THROW(m_keyChain.addCertificate(key3, key3Cert3), std::invalid_argument);
 
   // Default certificate setting
   BOOST_CHECK_EQUAL(key3.getDefaultCertificate().getName(), key3CertName);

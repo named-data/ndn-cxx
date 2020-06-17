@@ -378,6 +378,7 @@ Interest::setName(const Name& name)
   if (digestIndex == -2) {
     NDN_THROW(std::invalid_argument("Name cannot have more than one ParametersSha256DigestComponent"));
   }
+
   if (name != m_name) {
     m_name = name;
     if (hasApplicationParameters()) {
@@ -444,6 +445,7 @@ Interest::setInterestLifetime(time::milliseconds lifetime)
   if (lifetime < 0_ms) {
     NDN_THROW(std::invalid_argument("InterestLifetime must be >= 0"));
   }
+
   if (lifetime != m_interestLifetime) {
     m_interestLifetime = lifetime;
     m_wire.reset();
@@ -478,9 +480,10 @@ Interest&
 Interest::setApplicationParameters(const Block& parameters)
 {
   if (!parameters.isValid()) {
-    setApplicationParametersInternal(Block(tlv::ApplicationParameters));
+    NDN_THROW(std::invalid_argument("ApplicationParameters block must be valid"));
   }
-  else if (parameters.type() == tlv::ApplicationParameters) {
+
+  if (parameters.type() == tlv::ApplicationParameters) {
     setApplicationParametersInternal(parameters);
   }
   else {
@@ -497,6 +500,7 @@ Interest::setApplicationParameters(const uint8_t* value, size_t length)
   if (value == nullptr && length != 0) {
     NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
   }
+
   setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value, length));
   addOrReplaceParametersDigestComponent();
   m_wire.reset();
@@ -509,6 +513,7 @@ Interest::setApplicationParameters(ConstBufferPtr value)
   if (value == nullptr) {
     NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
   }
+
   setApplicationParametersInternal(Block(tlv::ApplicationParameters, std::move(value)));
   addOrReplaceParametersDigestComponent();
   m_wire.reset();

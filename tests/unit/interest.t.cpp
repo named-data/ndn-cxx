@@ -897,12 +897,11 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
   BOOST_CHECK(!i.hasApplicationParameters());
 
   // Block overload
-  i.setApplicationParameters(Block{});
-  BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
   i.setApplicationParameters("2401C0"_block);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C0"_block);
   i.setApplicationParameters("8001C1"_block);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "24038001C1"_block);
+  BOOST_CHECK_THROW(i.setApplicationParameters(Block{}), std::invalid_argument);
 
   // raw buffer+size overload
   i.setApplicationParameters(PARAMETERS1, sizeof(PARAMETERS1));
@@ -1159,7 +1158,7 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
   });
 
   // Test failure with missing InterestSignatureInfo
-  i3.setApplicationParameters(Block());
+  i3.setApplicationParameters(nullptr, 0);
   BOOST_CHECK_EXCEPTION(i3.extractSignedRanges(), tlv::Error, [] (const auto& e) {
     return e.what() == "Interest missing InterestSignatureInfo"s;
   });

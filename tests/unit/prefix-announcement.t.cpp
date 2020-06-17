@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,60 +92,75 @@ BOOST_AUTO_TEST_CASE(DecodeBad)
   // wrong ContentType
   Data data0 = makePrefixAnnData();
   data0.setContentType(tlv::ContentType_Blob);
-  BOOST_CHECK_THROW(PrefixAnnouncement pa0(data0), tlv::Error);
+  BOOST_CHECK_EXCEPTION(PrefixAnnouncement{data0}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Data is not a prefix announcement: ContentType is 0"s;
+  });
 
   // Name has no "32=PA" keyword
   Data data1 = makePrefixAnnData();
   setNameComponent(data1, -3, name::Component::fromEscapedString("32=not-PA"));
-  BOOST_CHECK_THROW(PrefixAnnouncement pa1(data1), tlv::Error);
+  BOOST_CHECK_EXCEPTION(PrefixAnnouncement{data1}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Data is not a prefix announcement: wrong name structure"s;
+  });
 
   // Name has no version component
   Data data2 = makePrefixAnnData();
   setNameComponent(data2, -2, "not-version");
-  BOOST_CHECK_THROW(PrefixAnnouncement pa2(data2), tlv::Error);
+  BOOST_CHECK_EXCEPTION(PrefixAnnouncement{data2}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Data is not a prefix announcement: wrong name structure"s;
+  });
 
   // Name has no segment number component
   Data data3 = makePrefixAnnData();
   setNameComponent(data3, -2, "not-segment");
-  BOOST_CHECK_THROW(PrefixAnnouncement pa3(data3), tlv::Error);
+  BOOST_CHECK_EXCEPTION(PrefixAnnouncement{data3}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Data is not a prefix announcement: wrong name structure"s;
+  });
+
+  // Data without Content
+  Data data4 = makePrefixAnnData();
+  data4.unsetContent();
+  BOOST_CHECK_EXCEPTION(PrefixAnnouncement{data4}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Prefix announcement is empty"s;
+  });
 
   // Content has no ExpirationPeriod element
-  Data data4 = makePrefixAnnData();
-  Block payload4 = data4.getContent();
-  payload4.parse();
-  payload4.remove(tlv::nfd::ExpirationPeriod);
-  payload4.encode();
-  data4.setContent(payload4);
-  BOOST_CHECK_THROW(PrefixAnnouncement pa4(data4), tlv::Error);
-
-  // ExpirationPeriod is malformed
   Data data5 = makePrefixAnnData();
   Block payload5 = data5.getContent();
   payload5.parse();
   payload5.remove(tlv::nfd::ExpirationPeriod);
-  payload5.push_back("6D03010101"_block);
-  payload5.encode();
   data5.setContent(payload5);
-  BOOST_CHECK_THROW(PrefixAnnouncement pa5(data5), tlv::Error);
+  BOOST_CHECK_EXCEPTION(PrefixAnnouncement{data5}, tlv::Error, [] (const auto& e) {
+    return e.what() == "No sub-element of type 109 found in block of type 21"s;
+  });
 
-  // ValidityPeriod is malformed
+  // ExpirationPeriod is malformed
   Data data6 = makePrefixAnnData();
   Block payload6 = data6.getContent();
   payload6.parse();
-  payload6.remove(tlv::ValidityPeriod);
-  payload6.push_back("FD00FD00"_block);
-  payload6.encode();
+  payload6.remove(tlv::nfd::ExpirationPeriod);
+  payload6.push_back("6D03010101"_block);
   data6.setContent(payload6);
-  BOOST_CHECK_THROW(PrefixAnnouncement pa6(data6), tlv::Error);
+  BOOST_CHECK_THROW(PrefixAnnouncement{data6}, tlv::Error);
 
-  // Content has unrecognized critical element
+  // ValidityPeriod is malformed
   Data data7 = makePrefixAnnData();
   Block payload7 = data7.getContent();
   payload7.parse();
-  payload7.push_back("0200"_block);
-  payload7.encode();
+  payload7.remove(tlv::ValidityPeriod);
+  payload7.push_back("FD00FD00"_block);
   data7.setContent(payload7);
-  BOOST_CHECK_THROW(PrefixAnnouncement pa7(data7), tlv::Error);
+  BOOST_CHECK_THROW(PrefixAnnouncement{data7}, tlv::Error);
+
+  // Content has unrecognized critical element
+  Data data8 = makePrefixAnnData();
+  Block payload8 = data8.getContent();
+  payload8.parse();
+  payload8.push_back("0200"_block);
+  data8.setContent(payload8);
+  BOOST_CHECK_EXCEPTION(PrefixAnnouncement{data8}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Unrecognized element of critical type 2"s;
+  });
 }
 
 BOOST_FIXTURE_TEST_CASE(EncodeEmpty, IdentityManagementFixture)

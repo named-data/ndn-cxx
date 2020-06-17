@@ -85,23 +85,34 @@ BOOST_AUTO_TEST_CASE(InvalidFormat)
 {
   Data data;
 
-  // invalid content type
-  data.setName(Name("/ndn/unit/test").append(metadataComponent));
-  data.setContentType(tlv::ContentType_Key);
-  BOOST_CHECK_THROW(MetadataObject metadata(data), tlv::Error);
-
   // invalid metadata name
   data.setName("/ndn/unit/test");
-  data.setContentType(tlv::ContentType_Blob);
-  BOOST_CHECK_THROW(MetadataObject metadata(data), tlv::Error);
+  BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Name /ndn/unit/test is not a valid MetadataObject name"s;
+  });
+  data.setName(Name("/ndn/unit/test").append(metadataComponent));
+  BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
+    return e.what() == "Name /ndn/unit/test/32=metadata is not a valid MetadataObject name"s;
+  });
+
+  // invalid content type
+  data.setName(Name("/ndn/unit/test").append(metadataComponent).appendVersion().appendSegment(0));
+  data.setContentType(tlv::ContentType_Key);
+  BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
+    return e.what() == "MetadataObject has invalid ContentType 2"s;
+  });
 
   // empty content
-  data.setName(Name("ndn/unit/test").append(metadataComponent));
-  BOOST_CHECK_THROW(MetadataObject metadata(data), tlv::Error);
+  data.setContentType(tlv::ContentType_Blob);
+  BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
+    return e.what() == "MetadataObject is empty"s;
+  });
 
   // non-empty content with no name element
   data.setContent("F000"_block);
-  BOOST_CHECK_THROW(MetadataObject metadata(data), tlv::Error);
+  BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
+    return e.what() == "No sub-element of type 7 found in block of type 21"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(IsValidName)

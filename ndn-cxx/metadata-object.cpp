@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,12 +32,16 @@ MetadataObject::MetadataObject() = default;
 
 MetadataObject::MetadataObject(const Data& data)
 {
-  if (data.getContentType() != tlv::ContentType_Blob) {
-    NDN_THROW(Error("Expecting ContentType Blob, got " + to_string(data.getContentType())));
-  }
-
   if (!isValidName(data.getName())) {
     NDN_THROW(Error("Name " + data.getName().toUri() + " is not a valid MetadataObject name"));
+  }
+
+  if (data.getContentType() != tlv::ContentType_Blob) {
+    NDN_THROW(Error("MetadataObject has invalid ContentType " + to_string(data.getContentType())));
+  }
+
+  if (data.getContent().value_size() == 0) {
+    NDN_THROW(Error("MetadataObject is empty"));
   }
 
   data.getContent().parse();

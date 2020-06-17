@@ -20,7 +20,7 @@
  */
 
 #include "ndn-cxx/data.hpp"
-#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/signature.hpp"
 #include "ndn-cxx/util/sha256.hpp"
 
 namespace ndn {
@@ -34,7 +34,6 @@ static_assert(std::is_base_of<tlv::Error, Data::Error>::value,
 
 Data::Data(const Name& name)
   : m_name(name)
-  , m_content(tlv::Content)
 {
 }
 
@@ -69,13 +68,15 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
   totalLength += m_signatureInfo.wireEncode(encoder, SignatureInfo::Type::Data);
 
   // Content
-  totalLength += encoder.prependBlock(getContent());
+  if (hasContent()) {
+    totalLength += encoder.prependBlock(m_content);
+  }
 
   // MetaInfo
-  totalLength += getMetaInfo().wireEncode(encoder);
+  totalLength += m_metaInfo.wireEncode(encoder);
 
   // Name
-  totalLength += getName().wireEncode(encoder);
+  totalLength += m_name.wireEncode(encoder);
 
   if (!wantUnsignedPortionOnly) {
     totalLength += encoder.prependVarNumber(totalLength);
@@ -142,7 +143,7 @@ Data::wireDecode(const Block& wire)
   m_name.wireDecode(*element);
 
   m_metaInfo = {};
-  m_content = Block(tlv::Content);
+  m_content = {};
   m_signatureInfo = {};
   m_signatureValue = {};
   m_fullName.clear();
@@ -240,32 +241,32 @@ Data::setMetaInfo(const MetaInfo& metaInfo)
   return *this;
 }
 
-const Block&
-Data::getContent() const
-{
-  if (!m_content.hasWire()) {
-    const_cast<Block&>(m_content).encode();
-  }
-  return m_content;
-}
-
 Data&
 Data::setContent(const Block& block)
 {
+  if (!block.isValid()) {
+    NDN_THROW(std::invalid_argument("Content block must be valid"));
+  }
+
   if (block.type() == tlv::Content) {
     m_content = block;
   }
   else {
     m_content = Block(tlv::Content, block);
   }
+  m_content.encode();
   resetWire();
   return *this;
 }
 
 Data&
-Data::setContent(const uint8_t* value, size_t valueSize)
+Data::setContent(const uint8_t* value, size_t length)
 {
-  m_content = makeBinaryBlock(tlv::Content, value, valueSize);
+  if (value == nullptr && length != 0) {
+    NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
+  }
+
+  m_content = makeBinaryBlock(tlv::Content, value, length);
   resetWire();
   return *this;
 }
@@ -276,7 +277,16 @@ Data::setContent(ConstBufferPtr value)
   if (value == nullptr) {
     NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
   }
+
   m_content = Block(tlv::Content, std::move(value));
+  resetWire();
+  return *this;
+}
+
+Data&
+Data::unsetContent()
+{
+  m_content = {};
   resetWire();
   return *this;
 }
@@ -310,6 +320,7 @@ Data::setSignatureValue(ConstBufferPtr value)
   if (value == nullptr) {
     NDN_THROW(std::invalid_argument("SignatureValue buffer cannot be nullptr"));
   }
+
   m_signatureValue = Block(tlv::SignatureValue, std::move(value));
   resetWire();
   return *this;
@@ -358,12 +369,15 @@ operator==(const Data& lhs, const Data& rhs)
 std::ostream&
 operator<<(std::ostream& os, const Data& data)
 {
-  os << "Name: " << data.getName() << "\n";
-  os << "MetaInfo: " << data.getMetaInfo() << "\n";
-  os << "Content: (size: " << data.getContent().value_size() << ")\n";
-  os << "Signature: (type: " << static_cast<tlv::SignatureTypeValue>(data.getSignatureType())
-     << ", value_length: "<< data.getSignatureValue().value_size() << ")";
-  os << std::endl;
+  os << "Name: " << data.getName() << "\n"
+     << "MetaInfo: [" << data.getMetaInfo() << "]\n";
+
+  if (data.hasContent()) {
+    os << "Content: [" << data.getContent().value_size() << " bytes]\n";
+  }
+
+  os << "Signature: [type: " << static_cast<tlv::SignatureTypeValue>(data.getSignatureType())
+     << ", length: "<< data.getSignatureValue().value_size() << "]\n";
 
   return os;
 }

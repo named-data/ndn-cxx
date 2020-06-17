@@ -26,9 +26,11 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/meta-info.hpp"
 #include "ndn-cxx/name.hpp"
-#include "ndn-cxx/signature.hpp"
+#include "ndn-cxx/signature-info.hpp"
 
 namespace ndn {
+
+class Signature;
 
 /** @brief Represents a %Data packet.
  *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html
@@ -145,38 +147,67 @@ public: // Data fields
   Data&
   setMetaInfo(const MetaInfo& metaInfo);
 
-  /** @brief Get Content
+  /**
+   * @brief Return whether this Data has a Content element
+   */
+  bool
+  hasContent() const noexcept
+  {
+    return m_content.isValid();
+  }
+
+  /**
+   * @brief Get the Content element
    *
-   *  The Content value is accessible through value()/value_size() or value_begin()/value_end()
-   *  methods of the Block class.
+   * If the element is not present (hasContent() == false), an invalid Block will be returned.
+   *
+   * The value of the returned Content Block (if valid) can be accessed through
+   * Block::value() / Block::value_size() or Block::value_begin() / Block::value_end().
+   *
+   * @sa hasContent()
+   * @sa Block::blockFromValue(), Block::parse()
    */
   const Block&
-  getContent() const;
+  getContent() const noexcept
+  {
+    return m_content;
+  }
 
-  /** @brief Set Content from a Block
+  /**
+   * @brief Set Content from a Block
+   * @param block TLV block to be used as Content; must be valid
+   * @return a reference to this Data, to allow chaining
    *
-   *  If the block's TLV-TYPE is Content, it will be used directly as this Data's Content element.
-   *  Otherwise, the block will be nested into a Content element.
-   *
-   *  @return a reference to this Data, to allow chaining
+   * If the block's TLV-TYPE is tlv::Content, it will be used directly as this Data's
+   * Content element. Otherwise, the block will be nested into a Content element.
    */
   Data&
   setContent(const Block& block);
 
-  /** @brief Set Content by copying from a raw buffer
-   *  @param value pointer to the first octet of the value
-   *  @param valueSize size of the buffer
-   *  @return a reference to this Data, to allow chaining
+  /**
+   * @brief Set Content by copying from a raw buffer
+   * @param value buffer with the TLV-VALUE of the content; may be nullptr if @p length is zero
+   * @param length size of the buffer
+   * @return a reference to this Data, to allow chaining
    */
   Data&
-  setContent(const uint8_t* value, size_t valueSize);
+  setContent(const uint8_t* value, size_t length);
 
-  /** @brief Set Content from a shared buffer
-   *  @param value buffer containing the TLV-VALUE of the content; must not be nullptr
-   *  @return a reference to this Data, to allow chaining
+  /**
+   * @brief Set Content from a shared buffer
+   * @param value buffer with the TLV-VALUE of the content; must not be nullptr
+   * @return a reference to this Data, to allow chaining
    */
   Data&
   setContent(ConstBufferPtr value);
+
+  /**
+   * @brief Remove the Content element
+   * @return a reference to this Data, to allow chaining
+   * @post hasContent() == false
+   */
+  Data&
+  unsetContent();
 
   /** @brief Get Signature
    *  @deprecated Use getSignatureInfo and getSignatureValue

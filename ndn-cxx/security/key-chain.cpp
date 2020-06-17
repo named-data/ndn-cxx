@@ -322,11 +322,16 @@ KeyChain::addCertificate(const Key& key, const Certificate& certificate)
 {
   BOOST_ASSERT(static_cast<bool>(key));
 
+  const auto& certContent = certificate.getContent();
+  if (certContent.value_size() == 0) {
+    NDN_THROW(std::invalid_argument("Certificate `" + certificate.getName().toUri() + "` is empty"));
+  }
+
   if (key.getName() != certificate.getKeyName() ||
-      !std::equal(certificate.getContent().value_begin(), certificate.getContent().value_end(),
-                  key.getPublicKey().begin()))
+      !std::equal(certContent.value_begin(), certContent.value_end(), key.getPublicKey().begin())) {
     NDN_THROW(std::invalid_argument("Key `" + key.getName().toUri() + "` "
                                     "does not match certificate `" + certificate.getName().toUri() + "`"));
+  }
 
   key.addCertificate(certificate);
 }
