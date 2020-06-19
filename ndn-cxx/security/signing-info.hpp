@@ -33,6 +33,17 @@ namespace ndn {
 namespace security {
 
 /**
+ * @note This is a transitional API to handle the change in signed Interest format and will
+ *       disappear after a few releases.
+ */
+enum class SignedInterestFormat {
+  /// Sign Interest using Packet Specification v0.3 semantics
+  V03,
+  /// Sign Interest using Packet Specification v0.2 semantics
+  V02,
+};
+
+/**
  * @brief Signing parameters passed to KeyChain
  *
  * A SigningInfo is invalid if the specified identity/key/certificate does not exist,
@@ -236,6 +247,29 @@ public:
     return m_info;
   }
 
+  /**
+   * @brief Set signed Interest format
+   * @note  This is a transitional API to handle the change in signed Interest format and will
+   *        disappear after a few releases.
+   */
+  SigningInfo&
+  setSignedInterestFormat(SignedInterestFormat signedInterestFormat)
+  {
+    m_signedInterestFormat = signedInterestFormat;
+    return *this;
+  }
+
+  /**
+   * @return Signed Interest format
+   * @note   This is a transitional API to handle the change in signed Interest format and will
+   *         disappear after a few releases.
+   */
+  SignedInterestFormat
+  getSignedInterestFormat() const
+  {
+    return m_signedInterestFormat;
+  }
+
 public:
   /**
    * @deprecated Use default constructor for Name
@@ -280,7 +314,8 @@ private: // non-member operators
     return lhs.m_type != rhs.m_type ||
            lhs.m_name != rhs.m_name ||
            lhs.m_digestAlgorithm != rhs.m_digestAlgorithm ||
-           lhs.m_info != rhs.m_info;
+           lhs.m_info != rhs.m_info ||
+           lhs.m_signedInterestFormat != rhs.m_signedInterestFormat;
   }
 
 private:
@@ -291,10 +326,14 @@ private:
   shared_ptr<transform::PrivateKey> m_hmacKey;
   DigestAlgorithm m_digestAlgorithm;
   SignatureInfo m_info;
+  SignedInterestFormat m_signedInterestFormat;
 };
 
 std::ostream&
 operator<<(std::ostream& os, const SigningInfo& si);
+
+std::ostream&
+operator<<(std::ostream& os, const SignedInterestFormat& format);
 
 } // namespace security
 } // namespace ndn

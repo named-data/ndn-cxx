@@ -24,7 +24,6 @@
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/util/config-file.hpp"
 #include "ndn-cxx/util/logger.hpp"
-#include "ndn-cxx/util/sha256.hpp"
 
 #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 #include "ndn-cxx/security/pib/impl/pib-sqlite3.hpp"
@@ -37,8 +36,10 @@
 
 #include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
 #include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/security/transform/verifier-filter.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -458,7 +459,8 @@ KeyChain::sign(Data& data, const SigningInfo& params)
   EncodingBuffer encoder;
   data.wireEncode(encoder, true);
 
-  Block sigValue = sign(encoder.buf(), encoder.size(), keyName, params.getDigestAlgorithm());
+  Block sigValue(tlv::SignatureValue,
+                 sign({{encoder.buf(), encoder.size()}}, keyName, params.getDigestAlgorithm()));
 
   data.wireEncode(encoder, sigValue);
 }
@@ -470,15 +472,24 @@ KeyChain::sign(Interest& interest, const SigningInfo& params)
   SignatureInfo sigInfo;
   std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
 
-  Name signedName = interest.getName();
-  signedName.append(sigInfo.wireEncode()); // signatureInfo
+  if (params.getSignedInterestFormat() == SignedInterestFormat::V03) {
+    interest.setSignatureInfo(sigInfo);
 
-  Block sigValue = sign(signedName.wireEncode().value(), signedName.wireEncode().value_size(),
-                        keyName, params.getDigestAlgorithm());
-
-  sigValue.encode();
-  signedName.append(sigValue); // signatureValue
-  interest.setName(signedName);
+    // Extract function will throw if not all necessary elements are present in Interest
+    auto sigValue = sign(interest.extractSignedRanges(), keyName, params.getDigestAlgorithm());
+    interest.setSignatureValue(std::move(sigValue));
+  }
+  else {
+    Name signedName = interest.getName();
+    // We encode in Data format because this is the format used prior to Packet Specification v0.3
+    signedName.append(sigInfo.wireEncode(SignatureInfo::Type::Data)); // SignatureInfo
+    Block sigValue(tlv::SignatureValue,
+                   sign({{signedName.wireEncode().value(), signedName.wireEncode().value_size()}},
+                        keyName, params.getDigestAlgorithm()));
+    sigValue.encode();
+    signedName.append(std::move(sigValue)); // SignatureValue
+    interest.setName(signedName);
+  }
 }
 
 Block
@@ -488,7 +499,8 @@ KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& pa
   SignatureInfo sigInfo;
   std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
 
-  return sign(buffer, bufferLength, keyName, params.getDigestAlgorithm());
+  return Block(tlv::SignatureValue,
+               sign({{buffer, bufferLength}}, keyName, params.getDigestAlgorithm()));
 }
 
 // public: PIB/TPM creation helpers
@@ -696,21 +708,25 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
   return std::make_tuple(key.getName(), sigInfo);
 }
 
-Block
-KeyChain::sign(const uint8_t* buf, size_t size,
-               const Name& keyName, DigestAlgorithm digestAlgorithm) const
+ConstBufferPtr
+KeyChain::sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
-  if (keyName == SigningInfo::getDigestSha256Identity())
-    return Block(tlv::SignatureValue, util::Sha256::computeDigest(buf, size));
+  using namespace transform;
 
-  auto signature = m_tpm->sign(buf, size, keyName, digestAlgorithm);
+  if (keyName == SigningInfo::getDigestSha256Identity()) {
+    OBufferStream os;
+    bufferSource(bufs) >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
+    return os.buf();
+  }
+
+  auto signature = m_tpm->sign(bufs, keyName, digestAlgorithm);
   if (!signature) {
     NDN_THROW(InvalidSigningInfoError("TPM signing failed for key `" + keyName.toUri() + "` "
                                       "(e.g., PIB contains info about the key, but TPM is missing "
                                       "the corresponding private key)"));
   }
 
-  return Block(tlv::SignatureValue, std::move(signature));
+  return signature;
 }
 
 tlv::SignatureTypeValue

@@ -1066,6 +1066,105 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
   BOOST_CHECK_EQUAL(i.getSignatureValue(), sv);
 }
 
+BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
+{
+  Interest i1;
+  i1.setCanBePrefix(false);
+  BOOST_CHECK_EXCEPTION(i1.extractSignedRanges(), tlv::Error, [] (const auto& e) {
+    BOOST_TEST_MESSAGE(e.what());
+    return e.what() == "Name has zero name components"s;
+  });
+  i1.setName("/test/prefix");
+  i1.setNonce(0x01020304);
+  SignatureInfo sigInfo(tlv::DigestSha256);
+  i1.setSignatureInfo(sigInfo);
+
+  // Test with previously unsigned Interest (no InterestSignatureValue)
+  auto ranges1 = i1.extractSignedRanges();
+  BOOST_REQUIRE_EQUAL(ranges1.size(), 2);
+  const Block& wire1 = i1.wireEncode();
+  // Ensure Name range captured properly
+  Block nameWithoutDigest1 = i1.getName().getPrefix(-1).wireEncode();
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().first, ranges1.front().first + ranges1.front().second,
+                                nameWithoutDigest1.value_begin(), nameWithoutDigest1.value_end());
+  // Ensure parameters range captured properly
+  const auto& appParamsWire1 = wire1.find(tlv::ApplicationParameters);
+  BOOST_REQUIRE(appParamsWire1 != wire1.elements_end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.back().first, ranges1.back().first + ranges1.back().second,
+                                appParamsWire1->begin(), wire1.end());
+
+  // Test with Interest with existing InterestSignatureValue
+  auto sigValue = make_shared<Buffer>();
+  i1.setSignatureValue(sigValue);
+  auto ranges2 = i1.extractSignedRanges();
+  BOOST_REQUIRE_EQUAL(ranges2.size(), 2);
+  const auto& wire2 = i1.wireEncode();
+  // Ensure Name range captured properly
+  Block nameWithoutDigest2 = i1.getName().getPrefix(-1).wireEncode();
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().first, ranges2.front().first + ranges2.front().second,
+                                nameWithoutDigest2.value_begin(), nameWithoutDigest2.value_end());
+  // Ensure parameters range captured properly
+  const auto& appParamsWire2 = wire2.find(tlv::ApplicationParameters);
+  BOOST_REQUIRE(appParamsWire2 != wire2.elements_end());
+  const auto& sigValueWire2 = wire2.find(tlv::InterestSignatureValue);
+  BOOST_REQUIRE(sigValueWire2 != wire2.elements_end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.back().first, ranges2.back().first + ranges2.back().second,
+                                appParamsWire2->begin(), sigValueWire2->begin());
+
+  // Test with decoded Interest
+  const uint8_t WIRE[] = {
+    0x05, 0x6f, // Interest
+          0x07, 0x2e, // Name
+                0x08, 0x04, // GenericNameComponent
+                      0x61, 0x62, 0x63, 0x64,
+                0x08, 0x04, // GenericNameComponent
+                      0x65, 0x66, 0x67, 0x68,
+                0x02, 0x20, // ParametersSha256DigestComponent
+                      0x6f, 0x29, 0x58, 0x60, 0x53, 0xee, 0x9f, 0xcc,
+                      0xd8, 0xa4, 0x22, 0x12, 0x29, 0x25, 0x28, 0x7c,
+                      0x0a, 0x18, 0x43, 0x5f, 0x40, 0x74, 0xc4, 0x0a,
+                      0xbb, 0x0d, 0x5b, 0x30, 0xe4, 0xaa, 0x62, 0x20,
+          0x12, 0x00, // MustBeFresh
+          0x0a, 0x04, // Nonce
+                0x4c, 0x1e, 0xcb, 0x4a,
+          0x24, 0x04, // ApplicationParameters
+                0xc0, 0xc1, 0xc2, 0xc3,
+          0x2c, 0x0d, // InterestSignatureInfo
+                0x1b, 0x01, // SignatureType
+                      0x00,
+                0x26, 0x08, // SignatureNonce
+                      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+          0x2e, 0x20, // InterestSignatureValue
+                0x12, 0x47, 0x1a, 0xe0, 0xf8, 0x72, 0x3a, 0xc1,
+                0x15, 0x6c, 0x37, 0x0a, 0x38, 0x71, 0x1e, 0xbe,
+                0xbf, 0x28, 0x17, 0xde, 0x9b, 0x2d, 0xd9, 0x4e,
+                0x9b, 0x7e, 0x62, 0xf1, 0x17, 0xb8, 0x76, 0xc1,
+  };
+  Block wire3(WIRE, sizeof(WIRE));
+  Interest i2(wire3);
+  auto ranges3 = i2.extractSignedRanges();
+  BOOST_REQUIRE_EQUAL(ranges3.size(), 2);
+  // Ensure Name range captured properly
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges3.front().first, ranges3.front().first + ranges3.front().second,
+                                &WIRE[4], &WIRE[16]);
+  // Ensure parameters range captured properly
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges3.back().first, ranges3.back().first + ranges3.back().second,
+                                &WIRE[58], &WIRE[79]);
+
+  // Test failure with missing ParametersSha256DigestComponent
+  Interest i3("/a");
+  i3.setCanBePrefix(false);
+  BOOST_CHECK_EXCEPTION(i3.extractSignedRanges(), tlv::Error, [] (const auto& e) {
+    return e.what() == "Interest Name must end with a ParametersSha256DigestComponent"s;
+  });
+
+  // Test failure with missing InterestSignatureInfo
+  i3.setApplicationParameters(Block());
+  BOOST_CHECK_EXCEPTION(i3.extractSignedRanges(), tlv::Error, [] (const auto& e) {
+    return e.what() == "Interest missing InterestSignatureInfo"s;
+  });
+}
+
 BOOST_AUTO_TEST_CASE(ToUri)
 {
   Interest i;

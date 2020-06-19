@@ -25,6 +25,7 @@
 #include "ndn-cxx/delegation-list.hpp"
 #include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 #include "ndn-cxx/signature-info.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 #include "ndn-cxx/util/time.hpp"
@@ -423,6 +424,13 @@ public: // element access
    */
   Interest&
   setSignatureValue(ConstBufferPtr value);
+
+  /** @brief Extract ranges of Interest covered by the signature in Packet Specification v0.3
+   *  @throw Error Interest cannot be encoded or is missing ranges necessary for signing
+   *  @warning The returned pointers will be invalidated if wireDecode() or wireEncode() are called.
+   */
+  InputBuffers
+  extractSignedRanges() const;
 
 public: // ParametersSha256DigestComponent support
   static bool

@@ -54,8 +54,12 @@ const size_t MIN_SIZE = 4;
 
 } // namespace command_interest
 
+#ifndef DOXYGEN
+using InputBuffers = std::vector<std::pair<const uint8_t*, size_t>>;
+#else
 /// Represents a range of distcontiguous buffers as input to a security operation
-typedef std::vector<std::pair<const uint8_t*, size_t>> InputBuffers;
+class InputBuffers;
+#endif
 
 /**
  * @brief The type of KeyId component in a key name.

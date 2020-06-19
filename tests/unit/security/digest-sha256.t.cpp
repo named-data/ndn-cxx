@@ -61,6 +61,7 @@ BOOST_AUTO_TEST_CASE(InterestSignature)
 {
   Name name("/SecurityTestDigestSha256/InterestSignature/Interest1");
   Interest testInterest(name);
+  testInterest.setCanBePrefix(false);
 
   m_keyChain.sign(testInterest, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
   verifyDigest(testInterest, DigestAlgorithm::SHA256);

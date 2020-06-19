@@ -61,6 +61,7 @@ public:
     cache.insert(subSubIdentity.getDefaultKey().getDefaultCertificate());
 
     m_keyChain.sign(data, signingByIdentity(subSubIdentity));
+    interest.setCanBePrefix(false);
     m_keyChain.sign(interest, signingByIdentity(subSubIdentity));
 
     processInterest = bind(&CertificateFetcherFromNetworkFixture<Response>::makeResponse, this, _1);

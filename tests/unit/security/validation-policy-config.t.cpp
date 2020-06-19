@@ -56,6 +56,7 @@ BOOST_FIXTURE_TEST_CASE(EmptyConfig, HierarchicalValidatorFixture<ValidationPoli
   VALIDATE_FAILURE(d, "Empty policy should reject everything");
 
   Interest i("/Security/ValidationPolicyConfig/I");
+  i.setCanBePrefix(false);
   this->m_keyChain.sign(i, signingByIdentity(this->identity));
   VALIDATE_FAILURE(i, "Empty policy should reject everything");
 }
@@ -372,6 +373,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateInterest, Policy, InterestPolicies, Pol
 
   using Packet = typename Policy::Packet;
   Packet unsignedPacket("/Security/ValidatorFixture/Sub1/Sub2/Packet");
+  // All of the packet types inputed to this test case template are Interests, so we can call
+  // setCanBePrefix
+  unsignedPacket.setCanBePrefix(false);
 
   Packet packet = unsignedPacket;
   VALIDATE_FAILURE(packet, "Unsigned");

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -65,6 +65,7 @@ SigningInfo::SigningInfo(SignerType signerType,
   , m_name(signerName)
   , m_digestAlgorithm(DigestAlgorithm::SHA256)
   , m_info(signatureInfo)
+  , m_signedInterestFormat(SignedInterestFormat::V02)
 {
   BOOST_ASSERT(signerType >= SIGNER_TYPE_NULL && signerType <= SIGNER_TYPE_HMAC);
 }
@@ -215,6 +216,19 @@ operator<<(std::ostream& os, const SigningInfo& si)
       return os << "id:" << si.getSignerName();
   }
   NDN_THROW(std::invalid_argument("Unknown signer type"));
+  return os;
+}
+
+std::ostream&
+operator<<(std::ostream& os, const SignedInterestFormat& format)
+{
+  switch (format) {
+    case SignedInterestFormat::V03:
+      return os << "Signed Interest v0.3";
+    case SignedInterestFormat::V02:
+      return os << "Signed Interest v0.2";
+  }
+  NDN_THROW(std::invalid_argument("Unknown signed Interest format"));
   return os;
 }
 

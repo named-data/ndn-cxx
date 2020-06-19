@@ -209,6 +209,7 @@ BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
                         HierarchicalValidatorFixture<ValidationPolicySimpleHierarchyForInterestOnly>)
 {
   Interest interest("/Security/ValidatorFixture/Sub1/Sub2/Interest");
+  interest.setCanBePrefix(false);
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Interest");
 
   VALIDATE_FAILURE(interest, "Unsigned");
@@ -217,6 +218,7 @@ BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
   face.sentInterests.clear();
 
   interest = Interest("/Security/ValidatorFixture/Sub1/Sub2/Interest");
+  interest.setCanBePrefix(false);
   m_keyChain.sign(interest, signingWithSha256());
   m_keyChain.sign(data, signingWithSha256());
   VALIDATE_FAILURE(interest, "Required KeyLocator/Name missing (not passed to policy)");

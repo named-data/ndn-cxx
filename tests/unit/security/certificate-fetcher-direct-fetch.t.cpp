@@ -73,7 +73,9 @@ public:
     cache.insert(subSubIdentity.getDefaultKey().getDefaultCertificate());
 
     m_keyChain.sign(data, signingByIdentity(subSubIdentity));
+    interest.setCanBePrefix(false);
     m_keyChain.sign(interest, signingByIdentity(subSubIdentity));
+    interestNoTag.setCanBePrefix(false);
     m_keyChain.sign(interestNoTag, signingByIdentity(subSubIdentity));
 
     data.setTag(make_shared<lp::IncomingFaceIdTag>(123));

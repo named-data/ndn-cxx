@@ -631,6 +631,38 @@ Interest::setSignatureValue(ConstBufferPtr value)
   return *this;
 }
 
+InputBuffers
+Interest::extractSignedRanges() const
+{
+  InputBuffers bufs;
+  bufs.reserve(2); // For Name range and parameters range
+
+  wireEncode();
+
+  // Get Interest name minus any ParametersSha256DigestComponent
+  // Name is guaranteed to be non-empty if wireEncode does not throw
+  BOOST_ASSERT(!m_name.empty());
+  if (m_name[-1].type() != tlv::ParametersSha256DigestComponent) {
+    NDN_THROW(Error("Interest Name must end with a ParametersSha256DigestComponent"));
+  }
+
+  bufs.emplace_back(m_name[0].wire(), std::distance(m_name[0].wire(), m_name[-1].wire()));
+
+  // Ensure has InterestSignatureInfo field
+  auto sigInfoIt = findFirstParameter(tlv::InterestSignatureInfo);
+  if (sigInfoIt == m_parameters.end()) {
+    NDN_THROW(Error("Interest missing InterestSignatureInfo"));
+  }
+
+  // Get range from ApplicationParameters to InterestSignatureValue
+  // or end of parameters (whichever is first)
+  BOOST_ASSERT(!m_parameters.empty() && m_parameters.begin()->type() == tlv::ApplicationParameters);
+  auto sigValueIt = findFirstParameter(tlv::InterestSignatureValue);
+  bufs.emplace_back(m_parameters.begin()->wire(),
+                    std::distance(m_parameters.begin()->begin(), std::prev(sigValueIt)->end()));
+  return bufs;
+}
+
 // ---- ParametersSha256DigestComponent support ----
 
 bool

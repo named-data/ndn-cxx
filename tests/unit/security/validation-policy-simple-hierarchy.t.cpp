@@ -25,6 +25,7 @@
 #include "tests/unit/security/validator-fixture.hpp"
 
 #include <boost/mpl/vector.hpp>
+#include <boost/scope_exit.hpp>
 
 namespace ndn {
 namespace security {
@@ -41,6 +42,13 @@ typedef boost::mpl::vector<Interest, Data> Packets;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 {
+  // Can't set CanBePrefix on Interests in this test case because of template
+  // TODO: Remove in #4582
+  BOOST_SCOPE_EXIT(void) {
+    Interest::s_errorIfCanBePrefixUnset = true;
+  } BOOST_SCOPE_EXIT_END
+  Interest::s_errorIfCanBePrefixUnset = false;
+
   Packet unsignedPacket("/Security/ValidatorFixture/Sub1/Sub2/Packet");
 
   Packet packet = unsignedPacket;

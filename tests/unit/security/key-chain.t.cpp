@@ -326,6 +326,38 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
   const Tpm& tpm = m_keyChain.getTpm();
 
   std::vector<SigningInfo> signingInfos = {
+    // New signed Interest format
+    SigningInfo().setSignedInterestFormat(SignedInterestFormat::V03),
+
+    SigningInfo(SigningInfo::SIGNER_TYPE_ID, id.getName())
+      .setSignedInterestFormat(SignedInterestFormat::V03),
+    signingByIdentity(id.getName()).setSignedInterestFormat(SignedInterestFormat::V03),
+
+    SigningInfo(id).setSignedInterestFormat(SignedInterestFormat::V03),
+    signingByIdentity(id).setSignedInterestFormat(SignedInterestFormat::V03),
+
+    SigningInfo(SigningInfo::SIGNER_TYPE_KEY, key.getName())
+      .setSignedInterestFormat(SignedInterestFormat::V03),
+    signingByKey(key.getName()).setSignedInterestFormat(SignedInterestFormat::V03),
+
+    SigningInfo(key).setSignedInterestFormat(SignedInterestFormat::V03),
+    signingByKey(key).setSignedInterestFormat(SignedInterestFormat::V03),
+
+    SigningInfo(SigningInfo::SIGNER_TYPE_CERT, cert.getName())
+      .setSignedInterestFormat(SignedInterestFormat::V03),
+    signingByCertificate(cert.getName()).setSignedInterestFormat(SignedInterestFormat::V03),
+    signingByCertificate(cert).setSignedInterestFormat(SignedInterestFormat::V03),
+
+    SigningInfo(SigningInfo::SIGNER_TYPE_HMAC, hmacKeyName)
+      .setSignedInterestFormat(SignedInterestFormat::V03),
+    SigningInfo("hmac-sha256:QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENUI0OTdGREZGMUE4RUE2RkYxMkY2RkI2NUFGMjcyMEI1OUNDRg==")
+      .setSignedInterestFormat(SignedInterestFormat::V03),
+
+    SigningInfo(SigningInfo::SIGNER_TYPE_SHA256)
+      .setSignedInterestFormat(SignedInterestFormat::V03),
+    signingWithSha256().setSignedInterestFormat(SignedInterestFormat::V03),
+
+    // Deprecated signed Interest format
     SigningInfo(),
 
     SigningInfo(SigningInfo::SIGNER_TYPE_ID, id.getName()),
@@ -355,21 +387,22 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
     BOOST_TEST_MESSAGE("SigningInfo: " << signingInfo);
     Data data("/data");
     Interest interest("/interest");
+    interest.setCanBePrefix(false);
 
-    if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_NULL) {
-      m_keyChain.sign(data);
-      m_keyChain.sign(interest);
-    }
-    else {
-      m_keyChain.sign(data, signingInfo);
-      m_keyChain.sign(interest, signingInfo);
-    }
-
-    Signature interestSignature(interest.getName()[-2].blockFromValue(), interest.getName()[-1].blockFromValue());
+    m_keyChain.sign(data, signingInfo);
+    m_keyChain.sign(interest, signingInfo);
 
     if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_SHA256) {
       BOOST_CHECK_EQUAL(data.getSignatureType(), tlv::DigestSha256);
-      BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::DigestSha256);
+
+      if (signingInfo.getSignedInterestFormat() == SignedInterestFormat::V03) {
+        BOOST_REQUIRE(interest.getSignatureInfo() != nullopt);
+        BOOST_CHECK_EQUAL(interest.getSignatureInfo()->getSignatureType(), tlv::DigestSha256);
+      }
+      else {
+        SignatureInfo sigInfo(interest.getName()[signed_interest::POS_SIG_INFO].blockFromValue());
+        BOOST_CHECK_EQUAL(sigInfo.getSignatureType(), tlv::DigestSha256);
+      }
 
       BOOST_CHECK(verifyDigest(data, DigestAlgorithm::SHA256));
       BOOST_CHECK(verifyDigest(interest, DigestAlgorithm::SHA256));
@@ -377,17 +410,43 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
     else if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_HMAC) {
       Name keyName = signingInfo.getSignerName();
       BOOST_CHECK_EQUAL(data.getSignatureType(), tlv::SignatureHmacWithSha256);
-      BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::SignatureHmacWithSha256);
 
-      BOOST_CHECK(bool(verifySignature(data, tpm, keyName, DigestAlgorithm::SHA256)));
-      BOOST_CHECK(bool(verifySignature(interest, tpm, keyName, DigestAlgorithm::SHA256)));
+      if (signingInfo.getSignedInterestFormat() == SignedInterestFormat::V03) {
+        BOOST_REQUIRE(interest.getSignatureInfo() != nullopt);
+        BOOST_CHECK_EQUAL(interest.getSignatureInfo()->getSignatureType(),
+                          tlv::SignatureHmacWithSha256);
+      }
+      else {
+        SignatureInfo sigInfo(interest.getName()[signed_interest::POS_SIG_INFO].blockFromValue());
+        BOOST_CHECK_EQUAL(sigInfo.getSignatureType(), tlv::SignatureHmacWithSha256);
+      }
+
+      BOOST_CHECK(verifySignature(data, tpm, keyName, DigestAlgorithm::SHA256));
+      BOOST_CHECK(verifySignature(interest, tpm, keyName, DigestAlgorithm::SHA256));
     }
     else {
       BOOST_CHECK_EQUAL(data.getSignatureType(), tlv::SignatureSha256WithEcdsa);
-      BOOST_CHECK_EQUAL(interestSignature.getType(), tlv::SignatureSha256WithEcdsa);
+
+      if (signingInfo.getSignedInterestFormat() == SignedInterestFormat::V03) {
+        BOOST_REQUIRE(interest.getSignatureInfo() != nullopt);
+        BOOST_CHECK_EQUAL(interest.getSignatureInfo()->getSignatureType(),
+                          tlv::SignatureSha256WithEcdsa);
+      }
+      else {
+        SignatureInfo sigInfo(interest.getName()[signed_interest::POS_SIG_INFO].blockFromValue());
+        BOOST_CHECK_EQUAL(sigInfo.getSignatureType(), tlv::SignatureSha256WithEcdsa);
+      }
 
       BOOST_CHECK_EQUAL(data.getKeyLocator()->getName(), cert.getName().getPrefix(-2));
-      BOOST_CHECK_EQUAL(interestSignature.getKeyLocator().getName(), cert.getName().getPrefix(-2));
+
+      if (signingInfo.getSignedInterestFormat() == SignedInterestFormat::V03) {
+        BOOST_CHECK_EQUAL(interest.getSignatureInfo()->getKeyLocator().getName(),
+                          cert.getName().getPrefix(-2));
+      }
+      else {
+        SignatureInfo sigInfo(interest.getName()[signed_interest::POS_SIG_INFO].blockFromValue());
+        BOOST_CHECK_EQUAL(sigInfo.getKeyLocator().getName(), cert.getName().getPrefix(-2));
+      }
 
       BOOST_CHECK(verifySignature(data, key));
       BOOST_CHECK(verifySignature(interest, key));

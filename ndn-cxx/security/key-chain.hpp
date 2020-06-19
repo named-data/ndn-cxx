@@ -265,9 +265,15 @@ public: // signing
    * - It generates a KeyLocator based upon the certificate name.
    * - Using the SignatureInfo in @p params as a base, it generates the final SignatureInfo block
    *   for @p interest.
-   * - It appends the generated SignatureInfo block to the end of the Name of @p interest.
-   * - It generates a signature for @p interest and appends it to the end of the Name of
-   *   @p interest as a SignatureValue block.
+   * - It adds the generated SignatureInfo element to @p interest. If Packet Specification v0.3
+   *   formatting is desired, this block will be appended to @p interest as a separate
+   *   InterestSignatureInfo element. Otherwise, it will be appended to the end of the name of
+   *   @p interest as a SignatureInfo block.
+   * - It generates a signature for @p interest. If Packet Specification v0.3 formatting is
+   *   desired, this block will be added to @p interest as a separate InterestSignatureValue
+   *   element. Otherwise, it will be appended to the end of the name of @p interest as a
+   *   SignatureValue block.
+   *
    *
    * @param interest The interest to sign
    * @param params The signing parameters
@@ -427,11 +433,11 @@ private: // signing
   prepareSignatureInfo(const SigningInfo& params);
 
   /**
-   * @brief Generate a SignatureValue block for a buffer @p buf of size @p size using
-   *        a key with name @p keyName and digest algorithm @p digestAlgorithm.
+   * @brief Generate a SignatureValue block for byte ranges in @p bufs using a key with name
+   *        @p keyName and digest algorithm @p digestAlgorithm.
    */
-  Block
-  sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+  ConstBufferPtr
+  sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
 
 public:
   /**
