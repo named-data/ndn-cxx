@@ -97,7 +97,11 @@ Validator::validate(const Interest& interest,
                     const InterestValidationFailureCallback& failureCb)
 {
   auto state = make_shared<InterestValidationState>(interest, successCb, failureCb);
-  NDN_LOG_DEBUG_DEPTH("Start validating interest " << interest.getName());
+
+  auto fmt = interest.getSignatureInfo() ? SignedInterestFormat::V03 : SignedInterestFormat::V02;
+  state->setTag(make_shared<SignedInterestFormatTag>(fmt));
+
+  NDN_LOG_DEBUG_DEPTH("Start validating interest (" << fmt << ") " << interest.getName());
 
   m_policy->checkPolicy(interest, state,
       [this] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {

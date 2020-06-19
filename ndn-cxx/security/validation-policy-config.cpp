@@ -246,7 +246,7 @@ ValidationPolicyConfig::checkPolicy(const Data& data, const shared_ptr<Validatio
   }
 
   for (const auto& rule : m_dataRules) {
-    if (rule->match(tlv::Data, data.getName())) {
+    if (rule->match(tlv::Data, data.getName(), state)) {
       if (rule->check(tlv::Data, data.getName(), klName, state)) {
         return continueValidation(make_shared<CertificateRequest>(klName), state);
       }
@@ -275,7 +275,7 @@ ValidationPolicyConfig::checkPolicy(const Interest& interest, const shared_ptr<V
   }
 
   for (const auto& rule : m_interestRules) {
-    if (rule->match(tlv::Interest, interest.getName())) {
+    if (rule->match(tlv::Interest, interest.getName(), state)) {
       if (rule->check(tlv::Interest, interest.getName(), klName, state)) {
         return continueValidation(make_shared<CertificateRequest>(klName), state);
       }

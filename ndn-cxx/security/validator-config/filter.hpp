@@ -31,6 +31,9 @@
 namespace ndn {
 namespace security {
 inline namespace v2 {
+
+class ValidationState;
+
 namespace validator_config {
 
 /**
@@ -47,7 +50,7 @@ public:
   ~Filter() = default;
 
   bool
-  match(uint32_t pktType, const Name& pktName);
+  match(uint32_t pktType, const Name& pktName, const shared_ptr<ValidationState>& state);
 
 public:
   /**

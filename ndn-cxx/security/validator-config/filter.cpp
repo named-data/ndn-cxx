@@ -24,6 +24,7 @@
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/security/security-common.hpp"
+#include "ndn-cxx/security/validation-state.hpp"
 #include "ndn-cxx/util/regex.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
@@ -34,15 +35,29 @@ inline namespace v2 {
 namespace validator_config {
 
 bool
-Filter::match(uint32_t pktType, const Name& pktName)
+Filter::match(uint32_t pktType, const Name& pktName, const shared_ptr<ValidationState>& state)
 {
   BOOST_ASSERT(pktType == tlv::Interest || pktType == tlv::Data);
 
   if (pktType == tlv::Interest) {
-    if (pktName.size() < signed_interest::MIN_SIZE)
-      return false;
+    auto fmt = state->getTag<SignedInterestFormatTag>();
+    BOOST_ASSERT(fmt);
 
-    return matchName(pktName.getPrefix(-signed_interest::MIN_SIZE));
+    if (*fmt == SignedInterestFormat::V03) {
+      // This check is redundant if parameter digest checking is enabled. However, the parameter
+      // digest checking can be disabled in API.
+      if (pktName.size() == 0 || pktName[-1].type() != tlv::ParametersSha256DigestComponent) {
+        return false;
+      }
+
+      return matchName(pktName.getPrefix(-1));
+    }
+    else {
+      if (pktName.size() < signed_interest::MIN_SIZE)
+        return false;
+
+      return matchName(pktName.getPrefix(-signed_interest::MIN_SIZE));
+    }
   }
   else {
     return matchName(pktName);

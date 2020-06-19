@@ -147,9 +147,9 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   unique_ptr<ValidationPolicy> m_innerPolicy;
 };
 
-/** \brief extract KeyLocator.Name from Data
+/** \brief extract KeyLocator.Name from a Data packet
  *
- *  Data must contain a KeyLocator of Name type.
+ *  The Data packet must contain a KeyLocator of Name type.
  *  Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR error.
  */
 Name
@@ -157,8 +157,13 @@ getKeyLocatorName(const Data& data, ValidationState& state);
 
 /** \brief extract KeyLocator.Name from signed Interest
  *
- *  Interest must have SignatureInfo and contain a KeyLocator of Name type.
- *  Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR error.
+ *  Signed Interests according to Packet Specification v0.3+, as identified inside the state, must
+ *  have an InterestSignatureInfo element. Legacy signed Interests must contain a
+ *  (Data)SignatureInfo name component. In both cases, the included KeyLocator must be of the Name
+ *  type. otherwise, state.fail will be invoked with an INVALID_KEY_LOCATOR error.
+ *
+ *  Interests specified to this method must be tagged with a SignedInterestFormatTag to indicate
+ *  whether they are signed according to Packet Specification v0.3+ or a previous specification.
  */
 Name
 getKeyLocatorName(const Interest& interest, ValidationState& state);

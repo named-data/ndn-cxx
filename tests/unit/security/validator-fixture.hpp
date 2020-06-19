@@ -179,6 +179,84 @@ private:
   }
 };
 
+
+struct DataPkt
+{
+  static uint32_t
+  getType()
+  {
+    return tlv::Data;
+  }
+
+  static Name
+  makeName(Name name, KeyChain& keyChain)
+  {
+    return name;
+  }
+
+  static shared_ptr<ValidationState>
+  makeState()
+  {
+    return make_shared<DummyValidationState>();
+  }
+};
+
+struct InterestV02Pkt
+{
+  static uint32_t
+  getType()
+  {
+    return tlv::Interest;
+  }
+
+  static Name
+  makeName(Name name, KeyChain& keyChain)
+  {
+    Interest interest(name);
+    interest.setCanBePrefix(false);
+    SigningInfo params;
+    params.setSignedInterestFormat(SignedInterestFormat::V02);
+    keyChain.sign(interest, params);
+    return interest.getName();
+  }
+
+  static shared_ptr<ValidationState>
+  makeState()
+  {
+    auto state = make_shared<DummyValidationState>();
+    state->setTag(make_shared<SignedInterestFormatTag>(SignedInterestFormat::V02));
+    return state;
+  }
+};
+
+struct InterestV03Pkt
+{
+  static uint32_t
+  getType()
+  {
+    return tlv::Interest;
+  }
+
+  static Name
+  makeName(Name name, KeyChain& keyChain)
+  {
+    Interest interest(name);
+    interest.setCanBePrefix(false);
+    SigningInfo params;
+    params.setSignedInterestFormat(SignedInterestFormat::V03);
+    keyChain.sign(interest, params);
+    return interest.getName();
+  }
+
+  static shared_ptr<ValidationState>
+  makeState()
+  {
+    auto state = make_shared<DummyValidationState>();
+    state->setTag(make_shared<SignedInterestFormatTag>(SignedInterestFormat::V03));
+    return state;
+  }
+};
+
 } // namespace tests
 } // inline namespace v2
 } // namespace security

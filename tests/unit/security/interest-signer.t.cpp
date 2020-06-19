@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,7 +19,7 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/interest-signer.hpp"
 #include "ndn-cxx/security/signing-helpers.hpp"
 
 #include "tests/boost-test.hpp"
@@ -32,15 +32,15 @@ namespace tests {
 using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestCommandInterestSigner, IdentityManagementTimeFixture)
+BOOST_FIXTURE_TEST_SUITE(TestInterestSigner, IdentityManagementTimeFixture)
 
-BOOST_AUTO_TEST_CASE(Basic)
+BOOST_AUTO_TEST_CASE(V02)
 {
   addIdentity("/test");
 
-  CommandInterestSigner signer(m_keyChain);
+  InterestSigner signer(m_keyChain);
   Interest i1 = signer.makeCommandInterest("/hello/world");
-  BOOST_CHECK_EQUAL(i1.getName().size(), 6);
+  BOOST_REQUIRE_EQUAL(i1.getName().size(), 6);
   BOOST_CHECK_EQUAL(i1.getName().at(command_interest::POS_SIG_VALUE).blockFromValue().type(), tlv::SignatureValue);
   BOOST_CHECK_EQUAL(i1.getName().at(command_interest::POS_SIG_INFO).blockFromValue().type(), tlv::SignatureInfo);
 
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(i1.getName().at(command_interest::POS_TIMESTAMP).toNumber(), timestamp.count());
 
   Interest i2 = signer.makeCommandInterest("/hello/world/!", signingByIdentity("/test"));
-  BOOST_CHECK_EQUAL(i2.getName().size(), 7);
+  BOOST_REQUIRE_EQUAL(i2.getName().size(), 7);
   BOOST_CHECK_EQUAL(i2.getName().at(command_interest::POS_SIG_VALUE).blockFromValue().type(), tlv::SignatureValue);
   BOOST_CHECK_EQUAL(i2.getName().at(command_interest::POS_SIG_INFO).blockFromValue().type(), tlv::SignatureInfo);
   BOOST_CHECK_GT(i2.getName().at(command_interest::POS_TIMESTAMP), i1.getName().at(command_interest::POS_TIMESTAMP));
@@ -61,7 +61,39 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_GT(i2.getName().at(command_interest::POS_TIMESTAMP), i1.getName().at(command_interest::POS_TIMESTAMP));
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestCommandInterestSigner
+BOOST_AUTO_TEST_CASE(V03)
+{
+  addIdentity("/test");
+
+  InterestSigner signer(m_keyChain);
+  Interest i1("/hello/world");
+  i1.setCanBePrefix(false);
+  signer.makeSignedInterest(i1);
+  BOOST_CHECK_EQUAL(i1.isSigned(), true);
+  BOOST_REQUIRE_EQUAL(i1.getName().size(), 3);
+  BOOST_REQUIRE(i1.getSignatureInfo());
+
+  BOOST_TEST(*i1.getSignatureInfo()->getTime() == time::system_clock::now());
+
+  Interest i2("/hello/world/!");
+  i2.setCanBePrefix(false);
+  signer.makeSignedInterest(i2, signingByIdentity("/test"));
+  BOOST_CHECK_EQUAL(i2.isSigned(), true);
+  BOOST_REQUIRE_EQUAL(i2.getName().size(), 4);
+  BOOST_REQUIRE(i2.getSignatureInfo());
+
+  BOOST_TEST(*i2.getSignatureInfo()->getTime() > *i1.getSignatureInfo()->getTime());
+  BOOST_TEST(*i2.getSignatureInfo()->getNonce() != *i1.getSignatureInfo()->getNonce());
+
+  advanceClocks(100_s);
+
+  signer.makeSignedInterest(i2);
+  BOOST_CHECK_EQUAL(i2.isSigned(), true);
+
+  BOOST_TEST(*i2.getSignatureInfo()->getTime() == time::system_clock::now());
+}
+
+BOOST_AUTO_TEST_SUITE_END() // TestInterestSigner
 BOOST_AUTO_TEST_SUITE_END() // Security
 
 } // namespace tests

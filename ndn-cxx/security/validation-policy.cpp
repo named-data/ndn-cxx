@@ -90,10 +90,18 @@ getKeyLocatorName(const Data& data, ValidationState& state)
 Name
 getKeyLocatorName(const Interest& interest, ValidationState& state)
 {
+  auto fmt = state.getTag<SignedInterestFormatTag>();
+  BOOST_ASSERT(fmt);
+
+  if (*fmt == SignedInterestFormat::V03) {
+    BOOST_ASSERT(interest.getSignatureInfo());
+    return getKeyLocatorName(*interest.getSignatureInfo(), state);
+  }
+
+  // Try Signed Interest format from Packet Specification v0.2
   const Name& name = interest.getName();
   if (name.size() < signed_interest::MIN_SIZE) {
-    state.fail({ValidationError::INVALID_KEY_LOCATOR,
-                "Invalid signed Interest: name too short"});
+    state.fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: name too short"});
     return Name();
   }
 

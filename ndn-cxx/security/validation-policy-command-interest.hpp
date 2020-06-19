@@ -115,15 +115,15 @@ private:
   void
   cleanup();
 
-  std::tuple<bool, Name, uint64_t>
+  std::tuple<bool, Name, time::system_clock::TimePoint>
   parseCommandInterest(const Interest& interest, const shared_ptr<ValidationState>& state) const;
 
   bool
   checkTimestamp(const shared_ptr<ValidationState>& state,
-                 const Name& keyName, uint64_t timestamp);
+                 const Name& keyName, time::system_clock::TimePoint timestamp);
 
   void
-  insertNewRecord(const Name& keyName, uint64_t timestamp);
+  insertNewRecord(const Name& keyName, time::system_clock::TimePoint timestamp);
 
 private:
   Options m_options;
@@ -131,7 +131,7 @@ private:
   struct LastTimestampRecord
   {
     Name keyName;
-    uint64_t timestamp;
+    time::system_clock::TimePoint timestamp;
     time::steady_clock::TimePoint lastRefreshed;
   };
 

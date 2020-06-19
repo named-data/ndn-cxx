@@ -50,7 +50,7 @@ Rule::addChecker(unique_ptr<Checker> checker)
 }
 
 bool
-Rule::match(uint32_t pktType, const Name& pktName) const
+Rule::match(uint32_t pktType, const Name& pktName, const shared_ptr<ValidationState>& state) const
 {
   NDN_LOG_TRACE("Trying to match " << pktName);
   if (pktType != m_pktType) {
@@ -64,7 +64,7 @@ Rule::match(uint32_t pktType, const Name& pktName) const
 
   bool retval = false;
   for (const auto& filter : m_filters) {
-    retval |= filter->match(pktType, pktName);
+    retval |= filter->match(pktType, pktName, state);
     if (retval) {
       break;
     }

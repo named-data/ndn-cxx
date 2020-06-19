@@ -20,11 +20,11 @@
  */
 
 #include "ndn-cxx/security/validator-config/filter.hpp"
-#include "ndn-cxx/security/command-interest-signer.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/identity-management-fixture.hpp"
 #include "tests/unit/security/validator-config/common.hpp"
+#include "tests/unit/security/validator-fixture.hpp"
 
 namespace ndn {
 namespace security {
@@ -33,33 +33,38 @@ namespace validator_config {
 namespace tests {
 
 using namespace ndn::tests;
+using namespace ndn::security::v2::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(ValidatorConfig)
 
-class FilterFixture : public IdentityManagementFixture
-{
-public:
-  Interest
-  makeSignedInterest(const Name& name)
-  {
-    Interest interest(name);
-    m_keyChain.sign(interest);
-    return interest;
-  }
-};
+BOOST_FIXTURE_TEST_SUITE(TestFilter, IdentityManagementFixture)
 
-BOOST_FIXTURE_TEST_SUITE(TestFilter, FilterFixture)
-
-#define CHECK_FOR_MATCHES(filter, same, longer, shorter, different)     \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, makeSignedInterest("/foo/bar").getName()), same); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, Data("/foo/bar").getName()), same);   \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, makeSignedInterest("/foo/bar/bar").getName()), longer); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, Data("/foo/bar/bar").getName()), longer);       \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, makeSignedInterest("/foo").getName()), shorter); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, Data("/foo").getName()), shorter);              \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, makeSignedInterest("/other/prefix").getName()), different); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, Data("/other/prefix").getName()), different);
+#define CHECK_FOR_MATCHES(filter, same, longer, shorter, different) \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo/bar", m_keyChain), \
+                                 InterestV02Pkt::makeState()), same);    \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo/bar", m_keyChain), \
+                                 InterestV03Pkt::makeState()), same);    \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo/bar", m_keyChain), \
+                                 DataPkt::makeState()), same);           \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo/bar/bar", m_keyChain), \
+                                 InterestV02Pkt::makeState()), longer);  \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo/bar/bar", m_keyChain), \
+                                 InterestV03Pkt::makeState()), longer);  \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo/bar/bar", m_keyChain), \
+                                 DataPkt::makeState()), longer);         \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo", m_keyChain), \
+                                 InterestV02Pkt::makeState()), shorter); \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo", m_keyChain), \
+                                 InterestV03Pkt::makeState()), shorter); \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo", m_keyChain), \
+                                 DataPkt::makeState()), shorter);        \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/other/prefix", m_keyChain), \
+                                 InterestV02Pkt::makeState()), different); \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/other/prefix", m_keyChain), \
+                                 InterestV03Pkt::makeState()), different); \
+  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/other/prefix", m_keyChain), \
+                                 DataPkt::makeState()), different);
 
 BOOST_AUTO_TEST_CASE(RelationName)
 {
@@ -85,7 +90,7 @@ BOOST_AUTO_TEST_CASE(RegexName)
   CHECK_FOR_MATCHES(f3, false, true, false, false);
 }
 
-BOOST_FIXTURE_TEST_SUITE(Create, FilterFixture)
+BOOST_FIXTURE_TEST_SUITE(Create, IdentityManagementFixture)
 
 BOOST_AUTO_TEST_CASE(Errors)
 {

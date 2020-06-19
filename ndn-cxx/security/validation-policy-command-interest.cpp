@@ -50,9 +50,9 @@ void
 ValidationPolicyCommandInterest::checkPolicy(const Interest& interest, const shared_ptr<ValidationState>& state,
                                              const ValidationContinuation& continueValidation)
 {
-  bool isOk = false;
+  bool isOk;
   Name keyName;
-  uint64_t timestamp = 0;
+  time::system_clock::TimePoint timestamp;
   std::tie(isOk, keyName, timestamp) = parseCommandInterest(interest, state);
   if (!isOk) {
     return;
@@ -76,41 +76,62 @@ ValidationPolicyCommandInterest::cleanup()
   }
 }
 
-std::tuple<bool, Name, uint64_t>
+std::tuple<bool, Name, time::system_clock::TimePoint>
 ValidationPolicyCommandInterest::parseCommandInterest(const Interest& interest,
                                                       const shared_ptr<ValidationState>& state) const
 {
-  const Name& name = interest.getName();
-  if (name.size() < command_interest::MIN_SIZE) {
-    state->fail({ValidationError::POLICY_ERROR, "Command interest name `" +
-                 interest.getName().toUri() + "` is too short"});
-    return std::make_tuple(false, Name(), 0);
-  }
+  auto fmt = state->getTag<SignedInterestFormatTag>();
+  BOOST_ASSERT(fmt);
 
-  const name::Component& timestampComp = name.at(command_interest::POS_TIMESTAMP);
-  if (!timestampComp.isNumber()) {
-    state->fail({ValidationError::POLICY_ERROR, "Command interest `" +
-                 interest.getName().toUri() + "` doesn't include timestamp component"});
-    return std::make_tuple(false, Name(), 0);
+  time::system_clock::TimePoint timestamp;
+
+  if (*fmt == SignedInterestFormat::V03) {
+    BOOST_ASSERT(interest.getSignatureInfo());
+    auto optionalTimestamp = interest.getSignatureInfo()->getTime();
+
+    // Note that timestamp is a hard requirement of this policy
+    // TODO: Refactor to support other/combinations of the restrictions based on Nonce, Time, and/or SeqNum
+    if (!optionalTimestamp) {
+      state->fail({ValidationError::POLICY_ERROR, "Signed Interest `" +
+                   interest.getName().toUri() + "` doesn't include required SignatureTime element"});
+      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+    }
+    timestamp = *optionalTimestamp;
+  }
+  else {
+    const Name& name = interest.getName();
+    if (name.size() < command_interest::MIN_SIZE) {
+      state->fail({ValidationError::POLICY_ERROR, "Command interest name `" +
+                   interest.getName().toUri() + "` is too short"});
+      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+    }
+
+    const name::Component& timestampComp = name.at(command_interest::POS_TIMESTAMP);
+    if (!timestampComp.isNumber()) {
+      state->fail({ValidationError::POLICY_ERROR, "Command interest `" +
+                   interest.getName().toUri() + "` doesn't include timestamp component"});
+      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+    }
+    timestamp = time::fromUnixTimestamp(time::milliseconds(timestampComp.toNumber()));
   }
 
   Name klName = getKeyLocatorName(interest, *state);
   if (!state->getOutcome()) { // already failed
-    return std::make_tuple(false, Name(), 0);
+    return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
   }
 
-  return std::make_tuple(true, klName, timestampComp.toNumber());
+  return std::make_tuple(true, klName, timestamp);
 }
 
 bool
 ValidationPolicyCommandInterest::checkTimestamp(const shared_ptr<ValidationState>& state,
-                                                const Name& keyName, uint64_t timestamp)
+                                                const Name& keyName, time::system_clock::TimePoint timestamp)
 {
   this->cleanup();
 
   auto now = time::system_clock::now();
-  auto timestampPoint = time::fromUnixTimestamp(time::milliseconds(timestamp));
-  if (timestampPoint < now - m_options.gracePeriod || timestampPoint > now + m_options.gracePeriod) {
+
+  if (timestamp < now - m_options.gracePeriod || timestamp > now + m_options.gracePeriod) {
     state->fail({ValidationError::POLICY_ERROR,
                  "Timestamp is outside the grace period for key " + keyName.toUri()});
     return false;
@@ -132,7 +153,7 @@ ValidationPolicyCommandInterest::checkTimestamp(const shared_ptr<ValidationState
 }
 
 void
-ValidationPolicyCommandInterest::insertNewRecord(const Name& keyName, uint64_t timestamp)
+ValidationPolicyCommandInterest::insertNewRecord(const Name& keyName, time::system_clock::TimePoint timestamp)
 {
   // try to insert new record
   auto now = time::steady_clock::now();

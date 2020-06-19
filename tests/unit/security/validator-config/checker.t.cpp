@@ -51,12 +51,6 @@ public:
   }
 
   static Name
-  makeSignedInterestName(const Name& name)
-  {
-    return Name(name).append("SignatureInfo").append("SignatureValue");
-  }
-
-  static Name
   makeKeyLocatorName(const Name& name)
   {
     return Name(name).append("KEY").append("v=1");
@@ -329,28 +323,65 @@ using Tests = boost::mpl::vector<NameRelationEqual, NameRelationIsPrefixOf, Name
                                  Hierarchical,
                                  CustomizedNameRelation, CustomizedRegex, CustomizedHyperRelation>;
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, T)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(DataChecks, T, Tests, T)
 {
   using namespace ndn::security::v2::tests;
+  using PktType = DataPkt;
 
   BOOST_REQUIRE_EQUAL(this->outcomes.size(), this->names.size());
   for (size_t i = 0; i < this->names.size(); ++i) {
     BOOST_REQUIRE_EQUAL(this->outcomes[i].size(), this->names.size());
     for (size_t j = 0; j < this->names.size(); ++j) {
-      const Name& pktName = this->names[i];
-      Name klName = this->makeKeyLocatorName(this->names[j]);
+      auto pktName = PktType::makeName(this->names[i], this->m_keyChain);
+      auto klName = this->makeKeyLocatorName(this->names[j]);
       bool expectedOutcome = this->outcomes[i][j];
 
-      auto dataState = make_shared<DummyValidationState>();
-      BOOST_CHECK_EQUAL(this->checker.check(tlv::Data, pktName, klName, dataState), expectedOutcome);
-      BOOST_CHECK_EQUAL(boost::logic::indeterminate(dataState->getOutcome()), expectedOutcome);
-      BOOST_CHECK_EQUAL(bool(dataState->getOutcome()), false);
+      auto state = PktType::makeState();
+      BOOST_CHECK_EQUAL(this->checker.check(PktType::getType(), pktName, klName, state), expectedOutcome);
+      BOOST_CHECK_EQUAL(boost::logic::indeterminate(state->getOutcome()), expectedOutcome);
+      BOOST_CHECK_EQUAL(bool(state->getOutcome()), false);
+    }
+  }
+}
 
-      auto interestState = make_shared<DummyValidationState>();
-      BOOST_CHECK_EQUAL(this->checker.check(tlv::Interest, this->makeSignedInterestName(pktName),
-                                            klName, interestState), expectedOutcome);
-      BOOST_CHECK_EQUAL(boost::logic::indeterminate(interestState->getOutcome()), expectedOutcome);
-      BOOST_CHECK_EQUAL(bool(interestState->getOutcome()), false);
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(InterestV02Checks, T, Tests, T)
+{
+  using namespace ndn::security::v2::tests;
+  using PktType = InterestV02Pkt;
+
+  BOOST_REQUIRE_EQUAL(this->outcomes.size(), this->names.size());
+  for (size_t i = 0; i < this->names.size(); ++i) {
+    BOOST_REQUIRE_EQUAL(this->outcomes[i].size(), this->names.size());
+    for (size_t j = 0; j < this->names.size(); ++j) {
+      auto pktName = PktType::makeName(this->names[i], this->m_keyChain);
+      auto klName = this->makeKeyLocatorName(this->names[j]);
+      bool expectedOutcome = this->outcomes[i][j];
+
+      auto state = PktType::makeState();
+      BOOST_CHECK_EQUAL(this->checker.check(PktType::getType(), pktName, klName, state), expectedOutcome);
+      BOOST_CHECK_EQUAL(boost::logic::indeterminate(state->getOutcome()), expectedOutcome);
+      BOOST_CHECK_EQUAL(bool(state->getOutcome()), false);
+    }
+  }
+}
+
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(InterestV03Checks, T, Tests, T)
+{
+  using namespace ndn::security::v2::tests;
+  using PktType = InterestV03Pkt;
+
+  BOOST_REQUIRE_EQUAL(this->outcomes.size(), this->names.size());
+  for (size_t i = 0; i < this->names.size(); ++i) {
+    BOOST_REQUIRE_EQUAL(this->outcomes[i].size(), this->names.size());
+    for (size_t j = 0; j < this->names.size(); ++j) {
+      auto pktName = PktType::makeName(this->names[i], this->m_keyChain);
+      auto klName = this->makeKeyLocatorName(this->names[j]);
+      bool expectedOutcome = this->outcomes[i][j];
+
+      auto state = PktType::makeState();
+      BOOST_CHECK_EQUAL(this->checker.check(PktType::getType(), pktName, klName, state), expectedOutcome);
+      BOOST_CHECK_EQUAL(boost::logic::indeterminate(state->getOutcome()), expectedOutcome);
+      BOOST_CHECK_EQUAL(bool(state->getOutcome()), false);
     }
   }
 }

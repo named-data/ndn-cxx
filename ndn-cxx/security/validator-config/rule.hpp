@@ -63,13 +63,14 @@ public:
    *
    * @param pktType tlv::Interest or tlv::Data
    * @param pktName packet name, for signed Interests the last two components are not removed
+   * @param state The associated validation state
    * @retval true  If at least one filter matches @p pktName
    * @retval false If none of the filters match @p pktName
    *
    * @throw Error the supplied pktType doesn't match one for which the rule is designed
    */
   bool
-  match(uint32_t pktType, const Name& pktName) const;
+  match(uint32_t pktType, const Name& pktName, const shared_ptr<ValidationState>& state) const;
 
   /**
    * @brief check if packet satisfies rule's condition

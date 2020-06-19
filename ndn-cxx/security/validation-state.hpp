@@ -23,8 +23,9 @@
 #define NDN_SECURITY_VALIDATION_STATE_HPP
 
 #include "ndn-cxx/detail/tag-host.hpp"
-#include "ndn-cxx/security/validation-callback.hpp"
 #include "ndn-cxx/security/certificate.hpp"
+#include "ndn-cxx/security/signing-info.hpp"
+#include "ndn-cxx/security/validation-callback.hpp"
 #include "ndn-cxx/util/signal.hpp"
 
 #include <list>
@@ -246,6 +247,8 @@ private:
   InterestValidationSuccessCallback m_successCb;
   InterestValidationFailureCallback m_failureCb;
 };
+
+using SignedInterestFormatTag = SimpleTag<SignedInterestFormat, 1002>;
 
 } // inline namespace v2
 } // namespace security

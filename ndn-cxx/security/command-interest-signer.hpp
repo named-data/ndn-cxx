@@ -22,74 +22,19 @@
 #ifndef NDN_SECURITY_COMMAND_INTEREST_SIGNER_HPP
 #define NDN_SECURITY_COMMAND_INTEREST_SIGNER_HPP
 
-#include "ndn-cxx/security/key-chain.hpp"
+#include "ndn-cxx/security/interest-signer.hpp"
 
 namespace ndn {
 namespace security {
 
 /**
- * @brief Helper class to prepare command interest name
- *
- * The preparer adds timestamp and nonce name components to the supplied name.
- *
- * This class is primarily designed to be used as part of CommandInterestSigner, but can also
- * be using in an application that defines custom signing methods not support by the KeyChain
- * (such as HMAC-SHA1).
- *
- * @sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
+ * @brief Helper class to create command Interests.
+ * @deprecated Command Interests have been deprecated in favor of signed Interests with timestamp,
+ *             nonce, and/or sequence number components. Use InterestSigner instead.
  */
-class CommandInterestPreparer : noncopyable
-{
-public:
-  CommandInterestPreparer();
-
-  /**
-   * @brief Prepare name of the CommandInterest
-   *
-   * This method appends the timestamp and nonce name components to the supplied name.
-   */
-  Name
-  prepareCommandInterestName(Name name);
-
-private:
-  time::milliseconds m_lastUsedTimestamp;
-};
-
-/**
- * @brief Helper class to create command interests
- *
- * The signer adds timestamp and nonce name components to the supplied name, creates an
- * Interest, and signs it with the KeyChain.
- *
- * @sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
- */
-class CommandInterestSigner : private CommandInterestPreparer
-{
-public:
-  explicit
-  CommandInterestSigner(KeyChain& keyChain);
-
-  /**
-   * @brief Create CommandInterest
-   *
-   * This method appends the timestamp and nonce name components to the supplied name, create
-   * an Interest object and signs it with the keychain.
-   *
-   * Note that signature of the command interest covers only Name of the interest.  Therefore,
-   * other fields in the returned interest can be changed without breaking validity of the
-   * signature, because s
-   *
-   * @sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
-   */
-  Interest
-  makeCommandInterest(const Name& name, const SigningInfo& params = SigningInfo());
-
-private:
-  KeyChain& m_keyChain;
-};
+using CommandInterestSigner = InterestSigner;
 
 } // namespace security
 } // namespace ndn
-
 
 #endif // NDN_SECURITY_COMMAND_INTEREST_SIGNER_HPP

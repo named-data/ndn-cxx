@@ -71,10 +71,18 @@ public:
   }
 
   Interest
-  makeCommandInterest(const Identity& identity)
+  makeCommandInterest(const Identity& identity, bool wantV3 = false)
   {
-    return m_signer.makeCommandInterest(Name(identity.getName()).append("CMD"),
-                                        signingByIdentity(identity));
+    if (wantV3) {
+      Interest i(Name(identity.getName()).append("CMD"));
+      i.setCanBePrefix(false);
+      m_signer.makeSignedInterest(i, signingByIdentity(identity));
+      return i;
+    }
+    else {
+      return m_signer.makeCommandInterest(Name(identity.getName()).append("CMD"),
+                                          signingByIdentity(identity));
+    }
   }
 
 public:
@@ -96,6 +104,22 @@ BOOST_AUTO_TEST_CASE(Basic)
   VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
 
   auto i3 =  m_signer.makeCommandInterest(Name(identity.getName()).append("CMD"), signingWithSha256());
+  VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
+}
+
+BOOST_AUTO_TEST_CASE(BasicV3)
+{
+  auto i1 = makeCommandInterest(identity, true);
+  VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
+  VALIDATE_FAILURE(i1, "Should fail (replay attack)");
+
+  advanceClocks(5_ms);
+  auto i2 = makeCommandInterest(identity, true);
+  VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
+
+  Interest i3(Name(identity.getName()).append("CMD"));
+  i3.setCanBePrefix(false);
+  m_signer.makeSignedInterest(i3, signingWithSha256());
   VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
 }
 

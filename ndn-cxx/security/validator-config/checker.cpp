@@ -38,10 +38,23 @@ Checker::check(uint32_t pktType, const Name& pktName, const Name& klName,
   BOOST_ASSERT(pktType == tlv::Interest || pktType == tlv::Data);
 
   if (pktType == tlv::Interest) {
-    if (pktName.size() < signed_interest::MIN_SIZE)
-      return false;
+    auto fmt = state->getTag<SignedInterestFormatTag>();
+    BOOST_ASSERT(fmt);
 
-    return checkNames(pktName.getPrefix(-signed_interest::MIN_SIZE), klName, state);
+    if (*fmt == SignedInterestFormat::V03) {
+      // This check is redundant if parameter digest checking is enabled. However, the parameter
+      // digest checking can be disabled in API.
+      if (pktName.size() == 0 || pktName[-1].type() != tlv::ParametersSha256DigestComponent) {
+        return false;
+      }
+      return checkNames(pktName.getPrefix(-1), klName, state);
+    }
+    else {
+      if (pktName.size() < signed_interest::MIN_SIZE)
+        return false;
+
+      return checkNames(pktName.getPrefix(-signed_interest::MIN_SIZE), klName, state);
+    }
   }
   else {
     return checkNames(pktName, klName, state);
