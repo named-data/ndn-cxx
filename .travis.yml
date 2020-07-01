@@ -44,6 +44,12 @@ jobs:
     - os: osx
       osx_image: xcode11.4
       env: # default compiler
+    - os: osx
+      osx_image: xcode11.6
+      env: # default compiler
+    - os: osx
+      osx_image: xcode12
+      env: # default compiler
 
   allow_failures:
     - env: COMPILER=g++-5
