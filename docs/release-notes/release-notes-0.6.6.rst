@@ -3,16 +3,17 @@ ndn-cxx version 0.6.6
 
 Release date: April 27, 2019
 
-Note that this is the last release that encodes to `NDN packet format version 0.2.1
-<https://named-data.net/doc/NDN-packet-spec/0.2.1/>`__. A future release will continue to
-decode v0.2.1 format, but will encode to `v0.3 format
-<https://named-data.net/doc/NDN-packet-spec/0.3/>`__.
+.. note::
+   This is the last release to support the `NDN packet format version 0.2.1
+   <https://named-data.net/doc/NDN-packet-spec/0.2.1/>`__.
+   The next release will be able to encode and decode only the `v0.3 packet format
+   <https://named-data.net/doc/NDN-packet-spec/0.3/>`__.
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
-- More support for `NDN packet format version
-  0.3 <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
+- More support for `NDN packet format version 0.3
+  <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
 
   * Support new naming conventions to encode/decode segment numbers, byte offsets, versions,
     timestamps, and sequence numbers based on typed name components (:issue:`4777`)
@@ -34,7 +35,8 @@ Improvements and bug fixes
   ``ApplicationParameters`` and to change its number to be a non-critical element type
   (:issue:`4658`, :issue:`4780`)
 
-- Add option to disable infrastructure interest in ``CertificateFetcherDirectFetch`` (:issue:`4879`)
+- Add an option to disable the infrastructure Interest in ``CertificateFetcherDirectFetch``
+  (:issue:`4879`)
 
 - Fix compilation against recent versions of Boost libraries and issues with Xcode 10.2 and
   older versions of Boost libraries (:issue:`4890`, :issue:`4923`, :issue:`4860`)
@@ -44,7 +46,7 @@ Improvements and bug fixes
 - Improve documentation
 
 Deprecated
-~~~~~~~~~~
+^^^^^^^^^^
 
 - ``PendingInterestId``, ``RegisteredPrefixId``, and ``InterestFilterId`` types in favor of
   ``PendingInterestHandle``, ``RegisteredPrefixHandle``, and ``InterestFilterHandle``

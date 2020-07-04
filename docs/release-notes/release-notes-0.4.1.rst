@@ -5,8 +5,8 @@ Release date: March 25, 2016
 
 Changes since version 0.4.0:
 
-Improvements and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Improvements and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Improved support for ECDSA signatures (:issue:`3438`, :issue:`3439`)
 
@@ -15,14 +15,14 @@ Improvements and bug fixes:
 - Use InMemoryStorage for StatusDataset and Notification produced by managers based on
   Dispatcher class (:issue:`2182`)
 
-Removed:
-^^^^^^^^
+Removed
+^^^^^^^
 
 - Deprecated ``tlvdump`` command-line tool (use ``ndn-dissect`` tool from `NDN Essential Tools
   <https://github.com/named-data/ndn-tools>`__ instead
 
-Planned features for future releases:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Planned features for future releases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Introduce new API to simplify security transformations (:issue:`3009`)
 

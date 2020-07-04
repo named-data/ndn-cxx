@@ -9,11 +9,11 @@ that use distribution-provided compilers and packages.
 
 The compilation now uses the C++14 standard.
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
-- More support for `NDN packet format version
-  0.3 <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
+- More support for `NDN packet format version 0.3
+  <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
 
   - Allow applications to declare a default ``CanBePrefix`` setting (:issue:`4581`)
 
@@ -67,7 +67,7 @@ Improvements and bug fixes
 - Correct and improve documentation
 
 Deprecated
-~~~~~~~~~~
+^^^^^^^^^^
 
 - ``SegmentFetcher::fetch()`` static functions in favor of ``start()`` (:issue:`4464`)
 
@@ -83,6 +83,6 @@ Deprecated
 - ``Data::get/setFinalBlockId()`` in favor of ``Data::get/setFinalBlock()``
 
 Removed
-~~~~~~~
+^^^^^^^
 
 - Dependency on Boost.Regex in favor of ``std::regex``

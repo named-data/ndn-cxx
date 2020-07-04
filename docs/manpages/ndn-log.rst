@@ -46,11 +46,13 @@ written.
 Setting NDN_LOG requires the following syntax with as many prefixes and
 corresponding loglevels as the user desires:
 
+.. code-block:: sh
+
     export NDN_LOG="<prefix1>=<loglevel1>:<prefix2>=<loglevel2>"
 
-**Examples:**
+*Example:*
 
-::
+.. code-block:: sh
 
     export NDN_LOG="ndn.*=DEBUG"
     export NDN_LOG="ndn.UnixTransport=INFO"
@@ -59,30 +61,40 @@ corresponding loglevels as the user desires:
 
 **Note:**
 
-Shorter (general) prefixes should be placed before longer (specific) prefixes.
-Otherwise, the specific prefix's loglevel will be overwritten. For example,
-`export NDN_LOG="ndn.UnixTransport=TRACE:ndn.*=ERROR:*=INFO"` sets all modules
-to INFO; it should be written as
-`export NDN_LOG="*=INFO:ndn.*=ERROR:ndn.UnixTransport=TRACE"` for the desired effect.
+The loglevel assignments in ``NDN_LOG`` are processed left-to-right. Thus, shorter
+(more general) prefixes should be listed before longer (more specific) prefixes.
+Otherwise, the loglevel setting of a more specific prefix may be overwritten by a
+more general assignment appearing later in the string. For example:
+
+.. code-block:: sh
+
+    export NDN_LOG="ndn.UnixTransport=TRACE:ndn.*=ERROR:*=INFO"
+
+will set all modules to INFO. To obtain the desired effect, it should instead be
+written as:
+
+.. code-block:: sh
+
+    export NDN_LOG="*=INFO:ndn.*=ERROR:ndn.UnixTransport=TRACE"
 
 **Note:**
 
 Setting the environment variable with sudo requires the application to be run
 in the same command.
 
-::
+.. code-block:: sh
 
-    Correct:
+    # Correct
+    sudo env NDN_LOG=logLevel ./ndn-application
 
-        sudo env NDN_LOG=logLevel ./ndn-application
+    # Also correct
+    sudo -s
+    export NDN_LOG=logLevel
+    ./ndn-application
 
-        sudo -s
-        export NDN_LOG=logLevel
-        ./ndn-application
+    # Incorrect
+    sudo export NDN_LOG=logLevel
+    sudo ./ndn-application
 
-    Incorrect:
-
-        sudo export NDN_LOG=logLevel
-        sudo ./ndn-application
-
-        NDN_LOG=logLevel sudo ./ndn-application
+    # Incorrect
+    NDN_LOG=logLevel sudo ./ndn-application

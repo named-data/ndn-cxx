@@ -5,8 +5,8 @@ Release date: July 1, 2015
 
 Changes since version 0.3.2:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - Allow compilation of ndn-cxx as a shared library (:issue:`2243`)
 
@@ -41,8 +41,8 @@ New features:
   * ``makeStringBlock``
   * ``readString``
 
-Improvements and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Improvements and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Use C++11 lambda expression and smart pointers in Face implementation (:issue:`2112`)
 
@@ -72,8 +72,8 @@ Improvements and bug fixes:
   restrictive move operation (`move_if_noexcept`) is used (e.g., in STL library's containers)
   (:issue:`2966`)
 
-Deprecated:
-^^^^^^^^^^^
+Deprecated
+^^^^^^^^^^
 
 - The following ``KeyChain::sign*`` methods, in favor of generalized ``KeyChain::sign(..., SigningInfo)``
 
@@ -101,21 +101,21 @@ Deprecated:
   * ``CommandOptions::setSigningIdentity``
   * ``CommandOptions::setSigningCertificate``
 
-Removed:
-^^^^^^^^
+Removed
+^^^^^^^
 
 - Remove SCOPE from Interests and all references to it in the related code (:issue:`2345`)
 
-- Direct FIB management in Face class (:issue:`2533`)
+- Direct FIB management in Face class (:issue:`2533`).
 
   ``Face::register`` and ``Face::setInterestFilter`` methods now only support NFD RIB management
   protocol.
 
   For special needs, FIB management can be implemented using ``nfd::Controller``
-  (``start<FibAddNextHopCommand>``, and ``start<FibRemoveNextHopCommand>``)
+  (``start<FibAddNextHopCommand>`` and ``start<FibRemoveNextHopCommand>``).
 
-Upcoming features (partially finished in development branches):
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Upcoming features (partially finished in development branches)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - NDNLPv2 (https://redmine.named-data.net/projects/nfd/wiki/NDNLPv2, :issue:`2520`,
   :issue:`2879`, :issue:`2763`, :issue:`2883`, :issue:`2841`, :issue:`2866`)

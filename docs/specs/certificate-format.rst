@@ -3,8 +3,6 @@
 NDN Certificate Format Version 2.0
 ==================================
 
-.. contents::
-
 Since signature verification is a common operation in NDN applications, it is
 important to define a common certificate format to standardize the public key
 authentication procedure.  As every NDN data packet is signed, a data packet
@@ -46,27 +44,26 @@ specification.
                                  |       SignatureValue     |
                                  +--------------------------+
 
+.. code-block:: abnf
 
-     CertificateV2 = DATA-TYPE TLV-LENGTH
-                       Name ; /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
-                       MetaInfo ; ContentType = KEY, FreshnessPeriod required
-                       Content ; X509PublicKey
-                       CertificateV2SignatureInfo
-                       SignatureValue
+    CertificateV2 = DATA-TYPE TLV-LENGTH
+                      Name     ; /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
+                      MetaInfo ; ContentType == KEY, FreshnessPeriod required
+                      Content  ; X509PublicKey
+                      CertificateV2SignatureInfo
+                      SignatureValue
 
-     CertificateV2SignatureInfo = SIGNATURE-INFO-TYPE TLV-LENGTH
-                                    SignatureType
-                                    KeyLocator
-                                    ValidityPeriod
-                                    *CertificateV2Extension
+    CertificateV2SignatureInfo = SIGNATURE-INFO-TYPE TLV-LENGTH
+                                   SignatureType
+                                   KeyLocator
+                                   ValidityPeriod
+                                   *CertificateV2Extension
 
 
 Name
 ----
 
-The name of a certificate consists of five parts as shown below:
-
-::
+The name of a certificate consists of five parts as shown below::
 
     /<SubjectName>/KEY/[KeyId]/[IssuerId]/[Version]
 
@@ -82,16 +79,12 @@ identifier.
 controlled by the certificate issuer and, similar to KeyId, can be an 8-byte random number,
 SHA-256 digest of the issuer's public key, or a simple numerical identifier.
 
-
-For example,
-
-::
+For example::
 
       /edu/ucla/cs/yingdi/KEY/%03%CD...%F1/%9F%D3...%B7/%FD%d2...%8E
       \_________________/    \___________/ \___________/\___________/
      Certificate Namespace      Key Id       Issuer Id     Version
           (Identity)
-
 
 MetaInfo
 --------
@@ -120,7 +113,7 @@ certificate expires.
     Using ISO style string is the convention of specifying the validity period of certificate,
     which has been adopted by many certificate systems, such as X.509, PGP, and DNSSEC.
 
-::
+.. code-block:: abnf
 
     ValidityPeriod = VALIDITY-PERIOD-TYPE TLV-LENGTH
                        NotBefore
@@ -180,7 +173,7 @@ key-value pairs.  Both key and value are UTF-8 strings, e.g.,
 ``("Organization", "UCLA")``. The issuer of a certificate can specify arbitrary
 key-value pair to provide additional description about the certificate.
 
-::
+.. code-block:: abnf
 
     CertificateV2Extension = AdditionalDescription
 

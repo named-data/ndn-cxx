@@ -3,11 +3,11 @@ ndn-cxx version 0.6.2
 
 Release date: May 4, 2018
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
-- Initial support for [NDN packet format version
-  0.3](https://named-data.net/doc/NDN-packet-spec/0.3/) (:issue:`4527`)
+- Initial support for `NDN packet format version 0.3
+  <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
 
   * Recognize typed name components, allow typed name component in ``FinalBlockId``
     (:issue:`4526`)
@@ -41,7 +41,7 @@ Improvements and bug fixes
 - Logging system improvements (:issue:`4552`)
 
 Deprecated
-~~~~~~~~~~
+^^^^^^^^^^
 
 - Selectors (:issue:`4527`)
 

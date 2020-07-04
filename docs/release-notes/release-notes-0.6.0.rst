@@ -5,18 +5,18 @@ Release date: October 16, 2017
 
 Changes since version 0.5.1:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
-- **breaking change** Security framework version 2 (:issue:`3098`, :issue:`3920`,
-   :issue:`3644`, :issue:`4085`, :issue:`4323`, :issue:`4339`)
+- **(breaking change)** Security framework version 2 (:issue:`3098`, :issue:`3920`,
+  :issue:`3644`, :issue:`4085`, :issue:`4323`, :issue:`4339`).
 
-   The released version of the library only supports the new version of the security (v2
-   certificate format) and features a number of updates of KeyChain and Validator
-   interfaces. At the same time, management APIs for :ndn-cxx:`ValidatorConfig` remained
-   intact; transition to the new framework would require only adjusting
-   :ndn-cxx:`Validator::validate` calls and updating configuration files to follow the new
-   naming conventions of :ref:`NDN Certificate Format Version 2.0`.
+  The released version of the library only supports the new version of the security (v2
+  certificate format) and features a number of updates of KeyChain and Validator
+  interfaces. At the same time, management APIs for :ndn-cxx:`ValidatorConfig` remained
+  intact; transition to the new framework would require only adjusting
+  :ndn-cxx:`Validator::validate` calls and updating configuration files to follow the new
+  naming conventions of :ref:`NDN Certificate Format Version 2.0`.
 
 - Integration of fetching certificates using Certificate Bundle as part of specialized
   ``CertificateFetcher`` (:issue:`3891`)

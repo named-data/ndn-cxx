@@ -3,8 +3,8 @@ ndn-cxx version 0.6.1
 
 Release date: February 19, 2018
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - (potentially breaking change) :ndn-cxx:`expressInterest` now by default loopbacks Interests to
   producer callbacks on the same :ndn-cxx:`Face`.  When undesired, use

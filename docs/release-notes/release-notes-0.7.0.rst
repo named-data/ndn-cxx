@@ -8,9 +8,9 @@ Release date: January 13, 2020
 This release features support of only `NDN packet format version 0.3
 <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`, :issue:`4567`,
 :issue:`4709`, :issue:`4913`). The library encodes and interprets Interest and Data
-packets only in 0.3 format; support for version 0.2 has been completely removed.  In
-addition, the URI representation of Interest packets has also been changed following the
-packet format updates.
+packets only in 0.3 format; support for version 0.2 has been completely removed. In
+addition, the URI representation of Interest packets has been updated to follow the
+packet format changes.
 
 New features
 ^^^^^^^^^^^^

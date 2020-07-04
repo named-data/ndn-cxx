@@ -5,8 +5,8 @@ Release date: August 25, 2014
 
 Changes since version 0.1.0:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - **Base**
 
@@ -22,8 +22,9 @@ New features:
       allow distinct operations of registering with the local NDN forwarder and setting
       up application-specific ``OnInterest`` call dispatch using InterestFilters.
 
-  + Add support for new `NDN naming conventions
-    <http://named-data.net/doc/tech-memos/naming-conventions.pdf>`_ (:issue:`1761`)
+  + Add support for the `NDN naming conventions (revision 1)
+    <https://named-data.net/publications/techreports/ndn-tr-22-ndn-memo-naming-conventions/>`_
+    (:issue:`1761`)
 
 - **Security**
 
@@ -37,7 +38,7 @@ New features:
   + New :ndn-cxx:`SignatureSha256WithEcdsa` signature type
 
   + Updates in :ndn-cxx:`Signature` data structure to reflect changes in `NDN-TLV spec
-    0.1.1 <http://named-data.net/doc/NDN-TLV/0.1.1/>`_
+    0.1.1 <https://named-data.net/doc/NDN-packet-spec/0.1.1/>`_
 
 - **Wire encoding**
 
@@ -72,8 +73,8 @@ New features:
 
   + Enabled support of precompiled headers for clang and gcc compilers to speed up compilation
 
-Updates and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^
+Updates and bug fixes
+^^^^^^^^^^^^^^^^^^^^^
 
 - **Base**
 
@@ -111,7 +112,7 @@ Updates and bug fixes:
     ``ndnsec-certgen``
 
   + ``SignatureSha256`` has been renamed to :ndn-cxx:`DigestSha256` to conform to
-    `NDN-TLV specification <http://named-data.net/doc/ndn-tlv/>`_
+    `NDN-TLV specification <https://named-data.net/doc/NDN-packet-spec/0.1.1/>`_
 
   + Add checking of Timestamp and Nonce fields in signed Interest within
     :ndn-cxx:`ValidatorConfig`
@@ -135,8 +136,8 @@ Updates and bug fixes:
 
 - Other minor fixes and corrections
 
-Deprecated:
-^^^^^^^^^^^
+Deprecated
+^^^^^^^^^^
 
 - ``SignatureSha256`` class, use :ndn-cxx:`DigestSha256` instead.
 
@@ -160,8 +161,8 @@ Deprecated:
 - ``CommandInterestGenerator`` and ``CommandInterestValidator`` utility classes.
   :ndn-cxx:`ValidatorConfig` should be used instead.
 
-Removed:
-^^^^^^^^
+Removed
+^^^^^^^
 
 - Support for ndnd-tlv (only NFD management protocol is supported now)
 

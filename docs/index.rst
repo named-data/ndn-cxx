@@ -40,13 +40,10 @@ ndn-cxx Documentation
    releases
 
 - :doc:`INSTALL`
-
 - :doc:`examples`
-
 - :doc:`tutorials`
 
-   + `NDN Software Contributor's Guide <https://github.com/named-data/NFD/blob/master/CONTRIBUTING.md>`_ (guide for newcomers to the NDN community of software generally)
-
+   + `NDN Software Contributor's Guide <https://github.com/named-data/.github/blob/master/CONTRIBUTING.md>`_ (guide for newcomers to the NDN community of software generally)
    + :doc:`tutorials/utils-ndn-regex`
    + :doc:`tutorials/security-validator-config`
 
@@ -59,14 +56,12 @@ ndn-cxx Documentation
 
 - :doc:`manpages`
 
-**Additional documentation**
+Additional Documentation
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 - `API documentation (doxygen) <doxygen/annotated.html>`_
-
 - :doc:`code-style`
-
 - :doc:`RELEASE_NOTES`
-
 - :doc:`releases`
 
 License

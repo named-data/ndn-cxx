@@ -18,7 +18,7 @@ penultimate name component TLV:
 
     +-------------+----------+-----------------------------------------------------------------------------------+
     |  Interest   | Interest | +------+--------+--------------------------------------------------+ +----------+ |
-    | Type (0x01) |  length  | | Name |  Name  | +---------+--   --+---------+---------+---------+| | Other    | |
+    | Type (0x05) |  length  | | Name |  Name  | +---------+--   --+---------+---------+---------+| | Other    | |
     |             |          | | Type | Length | |Component|  ...  |Component|Component|Component|| | TLVs ... | |
     |             |          | |      |        | |  TLV 1  |       | TLV n-2 | TLV n-1 |  TLV n  || | in       | |
     |             |          | |      |        | +---------+--   --+---------+---------+---------+| | Interest | |
@@ -32,14 +32,12 @@ penultimate name component TLV:
 
 More specifically, the SignedInterest is defined to have four additional components:
 
--  ``<timestamp>``
--  ``<nonce>``
--  ``<SignatureInfo>``
--  ``<SignatureValue>``
+-  ``timestamp``
+-  ``nonce``
+-  ``SignatureInfo``
+-  ``SignatureValue``
 
-For example, for ``/signed/interest/name`` name, CommandInterest will be defined as:
-
-::
+For example, for ``/signed/interest/name`` name, CommandInterest will be defined as::
 
      /signed/interest/name/<timestamp>/<random-value>/<SignatureInfo>/<SignatureValue>
 

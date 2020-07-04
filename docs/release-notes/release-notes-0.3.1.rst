@@ -5,8 +5,8 @@ Release date: March 3, 2015
 
 Changes since version 0.3.0:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - **Management**
 
@@ -17,8 +17,8 @@ New features:
 
   - Add CachingPolicy to ``LocalControlHeader`` (:issue:`2183`)
 
-Updates and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^
+Updates and bug fixes
+^^^^^^^^^^^^^^^^^^^^^
 
 - **Wire encoding**
 
@@ -51,8 +51,8 @@ Updates and bug fixes:
   - Explicitly define ``_GLIBCXX_USE_NANOSLEEP``, necessary for gcc < 4.8 in some environments
     (:issue:`2499`)
 
-Removed:
-^^^^^^^^
+Removed
+^^^^^^^
 
 - Delete deprecated ``Block(std::istream&)`` constructor (:issue:`2241`)
 

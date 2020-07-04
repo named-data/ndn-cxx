@@ -5,8 +5,8 @@ Release date: August 31, 2015
 
 Changes since version 0.3.3:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - By default, library is now compiled as a shared library (:issue:`2867`)
 
@@ -26,8 +26,8 @@ New features:
 - New Dispatcher class to simplify server-side implementation of NFD management protocol
   (:issue:`2107`)
 
-Improvements and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Improvements and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Fix compilation error with Boost 1.59 (:issue:`3128`)
 
@@ -44,8 +44,8 @@ Improvements and bug fixes:
 
 - Add ability to create ``util::Digest`` object from ``std::istream&`` (:issue:`3022`)
 
-Deprecated:
-^^^^^^^^^^^
+Deprecated
+^^^^^^^^^^
 
 - The following methods of ``CommandOptions`` class in favor of ``getSigningInfo`` and
   ``setSigningInfo`` methods (:issue:`2893`):
@@ -61,8 +61,8 @@ Deprecated:
 - Overloads of ``Face::registerPrefix`` and ``Face::setInterestFilter`` that do not accept
   SigningInfo parameter (:issue:`2932`)
 
-Upcoming features (partially implemented in development branches):
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Upcoming features (partially implemented in development branches)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Introduce new API to simplify security transformations (:issue:`3009`)
 

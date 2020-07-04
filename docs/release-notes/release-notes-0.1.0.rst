@@ -17,17 +17,17 @@ The current features include:
 - **Base**
 
   + Fully asynchronous, event-driven communication model, which is implemented using `Boost.Asio
-    <http://www.boost.org/doc/libs/1_48_0/doc/html/boost_asio.html>`_
+    <https://www.boost.org/doc/libs/1_48_0/doc/html/boost_asio.html>`_
   + Single-threaded, but thread-safe Face operations
 
       A single Face object can be safely used in multiple threads to express Interests and
       publish Data packets
 
   + Explicit time management for NDN operations using `Boost.Chrono
-    <http://www.boost.org/doc/libs/1_48_0/doc/html/chrono.html>`_
+    <https://www.boost.org/doc/libs/1_48_0/doc/html/chrono.html>`_
   + Simplified and extended `NDN API <doxygen/annotated.html>`_
   + Extensive set of unit-tests based on `Boost.Test framework
-    <http://www.boost.org/doc/libs/1_48_0/libs/test/doc/html/index.html>`_
+    <https://www.boost.org/doc/libs/1_48_0/libs/test/doc/html/index.html>`_
 
     - Continuous integration using an in-house installation of Jenkins build bots and the
       hosted `Travis CI <https://travis-ci.org/named-data/ndn-cxx>`_ continuous
@@ -35,7 +35,7 @@ The current features include:
 
 - **Wire format**
 
-  + Full support of `NDN-TLV packet format v0.1 <http://named-data.net/doc/NDN-TLV/0.1/>`_
+  + Full support of `NDN-TLV packet format v0.1 <https://named-data.net/doc/NDN-packet-spec/0.1/>`_
   + Pure C++ implementation of wire encoding/decoding with simple access to wire format
     of all NDN packet abstractions via ``wireEncode`` and ``wireDecode`` methods
 

@@ -5,8 +5,8 @@ Release date: February 2, 2015
 
 Changes since version 0.2.0:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - **Build**
 
@@ -85,8 +85,8 @@ New features:
 
   + New NetworkMonitor helper to detect network state changes (:issue:`2443`)
 
-Updates and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^
+Updates and bug fixes
+^^^^^^^^^^^^^^^^^^^^^
 
 - **Base**
 
@@ -198,8 +198,8 @@ Updates and bug fixes:
 
 - Other minor fixes and corrections
 
-Deprecated:
-^^^^^^^^^^^
+Deprecated
+^^^^^^^^^^
 
 - ``ndn::ptr_lib`` and ``ndn::func_lib`` namespace aliases
 
@@ -216,8 +216,8 @@ Deprecated:
 
 - ``EventEmitter`` is deprecated in favor of ``Signal``
 
-Removed:
-^^^^^^^^
+Removed
+^^^^^^^
 
 - FaceFlags APIs (:issue:`1992`)
 

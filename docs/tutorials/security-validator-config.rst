@@ -51,8 +51,7 @@ configuration file containing two rules and a trust anchor.
       file-name "testbed-trust-anchor.cert"
     }
 
-.. note::
-    **ATTENTION: The order of rules MATTERS!**
+.. attention:: **The order of rules MATTERS!**
 
 A rule can be broken into two parts:
 
@@ -97,8 +96,7 @@ rule. The filter property is not required in a rule; if omitted, the rule will c
 packets passed to it.  A rule may contain multiple filters, in this case, a packet
 is captured by the rule only if all filters are satisfied.
 
-.. note::
-    **ATTENTION: A packet that satisfies all the filters may not be valid**.
+.. attention:: **A packet that satisfies all the filters may not be valid.**
 
 The **checker** property defines the conditions that a matched packet must fulfill to be
 treated as a valid packet. A rule must have at least one **checker** property. A packet is
@@ -377,9 +375,9 @@ period, such as
 There is also a special trust anchor **any**.  As long as such a trust-anchor is defined
 in config file, packet validation will be turned off.
 
-.. note::
-   **ATTENTION: This type of trust anchor is dangerous.  You should used it only when you
-   want to disable packet validation temporarily (e.g, debugging code, building a demo).**
+.. danger::
+    This type of trust anchor is dangerous.  You should used it only when you
+    want to disable packet validation temporarily (e.g., debugging code, building a demo).
 
 ::
 

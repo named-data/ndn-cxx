@@ -8,8 +8,8 @@ Release date: December 31, 2015
 
 Changes since version 0.3.4:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - **(breaking change)** LocalControlHeader for special signaling between application and NFD has
   been replaced with NDNLPv2 signaling (:issue:`2879`, :issue:`2930`)
@@ -32,8 +32,8 @@ New features:
 
 - Ability to create Face with custom IO service and default transport (:issue:`2500`)
 
-Improvements and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Improvements and bug fixes
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - **(breaking change)** SegmentFetcher helper changed to use asynchronous data validation (:issue:`2734`)
 
@@ -46,8 +46,8 @@ Improvements and bug fixes:
 
 - Minor documentation updates (:issue:`3207`, :issue:`3210`, :issue:`3221`)
 
-Deprecated:
-^^^^^^^^^^^
+Deprecated
+^^^^^^^^^^
 
 - Overloads of ``Face::registerPrefix`` and ``Face::setInterestFilter`` that do not accept
   SigningInfo parameter (:issue:`2932`)
@@ -61,13 +61,13 @@ Deprecated:
 - ndn::util::DummyClientFace::sentDatas, use ndn::util::DummyClientFace.sentData instead
   (:issue:`3146`)
 
-Removed:
-^^^^^^^^
+Removed
+^^^^^^^
 
 - Deprecated EventEmitter class (:issue:`2351`)
 
-Planned features for future releases:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Planned features for future releases
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Introduce new API to simplify security transformations (:issue:`3009`)
 

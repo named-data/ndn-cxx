@@ -7,7 +7,7 @@ Based on
       The original document is available at `<http://geosoft.no/development/cppstyle.html>`_
 
     * NDN Platform "C++, C, C#, Java and JavaScript Code Guidelines".
-      The original document available at `<http://named-data.net/codebase/platform/documentation/ndn-platform-development-guidelines/cpp-code-guidelines/>`_
+      The original document available at `<https://named-data.net/codebase/platform/documentation/ndn-platform-development-guidelines/cpp-code-guidelines/>`_
 
 1. Code layout
 --------------

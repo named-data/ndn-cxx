@@ -15,8 +15,8 @@ Release date: October 4, 2016
 
 Changes since version 0.4.1:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - New transformation API (:issue:`3009`)
 
@@ -104,7 +104,7 @@ Deprecated
 - ``ndn::crypto::sha256`` in favor of ``ndn::crypto::computeSha256Digest``
 
 - ``security/cryptopp.hpp`` header. Use ``security/v1/cryptopp.hpp`` when needed, avoid direct
-  include as CryptoPP dependency may be removed from future versions of the library.
+  include as CryptoPP dependency will be removed from future versions of the library.
 
 - ``security/identity-certificate.hpp`` header.  Use ``security/v1/identity-certificate.hpp`` instead.
 

@@ -3,8 +3,8 @@ ndn-cxx version 0.6.5
 
 Release date: February 4, 2019
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - More support for `NDN packet format version
   0.3 <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
@@ -58,7 +58,7 @@ Improvements and bug fixes
 - Reimplement ``scheduler::EventId`` with ``CancelHandle`` (:issue:`4698`)
 
 Deprecated
-~~~~~~~~~~
+^^^^^^^^^^
 
 - ``ndn-cxx/util/scheduler-scoped-event-id.hpp`` header as it is now sufficient to use
   ``ndn-cxx/util/scheduler.hpp`` header (:issue:`4698`)
@@ -66,7 +66,7 @@ Deprecated
 - Implicit conversion from nullptr to ``scheduler::EventId`` (:issue:`4698`)
 
 Removed
-~~~~~~~
+^^^^^^^
 
 - ``ndn::ip::address{,V6}FromString``
 

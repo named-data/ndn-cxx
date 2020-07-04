@@ -5,8 +5,8 @@ Release date: May 12, 2015
 
 Changes since version 0.3.1:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - Add Link abstraction (:issue:`2587`)
 
@@ -18,8 +18,8 @@ New features:
   * In-memory PIB implementation
   * Define new abstraction for identity, key, and certificate
 
-Updates and bug fixes:
-^^^^^^^^^^^^^^^^^^^^^^
+Updates and bug fixes
+^^^^^^^^^^^^^^^^^^^^^
 
 - Enable decoding Exclude containing ImplicitSha256DigestComponent (:issue:`2629`)
 
@@ -35,13 +35,13 @@ Updates and bug fixes:
 
 - Disable precompiled headers on OS X with clang < 6.1.0 (:issue:`2804`)
 
-Deprecated:
-^^^^^^^^^^^
+Deprecated
+^^^^^^^^^^
 
 - `Block::fromBuffer` overloads with output parameter (:issue:`2553`)
 
-Removed:
-^^^^^^^^
+Removed
+^^^^^^^
 
 - Delete deprecated Controller functions:
 

@@ -10,8 +10,8 @@ Release date: January 25, 2017
 
 Changes since version 0.5.0:
 
-New features:
-^^^^^^^^^^^^^
+New features
+^^^^^^^^^^^^
 
 - Add version 2 of the security framework (introduced in ``security::v2`` namespace)
 

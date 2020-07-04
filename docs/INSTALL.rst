@@ -8,7 +8,7 @@ ndn-cxx is built against a continuous integration system and has been tested on 
 following platforms:
 
 -  Ubuntu 18.04 (amd64, armhf, i386)
--  Ubuntu 19.10 (amd64)
+-  Ubuntu 20.04 (amd64)
 -  macOS 10.13
 -  macOS 10.14
 -  macOS 10.15
@@ -40,19 +40,19 @@ Required
 To build ndn-cxx from source, one must first install a C++ compiler and all necessary
 development tools and libraries:
 
-- Ubuntu
+- On **Ubuntu**
 
     In a terminal, enter::
 
         sudo apt install g++ pkg-config python3-minimal libboost-all-dev libssl-dev libsqlite3-dev
 
-- CentOS and Fedora
+- On **CentOS** and **Fedora**
 
     In a terminal, enter::
 
         sudo dnf install gcc-c++ pkgconf-pkg-config python3 boost-devel openssl-devel sqlite-devel
 
-- macOS
+- On **macOS**
 
     * Install either Xcode (from the App Store) or the Command Line Tools
       (with ``xcode-select --install``)
@@ -61,12 +61,12 @@ development tools and libraries:
 
         brew install boost openssl pkg-config
 
-      .. note::
+      .. warning::
 
         If a major OS upgrade is performed after installing the dependencies
         with Homebrew, remember to reinstall all packages.
 
-- FreeBSD
+- On **FreeBSD**
 
     In a terminal, enter::
 
@@ -80,28 +80,36 @@ need to be installed:
 
 -  doxygen
 -  graphviz
--  sphinx
+-  sphinx >= 1.3
 -  sphinxcontrib-doxylink
 
 The following lists the steps to install these prerequisites on various common platforms.
 
-- On Ubuntu::
+- On **Ubuntu**:
+
+  .. code-block:: sh
 
     sudo apt install doxygen graphviz python3-pip
     sudo pip3 install sphinx sphinxcontrib-doxylink
 
-- On CentOS and Fedora::
+- On **CentOS** and **Fedora**:
+
+  .. code-block:: sh
 
     sudo dnf config-manager --enable PowerTools  # on CentOS only
     sudo dnf install doxygen graphviz python3-pip
     pip3 install --user sphinx sphinxcontrib-doxylink
 
-- On macOS::
+- On **macOS**:
+
+  .. code-block:: sh
 
     brew install doxygen graphviz
     sudo pip install sphinx sphinxcontrib-doxylink
 
-- On FreeBSD::
+- On **FreeBSD**:
+
+  .. code-block:: sh
 
     sudo pkg install doxygen graphviz py37-sphinx
 
@@ -112,14 +120,18 @@ Build
   These are instructions for regular builds of ndn-cxx (release mode). If you are
   planning to develop the ndn-cxx code itself, you should do a :ref:`Development build`.
 
-To build in a terminal, change directory to the ndn-cxx root, then enter::
+To build in a terminal, change directory to the ndn-cxx root, then enter:
+
+.. code-block:: sh
 
     ./waf configure  # on CentOS, add --without-pch
     ./waf
     sudo ./waf install
 
 By default, only the shared variant of the ndn-cxx library will be built. To build the
-static library, pass ``--enable-static`` to the ``./waf configure`` command::
+static library, pass ``--enable-static`` to the ``./waf configure`` command:
+
+.. code-block:: sh
 
     ./waf configure --enable-static
 
@@ -127,12 +139,14 @@ To disable the build of the shared library and build only the static library, us
 additional ``--disable-shared`` option.  Note that at least one variant of the library
 needs to be enabled.
 
-::
+.. code-block:: sh
 
     ./waf configure --enable-static --disable-shared
 
 On Linux, it is necessary to run the following command after the shared library has
-been installed::
+been installed:
+
+.. code-block:: sh
 
     sudo ldconfig
 
@@ -142,12 +156,16 @@ been installed::
   additional actions may be necessary.
 
   The installation path should be added to ``/etc/ld.so.conf`` (or in
-  ``/etc/ld.so.conf.d``) **before** running ``sudo ldconfig``. For example::
+  ``/etc/ld.so.conf.d``) **before** running ``sudo ldconfig``. For example:
+
+  .. code-block:: sh
 
       echo /usr/local/lib | sudo tee /etc/ld.so.conf.d/ndn-cxx.conf
 
   Alternatively, the ``LD_LIBRARY_PATH`` environment variable can be set to point to
-  the installation directory of the shared library::
+  the installation directory of the shared library:
+
+  .. code-block:: sh
 
       export LD_LIBRARY_PATH=/usr/local/lib
 
@@ -180,14 +198,18 @@ Build with examples
 -------------------
 
 By default, the examples in the ``examples/`` directory will not be built. To enable
-them, pass ``--with-examples`` during the configuration step::
+them, pass ``--with-examples`` during the configuration step:
+
+.. code-block:: sh
 
     ./waf configure --with-examples  # on CentOS, add --without-pch
     ./waf
     sudo ./waf install
     sudo ldconfig  # on Linux only
 
-To run the examples::
+To run the examples:
+
+.. code-block:: sh
 
     # trivial producer app
     ./build/examples/producer
@@ -199,7 +221,9 @@ To run the examples::
     ./build/examples/consumer-with-timer
 
 If you want to make a new sample application, just create a ``.cpp`` file inside the
-``examples/`` directory and it will be compiled during the next run of ``./waf``::
+``examples/`` directory and it will be compiled during the next run of ``./waf``:
+
+.. code-block:: sh
 
     cp examples/consumer.cpp examples/my-new-app.cpp
     ... # edit examples/my-new-app.cpp with your preferred editor
@@ -218,7 +242,7 @@ If this is undesirable, the default flags can be overridden to disable debug sym
 The following example shows how to completely disable debug symbols and configure
 ndn-cxx to be installed into ``/usr`` with configuration in the ``/etc`` directory.
 
-::
+.. code-block:: sh
 
     CXXFLAGS="-O2" ./waf configure --prefix=/usr --sysconfdir=/etc
     ./waf
@@ -229,14 +253,18 @@ Customizing the compiler
 
 To build ndn-cxx with a different compiler (rather than the platform default), set the
 ``CXX`` environment variable to point to the compiler binary. For example, to build
-with clang on Linux, use the following::
+with clang on Linux, use the following:
+
+.. code-block:: sh
 
     CXX=clang++ ./waf configure
 
 Building the documentation
 --------------------------
 
-ndn-cxx tutorials and API documentation can be built using the following commands::
+ndn-cxx tutorials and API documentation can be built using the following commands:
+
+.. code-block:: sh
 
     # Full set of documentation (tutorials + API) in build/docs
     ./waf docs
@@ -261,7 +289,9 @@ For further details, please refer to ``./waf --help``.
 Development build
 -----------------
 
-The following is the suggested build procedure for development builds::
+The following is the suggested build procedure for development builds:
+
+.. code-block:: sh
 
     ./waf configure --debug --with-tests  # on CentOS, add --without-pch
     ./waf
@@ -270,7 +300,9 @@ The following is the suggested build procedure for development builds::
 
 In a development build, most compiler optimizations will be disabled and all warnings
 will be treated as errors. This default behavior can be overridden by setting the
-``CXXFLAGS`` environment variable before running ``./waf configure``, for example::
+``CXXFLAGS`` environment variable before running ``./waf configure``, for example:
+
+.. code-block:: sh
 
     CXXFLAGS="-O1 -g3" ./waf configure --debug --with-tests
     ...
