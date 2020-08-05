@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -130,10 +130,8 @@ convertToPosixTime(const system_clock::TimePoint& timePoint)
   using BptResolution =
 #if defined(BOOST_DATE_TIME_HAS_NANOSECONDS)
     nanoseconds;
-#elif defined(BOOST_DATE_TIME_HAS_MICROSECONDS)
-    microseconds;
 #else
-    milliseconds;
+    microseconds;
 #endif
   constexpr auto unitsPerHour = duration_cast<BptResolution>(1_h).count();
 
