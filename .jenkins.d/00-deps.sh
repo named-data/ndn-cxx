@@ -29,7 +29,7 @@ elif has Ubuntu $NODE_LABELS; then
                              libboost-all-dev libssl-dev libsqlite3-dev
 
     if [[ $JOB_NAME == *"code-coverage" ]]; then
-        sudo apt-get -qy install gcovr lcov libgd-perl
+        sudo apt-get -qy install gcovr lcov
     fi
 
 elif has CentOS-8 $NODE_LABELS; then

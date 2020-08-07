@@ -23,7 +23,6 @@ if [[ $JOB_NAME == *"code-coverage" ]]; then
 
     genhtml --branch-coverage \
             --demangle-cpp \
-            --frames \
             --legend \
             --output-directory build/coverage \
             --title "ndn-cxx unit tests" \
