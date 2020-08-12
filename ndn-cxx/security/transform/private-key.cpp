@@ -30,9 +30,9 @@
 #include "ndn-cxx/security/key-params.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/util/random.hpp"
+#include "ndn-cxx/util/scope.hpp"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/scope_exit.hpp>
 #include <cstring>
 
 #define ENSURE_PRIVATE_KEY_LOADED(key) \
@@ -493,12 +493,11 @@ PrivateKey::generateEcKey(uint32_t keySize)
   default:
     NDN_THROW(std::invalid_argument("Unsupported EC key length " + to_string(keySize)));
   }
-  if (eckey == nullptr)
+  if (eckey == nullptr) {
     NDN_THROW(Error("Failed to set EC curve"));
+  }
 
-  BOOST_SCOPE_EXIT(&eckey) {
-    EC_KEY_free(eckey);
-  } BOOST_SCOPE_EXIT_END
+  auto guard = make_scope_exit([eckey] { EC_KEY_free(eckey); });
 
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
   EC_KEY_set_asn1_flag(eckey, OPENSSL_EC_NAMED_CURVE);

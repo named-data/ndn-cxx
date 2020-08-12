@@ -21,8 +21,7 @@
 
 #include "ndn-cxx/util/scheduler.hpp"
 #include "ndn-cxx/util/impl/steady-timer.hpp"
-
-#include <boost/scope_exit.hpp>
+#include "ndn-cxx/util/scope.hpp"
 
 namespace ndn {
 namespace scheduler {
@@ -145,14 +144,11 @@ Scheduler::executeEvent(const boost::system::error_code& error)
     return;
   }
 
+  auto guard = make_scope_exit([this] {
+    m_isEventExecuting = false;
+    scheduleNext();
+  });
   m_isEventExecuting = true;
-
-  // ASan reports a stack-use-after-scope on armhf when
-  // BOOST_SCOPE_EXIT_ALL is used in place of BOOST_SCOPE_EXIT
-  BOOST_SCOPE_EXIT(this_) {
-    this_->m_isEventExecuting = false;
-    this_->scheduleNext();
-  } BOOST_SCOPE_EXIT_END
 
   // process all expired events
   auto now = time::steady_clock::now();

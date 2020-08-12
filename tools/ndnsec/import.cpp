@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/util/io.hpp"
-
-#include <boost/scope_exit.hpp>
+#include "ndn-cxx/util/scope.hpp"
 
 namespace ndn {
 namespace ndnsec {
@@ -38,11 +37,9 @@ ndnsec_import(int argc, char** argv)
   std::string input;
   std::string password;
 
-  // ASan reports a stack-use-after-scope on armhf when
-  // BOOST_SCOPE_EXIT_ALL is used in place of BOOST_SCOPE_EXIT
-  BOOST_SCOPE_EXIT(&password) {
+  auto guard = make_scope_exit([&password] {
     OPENSSL_cleanse(&password.front(), password.size());
-  } BOOST_SCOPE_EXIT_END
+  });
 
   po::options_description description(
     "Usage: ndnsec import [-h] [-P PASSPHRASE] [-i] FILE\n"

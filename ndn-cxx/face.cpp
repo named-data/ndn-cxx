@@ -24,6 +24,7 @@
 #include "ndn-cxx/impl/face-impl.hpp"
 #include "ndn-cxx/net/face-uri.hpp"
 #include "ndn-cxx/security/signing-helpers.hpp"
+#include "ndn-cxx/util/scope.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 // NDN_LOG_INIT(ndn.Face) is declared in face-impl.hpp
@@ -261,32 +262,28 @@ Face::doProcessEvents(time::milliseconds timeout, bool keepThread)
     m_ioService.reset(); // ensure that run()/poll() will do some work
   }
 
-  try {
-    if (timeout < time::milliseconds::zero()) {
-      // do not block if timeout is negative, but process pending events
-      m_ioService.poll();
-      return;
-    }
+  auto onThrow = make_scope_fail([this] { m_impl->shutdown(); });
 
-    if (timeout > time::milliseconds::zero()) {
-      m_impl->m_processEventsTimeoutEvent = m_impl->m_scheduler.schedule(timeout,
-        [&io = m_ioService, &work = m_impl->m_ioServiceWork] {
-          io.stop();
-          work.reset();
-        });
-    }
-
-    if (keepThread) {
-      // work will ensure that m_ioService is running until work object exists
-      m_impl->m_ioServiceWork = make_unique<boost::asio::io_service::work>(m_ioService);
-    }
-
-    m_ioService.run();
+  if (timeout < 0_ms) {
+    // do not block if timeout is negative, but process pending events
+    m_ioService.poll();
+    return;
   }
-  catch (...) {
-    m_impl->shutdown();
-    throw;
+
+  if (timeout > 0_ms) {
+    m_impl->m_processEventsTimeoutEvent = m_impl->m_scheduler.schedule(timeout,
+      [&io = m_ioService, &work = m_impl->m_ioServiceWork] {
+        io.stop();
+        work.reset();
+      });
   }
+
+  if (keepThread) {
+    // work will ensure that m_ioService is running until work object exists
+    m_impl->m_ioServiceWork = make_unique<boost::asio::io_service::work>(m_ioService);
+  }
+
+  m_ioService.run();
 }
 
 void

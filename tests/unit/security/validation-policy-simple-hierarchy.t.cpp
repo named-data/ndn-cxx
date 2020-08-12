@@ -20,12 +20,12 @@
  */
 
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
+#include "ndn-cxx/util/scope.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
 #include <boost/mpl/vector.hpp>
-#include <boost/scope_exit.hpp>
 
 namespace ndn {
 namespace security {
@@ -38,15 +38,13 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestValidationPolicySimpleHierarchy,
                          HierarchicalValidatorFixture<ValidationPolicySimpleHierarchy>)
 
-typedef boost::mpl::vector<Interest, Data> Packets;
+using Packets = boost::mpl::vector<Interest, Data>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 {
   // Can't set CanBePrefix on Interests in this test case because of template
   // TODO: Remove in #4582
-  BOOST_SCOPE_EXIT(void) {
-    Interest::s_errorIfCanBePrefixUnset = true;
-  } BOOST_SCOPE_EXIT_END
+  auto guard = make_scope_exit([] { Interest::s_errorIfCanBePrefixUnset = true; });
   Interest::s_errorIfCanBePrefixUnset = false;
 
   Packet unsignedPacket("/Security/ValidatorFixture/Sub1/Sub2/Packet");

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #ifndef NDN_UTIL_SIGNAL_SIGNAL_HPP
 #define NDN_UTIL_SIGNAL_SIGNAL_HPP
 
+#include "ndn-cxx/util/scope.hpp"
 #include "ndn-cxx/util/signal/connection.hpp"
 
 #include <list>
@@ -219,30 +220,23 @@ Signal<Owner, TArgs...>::operator()(const TArgs&... args)
     return;
   }
 
-  auto it = m_slots.begin();
-  auto last = std::prev(m_slots.end());
+  auto guard = make_scope_exit([this] { m_isExecuting = false; });
   m_isExecuting = true;
 
-  try {
-    bool isLast = false;
-    while (!isLast) {
-      m_currentSlot = it;
-      isLast = it == last;
+  auto it = m_slots.begin();
+  auto last = std::prev(m_slots.end());
+  bool isLast = false;
+  while (!isLast) {
+    m_currentSlot = it;
+    isLast = it == last;
 
-      m_currentSlot->handler(args...);
+    m_currentSlot->handler(args...);
 
-      if (m_currentSlot == m_slots.end())
-        it = m_slots.erase(it);
-      else
-        ++it;
-    }
+    if (m_currentSlot == m_slots.end())
+      it = m_slots.erase(it);
+    else
+      ++it;
   }
-  catch (...) {
-    m_isExecuting = false;
-    throw;
-  }
-
-  m_isExecuting = false;
 }
 
 template<typename Owner, typename ...TArgs>
