@@ -41,7 +41,7 @@ using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 
-class DefaultOptions
+class CommandInterestDefaultOptions
 {
 public:
   static ValidationPolicyCommandInterest::Options
@@ -89,7 +89,8 @@ public:
   CommandInterestSigner m_signer;
 };
 
-BOOST_FIXTURE_TEST_SUITE(TestValidationPolicyCommandInterest, ValidationPolicyCommandInterestFixture<DefaultOptions>)
+BOOST_FIXTURE_TEST_SUITE(TestValidationPolicyCommandInterest,
+                         ValidationPolicyCommandInterestFixture<CommandInterestDefaultOptions>)
 
 BOOST_AUTO_TEST_SUITE(Accepts)
 
@@ -130,7 +131,7 @@ BOOST_AUTO_TEST_CASE(DataPassthru)
   VALIDATE_SUCCESS(d1, "Should succeed (fallback on inner validation policy for data)");
 }
 
-using ValidationPolicyAcceptAllCommands = ValidationPolicyCommandInterestFixture<DefaultOptions,
+using ValidationPolicyAcceptAllCommands = ValidationPolicyCommandInterestFixture<CommandInterestDefaultOptions,
                                                                                  ValidationPolicyAcceptAll>;
 
 BOOST_FIXTURE_TEST_CASE(SignedWithSha256, ValidationPolicyAcceptAllCommands) // Bug 4635

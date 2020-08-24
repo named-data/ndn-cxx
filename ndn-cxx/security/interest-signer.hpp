@@ -30,21 +30,39 @@ namespace security {
 /**
  * @brief Helper class to create signed Interests
  *
- * The signer generates timestamp and nonce elements for an Interest and signs it with the KeyChain.
+ * The signer generates signature elements for an Interest and signs it with the KeyChain.
  */
 class InterestSigner
 {
+public:
+  /**
+   * @brief Flags to indicate which elements to include in Interest signatures created with
+   *        makeSignedInterest.
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signature.html#interest-signature
+   */
+  enum SigningFlags : uint32_t {
+    WantNonce = 1 << 0,
+    WantTime = 1 << 1,
+    WantSeqNum = 1 << 2,
+  };
+
 public:
   explicit
   InterestSigner(KeyChain& keyChain);
 
   /**
-   * @brief Signs a signed Interest (following Packet Specification v0.3 or newer)
+   * @brief Signs an Interest (following Packet Specification v0.3 or newer)
+   * @param interest Interest to sign
+   * @param params SigningInfo that provides parameters on how to sign the Interest.
+   * @param signingFlags Indicates which elements to include in the signature. At least one element
+   *                     must be specified for inclusion.
+   * @throw std::invalid_argument No signature elements were specified for inclusion.
    *
-   * This generates a nonce and timestamp for the signed Interest.
    */
   void
-  makeSignedInterest(Interest& interest, SigningInfo params = SigningInfo());
+  makeSignedInterest(Interest& interest,
+                     SigningInfo params = SigningInfo(),
+                     uint32_t signingFlags = WantNonce | WantTime);
 
   /**
    * @brief Creates and signs a command Interest
@@ -66,6 +84,7 @@ private:
 private:
   KeyChain& m_keyChain;
   time::system_clock::TimePoint m_lastUsedTimestamp;
+  uint64_t m_lastUsedSeqNum;
 };
 
 } // namespace security

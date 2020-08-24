@@ -25,24 +25,31 @@
 #include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/security/validation-policy-command-interest.hpp"
 #include "ndn-cxx/security/validation-policy-config.hpp"
+#include "ndn-cxx/security/validation-policy-signed-interest.hpp"
 
 namespace ndn {
 namespace security {
 
 /**
- * @brief Helper for validator that uses CommandInterest + Config policy and NetworkFetcher
+ * @brief Helper for validator that uses SignedInterest + CommandInterest + Config policy and
+ *        NetworkFetcher
  */
 class ValidatorConfig : public Validator
 {
 public:
   using Validator::Validator;
-  using Options = ValidationPolicyCommandInterest::Options;
+  using SignedInterestOptions = ValidationPolicySignedInterest::Options;
+  using CommandInterestOptions = ValidationPolicyCommandInterest::Options;
 
   explicit
-  ValidatorConfig(std::unique_ptr<CertificateFetcher> fetcher, const Options& options = Options());
+  ValidatorConfig(std::unique_ptr<CertificateFetcher> fetcher,
+                  const CommandInterestOptions& ciOptions = {},
+                  const SignedInterestOptions& siOptions = {});
 
   explicit
-  ValidatorConfig(Face& face, const Options& options = Options());
+  ValidatorConfig(Face& face,
+                  const CommandInterestOptions& ciOptions = {},
+                  const SignedInterestOptions& siOptions = {});
 
 public: // helpers for ValidationPolicyConfig
   void

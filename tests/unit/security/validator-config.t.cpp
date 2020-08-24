@@ -132,7 +132,7 @@ BOOST_FIXTURE_TEST_CASE(ValidateCommandInterestWithDigestSha256, ValidatorConfig
 {
   validator.load(configFile);
 
-  CommandInterestSigner signer(m_keyChain);
+  InterestSigner signer(m_keyChain);
   auto i = signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
   size_t nValidated = 0, nFailed = 0;
 
@@ -150,6 +150,53 @@ BOOST_FIXTURE_TEST_CASE(ValidateCommandInterestWithDigestSha256, ValidatorConfig
   BOOST_CHECK_EQUAL(nFailed, 1);
 }
 
+BOOST_FIXTURE_TEST_CASE(ValidateSignedInterest, ValidatorConfigFixture)
+{
+  validator.load(configFile);
+
+  InterestSigner signer(m_keyChain);
+  Interest i1("/hello/world");
+  i1.setCanBePrefix(false);
+  signer.makeSignedInterest(i1);
+  size_t nValidated = 0, nFailed = 0;
+
+  validator.validate(i1, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 1);
+  BOOST_CHECK_EQUAL(nFailed, 0);
+
+  validator.validate(i1, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 1);
+  BOOST_CHECK_EQUAL(nFailed, 1);
+
+  Interest i2("/hello/world");
+  i2.setCanBePrefix(false);
+  signer.makeSignedInterest(i2, signingWithSha256());
+  validator.validate(i2, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 2);
+  BOOST_CHECK_EQUAL(nFailed, 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(ValidateCommandInterest, ValidatorConfigFixture)
+{
+  validator.load(configFile);
+
+  InterestSigner signer(m_keyChain);
+  auto i1 = signer.makeCommandInterest("/hello/world");
+  size_t nValidated = 0, nFailed = 0;
+
+  validator.validate(i1, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 1);
+  BOOST_CHECK_EQUAL(nFailed, 0);
+
+  validator.validate(i1, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 1);
+  BOOST_CHECK_EQUAL(nFailed, 1);
+
+  auto i2 = signer.makeCommandInterest("/hello/world");
+  validator.validate(i2, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
+  BOOST_CHECK_EQUAL(nValidated, 2);
+  BOOST_CHECK_EQUAL(nFailed, 1);
+}
 
 BOOST_AUTO_TEST_SUITE_END() // TestValidatorConfig
 BOOST_AUTO_TEST_SUITE_END() // Security

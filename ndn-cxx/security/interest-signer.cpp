@@ -27,18 +27,32 @@ namespace security {
 
 InterestSigner::InterestSigner(KeyChain& keyChain)
   : m_keyChain(keyChain)
+  , m_lastUsedSeqNum(-1) // Will wrap around to 0 on next Interest
 {
 }
 
 void
-InterestSigner::makeSignedInterest(Interest& interest, SigningInfo params)
+InterestSigner::makeSignedInterest(Interest& interest, SigningInfo params, uint32_t signingFlags)
 {
   SignatureInfo info = params.getSignatureInfo();
-  info.setTime(getFreshTimestamp());
 
-  std::vector<uint8_t> nonce(8);
-  random::generateSecureBytes(nonce.data(), nonce.size());
-  info.setNonce(nonce);
+  if ((signingFlags & (WantNonce | WantTime | WantSeqNum)) == 0) {
+    NDN_THROW(std::invalid_argument("No signature elements specified"));
+  }
+
+  if (signingFlags & WantNonce) {
+    std::vector<uint8_t> nonce(8);
+    random::generateSecureBytes(nonce.data(), nonce.size());
+    info.setNonce(nonce);
+  }
+
+  if (signingFlags & WantTime) {
+    info.setTime(getFreshTimestamp());
+  }
+
+  if (signingFlags & WantSeqNum) {
+    info.setSeqNum(++m_lastUsedSeqNum);
+  }
 
   params.setSignatureInfo(info);
   params.setSignedInterestFormat(SignedInterestFormat::V03);

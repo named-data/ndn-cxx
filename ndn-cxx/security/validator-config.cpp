@@ -25,16 +25,23 @@
 namespace ndn {
 namespace security {
 
-ValidatorConfig::ValidatorConfig(std::unique_ptr<CertificateFetcher> fetcher, const Options& options)
-  : Validator(make_unique<ValidationPolicyCommandInterest>(make_unique<ValidationPolicyConfig>(),
-                                                           options),
+ValidatorConfig::ValidatorConfig(std::unique_ptr<CertificateFetcher> fetcher,
+                                 const CommandInterestOptions& ciOptions,
+                                 const SignedInterestOptions& siOptions)
+  : Validator(make_unique<ValidationPolicySignedInterest>(
+                make_unique<ValidationPolicyCommandInterest>(
+                  make_unique<ValidationPolicyConfig>(),
+                  ciOptions),
+                siOptions),
               std::move(fetcher))
-  , m_policyConfig(static_cast<ValidationPolicyConfig&>(getPolicy().getInnerPolicy()))
+  , m_policyConfig(static_cast<ValidationPolicyConfig&>(getPolicy().getInnerPolicy().getInnerPolicy()))
 {
 }
 
-ValidatorConfig::ValidatorConfig(Face& face, const Options& options)
-  : ValidatorConfig(make_unique<CertificateFetcherFromNetwork>(face), options)
+ValidatorConfig::ValidatorConfig(Face& face,
+                                 const CommandInterestOptions& ciOptions,
+                                 const SignedInterestOptions& siOptions)
+  : ValidatorConfig(make_unique<CertificateFetcherFromNetwork>(face), ciOptions, siOptions)
 {
 }
 

@@ -41,24 +41,28 @@ BOOST_AUTO_TEST_CASE(V02)
   InterestSigner signer(m_keyChain);
   Interest i1 = signer.makeCommandInterest("/hello/world");
   BOOST_REQUIRE_EQUAL(i1.getName().size(), 6);
-  BOOST_CHECK_EQUAL(i1.getName().at(command_interest::POS_SIG_VALUE).blockFromValue().type(), tlv::SignatureValue);
-  BOOST_CHECK_EQUAL(i1.getName().at(command_interest::POS_SIG_INFO).blockFromValue().type(), tlv::SignatureInfo);
+  BOOST_TEST(i1.getName().at(command_interest::POS_SIG_VALUE).blockFromValue().type() == tlv::SignatureValue);
+  BOOST_TEST(i1.getName().at(command_interest::POS_SIG_INFO).blockFromValue().type() == tlv::SignatureInfo);
 
   time::milliseconds timestamp = toUnixTimestamp(time::system_clock::now());
-  BOOST_CHECK_EQUAL(i1.getName().at(command_interest::POS_TIMESTAMP).toNumber(), timestamp.count());
+  BOOST_TEST(i1.getName().at(command_interest::POS_TIMESTAMP).toNumber() == timestamp.count());
 
   Interest i2 = signer.makeCommandInterest("/hello/world/!", signingByIdentity("/test"));
   BOOST_REQUIRE_EQUAL(i2.getName().size(), 7);
-  BOOST_CHECK_EQUAL(i2.getName().at(command_interest::POS_SIG_VALUE).blockFromValue().type(), tlv::SignatureValue);
-  BOOST_CHECK_EQUAL(i2.getName().at(command_interest::POS_SIG_INFO).blockFromValue().type(), tlv::SignatureInfo);
-  BOOST_CHECK_GT(i2.getName().at(command_interest::POS_TIMESTAMP), i1.getName().at(command_interest::POS_TIMESTAMP));
+  BOOST_TEST(i2.getName().at(command_interest::POS_SIG_VALUE).blockFromValue().type() == tlv::SignatureValue);
+  BOOST_TEST(i2.getName().at(command_interest::POS_SIG_INFO).blockFromValue().type() == tlv::SignatureInfo);
+  // These doesn't play well with BOOST_TEST for some reason
+  BOOST_CHECK_GT(i2.getName().at(command_interest::POS_TIMESTAMP),
+                 i1.getName().at(command_interest::POS_TIMESTAMP));
   BOOST_CHECK_NE(i2.getName().at(command_interest::POS_RANDOM_VAL),
                  i1.getName().at(command_interest::POS_RANDOM_VAL)); // this sometimes can fail
 
   advanceClocks(100_s);
 
   i2 = signer.makeCommandInterest("/hello/world/!");
-  BOOST_CHECK_GT(i2.getName().at(command_interest::POS_TIMESTAMP), i1.getName().at(command_interest::POS_TIMESTAMP));
+  // This doesn't play well with BOOST_TEST for some reason
+  BOOST_CHECK_GT(i2.getName().at(command_interest::POS_TIMESTAMP),
+                 i1.getName().at(command_interest::POS_TIMESTAMP));
 }
 
 BOOST_AUTO_TEST_CASE(V03)
@@ -68,29 +72,51 @@ BOOST_AUTO_TEST_CASE(V03)
   InterestSigner signer(m_keyChain);
   Interest i1("/hello/world");
   i1.setCanBePrefix(false);
-  signer.makeSignedInterest(i1);
-  BOOST_CHECK_EQUAL(i1.isSigned(), true);
-  BOOST_REQUIRE_EQUAL(i1.getName().size(), 3);
-  BOOST_REQUIRE(i1.getSignatureInfo());
+  signer.makeSignedInterest(i1, SigningInfo(),
+                            InterestSigner::SigningFlags::WantNonce |
+                              InterestSigner::SigningFlags::WantTime);
+  BOOST_TEST(i1.isSigned() == true);
+  BOOST_TEST_REQUIRE(i1.getName().size() == 3);
+  BOOST_TEST_REQUIRE(i1.getSignatureInfo().has_value());
 
+  BOOST_TEST(i1.getSignatureInfo()->getNonce().has_value() == true);
   BOOST_TEST(*i1.getSignatureInfo()->getTime() == time::system_clock::now());
+  BOOST_TEST(i1.getSignatureInfo()->getSeqNum().has_value() == false);
 
   Interest i2("/hello/world/!");
   i2.setCanBePrefix(false);
-  signer.makeSignedInterest(i2, signingByIdentity("/test"));
-  BOOST_CHECK_EQUAL(i2.isSigned(), true);
+  signer.makeSignedInterest(i2, signingByIdentity("/test"),
+                            InterestSigner::SigningFlags::WantNonce |
+                              InterestSigner::SigningFlags::WantTime |
+                              InterestSigner::SigningFlags::WantSeqNum);
+  BOOST_TEST(i2.isSigned() == true);
   BOOST_REQUIRE_EQUAL(i2.getName().size(), 4);
   BOOST_REQUIRE(i2.getSignatureInfo());
 
-  BOOST_TEST(*i2.getSignatureInfo()->getTime() > *i1.getSignatureInfo()->getTime());
   BOOST_TEST(*i2.getSignatureInfo()->getNonce() != *i1.getSignatureInfo()->getNonce());
+  BOOST_TEST(*i2.getSignatureInfo()->getTime() > *i1.getSignatureInfo()->getTime());
+  BOOST_TEST_REQUIRE(i2.getSignatureInfo()->getSeqNum().has_value() == true);
 
   advanceClocks(100_s);
 
-  signer.makeSignedInterest(i2);
-  BOOST_CHECK_EQUAL(i2.isSigned(), true);
+  Interest i3("/hello/world/2");
+  i3.setCanBePrefix(false);
+  signer.makeSignedInterest(i3, SigningInfo(), InterestSigner::SigningFlags::WantSeqNum);
+  BOOST_TEST(i3.isSigned() == true);
+  BOOST_REQUIRE_EQUAL(i3.getName().size(), 4);
+  BOOST_REQUIRE(i3.getSignatureInfo());
 
-  BOOST_TEST(*i2.getSignatureInfo()->getTime() == time::system_clock::now());
+  BOOST_TEST(i3.getSignatureInfo()->getNonce().has_value() == false);
+  BOOST_TEST(i3.getSignatureInfo()->getTime().has_value() == false);
+  BOOST_TEST_REQUIRE(i3.getSignatureInfo()->getSeqNum().has_value() == true);
+  BOOST_TEST(*i3.getSignatureInfo()->getSeqNum() > *i2.getSignatureInfo()->getSeqNum());
+
+  signer.makeSignedInterest(i3);
+  BOOST_TEST(i3.isSigned() == true);
+
+  BOOST_TEST(*i3.getSignatureInfo()->getTime() == time::system_clock::now());
+
+  BOOST_CHECK_THROW(signer.makeSignedInterest(i3, SigningInfo(), 0), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestInterestSigner
