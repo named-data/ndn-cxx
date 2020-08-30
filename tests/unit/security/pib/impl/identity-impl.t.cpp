@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,6 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
-BOOST_AUTO_TEST_SUITE(Detail)
 BOOST_FIXTURE_TEST_SUITE(TestIdentityImpl, ndn::security::tests::PibDataFixture)
 
 using security::Pib;
@@ -149,7 +148,6 @@ BOOST_AUTO_TEST_CASE(Errors)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIdentityImpl
-BOOST_AUTO_TEST_SUITE_END() // Detail
 BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 

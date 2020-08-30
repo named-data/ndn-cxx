@@ -51,7 +51,7 @@ Certificate::Certificate()
 }
 
 Certificate::Certificate(Data&& data)
-  : Data(data)
+  : Data(std::move(data))
 {
   if (!isValidName(getName())) {
     NDN_THROW(Data::Error("Name does not follow the naming convention for certificate"));
