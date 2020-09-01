@@ -574,6 +574,36 @@ BOOST_AUTO_TEST_CASE(SetSignatureValue)
   BOOST_CHECK_THROW(d.setSignatureValue(nullptr), std::invalid_argument);
 }
 
+BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, IdentityManagementFixture)
+{
+  Data d1("/test/prefix");
+  m_keyChain.sign(d1);
+  auto ranges1 = d1.extractSignedRanges();
+  BOOST_REQUIRE_EQUAL(ranges1.size(), 1);
+  const Block& wire1 = d1.wireEncode();
+  const auto& sigInfoWire1 = wire1.find(tlv::SignatureInfo);
+  BOOST_REQUIRE(sigInfoWire1 != wire1.elements_end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().first, ranges1.front().first + ranges1.front().second,
+                                wire1.value_begin(), sigInfoWire1->value_end());
+
+  // Test with decoded Data and ensure excludes elements after SignatureValue
+  const uint8_t WIRE[] = {
+    0x06, 0x0B, // Data
+          0x07, 0x00, // Name
+          0x16, 0x03, // SignatureInfo
+                0x1B, 0x01, // SignatureType
+                      0x00,
+          0x17, 0x00, // SignatureValue
+          0xAA, 0x00 // Unrecognized non-critical element
+  };
+  Block wire2(WIRE, sizeof(WIRE));
+  Data d2(wire2);
+  auto ranges2 = d2.extractSignedRanges();
+  BOOST_REQUIRE_EQUAL(ranges2.size(), 1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().first, ranges2.front().first + ranges2.front().second,
+                                &WIRE[2], &WIRE[9]);
+}
+
 BOOST_AUTO_TEST_CASE(Equality)
 {
   Data a;

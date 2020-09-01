@@ -326,6 +326,19 @@ Data::setSignatureValue(ConstBufferPtr value)
   return *this;
 }
 
+InputBuffers
+Data::extractSignedRanges() const
+{
+  InputBuffers bufs;
+  bufs.reserve(1); // One range containing data value up to, but not including, SignatureValue
+
+  wireEncode();
+  auto lastSignedIt = std::prev(m_wire.find(tlv::SignatureValue));
+  bufs.emplace_back(m_wire.value(),
+                    std::distance(m_wire.value_begin(), lastSignedIt->end()));
+  return bufs;
+}
+
 Data&
 Data::setContentType(uint32_t type)
 {

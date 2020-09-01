@@ -110,8 +110,7 @@ static ParseResult
 parse(const Data& data)
 {
   try {
-    const Block& wire = data.wireEncode();
-    return ParseResult({{wire.value(), wire.value_size() - data.getSignatureValue().size()}},
+    return ParseResult(data.extractSignedRanges(),
                        data.getSignatureValue().value(),
                        data.getSignatureValue().value_size());
   }

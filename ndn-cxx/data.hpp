@@ -26,6 +26,7 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/meta-info.hpp"
 #include "ndn-cxx/name.hpp"
+#include "ndn-cxx/security/security-common.hpp"
 #include "ndn-cxx/signature-info.hpp"
 
 namespace ndn {
@@ -263,6 +264,13 @@ public: // Data fields
    */
   Data&
   setSignatureValue(ConstBufferPtr value);
+
+  /** @brief Extract ranges of Data covered by the signature
+   *  @throw Error Data cannot be encoded or is missing ranges necessary for signing
+   *  @warning The returned pointers will be invalidated if wireDecode() or wireEncode() are called.
+   */
+  InputBuffers
+  extractSignedRanges() const;
 
 public: // MetaInfo fields
   uint32_t
