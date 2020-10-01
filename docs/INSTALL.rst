@@ -238,7 +238,7 @@ Debug symbols
 The default compiler flags include debug symbols in binaries. This should provide
 more meaningful debugging information if ndn-cxx or your application crashes.
 
-If this is undesirable, the default flags can be overridden to disable debug symbols.
+If this is not desired, the default flags can be overridden to disable debug symbols.
 The following example shows how to completely disable debug symbols and configure
 ndn-cxx to be installed into ``/usr`` with configuration in the ``/etc`` directory.
 
@@ -262,7 +262,7 @@ with clang on Linux, use the following:
 Building the documentation
 --------------------------
 
-ndn-cxx tutorials and API documentation can be built using the following commands:
+Tutorials and API documentation can be built using the following commands:
 
 .. code-block:: sh
 
