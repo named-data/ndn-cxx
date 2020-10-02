@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,6 +41,8 @@ operator<<(std::ostream& os, SignatureTypeValue st)
       return os << "SignatureSha256WithEcdsa";
     case SignatureHmacWithSha256:
       return os << "SignatureHmacWithSha256";
+    case NullSignature:
+      return os << "NullSignature";
   }
   return os << "Unknown(" << static_cast<uint32_t>(st) << ')';
 }
@@ -65,7 +67,7 @@ operator<<(std::ostream& os, ContentTypeValue ct)
       return os << "FLIC";
   }
 
-  if (ct >= 6 && ct <= 1023) {
+  if (ct <= 1023) {
     os << "Reserved(";
   }
   else if (ct >= 9000 && ct <= 9999) {

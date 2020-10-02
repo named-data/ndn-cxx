@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -569,7 +569,7 @@ BOOST_AUTO_TEST_CASE(ReadFromStream)
 
 BOOST_AUTO_TEST_SUITE_END() // NonNegativeInteger
 
-BOOST_AUTO_TEST_SUITE(PrintHelpers)
+BOOST_AUTO_TEST_SUITE(OutputOperators)
 
 BOOST_AUTO_TEST_CASE(PrintSignatureTypeValue)
 {
@@ -579,7 +579,9 @@ BOOST_AUTO_TEST_CASE(PrintSignatureTypeValue)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureSha256WithEcdsa), "SignatureSha256WithEcdsa");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureHmacWithSha256), "SignatureHmacWithSha256");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(5)), "Unknown(5)");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(200)), "Unknown(200)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(199)), "Unknown(199)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(NullSignature), "NullSignature");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(201)), "Unknown(201)");
 }
 
 BOOST_AUTO_TEST_CASE(PrintContentTypeValue)
@@ -601,7 +603,7 @@ BOOST_AUTO_TEST_CASE(PrintContentTypeValue)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<ContentTypeValue>(19910118)), "Unknown(19910118)");
 }
 
-BOOST_AUTO_TEST_SUITE_END() // PrintHelpers
+BOOST_AUTO_TEST_SUITE_END() // OutputOperators
 
 BOOST_AUTO_TEST_SUITE_END() // TestTlv
 BOOST_AUTO_TEST_SUITE_END() // Encoding

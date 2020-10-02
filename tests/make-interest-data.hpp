@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_MAKE_INTEREST_DATA_HPP
-#define NDN_TESTS_MAKE_INTEREST_DATA_HPP
+#ifndef NDN_CXX_TESTS_MAKE_INTEREST_DATA_HPP
+#define NDN_CXX_TESTS_MAKE_INTEREST_DATA_HPP
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
@@ -29,26 +29,30 @@
 namespace ndn {
 namespace tests {
 
-/** \brief create an Interest
+/**
+ * \brief Create an Interest
  */
 shared_ptr<Interest>
 makeInterest(const Name& name, bool canBePrefix = false,
-             time::milliseconds lifetime = DEFAULT_INTEREST_LIFETIME,
+             optional<time::milliseconds> lifetime = nullopt,
              optional<Interest::Nonce> nonce = nullopt);
 
-/** \brief create a Data with fake signature
- *  \note Data may be modified afterwards without losing the fake signature.
- *        If a real signature is desired, sign again with KeyChain.
+/**
+ * \brief Create a Data with a null (i.e., empty) signature
+ *
+ * If a real signature is desired, use IdentityManagementFixture and sign again with KeyChain.
  */
 shared_ptr<Data>
 makeData(const Name& name);
 
-/** \brief add a fake signature to Data
+/**
+ * \brief Add a null signature to \p data
  */
 Data&
 signData(Data& data);
 
-/** \brief add a fake signature to Data
+/**
+ * \brief Add a null signature to \p data
  */
 inline shared_ptr<Data>
 signData(shared_ptr<Data> data)
@@ -57,15 +61,17 @@ signData(shared_ptr<Data> data)
   return data;
 }
 
-/** \brief create a Nack
+/**
+ * \brief Create a Nack
  */
 lp::Nack
 makeNack(Interest interest, lp::NackReason reason);
 
-/** \brief replace a name component in a packet
- *  \param[inout] pkt the packet
- *  \param index the index of the name component to replace
- *  \param args arguments to name::Component constructor
+/**
+ * \brief Replace a name component in a packet
+ * \param[inout] pkt the packet
+ * \param index the index of the name component to replace
+ * \param args arguments to name::Component constructor
  */
 template<typename Packet, typename ...Args>
 void
@@ -79,4 +85,4 @@ setNameComponent(Packet& pkt, ssize_t index, Args&& ...args)
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_MAKE_INTEREST_DATA_HPP
+#endif // NDN_CXX_TESTS_MAKE_INTEREST_DATA_HPP

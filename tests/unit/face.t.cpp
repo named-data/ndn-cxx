@@ -426,14 +426,14 @@ BOOST_AUTO_TEST_CASE(PutNack)
 
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0);
 
-  face.put(makeNack(*makeInterest("/unsolicited", false, DEFAULT_INTEREST_LIFETIME, 18645250),
+  face.put(makeNack(*makeInterest("/unsolicited", false, nullopt, 18645250),
                     lp::NackReason::NO_ROUTE));
   advanceClocks(10_ms);
   BOOST_CHECK_EQUAL(face.sentNacks.size(), 0); // unsolicited Nack would not be sent
 
-  auto interest1 = makeInterest("/Hello/World", false, DEFAULT_INTEREST_LIFETIME, 14247162);
+  auto interest1 = makeInterest("/Hello/World", false, nullopt, 14247162);
   face.receive(*interest1);
-  auto interest2 = makeInterest("/another/prefix", false, DEFAULT_INTEREST_LIFETIME, 92203002);
+  auto interest2 = makeInterest("/another/prefix", false, nullopt, 92203002);
   face.receive(*interest2);
   advanceClocks(10_ms);
 
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE(PutMultipleNack)
   face.setInterestFilter("/", bind([&] { hasInterest2 = true; }));
   advanceClocks(10_ms);
 
-  auto interest = makeInterest("/A", false, DEFAULT_INTEREST_LIFETIME, 14333271);
+  auto interest = makeInterest("/A", false, nullopt, 14333271);
   face.receive(*interest);
   advanceClocks(10_ms);
   BOOST_CHECK(hasInterest1);
@@ -495,7 +495,7 @@ BOOST_AUTO_TEST_CASE(PutMultipleNackLoopback)
   face.setInterestFilter(InterestFilter("/").allowLoopback(false),
     bind([] { BOOST_ERROR("Unexpected Interest on second InterestFilter"); }));
 
-  auto interest = makeInterest("/A", false, DEFAULT_INTEREST_LIFETIME, 28395852);
+  auto interest = makeInterest("/A", false, nullopt, 28395852);
   face.expressInterest(*interest,
                        bind([] { BOOST_FAIL("Unexpected data"); }),
                        [&] (const Interest&, const lp::Nack& nack) {

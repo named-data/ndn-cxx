@@ -25,11 +25,14 @@ namespace ndn {
 namespace tests {
 
 shared_ptr<Interest>
-makeInterest(const Name& name, bool canBePrefix, time::milliseconds lifetime,
+makeInterest(const Name& name, bool canBePrefix, optional<time::milliseconds> lifetime,
              optional<Interest::Nonce> nonce)
 {
-  auto interest = std::make_shared<Interest>(name, lifetime);
+  auto interest = std::make_shared<Interest>(name);
   interest->setCanBePrefix(canBePrefix);
+  if (lifetime) {
+    interest->setInterestLifetime(*lifetime);
+  }
   interest->setNonce(nonce);
   return interest;
 }
@@ -44,7 +47,7 @@ makeData(const Name& name)
 Data&
 signData(Data& data)
 {
-  data.setSignatureInfo(SignatureInfo(tlv::SignatureSha256WithRsa));
+  data.setSignatureInfo(SignatureInfo(tlv::NullSignature));
   data.setSignatureValue(std::make_shared<Buffer>());
   data.wireEncode();
   return data;

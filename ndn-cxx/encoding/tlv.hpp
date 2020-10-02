@@ -126,12 +126,14 @@ enum : uint32_t {
 
 /** @brief SignatureType values
  *  @sa https://named-data.net/doc/NDN-packet-spec/current/signature.html
+ *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/SignatureType
  */
 enum SignatureTypeValue : uint16_t {
   DigestSha256             = 0,
   SignatureSha256WithRsa   = 1,
   SignatureSha256WithEcdsa = 3,
   SignatureHmacWithSha256  = 4,
+  NullSignature            = 200,
 };
 
 std::ostream&
