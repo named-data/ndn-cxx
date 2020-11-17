@@ -20,8 +20,9 @@
  */
 
 #include "ndn-cxx/security/certificate-fetcher-from-network.hpp"
-#include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
+
 #include "ndn-cxx/lp/nack.hpp"
+#include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/validator-fixture.hpp"

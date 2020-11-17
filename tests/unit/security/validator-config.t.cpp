@@ -20,12 +20,13 @@
  */
 
 #include "ndn-cxx/security/validator-config.hpp"
+
 #include "ndn-cxx/security/certificate-fetcher-offline.hpp"
 #include "ndn-cxx/security/command-interest-signer.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 #include "tests/unit/security/validator-config/common.hpp"
 
 namespace ndn {
@@ -35,7 +36,7 @@ namespace tests {
 using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestValidatorConfig, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestValidatorConfig, KeyChainFixture)
 
 // This test only for API, actual tests are in ValidationPolicyConfig and corresponding CertificateFetchers
 
@@ -46,16 +47,16 @@ BOOST_AUTO_TEST_CASE(Construct)
   ValidatorConfig v1(face);
   BOOST_CHECK_EQUAL(v1.m_policyConfig.m_isConfigured, false);
 
-  ValidatorConfig v2(make_unique<v2::CertificateFetcherOffline>());
+  ValidatorConfig v2(make_unique<CertificateFetcherOffline>());
   BOOST_CHECK_EQUAL(v2.m_policyConfig.m_isConfigured, false);
 }
 
-class ValidatorConfigFixture : public IdentityManagementFixture
+class ValidatorConfigFixture : public KeyChainFixture
 {
 public:
   ValidatorConfigFixture()
-    : path(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "security" / "validator-config")
-    , validator(make_unique<v2::CertificateFetcherOffline>())
+    : path(boost::filesystem::path(UNIT_TESTS_TMPDIR) / "security" / "validator-config")
+    , validator(make_unique<CertificateFetcherOffline>())
   {
     boost::filesystem::create_directories(path);
     config = R"CONF(
@@ -117,11 +118,11 @@ BOOST_AUTO_TEST_CASE(FromIstream)
 
 BOOST_AUTO_TEST_CASE(FromSection)
 {
-  validator.load(v2::validator_config::tests::makeSection(config), "config-file-from-section");
+  validator.load(validator_config::tests::makeSection(config), "config-file-from-section");
   BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
 
   // should reload policy
-  validator.load(v2::validator_config::tests::makeSection(config), "config-file-from-section");
+  validator.load(validator_config::tests::makeSection(config), "config-file-from-section");
   BOOST_CHECK_EQUAL(validator.m_policyConfig.m_isConfigured, true);
 }
 

@@ -25,16 +25,14 @@
 #include "ndn-cxx/util/string-helper.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 namespace ndn {
 namespace security {
 namespace tests {
 
-using namespace ndn::tests;
-
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestDigestSha256, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestDigestSha256, ndn::tests::KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(Sha256)
 {

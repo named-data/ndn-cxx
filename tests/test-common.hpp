@@ -19,12 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_TESTS_MAKE_INTEREST_DATA_HPP
-#define NDN_CXX_TESTS_MAKE_INTEREST_DATA_HPP
+#ifndef NDN_CXX_TESTS_TEST_COMMON_HPP
+#define NDN_CXX_TESTS_TEST_COMMON_HPP
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/lp/nack.hpp"
+#include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace tests {
@@ -40,7 +41,7 @@ makeInterest(const Name& name, bool canBePrefix = false,
 /**
  * \brief Create a Data with a null (i.e., empty) signature
  *
- * If a real signature is desired, use IdentityManagementFixture and sign again with KeyChain.
+ * If a "real" signature is desired, use KeyChainFixture and sign again with `m_keyChain`.
  */
 shared_ptr<Data>
 makeData(const Name& name);
@@ -85,4 +86,4 @@ setNameComponent(Packet& pkt, ssize_t index, Args&& ...args)
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_CXX_TESTS_MAKE_INTEREST_DATA_HPP
+#endif // NDN_CXX_TESTS_TEST_COMMON_HPP

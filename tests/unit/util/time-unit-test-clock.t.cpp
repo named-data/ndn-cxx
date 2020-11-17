@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,7 @@
 #include "ndn-cxx/util/scheduler.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/unit-test-time-fixture.hpp"
+#include "tests/unit/io-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <thread>
@@ -32,7 +32,7 @@ namespace ndn {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
-BOOST_FIXTURE_TEST_SUITE(TestTimeUnitTestClock, UnitTestTimeFixture)
+BOOST_FIXTURE_TEST_SUITE(TestTimeUnitTestClock, ClockFixture)
 
 BOOST_AUTO_TEST_CASE(SystemClock)
 {
@@ -43,11 +43,11 @@ BOOST_AUTO_TEST_CASE(SystemClock)
   BOOST_CHECK_EQUAL(time::system_clock::now().time_since_epoch(),
                     time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
-  steadyClock->advance(1_day);
+  m_steadyClock->advance(1_day);
   BOOST_CHECK_EQUAL(time::system_clock::now().time_since_epoch(),
                     time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
-  systemClock->advance(1_day);
+  m_systemClock->advance(1_day);
   BOOST_CHECK_GT(time::system_clock::now().time_since_epoch(),
                  time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(SystemClock)
     time::fromUnixTimestamp(time::milliseconds(1390966967032LL));
   BOOST_CHECK_GT(time::system_clock::now(), referenceTime);
 
-  systemClock->setNow(referenceTime.time_since_epoch());
+  m_systemClock->setNow(referenceTime.time_since_epoch());
   BOOST_CHECK_EQUAL(time::system_clock::now(), referenceTime);
 
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(time::system_clock::now()),
@@ -98,36 +98,36 @@ BOOST_AUTO_TEST_CASE(SteadyClock)
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(),
                     time::steady_clock::duration::zero());
 
-  systemClock->advance(36500_days);
+  m_systemClock->advance(36500_days);
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(),
                     time::steady_clock::duration::zero());
 
-  steadyClock->advance(100_ns);
+  m_steadyClock->advance(100_ns);
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), 100_ns);
 
-  steadyClock->advance(100_us);
+  m_steadyClock->advance(100_us);
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), 100100_ns);
 
-  steadyClock->setNow(1_ms);
+  m_steadyClock->setNow(1_ms);
   BOOST_CHECK_EQUAL(time::steady_clock::now().time_since_epoch(), 1000000_ns);
 
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(time::steady_clock::now()),
                     "1000000 nanoseconds since unit test beginning");
 }
 
-BOOST_AUTO_TEST_CASE(Scheduler)
+BOOST_FIXTURE_TEST_CASE(Scheduler, IoFixture)
 {
-  ndn::Scheduler scheduler(io);
+  ndn::Scheduler scheduler(m_io);
 
   bool hasFired = false;
   scheduler.schedule(100_s, [&] { hasFired = true; });
 
-  io.poll();
+  m_io.poll();
   BOOST_CHECK_EQUAL(hasFired, false);
 
-  steadyClock->advance(100_s);
+  m_steadyClock->advance(100_s);
 
-  io.poll();
+  m_io.poll();
   BOOST_CHECK_EQUAL(hasFired, true);
 }
 

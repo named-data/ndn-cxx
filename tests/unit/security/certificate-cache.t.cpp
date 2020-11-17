@@ -22,22 +22,23 @@
 #include "ndn-cxx/security/certificate-cache.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/unit/clock-fixture.hpp"
 
 namespace ndn {
 namespace security {
 inline namespace v2 {
 namespace tests {
 
-BOOST_AUTO_TEST_SUITE(Security)
+using namespace ndn::tests;
 
-class CertificateCacheFixture : public ndn::tests::IdentityManagementTimeFixture
+class CertificateCacheFixture : public ClockFixture, public KeyChainFixture
 {
 public:
   CertificateCacheFixture()
     : certCache(10_s)
   {
-    identity = addIdentity("/TestCertificateCache/");
+    identity = m_keyChain.createIdentity("/TestCertificateCache");
     cert = identity.getDefaultKey().getDefaultCertificate();
   }
 
@@ -47,6 +48,7 @@ public:
   Certificate cert;
 };
 
+BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestCertificateCache, CertificateCacheFixture)
 
 BOOST_AUTO_TEST_CASE(RemovalTime)

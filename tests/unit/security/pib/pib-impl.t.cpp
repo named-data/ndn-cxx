@@ -52,20 +52,16 @@ public:
 class PibSqlite3Fixture : public PibDataFixture
 {
 public:
-  PibSqlite3Fixture()
-    : tmpPath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "DbTest")
-    , pib(tmpPath.c_str())
-  {
-  }
-
   ~PibSqlite3Fixture()
   {
-    boost::filesystem::remove_all(tmpPath);
+    boost::filesystem::remove_all(m_path);
   }
 
+private:
+  const boost::filesystem::path m_path{boost::filesystem::path(UNIT_TESTS_TMPDIR) / "TestPibImpl"};
+
 public:
-  boost::filesystem::path tmpPath;
-  PibSqlite3 pib;
+  PibSqlite3 pib{m_path.string()};
 };
 
 using PibImpls = boost::mpl::vector<PibMemoryFixture, PibSqlite3Fixture>;

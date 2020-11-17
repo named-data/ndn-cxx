@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,13 +22,12 @@
 #include "ndn-cxx/transport/tcp-transport.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/transport/transport-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Transport)
-BOOST_FIXTURE_TEST_SUITE(TestTcpTransport, TransportFixture)
+BOOST_AUTO_TEST_SUITE(TestTcpTransport)
 
 using ndn::Transport;
 

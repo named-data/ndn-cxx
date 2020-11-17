@@ -26,9 +26,8 @@
 #include "ndn-cxx/util/dummy-client-face.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/test-common.hpp"
+#include "tests/unit/io-key-chain-fixture.hpp"
 
 #include <boost/logic/tribool.hpp>
 
@@ -41,11 +40,11 @@ struct WantPrefixRegReply;
 struct NoPrefixRegReply;
 
 template<typename PrefixRegReply = WantPrefixRegReply>
-class FaceFixture : public IdentityManagementTimeFixture
+class FaceFixture : public IoKeyChainFixture
 {
 protected:
   FaceFixture()
-    : face(io, m_keyChain, {true, !std::is_same<PrefixRegReply, NoPrefixRegReply>::value})
+    : face(m_io, m_keyChain, {true, !std::is_same<PrefixRegReply, NoPrefixRegReply>::value})
   {
     static_assert(std::is_same<PrefixRegReply, WantPrefixRegReply>::value ||
                   std::is_same<PrefixRegReply, NoPrefixRegReply>::value, "");
@@ -279,7 +278,7 @@ BOOST_AUTO_TEST_CASE(PutDataFromDataCallback) // Bug 4596
 
 BOOST_AUTO_TEST_CASE(DestroyWithPendingInterest)
 {
-  auto face2 = make_unique<DummyClientFace>(io, m_keyChain);
+  auto face2 = make_unique<DummyClientFace>(m_io, m_keyChain);
   face2->expressInterest(*makeInterest("/Hello/World", false, 50_ms),
                          nullptr, nullptr, nullptr);
   advanceClocks(50_ms, 2);
@@ -304,7 +303,7 @@ BOOST_AUTO_TEST_CASE(Handle)
   advanceClocks(200_ms, 5);
 
   // cancel after destructing face
-  auto face2 = make_unique<DummyClientFace>(io, m_keyChain);
+  auto face2 = make_unique<DummyClientFace>(m_io, m_keyChain);
   auto hdl2 = face2->expressInterest(*makeInterest("/Hello/World", true, 50_ms),
                                      bind([] { BOOST_FAIL("Unexpected data"); }),
                                      bind([] { BOOST_FAIL("Unexpected nack"); }),
@@ -555,7 +554,7 @@ BOOST_AUTO_TEST_CASE(Handle)
   BOOST_CHECK(!doUnreg());
 
   // cancel after destructing face
-  auto face2 = make_unique<DummyClientFace>(io, m_keyChain);
+  auto face2 = make_unique<DummyClientFace>(m_io, m_keyChain);
   hdl = face2->registerPrefix("/Hello/World/2", nullptr,
                               bind([] { BOOST_FAIL("Unexpected registerPrefix failure"); }));
   advanceClocks(1_ms);
@@ -565,7 +564,7 @@ BOOST_AUTO_TEST_CASE(Handle)
   advanceClocks(1_ms);
 
   // unregister after destructing face
-  auto face3 = make_unique<DummyClientFace>(io, m_keyChain);
+  auto face3 = make_unique<DummyClientFace>(m_io, m_keyChain);
   hdl = face3->registerPrefix("/Hello/World/3", nullptr,
                               bind([] { BOOST_FAIL("Unexpected registerPrefix failure"); }));
   advanceClocks(1_ms);
@@ -811,7 +810,7 @@ BOOST_AUTO_TEST_CASE(Handle)
   BOOST_CHECK_EQUAL(hit, 1);
 
   // cancel after destructing face
-  auto face2 = make_unique<DummyClientFace>(io, m_keyChain);
+  auto face2 = make_unique<DummyClientFace>(m_io, m_keyChain);
   InterestFilterHandle hdl2 = face2->setInterestFilter("/Hello/World/2", nullptr);
   advanceClocks(1_ms);
   face2.reset();
@@ -841,10 +840,10 @@ BOOST_AUTO_TEST_CASE(ProcessEvents)
 
 BOOST_AUTO_TEST_CASE(DestroyWithoutProcessEvents) // Bug 3248
 {
-  auto face2 = make_unique<Face>(io);
+  auto face2 = make_unique<Face>(m_io);
   face2.reset();
 
-  io.poll(); // should not crash
+  m_io.poll(); // should not crash
 
   // avoid "test case [...] did not check any assertions" message from Boost.Test
   BOOST_CHECK(true);
@@ -859,21 +858,21 @@ struct PibDirWithDefaultTpm
   const std::string PATH = "build/keys-with-default-tpm";
 };
 
-BOOST_FIXTURE_TEST_CASE(FaceTransport, IdentityManagementTimeFixture)
+BOOST_FIXTURE_TEST_CASE(FaceTransport, IoKeyChainFixture)
 {
   BOOST_CHECK(Face().getTransport() != nullptr);
 
   BOOST_CHECK(Face(shared_ptr<Transport>()).getTransport() != nullptr);
-  BOOST_CHECK(Face(shared_ptr<Transport>(), io).getTransport() != nullptr);
-  BOOST_CHECK(Face(shared_ptr<Transport>(), io, m_keyChain).getTransport() != nullptr);
+  BOOST_CHECK(Face(shared_ptr<Transport>(), m_io).getTransport() != nullptr);
+  BOOST_CHECK(Face(shared_ptr<Transport>(), m_io, m_keyChain).getTransport() != nullptr);
 
   auto transport = make_shared<TcpTransport>("localhost", "6363"); // no real io operations will be scheduled
   BOOST_CHECK(Face(transport).getTransport() == transport);
-  BOOST_CHECK(Face(transport, io).getTransport() == transport);
-  BOOST_CHECK(Face(transport, io, m_keyChain).getTransport() == transport);
+  BOOST_CHECK(Face(transport, m_io).getTransport() == transport);
+  BOOST_CHECK(Face(transport, m_io, m_keyChain).getTransport() == transport);
 }
 
-class WithEnv : private IdentityManagementTimeFixture
+class WithEnv
 {
 public:
   WithEnv()
@@ -887,13 +886,13 @@ public:
   void
   configure(const std::string& faceUri)
   {
-    setenv("NDN_CLIENT_TRANSPORT", faceUri.c_str(), true);
+    setenv("NDN_CLIENT_TRANSPORT", faceUri.data(), true);
   }
 
   ~WithEnv()
   {
     if (!m_oldTransport.empty()) {
-      setenv("NDN_CLIENT_TRANSPORT", m_oldTransport.c_str(), true);
+      setenv("NDN_CLIENT_TRANSPORT", m_oldTransport.data(), true);
     }
     else {
       unsetenv("NDN_CLIENT_TRANSPORT");

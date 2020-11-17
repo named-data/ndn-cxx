@@ -20,13 +20,12 @@
  */
 
 #include "ndn-cxx/security/validation-policy-command-interest.hpp"
+
 #include "ndn-cxx/security/command-interest-signer.hpp"
-#include "ndn-cxx/security/signing-helpers.hpp"
 #include "ndn-cxx/security/validation-policy-accept-all.hpp"
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -239,7 +238,7 @@ BOOST_FIXTURE_TEST_CASE(TimestampOutOfGraceNegative, ValidationPolicyCommandInte
   advanceClocks(1_s);
   auto i3 = makeCommandInterest(identity); // signed at +2s
 
-  systemClock->advance(-18_s); // verifying at -16s
+  m_systemClock->advance(-18_s); // verifying at -16s
   VALIDATE_FAILURE(i1, "Should fail (timestamp outside the grace period)");
   rewindClockAfterValidation();
 
@@ -277,11 +276,11 @@ BOOST_AUTO_TEST_CASE(TimestampReorderNegative)
   advanceClocks(300_ms);
   auto i4 = makeCommandInterest(identity); // signed at +1400ms
 
-  systemClock->advance(-300_ms); // verifying at +1100ms
+  m_systemClock->advance(-300_ms); // verifying at +1100ms
   VALIDATE_SUCCESS(i1, "Should succeed");
   rewindClockAfterValidation();
 
-  systemClock->advance(-1100_ms); // verifying at 0ms
+  m_systemClock->advance(-1100_ms); // verifying at 0ms
   VALIDATE_FAILURE(i2, "Should fail (timestamp reordered)");
   rewindClockAfterValidation();
 
@@ -400,7 +399,7 @@ public:
 BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicyCommandInterestFixture<UnlimitedRecordsOptions>)
 {
   std::vector<Identity> identities;
-  for (int i = 0; i < 20; ++i) {
+  for (size_t i = 0; i < 20; ++i) {
     Identity id = this->addSubCertificate("/Security/ValidatorFixture/Sub" + to_string(i), identity);
     this->cache.insert(id.getDefaultKey().getDefaultCertificate());
     identities.push_back(id);
@@ -408,7 +407,7 @@ BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicyCommandInterestFixture
 
   auto i1 = makeCommandInterest(identities.at(0)); // signed at 0s
   advanceClocks(1_s);
-  for (int i = 0; i < 20; ++i) {
+  for (size_t i = 0; i < 20; ++i) {
     auto i2 = makeCommandInterest(identities.at(i)); // signed at +1s
 
     VALIDATE_SUCCESS(i2, "Should succeed");
@@ -462,7 +461,7 @@ BOOST_FIXTURE_TEST_CASE(LimitedRecordLifetime, ValidationPolicyCommandInterestFi
   advanceClocks(120_s);
   auto i3 = makeCommandInterest(identity); // signed at +360s
 
-  systemClock->advance(-360_s); // rewind system clock to 0s
+  m_systemClock->advance(-360_s); // rewind system clock to 0s
   VALIDATE_SUCCESS(i1, "Should succeed");
   rewindClockAfterValidation();
 

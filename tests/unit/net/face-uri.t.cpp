@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California,
+ * Copyright (c) 2013-2020 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -26,9 +26,10 @@
  */
 
 #include "ndn-cxx/net/face-uri.hpp"
+#include "ndn-cxx/net/network-interface.hpp"
+#include "ndn-cxx/net/network-monitor.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/net/collect-netifs.hpp"
 #include "tests/unit/net/network-configuration-detector.hpp"
 
 namespace ndn {
@@ -37,9 +38,30 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestFaceUri)
 
-class CanonizeFixture : noncopyable
+class CanonizeFixture
 {
 protected:
+  CanonizeFixture()
+  {
+    static const auto netifs = [this] {
+      net::NetworkMonitor netmon(m_io);
+      if (netmon.getCapabilities() & net::NetworkMonitor::CAP_ENUM) {
+        netmon.onEnumerationCompleted.connect([this] { m_io.stop(); });
+        m_io.run();
+#if BOOST_VERSION >= 106600
+        m_io.restart();
+#else
+        m_io.reset();
+#endif
+      }
+      return netmon.listNetworkInterfaces();
+    }();
+
+    if (!netifs.empty()) {
+      m_netif = netifs.front();
+    }
+  }
+
   void
   addTest(const std::string& request, bool shouldSucceed, const std::string& expectedUri)
   {
@@ -100,6 +122,9 @@ private:
 
     BOOST_CHECK_MESSAGE(!tc->m_shouldSucceed, tc->m_message);
   }
+
+protected:
+  shared_ptr<const net::NetworkInterface> m_netif;
 
 private:
   boost::asio::io_service m_io;
@@ -205,11 +230,9 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("udp4://[2001:db8::1]:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("udp6://192.0.2.1:6363").isCanonical(), false);
 
-  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
-  if (!networkInterfaces.empty()) {
-    const auto& netif = networkInterfaces.front();
-    auto name = netif->getName();
-    auto index = to_string(netif->getIndex());
+  if (m_netif) {
+    auto name = m_netif->getName();
+    auto index = to_string(m_netif->getIndex());
 
     BOOST_CHECK_EQUAL(FaceUri("udp6://[fe80::1%" + name + "]:6363").isCanonical(), true);
     BOOST_CHECK_EQUAL(FaceUri("udp6://[fe80::1%" + index + "]:6363").isCanonical(), false);
@@ -270,11 +293,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
   // IPv4 used with udp6 protocol - not canonical
   addTest("udp6://192.0.2.1:6363", false, "");
 
-  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
-  if (!networkInterfaces.empty()) {
-    const auto& netif = networkInterfaces.front();
-    auto name = netif->getName();
-    auto index = to_string(netif->getIndex());
+  if (m_netif) {
+    auto name = m_netif->getName();
+    auto index = to_string(m_netif->getIndex());
 
     addTest("udp6://[fe80::1068:dddb:fe26:fe3f%25" + name + "]:6363", true,
             "udp6://[fe80::1068:dddb:fe26:fe3f%" + name + "]:6363");
@@ -342,11 +363,9 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
   BOOST_CHECK_EQUAL(FaceUri("tcp4://[2001:db8::1]:6363").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("tcp6://192.0.2.1:6363").isCanonical(), false);
 
-  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
-  if (!networkInterfaces.empty()) {
-    const auto& netif = networkInterfaces.front();
-    auto name = netif->getName();
-    auto index = to_string(netif->getIndex());
+  if (m_netif) {
+    auto name = m_netif->getName();
+    auto index = to_string(m_netif->getIndex());
 
     BOOST_CHECK_EQUAL(FaceUri("tcp6://[fe80::1%" + name + "]:6363").isCanonical(), true);
     BOOST_CHECK_EQUAL(FaceUri("tcp6://[fe80::1%" + index + "]:6363").isCanonical(), false);
@@ -380,11 +399,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
   // IPv6 used with tcp4 protocol - not canonical
   addTest("tcp4://[2001:db8::1]:6363", false, "");
 
-  const auto& networkInterfaces = ndn::net::tests::collectNetworkInterfaces();
-  if (!networkInterfaces.empty()) {
-    const auto& netif = networkInterfaces.front();
-    auto name = netif->getName();
-    auto index = to_string(netif->getIndex());
+  if (m_netif) {
+    auto name = m_netif->getName();
+    auto index = to_string(m_netif->getIndex());
 
     addTest("tcp6://[fe80::1068:dddb:fe26:fe3f%25" + name + "]:6363", true,
             "tcp6://[fe80::1068:dddb:fe26:fe3f%" + name + "]:6363");

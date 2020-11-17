@@ -30,8 +30,6 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestSigningHelpers)
 
-// update of this test case deferred until the new IdentityManagementFixture is available
-
 BOOST_AUTO_TEST_CASE(Identity)
 {
   Name identity("/identity");

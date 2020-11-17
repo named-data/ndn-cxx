@@ -22,7 +22,6 @@
 #include "ndn-cxx/security/validator-config/filter.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
 #include "tests/unit/security/validator-config/common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
@@ -38,33 +37,35 @@ using namespace ndn::security::v2::tests;
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(ValidatorConfig)
 
-BOOST_FIXTURE_TEST_SUITE(TestFilter, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestFilter, KeyChainFixture)
 
 #define CHECK_FOR_MATCHES(filter, same, longer, shorter, different) \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo/bar", m_keyChain), \
-                                 InterestV02Pkt::makeState()), same);    \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo/bar", m_keyChain), \
-                                 InterestV03Pkt::makeState()), same);    \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo/bar", m_keyChain), \
-                                 DataPkt::makeState()), same);           \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo/bar/bar", m_keyChain), \
-                                 InterestV02Pkt::makeState()), longer);  \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo/bar/bar", m_keyChain), \
-                                 InterestV03Pkt::makeState()), longer);  \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo/bar/bar", m_keyChain), \
-                                 DataPkt::makeState()), longer);         \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo", m_keyChain), \
-                                 InterestV02Pkt::makeState()), shorter); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo", m_keyChain), \
-                                 InterestV03Pkt::makeState()), shorter); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo", m_keyChain), \
-                                 DataPkt::makeState()), shorter);        \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/other/prefix", m_keyChain), \
-                                 InterestV02Pkt::makeState()), different); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/other/prefix", m_keyChain), \
-                                 InterestV03Pkt::makeState()), different); \
-  BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/other/prefix", m_keyChain), \
-                                 DataPkt::makeState()), different);
+  do { \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo/bar", m_keyChain), \
+                                   InterestV02Pkt::makeState()), same);    \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo/bar", m_keyChain), \
+                                   InterestV03Pkt::makeState()), same);    \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo/bar", m_keyChain), \
+                                   DataPkt::makeState()), same);           \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo/bar/bar", m_keyChain), \
+                                   InterestV02Pkt::makeState()), longer);  \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo/bar/bar", m_keyChain), \
+                                   InterestV03Pkt::makeState()), longer);  \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo/bar/bar", m_keyChain), \
+                                   DataPkt::makeState()), longer);         \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/foo", m_keyChain), \
+                                   InterestV02Pkt::makeState()), shorter); \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/foo", m_keyChain), \
+                                   InterestV03Pkt::makeState()), shorter); \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/foo", m_keyChain), \
+                                   DataPkt::makeState()), shorter);        \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV02Pkt::makeName("/other/prefix", m_keyChain), \
+                                   InterestV02Pkt::makeState()), different); \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Interest, InterestV03Pkt::makeName("/other/prefix", m_keyChain), \
+                                   InterestV03Pkt::makeState()), different); \
+    BOOST_CHECK_EQUAL(filter.match(tlv::Data, DataPkt::makeName("/other/prefix", m_keyChain), \
+                                   DataPkt::makeState()), different); \
+  } while (false)
 
 BOOST_AUTO_TEST_CASE(RelationName)
 {
@@ -90,7 +91,7 @@ BOOST_AUTO_TEST_CASE(RegexName)
   CHECK_FOR_MATCHES(f3, false, true, false, false);
 }
 
-BOOST_FIXTURE_TEST_SUITE(Create, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(Create, KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(Errors)
 {

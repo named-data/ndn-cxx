@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #include "ndn-cxx/util/io.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/mpl/vector.hpp>
@@ -100,7 +100,7 @@ class FileIoFixture
 {
 protected:
   FileIoFixture()
-    : filepath(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "TestIo")
+    : filepath(boost::filesystem::path(UNIT_TESTS_TMPDIR) / "TestIo")
     , filename(filepath.string())
   {
     boost::filesystem::create_directories(filepath.parent_path());
@@ -327,23 +327,23 @@ BOOST_AUTO_TEST_CASE(SaveFileNotWritable)
 BOOST_AUTO_TEST_SUITE_END() // FileIo
 
 class IdCertFixture : public FileIoFixture
-                    , public IdentityManagementFixture
+                    , public KeyChainFixture
 {
 };
 
 BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
 {
-  auto identity = addIdentity("/TestIo/IdCert", RsaKeyParams());
+  auto identity = m_keyChain.createIdentity("/TestIo/IdCert", RsaKeyParams());
   const auto& cert = identity.getDefaultKey().getDefaultCertificate();
   io::save(cert, filename);
 
-  auto readCert = io::load<security::v2::Certificate>(filename);
+  auto readCert = io::load<security::Certificate>(filename);
 
   BOOST_REQUIRE(readCert != nullptr);
   BOOST_CHECK_EQUAL(cert.getName(), readCert->getName());
 
   this->writeFile<std::string>("");
-  readCert = io::load<security::v2::Certificate>(filename);
+  readCert = io::load<security::Certificate>(filename);
   BOOST_REQUIRE(readCert == nullptr);
 }
 

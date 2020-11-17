@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
-#define NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
+#ifndef NDN_CXX_TESTS_UNIT_SECURITY_VALIDATOR_CONFIG_COMMON_HPP
+#define NDN_CXX_TESTS_UNIT_SECURITY_VALIDATOR_CONFIG_COMMON_HPP
 
 #include "ndn-cxx/security/validator-config/common.hpp"
 
@@ -47,4 +47,4 @@ makeSection(const std::string& config)
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_TESTS_SECURITY_V2_VALIDATOR_CONFIG_COMMON_HPP
+#endif // NDN_CXX_TESTS_UNIT_SECURITY_VALIDATOR_CONFIG_COMMON_HPP

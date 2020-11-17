@@ -40,7 +40,7 @@ class ValidationPolicyAcceptAllFixture : public ValidatorFixture<ValidationPolic
 public:
   ValidationPolicyAcceptAllFixture()
   {
-    identity = addIdentity("/Security/TestValidationPolicyAcceptAll");
+    identity = m_keyChain.createIdentity("/Security/TestValidationPolicyAcceptAll");
     // don't add trust anchors
   }
 

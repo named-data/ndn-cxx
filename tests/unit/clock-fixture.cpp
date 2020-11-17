@@ -19,46 +19,37 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "tests/make-interest-data.hpp"
+#include "tests/unit/clock-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
-shared_ptr<Interest>
-makeInterest(const Name& name, bool canBePrefix, optional<time::milliseconds> lifetime,
-             optional<Interest::Nonce> nonce)
+ClockFixture::ClockFixture()
+  : m_steadyClock(make_shared<time::UnitTestSteadyClock>())
+  , m_systemClock(make_shared<time::UnitTestSystemClock>())
 {
-  auto interest = std::make_shared<Interest>(name);
-  interest->setCanBePrefix(canBePrefix);
-  if (lifetime) {
-    interest->setInterestLifetime(*lifetime);
+  time::setCustomClocks(m_steadyClock, m_systemClock);
+}
+
+ClockFixture::~ClockFixture()
+{
+  time::setCustomClocks(nullptr, nullptr);
+}
+
+void
+ClockFixture::advanceClocks(time::nanoseconds tick, time::nanoseconds total)
+{
+  BOOST_ASSERT(tick > time::nanoseconds::zero());
+  BOOST_ASSERT(total >= time::nanoseconds::zero());
+
+  while (total > time::nanoseconds::zero()) {
+    auto t = std::min(tick, total);
+    m_steadyClock->advance(t);
+    m_systemClock->advance(t);
+    total -= t;
+
+    afterTick();
   }
-  interest->setNonce(nonce);
-  return interest;
-}
-
-shared_ptr<Data>
-makeData(const Name& name)
-{
-  auto data = std::make_shared<Data>(name);
-  return signData(data);
-}
-
-Data&
-signData(Data& data)
-{
-  data.setSignatureInfo(SignatureInfo(tlv::NullSignature));
-  data.setSignatureValue(std::make_shared<Buffer>());
-  data.wireEncode();
-  return data;
-}
-
-lp::Nack
-makeNack(Interest interest, lp::NackReason reason)
-{
-  lp::Nack nack(std::move(interest));
-  nack.setReason(reason);
-  return nack;
 }
 
 } // namespace tests

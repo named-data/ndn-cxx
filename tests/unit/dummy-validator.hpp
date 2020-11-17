@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP
-#define NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP
+#ifndef NDN_CXX_TESTS_UNIT_DUMMY_VALIDATOR_HPP
+#define NDN_CXX_TESTS_UNIT_DUMMY_VALIDATOR_HPP
 
 #include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/security/validation-policy.hpp"
@@ -31,7 +31,7 @@ namespace tests {
 
 /** \brief A validation policy for unit testing
  */
-class DummyValidationPolicy : public security::v2::ValidationPolicy
+class DummyValidationPolicy : public security::ValidationPolicy
 {
 public:
   /** \brief constructor
@@ -57,58 +57,58 @@ public:
    *            its return value determines the validation result
    */
   void
-  setResultCallback(const function<bool(const Name&)>& cb)
+  setResultCallback(std::function<bool(const Name&)> cb)
   {
-    m_decide = cb;
+    m_decide = std::move(cb);
   }
 
 protected:
   void
-  checkPolicy(const Data& data, const shared_ptr<security::v2::ValidationState>& state,
+  checkPolicy(const Data& data, const shared_ptr<security::ValidationState>& state,
               const ValidationContinuation& continueValidation) override
   {
     if (m_decide(data.getName())) {
       continueValidation(nullptr, state);
     }
     else {
-      state->fail(security::v2::ValidationError::NO_ERROR);
+      state->fail(security::ValidationError::NO_ERROR);
     }
   }
 
   void
-  checkPolicy(const Interest& interest, const shared_ptr<security::v2::ValidationState>& state,
+  checkPolicy(const Interest& interest, const shared_ptr<security::ValidationState>& state,
               const ValidationContinuation& continueValidation) override
   {
     if (m_decide(interest.getName())) {
       continueValidation(nullptr, state);
     }
     else {
-      state->fail(security::v2::ValidationError::NO_ERROR);
+      state->fail(security::ValidationError::NO_ERROR);
     }
   }
 
 private:
-  function<bool(const Name&)> m_decide;
+  std::function<bool(const Name&)> m_decide;
 };
 
-class DummyValidator : public security::v2::Validator
+class DummyValidator : public security::Validator
 {
 public:
   explicit
   DummyValidator(bool shouldAccept = true)
-    : security::v2::Validator(make_unique<DummyValidationPolicy>(shouldAccept),
-                              make_unique<security::v2::CertificateFetcherOffline>())
+    : security::Validator(make_unique<DummyValidationPolicy>(shouldAccept),
+                          make_unique<security::CertificateFetcherOffline>())
   {
   }
 
   DummyValidationPolicy&
   getPolicy()
   {
-    return static_cast<DummyValidationPolicy&>(security::v2::Validator::getPolicy());
+    return static_cast<DummyValidationPolicy&>(security::Validator::getPolicy());
   }
 };
 
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_DUMMY_VALIDATOR_HPP
+#endif // NDN_CXX_TESTS_UNIT_DUMMY_VALIDATOR_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,9 +21,8 @@
 
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/test-common.hpp"
+#include "tests/unit/io-key-chain-fixture.hpp"
 
 namespace ndn {
 namespace util {
@@ -32,7 +31,7 @@ namespace tests {
 using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Util)
-BOOST_FIXTURE_TEST_SUITE(TestDummyClientFace, ndn::tests::IdentityManagementTimeFixture)
+BOOST_FIXTURE_TEST_SUITE(TestDummyClientFace, IoKeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(ProcessEventsOverride)
 {
@@ -42,15 +41,15 @@ BOOST_AUTO_TEST_CASE(ProcessEventsOverride)
     BOOST_CHECK_EQUAL(timeout, 200_ms);
   };
 
-  DummyClientFace face(io, {false, false, override});
+  DummyClientFace face(m_io, {false, false, override});
   face.processEvents(200_ms);
   BOOST_CHECK(isOverrideInvoked);
 }
 
 BOOST_AUTO_TEST_CASE(BroadcastLink)
 {
-  DummyClientFace face1(io, m_keyChain, DummyClientFace::Options{true, true});
-  DummyClientFace face2(io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face1(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face2(m_io, m_keyChain, DummyClientFace::Options{true, true});
   face1.linkTo(face2);
 
   int nFace1Interest = 0;
@@ -97,14 +96,14 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
 
 BOOST_AUTO_TEST_CASE(BroadcastLinkDestroy)
 {
-  DummyClientFace face1(io, m_keyChain, DummyClientFace::Options{true, true});
-  DummyClientFace face2(io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face1(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face2(m_io, m_keyChain, DummyClientFace::Options{true, true});
 
   face1.linkTo(face2);
   face2.unlink();
   BOOST_CHECK(face1.m_bcastLink == nullptr);
 
-  DummyClientFace face3(io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face3(m_io, m_keyChain, DummyClientFace::Options{true, true});
   face1.linkTo(face2);
   face3.linkTo(face1);
   face2.unlink();
@@ -113,10 +112,10 @@ BOOST_AUTO_TEST_CASE(BroadcastLinkDestroy)
 
 BOOST_AUTO_TEST_CASE(AlreadyLinkException)
 {
-  DummyClientFace face1(io, m_keyChain, DummyClientFace::Options{true, true});
-  DummyClientFace face2(io, m_keyChain, DummyClientFace::Options{true, true});
-  DummyClientFace face3(io, m_keyChain, DummyClientFace::Options{true, true});
-  DummyClientFace face4(io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face1(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face2(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face3(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face4(m_io, m_keyChain, DummyClientFace::Options{true, true});
 
   face1.linkTo(face2);
   face3.linkTo(face4);

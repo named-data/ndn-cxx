@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,7 @@
 #include "ndn-cxx/util/logger.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/unit-test-time-fixture.hpp"
+#include "tests/unit/clock-fixture.hpp"
 
 #if BOOST_VERSION >= 105900
 #include <boost/test/tools/output_test_stream.hpp>
@@ -169,14 +169,14 @@ NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, std::string>), ndn
 const time::microseconds LOG_SYSTIME(1468108800311239LL);
 const std::string LOG_SYSTIME_STR("1468108800.311239");
 
-class LoggingFixture : public ndn::tests::UnitTestTimeFixture
+class LoggingFixture : public ndn::tests::ClockFixture
 {
 protected:
   LoggingFixture()
     : m_oldEnabledLevel(Logging::get().getLevels())
     , m_oldDestination(Logging::get().getDestination())
   {
-    this->systemClock->setNow(LOG_SYSTIME);
+    m_systemClock->setNow(LOG_SYSTIME);
     Logging::get().resetLevels();
     Logging::setDestination(os);
   }

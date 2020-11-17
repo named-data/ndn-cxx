@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(ValidatorConfig)
 
 template<class Packet>
-class RuleFixture : public IdentityManagementFixture
+class RuleFixture : public KeyChainFixture
 {
 public:
   RuleFixture()

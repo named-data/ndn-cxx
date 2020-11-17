@@ -22,12 +22,12 @@
 #include "ndn-cxx/metadata-object.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
-class MetadataObjectFixture : public IdentityManagementFixture
+class MetadataObjectFixture : public KeyChainFixture
 {
 public:
   MetadataObjectFixture()

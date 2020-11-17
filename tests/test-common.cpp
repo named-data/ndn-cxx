@@ -1,12 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California,
- *                         Arizona Board of Regents,
- *                         Colorado State University,
- *                         University Pierre & Marie Curie, Sorbonne University,
- *                         Washington University in St. Louis,
- *                         Beijing Institute of Technology,
- *                         The University of Memphis.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,26 +19,47 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_NET_COLLECT_NETIFS_HPP
-#define NDN_TESTS_UNIT_NET_COLLECT_NETIFS_HPP
-
-#include "ndn-cxx/net/network-interface.hpp"
-
-#include <vector>
+#include "tests/test-common.hpp"
 
 namespace ndn {
-namespace net {
 namespace tests {
 
-/** \brief Collect information about network interfaces
- *  \param allowCached if true, previously collected information can be returned
- *  \note This function is blocking if \p allowCached is false or no previous information exists
- */
-std::vector<shared_ptr<const NetworkInterface>>
-collectNetworkInterfaces(bool allowCached = true);
+shared_ptr<Interest>
+makeInterest(const Name& name, bool canBePrefix, optional<time::milliseconds> lifetime,
+             optional<Interest::Nonce> nonce)
+{
+  auto interest = std::make_shared<Interest>(name);
+  interest->setCanBePrefix(canBePrefix);
+  if (lifetime) {
+    interest->setInterestLifetime(*lifetime);
+  }
+  interest->setNonce(nonce);
+  return interest;
+}
+
+shared_ptr<Data>
+makeData(const Name& name)
+{
+  auto data = std::make_shared<Data>(name);
+  return signData(data);
+}
+
+Data&
+signData(Data& data)
+{
+  data.setSignatureInfo(SignatureInfo(tlv::NullSignature));
+  data.setSignatureValue(std::make_shared<Buffer>());
+  data.wireEncode();
+  return data;
+}
+
+lp::Nack
+makeNack(Interest interest, lp::NackReason reason)
+{
+  lp::Nack nack(std::move(interest));
+  nack.setReason(reason);
+  return nack;
+}
 
 } // namespace tests
-} // namespace net
 } // namespace ndn
-
-#endif // NDN_TESTS_UNIT_NET_COLLECT_NETIFS_HPP

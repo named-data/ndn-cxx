@@ -22,8 +22,7 @@
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/data.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/test-common.hpp"
 
 namespace ndn {
 namespace tests {

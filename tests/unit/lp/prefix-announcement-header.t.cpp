@@ -23,14 +23,14 @@
 #include "ndn-cxx/lp/tlv.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 namespace ndn {
 namespace lp {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Lp)
-BOOST_FIXTURE_TEST_SUITE(TestPrefixAnnouncementHeader, ndn::tests::IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestPrefixAnnouncementHeader, ndn::tests::KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(EncodeDecode)
 {

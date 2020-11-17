@@ -27,8 +27,8 @@
 #include "ndn-cxx/transport/unix-transport.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 
-#include "tests/identity-management-fixture.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/test-common.hpp"
 
 #include <stdio.h>
 #include <condition_variable>
@@ -64,7 +64,7 @@ executeCommand(const std::string& cmd)
 }
 
 template<typename TransportType>
-class FaceFixture : public IdentityManagementFixture
+class FaceFixture : public KeyChainFixture
 {
 protected:
   FaceFixture()

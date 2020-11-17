@@ -20,12 +20,11 @@
  */
 
 #include "ndn-cxx/security/key-chain.hpp"
-#include "ndn-cxx/security/signing-helpers.hpp"
-#include "ndn-cxx/security/verification-helpers.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 #include "tests/unit/test-home-env-saver.hpp"
 
 namespace ndn {
@@ -209,7 +208,7 @@ BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-memory:");
 }
 
-BOOST_FIXTURE_TEST_CASE(SigningWithCorruptedPibTpm, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(SigningWithCorruptedPibTpm, KeyChainFixture)
 {
   Identity id = m_keyChain.createIdentity("/test");
 
@@ -223,7 +222,7 @@ BOOST_FIXTURE_TEST_CASE(SigningWithCorruptedPibTpm, IdentityManagementFixture)
   BOOST_CHECK_THROW(m_keyChain.sign(data, signingByIdentity(id)), KeyChain::InvalidSigningInfoError);
 }
 
-BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(Management, KeyChainFixture)
 {
   Name identityName("/test/id");
   Name identity2Name("/test/id2");
@@ -320,9 +319,9 @@ BOOST_FIXTURE_TEST_CASE(Management, IdentityManagementFixture)
   BOOST_CHECK(m_keyChain.getPib().getIdentities().find(identityName) == m_keyChain.getPib().getIdentities().end());
 }
 
-BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, KeyChainFixture)
 {
-  Identity id = addIdentity("/id");
+  Identity id = m_keyChain.createIdentity("/id");
   Key key = id.getDefaultKey();
   Certificate cert = key.getDefaultCertificate();
 
@@ -458,7 +457,7 @@ BOOST_FIXTURE_TEST_CASE(GeneralSigningInterface, IdentityManagementFixture)
   }
 }
 
-BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, KeyChainFixture)
 {
   Data data("/test/data");
 
@@ -466,7 +465,7 @@ BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, IdentityManagementFixture)
   BOOST_CHECK_THROW(m_keyChain.sign(data, signingByIdentity("/non-existing/identity")), KeyChain::InvalidSigningInfoError);
 
   // Create identity with EC key and the corresponding self-signed certificate
-  Identity id = addIdentity("/ndn/test/ec", EcKeyParams());
+  Identity id = m_keyChain.createIdentity("/ndn/test/ec", EcKeyParams());
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(id.getName())));
   BOOST_CHECK_EQUAL(data.getSignatureType(),
                     KeyChain::getSignatureType(EcKeyParams().getKeyType(), DigestAlgorithm::SHA256));
@@ -474,7 +473,7 @@ BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, IdentityManagementFixture)
   BOOST_CHECK(id.getName().isPrefixOf(data.getKeyLocator()->getName()));
 
   // Create identity with RSA key and the corresponding self-signed certificate
-  id = addIdentity("/ndn/test/rsa", RsaKeyParams());
+  id = m_keyChain.createIdentity("/ndn/test/rsa", RsaKeyParams());
   BOOST_CHECK_NO_THROW(m_keyChain.sign(data, signingByIdentity(id.getName())));
   BOOST_CHECK_EQUAL(data.getSignatureType(),
                     KeyChain::getSignatureType(RsaKeyParams().getKeyType(), DigestAlgorithm::SHA256));
@@ -482,7 +481,7 @@ BOOST_FIXTURE_TEST_CASE(PublicKeySigningDefaults, IdentityManagementFixture)
   BOOST_CHECK(id.getName().isPrefixOf(data.getKeyLocator()->getName()));
 }
 
-BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, KeyChainFixture)
 {
   Name keyName("/test/device2");
   std::string rawKey("nPSNOHyZKsg2WLqHAs7MXGb0sjQb4zCT");
@@ -494,9 +493,9 @@ BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, IdentityManagementFixture)
   BOOST_CHECK_THROW(m_keyChain.importPrivateKey(keyName, key), KeyChain::Error);
 }
 
-BOOST_FIXTURE_TEST_CASE(ExportImport, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(ExportImport, KeyChainFixture)
 {
-  Identity id = addIdentity("/TestKeyChain/ExportIdentity");
+  Identity id = m_keyChain.createIdentity("/TestKeyChain/ExportIdentity");
   Certificate cert = id.getDefaultKey().getDefaultCertificate();
 
   shared_ptr<SafeBag> exported = m_keyChain.exportSafeBag(cert, "1234", 4);
@@ -526,9 +525,9 @@ BOOST_FIXTURE_TEST_CASE(ExportImport, IdentityManagementFixture)
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), false);
 }
 
-BOOST_FIXTURE_TEST_CASE(SelfSignedCertValidity, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(SelfSignedCertValidity, KeyChainFixture)
 {
-  Certificate cert = addIdentity("/Security/TestKeyChain/SelfSignedCertValidity")
+  Certificate cert = m_keyChain.createIdentity("/Security/TestKeyChain/SelfSignedCertValidity")
                        .getDefaultKey()
                        .getDefaultCertificate();
   BOOST_CHECK(cert.isValid());

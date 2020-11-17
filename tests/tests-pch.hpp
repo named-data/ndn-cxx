@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_TESTS_PCH_HPP
-#define NDN_TESTS_TESTS_PCH_HPP
+#ifndef NDN_CXX_TESTS_TESTS_PCH_HPP
+#define NDN_CXX_TESTS_TESTS_PCH_HPP
 
 #include "ndn-cxx/impl/common-pch.hpp"
 
@@ -34,4 +34,4 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 
-#endif // NDN_TESTS_TESTS_PCH_HPP
+#endif // NDN_CXX_TESTS_TESTS_PCH_HPP

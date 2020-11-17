@@ -23,9 +23,8 @@
 #include "ndn-cxx/security/transform/public-key.hpp"
 // #include "ndn-cxx/util/string-helper.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/test-common.hpp"
 
 #include <boost/mpl/vector.hpp>
 
@@ -39,12 +38,12 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 
 // // Use this test case to regenerate the dataset if the signature format changes
-// BOOST_FIXTURE_TEST_CASE(Generator, IdentityManagementFixture)
+// BOOST_FIXTURE_TEST_CASE(Generator, KeyChainFixture)
 // {
-//   Identity wrongIdentity = addIdentity("/Security/TestVerificationHelpers/Wrong");
+//   Identity wrongIdentity = m_keyChain.createIdentity("/Security/TestVerificationHelpers/Wrong");
 //   std::map<std::string, SigningInfo> identities = {
-//     {"Ecdsa", signingByIdentity(addIdentity("/Security/TestVerificationHelpers/EC", EcKeyParams()))},
-//     {"Rsa", signingByIdentity(addIdentity("/Security/TestVerificationHelpers/RSA", RsaKeyParams()))},
+//     {"Ecdsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/EC", EcKeyParams()))},
+//     {"Rsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/RSA", RsaKeyParams()))},
 //     {"Sha256", signingWithSha256()}
 //   };
 
@@ -601,7 +600,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   // - pib::Key version is tested as part of key-chain.t.cpp (Security/TestKeyChain)
 }
 
-BOOST_FIXTURE_TEST_CASE(VerifyHmac, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(VerifyHmac, KeyChainFixture)
 {
   const Tpm& tpm = m_keyChain.getTpm();
   Data data("/data");

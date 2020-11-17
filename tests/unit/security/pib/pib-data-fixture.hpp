@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP
-#define NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP
+#ifndef NDN_CXX_TESTS_UNIT_SECURITY_PIB_PIB_DATA_FIXTURE_HPP
+#define NDN_CXX_TESTS_UNIT_SECURITY_PIB_PIB_DATA_FIXTURE_HPP
 
 #include "ndn-cxx/security/certificate.hpp"
 
@@ -61,4 +61,4 @@ public:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_SECURITY_PIB_DATA_FIXTURE_HPP
+#endif // NDN_CXX_TESTS_UNIT_SECURITY_PIB_PIB_DATA_FIXTURE_HPP

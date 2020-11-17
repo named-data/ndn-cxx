@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #include "ndn-cxx/util/scheduler.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/unit-test-time-fixture.hpp"
+#include "tests/unit/io-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -30,16 +30,10 @@ namespace ndn {
 namespace scheduler {
 namespace tests {
 
-class SchedulerFixture : public ndn::tests::UnitTestTimeFixture
+class SchedulerFixture : public ndn::tests::IoFixture
 {
-public:
-  SchedulerFixture()
-    : scheduler(io)
-  {
-  }
-
-public:
-  Scheduler scheduler;
+protected:
+  Scheduler scheduler{m_io};
 };
 
 BOOST_AUTO_TEST_SUITE(Util)
@@ -201,9 +195,8 @@ BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
 
 BOOST_AUTO_TEST_CASE(CancelAllWithScopedEventId) // Bug 3691
 {
-  Scheduler sched(io);
-  ScopedEventId eid = sched.schedule(10_ms, []{});
-  sched.cancelAllEvents();
+  ScopedEventId eid = scheduler.schedule(10_ms, []{});
+  scheduler.cancelAllEvents();
   eid.cancel(); // should not crash
 
   // avoid "test case [...] did not check any assertions" message from Boost.Test

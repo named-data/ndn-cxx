@@ -21,11 +21,14 @@
 
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
-// #include "ndn-cxx/security/pib/pib-memory.hpp"
+// #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
+// #include "ndn-cxx/security/tpm/impl/back-end-mem.hpp"
 // #include "ndn-cxx/security/tpm/tpm.hpp"
-// #include "ndn-cxx/security/tpm/back-end-mem.hpp"
+// #include "ndn-cxx/util/string-helper.hpp"
 
-// #include <fstream>
+// #include "tests/boost-test.hpp"
+
+// #include <iostream>
 
 namespace ndn {
 namespace security {
@@ -50,7 +53,7 @@ namespace tests {
 //         certName
 //           .append("issuer")
 //           .appendVersion(certVersion);
-//         v2::Certificate cert;
+//         Certificate cert;
 //         cert.setName(certName);
 //         cert.setFreshnessPeriod(1_h);
 //         cert.setContent(tpm.getPublicKey(keyName));
@@ -58,14 +61,13 @@ namespace tests {
 //         // TODO: sign using KeyChain
 //         SignatureInfo info;
 //         info.setSignatureType(tlv::SignatureSha256WithEcdsa);
-//         info.setKeyLocator(KeyLocator(keyName));
+//         info.setKeyLocator(keyName);
 //         info.setValidityPeriod(ValidityPeriod(time::fromIsoString("20170102T000000"),
 //                                               time::fromIsoString("20180102T000000")));
 //         cert.setSignatureInfo(info);
 
 //         EncodingBuffer buf;
 //         cert.wireEncode(buf, true);
-
 //         cert.setSignatureValue(tpm.sign(buf.buf(), buf.size(), keyName, DigestAlgorithm::SHA256));
 
 //         printBytes(prefix + "_KEY" + to_string(keyId) + "_CERT" + to_string(certVersion),
@@ -83,7 +85,7 @@ namespace tests {
 //   static void
 //   printBytes(const std::string& name, const Buffer& buffer)
 //   {
-//     printBytes(name, buffer.buf(), buffer.size());
+//     printBytes(name, buffer.data(), buffer.size());
 //   }
 
 //   static void
@@ -108,7 +110,7 @@ namespace tests {
 //               << "};" << std::endl;
 //   }
 
-// public:
+// private:
 //   pib::PibMemory pib;
 //   Tpm tpm;
 // };

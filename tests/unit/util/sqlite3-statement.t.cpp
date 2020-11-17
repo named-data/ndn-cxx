@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,13 +31,13 @@ namespace ndn {
 namespace util {
 namespace tests {
 
-class Sqlite3StatementTestFixture
+class Sqlite3DbFixture
 {
 public:
-  Sqlite3StatementTestFixture()
-    : m_path(boost::filesystem::path(UNIT_TEST_CONFIG_PATH))
+  Sqlite3DbFixture()
   {
     boost::filesystem::create_directories(m_path);
+
     int result = sqlite3_open_v2((m_path / "sqlite3-statement.db").string().c_str(), &db,
                                  SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
 #ifdef NDN_CXX_DISABLE_SQLITE3_FS_LOCKING
@@ -52,21 +52,21 @@ public:
     }
   }
 
-  ~Sqlite3StatementTestFixture()
+  ~Sqlite3DbFixture()
   {
     sqlite3_close(db);
     boost::filesystem::remove_all(m_path);
   }
 
-private:
-  boost::filesystem::path m_path;
+protected:
+  sqlite3* db = nullptr;
 
-public:
-  sqlite3* db;
+private:
+  const boost::filesystem::path m_path{UNIT_TESTS_TMPDIR};
 };
 
 BOOST_AUTO_TEST_SUITE(Util)
-BOOST_FIXTURE_TEST_SUITE(TestSqlite3Statement, Sqlite3StatementTestFixture)
+BOOST_FIXTURE_TEST_SUITE(TestSqlite3Statement, Sqlite3DbFixture)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {

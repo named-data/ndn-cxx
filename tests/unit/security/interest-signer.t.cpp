@@ -20,10 +20,10 @@
  */
 
 #include "ndn-cxx/security/interest-signer.hpp"
-#include "ndn-cxx/security/signing-helpers.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/unit/clock-fixture.hpp"
 
 namespace ndn {
 namespace security {
@@ -31,12 +31,16 @@ namespace tests {
 
 using namespace ndn::tests;
 
+class InterestSignerFixture : public ClockFixture, public KeyChainFixture
+{
+};
+
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestInterestSigner, IdentityManagementTimeFixture)
+BOOST_FIXTURE_TEST_SUITE(TestInterestSigner, InterestSignerFixture)
 
 BOOST_AUTO_TEST_CASE(V02)
 {
-  addIdentity("/test");
+  m_keyChain.createIdentity("/test");
 
   InterestSigner signer(m_keyChain);
   Interest i1 = signer.makeCommandInterest("/hello/world");
@@ -67,7 +71,7 @@ BOOST_AUTO_TEST_CASE(V02)
 
 BOOST_AUTO_TEST_CASE(V03)
 {
-  addIdentity("/test");
+  m_keyChain.createIdentity("/test");
 
   InterestSigner signer(m_keyChain);
   Interest i1("/hello/world");

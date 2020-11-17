@@ -22,24 +22,24 @@
 #include "ndn-cxx/security/detail/certificate-bundle-decoder.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 namespace ndn {
 namespace security {
 namespace detail {
 namespace tests {
 
-class CertificateBundleDecoderFixture : public ndn::tests::IdentityManagementFixture
+class CertificateBundleDecoderFixture : public ndn::tests::KeyChainFixture
 {
 protected:
   CertificateBundleDecoderFixture()
   {
-    auto id1 = addIdentity("/hello/world1");
+    auto id1 = m_keyChain.createIdentity("/hello/world1");
     auto cert1 = id1.getDefaultKey().getDefaultCertificate();
     certBlock1 = cert1.wireEncode();
     m_certs.push_back(certBlock1);
 
-    auto id2 = addIdentity("/hello/world2");
+    auto id2 = m_keyChain.createIdentity("/hello/world2");
     auto cert2 = id2.getDefaultKey().getDefaultCertificate();
     certBlock2 = cert2.wireEncode();
     m_certs.push_back(certBlock2);
@@ -54,7 +54,7 @@ protected:
   CertificateBundleDecoder cbd;
   Block certBlock1;
   Block certBlock2;
-  int nCertsCompleted = 0;
+  size_t nCertsCompleted = 0;
 
 private:
   std::vector<Block> m_certs;

@@ -22,13 +22,12 @@
 #include "ndn-cxx/transport/unix-transport.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/transport/transport-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Transport)
-BOOST_FIXTURE_TEST_SUITE(TestUnixTransport, TransportFixture)
+BOOST_AUTO_TEST_SUITE(TestUnixTransport)
 
 using ndn::Transport;
 

@@ -19,15 +19,15 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_SECURITY_VALIDATOR_FIXTURE_HPP
-#define NDN_TESTS_UNIT_SECURITY_VALIDATOR_FIXTURE_HPP
+#ifndef NDN_CXX_TESTS_UNIT_SECURITY_VALIDATOR_FIXTURE_HPP
+#define NDN_CXX_TESTS_UNIT_SECURITY_VALIDATOR_FIXTURE_HPP
 
 #include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/security/certificate-fetcher-from-network.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/unit/io-key-chain-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -36,27 +36,54 @@ namespace security {
 inline namespace v2 {
 namespace tests {
 
-template<class ValidationPolicy, class CertificateFetcher = CertificateFetcherFromNetwork>
-class ValidatorFixture : public ndn::tests::IdentityManagementTimeFixture
+class ValidatorFixtureBase : public ndn::tests::IoKeyChainFixture
 {
-public:
-  ValidatorFixture()
-    : face(io, {true, true})
-    , validator(make_unique<ValidationPolicy>(), make_unique<CertificateFetcher>(face))
-    , policy(static_cast<ValidationPolicy&>(validator.getPolicy()))
-    , cache(100_days)
-    , lastError(ValidationError::Code::NO_ERROR)
+protected:
+  ValidatorFixtureBase();
+
+  void
+  mockNetworkOperations();
+
+  /** \brief undo clock advancement of mockNetworkOperations()
+   */
+  void
+  rewindClockAfterValidation()
   {
-    processInterest = [this] (const Interest& interest) {
-      auto cert = cache.find(interest);
-      if (cert != nullptr) {
-        face.receive(*cert);
-      }
-    };
+    m_systemClock->advance(s_mockPeriod * s_mockTimes * -1);
   }
 
-  virtual
-  ~ValidatorFixture() = default;
+  /**
+   * @brief Issues a certificate for @p subIdentityName signed by @p issuer
+   *
+   * If the identity does not exist, it is created.
+   * A new key is generated as the default key for the identity.
+   * A default certificate for the key is signed by the issuer using its default certificate.
+   *
+   * @return The sub-identity
+   */
+  Identity
+  addSubCertificate(const Name& subIdentityName, const Identity& issuer);
+
+protected:
+  util::DummyClientFace face{m_io, {true, true}};
+  std::function<void(const Interest&)> processInterest;
+  CertificateCache cache{100_days};
+  ValidationError lastError{ValidationError::Code::NO_ERROR};
+
+private:
+  const static time::milliseconds s_mockPeriod;
+  const static int s_mockTimes;
+};
+
+template<class ValidationPolicyT, class CertificateFetcherT = CertificateFetcherFromNetwork>
+class ValidatorFixture : public ValidatorFixtureBase
+{
+protected:
+  ValidatorFixture()
+    : validator(make_unique<ValidationPolicyT>(), make_unique<CertificateFetcherT>(face))
+    , policy(static_cast<ValidationPolicyT&>(validator.getPolicy()))
+  {
+  }
 
   template<class Packet>
   void
@@ -82,55 +109,21 @@ public:
     BOOST_CHECK_EQUAL(nCallbacks, 1);
   }
 
-  void
-  mockNetworkOperations()
-  {
-    util::signal::ScopedConnection connection = face.onSendInterest.connect([this] (const Interest& interest) {
-        if (processInterest != nullptr) {
-          io.post(bind(processInterest, interest));
-        }
-      });
-    advanceClocks(time::milliseconds(s_mockPeriod), s_mockTimes);
-  }
-
-  /** \brief undo clock advancement of mockNetworkOperations
-   */
-  void
-  rewindClockAfterValidation()
-  {
-    this->systemClock->advance(time::milliseconds(s_mockPeriod * s_mockTimes * -1));
-  }
-
-public:
-  util::DummyClientFace face;
-  std::function<void(const Interest& interest)> processInterest;
+protected:
   Validator validator;
-  ValidationPolicy& policy;
-
-  CertificateCache cache;
-  ValidationError lastError;
-
-private:
-  const static int s_mockPeriod;
-  const static int s_mockTimes;
+  ValidationPolicyT& policy;
 };
 
-template<class ValidationPolicy, class CertificateFetcher>
-const int ValidatorFixture<ValidationPolicy, CertificateFetcher>::s_mockPeriod = 250;
-
-template<class ValidationPolicy, class CertificateFetcher>
-const int ValidatorFixture<ValidationPolicy, CertificateFetcher>::s_mockTimes = 200;
-
-template<class ValidationPolicy, class CertificateFetcher = CertificateFetcherFromNetwork>
-class HierarchicalValidatorFixture : public ValidatorFixture<ValidationPolicy, CertificateFetcher>
+template<class ValidationPolicyT, class CertificateFetcherT = CertificateFetcherFromNetwork>
+class HierarchicalValidatorFixture : public ValidatorFixture<ValidationPolicyT, CertificateFetcherT>
 {
-public:
+protected:
   HierarchicalValidatorFixture()
   {
-    identity = this->addIdentity("/Security/ValidatorFixture");
+    identity = this->m_keyChain.createIdentity("/Security/ValidatorFixture");
     subIdentity = this->addSubCertificate("/Security/ValidatorFixture/Sub1", identity);
-    subSelfSignedIdentity = this->addIdentity("/Security/ValidatorFixture/Sub1/Sub2");
-    otherIdentity = this->addIdentity("/Security/OtherIdentity");
+    subSelfSignedIdentity = this->m_keyChain.createIdentity("/Security/ValidatorFixture/Sub1/Sub2");
+    otherIdentity = this->m_keyChain.createIdentity("/Security/OtherIdentity");
 
     this->validator.loadAnchor("", Certificate(identity.getDefaultKey().getDefaultCertificate()));
 
@@ -140,34 +133,33 @@ public:
     this->cache.insert(otherIdentity.getDefaultKey().getDefaultCertificate());
   }
 
-public:
+protected:
   Identity identity;
   Identity subIdentity;
   Identity subSelfSignedIdentity;
   Identity otherIdentity;
 };
 
-#define VALIDATE_SUCCESS(packet, message) this->template validate(packet, message, true, __LINE__)
-#define VALIDATE_FAILURE(packet, message) this->template validate(packet, message, false, __LINE__)
+#define VALIDATE_SUCCESS(packet, message) this->validate(packet, message, true, __LINE__)
+#define VALIDATE_FAILURE(packet, message) this->validate(packet, message, false, __LINE__)
 
 class DummyValidationState : public ValidationState
 {
 public:
-  ~DummyValidationState()
+  ~DummyValidationState() override
   {
     m_outcome = false;
   }
 
   void
-  fail(const ValidationError& error) override
+  fail(const ValidationError&) override
   {
-    // BOOST_TEST_MESSAGE(error);
     m_outcome = false;
   }
 
 private:
   void
-  verifyOriginalPacket(const Certificate& trustedCert) override
+  verifyOriginalPacket(const Certificate&) override
   {
     // do nothing
   }
@@ -179,17 +171,16 @@ private:
   }
 };
 
-
 struct DataPkt
 {
-  static uint32_t
+  static constexpr uint32_t
   getType()
   {
     return tlv::Data;
   }
 
   static Name
-  makeName(Name name, KeyChain& keyChain)
+  makeName(Name name, KeyChain&)
   {
     return name;
   }
@@ -203,22 +194,14 @@ struct DataPkt
 
 struct InterestV02Pkt
 {
-  static uint32_t
+  static constexpr uint32_t
   getType()
   {
     return tlv::Interest;
   }
 
   static Name
-  makeName(Name name, KeyChain& keyChain)
-  {
-    Interest interest(name);
-    interest.setCanBePrefix(false);
-    SigningInfo params;
-    params.setSignedInterestFormat(SignedInterestFormat::V02);
-    keyChain.sign(interest, params);
-    return interest.getName();
-  }
+  makeName(Name name, KeyChain& keyChain);
 
   static shared_ptr<ValidationState>
   makeState()
@@ -231,22 +214,14 @@ struct InterestV02Pkt
 
 struct InterestV03Pkt
 {
-  static uint32_t
+  static constexpr uint32_t
   getType()
   {
     return tlv::Interest;
   }
 
   static Name
-  makeName(Name name, KeyChain& keyChain)
-  {
-    Interest interest(name);
-    interest.setCanBePrefix(false);
-    SigningInfo params;
-    params.setSignedInterestFormat(SignedInterestFormat::V03);
-    keyChain.sign(interest, params);
-    return interest.getName();
-  }
+  makeName(Name name, KeyChain& keyChain);
 
   static shared_ptr<ValidationState>
   makeState()
@@ -262,4 +237,4 @@ struct InterestV03Pkt
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_SECURITY_VALIDATOR_FIXTURE_HPP
+#endif // NDN_CXX_TESTS_UNIT_SECURITY_VALIDATOR_FIXTURE_HPP

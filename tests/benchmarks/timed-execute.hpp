@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP
-#define NDN_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP
+#ifndef NDN_CXX_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP
+#define NDN_CXX_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP
 
 #include "ndn-cxx/util/time.hpp"
 
@@ -40,4 +40,4 @@ timedExecute(const F& f)
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP
+#endif // NDN_CXX_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP

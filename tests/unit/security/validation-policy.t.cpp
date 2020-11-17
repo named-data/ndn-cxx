@@ -22,21 +22,19 @@
 #include "ndn-cxx/security/validation-policy.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 namespace ndn {
 namespace security {
 inline namespace v2 {
 namespace tests {
 
-using namespace ndn::tests;
-
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestValidationPolicy, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestValidationPolicy, ndn::tests::KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(ExtractIdentityNameFromKeyLocator)
 {
-  auto id = addIdentity("/random/identity");
+  auto id = m_keyChain.createIdentity("/random/identity");
 
   auto keyName = id.getDefaultKey().getName();
   auto certName = id.getDefaultKey().getDefaultCertificate().getName();

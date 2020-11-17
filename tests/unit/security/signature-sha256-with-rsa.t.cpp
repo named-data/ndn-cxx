@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,8 @@
 #include "ndn-cxx/security/verification-helpers.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/test-common.hpp"
+#include "tests/unit/io-key-chain-fixture.hpp"
 
 namespace ndn {
 namespace security {
@@ -33,11 +32,11 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class SignatureSha256RsaTimeFixture : public IdentityManagementTimeFixture
+class SignatureSha256RsaTimeFixture : public IoKeyChainFixture
 {
 public:
   SignatureSha256RsaTimeFixture()
-    : scheduler(io)
+    : scheduler(m_io)
   {
   }
 
@@ -113,7 +112,7 @@ BOOST_AUTO_TEST_CASE(Encoding)
 
 BOOST_AUTO_TEST_CASE(DataSignature)
 {
-  Identity identity = addIdentity("/SecurityTestSignatureSha256WithRsa/DataSignature", RsaKeyParams());
+  Identity identity = m_keyChain.createIdentity("/SecurityTestSignatureSha256WithRsa/DataSignature", RsaKeyParams());
 
   Data testData("/SecurityTestSignatureSha256WithRsa/DataSignature/Data1");
   char content[5] = "1234";
@@ -128,7 +127,7 @@ BOOST_AUTO_TEST_CASE(DataSignature)
 
 BOOST_AUTO_TEST_CASE(InterestSignature)
 {
-  Identity identity = addIdentity("/SecurityTestSignatureSha256WithRsa/InterestSignature", RsaKeyParams());
+  Identity identity = m_keyChain.createIdentity("/SecurityTestSignatureSha256WithRsa/InterestSignature", RsaKeyParams());
 
   auto interest = makeInterest("/SecurityTestSignatureSha256WithRsa/InterestSignature/Interest1");
   auto interest11 = makeInterest("/SecurityTestSignatureSha256WithRsa/InterestSignature/Interest1");

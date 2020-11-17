@@ -22,9 +22,8 @@
 #include "ndn-cxx/prefix-announcement.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/test-common.hpp"
 
 namespace ndn {
 namespace tests {
@@ -163,7 +162,7 @@ BOOST_AUTO_TEST_CASE(DecodeBad)
   });
 }
 
-BOOST_FIXTURE_TEST_CASE(EncodeEmpty, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(EncodeEmpty, KeyChainFixture)
 {
   PrefixAnnouncement pa;
   BOOST_CHECK(!pa.getData());
@@ -185,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE(EncodeEmpty, IdentityManagementFixture)
   BOOST_CHECK_EQUAL(pa, decoded);
 }
 
-BOOST_FIXTURE_TEST_CASE(EncodeNoValidity, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(EncodeNoValidity, KeyChainFixture)
 {
   PrefixAnnouncement pa;
   pa.setAnnouncedName("/net/example");
@@ -209,7 +208,7 @@ BOOST_FIXTURE_TEST_CASE(EncodeNoValidity, IdentityManagementFixture)
   BOOST_CHECK_EQUAL(pa, decoded);
 }
 
-BOOST_FIXTURE_TEST_CASE(EncodeWithValidity, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(EncodeWithValidity, KeyChainFixture)
 {
   PrefixAnnouncement pa;
   pa.setAnnouncedName("/net/example");

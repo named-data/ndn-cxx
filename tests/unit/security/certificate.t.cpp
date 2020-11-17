@@ -24,7 +24,7 @@
 #include "ndn-cxx/security/certificate.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/unit-test-time-fixture.hpp"
+#include "tests/unit/clock-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -36,7 +36,7 @@ namespace tests {
 using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestCertificate, UnitTestTimeFixture)
+BOOST_FIXTURE_TEST_SUITE(TestCertificate, ClockFixture)
 
 const uint8_t PUBLIC_KEY[] = {
   0x30, 0x81, 0x9d, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01,

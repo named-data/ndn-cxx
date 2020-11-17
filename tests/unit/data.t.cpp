@@ -31,7 +31,7 @@
 #include "ndn-cxx/util/string-helper.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
 
 BOOST_AUTO_TEST_SUITE_END() // Decode
 
-BOOST_FIXTURE_TEST_CASE(FullName, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(FullName, KeyChainFixture)
 {
   Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE(SetSignatureValue)
   BOOST_CHECK_THROW(d.setSignatureValue(nullptr), std::invalid_argument);
 }
 
-BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, KeyChainFixture)
 {
   Data d1("/test/prefix");
   m_keyChain.sign(d1);

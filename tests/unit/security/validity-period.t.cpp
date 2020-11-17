@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #include "ndn-cxx/security/validity-period.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/unit-test-time-fixture.hpp"
+#include "tests/unit/clock-fixture.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -35,14 +35,12 @@ using namespace ndn::tests;
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestValidityPeriod)
 
-BOOST_FIXTURE_TEST_CASE(ConstructorSetter, UnitTestTimeFixture)
+BOOST_FIXTURE_TEST_CASE(ConstructorSetter, ClockFixture)
 {
-  time::system_clock::TimePoint now = this->systemClock->getNow();
-
-  time::system_clock::TimePoint notBefore = now - 1_day;
-  time::system_clock::TimePoint notAfter = notBefore + 2_days;
-
-  ValidityPeriod validity1 = ValidityPeriod(notBefore, notAfter);
+  auto now = m_systemClock->getNow();
+  auto notBefore = now - 1_day;
+  auto notAfter = notBefore + 2_days;
+  ValidityPeriod validity1(notBefore, notAfter);
 
   auto period = validity1.getPeriod();
   BOOST_CHECK_GE(period.first, notBefore); // fractional seconds will be removed

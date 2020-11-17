@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2019 Regents of the University of California,
+ * Copyright (c) 2014-2020 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -28,9 +28,8 @@
 #include "ndn-cxx/util/notification-subscriber.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/test-common.hpp"
+#include "tests/unit/io-key-chain-fixture.hpp"
 #include "tests/unit/util/simple-notification.hpp"
 
 namespace ndn {
@@ -39,12 +38,12 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class NotificationSubscriberFixture : public IdentityManagementTimeFixture
+class NotificationSubscriberFixture : public IoKeyChainFixture
 {
 public:
   NotificationSubscriberFixture()
-    : streamPrefix("ndn:/NotificationSubscriberTest")
-    , subscriberFace(io, m_keyChain)
+    : streamPrefix("/NotificationSubscriberTest")
+    , subscriberFace(m_io, m_keyChain)
     , subscriber(subscriberFace, streamPrefix, 1_s)
     , nextSendNotificationNo(0)
   {

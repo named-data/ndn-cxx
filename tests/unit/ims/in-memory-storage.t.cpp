@@ -26,9 +26,8 @@
 #include "ndn-cxx/ims/in-memory-storage-persistent.hpp"
 #include "ndn-cxx/util/sha256.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
-#include "tests/unit/unit-test-time-fixture.hpp"
+#include "tests/test-common.hpp"
+#include "tests/unit/io-fixture.hpp"
 
 #include <boost/mpl/vector.hpp>
 
@@ -120,7 +119,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndFind, T, InMemoryStorages)
 
   shared_ptr<Interest> interest = makeInterest(name);
 
-  shared_ptr<const Data> found = ims.find(*interest);
+  auto found = ims.find(*interest);
   BOOST_CHECK(found != nullptr);
   BOOST_CHECK_EQUAL(data->getName(), found->getName());
 }
@@ -136,9 +135,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndNotFind, T, InMemoryStorages)
   Name name2("/not/find");
   shared_ptr<Interest> interest = makeInterest(name2);
 
-  shared_ptr<const Data> found = ims.find(*interest);
-
-  BOOST_CHECK_EQUAL(found.get(), static_cast<const Data*>(0));
+  auto found = ims.find(*interest);
+  BOOST_CHECK(found == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndFindByName, T, InMemoryStorages)
@@ -150,7 +148,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndFindByName, T, InMemoryStorages)
   shared_ptr<Data> data = makeData(name);
   ims.insert(*data);
 
-  shared_ptr<const Data> found = ims.find(name);
+  auto found = ims.find(name);
   BOOST_CHECK(found != nullptr);
   BOOST_CHECK_EQUAL(data->getName(), found->getName());
 }
@@ -164,7 +162,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndFindByFullName, T, InMemoryStorages)
   shared_ptr<Data> data = makeData(name);
   ims.insert(*data);
 
-  shared_ptr<const Data> found = ims.find(data->getFullName());
+  auto found = ims.find(data->getFullName());
   BOOST_CHECK(found != nullptr);
   BOOST_CHECK_EQUAL(data->getFullName(), found->getFullName());
 }
@@ -179,7 +177,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndNotFindByName, T, InMemoryStorages)
 
   Name name2("/not/find");
 
-  shared_ptr<const Data> found = ims.find(name2);
+  auto found = ims.find(name2);
   BOOST_CHECK(found == nullptr);
 }
 
@@ -199,7 +197,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndNotFindByFullName, T, InMemoryStorages)
   data2->setContent(reinterpret_cast<const uint8_t*>(&content2), sizeof(content2));
   signData(data2);
 
-  shared_ptr<const Data> found = ims.find(data2->getFullName());
+  auto found = ims.find(data2->getFullName());
   BOOST_CHECK(found == nullptr);
 }
 
@@ -444,14 +442,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEvict, T, InMemoryStoragesLimited)
 }
 
 // Find function is implemented at the base case, so it's sufficient to test for one derived class.
-class FindFixture : public tests::UnitTestTimeFixture
+class FindFixture : public IoFixture
 {
 protected:
-  FindFixture()
-    : m_ims(io)
-  {
-  }
-
   Name
   insert(uint32_t id, const Name& name,
          const std::function<void(Data&)>& modifyData = nullptr,
@@ -480,8 +473,8 @@ protected:
   uint32_t
   find()
   {
-    shared_ptr<const Data> found = m_ims.find(*m_interest);
-    if (found == 0) {
+    auto found = m_ims.find(*m_interest);
+    if (found == nullptr) {
       return 0;
     }
     const Block& content = found->getContent();
@@ -494,7 +487,7 @@ protected:
   }
 
 protected:
-  InMemoryStoragePersistent m_ims;
+  InMemoryStoragePersistent m_ims{m_io};
   shared_ptr<Interest> m_interest;
 };
 

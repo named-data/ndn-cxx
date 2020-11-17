@@ -198,7 +198,7 @@ class ValidationPolicySimpleHierarchyForInterestOnly : public ValidationPolicySi
 {
 public:
   void
-  checkPolicy(const Data& data, const shared_ptr<ValidationState>& state,
+  checkPolicy(const Data&, const shared_ptr<ValidationState>& state,
               const ValidationContinuation& continueValidation) override
   {
     continueValidation(nullptr, state);
@@ -264,28 +264,8 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
     // create another key for the same identity and sign it properly
     Key parentKey = m_keyChain.createKey(subIdentity);
     Key requestedKey = subIdentity.getKey(interest.getName());
-
-    Name certificateName = requestedKey.getName();
-    certificateName
-    .append("looper")
-    .appendVersion();
-    v2::Certificate certificate;
-    certificate.setName(certificateName);
-
-    // set metainfo
-    certificate.setContentType(tlv::ContentType_Key);
-    certificate.setFreshnessPeriod(1_h);
-
-    // set content
-    certificate.setContent(requestedKey.getPublicKey().data(), requestedKey.getPublicKey().size());
-
-    // set signature-info
-    SignatureInfo info;
-    info.setValidityPeriod(security::ValidityPeriod(time::system_clock::now() - 10_days,
-                                                    time::system_clock::now() + 10_days));
-
-    m_keyChain.sign(certificate, signingByKey(parentKey).setSignatureInfo(info));
-    face.receive(certificate);
+    auto cert = makeCert(requestedKey, "looper", parentKey);
+    face.receive(cert);
   };
 
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
@@ -307,13 +287,13 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
 
 BOOST_AUTO_TEST_CASE(LoopedCertChain)
 {
-  auto s1 = addIdentity("/loop");
+  auto s1 = m_keyChain.createIdentity("/loop");
   auto k1 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key1")));
   auto k2 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key2")));
   auto k3 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key3")));
 
   auto makeCert = [this] (Key& key, const Key& signer) {
-    v2::Certificate request = key.getDefaultCertificate();
+    Certificate request = key.getDefaultCertificate();
     request.setName(Name(key.getName()).append("looper").appendVersion());
 
     SignatureInfo info;

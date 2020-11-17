@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,8 @@
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/test-common.hpp"
+#include "tests/unit/io-key-chain-fixture.hpp"
 
 namespace ndn {
 namespace mgmt {
@@ -33,11 +32,11 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class DispatcherFixture : public IdentityManagementTimeFixture
+class DispatcherFixture : public IoKeyChainFixture
 {
 public:
   DispatcherFixture()
-    : face(io, m_keyChain, {true, true})
+    : face(m_io, m_keyChain, {true, true})
     , dispatcher(face, m_keyChain, security::SigningInfo())
     , storage(dispatcher.m_storage)
   {

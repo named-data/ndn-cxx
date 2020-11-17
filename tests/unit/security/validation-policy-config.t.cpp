@@ -20,10 +20,10 @@
  */
 
 #include "ndn-cxx/security/validation-policy-config.hpp"
+
 #include "ndn-cxx/security/transform/base64-encode.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
-#include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/io.hpp"
 
 #include "tests/boost-test.hpp"
@@ -91,7 +91,7 @@ class ValidationPolicyConfigFixture : public HierarchicalValidatorFixture<Valida
 {
 public:
   ValidationPolicyConfigFixture()
-    : path(boost::filesystem::path(UNIT_TEST_CONFIG_PATH) / "security" / "v2" / "validation-policy-config")
+    : path(boost::filesystem::path(UNIT_TESTS_TMPDIR) / "security" / "validation-policy-config")
   {
     boost::filesystem::create_directories(path);
     baseConfig = R"CONF(
@@ -116,8 +116,7 @@ public:
 
   ~ValidationPolicyConfigFixture()
   {
-    boost::system::error_code ec;
-    boost::filesystem::remove_all(path, ec);
+    boost::filesystem::remove_all(path);
   }
 
 protected:
@@ -135,7 +134,7 @@ public:
   {
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
-    this->saveCertificate(this->identity, (this->path / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
     this->policy.load(this->baseConfig + R"CONF(
         trust-anchor
         {
@@ -167,7 +166,7 @@ public:
         )CONF";
     }
 
-    this->saveCertificate(this->identity, (this->path / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
@@ -192,7 +191,7 @@ public:
         }
       )CONF");
 
-    this->saveCertificate(this->identity, (this->path / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
@@ -298,7 +297,7 @@ public:
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
     boost::filesystem::create_directories(this->path / "keys");
-    this->saveCertificate(this->identity, (this->path / "keys" / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, (this->path / "keys" / "identity.ndncert").string());
 
     this->policy.load(this->baseConfig + R"CONF(
         trust-anchor

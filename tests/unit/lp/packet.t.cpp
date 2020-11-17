@@ -22,9 +22,8 @@
 #include "ndn-cxx/lp/packet.hpp"
 #include "ndn-cxx/prefix-announcement.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/test-common.hpp"
 
 namespace ndn {
 namespace lp {
@@ -428,7 +427,7 @@ BOOST_AUTO_TEST_CASE(DecodeUnrecognizedTlvType)
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
-BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, ndn::tests::IdentityManagementFixture)
+BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, ndn::tests::KeyChainFixture)
 {
   // Construct Data which prefix announcement is attached to
   auto data0 = ndn::tests::makeData("/edu/ua/cs/news/index.html");

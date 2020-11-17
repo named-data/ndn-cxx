@@ -3,7 +3,7 @@
 top = '../../'
 
 def build(bld):
-    configPath = 'UNIT_TEST_CONFIG_PATH="%s"' % bld.bldnode.make_node('tmp-files')
+    tmpdir = 'UNIT_TESTS_TMPDIR="%s"' % bld.bldnode.make_node('tmp-files')
 
     # unit test objects
     srcFiles = bld.path.ant_glob('**/*.cpp', excl=['main.cpp',
@@ -21,7 +21,7 @@ def build(bld):
                 features='pch',
                 headers='unit-tests-pch.hpp',
                 use='tests-common',
-                defines=[configPath])
+                defines=[tmpdir])
 
     # unit test binary
     bld.program(target=top + 'unit-tests',

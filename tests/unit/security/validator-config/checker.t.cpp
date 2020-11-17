@@ -39,7 +39,7 @@ using namespace ndn::tests;
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(ValidatorConfig)
 
-class CheckerFixture : public IdentityManagementFixture
+class CheckerFixture : public KeyChainFixture
 {
 public:
   CheckerFixture()

@@ -23,7 +23,8 @@
 #include "ndn-cxx/util/io.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/unit/clock-fixture.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -34,47 +35,37 @@ namespace tests {
 
 using namespace ndn::tests;
 
-BOOST_AUTO_TEST_SUITE(Security)
-
 /**
  * This fixture creates a directory and prepares two certificates.
  * cert1 is written to a file under the directory, while cert2 is not.
  */
-class AnchorContainerTestFixture : public IdentityManagementTimeFixture
+class TrustAnchorContainerFixture : public ClockFixture, public KeyChainFixture
 {
 public:
-  AnchorContainerTestFixture()
+  TrustAnchorContainerFixture()
   {
-    namespace fs = boost::filesystem;
+    boost::filesystem::create_directories(certDirPath);
 
-    fs::create_directory(fs::path(UNIT_TEST_CONFIG_PATH));
-
-    certDirPath = fs::path(UNIT_TEST_CONFIG_PATH) / "test-cert-dir";
-    fs::create_directory(certDirPath);
-
-    certPath1 = fs::path(UNIT_TEST_CONFIG_PATH) / "test-cert-dir" / "trust-anchor-1.cert";
-    certPath2 = fs::path(UNIT_TEST_CONFIG_PATH) / "test-cert-dir" / "trust-anchor-2.cert";
-
-    identity1 = addIdentity("/TestAnchorContainer/First");
+    identity1 = m_keyChain.createIdentity("/TestAnchorContainer/First");
     cert1 = identity1.getDefaultKey().getDefaultCertificate();
-    saveCertToFile(cert1, certPath1.string());
+    saveCert(cert1, certPath1.string());
 
-    identity2 = addIdentity("/TestAnchorContainer/Second");
+    identity2 = m_keyChain.createIdentity("/TestAnchorContainer/Second");
     cert2 = identity2.getDefaultKey().getDefaultCertificate();
-    saveCertToFile(cert2, certPath2.string());
+    saveCert(cert2, certPath2.string());
   }
 
-  ~AnchorContainerTestFixture()
+  ~TrustAnchorContainerFixture() override
   {
-    boost::filesystem::remove_all(UNIT_TEST_CONFIG_PATH);
+    boost::filesystem::remove_all(certDirPath);
   }
 
 public:
-  TrustAnchorContainer anchorContainer;
+  const boost::filesystem::path certDirPath{boost::filesystem::path(UNIT_TESTS_TMPDIR) / "test-cert-dir"};
+  const boost::filesystem::path certPath1{certDirPath / "trust-anchor-1.cert"};
+  const boost::filesystem::path certPath2{certDirPath / "trust-anchor-2.cert"};
 
-  boost::filesystem::path certDirPath;
-  boost::filesystem::path certPath1;
-  boost::filesystem::path certPath2;
+  TrustAnchorContainer anchorContainer;
 
   Identity identity1;
   Identity identity2;
@@ -83,7 +74,8 @@ public:
   Certificate cert2;
 };
 
-BOOST_FIXTURE_TEST_SUITE(TestTrustAnchorContainer, AnchorContainerTestFixture)
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_FIXTURE_TEST_SUITE(TestTrustAnchorContainer, TrustAnchorContainerFixture)
 
 // one static group and one dynamic group created from file
 BOOST_AUTO_TEST_CASE(Insert)
@@ -138,7 +130,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
   BOOST_CHECK(anchorContainer.find(identity2.getName()) == nullptr);
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group").size(), 1);
 
-  saveCertToFile(cert2, certPath2.string());
+  saveCert(cert2, certPath2.string());
 
   advanceClocks(100_ms, 11);
 
@@ -155,7 +147,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group").size(), 0);
 }
 
-BOOST_FIXTURE_TEST_CASE(FindByInterest, AnchorContainerTestFixture)
+BOOST_AUTO_TEST_CASE(FindByInterest)
 {
   anchorContainer.insert("group1", certPath1.string(), 1_s);
   Interest interest(identity1.getName());
@@ -165,9 +157,9 @@ BOOST_FIXTURE_TEST_CASE(FindByInterest, AnchorContainerTestFixture)
   Interest interest2(Name(identity1.getName()).appendVersion());
   BOOST_CHECK(anchorContainer.find(interest2) == nullptr);
 
-  Certificate cert3 = addCertificate(identity1.getDefaultKey(), "3");
-  Certificate cert4 = addCertificate(identity1.getDefaultKey(), "4");
-  Certificate cert5 = addCertificate(identity1.getDefaultKey(), "5");
+  auto cert3 = makeCert(identity1.getDefaultKey(), "3");
+  auto cert4 = makeCert(identity1.getDefaultKey(), "4");
+  auto cert5 = makeCert(identity1.getDefaultKey(), "5");
 
   Certificate cert3Copy = cert3;
   anchorContainer.insert("group2", std::move(cert3Copy));

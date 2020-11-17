@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,21 +22,18 @@
 #include "ndn-cxx/security/validator-null.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 namespace ndn {
 namespace security {
 namespace tests {
 
-using namespace ndn::tests;
-
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestValidatorNull, IdentityManagementFixture)
+BOOST_FIXTURE_TEST_SUITE(TestValidatorNull, ndn::tests::KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(ValidateData)
 {
-  auto identity = addIdentity("/TestValidator/Null");
+  auto identity = m_keyChain.createIdentity("/TestValidator/Null");
   Data data("/Some/Other/Data/Name");
   m_keyChain.sign(data, signingByIdentity(identity));
 
@@ -48,7 +45,7 @@ BOOST_AUTO_TEST_CASE(ValidateData)
 
 BOOST_AUTO_TEST_CASE(ValidateInterest)
 {
-  auto identity = addIdentity("/TestValidator/Null");
+  auto identity = m_keyChain.createIdentity("/TestValidator/Null");
   Interest interest("/Some/Other/Interest/Name");
   m_keyChain.sign(interest, signingByIdentity(identity));
 

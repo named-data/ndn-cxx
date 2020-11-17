@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,8 @@
 #include "ndn-cxx/security/verification-helpers.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
-#include "tests/unit/identity-management-time-fixture.hpp"
+#include "tests/test-common.hpp"
+#include "tests/unit/io-key-chain-fixture.hpp"
 
 namespace ndn {
 namespace security {
@@ -33,11 +32,11 @@ namespace tests {
 
 using namespace ndn::tests;
 
-class SignatureSha256EcdsaTimeFixture : public IdentityManagementTimeFixture
+class SignatureSha256EcdsaTimeFixture : public IoKeyChainFixture
 {
 public:
   SignatureSha256EcdsaTimeFixture()
-    : scheduler(io)
+    : scheduler(m_io)
   {
   }
 
@@ -108,7 +107,7 @@ BOOST_AUTO_TEST_CASE(Encoding)
 
 BOOST_AUTO_TEST_CASE(DataSignature)
 {
-  Identity identity = addIdentity("/SecurityTestSignatureSha256WithEcdsa/DataSignature", EcKeyParams());
+  Identity identity = m_keyChain.createIdentity("/SecurityTestSignatureSha256WithEcdsa/DataSignature", EcKeyParams());
 
   Data testData("/SecurityTestSignatureSha256WithEcdsa/DataSignature/Data1");
   char content[5] = "1234";
@@ -123,7 +122,7 @@ BOOST_AUTO_TEST_CASE(DataSignature)
 
 BOOST_AUTO_TEST_CASE(InterestSignature)
 {
-  Identity identity = addIdentity("/SecurityTestSignatureSha256WithEcdsa/InterestSignature", EcKeyParams());
+  Identity identity = m_keyChain.createIdentity("/SecurityTestSignatureSha256WithEcdsa/InterestSignature", EcKeyParams());
 
   auto interest = makeInterest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");
   auto interest11 = makeInterest("/SecurityTestSignatureSha256WithEcdsa/InterestSignature/Interest1");

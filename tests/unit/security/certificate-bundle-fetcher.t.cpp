@@ -23,8 +23,7 @@
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
 #include "ndn-cxx/util/regex/regex-pattern-list-matcher.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
 namespace ndn {

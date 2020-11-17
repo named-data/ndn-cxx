@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,7 @@
 #include "ndn-cxx/mgmt/nfd/controller.hpp"
 #include "ndn-cxx/mgmt/nfd/control-response.hpp"
 
-#include "tests/boost-test.hpp"
-#include "tests/make-interest-data.hpp"
+#include "tests/test-common.hpp"
 #include "tests/unit/mgmt/nfd/controller-fixture.hpp"
 
 namespace ndn {
@@ -65,8 +64,8 @@ protected:
 };
 
 // This test suite focuses on ControlCommand functionality of Controller.
-// Individual commands are tested in nfd-control-command.t.cpp
-// StatusDataset functionality is tested in nfd-status-dataset.t.cpp
+// Individual commands are tested in control-command.t.cpp
+// StatusDataset functionality is tested in status-dataset.t.cpp
 BOOST_FIXTURE_TEST_SUITE(TestController, CommandFixture)
 
 static ControlParameters

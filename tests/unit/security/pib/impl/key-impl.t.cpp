@@ -24,7 +24,7 @@
 #include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
 namespace ndn {
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(CertificateOperation)
 }
 
 class OverwriteFixture : public ndn::security::tests::PibDataFixture,
-                         public ndn::tests::IdentityManagementFixture
+                         public ndn::tests::KeyChainFixture
 {
 };
 

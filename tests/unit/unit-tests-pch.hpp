@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_UNIT_TESTS_PCH_HPP
-#define NDN_TESTS_UNIT_UNIT_TESTS_PCH_HPP
+#ifndef NDN_CXX_TESTS_UNIT_UNIT_TESTS_PCH_HPP
+#define NDN_CXX_TESTS_UNIT_UNIT_TESTS_PCH_HPP
 
 #include "tests/tests-pch.hpp"
 
@@ -30,6 +30,6 @@
 #include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/util/config-file.hpp"
 
-#include "tests/identity-management-fixture.hpp"
+#include "tests/key-chain-fixture.hpp"
 
-#endif // NDN_TESTS_UNIT_UNIT_TESTS_PCH_HPP
+#endif // NDN_CXX_TESTS_UNIT_UNIT_TESTS_PCH_HPP

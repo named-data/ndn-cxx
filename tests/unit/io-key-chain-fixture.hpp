@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,31 +19,20 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_TRANSPORT_TRANSPORT_FIXTURE_HPP
-#define NDN_TESTS_UNIT_TRANSPORT_TRANSPORT_FIXTURE_HPP
+#ifndef NDN_CXX_TESTS_UNIT_IO_KEY_CHAIN_FIXTURE_HPP
+#define NDN_CXX_TESTS_UNIT_IO_KEY_CHAIN_FIXTURE_HPP
 
-#include "ndn-cxx/util/config-file.hpp"
-
-#include "tests/unit/test-home-env-saver.hpp"
+#include "tests/key-chain-fixture.hpp"
+#include "tests/unit/io-fixture.hpp"
 
 namespace ndn {
 namespace tests {
 
-class TransportFixture : public TestHomeEnvSaver
+class IoKeyChainFixture : public IoFixture, public KeyChainFixture
 {
-public:
-  void
-  initializeConfig(const char* path)
-  {
-    setenv("TEST_HOME", path, 1);
-    m_config = make_unique<ConfigFile>();
-  }
-
-protected:
-  unique_ptr<ConfigFile> m_config;
 };
 
 } // namespace tests
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_TRANSPORT_TRANSPORT_FIXTURE_HPP
+#endif // NDN_CXX_TESTS_UNIT_IO_KEY_CHAIN_FIXTURE_HPP
