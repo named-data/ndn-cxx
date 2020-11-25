@@ -178,6 +178,40 @@ public:
 };
 
 template<typename PacketType>
+class LoadFileWithMultipleFileAnchors : public ValidationPolicyConfigFixture<PacketType>
+{
+public:
+  LoadFileWithMultipleFileAnchors()
+  {
+    std::string configFile = (this->path / "config.conf").string();
+    {
+      std::ofstream config(configFile);
+      config << this->baseConfig << R"CONF(
+          trust-anchor
+          {
+            type file
+            file-name "identity.ndncert"
+          }
+          trust-anchor
+          {
+            type file
+            file-name "trust-anchor.ndncert"
+          }
+        )CONF";
+    }
+
+    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
+
+    BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
+
+    this->policy.load(configFile);
+
+    BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
+    BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, false);
+  }
+};
+
+template<typename PacketType>
 class LoadSectionWithFileAnchor : public ValidationPolicyConfigFixture<PacketType>
 {
 public:
@@ -315,6 +349,7 @@ public:
 
 using DataPolicies = boost::mpl::vector<LoadStringWithFileAnchor<Data>,
                                         LoadFileWithFileAnchor<Data>,
+                                        LoadFileWithMultipleFileAnchors<Data>,
                                         LoadSectionWithFileAnchor<Data>,
                                         LoadStringWithBase64Anchor<Data>,
                                         LoadStringWithDirAnchor<Data>,
@@ -325,6 +360,7 @@ using DataPolicies = boost::mpl::vector<LoadStringWithFileAnchor<Data>,
 
 using InterestPolicies = boost::mpl::vector<LoadStringWithFileAnchor<Interest>,
                                             LoadFileWithFileAnchor<Interest>,
+                                            LoadFileWithMultipleFileAnchors<Interest>,
                                             LoadSectionWithFileAnchor<Interest>,
                                             LoadStringWithBase64Anchor<Interest>,
                                             LoadStringWithDirAnchor<Interest>,

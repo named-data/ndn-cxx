@@ -135,7 +135,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     if (propertyIt != configSection.end())
       NDN_THROW(Error("Expecting end of <trust-anchor>"));
 
-    m_validator->loadAnchor(filename, absolute(file, path(filename).parent_path()).string(),
+    m_validator->loadAnchor(file, absolute(file, path(filename).parent_path()).string(),
                             refresh, false);
   }
   else if (boost::iequals(type, "base64")) {
