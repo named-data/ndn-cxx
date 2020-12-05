@@ -1069,7 +1069,6 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
   Interest i1;
   i1.setCanBePrefix(false);
   BOOST_CHECK_EXCEPTION(i1.extractSignedRanges(), tlv::Error, [] (const auto& e) {
-    BOOST_TEST_MESSAGE(e.what());
     return e.what() == "Name has zero name components"s;
   });
   i1.setName("/test/prefix");

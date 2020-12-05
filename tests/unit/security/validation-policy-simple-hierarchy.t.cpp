@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
-#include "ndn-cxx/util/scope.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
@@ -32,43 +31,36 @@ namespace security {
 inline namespace v2 {
 namespace tests {
 
-using namespace ndn::tests;
-
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestValidationPolicySimpleHierarchy,
                          HierarchicalValidatorFixture<ValidationPolicySimpleHierarchy>)
 
-using Packets = boost::mpl::vector<Interest, Data>;
+using Packets = boost::mpl::vector<InterestV03Pkt, DataPkt>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 {
-  // Can't set CanBePrefix on Interests in this test case because of template
-  // TODO: Remove in #4582
-  auto guard = make_scope_exit([] { Interest::s_errorIfCanBePrefixUnset = true; });
-  Interest::s_errorIfCanBePrefixUnset = false;
+  const Name name = "/Security/ValidatorFixture/Sub1/Sub2/Packet";
 
-  Packet unsignedPacket("/Security/ValidatorFixture/Sub1/Sub2/Packet");
-
-  Packet packet = unsignedPacket;
+  auto packet = Packet::makePacket(name);
   VALIDATE_FAILURE(packet, "Unsigned");
 
-  packet = unsignedPacket;
+  packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingWithSha256());
   VALIDATE_FAILURE(packet, "Policy doesn't accept Sha256Digest signature");
 
-  packet = unsignedPacket;
+  packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(identity));
   VALIDATE_SUCCESS(packet, "Should get accepted, as signed by the anchor");
 
-  packet = unsignedPacket;
+  packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(subIdentity));
   VALIDATE_SUCCESS(packet, "Should get accepted, as signed by the policy-compliant cert");
 
-  packet = unsignedPacket;
+  packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(otherIdentity));
   VALIDATE_FAILURE(packet, "Should fail, as signed by the policy-violating cert");
 
-  packet = unsignedPacket;
+  packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(subSelfSignedIdentity));
   VALIDATE_FAILURE(packet, "Should fail, because subSelfSignedIdentity is not a trust anchor");
 

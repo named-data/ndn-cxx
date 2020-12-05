@@ -25,7 +25,7 @@
 #include "tests/boost-test.hpp"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/mpl/vector.hpp>
+#include <boost/test/data/test_case.hpp>
 
 #include <cstring>
 #include <sstream>
@@ -358,49 +358,26 @@ BOOST_AUTO_TEST_CASE(FromRawBuffer)
   BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
 }
 
-template<typename T>
-struct MalformedInput
-{
-  static const std::vector<uint8_t> INPUT;
+static const Buffer MalformedInputs[] = {
+  {0x00, 0x00}, // invalid TLV type (zero)
+  {0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00}, // TLV type too large
+  {0x01, 0xff, 0x42, 0x42}, // bad TLV length
+  {0x01, 0x02, 0x03}, // truncated TLV value
 };
 
-template<>
-const std::vector<uint8_t> MalformedInput<struct TlvTypeZero>::INPUT{
-  0x00, 0x00
-};
-template<>
-const std::vector<uint8_t> MalformedInput<struct TlvTypeTooLarge>::INPUT{
-  0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-template<>
-const std::vector<uint8_t> MalformedInput<struct BadTlvLength>::INPUT{
-  0x01, 0xff, 0x42, 0x42
-};
-template<>
-const std::vector<uint8_t> MalformedInput<struct TruncatedTlvValue>::INPUT{
-  0x01, 0x02, 0x03
-};
-
-using MalformedInputs = boost::mpl::vector<
-  MalformedInput<TlvTypeZero>,
-  MalformedInput<TlvTypeTooLarge>,
-  MalformedInput<BadTlvLength>,
-  MalformedInput<TruncatedTlvValue>
->;
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(Malformed, T, MalformedInputs)
+BOOST_DATA_TEST_CASE(Malformed, MalformedInputs)
 {
   // constructor from raw buffer
-  BOOST_CHECK_THROW(Block(T::INPUT.data(), T::INPUT.size()), tlv::Error);
+  BOOST_CHECK_THROW(Block(sample.data(), sample.size()), tlv::Error);
 
   // fromStream()
   std::stringstream stream;
-  stream.write(reinterpret_cast<const char*>(T::INPUT.data()), T::INPUT.size());
+  stream.write(sample.template get<char>(), sample.size());
   stream.seekg(0);
   BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
 
   // fromBuffer(), ConstBufferPtr overload
-  auto buf = make_shared<Buffer>(T::INPUT.begin(), T::INPUT.end());
+  auto buf = make_shared<Buffer>(sample.begin(), sample.end());
   bool isOk;
   Block b;
   std::tie(isOk, b) = Block::fromBuffer(buf, 0);
@@ -408,7 +385,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Malformed, T, MalformedInputs)
   BOOST_CHECK(!b.isValid());
 
   // fromBuffer(), raw buffer overload
-  std::tie(isOk, b) = Block::fromBuffer(T::INPUT.data(), T::INPUT.size());
+  std::tie(isOk, b) = Block::fromBuffer(sample.data(), sample.size());
   BOOST_CHECK(!isOk);
   BOOST_CHECK(!b.isValid());
 }

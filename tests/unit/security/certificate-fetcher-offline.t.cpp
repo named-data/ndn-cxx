@@ -21,7 +21,6 @@
 
 #include "ndn-cxx/security/certificate-fetcher-offline.hpp"
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
-#include "ndn-cxx/util/scope.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
@@ -30,8 +29,6 @@ namespace ndn {
 namespace security {
 inline namespace v2 {
 namespace tests {
-
-using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 
@@ -48,23 +45,18 @@ using CertificateFetcherOfflineFixture = HierarchicalValidatorFixture<Validation
 
 BOOST_FIXTURE_TEST_SUITE(TestCertificateFetcherOffline, CertificateFetcherOfflineFixture)
 
-using Packets = boost::mpl::vector<Interest, Data>;
+using Packets = boost::mpl::vector<InterestV03Pkt, DataPkt>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 {
-  // Can't set CanBePrefix on Interests in this test case because of template
-  // TODO: Remove in #4582
-  auto guard = make_scope_exit([] { Interest::s_errorIfCanBePrefixUnset = true; });
-  Interest::s_errorIfCanBePrefixUnset = false;
+  const Name name = "/Security/ValidatorFixture/Sub1/Packet";
 
-  Packet unsignedPacket("/Security/ValidatorFixture/Sub1/Packet");
-
-  Packet packet = unsignedPacket;
+  auto packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(subIdentity));
   VALIDATE_FAILURE(packet, "Should fail, as no cert should be requested");
   BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 0);
 
-  packet = unsignedPacket;
+  packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(identity));
   VALIDATE_SUCCESS(packet, "Should succeed, as signed by trust anchor");
   BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 0);

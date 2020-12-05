@@ -19,19 +19,16 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_TESTS_UNIT_UNIT_TESTS_PCH_HPP
-#define NDN_CXX_TESTS_UNIT_UNIT_TESTS_PCH_HPP
+#include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
-#include "tests/tests-pch.hpp"
+namespace ndn {
 
-#include "ndn-cxx/face.hpp"
-#include "ndn-cxx/ims/in-memory-storage.hpp"
-#include "ndn-cxx/security/transform.hpp"
-#include "ndn-cxx/security/validator.hpp"
-#include "ndn-cxx/util/config-file.hpp"
+std::ostream&
+boost_test_print_type(std::ostream& os, const Buffer& buf)
+{
+  printHex(os, buf, false);
+  return os;
+}
 
-#include "tests/key-chain-fixture.hpp"
-
-#include <boost/test/data/test_case.hpp>
-
-#endif // NDN_CXX_TESTS_UNIT_UNIT_TESTS_PCH_HPP
+} // namespace ndn

@@ -185,6 +185,12 @@ struct DataPkt
     return name;
   }
 
+  static Data
+  makePacket(const Name& name)
+  {
+    return Data(name);
+  }
+
   static shared_ptr<ValidationState>
   makeState()
   {
@@ -202,6 +208,12 @@ struct InterestV02Pkt
 
   static Name
   makeName(Name name, KeyChain& keyChain);
+
+  static Interest
+  makePacket(const Name& name)
+  {
+    return Interest(name).setCanBePrefix(false);
+  }
 
   static shared_ptr<ValidationState>
   makeState()
@@ -222,6 +234,12 @@ struct InterestV03Pkt
 
   static Name
   makeName(Name name, KeyChain& keyChain);
+
+  static Interest
+  makePacket(const Name& name)
+  {
+    return Interest(name).setCanBePrefix(false);
+  }
 
   static shared_ptr<ValidationState>
   makeState()

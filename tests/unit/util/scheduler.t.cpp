@@ -298,7 +298,6 @@ BOOST_AUTO_TEST_CASE(ToString)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(eid), nullString);
 
   eid = scheduler.schedule(10_ms, []{});
-  BOOST_TEST_MESSAGE("eid=" << eid);
   BOOST_CHECK_NE(boost::lexical_cast<std::string>(eid), nullString);
 }
 

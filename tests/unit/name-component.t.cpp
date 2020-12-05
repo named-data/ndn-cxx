@@ -359,12 +359,12 @@ public:
   ConventionTest<uint64_t>
   operator()() const
   {
-    return {bind(&Component::fromNumberWithMarker, 0xAA, _1),
-            bind(&Component::toNumberWithMarker, _1, 0xAA),
-            bind(&Name::appendNumberWithMarker, _1, 0xAA, _2),
+    return {[] (auto num) { return Component::fromNumberWithMarker(0xAA, num); },
+            [] (const Component& c) { return c.toNumberWithMarker(0xAA); },
+            [] (Name& name, auto num) -> Name& { return name.appendNumberWithMarker(0xAA, num); },
             Name("/%AA%03%E8"),
             1000,
-            bind(&Component::isNumberWithMarker, _1, 0xAA)};
+            [] (const Component& c) { return c.isNumberWithMarker(0xAA); }};
   }
 };
 
@@ -377,11 +377,11 @@ public:
   operator()() const
   {
     return {&Component::fromSegment,
-            bind(&Component::toSegment, _1),
-            bind(&Name::appendSegment, _1, _2),
+            &Component::toSegment,
+            &Name::appendSegment,
             Name("/%00%27%10"),
             10000,
-            bind(&Component::isSegment, _1)};
+            &Component::isSegment};
   }
 };
 
@@ -394,11 +394,11 @@ public:
   operator()() const
   {
     return {&Component::fromSegment,
-            bind(&Component::toSegment, _1),
-            bind(&Name::appendSegment, _1, _2),
+            &Component::toSegment,
+            &Name::appendSegment,
             Name("/33=%27%10"),
             10000,
-            bind(&Component::isSegment, _1)};
+            &Component::isSegment};
   }
 };
 
@@ -411,11 +411,11 @@ public:
   operator()() const
   {
     return {&Component::fromByteOffset,
-            bind(&Component::toByteOffset, _1),
-            bind(&Name::appendByteOffset, _1, _2),
+            &Component::toByteOffset,
+            &Name::appendByteOffset,
             Name("/34=%00%01%86%A0"),
             100000,
-            bind(&Component::isByteOffset, _1)};
+            &Component::isByteOffset};
   }
 };
 
@@ -428,11 +428,11 @@ public:
   operator()() const
   {
     return {&Component::fromVersion,
-            bind(&Component::toVersion, _1),
-            [] (Name& name, uint64_t version) -> Name& { return name.appendVersion(version); },
+            &Component::toVersion,
+            [] (Name& name, auto version) -> Name& { return name.appendVersion(version); },
             Name("/%FD%00%0FB%40"),
             1000000,
-            bind(&Component::isVersion, _1)};
+            &Component::isVersion};
   }
 };
 
@@ -445,11 +445,11 @@ public:
   operator()() const
   {
     return {&Component::fromVersion,
-            bind(&Component::toVersion, _1),
-            [] (Name& name, uint64_t version) -> Name& { return name.appendVersion(version); },
+            &Component::toVersion,
+            [] (Name& name, auto version) -> Name& { return name.appendVersion(version); },
             Name("/35=%00%0FB%40"),
             1000000,
-            bind(&Component::isVersion, _1)};
+            &Component::isVersion};
   }
 };
 
@@ -462,11 +462,11 @@ public:
   operator()() const
   {
     return {&Component::fromTimestamp,
-            bind(&Component::toTimestamp, _1),
-            [] (Name& name, time::system_clock::TimePoint t) -> Name& { return name.appendTimestamp(t); },
+            &Component::toTimestamp,
+            [] (Name& name, auto tp) -> Name& { return name.appendTimestamp(tp); },
             Name("/%FC%00%04%7BE%E3%1B%00%00"),
             time::getUnixEpoch() + 14600_days, // 40 years
-            bind(&Component::isTimestamp, _1)};
+            &Component::isTimestamp};
   }
 };
 
@@ -479,11 +479,11 @@ public:
   operator()() const
   {
     return {&Component::fromTimestamp,
-            bind(&Component::toTimestamp, _1),
-            [] (Name& name, time::system_clock::TimePoint t) -> Name& { return name.appendTimestamp(t); },
+            &Component::toTimestamp,
+            [] (Name& name, auto tp) -> Name& { return name.appendTimestamp(tp); },
             Name("/36=%00%04%7BE%E3%1B%00%00"),
             time::getUnixEpoch() + 14600_days, // 40 years
-            bind(&Component::isTimestamp, _1)};
+            &Component::isTimestamp};
   }
 };
 
@@ -496,11 +496,11 @@ public:
   operator()() const
   {
     return {&Component::fromSequenceNumber,
-            bind(&Component::toSequenceNumber, _1),
-            bind(&Name::appendSequenceNumber, _1, _2),
+            &Component::toSequenceNumber,
+            &Name::appendSequenceNumber,
             Name("/%FE%00%98%96%80"),
             10000000,
-            bind(&Component::isSequenceNumber, _1)};
+            &Component::isSequenceNumber};
   }
 };
 
@@ -513,11 +513,11 @@ public:
   operator()() const
   {
     return {&Component::fromSequenceNumber,
-            bind(&Component::toSequenceNumber, _1),
-            bind(&Name::appendSequenceNumber, _1, _2),
+            &Component::toSequenceNumber,
+            &Name::appendSequenceNumber,
             Name("/37=%00%98%96%80"),
             10000000,
-            bind(&Component::isSequenceNumber, _1)};
+            &Component::isSequenceNumber};
   }
 };
 
@@ -540,9 +540,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Convention, T, ConventionTests, T::ConventionRe
   Component invalidComponent2("1234567890");
 
   auto test = T()();
-
   const Name& expected = test.expected;
-  BOOST_TEST_MESSAGE("Check " << expected[0]);
 
   Component actualComponent = test.makeComponent(test.value);
   BOOST_CHECK_EQUAL(actualComponent, expected[0]);

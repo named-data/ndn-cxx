@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 #include "tests/boost-test.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <iomanip>
 #include <sstream>
 
 namespace ndn {
@@ -72,22 +73,25 @@ BOOST_AUTO_TEST_CASE(PrintFaceEventKind)
 BOOST_AUTO_TEST_CASE(ParseRouteOrigin)
 {
   auto expectSuccess = [] (const std::string& input, RouteOrigin expected) {
-    std::istringstream is(input);
-    RouteOrigin routeOrigin;
-    is >> routeOrigin;
+    BOOST_TEST_CONTEXT("input = " << std::quoted(input)) {
+      std::istringstream is(input);
+      RouteOrigin routeOrigin;
+      is >> routeOrigin;
 
-    BOOST_TEST_MESSAGE("parsing " << input);
-    BOOST_CHECK_EQUAL(routeOrigin, expected);
+      BOOST_CHECK(!is.fail());
+      BOOST_CHECK_EQUAL(routeOrigin, expected);
+    }
   };
 
   auto expectFail = [] (const std::string& input) {
-    std::istringstream is(input);
-    RouteOrigin routeOrigin;
-    is >> routeOrigin;
+    BOOST_TEST_CONTEXT("input = " << std::quoted(input)) {
+      std::istringstream is(input);
+      RouteOrigin routeOrigin;
+      is >> routeOrigin;
 
-    BOOST_TEST_MESSAGE("parsing " << input);
-    BOOST_CHECK(is.fail());
-    BOOST_CHECK_EQUAL(routeOrigin, ROUTE_ORIGIN_NONE);
+      BOOST_CHECK(is.fail());
+      BOOST_CHECK_EQUAL(routeOrigin, ROUTE_ORIGIN_NONE);
+    }
   };
 
   expectSuccess("none", ROUTE_ORIGIN_NONE);
