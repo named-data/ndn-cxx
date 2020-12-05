@@ -37,14 +37,14 @@ New features
 
   + New :ndn-cxx:`SignatureSha256WithEcdsa` signature type
 
-  + Updates in :ndn-cxx:`Signature` data structure to reflect changes in `NDN-TLV spec
-    0.1.1 <https://named-data.net/doc/NDN-packet-spec/0.1.1/>`_
+  + Updates in ``Signature`` data structure to reflect changes in the `NDN-TLV spec v0.1.1
+    <https://named-data.net/doc/NDN-packet-spec/0.1.1/>`_
 
 - **Wire encoding**
 
-  + ``Data::getFullName()`` method to get the Data packet name including the implicit digest
+  + :ndn-cxx:`Data::getFullName` method to get the Data packet name including the implicit digest
 
-  + ``Name::getSuccessor()`` method to get name successor (:issue:`1677`)
+  + :ndn-cxx:`Name::getSuccessor` method to get name successor (:issue:`1677`)
 
   + New in-wire refreshing of Interest's nonce (:issue:`1758`)
 
@@ -78,7 +78,7 @@ Updates and bug fixes
 
 - **Base**
 
-  + Serialization of socket write operations (:issue:`1707`)
+  + Serialization of socket write operations (:issue:`1769`)
 
   + Enforcing limit on Interest and Data packet size in :ndn-cxx:`Face::expressInterest` and
     :ndn-cxx:`Face::put` methods (:issue:`1774`)
@@ -86,7 +86,7 @@ Updates and bug fixes
   + Cleaning up transport state on communication failure, so Face can try to reconnect
     in the future
 
-  + Fix bug in ``Face::removePendingInterest`` (:issue:`1917`)
+  + Fix bug in ``Face::removePendingInterest()`` (:issue:`1917`)
 
 - **Wire encoding**
 

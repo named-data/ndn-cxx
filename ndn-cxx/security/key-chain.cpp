@@ -143,16 +143,6 @@ KeyChain::getDefaultTpmLocator()
   return s_defaultTpmLocator;
 }
 
-
-// Other defaults
-
-const SigningInfo&
-KeyChain::getDefaultSigningInfo()
-{
-  static SigningInfo signingInfo;
-  return signingInfo;
-}
-
 const KeyParams&
 KeyChain::getDefaultKeyParams()
 {
@@ -497,17 +487,6 @@ KeyChain::sign(Interest& interest, const SigningInfo& params)
   }
 }
 
-Block
-KeyChain::sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& params)
-{
-  Name keyName;
-  SignatureInfo sigInfo;
-  std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
-
-  return Block(tlv::SignatureValue,
-               sign({{buffer, bufferLength}}, keyName, params.getDigestAlgorithm()));
-}
-
 // public: PIB/TPM creation helpers
 
 static inline std::tuple<std::string/*type*/, std::string/*location*/>
@@ -534,7 +513,7 @@ KeyChain::parseAndCheckPibLocator(const std::string& pibLocator)
 
   auto pibFactory = getPibFactories().find(pibScheme);
   if (pibFactory == getPibFactories().end()) {
-    NDN_THROW(KeyChain::Error("PIB scheme `" + pibScheme + "` is not supported"));
+    NDN_THROW(Error("PIB scheme `" + pibScheme + "` is not supported"));
   }
 
   return std::make_tuple(pibScheme, pibLocation);
@@ -559,9 +538,10 @@ KeyChain::parseAndCheckTpmLocator(const std::string& tpmLocator)
   if (tpmScheme.empty()) {
     tpmScheme = getDefaultTpmScheme();
   }
+
   auto tpmFactory = getTpmFactories().find(tpmScheme);
   if (tpmFactory == getTpmFactories().end()) {
-    NDN_THROW(KeyChain::Error("TPM scheme `" + tpmScheme + "` is not supported"));
+    NDN_THROW(Error("TPM scheme `" + tpmScheme + "` is not supported"));
   }
 
   return std::make_tuple(tpmScheme, tpmLocation);

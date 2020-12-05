@@ -31,20 +31,6 @@ namespace ndn {
 namespace security {
 
 const Name&
-SigningInfo::getEmptyName()
-{
-  static Name emptyName;
-  return emptyName;
-}
-
-const SignatureInfo&
-SigningInfo::getEmptySignatureInfo()
-{
-  static SignatureInfo emptySignatureInfo;
-  return emptySignatureInfo;
-}
-
-const Name&
 SigningInfo::getDigestSha256Identity()
 {
   static Name digestSha256Identity("/localhost/identity/digest-sha256");
@@ -215,8 +201,7 @@ operator<<(std::ostream& os, const SigningInfo& si)
     case SigningInfo::SIGNER_TYPE_HMAC:
       return os << "id:" << si.getSignerName();
   }
-  NDN_THROW(std::invalid_argument("Unknown signer type"));
-  return os;
+  return os << "Unknown signer type " << to_underlying(si.getSignerType());
 }
 
 std::ostream&
@@ -228,8 +213,7 @@ operator<<(std::ostream& os, const SignedInterestFormat& format)
     case SignedInterestFormat::V02:
       return os << "Signed Interest v0.2";
   }
-  NDN_THROW(std::invalid_argument("Unknown signed Interest format"));
-  return os;
+  return os << "Unknown signed Interest format " << to_underlying(format);
 }
 
 } // namespace security

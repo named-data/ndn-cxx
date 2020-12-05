@@ -143,13 +143,6 @@ public: // field access
   SignatureInfo&
   setKeyLocator(optional<KeyLocator> keyLocator);
 
-  /** @brief Remove KeyLocator
-   *  @deprecated Use `setKeyLocator(nullopt)`
-   */
-  [[deprecated("use setKeyLocator(nullopt)")]]
-  void
-  unsetKeyLocator();
-
   /** @brief Get ValidityPeriod
    *  @throw Error This SignatureInfo does not contain a ValidityPeriod
    */
@@ -163,13 +156,6 @@ public: // field access
    */
   SignatureInfo&
   setValidityPeriod(optional<security::ValidityPeriod> validityPeriod);
-
-  /** @brief Remove ValidityPeriod
-   *  @deprecated Use `setValidityPeriod(nullopt)`
-   */
-  [[deprecated("use setValidityPeriod(nullopt)")]]
-  void
-  unsetValidityPeriod();
 
   /** @brief Get SignatureNonce
    *  @retval nullopt SignatureNonce is not set
@@ -232,22 +218,6 @@ public: // field access
    */
   void
   removeCustomTlv(uint32_t type);
-
-  /** @brief Get SignatureType-specific sub-element
-   *  @deprecated Use getCustomTlv
-   *  @param type TLV-TYPE of sub-element
-   *  @throw Error Sub-element of specified type does not exist
-   */
-  [[deprecated("use getCustomTlv")]]
-  const Block&
-  getTypeSpecificTlv(uint32_t type) const;
-
-  /** @brief Append SignatureType-specific sub-element
-   *  @deprecated Use addCustomTlv
-   */
-  [[deprecated("use addCustomTlv")]]
-  void
-  appendTypeSpecificTlv(const Block& block);
 
 private:
   std::vector<Block>::const_iterator

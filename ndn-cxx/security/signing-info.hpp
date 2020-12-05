@@ -272,21 +272,6 @@ public:
 
 public:
   /**
-   * @deprecated Use default constructor for Name
-   */
-  [[deprecated("use default constructor for Name")]]
-  static const Name&
-  getEmptyName();
-
-  /**
-   * @brief Get a SignatureInfo constructed with default values.
-   * @deprecated Use default constructor for SignatureInfo
-   */
-  [[deprecated("use default constructor for SignatureInfo")]]
-  static const SignatureInfo&
-  getEmptySignatureInfo();
-
-  /**
    * @brief A localhost identity to indicate that the signature is generated using SHA-256.
    */
   static const Name&

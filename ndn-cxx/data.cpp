@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/data.hpp"
-#include "ndn-cxx/signature.hpp"
 #include "ndn-cxx/util/sha256.hpp"
 
 namespace ndn {
@@ -287,21 +286,6 @@ Data&
 Data::unsetContent()
 {
   m_content = {};
-  resetWire();
-  return *this;
-}
-
-Signature
-Data::getSignature() const
-{
-  return Signature(m_signatureInfo, m_signatureValue);
-}
-
-Data&
-Data::setSignature(const Signature& signature)
-{
-  m_signatureInfo = signature.getSignatureInfo();
-  m_signatureValue = signature.getValue();
   resetWire();
   return *this;
 }

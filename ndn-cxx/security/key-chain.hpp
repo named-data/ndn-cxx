@@ -96,16 +96,19 @@ public:
   ~KeyChain();
 
   const Pib&
-  getPib() const
+  getPib() const noexcept
   {
     return *m_pib;
   }
 
   const Tpm&
-  getTpm() const
+  getTpm() const noexcept
   {
     return *m_tpm;
   }
+
+  static const KeyParams&
+  getDefaultKeyParams();
 
 public: // Identity management
   /**
@@ -287,25 +290,6 @@ public: // signing
   void
   sign(Interest& interest, const SigningInfo& params = SigningInfo());
 
-  /**
-   * @brief Sign buffer according to the supplied signing information @p params
-   * @deprecated Sign Interests and Data directly
-   *
-   * If @p params refers to an identity, the method selects the default key of the identity.
-   * If @p params refers to a key or certificate, the method select the corresponding key.
-   *
-   * @param buffer The buffer to sign
-   * @param bufferLength The buffer size
-   * @param params The signing parameters
-   * @return SignatureValue TLV block
-   * @throw Error Signing failed
-   * @see SigningInfo
-   * @see SignatureInfo
-   */
-  [[deprecated("sign Interests and Data directly")]]
-  Block
-  sign(const uint8_t* buffer, size_t bufferLength, const SigningInfo& params = SigningInfo());
-
 public: // export & import
   /**
    * @brief Export a certificate and its corresponding private key.
@@ -343,13 +327,6 @@ public: // export & import
   void
   importPrivateKey(const Name& keyName, shared_ptr<transform::PrivateKey> key);
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  /**
-   * @brief Derive SignatureTypeValue according to key type and digest algorithm.
-   */
-  static tlv::SignatureTypeValue
-  getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm);
-
 public: // PIB & TPM backend registry
   /**
    * @brief Register a new PIB backend
@@ -359,7 +336,12 @@ public: // PIB & TPM backend registry
    */
   template<class PibBackendType>
   static void
-  registerPibBackend(const std::string& scheme);
+  registerPibBackend(const std::string& scheme)
+  {
+    getPibFactories().emplace(scheme, [] (const std::string& locator) {
+      return shared_ptr<pib::PibImpl>(new PibBackendType(locator));
+    });
+  }
 
   /**
    * @brief Register a new TPM backend
@@ -369,11 +351,16 @@ public: // PIB & TPM backend registry
    */
   template<class TpmBackendType>
   static void
-  registerTpmBackend(const std::string& scheme);
+  registerTpmBackend(const std::string& scheme)
+  {
+    getTpmFactories().emplace(scheme, [] (const std::string& locator) {
+      return unique_ptr<tpm::BackEnd>(new TpmBackendType(locator));
+    });
+  }
 
 private:
-  typedef std::map<std::string, function<std::shared_ptr<pib::PibImpl>(const std::string& location)>> PibFactories;
-  typedef std::map<std::string, function<unique_ptr<tpm::BackEnd>(const std::string& location)>> TpmFactories;
+  using PibFactories = std::map<std::string, std::function<shared_ptr<pib::PibImpl>(const std::string&)>>;
+  using TpmFactories = std::map<std::string, std::function<unique_ptr<tpm::BackEnd>(const std::string&)>>;
 
   static PibFactories&
   getPibFactories();
@@ -412,6 +399,12 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   static const std::string&
   getDefaultTpmLocator();
 
+  /**
+   * @brief Derive SignatureTypeValue according to key type and digest algorithm.
+   */
+  static tlv::SignatureTypeValue
+  getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm);
+
 private: // signing
   /**
    * @brief Generate a self-signed certificate for a public key.
@@ -439,42 +432,13 @@ private: // signing
   ConstBufferPtr
   sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
 
-public:
-  /**
-   * @deprecated Use default constructor for SigningInfo
-   */
-  [[deprecated("use default constructor for SigningInfo")]]
-  static const SigningInfo&
-  getDefaultSigningInfo();
-
-  static const KeyParams&
-  getDefaultKeyParams();
-
 private:
-  std::unique_ptr<Pib> m_pib;
-  std::unique_ptr<Tpm> m_tpm;
+  unique_ptr<Pib> m_pib;
+  unique_ptr<Tpm> m_tpm;
 
   static std::string s_defaultPibLocator;
   static std::string s_defaultTpmLocator;
 };
-
-template<class PibType>
-inline void
-KeyChain::registerPibBackend(const std::string& scheme)
-{
-  getPibFactories().emplace(scheme, [] (const std::string& locator) {
-      return std::shared_ptr<pib::PibImpl>(new PibType(locator));
-    });
-}
-
-template<class TpmType>
-inline void
-KeyChain::registerTpmBackend(const std::string& scheme)
-{
-  getTpmFactories().emplace(scheme, [] (const std::string& locator) {
-      return unique_ptr<tpm::BackEnd>(new TpmType(locator));
-    });
-}
 
 /**
  * @brief Register Pib backend class in KeyChain

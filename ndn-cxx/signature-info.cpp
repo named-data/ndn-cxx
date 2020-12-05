@@ -205,12 +205,6 @@ SignatureInfo::setKeyLocator(optional<KeyLocator> keyLocator)
   return *this;
 }
 
-void
-SignatureInfo::unsetKeyLocator()
-{
-  setKeyLocator(nullopt);
-}
-
 security::ValidityPeriod
 SignatureInfo::getValidityPeriod() const
 {
@@ -231,12 +225,6 @@ SignatureInfo::setValidityPeriod(optional<security::ValidityPeriod> validityPeri
     addCustomTlv(validityPeriod->wireEncode());
   }
   return *this;
-}
-
-void
-SignatureInfo::unsetValidityPeriod()
-{
-  setValidityPeriod(nullopt);
 }
 
 optional<std::vector<uint8_t>>
@@ -342,22 +330,6 @@ SignatureInfo::removeCustomTlv(uint32_t type)
     m_otherTlvs.erase(it, m_otherTlvs.end());
     m_wire.reset();
   }
-}
-
-const Block&
-SignatureInfo::getTypeSpecificTlv(uint32_t type) const
-{
-  auto it = findOtherTlv(type);
-  if (it == m_otherTlvs.end()) {
-    NDN_THROW(Error("TLV-TYPE " + to_string(type) + " sub-element does not exist in SignatureInfo"));
-  }
-  return *it;
-}
-
-void
-SignatureInfo::appendTypeSpecificTlv(const Block& block)
-{
-  addCustomTlv(block);
 }
 
 std::vector<Block>::const_iterator

@@ -30,40 +30,6 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(TestSignatureInfo)
 
-const uint8_t sigInfoDataRsa[] = {
-  0x16, 0x1b, // SignatureInfo
-    0x1b, 0x01, // SignatureType
-      0x01, // Sha256WithRsa
-    0x1c, 0x16, // KeyLocator
-      0x07, 0x14, // Name
-        0x08, 0x04,
-          0x74, 0x65, 0x73, 0x74,
-        0x08, 0x03,
-          0x6b, 0x65, 0x79,
-        0x08, 0x07,
-          0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
-};
-
-const uint8_t sigInfoInterestRsa[] = {
-  0x2c, 0x33, // InterestSignatureInfo
-    0x1b, 0x01, // SignatureType
-      0x01, // Sha256WithRsa
-    0x1c, 0x16, // KeyLocator
-      0x07, 0x14, // Name
-        0x08, 0x04,
-          0x74, 0x65, 0x73, 0x74,
-        0x08, 0x03,
-          0x6b, 0x65, 0x79,
-        0x08, 0x07,
-          0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
-    0x26, 0x08, // SignatureNonce
-      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-    0x28, 0x08, // SignatureTime
-      0x00, 0x00, 0x01, 0x72, 0x3d, 0x77, 0x00, 0x00,
-    0x2a, 0x02, // SignatureSeqNum
-      0x10, 0x20,
-};
-
 BOOST_AUTO_TEST_CASE(Constructor)
 {
   SignatureInfo info;
@@ -215,50 +181,119 @@ BOOST_AUTO_TEST_CASE(SignatureSeqNum)
   BOOST_CHECK(!info.getSeqNum());
 }
 
+const uint8_t sigInfoDataRsa[] = {
+  0x16, 0x1b, // SignatureInfo
+    0x1b, 0x01, // SignatureType
+      0x01, // Sha256WithRsa
+    0x1c, 0x16, // KeyLocator
+      0x07, 0x14, // Name
+        0x08, 0x04,
+          0x74, 0x65, 0x73, 0x74,
+        0x08, 0x03,
+          0x6b, 0x65, 0x79,
+        0x08, 0x07,
+          0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
+};
+
+const uint8_t sigInfoInterestRsa[] = {
+  0x2c, 0x33, // InterestSignatureInfo
+    0x1b, 0x01, // SignatureType
+      0x01, // Sha256WithRsa
+    0x1c, 0x16, // KeyLocator
+      0x07, 0x14, // Name
+        0x08, 0x04,
+          0x74, 0x65, 0x73, 0x74,
+        0x08, 0x03,
+          0x6b, 0x65, 0x79,
+        0x08, 0x07,
+          0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
+    0x26, 0x08, // SignatureNonce
+      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+    0x28, 0x08, // SignatureTime
+      0x00, 0x00, 0x01, 0x72, 0x3d, 0x77, 0x00, 0x00,
+    0x2a, 0x02, // SignatureSeqNum
+      0x10, 0x20,
+};
+
+const uint8_t sigInfoDataEcdsa[] = {
+  0x16, 0x1b, // SignatureInfo
+    0x1b, 0x01, // SignatureType
+      0x03, // Sha256WithEcdsa
+    0x1c, 0x16, // KeyLocator
+      0x07, 0x14, // Name
+        0x08, 0x04,
+          0x74, 0x65, 0x73, 0x74,
+        0x08, 0x03,
+          0x6b, 0x65, 0x79,
+        0x08, 0x07,
+          0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72,
+};
+
 BOOST_AUTO_TEST_CASE(EncodeDecode)
 {
-  KeyLocator keyLocator("/test/key/locator");
+  const KeyLocator keyLocator("/test/key/locator");
+
+  // RSA
   SignatureInfo info(tlv::SignatureSha256WithRsa, keyLocator);
 
-  // Encode as SignatureInfo (for Data packets)
+  // Encode as (Data)SignatureInfo
   auto encodedData = info.wireEncode(SignatureInfo::Type::Data);
-  Block sigInfoDataBlock(sigInfoDataRsa, sizeof(sigInfoDataRsa));
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoDataBlock.wire(), sigInfoDataBlock.wire() + sigInfoDataBlock.size(),
-                                encodedData.wire(), encodedData.wire() + encodedData.size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoDataRsa, sigInfoDataRsa + sizeof(sigInfoDataRsa),
+                                encodedData.begin(), encodedData.end());
 
-  // Decode as SignatureInfo (for Data packets)
-  info = SignatureInfo(sigInfoDataBlock, SignatureInfo::Type::Data);
+  // Decode as (Data)SignatureInfo
+  info = SignatureInfo(Block(sigInfoDataRsa, sizeof(sigInfoDataRsa)),
+                       SignatureInfo::Type::Data);
+
   BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
   BOOST_CHECK_EQUAL(info.getKeyLocator().getName(), Name("/test/key/locator"));
-
   BOOST_CHECK(!info.getNonce());
   BOOST_CHECK(!info.getTime());
   BOOST_CHECK(!info.getSeqNum());
 
   // Encode as InterestSignatureInfo
-  std::vector<uint8_t> nonce{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  const std::vector<uint8_t> nonce{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
   info.setNonce(nonce);
-  time::system_clock::time_point timePoint(1590169108480_ms);
+  const time::system_clock::time_point timePoint(1590169108480_ms);
   info.setTime(timePoint);
   info.setSeqNum(0x1020);
   auto encodedInterest = info.wireEncode(SignatureInfo::Type::Interest);
-  Block sigInfoInterestBlock(sigInfoInterestRsa, sizeof(sigInfoInterestRsa));
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoInterestBlock.wire(),
-                                sigInfoInterestBlock.wire() + sigInfoInterestBlock.size(),
-                                encodedInterest.wire(),
-                                encodedInterest.wire() + encodedInterest.size());
+  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoInterestRsa, sigInfoInterestRsa + sizeof(sigInfoInterestRsa),
+                                encodedInterest.begin(), encodedInterest.end());
 
   // Decode as InterestSignatureInfo
-  info = SignatureInfo(sigInfoInterestBlock, SignatureInfo::Type::Interest);
+  info = SignatureInfo(Block(sigInfoInterestRsa, sizeof(sigInfoInterestRsa)),
+                       SignatureInfo::Type::Interest);
+
   BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
   BOOST_CHECK_EQUAL(info.getKeyLocator().getName(), Name("/test/key/locator"));
   BOOST_CHECK(info.getNonce() == nonce);
   BOOST_CHECK(info.getTime() == timePoint);
   BOOST_CHECK(info.getSeqNum() == 0x1020UL);
+
+  // ECDSA
+  info = SignatureInfo(tlv::SignatureSha256WithEcdsa, keyLocator);
+
+  // Encode as (Data)SignatureInfo
+  auto encodedDataEcdsa = info.wireEncode(SignatureInfo::Type::Data);
+
+  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfoDataEcdsa, sigInfoDataEcdsa + sizeof(sigInfoDataEcdsa),
+                                encodedDataEcdsa.begin(), encodedDataEcdsa.end());
+
+  // Decode as (Data)SignatureInfo
+  info = SignatureInfo(Block(sigInfoDataEcdsa, sizeof(sigInfoDataEcdsa)),
+                       SignatureInfo::Type::Data);
+
+  BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithEcdsa);
+  BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
+  BOOST_CHECK_EQUAL(info.getKeyLocator().getName(), Name("/test/key/locator"));
+  BOOST_CHECK(!info.getNonce());
+  BOOST_CHECK(!info.getTime());
+  BOOST_CHECK(!info.getSeqNum());
 }
 
 BOOST_AUTO_TEST_CASE(DecodeError)
@@ -449,11 +484,12 @@ BOOST_AUTO_TEST_CASE(CustomTlvs)
 BOOST_AUTO_TEST_CASE(CustomTlvsEncoding) // Bug #3914
 {
   SignatureInfo info1(tlv::SignatureSha256WithRsa);
-  info1.appendTypeSpecificTlv(makeStringBlock(102, "First"));
-  info1.appendTypeSpecificTlv(makeStringBlock(104, "Second"));
-  info1.appendTypeSpecificTlv(makeStringBlock(106, "Third"));
+  info1.addCustomTlv(makeStringBlock(102, "First"));
+  info1.addCustomTlv(makeStringBlock(104, "Second"));
+  info1.addCustomTlv(makeStringBlock(106, "Third"));
 
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(info1), "SignatureSha256WithRsa { 102 104 106 }");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(info1),
+                    "SignatureSha256WithRsa { 102 104 106 }");
 
   SignatureInfo info2;
   info2.wireDecode(info1.wireEncode(), SignatureInfo::Type::Data);

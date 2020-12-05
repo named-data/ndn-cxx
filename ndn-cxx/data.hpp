@@ -31,8 +31,6 @@
 
 namespace ndn {
 
-class Signature;
-
 /** @brief Represents a %Data packet.
  *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html
  */
@@ -210,21 +208,6 @@ public: // Data fields
   Data&
   unsetContent();
 
-  /** @brief Get Signature
-   *  @deprecated Use getSignatureInfo and getSignatureValue
-   */
-  [[deprecated("use getSignatureInfo and getSignatureValue")]]
-  Signature
-  getSignature() const;
-
-  /** @brief Set Signature
-   *  @deprecated Use setSignatureInfo and setSignatureValue
-   *  @return a reference to this Data, to allow chaining
-   */
-  [[deprecated("use setSignatureInfo and setSignatureValue")]]
-  Data&
-  setSignature(const Signature& signature);
-
   /** @brief Get SignatureInfo
    */
   const SignatureInfo&
@@ -333,7 +316,7 @@ private:
   Block m_signatureValue;
 
   mutable Block m_wire;
-  mutable Name m_fullName; ///< cached FullName computed from m_wire
+  mutable Name m_fullName; // cached FullName computed from m_wire
 };
 
 #ifndef DOXYGEN
