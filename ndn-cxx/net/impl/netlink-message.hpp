@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -275,10 +275,10 @@ private:
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<std::string>)
   {
     auto str = reinterpret_cast<const char*>(val);
-    if (::strnlen(str, len) < len)
-      return std::string(str);
-    else
+    if (::strnlen(str, len) >= len)
       return nullopt;
+
+    return std::string(str);
   }
 
   static optional<ethernet::Address>
@@ -292,7 +292,8 @@ private:
 
   template<typename IpAddress>
   static std::enable_if_t<std::is_same<IpAddress, boost::asio::ip::address_v4>::value ||
-                          std::is_same<IpAddress, boost::asio::ip::address_v6>::value, optional<IpAddress>>
+                          std::is_same<IpAddress, boost::asio::ip::address_v6>::value,
+                          optional<IpAddress>>
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<IpAddress>)
   {
     typename IpAddress::bytes_type bytes;

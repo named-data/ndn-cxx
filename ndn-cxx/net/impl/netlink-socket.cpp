@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2020 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -531,7 +531,7 @@ GenlFamilyResolver::asyncResolve()
   auto attr = make_shared<FamilyNameAttribute>();
   attr->nla.nla_type = CTRL_ATTR_FAMILY_NAME;
   attr->nla.nla_len = NLA_HDRLEN + m_family.size() + 1;
-  ::strncpy(attr->name, m_family.data(), GENL_NAMSIZ);
+  std::strncpy(attr->name, m_family.data(), GENL_NAMSIZ - 1);
 
   m_sock.sendRequest(GENL_ID_CTRL, CTRL_CMD_GETFAMILY, attr.get(), attr->nla.nla_len,
                      // capture 'attr' to prevent its premature deallocation
