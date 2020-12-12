@@ -3,11 +3,11 @@ ndn-cxx Code Style and Coding Guidelines
 
 Based on
 
-    * "C++ Programming Style Guidelines" by Geotechnical Software Services, Copyright © 1996 – 2011.
-      The original document is available at `<http://geosoft.no/development/cppstyle.html>`_
+* "C++ Programming Style Guidelines" by Geotechnical Software Services, Copyright © 1996 – 2011.
+  The original document is available at `<http://geosoft.no/development/cppstyle.html>`_
 
-    * NDN Platform "C++, C, C#, Java and JavaScript Code Guidelines".
-      The original document available at `<https://named-data.net/codebase/platform/documentation/ndn-platform-development-guidelines/cpp-code-guidelines/>`_
+* NDN Platform "C++, C, C#, Java and JavaScript Code Guidelines".
+  The original document is available at `<https://named-data.net/codebase/platform/documentation/ndn-platform-development-guidelines/cpp-code-guidelines/>`_
 
 1. Code layout
 --------------
@@ -31,14 +31,14 @@ extended it to C++.
 
     .. code-block:: c++
 
-        a = (b + c) * d; // NOT: a=(b+c)*d
+        a = (b + c) * d;  // NOT: a=(b+c)*d
 
-        while (true) {     // NOT: while(true)
+        while (true) {    // NOT: while(true)
           ...
 
-        doSomething(a, b, c, d);   // NOT: doSomething(a,b,c,d);
+        doSomething(a, b, c, d);    // NOT: doSomething(a,b,c,d);
 
-        for (i = 0; i < 10; i++) { // NOT: for(i=0;i<10;i++){
+        for (i = 0; i < 10; i++) {  // NOT: for(i=0;i<10;i++){
           ...
 
 1.3. Namespaces should have the following form:
@@ -243,7 +243,7 @@ extended it to C++.
           break;
         }
 
-    The ``NDN_CXX_FALLTHROUGH;`` annotation must be included whenever there is
+    The ``NDN_CXX_FALLTHROUGH`` annotation must be included whenever there is
     a case without a break statement. Leaving the break out is a common error,
     and it must be made clear that it is intentional when it is not there.
     Moreover, modern compilers will warn when a case that falls through is not
@@ -329,19 +329,6 @@ should take the following form:
           statements;
         }
 
-    If the lambda has no parameters, ``()`` should be omitted.
-
-    .. code-block:: c++
-
-        [&capture1, capture2] {
-          statements;
-        }
-
-    Either capture-default (``[&]`` or ``[=]``) is permitted, but its usage should be minimized.
-    Only use a capture-default when it significantly simplifies code and improves readability.
-
-    .. code-block:: c++
-
         [&] (T arg) {
           statements;
         }
@@ -350,8 +337,16 @@ should take the following form:
           statements;
         }
 
-    Trailing return type should be omitted whenever possible. Add it only when the compiler
-    cannot deduce the return type automatically, or when it improves readability.
+    If the lambda has no parameters, ``()`` should be omitted.
+
+    .. code-block:: c++
+
+        [&capture1, capture2] {
+          statements;
+        }
+
+    Trailing return types should be omitted whenever possible. Add it only when the compiler
+    cannot deduce the return type automatically, or when it improves readability. Note that
     ``()`` is required by the C++ standard when ``mutable`` or a trailing return type is used.
 
     .. code-block:: c++
@@ -371,7 +366,7 @@ should take the following form:
 
         [&capture1, capture2] (T1 arg1, T2 arg2) { statement; }
 
-    No-op can be written in a more compact form:
+    A no-op lambda can be written in a more compact form:
 
     .. code-block:: c++
 
@@ -395,26 +390,20 @@ should take the following form:
 
         T({arg1, arg2})
 
+        T object = {arg1, arg2};
+
         class Class
         {
         private:
-          T m_member = {arg1, arg2};
+          T m_member{arg1, arg2};
           static T s_member = {arg1, arg2};
         };
-
-        Class::Class()
-          : m_member{arg1, arg2}
-        {
-        }
-
-        T object = {arg1, arg2};
 
     An empty braced-init-list is written as ``{}``. For example:
 
     .. code-block:: c++
 
         T object{};
-
         T object = {};
 
 2. Naming Conventions
@@ -530,8 +519,8 @@ written in mixed case starting with lower case.
     In general, the use of global variables should be avoided.  Consider using singleton
     objects instead.
 
-2.10. Private class variables should have ``m_`` prefix. Static class variables should have
-``s_`` prefix.
+2.10. All non-static data members of a class should be prefixed with ``m_`` unless they
+are public. Similarly, non-public static data members should be prefixed with ``s_``.
 
     .. code-block:: c++
 
@@ -629,13 +618,13 @@ symmetry.
 
     ::
 
-        get/set, add/remove, create/destroy, start/stop, insert/delete,
+        get/set, add/remove, create/destroy, start/stop, insert/erase,
         increment/decrement, old/new, begin/end, first/last, up/down, min/max,
         next/previous (and commonly used next/prev), open/close, show/hide,
         suspend/resume, etc.
 
-    Pair ``insert/erase`` should be preferred.  ``insert/delete`` can also be used if it
-    does not conflict with C++ delete keyword.
+    The pair ``insert/erase`` is preferred. ``insert/delete`` can also be used if it
+    does not conflict with the ``delete`` keyword of C++.
 
 2.21. Variable names should not include reference to variable type (do not use Hungarian
 notation).
@@ -758,20 +747,29 @@ For example, the include section of ``ndn-cxx/foo/bar.cpp`` may look like this:
         #include <boost/lexical_cast.hpp>
         #include <boost/regex.hpp>
 
-3.5. Types that are local to one file only can be declared inside that file.
+3.5. Definitions that are local to only one ``.cpp`` file should be declared inside that
+file and be placed in an unnamed namespace or declared ``static``.
 
 3.6. Implicit conversion is generally allowed.
 
     Implicit conversion between integer and floating point numbers can cause problems and
     should be avoided.
 
-    Implicit conversion in single-argument constructor is usually undesirable. Therefore, all
-    single-argument constructors should be marked 'explicit', unless implicit conversion is
-    desirable. In that case, a comment should document the reason.
+    Implicit conversion in constructors that can be called with a single argument is usually
+    undesirable. Therefore, all single-argument constructors should be marked ``explicit``,
+    unless implicit conversion is desirable. In that case, a comment should document the
+    reason for this.
+    As an exception, copy and move constructors should not be explicit, since they do not
+    perform type conversion.
+    Constructors that cannot be called with a single argument may omit ``explicit``.
+    Constructors that take a single ``std::initializer_list`` parameter should also omit
+    ``explicit``, in order to support copy-initialization.
 
-    Avoid C-style casts. Use ``static_cast``, ``dynamic_cast``, ``reinterpret_cast``,
-    ``const_cast`` instead where appropriate.  Use ``static_pointer_cast``,
-    ``dynamic_pointer_cast``, ``const_pointer_cast`` when dealing with ``shared_ptr``.
+    Avoid C-style casts.
+    Use ``static_cast``, ``dynamic_cast``, ``const_cast``, ``reinterpret_cast``, or
+    ``bit_cast`` instead where appropriate.
+    Use ``static_pointer_cast``, ``dynamic_pointer_cast``, or ``const_pointer_cast``
+    when dealing with ``shared_ptr``.
 
 3.7. Variables should be initialized where they are declared.
 
@@ -793,9 +791,9 @@ For example, the include section of ``ndn-cxx/foo/bar.cpp`` may look like this:
 
     Exceptions to this rule:
 
-    * When the class is essentially a dumb data structure with no or minimal behavior
-      (equivalent to a C struct, also known as POD type). In this case it is appropriate
-      to make the instance variables public by using ``struct``.
+    * When the class is essentially a passive data structure with no or minimal behavior
+      (equivalent to a C struct, also known as POD type). In this case, all fields should
+      be public and the keyword ``struct`` should be used instead of ``class``.
 
     * When the class is used only inside the compilation unit, e.g., when implementing pImpl
       idiom (aka Bridge pattern) or similar cases.
@@ -812,8 +810,11 @@ than to the name.
 
     .. code-block:: c++
 
-        if (nLines != 0)  // NOT: if (nLines)
-        if (value != 0.0) // NOT: if (value)
+        if (nLines != 0)    // NOT: if (nLines)
+
+        int* ptr = ...
+        if (ptr)            // OK
+        if (ptr != nullptr) // also OK
 
 3.11. *(removed)*
 
@@ -837,10 +838,10 @@ than to the name.
 
         // NOT:
         for (;;) { // NO!
-          :
+          ...
         }
         while (1) { // NO!
-          :
+          ...
         }
 
 3.14. Complex conditional expressions must be avoided. Introduce temporary boolean variables
@@ -1004,10 +1005,10 @@ decimal, and without omitting 0 before the decimal point.
         int z = x + y;
         BOOST_ASSERT(z - y == x);
 
-    The expression passed to ``BOOST_ASSERT`` MUST NOT have side effects,
-    because it MAY NOT be evaluated in release builds.
+    The expression passed to ``BOOST_ASSERT`` must not have side effects,
+    because it may not be evaluated in release builds.
 
-3.28. Use ``static_assert`` for static assertions.
+3.28. Use ``static_assert`` for compile-time assertions.
 
     .. code-block:: c++
 
@@ -1022,43 +1023,32 @@ decimal, and without omitting 0 before the decimal point.
         static_assert(std::is_base_of<BaseClass, DerivedClass>::value,
                       "DerivedClass must inherit from BaseClass");
 
-3.29. ``auto`` type specifier MAY be used for local variables, if a human reader
-      can easily deduce the actual type.
+3.29. The ``auto`` type specifier may be used for local variables if a human reader can
+easily deduce the actual type, or if it makes the code safer.
 
     .. code-block:: c++
 
         std::vector<int> intVector;
-        auto i = intVector.find(4);
+        auto i = intVector.find(4); // OK
 
-        auto stringSet = std::make_shared<std::set<std::string>>();
+        auto stringSet = std::make_shared<std::set<std::string>>(); // OK
 
-    ``auto`` SHOULD NOT be used if a human reader cannot easily deduce the actual type.
-
-    .. code-block:: c++
-
-        auto x = foo(); // BAD if the declaration of foo() isn't nearby
-
-    ``const auto&`` SHOULD be used to represent constant reference types.
-    ``auto&&`` SHOULD be used to represent mutable reference types.
-
-    .. code-block:: c++
-
-        std::list<std::string> strings;
-        for (const auto& str : strings) {
-          statements; // cannot modify `str`
+        std::vector<std::string> strings;
+        for (const auto& str : strings) { // OK, iterating over the elements of a container
+          std::cout << str;
         }
-        for (auto&& str : strings) {
-          statements; // can modify `str`
-        }
+
+        obj.onEvent([] (auto&&...) { std::cout << "hi!"; }); // OK, unused lambda parameters
+
+        auto x = foo(); // BAD unless foo() is declared nearby or has a well-known prototype
 
 3.30. Use the ``override`` or ``final`` specifier when overriding a virtual
 member function or a virtual destructor.
 
-    ``virtual`` MUST NOT be used along with ``final``, so that the compiler
-    can generate an error when a final function does not override.
+    ``virtual`` must not be used along with ``final`` so that the compiler can generate
+    an error when a final function does not override.
 
-    ``virtual`` SHOULD NOT be used along with ``override``, for consistency
-    with ``final``.
+    ``virtual`` should not be used along with ``override`` for consistency with ``final``.
 
     .. code-block:: c++
 
@@ -1085,5 +1075,22 @@ member function or a virtual destructor.
 
 3.31. The recommended way to throw an exception derived from ``std::exception`` is to use
 ``NDN_THROW`` or one of the other ``NDN_THROW_*`` macros.
-Exceptions thrown using these macros will be augmented with additional diagnostic information,
-including the file name, line number, and function name from which the exception was thrown.
+
+    Exceptions thrown using these macros will be augmented with additional diagnostic
+    information, including the file name, line number, and function name from which
+    the exception was thrown.
+
+    The extended diagnostic information contained in the exception can be printed with
+    ``boost::diagnostic_information()``.
+
+    .. code-block:: c++
+
+        #include <boost/exception/diagnostic_information.hpp>
+        #include <iostream>
+
+        try {
+          operationThatMayThrow();
+        }
+        catch (const std::exception& e) {
+          std::cerr << boost::diagnostic_information(e);
+        }
