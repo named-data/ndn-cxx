@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,8 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP
-#define NDN_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP
+#ifndef NDN_CXX_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP
+#define NDN_CXX_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP
 
 #include "ndn-cxx/util/regex/regex-matcher.hpp"
 
@@ -40,19 +40,16 @@ public:
    * @param expr The standard regular expression to match a component
    * @param backrefManager Shared pointer to back-reference manager
    */
-  RegexComponentSetMatcher(const std::string& expr, shared_ptr<RegexBackrefManager> backrefManager);
+  RegexComponentSetMatcher(const std::string& expr,
+                           shared_ptr<RegexBackrefManager> backrefManager);
 
   bool
   match(const Name& name, size_t offset, size_t len = 1) override;
 
-protected:
-  /**
-   * @brief Compile the regular expression to generate the more matchers when necessary
-   */
-  void
-  compile() override;
-
 private:
+  void
+  compile();
+
   void
   compileSingleComponent();
 
@@ -69,4 +66,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP
+#endif // NDN_CXX_UTIL_REGEX_REGEX_COMPONENT_SET_MATCHER_HPP

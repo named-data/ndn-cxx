@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -66,12 +66,13 @@ RegexPatternListMatcher::extractPattern(size_t index, size_t* next)
       auto matcher = make_shared<RegexBackrefMatcher>(m_expr.substr(start, end - start),
                                                       m_backrefManager);
       m_backrefManager->pushRef(matcher);
-      matcher->lateCompile();
+      matcher->compile();
       m_matchers.push_back(std::move(matcher));
     }
-    else
+    else {
       m_matchers.push_back(make_shared<RegexRepeatMatcher>(m_expr.substr(start, end - start),
                                                            m_backrefManager, indicator - start));
+    }
     break;
 
   case '<':

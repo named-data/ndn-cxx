@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(BackRefMatcher)
   shared_ptr<RegexBackrefManager> backRef = make_shared<RegexBackrefManager>();
   shared_ptr<RegexBackrefMatcher> cm = make_shared<RegexBackrefMatcher>("(<a><b>)", backRef);
   backRef->pushRef(static_pointer_cast<RegexMatcher>(cm));
-  cm->lateCompile();
+  cm->compile();
   bool res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(BackRefMatcher)
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexBackrefMatcher>("(<a>(<b>))", backRef);
   backRef->pushRef(cm);
-  cm->lateCompile();
+  cm->compile();
   res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);

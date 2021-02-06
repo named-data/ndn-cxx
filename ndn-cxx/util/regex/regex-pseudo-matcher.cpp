@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,18 +33,13 @@ RegexPseudoMatcher::RegexPseudoMatcher()
 void
 RegexPseudoMatcher::setMatchResult(const std::string& str)
 {
-  m_matchResult.push_back(name::Component(reinterpret_cast<const uint8_t*>(str.data()), str.size()));
+  m_matchResult.emplace_back(reinterpret_cast<const uint8_t*>(str.data()), str.size());
 }
 
 void
 RegexPseudoMatcher::resetMatchResult()
 {
   m_matchResult.clear();
-}
-
-void
-RegexPseudoMatcher::compile()
-{
 }
 
 } // namespace ndn

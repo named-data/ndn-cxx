@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,8 @@
  * @author Yingdi Yu <http://irl.cs.ucla.edu/~yingdi/>
  */
 
-#ifndef NDN_UTIL_REGEX_REGEX_MATCHER_HPP
-#define NDN_UTIL_REGEX_REGEX_MATCHER_HPP
+#ifndef NDN_CXX_UTIL_REGEX_REGEX_MATCHER_HPP
+#define NDN_CXX_UTIL_REGEX_REGEX_MATCHER_HPP
 
 #include "ndn-cxx/util/regex/regex-backref-manager.hpp"
 #include "ndn-cxx/name.hpp"
@@ -48,14 +48,17 @@ public:
     EXPR_PSEUDO
   };
 
-  RegexMatcher(const std::string& expr, const RegexExprType& type,
-               shared_ptr<RegexBackrefManager> backrefManager = nullptr);
-
   virtual
   ~RegexMatcher();
 
   virtual bool
   match(const Name& name, size_t offset, size_t len);
+
+  const std::string&
+  getExpr() const
+  {
+    return m_expr;
+  }
 
   /**
    * @brief get the matched name components
@@ -67,18 +70,9 @@ public:
     return m_matchResult;
   }
 
-  const std::string&
-  getExpr() const
-  {
-    return m_expr;
-  }
-
 protected:
-  /**
-   * @brief Compile the regular expression to generate the more matchers when necessary
-   */
-  virtual void
-  compile() = 0;
+  RegexMatcher(const std::string& expr, RegexExprType type,
+               shared_ptr<RegexBackrefManager> backrefManager = nullptr);
 
 private:
   bool
@@ -97,4 +91,4 @@ operator<<(std::ostream& os, const RegexMatcher& rm);
 
 } // namespace ndn
 
-#endif // NDN_UTIL_REGEX_REGEX_MATCHER_HPP
+#endif // NDN_CXX_UTIL_REGEX_REGEX_MATCHER_HPP
