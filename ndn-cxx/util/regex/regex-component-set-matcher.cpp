@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,6 @@ namespace ndn {
 RegexComponentSetMatcher::RegexComponentSetMatcher(const std::string& expr,
                                                    shared_ptr<RegexBackrefManager> backrefManager)
   : RegexMatcher(expr, EXPR_COMPONENT_SET, std::move(backrefManager))
-  , m_isInclusion(true)
 {
   compile();
 }
@@ -37,27 +36,30 @@ RegexComponentSetMatcher::RegexComponentSetMatcher(const std::string& expr,
 void
 RegexComponentSetMatcher::compile()
 {
-  if (m_expr.size() < 2)
-    NDN_THROW(Error("Regexp compile error (cannot parse " + m_expr + ")"));
+  if (m_expr.size() < 2) {
+    NDN_THROW(Error("Invalid component set syntax: " + m_expr));
+  }
 
   switch (m_expr[0]) {
     case '<':
       return compileSingleComponent();
     case '[': {
       size_t lastIndex = m_expr.size() - 1;
-      if (']' != m_expr[lastIndex])
-        NDN_THROW(Error("Regexp compile error (no matching ']' in " + m_expr + ")"));
+      if (']' != m_expr[lastIndex]) {
+        NDN_THROW(Error("Missing ']' in regex: " + m_expr));
+      }
 
       if ('^' == m_expr[1]) {
         m_isInclusion = false;
         compileMultipleComponents(2, lastIndex);
       }
-      else
+      else {
         compileMultipleComponents(1, lastIndex);
+      }
       break;
     }
     default:
-      NDN_THROW(Error("Regexp compile error (cannot parse " + m_expr + ")"));
+      NDN_THROW(Error("Invalid component set syntax: " + m_expr));
   }
 }
 
@@ -66,7 +68,7 @@ RegexComponentSetMatcher::compileSingleComponent()
 {
   size_t end = extractComponent(1);
   if (m_expr.size() != end)
-    NDN_THROW(Error("Component expr error " + m_expr));
+    NDN_THROW(Error("Component expr error: " + m_expr));
 
   m_components.push_back(make_shared<RegexComponentMatcher>(m_expr.substr(1, end - 2), m_backrefManager));
 }
@@ -79,7 +81,7 @@ RegexComponentSetMatcher::compileMultipleComponents(size_t start, size_t lastInd
 
   while (index < lastIndex) {
     if ('<' != m_expr[index])
-      NDN_THROW(Error("Component expr error " + m_expr));
+      NDN_THROW(Error("Component expr error: " + m_expr));
 
     tempIndex = index + 1;
     index = extractComponent(tempIndex);
@@ -112,8 +114,8 @@ RegexComponentSetMatcher::match(const Name& name, size_t offset, size_t len)
     m_matchResult.push_back(name.get(offset));
     return true;
   }
-  else
-    return false;
+
+  return false;
 }
 
 size_t
@@ -124,15 +126,14 @@ RegexComponentSetMatcher::extractComponent(size_t index) const
 
   while (lcount > rcount) {
     switch (m_expr[index]) {
-      case '<':
-        lcount++;
-        break;
-      case '>':
-        rcount++;
-        break;
-      case 0:
-        NDN_THROW(Error("Square brackets mismatch"));
-        break;
+    case '<':
+      lcount++;
+      break;
+    case '>':
+      rcount++;
+      break;
+    case 0:
+      NDN_THROW(Error("Angle brackets mismatch: " + m_expr));
     }
     index++;
   }

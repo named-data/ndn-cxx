@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,16 +35,18 @@ RegexBackrefMatcher::RegexBackrefMatcher(const std::string& expr,
 void
 RegexBackrefMatcher::compile()
 {
-  if (m_expr.size() < 2)
-    NDN_THROW(Error("Unrecognized format: " + m_expr));
+  if (m_expr.size() < 2) {
+    NDN_THROW(Error("Invalid capture group syntax: " + m_expr));
+  }
 
   size_t lastIndex = m_expr.size() - 1;
   if ('(' == m_expr[0] && ')' == m_expr[lastIndex]) {
     m_matchers.push_back(make_shared<RegexPatternListMatcher>(m_expr.substr(1, lastIndex - 1),
                                                               m_backrefManager));
   }
-  else
-    NDN_THROW(Error("Unrecognized format: " + m_expr));
+  else {
+    NDN_THROW(Error("Invalid capture group syntax: " + m_expr));
+  }
 }
 
 } // namespace ndn

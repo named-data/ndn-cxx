@@ -42,7 +42,7 @@ private:
   void
   compile();
 
-  bool
+  void
   parseRepetition();
 
   bool
@@ -50,8 +50,8 @@ private:
 
 private:
   size_t m_indicator;
-  size_t m_repeatMin;
-  size_t m_repeatMax;
+  size_t m_repeatMin = 0;
+  size_t m_repeatMax = 0;
 };
 
 } // namespace ndn

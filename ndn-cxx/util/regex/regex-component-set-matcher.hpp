@@ -61,7 +61,7 @@ private:
 
 private:
   std::vector<shared_ptr<RegexComponentMatcher>> m_components;
-  bool m_isInclusion;
+  bool m_isInclusion = true;
 };
 
 } // namespace ndn

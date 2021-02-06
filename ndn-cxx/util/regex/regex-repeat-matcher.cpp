@@ -25,7 +25,6 @@
 #include "ndn-cxx/util/regex/regex-backref-matcher.hpp"
 #include "ndn-cxx/util/regex/regex-component-set-matcher.hpp"
 
-#include <cstdlib>
 #include <regex>
 
 namespace ndn {
@@ -43,7 +42,8 @@ void
 RegexRepeatMatcher::compile()
 {
   if ('(' == m_expr[0]) {
-    auto matcher = make_shared<RegexBackrefMatcher>(m_expr.substr(0, m_indicator), m_backrefManager);
+    auto matcher = make_shared<RegexBackrefMatcher>(m_expr.substr(0, m_indicator),
+                                                    m_backrefManager);
     m_backrefManager->pushRef(matcher);
     matcher->compile();
     m_matchers.push_back(std::move(matcher));
@@ -56,75 +56,70 @@ RegexRepeatMatcher::compile()
   parseRepetition();
 }
 
-bool
+void
 RegexRepeatMatcher::parseRepetition()
 {
+  constexpr size_t MAX_REPETITIONS = std::numeric_limits<size_t>::max();
   size_t exprSize = m_expr.size();
-  const size_t MAX_REPETITIONS = std::numeric_limits<size_t>::max();
 
   if (exprSize == m_indicator) {
     m_repeatMin = 1;
     m_repeatMax = 1;
-    return true;
   }
-
-  if (exprSize == (m_indicator + 1)) {
-    if ('?' == m_expr[m_indicator]) {
+  else if (exprSize == m_indicator + 1) {
+    switch (m_expr[m_indicator]) {
+    case '?':
       m_repeatMin = 0;
       m_repeatMax = 1;
-      return true;
-    }
-    if ('+' == m_expr[m_indicator]) {
+      break;
+    case '+':
       m_repeatMin = 1;
       m_repeatMax = MAX_REPETITIONS;
-      return true;
-    }
-    if ('*' == m_expr[m_indicator]) {
+      break;
+    case '*':
       m_repeatMin = 0;
       m_repeatMax = MAX_REPETITIONS;
-      return true;
+      break;
+    default:
+      NDN_THROW(Error("Unrecognized quantifier '"s + m_expr[m_indicator] + "' in regex: " + m_expr));
     }
   }
   else {
     std::string repeatStruct = m_expr.substr(m_indicator, exprSize - m_indicator);
     size_t rsSize = repeatStruct.size();
-    size_t min = 0;
-    size_t max = 0;
 
-    if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+,[0-9]+\\}"))) {
-      size_t separator = repeatStruct.find_first_of(',', 0);
-      min = std::atoi(repeatStruct.substr(1, separator - 1).data());
-      max = std::atoi(repeatStruct.substr(separator + 1, rsSize - separator - 2).data());
+    try {
+      if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+,[0-9]+\\}"))) {
+        size_t separator = repeatStruct.find_first_of(',', 0);
+        m_repeatMin = std::stoul(repeatStruct.substr(1, separator - 1));
+        m_repeatMax = std::stoul(repeatStruct.substr(separator + 1, rsSize - separator - 2));
+        if (m_repeatMin > m_repeatMax) {
+          NDN_THROW(Error("Invalid number of repetitions '" + repeatStruct + "' in regex: " + m_expr));
+        }
+      }
+      else if (std::regex_match(repeatStruct, std::regex("\\{,[0-9]+\\}"))) {
+        size_t separator = repeatStruct.find_first_of(',', 0);
+        m_repeatMin = 0;
+        m_repeatMax = std::stoul(repeatStruct.substr(separator + 1, rsSize - separator - 2));
+      }
+      else if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+,\\}"))) {
+        size_t separator = repeatStruct.find_first_of(',', 0);
+        m_repeatMin = std::stoul(repeatStruct.substr(1, separator));
+        m_repeatMax = MAX_REPETITIONS;
+      }
+      else if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+\\}"))) {
+        m_repeatMin = std::stoul(repeatStruct.substr(1, rsSize - 1));
+        m_repeatMax = m_repeatMin;
+      }
+      else {
+        NDN_THROW(Error("Invalid quantifier '" + repeatStruct + "' in regex: " + m_expr));
+      }
     }
-    else if (std::regex_match(repeatStruct, std::regex("\\{,[0-9]+\\}"))) {
-      size_t separator = repeatStruct.find_first_of(',', 0);
-      min = 0;
-      max = std::atoi(repeatStruct.substr(separator + 1, rsSize - separator - 2).data());
+    // std::stoul can throw invalid_argument or out_of_range, both are derived from logic_error
+    catch (const std::logic_error&) {
+      NDN_THROW_NESTED(Error("Invalid number of repetitions '" + repeatStruct + "' in regex: " + m_expr));
     }
-    else if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+,\\}"))) {
-      size_t separator = repeatStruct.find_first_of(',', 0);
-      min = std::atoi(repeatStruct.substr(1, separator).data());
-      max = MAX_REPETITIONS;
-    }
-    else if (std::regex_match(repeatStruct, std::regex("\\{[0-9]+\\}"))) {
-      min = std::atoi(repeatStruct.substr(1, rsSize - 1).data());
-      max = min;
-    }
-    else {
-      NDN_THROW(Error("parseRepetition: unrecognized format " + m_expr));
-    }
-
-    if (min > MAX_REPETITIONS || max > MAX_REPETITIONS || min > max) {
-      NDN_THROW(Error("parseRepetition: wrong number " + m_expr));
-    }
-
-    m_repeatMin = min;
-    m_repeatMax = max;
-
-    return true;
   }
-
-  return false;
 }
 
 bool
@@ -132,13 +127,14 @@ RegexRepeatMatcher::match(const Name& name, size_t offset, size_t len)
 {
   m_matchResult.clear();
 
-  if (m_repeatMin == 0)
-    if (len == 0)
-      return true;
+  if (m_repeatMin == 0 && len == 0) {
+    return true;
+  }
 
   if (recursiveMatch(0, name, offset, len)) {
-    for (size_t i = offset; i < offset + len; i++)
+    for (size_t i = offset; i < offset + len; i++) {
       m_matchResult.push_back(name.get(i));
+    }
     return true;
   }
 
@@ -148,8 +144,6 @@ RegexRepeatMatcher::match(const Name& name, size_t offset, size_t len)
 bool
 RegexRepeatMatcher::recursiveMatch(size_t repeat, const Name& name, size_t offset, size_t len)
 {
-  ssize_t tried = len;
-
   if (0 < len && repeat >= m_repeatMax) {
     return false;
   }
@@ -162,11 +156,13 @@ RegexRepeatMatcher::recursiveMatch(size_t repeat, const Name& name, size_t offse
     return true;
   }
 
-  auto matcher = m_matchers[0];
+  const auto& matcher = m_matchers[0];
+  ssize_t tried = static_cast<ssize_t>(len);
   while (tried >= 0) {
     if (matcher->match(name, offset, tried) &&
-        recursiveMatch(repeat + 1, name, offset + tried, len - tried))
+        recursiveMatch(repeat + 1, name, offset + tried, len - tried)) {
       return true;
+    }
     tried--;
   }
 

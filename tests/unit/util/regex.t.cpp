@@ -44,20 +44,20 @@ BOOST_AUTO_TEST_CASE(ComponentMatcher)
 {
   shared_ptr<RegexBackrefManager> backRef = make_shared<RegexBackrefManager>();
   shared_ptr<RegexComponentMatcher> cm = make_shared<RegexComponentMatcher>("a", backRef);
-  bool res = cm->match(Name("/a/b/"), 0, 1);
+  bool res = cm->match(Name("/a/b"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexComponentMatcher>("a", backRef);
-  res = cm->match(Name("/a/b/"), 1, 1);
+  res = cm->match(Name("/a/b"), 1, 1);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexComponentMatcher>("(c+)\\.(cd)", backRef);
-  res = cm->match(Name("/ccc.cd/b/"), 0, 1);
+  res = cm->match(Name("/ccc.cd/b"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("ccc.cd"));
@@ -69,18 +69,18 @@ BOOST_AUTO_TEST_CASE(ComponentMatcher)
 
 BOOST_AUTO_TEST_CASE(ComponentSetMatcher)
 {
-  shared_ptr<RegexBackrefManager> backRef = make_shared<RegexBackrefManager>();
-  shared_ptr<RegexComponentSetMatcher> cm = make_shared<RegexComponentSetMatcher>("<a>", backRef);
-  bool res = cm->match(Name("/a/b/"), 0, 1);
+  auto backRef = make_shared<RegexBackrefManager>();
+  auto cm = make_shared<RegexComponentSetMatcher>("<a>", backRef);
+  bool res = cm->match(Name("/a/b"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
-  res = cm->match(Name("/a/b/"), 1, 1);
+  res = cm->match(Name("/a/b"), 1, 1);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
-  res = cm->match(Name("/a/b/"), 0, 2);
+  res = cm->match(Name("/a/b"), 0, 2);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
@@ -101,12 +101,21 @@ BOOST_AUTO_TEST_CASE(ComponentSetMatcher)
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("d"));
+
+  backRef = make_shared<RegexBackrefManager>();
+  BOOST_CHECK_THROW(make_shared<RegexComponentSetMatcher>("", backRef), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexComponentSetMatcher>("(<a><b>)", backRef), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexComponentSetMatcher>("[<a><b>", backRef), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexComponentSetMatcher>("<a", backRef), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexComponentSetMatcher>("<a>b", backRef), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexComponentSetMatcher>("<><<>", backRef), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexComponentSetMatcher>("[abc]", backRef), RegexMatcher::Error);
 }
 
 BOOST_AUTO_TEST_CASE(RepeatMatcher)
 {
-  shared_ptr<RegexBackrefManager> backRef = make_shared<RegexBackrefManager>();
-  shared_ptr<RegexRepeatMatcher> cm = make_shared<RegexRepeatMatcher>("[<a><b>]*", backRef, 8);
+  auto backRef = make_shared<RegexBackrefManager>();
+  auto cm = make_shared<RegexRepeatMatcher>("[<a><b>]*", backRef, 8);
   bool res = cm->match(Name("/a/b/c"), 0, 0);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
@@ -131,7 +140,7 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexRepeatMatcher>("<.*>*", backRef, 4);
-  res = cm->match(Name("/a/b/c/d/e/f/"), 0, 6);
+  res = cm->match(Name("/a/b/c/d/e/f"), 0, 6);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 6);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
@@ -143,7 +152,7 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexRepeatMatcher>("<>*", backRef, 2);
-  res = cm->match(Name("/a/b/c/d/e/f/"), 0, 6);
+  res = cm->match(Name("/a/b/c/d/e/f"), 0, 6);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 6);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
@@ -172,53 +181,53 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexRepeatMatcher>("[<a><b>]{3}", backRef, 8);
-  res = cm->match(Name("/a/b/a/d/"), 0, 2);
+  res = cm->match(Name("/a/b/a/d"), 0, 2);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
-  res = cm->match(Name("/a/b/a/d/"), 0, 3);
+  res = cm->match(Name("/a/b/a/d"), 0, 3);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 3);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("a"));
 
-  res = cm->match(Name("/a/b/a/d/"), 0, 4);
+  res = cm->match(Name("/a/b/a/d"), 0, 4);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexRepeatMatcher>("[<a><b>]{2,3}", backRef, 8);
-  res = cm->match(Name("/a/b/a/d/e/"), 0, 2);
+  res = cm->match(Name("/a/b/a/d/e"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
-  res = cm->match(Name("/a/b/a/d/e/"), 0, 3);
+  res = cm->match(Name("/a/b/a/d/e"), 0, 3);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 3);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("a"));
 
-  res = cm->match(Name("/a/b/a/b/e/"), 0, 4);
+  res = cm->match(Name("/a/b/a/b/e"), 0, 4);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
-  res = cm->match(Name("/a/b/a/d/e/"), 0, 1);
+  res = cm->match(Name("/a/b/a/d/e"), 0, 1);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexRepeatMatcher>("[<a><b>]{2,}", backRef, 8);
-  res = cm->match(Name("/a/b/a/d/e/"), 0, 2);
+  res = cm->match(Name("/a/b/a/d/e"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
-  res = cm->match(Name("/a/b/a/b/e/"), 0, 4);
+  res = cm->match(Name("/a/b/a/b/e"), 0, 4);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 4);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
@@ -226,43 +235,58 @@ BOOST_AUTO_TEST_CASE(RepeatMatcher)
   BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[3].toUri(), string("b"));
 
-  res = cm->match(Name("/a/b/a/d/e/"), 0, 1);
+  res = cm->match(Name("/a/b/a/d/e"), 0, 1);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
   backRef = make_shared<RegexBackrefManager>();
   cm = make_shared<RegexRepeatMatcher>("[<a><b>]{,2}", backRef, 8);
-  res = cm->match(Name("/a/b/a/b/e/"), 0, 3);
+  res = cm->match(Name("/a/b/a/b/e"), 0, 3);
   BOOST_CHECK_EQUAL(res, false);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
 
-  res = cm->match(Name("/a/b/a/b/e/"), 0, 2);
+  res = cm->match(Name("/a/b/a/b/e"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
   BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
 
-  res = cm->match(Name("/a/b/a/d/e/"), 0, 1);
+  res = cm->match(Name("/a/b/a/d/e"), 0, 1);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 1);
   BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
 
-  res = cm->match(Name("/a/b/a/d/e/"), 0, 0);
+  res = cm->match(Name("/a/b/a/d/e"), 0, 0);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 0);
+
+  backRef = make_shared<RegexBackrefManager>();
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>!", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>@", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>##", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{}", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{,}", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>1,2", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{foo,bar}", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{0x12,0x34}", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{10,5}", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{99999999999999999999,}", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{,99999999999999999999}", backRef, 2), RegexMatcher::Error);
+  BOOST_CHECK_THROW(make_shared<RegexRepeatMatcher>("<>{1,2,3}", backRef, 2), RegexMatcher::Error);
 }
 
-BOOST_AUTO_TEST_CASE(BackRefMatcher)
+BOOST_AUTO_TEST_CASE(BackrefMatcher)
 {
-  shared_ptr<RegexBackrefManager> backRef = make_shared<RegexBackrefManager>();
-  shared_ptr<RegexBackrefMatcher> cm = make_shared<RegexBackrefMatcher>("(<a><b>)", backRef);
+  auto backRef = make_shared<RegexBackrefManager>();
+  auto cm = make_shared<RegexBackrefMatcher>("(<a><b>)", backRef);
   backRef->pushRef(static_pointer_cast<RegexMatcher>(cm));
   cm->compile();
   bool res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), "a");
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), "b");
   BOOST_CHECK_EQUAL(backRef->size(), 1);
 
   backRef = make_shared<RegexBackrefManager>();
@@ -272,41 +296,48 @@ BOOST_AUTO_TEST_CASE(BackRefMatcher)
   res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), "a");
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), "b");
   BOOST_CHECK_EQUAL(backRef->size(), 2);
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("a"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toUri(), string("b"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), "a");
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toUri(), "b");
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), "b");
+
+  backRef = make_shared<RegexBackrefManager>();
+  cm = make_shared<RegexBackrefMatcher>("", backRef);
+  BOOST_CHECK_THROW(cm->compile(), RegexMatcher::Error);
+  cm = make_shared<RegexBackrefMatcher>("(", backRef);
+  BOOST_CHECK_THROW(cm->compile(), RegexMatcher::Error);
+  cm = make_shared<RegexBackrefMatcher>("(<a><b>", backRef);
+  BOOST_CHECK_THROW(cm->compile(), RegexMatcher::Error);
+  cm = make_shared<RegexBackrefMatcher>("[<a><b>)", backRef);
+  BOOST_CHECK_THROW(cm->compile(), RegexMatcher::Error);
 }
 
-BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced)
+BOOST_AUTO_TEST_CASE(BackrefMatcherAdvanced)
 {
-  shared_ptr<RegexBackrefManager> backRef = make_shared<RegexBackrefManager>();
-  shared_ptr<RegexRepeatMatcher> cm = make_shared<RegexRepeatMatcher>("([<a><b>])+", backRef, 10);
+  auto backRef = make_shared<RegexBackrefManager>();
+  shared_ptr<RegexMatcher> cm = make_shared<RegexRepeatMatcher>("([<a><b>])+", backRef, 10);
   bool res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 2);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), "a");
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), "b");
   BOOST_CHECK_EQUAL(backRef->size(), 1);
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("b"));
-}
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), "b");
 
-BOOST_AUTO_TEST_CASE(BackRefMatcherAdvanced2)
-{
-  shared_ptr<RegexBackrefManager> backRef = make_shared<RegexBackrefManager>();
-  shared_ptr<RegexPatternListMatcher> cm = make_shared<RegexPatternListMatcher>("(<a>(<b>))<c>", backRef);
-  bool res = cm->match(Name("/a/b/c"), 0, 3);
+  backRef = make_shared<RegexBackrefManager>();
+  cm = make_shared<RegexPatternListMatcher>("(<a>(<b>))<c>", backRef);
+  res = cm->match(Name("/a/b/c"), 0, 3);
   BOOST_CHECK_EQUAL(res, true);
   BOOST_CHECK_EQUAL(cm->getMatchResult().size(), 3);
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), string("a"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), string("b"));
-  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), string("c"));
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[0].toUri(), "a");
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[1].toUri(), "b");
+  BOOST_CHECK_EQUAL(cm->getMatchResult()[2].toUri(), "c");
   BOOST_CHECK_EQUAL(backRef->size(), 2);
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), string("a"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toUri(), string("b"));
-  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), string("b"));
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[0].toUri(), "a");
+  BOOST_CHECK_EQUAL(backRef->getBackref(0)->getMatchResult()[1].toUri(), "b");
+  BOOST_CHECK_EQUAL(backRef->getBackref(1)->getMatchResult()[0].toUri(), "b");
 }
 
 BOOST_AUTO_TEST_CASE(PatternListMatcher)
