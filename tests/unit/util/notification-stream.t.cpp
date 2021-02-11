@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2020 Regents of the University of California,
+ * Copyright (c) 2014-2021 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(Post)
   advanceClocks(1_ms);
 
   BOOST_REQUIRE_EQUAL(face.sentData.size(), 1);
-  BOOST_CHECK_EQUAL(face.sentData[0].getName(), "/localhost/nfd/NotificationStreamTest/%FE%00");
+  BOOST_CHECK_EQUAL(face.sentData[0].getName(), "/localhost/nfd/NotificationStreamTest/seq=0");
   SimpleNotification decoded1;
   BOOST_CHECK_NO_THROW(decoded1.wireDecode(face.sentData[0].getContent().blockFromValue()));
   BOOST_CHECK_EQUAL(decoded1.getMessage(), "msg1");
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(Post)
   advanceClocks(1_ms);
 
   BOOST_REQUIRE_EQUAL(face.sentData.size(), 2);
-  BOOST_CHECK_EQUAL(face.sentData[1].getName(), "/localhost/nfd/NotificationStreamTest/%FE%01");
+  BOOST_CHECK_EQUAL(face.sentData[1].getName(), "/localhost/nfd/NotificationStreamTest/seq=1");
   SimpleNotification decoded2;
   BOOST_CHECK_NO_THROW(decoded2.wireDecode(face.sentData[1].getContent().blockFromValue()));
   BOOST_CHECK_EQUAL(decoded2.getMessage(), "msg2");

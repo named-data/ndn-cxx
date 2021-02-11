@@ -449,10 +449,10 @@ BOOST_AUTO_TEST_CASE(NotificationStream)
   advanceClocks(1_ms, 10);
 
   BOOST_REQUIRE_EQUAL(face.sentData.size(), 4);
-  BOOST_CHECK_EQUAL(face.sentData[0].getName(), "/root/test/%FE%00");
-  BOOST_CHECK_EQUAL(face.sentData[1].getName(), "/root/test/%FE%01");
-  BOOST_CHECK_EQUAL(face.sentData[2].getName(), "/root/test/%FE%02");
-  BOOST_CHECK_EQUAL(face.sentData[3].getName(), "/root/test/%FE%03");
+  BOOST_CHECK_EQUAL(face.sentData[0].getName(), "/root/test/seq=0");
+  BOOST_CHECK_EQUAL(face.sentData[1].getName(), "/root/test/seq=1");
+  BOOST_CHECK_EQUAL(face.sentData[2].getName(), "/root/test/seq=2");
+  BOOST_CHECK_EQUAL(face.sentData[3].getName(), "/root/test/seq=3");
 
   BOOST_CHECK_EQUAL(face.sentData[0].getContent().blockFromValue(), block);
   BOOST_CHECK_EQUAL(face.sentData[1].getContent().blockFromValue(), block);
@@ -463,10 +463,10 @@ BOOST_AUTO_TEST_CASE(NotificationStream)
   std::vector<Data> dataInStorage;
   std::copy(storage.begin(), storage.end(), std::back_inserter(dataInStorage));
   BOOST_REQUIRE_EQUAL(dataInStorage.size(), 4);
-  BOOST_CHECK_EQUAL(dataInStorage[0].getName(), "/root/test/%FE%00");
-  BOOST_CHECK_EQUAL(dataInStorage[1].getName(), "/root/test/%FE%01");
-  BOOST_CHECK_EQUAL(dataInStorage[2].getName(), "/root/test/%FE%02");
-  BOOST_CHECK_EQUAL(dataInStorage[3].getName(), "/root/test/%FE%03");
+  BOOST_CHECK_EQUAL(dataInStorage[0].getName(), "/root/test/seq=0");
+  BOOST_CHECK_EQUAL(dataInStorage[1].getName(), "/root/test/seq=1");
+  BOOST_CHECK_EQUAL(dataInStorage[2].getName(), "/root/test/seq=2");
+  BOOST_CHECK_EQUAL(dataInStorage[3].getName(), "/root/test/seq=3");
 
   BOOST_CHECK_EQUAL(dataInStorage[0].getContent().blockFromValue(), block);
   BOOST_CHECK_EQUAL(dataInStorage[1].getContent().blockFromValue(), block);

@@ -68,7 +68,7 @@ enum : uint8_t {
 
 /** @brief Return which Naming Conventions style to use while encoding.
  *
- *  The current library default is Convention::MARKER, but this will change in the future.
+ *  The library default is Convention::TYPED.
  */
 Convention
 getConventionEncoding();

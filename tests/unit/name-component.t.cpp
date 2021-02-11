@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -335,20 +335,20 @@ struct ConventionTest
 
 class ConventionMarker
 {
+public:
+  ConventionMarker()
+  {
+    name::setConventionEncoding(name::Convention::MARKER);
+  }
+
+  ~ConventionMarker()
+  {
+    name::setConventionEncoding(name::Convention::TYPED);
+  }
 };
 
 class ConventionTyped
 {
-public:
-  ConventionTyped()
-  {
-    name::setConventionEncoding(name::Convention::TYPED);
-  }
-
-  ~ConventionTyped()
-  {
-    name::setConventionEncoding(name::Convention::MARKER);
-  }
 };
 
 class NumberWithMarker
