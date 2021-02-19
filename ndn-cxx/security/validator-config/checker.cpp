@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/security/validator-config/checker.hpp"
+#include "ndn-cxx/security/validation-policy.hpp"
 #include "ndn-cxx/security/validation-state.hpp"
 #include "ndn-cxx/security/verification-helpers.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
@@ -72,7 +73,7 @@ NameRelationChecker::checkNames(const Name& pktName, const Name& klName,
                                 const shared_ptr<ValidationState>& state)
 {
   // pktName not used in this check
-  Name identity = extractIdentityFromKeyName(klName);
+  Name identity = extractIdentityNameFromKeyLocator(klName);
   bool result = checkNameRelation(m_relation, m_name, identity);
   if (!result) {
     std::ostringstream os;
@@ -201,8 +202,8 @@ Checker::createHierarchicalChecker(const ConfigSection& configSection,
   if (propertyIt != configSection.end()) {
     NDN_THROW(Error("Expecting end of <checker>"));
   }
-  return make_unique<HyperRelationChecker>("^(<>*)$",        "\\1",
-                                           "^(<>*)<KEY><>$", "\\1",
+  return make_unique<HyperRelationChecker>("^(<>*)$",             "\\1",
+                                           "^(<>*)<KEY><>{1,3}$", "\\1",
                                            NameRelation::IS_PREFIX_OF);
 }
 

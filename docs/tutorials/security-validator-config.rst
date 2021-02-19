@@ -317,7 +317,7 @@ is equivalent to a customized checker:
         type name
         hyper-relation
         {
-          k-regex ^(<>*)<KEY><>$
+          k-regex ^(<>*)<KEY><>{1,3}$
           k-expand \\1
           h-relation is-prefix-of
           p-regex ^(<>*)$
