@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,14 +45,16 @@ class ParseResult
 public:
   ParseResult() = default;
 
-  ParseResult(InputBuffers bufs, const uint8_t* sig, size_t sigLen)
-    : bufs(std::move(bufs))
+  ParseResult(SignatureInfo info, InputBuffers bufs, const uint8_t* sig, size_t sigLen)
+    : info(std::move(info))
+    , bufs(std::move(bufs))
     , sig(sig)
     , sigLen(sigLen)
   {
   }
 
 public:
+  SignatureInfo info;
   InputBuffers bufs;
   const uint8_t* sig = nullptr;
   size_t sigLen = 0;
@@ -110,7 +112,8 @@ static ParseResult
 parse(const Data& data)
 {
   try {
-    return ParseResult(data.extractSignedRanges(),
+    return ParseResult(data.getSignatureInfo(),
+                       data.extractSignedRanges(),
                        data.getSignatureValue().value(),
                        data.getSignatureValue().value_size());
   }
@@ -128,7 +131,8 @@ parse(const Interest& interest)
     if (interest.getSignatureInfo() && interest.getSignatureValue().isValid()) {
       // Verify using v0.3 Signed Interest semantics
       Block sigValue = interest.getSignatureValue();
-      return ParseResult(interest.extractSignedRanges(),
+      return ParseResult(*interest.getSignatureInfo(),
+                         interest.extractSignedRanges(),
                          sigValue.value(),
                          sigValue.value_size());
     }
@@ -141,7 +145,9 @@ parse(const Interest& interest)
 
       const Block& nameBlock = interestName.wireEncode();
       Block sigValue = interestName[signed_interest::POS_SIG_VALUE].blockFromValue();
-      return ParseResult({{nameBlock.value(),
+      SignatureInfo info(interestName[signed_interest::POS_SIG_INFO].blockFromValue());
+      return ParseResult(info,
+                         {{nameBlock.value(),
                            nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size()}},
                          sigValue.value(),
                          sigValue.value_size());
@@ -208,15 +214,39 @@ verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen)
 }
 
 bool
-verifySignature(const Data& data, const v2::Certificate& cert)
+verifySignature(const Data& data, const optional<v2::Certificate>& cert)
 {
-  return verifySignature(parse(data), cert.getContent().value(), cert.getContent().value_size());
+  auto parsed = parse(data);
+  if (cert) {
+    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size());
+  }
+  else {
+    if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
+      return verifyDigest(data, DigestAlgorithm::SHA256);
+    }
+    // Add any other self-verifying signatures here (if any)
+    else {
+      return false;
+    }
+  }
 }
 
 bool
-verifySignature(const Interest& interest, const v2::Certificate& cert)
+verifySignature(const Interest& interest, const optional<v2::Certificate>& cert)
 {
-  return verifySignature(parse(interest), cert.getContent().value(), cert.getContent().value_size());
+  auto parsed = parse(interest);
+  if (cert) {
+    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size());
+  }
+  else {
+    if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
+      return verifyDigest(interest, DigestAlgorithm::SHA256);
+    }
+    // Add any other self-verifying signatures here (if any)
+    else {
+      return false;
+    }
+  }
 }
 
 bool

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,7 +46,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 
   packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingWithSha256());
-  VALIDATE_FAILURE(packet, "Policy doesn't accept Sha256Digest signature");
+  VALIDATE_FAILURE(packet, "Should not be accepted, name not prefix of /localhost/identity/digest-sha256");
+
+  packet = Packet::makePacket("/localhost/identity/digest-sha256/foobar");
+  m_keyChain.sign(packet, signingWithSha256());
+  VALIDATE_SUCCESS(packet, "Should be accepted, as name is prefix of /localhost/identity/digest-sha256");
 
   packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(identity));

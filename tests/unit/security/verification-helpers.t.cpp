@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -640,13 +640,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
   Interest badSigInterestOldFormat(Block(dataset.badSigInterestOldFormat.data(),
                                          dataset.badSigInterestOldFormat.size()));
 
+  BOOST_CHECK(verifySignature(data, nullopt));
   BOOST_CHECK(verifyDigest(data, DigestAlgorithm::SHA256));
+  BOOST_CHECK(verifySignature(interest, nullopt));
   BOOST_CHECK(verifyDigest(interest, DigestAlgorithm::SHA256));
+  BOOST_CHECK(verifySignature(interestOldFormat, nullopt));
   BOOST_CHECK(verifyDigest(interestOldFormat, DigestAlgorithm::SHA256));
 
   BOOST_CHECK(!verifyDigest(badSigData, DigestAlgorithm::SHA256));
   BOOST_CHECK(!verifyDigest(badSigInterest, DigestAlgorithm::SHA256));
   BOOST_CHECK(!verifyDigest(badSigInterestOldFormat, DigestAlgorithm::SHA256));
+
+  BOOST_CHECK(!verifySignature(badSigData, nullopt));
+  BOOST_CHECK(!verifySignature(badSigInterest, nullopt));
+  BOOST_CHECK(!verifySignature(badSigInterestOldFormat, nullopt));
 
   Data unsignedData("/some/data");
   Interest unsignedInterest1("/some/interest/with/several/name/components");
@@ -657,6 +664,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
   BOOST_CHECK(!verifyDigest(unsignedData, DigestAlgorithm::SHA256));
   BOOST_CHECK(!verifyDigest(unsignedInterest1, DigestAlgorithm::SHA256));
   BOOST_CHECK(!verifyDigest(unsignedInterest2, DigestAlgorithm::SHA256));
+
+  BOOST_CHECK(!verifySignature(unsignedData, nullopt));
+  BOOST_CHECK(!verifySignature(unsignedInterest1, nullopt));
+  BOOST_CHECK(!verifySignature(unsignedInterest2, nullopt));
 
   // - base version of verifyDigest is tested transitively
 }

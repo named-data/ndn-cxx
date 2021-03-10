@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -382,7 +382,11 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateData, Policy, DataPolicies, Policy)
 
   packet = unsignedPacket;
   this->m_keyChain.sign(packet, signingWithSha256());
-  VALIDATE_FAILURE(packet, "Policy doesn't accept Sha256Digest signature");
+  VALIDATE_FAILURE(packet, "Should not be accepted, doesn't pass checker /localhost/identity/digest-sha256");
+
+  packet = Packet("/localhost/identity/digest-sha256/foobar");
+  this->m_keyChain.sign(packet, signingWithSha256());
+  VALIDATE_FAILURE(packet, "Should not be accepted, no rule for the name /localhost/identity/digest-sha256");
 
   packet = unsignedPacket;
   this->m_keyChain.sign(packet, signingByIdentity(this->identity));
@@ -417,7 +421,11 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateInterest, Policy, InterestPolicies, Pol
 
   packet = unsignedPacket;
   this->m_keyChain.sign(packet, signingWithSha256());
-  VALIDATE_FAILURE(packet, "Policy doesn't accept Sha256Digest signature");
+  VALIDATE_FAILURE(packet, "Should not be accepted, doesn't pass checker /localhost/identity/digest-sha256");
+
+  packet = Packet("/localhost/identity/digest-sha256/foobar");
+  this->m_keyChain.sign(packet, signingWithSha256());
+  VALIDATE_FAILURE(packet, "Should not be accepted, no rule for the name /localhost/identity/digest-sha256");
 
   packet = unsignedPacket;
   this->m_keyChain.sign(packet, signingByIdentity(this->identity));
@@ -434,6 +442,79 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateInterest, Policy, InterestPolicies, Pol
   packet = unsignedPacket;
   this->m_keyChain.sign(packet, signingByIdentity(this->subSelfSignedIdentity));
   VALIDATE_FAILURE(packet, "Should fail, because subSelfSignedIdentity is not a trust anchor");
+}
+
+BOOST_FIXTURE_TEST_CASE(DigestSha256, HierarchicalValidatorFixture<ValidationPolicyConfig>)
+{
+  BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
+  this->policy.load(R"CONF(
+      rule
+      {
+        id test-rule-data-id
+        for data
+        filter
+        {
+          type name
+          name /localhost/identity/digest-sha256
+          relation is-prefix-of
+        }
+        checker
+        {
+          type customized
+          sig-type sha256
+          key-locator
+          {
+            type name
+            hyper-relation
+            {
+              k-regex ^(<>*)$
+              k-expand \\1
+              h-relation is-prefix-of
+              p-regex ^(<>*)$
+              p-expand \\1
+            }
+          }
+        }
+      }
+      rule
+      {
+        id test-rule-interest-id
+        for interest
+        filter
+        {
+          type name
+          name /localhost/identity/digest-sha256
+          relation is-prefix-of
+        }
+        checker
+        {
+          type customized
+          sig-type sha256
+          key-locator
+          {
+            type name
+            hyper-relation
+            {
+              k-regex ^(<>*)$
+              k-expand \\1
+              h-relation is-prefix-of
+              p-regex ^(<>*)$
+              p-expand \\1
+            }
+          }
+        }
+      }
+    )CONF", "test-config");
+
+
+  Interest interest("/localhost/identity/digest-sha256/foobar");
+  interest.setCanBePrefix(false);
+  this->m_keyChain.sign(interest, signingWithSha256());
+  VALIDATE_SUCCESS(interest, "Should be accepted");
+
+  Data data("/localhost/identity/digest-sha256/foobar");
+  this->m_keyChain.sign(data, signingWithSha256());
+  VALIDATE_SUCCESS(data, "Should be accepted");
 }
 
 BOOST_FIXTURE_TEST_CASE(Reload, HierarchicalValidatorFixture<ValidationPolicyConfig>)

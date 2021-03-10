@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -159,7 +159,7 @@ public:
 
 private:
   void
-  verifyOriginalPacket(const Certificate&) override
+  verifyOriginalPacket(const optional<Certificate>&) override
   {
     // do nothing
   }

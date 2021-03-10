@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -124,17 +124,21 @@ verifySignature(const Interest& interest, const pib::Key& key);
 
 /**
  * @brief Verify @p data using @p cert.
+ *
+ * If @p cert is nullopt, @p data assumed to be self-verifiable (with digest or attributes)
  */
 bool
-verifySignature(const Data& data, const v2::Certificate& cert);
+verifySignature(const Data& data, const optional<v2::Certificate>& cert);
 
 /**
  * @brief Verify @p interest using @p cert.
  * @note This method verifies only signature of the signed interest.
  * @sa docs/specs/signed-interest.rst
+ *
+ * If @p cert is nullptr, @p interest assumed to be self-verifiable (with digest or attributes)
  */
 bool
-verifySignature(const Interest& interest, const v2::Certificate& cert);
+verifySignature(const Interest& interest, const optional<v2::Certificate>& cert);
 
 /**
  * @brief Verify @p data using @p tpm and @p keyName with the @p digestAlgorithm.
