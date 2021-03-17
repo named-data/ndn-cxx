@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -218,7 +218,6 @@ public: // element access
   {
     m_canBePrefix = canBePrefix;
     m_wire.reset();
-    m_isCanBePrefixSet = true;
     return *this;
   }
 
@@ -495,12 +494,6 @@ private:
   std::vector<Block>::const_iterator
   findFirstParameter(uint32_t type) const;
 
-#ifdef NDN_CXX_HAVE_TESTS
-public:
-  /// If true, not setting CanBePrefix results in an error in wireEncode().
-  static bool s_errorIfCanBePrefixUnset;
-#endif // NDN_CXX_HAVE_TESTS
-
 private:
   static boost::logic::tribool s_defaultCanBePrefix;
   static bool s_autoCheckParametersDigest;
@@ -510,8 +503,7 @@ private:
   mutable optional<Nonce> m_nonce;
   time::milliseconds m_interestLifetime;
   optional<uint8_t> m_hopLimit;
-  mutable bool m_isCanBePrefixSet = false;
-  bool m_canBePrefix = true;
+  bool m_canBePrefix = false;
   bool m_mustBeFresh = false;
 
   // Stores the "Interest parameters", i.e., all maybe-unrecognized non-critical TLV

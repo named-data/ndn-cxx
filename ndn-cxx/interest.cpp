@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,14 +27,9 @@
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/util/random.hpp"
 
-#ifdef NDN_CXX_HAVE_STACKTRACE
-#include <boost/stacktrace/stacktrace.hpp>
-#endif
-
 #include <boost/range/adaptor/reversed.hpp>
 
 #include <cstring>
-#include <iostream>
 #include <sstream>
 
 namespace ndn {
@@ -45,9 +40,6 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
 static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
-#ifdef NDN_CXX_HAVE_TESTS
-bool Interest::s_errorIfCanBePrefixUnset = true;
-#endif // NDN_CXX_HAVE_TESTS
 boost::logic::tribool Interest::s_defaultCanBePrefix = boost::logic::indeterminate;
 bool Interest::s_autoCheckParametersDigest = true;
 
@@ -68,35 +60,10 @@ Interest::Interest(const Block& wire)
 
 // ---- encode and decode ----
 
-static void
-warnOnceCanBePrefixUnset()
-{
-  static bool didWarn = false;
-  if (!didWarn) {
-    didWarn = true;
-    std::cerr << "WARNING: Interest.CanBePrefix will be set to false in the near future. "
-              << "Please declare a preferred setting via Interest::setDefaultCanBePrefix.\n";
-#ifdef NDN_CXX_HAVE_STACKTRACE
-    if (std::getenv("NDN_CXX_VERBOSE_CANBEPREFIX_UNSET_WARNING") != nullptr) {
-      std::cerr << boost::stacktrace::stacktrace(2, 64);
-    }
-#endif
-  }
-}
-
 template<encoding::Tag TAG>
 size_t
 Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 {
-  if (!m_isCanBePrefixSet) {
-    warnOnceCanBePrefixUnset();
-#ifdef NDN_CXX_HAVE_TESTS
-    if (s_errorIfCanBePrefixUnset) {
-      NDN_THROW(std::logic_error("Interest.CanBePrefix is unset"));
-    }
-#endif // NDN_CXX_HAVE_TESTS
-  }
-
   // Interest = INTEREST-TYPE TLV-LENGTH
   //              Name
   //              [CanBePrefix]
@@ -218,7 +185,6 @@ Interest::wireDecode(const Block& wire)
   }
   m_name = std::move(tempName);
 
-  m_isCanBePrefixSet = true; // don't trigger warning from decoded packet
   m_canBePrefix = m_mustBeFresh = false;
   m_forwardingHint = {};
   m_nonce.reset();

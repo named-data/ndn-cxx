@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   Interest i;
   BOOST_CHECK_EQUAL(i.hasWire(), false);
   BOOST_CHECK_EQUAL(i.getName(), "/");
-  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), false);
   BOOST_CHECK_EQUAL(i.getMustBeFresh(), false);
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i.hasNonce(), false);
@@ -737,11 +737,11 @@ BOOST_AUTO_TEST_CASE(SetName)
 BOOST_AUTO_TEST_CASE(SetCanBePrefix)
 {
   Interest i;
-  BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
-  i.setCanBePrefix(false);
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), false);
   i.setCanBePrefix(true);
   BOOST_CHECK_EQUAL(i.getCanBePrefix(), true);
+  i.setCanBePrefix(false);
+  BOOST_CHECK_EQUAL(i.getCanBePrefix(), false);
 }
 
 BOOST_AUTO_TEST_CASE(SetMustBeFresh)

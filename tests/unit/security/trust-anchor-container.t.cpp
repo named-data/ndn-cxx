@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -150,12 +150,14 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 BOOST_AUTO_TEST_CASE(FindByInterest)
 {
   anchorContainer.insert("group1", certPath1.string(), 1_s);
-  Interest interest(identity1.getName());
-  BOOST_CHECK(anchorContainer.find(interest) != nullptr);
-  Interest interest1(identity1.getName().getPrefix(-1));
+  Interest interest1;
+  interest1.setCanBePrefix(true);
+  interest1.setName(identity1.getName());
   BOOST_CHECK(anchorContainer.find(interest1) != nullptr);
-  Interest interest2(Name(identity1.getName()).appendVersion());
-  BOOST_CHECK(anchorContainer.find(interest2) == nullptr);
+  interest1.setName(identity1.getName().getPrefix(-1));
+  BOOST_CHECK(anchorContainer.find(interest1) != nullptr);
+  interest1.setName(Name(identity1.getName()).appendVersion());
+  BOOST_CHECK(anchorContainer.find(interest1) == nullptr);
 
   auto cert3 = makeCert(identity1.getDefaultKey(), "3");
   auto cert4 = makeCert(identity1.getDefaultKey(), "4");
@@ -166,7 +168,7 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
   anchorContainer.insert("group3", std::move(cert4));
   anchorContainer.insert("group4", std::move(cert5));
 
-  Interest interest3(cert3.getKeyName());
+  auto interest3 = Interest(cert3.getKeyName()).setCanBePrefix(true);
   const Certificate* foundCert = anchorContainer.find(interest3);
   BOOST_REQUIRE(foundCert != nullptr);
   BOOST_CHECK(interest3.getName().isPrefixOf(foundCert->getName()));
