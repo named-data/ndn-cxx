@@ -108,7 +108,7 @@ public:
           checker
           {
             type hierarchical
-            sig-type rsa-sha256
+            sig-type ecdsa-sha256
           }
         }
       )CONF";
@@ -455,6 +455,55 @@ BOOST_FIXTURE_TEST_CASE(DigestSha256, HierarchicalValidatorFixture<ValidationPol
         filter
         {
           type name
+          name /Security/ValidatorFixture
+          relation is-prefix-of
+        }
+        checker
+        {
+          type customized
+          sig-type sha256
+        }
+      }
+      rule
+      {
+        id test-rule-interest-id
+        for interest
+        filter
+        {
+          type name
+          name /Security/ValidatorFixture
+          relation is-prefix-of
+        }
+        checker
+        {
+          type customized
+          sig-type sha256
+        }
+      }
+    )CONF", "test-config");
+
+
+  Interest interest("/Security/ValidatorFixture/Sub1/Sub2/Packet");
+  interest.setCanBePrefix(false);
+  this->m_keyChain.sign(interest, signingWithSha256());
+  VALIDATE_SUCCESS(interest, "Should be accepted");
+
+  Data data("/Security/ValidatorFixture/Sub1/Sub2/Packet");
+  this->m_keyChain.sign(data, signingWithSha256());
+  VALIDATE_SUCCESS(data, "Should be accepted");
+}
+
+BOOST_FIXTURE_TEST_CASE(DigestSha256WithKeyLocator, HierarchicalValidatorFixture<ValidationPolicyConfig>)
+{
+  BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
+  this->policy.load(R"CONF(
+      rule
+      {
+        id test-rule-data-id
+        for data
+        filter
+        {
+          type name
           name /localhost/identity/digest-sha256
           relation is-prefix-of
         }
@@ -517,6 +566,79 @@ BOOST_FIXTURE_TEST_CASE(DigestSha256, HierarchicalValidatorFixture<ValidationPol
   VALIDATE_SUCCESS(data, "Should be accepted");
 }
 
+BOOST_FIXTURE_TEST_CASE(SigTypeCheck, HierarchicalValidatorFixture<ValidationPolicyConfig>)
+{
+  BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
+  this->policy.load(R"CONF(
+      rule
+      {
+        id test-rule-data-id
+        for data
+        filter
+        {
+          type name
+          name /localhost/identity/digest-sha256
+          relation is-prefix-of
+        }
+        checker
+        {
+          type customized
+          sig-type ecdsa-sha256
+          key-locator
+          {
+            type name
+            hyper-relation
+            {
+              k-regex ^(<>*)$
+              k-expand \\1
+              h-relation is-prefix-of
+              p-regex ^(<>*)$
+              p-expand \\1
+            }
+          }
+        }
+      }
+      rule
+      {
+        id test-rule-interest-id
+        for interest
+        filter
+        {
+          type name
+          name /localhost/identity/digest-sha256
+          relation is-prefix-of
+        }
+        checker
+        {
+          type customized
+          sig-type ecdsa-sha256
+          key-locator
+          {
+            type name
+            hyper-relation
+            {
+              k-regex ^(<>*)$
+              k-expand \\1
+              h-relation is-prefix-of
+              p-regex ^(<>*)$
+              p-expand \\1
+            }
+          }
+        }
+      }
+    )CONF", "test-config");
+
+
+  Interest interest("/localhost/identity/digest-sha256/foobar");
+  interest.setCanBePrefix(false);
+  this->m_keyChain.sign(interest, signingWithSha256());
+  VALIDATE_FAILURE(interest, "Signature type check should fail");
+
+  Data data("/localhost/identity/digest-sha256/foobar");
+  this->m_keyChain.sign(data, signingWithSha256());
+  VALIDATE_FAILURE(data, "Signature type check should fail");
+}
+
 BOOST_FIXTURE_TEST_CASE(Reload, HierarchicalValidatorFixture<ValidationPolicyConfig>)
 {
   BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
@@ -534,7 +656,7 @@ BOOST_FIXTURE_TEST_CASE(Reload, HierarchicalValidatorFixture<ValidationPolicyCon
         checker
         {
           type hierarchical
-          sig-type rsa-sha256
+          sig-type ecdsa-sha256
         }
       }
       rule
@@ -550,7 +672,7 @@ BOOST_FIXTURE_TEST_CASE(Reload, HierarchicalValidatorFixture<ValidationPolicyCon
         checker
         {
           type hierarchical
-          sig-type rsa-sha256
+          sig-type ecdsa-sha256
         }
       }
       trust-anchor

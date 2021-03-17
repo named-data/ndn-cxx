@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -247,7 +247,8 @@ ValidationPolicyConfig::checkPolicy(const Data& data, const shared_ptr<Validatio
 
   for (const auto& rule : m_dataRules) {
     if (rule->match(tlv::Data, data.getName(), state)) {
-      if (rule->check(tlv::Data, data.getName(), klName, state)) {
+      if (rule->check(tlv::Data, tlv::SignatureTypeValue(data.getSignatureType()),
+                      data.getName(), klName, state)) {
         return continueValidation(make_shared<CertificateRequest>(klName), state);
       }
       // rule->check calls state->fail(...) if the check fails
@@ -276,7 +277,34 @@ ValidationPolicyConfig::checkPolicy(const Interest& interest, const shared_ptr<V
 
   for (const auto& rule : m_interestRules) {
     if (rule->match(tlv::Interest, interest.getName(), state)) {
-      if (rule->check(tlv::Interest, interest.getName(), klName, state)) {
+
+      tlv::SignatureTypeValue sigType;
+      auto fmt = state->getTag<SignedInterestFormatTag>();
+      BOOST_ASSERT(fmt);
+
+      if (*fmt == SignedInterestFormat::V03) {
+        sigType = tlv::SignatureTypeValue(interest.getSignatureInfo()->getSignatureType());
+      }
+      else {
+        if (interest.getName().size() < signed_interest::MIN_SIZE) {
+          state->fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: name too short"});
+          return;
+        }
+
+        SignatureInfo si;
+        try {
+          si.wireDecode(interest.getName().at(signed_interest::POS_SIG_INFO).blockFromValue());
+        }
+        catch (const tlv::Error& e) {
+          state->fail({ValidationError::Code::INVALID_KEY_LOCATOR,
+                       "Invalid signed Interest: " + std::string(e.what())});
+          return;
+        }
+
+        sigType = tlv::SignatureTypeValue(si.getSignatureType());
+      }
+
+      if (rule->check(tlv::Interest, sigType, interest.getName(), klName, state)) {
         return continueValidation(make_shared<CertificateRequest>(klName), state);
       }
       // rule->check calls state->fail(...) if the check fails

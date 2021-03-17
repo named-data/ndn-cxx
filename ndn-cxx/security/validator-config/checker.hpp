@@ -71,6 +71,9 @@ public:
     friend Checker;
   };
 
+  explicit
+  Checker(tlv::SignatureTypeValue sigType);
+
   virtual
   ~Checker() = default;
 
@@ -78,12 +81,14 @@ public:
    * @brief Check if packet name and KeyLocator satisfy the checker's conditions
    *
    * @param pktType tlv::Interest or tlv::Data
+   * @param sigType Signature type
    * @param pktName packet's name
    * @param klName  KeyLocator's name
    * @param state Validation state
    */
   Result
-  check(uint32_t pktType, const Name& pktName, const Name& klName, const ValidationState& state);
+  check(uint32_t pktType, tlv::SignatureTypeValue sigType,
+        const Name& pktName, const Name& klName, const ValidationState& state);
 
   /**
    * @brief create a checker from configuration section
@@ -96,8 +101,12 @@ public:
   create(const ConfigSection& configSection, const std::string& configFilename);
 
 protected:
+  /**
+   * @brief Base version of name checking
+   * @return always returns accept()
+   */
   virtual Result
-  checkNames(const Name& pktName, const Name& klName) = 0;
+  checkNames(const Name& pktName, const Name& klName);
 
   static Result
   accept()
@@ -118,16 +127,21 @@ private:
   createHierarchicalChecker(const ConfigSection& configSection, const std::string& configFilename);
 
   static unique_ptr<Checker>
-  createKeyLocatorChecker(const ConfigSection& configSection, const std::string& configFilename);
+  createKeyLocatorChecker(tlv::SignatureTypeValue sigType,
+                          const ConfigSection& configSection, const std::string& configFilename);
 
   static unique_ptr<Checker>
-  createKeyLocatorNameChecker(const ConfigSection& configSection, const std::string& configFilename);
+  createKeyLocatorNameChecker(tlv::SignatureTypeValue sigType,
+                              const ConfigSection& configSection, const std::string& configFilename);
+
+protected:
+    tlv::SignatureTypeValue m_sigType = tlv::SignatureSha256WithEcdsa;
 };
 
 class NameRelationChecker : public Checker
 {
 public:
-  NameRelationChecker(const Name& name, const NameRelation& relation);
+  NameRelationChecker(tlv::SignatureTypeValue sigType, const Name& name, const NameRelation& relation);
 
 protected:
   Result
@@ -142,7 +156,7 @@ class RegexChecker : public Checker
 {
 public:
   explicit
-  RegexChecker(const Regex& regex);
+  RegexChecker(tlv::SignatureTypeValue sigType, const Regex& regex);
 
 protected:
   Result
@@ -155,7 +169,8 @@ private:
 class HyperRelationChecker : public Checker
 {
 public:
-  HyperRelationChecker(const std::string& pktNameExpr, const std::string pktNameExpand,
+  HyperRelationChecker(tlv::SignatureTypeValue sigType,
+                       const std::string& pktNameExpr, const std::string pktNameExpand,
                        const std::string& klNameExpr, const std::string klNameExpand,
                        const NameRelation& hyperRelation);
 

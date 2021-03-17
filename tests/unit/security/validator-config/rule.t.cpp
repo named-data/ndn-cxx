@@ -64,7 +64,8 @@ BOOST_AUTO_TEST_SUITE(TestRule)
 BOOST_FIXTURE_TEST_CASE(Errors, RuleFixture<DataPkt>)
 {
   BOOST_CHECK_THROW(rule.match(tlv::Interest, this->pktName, state), Error);
-  BOOST_CHECK_THROW(rule.check(tlv::Interest, this->pktName, "/foo/bar", state), Error);
+  BOOST_CHECK_THROW(rule.check(tlv::Interest, tlv::SignatureSha256WithRsa,
+                               this->pktName, "/foo/bar", state), Error);
 }
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Constructor, PktType, PktTypes, RuleFixture<PktType>)
@@ -76,7 +77,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Constructor, PktType, PktTypes, RuleFixture<Pkt
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(EmptyRule, PktType, PktTypes, RuleFixture<PktType>)
 {
   BOOST_CHECK_EQUAL(this->rule.match(PktType::getType(), this->pktName, this->state), true);
-  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, "/foo/bar", this->state), false);
+  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), tlv::SignatureSha256WithRsa,
+                                     this->pktName, "/foo/bar", this->state), false);
 }
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Filters, PktType, PktTypes, RuleFixture<PktType>)
@@ -91,7 +93,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Filters, PktType, PktTypes, RuleFixture<PktType
   BOOST_CHECK_EQUAL(this->rule.match(PktType::getType(), this->pktName, this->state), true);
   BOOST_CHECK_EQUAL(this->rule.match(PktType::getType(), "/not" + this->pktName.toUri(), this->state), true);
 
-  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, "/foo/bar", this->state), false);
+  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), tlv::SignatureSha256WithRsa,
+                                     this->pktName, "/foo/bar", this->state), false);
 }
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checkers, PktType, PktTypes, RuleFixture<PktType>)
@@ -99,7 +102,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checkers, PktType, PktTypes, RuleFixture<PktTyp
   auto testChecker = [this] (const Name& klName, bool expectedOutcome) {
     BOOST_TEST_CONTEXT(klName << " expected=" << expectedOutcome) {
       this->state = PktType::makeState(); // reset state
-      BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, klName, this->state),
+      BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), tlv::SignatureSha256WithRsa,
+                                         this->pktName, klName, this->state),
                         expectedOutcome);
 
       auto outcome = this->state->getOutcome();
@@ -113,14 +117,16 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checkers, PktType, PktTypes, RuleFixture<PktTyp
     }
   };
 
-  this->rule.addChecker(make_unique<HyperRelationChecker>("^(<>+)$", "\\1",
+  this->rule.addChecker(make_unique<HyperRelationChecker>(tlv::SignatureSha256WithRsa,
+                                                          "^(<>+)$", "\\1",
                                                           "^<always>(<>+)$", "\\1",
                                                           NameRelation::EQUAL));
   testChecker("/always/foo/bar", true);
   testChecker("/seldomly/foo/bar", false);
   testChecker("/never/foo/bar", false);
 
-  this->rule.addChecker(make_unique<HyperRelationChecker>("^(<>+)$", "\\1",
+  this->rule.addChecker(make_unique<HyperRelationChecker>(tlv::SignatureSha256WithRsa,
+                                                          "^(<>+)$", "\\1",
                                                           "^<seldomly>(<>+)$", "\\1",
                                                           NameRelation::EQUAL));
   testChecker("/always/foo/bar", true);
@@ -189,13 +195,14 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(FilterAndChecker, PktType, PktTypes, RuleFixtur
     )CONF";
   auto rule = Rule::create(makeSection(config), "test-config");
 
-  BOOST_CHECK_EQUAL(rule->match(PktType::getType(), this->pktName, this->state), true);
-  BOOST_CHECK_EQUAL(rule->match(PktType::getType(), "/not" + this->pktName.toUri(), this->state), false);
+  BOOST_CHECK(rule->match(PktType::getType(), this->pktName, this->state));
+  BOOST_CHECK(!rule->match(PktType::getType(), "/not" + this->pktName.toUri(), this->state));
 
-  BOOST_CHECK_EQUAL(rule->check(PktType::getType(), this->pktName, "/foo/bar", this->state), true);
+  BOOST_CHECK(rule->check(PktType::getType(), tlv::SignatureSha256WithRsa, this->pktName, "/foo/bar", this->state));
+  BOOST_CHECK(!rule->check(PktType::getType(), tlv::SignatureSha256WithEcdsa, this->pktName, "/foo/bar", this->state));
 
   this->state = PktType::makeState(); // reset state
-  BOOST_CHECK_EQUAL(rule->check(PktType::getType(), this->pktName, "/not/foo/bar", this->state), false);
+  BOOST_CHECK(!rule->check(PktType::getType(), tlv::SignatureSha256WithRsa, this->pktName, "/not/foo/bar", this->state));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Create

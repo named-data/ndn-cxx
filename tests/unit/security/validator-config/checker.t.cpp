@@ -68,11 +68,11 @@ public:
 
   template<typename PktType, typename C>
   static void
-  testChecker(C& checker, const Name& pktName, const Name& klName, bool expectedOutcome)
+  testChecker(C& checker, tlv::SignatureTypeValue sigType, const Name& pktName, const Name& klName, bool expectedOutcome)
   {
     BOOST_TEST_CONTEXT("pkt=" << pktName << " kl=" << klName) {
       auto state = PktType::makeState();
-      auto result = checker.check(PktType::getType(), pktName, klName, *state);
+      auto result = checker.check(PktType::getType(), sigType, pktName, klName, *state);
       BOOST_CHECK_EQUAL(bool(result), expectedOutcome);
       BOOST_CHECK(boost::logic::indeterminate(state->getOutcome()));
       if (!result) {
@@ -88,7 +88,7 @@ public:
 class NameRelationEqual : public CheckerFixture
 {
 public:
-  NameRelationChecker checker{"/foo/bar", NameRelation::EQUAL};
+  NameRelationChecker checker{tlv::SignatureSha256WithRsa, "/foo/bar", NameRelation::EQUAL};
   std::vector<std::vector<bool>> outcomes = {{true, false, false, false},
                                              {true, false, false, false},
                                              {true, false, false, false},
@@ -98,7 +98,7 @@ public:
 class NameRelationIsPrefixOf : public CheckerFixture
 {
 public:
-  NameRelationChecker checker{"/foo/bar", NameRelation::IS_PREFIX_OF};
+  NameRelationChecker checker{tlv::SignatureSha256WithRsa, "/foo/bar", NameRelation::IS_PREFIX_OF};
   std::vector<std::vector<bool>> outcomes = {{true, true, false, false},
                                              {true, true, false, false},
                                              {true, true, false, false},
@@ -108,7 +108,7 @@ public:
 class NameRelationIsStrictPrefixOf : public CheckerFixture
 {
 public:
-  NameRelationChecker checker{"/foo/bar", NameRelation::IS_STRICT_PREFIX_OF};
+  NameRelationChecker checker{tlv::SignatureSha256WithRsa, "/foo/bar", NameRelation::IS_STRICT_PREFIX_OF};
   std::vector<std::vector<bool>> outcomes = {{false, true, false, false},
                                              {false, true, false, false},
                                              {false, true, false, false},
@@ -118,7 +118,7 @@ public:
 class RegexEqual : public CheckerFixture
 {
 public:
-  RegexChecker checker{Regex("^<foo><bar><KEY><>{1,3}$")};
+  RegexChecker checker{tlv::SignatureSha256WithRsa, Regex("^<foo><bar><KEY><>{1,3}$")};
   std::vector<std::vector<bool>> outcomes = {{true, false, false, false},
                                              {true, false, false, false},
                                              {true, false, false, false},
@@ -128,7 +128,7 @@ public:
 class RegexIsPrefixOf : public CheckerFixture
 {
 public:
-  RegexChecker checker{Regex("^<foo><bar><>*<KEY><>{1,3}$")};
+  RegexChecker checker{tlv::SignatureSha256WithRsa, Regex("^<foo><bar><>*<KEY><>{1,3}$")};
   std::vector<std::vector<bool>> outcomes = {{true, true, false, false},
                                              {true, true, false, false},
                                              {true, true, false, false},
@@ -138,7 +138,7 @@ public:
 class RegexIsStrictPrefixOf : public CheckerFixture
 {
 public:
-  RegexChecker checker{Regex("^<foo><bar><>+<KEY><>{1,3}$")};
+  RegexChecker checker{tlv::SignatureSha256WithRsa, Regex("^<foo><bar><>+<KEY><>{1,3}$")};
   std::vector<std::vector<bool>> outcomes = {{false, true, false, false},
                                              {false, true, false, false},
                                              {false, true, false, false},
@@ -148,7 +148,8 @@ public:
 class HyperRelationEqual : public CheckerFixture
 {
 public:
-  HyperRelationChecker checker{"^(<>+)$", "\\1", "^(<>+)<KEY><>{1,3}$", "\\1", NameRelation::EQUAL};
+  HyperRelationChecker checker{tlv::SignatureSha256WithRsa,
+                               "^(<>+)$", "\\1", "^(<>+)<KEY><>{1,3}$", "\\1", NameRelation::EQUAL};
   std::vector<std::vector<bool>> outcomes = {{true,  false, false, false},
                                              {false, true,  false, false},
                                              {false, false, true,  false},
@@ -158,7 +159,8 @@ public:
 class HyperRelationIsPrefixOf : public CheckerFixture
 {
 public:
-  HyperRelationChecker checker{"^(<>+)$", "\\1", "^(<>+)<KEY><>{1,3}$", "\\1", NameRelation::IS_PREFIX_OF};
+  HyperRelationChecker checker{tlv::SignatureSha256WithRsa,
+                               "^(<>+)$", "\\1", "^(<>+)<KEY><>{1,3}$", "\\1", NameRelation::IS_PREFIX_OF};
   std::vector<std::vector<bool>> outcomes = {{true,  false, true,  false},
                                              {true,  true,  true,  false},
                                              {false, false, true,  false},
@@ -168,7 +170,8 @@ public:
 class HyperRelationIsStrictPrefixOf : public CheckerFixture
 {
 public:
-  HyperRelationChecker checker{"^(<>+)$", "\\1", "^(<>+)<KEY><>{1,3}$", "\\1", NameRelation::IS_STRICT_PREFIX_OF};
+  HyperRelationChecker checker{tlv::SignatureSha256WithRsa,
+                               "^(<>+)$", "\\1", "^(<>+)<KEY><>{1,3}$", "\\1", NameRelation::IS_STRICT_PREFIX_OF};
   std::vector<std::vector<bool>> outcomes = {{false, false, true,  false},
                                              {true,  false, true,  false},
                                              {false, false, false, false},
@@ -326,10 +329,13 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, T::second)
       bool expectedOutcome = this->outcomes[i][j];
 
       auto klName = this->makeKeyLocatorKeyName(this->names[j]);
-      this->template testChecker<PktType>(this->checker, pktName, klName, expectedOutcome);
+      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);
+      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithEcdsa, pktName, klName, false);
+
 
       klName = this->makeKeyLocatorCertName(this->names[j]);
-      this->template testChecker<PktType>(this->checker, pktName, klName, expectedOutcome);
+      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);
+      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithEcdsa, pktName, klName, false);
     }
   }
 }

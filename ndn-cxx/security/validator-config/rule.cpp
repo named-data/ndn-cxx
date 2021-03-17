@@ -74,7 +74,7 @@ Rule::match(uint32_t pktType, const Name& pktName, const shared_ptr<ValidationSt
 }
 
 bool
-Rule::check(uint32_t pktType, const Name& pktName, const Name& klName,
+Rule::check(uint32_t pktType, tlv::SignatureTypeValue sigType, const Name& pktName, const Name& klName,
             const shared_ptr<ValidationState>& state) const
 {
   NDN_LOG_TRACE("Trying to check " << pktName << " with KeyLocator " << klName);
@@ -87,7 +87,7 @@ Rule::check(uint32_t pktType, const Name& pktName, const Name& klName,
   std::vector<Checker::Result> checkerResults;
   checkerResults.reserve(m_checkers.size());
   for (const auto& checker : m_checkers) {
-    auto result = checker->check(pktType, pktName, klName, *state);
+    auto result = checker->check(pktType, sigType, pktName, klName, *state);
     if (result) {
       return true;
     }

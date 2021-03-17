@@ -199,31 +199,38 @@ checkers:
 Customized Checker
 ~~~~~~~~~~~~~~~~~~
 
-The customized checker requires two properties: **sig-type**, **key-locator**.  Both must
-appear exactly once and are related to the ``SignatureInfo`` of a packet.
+The customized checker can include optional **sig-type** property, which specifies the acceptable signature
+type.  If not specified, the checker will only accept ECDSA signature.  Possible values for **sig-type** are:
+
+- **ecdsa-sha256**: ECDSA signature required (default if **sig-type** not specified)
+- **rsa-sha256**: RSA signature required
+- **sha256** (not recommended, as it is not a real signature): SHA256 digest is required
+
+If sig-type is **rsa-sha256** or **ecdsa-sha256**, the customized checker requires
+**key-locator** property.  If sig-type is **sha256**, **key-locator** property can be
+specified, but is optional.
 
 ::
 
     checker
     {
       type customized
-      sig-type ...
+      sig-type rsa-sha256
       key-locator
       {
         ...
       }
     }
 
-The property **sig-type** specifies the acceptable signature type and can be
-**rsa-sha256**, **ecdsa-sha256** (strong signature types), or **sha256** (weak signature
-type).  If sig-type is sha256, **key-locator** is ignored, and the validator will simply
-calculate the digest of a packet and compare it with the one in ``SignatureValue``. If
-sig-type is rsa-sha256 or ecdsa-sha256, you have to further customize the checker with
-**key-locator**.
+    checker
+    {
+      type customized
+      sig-type sha256
+    }
 
-The property **key-locator** specifies the conditions on ``KeyLocator``. If the
-**key-locator** property is specified, it requires the existence of the ``KeyLocator``
-field in ``SignatureInfo``.  **key-locator** property only supports one type: **name**:
+The **key-locator** property is a nested configuration property that can appear exactly once
+and specifies conditions on ``KeyLocator``.  It requires **type** property that currently
+supports only one value: **name**.
 
 ::
 
@@ -233,9 +240,9 @@ field in ``SignatureInfo``.  **key-locator** property only supports one type: **
       ...
     }
 
-This key-locator property specifies the conditions on the certificate name of the signing
-key. Since the conditions are about name, they can be specified in the same way as the
-name filter. For example, a checker can be:
+``KeyLocator`` conditions can be specified in the same way as the name filter. For example, a
+checker that requires ``SignatureSha256WithRsa`` signature type with ``KeyLocator`` to be exactly
+``/ndn/edu/ucla/yingdi/KEY/1234`` can be written as follows:
 
 ::
 
@@ -251,13 +258,27 @@ name filter. For example, a checker can be:
       }
     }
 
-This checker property requires that the packet must have a ``rsa-sha256`` signature that
-can be verified with ``/ndn/edu/ucla/yingdi/KEY/1234`` key.
+Similarly, a checker that requires ``SignatureSha256WithEcdsa`` signature with ``KeyLocator``
+that follows a regular expression pattern ``<ndn><>*<KEY><>{1,3}`` can be written as follows:
 
-Besides the two ways to express conditions on the ``KeyLocator`` name (name and regex),
-you can further constrain the ``KeyLocator`` name using the information extracted from the
-packet name. This third type of condition is expressed via a property
-**hyper-relation**. The **hyper-relation** property consists of three parts:
+::
+
+    checker
+    {
+      type customized
+      sig-type ecdsa-sha256
+      key-locator
+      {
+        type name
+        regex <ndn><>*<KEY><>{1,3}
+        relation equal
+      }
+    }
+
+
+In addition, ``KeyLocator`` can be further constrained using information extracted from the
+packet name using the **hyper-relation** property.
+The **hyper-relation** property consists of three parts:
 
 - an NDN regular expression that extracts information from the packet name
 - an NDN regular expression that extracts information from the ``KeyLocator`` name
@@ -277,7 +298,7 @@ For example, a checker:
         type name
         hyper-relation
         {
-          k-regex ^(<>*)<KEY><>$
+          k-regex ^(<>*)<KEY><>{1,3}$
           k-expand \\1
           h-relation is-prefix-of
           p-regex ^(<>*)$

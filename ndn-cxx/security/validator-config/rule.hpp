@@ -76,6 +76,7 @@ public:
    * @brief Check if packet satisfies rule's condition.
    *
    * @param pktType tlv::Interest or tlv::Data
+   * @param sigType Signature type
    * @param pktName packet name, for signed Interests the last two components are not removed
    * @param klName KeyLocator name
    * @param state Validation state
@@ -87,7 +88,8 @@ public:
    * @throw Error the supplied pktType doesn't match one for which the rule is designed.
    */
   bool
-  check(uint32_t pktType, const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state) const;
+  check(uint32_t pktType, tlv::SignatureTypeValue sigType, const Name& pktName, const Name& klName,
+        const shared_ptr<ValidationState>& state) const;
 
 public:
   /**
