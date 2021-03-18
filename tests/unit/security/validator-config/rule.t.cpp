@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -96,23 +96,36 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Filters, PktType, PktTypes, RuleFixture<PktType
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checkers, PktType, PktTypes, RuleFixture<PktType>)
 {
+  auto testChecker = [this] (const Name& klName, bool expectedOutcome) {
+    BOOST_TEST_CONTEXT(klName << " expected=" << expectedOutcome) {
+      this->state = PktType::makeState(); // reset state
+      BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, klName, this->state),
+                        expectedOutcome);
+
+      auto outcome = this->state->getOutcome();
+      if (expectedOutcome) {
+        BOOST_CHECK(boost::logic::indeterminate(outcome));
+      }
+      else {
+        BOOST_CHECK(!boost::logic::indeterminate(outcome));
+        BOOST_CHECK(!bool(outcome));
+      }
+    }
+  };
+
   this->rule.addChecker(make_unique<HyperRelationChecker>("^(<>+)$", "\\1",
-                                                        "^<not>?(<>+)$", "\\1",
-                                                        NameRelation::EQUAL));
-
-  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, "/foo/bar", this->state), true);
-
-  this->state = PktType::makeState(); // reset state
-  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, "/not/foo/bar", this->state), true);
+                                                          "^<always>(<>+)$", "\\1",
+                                                          NameRelation::EQUAL));
+  testChecker("/always/foo/bar", true);
+  testChecker("/seldomly/foo/bar", false);
+  testChecker("/never/foo/bar", false);
 
   this->rule.addChecker(make_unique<HyperRelationChecker>("^(<>+)$", "\\1",
-                                                        "^(<>+)$", "\\1",
-                                                        NameRelation::EQUAL));
-  this->state = PktType::makeState(); // reset state
-  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, "/foo/bar", this->state), true);
-
-  this->state = PktType::makeState(); // reset state
-  BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), this->pktName, "/not/foo/bar", this->state), false);
+                                                          "^<seldomly>(<>+)$", "\\1",
+                                                          NameRelation::EQUAL));
+  testChecker("/always/foo/bar", true);
+  testChecker("/seldomly/foo/bar", true);
+  testChecker("/never/foo/bar", false);
 }
 
 BOOST_AUTO_TEST_SUITE(Create)

@@ -66,6 +66,21 @@ public:
     return Name(name).append(suffix);
   }
 
+  template<typename PktType, typename C>
+  static void
+  testChecker(C& checker, const Name& pktName, const Name& klName, bool expectedOutcome)
+  {
+    BOOST_TEST_CONTEXT("pkt=" << pktName << " kl=" << klName) {
+      auto state = PktType::makeState();
+      auto result = checker.check(PktType::getType(), pktName, klName, *state);
+      BOOST_CHECK_EQUAL(bool(result), expectedOutcome);
+      BOOST_CHECK(boost::logic::indeterminate(state->getOutcome()));
+      if (!result) {
+        BOOST_CHECK_NE(result.getErrorMessage(), "");
+      }
+    }
+  }
+
 public:
   std::vector<Name> names;
 };
@@ -305,27 +320,16 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, T::second)
   BOOST_REQUIRE_EQUAL(this->outcomes.size(), this->names.size());
   for (size_t i = 0; i < this->names.size(); ++i) {
     BOOST_REQUIRE_EQUAL(this->outcomes[i].size(), this->names.size());
+
+    auto pktName = PktType::makeName(this->names[i], this->m_keyChain);
     for (size_t j = 0; j < this->names.size(); ++j) {
-      auto pktName = PktType::makeName(this->names[i], this->m_keyChain);
       bool expectedOutcome = this->outcomes[i][j];
 
-      {
-        auto klName = this->makeKeyLocatorKeyName(this->names[j]);
+      auto klName = this->makeKeyLocatorKeyName(this->names[j]);
+      this->template testChecker<PktType>(this->checker, pktName, klName, expectedOutcome);
 
-        auto state = PktType::makeState();
-        BOOST_CHECK_EQUAL(this->checker.check(PktType::getType(), pktName, klName, state), expectedOutcome);
-        BOOST_CHECK_EQUAL(boost::logic::indeterminate(state->getOutcome()), expectedOutcome);
-        BOOST_CHECK_EQUAL(bool(state->getOutcome()), false);
-      }
-
-      {
-        auto klName = this->makeKeyLocatorCertName(this->names[j]);
-
-        auto state = PktType::makeState();
-        BOOST_CHECK_EQUAL(this->checker.check(PktType::getType(), pktName, klName, state), expectedOutcome);
-        BOOST_CHECK_EQUAL(boost::logic::indeterminate(state->getOutcome()), expectedOutcome);
-        BOOST_CHECK_EQUAL(bool(state->getOutcome()), false);
-      }
+      klName = this->makeKeyLocatorCertName(this->names[j]);
+      this->template testChecker<PktType>(this->checker, pktName, klName, expectedOutcome);
     }
   }
 }

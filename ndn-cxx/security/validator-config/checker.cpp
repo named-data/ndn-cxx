@@ -32,33 +32,65 @@ namespace security {
 inline namespace v2 {
 namespace validator_config {
 
-bool
+Checker::Result::Result(std::string error)
+  : m_error(std::move(error))
+{
+}
+
+class Checker::NegativeResultBuilder
+{
+public:
+  template<typename T>
+  NegativeResultBuilder&
+  operator<<(const T& value)
+  {
+    m_ss << value;
+    return *this;
+  }
+
+  operator Checker::Result() const
+  {
+    auto error = m_ss.str();
+    return Checker::Result(error.empty() ? "checker failed" : std::move(error));
+  }
+
+private:
+  std::ostringstream m_ss;
+};
+
+Checker::NegativeResultBuilder
+Checker::reject()
+{
+  return NegativeResultBuilder();
+}
+
+Checker::Result
 Checker::check(uint32_t pktType, const Name& pktName, const Name& klName,
-               const shared_ptr<ValidationState>& state)
+               const ValidationState& state)
 {
   BOOST_ASSERT(pktType == tlv::Interest || pktType == tlv::Data);
 
   if (pktType == tlv::Interest) {
-    auto fmt = state->getTag<SignedInterestFormatTag>();
+    auto fmt = state.getTag<SignedInterestFormatTag>();
     BOOST_ASSERT(fmt);
 
     if (*fmt == SignedInterestFormat::V03) {
       // This check is redundant if parameter digest checking is enabled. However, the parameter
       // digest checking can be disabled in API.
       if (pktName.size() == 0 || pktName[-1].type() != tlv::ParametersSha256DigestComponent) {
-        return false;
+        return reject() << "ParametersSha256DigestComponent missing";
       }
-      return checkNames(pktName.getPrefix(-1), klName, state);
+      return checkNames(pktName.getPrefix(-1), klName);
     }
     else {
       if (pktName.size() < signed_interest::MIN_SIZE)
-        return false;
+        return reject() << "name too short";
 
-      return checkNames(pktName.getPrefix(-signed_interest::MIN_SIZE), klName, state);
+      return checkNames(pktName.getPrefix(-signed_interest::MIN_SIZE), klName);
     }
   }
   else {
-    return checkNames(pktName, klName, state);
+    return checkNames(pktName, klName);
   }
 }
 
@@ -68,21 +100,17 @@ NameRelationChecker::NameRelationChecker(const Name& name, const NameRelation& r
 {
 }
 
-bool
-NameRelationChecker::checkNames(const Name& pktName, const Name& klName,
-                                const shared_ptr<ValidationState>& state)
+Checker::Result
+NameRelationChecker::checkNames(const Name& pktName, const Name& klName)
 {
   // pktName not used in this check
   Name identity = extractIdentityNameFromKeyLocator(klName);
-  bool result = checkNameRelation(m_relation, m_name, identity);
-  if (!result) {
-    std::ostringstream os;
-    os << "KeyLocator check failed: name relation " << m_name << " " << m_relation
-       << " for packet " << pktName << " is invalid"
-       << " (KeyLocator=" << klName << ", identity=" << identity << ")";
-    state->fail({ValidationError::POLICY_ERROR, os.str()});
+  if (checkNameRelation(m_relation, m_name, identity)) {
+    return accept();
   }
-  return result;
+
+  return reject() << "identity " << identity << " and packet name do not satisfy "
+                  << m_relation << " relation";
 }
 
 RegexChecker::RegexChecker(const Regex& regex)
@@ -90,17 +118,14 @@ RegexChecker::RegexChecker(const Regex& regex)
 {
 }
 
-bool
-RegexChecker::checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state)
+Checker::Result
+RegexChecker::checkNames(const Name& pktName, const Name& klName)
 {
-  bool result = m_regex.match(klName);
-  if (!result) {
-    std::ostringstream os;
-    os << "KeyLocator check failed: regex " << m_regex << " for packet " << pktName << " is invalid"
-       << " (KeyLocator=" << klName << ")";
-    state->fail({ValidationError::POLICY_ERROR, os.str()});
+  if (m_regex.match(klName)) {
+    return accept();
   }
-  return result;
+
+  return reject() << "KeyLocator does not match regex " << m_regex;
 }
 
 HyperRelationChecker::HyperRelationChecker(const std::string& pktNameExpr, const std::string pktNameExpand,
@@ -112,27 +137,25 @@ HyperRelationChecker::HyperRelationChecker(const std::string& pktNameExpr, const
 {
 }
 
-bool
-HyperRelationChecker::checkNames(const Name& pktName, const Name& klName,
-                                 const shared_ptr<ValidationState>& state)
+Checker::Result
+HyperRelationChecker::checkNames(const Name& pktName, const Name& klName)
 {
-  if (!m_hyperPRegex.match(pktName) || !m_hyperKRegex.match(klName)) {
-    std::ostringstream os;
-    os << "Packet " << pktName << " (" << "KeyLocator=" << klName << ") does not match "
-       << "the hyper relation rule pkt=" << m_hyperPRegex << ", key=" << m_hyperKRegex;
-    state->fail({ValidationError::POLICY_ERROR, os.str()});
-    return false;
+  if (!m_hyperPRegex.match(pktName)) {
+    return reject() << "packet name does not match p-regex " << m_hyperPRegex;
   }
 
-  bool result = checkNameRelation(m_hyperRelation, m_hyperKRegex.expand(), m_hyperPRegex.expand());
-  if (!result) {
-    std::ostringstream os;
-    os << "KeyLocator check failed: hyper relation " << m_hyperRelation
-       << " pkt=" << m_hyperPRegex << ", key=" << m_hyperKRegex
-       << " of packet " << pktName << " (KeyLocator=" << klName << ") is invalid";
-    state->fail({ValidationError::POLICY_ERROR, os.str()});
+  if (!m_hyperKRegex.match(klName)) {
+    return reject() << "KeyLocator does not match k-regex " << m_hyperKRegex;
   }
-  return result;
+
+  auto kExpand = m_hyperKRegex.expand();
+  auto pExpand = m_hyperPRegex.expand();
+  if (checkNameRelation(m_hyperRelation, kExpand, pExpand)) {
+    return accept();
+  }
+
+  return reject() << "expanded names " << kExpand << " and " << pExpand
+                  << " do not satisfy " << m_hyperRelation << " relation";
 }
 
 unique_ptr<Checker>

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,22 +38,52 @@ namespace validator_config {
 class Checker : noncopyable
 {
 public:
+  class Result
+  {
+  public:
+    /**
+     * @brief Return true if the check matches, false otherwise.
+     * @retval false packet does not pass the checker.
+     * @retval true  packet passes the checker. Further verification may be needed.
+     */
+    explicit operator bool() const
+    {
+      return m_error.empty();
+    }
+
+    /**
+     * @brief Return checker error message.
+     * @pre !bool(*this)
+     */
+    const std::string&
+    getErrorMessage() const
+    {
+      return m_error;
+    }
+
+  private:
+    explicit
+    Result(std::string error);
+
+  private:
+    std::string m_error;
+
+    friend Checker;
+  };
+
   virtual
   ~Checker() = default;
 
   /**
-   * @brief Check if packet name ane KeyLocator satisfy the checker's conditions
+   * @brief Check if packet name and KeyLocator satisfy the checker's conditions
    *
    * @param pktType tlv::Interest or tlv::Data
    * @param pktName packet's name
    * @param klName  KeyLocator's name
    * @param state Validation state
-   *
-   * @retval false data is immediately invalid. Will call state::fail() with proper code and message.
-   * @retval true  further signature verification is needed.
    */
-  bool
-  check(uint32_t pktType, const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state);
+  Result
+  check(uint32_t pktType, const Name& pktName, const Name& klName, const ValidationState& state);
 
   /**
    * @brief create a checker from configuration section
@@ -64,6 +94,21 @@ public:
    */
   static unique_ptr<Checker>
   create(const ConfigSection& configSection, const std::string& configFilename);
+
+protected:
+  virtual Result
+  checkNames(const Name& pktName, const Name& klName) = 0;
+
+  static Result
+  accept()
+  {
+    return Result("");
+  }
+
+  class NegativeResultBuilder;
+
+  static NegativeResultBuilder
+  reject();
 
 private:
   static unique_ptr<Checker>
@@ -77,10 +122,6 @@ private:
 
   static unique_ptr<Checker>
   createKeyLocatorNameChecker(const ConfigSection& configSection, const std::string& configFilename);
-
-protected:
-  virtual bool
-  checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state) = 0;
 };
 
 class NameRelationChecker : public Checker
@@ -89,8 +130,8 @@ public:
   NameRelationChecker(const Name& name, const NameRelation& relation);
 
 protected:
-  bool
-  checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state) override;
+  Result
+  checkNames(const Name& pktName, const Name& klName) override;
 
 private:
   Name m_name;
@@ -104,8 +145,8 @@ public:
   RegexChecker(const Regex& regex);
 
 protected:
-  bool
-  checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state) override;
+  Result
+  checkNames(const Name& pktName, const Name& klName) override;
 
 private:
   Regex m_regex;
@@ -119,8 +160,8 @@ public:
                        const NameRelation& hyperRelation);
 
 protected:
-  bool
-  checkNames(const Name& pktName, const Name& klName, const shared_ptr<ValidationState>& state) override;
+  Result
+  checkNames(const Name& pktName, const Name& klName) override;
 
 private:
   Regex m_hyperPRegex;

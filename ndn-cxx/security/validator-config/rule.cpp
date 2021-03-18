@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/security/validator-config/rule.hpp"
+#include "ndn-cxx/security/validation-state.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
@@ -76,23 +77,30 @@ bool
 Rule::check(uint32_t pktType, const Name& pktName, const Name& klName,
             const shared_ptr<ValidationState>& state) const
 {
-  NDN_LOG_TRACE("Trying to check " << pktName << " with keyLocator " << klName);
+  NDN_LOG_TRACE("Trying to check " << pktName << " with KeyLocator " << klName);
 
   if (pktType != m_pktType) {
     NDN_THROW(Error("Invalid packet type supplied (" + to_string(pktType) +
                     " != " + to_string(m_pktType) + ")"));
   }
 
-  bool hasPendingResult = false;
+  std::vector<Checker::Result> checkerResults;
+  checkerResults.reserve(m_checkers.size());
   for (const auto& checker : m_checkers) {
-    bool result = checker->check(pktType, pktName, klName, state);
-    if (!result) {
-      return result;
+    auto result = checker->check(pktType, pktName, klName, *state);
+    if (result) {
+      return true;
     }
-    hasPendingResult = true;
+    checkerResults.push_back(std::move(result));
   }
 
-  return hasPendingResult;
+  std::ostringstream err;
+  err << "Packet " << pktName << " (KeyLocator=" << klName << ") cannot pass any checker.";
+  for (size_t i = 0; i < checkerResults.size(); ++i) {
+    err << "\nChecker " << i << ": " << checkerResults[i].getErrorMessage();
+  }
+  state->fail({ValidationError::POLICY_ERROR, err.str()});
+  return false;
 }
 
 unique_ptr<Rule>
