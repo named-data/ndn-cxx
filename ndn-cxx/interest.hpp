@@ -185,17 +185,17 @@ public: // element access
   /** @brief Declare the default CanBePrefix setting of the application.
    *
    *  As part of transitioning to NDN Packet Format v0.3, the default setting for CanBePrefix
-   *  will be changed from "true" to "false". Application developers are advised to review all
-   *  Interests expressed by their application and decide what CanBePrefix setting is appropriate
-   *  for each Interest, to avoid breaking changes when the transition occurs. Application may
-   *  either set CanBePrefix on a per-Interest basis, or declare a default CanBePrefix setting for
-   *  all Interests expressed by the application using this function. If an application neither
-   *  declares a default nor sets CanBePrefix on every Interest, Interest::wireEncode will print a
-   *  one-time warning message.
+   *  has been changed from "true" to "false". Application developers are advised to review all
+   *  Interests expressed by their applications and decide what CanBePrefix setting is appropriate
+   *  for each Interest. Applications must set CanBePrefix on a per-Interest basis, if different
+   *  from the default value. Changing the application-wide default CanBePrefix setting via this
+   *  function is deprecated.
    *
+   *  @deprecated
    *  @note This function should not be used in libraries or in ndn-cxx unit tests.
    *  @sa https://redmine.named-data.net/projects/nfd/wiki/Packet03Transition
    */
+  [[deprecated]]
   static void
   setDefaultCanBePrefix(bool canBePrefix)
   {
