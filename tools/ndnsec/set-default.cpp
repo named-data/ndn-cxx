@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,16 +74,16 @@ ndnsec_set_default(int argc, char** argv)
     return 2;
   }
 
-  security::v2::KeyChain keyChain;
+  KeyChain keyChain;
 
   if (wantSetDefaultKey) {
-    auto identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromKeyName(name));
+    auto identity = keyChain.getPib().getIdentity(security::extractIdentityFromKeyName(name));
     auto key = identity.getKey(name);
     keyChain.setDefaultKey(identity, key);
   }
   else if (wantSetDefaultCert) {
-    auto identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromCertName(name));
-    auto key = identity.getKey(security::v2::extractKeyNameFromCertName(name));
+    auto identity = keyChain.getPib().getIdentity(security::extractIdentityFromCertName(name));
+    auto key = identity.getKey(security::extractKeyNameFromCertName(name));
     auto cert = key.getCertificate(name);
     keyChain.setDefaultCertificate(key, cert);
   }

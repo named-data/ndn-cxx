@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,7 +68,7 @@ getPassword(std::string& password, const std::string& prompt, bool shouldConfirm
 #endif // NDN_CXX_HAVE_GETPASS
 }
 
-security::v2::Certificate
+security::Certificate
 getCertificateFromPib(const security::pib::Pib& pib, const Name& name,
                       bool isIdentityName, bool isKeyName, bool isCertName)
 {
@@ -78,26 +78,26 @@ getCertificateFromPib(const security::pib::Pib& pib, const Name& name,
            .getDefaultCertificate();
   }
   else if (isKeyName) {
-    return pib.getIdentity(security::v2::extractIdentityFromKeyName(name))
+    return pib.getIdentity(security::extractIdentityFromKeyName(name))
            .getKey(name)
            .getDefaultCertificate();
   }
   else if (isCertName) {
-    return pib.getIdentity(security::v2::extractIdentityFromCertName(name))
-           .getKey(security::v2::extractKeyNameFromCertName(name))
+    return pib.getIdentity(security::extractIdentityFromCertName(name))
+           .getKey(security::extractKeyNameFromCertName(name))
            .getCertificate(name);
   }
   NDN_CXX_UNREACHABLE;
 }
 
-security::v2::Certificate
+security::Certificate
 loadCertificate(const std::string& fileName)
 {
-  shared_ptr<security::v2::Certificate> cert;
+  shared_ptr<security::Certificate> cert;
   if (fileName == "-")
-    cert = io::load<security::v2::Certificate>(std::cin);
+    cert = io::load<security::Certificate>(std::cin);
   else
-    cert = io::load<security::v2::Certificate>(fileName);
+    cert = io::load<security::Certificate>(fileName);
 
   if (cert == nullptr) {
     NDN_THROW(CannotLoadCertificate(fileName));

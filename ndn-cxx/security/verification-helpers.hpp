@@ -128,7 +128,7 @@ verifySignature(const Interest& interest, const pib::Key& key);
  * If @p cert is nullopt, @p data assumed to be self-verifiable (with digest or attributes)
  */
 bool
-verifySignature(const Data& data, const optional<v2::Certificate>& cert);
+verifySignature(const Data& data, const optional<Certificate>& cert);
 
 /**
  * @brief Verify @p interest using @p cert.
@@ -138,7 +138,7 @@ verifySignature(const Data& data, const optional<v2::Certificate>& cert);
  * If @p cert is nullptr, @p interest assumed to be self-verifiable (with digest or attributes)
  */
 bool
-verifySignature(const Interest& interest, const optional<v2::Certificate>& cert);
+verifySignature(const Interest& interest, const optional<Certificate>& cert);
 
 /**
  * @brief Verify @p data using @p tpm and @p keyName with the @p digestAlgorithm.

@@ -161,7 +161,7 @@ public:
   static shared_ptr<SegmentFetcher>
   start(Face& face,
         const Interest& baseInterest,
-        security::v2::Validator& validator,
+        security::Validator& validator,
         const Options& options = Options());
 
   /**
@@ -175,7 +175,7 @@ public:
 private:
   class PendingSegment;
 
-  SegmentFetcher(Face& face, security::v2::Validator& validator, const Options& options);
+  SegmentFetcher(Face& face, security::Validator& validator, const Options& options);
 
   static bool
   shouldStop(const weak_ptr<SegmentFetcher>& weakSelf);
@@ -200,7 +200,7 @@ private:
 
   void
   afterValidationFailure(const Data& data,
-                         const security::v2::ValidationError& error,
+                         const security::ValidationError& error,
                          const weak_ptr<SegmentFetcher>& weakSelf);
 
   void
@@ -310,7 +310,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   Options m_options;
   Face& m_face;
   Scheduler m_scheduler;
-  security::v2::Validator& m_validator;
+  security::Validator& m_validator;
   RttEstimator m_rttEstimator;
 
   time::steady_clock::TimePoint m_timeLastSegmentReceived;

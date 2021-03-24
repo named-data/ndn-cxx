@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   // get keys
   BOOST_REQUIRE_NO_THROW(container.get(id1Key1Name));
   BOOST_REQUIRE_NO_THROW(container.get(id1Key2Name));
-  Name id1Key3Name = v2::constructKeyName(id1, name::Component("non-existing-id"));
+  Name id1Key3Name = constructKeyName(id1, name::Component("non-existing-id"));
   BOOST_CHECK_THROW(container.get(id1Key3Name), Pib::Error);
 
   // check key

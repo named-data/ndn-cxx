@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ namespace pib {
 Key::Key() = default;
 
 Key::Key(weak_ptr<detail::KeyImpl> impl)
-  : m_impl(impl)
+  : m_impl(std::move(impl))
 {
 }
 
@@ -59,18 +59,18 @@ Key::getPublicKey() const
 }
 
 void
-Key::addCertificate(const v2::Certificate& certificate) const
+Key::addCertificate(const Certificate& certificate) const
 {
-  return lock()->addCertificate(certificate);
+  lock()->addCertificate(certificate);
 }
 
 void
 Key::removeCertificate(const Name& certName) const
 {
-  return lock()->removeCertificate(certName);
+  lock()->removeCertificate(certName);
 }
 
-v2::Certificate
+Certificate
 Key::getCertificate(const Name& certName) const
 {
   return lock()->getCertificate(certName);
@@ -82,19 +82,19 @@ Key::getCertificates() const
   return lock()->getCertificates();
 }
 
-const v2::Certificate&
+const Certificate&
 Key::setDefaultCertificate(const Name& certName) const
 {
   return lock()->setDefaultCertificate(certName);
 }
 
-const v2::Certificate&
-Key::setDefaultCertificate(const v2::Certificate& certificate) const
+const Certificate&
+Key::setDefaultCertificate(const Certificate& certificate) const
 {
   return lock()->setDefaultCertificate(certificate);
 }
 
-const v2::Certificate&
+const Certificate&
 Key::getDefaultCertificate() const
 {
   return lock()->getDefaultCertificate();

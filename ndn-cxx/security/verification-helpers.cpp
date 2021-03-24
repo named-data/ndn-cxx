@@ -214,7 +214,7 @@ verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen)
 }
 
 bool
-verifySignature(const Data& data, const optional<v2::Certificate>& cert)
+verifySignature(const Data& data, const optional<Certificate>& cert)
 {
   auto parsed = parse(data);
   if (cert) {
@@ -232,7 +232,7 @@ verifySignature(const Data& data, const optional<v2::Certificate>& cert)
 }
 
 bool
-verifySignature(const Interest& interest, const optional<v2::Certificate>& cert)
+verifySignature(const Interest& interest, const optional<Certificate>& cert)
 {
   auto parsed = parse(interest);
   if (cert) {

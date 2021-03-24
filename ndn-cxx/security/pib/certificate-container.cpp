@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,7 +41,7 @@ CertificateContainer::const_iterator::const_iterator(std::set<Name>::const_itera
 {
 }
 
-v2::Certificate
+Certificate
 CertificateContainer::const_iterator::operator*()
 {
   BOOST_ASSERT(m_container != nullptr);
@@ -91,19 +91,19 @@ CertificateContainer::CertificateContainer(const Name& keyName, shared_ptr<PibIm
 CertificateContainer::const_iterator
 CertificateContainer::begin() const
 {
-  return const_iterator(m_certNames.begin(), *this);
+  return {m_certNames.begin(), *this};
 }
 
 CertificateContainer::const_iterator
 CertificateContainer::end() const
 {
-  return const_iterator();
+  return {};
 }
 
 CertificateContainer::const_iterator
 CertificateContainer::find(const Name& certName) const
 {
-  return const_iterator(m_certNames.find(certName), *this);
+  return {m_certNames.find(certName), *this};
 }
 
 size_t
@@ -113,7 +113,7 @@ CertificateContainer::size() const
 }
 
 void
-CertificateContainer::add(const v2::Certificate& certificate)
+CertificateContainer::add(const Certificate& certificate)
 {
   if (m_keyName != certificate.getKeyName())
     NDN_THROW(std::invalid_argument("Certificate name `" + certificate.getKeyName().toUri() + "` "
@@ -128,8 +128,7 @@ CertificateContainer::add(const v2::Certificate& certificate)
 void
 CertificateContainer::remove(const Name& certName)
 {
-  if (!v2::Certificate::isValidName(certName) ||
-      v2::extractKeyNameFromCertName(certName) != m_keyName) {
+  if (!Certificate::isValidName(certName) || extractKeyNameFromCertName(certName) != m_keyName) {
     NDN_THROW(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
                                     "is invalid or does not match key name"));
   }
@@ -139,7 +138,7 @@ CertificateContainer::remove(const Name& certName)
   m_pib->removeCertificate(certName);
 }
 
-v2::Certificate
+Certificate
 CertificateContainer::get(const Name& certName) const
 {
   auto it = m_certs.find(certName);
@@ -147,8 +146,7 @@ CertificateContainer::get(const Name& certName) const
   if (it != m_certs.end())
     return it->second;
 
-  if (!v2::Certificate::isValidName(certName) ||
-      v2::extractKeyNameFromCertName(certName) != m_keyName) {
+  if (!Certificate::isValidName(certName) || extractKeyNameFromCertName(certName) != m_keyName) {
     NDN_THROW(std::invalid_argument("Certificate name `" + certName.toUri() + "` "
                                     "is invalid or does not match key name"));
   }

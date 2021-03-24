@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,7 +75,7 @@ public:
     std::cout << key.getName() << std::endl;
 
     if (m_verboseLevel >= 2) {
-      security::v2::Certificate defaultCert;
+      security::Certificate defaultCert;
       try {
         defaultCert = key.getDefaultCertificate();
       }
@@ -90,7 +90,7 @@ public:
   }
 
   void
-  printCertificate(const security::v2::Certificate& cert, bool isDefault) const
+  printCertificate(const security::Certificate& cert, bool isDefault) const
   {
     if (isDefault)
       std::cout << "       +->* ";
@@ -152,7 +152,7 @@ ndnsec_list(int argc, char** argv)
 
   verboseLevel = std::max(verboseLevel, wantCert ? 2 : wantKey ? 1 : 0);
 
-  security::v2::KeyChain keyChain;
+  KeyChain keyChain;
 
   // TODO: add API to check for default identity (may be from the identity itself)
   security::Identity defaultIdentity;

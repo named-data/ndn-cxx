@@ -115,7 +115,7 @@ public:
    * @throw std::invalid_argument the certificate name does not match the key name.
    */
   void
-  addCertificate(const v2::Certificate& certificate);
+  addCertificate(const Certificate& certificate);
 
   /**
    * @brief Remove a certificate with @p certName.
@@ -129,7 +129,7 @@ public:
    * @throw std::invalid_argument @p certName does not match the key name.
    * @throw Pib::Error the certificate does not exist.
    */
-  v2::Certificate
+  Certificate
   getCertificate(const Name& certName) const;
 
   /**
@@ -144,7 +144,7 @@ public:
    * @throw Pib::Error the certificate does not exist.
    * @return the default certificate
    */
-  const v2::Certificate&
+  const Certificate&
   setDefaultCertificate(const Name& certName);
 
   /**
@@ -156,14 +156,14 @@ public:
    * @throw std::invalid_argument @p certificate does not match the key name.
    * @return the default certificate
    */
-  const v2::Certificate&
-  setDefaultCertificate(const v2::Certificate& certificate);
+  const Certificate&
+  setDefaultCertificate(const Certificate& certificate);
 
   /**
    * @brief Get the default certificate for this key.
    * @throw Pib::Error the default certificate does not exist.
    */
-  const v2::Certificate&
+  const Certificate&
   getDefaultCertificate() const;
 
 private:
@@ -176,7 +176,7 @@ private:
 
   CertificateContainer m_certificates;
   mutable bool m_isDefaultCertificateLoaded;
-  mutable v2::Certificate m_defaultCertificate;
+  mutable Certificate m_defaultCertificate;
 };
 
 } // namespace detail

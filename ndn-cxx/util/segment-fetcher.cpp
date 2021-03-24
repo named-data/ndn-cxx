@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California,
+ * Copyright (c) 2013-2021 Regents of the University of California,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University.
  *
@@ -59,7 +59,7 @@ SegmentFetcher::Options::validate()
 }
 
 SegmentFetcher::SegmentFetcher(Face& face,
-                               security::v2::Validator& validator,
+                               security::Validator& validator,
                                const SegmentFetcher::Options& options)
   : m_options(options)
   , m_face(face)
@@ -76,7 +76,7 @@ SegmentFetcher::SegmentFetcher(Face& face,
 shared_ptr<SegmentFetcher>
 SegmentFetcher::start(Face& face,
                       const Interest& baseInterest,
-                      security::v2::Validator& validator,
+                      security::Validator& validator,
                       const SegmentFetcher::Options& options)
 {
   shared_ptr<SegmentFetcher> fetcher(new SegmentFetcher(face, validator, options));
@@ -324,7 +324,7 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
 
 void
 SegmentFetcher::afterValidationFailure(const Data& data,
-                                       const security::v2::ValidationError& error,
+                                       const security::ValidationError& error,
                                        const weak_ptr<SegmentFetcher>& weakSelf)
 {
   if (shouldStop(weakSelf))

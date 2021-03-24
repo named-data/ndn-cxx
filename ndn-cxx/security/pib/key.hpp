@@ -106,7 +106,7 @@ public:
    * @throw std::invalid_argument @p certName does not match key name
    * @throw Pib::Error the certificate does not exist.
    */
-  v2::Certificate
+  Certificate
   getCertificate(const Name& certName) const;
 
   /**
@@ -119,7 +119,7 @@ public:
    * @brief Get the default certificate for this Key.
    * @throw Pib::Error the default certificate does not exist.
    */
-  const v2::Certificate&
+  const Certificate&
   getDefaultCertificate() const;
 
   /**
@@ -137,7 +137,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * the certificate.
    */
   void
-  addCertificate(const v2::Certificate& certificate) const;
+  addCertificate(const Certificate& certificate) const;
 
   /**
    * @brief Remove a certificate with @p certName
@@ -152,7 +152,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @throw Pib::Error the certificate does not exist.
    * @return the default certificate
    */
-  const v2::Certificate&
+  const Certificate&
   setDefaultCertificate(const Name& certName) const;
 
   /**
@@ -160,8 +160,8 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
    * @throw std::invalid_argument @p certificate does not match key name
    * @return the default certificate
    */
-  const v2::Certificate&
-  setDefaultCertificate(const v2::Certificate& certificate) const;
+  const Certificate&
+  setDefaultCertificate(const Certificate& certificate) const;
 
 private:
   /**
@@ -175,7 +175,7 @@ private:
 private:
   weak_ptr<detail::KeyImpl> m_impl;
 
-  friend class v2::KeyChain;
+  friend KeyChain;
   friend bool operator!=(const Key&, const Key&);
 };
 

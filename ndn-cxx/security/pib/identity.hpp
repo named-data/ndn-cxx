@@ -26,6 +26,11 @@
 
 namespace ndn {
 namespace security {
+
+inline namespace v2 {
+class KeyChain;
+} // inline namespace v2
+
 namespace pib {
 
 namespace detail {
@@ -151,7 +156,7 @@ private:
 private:
   weak_ptr<detail::IdentityImpl> m_impl;
 
-  friend class v2::KeyChain;
+  friend KeyChain;
   friend bool operator!=(const Identity&, const Identity&);
 };
 

@@ -58,7 +58,7 @@ public:
 
     const_iterator();
 
-    v2::Certificate
+    Certificate
     operator*();
 
     const_iterator&
@@ -83,7 +83,7 @@ public:
     friend class CertificateContainer;
   };
 
-  typedef const_iterator iterator;
+  using iterator = const_iterator;
 
 public:
   const_iterator
@@ -103,7 +103,7 @@ public:
    * @throw std::invalid_argument the name of @p certificate does not match the key name
    */
   void
-  add(const v2::Certificate& certificate);
+  add(const Certificate& certificate);
 
   /**
    * @brief Remove a certificate with @p certName from the container
@@ -117,7 +117,7 @@ public:
    * @throw std::invalid_argument @p certName does not match the key name
    * @throw Pib::Error the certificate does not exist
    */
-  v2::Certificate
+  Certificate
   get(const Name& certName) const;
 
   /**
@@ -140,7 +140,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
     return m_certNames;
   }
 
-  const std::unordered_map<Name, v2::Certificate>&
+  const std::unordered_map<Name, Certificate>&
   getCache() const
   {
     return m_certs;
@@ -150,11 +150,13 @@ private:
   Name m_keyName;
   std::set<Name> m_certNames;
   /// @brief Cache of loaded certificates
-  mutable std::unordered_map<Name, v2::Certificate> m_certs;
+  mutable std::unordered_map<Name, Certificate> m_certs;
 
   shared_ptr<PibImpl> m_pib;
 
-  friend class detail::KeyImpl;
+#ifndef DOXYGEN
+  friend detail::KeyImpl;
+#endif
 };
 
 } // namespace pib

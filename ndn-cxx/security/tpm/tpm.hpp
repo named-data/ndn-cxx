@@ -57,10 +57,10 @@ class BackEnd;
  * A TPM consists of a unified front-end interface and a back-end implementation. The front-end
  * cache the handles of private keys which is provided by the back-end implementation.
  *
- * @note Tpm instance is created and managed only by v2::KeyChain.  v2::KeyChain::getTpm()
- *       returns a const reference to the managed Tpm instance, through which it is possible to
- *       check existence of private keys, get public keys for the private keys, sign, and decrypt
- *       the supplied buffers using managed private keys.
+ * @note Tpm instance is created and managed only by KeyChain. KeyChain::getTpm() returns
+ *       a const reference to the managed Tpm instance, through which it is possible to
+ *       check the existence of private keys, get the public key corresponding to a private
+ *       key, sign, and decrypt the supplied buffers using managed private keys.
  */
 class Tpm : noncopyable
 {
@@ -269,7 +269,7 @@ private:
 
   const unique_ptr<BackEnd> m_backEnd;
 
-  friend class v2::KeyChain;
+  friend KeyChain;
 };
 
 } // namespace tpm

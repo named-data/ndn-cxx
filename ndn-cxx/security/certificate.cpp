@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -153,7 +153,7 @@ operator<<(std::ostream& os, const Certificate& cert)
   auto additionalDescription = cert.getSignatureInfo().getCustomTlv(tlv::AdditionalDescription);
   if (additionalDescription) {
     os << "Additional Description:\n";
-    for (const auto& item : v2::AdditionalDescription(*additionalDescription)) {
+    for (const auto& item : AdditionalDescription(*additionalDescription)) {
       os << "  " << item.first << ": " << item.second << "\n";
     }
   }

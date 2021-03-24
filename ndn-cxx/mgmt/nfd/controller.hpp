@@ -67,7 +67,7 @@ public:
    *         and uses the passed KeyChain to sign commands
    */
   Controller(Face& face, KeyChain& keyChain,
-             security::v2::Validator& validator = security::getAcceptAllValidator());
+             security::Validator& validator = security::getAcceptAllValidator());
 
   ~Controller();
 
@@ -173,7 +173,7 @@ public:
 protected:
   Face& m_face;
   KeyChain& m_keyChain;
-  security::v2::Validator& m_validator;
+  security::Validator& m_validator;
   security::CommandInterestSigner m_signer;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:

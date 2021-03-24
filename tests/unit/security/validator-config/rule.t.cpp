@@ -34,7 +34,7 @@ namespace validator_config {
 namespace tests {
 
 using namespace ndn::tests;
-using namespace ndn::security::v2::tests;
+using namespace ndn::security::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(ValidatorConfig)

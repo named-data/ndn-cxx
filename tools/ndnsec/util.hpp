@@ -45,7 +45,7 @@ namespace ndnsec {
  * @throw std::invalid_argument name is invalid.
  * @throw Pib::Error certificate does not exist.
  */
-security::v2::Certificate
+security::Certificate
 getCertificateFromPib(const security::pib::Pib& pib, const Name& name,
                       bool isIdentityName, bool isKeyName, bool isCertName);
 
@@ -58,7 +58,7 @@ public:
   }
 };
 
-security::v2::Certificate
+security::Certificate
 loadCertificate(const std::string& fileName);
 
 bool

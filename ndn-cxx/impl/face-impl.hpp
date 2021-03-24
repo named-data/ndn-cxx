@@ -417,7 +417,7 @@ private:
 
   unique_ptr<boost::asio::io_service::work> m_ioServiceWork; // if thread needs to be preserved
 
-  friend class Face;
+  friend Face;
 };
 
 } // namespace ndn

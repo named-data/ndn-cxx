@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,7 +62,7 @@ signingByCertificate(const Name& certName);
  * \return a SigningInfo for signing with a certificate
  */
 SigningInfo
-signingByCertificate(const v2::Certificate& cert);
+signingByCertificate(const Certificate& cert);
 
 /**
  * \return a SigningInfo for signing with Sha256

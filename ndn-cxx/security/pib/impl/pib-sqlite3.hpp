@@ -36,7 +36,7 @@ namespace pib {
  * All the contents in Pib are stored in a SQLite3 database file.
  * This backend provides more persistent storage than PibMemory.
  */
-class PibSqlite3 : public PibImpl
+class PibSqlite3 final : public PibImpl
 {
 public:
   /**
@@ -57,7 +57,7 @@ public:
   /**
    * @brief Destruct and cleanup internal state
    */
-  ~PibSqlite3();
+  ~PibSqlite3() final;
 
   static const std::string&
   getScheme();
@@ -119,12 +119,12 @@ public: // Certificate Management
   hasCertificate(const Name& certName) const final;
 
   void
-  addCertificate(const v2::Certificate& certificate) final;
+  addCertificate(const Certificate& certificate) final;
 
   void
   removeCertificate(const Name& certName) final;
 
-  v2::Certificate
+  Certificate
   getCertificate(const Name& certName) const final;
 
   std::set<Name>
@@ -133,7 +133,7 @@ public: // Certificate Management
   void
   setDefaultCertificateOfKey(const Name& keyName, const Name& certName) final;
 
-  v2::Certificate
+  Certificate
   getDefaultCertificateOfKey(const Name& keyName) const final;
 
 private:

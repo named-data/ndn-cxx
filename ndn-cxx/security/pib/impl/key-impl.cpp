@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ namespace pib {
 namespace detail {
 
 KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> pibImpl)
-  : m_identity(v2::extractIdentityFromKeyName(keyName))
+  : m_identity(extractIdentityFromKeyName(keyName))
   , m_keyName(keyName)
   , m_key(key, keyLen)
   , m_pib(std::move(pibImpl))
@@ -52,7 +52,7 @@ KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_
 }
 
 KeyImpl::KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl)
-  : m_identity(v2::extractIdentityFromKeyName(keyName))
+  : m_identity(extractIdentityFromKeyName(keyName))
   , m_keyName(keyName)
   , m_pib(std::move(pibImpl))
   , m_certificates(keyName, m_pib)
@@ -68,7 +68,7 @@ KeyImpl::KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl)
 }
 
 void
-KeyImpl::addCertificate(const v2::Certificate& certificate)
+KeyImpl::addCertificate(const Certificate& certificate)
 {
   BOOST_ASSERT(m_certificates.isConsistent());
   m_certificates.add(certificate);
@@ -85,7 +85,7 @@ KeyImpl::removeCertificate(const Name& certName)
   m_certificates.remove(certName);
 }
 
-v2::Certificate
+Certificate
 KeyImpl::getCertificate(const Name& certName) const
 {
   BOOST_ASSERT(m_certificates.isConsistent());
@@ -99,7 +99,7 @@ KeyImpl::getCertificates() const
   return m_certificates;
 }
 
-const v2::Certificate&
+const Certificate&
 KeyImpl::setDefaultCertificate(const Name& certName)
 {
   BOOST_ASSERT(m_certificates.isConsistent());
@@ -110,14 +110,14 @@ KeyImpl::setDefaultCertificate(const Name& certName)
   return m_defaultCertificate;
 }
 
-const v2::Certificate&
-KeyImpl::setDefaultCertificate(const v2::Certificate& certificate)
+const Certificate&
+KeyImpl::setDefaultCertificate(const Certificate& certificate)
 {
   addCertificate(certificate);
   return setDefaultCertificate(certificate.getName());
 }
 
-const v2::Certificate&
+const Certificate&
 KeyImpl::getDefaultCertificate() const
 {
   BOOST_ASSERT(m_certificates.isConsistent());

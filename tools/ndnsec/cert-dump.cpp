@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -107,7 +107,7 @@ ndnsec_cert_dump(int argc, char** argv)
     return 2;
   }
 
-  security::v2::Certificate certificate;
+  security::Certificate certificate;
   if (isFileName) {
     try {
       certificate = loadCertificate(name);
@@ -118,7 +118,7 @@ ndnsec_cert_dump(int argc, char** argv)
     }
   }
   else {
-    security::v2::KeyChain keyChain;
+    KeyChain keyChain;
     certificate = getCertificateFromPib(keyChain.getPib(), name,
                                         isIdentityName, isKeyName, nIsNameOptions == 0);
   }

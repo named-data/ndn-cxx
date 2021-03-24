@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,8 +20,8 @@
  */
 
 #include "ndn-cxx/security/pib/key-container.hpp"
-#include "ndn-cxx/security/pib/pib-impl.hpp"
 #include "ndn-cxx/security/pib/impl/key-impl.hpp"
+#include "ndn-cxx/security/pib/pib-impl.hpp"
 #include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
@@ -91,19 +91,19 @@ KeyContainer::KeyContainer(const Name& identity, shared_ptr<PibImpl> pibImpl)
 KeyContainer::const_iterator
 KeyContainer::begin() const
 {
-  return const_iterator(m_keyNames.begin(), *this);
+  return {m_keyNames.begin(), *this};
 }
 
 KeyContainer::const_iterator
 KeyContainer::end() const
 {
-  return const_iterator();
+  return {};
 }
 
 KeyContainer::const_iterator
 KeyContainer::find(const Name& keyName) const
 {
-  return const_iterator(m_keyNames.find(keyName), *this);
+  return {m_keyNames.find(keyName), *this};
 }
 
 size_t
@@ -115,7 +115,7 @@ KeyContainer::size() const
 Key
 KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
 {
-  if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
+  if (m_identity != extractIdentityFromKeyName(keyName)) {
     NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
                                     "`" + m_identity.toUri() + "`"));
   }
@@ -129,7 +129,7 @@ KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
 void
 KeyContainer::remove(const Name& keyName)
 {
-  if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
+  if (m_identity != extractIdentityFromKeyName(keyName)) {
     NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
                                     "`" + m_identity.toUri() + "`"));
   }
@@ -142,7 +142,7 @@ KeyContainer::remove(const Name& keyName)
 Key
 KeyContainer::get(const Name& keyName) const
 {
-  if (m_identity != v2::extractIdentityFromKeyName(keyName)) {
+  if (m_identity != extractIdentityFromKeyName(keyName)) {
     NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
                                     "`" + m_identity.toUri() + "`"));
   }

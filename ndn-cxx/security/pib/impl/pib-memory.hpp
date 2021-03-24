@@ -103,12 +103,12 @@ public: // Certificate management
   hasCertificate(const Name& certName) const override;
 
   void
-  addCertificate(const v2::Certificate& certificate) override;
+  addCertificate(const Certificate& certificate) override;
 
   void
   removeCertificate(const Name& certName) override;
 
-  v2::Certificate
+  Certificate
   getCertificate(const Name& certName) const override;
 
   std::set<Name>
@@ -117,7 +117,7 @@ public: // Certificate management
   void
   setDefaultCertificateOfKey(const Name& keyName, const Name& certName) override;
 
-  v2::Certificate
+  Certificate
   getDefaultCertificateOfKey(const Name& keyName) const override;
 
 private:
@@ -138,7 +138,7 @@ private:
   std::map<Name, Name> m_defaultCerts;
 
   /// @brief certificate Name => certificate
-  std::map<Name, v2::Certificate> m_certs;
+  std::map<Name, Certificate> m_certs;
 };
 
 } // namespace pib

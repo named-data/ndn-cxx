@@ -104,7 +104,7 @@ private:
 private:
   weak_ptr<EventInfo> m_info;
 
-  friend class Scheduler;
+  friend Scheduler;
   friend std::ostream& operator<<(std::ostream& os, const EventId& eventId);
 };
 

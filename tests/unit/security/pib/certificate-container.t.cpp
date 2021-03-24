@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_THROW(container.get(id1Key1Cert3Name), Pib::Error);
 
   // check cert
-  v2::Certificate cert1 = container.get(id1Key1Cert1.getName());
-  v2::Certificate cert2 = container.get(id1Key1Cert2.getName());
+  Certificate cert1 = container.get(id1Key1Cert1.getName());
+  Certificate cert2 = container.get(id1Key1Cert2.getName());
   BOOST_CHECK_EQUAL(cert1, id1Key1Cert1);
   BOOST_CHECK_EQUAL(cert2, id1Key1Cert2);
 
@@ -133,8 +133,8 @@ BOOST_AUTO_TEST_CASE(Iterator)
   certNames.insert(id1Key1Cert1.getName());
   certNames.insert(id1Key1Cert2.getName());
 
-  CertificateContainer::const_iterator it = container.begin();
-  std::set<Name>::const_iterator testIt = certNames.begin();
+  auto it = container.begin();
+  auto testIt = certNames.begin();
   BOOST_CHECK_EQUAL((*it).getName(), *testIt);
   it++;
   testIt++;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -145,7 +145,7 @@ PibMemory::addKey(const Name& identity, const Name& keyName,
 void
 PibMemory::removeKey(const Name& keyName)
 {
-  Name identity = v2::extractIdentityFromKeyName(keyName);
+  Name identity = extractIdentityFromKeyName(keyName);
 
   m_keys.erase(keyName);
   m_defaultKeys.erase(identity);
@@ -173,7 +173,7 @@ PibMemory::getKeysOfIdentity(const Name& identity) const
 {
   std::set<Name> ids;
   for (const auto& keyName : m_keys | boost::adaptors::map_keys) {
-    if (identity == v2::extractIdentityFromKeyName(keyName)) {
+    if (identity == extractIdentityFromKeyName(keyName)) {
       ids.insert(keyName);
     }
   }
@@ -208,7 +208,7 @@ PibMemory::hasCertificate(const Name& certName) const
 }
 
 void
-PibMemory::addCertificate(const v2::Certificate& certificate)
+PibMemory::addCertificate(const Certificate& certificate)
 {
   Name certName = certificate.getName();
   Name keyName = certificate.getKeyName();
@@ -226,13 +226,13 @@ void
 PibMemory::removeCertificate(const Name& certName)
 {
   m_certs.erase(certName);
-  auto defaultCert = m_defaultCerts.find(v2::extractKeyNameFromCertName(certName));
+  auto defaultCert = m_defaultCerts.find(extractKeyNameFromCertName(certName));
   if (defaultCert != m_defaultCerts.end() && defaultCert->second == certName) {
     m_defaultCerts.erase(defaultCert);
   }
 }
 
-v2::Certificate
+Certificate
 PibMemory::getCertificate(const Name& certName) const
 {
   if (!hasCertificate(certName)) {
@@ -248,7 +248,7 @@ PibMemory::getCertificatesOfKey(const Name& keyName) const
 {
   std::set<Name> certNames;
   for (const auto& it : m_certs) {
-    if (v2::extractKeyNameFromCertName(it.second.getName()) == keyName) {
+    if (extractKeyNameFromCertName(it.second.getName()) == keyName) {
       certNames.insert(it.first);
     }
   }
@@ -265,7 +265,7 @@ PibMemory::setDefaultCertificateOfKey(const Name& keyName, const Name& certName)
   m_defaultCerts[keyName] = certName;
 }
 
-v2::Certificate
+Certificate
 PibMemory::getDefaultCertificateOfKey(const Name& keyName) const
 {
   auto it = m_defaultCerts.find(keyName);

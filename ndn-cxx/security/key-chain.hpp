@@ -446,7 +446,7 @@ private:
  * This macro should be placed once in the implementation file of the
  * Pib backend class within the namespace where the type is declared.
  *
- * @note This interface is implementation detail and may change without notice.
+ * @note This interface is an implementation detail and may change without notice.
  */
 #define NDN_CXX_KEYCHAIN_REGISTER_PIB_BACKEND(PibType)     \
 static class NdnCxxAuto ## PibType ## PibRegistrationClass    \
@@ -454,7 +454,7 @@ static class NdnCxxAuto ## PibType ## PibRegistrationClass    \
 public:                                                       \
   NdnCxxAuto ## PibType ## PibRegistrationClass()             \
   {                                                           \
-    ::ndn::security::v2::KeyChain::registerPibBackend<PibType>(PibType::getScheme()); \
+    ::ndn::security::KeyChain::registerPibBackend<PibType>(PibType::getScheme()); \
   }                                                           \
 } ndnCxxAuto ## PibType ## PibRegistrationVariable
 
@@ -464,7 +464,7 @@ public:                                                       \
  * This macro should be placed once in the implementation file of the
  * Tpm backend class within the namespace where the type is declared.
  *
- * @note This interface is implementation detail and may change without notice.
+ * @note This interface is an implementation detail and may change without notice.
  */
 #define NDN_CXX_KEYCHAIN_REGISTER_TPM_BACKEND(TpmType)     \
 static class NdnCxxAuto ## TpmType ## TpmRegistrationClass    \
@@ -472,14 +472,14 @@ static class NdnCxxAuto ## TpmType ## TpmRegistrationClass    \
 public:                                                       \
   NdnCxxAuto ## TpmType ## TpmRegistrationClass()             \
   {                                                           \
-    ::ndn::security::v2::KeyChain::registerTpmBackend<TpmType>(TpmType::getScheme()); \
+    ::ndn::security::KeyChain::registerTpmBackend<TpmType>(TpmType::getScheme()); \
   }                                                           \
 } ndnCxxAuto ## TpmType ## TpmRegistrationVariable
 
 } // inline namespace v2
 } // namespace security
 
-using security::v2::KeyChain;
+using security::KeyChain;
 
 } // namespace ndn
 

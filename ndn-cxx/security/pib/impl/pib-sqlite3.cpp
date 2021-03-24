@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -482,7 +482,7 @@ PibSqlite3::hasCertificate(const Name& certName) const
 }
 
 void
-PibSqlite3::addCertificate(const v2::Certificate& certificate)
+PibSqlite3::addCertificate(const Certificate& certificate)
 {
   // ensure key exists
   const Block& content = certificate.getContent();
@@ -519,7 +519,7 @@ PibSqlite3::removeCertificate(const Name& certName)
   statement.step();
 }
 
-v2::Certificate
+Certificate
 PibSqlite3::getCertificate(const Name& certName) const
 {
   Sqlite3Statement statement(m_database,
@@ -527,7 +527,7 @@ PibSqlite3::getCertificate(const Name& certName) const
   statement.bind(1, certName.wireEncode(), SQLITE_TRANSIENT);
 
   if (statement.step() == SQLITE_ROW)
-    return v2::Certificate(statement.getBlock(0));
+    return Certificate(statement.getBlock(0));
   else
     NDN_THROW(Pib::Error("Certificate `" + certName.toUri() + "` does not exit"));
 }
@@ -562,7 +562,7 @@ PibSqlite3::setDefaultCertificateOfKey(const Name& keyName, const Name& certName
   statement.step();
 }
 
-v2::Certificate
+Certificate
 PibSqlite3::getDefaultCertificateOfKey(const Name& keyName) const
 {
   Sqlite3Statement statement(m_database,
@@ -572,7 +572,7 @@ PibSqlite3::getDefaultCertificateOfKey(const Name& keyName) const
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
 
   if (statement.step() == SQLITE_ROW)
-    return v2::Certificate(statement.getBlock(0));
+    return Certificate(statement.getBlock(0));
   else
     NDN_THROW(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
 }

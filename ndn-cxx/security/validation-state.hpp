@@ -150,9 +150,9 @@ private:
    * Each certificate in the chain signs the next certificate.  The last certificate signs the
    * original packet.
    */
-  std::list<v2::Certificate> m_certificateChain;
+  std::list<Certificate> m_certificateChain;
 
-  friend class Validator;
+  friend Validator;
 };
 
 /**

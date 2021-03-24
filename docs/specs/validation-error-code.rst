@@ -1,7 +1,7 @@
 Validation Error Code
 =====================
 
-The following table defines a list of known codes and their description, which can be returned from the :ndn-cxx:`v2::Validator` interface.
+The following table defines a list of known codes and their description, which can be returned from the :ndn-cxx:`Validator` interface.
 Other error codes can be returned by validator implementations outside ndn-cxx codebase.
 
 +------------+--------------------------+-----------------------------------------------------+

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,7 +59,7 @@ BackEnd::createKey(const Name& identity, const KeyParams& params)
   switch (params.getKeyIdType()) {
     case KeyIdType::USER_SPECIFIED: {
       // check that the provided key id isn't already taken
-      Name keyName = v2::constructKeyName(identity, params.getKeyId());
+      Name keyName = constructKeyName(identity, params.getKeyId());
       if (hasKey(keyName)) {
         NDN_THROW(Error("Key `" + keyName.toUri() + "` already exists"));
       }
@@ -116,7 +116,7 @@ BackEnd::constructAsymmetricKeyName(const KeyHandle& keyHandle, const Name& iden
 {
   switch (params.getKeyIdType()) {
     case KeyIdType::USER_SPECIFIED: {
-      return v2::constructKeyName(identity, params.getKeyId());
+      return constructKeyName(identity, params.getKeyId());
     }
     case KeyIdType::SHA256: {
       using namespace transform;
@@ -124,13 +124,13 @@ BackEnd::constructAsymmetricKeyName(const KeyHandle& keyHandle, const Name& iden
       bufferSource(*keyHandle.derivePublicKey()) >>
         digestFilter(DigestAlgorithm::SHA256) >>
         streamSink(os);
-      return v2::constructKeyName(identity, name::Component(os.buf()));
+      return constructKeyName(identity, name::Component(os.buf()));
     }
     case KeyIdType::RANDOM: {
       Name keyName;
       do {
         auto keyId = name::Component::fromNumber(random::generateSecureWord64());
-        keyName = v2::constructKeyName(identity, keyId);
+        keyName = constructKeyName(identity, keyId);
       } while (hasKey(keyName));
       return keyName;
     }

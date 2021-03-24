@@ -84,7 +84,7 @@ public:
     friend class KeyContainer;
   };
 
-  typedef const_iterator iterator;
+  using iterator = const_iterator;
 
 public:
   const_iterator
@@ -158,7 +158,9 @@ private:
 
   shared_ptr<PibImpl> m_pib;
 
-  friend class detail::IdentityImpl;
+#ifndef DOXYGEN
+  friend detail::IdentityImpl;
+#endif
 };
 
 } // namespace pib

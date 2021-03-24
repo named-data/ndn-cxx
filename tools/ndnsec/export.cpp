@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -105,7 +105,8 @@ ndnsec_export(int argc, char** argv)
     isIdentityName = true;
   }
 
-  security::v2::KeyChain keyChain;
+  KeyChain keyChain;
+
   auto cert = getCertificateFromPib(keyChain.getPib(), name,
                                     isIdentityName, isKeyName, isCertName);
 

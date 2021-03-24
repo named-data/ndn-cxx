@@ -43,8 +43,8 @@ class PibImpl;
  * the Pib class provides access to identities, and allows setting a default identity. Properties of
  * an identity can be accessed after obtaining an Identity object.
  *
- * @note Pib instance is created and managed only by v2::KeyChain.  v2::KeyChain::getPib()
- *       returns a const reference to the managed Pib instance, through which it is possible to
+ * @note Pib instance is created and managed only by KeyChain. KeyChain::getPib() returns
+ *       a const reference to the managed Pib instance, through which it is possible to
  *       retrieve information about identities, keys, and certificates.
  *
  * @throw PibImpl::Error when underlying implementation has non-semantic error.
@@ -174,7 +174,7 @@ protected:
 
   shared_ptr<PibImpl> m_impl;
 
-  friend class v2::KeyChain;
+  friend KeyChain;
 };
 
 } // namespace pib

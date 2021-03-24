@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,7 +69,7 @@ ndnsec_sign_req(int argc, char** argv)
     return 2;
   }
 
-  security::v2::KeyChain keyChain;
+  KeyChain keyChain;
 
   security::Identity identity;
   security::Key key;
@@ -78,12 +78,12 @@ ndnsec_sign_req(int argc, char** argv)
     key = identity.getDefaultKey();
   }
   else {
-    identity = keyChain.getPib().getIdentity(security::v2::extractIdentityFromKeyName(name));
+    identity = keyChain.getPib().getIdentity(security::extractIdentityFromKeyName(name));
     key = identity.getKey(name);
   }
 
   // Create signing request (similar to self-signed certificate)
-  security::v2::Certificate certificate;
+  security::Certificate certificate;
 
   // set name
   Name certificateName = key.getName();

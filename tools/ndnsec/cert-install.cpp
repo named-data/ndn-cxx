@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,7 +45,7 @@ public:
   }
 };
 
-security::v2::Certificate
+static security::Certificate
 getCertificateHttp(const std::string& host, const std::string& port, const std::string& path)
 {
   boost::asio::ip::tcp::iostream requestStream;
@@ -97,7 +97,7 @@ getCertificateHttp(const std::string& host, const std::string& port, const std::
     streamSource(requestStream) >> base64Decode(true) >> streamSink(os);
   }
 
-  return security::v2::Certificate(Block(os.buf()));
+  return security::Certificate(Block(os.buf()));
 }
 
 int
@@ -158,7 +158,7 @@ ndnsec_cert_install(int argc, char** argv)
     return 2;
   }
 
-  security::v2::Certificate cert;
+  security::Certificate cert;
   try {
     if (certFile.find("http://") == 0) {
       std::string host;
@@ -166,12 +166,12 @@ ndnsec_cert_install(int argc, char** argv)
       std::string path;
 
       size_t pos = 7; // offset of "http://"
-      size_t posSlash = certFile.find("/", pos);
+      size_t posSlash = certFile.find('/', pos);
 
       if (posSlash == std::string::npos)
         NDN_THROW(HttpException("Request line is not correctly formatted"));
 
-      size_t posPort = certFile.find(":", pos);
+      size_t posPort = certFile.find(':', pos);
 
       if (posPort != std::string::npos && posPort < posSlash) {
         // port is specified
@@ -196,7 +196,7 @@ ndnsec_cert_install(int argc, char** argv)
     return 1;
   }
 
-  security::v2::KeyChain keyChain;
+  KeyChain keyChain;
 
   auto id = keyChain.getPib().getIdentity(cert.getIdentity());
   auto key = id.getKey(cert.getKeyName());

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,20 +75,20 @@ BOOST_AUTO_TEST_CASE(SharedImpl)
 
 BOOST_AUTO_TEST_CASE(Helpers)
 {
-  BOOST_CHECK_EQUAL(v2::constructKeyName("/hello", name::Component("world")), "/hello/KEY/world");
+  BOOST_CHECK_EQUAL(constructKeyName("/hello", name::Component("world")), "/hello/KEY/world");
 
-  BOOST_CHECK_EQUAL(v2::isValidKeyName("/hello"), false);
-  BOOST_CHECK_EQUAL(v2::isValidKeyName("/hello/KEY"), false);
-  BOOST_CHECK_EQUAL(v2::isValidKeyName("/hello/KEY/world"), true);
+  BOOST_CHECK_EQUAL(isValidKeyName("/hello"), false);
+  BOOST_CHECK_EQUAL(isValidKeyName("/hello/KEY"), false);
+  BOOST_CHECK_EQUAL(isValidKeyName("/hello/KEY/world"), true);
 
-  BOOST_CHECK_EQUAL(v2::isValidKeyName("/KEY/hello"), true);
-  BOOST_CHECK_EQUAL(v2::isValidKeyName("/hello/world/KEY/!"), true);
+  BOOST_CHECK_EQUAL(isValidKeyName("/KEY/hello"), true);
+  BOOST_CHECK_EQUAL(isValidKeyName("/hello/world/KEY/!"), true);
 
-  BOOST_CHECK_EQUAL(v2::extractIdentityFromKeyName("/KEY/hello"), "/");
-  BOOST_CHECK_EQUAL(v2::extractIdentityFromKeyName("/hello/KEY/world"), "/hello");
-  BOOST_CHECK_EQUAL(v2::extractIdentityFromKeyName("/hello/world/KEY/!"), "/hello/world");
+  BOOST_CHECK_EQUAL(extractIdentityFromKeyName("/KEY/hello"), "/");
+  BOOST_CHECK_EQUAL(extractIdentityFromKeyName("/hello/KEY/world"), "/hello");
+  BOOST_CHECK_EQUAL(extractIdentityFromKeyName("/hello/world/KEY/!"), "/hello/world");
 
-  BOOST_CHECK_THROW(v2::extractIdentityFromKeyName("/hello"), std::invalid_argument);
+  BOOST_CHECK_THROW(extractIdentityFromKeyName("/hello"), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKey

@@ -226,7 +226,7 @@ public: // Certificate Management
    * @param certificate The certificate to add.
    */
   virtual void
-  addCertificate(const v2::Certificate& certificate) = 0;
+  addCertificate(const Certificate& certificate) = 0;
 
   /**
    * @brief Remove a certificate with name @p certName.
@@ -245,7 +245,7 @@ public: // Certificate Management
    * @return the certificate.
    * @throw Pib::Error the certificate does not exist.
    */
-  virtual v2::Certificate
+  virtual Certificate
   getCertificate(const Name& certName) const = 0;
 
   /**
@@ -272,7 +272,7 @@ public: // Certificate Management
    *
    * @throw Pib::Error the default certificate does not exist.
    */
-  virtual v2::Certificate
+  virtual Certificate
   getDefaultCertificateOfKey(const Name& keyName) const = 0;
 };
 

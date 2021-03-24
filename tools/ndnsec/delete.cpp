@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,7 +45,7 @@ ndnsec_delete(int argc, char** argv)
     ("name,n",        po::value<std::string>(&name),
                       "name of the item to delete. By default, it refers to an identity. "
                       "If -k is specified, it refers to a key. "
-                      "If -c is specified, it refers to a certificate.");
+                      "If -c is specified, it refers to a certificate.")
     ;
 
   po::positional_options_description p;
@@ -77,20 +77,20 @@ ndnsec_delete(int argc, char** argv)
     return 2;
   }
 
-  security::v2::KeyChain keyChain;
+  KeyChain keyChain;
 
   try {
     if (wantDeleteCert) {
       security::Key key = keyChain.getPib()
-        .getIdentity(security::v2::extractIdentityFromCertName(name))
-        .getKey(security::v2::extractKeyNameFromCertName(name));
+        .getIdentity(security::extractIdentityFromCertName(name))
+        .getKey(security::extractKeyNameFromCertName(name));
 
       keyChain.deleteCertificate(key, key.getCertificate(name).getName());
       std::cerr << "OK: certificate deleted: " << name << std::endl;
     }
     else if (wantDeleteKey) {
       security::Identity identity = keyChain.getPib()
-        .getIdentity(security::v2::extractIdentityFromKeyName(name));
+        .getIdentity(security::extractIdentityFromKeyName(name));
 
       keyChain.deleteKey(identity, identity.getKey(name));
       std::cerr << "OK: key deleted: " << name << std::endl;
