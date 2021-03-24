@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(Rsa)
   bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK(verifySignature(DATA, sizeof(DATA), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_TEST(verifySignature({{DATA, sizeof(DATA)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_CASE(Ecdsa)
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK(verifySignature(DATA, sizeof(DATA), sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_TEST(verifySignature({{DATA, sizeof(DATA)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_SUITE(Hmac)

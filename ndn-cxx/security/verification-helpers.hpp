@@ -56,26 +56,11 @@ verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
                 const transform::PublicKey& key);
 
 /**
- * @brief Verify @p blob using @p key against @p sig.
- */
-bool
-verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t sigLen,
-                const transform::PublicKey& key);
-
-/**
  * @brief Verify @p blobs using @p key against @p sig.
  * @note @p key must be a public key in PKCS #8 format.
  */
 bool
 verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const uint8_t* key, size_t keyLen);
-
-/**
- * @brief Verify @p blob using @p key against @p sig.
- * @note @p key must be a public key in PKCS #8 format.
- */
-bool
-verifySignature(const uint8_t* blob, size_t blobLen, const uint8_t* sig, size_t sigLen,
                 const uint8_t* key, size_t keyLen);
 
 /**
@@ -155,36 +140,6 @@ verifySignature(const Data& data, const tpm::Tpm& tpm, const Name& keyName,
 bool
 verifySignature(const Interest& interest, const tpm::Tpm& tpm, const Name& keyName,
                 DigestAlgorithm digestAlgorithm);
-
-//////////////////////////////////////////////////////////////////
-
-/**
- * @brief Verify @p blobs against @p digest using @p algorithm.
- */
-bool
-verifyDigest(const InputBuffers& blobs, const uint8_t* digest, size_t digestLen,
-             DigestAlgorithm algorithm);
-
-/**
- * @brief Verify @p blob against @p digest using @p algorithm.
- */
-bool
-verifyDigest(const uint8_t* blob, size_t blobLen, const uint8_t* digest, size_t digestLen,
-             DigestAlgorithm algorithm);
-
-/**
- * @brief Verify @p data against digest @p algorithm.
- */
-bool
-verifyDigest(const Data& data, DigestAlgorithm algorithm);
-
-/**
- * @brief Verify @p interest against digest @p algorithm.
- * @note This method verifies only signature of the signed interest.
- * @sa docs/specs/signed-interest.rst
- */
-bool
-verifyDigest(const Interest& interest, DigestAlgorithm algorithm);
 
 } // namespace security
 } // namespace ndn

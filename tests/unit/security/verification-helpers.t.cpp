@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 // BOOST_FIXTURE_TEST_CASE(Generator, KeyChainFixture)
 // {
 //   Identity wrongIdentity = m_keyChain.createIdentity("/Security/TestVerificationHelpers/Wrong");
-//   std::map<std::string, SigningInfo> identities = {
+//   const std::map<std::string, SigningInfo> identities = {
 //     {"Ecdsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/EC", EcKeyParams()))},
 //     {"Rsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/RSA", RsaKeyParams()))},
 //     {"Sha256", signingWithSha256()}
@@ -545,7 +545,7 @@ using SignatureDatasets = boost::mpl::vector<EcdsaDataset, RsaDataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
 {
-  Dataset dataset;
+  const Dataset dataset;
   Certificate cert(Block(dataset.cert.data(), dataset.cert.size()));
   Buffer keyRaw = cert.getPublicKey();
   transform::PublicKey key;
@@ -630,7 +630,7 @@ using DigestDatasets = boost::mpl::vector<Sha256Dataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
 {
-  Dataset dataset;
+  const Dataset dataset;
   Data data(Block(dataset.goodData.data(), dataset.goodData.size()));
   Data badSigData(Block(dataset.badSigData.data(), dataset.badSigData.size()));
   Interest interest(Block(dataset.goodInterest.data(), dataset.goodInterest.size()));
@@ -641,15 +641,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
                                          dataset.badSigInterestOldFormat.size()));
 
   BOOST_CHECK(verifySignature(data, nullopt));
-  BOOST_CHECK(verifyDigest(data, DigestAlgorithm::SHA256));
   BOOST_CHECK(verifySignature(interest, nullopt));
-  BOOST_CHECK(verifyDigest(interest, DigestAlgorithm::SHA256));
   BOOST_CHECK(verifySignature(interestOldFormat, nullopt));
-  BOOST_CHECK(verifyDigest(interestOldFormat, DigestAlgorithm::SHA256));
-
-  BOOST_CHECK(!verifyDigest(badSigData, DigestAlgorithm::SHA256));
-  BOOST_CHECK(!verifyDigest(badSigInterest, DigestAlgorithm::SHA256));
-  BOOST_CHECK(!verifyDigest(badSigInterestOldFormat, DigestAlgorithm::SHA256));
 
   BOOST_CHECK(!verifySignature(badSigData, nullopt));
   BOOST_CHECK(!verifySignature(badSigInterest, nullopt));
@@ -661,15 +654,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
   Interest unsignedInterest2("/interest-with-one-name-component");
   unsignedInterest2.setCanBePrefix(false);
 
-  BOOST_CHECK(!verifyDigest(unsignedData, DigestAlgorithm::SHA256));
-  BOOST_CHECK(!verifyDigest(unsignedInterest1, DigestAlgorithm::SHA256));
-  BOOST_CHECK(!verifyDigest(unsignedInterest2, DigestAlgorithm::SHA256));
-
   BOOST_CHECK(!verifySignature(unsignedData, nullopt));
   BOOST_CHECK(!verifySignature(unsignedInterest1, nullopt));
   BOOST_CHECK(!verifySignature(unsignedInterest2, nullopt));
-
-  // - base version of verifyDigest is tested transitively
 }
 
 const uint8_t sha256DataUnrecognizedElements[] = {
@@ -696,8 +683,8 @@ BOOST_AUTO_TEST_CASE(VerifyWithUnrecognizedElements) // Bug #4583
   Data data(Block(sha256DataUnrecognizedElements, sizeof(sha256DataUnrecognizedElements)));
   Interest interest(Block(sha256InterestUnrecognizedElements, sizeof(sha256InterestUnrecognizedElements)));
 
-  BOOST_CHECK(verifyDigest(data, DigestAlgorithm::SHA256));
-  BOOST_CHECK(verifyDigest(interest, DigestAlgorithm::SHA256));
+  BOOST_CHECK(verifySignature(data, nullopt));
+  BOOST_CHECK(verifySignature(interest, nullopt));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestVerificationHelpers

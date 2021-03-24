@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -526,7 +526,7 @@ struct Sha256Signing : protected KeyChainFixture, protected PacketType
   bool
   verify(const SigningInfo&) const
   {
-    return verifyDigest(this->packet, DigestAlgorithm::SHA256);
+    return verifySignature(this->packet, nullopt);
   }
 };
 
@@ -544,7 +544,9 @@ using SigningTests = boost::mpl::vector<
   Sha256Signing<InterestV02Pkt>,
   Sha256Signing<InterestV03Pkt>,
   SigningWithNonDefaultIdentity<DataPkt>,
-  SigningWithNonDefaultKey<DataPkt>
+  SigningWithNonDefaultIdentity<InterestV03Pkt>,
+  SigningWithNonDefaultKey<DataPkt>,
+  SigningWithNonDefaultKey<InterestV03Pkt>
 >;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(SigningInterface, T, SigningTests, T)
