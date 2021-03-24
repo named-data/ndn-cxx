@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,8 @@
  * @author Davide Pesavento <davide.pesavento@lip6.fr>
  */
 
-#ifndef NDN_NET_NETLINK_SOCKET_HPP
-#define NDN_NET_NETLINK_SOCKET_HPP
+#ifndef NDN_CXX_NET_NETLINK_SOCKET_HPP
+#define NDN_CXX_NET_NETLINK_SOCKET_HPP
 
 #include "ndn-cxx/net/network-monitor.hpp"
 #include "ndn-cxx/util/signal/signal.hpp"
@@ -156,4 +156,4 @@ private:
 } // namespace net
 } // namespace ndn
 
-#endif // NDN_NET_NETLINK_SOCKET_HPP
+#endif // NDN_CXX_NET_NETLINK_SOCKET_HPP

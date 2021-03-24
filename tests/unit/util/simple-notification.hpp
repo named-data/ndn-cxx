@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2019 Regents of the University of California,
+ * Copyright (c) 2014-2021 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
-#define NDN_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
+#ifndef NDN_CXX_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
+#define NDN_CXX_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
 
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 
@@ -91,4 +91,4 @@ private:
 } // namespace util
 } // namespace ndn
 
-#endif // NDN_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
+#endif // NDN_CXX_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP

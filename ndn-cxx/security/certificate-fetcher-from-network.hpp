@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
-#define NDN_SECURITY_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
+#ifndef NDN_CXX_SECURITY_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
+#define NDN_CXX_SECURITY_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
 
 #include "ndn-cxx/security/certificate-fetcher.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
@@ -87,4 +87,4 @@ protected:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_CERTIFICATE_FETCHER_FROM_NETWORK_HPP
+#endif // NDN_CXX_SECURITY_CERTIFICATE_FETCHER_FROM_NETWORK_HPP

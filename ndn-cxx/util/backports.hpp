@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_BACKPORTS_HPP
-#define NDN_UTIL_BACKPORTS_HPP
+#ifndef NDN_CXX_UTIL_BACKPORTS_HPP
+#define NDN_CXX_UTIL_BACKPORTS_HPP
 
 #include "ndn-cxx/detail/common.hpp"
 
@@ -168,4 +168,4 @@ using ::nonstd::visit;
 
 } // namespace ndn
 
-#endif // NDN_UTIL_BACKPORTS_HPP
+#endif // NDN_CXX_UTIL_BACKPORTS_HPP

@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_VERIFICATION_HELPERS_HPP
-#define NDN_SECURITY_VERIFICATION_HELPERS_HPP
+#ifndef NDN_CXX_SECURITY_VERIFICATION_HELPERS_HPP
+#define NDN_CXX_SECURITY_VERIFICATION_HELPERS_HPP
 
 #include "ndn-cxx/name.hpp"
 #include "ndn-cxx/security/security-common.hpp"
@@ -189,4 +189,4 @@ verifyDigest(const Interest& interest, DigestAlgorithm algorithm);
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_VERIFICATION_HELPERS_HPP
+#endif // NDN_CXX_SECURITY_VERIFICATION_HELPERS_HPP

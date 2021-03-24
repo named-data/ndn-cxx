@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2020 Regents of the University of California,
+ * Copyright (c) 2014-2021 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_UTIL_CONCEPTS_HPP
-#define NDN_UTIL_CONCEPTS_HPP
+#ifndef NDN_CXX_UTIL_CONCEPTS_HPP
+#define NDN_CXX_UTIL_CONCEPTS_HPP
 
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
@@ -149,4 +149,4 @@ class StlForwardIteratorConcept : public boost::ForwardIterator<T>
                 #T " must be default-constructible"); \
   BOOST_CONCEPT_ASSERT((::ndn::detail::StlForwardIteratorConcept<T>))
 
-#endif // NDN_UTIL_CONCEPTS_HPP
+#endif // NDN_CXX_UTIL_CONCEPTS_HPP

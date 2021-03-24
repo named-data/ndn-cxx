@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_IMPL_COMMON_PCH_HPP
-#define NDN_IMPL_COMMON_PCH_HPP
+#ifndef NDN_CXX_IMPL_COMMON_PCH_HPP
+#define NDN_CXX_IMPL_COMMON_PCH_HPP
 
 // If the compiler supports precompiled headers, this header should be compiled
 // and included before anything else
@@ -54,4 +54,4 @@
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/system/error_code.hpp>
 
-#endif // NDN_IMPL_COMMON_PCH_HPP
+#endif // NDN_CXX_IMPL_COMMON_PCH_HPP

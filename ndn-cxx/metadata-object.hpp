@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,8 @@
  * @author Chavoosh Ghasemi <chghasemi@cs.arizona.edu>
  */
 
-#ifndef NDN_METADATA_OBJECT_HPP
-#define NDN_METADATA_OBJECT_HPP
+#ifndef NDN_CXX_METADATA_OBJECT_HPP
+#define NDN_CXX_METADATA_OBJECT_HPP
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
@@ -125,4 +125,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_METADATA_OBJECT_HPP
+#endif // NDN_CXX_METADATA_OBJECT_HPP

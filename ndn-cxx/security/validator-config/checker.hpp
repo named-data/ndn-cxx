@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_VALIDATOR_CONFIG_CHECKER_HPP
-#define NDN_SECURITY_VALIDATOR_CONFIG_CHECKER_HPP
+#ifndef NDN_CXX_SECURITY_VALIDATOR_CONFIG_CHECKER_HPP
+#define NDN_CXX_SECURITY_VALIDATOR_CONFIG_CHECKER_HPP
 
 #include "ndn-cxx/name.hpp"
 #include "ndn-cxx/security/validator-config/common.hpp"
@@ -189,4 +189,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_VALIDATOR_CONFIG_CHECKER_HPP
+#endif // NDN_CXX_SECURITY_VALIDATOR_CONFIG_CHECKER_HPP

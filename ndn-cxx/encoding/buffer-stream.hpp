@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,8 @@
  * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
-#ifndef NDN_ENCODING_BUFFER_STREAM_HPP
-#define NDN_ENCODING_BUFFER_STREAM_HPP
+#ifndef NDN_CXX_ENCODING_BUFFER_STREAM_HPP
+#define NDN_CXX_ENCODING_BUFFER_STREAM_HPP
 
 #include "ndn-cxx/encoding/buffer.hpp"
 
@@ -87,4 +87,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_ENCODING_BUFFER_STREAM_HPP
+#endif // NDN_CXX_ENCODING_BUFFER_STREAM_HPP

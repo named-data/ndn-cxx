@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_NET_IMPL_LINK_TYPE_HELPER_HPP
-#define NDN_NET_IMPL_LINK_TYPE_HELPER_HPP
+#ifndef NDN_CXX_NET_IMPL_LINK_TYPE_HELPER_HPP
+#define NDN_CXX_NET_IMPL_LINK_TYPE_HELPER_HPP
 
 #include "ndn-cxx/encoding/nfd-constants.hpp"
 
@@ -38,4 +38,4 @@ getLinkType(const std::string& ifName);
 } // namespace net
 } // namespace ndn
 
-#endif // NDN_NET_IMPL_LINK_TYPE_HELPER_HPP
+#endif // NDN_CXX_NET_IMPL_LINK_TYPE_HELPER_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,8 +30,8 @@
  *    this->emitSignal(signalName, arg1, arg2);
  */
 
-#ifndef NDN_UTIL_SIGNAL_EMIT_HPP
-#define NDN_UTIL_SIGNAL_EMIT_HPP
+#ifndef NDN_CXX_UTIL_SIGNAL_EMIT_HPP
+#define NDN_CXX_UTIL_SIGNAL_EMIT_HPP
 
 namespace ndn {
 namespace util {
@@ -76,4 +76,4 @@ class DummyExtraArg
 #define emitSignal(...) \
   NDN_CXX_SIGNAL_EMIT(__VA_ARGS__, ::ndn::util::signal::DummyExtraArg())
 
-#endif // NDN_UTIL_SIGNAL_EMIT_HPP
+#endif // NDN_CXX_UTIL_SIGNAL_EMIT_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_LINK_HPP
-#define NDN_LINK_HPP
+#ifndef NDN_CXX_LINK_HPP
+#define NDN_CXX_LINK_HPP
 
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/delegation-list.hpp"
@@ -117,4 +117,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_LINK_HPP
+#endif // NDN_CXX_LINK_HPP

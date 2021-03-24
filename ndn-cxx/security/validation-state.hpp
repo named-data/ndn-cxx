@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_SECURITY_VALIDATION_STATE_HPP
-#define NDN_SECURITY_VALIDATION_STATE_HPP
+#ifndef NDN_CXX_SECURITY_VALIDATION_STATE_HPP
+#define NDN_CXX_SECURITY_VALIDATION_STATE_HPP
 
 #include "ndn-cxx/detail/tag-host.hpp"
 #include "ndn-cxx/security/certificate.hpp"
@@ -256,4 +256,4 @@ using SignedInterestFormatTag = SimpleTag<SignedInterestFormat, 1002>;
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_SECURITY_VALIDATION_STATE_HPP
+#endif // NDN_CXX_SECURITY_VALIDATION_STATE_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2018 Regents of the University of California,
+ * Copyright (c) 2014-2021 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_NET_ETHERNET_HPP
-#define NDN_NET_ETHERNET_HPP
+#ifndef NDN_CXX_NET_ETHERNET_HPP
+#define NDN_CXX_NET_ETHERNET_HPP
 
 #include <array>
 #include <cstdint>
@@ -122,4 +122,4 @@ struct hash<ndn::ethernet::Address>
 
 } // namespace std
 
-#endif // NDN_NET_ETHERNET_HPP
+#endif // NDN_CXX_NET_ETHERNET_HPP

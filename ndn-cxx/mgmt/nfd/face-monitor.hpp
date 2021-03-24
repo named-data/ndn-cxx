@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2018 Regents of the University of California,
+ * Copyright (c) 2014-2021 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -25,8 +25,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_MGMT_NFD_FACE_MONITOR_HPP
-#define NDN_MGMT_NFD_FACE_MONITOR_HPP
+#ifndef NDN_CXX_MGMT_NFD_FACE_MONITOR_HPP
+#define NDN_CXX_MGMT_NFD_FACE_MONITOR_HPP
 
 #include "ndn-cxx/mgmt/nfd/face-event-notification.hpp"
 #include "ndn-cxx/util/notification-subscriber.hpp"
@@ -47,4 +47,4 @@ public:
 } // namespace nfd
 } // namespace ndn
 
-#endif // NDN_MGMT_NFD_FACE_MONITOR_HPP
+#endif // NDN_CXX_MGMT_NFD_FACE_MONITOR_HPP

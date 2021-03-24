@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-/**
- * Copyright (c) 2013-2017 Regents of the University of California.
+/*
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,13 +19,13 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TOOLS_NDNSEC_NDNSEC_HPP
-#define NDN_TOOLS_NDNSEC_NDNSEC_HPP
+#ifndef NDN_CXX_TOOLS_NDNSEC_NDNSEC_HPP
+#define NDN_CXX_TOOLS_NDNSEC_NDNSEC_HPP
 
 namespace ndn {
 namespace ndnsec {
 
-// TODO convert to tool registry (may be)
+// TODO: convert to tool registry (maybe)
 
 int
 ndnsec_list(int argc, char** argv);
@@ -66,4 +66,4 @@ ndnsec_unlock_tpm(int argc, char** argv);
 } // namespace ndnsec
 } // namespace ndn
 
-#endif // NDN_TOOLS_NDNSEC_NDNSEC_HPP
+#endif // NDN_CXX_TOOLS_NDNSEC_NDNSEC_HPP

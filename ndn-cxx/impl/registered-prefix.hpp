@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_IMPL_REGISTERED_PREFIX_HPP
-#define NDN_IMPL_REGISTERED_PREFIX_HPP
+#ifndef NDN_CXX_IMPL_REGISTERED_PREFIX_HPP
+#define NDN_CXX_IMPL_REGISTERED_PREFIX_HPP
 
 #include "ndn-cxx/impl/record-container.hpp"
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
@@ -67,4 +67,4 @@ private:
 
 } // namespace ndn
 
-#endif // NDN_IMPL_REGISTERED_PREFIX_HPP
+#endif // NDN_CXX_IMPL_REGISTERED_PREFIX_HPP

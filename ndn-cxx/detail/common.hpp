@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,8 @@
  *           Aliases imported in this file MUST NOT be used outside of ndn-cxx.
  */
 
-#ifndef NDN_DETAIL_COMMON_HPP
-#define NDN_DETAIL_COMMON_HPP
+#ifndef NDN_CXX_DETAIL_COMMON_HPP
+#define NDN_CXX_DETAIL_COMMON_HPP
 
 #include "ndn-cxx/detail/config.hpp"
 
@@ -121,4 +121,4 @@ using boost::noncopyable;
 #include "ndn-cxx/util/backports.hpp"
 #include "ndn-cxx/util/exception.hpp"
 
-#endif // NDN_DETAIL_COMMON_HPP
+#endif // NDN_CXX_DETAIL_COMMON_HPP

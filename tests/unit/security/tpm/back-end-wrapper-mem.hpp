@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,8 +19,8 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
-#define NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
+#ifndef NDN_CXX_TESTS_UNIT_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
+#define NDN_CXX_TESTS_UNIT_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
 
 #include "ndn-cxx/security/tpm/impl/back-end-mem.hpp"
 
@@ -61,4 +61,4 @@ private:
 } // namespace security
 } // namespace ndn
 
-#endif // NDN_TESTS_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
+#endif // NDN_CXX_TESTS_UNIT_SECURITY_TPM_BACK_END_WRAPPER_MEM_HPP
