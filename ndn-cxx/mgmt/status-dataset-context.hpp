@@ -22,83 +22,74 @@
 #ifndef NDN_CXX_MGMT_STATUS_DATASET_CONTEXT_HPP
 #define NDN_CXX_MGMT_STATUS_DATASET_CONTEXT_HPP
 
-#include "ndn-cxx/data.hpp"
 #include "ndn-cxx/interest.hpp"
-#include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/mgmt/control-response.hpp"
-#include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
 namespace mgmt {
 
-/** \brief provides a context for generating response to a StatusDataset request
+/**
+ * \brief Provides a context for generating the response to a StatusDataset request.
  */
 class StatusDatasetContext : noncopyable
 {
 public:
-  /** \return prefix of Data packets, with version component but without segment component
+  /**
+   * \brief Returns the prefix of Data packets, with version component but without segment component.
    */
   const Name&
-  getPrefix() const;
+  getPrefix() const
+  {
+    return m_prefix;
+  }
 
-  /** \brief change prefix of Data packets
-   *  \param prefix the prefix; it must start with Interest Name, may contain version component,
-   *         but must not contain segment component
-   *  \throw std::invalid_argument prefix does not start with Interest Name
-   *  \throw std::domain_error append, end, or reject has been invoked
+  /**
+   * \brief Changes the prefix of the response Data packets.
+   * \param prefix the prefix; it must start with the Interest Name, may contain a version
+   *               component, but must not contain a segment component
    *
-   *  StatusDatasetHandler may change the prefix of Data packets with this method,
-   *  before sending any response.
-   *  The version component is optional, and will be generated from current timestamp when omitted.
+   * StatusDatasetHandler may change the prefix of Data packets with this method,
+   * before sending any response.
+   *
+   * The version component is optional, and will be generated from the current timestamp if omitted.
+   *
+   * \throw std::invalid_argument \p prefix does not satisfy the requirements
+   * \throw std::logic_error append(), end(), or reject() has already been invoked
    */
   StatusDatasetContext&
   setPrefix(const Name& prefix);
 
-  /** \return expiration duration for this dataset response
-   */
-  const time::milliseconds&
-  getExpiry() const;
-
-  /** \brief set expiration duration
-   *
-   *  The response will be cached for the specified duration.
-   *  Incoming Interest that matches a cached response will be satisfied with that response,
-   *  without invoking StatusDatasetHandler again.
-   */
-  StatusDatasetContext&
-  setExpiry(const time::milliseconds& expiry);
-
-  /** \brief append a Block to the response
-   *  \throw std::domain_error end or reject has been invoked
+  /**
+   * \brief Appends a Block to the response.
+   * \throw std::logic_error end() or reject() has already been invoked
    */
   void
   append(const Block& block);
 
-  /** \brief end the response successfully after appending zero or more blocks
-   *  \throw std::domain_error reject has been invoked
+  /**
+   * \brief Finalizes the response successfully after appending zero or more blocks.
+   * \throw std::logic_error reject() has already been invoked
    */
   void
   end();
 
-  /** \brief declare the non-existence of a response
-   *  \throw std::domain_error append or end has been invoked
+  /**
+   * \brief Rejects the request.
+   * \param resp Content of producer-generated NACK
    *
-   *  This should be invoked when the incoming Interest is malformed.
-   *  A producer-generated NACK will be returned to requester.
+   * This should be invoked when the incoming Interest is malformed.
+   * A producer-generated NACK will be returned to the requester.
    *
-   *  \param resp Content of producer-generated NACK
+   * \throw std::logic_error append() or end() has already been invoked
    */
   void
   reject(const ControlResponse& resp = ControlResponse().setCode(400));
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  typedef std::function<void(const Name& dataName, const Block& content, time::milliseconds imsFresh,
-                             bool isFinalBlock)> DataSender;
-  typedef std::function<void(const ControlResponse& resp)> NackSender;
+  using DataSender = std::function<void(const Name& dataName, const Block& content, bool isFinalBlock)>;
+  using NackSender = std::function<void(const ControlResponse&)>;
 
-  StatusDatasetContext(const Interest& interest,
-                       const DataSender& dataSender,
-                       const NackSender& nackSender);
+  StatusDatasetContext(const Interest& interest, DataSender dataSender, NackSender nackSender);
 
 private:
   friend class Dispatcher;
@@ -107,18 +98,15 @@ private:
   DataSender m_dataSender;
   NackSender m_nackSender;
   Name m_prefix;
-  time::milliseconds m_expiry;
-
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  shared_ptr<EncodingBuffer> m_buffer;
-  uint64_t m_segmentNo;
+  std::vector<uint8_t> m_buffer;
+  uint64_t m_segmentNo = 0;
 
   enum class State {
-    INITIAL, ///< none of .append, .end, .reject has been invoked
-    RESPONDED, ///< .append has been invoked
-    FINALIZED ///< .end or .reject has been invoked
+    INITIAL,   ///< none of append(), end(), reject() has been invoked
+    RESPONDED, ///< append() has been invoked
+    FINALIZED, ///< end() or reject() has been invoked
   };
-  State m_state;
+  State m_state = State::INITIAL;
 };
 
 } // namespace mgmt

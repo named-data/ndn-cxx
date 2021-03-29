@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,11 +74,8 @@ public:
 static Authorization
 makeTestAuthorization()
 {
-  return [] (const Name& prefix,
-             const Interest& interest,
-             const ControlParameters* params,
-             AcceptContinuation accept,
-             RejectContinuation reject) {
+  return [] (const Name&, const Interest& interest, const ControlParameters*,
+             AcceptContinuation accept, RejectContinuation reject) {
     if (interest.getName()[-1] == name::Component("valid")) {
       accept("");
     }
@@ -251,7 +248,7 @@ public:
   }
 
   void
-  wireDecode(const Block& wire) final
+  wireDecode(const Block&) final
   {
     m_state = EXPECTED_STATE;
   }
@@ -271,9 +268,9 @@ BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization) // Bug 4059
 {
   AcceptContinuation authorizationAccept;
   auto authorization =
-    [&authorizationAccept] (const Name& prefix, const Interest& interest, const ControlParameters* params,
-        AcceptContinuation accept, RejectContinuation reject) {
-      authorizationAccept = accept;
+    [&authorizationAccept] (const Name&, const Interest&, const ControlParameters*,
+                            AcceptContinuation accept, RejectContinuation) {
+      authorizationAccept = std::move(accept);
     };
 
   auto validateParameters =
@@ -282,11 +279,8 @@ BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization) // Bug 4059
     };
 
   size_t nCallbackCalled = 0;
-  dispatcher
-    .addControlCommand<StatefulParameters>("test",
-                                           authorization,
-                                           validateParameters,
-                                           bind([&nCallbackCalled] { ++nCallbackCalled; }));
+  dispatcher.addControlCommand<StatefulParameters>("test", authorization, validateParameters,
+                                                   bind([&nCallbackCalled] { ++nCallbackCalled; }));
 
   dispatcher.addTopPrefix("/root");
   advanceClocks(1_ms);
@@ -305,20 +299,15 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 {
   const uint8_t smallBuf[] = {0x81, 0x01, 0x01};
   const Block smallBlock(smallBuf, sizeof(smallBuf));
-  Block largeBlock;
-  {
-    EncodingBuffer encoder;
-    for (size_t i = 0; i < 2500; ++i) {
-      encoder.prependByte(1);
-    }
-    encoder.prependVarNumber(2500);
-    encoder.prependVarNumber(129);
-    largeBlock = encoder.block();
-  }
+  const Block largeBlock = [] {
+    Block b(129, std::make_shared<const Buffer>(3000));
+    b.encode();
+    return b;
+  }();
 
   dispatcher.addStatusDataset("test/small",
                               makeTestAuthorization(),
-                              [&smallBlock] (const Name& prefix, const Interest& interest,
+                              [&smallBlock] (const Name&, const Interest&,
                                              StatusDatasetContext& context) {
                                 context.append(smallBlock);
                                 context.append(smallBlock);
@@ -328,7 +317,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   dispatcher.addStatusDataset("test/large",
                               makeTestAuthorization(),
-                              [&largeBlock] (const Name& prefix, const Interest& interest,
+                              [&largeBlock] (const Name&, const Interest&,
                                              StatusDatasetContext& context) {
                                 context.append(largeBlock);
                                 context.append(largeBlock);
@@ -338,8 +327,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   dispatcher.addStatusDataset("test/reject",
                               makeTestAuthorization(),
-                              [] (const Name& prefix, const Interest& interest,
-                                  StatusDatasetContext& context) {
+                              [] (const Name&, const Interest&, StatusDatasetContext& context) {
                                 context.reject();
                               });
 
@@ -351,8 +339,8 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   face.receive(*makeInterest("/root/test/small/%80%00/invalid")); // returns 403
   face.receive(*makeInterest("/root/test/small/%80%00/silent")); // silently ignored
   advanceClocks(1_ms, 20);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 2);
 
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 2);
   BOOST_CHECK_EQUAL(face.sentData[0].getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 403);
   BOOST_CHECK_EQUAL(face.sentData[1].getContentType(), tlv::ContentType_Blob);
@@ -365,7 +353,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   advanceClocks(1_ms, 10);
 
   // one data packet is generated and sent to both places
-  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK_EQUAL(storage.size(), 1);
 
   auto fetchedData = storage.find(interestSmall);
@@ -375,7 +363,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   face.receive(*makeInterest(Name("/root/test/small/valid").appendVersion(10))); // should be ignored
   face.receive(*makeInterest(Name("/root/test/small/valid").appendSegment(20))); // should be ignored
   advanceClocks(1_ms, 10);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK_EQUAL(storage.size(), 1);
 
   Block content = face.sentData[0].getContent();
@@ -393,8 +381,8 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   // two data packets are generated, the first one will be sent to both places
   // while the second one will only be inserted into the in-memory storage
-  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
-  BOOST_CHECK_EQUAL(storage.size(), 2);
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 1);
+  BOOST_REQUIRE_EQUAL(storage.size(), 2);
 
   // segment0 should be sent through the face
   const auto& component = face.sentData[0].getName().at(-1);
@@ -429,7 +417,8 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
   face.sentData.clear();
   face.receive(*makeInterest("/root/test/reject/%80%00/valid")); // returns nack
   advanceClocks(1_ms);
-  BOOST_CHECK_EQUAL(face.sentData.size(), 1);
+
+  BOOST_REQUIRE_EQUAL(face.sentData.size(), 1);
   BOOST_CHECK_EQUAL(face.sentData[0].getContentType(), tlv::ContentType_Nack);
   BOOST_CHECK_EQUAL(ControlResponse(face.sentData[0].getContent().blockFromValue()).getCode(), 400);
   BOOST_CHECK_EQUAL(storage.size(), 0); // the nack packet will not be inserted into the in-memory storage

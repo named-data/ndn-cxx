@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,44 +24,38 @@
 namespace ndn {
 namespace mgmt {
 
-const time::milliseconds DEFAULT_STATUS_DATASET_FRESHNESS_PERIOD = 1_s;
+const size_t MAX_PAYLOAD_LENGTH = MAX_NDN_PACKET_SIZE - 800;
 
-const Name&
-StatusDatasetContext::getPrefix() const
+StatusDatasetContext::StatusDatasetContext(const Interest& interest,
+                                           DataSender dataSender, NackSender nackSender)
+  : m_interest(interest)
+  , m_dataSender(std::move(dataSender))
+  , m_nackSender(std::move(nackSender))
 {
-  return m_prefix;
+  setPrefix(interest.getName());
+  m_buffer.reserve(MAX_PAYLOAD_LENGTH);
 }
 
 StatusDatasetContext&
 StatusDatasetContext::setPrefix(const Name& prefix)
 {
-  if (!m_interest.getName().isPrefixOf(prefix)) {
-    NDN_THROW(std::invalid_argument("prefix does not start with Interest Name"));
+  if (m_state != State::INITIAL) {
+    NDN_THROW(std::logic_error("cannot call setPrefix() after append/end/reject"));
   }
 
-  if (m_state != State::INITIAL) {
-    NDN_THROW(std::domain_error("state is not in INITIAL"));
+  if (!m_interest.getName().isPrefixOf(prefix)) {
+    NDN_THROW(std::invalid_argument("prefix must start with the Interest's name"));
+  }
+
+  if (prefix.at(-1).isSegment()) {
+    NDN_THROW(std::invalid_argument("prefix must not contain a segment component"));
   }
 
   m_prefix = prefix;
-
-  if (!m_prefix[-1].isVersion()) {
+  if (!m_prefix.at(-1).isVersion()) {
     m_prefix.appendVersion();
   }
 
-  return *this;
-}
-
-const time::milliseconds&
-StatusDatasetContext::getExpiry() const
-{
-  return m_expiry;
-}
-
-StatusDatasetContext&
-StatusDatasetContext::setExpiry(const time::milliseconds& expiry)
-{
-  m_expiry = expiry;
   return *this;
 }
 
@@ -69,24 +63,25 @@ void
 StatusDatasetContext::append(const Block& block)
 {
   if (m_state == State::FINALIZED) {
-    NDN_THROW(std::domain_error("state is in FINALIZED"));
+    NDN_THROW(std::logic_error("cannot call append() on a finalized context"));
   }
 
   m_state = State::RESPONDED;
 
-  size_t nBytesLeft = block.size();
-  while (nBytesLeft > 0) {
-    size_t nBytesAppend = std::min(nBytesLeft,
-                                   (ndn::MAX_NDN_PACKET_SIZE >> 1) - m_buffer->size());
-    m_buffer->appendByteArray(block.wire() + (block.size() - nBytesLeft), nBytesAppend);
-    nBytesLeft -= nBytesAppend;
+  auto cur = block.begin();
+  while (cur != block.end()) {
+    auto nBytesToAppend = std::min<std::ptrdiff_t>(std::distance(cur, block.end()),
+                                                   MAX_PAYLOAD_LENGTH - m_buffer.size());
+    auto next = std::next(cur, nBytesToAppend);
+    m_buffer.insert(m_buffer.end(), cur, next);
+    cur = next;
 
-    if (nBytesLeft > 0) {
+    if (cur != block.end()) {
+      BOOST_ASSERT(m_buffer.size() == MAX_PAYLOAD_LENGTH);
       m_dataSender(Name(m_prefix).appendSegment(m_segmentNo++),
-                   makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size()),
-                   m_expiry, false);
-
-      m_buffer = make_shared<EncodingBuffer>();
+                   makeBinaryBlock(tlv::Content, m_buffer.begin(), m_buffer.end()),
+                   false);
+      m_buffer.clear();
     }
   }
 }
@@ -95,38 +90,24 @@ void
 StatusDatasetContext::end()
 {
   if (m_state == State::FINALIZED) {
-    NDN_THROW(std::domain_error("state is in FINALIZED"));
+    NDN_THROW(std::logic_error("cannot call end() on a finalized context"));
   }
 
   m_state = State::FINALIZED;
   m_dataSender(Name(m_prefix).appendSegment(m_segmentNo),
-               makeBinaryBlock(tlv::Content, m_buffer->buf(), m_buffer->size()),
-               m_expiry, true);
+               makeBinaryBlock(tlv::Content, m_buffer.begin(), m_buffer.end()),
+               true);
 }
 
 void
-StatusDatasetContext::reject(const ControlResponse& resp /*= a ControlResponse with 400*/)
+StatusDatasetContext::reject(const ControlResponse& resp)
 {
   if (m_state != State::INITIAL) {
-    NDN_THROW(std::domain_error("state is in RESPONDED or FINALIZED"));
+    NDN_THROW(std::logic_error("cannot call reject() after append/end"));
   }
 
   m_state = State::FINALIZED;
   m_nackSender(resp);
-}
-
-StatusDatasetContext::StatusDatasetContext(const Interest& interest,
-                                           const DataSender& dataSender,
-                                           const NackSender& nackSender)
-  : m_interest(interest)
-  , m_dataSender(dataSender)
-  , m_nackSender(nackSender)
-  , m_expiry(DEFAULT_STATUS_DATASET_FRESHNESS_PERIOD)
-  , m_buffer(make_shared<EncodingBuffer>())
-  , m_segmentNo(0)
-  , m_state(State::INITIAL)
-{
-  setPrefix(interest.getName());
 }
 
 } // namespace mgmt

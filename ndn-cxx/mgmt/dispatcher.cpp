@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,6 @@ NDN_LOG_INIT(ndn.mgmt.Dispatcher);
 
 namespace ndn {
 namespace mgmt {
-
-const time::milliseconds DEFAULT_FRESHNESS_PERIOD = 1_s;
 
 Authorization
 makeAcceptAllAuthorization()
@@ -133,10 +131,10 @@ Dispatcher::queryStorage(const Name& prefix, const Interest& interest,
 
 void
 Dispatcher::sendData(const Name& dataName, const Block& content, const MetaInfo& metaInfo,
-                     SendDestination option, time::milliseconds imsFresh)
+                     SendDestination option)
 {
   auto data = make_shared<Data>(dataName);
-  data->setContent(content).setMetaInfo(metaInfo).setFreshnessPeriod(DEFAULT_FRESHNESS_PERIOD);
+  data->setContent(content).setMetaInfo(metaInfo).setFreshnessPeriod(1_s);
 
   m_keyChain.sign(*data, m_signingInfo);
 
@@ -144,7 +142,7 @@ Dispatcher::sendData(const Name& dataName, const Block& content, const MetaInfo&
     lp::CachePolicy policy;
     policy.setPolicy(lp::CachePolicyType::NO_CACHE);
     data->setTag(make_shared<lp::CachePolicyTag>(policy));
-    m_storage.insert(*data, imsFresh);
+    m_storage.insert(*data, 1_s);
   }
 
   if (option == SendDestination::FACE || option == SendDestination::FACE_AND_IMS) {
@@ -159,7 +157,7 @@ Dispatcher::sendOnFace(const Data& data)
     m_face.put(data);
   }
   catch (const Face::Error& e) {
-    NDN_LOG_ERROR("sendOnFace: " << e.what());
+    NDN_LOG_ERROR("sendOnFace(" << data.getName() << "): " << e.what());
   }
 }
 
@@ -215,8 +213,7 @@ Dispatcher::sendControlResponse(const ControlResponse& resp, const Interest& int
   }
 
   // control response is always sent out through the face
-  sendData(interest.getName(), resp.wireEncode(), metaInfo,
-           SendDestination::FACE, DEFAULT_FRESHNESS_PERIOD);
+  sendData(interest.getName(), resp.wireEncode(), metaInfo, SendDestination::FACE);
 }
 
 void
@@ -272,14 +269,13 @@ Dispatcher::processAuthorizedStatusDatasetInterest(const std::string& requester,
                                                    const StatusDatasetHandler& handler)
 {
   StatusDatasetContext context(interest,
-                               bind(&Dispatcher::sendStatusDatasetSegment, this, _1, _2, _3, _4),
+                               bind(&Dispatcher::sendStatusDatasetSegment, this, _1, _2, _3),
                                bind(&Dispatcher::sendControlResponse, this, _1, interest, true));
   handler(prefix, interest, context);
 }
 
 void
-Dispatcher::sendStatusDatasetSegment(const Name& dataName, const Block& content,
-                                     time::milliseconds imsFresh, bool isFinalBlock)
+Dispatcher::sendStatusDatasetSegment(const Name& dataName, const Block& content, bool isFinalBlock)
 {
   // the first segment will be sent to both places (the face and the in-memory storage)
   // other segments will be inserted to the in-memory storage only
@@ -293,7 +289,7 @@ Dispatcher::sendStatusDatasetSegment(const Name& dataName, const Block& content,
     metaInfo.setFinalBlock(dataName[-1]);
   }
 
-  sendData(dataName, content, metaInfo, destination, imsFresh);
+  sendData(dataName, content, metaInfo, destination);
 }
 
 PostNotification
@@ -331,7 +327,7 @@ Dispatcher::postNotification(const Block& notification, const PartialName& relPr
 
   // notification is sent out via the face after inserting into the in-memory storage,
   // because a request may be pending in the PIT
-  sendData(streamName, notification, {}, SendDestination::FACE_AND_IMS, DEFAULT_FRESHNESS_PERIOD);
+  sendData(streamName, notification, {}, SendDestination::FACE_AND_IMS);
 }
 
 } // namespace mgmt

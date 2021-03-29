@@ -323,21 +323,20 @@ private:
    * @brief send data to the face and/or in-memory storage
    *
    * Create a Data packet with the given @p dataName, @p content, and @p metaInfo,
-   * set its FreshnessPeriod to DEFAULT_FRESHNESS_PERIOD, and then send it out through
-   * the face and/or insert it into the in-memory storage as specified in @p destination.
+   * set its FreshnessPeriod to 1 second, and then send it out through the face
+   * and/or insert it into the in-memory storage as specified by @p destination.
    *
    * If it's toward the in-memory storage, set its CachePolicy to NO_CACHE and limit
-   * its FreshnessPeriod in the storage to @p imsFresh.
+   * its FreshnessPeriod in the storage to 1 second.
    *
    * @param dataName the name of this piece of data
    * @param content the content of this piece of data
    * @param metaInfo some meta information of this piece of data
    * @param destination where to send this piece of data
-   * @param imsFresh freshness period of this piece of data in in-memory storage
    */
   void
   sendData(const Name& dataName, const Block& content, const MetaInfo& metaInfo,
-           SendDestination destination, time::milliseconds imsFresh);
+           SendDestination destination);
 
   /**
    * @brief send out a data packt through the face
@@ -423,12 +422,10 @@ private:
    *
    * @param dataName the name of this piece of data
    * @param content the content of this piece of data
-   * @param imsFresh the freshness period of this piece of data in the in-memory storage
    * @param isFinalBlock indicates whether this piece of data is the final block
    */
   void
-  sendStatusDatasetSegment(const Name& dataName, const Block& content,
-                           time::milliseconds imsFresh, bool isFinalBlock);
+  sendStatusDatasetSegment(const Name& dataName, const Block& content, bool isFinalBlock);
 
   void
   postNotification(const Block& notification, const PartialName& relPrefix);
