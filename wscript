@@ -104,7 +104,7 @@ def configure(conf):
 
     conf.check_osx_frameworks()
     conf.check_sqlite3()
-    conf.check_openssl(lib='crypto', atleast_version=0x1000200f) # 1.0.2
+    conf.check_openssl(lib='crypto', atleast_version='1.0.2')
 
     boost_libs = ['system', 'program_options', 'chrono', 'date_time', 'filesystem', 'thread', 'log']
 
