@@ -18,7 +18,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = u'ndn-cxx: NDN C++ library with eXperimental eXtensions'
-copyright = u'Copyright © 2013-2020 Regents of the University of California.'
+copyright = u'Copyright © 2013-2021 Regents of the University of California.'
 author = u'Named Data Networking Project'
 
 # The short X.Y version.

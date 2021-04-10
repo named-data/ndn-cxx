@@ -16,7 +16,7 @@ New features
   interfaces. At the same time, management APIs for :ndn-cxx:`ValidatorConfig` remained
   intact; transition to the new framework would require only adjusting
   :ndn-cxx:`Validator::validate` calls and updating configuration files to follow the new
-  naming conventions of :ref:`NDN Certificate Format Version 2.0`.
+  naming conventions of :doc:`/specs/certificate`.
 
 - Integration of fetching certificates using Certificate Bundle as part of specialized
   ``CertificateFetcher`` (:issue:`3891`)

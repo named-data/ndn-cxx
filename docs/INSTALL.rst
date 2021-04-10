@@ -57,9 +57,12 @@ development tools and libraries:
     * Install either Xcode (from the App Store) or the Command Line Tools
       (with ``xcode-select --install``)
 
-    * If using Homebrew (recommended), enter the following in a terminal::
+    * If using Homebrew (recommended), enter the following in a terminal:
+
+      .. code-block:: sh
 
         brew install boost openssl pkg-config
+        brew install python  # only on macOS 10.14 and earlier
 
       .. warning::
 
@@ -96,7 +99,7 @@ The following lists the steps to install these prerequisites on various common p
 
   .. code-block:: sh
 
-    sudo dnf config-manager --enable PowerTools  # on CentOS only
+    sudo dnf config-manager --enable powertools  # on CentOS only
     sudo dnf install doxygen graphviz python3-pip
     pip3 install --user sphinx sphinxcontrib-doxylink
 

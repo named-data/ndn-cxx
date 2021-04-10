@@ -30,9 +30,9 @@
 namespace ndn {
 namespace security {
 
-
-/** @brief Abstraction of validity period
- *  @sa docs/specs/certificate-format.rst
+/**
+ * @brief Represents a %ValidityPeriod TLV element.
+ * @sa docs/specs/certificate.rst
  */
 class ValidityPeriod
 {

@@ -33,8 +33,8 @@ namespace security {
 inline namespace v2 {
 
 /**
- * @brief Abstraction of AdditionalDescription
- * @sa docs/specs/certificate-format.rst
+ * @brief Represents an %AdditionalDescription TLV element.
+ * @sa docs/specs/certificate.rst
  */
 class AdditionalDescription
 {

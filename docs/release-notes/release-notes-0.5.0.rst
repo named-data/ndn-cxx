@@ -112,8 +112,7 @@ Deprecated
   ``ndn::CertificateExtension``, ``ndn::CertificateSubjectDescription``.  When necessary, use
   ``security::v1::PublicKey``, ``security::v1::Certificate``, ``security::v1::IdentityCertificate``,
   ``security::v1::CertificateExtension``, ``security::v1::CertificateSubjectDescription`` instead.
-  The next release will feature :doc:`a new version of NDN Certificate format
-  <../specs/certificate-format>`.
+  The next release will feature :doc:`a new version of the NDN Certificate format </specs/certificate>`.
 
 Removed
 ^^^^^^^

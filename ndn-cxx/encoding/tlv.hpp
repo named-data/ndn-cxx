@@ -140,7 +140,7 @@ std::ostream&
 operator<<(std::ostream& os, SignatureTypeValue st);
 
 /** @brief TLV-TYPE numbers for SignatureInfo extensions
- *  @sa docs/specs/certificate-format.rst
+ *  @sa docs/specs/certificate.rst
  */
 enum {
   ValidityPeriod = 253,

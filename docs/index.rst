@@ -49,10 +49,10 @@ ndn-cxx Documentation
 
 - :doc:`specs`
 
-   + :doc:`specs/signed-interest`
-   + :doc:`specs/certificate-format`
+   + :doc:`specs/certificate`
    + :doc:`specs/safe-bag`
    + :doc:`specs/validation-error-code`
+   + :doc:`specs/signed-interest`
 
 - :doc:`manpages`
 

@@ -15,8 +15,7 @@ New features
 
 - Add version 2 of the security framework (introduced in ``security::v2`` namespace)
 
-  * :ref:`NDN Certificate Format Version 2.0 <NDN Certificate Format Version 2.0>`
-    (:issue:`3103`)
+  * :doc:`/specs/certificate` (:issue:`3103`)
   * New Public Information Base (PIB) and Trusted Program Module (TPM) framework to manage
     public/private keys and NDN Certificate version 2.0 (:issue:`2948`, :issue:`3202`)
   * New KeyChain implementation (:issue:`2926`)
@@ -24,8 +23,8 @@ New features
   * New security-supporting utilities: trust anchor container and certificate cache
   * Creation of `Command Interests
     <https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest>`__ delegated to
-    :ndn-cxx:`CommandInterestSigner` class, while the new KeyChain only :ref:`signs Interests
-    <Signed Interest>` (:issue:`3912`)
+    :ndn-cxx:`CommandInterestSigner` class, while the new KeyChain only :doc:`signs Interests
+    </specs/signed-interest>` (:issue:`3912`)
 
 - Enable validator to fetch certificates directly from the signed/command interest sender
   (:issue:`3921`)
@@ -100,5 +99,3 @@ Deprecated
   ``ndn::CertificateExtension``, ``ndn::CertificateSubjectDescription``.  When necessary, use
   ``security::v1::PublicKey``, ``security::v1::Certificate``, ``security::v1::IdentityCertificate``,
   ``security::v1::CertificateExtension``, ``security::v1::CertificateSubjectDescription`` instead.
-  The next release will feature :ref:`a new version of NDN Certificate format
-  <NDN Certificate Format Version 2.0>`.

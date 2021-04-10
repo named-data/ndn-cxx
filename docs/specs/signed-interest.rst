@@ -1,5 +1,3 @@
-.. _Signed Interest:
-
 Signed Interest Version 0.2 (DEPRECATED)
 ========================================
 

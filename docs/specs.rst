@@ -4,7 +4,7 @@ Specifications
 .. toctree::
    :maxdepth: 2
 
-   specs/signed-interest
-   specs/certificate-format
+   specs/certificate
    specs/safe-bag
    specs/validation-error-code
+   specs/signed-interest

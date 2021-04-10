@@ -74,7 +74,6 @@ verifySignature(const Data& data, const uint8_t* key, size_t keyLen);
  * @brief Verify @p interest using @p key.
  * @note @p key must be a public key in PKCS #8 format.
  * @note This method verifies only signature of the signed interest.
- * @sa docs/specs/signed-interest.rst
  */
 bool
 verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen);
@@ -88,7 +87,6 @@ verifySignature(const Data& data, const transform::PublicKey& key);
 /**
  * @brief Verify @p interest using @p key.
  * @note This method verifies only signature of the signed interest.
- * @sa docs/specs/signed-interest.rst
  */
 bool
 verifySignature(const Interest& interest, const transform::PublicKey& key);
@@ -102,7 +100,6 @@ verifySignature(const Data& data, const pib::Key& key);
 /**
  * @brief Verify @p interest using @p key.
  * @note This method verifies only signature of the signed interest.
- * @sa docs/specs/signed-interest.rst
  */
 bool
 verifySignature(const Interest& interest, const pib::Key& key);
@@ -118,7 +115,6 @@ verifySignature(const Data& data, const optional<Certificate>& cert);
 /**
  * @brief Verify @p interest using @p cert.
  * @note This method verifies only signature of the signed interest.
- * @sa docs/specs/signed-interest.rst
  *
  * If @p cert is nullptr, @p interest assumed to be self-verifiable (with digest or attributes)
  */
@@ -135,7 +131,6 @@ verifySignature(const Data& data, const tpm::Tpm& tpm, const Name& keyName,
 /**
  * @brief Verify @p interest using @p tpm and @p keyName with the @p digestAlgorithm.
  * @note This method verifies only signature of the signed interest.
- * @sa docs/specs/signed-interest.rst
  */
 bool
 verifySignature(const Interest& interest, const tpm::Tpm& tpm, const Name& keyName,
