@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -152,6 +152,7 @@ BOOST_AUTO_TEST_CASE(FromType)
   BOOST_CHECK_EQUAL(b1.size(), 2); // 1-octet TLV-TYPE and 1-octet TLV-LENGTH
   BOOST_CHECK_EQUAL(b1.hasValue(), false);
   BOOST_CHECK_EQUAL(b1.value_size(), 0);
+  BOOST_CHECK(b1.value() == nullptr);
 
   Block b2(258);
   BOOST_CHECK_EQUAL(b2.isValid(), true);
@@ -159,10 +160,14 @@ BOOST_AUTO_TEST_CASE(FromType)
   BOOST_CHECK_EQUAL(b2.size(), 4); // 3-octet TLV-TYPE and 1-octet TLV-LENGTH
   BOOST_CHECK_EQUAL(b2.hasValue(), false);
   BOOST_CHECK_EQUAL(b2.value_size(), 0);
+  BOOST_CHECK(b2.value() == nullptr);
 
   Block b3(tlv::Invalid);
   BOOST_CHECK_EQUAL(b3.isValid(), false);
   BOOST_CHECK_EQUAL(b3.type(), tlv::Invalid);
+  BOOST_CHECK_EXCEPTION(b3.size(), Block::Error, [] (const auto& e) {
+    return e.what() == "Cannot determine size of invalid block"s;
+  });
   BOOST_CHECK_EQUAL(b3.hasValue(), false);
   BOOST_CHECK_EQUAL(b3.value_size(), 0);
   BOOST_CHECK(b3.value() == nullptr);
@@ -173,12 +178,22 @@ BOOST_AUTO_TEST_CASE(FromTypeAndBuffer)
   const uint8_t VALUE[] = {0x11, 0x12, 0x13, 0x14};
   auto bufferPtr = make_shared<Buffer>(VALUE, sizeof(VALUE));
 
-  Block b(42, bufferPtr);
-  BOOST_CHECK_EQUAL(b.isValid(), true);
-  BOOST_CHECK_EQUAL(b.type(), 42);
-  BOOST_CHECK_EQUAL(b.size(), 6);
-  BOOST_CHECK_EQUAL(b.hasValue(), true);
-  BOOST_CHECK_EQUAL(b.value_size(), sizeof(VALUE));
+  Block b1(42, std::move(bufferPtr));
+  BOOST_CHECK_EQUAL(b1.isValid(), true);
+  BOOST_CHECK_EQUAL(b1.type(), 42);
+  BOOST_CHECK_EQUAL(b1.size(), 6);
+  BOOST_CHECK_EQUAL(b1.hasValue(), true);
+  BOOST_CHECK_EQUAL(b1.value_size(), sizeof(VALUE));
+  BOOST_CHECK(b1.value() != nullptr);
+
+  // empty buffer as TLV-VALUE
+  Block b2(63, make_shared<Buffer>());
+  BOOST_CHECK_EQUAL(b2.isValid(), true);
+  BOOST_CHECK_EQUAL(b2.type(), 63);
+  BOOST_CHECK_EQUAL(b2.size(), 2);
+  BOOST_CHECK_EQUAL(b2.hasValue(), true);
+  BOOST_CHECK_EQUAL(b2.value_size(), 0);
+  BOOST_CHECK(b2.value() == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(FromTypeAndBlock)
@@ -192,6 +207,7 @@ BOOST_AUTO_TEST_CASE(FromTypeAndBlock)
   BOOST_CHECK_EQUAL(b.size(), 10);
   BOOST_CHECK_EQUAL(b.hasValue(), true);
   BOOST_CHECK_EQUAL(b.value_size(), sizeof(BUFFER));
+  BOOST_CHECK(b.value() != nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(FromStream)
@@ -204,24 +220,27 @@ BOOST_AUTO_TEST_CASE(FromStream)
   BOOST_CHECK_EQUAL(b.type(), 66);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x42);
+  BOOST_CHECK_EQUAL(*b.wire(), 0x42);
   BOOST_CHECK_EQUAL(*b.value(), 0xfa);
 
   b = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b.type(), 1);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x01);
+  BOOST_CHECK_EQUAL(*b.wire(), 0x01);
   BOOST_CHECK_EQUAL(*b.value(), 0xfb);
 
   b = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b.type(), 0xffffffff);
   BOOST_CHECK_EQUAL(b.size(), 6);
   BOOST_CHECK_EQUAL(b.value_size(), 0);
-  BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
+  BOOST_CHECK_EQUAL(*b.wire(), 0xfe);
+  BOOST_CHECK(b.value() == nullptr);
 
   BOOST_CHECK(stream.eof());
-  BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
+  BOOST_CHECK_EXCEPTION(Block::fromStream(stream), tlv::Error, [] (const auto& e) {
+    return e.what() == "Empty buffer during TLV parsing"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(FromStreamWhitespace) // Bug 2728
@@ -265,6 +284,7 @@ BOOST_AUTO_TEST_CASE(FromStreamZeroLength)
   Block b1 = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b1.type(), 0x70);
   BOOST_CHECK_EQUAL(b1.value_size(), 0);
+  BOOST_CHECK(b1.value() == nullptr);
 
   Block b2 = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b2.type(), 0x71);
@@ -276,8 +296,11 @@ BOOST_AUTO_TEST_CASE(FromStreamZeroLength)
   Block b3 = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b3.type(), 0x72);
   BOOST_CHECK_EQUAL(b3.value_size(), 0);
+  BOOST_CHECK(b3.value() == nullptr);
 
-  BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
+  BOOST_CHECK_EXCEPTION(Block::fromStream(stream), tlv::Error, [] (const auto& e) {
+    return e.what() == "Empty buffer during TLV parsing"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(FromStreamPacketTooLarge)
@@ -291,7 +314,9 @@ BOOST_AUTO_TEST_CASE(FromStreamPacketTooLarge)
   }
   stream.seekg(0);
 
-  BOOST_CHECK_THROW(Block::fromStream(stream), tlv::Error);
+  BOOST_CHECK_EXCEPTION(Block::fromStream(stream), tlv::Error, [] (const auto& e) {
+    return e.what() == "TLV-LENGTH from stream exceeds limit"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(FromWireBuffer)
@@ -325,6 +350,7 @@ BOOST_AUTO_TEST_CASE(FromWireBuffer)
   BOOST_CHECK_EQUAL(b.size(), 6);
   BOOST_CHECK_EQUAL(b.value_size(), 0);
   BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
+  BOOST_CHECK(b.value() == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(FromRawBuffer)
@@ -356,6 +382,7 @@ BOOST_AUTO_TEST_CASE(FromRawBuffer)
   BOOST_CHECK_EQUAL(b.size(), 6);
   BOOST_CHECK_EQUAL(b.value_size(), 0);
   BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
+  BOOST_CHECK(b.value() == nullptr);
 }
 
 static const Buffer MalformedInputs[] = {
@@ -417,7 +444,9 @@ BOOST_AUTO_TEST_CASE(Parse)
   BOOST_CHECK_EQUAL(data.elements().at(0).elements().size(), 0); // parse is not recursive
 
   BOOST_CHECK(data.get(0x15) == data.elements().at(2));
-  BOOST_CHECK_THROW(data.get(0x01), Block::Error);
+  BOOST_CHECK_EXCEPTION(data.get(0x01), Block::Error, [] (const auto& e) {
+    return e.what() == "No sub-element of type 1 found in block of type 6"s;
+  });
 
   BOOST_CHECK(data.find(0x15) == data.elements_begin() + 2);
   BOOST_CHECK(data.find(0x01) == data.elements_end());
@@ -427,7 +456,9 @@ BOOST_AUTO_TEST_CASE(Parse)
     0x05, 0x05, 0x07, 0x07, 0x08, 0x05, 0x68, 0x65, 0x6c, 0x6c, 0x6f
   };
   Block bad(MALFORMED, sizeof(MALFORMED));
-  BOOST_CHECK_THROW(bad.parse(), Block::Error);
+  BOOST_CHECK_EXCEPTION(bad.parse(), Block::Error, [] (const auto& e) {
+    return e.what() == "TLV-LENGTH of sub-element of type 7 exceeds TLV-VALUE boundary of parent block"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(InsertBeginning)
@@ -552,7 +583,7 @@ BOOST_AUTO_TEST_CASE(Remove)
   Block block(tlv::Data);
   block.push_back(makeNonNegativeIntegerBlock(tlv::ContentType, 0));
   block.push_back(makeNonNegativeIntegerBlock(tlv::FreshnessPeriod, 123));
-  block.push_back(makeStringBlock(tlv::Name, "ndn:/test-prefix"));
+  block.push_back(makeStringBlock(tlv::Name, "/test-prefix"));
   block.push_back(makeNonNegativeIntegerBlock(tlv::ContentType, 2));
   block.push_back(makeNonNegativeIntegerBlock(tlv::ContentType, 1));
 
@@ -564,7 +595,7 @@ BOOST_AUTO_TEST_CASE(Remove)
   BOOST_CHECK_EQUAL(tlv::FreshnessPeriod, elements[0].type());
   BOOST_CHECK_EQUAL(123, readNonNegativeInteger(elements[0]));
   BOOST_CHECK_EQUAL(tlv::Name, elements[1].type());
-  BOOST_CHECK_EQUAL(readString(elements[1]).compare("ndn:/test-prefix"), 0);
+  BOOST_CHECK_EQUAL(readString(elements[1]).compare("/test-prefix"), 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // SubElements

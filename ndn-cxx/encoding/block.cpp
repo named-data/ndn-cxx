@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,7 +67,7 @@ Block::Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_
   , m_valueEnd(m_end)
   , m_size(m_end - m_begin)
 {
-  if (m_buffer->size() == 0) {
+  if (m_buffer->empty()) {
     NDN_THROW(std::invalid_argument("Buffer is empty"));
   }
 
@@ -301,7 +301,7 @@ Block::size() const
 const uint8_t*
 Block::value() const noexcept
 {
-  return hasValue() ? &*m_valueBegin : nullptr;
+  return value_size() > 0 ? &*m_valueBegin : nullptr;
 }
 
 size_t
