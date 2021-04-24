@@ -25,42 +25,6 @@ namespace ndn {
 namespace encoding {
 
 size_t
-Estimator::prependVarNumber(uint64_t n) const noexcept
-{
-  return tlv::sizeOfVarNumber(n);
-}
-
-size_t
-Estimator::appendVarNumber(uint64_t n) const noexcept
-{
-  return tlv::sizeOfVarNumber(n);
-}
-
-size_t
-Estimator::prependNonNegativeInteger(uint64_t n) const noexcept
-{
-  return tlv::sizeOfNonNegativeInteger(n);
-}
-
-size_t
-Estimator::appendNonNegativeInteger(uint64_t n) const noexcept
-{
-  return tlv::sizeOfNonNegativeInteger(n);
-}
-
-size_t
-Estimator::prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
-{
-  return tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(arraySize) + arraySize;
-}
-
-size_t
-Estimator::appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
-{
-  return prependByteArrayBlock(type, array, arraySize);
-}
-
-size_t
 Estimator::prependBlock(const Block& block) const
 {
   if (block.hasWire()) {
@@ -69,12 +33,6 @@ Estimator::prependBlock(const Block& block) const
   else {
     return prependByteArrayBlock(block.type(), block.value(), block.value_size());
   }
-}
-
-size_t
-Estimator::appendBlock(const Block& block) const
-{
-  return prependBlock(block);
 }
 
 } // namespace encoding

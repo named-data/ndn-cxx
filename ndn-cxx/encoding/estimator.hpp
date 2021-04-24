@@ -77,7 +77,7 @@ public: // common interface between Encoder and Estimator
    * @brief Prepend bytes from the range [@p first, @p last)
    */
   template<class Iterator>
-  size_t
+  constexpr size_t
   prependRange(Iterator first, Iterator last) const noexcept
   {
     return std::distance(first, last);
@@ -87,7 +87,7 @@ public: // common interface between Encoder and Estimator
    * @brief Append bytes from the range [@p first, @p last)
    */
   template<class Iterator>
-  size_t
+  constexpr size_t
   appendRange(Iterator first, Iterator last) const noexcept
   {
     return std::distance(first, last);
@@ -96,38 +96,56 @@ public: // common interface between Encoder and Estimator
   /**
    * @brief Prepend @p n in VarNumber encoding
    */
-  size_t
-  prependVarNumber(uint64_t n) const noexcept;
+  constexpr size_t
+  prependVarNumber(uint64_t n) const noexcept
+  {
+    return tlv::sizeOfVarNumber(n);
+  }
 
   /**
    * @brief Append @p n in VarNumber encoding
    */
-  size_t
-  appendVarNumber(uint64_t n) const noexcept;
+  constexpr size_t
+  appendVarNumber(uint64_t n) const noexcept
+  {
+    return tlv::sizeOfVarNumber(n);
+  }
 
   /**
    * @brief Prepend @p n in NonNegativeInteger encoding
    */
-  size_t
-  prependNonNegativeInteger(uint64_t n) const noexcept;
+  constexpr size_t
+  prependNonNegativeInteger(uint64_t n) const noexcept
+  {
+    return tlv::sizeOfNonNegativeInteger(n);
+  }
 
   /**
    * @brief Append @p n in NonNegativeInteger encoding
    */
-  size_t
-  appendNonNegativeInteger(uint64_t n) const noexcept;
+  constexpr size_t
+  appendNonNegativeInteger(uint64_t n) const noexcept
+  {
+    return tlv::sizeOfNonNegativeInteger(n);
+  }
 
   /**
    * @brief Prepend TLV block of type @p type and value from buffer @p array of size @p arraySize
    */
-  size_t
-  prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept;
+  constexpr size_t
+  prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
+  {
+    return tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(arraySize) + arraySize;
+  }
 
   /**
    * @brief Append TLV block of type @p type and value from buffer @p array of size @p arraySize
    */
-  size_t
-  appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept;
+  constexpr size_t
+  appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
+  {
+    return tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(arraySize) + arraySize;
+  }
 
   /**
    * @brief Prepend TLV block @p block
@@ -139,7 +157,10 @@ public: // common interface between Encoder and Estimator
    * @brief Append TLV block @p block
    */
   size_t
-  appendBlock(const Block& block) const;
+  appendBlock(const Block& block) const
+  {
+    return prependBlock(block);
+  }
 };
 
 } // namespace encoding
