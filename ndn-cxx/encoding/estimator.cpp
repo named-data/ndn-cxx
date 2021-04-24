@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,59 +25,33 @@ namespace ndn {
 namespace encoding {
 
 size_t
-Estimator::prependVarNumber(uint64_t varNumber) const noexcept
+Estimator::prependVarNumber(uint64_t n) const noexcept
 {
-  if (varNumber < 253) {
-    return 1;
-  }
-  else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    return 3;
-  }
-  else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    return 5;
-  }
-  else {
-    return 9;
-  }
+  return tlv::sizeOfVarNumber(n);
 }
 
 size_t
-Estimator::appendVarNumber(uint64_t varNumber) const noexcept
+Estimator::appendVarNumber(uint64_t n) const noexcept
 {
-  return prependVarNumber(varNumber);
+  return tlv::sizeOfVarNumber(n);
 }
 
 size_t
-Estimator::prependNonNegativeInteger(uint64_t varNumber) const noexcept
+Estimator::prependNonNegativeInteger(uint64_t n) const noexcept
 {
-  if (varNumber <= std::numeric_limits<uint8_t>::max()) {
-    return 1;
-  }
-  else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    return 2;
-  }
-  else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    return 4;
-  }
-  else {
-    return 8;
-  }
+  return tlv::sizeOfNonNegativeInteger(n);
 }
 
 size_t
-Estimator::appendNonNegativeInteger(uint64_t varNumber) const noexcept
+Estimator::appendNonNegativeInteger(uint64_t n) const noexcept
 {
-  return prependNonNegativeInteger(varNumber);
+  return tlv::sizeOfNonNegativeInteger(n);
 }
 
 size_t
 Estimator::prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
 {
-  size_t totalLength = arraySize;
-  totalLength += prependVarNumber(arraySize);
-  totalLength += prependVarNumber(type);
-
-  return totalLength;
+  return tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(arraySize) + arraySize;
 }
 
 size_t

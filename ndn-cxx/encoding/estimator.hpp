@@ -28,15 +28,17 @@ namespace ndn {
 namespace encoding {
 
 /**
- * @brief Helper class to estimate size of TLV encoding
- * Interface of this class (mostly) matches interface of Encoder class
+ * @brief Helper class to estimate size of TLV encoding.
+ *
+ * The interface of this class (mostly) matches that of the Encoder class.
+ *
  * @sa Encoder
  */
 class Estimator : noncopyable
 {
 public: // common interface between Encoder and Estimator
   /**
-   * @brief Prepend a byte
+   * @brief Prepend a single byte
    */
   constexpr size_t
   prependByte(uint8_t) const noexcept
@@ -45,7 +47,7 @@ public: // common interface between Encoder and Estimator
   }
 
   /**
-   * @brief Append a byte
+   * @brief Append a single byte
    */
   constexpr size_t
   appendByte(uint8_t) const noexcept
@@ -72,7 +74,7 @@ public: // common interface between Encoder and Estimator
   }
 
   /**
-   * @brief Prepend range of bytes from the range [@p first, @p last)
+   * @brief Prepend bytes from the range [@p first, @p last)
    */
   template<class Iterator>
   size_t
@@ -82,7 +84,7 @@ public: // common interface between Encoder and Estimator
   }
 
   /**
-   * @brief Append range of bytes from the range [@p first, @p last)
+   * @brief Append bytes from the range [@p first, @p last)
    */
   template<class Iterator>
   size_t
@@ -92,32 +94,28 @@ public: // common interface between Encoder and Estimator
   }
 
   /**
-   * @brief Prepend VarNumber @p varNumber of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Prepend @p n in VarNumber encoding
    */
   size_t
-  prependVarNumber(uint64_t varNumber) const noexcept;
+  prependVarNumber(uint64_t n) const noexcept;
 
   /**
-   * @brief Prepend VarNumber @p varNumber of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Append @p n in VarNumber encoding
    */
   size_t
-  appendVarNumber(uint64_t varNumber) const noexcept;
+  appendVarNumber(uint64_t n) const noexcept;
 
   /**
-   * @brief Prepend non-negative integer @p integer of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Prepend @p n in NonNegativeInteger encoding
    */
   size_t
-  prependNonNegativeInteger(uint64_t integer) const noexcept;
+  prependNonNegativeInteger(uint64_t n) const noexcept;
 
   /**
-   * @brief Append non-negative integer @p integer of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Append @p n in NonNegativeInteger encoding
    */
   size_t
-  appendNonNegativeInteger(uint64_t integer) const noexcept;
+  appendNonNegativeInteger(uint64_t n) const noexcept;
 
   /**
    * @brief Prepend TLV block of type @p type and value from buffer @p array of size @p arraySize
