@@ -313,8 +313,9 @@ Block::value_size() const noexcept
 Block
 Block::blockFromValue() const
 {
-  if (!hasValue())
-    NDN_THROW(Error("Block has no TLV-VALUE"));
+  if (value_size() == 0) {
+    NDN_THROW(Error("Cannot construct block from empty TLV-VALUE"));
+  }
 
   return Block(*this, m_valueBegin, m_valueEnd, true);
 }
@@ -327,12 +328,11 @@ Block::parse() const
   if (!m_elements.empty() || value_size() == 0)
     return;
 
-  Buffer::const_iterator begin = value_begin();
-  Buffer::const_iterator end = value_end();
+  auto begin = value_begin();
+  auto end = value_end();
 
   while (begin != end) {
-    Buffer::const_iterator pos = begin;
-
+    auto pos = begin;
     uint32_t type = tlv::readType(pos, end);
     uint64_t length = tlv::readVarNumber(pos, end);
     if (length > static_cast<uint64_t>(end - pos)) {
@@ -342,7 +342,7 @@ Block::parse() const
     }
     // pos now points to TLV-VALUE of sub element
 
-    Buffer::const_iterator subEnd = pos + length;
+    auto subEnd = pos + length;
     m_elements.emplace_back(m_buffer, type, begin, subEnd, pos, subEnd);
 
     begin = subEnd;
@@ -471,7 +471,7 @@ Block::insert(Block::element_const_iterator pos, const Block& element)
 
 Block::operator boost::asio::const_buffer() const
 {
-  return boost::asio::const_buffer(wire(), size());
+  return {wire(), size()};
 }
 
 bool

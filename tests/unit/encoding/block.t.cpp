@@ -24,6 +24,7 @@
 
 #include "tests/boost-test.hpp"
 
+#include <boost/asio/buffer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/data/test_case.hpp>
 
@@ -419,6 +420,28 @@ BOOST_DATA_TEST_CASE(Malformed, MalformedInputs)
 
 BOOST_AUTO_TEST_SUITE_END() // Construction
 
+BOOST_AUTO_TEST_CASE(BlockFromValue)
+{
+  Block b1(301);
+  BOOST_CHECK_EXCEPTION(b1.blockFromValue(), Block::Error, [] (const auto& e) {
+    return e.what() == "Cannot construct block from empty TLV-VALUE"s;
+  });
+
+  Block b2(302, make_shared<Buffer>());
+  BOOST_CHECK_EXCEPTION(b2.blockFromValue(), Block::Error, [] (const auto& e) {
+    return e.what() == "Cannot construct block from empty TLV-VALUE"s;
+  });
+
+  b1.encode();
+  Block b3(303, b1);
+  b3.encode();
+  Block nested = b3.blockFromValue();
+  BOOST_CHECK_EQUAL(nested.type(), 301);
+  BOOST_CHECK_EQUAL(nested.size(), 4);
+  BOOST_CHECK_EQUAL(nested.value_size(), 0);
+  BOOST_CHECK(nested == b1);
+}
+
 BOOST_AUTO_TEST_SUITE(SubElements)
 
 BOOST_AUTO_TEST_CASE(Parse)
@@ -599,6 +622,14 @@ BOOST_AUTO_TEST_CASE(Remove)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // SubElements
+
+BOOST_AUTO_TEST_CASE(ToAsioConstBuffer)
+{
+  Block block = "0101A0"_block;
+  boost::asio::const_buffer buffer(block);
+  BOOST_CHECK_EQUAL(boost::asio::buffer_cast<const uint8_t*>(buffer), block.wire());
+  BOOST_CHECK_EQUAL(boost::asio::buffer_size(buffer), block.size());
+}
 
 BOOST_AUTO_TEST_CASE(Equality)
 {
