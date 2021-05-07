@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,7 @@
 
 #include "ndn-cxx/security/validation-policy-command-interest.hpp"
 
-#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/interest-signer.hpp"
 #include "ndn-cxx/security/validation-policy-accept-all.hpp"
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
 
@@ -64,11 +64,6 @@ template<class T, class InnerPolicy = ValidationPolicySimpleHierarchy>
 class ValidationPolicyCommandInterestFixture : public HierarchicalValidatorFixture<CommandInterestPolicyWrapper<T, InnerPolicy>>
 {
 public:
-  ValidationPolicyCommandInterestFixture()
-    : m_signer(this->m_keyChain)
-  {
-  }
-
   Interest
   makeCommandInterest(const Identity& identity, bool wantV3 = false)
   {
@@ -85,7 +80,7 @@ public:
   }
 
 public:
-  CommandInterestSigner m_signer;
+  InterestSigner m_signer{this->m_keyChain};
 };
 
 BOOST_FIXTURE_TEST_SUITE(TestValidationPolicyCommandInterest,

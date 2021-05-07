@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/security/validator-config/checker.hpp"
-#include "ndn-cxx/security/command-interest-signer.hpp"
 #include "ndn-cxx/security/validation-policy.hpp"
 #include "ndn-cxx/security/validation-state.hpp"
 

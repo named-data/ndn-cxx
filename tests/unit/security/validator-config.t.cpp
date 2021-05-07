@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #include "ndn-cxx/security/validator-config.hpp"
 
 #include "ndn-cxx/security/certificate-fetcher-offline.hpp"
-#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/interest-signer.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
 #include "tests/boost-test.hpp"

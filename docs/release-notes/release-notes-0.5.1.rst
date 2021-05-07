@@ -23,7 +23,7 @@ New features
   * New security-supporting utilities: trust anchor container and certificate cache
   * Creation of `Command Interests
     <https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest>`__ delegated to
-    :ndn-cxx:`CommandInterestSigner` class, while the new KeyChain only :doc:`signs Interests
+    ``CommandInterestSigner`` class, while the new KeyChain only :doc:`signs Interests
     </specs/signed-interest>` (:issue:`3912`)
 
 - Enable validator to fetch certificates directly from the signed/command interest sender

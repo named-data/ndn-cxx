@@ -26,7 +26,7 @@
 #include "ndn-cxx/mgmt/nfd/control-command.hpp"
 #include "ndn-cxx/mgmt/nfd/control-response.hpp"
 #include "ndn-cxx/mgmt/nfd/status-dataset.hpp"
-#include "ndn-cxx/security/command-interest-signer.hpp"
+#include "ndn-cxx/security/interest-signer.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
 #include "ndn-cxx/security/validator-null.hpp"
 #include "ndn-cxx/security/validator.hpp"
@@ -174,7 +174,7 @@ protected:
   Face& m_face;
   KeyChain& m_keyChain;
   security::Validator& m_validator;
-  security::CommandInterestSigner m_signer;
+  security::InterestSigner m_signer;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   std::set<shared_ptr<util::SegmentFetcher>> m_fetchers;
