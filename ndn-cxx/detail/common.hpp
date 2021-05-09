@@ -84,8 +84,11 @@ using namespace std::string_literals;
 
 using namespace std::placeholders;
 
+#include <boost/version.hpp>
+
 /// \cond
 // Bug 2109 workaround
+#if BOOST_VERSION < 107600
 #define BOOST_BIND_NO_PLACEHOLDERS
 #include <boost/is_placeholder.hpp>
 namespace boost {
@@ -108,6 +111,7 @@ NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(8)
 NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER(9)
 #undef NDN_CXX_SPECIALIZE_BOOST_IS_PLACEHOLDER_FOR_STD_PLACEHOLDER
 } // namespace boost
+#endif // BOOST_VERSION < 107600
 /// \endcond
 
 #include <boost/assert.hpp>
