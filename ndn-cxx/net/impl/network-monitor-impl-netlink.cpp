@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -362,6 +362,12 @@ NetworkMonitorImplNetlink::parseAddressMessage(const NetlinkMessage& nlmsg)
   if (extFlags)
     flags = *extFlags;
 #endif // NDN_CXX_HAVE_IFA_FLAGS
+
+  if (flags & IFA_F_TENTATIVE) {
+    // https://redmine.named-data.net/issues/5155#note-10
+    NDN_LOG_DEBUG("  ignoring tentative address " << ipAddr);
+    return;
+  }
 
   NetworkAddress address(ifaFamilyToAddressFamily(ifa->ifa_family),
                          ipAddr,

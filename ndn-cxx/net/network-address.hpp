@@ -54,8 +54,8 @@ class NetworkAddress
 {
 public:
   NetworkAddress(AddressFamily family,
-                 boost::asio::ip::address ip,
-                 boost::asio::ip::address broadcast,
+                 const boost::asio::ip::address& ip,
+                 const boost::asio::ip::address& broadcast,
                  uint8_t prefixLength,
                  AddressScope scope,
                  uint32_t flags);
