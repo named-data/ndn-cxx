@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -228,9 +228,14 @@ operator<<(std::ostream& os, const NetworkInterface& netif)
 
   for (const auto& addr : netif.getNetworkAddresses()) {
     os << "    " << (addr.getFamily() == AddressFamily::V4 ? "inet " : "inet6 ") << addr;
-    if (netif.canBroadcast() && !addr.getBroadcast().is_unspecified())
+    if (netif.canBroadcast() && !addr.getBroadcast().is_unspecified()) {
       os << " brd " << addr.getBroadcast();
-    os << " scope " << addr.getScope() << "\n";
+    }
+    os << " scope " << addr.getScope();
+    if (addr.isDeprecated()) {
+      os << " deprecated";
+    }
+    os << "\n";
   }
 
   return os;

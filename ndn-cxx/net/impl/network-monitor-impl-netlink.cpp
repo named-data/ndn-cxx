@@ -363,7 +363,7 @@ NetworkMonitorImplNetlink::parseAddressMessage(const NetlinkMessage& nlmsg)
     flags = *extFlags;
 #endif // NDN_CXX_HAVE_IFA_FLAGS
 
-  if (flags & IFA_F_TENTATIVE) {
+  if ((flags & IFA_F_TENTATIVE) && nlmsg->nlmsg_type == RTM_NEWADDR) {
     // https://redmine.named-data.net/issues/5155#note-10
     NDN_LOG_DEBUG("  ignoring tentative address " << ipAddr);
     return;

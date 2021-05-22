@@ -23,6 +23,10 @@
 
 #include "ndn-cxx/net/network-address.hpp"
 
+#ifdef __linux__
+#include <linux/if_addr.h>
+#endif
+
 namespace ndn {
 namespace net {
 
@@ -55,6 +59,18 @@ NetworkAddress::NetworkAddress(AddressFamily family,
   , m_scope(scope)
   , m_flags(flags)
 {
+}
+
+bool
+NetworkAddress::isDeprecated() const
+{
+#ifdef __linux__
+  return m_flags & IFA_F_DEPRECATED;
+#else
+  // should probably check for IN6_IFF_DEPRECATED on macOS and FreeBSD, but the
+  // NetworkMonitor backend for those platforms doesn't provide any address flags
+  return false;
+#endif
 }
 
 std::ostream&

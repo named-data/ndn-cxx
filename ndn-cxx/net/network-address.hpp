@@ -60,7 +60,8 @@ public:
                  AddressScope scope,
                  uint32_t flags);
 
-  /** @brief Returns the address family
+  /**
+   * @brief Returns the address family
    */
   AddressFamily
   getFamily() const
@@ -68,7 +69,8 @@ public:
     return m_family;
   }
 
-  /** @brief Returns the IP address (v4 or v6)
+  /**
+   * @brief Returns the IP address (v4 or v6)
    */
   boost::asio::ip::address
   getIp() const
@@ -76,7 +78,8 @@ public:
     return m_ip;
   }
 
-  /** @brief Returns the IP broadcast address
+  /**
+   * @brief Returns the IP broadcast address
    */
   boost::asio::ip::address
   getBroadcast() const
@@ -84,7 +87,8 @@ public:
     return m_broadcast;
   }
 
-  /** @brief Returns the prefix length
+  /**
+   * @brief Returns the prefix length
    */
   uint8_t
   getPrefixLength() const
@@ -92,7 +96,8 @@ public:
     return m_prefixLength;
   }
 
-  /** @brief Returns the address scope
+  /**
+   * @brief Returns the address scope
    */
   AddressScope
   getScope() const
@@ -100,13 +105,22 @@ public:
     return m_scope;
   }
 
-  /** @brief Returns a bitset of platform-specific flags enabled on the address
+  /**
+   * @brief Returns a bitset of platform-specific flags enabled on the address
    */
   uint32_t
   getFlags() const
   {
     return m_flags;
   }
+
+  /**
+   * @brief Returns true if the address is deprecated
+   * @sa RFC 4862
+   * @note Currently implemented only on Linux. Always returns false on other platforms.
+   */
+  bool
+  isDeprecated() const;
 
   friend bool
   operator<(const NetworkAddress& a, const NetworkAddress& b)
@@ -120,7 +134,7 @@ private:
   boost::asio::ip::address m_broadcast;
   uint8_t m_prefixLength;
   AddressScope m_scope;
-  uint32_t m_flags; // IFA_F_* in if_addr.h
+  uint32_t m_flags; // IFA_F_* (linux/if_addr.h) on Linux; zero on other platforms
 };
 
 std::ostream&
