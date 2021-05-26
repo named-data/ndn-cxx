@@ -8,7 +8,13 @@ def build(bld):
                 features='pch',
                 headers='ndnsec-pch.hpp',
                 use='ndn-cxx')
+
     bld.program(name='tool-ndnsec',
                 target=top + 'bin/ndnsec',
                 source=['main.cpp'],
                 use='tool-ndnsec-objects')
+
+    for cmd in ('list', 'get-default', 'set-default', 'delete',
+                'key-gen', 'sign-req', 'cert-gen', 'cert-install',
+                'cert-dump', 'export', 'import', 'unlock-tpm'):
+        bld.symlink_as('${BINDIR}/ndnsec-%s' % cmd, 'ndnsec')

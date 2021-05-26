@@ -111,7 +111,7 @@ def configure(conf):
     stacktrace_backend = conf.options.with_stacktrace
     if stacktrace_backend is None:
         # auto-detect
-        for candidate in ['backtrace', 'basic']:
+        for candidate in ('backtrace', 'basic'):
             try:
                 conf.check_boost(lib='stacktrace_%s' % candidate, mt=True)
             except conf.errors.ConfigurationError:
@@ -297,11 +297,11 @@ def build(bld):
     if bld.env.HAVE_NETLINK:
         headers += bld.path.ant_glob('ndn-cxx/**/*netlink*.hpp', excl='ndn-cxx/**/impl/**/*')
 
-    bld.install_files(bld.env.INCLUDEDIR, headers, relative_trick=True)
+    bld.install_files('${INCLUDEDIR}', headers, relative_trick=True)
 
     # Install generated headers
-    for filename in ['ndn-cxx/detail/config.hpp', 'ndn-cxx/version.hpp']:
-        bld.install_files('%s/%s' % (bld.env.INCLUDEDIR, os.path.dirname(filename)),
+    for filename in ('ndn-cxx/detail/config.hpp', 'ndn-cxx/version.hpp'):
+        bld.install_files('${INCLUDEDIR}/%s' % os.path.dirname(filename),
                           bld.path.find_resource(filename))
 
     bld.install_files('${SYSCONFDIR}/ndn', 'client.conf.sample')
