@@ -26,7 +26,7 @@
 #include "tests/key-chain-fixture.hpp"
 #include "tests/unit/clock-fixture.hpp"
 
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 
 namespace ndn {
 namespace security {

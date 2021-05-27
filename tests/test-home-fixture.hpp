@@ -29,7 +29,8 @@
 #include <initializer_list>
 
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 
 namespace ndn {
 namespace tests {

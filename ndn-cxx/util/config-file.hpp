@@ -26,7 +26,7 @@
 
 #include <fstream>
 
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 namespace ndn {
@@ -54,7 +54,7 @@ public:
     using std::runtime_error::runtime_error;
   };
 
-  typedef boost::property_tree::ptree Parsed;
+  using Parsed = boost::property_tree::ptree;
 
   /**
    * @brief Locate, open, and parse a library configuration file.

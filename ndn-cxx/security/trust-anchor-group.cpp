@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,10 @@
 #include "ndn-cxx/util/io.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-#include <boost/filesystem.hpp>
+#if BOOST_VERSION >= 107200
+#include <boost/filesystem/directory.hpp>
+#endif
+#include <boost/filesystem/operations.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -127,10 +130,8 @@ DynamicTrustAnchorGroup::refresh()
   if (!m_isDir) {
     loadCert(m_path);
   }
-  else {
-    if (fs::exists(m_path)) {
-      std::for_each(fs::directory_iterator(m_path), fs::directory_iterator(), loadCert);
-    }
+  else if (fs::exists(m_path)) {
+    std::for_each(fs::directory_iterator(m_path), fs::directory_iterator(), loadCert);
   }
 
   // remove old certs

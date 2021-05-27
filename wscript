@@ -140,6 +140,8 @@ def configure(conf):
     if conf.env.BOOST_VERSION_NUMBER < 106900 and conf.env.CXX_NAME == 'clang':
         conf.env.append_unique('DEFINES_BOOST', ['BOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW'])
 
+    conf.env.append_unique('DEFINES_BOOST', ['BOOST_FILESYSTEM_NO_DEPRECATED'])
+
     conf.check_compiler_flags()
 
     # Loading "late" to prevent tests from being compiled with profiling flags
