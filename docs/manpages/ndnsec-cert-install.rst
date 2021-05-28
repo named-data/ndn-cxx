@@ -43,7 +43,7 @@ Install a certificate and set it as the default certificate::
 
 Install a certificate via HTTP and set it as the default certificate::
 
-    $ ndnsec-install-cert "http://ndncert.domain.com/cert/get/my-certificate.ndncert"
+    $ ndnsec-cert-install "http://ndncert.domain.com/cert/get/my-certificate.ndncert"
 
 Install a certificate but do not change any default settings::
 

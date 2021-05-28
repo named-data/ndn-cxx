@@ -50,6 +50,14 @@ Available commands:
 
 Try 'ndnsec COMMAND --help' for more information on each command.)STR";
 
+const std::map<std::string, std::string> deprecatedCommands{
+  {"certgen",           "cert-gen"},
+  {"dump-certificate",  "cert-dump"},
+  {"install-cert",      "cert-install"},
+  {"keygen",            "key-gen"},
+  {"ls-identity",       "list"},
+};
+
 int
 main(int argc, char* argv[])
 {
@@ -58,6 +66,12 @@ main(int argc, char* argv[])
   std::string command;
   if (basename.rfind("ndnsec-", 0) == 0) {
     command = basename.substr(std::strlen("ndnsec-"));
+    auto it = deprecatedCommands.find(command);
+    if (it != deprecatedCommands.end()) {
+      std::cerr << "DEPRECATION NOTICE: ndnsec-" << it->first << " is deprecated. "
+                << "Please use 'ndnsec " << it->second << "' instead.\n";
+      command = it->second;
+    }
   }
   else if (argc >= 2) {
     command = argv[1];
@@ -68,6 +82,7 @@ main(int argc, char* argv[])
     std::cerr << NDNSEC_HELP_TEXT << std::endl;
     return 2;
   }
+
   NDN_LOG_TRACE("Command: " << command);
 
   try {

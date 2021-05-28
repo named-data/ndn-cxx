@@ -74,7 +74,7 @@ Example
     YXL9AgIHRm9vIEJhchdHMEUCIQDPT9Hq1kvkE0r9W1aYSBVTnHlTEzgtz+v1DwkC
     ug/vLAIgY3xJITCwf55sqey33q5GIQSk1TRCkNNl58ojvPs5sNU=
 
-    $ ndnsec-dump-certificate -p -f signed.cert
+    $ ndnsec-cert-dump -p -f signed.cert
     Certificate name:
       /example/KEY/%E4%14%99%7F%28%96%82%EB/Universe/%FD%00%00%01q%D1%02N%82
     Validity:
