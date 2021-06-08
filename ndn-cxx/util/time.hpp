@@ -30,16 +30,24 @@
 namespace ndn {
 namespace time {
 
-using boost::chrono::duration;
+template<typename Rep, typename Period>
+using duration = boost::chrono::duration<Rep, Period>;
+
 using boost::chrono::duration_cast;
 
-using days = duration<int_fast32_t, boost::ratio<86400>>;
-using boost::chrono::hours;
-using boost::chrono::minutes;
-using boost::chrono::seconds;
-using boost::chrono::milliseconds;
-using boost::chrono::microseconds;
-using boost::chrono::nanoseconds;
+// C++20
+using days   = duration<int_fast32_t, boost::ratio<86400>>;
+using weeks  = duration<int_fast32_t, boost::ratio<604800>>;
+using months = duration<int_fast32_t, boost::ratio<2629746>>;
+using years  = duration<int_fast32_t, boost::ratio<31556952>>;
+
+// C++11
+using hours        = boost::chrono::hours;
+using minutes      = boost::chrono::minutes;
+using seconds      = boost::chrono::seconds;
+using milliseconds = boost::chrono::milliseconds;
+using microseconds = boost::chrono::microseconds;
+using nanoseconds  = boost::chrono::nanoseconds;
 
 /** \return the absolute value of the duration d
  *  \note The function does not participate in the overload resolution
@@ -172,15 +180,15 @@ using namespace literals::time_literals;
  * To get the current time:
  *
  * <code>
- *     system_clock::TimePoint now = system_clock::now();
+ *     const auto now = system_clock::now();
  * </code>
  *
- * To convert a TimePoint to/from UNIX timestamp:
+ * To convert a time_point to/from UNIX timestamp:
  *
  * <code>
- *     system_clock::TimePoint time = ...;
+ *     system_clock::time_point time = ...;
  *     uint64_t timestampInMilliseconds = toUnixTimestamp(time).count();
- *     system_clock::TimePoint time2 = fromUnixTimestamp(milliseconds(timestampInMilliseconds));
+ *     system_clock::time_point time2 = fromUnixTimestamp(milliseconds(timestampInMilliseconds));
  * </code>
  */
 class system_clock
@@ -192,8 +200,8 @@ public:
   using time_point = boost::chrono::time_point<system_clock>;
   static constexpr bool is_steady = boost::chrono::system_clock::is_steady;
 
-  typedef time_point TimePoint;
-  typedef duration Duration;
+  using TimePoint = time_point;
+  using Duration = duration;
 
   static time_point
   now() noexcept;
@@ -222,8 +230,8 @@ public:
   using time_point = boost::chrono::time_point<steady_clock>;
   static constexpr bool is_steady = true;
 
-  typedef time_point TimePoint;
-  typedef duration Duration;
+  using TimePoint = time_point;
+  using Duration = duration;
 
   static time_point
   now() noexcept;
@@ -244,28 +252,28 @@ private:
 };
 
 /**
- * \brief Get system_clock::TimePoint representing UNIX time epoch (00:00:00 on Jan 1, 1970)
+ * \brief Return a system_clock::time_point representing the UNIX time epoch,
+ *        i.e., 00:00:00 UTC on 1 January 1970.
  */
-const system_clock::TimePoint&
+const system_clock::time_point&
 getUnixEpoch();
 
 /**
- * \brief Convert system_clock::TimePoint to UNIX timestamp
+ * \brief Convert system_clock::time_point to UNIX timestamp
  */
 milliseconds
-toUnixTimestamp(const system_clock::TimePoint& point);
+toUnixTimestamp(const system_clock::time_point& point);
 
 /**
- * \brief Convert UNIX timestamp to system_clock::TimePoint
+ * \brief Convert UNIX timestamp to system_clock::time_point
  */
-system_clock::TimePoint
+system_clock::time_point
 fromUnixTimestamp(milliseconds duration);
 
 /**
- * \brief Convert to the ISO string representation of the time (YYYYMMDDTHHMMSS,fffffffff)
+ * \brief Convert to the ISO 8601 string representation, basic format (`YYYYMMDDTHHMMSS,fffffffff`).
  *
- * If \p timePoint contains doesn't contain fractional seconds,
- * the output format is YYYYMMDDTHHMMSS
+ * If \p timePoint does not contain any fractional seconds, the output format is `YYYYMMDDTHHMMSS`.
  *
  * Examples:
  *
@@ -275,25 +283,37 @@ fromUnixTimestamp(milliseconds duration);
  *   - without fractional seconds:   20020131T100001
  */
 std::string
-toIsoString(const system_clock::TimePoint& timePoint);
+toIsoString(const system_clock::time_point& timePoint);
 
 /**
- * \brief Convert from the ISO string (YYYYMMDDTHHMMSS,fffffffff) representation
- *        to the internal time format
+ * \brief Convert from the ISO 8601 basic string format (`YYYYMMDDTHHMMSS,fffffffff`)
+ *        to the internal time format.
  *
- * Examples of accepted ISO strings:
+ * Examples of accepted strings:
  *
  *   - with fractional nanoseconds:  20020131T100001,123456789
  *   - with fractional microseconds: 20020131T100001,123456
  *   - with fractional milliseconds: 20020131T100001,123
  *   - without fractional seconds:   20020131T100001
- *
  */
-system_clock::TimePoint
+system_clock::time_point
 fromIsoString(const std::string& isoString);
 
 /**
- * \brief Convert time point to string with specified format
+ * \brief Convert to the ISO 8601 string representation, extended format (`YYYY-MM-DDTHH:MM:SS,fffffffff`).
+ */
+std::string
+toIsoExtendedString(const system_clock::time_point& timePoint);
+
+/**
+ * \brief Convert from the ISO 8601 extended string format (`YYYY-MM-DDTHH:MM:SS,fffffffff`)
+ *        to the internal time format.
+ */
+system_clock::time_point
+fromIsoExtendedString(const std::string& isoString);
+
+/**
+ * \brief Convert time point to string with specified format.
  *
  * By default, `%Y-%m-%d %H:%M:%S` is used, producing dates like
  * `2014-04-10 22:51:00`
@@ -306,12 +326,12 @@ fromIsoString(const std::string& isoString);
  *     describes possible formatting flags
  **/
 std::string
-toString(const system_clock::TimePoint& timePoint,
+toString(const system_clock::time_point& timePoint,
          const std::string& format = "%Y-%m-%d %H:%M:%S",
          const std::locale& locale = std::locale("C"));
 
 /**
- * \brief Convert from string of specified format into time point
+ * \brief Convert from string of specified format into time point.
  *
  * By default, `%Y-%m-%d %H:%M:%S` is used, accepting dates like
  * `2014-04-10 22:51:00`
@@ -323,7 +343,7 @@ toString(const system_clock::TimePoint& timePoint,
  * \sa https://www.boost.org/doc/libs/1_65_1/doc/html/date_time/date_time_io.html#date_time.format_flags
  *     describes possible formatting flags
  */
-system_clock::TimePoint
+system_clock::time_point
 fromString(const std::string& timePointStr,
            const std::string& format = "%Y-%m-%d %H:%M:%S",
            const std::locale& locale = std::locale("C"));
@@ -334,14 +354,14 @@ fromString(const std::string& timePointStr,
 namespace boost {
 namespace chrono {
 
-template<class CharT>
+template<typename CharT>
 struct clock_string<ndn::time::system_clock, CharT>
 {
   static std::basic_string<CharT>
   since();
 };
 
-template<class CharT>
+template<typename CharT>
 struct clock_string<ndn::time::steady_clock, CharT>
 {
   static std::basic_string<CharT>

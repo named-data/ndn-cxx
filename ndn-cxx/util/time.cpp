@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -102,27 +102,27 @@ steady_clock::to_wait_duration(steady_clock::duration d)
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-const system_clock::TimePoint&
+const system_clock::time_point&
 getUnixEpoch()
 {
-  static constexpr system_clock::TimePoint epoch(seconds::zero());
+  static constexpr system_clock::time_point epoch(seconds::zero());
   return epoch;
 }
 
 milliseconds
-toUnixTimestamp(const system_clock::TimePoint& point)
+toUnixTimestamp(const system_clock::time_point& point)
 {
   return duration_cast<milliseconds>(point - getUnixEpoch());
 }
 
-system_clock::TimePoint
+system_clock::time_point
 fromUnixTimestamp(milliseconds duration)
 {
   return getUnixEpoch() + duration;
 }
 
 static boost::posix_time::ptime
-convertToPosixTime(const system_clock::TimePoint& timePoint)
+convertToPosixTime(const system_clock::time_point& timePoint)
 {
   namespace bpt = boost::posix_time;
   static bpt::ptime epoch(boost::gregorian::date(1970, 1, 1));
@@ -140,12 +140,18 @@ convertToPosixTime(const system_clock::TimePoint& timePoint)
 }
 
 std::string
-toIsoString(const system_clock::TimePoint& timePoint)
+toIsoString(const system_clock::time_point& timePoint)
 {
   return boost::posix_time::to_iso_string(convertToPosixTime(timePoint));
 }
 
-static system_clock::TimePoint
+std::string
+toIsoExtendedString(const system_clock::time_point& timePoint)
+{
+  return boost::posix_time::to_iso_extended_string(convertToPosixTime(timePoint));
+}
+
+static system_clock::time_point
 convertToTimePoint(const boost::posix_time::ptime& ptime)
 {
   namespace bpt = boost::posix_time;
@@ -154,18 +160,24 @@ convertToTimePoint(const boost::posix_time::ptime& ptime)
   // .total_seconds() has an issue with large dates until Boost 1.66, see #4478.
   // time_t overflows for large dates on 32-bit platforms (Y2038 problem).
   auto sinceEpoch = ptime - epoch;
-  auto point = system_clock::TimePoint(seconds(sinceEpoch.ticks() / bpt::time_duration::ticks_per_second()));
+  auto point = system_clock::time_point(seconds(sinceEpoch.ticks() / bpt::time_duration::ticks_per_second()));
   return point + microseconds(sinceEpoch.total_microseconds() % 1000000);
 }
 
-system_clock::TimePoint
+system_clock::time_point
 fromIsoString(const std::string& isoString)
 {
   return convertToTimePoint(boost::posix_time::from_iso_string(isoString));
 }
 
+system_clock::time_point
+fromIsoExtendedString(const std::string& isoString)
+{
+  return convertToTimePoint(boost::posix_time::from_iso_extended_string(isoString));
+}
+
 std::string
-toString(const system_clock::TimePoint& timePoint,
+toString(const system_clock::time_point& timePoint,
          const std::string& format/* = "%Y-%m-%d %H:%M:%S"*/,
          const std::locale& locale/* = std::locale("C")*/)
 {
@@ -179,7 +191,7 @@ toString(const system_clock::TimePoint& timePoint,
   return os.str();
 }
 
-system_clock::TimePoint
+system_clock::time_point
 fromString(const std::string& timePointStr,
            const std::string& format/* = "%Y-%m-%d %H:%M:%S"*/,
            const std::locale& locale/* = std::locale("C")*/)
