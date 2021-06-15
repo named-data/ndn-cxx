@@ -28,9 +28,13 @@ namespace ndn {
 namespace tlv {
 namespace security {
 
-enum {
+/**
+ * @brief TLV-TYPE numbers for SafeBag and related elements
+ * @sa <a href="../specs/safe-bag.html">SafeBag Format</a>
+ */
+enum : uint32_t {
   SafeBag = 128,
-  EncryptedKeyBag = 129
+  EncryptedKey = 129,
 };
 
 } // namespace security

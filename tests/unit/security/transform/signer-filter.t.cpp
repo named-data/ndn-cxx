@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
 BOOST_AUTO_TEST_SUITE(Hmac)
 
 // Test vectors from RFC 4231
-// https://tools.ietf.org/html/rfc4231#section-4
+// https://datatracker.ietf.org/doc/html/rfc4231#section-4
 BOOST_AUTO_TEST_CASE(Rfc4231Test1)
 {
   // Test case 1

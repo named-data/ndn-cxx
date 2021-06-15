@@ -34,7 +34,7 @@ inline namespace v2 {
 
 /**
  * @brief Represents an %AdditionalDescription TLV element.
- * @sa docs/specs/certificate.rst
+ * @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
  */
 class AdditionalDescription
 {

@@ -35,8 +35,8 @@ class ValidationError
 {
 public:
   /**
-   * @brief Known validation error code
-   * @sa specs/validation-error-code.rst
+   * @brief Known validation error codes
+   * @sa <a href="../specs/validation-error-code.html">Validation Error Codes</a>
    */
   enum Code : uint32_t {
     NO_ERROR             = 0,

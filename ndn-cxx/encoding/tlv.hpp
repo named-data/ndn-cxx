@@ -33,9 +33,10 @@
 
 namespace ndn {
 
-/** @brief practical limit of network layer packet size
+/**
+ * @brief Practical size limit of a network-layer packet.
  *
- *  If a packet is longer than this size, library and application MAY drop it.
+ * If a packet is longer than this size, library and application MAY drop it.
  */
 const size_t MAX_NDN_PACKET_SIZE = 8800;
 
@@ -140,9 +141,9 @@ std::ostream&
 operator<<(std::ostream& os, SignatureTypeValue st);
 
 /** @brief TLV-TYPE numbers for SignatureInfo extensions
- *  @sa docs/specs/certificate.rst
+ *  @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
  */
-enum {
+enum : uint32_t {
   ValidityPeriod = 253,
   NotBefore = 254,
   NotAfter = 255,

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -115,7 +115,7 @@ const uint8_t SAFE_BAG[] = {
               0x55, 0xf6, 0x1c, 0x19, 0x0b, 0xef, 0x99, 0x25, 0x1e, 0xdc, 0x78, 0xb3, 0xa7,
               0xaa, 0x0d, 0x14, 0x58, 0x30, 0xe5, 0x37, 0x6a, 0x6d, 0xdb, 0x56, 0xac, 0xa3,
               0xfc, 0x90, 0x7a, 0xb8, 0x66, 0x9c, 0x0e, 0xf6, 0xb7, 0x64, 0xd1,
-      0x81, 0x08, // EncryptedKeyBag
+      0x81, 0x08, // EncryptedKey
           0x2f, 0xd6, 0xf1, 0x6e, 0x80, 0x6f, 0x10, 0xbe
 };
 
@@ -132,11 +132,11 @@ BOOST_AUTO_TEST_CASE(Constructor)
   SafeBag safeBag3(data, buffer);
 
   BOOST_CHECK(safeBag1.getCertificate() == data);
-  BOOST_CHECK(safeBag1.getEncryptedKeyBag() == buffer);
+  BOOST_CHECK(safeBag1.getEncryptedKey() == buffer);
   BOOST_CHECK(safeBag2.getCertificate() == data);
-  BOOST_CHECK(safeBag2.getEncryptedKeyBag() == buffer);
+  BOOST_CHECK(safeBag2.getEncryptedKey() == buffer);
   BOOST_CHECK(safeBag3.getCertificate() == data);
-  BOOST_CHECK(safeBag3.getEncryptedKeyBag() == buffer);
+  BOOST_CHECK(safeBag3.getEncryptedKey() == buffer);
 }
 
 BOOST_AUTO_TEST_CASE(EncoderAndDecoder)
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(EncoderAndDecoder)
   safeBag2.wireDecode(wireBlock);
 
   // check equal
-  Buffer buffer1 = safeBag2.getEncryptedKeyBag();
+  Buffer buffer1 = safeBag2.getEncryptedKey();
   Buffer buffer2(ENCRYPTED_KEY_BAG, sizeof(ENCRYPTED_KEY_BAG));
   BOOST_CHECK(buffer1 == buffer2);
 }

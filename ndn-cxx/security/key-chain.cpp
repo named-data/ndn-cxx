@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -388,7 +388,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
 
   try {
     m_tpm->importPrivateKey(keyName,
-                            safeBag.getEncryptedKeyBag().data(), safeBag.getEncryptedKeyBag().size(),
+                            safeBag.getEncryptedKey().data(), safeBag.getEncryptedKey().size(),
                             pw, pwLen);
   }
   catch (const Tpm::Error&) {

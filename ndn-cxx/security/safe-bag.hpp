@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,12 +27,13 @@
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/buffer.hpp"
-#include "ndn-cxx/security/security-common.hpp"
 
 namespace ndn {
 namespace security {
 
-/** @brief a secured container for sensitive information(certificate, private key)
+/**
+ * @brief A secured container for sensitive information (certificate, private key)
+ * @sa <a href="../specs/safe-bag.html">SafeBag Format</a>
  */
 class SafeBag
 {
@@ -49,20 +50,20 @@ public:
   SafeBag(const Block& wire);
 
   /**
-   * @brief Create a new Safe object with the given certificate and private key
+   * @brief Create a new SafeBag object with the given certificate and private key
    *
    * @param certificate A reference to the certificate data packet
-   * @param encryptedKeyBag A reference to the Buffer of private key in PKCS#8
+   * @param encryptedKey A reference to a Buffer with the private key in PKCS #8 format
    */
   SafeBag(const Data& certificate,
-          const Buffer& encryptedKeyBag);
+          const Buffer& encryptedKey);
 
   /**
-   * @brief Create a new Safe object with the given certificate and private key
+   * @brief Create a new SafeBag object with the given certificate and private key
    *
    * @param certificate A reference to the certificate data packet
-   * @param encryptedKey A reference to the uint8_t* of private key in PKCS#8
-   * @param encryptedKeyLen The length of the encryptedKey
+   * @param encryptedKey A pointer to the private key in PKCS #8 format
+   * @param encryptedKeyLen The length of @p encryptedKey
    */
   SafeBag(const Data& certificate,
           const uint8_t* encryptedKey,
@@ -99,17 +100,17 @@ public:
   }
 
   /**
-   * @brief Get the private key in PKCS#8 from safe bag
+   * @brief Get the private key in PKCS #8 format from safe bag
    */
   const Buffer&
-  getEncryptedKeyBag() const
+  getEncryptedKey() const
   {
-    return m_encryptedKeyBag;
+    return m_encryptedKey;
   }
 
 private:
   Data m_certificate;
-  Buffer m_encryptedKeyBag;
+  Buffer m_encryptedKey;
 
   mutable Block m_wire;
 };

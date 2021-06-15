@@ -1,24 +1,24 @@
 SafeBag Format for Exported Credentials
 =======================================
 
-Sometimes, one may need to export credentials (e.g., certificate and private key) from
-one machine, and import them into another machine.  This requires a secured container for
-sensitive information.  We define **SafeBag**, which contains both an NDN certificate
-(:doc:`version 2.0 <certificate>`) and the corresponding private key, which is encrypted
-in `PKCS #8 format <https://tools.ietf.org/html/rfc5208>`_.
+Sometimes it may be necessary to export an identity's credentials (i.e., private key and
+associated certificate) from one machine and import them into another. This requires a
+secure container to carry the sensitive information. We define **SafeBag**, which contains
+an :doc:`NDN certificate </specs/certificate>` and the corresponding private key in encrypted
+form. The private key is formatted as a DER-encoded
+`EncryptedPrivateKeyInfo <https://datatracker.ietf.org/doc/html/rfc5208#section-6>`__
+structure as described in PKCS #8.
 
-The format of **SafeBag** is defined as:
+The TLV-based format of ``SafeBag`` is defined as follows:
 
 .. code-block:: abnf
 
     SafeBag = SAFE-BAG-TYPE TLV-LENGTH
-                CertificateV2
-                EncryptedKeyBag
+                Certificate
+                EncryptedKey
 
-    EncryptedKeyBag = ENCRYPTED-KEY-BAG-TYPE TLV-LENGTH
-                        *OCTET ; private key encrypted in PKCS #8 format
-
-All TLV-TYPE numbers are application specific:
+    EncryptedKey = ENCRYPTED-KEY-TYPE TLV-LENGTH
+                     *OCTET ; PKCS #8 EncryptedPrivateKeyInfo
 
 +---------------------------------------------+------------------+-----------------+
 | Type                                        | Assigned number  | Assigned number |
@@ -26,5 +26,5 @@ All TLV-TYPE numbers are application specific:
 +=============================================+==================+=================+
 | SafeBag                                     | 128              | 0x80            |
 +---------------------------------------------+------------------+-----------------+
-| EncryptedKeyBag                             | 129              | 0x81            |
+| EncryptedKey                                | 129              | 0x81            |
 +---------------------------------------------+------------------+-----------------+

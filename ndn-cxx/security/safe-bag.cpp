@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,9 +40,9 @@ SafeBag::SafeBag(const Block& wire)
 }
 
 SafeBag::SafeBag(const Data& certificate,
-                 const Buffer& encryptedKeyBag)
+                 const Buffer& encryptedKey)
   : m_certificate(certificate)
-  , m_encryptedKeyBag(encryptedKeyBag)
+  , m_encryptedKey(encryptedKey)
 {
 }
 
@@ -50,11 +50,9 @@ SafeBag::SafeBag(const Data& certificate,
                  const uint8_t* encryptedKey,
                  size_t encryptedKeyLen)
   : m_certificate(certificate)
-  , m_encryptedKeyBag(encryptedKey, encryptedKeyLen)
+  , m_encryptedKey(encryptedKey, encryptedKeyLen)
 {
 }
-
-///////////////////////////////////////////////////// encode & decode
 
 template<encoding::Tag TAG>
 size_t
@@ -62,10 +60,10 @@ SafeBag::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
 
-  // EncryptedKeyBag
-  totalLength += encoder.prependByteArrayBlock(tlv::security::EncryptedKeyBag,
-                                               m_encryptedKeyBag.data(),
-                                               m_encryptedKeyBag.size());
+  // EncryptedKey
+  totalLength += encoder.prependByteArrayBlock(tlv::security::EncryptedKey,
+                                               m_encryptedKey.data(),
+                                               m_encryptedKey.size());
 
   // Certificate
   totalLength += this->m_certificate.wireEncode(encoder);
@@ -111,13 +109,13 @@ SafeBag::wireDecode(const Block& wire)
     NDN_THROW(tlv::Error("Unexpected TLV structure when decoding Certificate"));
   }
 
-  // EncryptedKeyBag
-  if (it != m_wire.elements_end() && it->type() == tlv::security::EncryptedKeyBag) {
-    m_encryptedKeyBag = Buffer(it->value(), it->value_size());
+  // EncryptedKey
+  if (it != m_wire.elements_end() && it->type() == tlv::security::EncryptedKey) {
+    m_encryptedKey = Buffer(it->value(), it->value_size());
     it++;
   }
   else {
-    NDN_THROW(tlv::Error("Unexpected TLV structure when decoding EncryptedKeyBag"));
+    NDN_THROW(tlv::Error("Unexpected TLV structure when decoding EncryptedKey"));
   }
 
   // Check if end

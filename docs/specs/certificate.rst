@@ -45,20 +45,20 @@ and is complementary to the `NDN packet specification
 
 .. code-block:: abnf
 
-    CertificateV2 = DATA-TYPE TLV-LENGTH
-                      Name     ; /<IdentityName>/KEY/<KeyId>/<IssuerId>/<Version>
-                      MetaInfo ; ContentType == KEY, FreshnessPeriod required
-                      CertificateV2Content
-                      CertificateV2SignatureInfo
-                      SignatureValue
+    Certificate = DATA-TYPE TLV-LENGTH
+                    Name     ; /<IdentityName>/KEY/<KeyId>/<IssuerId>/<Version>
+                    MetaInfo ; ContentType == KEY, FreshnessPeriod required
+                    CertificateContent
+                    CertificateSignatureInfo
+                    SignatureValue
 
-    CertificateV2Content = CONTENT-TYPE TLV-LENGTH SubjectPublicKeyInfo
+    CertificateContent = CONTENT-TYPE TLV-LENGTH SubjectPublicKeyInfo
 
-    CertificateV2SignatureInfo = SIGNATURE-INFO-TYPE TLV-LENGTH
+    CertificateSignatureInfo = SIGNATURE-INFO-TYPE TLV-LENGTH
                                    SignatureType
                                    KeyLocator
                                    ValidityPeriod
-                                   *CertificateV2Extension
+                                   *CertificateExtension
 
 
 Name
@@ -103,8 +103,8 @@ The ``FreshnessPeriod`` must be explicitly specified. The recommended value is 3
 Content
 -------
 
-The ``Content`` element of a certificate contains the actual bits of the public key, formatted
-as a DER-encoded `SubjectPublicKeyInfo <https://tools.ietf.org/html/rfc5280#section-4.1.2.7>`__
+The ``Content`` element of a certificate contains the actual bits of the public key, formatted as
+a DER-encoded `SubjectPublicKeyInfo <https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.7>`__
 structure.
 
 SignatureInfo
@@ -176,7 +176,7 @@ key-value pairs to provide further details about the certificate.
 
 .. code-block:: abnf
 
-    CertificateV2Extension = AdditionalDescription
+    CertificateExtension = AdditionalDescription
 
     AdditionalDescription = ADDITIONAL-DESCRIPTION-TYPE TLV-LENGTH
                               1*DescriptionEntry

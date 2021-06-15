@@ -32,7 +32,7 @@ namespace security {
 
 /**
  * @brief Represents a %ValidityPeriod TLV element.
- * @sa docs/specs/certificate.rst
+ * @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
  */
 class ValidityPeriod
 {
