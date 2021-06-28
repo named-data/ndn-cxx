@@ -26,6 +26,7 @@
 
 #include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/net/ethernet.hpp"
+#include "ndn-cxx/util/optional.hpp"
 
 #ifndef NDN_CXX_HAVE_NETLINK
 #error "This file should not be included ..."

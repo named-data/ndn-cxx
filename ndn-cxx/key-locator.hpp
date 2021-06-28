@@ -23,6 +23,7 @@
 #define NDN_CXX_KEY_LOCATOR_HPP
 
 #include "ndn-cxx/name.hpp"
+#include "ndn-cxx/util/variant.hpp"
 
 namespace ndn {
 

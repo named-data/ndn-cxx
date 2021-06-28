@@ -19,24 +19,33 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_UTIL_SCOPE_HPP
-#define NDN_CXX_UTIL_SCOPE_HPP
+#ifndef NDN_CXX_UTIL_VARIANT_HPP
+#define NDN_CXX_UTIL_VARIANT_HPP
 
-#define scope_CONFIG_SELECT_SCOPE scope_SCOPE_NONSTD
-#include "ndn-cxx/detail/nonstd/scope-lite.hpp"
+#define variant_CONFIG_SELECT_VARIANT variant_VARIANT_NONSTD
+#define variant_CONFIG_OMIT_VARIANT_SIZE_V_MACRO 1
+#define variant_CONFIG_OMIT_VARIANT_ALTERNATIVE_T_MACRO 1
+#include "ndn-cxx/detail/nonstd/variant-lite.hpp"
 
 namespace ndn {
 
-using ::nonstd::scope_exit;
-using ::nonstd::scope_fail;
-using ::nonstd::scope_success;
-using ::nonstd::unique_resource;
+using ::nonstd::variant;
+using ::nonstd::monostate;
+using ::nonstd::bad_variant_access;
+using ::nonstd::variant_npos;
+using ::nonstd::variant_size;
+using ::nonstd::variant_size_v;
+using ::nonstd::variant_alternative;
+using ::nonstd::variant_alternative_t;
 
-using ::nonstd::make_scope_exit;
-using ::nonstd::make_scope_fail;
-using ::nonstd::make_scope_success;
-using ::nonstd::make_unique_resource_checked;
+using ::nonstd::visit;
+using ::nonstd::holds_alternative;
+using ::nonstd::get;
+using ::nonstd::get_if;
+
+using ::nonstd::in_place;
+using ::nonstd::in_place_t;
 
 } // namespace ndn
 
-#endif // NDN_CXX_UTIL_SCOPE_HPP
+#endif // NDN_CXX_UTIL_VARIANT_HPP

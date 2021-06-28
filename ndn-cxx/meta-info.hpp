@@ -25,6 +25,7 @@
 #include "ndn-cxx/name-component.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/util/optional.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 #include <list>

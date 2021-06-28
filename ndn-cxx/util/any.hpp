@@ -19,24 +19,22 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_UTIL_SCOPE_HPP
-#define NDN_CXX_UTIL_SCOPE_HPP
+#ifndef NDN_CXX_UTIL_ANY_HPP
+#define NDN_CXX_UTIL_ANY_HPP
 
-#define scope_CONFIG_SELECT_SCOPE scope_SCOPE_NONSTD
-#include "ndn-cxx/detail/nonstd/scope-lite.hpp"
+#define any_CONFIG_SELECT_ANY any_ANY_NONSTD
+#include "ndn-cxx/detail/nonstd/any-lite.hpp"
 
 namespace ndn {
 
-using ::nonstd::scope_exit;
-using ::nonstd::scope_fail;
-using ::nonstd::scope_success;
-using ::nonstd::unique_resource;
+using ::nonstd::any;
+using ::nonstd::any_cast;
+using ::nonstd::bad_any_cast;
+using ::nonstd::make_any;
 
-using ::nonstd::make_scope_exit;
-using ::nonstd::make_scope_fail;
-using ::nonstd::make_scope_success;
-using ::nonstd::make_unique_resource_checked;
+using ::nonstd::in_place;
+using ::nonstd::in_place_t;
 
 } // namespace ndn
 
-#endif // NDN_CXX_UTIL_SCOPE_HPP
+#endif // NDN_CXX_UTIL_ANY_HPP

@@ -24,6 +24,7 @@
 
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/nfd-constants.hpp"
+#include "ndn-cxx/util/optional.hpp"
 
 namespace ndn {
 namespace nfd {

@@ -23,6 +23,7 @@
 #define NDN_CXX_MGMT_NFD_FACE_STATUS_HPP
 
 #include "ndn-cxx/mgmt/nfd/face-traits.hpp"
+#include "ndn-cxx/util/optional.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 namespace ndn {

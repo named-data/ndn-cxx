@@ -24,6 +24,7 @@
 
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/util/concepts.hpp"
+#include "ndn-cxx/util/optional.hpp"
 
 #include <fstream>
 
