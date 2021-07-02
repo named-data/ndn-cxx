@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2020 Regents of the University of California,
+ * Copyright (c) 2014-2021 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -74,45 +74,16 @@ public:
   void
   deliverNack(const Interest& interest, const lp::NackReason& reason)
   {
-    lp::Nack nack = makeNack(interest, reason);
-    subscriberFace.receive(nack);
-  }
-
-  void
-  afterNotification(const SimpleNotification& notification)
-  {
-    lastNotification = notification;
-  }
-
-  void
-  afterNack(const lp::Nack& nack)
-  {
-    lastNack = nack;
-  }
-
-  void
-  afterTimeout()
-  {
-    hasTimeout = true;
-  }
-
-  void
-  afterDecodeError(const Data& data)
-  {
-    lastDecodeErrorData = data;
+    subscriberFace.receive(makeNack(interest, reason));
   }
 
   void
   connectHandlers()
   {
-    notificationConn = subscriber.onNotification.connect(
-      bind(&NotificationSubscriberFixture::afterNotification, this, _1));
-    nackConn = subscriber.onNack.connect(
-      bind(&NotificationSubscriberFixture::afterNack, this, _1));
-    subscriber.onTimeout.connect(
-      bind(&NotificationSubscriberFixture::afterTimeout, this));
-    subscriber.onDecodeError.connect(
-      bind(&NotificationSubscriberFixture::afterDecodeError, this, _1));
+    notificationConn = subscriber.onNotification.connect([this] (const auto& n) { lastNotification = n; });
+    nackConn = subscriber.onNack.connect([this] (const auto& nack) { lastNack = nack; });
+    subscriber.onTimeout.connect([this] { hasTimeout = true; });
+    subscriber.onDecodeError.connect([this] (const auto& data) { lastDecodeErrorData = data; });
   }
 
   void

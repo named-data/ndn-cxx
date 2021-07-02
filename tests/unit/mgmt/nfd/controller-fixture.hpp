@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,8 +42,8 @@ protected:
     : face(m_io, m_keyChain)
     , m_validator(true)
     , controller(face, m_keyChain, m_validator)
-    , commandFailCallback(bind(&ControllerFixture::recordCommandFail, this, _1))
-    , datasetFailCallback(bind(&ControllerFixture::recordDatasetFail, this, _1, _2))
+    , commandFailCallback([this] (const auto& resp) { failCodes.push_back(resp.getCode()); })
+    , datasetFailCallback([this] (auto code, const auto&) { failCodes.push_back(code); })
   {
     m_keyChain.setDefaultIdentity(m_keyChain.createIdentity("/localhost/ControllerFixture"));
   }
@@ -57,19 +57,6 @@ protected:
   setValidationResult(bool shouldAccept)
   {
     m_validator.getPolicy().setResult(shouldAccept);
-  }
-
-private:
-  void
-  recordCommandFail(const ControlResponse& response)
-  {
-    failCodes.push_back(response.getCode());
-  }
-
-  void
-  recordDatasetFail(uint32_t code, const std::string& reason)
-  {
-    failCodes.push_back(code);
   }
 
 protected:

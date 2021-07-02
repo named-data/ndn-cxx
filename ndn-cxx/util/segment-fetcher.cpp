@@ -239,9 +239,8 @@ SegmentFetcher::afterSegmentReceivedCb(const Interest& origInterest, const Data&
   afterSegmentReceived(data);
 
   m_validator.validate(data,
-                       bind(&SegmentFetcher::afterValidationSuccess, this, _1, origInterest,
-                            pendingSegmentIt, weakSelf),
-                       bind(&SegmentFetcher::afterValidationFailure, this, _1, _2, weakSelf));
+    [=] (const Data& d) { afterValidationSuccess(d, origInterest, pendingSegmentIt, weakSelf); },
+    [=] (const Data& d, const auto& error) { afterValidationFailure(d, error, weakSelf); });
 }
 
 void
@@ -323,7 +322,7 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
 }
 
 void
-SegmentFetcher::afterValidationFailure(const Data& data,
+SegmentFetcher::afterValidationFailure(const Data&,
                                        const security::ValidationError& error,
                                        const weak_ptr<SegmentFetcher>& weakSelf)
 {

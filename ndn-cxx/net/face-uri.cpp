@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California,
+ * Copyright (c) 2013-2021 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -330,8 +330,8 @@ public:
       }
 
       dns::asyncResolve(unescapeHost(faceUri.getHost()),
-        bind(&IpHostCanonizeProvider<Protocol>::onDnsSuccess, this, uri, onSuccess, onFailure, _1),
-        bind(&IpHostCanonizeProvider<Protocol>::onDnsFailure, this, uri, onFailure, _1),
+        [=] (const auto& ipAddr) { onDnsSuccess(uri, onSuccess, onFailure, ipAddr); },
+        [=] (const auto& reason) { onDnsFailure(uri, onFailure, reason); },
         io, addressSelector, timeout);
     }
   }
@@ -382,7 +382,7 @@ private:
   }
 
   void
-  onDnsFailure(const shared_ptr<FaceUri>& faceUri,
+  onDnsFailure(const shared_ptr<FaceUri>&,
                const FaceUri::CanonizeFailureCallback& onFailure,
                const std::string& reason) const
   {
@@ -394,7 +394,7 @@ private:
    *          (false,reason) if the address is not allowable.
    */
   virtual std::pair<bool, std::string>
-  checkAddress(const dns::IpAddress& ipAddress) const
+  checkAddress(const dns::IpAddress&) const
   {
     return {true, ""};
   }
@@ -472,7 +472,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, time::nanoseconds timeout) const override
+           boost::asio::io_service&, time::nanoseconds timeout) const override
   {
     auto addr = ethernet::Address::fromString(faceUri.getHost());
     if (addr.isNull()) {
@@ -504,7 +504,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, time::nanoseconds timeout) const override
+           boost::asio::io_service&, time::nanoseconds timeout) const override
   {
     if (faceUri.getHost().empty()) {
       onFailure("network interface name is missing");
@@ -550,7 +550,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, time::nanoseconds timeout) const override
+           boost::asio::io_service&, time::nanoseconds timeout) const override
   {
     if (this->isCanonical(faceUri)) {
       onSuccess(faceUri);

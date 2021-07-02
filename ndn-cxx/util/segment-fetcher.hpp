@@ -71,24 +71,11 @@ namespace util {
  * been successfully validated, #afterSegmentValidated will be signaled.
  *
  * Example:
- *     @code
- *     void
- *     afterFetchComplete(ConstBufferPtr data)
- *     {
- *       ...
- *     }
- *
- *     void
- *     afterFetchError(uint32_t errorCode, const std::string& errorMsg)
- *     {
- *       ...
- *     }
- *
- *     ...
- *     auto fetcher = SegmentFetcher::start(face, Interest("/data/prefix"), validator);
- *     fetcher->onComplete.connect(bind(&afterFetchComplete, this, _1));
- *     fetcher->onError.connect(bind(&afterFetchError, this, _1, _2));
- *     @endcode
+ * @code
+ *   auto fetcher = SegmentFetcher::start(face, Interest("/data/prefix"), validator);
+ *   fetcher->onComplete.connect([] (ConstBufferPtr data) {...});
+ *   fetcher->onError.connect([] (uint32_t errorCode, const std::string& errorMsg) {...});
+ * @endcode
  */
 class SegmentFetcher : noncopyable
 {

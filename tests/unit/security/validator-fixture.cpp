@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,7 +46,7 @@ ValidatorFixtureBase::mockNetworkOperations()
 {
   util::signal::ScopedConnection conn = face.onSendInterest.connect([this] (const Interest& interest) {
     if (processInterest) {
-      m_io.post(bind(processInterest, interest));
+      m_io.post([=] { processInterest(interest); });
     }
   });
   advanceClocks(s_mockPeriod, s_mockTimes);

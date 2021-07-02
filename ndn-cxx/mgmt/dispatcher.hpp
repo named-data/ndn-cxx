@@ -270,24 +270,21 @@ public: // NotificationStream
   addNotificationStream(const PartialName& relPrefix);
 
 private:
-  typedef std::function<void(const Name& prefix,
-                             const Interest& interest)> InterestHandler;
+  using InterestHandler = std::function<void(const Name& prefix, const Interest&)>;
 
-  typedef std::function<void(const std::string& requester,
-                             const Name& prefix,
-                             const Interest& interest,
-                             const shared_ptr<ControlParameters>&)> AuthorizationAcceptedCallback;
+  using AuthorizationAcceptedCallback = std::function<void(const std::string& requester,
+                                                           const Name& prefix,
+                                                           const Interest&,
+                                                           const shared_ptr<ControlParameters>&)>;
 
-  typedef std::function<void(RejectReply act,
-                             const Interest& interest)> AuthorizationRejectedCallback;
+  using AuthorizationRejectedCallback = std::function<void(RejectReply, const Interest&)>;
 
   /**
-   * @brief the parser of extracting control parameters from name component.
-   * @param comp name component that may encode control parameters.
-   * @return a shared pointer to the extracted control parameters.
-   * @throw tlv::Error if the NameComponent cannot be parsed as ControlParameters
+   * @brief the parser for extracting control parameters from a name component.
+   * @return a shared pointer to the extracted ControlParameters.
+   * @throw tlv::Error if the name component cannot be parsed as ControlParameters
    */
-  typedef std::function<shared_ptr<ControlParameters>(const name::Component& comp)> ControlParametersParser;
+  using ControlParametersParser = std::function<shared_ptr<ControlParameters>(const name::Component&)>;
 
   bool
   isOverlappedWithOthers(const PartialName& relPrefix) const;
@@ -404,16 +401,14 @@ private:
                                const AuthorizationRejectedCallback& rejected);
 
   /**
-   * @brief process the authorized status-dataset request
+   * @brief process the authorized StatusDataset request
    *
-   * @param requester the requester
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
-   * @param handler to process this request
+   * @param handler function to process this request
    */
   void
-  processAuthorizedStatusDatasetInterest(const std::string& requester,
-                                         const Name& prefix,
+  processAuthorizedStatusDatasetInterest(const Name& prefix,
                                          const Interest& interest,
                                          const StatusDatasetHandler& handler);
 
@@ -466,20 +461,24 @@ Dispatcher::addControlCommand(const PartialName& relPrefix,
     NDN_THROW(std::out_of_range("relPrefix overlaps with another relPrefix"));
   }
 
-  auto parser = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
+  ControlParametersParser parser = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
     return make_shared<CP>(comp.blockFromValue());
   };
+  AuthorizationAcceptedCallback accepted = [this, validate = std::move(validate),
+                                            handle = std::move(handle)] (auto&&... args) {
+    processAuthorizedControlCommandInterest(std::forward<decltype(args)>(args)..., validate, handle);
+  };
+  AuthorizationRejectedCallback rejected = [this] (auto&&... args) {
+    afterAuthorizationRejected(std::forward<decltype(args)>(args)...);
+  };
 
-  AuthorizationAcceptedCallback accepted =
-    bind(&Dispatcher::processAuthorizedControlCommandInterest, this,
-         _1, _2, _3, _4, std::move(validate), std::move(handle));
-
-  AuthorizationRejectedCallback rejected =
-    bind(&Dispatcher::afterAuthorizationRejected, this, _1, _2);
-
-  m_handlers[relPrefix] = bind(&Dispatcher::processControlCommandInterest, this,
-                               _1, relPrefix, _2, std::move(parser), std::move(authorize),
-                               std::move(accepted), std::move(rejected));
+  m_handlers[relPrefix] = [this, relPrefix,
+                           parser = std::move(parser),
+                           authorize = std::move(authorize),
+                           accepted = std::move(accepted),
+                           rejected = std::move(rejected)] (const auto& prefix, const auto& interest) {
+    processControlCommandInterest(prefix, relPrefix, interest, parser, authorize, accepted, rejected);
+  };
 }
 
 } // namespace mgmt

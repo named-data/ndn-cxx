@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -65,7 +65,7 @@ public:
     interest.setCanBePrefix(false);
     m_keyChain.sign(interest, signingByIdentity(subSubIdentity));
 
-    processInterest = bind(&CertificateFetcherFromNetworkFixture<Response>::makeResponse, this, _1);
+    processInterest = [this] (const Interest& i) { makeResponse(i); };
   }
 
   void

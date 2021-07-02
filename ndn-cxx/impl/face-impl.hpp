@@ -94,8 +94,8 @@ public: // consumer
     this->ensureConnected(true);
 
     const Interest& interest2 = *interest;
-    auto& entry = m_pendingInterestTable.put(id, std::move(interest), afterSatisfied, afterNacked,
-                                             afterTimeout, ref(m_scheduler));
+    auto& entry = m_pendingInterestTable.put(id, std::move(interest), afterSatisfied,
+                                             afterNacked, afterTimeout, m_scheduler);
 
     lp::Packet lpPacket;
     addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest2);
@@ -206,7 +206,7 @@ public: // producer
   processIncomingInterest(shared_ptr<const Interest> interest)
   {
     const Interest& interest2 = *interest;
-    auto& entry = m_pendingInterestTable.insert(std::move(interest), ref(m_scheduler));
+    auto& entry = m_pendingInterestTable.insert(std::move(interest), m_scheduler);
     dispatchInterest(entry, interest2);
   }
 

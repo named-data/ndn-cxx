@@ -31,6 +31,7 @@ namespace mgmt {
 namespace tests {
 
 using namespace ndn::tests;
+using std::bind;
 
 class DispatcherFixture : public IoKeyChainFixture
 {

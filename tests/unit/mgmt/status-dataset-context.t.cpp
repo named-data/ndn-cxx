@@ -229,13 +229,7 @@ BOOST_AUTO_TEST_CASE(Reject)
 class AbnormalStateTestFixture
 {
 protected:
-  AbnormalStateTestFixture()
-    : context(Interest("/abnormal-state"), bind([]{}), bind([]{}))
-  {
-  }
-
-protected:
-  StatusDatasetContext context;
+  StatusDatasetContext context{Interest("/abnormal-state"), [] (auto&&...) {}, [] (auto&&...) {}};
 };
 
 BOOST_FIXTURE_TEST_SUITE(AbnormalState, AbnormalStateTestFixture)

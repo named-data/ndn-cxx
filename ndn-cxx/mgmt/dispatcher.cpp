@@ -77,8 +77,11 @@ Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
 
   for (const auto& entry : m_handlers) {
     Name fullPrefix = Name(prefix).append(entry.first);
-    auto filterHdl = m_face.setInterestFilter(fullPrefix, bind(entry.second, prefix, _2));
-    topPrefixEntry.interestFilters.push_back(filterHdl);
+    auto filterHdl = m_face.setInterestFilter(fullPrefix,
+      [=, cb = entry.second] (const auto&, const auto& interest) {
+        cb(prefix, interest);
+      });
+    topPrefixEntry.interestFilters.emplace_back(std::move(filterHdl));
   }
 }
 
@@ -230,13 +233,14 @@ Dispatcher::addStatusDataset(const PartialName& relPrefix,
   }
 
   AuthorizationAcceptedCallback accepted =
-    bind(&Dispatcher::processAuthorizedStatusDatasetInterest, this, _1, _2, _3, std::move(handle));
-  AuthorizationRejectedCallback rejected =
-    bind(&Dispatcher::afterAuthorizationRejected, this, _1, _2);
+    std::bind(&Dispatcher::processAuthorizedStatusDatasetInterest, this, _2, _3, std::move(handle));
+  AuthorizationRejectedCallback rejected = [this] (auto&&... args) {
+    afterAuthorizationRejected(std::forward<decltype(args)>(args)...);
+  };
 
   // follow the general path if storage is a miss
-  InterestHandler missContinuation = bind(&Dispatcher::processStatusDatasetInterest, this, _1, _2,
-                                          std::move(authorize), std::move(accepted), std::move(rejected));
+  InterestHandler missContinuation = std::bind(&Dispatcher::processStatusDatasetInterest, this, _1, _2,
+                                               std::move(authorize), std::move(accepted), std::move(rejected));
 
   m_handlers[relPrefix] = [this, miss = std::move(missContinuation)] (auto&&... args) {
     this->queryStorage(std::forward<decltype(args)>(args)..., miss);
@@ -263,14 +267,17 @@ Dispatcher::processStatusDatasetInterest(const Name& prefix,
 }
 
 void
-Dispatcher::processAuthorizedStatusDatasetInterest(const std::string& requester,
-                                                   const Name& prefix,
+Dispatcher::processAuthorizedStatusDatasetInterest(const Name& prefix,
                                                    const Interest& interest,
                                                    const StatusDatasetHandler& handler)
 {
   StatusDatasetContext context(interest,
-                               bind(&Dispatcher::sendStatusDatasetSegment, this, _1, _2, _3),
-                               bind(&Dispatcher::sendControlResponse, this, _1, interest, true));
+    [this] (auto&&... args) {
+      sendStatusDatasetSegment(std::forward<decltype(args)>(args)...);
+    },
+    [this, interest] (auto&&... args) {
+      sendControlResponse(std::forward<decltype(args)>(args)..., interest, true);
+    });
   handler(prefix, interest, context);
 }
 

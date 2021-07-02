@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,9 +39,9 @@ public:
   run()
   {
     m_face.setInterestFilter("/example/testApp",
-                             bind(&Producer::onInterest, this, _1, _2),
+                             std::bind(&Producer::onInterest, this, _1, _2),
                              nullptr, // RegisterPrefixSuccessCallback is optional
-                             bind(&Producer::onRegisterFailed, this, _1, _2));
+                             std::bind(&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents();
   }
 

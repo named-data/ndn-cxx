@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,9 +34,9 @@ namespace dns {
 class Resolver : noncopyable
 {
 public:
-  typedef boost::asio::ip::udp protocol;
-  typedef protocol::resolver::iterator iterator;
-  typedef protocol::resolver::query query;
+  using protocol = boost::asio::ip::udp;
+  using iterator = protocol::resolver::iterator;
+  using query = protocol::resolver::query;
 
 public:
   Resolver(boost::asio::io_service& ioService,
@@ -58,7 +58,9 @@ public:
     m_onSuccess = onSuccess;
     m_onError = onError;
 
-    m_resolver.async_resolve(q, bind(&Resolver::onResolveResult, this, _1, _2, self));
+    m_resolver.async_resolve(q, [=] (auto&&... args) {
+      onResolveResult(std::forward<decltype(args)>(args)..., self);
+    });
 
     m_resolveTimeout = m_scheduler.schedule(timeout, [=] { onResolveTimeout(self); });
   }
@@ -122,11 +124,9 @@ private:
   iterator
   selectAddress(iterator it) const
   {
-    while (it != iterator() &&
-           !m_addressSelector(it->endpoint().address())) {
+    while (it != iterator() && !m_addressSelector(it->endpoint().address())) {
       ++it;
     }
-
     return it;
   }
 
@@ -149,7 +149,7 @@ asyncResolve(const std::string& host,
              const AddressSelector& addressSelector,
              time::nanoseconds timeout)
 {
-  auto resolver = make_shared<Resolver>(ref(ioService), addressSelector);
+  auto resolver = make_shared<Resolver>(ioService, addressSelector);
   resolver->asyncResolve(Resolver::query(host, ""), onSuccess, onError, timeout, resolver);
   // resolver will be destroyed when async operation finishes or ioService stops
 }

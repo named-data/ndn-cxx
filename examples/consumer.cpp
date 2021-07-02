@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,9 +46,9 @@ public:
 
     std::cout << "Sending Interest " << interest << std::endl;
     m_face.expressInterest(interest,
-                           bind(&Consumer::onData, this,  _1, _2),
-                           bind(&Consumer::onNack, this, _1, _2),
-                           bind(&Consumer::onTimeout, this, _1));
+                           std::bind(&Consumer::onData, this,  _1, _2),
+                           std::bind(&Consumer::onNack, this, _1, _2),
+                           std::bind(&Consumer::onTimeout, this, _1));
 
     // processEvents will block until the requested data is received or a timeout occurs
     m_face.processEvents();

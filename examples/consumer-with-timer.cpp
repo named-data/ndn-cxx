@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,9 +54,9 @@ public:
 
     std::cout << "Sending Interest " << interest << std::endl;
     m_face.expressInterest(interest,
-                           bind(&ConsumerWithTimer::onData, this, _1, _2),
-                           bind(&ConsumerWithTimer::onNack, this, _1, _2),
-                           bind(&ConsumerWithTimer::onTimeout, this, _1));
+                           std::bind(&ConsumerWithTimer::onData, this, _1, _2),
+                           std::bind(&ConsumerWithTimer::onNack, this, _1, _2),
+                           std::bind(&ConsumerWithTimer::onTimeout, this, _1));
 
     // Schedule a new event
     m_scheduler.schedule(3_s, [this] { delayedInterest(); });
@@ -104,9 +104,9 @@ private:
 
     std::cout << "Sending Interest " << interest << std::endl;
     m_face.expressInterest(interest,
-                           bind(&ConsumerWithTimer::onData, this, _1, _2),
-                           bind(&ConsumerWithTimer::onNack, this, _1, _2),
-                           bind(&ConsumerWithTimer::onTimeout, this, _1));
+                           std::bind(&ConsumerWithTimer::onData, this, _1, _2),
+                           std::bind(&ConsumerWithTimer::onNack, this, _1, _2),
+                           std::bind(&ConsumerWithTimer::onTimeout, this, _1));
   }
 
 private:

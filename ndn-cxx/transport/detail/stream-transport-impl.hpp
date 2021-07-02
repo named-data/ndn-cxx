@@ -179,31 +179,28 @@ protected:
   {
     BOOST_ASSERT(!m_transmissionQueue.empty());
     boost::asio::async_write(m_socket, m_transmissionQueue.front(),
-                             bind(&Impl::handleAsyncWrite, this->shared_from_this(), _1,
-                                  m_transmissionQueue.begin()));
-  }
+      // capture a copy of the shared_ptr to "this" to prevent deallocation
+      [this, self = this->shared_from_this(),
+       queueItem = m_transmissionQueue.begin()] (const auto& error, size_t) {
+        if (error) {
+          if (error == boost::system::errc::operation_canceled) {
+            // async receive has been explicitly cancelled (e.g., socket close)
+            return;
+          }
+          m_transport.close();
+          NDN_THROW(Transport::Error(error, "error while writing data to socket"));
+        }
 
-  void
-  handleAsyncWrite(const boost::system::error_code& error, TransmissionQueue::iterator queueItem)
-  {
-    if (error) {
-      if (error == boost::system::errc::operation_canceled) {
-        // async receive has been explicitly cancelled (e.g., socket close)
-        return;
-      }
-      m_transport.close();
-      NDN_THROW(Transport::Error(error, "error while writing data to socket"));
-    }
+        if (!m_transport.m_isConnected) {
+          return; // queue has been already cleared
+        }
 
-    if (!m_transport.m_isConnected) {
-      return; // queue has been already cleared
-    }
+        m_transmissionQueue.erase(queueItem);
 
-    m_transmissionQueue.erase(queueItem);
-
-    if (!m_transmissionQueue.empty()) {
-      asyncWrite();
-    }
+        if (!m_transmissionQueue.empty()) {
+          asyncWrite();
+        }
+      });
   }
 
   void
@@ -211,42 +208,39 @@ protected:
   {
     m_socket.async_receive(boost::asio::buffer(m_inputBuffer + m_inputBufferSize,
                                                MAX_NDN_PACKET_SIZE - m_inputBufferSize), 0,
-                           bind(&Impl::handleAsyncReceive, this->shared_from_this(), _1, _2));
-  }
+      // capture a copy of the shared_ptr to "this" to prevent deallocation
+      [this, self = this->shared_from_this()] (const auto& error, size_t nBytesRecvd) {
+        if (error) {
+          if (error == boost::system::errc::operation_canceled) {
+            // async receive has been explicitly cancelled (e.g., socket close)
+            return;
+          }
+          m_transport.close();
+          NDN_THROW(Transport::Error(error, "error while receiving data from socket"));
+        }
 
-  void
-  handleAsyncReceive(const boost::system::error_code& error, std::size_t nBytesRecvd)
-  {
-    if (error) {
-      if (error == boost::system::errc::operation_canceled) {
-        // async receive has been explicitly cancelled (e.g., socket close)
-        return;
-      }
-      m_transport.close();
-      NDN_THROW(Transport::Error(error, "error while receiving data from socket"));
-    }
+        m_inputBufferSize += nBytesRecvd;
+        // do magic
 
-    m_inputBufferSize += nBytesRecvd;
-    // do magic
+        std::size_t offset = 0;
+        bool hasProcessedSome = processAllReceived(m_inputBuffer, offset, m_inputBufferSize);
+        if (!hasProcessedSome && m_inputBufferSize == MAX_NDN_PACKET_SIZE && offset == 0) {
+          m_transport.close();
+          NDN_THROW(Transport::Error("input buffer full, but a valid TLV cannot be decoded"));
+        }
 
-    std::size_t offset = 0;
-    bool hasProcessedSome = processAllReceived(m_inputBuffer, offset, m_inputBufferSize);
-    if (!hasProcessedSome && m_inputBufferSize == MAX_NDN_PACKET_SIZE && offset == 0) {
-      m_transport.close();
-      NDN_THROW(Transport::Error("input buffer full, but a valid TLV cannot be decoded"));
-    }
+        if (offset > 0) {
+          if (offset != m_inputBufferSize) {
+            std::copy(m_inputBuffer + offset, m_inputBuffer + m_inputBufferSize, m_inputBuffer);
+            m_inputBufferSize -= offset;
+          }
+          else {
+            m_inputBufferSize = 0;
+          }
+        }
 
-    if (offset > 0) {
-      if (offset != m_inputBufferSize) {
-        std::copy(m_inputBuffer + offset, m_inputBuffer + m_inputBufferSize, m_inputBuffer);
-        m_inputBufferSize -= offset;
-      }
-      else {
-        m_inputBufferSize = 0;
-      }
-    }
-
-    asyncReceive();
+        asyncReceive();
+      });
   }
 
   bool

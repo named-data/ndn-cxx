@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -109,7 +109,7 @@ public:
   void
   reschedule()
   {
-    EventId eventId = scheduler.schedule(100_ms, bind(&SelfRescheduleFixture::reschedule, this));
+    EventId eventId = scheduler.schedule(100_ms, [this] { reschedule(); });
     selfEventId.cancel();
     selfEventId = eventId;
 
@@ -125,7 +125,7 @@ public:
     selfEventId.cancel();
 
     if (count < 5)  {
-      selfEventId = scheduler.schedule(100_ms, bind(&SelfRescheduleFixture::reschedule2, this));
+      selfEventId = scheduler.schedule(100_ms, [this] { reschedule2(); });
       count++;
     }
   }
@@ -150,21 +150,21 @@ public:
 
 BOOST_FIXTURE_TEST_CASE(Reschedule, SelfRescheduleFixture)
 {
-  selfEventId = scheduler.schedule(0_s, bind(&SelfRescheduleFixture::reschedule, this));
+  selfEventId = scheduler.schedule(0_s, [this] { reschedule(); });
   BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
   BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule2, SelfRescheduleFixture)
 {
-  selfEventId = scheduler.schedule(0_s, bind(&SelfRescheduleFixture::reschedule2, this));
+  selfEventId = scheduler.schedule(0_s, [this] { reschedule2(); });
   BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
   BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
 {
-  selfEventId = scheduler.schedule(0_s, bind(&SelfRescheduleFixture::reschedule3, this));
+  selfEventId = scheduler.schedule(0_s, [this] { reschedule3(); });
   BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
   BOOST_CHECK_EQUAL(count, 6);
 }

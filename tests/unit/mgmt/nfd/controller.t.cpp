@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,11 +37,6 @@ BOOST_AUTO_TEST_SUITE(Nfd)
 class CommandFixture : public ControllerFixture
 {
 protected:
-  CommandFixture()
-    : succeedCallback(bind(&CommandFixture::succeed, this, _1))
-  {
-  }
-
   void
   respond(const ControlResponse& responsePayload)
   {
@@ -51,15 +46,10 @@ protected:
     this->advanceClocks(1_ms);
   }
 
-private:
-  void
-  succeed(const ControlParameters& parameters)
-  {
-    succeeds.push_back(parameters);
-  }
-
 protected:
-  Controller::CommandSucceedCallback succeedCallback;
+  Controller::CommandSucceedCallback succeedCallback = [this] (const auto& params) {
+    succeeds.push_back(params);
+  };
   std::vector<ControlParameters> succeeds;
 };
 

@@ -74,9 +74,6 @@ using std::dynamic_pointer_cast;
 using std::const_pointer_cast;
 
 using std::function;
-using std::bind;
-using std::ref;
-using std::cref;
 
 using namespace std::string_literals;
 
