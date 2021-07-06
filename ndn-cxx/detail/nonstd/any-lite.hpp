@@ -12,7 +12,7 @@
 #define NONSTD_ANY_LITE_HPP
 
 #define any_lite_MAJOR  0
-#define any_lite_MINOR  2
+#define any_lite_MINOR  4
 #define any_lite_PATCH  0
 
 #define any_lite_VERSION  any_STRINGIFY(any_lite_MAJOR) "." any_STRINGIFY(any_lite_MINOR) "." any_STRINGIFY(any_lite_PATCH)
@@ -26,6 +26,20 @@
 #define any_ANY_NONSTD   1
 #define any_ANY_STD      2
 
+// tweak header support:
+
+#ifdef __has_include
+# if __has_include(<nonstd/any.tweak.hpp>)
+#  include <nonstd/any.tweak.hpp>
+# endif
+#define any_HAVE_TWEAK_HEADER  1
+#else
+#define any_HAVE_TWEAK_HEADER  0
+//# pragma message("any.hpp: Note: Tweak header not supported.")
+#endif
+
+// any selection and configuration:
+
 #if !defined( any_CONFIG_SELECT_ANY )
 # define any_CONFIG_SELECT_ANY  ( any_HAVE_STD_ANY ? any_ANY_STD : any_ANY_NONSTD )
 #endif
@@ -33,7 +47,10 @@
 // Control presence of exception handling (try and auto discover):
 
 #ifndef any_CONFIG_NO_EXCEPTIONS
-# if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
+# if _MSC_VER
+#  include <cstddef>    // for _HAS_EXCEPTIONS
+# endif
+# if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || (_HAS_EXCEPTIONS)
 #  define any_CONFIG_NO_EXCEPTIONS  0
 # else
 #  define any_CONFIG_NO_EXCEPTIONS  1
@@ -249,6 +266,7 @@ namespace nonstd {
 #define any_HAVE_TYPE_TRAITS            any_CPP11_90
 #define any_HAVE_STATIC_ASSERT          any_CPP11_100
 #define any_HAVE_ADD_CONST              any_CPP11_90
+#define any_HAVE_OVERRIDE               any_CPP11_90
 #define any_HAVE_REMOVE_REFERENCE       any_CPP11_90
 
 #define any_HAVE_TR1_ADD_CONST          (!! any_COMPILER_GNUC_VERSION )
@@ -293,6 +311,12 @@ namespace nonstd {
 # define any_nodiscard [[nodiscard]]
 #else
 # define any_nodiscard /*[[nodiscard]]*/
+#endif
+
+#if any_HAVE_OVERRIDE
+# define any_override override
+#else
+# define any_override /*override*/
 #endif
 
 // additional includes:
@@ -390,7 +414,7 @@ class bad_any_cast : public std::bad_cast
 {
 public:
 #if any_CPP11_OR_GREATER
-    virtual const char* what() const any_noexcept
+    virtual const char* what() const any_noexcept any_override
 #else
     virtual const char* what() const throw()
 #endif
@@ -476,7 +500,7 @@ public:
         class ValueType, class T = typename std::decay<ValueType>::type
         any_REQUIRES_T( ! std::is_same<T, any>::value )
     >
-    any & operator=( ValueType && value )
+    any & operator=( T && value )
     {
         any( std::move( value ) ).swap( *this );
         return *this;
@@ -571,12 +595,12 @@ private:
         {}
 #endif
 
-        virtual std::type_info const & type() const
+        virtual std::type_info const & type() const any_override
         {
             return typeid( ValueType );
         }
 
-        virtual placeholder * clone() const
+        virtual placeholder * clone() const any_override
         {
             return new holder( held );
         }
