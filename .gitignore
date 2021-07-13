@@ -27,3 +27,4 @@ __pycache__/
 
 # Other
 /VERSION.info
+/examples/example-trust-anchor.cert

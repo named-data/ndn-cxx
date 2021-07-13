@@ -17,8 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
 #include <ndn-cxx/face.hpp>
@@ -38,9 +36,16 @@ public:
   void
   run()
   {
-    m_face.setInterestFilter("/example/testApp",
+    m_face.setInterestFilter("/example/testApp/randomData",
                              std::bind(&Producer::onInterest, this, _1, _2),
                              nullptr, // RegisterPrefixSuccessCallback is optional
+                             std::bind(&Producer::onRegisterFailed, this, _1, _2));
+
+    auto cert = m_keyChain.getPib().getDefaultIdentity().getDefaultKey().getDefaultCertificate();
+    m_certServeHandle = m_face.setInterestFilter(security::extractIdentityFromCertName(cert.getName()),
+                             [this, cert] (auto&&...) {
+                               m_face.put(cert);
+                             },
                              std::bind(&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents();
   }
@@ -57,6 +62,18 @@ private:
     auto data = make_shared<Data>(interest.getName());
     data->setFreshnessPeriod(10_s);
     data->setContent(reinterpret_cast<const uint8_t*>(content.data()), content.size());
+
+    // in order for the consumer application to be able to validate the packet, you need to setup
+    // the following keys:
+    // 1. Generate example trust anchor
+    //
+    //         ndnsec key-gen /example
+    //         ndnsec cert-dump -i /example > example-trust-anchor.cert
+    //
+    // 2. Create a key for the producer and sign it with the example trust anchor
+    //
+    //         ndnsec key-gen /example/testApp
+    //         ndnsec sign-req /example/testApp | ndnsec cert-gen -s /example -i example | ndnsec cert-install -
 
     // Sign Data packet with default identity
     m_keyChain.sign(*data);
@@ -81,6 +98,7 @@ private:
 private:
   Face m_face;
   KeyChain m_keyChain;
+  ScopedRegisteredPrefixHandle m_certServeHandle;
 };
 
 } // namespace examples

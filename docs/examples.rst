@@ -18,7 +18,7 @@ callbacks to be called when Data/Nack is retrieved or Interest times out.
 .. literalinclude:: ../examples/consumer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 39-45,48,59,65,71
+   :emphasize-lines: 43-49,52-55,63,77,83
 
 Trivial producer
 ----------------
@@ -41,7 +41,7 @@ using :ndn-cxx:`Face::put` method.
 .. literalinclude:: ../examples/producer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 41,50,57-59,62,70,74
+   :emphasize-lines: 39-42,55,62-64,79,87,91
 
 Consumer that uses Scheduler
 ----------------------------
@@ -64,4 +64,4 @@ Interest approximately 3 seconds after the first one.
 .. literalinclude:: ../examples/consumer-with-timer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 39-40,56,62,93,106,114-116
+   :emphasize-lines: 37-38,54-57,60,91,104-107,112-114

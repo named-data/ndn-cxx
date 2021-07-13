@@ -17,11 +17,10 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
  */
 
 #include <ndn-cxx/face.hpp>
+#include <ndn-cxx/security/validator-config.hpp>
 
 #include <iostream>
 
@@ -33,6 +32,11 @@ namespace examples {
 class Consumer
 {
 public:
+  Consumer()
+  {
+    m_validator.load("trust-schema.conf");
+  }
+
   void
   run()
   {
@@ -56,9 +60,17 @@ public:
 
 private:
   void
-  onData(const Interest&, const Data& data) const
+  onData(const Interest&, const Data& data)
   {
     std::cout << "Received Data " << data << std::endl;
+
+    m_validator.validate(data,
+                         [] (const Data&) {
+                           std::cout << "Data conforms to trust schema" << std::endl;
+                         },
+                         [] (const Data&, const security::ValidationError& error) {
+                           std::cout << "Error authenticating data: " << error << std::endl;
+                         });
   }
 
   void
@@ -75,6 +87,7 @@ private:
 
 private:
   Face m_face;
+  ValidatorConfig m_validator{m_face};
 };
 
 } // namespace examples
