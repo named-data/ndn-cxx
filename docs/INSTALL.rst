@@ -44,7 +44,7 @@ development tools and libraries:
 
     In a terminal, enter::
 
-        sudo apt install g++ pkg-config python3-minimal libboost-all-dev libssl-dev libsqlite3-dev
+        sudo apt install build-essential pkg-config python3-minimal libboost-all-dev libssl-dev libsqlite3-dev
 
 - On **CentOS** and **Fedora**
 
@@ -93,7 +93,7 @@ The following lists the steps to install these prerequisites on various common p
   .. code-block:: sh
 
     sudo apt install doxygen graphviz python3-pip
-    sudo pip3 install sphinx sphinxcontrib-doxylink
+    pip3 install --user sphinx sphinxcontrib-doxylink
 
 - On **CentOS** and **Fedora**:
 
@@ -108,7 +108,7 @@ The following lists the steps to install these prerequisites on various common p
   .. code-block:: sh
 
     brew install doxygen graphviz
-    sudo pip install sphinx sphinxcontrib-doxylink
+    sudo pip3 install sphinx sphinxcontrib-doxylink
 
 - On **FreeBSD**:
 
