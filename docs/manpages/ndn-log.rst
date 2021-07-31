@@ -1,5 +1,8 @@
-ndn-log
-=======
+ndn-cxx logging
+===============
+
+Description
+-----------
 
 The ndn-cxx logging facility exposes the internal state of NDN libraries and
 applications so the user can investigate internal interactions, such as interest
@@ -8,8 +11,8 @@ sync and recovery Interest processing inside ChronoSync, etc. During runtime, th
 user is able to specify the types of messages he or she would like to receive from
 a set of logging modules pre-configured by library and application developers.
 
-Environment Variable
---------------------
+Environment
+-----------
 
 One way to control ndn-cxx logging facility is through the environment variable
 ``NDN_LOG``. Using this variable, one can set the log levels for the available logging

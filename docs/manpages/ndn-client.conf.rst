@@ -1,6 +1,9 @@
 client.conf
 ===========
 
+Description
+-----------
+
 System configuration of NDN platform is specified in ``client.conf``.
 
 The configuration file ``client.conf`` is looked up in several directories in the following order:
@@ -13,11 +16,11 @@ The configuration file ``client.conf`` is looked up in several directories in th
 Here is an example of ``client.conf`` for the current ndn-cxx package:
 
 .. literalinclude:: ../../client.conf.sample
-   :language: ini
+    :language: ini
 
 
-NFD
----
+Forwarder
+---------
 
 transport
   FaceUri for default connection toward local NDN forwarder.  Only ``unix``, ``tcp``, ``tcp4``, and
@@ -38,17 +41,17 @@ pib
 
       pib=[scheme]:[location]
 
-  Possible values for ``[scheme]``:
+  Possible values for ``[scheme]`` are:
 
-  * ``pib-sqlite3``: local PIB implementation with SQLite3 storage engine
+  * ``pib-sqlite3``: local PIB implementation using the SQLite3 storage engine.
 
     Possible values for ``[location]``:
 
-    * absolute path where SQLite3 database will be stored
-    * relative path (relative to ``config.conf``)
-    * empty: default path ``$HOME/.ndn`` will be used
+    * absolute path where the SQLite3 database will be stored
+    * relative path (relative to ``client.conf``)
+    * empty: the default path ``$HOME/.ndn`` will be used
 
-  When ``[location]`` is empty, trailing ``:`` can be omitted.  For example::
+  When ``[location]`` is empty, the trailing ``:`` can be omitted.  For example::
 
      pib=pib-sqlite3
 
@@ -70,12 +73,12 @@ tpm
 
       tpm=[scheme]:[location]
 
-  Possible values for ``[scheme]``:
+  Possible values for ``[scheme]`` are:
 
   * ``tpm-osx-keychain`` (default on macOS): secure storage of private keys in the macOS
     Keychain with OS-provided access restrictions.
 
-    ``[location]`` parameter is ignored.
+    The ``[location]`` parameter is ignored.
 
     May not work for daemon applications, as user interaction may be required to access the
     macOS Keychain.
@@ -86,10 +89,10 @@ tpm
 
     * absolute path to directory that will store private/public key files (unencrypted with
       ``0700`` permission)
-    * relative path (relative to ``config.conf``)
-    * empty: default path ``$HOME/.ndn/ndnsec-tpm-file`` will be used
+    * relative path (relative to ``client.conf``)
+    * empty: the default path ``$HOME/.ndn/ndnsec-tpm-file`` will be used
 
-  When ``[location]`` is empty, trailing ``:`` can be omitted.  For example::
+  When ``[location]`` is empty, the trailing ``:`` can be omitted.  For example::
 
      tpm=tpm-file
 

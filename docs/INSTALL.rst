@@ -78,7 +78,7 @@ development tools and libraries:
 Optional
 ~~~~~~~~
 
-To build tutorials, manpages, and API documentation the following additional dependencies
+To build tutorials, man pages, and API documentation the following additional dependencies
 need to be installed:
 
 -  doxygen
@@ -278,9 +278,9 @@ Tutorials and API documentation can be built using the following commands:
     # Only API docs in build/docs/doxygen
     ./waf doxygen
 
-If ``sphinx-build`` is detected during ``./waf configure``, manpages will automatically
+If ``sphinx-build`` is detected during ``./waf configure``, man pages will automatically
 be built and installed during the normal build process (i.e., during ``./waf`` and
-``./waf install``). By default, manpages will be installed into ``${PREFIX}/share/man``
+``./waf install``). By default, man pages will be installed into ``${PREFIX}/share/man``
 (the default value for ``PREFIX`` is ``/usr/local``). This location can be changed
 during the ``./waf configure`` stage using the ``--prefix``, ``--datarootdir``, or
 ``--mandir`` options.

@@ -21,51 +21,40 @@ provides a command-line interface for managing and using the NDN security data.
 Commands
 --------
 
-list_
+The following commands are understood:
+
+:doc:`list <ndnsec-list>`
   List all known identities/keys/certificates.
 
-get-default_
+:doc:`get-default <ndnsec-get-default>`
   Show the default identity/key/certificate.
 
-set-default_
+:doc:`set-default <ndnsec-set-default>`
   Change the default identity/key/certificate.
 
-delete_
+:doc:`delete <ndnsec-delete>`
   Delete an identity/key/certificate.
 
-key-gen_
+:doc:`key-gen <ndnsec-key-gen>`
   Generate a key for an identity.
 
-sign-req_
+:doc:`sign-req <ndnsec-sign-req>`
   Generate a certificate signing request.
 
-cert-gen_
+:doc:`cert-gen <ndnsec-cert-gen>`
   Create a certificate for an identity.
 
-cert-dump_
+:doc:`cert-dump <ndnsec-cert-dump>`
   Export a certificate.
 
-cert-install_
+:doc:`cert-install <ndnsec-cert-install>`
   Import a certificate from a file.
 
-export_
+:doc:`export <ndnsec-export>`
   Export an identity as a SafeBag.
 
-import_
+:doc:`import <ndnsec-import>`
   Import an identity from a SafeBag.
 
-unlock-tpm_
+:doc:`unlock-tpm <ndnsec-unlock-tpm>`
   Unlock the TPM.
-
-.. _list: ndnsec-list.html
-.. _get-default: ndnsec-get-default.html
-.. _set-default: ndnsec-set-default.html
-.. _delete: ndnsec-delete.html
-.. _key-gen: ndnsec-key-gen.html
-.. _sign-req: ndnsec-sign-req.html
-.. _cert-gen: ndnsec-cert-gen.html
-.. _cert-dump: ndnsec-cert-dump.html
-.. _cert-install: ndnsec-cert-install.html
-.. _export: ndnsec-export.html
-.. _import: ndnsec-import.html
-.. _unlock-tpm: ndnsec-unlock-tpm.html
