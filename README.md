@@ -1,8 +1,9 @@
 # ndn-cxx: NDN C++ library with eXperimental eXtensions
 
-![Language](https://img.shields.io/badge/C%2B%2B-14-blue.svg)
-[![Build Status](https://travis-ci.org/named-data/ndn-cxx.svg?branch=master)](https://travis-ci.org/named-data/ndn-cxx)
-![Latest Version](https://img.shields.io/github/tag/named-data/ndn-cxx.svg?color=darkkhaki&label=latest%20version)
+[![CI](https://github.com/named-data/ndn-cxx/actions/workflows/ci.yml/badge.svg)](https://github.com/named-data/ndn-cxx/actions/workflows/ci.yml)
+[![Docs](https://github.com/named-data/ndn-cxx/actions/workflows/docs.yml/badge.svg)](https://github.com/named-data/ndn-cxx/actions/workflows/docs.yml)
+![Language](https://img.shields.io/badge/C%2B%2B-14-blue)
+![Latest version](https://img.shields.io/github/v/tag/named-data/ndn-cxx?label=Latest%20version)
 
 **ndn-cxx** is a C++14 library implementing Named Data Networking (NDN) primitives
 that can be used to write various NDN applications. The library is currently being
