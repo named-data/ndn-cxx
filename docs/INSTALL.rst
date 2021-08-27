@@ -9,19 +9,22 @@ following platforms:
 
 -  Ubuntu 18.04 (amd64, armhf, i386)
 -  Ubuntu 20.04 (amd64)
--  macOS 10.13
--  macOS 10.14
+-  Ubuntu 21.04 (amd64)
 -  macOS 10.15
 -  CentOS 8
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
 
--  Debian 10 (Buster)
+-  Alpine >= 3.12
+-  Debian >= 10
 -  Fedora >= 29
 -  Gentoo Linux
--  Raspbian >= 2019-06-20 (Buster)
+-  Raspberry Pi OS (formerly Raspbian) >= 2019-06-20
 -  FreeBSD >= 11.3
+-  macOS 10.13
+-  macOS 10.14
+-  macOS 11 (Intel only)
 
 Prerequisites
 -------------
@@ -87,6 +90,14 @@ need to be installed:
 -  sphinxcontrib-doxylink
 
 The following lists the steps to install these prerequisites on various common platforms.
+
+.. note::
+  On Linux, you may need to add ``$HOME/.local/bin`` to the ``PATH`` environment variable
+  for your user, for example:
+
+  .. code-block:: sh
+
+      export PATH="${HOME}/.local/bin${PATH:+:}${PATH}"
 
 - On **Ubuntu**:
 
