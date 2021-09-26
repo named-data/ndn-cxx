@@ -22,6 +22,7 @@
 #include "ndn-cxx/security/tpm/back-end.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
@@ -89,12 +90,14 @@ BOOST_AUTO_TEST_CASE(CreateHmacKey)
 {
   Name identity("/Test/Identity/HMAC");
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   BackEndWrapperMem mem;
   BackEnd& memTpm = mem.getTpm();
   auto key = memTpm.createKey(identity, HmacKeyParams());
   BOOST_REQUIRE(key != nullptr);
   BOOST_CHECK(!key->getKeyName().empty());
   BOOST_CHECK(memTpm.hasKey(key->getKeyName()));
+#endif
 
   BackEndWrapperFile file;
   BackEnd& fileTpm = file.getTpm();
@@ -231,6 +234,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   BOOST_CHECK_EQUAL(tpm.hasKey(ecKeyName), false);
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
 BOOST_AUTO_TEST_CASE(HmacSigningAndVerifying)
 {
   BackEndWrapperMem wrapper;
@@ -263,6 +267,7 @@ BOOST_AUTO_TEST_CASE(HmacSigningAndVerifying)
   tpm.deleteKey(hmacKeyName);
   BOOST_CHECK_EQUAL(tpm.hasKey(hmacKeyName), false);
 }
+#endif
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
 {

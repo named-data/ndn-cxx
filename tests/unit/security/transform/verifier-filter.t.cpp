@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "ndn-cxx/security/transform/verifier-filter.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/key-params.hpp"
 #include "ndn-cxx/security/transform/base64-decode.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
@@ -162,12 +163,14 @@ BOOST_AUTO_TEST_CASE(Hmac)
 
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, sig->data(), sig->size()), Error);
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   bool result = false;
   bufferSource(DATA, sizeof(DATA)) >>
     verifierFilter(DigestAlgorithm::SHA256, *sKey, sig->data(), sig->size()) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(InvalidKey)
