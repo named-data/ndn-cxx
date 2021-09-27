@@ -11,6 +11,7 @@ following platforms:
 -  Ubuntu 20.04 (amd64)
 -  Ubuntu 21.04 (amd64)
 -  macOS 10.15
+-  macOS 11 (Intel only)
 -  CentOS 8
 
 ndn-cxx is known to work on the following platforms, although they are not officially
@@ -24,7 +25,6 @@ supported:
 -  FreeBSD >= 11.3
 -  macOS 10.13
 -  macOS 10.14
--  macOS 11 (Intel only)
 
 Prerequisites
 -------------
