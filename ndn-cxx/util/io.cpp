@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,25 +52,11 @@ loadBuffer(std::istream& is, IoEncoding encoding)
         return os.buf();
     }
   }
-  catch (const t::Error& e) {
+  catch (const std::runtime_error& e) {
     NDN_THROW_NESTED(Error(e.what()));
   }
 
   NDN_THROW(std::invalid_argument("Unknown IoEncoding " + to_string(encoding)));
-}
-
-optional<Block>
-loadBlock(std::istream& is, IoEncoding encoding)
-{
-  try {
-    return make_optional<Block>(loadBuffer(is, encoding));
-  }
-  catch (const std::invalid_argument&) {
-    return nullopt;
-  }
-  catch (const std::runtime_error&) {
-    return nullopt;
-  }
 }
 
 void
@@ -91,17 +77,11 @@ saveBuffer(const uint8_t* buf, size_t size, std::ostream& os, IoEncoding encodin
         return;
     }
   }
-  catch (const t::Error& e) {
+  catch (const std::runtime_error& e) {
     NDN_THROW_NESTED(Error(e.what()));
   }
 
   NDN_THROW(std::invalid_argument("Unknown IoEncoding " + to_string(encoding)));
-}
-
-void
-saveBlock(const Block& block, std::ostream& os, IoEncoding encoding)
-{
-  saveBuffer(block.wire(), block.size(), os, encoding);
 }
 
 } // namespace io

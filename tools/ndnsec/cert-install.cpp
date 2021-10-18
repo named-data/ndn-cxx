@@ -159,8 +159,8 @@ ndnsec_cert_install(int argc, char** argv)
   }
 
   security::Certificate cert;
-  try {
-    if (certFile.find("http://") == 0) {
+  if (certFile.find("http://") == 0) {
+    try {
       std::string host;
       std::string port;
       std::string path;
@@ -172,7 +172,6 @@ ndnsec_cert_install(int argc, char** argv)
         NDN_THROW(HttpException("Request line is not correctly formatted"));
 
       size_t posPort = certFile.find(':', pos);
-
       if (posPort != std::string::npos && posPort < posSlash) {
         // port is specified
         port = certFile.substr(posPort + 1, posSlash - posPort - 1);
@@ -187,13 +186,14 @@ ndnsec_cert_install(int argc, char** argv)
 
       cert = getCertificateHttp(host, port, path);
     }
-    else {
-      cert = loadCertificate(certFile);
+    catch (const std::runtime_error& e) {
+      std::cerr << "ERROR: Cannot download the certificate from '" << certFile
+                << "': " << e.what() << std::endl;
+      return 1;
     }
   }
-  catch (const CannotLoadCertificate&) {
-    std::cerr << "ERROR: Cannot load the certificate from `" << certFile << "`" << std::endl;
-    return 1;
+  else {
+    cert = loadFromFile<security::Certificate>(certFile);
   }
 
   KeyChain keyChain;

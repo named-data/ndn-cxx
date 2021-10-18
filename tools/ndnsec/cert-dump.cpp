@@ -22,8 +22,6 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
-#include "ndn-cxx/util/io.hpp"
-
 #include <boost/asio/ip/tcp.hpp>
 #if BOOST_VERSION < 106700
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
@@ -109,13 +107,7 @@ ndnsec_cert_dump(int argc, char** argv)
 
   security::Certificate certificate;
   if (isFileName) {
-    try {
-      certificate = loadCertificate(name);
-    }
-    catch (const CannotLoadCertificate&) {
-      std::cerr << "ERROR: Cannot load the certificate from `" << name << "`" << std::endl;
-      return 1;
-    }
+    certificate = loadFromFile<security::Certificate>(name);
   }
   else {
     KeyChain keyChain;

@@ -24,8 +24,6 @@
 
 #include "util.hpp"
 
-#include "ndn-cxx/util/io.hpp"
-
 #include <boost/asio/ip/tcp.hpp>
 
 #endif // NDN_CXX_TOOLS_NDNSEC_NDNSEC_PCH_HPP

@@ -23,7 +23,6 @@
 #include "util.hpp"
 
 #include "ndn-cxx/security/impl/openssl.hpp"
-#include "ndn-cxx/util/io.hpp"
 #include "ndn-cxx/util/scope.hpp"
 
 namespace ndn {

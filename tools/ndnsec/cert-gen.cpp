@@ -124,14 +124,7 @@ ndnsec_cert_gen(int argc, char** argv)
 
   KeyChain keyChain;
 
-  security::Certificate certRequest;
-  try {
-    certRequest = loadCertificate(requestFile);
-  }
-  catch (const CannotLoadCertificate&) {
-    std::cerr << "ERROR: Cannot load the request from `" << requestFile << "`" << std::endl;
-    return 1;
-  }
+  auto certRequest = loadFromFile<security::Certificate>(requestFile);
 
   // validate that the content is a public key
   Buffer keyContent = certRequest.getPublicKey();
@@ -165,9 +158,9 @@ ndnsec_cert_gen(int argc, char** argv)
 
   keyChain.sign(cert, security::SigningInfo(identity).setSignatureInfo(signatureInfo));
 
-  const Block& wire = cert.wireEncode();
   {
     using namespace security::transform;
+    const auto& wire = cert.wireEncode();
     bufferSource(wire.wire(), wire.size()) >> base64Encode(true) >> streamSink(std::cout);
   }
 

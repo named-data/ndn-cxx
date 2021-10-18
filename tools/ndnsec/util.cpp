@@ -22,7 +22,6 @@
 #include "util.hpp"
 
 #include "ndn-cxx/security/impl/openssl.hpp"
-#include "ndn-cxx/util/io.hpp"
 
 #include <unistd.h>
 
@@ -88,21 +87,6 @@ getCertificateFromPib(const security::pib::Pib& pib, const Name& name,
            .getCertificate(name);
   }
   NDN_CXX_UNREACHABLE;
-}
-
-security::Certificate
-loadCertificate(const std::string& fileName)
-{
-  shared_ptr<security::Certificate> cert;
-  if (fileName == "-")
-    cert = io::load<security::Certificate>(std::cin);
-  else
-    cert = io::load<security::Certificate>(fileName);
-
-  if (cert == nullptr) {
-    NDN_THROW(CannotLoadCertificate(fileName));
-  }
-  return *cert;
 }
 
 } // namespace ndnsec

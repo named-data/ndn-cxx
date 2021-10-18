@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,6 +92,7 @@ BOOST_AUTO_TEST_CASE(SaveBufferException)
 BOOST_AUTO_TEST_CASE(UnknownIoEncoding)
 {
   std::stringstream ss;
+  BOOST_CHECK_THROW(io::loadTlv<Name>(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
   BOOST_CHECK_THROW(io::loadBuffer(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
   BOOST_CHECK_THROW(io::saveBuffer(nullptr, 0, ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
 }
@@ -112,7 +113,8 @@ protected:
     boost::filesystem::remove(filepath, ec); // ignore error
   }
 
-  /** \brief create a directory at filename, so that it's neither readable nor writable as a file
+  /**
+   * \brief create a directory at `filepath`, so that it's neither readable nor writable as a file
    */
   void
   mkdir() const
@@ -171,25 +173,20 @@ public:
   bool shouldThrow = false;
 };
 
-template<bool SHOULD_THROW>
-class DecodableTypeTpl
+class DecodableType
 {
 public:
-  DecodableTypeTpl() = default;
+  DecodableType() = default;
 
   explicit
-  DecodableTypeTpl(const Block& block)
+  DecodableType(const Block& block)
   {
-    this->wireDecode(block);
+    wireDecode(block);
   }
 
   void
   wireDecode(const Block& block)
   {
-    if (SHOULD_THROW) {
-      NDN_THROW(tlv::Error("decode error"));
-    }
-
     // block must be 0xBB, 0x01, 0xEE
     BOOST_CHECK_EQUAL(block.type(), 0xBB);
     BOOST_REQUIRE_EQUAL(block.value_size(), 1);
@@ -197,14 +194,32 @@ public:
   }
 };
 
-using DecodableType = DecodableTypeTpl<false>;
-using DecodableTypeThrow = DecodableTypeTpl<true>;
+class DecodableTypeThrow
+{
+public:
+  DecodableTypeThrow() = default;
+
+  explicit
+  DecodableTypeThrow(const Block& block)
+  {
+    wireDecode(block);
+  }
+
+  void
+  wireDecode(const Block&)
+  {
+    NDN_THROW(tlv::Error("decode error"));
+  }
+};
 
 BOOST_AUTO_TEST_CASE(LoadNoEncoding)
 {
   this->writeFile<std::vector<uint8_t>>({0xBB, 0x01, 0xEE});
   shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::NO_ENCODING);
   BOOST_CHECK(decoded != nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_NO_THROW(io::loadTlv<DecodableType>(ifs, io::NO_ENCODING));
 }
 
 BOOST_AUTO_TEST_CASE(LoadBase64)
@@ -212,6 +227,9 @@ BOOST_AUTO_TEST_CASE(LoadBase64)
   this->writeFile<std::string>("uwHu\n"); // printf '\xBB\x01\xEE' | base64
   shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::BASE64);
   BOOST_CHECK(decoded != nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_NO_THROW(io::loadTlv<DecodableType>(ifs, io::BASE64));
 }
 
 BOOST_AUTO_TEST_CASE(LoadBase64Newline64)
@@ -225,6 +243,9 @@ BOOST_AUTO_TEST_CASE(LoadBase64Newline64)
   //         \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' | base64
   shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
   BOOST_CHECK(decoded != nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
 
 BOOST_AUTO_TEST_CASE(LoadBase64Newline32)
@@ -235,6 +256,9 @@ BOOST_AUTO_TEST_CASE(LoadBase64Newline32)
     "AAAAAAAAAAAA\n");
   shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
   BOOST_CHECK(decoded != nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
 
 BOOST_AUTO_TEST_CASE(LoadBase64NewlineEnd)
@@ -243,6 +267,9 @@ BOOST_AUTO_TEST_CASE(LoadBase64NewlineEnd)
     "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
   shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
   BOOST_CHECK(decoded != nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
 
 BOOST_AUTO_TEST_CASE(LoadBase64NoNewline)
@@ -251,6 +278,9 @@ BOOST_AUTO_TEST_CASE(LoadBase64NoNewline)
     "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
   BOOST_CHECK(decoded != nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
 
 BOOST_AUTO_TEST_CASE(LoadHex)
@@ -258,14 +288,20 @@ BOOST_AUTO_TEST_CASE(LoadHex)
   this->writeFile<std::string>("BB01EE");
   shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::HEX);
   BOOST_CHECK(decoded != nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_NO_THROW(io::loadTlv<DecodableType>(ifs, io::HEX));
 }
 
-BOOST_AUTO_TEST_CASE(LoadException)
+BOOST_AUTO_TEST_CASE(LoadDecodeException)
 {
   this->writeFile<std::vector<uint8_t>>({0xBB, 0x01, 0xEE});
   shared_ptr<DecodableTypeThrow> decoded;
   BOOST_CHECK_NO_THROW(decoded = io::load<DecodableTypeThrow>(filename, io::NO_ENCODING));
   BOOST_CHECK(decoded == nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_THROW(io::loadTlv<DecodableTypeThrow>(ifs, io::NO_ENCODING), io::Error);
 }
 
 BOOST_AUTO_TEST_CASE(LoadNotHex)
@@ -274,6 +310,20 @@ BOOST_AUTO_TEST_CASE(LoadNotHex)
   shared_ptr<DecodableType> decoded;
   BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::HEX));
   BOOST_CHECK(decoded == nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_THROW(io::loadTlv<DecodableType>(ifs, io::HEX), io::Error);
+}
+
+BOOST_AUTO_TEST_CASE(LoadEmpty)
+{
+  this->writeFile<std::vector<uint8_t>>({});
+  shared_ptr<DecodableType> decoded;
+  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::NO_ENCODING));
+  BOOST_CHECK(decoded == nullptr);
+
+  std::ifstream ifs(filename);
+  BOOST_CHECK_THROW(io::loadTlv<DecodableType>(ifs, io::NO_ENCODING), io::Error);
 }
 
 BOOST_AUTO_TEST_CASE(LoadFileNotReadable)

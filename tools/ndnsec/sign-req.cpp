@@ -22,8 +22,6 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
-#include "ndn-cxx/util/io.hpp"
-
 namespace ndn {
 namespace ndnsec {
 

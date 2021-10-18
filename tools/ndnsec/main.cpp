@@ -22,6 +22,7 @@
 #include "ndnsec.hpp"
 
 #include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/logging.hpp"
 #include "ndn-cxx/version.hpp"
 
 #include <boost/exception/diagnostic_information.hpp>
@@ -111,6 +112,7 @@ main(int argc, char* argv[])
   catch (const std::exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl;
     NDN_LOG_ERROR(boost::diagnostic_information(e));
+    ndn::util::Logging::flush();
     return 1;
   }
 
