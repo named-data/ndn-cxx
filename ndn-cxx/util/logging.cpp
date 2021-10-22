@@ -94,24 +94,20 @@ Logging::get()
 
 Logging::Logging()
 {
-  // cannot call the static setDestination, as the singleton object is not yet constructed
 #ifndef __ANDROID__
-  bool wantAutoFlush = true;
-  const char* environ = std::getenv("NDN_LOG_NOFLUSH");
-  if (environ != nullptr) {
-    wantAutoFlush = false;
-  }
-
-  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&std::clog, [] (auto) {}),
+  bool wantAutoFlush = std::getenv("NDN_LOG_NOFLUSH") == nullptr;
+  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&std::clog, [] (auto&&) {}),
                                                   wantAutoFlush);
 #else
   auto destination = detail::makeAndroidLogger();
 #endif // __ANDROID__
+
+  // cannot call the static setDestination(), as the singleton object is not yet constructed
   this->setDestinationImpl(std::move(destination));
 
-  environ = std::getenv("NDN_LOG");
-  if (environ != nullptr) {
-    this->setLevelImpl(environ);
+  const char* env = std::getenv("NDN_LOG");
+  if (env != nullptr) {
+    this->setLevelImpl(env);
   }
 
   boost::log::core::get()->add_global_attribute("Timestamp",
@@ -260,7 +256,8 @@ Logging::resetLevels()
 void
 Logging::setDestination(std::ostream& os, bool wantAutoFlush)
 {
-  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, [] (auto) {}), wantAutoFlush);
+  auto destination = makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, [] (auto&&) {}),
+                                                  wantAutoFlush);
   setDestination(std::move(destination));
 }
 
@@ -271,7 +268,7 @@ public:
     : m_stdPtr(std::move(os))
   {
     auto_flush(wantAutoFlush);
-    add_stream(boost::shared_ptr<std::ostream>(m_stdPtr.get(), [] (auto) {}));
+    add_stream(boost::shared_ptr<std::ostream>(m_stdPtr.get(), [] (auto&&) {}));
   }
 
 private:
