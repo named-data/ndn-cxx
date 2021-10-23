@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Martin Moene
+// Copyright (c) 2014-2021 Martin Moene
 //
 // https://github.com/martinmoene/optional-lite
 //
@@ -12,7 +12,7 @@
 #define NONSTD_OPTIONAL_LITE_HPP
 
 #define optional_lite_MAJOR  3
-#define optional_lite_MINOR  4
+#define optional_lite_MINOR  5
 #define optional_lite_PATCH  0
 
 #define optional_lite_VERSION  optional_STRINGIFY(optional_lite_MAJOR) "." optional_STRINGIFY(optional_lite_MINOR) "." optional_STRINGIFY(optional_lite_PATCH)
@@ -47,7 +47,7 @@
 // Control presence of exception handling (try and auto discover):
 
 #ifndef optional_CONFIG_NO_EXCEPTIONS
-# if _MSC_VER
+# if defined(_MSC_VER)
 # include <cstddef>     // for _HAS_EXCEPTIONS
 # endif
 # if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || (_HAS_EXCEPTIONS)
@@ -1106,7 +1106,7 @@ public:
     >
     optional_constexpr explicit optional( nonstd_lite_in_place_t(T), Args&&... args )
     : has_value_( true )
-    , contained( T( std::forward<Args>(args)...) )
+    , contained( in_place, std::forward<Args>(args)... )
     {}
 
     // 7 (C++11) - in-place construct,  initializer-list

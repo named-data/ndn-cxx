@@ -13,7 +13,7 @@
 #define NONSTD_SCOPE_LITE_HPP
 
 #define scope_lite_MAJOR  0
-#define scope_lite_MINOR  1
+#define scope_lite_MINOR  2
 #define scope_lite_PATCH  0
 
 #define scope_lite_VERSION  scope_STRINGIFY(scope_lite_MAJOR) "." scope_STRINGIFY(scope_lite_MINOR) "." scope_STRINGIFY(scope_lite_PATCH)
@@ -26,6 +26,20 @@
 #define scope_SCOPE_DEFAULT  0
 #define scope_SCOPE_NONSTD   1
 #define scope_SCOPE_STD      2
+
+// tweak header support:
+
+#ifdef __has_include
+# if __has_include(<nonstd/scope.tweak.hpp>)
+#  include <nonstd/scope.tweak.hpp>
+# endif
+#define scope_HAVE_TWEAK_HEADER  1
+#else
+#define scope_HAVE_TWEAK_HEADER  0
+//# pragma message("scope.hpp: Note: Tweak header not supported.")
+#endif
+
+// scope selection and configuration:
 
 #if !defined( scope_CONFIG_SELECT_SCOPE )
 # define scope_CONFIG_SELECT_SCOPE  ( scope_HAVE_STD_SCOPE ? scope_SCOPE_STD : scope_SCOPE_NONSTD )
@@ -203,10 +217,13 @@ namespace nonstd
 #define scope_HAVE_IS_COPY_CONSTRUCTIBLE  scope_CPP11_110
 #define scope_HAVE_IS_MOVE_CONSTRUCTIBLE  scope_CPP11_110
 #define scope_HAVE_IS_NOTHROW_CONSTRUCTIBLE scope_CPP11_110
+#define scope_HAVE_IS_NOTHROW_COPY_CONSTRUCTIBLE scope_CPP11_110
 #define scope_HAVE_IS_NOTHROW_MOVE_CONSTRUCTIBLE scope_CPP11_110
 #define scope_HAVE_IS_COPY_ASSIGNABLE     scope_CPP11_110
 #define scope_HAVE_IS_NOTHROW_ASSIGNABLE  scope_CPP11_110
 #define scope_HAVE_IS_NOTHROW_MOVE_ASSIGNABLE  scope_CPP11_110
+
+#define scope_HAVE_REFERENCE_WRAPPER      scope_CPP11_110
 
 #define scope_HAVE_REMOVE_CV              scope_CPP11_90
 #define scope_HAVE_REMOVE_REFERENCE       scope_CPP11_90
@@ -456,7 +473,6 @@ struct conditional<false, T, F> { typedef F type; };
 #else
     template< class T > struct remove_reference{ typedef T type; };
 #endif
-
 
 #if scope_HAVE( REFERENCE_WRAPPER )
     using std::reference_wrapper;
@@ -1225,14 +1241,11 @@ struct on_success_policy
     }
 };
 
-template< typename Policy >
+template< typename Policy, typename Action >
 class scope_guard : public Policy
 {
 public:
-    typedef void (*Action)();
-
-    template< typename Fn >
-    scope_guard( Fn action )
+    scope_guard( Action action )
         : Policy()
         , action_( action )
     {}
@@ -1255,25 +1268,25 @@ private:
     Action action_;
 };
 
-class scope_exit : public scope_guard< on_exit_policy >
+template< typename Fn = void(*)() >
+class scope_exit : public scope_guard< on_exit_policy, Fn >
 {
 public:
-    template< typename Fn >
-    scope_exit( Fn action ) : scope_guard( action ) {}
+    scope_exit( Fn action ) : scope_guard<on_exit_policy, Fn>( action ) {}
 };
 
-class scope_fail : public scope_guard< on_fail_policy >
+template< typename Fn = void(*)() >
+class scope_fail : public scope_guard< on_fail_policy, Fn >
 {
 public:
-    template< typename Fn >
-    scope_fail( Fn action ) : scope_guard( action ) {}
+    scope_fail( Fn action ) : scope_guard<on_fail_policy, Fn>( action ) {}
 };
 
-class scope_success : public scope_guard< on_success_policy >
+template< typename Fn = void(*)() >
+class scope_success : public scope_guard< on_success_policy, Fn >
 {
 public:
-    template< typename Fn >
-    scope_success( Fn action ) : scope_guard( action ) {}
+    scope_success( Fn action ) : scope_guard<on_success_policy, Fn>( action ) {}
 };
 
 // unique_resource (C++98):
@@ -1380,21 +1393,21 @@ private:
 };
 
 template< class EF >
-scope_exit make_scope_exit( EF action )
+scope_exit<EF> make_scope_exit( EF action )
 {
-    return scope_exit( action );
+    return scope_exit<EF>( action );
 }
 
 template< class EF >
-scope_fail make_scope_fail( EF action )
+scope_fail<EF> make_scope_fail( EF action )
 {
-    return scope_fail( action );
+    return scope_fail<EF>( action );
 }
 
 template< class EF >
-scope_success make_scope_success( EF action )
+scope_success<EF> make_scope_success( EF action )
 {
-    return scope_success( action );
+    return scope_success<EF>( action );
 }
 
 template< class R, class D, class S >
