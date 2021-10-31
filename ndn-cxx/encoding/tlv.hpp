@@ -97,7 +97,7 @@ enum : uint32_t {
   NameComponentMax = 65535,
 
   AppPrivateBlock1 = 128,
-  AppPrivateBlock2 = 32767
+  AppPrivateBlock2 = 32768,
 };
 
 /** @brief TLV-TYPE numbers defined in NDN Packet Format v0.2 but not in v0.3
@@ -118,11 +118,11 @@ enum : uint32_t {
  */
 enum : uint32_t {
   KeywordNameComponent     = 32,
-  SegmentNameComponent     = 33,
-  ByteOffsetNameComponent  = 34,
-  VersionNameComponent     = 35,
-  TimestampNameComponent   = 36,
-  SequenceNumNameComponent = 37,
+  SegmentNameComponent     = 50,
+  ByteOffsetNameComponent  = 52,
+  VersionNameComponent     = 54,
+  TimestampNameComponent   = 56,
+  SequenceNumNameComponent = 58,
 };
 
 /** @brief SignatureType values
@@ -256,12 +256,12 @@ size_t
 writeVarNumber(std::ostream& os, uint64_t number);
 
 /**
- * @brief Read nonNegativeInteger in NDN-TLV encoding.
+ * @brief Read a NonNegativeInteger in NDN-TLV encoding.
  * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
- * @param [in]    size  size of the nonNegativeInteger
+ * @param [in]    size  size of the NonNegativeInteger
  * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
- *                      the read nonNegativeInteger
+ *                      the read NonNegativeInteger
  * @param [in]    end   End of the buffer
  *
  * @throw tlv::Error number cannot be read
@@ -273,14 +273,14 @@ uint64_t
 readNonNegativeInteger(size_t size, Iterator& begin, Iterator end);
 
 /**
- * @brief Get the number of bytes necessary to hold the value of @p integer encoded as nonNegativeInteger.
+ * @brief Get the number of bytes necessary to hold the value of @p integer encoded as NonNegativeInteger.
  */
 constexpr size_t
 sizeOfNonNegativeInteger(uint64_t integer) noexcept;
 
 /**
- * @brief Write nonNegativeInteger to the specified stream.
- * @return length of written nonNegativeInteger
+ * @brief Write a NonNegativeInteger to the specified stream.
+ * @return length of written NonNegativeInteger
  */
 size_t
 writeNonNegativeInteger(std::ostream& os, uint64_t integer);
@@ -490,13 +490,13 @@ uint64_t
 readNonNegativeInteger(size_t size, Iterator& begin, Iterator end)
 {
   if (size != 1 && size != 2 && size != 4 && size != 8) {
-    NDN_THROW(Error("Invalid length " + to_string(size) + " for nonNegativeInteger"));
+    NDN_THROW(Error("Invalid length " + to_string(size) + " for NonNegativeInteger"));
   }
 
   uint64_t number = 0;
   bool isOk = detail::ReadNumber<Iterator>()(size, begin, end, number);
   if (!isOk) {
-    NDN_THROW(Error("Insufficient data during nonNegativeInteger parsing"));
+    NDN_THROW(Error("Insufficient data during NonNegativeInteger parsing"));
   }
 
   return number;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -103,7 +103,7 @@ Name::Name(std::string uri)
 
   // Unescape the components.
   while (iComponentStart < uri.size()) {
-    size_t iComponentEnd = uri.find("/", iComponentStart);
+    size_t iComponentEnd = uri.find('/', iComponentStart);
     if (iComponentEnd == std::string::npos)
       iComponentEnd = uri.size();
 
@@ -227,13 +227,13 @@ Name::set(ssize_t i, Component&& component)
 }
 
 Name&
-Name::appendVersion(optional<uint64_t> version)
+Name::appendVersion(const optional<uint64_t>& version)
 {
   return append(Component::fromVersion(version.value_or(time::toUnixTimestamp(time::system_clock::now()).count())));
 }
 
 Name&
-Name::appendTimestamp(optional<time::system_clock::TimePoint> timestamp)
+Name::appendTimestamp(const optional<time::system_clock::time_point>& timestamp)
 {
   return append(Component::fromTimestamp(timestamp.value_or(time::system_clock::now())));
 }

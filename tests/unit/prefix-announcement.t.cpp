@@ -35,7 +35,7 @@ makePrefixAnnData()
 {
   return Data(
     "0678 0718 announced-name=/net/example 08036E6574 08076578616D706C65"
-    "          keyword-prefix-ann=20025041 version=230101 segment=210100"
+    "          keyword-prefix-ann=20025041 version=360101 segment=320100"
     "     1403 content-type=prefix-ann 180105"
     "     1530 expire in one hour 6D040036EE80"
     "          validity FD00FD26 FD00FE0F323031383130333054303030303030"

@@ -274,7 +274,7 @@ uint64_t
 Component::toNumber() const
 {
   if (!isNumber())
-    NDN_THROW(Error("Name component does not have nonNegativeInteger value"));
+    NDN_THROW(Error("Name component does not have NonNegativeInteger value"));
 
   return readNonNegativeInteger(*this);
 }
@@ -284,9 +284,9 @@ Component::toNumberWithMarker(uint8_t marker) const
 {
   if (!isNumberWithMarker(marker))
     NDN_THROW(Error("Name component does not have the requested marker "
-                    "or the value is not a nonNegativeInteger"));
+                    "or the value is not a NonNegativeInteger"));
 
-  Buffer::const_iterator valueBegin = value_begin() + 1;
+  auto valueBegin = value_begin() + 1;
   return tlv::readNonNegativeInteger(value_size() - 1, valueBegin, value_end());
 }
 
@@ -326,7 +326,7 @@ Component::toByteOffset() const
   NDN_THROW(Error("Not a ByteOffset component"));
 }
 
-time::system_clock::TimePoint
+time::system_clock::time_point
 Component::toTimestamp() const
 {
   uint64_t value = 0;
@@ -407,7 +407,7 @@ Component::fromByteOffset(uint64_t offset)
 }
 
 Component
-Component::fromTimestamp(const time::system_clock::TimePoint& timePoint)
+Component::fromTimestamp(const time::system_clock::time_point& timePoint)
 {
   uint64_t value = time::duration_cast<time::microseconds>(timePoint - time::getUnixEpoch()).count();
   return g_conventionEncoding == Convention::MARKER ?

@@ -273,7 +273,7 @@ getComponentType2()
   return ct2;
 }
 
-/** \brief Rules for a component type holding a nonNegativeInteger value, written as
+/** \brief Rules for a component type holding a NonNegativeInteger value, written as
  *         a decimal number in URI representation.
  */
 class DecimalComponentType final : public ComponentType
@@ -288,7 +288,7 @@ public:
 
   // NOTE:
   // We do not override check() and ensure that the component value is a well-formed
-  // nonNegativeInteger, because the application may be using the same typed component
+  // NonNegativeInteger, because the application may be using the same typed component
   // with different syntax and semantics.
 
   const char*
@@ -375,7 +375,7 @@ private:
 
 private:
   const ComponentType m_baseType;
-  std::array<const ComponentType*, 38> m_table;
+  std::array<const ComponentType*, 60> m_table;
   std::unordered_map<std::string, const ComponentType*> m_uriPrefixes;
 };
 
@@ -390,16 +390,16 @@ ComponentTypeTable::ComponentTypeTable()
   static const GenericNameComponentType ct8;
   set(tlv::GenericNameComponent, ct8);
 
-  static const DecimalComponentType ct33(tlv::SegmentNameComponent, "SegmentNameComponent", "seg");
-  set(tlv::SegmentNameComponent, ct33);
-  static const DecimalComponentType ct34(tlv::ByteOffsetNameComponent, "ByteOffsetNameComponent", "off");
-  set(tlv::ByteOffsetNameComponent, ct34);
-  static const DecimalComponentType ct35(tlv::VersionNameComponent, "VersionNameComponent", "v");
-  set(tlv::VersionNameComponent, ct35);
-  static const DecimalComponentType ct36(tlv::TimestampNameComponent, "TimestampNameComponent", "t");
-  set(tlv::TimestampNameComponent, ct36);
-  static const DecimalComponentType ct37(tlv::SequenceNumNameComponent, "SequenceNumNameComponent", "seq");
-  set(tlv::SequenceNumNameComponent, ct37);
+  static const DecimalComponentType ct50(tlv::SegmentNameComponent, "SegmentNameComponent", "seg");
+  set(tlv::SegmentNameComponent, ct50);
+  static const DecimalComponentType ct52(tlv::ByteOffsetNameComponent, "ByteOffsetNameComponent", "off");
+  set(tlv::ByteOffsetNameComponent, ct52);
+  static const DecimalComponentType ct54(tlv::VersionNameComponent, "VersionNameComponent", "v");
+  set(tlv::VersionNameComponent, ct54);
+  static const DecimalComponentType ct56(tlv::TimestampNameComponent, "TimestampNameComponent", "t");
+  set(tlv::TimestampNameComponent, ct56);
+  static const DecimalComponentType ct58(tlv::SequenceNumNameComponent, "SequenceNumNameComponent", "seq");
+  set(tlv::SequenceNumNameComponent, ct58);
 }
 
 /** \brief Get the global ComponentTypeTable.

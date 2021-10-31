@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(ParametersDigest)
 static void
 testDecimalComponent(uint32_t type, const std::string& uriPrefix)
 {
-  const Component comp(makeNonNegativeIntegerBlock(type, 42)); // TLV-VALUE is a nonNegativeInteger
+  const Component comp(makeNonNegativeIntegerBlock(type, 42)); // TLV-VALUE is a NonNegativeInteger
   BOOST_CHECK_EQUAL(comp.type(), type);
   BOOST_CHECK_EQUAL(comp.isNumber(), true);
   const auto compUri = uriPrefix + "42";
@@ -152,7 +152,7 @@ testDecimalComponent(uint32_t type, const std::string& uriPrefix)
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=%2A"));
   BOOST_CHECK_EQUAL(comp, Component::fromNumber(42, type));
 
-  const Component comp2(Block(type, fromHex("010203"))); // TLV-VALUE is *not* a nonNegativeInteger
+  const Component comp2(Block(type, fromHex("010203"))); // TLV-VALUE is *not* a NonNegativeInteger
   BOOST_CHECK_EQUAL(comp2.type(), type);
   BOOST_CHECK_EQUAL(comp2.isNumber(), false);
   const auto comp2Uri = to_string(type) + "=%01%02%03";
@@ -396,7 +396,7 @@ public:
     return {&Component::fromSegment,
             &Component::toSegment,
             &Name::appendSegment,
-            Name("/33=%27%10"),
+            Name("/50=%27%10"),
             10000,
             &Component::isSegment};
   }
@@ -413,7 +413,7 @@ public:
     return {&Component::fromByteOffset,
             &Component::toByteOffset,
             &Name::appendByteOffset,
-            Name("/34=%00%01%86%A0"),
+            Name("/52=%00%01%86%A0"),
             100000,
             &Component::isByteOffset};
   }
@@ -447,7 +447,7 @@ public:
     return {&Component::fromVersion,
             &Component::toVersion,
             [] (Name& name, auto version) -> Name& { return name.appendVersion(version); },
-            Name("/35=%00%0FB%40"),
+            Name("/54=%00%0FB%40"),
             1000000,
             &Component::isVersion};
   }
@@ -458,7 +458,7 @@ class TimestampMarker
 public:
   using ConventionRev = ConventionMarker;
 
-  ConventionTest<time::system_clock::TimePoint>
+  ConventionTest<time::system_clock::time_point>
   operator()() const
   {
     return {&Component::fromTimestamp,
@@ -475,13 +475,13 @@ class TimestampTyped
 public:
   using ConventionRev = ConventionTyped;
 
-  ConventionTest<time::system_clock::TimePoint>
+  ConventionTest<time::system_clock::time_point>
   operator()() const
   {
     return {&Component::fromTimestamp,
             &Component::toTimestamp,
             [] (Name& name, auto tp) -> Name& { return name.appendTimestamp(tp); },
-            Name("/36=%00%04%7BE%E3%1B%00%00"),
+            Name("/56=%00%04%7BE%E3%1B%00%00"),
             time::getUnixEpoch() + 14600_days, // 40 years
             &Component::isTimestamp};
   }
@@ -515,7 +515,7 @@ public:
     return {&Component::fromSequenceNumber,
             &Component::toSequenceNumber,
             &Name::appendSequenceNumber,
-            Name("/37=%00%98%96%80"),
+            Name("/58=%00%98%96%80"),
             10000000,
             &Component::isSequenceNumber};
   }

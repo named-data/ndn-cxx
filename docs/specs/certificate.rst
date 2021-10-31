@@ -83,9 +83,9 @@ The value is controlled by the certificate issuer and, similar to *KeyId*, can b
 free-form identifier.
 
 *Version* represents the version number of the certificate.  This component is encoded
-as a VersionNameComponent, following either revision 1 (marker-based) or revision 2
+as a VersionNameComponent, following either revision 1 (marker-based) or revision 3
 (type-based) of the `NDN naming conventions
-<https://named-data.net/publications/techreports/ndn-tr-22-2-ndn-memo-naming-conventions/>`__.
+<https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/>`__.
 
 For example::
 
