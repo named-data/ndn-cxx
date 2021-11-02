@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -16,6 +16,8 @@
  * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
  * <http://www.gnu.org/licenses/>.
  *
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ *
  * @author Chavoosh Ghasemi <chghasemi@cs.arizona.edu>
  */
 
@@ -25,8 +27,6 @@ namespace ndn {
 
 static_assert(std::is_base_of<tlv::Error, MetadataObject::Error>::value,
               "MetadataObject::Error must inherit from tlv::Error");
-
-const name::Component KEYWORD_METADATA_COMP = "20 08 6D65746164617461"_block; // 32=metadata
 
 MetadataObject::MetadataObject() = default;
 
@@ -56,7 +56,7 @@ MetadataObject::makeData(Name discoveryInterestName,
                          optional<uint64_t> version,
                          time::milliseconds freshnessPeriod) const
 {
-  if (discoveryInterestName.empty() || discoveryInterestName[-1] != KEYWORD_METADATA_COMP) {
+  if (discoveryInterestName.empty() || discoveryInterestName[-1] != getKeywordComponent()) {
     NDN_THROW(Error("Name " + discoveryInterestName.toUri() +
                     " is not a valid discovery Interest name"));
   }
@@ -78,17 +78,24 @@ MetadataObject::setVersionedName(const Name& name)
   return *this;
 }
 
+const name::Component&
+MetadataObject::getKeywordComponent()
+{
+  static const name::Component nc(tlv::KeywordNameComponent, {'m', 'e', 't', 'a', 'd', 'a', 't', 'a'});
+  return nc;
+}
+
 bool
 MetadataObject::isValidName(const Name& name)
 {
-  return name.size() >= 3 && name[-3] == KEYWORD_METADATA_COMP &&
+  return name.size() >= 3 && name[-3] == getKeywordComponent() &&
          name[-2].isVersion() && name[-1].isSegment();
 }
 
 Interest
 MetadataObject::makeDiscoveryInterest(Name name)
 {
-  return Interest(name.append(KEYWORD_METADATA_COMP))
+  return Interest(name.append(getKeywordComponent()))
          .setCanBePrefix(true)
          .setMustBeFresh(true);
 }

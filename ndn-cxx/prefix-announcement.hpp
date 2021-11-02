@@ -119,6 +119,13 @@ public:
   PrefixAnnouncement&
   setValidityPeriod(optional<security::ValidityPeriod> validity);
 
+public: // static methods
+  /**
+   * @brief Returns the well-known keyword name component used for prefix announcements (`32=PA`)
+   */
+  static const name::Component&
+  getKeywordComponent();
+
 private:
   mutable optional<Data> m_data;
   Name m_announcedName;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,19 +31,16 @@ class MetadataObjectFixture : public KeyChainFixture
 {
 public:
   MetadataObjectFixture()
-    : metadataComponent(32, reinterpret_cast<const uint8_t*>("metadata"), std::strlen("metadata"))
-    , versionedContentName(Name(baseContentName)
+    : versionedContentName(Name(baseContentName)
                            .appendVersion(342092199154ULL))
     , metadataFullName(Name(baseContentName)
-                       .append(metadataComponent)
+                       .append(MetadataObject::getKeywordComponent())
                        .appendVersion(metadataVerNo)
                        .appendSegment(0))
   {
   }
 
 protected:
-  const name::Component metadataComponent;
-
   // content prefix
   const Name baseContentName = "/ndn/unit/tests";
   const Name versionedContentName;
@@ -90,13 +87,16 @@ BOOST_AUTO_TEST_CASE(InvalidFormat)
   BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
     return e.what() == "Name /ndn/unit/test is not a valid MetadataObject name"s;
   });
-  data.setName(Name("/ndn/unit/test").append(metadataComponent));
+  data.setName(Name("/ndn/unit/test").append(MetadataObject::getKeywordComponent()));
   BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
     return e.what() == "Name /ndn/unit/test/32=metadata is not a valid MetadataObject name"s;
   });
 
   // invalid content type
-  data.setName(Name("/ndn/unit/test").append(metadataComponent).appendVersion().appendSegment(0));
+  data.setName(Name("/ndn/unit/test")
+               .append(MetadataObject::getKeywordComponent())
+               .appendVersion()
+               .appendSegment(0));
   data.setContentType(tlv::ContentType_Key);
   BOOST_CHECK_EXCEPTION(MetadataObject{data}, tlv::Error, [] (const auto& e) {
     return e.what() == "MetadataObject has invalid ContentType 2"s;
@@ -115,11 +115,19 @@ BOOST_AUTO_TEST_CASE(InvalidFormat)
   });
 }
 
+BOOST_AUTO_TEST_CASE(KeywordComponent)
+{
+  BOOST_CHECK_EQUAL(MetadataObject::getKeywordComponent().wireEncode(),
+                    "20 08 6D65746164617461"_block);
+  BOOST_CHECK_EQUAL(MetadataObject::getKeywordComponent().toUri(name::UriFormat::CANONICAL),
+                    "32=metadata");
+}
+
 BOOST_AUTO_TEST_CASE(IsValidName)
 {
   // valid name
   Name name = Name("/ndn/unit/test")
-              .append(metadataComponent)
+              .append(MetadataObject::getKeywordComponent())
               .appendVersion()
               .appendSegment(0);
   BOOST_CHECK(MetadataObject::isValidName(name));
@@ -131,7 +139,7 @@ BOOST_AUTO_TEST_CASE(IsValidName)
   // version component is missing
   BOOST_CHECK_EQUAL(MetadataObject::isValidName(name.getPrefix(-2)), false);
 
-  // keyword name component `32=keyword` is missing
+  // keyword component is missing
   BOOST_CHECK_EQUAL(MetadataObject::isValidName(name.getPrefix(-3)), false);
 
   // too short name
@@ -141,9 +149,9 @@ BOOST_AUTO_TEST_CASE(IsValidName)
   name = name.getPrefix(-2).appendSegment(0).appendVersion();
   BOOST_CHECK_EQUAL(MetadataObject::isValidName(name), false);
 
-  // invalid name component keyword
+  // invalid keyword name component
   name = name.getPrefix(-3)
-         .append(32, reinterpret_cast<const uint8_t*>("foo"), std::strlen("foo"))
+         .append(tlv::KeywordNameComponent, reinterpret_cast<const uint8_t*>("foo"), std::strlen("foo"))
          .appendVersion()
          .appendSegment(0);
   BOOST_CHECK_EQUAL(MetadataObject::isValidName(name), false);
@@ -152,7 +160,7 @@ BOOST_AUTO_TEST_CASE(IsValidName)
 BOOST_AUTO_TEST_CASE(MakeDiscoveryInterest)
 {
   Interest interest = MetadataObject::makeDiscoveryInterest(baseContentName);
-  BOOST_CHECK_EQUAL(interest.getName(), Name(baseContentName).append(metadataComponent));
+  BOOST_CHECK_EQUAL(interest.getName(), Name(baseContentName).append(MetadataObject::getKeywordComponent()));
   BOOST_CHECK(interest.getCanBePrefix());
   BOOST_CHECK(interest.getMustBeFresh());
 }

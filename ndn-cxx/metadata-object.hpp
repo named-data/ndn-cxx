@@ -107,6 +107,12 @@ public:
 
 public: // static methods
   /**
+   * @brief Returns the well-known keyword name component used for metadata objects (`32=metadata`)
+   */
+  static const name::Component&
+  getKeywordComponent();
+
+  /**
    * @brief Check whether @p name can be a valid metadata name
    */
   static bool

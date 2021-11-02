@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,8 @@
 
 namespace ndn {
 
-const name::Component KEYWORD_PA_COMP = "20 02 5041"_block; // 32=PA
+static_assert(std::is_base_of<tlv::Error, PrefixAnnouncement::Error>::value,
+              "PrefixAnnouncement::Error must inherit from tlv::Error");
 
 PrefixAnnouncement::PrefixAnnouncement() = default;
 
@@ -32,7 +33,7 @@ PrefixAnnouncement::PrefixAnnouncement(Data data)
   : m_data(std::move(data))
 {
   const Name& dataName = m_data->getName();
-  if (dataName.size() < 3 || dataName[-3] != KEYWORD_PA_COMP ||
+  if (dataName.size() < 3 || dataName[-3] != getKeywordComponent() ||
       !dataName[-2].isVersion() || !dataName[-1].isSegment()) {
     NDN_THROW(Error("Data is not a prefix announcement: wrong name structure"));
   }
@@ -71,9 +72,9 @@ PrefixAnnouncement::toData(KeyChain& keyChain, const ndn::security::SigningInfo&
 {
   if (!m_data) {
     Name dataName = m_announcedName;
-    dataName.append(KEYWORD_PA_COMP);
-    dataName.appendVersion(version.value_or(time::toUnixTimestamp(time::system_clock::now()).count()));
-    dataName.appendSegment(0);
+    dataName.append(getKeywordComponent())
+            .appendVersion(version.value_or(time::toUnixTimestamp(time::system_clock::now()).count()))
+            .appendSegment(0);
     m_data.emplace(dataName);
     m_data->setContentType(tlv::ContentType_PrefixAnn);
 
@@ -116,6 +117,13 @@ PrefixAnnouncement::setValidityPeriod(optional<security::ValidityPeriod> validit
   m_data.reset();
   m_validity = std::move(validity);
   return *this;
+}
+
+const name::Component&
+PrefixAnnouncement::getKeywordComponent()
+{
+  static const name::Component nc(tlv::KeywordNameComponent, {'P', 'A'});
+  return nc;
 }
 
 bool

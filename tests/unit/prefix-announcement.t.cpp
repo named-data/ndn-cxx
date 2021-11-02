@@ -255,6 +255,14 @@ BOOST_AUTO_TEST_CASE(Modify)
   BOOST_CHECK_NE(pa2, pa);
 }
 
+BOOST_AUTO_TEST_CASE(KeywordComponent)
+{
+  BOOST_CHECK_EQUAL(PrefixAnnouncement::getKeywordComponent().wireEncode(),
+                    "20 02 5041"_block);
+  BOOST_CHECK_EQUAL(PrefixAnnouncement::getKeywordComponent().toUri(name::UriFormat::CANONICAL),
+                    "32=PA");
+}
+
 BOOST_AUTO_TEST_SUITE_END() // TestPrefixAnnouncement
 
 } // namespace tests
