@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,8 +38,8 @@ enum {
   PitToken = 98,
   Nack = 800,
   NackReason = 801,
+  IncomingFaceId = 812,
   NextHopFaceId = 816,
-  IncomingFaceId = 817,
   CachePolicy = 820,
   CachePolicyType = 821,
   CongestionMark = 832,
