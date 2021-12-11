@@ -33,16 +33,17 @@ namespace ndn {
 /**
  * @brief Class for RDR-style metadata encoding/decoding.
  *
- * The interest and data packets dealing with metadata (called "discovery interest"
- * and "metadata", respectively) follow a specific format.
- * @see https://redmine.named-data.net/projects/ndn-tlv/wiki/RDR
+ * Realtime %Data Retrieval (RDR) is a protocol for discovering the latest version number
+ * of a given data collection. The Interest and Data packets dealing with metadata (called
+ * "discovery interest" and "metadata object", respectively) follow a specific format.
  *
- * Realtime Data Retrieval (RDR) is a protocol for discovering the latest version number
- * of a given data collection. There are two names in an RDR metadata object:
+ * There are two names in an RDR metadata object:
  * @li the **versioned name** is a prefix of the data collection, and generally
  *     contains a version component. It appears in the Content element of the metadata object.
  * @li the **metadata name** is the name of the metadata object itself, and includes
  *     a keyword name component `32=metadata`, as well as version and segment components.
+ *
+ * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/RDR
  */
 class MetadataObject
 {
@@ -98,7 +99,7 @@ public:
    * @brief Set the versioned name
    *
    * Any metadata packet carries a versioned name in its payload where it shows the name
-   * and the latest version of a data stream. For instance, `/ndn/test/%FD%97%47%1E%6C` is
+   * and the latest version of a data stream. For instance, `/ndn/test/v=2538020460` is
    * a versioned name that shows the latest version of `/ndn/test`.
    */
   MetadataObject&

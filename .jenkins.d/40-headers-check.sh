@@ -5,6 +5,9 @@
 # It's intentional not to use `set -e`, because this script wants to check all headers
 # (similar to running all test cases), instead of failing at the first error.
 
+PROJ=ndn-cxx
+PCFILE=libndn-cxx
+
 if [[ -n $DISABLE_HEADERS_CHECK ]]; then
   echo 'Skipping headers check.'
   exit 0
@@ -16,8 +19,8 @@ fi
 
 CXX=${CXX:-g++}
 STD=-std=c++14
-CXXFLAGS="-O2 -Wall -Wno-unneeded-internal-declaration -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx)"
-INCLUDEDIR="$(pkg-config --variable=includedir libndn-cxx)"/ndn-cxx
+CXXFLAGS="-O2 -Wall -Wno-unneeded-internal-declaration -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx $PCFILE)"
+INCLUDEDIR="$(pkg-config --variable=includedir $PCFILE)"/$PROJ
 
 echo "Using: $CXX $STD $CXXFLAGS"
 
@@ -31,7 +34,7 @@ while IFS= read -r -d '' H; do
 done < <(find "$INCLUDEDIR" -name '*.hpp' -type f -print0 2>/dev/null)
 
 if [[ $NCHECKED -eq 0 ]]; then
-  echo 'No headers found. Is ndn-cxx installed?'
+  echo "No headers found. Is $PROJ installed?"
   exit 1
 else
   echo "$NCHECKED headers checked."

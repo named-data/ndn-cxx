@@ -93,11 +93,16 @@ getConventionDecoding();
 void
 setConventionDecoding(Convention convention);
 
-/** @brief Represents a name component.
+/**
+ * @brief Represents a name component.
  *
- *  The @c Component class provides a read-only view of a @c Block interpreted as a name component.
- *  Although it inherits mutation methods from @c Block base class, they must not be used, because
- *  the enclosing @c Name would not be updated correctly.
+ * The Component class provides a read-only view of a Block interpreted as a name component.
+ * Although it inherits mutation methods from the Block base class, they must not be used,
+ * because the enclosing Name would not be updated correctly.
+ *
+ * A name component is considered *invalid* if its TLV-TYPE is outside the range `[1, 65535]`,
+ * or, if it is an `ImplicitSha256DigestComponent` or a `ParametersSha256DigestComponent`,
+ * its TLV-LENGTH is not 32.
  */
 class Component : public Block
 {
@@ -110,23 +115,23 @@ public:
 
 public: // constructors
   /**
-   * @brief Construct a NameComponent of TLV-TYPE @p type, using empty TLV-VALUE.
-   * @throw Error the NameComponent is invalid (see @c ensureValid).
+   * @brief Construct a NameComponent of TLV-TYPE @p type and with empty TLV-VALUE.
+   * @throw Error the NameComponent is invalid.
    */
   explicit
   Component(uint32_t type = tlv::GenericNameComponent);
 
   /**
    * @brief Construct a NameComponent from @p block.
-   * @throw Error the NameComponent is invalid (see @c ensureValid).
+   * @throw Error the NameComponent is invalid.
    *
-   * This contructor enables implicit conversion from @c Block.
+   * This contructor enables implicit conversion from a Block.
    */
   Component(const Block& wire);
 
   /**
    * @brief Construct a NameComponent of TLV-TYPE @p type, using TLV-VALUE from @p buffer.
-   * @throw Error the NameComponent is invalid (see @c ensureValid).
+   * @throw Error the NameComponent is invalid.
    *
    * This constructor does not copy the underlying buffer, but retains a pointer to it.
    * Therefore, the caller must not change the underlying buffer.
@@ -135,7 +140,7 @@ public: // constructors
 
   /**
    * @brief Construct a GenericNameComponent, using TLV-VALUE from @p buffer.
-   * @throw Error the NameComponent is invalid (see @c ensureValid).
+   * @throw Error the NameComponent is invalid.
    *
    * This constructor does not copy the underlying buffer, but retains a pointer to it.
    * Therefore, the caller must not change the underlying buffer.
@@ -478,7 +483,7 @@ public: // naming conventions
 
 public: // commonly used TLV-TYPEs
   /**
-   * @brief Check if the component is GenericComponent
+   * @brief Check if the component is GenericNameComponent
    */
   bool
   isGeneric() const;
@@ -579,10 +584,6 @@ public: // comparison
 private:
   /**
    * @brief Throw Error if this Component is invalid.
-   *
-   * A name component is invalid if its TLV-TYPE is outside the [1, 65535] range.
-   * Additionally, if it is an ImplicitSha256DigestComponent or a ParametersSha256DigestComponent,
-   * its TLV-LENGTH must be 32.
    */
   void
   ensureValid() const;

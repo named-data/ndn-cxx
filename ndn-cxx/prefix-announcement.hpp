@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,13 +22,16 @@
 #ifndef NDN_CXX_PREFIX_ANNOUNCEMENT_HPP
 #define NDN_CXX_PREFIX_ANNOUNCEMENT_HPP
 
+#include "ndn-cxx/data.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
 
 namespace ndn {
 
-/** \brief A prefix announcement object that represents an application's intent of registering a
- *         prefix toward itself.
- *  \sa https://redmine.named-data.net/projects/nfd/wiki/PrefixAnnouncement
+/**
+ * \brief A prefix announcement object that represents an application's intent
+ *        of registering a prefix toward itself.
+ *
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/PrefixAnnouncement
  */
 class PrefixAnnouncement
 {
@@ -123,8 +126,9 @@ private:
   optional<security::ValidityPeriod> m_validity;
 };
 
-/** \brief Test whether two prefix announcements has the same name, expiration period,
- *         and validity period.
+/**
+ * \brief Test whether two prefix announcements have the same name, expiration period,
+ *        and validity period.
  */
 bool
 operator==(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs);
@@ -135,9 +139,10 @@ operator!=(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs)
   return !(lhs == rhs);
 }
 
-/** \brief Print prefix announcement to a stream.
+/**
+ * \brief Print prefix announcement to a stream.
  *
- *  This string is for debugging purpose. Its syntax is not public API.
+ * The output is for debugging purposes only. The format may change at any time without notice.
  */
 std::ostream&
 operator<<(std::ostream& os, const PrefixAnnouncement& pa);

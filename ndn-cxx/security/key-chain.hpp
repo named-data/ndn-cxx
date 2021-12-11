@@ -239,7 +239,7 @@ public: // Certificate management
 
 public: // signing
   /**
-   * @brief Sign a Data packet according to the supplied signing information
+   * @brief Sign a Data packet according to the supplied signing information.
    *
    * This method uses the supplied signing information in @p params to sign @p data as follows:
    * - It selects a private key and its associated certificate to sign the packet.
@@ -261,7 +261,7 @@ public: // signing
   sign(Data& data, const SigningInfo& params = SigningInfo());
 
   /**
-   * @brief Sign an Interest according to the supplied signing information
+   * @brief Sign an Interest according to the supplied signing information.
    *
    * This method uses the supplied signing information in @p params to sign @p interest as follows:
    * - It selects a private key and its associated certificate to sign the packet.
@@ -276,7 +276,6 @@ public: // signing
    *   desired, this block will be added to @p interest as a separate InterestSignatureValue
    *   element. Otherwise, it will be appended to the end of the name of @p interest as a
    *   SignatureValue block.
-   *
    *
    * @param interest The interest to sign
    * @param params The signing parameters
@@ -426,8 +425,8 @@ private: // signing
   prepareSignatureInfo(const SigningInfo& params);
 
   /**
-   * @brief Generate a SignatureValue block for byte ranges in @p bufs using a key with name
-   *        @p keyName and digest algorithm @p digestAlgorithm.
+   * @brief Generate and return a raw signature for the byte ranges in @p bufs using
+   *        the specified key and digest algorithm.
    */
   ConstBufferPtr
   sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
