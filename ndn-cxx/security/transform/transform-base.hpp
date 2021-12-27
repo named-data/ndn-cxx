@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_CXX_SECURITY_TRANSFORM_BASE_HPP
 
 #include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/util/span.hpp"
 
 #include <vector>
 
@@ -61,11 +62,11 @@ private:
 };
 
 /**
- * @brief The downstream interface of a transformation module
+ * @brief The downstream interface of a transformation module.
  *
- * A module can accept input through this interface
+ * A module can accept input through this interface.
  */
-class Downstream
+class Downstream : noncopyable
 {
 public:
   virtual
@@ -88,7 +89,17 @@ public:
    * @throws Error if this module is closed or transformation error happens.
    */
   size_t
-  write(const uint8_t* buf, size_t size);
+  write(span<const uint8_t> buf);
+
+  /**
+   * @deprecated
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  size_t
+  write(const uint8_t* buf, size_t size)
+  {
+    return write({buf, size});
+  }
 
   /**
    * @brief Close the input interface of a module.
@@ -129,30 +140,24 @@ public:
   }
 
 protected:
-  Downstream();
+  Downstream() = default;
 
 private:
-  /**
-   * @brief Internal implementation of write method
-   */
   virtual size_t
-  doWrite(const uint8_t* buf, size_t size) = 0;
+  doWrite(span<const uint8_t> buf) = 0;
 
-  /**
-   * @brief Internal implementation of end method
-   */
   virtual void
   doEnd() = 0;
 
 private:
-  bool m_isEnd;
-  size_t m_index;
+  size_t m_index = 0;
+  bool m_isEnd = false;
 };
 
 /**
- * @brief The upstream interface of a transformation module
+ * @brief The upstream interface of a transformation module.
  *
- * A module can construct subsequent transformation chain through this interface.
+ * A module can construct subsequent transformation chains through this interface.
  */
 class Upstream
 {
@@ -161,11 +166,11 @@ public:
   ~Upstream() = default;
 
 protected:
-  Upstream();
+  Upstream() = default;
 
 protected:
   /**
-   * @brief connect to next transformation module
+   * @brief Connect to the next transformation module
    */
   void
   appendChain(unique_ptr<Downstream> tail);
@@ -181,16 +186,15 @@ protected:
 };
 
 /**
- * @brief Abstraction of an intermediate transformation module
+ * @brief Abstraction of an intermediate transformation module.
  */
 class Transform : public Upstream,
-                  public Downstream,
-                  noncopyable
+                  public Downstream
 {
 protected:
-  typedef std::vector<uint8_t> OBuffer;
+  using OBuffer = std::vector<uint8_t>;
 
-  Transform();
+  Transform() = default;
 
   /**
    * @brief Read the content from output buffer and write it into next module.
@@ -220,11 +224,8 @@ protected:
   isOutputBufferEmpty() const;
 
 private:
-  /**
-   * @brief Abstraction of data processing in an intermediate module
-   */
   size_t
-  doWrite(const uint8_t* data, size_t dataLen) final;
+  doWrite(span<const uint8_t> data) final;
 
   /**
    * @brief Finalize transformation in this module
@@ -237,7 +238,7 @@ private:
   /**
    * @brief Process before transformation.
    *
-   * @pre output buffer is empty.
+   * @pre Output buffer is empty.
    *
    * This method is invoked before every convert(...) invocation.
    *
@@ -254,7 +255,7 @@ private:
    * @return The number of input bytes that have been accepted by the converter.
    */
   virtual size_t
-  convert(const uint8_t* data, size_t dataLen) = 0;
+  convert(span<const uint8_t> data) = 0;
 
   /**
    * @brief Finalize the transformation.
@@ -268,26 +269,24 @@ private:
 
 private:
   unique_ptr<OBuffer> m_oBuffer;
-  size_t m_outputOffset;
+  size_t m_outputOffset = 0;
 };
 
 /**
- * @brief Abstraction of the transformation sink module
+ * @brief Abstraction of the transformation sink module.
  *
- * This module does not have next module and can only accept input data
+ * This module does not have a next module and can only accept input data.
  */
-class Sink : public Downstream,
-             noncopyable
+class Sink : public Downstream
 {
 };
 
 /**
- * @brief Abstraction of the transformation source module
+ * @brief Abstraction of the transformation source module.
  *
- * This module can only accept input data from constructor
+ * This module can only accept input data from the constructor.
  */
-class Source : public Upstream,
-               noncopyable
+class Source : public Upstream
 {
 public:
   /**
@@ -305,7 +304,7 @@ public:
   operator>>(unique_ptr<Sink> sink);
 
 protected:
-  Source();
+  Source() = default;
 
   /**
    * @brief Pump all data into next transformation module.
@@ -323,14 +322,11 @@ protected:
   }
 
 private:
-  /**
-   * @brief Internal implementation of pump().
-   */
   virtual void
   doPump() = 0;
 
 private:
-  size_t m_nModules; // count of modules in the chain starting from this Source
+  size_t m_nModules = 1; // count of modules in the chain starting from (and including) this Source
 };
 
 } // namespace transform

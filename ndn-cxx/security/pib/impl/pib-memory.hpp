@@ -81,7 +81,7 @@ public: // Key management
   hasKey(const Name& keyName) const override;
 
   void
-  addKey(const Name& identity, const Name& keyName, const uint8_t* key, size_t keyLen) override;
+  addKey(const Name& identity, const Name& keyName, span<const uint8_t> key) override;
 
   void
   removeKey(const Name& keyName) override;

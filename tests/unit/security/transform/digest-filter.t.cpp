@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -66,7 +66,7 @@ static const uint8_t out[] = {
 BOOST_AUTO_TEST_CASE(BufferInput)
 {
   OBufferStream os;
-  bufferSource(in, sizeof(in)) >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
+  bufferSource(in) >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), os.buf()->begin(), os.buf()->end());
 }
 
@@ -75,12 +75,12 @@ BOOST_AUTO_TEST_CASE(StepInput)
   StepSource source;
   OBufferStream os;
   source >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
-  source.write(in, 32);
-  source.write(in + 32, 1);
-  source.write(in + 33, 2);
-  source.write(in + 35, 3);
-  source.write(in + 38, 26);
-  source.write(in + 64, 64);
+  source.write({in, 32});
+  source.write({in + 32, 1});
+  source.write({in + 33, 2});
+  source.write({in + 35, 3});
+  source.write({in + 38, 26});
+  source.write({in + 64, 64});
   source.end();
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), os.buf()->begin(), os.buf()->end());
 }

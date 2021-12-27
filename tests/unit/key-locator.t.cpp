@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,9 +93,11 @@ BOOST_AUTO_TEST_CASE(TypeName)
 
 BOOST_AUTO_TEST_CASE(TypeKeyDigest)
 {
-  std::string digestOctets = "\x12\x34\x56\x78\x9a\xbc\xde\xf1\x23\x45";
-  ConstBufferPtr digestBuffer = make_shared<Buffer>(digestOctets.data(), digestOctets.size());
-  Block expectedDigestBlock = makeBinaryBlock(tlv::KeyDigest, digestOctets.data(), digestOctets.size());
+  static const uint8_t digestOctets[] = {
+    0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf1, 0x23, 0x45
+  };
+  ConstBufferPtr digestBuffer = std::make_shared<Buffer>(digestOctets, sizeof(digestOctets));
+  Block expectedDigestBlock = makeBinaryBlock(tlv::KeyDigest, digestOctets);
 
   KeyLocator a;
   a.setKeyDigest(digestBuffer);

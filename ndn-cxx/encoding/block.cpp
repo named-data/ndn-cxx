@@ -520,7 +520,7 @@ operator "" _block(const char* input, std::size_t len)
 
   for (const char* end = input + len; input != end; ++input) {
     if (std::strchr("0123456789ABCDEF", *input) != nullptr) {
-      ss.write(reinterpret_cast<const uint8_t*>(input), 1);
+      ss.write({reinterpret_cast<const uint8_t*>(input), 1});
     }
   }
 

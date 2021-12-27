@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -238,13 +238,13 @@ SignatureInfo::getNonce() const
 }
 
 SignatureInfo&
-SignatureInfo::setNonce(optional<std::vector<uint8_t>> nonce)
+SignatureInfo::setNonce(optional<span<const uint8_t>> nonce)
 {
   if (!nonce) {
     removeCustomTlv(tlv::SignatureNonce);
   }
   else {
-    addCustomTlv(makeBinaryBlock(tlv::SignatureNonce, nonce->data(), nonce->size()));
+    addCustomTlv(makeBinaryBlock(tlv::SignatureNonce, *nonce));
   }
   return *this;
 }

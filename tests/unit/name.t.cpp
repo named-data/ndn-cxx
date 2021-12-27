@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -294,12 +294,12 @@ BOOST_AUTO_TEST_CASE(AppendParametersSha256Digest)
   auto digest = make_shared<Buffer>(32);
 
   Name name("/P");
-  name.appendParametersSha256Digest(digest);
+  name.appendParametersSha256Digest(digest); // ConstBufferPtr overload
   BOOST_CHECK_EQUAL(name.wireEncode(),
                     "0725 080150 02200000000000000000000000000000000000000000000000000000000000000000"_block);
 
   name = "/P";
-  name.appendParametersSha256Digest(digest->data(), digest->size());
+  name.appendParametersSha256Digest(*digest); // span overload
   BOOST_CHECK_EQUAL(name.wireEncode(),
                     "0725 080150 02200000000000000000000000000000000000000000000000000000000000000000"_block);
 

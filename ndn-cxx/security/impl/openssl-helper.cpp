@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -121,19 +121,19 @@ Bio::~Bio()
 }
 
 bool
-Bio::read(uint8_t* buf, size_t buflen) const noexcept
+Bio::read(span<uint8_t> buf) const noexcept
 {
-  BOOST_ASSERT(buflen <= std::numeric_limits<int>::max());
-  int n = BIO_read(m_bio, buf, static_cast<int>(buflen));
-  return n >= 0 && static_cast<size_t>(n) == buflen;
+  BOOST_ASSERT(buf.size() <= std::numeric_limits<int>::max());
+  int n = BIO_read(m_bio, buf.data(), static_cast<int>(buf.size()));
+  return n >= 0 && static_cast<size_t>(n) == buf.size();
 }
 
 bool
-Bio::write(const uint8_t* buf, size_t buflen) noexcept
+Bio::write(span<const uint8_t> buf) noexcept
 {
-  BOOST_ASSERT(buflen <= std::numeric_limits<int>::max());
-  int n = BIO_write(m_bio, buf, static_cast<int>(buflen));
-  return n >= 0 && static_cast<size_t>(n) == buflen;
+  BOOST_ASSERT(buf.size() <= std::numeric_limits<int>::max());
+  int n = BIO_write(m_bio, buf.data(), static_cast<int>(buf.size()));
+  return n >= 0 && static_cast<size_t>(n) == buf.size();
 }
 
 } // namespace detail

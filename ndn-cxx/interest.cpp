@@ -611,15 +611,15 @@ Interest::extractSignedRanges() const
   wireEncode();
 
   // Get Interest name minus any ParametersSha256DigestComponent
-  // Name is guaranteed to be non-empty if wireEncode does not throw
+  // Name is guaranteed to be non-empty if wireEncode() does not throw
   BOOST_ASSERT(!m_name.empty());
   if (m_name[-1].type() != tlv::ParametersSha256DigestComponent) {
     NDN_THROW(Error("Interest Name must end with a ParametersSha256DigestComponent"));
   }
 
-  bufs.emplace_back(m_name[0].wire(), std::distance(m_name[0].wire(), m_name[-1].wire()));
+  bufs.emplace_back(m_name[0].wire(), m_name[-1].wire());
 
-  // Ensure has InterestSignatureInfo field
+  // Ensure InterestSignatureInfo element is present
   auto sigInfoIt = findFirstParameter(tlv::InterestSignatureInfo);
   if (sigInfoIt == m_parameters.end()) {
     NDN_THROW(Error("Interest missing InterestSignatureInfo"));
@@ -628,9 +628,10 @@ Interest::extractSignedRanges() const
   // Get range from ApplicationParameters to InterestSignatureValue
   // or end of parameters (whichever is first)
   BOOST_ASSERT(!m_parameters.empty() && m_parameters.begin()->type() == tlv::ApplicationParameters);
-  auto sigValueIt = findFirstParameter(tlv::InterestSignatureValue);
-  bufs.emplace_back(m_parameters.begin()->wire(),
-                    std::distance(m_parameters.begin()->begin(), std::prev(sigValueIt)->end()));
+  auto lastSignedIt = std::prev(findFirstParameter(tlv::InterestSignatureValue));
+  // Note: we assume that both iterators point to the same underlying buffer
+  bufs.emplace_back(m_parameters.front().begin(), lastSignedIt->end());
+
   return bufs;
 }
 
@@ -667,7 +668,7 @@ Interest::computeParametersDigest() const
   in >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(out);
 
   for (const auto& block : m_parameters) {
-    in.write(block.wire(), block.size());
+    in.write({block.wire(), block.size()});
   }
   in.end();
 

@@ -54,30 +54,16 @@ public:
   sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const;
 
   /**
-   * @brief Generate a digital signature for @p buf using this key with @p digestAlgorithm.
-   */
-  ConstBufferPtr
-  sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const;
-
-  /**
-   * @brief Verify the signature @p sig for @p bufs using this key and @p digestAlgorithm.
+   * @brief Verify the signature @p sig over @p bufs using this key and @p digestAlgorithm.
    */
   bool
-  verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-         const uint8_t* sig, size_t sigLen) const;
-
-  /**
-   * @brief Verify the signature @p sig for @p buf using this key and @p digestAlgorithm.
-   */
-  bool
-  verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
-         const uint8_t* sig, size_t sigLen) const;
+  verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, span<const uint8_t> sig) const;
 
   /**
    * @brief Return plain text content decrypted from @p cipherText using this key.
    */
   ConstBufferPtr
-  decrypt(const uint8_t* cipherText, size_t cipherTextLen) const;
+  decrypt(span<const uint8_t> cipherText) const;
 
   /**
    * @return the PCKS#8 encoded public key bits derived from this key.
@@ -99,14 +85,13 @@ public:
 
 private:
   virtual ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const = 0;
+  doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs) const = 0;
 
   virtual bool
-  doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-           const uint8_t* sig, size_t sigLen) const = 0;
+  doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs, span<const uint8_t> sig) const = 0;
 
   virtual ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const = 0;
+  doDecrypt(span<const uint8_t> cipherText) const = 0;
 
   virtual ConstBufferPtr
   doDerivePublicKey() const = 0;

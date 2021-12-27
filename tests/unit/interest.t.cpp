@@ -1082,12 +1082,12 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
   const Block& wire1 = i1.wireEncode();
   // Ensure Name range captured properly
   Block nameWithoutDigest1 = i1.getName().getPrefix(-1).wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().first, ranges1.front().first + ranges1.front().second,
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().begin(), ranges1.front().end(),
                                 nameWithoutDigest1.value_begin(), nameWithoutDigest1.value_end());
   // Ensure parameters range captured properly
   const auto& appParamsWire1 = wire1.find(tlv::ApplicationParameters);
   BOOST_REQUIRE(appParamsWire1 != wire1.elements_end());
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.back().first, ranges1.back().first + ranges1.back().second,
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.back().begin(), ranges1.back().end(),
                                 appParamsWire1->begin(), wire1.end());
 
   // Test with Interest with existing InterestSignatureValue
@@ -1098,14 +1098,14 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
   const auto& wire2 = i1.wireEncode();
   // Ensure Name range captured properly
   Block nameWithoutDigest2 = i1.getName().getPrefix(-1).wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().first, ranges2.front().first + ranges2.front().second,
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().begin(), ranges2.front().end(),
                                 nameWithoutDigest2.value_begin(), nameWithoutDigest2.value_end());
   // Ensure parameters range captured properly
   const auto& appParamsWire2 = wire2.find(tlv::ApplicationParameters);
   BOOST_REQUIRE(appParamsWire2 != wire2.elements_end());
   const auto& sigValueWire2 = wire2.find(tlv::InterestSignatureValue);
   BOOST_REQUIRE(sigValueWire2 != wire2.elements_end());
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.back().first, ranges2.back().first + ranges2.back().second,
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.back().begin(), ranges2.back().end(),
                                 appParamsWire2->begin(), sigValueWire2->begin());
 
   // Test with decoded Interest
@@ -1142,11 +1142,9 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
   auto ranges3 = i2.extractSignedRanges();
   BOOST_REQUIRE_EQUAL(ranges3.size(), 2);
   // Ensure Name range captured properly
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges3.front().first, ranges3.front().first + ranges3.front().second,
-                                &WIRE[4], &WIRE[16]);
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges3.front().begin(), ranges3.front().end(), &WIRE[4], &WIRE[16]);
   // Ensure parameters range captured properly
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges3.back().first, ranges3.back().first + ranges3.back().second,
-                                &WIRE[58], &WIRE[79]);
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges3.back().begin(), ranges3.back().end(), &WIRE[58], &WIRE[79]);
 
   // Test failure with missing ParametersSha256DigestComponent
   Interest i3("/a");

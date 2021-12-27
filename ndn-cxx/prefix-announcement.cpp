@@ -122,7 +122,7 @@ PrefixAnnouncement::setValidityPeriod(optional<security::ValidityPeriod> validit
 const name::Component&
 PrefixAnnouncement::getKeywordComponent()
 {
-  static const name::Component nc(tlv::KeywordNameComponent, {'P', 'A'});
+  static const name::Component nc(tlv::KeywordNameComponent, std::array<uint8_t, 2>({'P', 'A'}));
   return nc;
 }
 

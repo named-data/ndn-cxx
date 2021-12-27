@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   Certificate cert(Block(dataset.cert.data(), dataset.cert.size()));
   Buffer keyRaw = cert.getPublicKey();
   transform::PublicKey key;
-  key.loadPkcs8(keyRaw.data(), keyRaw.size());
+  key.loadPkcs8(keyRaw);
   Data data(Block(dataset.goodData.data(), dataset.goodData.size()));
   Data badSigData(Block(dataset.badSigData.data(), dataset.badSigData.size()));
   Interest interest(Block(dataset.goodInterest.data(), dataset.goodInterest.size()));

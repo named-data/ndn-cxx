@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,20 +35,19 @@ StripSpace::StripSpace(const char* whitespaces)
 }
 
 size_t
-StripSpace::convert(const uint8_t* buf, size_t buflen)
+StripSpace::convert(span<const uint8_t> data)
 {
   auto buffer = make_unique<OBuffer>();
-  buffer->reserve(buflen);
+  buffer->reserve(data.size());
 
-  for (size_t i = 0; i < buflen; ++i) {
-    uint8_t ch = buf[i];
+  for (auto ch : data) {
     if (!m_isWhitespace[ch]) {
       buffer->push_back(ch);
     }
   }
 
   setOutputBuffer(std::move(buffer));
-  return buflen;
+  return data.size();
 }
 
 unique_ptr<Transform>

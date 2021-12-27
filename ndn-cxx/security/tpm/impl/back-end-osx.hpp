@@ -77,7 +77,7 @@ public: // crypto transformation
    * @brief Decrypt @p cipherText with @p key.
    */
   static ConstBufferPtr
-  decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t cipherSize);
+  decrypt(const KeyRefOsx& key, span<const uint8_t> cipherText);
 
   static ConstBufferPtr
   derivePublicKey(const KeyRefOsx& key);
@@ -99,7 +99,7 @@ private: // inherited from tpm::BackEnd
   doExportKey(const Name& keyName, const char* pw, size_t pwLen) final;
 
   void
-  doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen) final;
+  doImportKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen) final;
 
   void
   doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key) final;

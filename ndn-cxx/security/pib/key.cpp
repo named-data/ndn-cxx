@@ -52,7 +52,7 @@ Key::getKeyType() const
   return lock()->getKeyType();
 }
 
-const Buffer&
+span<const uint8_t>
 Key::getPublicKey() const
 {
   return lock()->getPublicKey();

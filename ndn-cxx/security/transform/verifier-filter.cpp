@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -88,18 +88,18 @@ VerifierFilter::init(DigestAlgorithm algo, void* pkey)
 }
 
 size_t
-VerifierFilter::convert(const uint8_t* buf, size_t size)
+VerifierFilter::convert(span<const uint8_t> buf)
 {
   int ret;
   if (m_keyType == KeyType::HMAC)
-    ret = EVP_DigestSignUpdate(m_impl->ctx, buf, size);
+    ret = EVP_DigestSignUpdate(m_impl->ctx, buf.data(), buf.size());
   else
-    ret = EVP_DigestVerifyUpdate(m_impl->ctx, buf, size);
+    ret = EVP_DigestVerifyUpdate(m_impl->ctx, buf.data(), buf.size());
 
   if (ret != 1)
     NDN_THROW(Error(getIndex(), "Failed to accept more input"));
 
-  return size;
+  return buf.size();
 }
 
 void

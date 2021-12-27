@@ -169,7 +169,7 @@ public: // field access
    *  Passing `nullopt` will remove the SignatureNonce.
    */
   SignatureInfo&
-  setNonce(optional<std::vector<uint8_t>> nonce);
+  setNonce(optional<span<const uint8_t>> nonce);
 
   /** @brief Get SignatureTime
    *  @retval nullopt SignatureTime is not set

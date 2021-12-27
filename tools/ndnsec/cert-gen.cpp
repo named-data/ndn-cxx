@@ -127,9 +127,9 @@ ndnsec_cert_gen(int argc, char** argv)
   auto certRequest = loadFromFile<security::Certificate>(requestFile);
 
   // validate that the content is a public key
-  Buffer keyContent = certRequest.getPublicKey();
+  auto keyContent = certRequest.getPublicKey();
   security::transform::PublicKey pubKey;
-  pubKey.loadPkcs8(keyContent.data(), keyContent.size());
+  pubKey.loadPkcs8(keyContent);
 
   Name certName = certRequest.getKeyName();
   certName
@@ -161,7 +161,7 @@ ndnsec_cert_gen(int argc, char** argv)
   {
     using namespace security::transform;
     const auto& wire = cert.wireEncode();
-    bufferSource(wire.wire(), wire.size()) >> base64Encode(true) >> streamSink(std::cout);
+    bufferSource(make_span(wire.wire(), wire.size())) >> base64Encode(true) >> streamSink(std::cout);
   }
 
   return 0;

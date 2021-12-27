@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -103,9 +103,9 @@ class DataSigningKeyFixture
 protected:
   DataSigningKeyFixture()
   {
-    m_privKey.loadPkcs1(PRIVATE_KEY_DER, sizeof(PRIVATE_KEY_DER));
+    m_privKey.loadPkcs1(PRIVATE_KEY_DER);
     auto buf = m_privKey.derivePublicKey();
-    m_pubKey.loadPkcs8(buf->data(), buf->size());
+    m_pubKey.loadPkcs8(*buf);
   }
 
 protected:
@@ -196,10 +196,10 @@ BOOST_FIXTURE_TEST_CASE(Full, DataSigningKeyFixture)
     tr::StepSource input;
     input >> tr::signerFilter(DigestAlgorithm::SHA256, m_privKey) >> tr::streamSink(sig);
 
-    input.write(d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
-    input.write(d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
-    input.write(d.getContent().              wire(), d.getContent().              size());
-    input.write(signatureInfo.  wireEncode().wire(), signatureInfo.  wireEncode().size());
+    input.write({d.getName().    wireEncode().wire(), d.getName().    wireEncode().size()});
+    input.write({d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size()});
+    input.write({d.getContent().              wire(), d.getContent().              size()});
+    input.write({signatureInfo.  wireEncode().wire(), signatureInfo.  wireEncode().size()});
     input.end();
   }
   d.setSignatureValue(sig.buf());
@@ -583,7 +583,7 @@ BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, KeyChainFixture)
   const Block& wire1 = d1.wireEncode();
   const auto& sigInfoWire1 = wire1.find(tlv::SignatureInfo);
   BOOST_REQUIRE(sigInfoWire1 != wire1.elements_end());
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().first, ranges1.front().first + ranges1.front().second,
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().begin(), ranges1.front().end(),
                                 wire1.value_begin(), sigInfoWire1->value_end());
 
   // Test with decoded Data and ensure excludes elements after SignatureValue
@@ -600,8 +600,7 @@ BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, KeyChainFixture)
   Data d2(wire2);
   auto ranges2 = d2.extractSignedRanges();
   BOOST_REQUIRE_EQUAL(ranges2.size(), 1);
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().first, ranges2.front().first + ranges2.front().second,
-                                &WIRE[2], &WIRE[9]);
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().begin(), ranges2.front().end(), &WIRE[2], &WIRE[9]);
 }
 
 BOOST_AUTO_TEST_CASE(Equality)

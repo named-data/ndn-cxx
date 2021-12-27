@@ -96,8 +96,7 @@ public: // Key management
   hasKey(const Name& keyName) const final;
 
   void
-  addKey(const Name& identity, const Name& keyName,
-         const uint8_t* key, size_t keyLen) final;
+  addKey(const Name& identity, const Name& keyName, span<const uint8_t> key) final;
 
   void
   removeKey(const Name& keyName) final;

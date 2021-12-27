@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -103,7 +103,7 @@ Tpm::verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const N
     return boost::logic::indeterminate;
   }
   else {
-    return key->verify(digestAlgorithm, bufs, sig, sigLen);
+    return key->verify(digestAlgorithm, bufs, {sig, sigLen});
   }
 }
 
@@ -115,7 +115,7 @@ Tpm::decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
   if (key == nullptr)
     return nullptr;
   else
-    return key->decrypt(buf, size);
+    return key->decrypt({buf, size});
 }
 
 bool
@@ -149,10 +149,9 @@ Tpm::exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const
 }
 
 void
-Tpm::importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
-                      const char* pw, size_t pwLen)
+Tpm::importPrivateKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen)
 {
-  m_backEnd->importKey(keyName, pkcs8, pkcs8Len, pw, pwLen);
+  m_backEnd->importKey(keyName, pkcs8, pw, pwLen);
 }
 
 void

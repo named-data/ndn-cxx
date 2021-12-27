@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -142,7 +142,7 @@ SigningInfo::setSigningHmacKey(const std::string& hmacKey)
     transform::base64Decode(false) >>
     transform::streamSink(os);
   m_hmacKey = make_shared<transform::PrivateKey>();
-  m_hmacKey->loadRaw(KeyType::HMAC, os.buf()->data(), os.buf()->size());
+  m_hmacKey->loadRaw(KeyType::HMAC, *os.buf());
 
   // generate key name
   m_name = getHmacIdentity();

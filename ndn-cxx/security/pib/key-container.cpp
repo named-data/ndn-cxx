@@ -113,7 +113,7 @@ KeyContainer::size() const
 }
 
 Key
-KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
+KeyContainer::add(span<const uint8_t> key, const Name& keyName)
 {
   if (m_identity != extractIdentityFromKeyName(keyName)) {
     NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
@@ -121,8 +121,7 @@ KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
   }
 
   m_keyNames.insert(keyName);
-  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, keyLen, m_pib);
-
+  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, m_pib);
   return get(keyName);
 }
 

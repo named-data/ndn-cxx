@@ -100,13 +100,14 @@ public:
   size() const;
 
   /**
-   * @brief Add @p key of @p keyLen bytes with @p keyName into the container
-   * @throw std::invalid_argument @p keyName does not match the identity
+   * @brief Add @p key with name @p keyName into the container.
    *
-   * If a key with the same name already exists, overwrite the key.
+   * If a key with the same name already exists, it will be overwritten.
+   *
+   * @throw std::invalid_argument @p keyName does not match the identity
    */
   Key
-  add(const uint8_t* key, size_t keyLen, const Name& keyName);
+  add(span<const uint8_t> key, const Name& keyName);
 
   /**
    * @brief Remove a key with @p keyName from the container

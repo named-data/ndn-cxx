@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -178,21 +178,15 @@ readDouble(const Block& block)
 // ---- binary ----
 
 Block
-makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length)
+makeBinaryBlock(uint32_t type, span<const uint8_t> value)
 {
   EncodingEstimator estimator;
-  size_t totalLength = estimator.prependByteArrayBlock(type, value, length);
+  size_t totalLength = estimator.prependByteArrayBlock(type, value.data(), value.size());
 
   EncodingBuffer encoder(totalLength, 0);
-  encoder.prependByteArrayBlock(type, value, length);
+  encoder.prependByteArrayBlock(type, value.data(), value.size());
 
   return encoder.block();
-}
-
-Block
-makeBinaryBlock(uint32_t type, const char* value, size_t length)
-{
-  return makeBinaryBlock(type, reinterpret_cast<const uint8_t*>(value), length);
 }
 
 } // namespace encoding

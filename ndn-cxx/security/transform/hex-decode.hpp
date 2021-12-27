@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@ namespace transform {
  *
  * If the total length of input is not even (2n + 1), the module will throw Error.
  */
-class HexDecode : public Transform
+class HexDecode final : public Transform
 {
 public:
   /**
@@ -48,10 +48,10 @@ private:
   /**
    * @brief Decode data @p buf, and write the result into output buffer directly.
    *
-   * @return number of input bytes that are accepted
+   * @return Number of input bytes that are accepted.
    */
   size_t
-  convert(const uint8_t* buf, size_t size) final;
+  convert(span<const uint8_t> hex) final;
 
   /**
    * @throws Error if pending byte exists.

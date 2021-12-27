@@ -130,12 +130,11 @@ PibMemory::hasKey(const Name& keyName) const
 }
 
 void
-PibMemory::addKey(const Name& identity, const Name& keyName,
-                  const uint8_t* key, size_t keyLen)
+PibMemory::addKey(const Name& identity, const Name& keyName, span<const uint8_t> key)
 {
   addIdentity(identity);
 
-  m_keys[keyName] = Buffer(key, keyLen);
+  m_keys[keyName] = Buffer(key.begin(), key.end());
 
   if (m_defaultKeys.count(identity) == 0) {
     m_defaultKeys[identity] = keyName;
@@ -210,11 +209,11 @@ PibMemory::hasCertificate(const Name& certName) const
 void
 PibMemory::addCertificate(const Certificate& certificate)
 {
-  Name certName = certificate.getName();
-  Name keyName = certificate.getKeyName();
-  Name identity = certificate.getIdentity();
+  const Name& certName = certificate.getName();
+  const Name& keyName = certificate.getKeyName();
 
-  addKey(identity, keyName, certificate.getContent().value(), certificate.getContent().value_size());
+  const auto& content = certificate.getContent();
+  addKey(certificate.getIdentity(), keyName, {content.value(), content.value_size()});
 
   m_certs[certName] = certificate;
   if (m_defaultCerts.count(keyName) == 0) {

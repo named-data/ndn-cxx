@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,10 +45,10 @@ IdentityImpl::IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl
 }
 
 Key
-IdentityImpl::addKey(const uint8_t* key, size_t keyLen, const Name& keyName)
+IdentityImpl::addKey(span<const uint8_t> key, const Name& keyName)
 {
   BOOST_ASSERT(m_keys.isConsistent());
-  return m_keys.add(key, keyLen, keyName);
+  return m_keys.add(key, keyName);
 }
 
 void
@@ -88,9 +88,9 @@ IdentityImpl::setDefaultKey(const Name& keyName)
 }
 
 const Key&
-IdentityImpl::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName)
+IdentityImpl::setDefaultKey(span<const uint8_t> key, const Name& keyName)
 {
-  addKey(key, keyLen, keyName);
+  addKey(key, keyName);
   return setDefaultKey(keyName);
 }
 

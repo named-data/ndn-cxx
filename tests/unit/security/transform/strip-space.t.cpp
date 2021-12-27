@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,19 +46,19 @@ BOOST_AUTO_TEST_CASE(Basic)
     pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
     deserunt mollit anim id est laborum.
   )STR";
-  size_t inputLen = strlen(input);
+  const size_t inputLen = strlen(input);
 
   OBufferStream os;
   StepSource source;
   source >> stripSpace() >> streamSink(os);
 
   for (size_t offset = 0; offset < inputLen; offset += 40) {
-    source.write(reinterpret_cast<const uint8_t*>(input + offset),
-                 std::min<size_t>(40, inputLen - offset));
+    source.write({reinterpret_cast<const uint8_t*>(input + offset),
+                  std::min<size_t>(40, inputLen - offset)});
   }
   source.end();
 
-  std::string expected(
+  const std::string expected(
     "Loremipsumdolorsitamet,consecteturadipiscingelit,seddoeiusmodtemporincididuntutl"
     "aboreetdoloremagnaaliqua.Utenimadminimveniam,quisnostrudexercitationullamcolabor"
     "isnisiutaliquipexeacommodoconsequat.Duisauteiruredolorinreprehenderitinvoluptate"

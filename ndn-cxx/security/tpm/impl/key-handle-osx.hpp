@@ -49,10 +49,10 @@ private:
 
   bool
   doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-           const uint8_t* sig, size_t sigLen) const final;
+           span<const uint8_t> sig) const final;
 
   ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+  doDecrypt(span<const uint8_t> cipherText) const final;
 
   ConstBufferPtr
   doDerivePublicKey() const final;

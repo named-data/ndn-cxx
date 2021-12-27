@@ -88,20 +88,21 @@ BOOST_AUTO_TEST_CASE(Rsa)
   auto pubKey = os1.buf();
 
   PublicKey pKey;
-  pKey.loadPkcs8(pubKey->data(), pubKey->size());
+  pKey.loadPkcs8(*pubKey);
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
+  sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
+                        privateKeyPkcs1.size()});
 
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
 
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
+  bufferSource(DATA) >>
     verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
     boolSink(result);
 
@@ -133,20 +134,21 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   auto pubKey = os1.buf();
 
   PublicKey pKey;
-  pKey.loadPkcs8(pubKey->data(), pubKey->size());
+  pKey.loadPkcs8(*pubKey);
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
+  sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
+                        privateKeyPkcs1.size()});
 
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
 
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
+  bufferSource(DATA) >>
     verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
     boolSink(result);
 
@@ -158,14 +160,14 @@ BOOST_AUTO_TEST_CASE(Hmac)
   auto sKey = generatePrivateKey(HmacKeyParams());
 
   OBufferStream os;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, *sKey) >> streamSink(os);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, *sKey) >> streamSink(os);
   auto sig = os.buf();
 
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, sig->data(), sig->size()), Error);
 
 #if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
+  bufferSource(DATA) >>
     verifierFilter(DigestAlgorithm::SHA256, *sKey, sig->data(), sig->size()) >>
     boolSink(result);
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -125,7 +125,7 @@ private:
 BOOST_FIXTURE_TEST_CASE(Error, FailRandMethodFixture)
 {
   std::array<uint8_t, 1024> buf;
-  BOOST_CHECK_THROW(random::generateSecureBytes(buf.data(), buf.size()), std::runtime_error);
+  BOOST_CHECK_THROW(random::generateSecureBytes(buf), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestRandom

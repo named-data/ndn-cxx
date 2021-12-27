@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,7 +37,7 @@ class PublicKey;
  *
  * The next module in the chain is usually BoolSink.
  */
-class VerifierFilter : public Transform
+class VerifierFilter final : public Transform
 {
 public:
   /**
@@ -50,7 +50,7 @@ public:
    */
   VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen);
 
-  ~VerifierFilter();
+  ~VerifierFilter() final;
 
 private:
   void
@@ -62,7 +62,7 @@ private:
    * @return The number of bytes that are actually written
    */
   size_t
-  convert(const uint8_t* buf, size_t size) final;
+  convert(span<const uint8_t> buf) final;
 
   /**
    * @brief Finalize verification and write the result (single byte) into next module.

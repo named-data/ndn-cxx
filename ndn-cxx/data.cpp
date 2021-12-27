@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -318,8 +318,9 @@ Data::extractSignedRanges() const
 
   wireEncode();
   auto lastSignedIt = std::prev(m_wire.find(tlv::SignatureValue));
-  bufs.emplace_back(m_wire.value(),
-                    std::distance(m_wire.value_begin(), lastSignedIt->end()));
+  // Note: we assume that both iterators point to the same underlying buffer
+  bufs.emplace_back(m_wire.value_begin(), lastSignedIt->end());
+
   return bufs;
 }
 

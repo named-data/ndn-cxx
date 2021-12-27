@@ -25,6 +25,7 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/util/concepts.hpp"
+#include "ndn-cxx/util/span.hpp"
 
 namespace ndn {
 namespace encoding {
@@ -181,23 +182,37 @@ makeDoubleBlock(uint32_t type, double value);
 double
 readDouble(const Block& block);
 
-/** @brief Create a TLV block copying TLV-VALUE from raw buffer.
+/** @brief Create a TLV block copying the TLV-VALUE from a range.
  *  @param type TLV-TYPE number
- *  @param value raw buffer as TLV-VALUE
- *  @param length length of value buffer
+ *  @param value range of bytes to use as TLV-VALUE
  *  @sa Encoder::prependByteArrayBlock
  */
 Block
-makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length);
+makeBinaryBlock(uint32_t type, span<const uint8_t> value);
 
-/** @brief Create a TLV block copying TLV-VALUE from raw buffer.
+/** @brief Create a TLV block copying the TLV-VALUE from a raw buffer.
  *  @param type TLV-TYPE number
  *  @param value raw buffer as TLV-VALUE
  *  @param length length of value buffer
  *  @sa Encoder::prependByteArrayBlock
  */
-Block
-makeBinaryBlock(uint32_t type, const char* value, size_t length);
+inline Block
+makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length)
+{
+  return makeBinaryBlock(type, {value, length});
+}
+
+/** @brief Create a TLV block copying the TLV-VALUE from a raw buffer.
+ *  @param type TLV-TYPE number
+ *  @param value raw buffer as TLV-VALUE
+ *  @param length length of value buffer
+ *  @sa Encoder::prependByteArrayBlock
+ */
+inline Block
+makeBinaryBlock(uint32_t type, const char* value, size_t length)
+{
+  return makeBinaryBlock(type, {reinterpret_cast<const uint8_t*>(value), length});
+}
 
 namespace detail {
 
@@ -252,8 +267,8 @@ public:
 } // namespace detail
 
 /** @brief Create a TLV block copying TLV-VALUE from iterators.
- *  @tparam Iterator an InputIterator dereferencable to an 1-octet type; faster implementation is
- *                   available for RandomAccessIterator
+ *  @tparam Iterator an InputIterator dereferenceable to a 1-octet type; a faster implementation is
+ *                   automatically selected for RandomAccessIterator
  *  @param type TLV-TYPE number
  *  @param first begin iterator
  *  @param last past-the-end iterator

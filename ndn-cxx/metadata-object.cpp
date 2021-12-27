@@ -81,7 +81,8 @@ MetadataObject::setVersionedName(const Name& name)
 const name::Component&
 MetadataObject::getKeywordComponent()
 {
-  static const name::Component nc(tlv::KeywordNameComponent, {'m', 'e', 't', 'a', 'd', 'a', 't', 'a'});
+  static const name::Component nc(tlv::KeywordNameComponent,
+                                  std::array<uint8_t, 8>({'m', 'e', 't', 'a', 'd', 'a', 't', 'a'}));
   return nc;
 }
 

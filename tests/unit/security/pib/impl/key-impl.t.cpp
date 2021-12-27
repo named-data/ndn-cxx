@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,24 +42,26 @@ using security::Pib;
 BOOST_AUTO_TEST_CASE(Basic)
 {
   auto pibImpl = make_shared<pib::PibMemory>();
-  KeyImpl key11(id1Key1Name, id1Key1.data(), id1Key1.size(), pibImpl);
+  KeyImpl key11(id1Key1Name, id1Key1, pibImpl);
 
   BOOST_CHECK_EQUAL(key11.getName(), id1Key1Name);
   BOOST_CHECK_EQUAL(key11.getIdentity(), id1);
   BOOST_CHECK_EQUAL(key11.getKeyType(), KeyType::EC);
-  BOOST_CHECK(key11.getPublicKey() == id1Key1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(key11.getPublicKey().begin(), key11.getPublicKey().end(),
+                                id1Key1.begin(), id1Key1.end());
 
   KeyImpl key11Bak(id1Key1Name, pibImpl);
   BOOST_CHECK_EQUAL(key11Bak.getName(), id1Key1Name);
   BOOST_CHECK_EQUAL(key11Bak.getIdentity(), id1);
   BOOST_CHECK_EQUAL(key11Bak.getKeyType(), KeyType::EC);
-  BOOST_CHECK(key11Bak.getPublicKey() == id1Key1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(key11Bak.getPublicKey().begin(), key11Bak.getPublicKey().end(),
+                                id1Key1.begin(), id1Key1.end());
 }
 
 BOOST_AUTO_TEST_CASE(CertificateOperation)
 {
   auto pibImpl = make_shared<pib::PibMemory>();
-  KeyImpl key11(id1Key1Name, id1Key1.data(), id1Key1.size(), pibImpl);
+  KeyImpl key11(id1Key1Name, id1Key1, pibImpl);
   BOOST_CHECK_NO_THROW(KeyImpl(id1Key1Name, pibImpl));
 
   // key does not have any certificate
@@ -140,14 +142,16 @@ BOOST_FIXTURE_TEST_CASE(Overwrite, OverwriteFixture)
   auto pibImpl = make_shared<pib::PibMemory>();
 
   BOOST_CHECK_THROW(KeyImpl(id1Key1Name, pibImpl), Pib::Error);
-  KeyImpl(id1Key1Name, id1Key1.data(), id1Key1.size(), pibImpl);
+  KeyImpl(id1Key1Name, id1Key1, pibImpl);
   KeyImpl key1(id1Key1Name, pibImpl);
 
-  KeyImpl(id1Key1Name, id1Key2.data(), id1Key2.size(), pibImpl); // overwriting of the key should work
+  KeyImpl(id1Key1Name, id1Key2, pibImpl); // overwriting of the key should work
   KeyImpl key2(id1Key1Name, pibImpl);
 
-  BOOST_CHECK(key1.getPublicKey() != key2.getPublicKey()); // key1 cached the original public key
-  BOOST_CHECK(key2.getPublicKey() == id1Key2);
+  Buffer key1buf(key1.getPublicKey().begin(), key1.getPublicKey().end());
+  Buffer key2buf(key2.getPublicKey().begin(), key2.getPublicKey().end());
+  BOOST_CHECK(key1buf != key2buf); // key1 cached the original public key
+  BOOST_CHECK(key2buf == id1Key2);
 
   key1.addCertificate(id1Key1Cert1);
   BOOST_CHECK_EQUAL(key1.getCertificate(id1Key1Cert1.getName()), id1Key1Cert1);
@@ -172,12 +176,12 @@ BOOST_AUTO_TEST_CASE(Errors)
   auto pibImpl = make_shared<pib::PibMemory>();
 
   BOOST_CHECK_THROW(KeyImpl(id1Key1Name, pibImpl), Pib::Error);
-  KeyImpl key11(id1Key1Name, id1Key1.data(), id1Key1.size(), pibImpl);
+  KeyImpl key11(id1Key1Name, id1Key1, pibImpl);
 
   BOOST_CHECK_THROW(KeyImpl(Name("/wrong"), pibImpl), std::invalid_argument);
-  BOOST_CHECK_THROW(KeyImpl(Name("/wrong"), id1Key1.data(), id1Key1.size(), pibImpl), std::invalid_argument);
+  BOOST_CHECK_THROW(KeyImpl(Name("/wrong"), id1Key1, pibImpl), std::invalid_argument);
   Buffer wrongKey;
-  BOOST_CHECK_THROW(KeyImpl(id1Key2Name, wrongKey.data(), wrongKey.size(), pibImpl), std::invalid_argument);
+  BOOST_CHECK_THROW(KeyImpl(id1Key2Name, wrongKey, pibImpl), std::invalid_argument);
 
   key11.addCertificate(id1Key1Cert1);
   BOOST_CHECK_THROW(key11.addCertificate(id1Key2Cert1), std::invalid_argument);

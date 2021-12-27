@@ -371,7 +371,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   Certificate cert(std::move(certData));
   Name identity = cert.getIdentity();
   Name keyName = cert.getKeyName();
-  const Buffer publicKeyBits = cert.getPublicKey();
+  const auto publicKeyBits = cert.getPublicKey();
 
   if (m_tpm->hasKey(keyName)) {
     NDN_THROW(Error("Private key `" + keyName.toUri() + "` already exists"));
@@ -387,9 +387,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   }
 
   try {
-    m_tpm->importPrivateKey(keyName,
-                            safeBag.getEncryptedKey().data(), safeBag.getEncryptedKey().size(),
-                            pw, pwLen);
+    m_tpm->importPrivateKey(keyName, safeBag.getEncryptedKey(), pw, pwLen);
   }
   catch (const Tpm::Error&) {
     NDN_THROW_NESTED(Error("Failed to import private key `" + keyName.toUri() + "`"));
@@ -409,10 +407,10 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   {
     using namespace transform;
     PublicKey publicKey;
-    publicKey.loadPkcs8(publicKeyBits.data(), publicKeyBits.size());
-    bufferSource(content, sizeof(content)) >> verifierFilter(DigestAlgorithm::SHA256, publicKey,
-                                                             sigBits->data(), sigBits->size())
-                                           >> boolSink(isVerified);
+    publicKey.loadPkcs8(publicKeyBits);
+    bufferSource(content) >> verifierFilter(DigestAlgorithm::SHA256, publicKey,
+                                            sigBits->data(), sigBits->size())
+                          >> boolSink(isVerified);
   }
   if (!isVerified) {
     m_tpm->deleteKey(keyName);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,9 +48,9 @@ public:
 };
 
 static CFReleaser<CFDataRef>
-makeCFDataNoCopy(const uint8_t* buf, size_t buflen)
+makeCFDataNoCopy(span<const uint8_t> buf)
 {
-  return CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, buf, buflen, kCFAllocatorNull);
+  return CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, buf.data(), buf.size(), kCFAllocatorNull);
 }
 
 static CFReleaser<CFMutableDictionaryRef>
@@ -181,8 +181,9 @@ exportItem(const KeyRefOsx& keyRef, transform::PrivateKey& outKey)
     NDN_THROW(Tpm::Error("Failed to export private key: "s + getErrorMessage(res)));
   }
 
-  outKey.loadPkcs8(CFDataGetBytePtr(exportedKey.get()), CFDataGetLength(exportedKey.get()),
-                   pw, std::strlen(pw));
+  auto keyPtr = CFDataGetBytePtr(exportedKey.get());
+  auto keyLen = static_cast<size_t>(CFDataGetLength(exportedKey.get()));
+  outKey.loadPkcs8({keyPtr, keyLen}, pw, std::strlen(pw));
 }
 
 BackEndOsx::BackEndOsx(const std::string&)
@@ -265,7 +266,7 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const InputBu
   // Set input
   auto buffer = digestSink.buf();
   BOOST_ASSERT(buffer->size() * 8 == static_cast<size_t>(getDigestSize(digestAlgo)));
-  auto data = makeCFDataNoCopy(buffer->data(), buffer->size());
+  auto data = makeCFDataNoCopy(*buffer);
   SecTransformSetAttribute(signer.get(), kSecTransformInputAttributeName, data.get(), &error.get());
   if (error != nullptr) {
     NDN_THROW(Error("Failed to configure input of sign transform: " + getFailureReason(error.get())));
@@ -308,7 +309,7 @@ BackEndOsx::sign(const KeyRefOsx& key, DigestAlgorithm digestAlgo, const InputBu
 }
 
 ConstBufferPtr
-BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t cipherSize)
+BackEndOsx::decrypt(const KeyRefOsx& key, span<const uint8_t> cipherText)
 {
   CFReleaser<CFErrorRef> error;
   CFReleaser<SecTransformRef> decryptor = SecDecryptTransformCreate(key.get(), &error.get());
@@ -316,7 +317,7 @@ BackEndOsx::decrypt(const KeyRefOsx& key, const uint8_t* cipherText, size_t ciph
     NDN_THROW(Error("Failed to create decrypt transform: " + getFailureReason(error.get())));
   }
 
-  auto data = makeCFDataNoCopy(cipherText, cipherSize);
+  auto data = makeCFDataNoCopy(cipherText);
   SecTransformSetAttribute(decryptor.get(), kSecTransformInputAttributeName, data.get(), &error.get());
   if (error != nullptr) {
     NDN_THROW(Error("Failed to configure input of decrypt transform: " + getFailureReason(error.get())));
@@ -455,20 +456,19 @@ BackEndOsx::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
 }
 
 void
-BackEndOsx::doImportKey(const Name& keyName, const uint8_t* buf, size_t size,
-                        const char* pw, size_t pwLen)
+BackEndOsx::doImportKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen)
 {
   transform::PrivateKey privKey;
   OBufferStream pkcs1;
   try {
     // do the PKCS8 decoding ourselves, see bug #4450
-    privKey.loadPkcs8(buf, size, pw, pwLen);
+    privKey.loadPkcs8(pkcs8, pw, pwLen);
     privKey.savePkcs1(pkcs1);
   }
   catch (const transform::PrivateKey::Error&) {
     NDN_THROW_NESTED(Error("Failed to import private key"));
   }
-  auto keyToImport = makeCFDataNoCopy(pkcs1.buf()->data(), pkcs1.buf()->size());
+  auto keyToImport = makeCFDataNoCopy(*pkcs1.buf());
 
   SecExternalFormat externalFormat = kSecFormatOpenSSL;
   SecExternalItemType externalType = kSecItemTypePrivateKey;

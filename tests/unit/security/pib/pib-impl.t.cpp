@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -163,7 +163,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), false);
 
   // add id1Key1, should be default, id1 should be added implicitly
-  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1.data(), this->id1Key1.size());
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1);
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
   BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
   const Buffer& keyBits = this->pib.getKeyBits(this->id1Key1Name);
@@ -172,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key1Name);
 
   // add id1Key2, should not be default
-  this->pib.addKey(this->id1, this->id1Key2Name, this->id1Key2.data(), this->id1Key2.size());
+  this->pib.addKey(this->id1, this->id1Key2Name, this->id1Key2);
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key2Name), true);
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key1Name);
 
@@ -191,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, T)
   BOOST_CHECK_THROW(this->pib.getDefaultKeyOfIdentity(this->id1), Pib::Error);
 
   // add id1Key2 back, should be default
-  this->pib.addKey(this->id1, this->id1Key2Name, this->id1Key2.data(), this->id1Key2.size());
+  this->pib.addKey(this->id1, this->id1Key2Name, this->id1Key2);
   BOOST_CHECK_NO_THROW(this->pib.getKeyBits(this->id1Key2Name));
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key2Name);
 
@@ -274,11 +274,11 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(DefaultsManagement, T, PibImpls, T)
   this->pib.removeIdentity(this->id1);
   BOOST_CHECK_THROW(this->pib.getDefaultIdentity(), Pib::Error);
 
-  this->pib.addKey(this->id2, this->id2Key1Name, this->id2Key1.data(), this->id2Key1.size());
+  this->pib.addKey(this->id2, this->id2Key1Name, this->id2Key1);
   BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id2);
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id2), this->id2Key1Name);
 
-  this->pib.addKey(this->id2, this->id2Key2Name, this->id2Key2.data(), this->id2Key2.size());
+  this->pib.addKey(this->id2, this->id2Key2Name, this->id2Key2);
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id2), this->id2Key1Name);
 
   this->pib.removeKey(this->id2Key1Name);
@@ -305,13 +305,13 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Overwrite, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), false);
 
   // add id1Key1
-  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1.data(), this->id1Key1.size());
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1);
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
   const Buffer& keyBits = this->pib.getKeyBits(this->id1Key1Name);
   BOOST_CHECK(keyBits == this->id1Key1);
 
   // check overwrite, add a key with the same name.
-  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key2.data(), this->id1Key2.size());
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key2);
   const Buffer& keyBits2 = this->pib.getKeyBits(this->id1Key1Name);
   BOOST_CHECK(keyBits2 == this->id1Key2);
 
@@ -320,7 +320,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Overwrite, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), false);
 
   // add id1Key1Cert1
-  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1.data(), this->id1Key1.size());
+  this->pib.addKey(this->id1, this->id1Key1Name, this->id1Key1);
   this->pib.addCertificate(this->id1Key1Cert1);
   BOOST_CHECK_EQUAL(this->pib.hasCertificate(this->id1Key1Cert1.getName()), true);
 

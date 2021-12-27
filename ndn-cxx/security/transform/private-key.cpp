@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -147,12 +147,12 @@ PrivateKey::getKeyDigest(DigestAlgorithm algo) const
     NDN_THROW(Error("Key length mismatch"));
 
   OBufferStream os;
-  bufferSource(buf, len) >> digestFilter(algo) >> streamSink(os);
+  bufferSource(make_span(buf, len)) >> digestFilter(algo) >> streamSink(os);
   return os.buf();
 }
 
 void
-PrivateKey::loadRaw(KeyType type, const uint8_t* buf, size_t size)
+PrivateKey::loadRaw(KeyType type, span<const uint8_t> buf)
 {
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
 
@@ -167,9 +167,9 @@ PrivateKey::loadRaw(KeyType type, const uint8_t* buf, size_t size)
 
   m_impl->key =
 #if OPENSSL_VERSION_NUMBER >= 0x1010100fL
-      EVP_PKEY_new_raw_private_key(pkeyType, nullptr, buf, size);
+      EVP_PKEY_new_raw_private_key(pkeyType, nullptr, buf.data(), buf.size());
 #else
-      EVP_PKEY_new_mac_key(pkeyType, nullptr, buf, static_cast<int>(size));
+      EVP_PKEY_new_mac_key(pkeyType, nullptr, buf.data(), static_cast<int>(buf.size()));
 #endif
   if (m_impl->key == nullptr)
     NDN_THROW(Error("Failed to load private key"));
@@ -180,12 +180,13 @@ PrivateKey::loadRaw(KeyType type, const uint8_t* buf, size_t size)
 }
 
 void
-PrivateKey::loadPkcs1(const uint8_t* buf, size_t size)
+PrivateKey::loadPkcs1(span<const uint8_t> buf)
 {
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
   opensslInitAlgorithms();
 
-  if (d2i_AutoPrivateKey(&m_impl->key, &buf, static_cast<long>(size)) == nullptr)
+  auto ptr = buf.data();
+  if (d2i_AutoPrivateKey(&m_impl->key, &ptr, static_cast<long>(buf.size())) == nullptr)
     NDN_THROW(Error("Failed to load private key"));
 }
 
@@ -194,15 +195,15 @@ PrivateKey::loadPkcs1(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs1(os.buf()->data(), os.buf()->size());
+  loadPkcs1(*os.buf());
 }
 
 void
-PrivateKey::loadPkcs1Base64(const uint8_t* buf, size_t size)
+PrivateKey::loadPkcs1Base64(span<const uint8_t> buf)
 {
   OBufferStream os;
-  bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs1(os.buf()->data(), os.buf()->size());
+  bufferSource(buf) >> base64Decode() >> streamSink(os);
+  loadPkcs1(*os.buf());
 }
 
 void
@@ -210,18 +211,18 @@ PrivateKey::loadPkcs1Base64(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs1(os.buf()->data(), os.buf()->size());
+  loadPkcs1(*os.buf());
 }
 
 void
-PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, const char* pw, size_t pwLen)
+PrivateKey::loadPkcs8(span<const uint8_t> buf, const char* pw, size_t pwLen)
 {
   BOOST_ASSERT(std::strlen(pw) == pwLen);
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
   opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
-  if (!membio.write(buf, size))
+  if (!membio.write(buf))
     NDN_THROW(Error("Failed to copy buffer"));
 
   if (d2i_PKCS8PrivateKey_bio(membio, &m_impl->key, nullptr, const_cast<char*>(pw)) == nullptr)
@@ -237,13 +238,13 @@ passwordCallbackWrapper(char* buf, int size, int rwflag, void* u)
 }
 
 void
-PrivateKey::loadPkcs8(const uint8_t* buf, size_t size, PasswordCallback pwCallback)
+PrivateKey::loadPkcs8(span<const uint8_t> buf, PasswordCallback pwCallback)
 {
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
   opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
-  if (!membio.write(buf, size))
+  if (!membio.write(buf))
     NDN_THROW(Error("Failed to copy buffer"));
 
   if (pwCallback)
@@ -260,7 +261,7 @@ PrivateKey::loadPkcs8(std::istream& is, const char* pw, size_t pwLen)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pw, pwLen);
+  loadPkcs8(*os.buf(), pw, pwLen);
 }
 
 void
@@ -268,23 +269,23 @@ PrivateKey::loadPkcs8(std::istream& is, PasswordCallback pwCallback)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pwCallback);
+  loadPkcs8(*os.buf(), std::move(pwCallback));
 }
 
 void
-PrivateKey::loadPkcs8Base64(const uint8_t* buf, size_t size, const char* pw, size_t pwLen)
+PrivateKey::loadPkcs8Base64(span<const uint8_t> buf, const char* pw, size_t pwLen)
 {
   OBufferStream os;
-  bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pw, pwLen);
+  bufferSource(buf) >> base64Decode() >> streamSink(os);
+  loadPkcs8(*os.buf(), pw, pwLen);
 }
 
 void
-PrivateKey::loadPkcs8Base64(const uint8_t* buf, size_t size, PasswordCallback pwCallback)
+PrivateKey::loadPkcs8Base64(span<const uint8_t> buf, PasswordCallback pwCallback)
 {
   OBufferStream os;
-  bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pwCallback);
+  bufferSource(buf) >> base64Decode() >> streamSink(os);
+  loadPkcs8(*os.buf(), std::move(pwCallback));
 }
 
 void
@@ -292,7 +293,7 @@ PrivateKey::loadPkcs8Base64(std::istream& is, const char* pw, size_t pwLen)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pw, pwLen);
+  loadPkcs8(*os.buf(), pw, pwLen);
 }
 
 void
@@ -300,43 +301,43 @@ PrivateKey::loadPkcs8Base64(std::istream& is, PasswordCallback pwCallback)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size(), pwCallback);
+  loadPkcs8(*os.buf(), std::move(pwCallback));
 }
 
 void
 PrivateKey::savePkcs1(std::ostream& os) const
 {
-  bufferSource(*this->toPkcs1()) >> streamSink(os);
+  bufferSource(*toPkcs1()) >> streamSink(os);
 }
 
 void
 PrivateKey::savePkcs1Base64(std::ostream& os) const
 {
-  bufferSource(*this->toPkcs1()) >> base64Encode() >> streamSink(os);
+  bufferSource(*toPkcs1()) >> base64Encode() >> streamSink(os);
 }
 
 void
 PrivateKey::savePkcs8(std::ostream& os, const char* pw, size_t pwLen) const
 {
-  bufferSource(*this->toPkcs8(pw, pwLen)) >> streamSink(os);
+  bufferSource(*toPkcs8(pw, pwLen)) >> streamSink(os);
 }
 
 void
 PrivateKey::savePkcs8(std::ostream& os, PasswordCallback pwCallback) const
 {
-  bufferSource(*this->toPkcs8(pwCallback)) >> streamSink(os);
+  bufferSource(*toPkcs8(std::move(pwCallback))) >> streamSink(os);
 }
 
 void
 PrivateKey::savePkcs8Base64(std::ostream& os, const char* pw, size_t pwLen) const
 {
-  bufferSource(*this->toPkcs8(pw, pwLen)) >> base64Encode() >> streamSink(os);
+  bufferSource(*toPkcs8(pw, pwLen)) >> base64Encode() >> streamSink(os);
 }
 
 void
 PrivateKey::savePkcs8Base64(std::ostream& os, PasswordCallback pwCallback) const
 {
-  bufferSource(*this->toPkcs8(pwCallback)) >> base64Encode() >> streamSink(os);
+  bufferSource(*toPkcs8(std::move(pwCallback))) >> base64Encode() >> streamSink(os);
 }
 
 ConstBufferPtr
@@ -356,7 +357,7 @@ PrivateKey::derivePublicKey() const
 }
 
 ConstBufferPtr
-PrivateKey::decrypt(const uint8_t* cipherText, size_t cipherLen) const
+PrivateKey::decrypt(span<const uint8_t> cipherText) const
 {
   ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
 
@@ -365,7 +366,7 @@ PrivateKey::decrypt(const uint8_t* cipherText, size_t cipherLen) const
     case EVP_PKEY_NONE:
       NDN_THROW(Error("Failed to determine key type"));
     case EVP_PKEY_RSA:
-      return rsaDecrypt(cipherText, cipherLen);
+      return rsaDecrypt(cipherText);
     default:
       NDN_THROW(Error("Decryption is not supported for key type " + to_string(keyType)));
   }
@@ -388,7 +389,7 @@ PrivateKey::toPkcs1() const
     NDN_THROW(Error("Cannot convert key to PKCS #1 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  if (!membio.read(buffer->data(), buffer->size()))
+  if (!membio.read(*buffer))
     NDN_THROW(Error("Read error during PKCS #1 conversion"));
 
   return buffer;
@@ -407,7 +408,7 @@ PrivateKey::toPkcs8(const char* pw, size_t pwLen) const
     NDN_THROW(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  if (!membio.read(buffer->data(), buffer->size()))
+  if (!membio.read(*buffer))
     NDN_THROW(Error("Read error during PKCS #8 conversion"));
 
   return buffer;
@@ -425,14 +426,14 @@ PrivateKey::toPkcs8(PasswordCallback pwCallback) const
     NDN_THROW(Error("Cannot convert key to PKCS #8 format"));
 
   auto buffer = make_shared<Buffer>(BIO_pending(membio));
-  if (!membio.read(buffer->data(), buffer->size()))
+  if (!membio.read(*buffer))
     NDN_THROW(Error("Read error during PKCS #8 conversion"));
 
   return buffer;
 }
 
 ConstBufferPtr
-PrivateKey::rsaDecrypt(const uint8_t* cipherText, size_t cipherLen) const
+PrivateKey::rsaDecrypt(span<const uint8_t> cipherText) const
 {
   detail::EvpPkeyCtx ctx(m_impl->key);
 
@@ -444,11 +445,11 @@ PrivateKey::rsaDecrypt(const uint8_t* cipherText, size_t cipherLen) const
 
   size_t outlen = 0;
   // Determine buffer length
-  if (EVP_PKEY_decrypt(ctx, nullptr, &outlen, cipherText, cipherLen) <= 0)
+  if (EVP_PKEY_decrypt(ctx, nullptr, &outlen, cipherText.data(), cipherText.size()) <= 0)
     NDN_THROW(Error("Failed to estimate output length"));
 
   auto out = make_shared<Buffer>(outlen);
-  if (EVP_PKEY_decrypt(ctx, out->data(), &outlen, cipherText, cipherLen) <= 0)
+  if (EVP_PKEY_decrypt(ctx, out->data(), &outlen, cipherText.data(), cipherText.size()) <= 0)
     NDN_THROW(Error("Failed to decrypt ciphertext"));
 
   out->resize(outlen);
@@ -521,11 +522,11 @@ unique_ptr<PrivateKey>
 PrivateKey::generateHmacKey(uint32_t keySize)
 {
   std::vector<uint8_t> rawKey(keySize / 8);
-  random::generateSecureBytes(rawKey.data(), rawKey.size());
+  random::generateSecureBytes(rawKey);
 
   auto privateKey = make_unique<PrivateKey>();
   try {
-    privateKey->loadRaw(KeyType::HMAC, rawKey.data(), rawKey.size());
+    privateKey->loadRaw(KeyType::HMAC, rawKey);
   }
   catch (const PrivateKey::Error&) {
     NDN_THROW(PrivateKey::Error("Failed to generate HMAC key"));
@@ -539,15 +540,15 @@ generatePrivateKey(const KeyParams& keyParams)
 {
   switch (keyParams.getKeyType()) {
     case KeyType::RSA: {
-      const RsaKeyParams& rsaParams = static_cast<const RsaKeyParams&>(keyParams);
+      const auto& rsaParams = static_cast<const RsaKeyParams&>(keyParams);
       return PrivateKey::generateRsaKey(rsaParams.getKeySize());
     }
     case KeyType::EC: {
-      const EcKeyParams& ecParams = static_cast<const EcKeyParams&>(keyParams);
+      const auto& ecParams = static_cast<const EcKeyParams&>(keyParams);
       return PrivateKey::generateEcKey(ecParams.getKeySize());
     }
     case KeyType::HMAC: {
-      const HmacKeyParams& hmacParams = static_cast<const HmacKeyParams&>(keyParams);
+      const auto& hmacParams = static_cast<const HmacKeyParams&>(keyParams);
       return PrivateKey::generateHmacKey(hmacParams.getKeySize());
     }
     default:

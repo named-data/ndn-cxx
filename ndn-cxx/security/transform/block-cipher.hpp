@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@ namespace transform {
  * The padding scheme of the block cipher is set to the OpenSSL default,
  * which is PKCS padding.
  */
-class BlockCipher : public Transform
+class BlockCipher final : public Transform
 {
 public:
   /**
@@ -52,25 +52,25 @@ public:
               const uint8_t* key, size_t keyLen,
               const uint8_t* iv, size_t ivLen);
 
-  ~BlockCipher();
+  ~BlockCipher() final;
 
 private:
   /**
-   * @brief Read partial transformation result (if exists) from BIO
+   * @brief Read partial transformation result (if exists) from BIO.
    */
   void
   preTransform() final;
 
   /**
-   * @brief Write @p data into the cipher
+   * @brief Write @p data into the cipher.
    *
-   * @return number of bytes that are actually accepted
+   * @return Number of bytes that are actually accepted.
    */
   size_t
-  convert(const uint8_t* data, size_t dataLen) final;
+  convert(span<const uint8_t> data) final;
 
   /**
-   * @brief Finalize the encryption
+   * @brief Finalize the encryption.
    */
   void
   finalize() final;

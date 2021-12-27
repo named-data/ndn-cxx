@@ -473,9 +473,9 @@ public: // modifiers
    * @return a reference to this name, to allow chaining
    */
   Name&
-  appendImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
+  appendImplicitSha256Digest(span<const uint8_t> digestBytes)
   {
-    return append(Component::fromImplicitSha256Digest(digest, digestSize));
+    return append(Component::fromImplicitSha256Digest(digestBytes));
   }
 
   /**
@@ -493,9 +493,9 @@ public: // modifiers
    * @return a reference to this name, to allow chaining
    */
   Name&
-  appendParametersSha256Digest(const uint8_t* digest, size_t digestSize)
+  appendParametersSha256Digest(span<const uint8_t> digestBytes)
   {
-    return append(Component::fromParametersSha256Digest(digest, digestSize));
+    return append(Component::fromParametersSha256Digest(digestBytes));
   }
 
   /**

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,7 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-class BlockCipher::Impl
+class BlockCipher::Impl : boost::noncopyable
 {
 public:
   Impl() noexcept
@@ -73,12 +73,12 @@ BlockCipher::preTransform()
 }
 
 size_t
-BlockCipher::convert(const uint8_t* data, size_t dataLen)
+BlockCipher::convert(span<const uint8_t> data)
 {
-  if (dataLen == 0)
+  if (data.empty())
     return 0;
 
-  int wLen = BIO_write(m_impl->m_cipher, data, dataLen);
+  int wLen = BIO_write(m_impl->m_cipher, data.data(), data.size());
 
   if (wLen <= 0) { // failed to write data
     if (!BIO_should_retry(m_impl->m_cipher)) {

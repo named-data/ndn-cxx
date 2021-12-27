@@ -72,7 +72,7 @@ const uint8_t CERT[] = {
           0xfc, 0x90, 0x7a, 0xb8, 0x66, 0x9c, 0x0e, 0xf6, 0xb7, 0x64, 0xd1
 };
 
-const uint8_t ENCRYPTED_KEY_BAG[] = {
+const uint8_t ENCRYPTED_KEY[] = {
   0x2f, 0xd6, 0xf1, 0x6e, 0x80, 0x6f, 0x10, 0xbe
 };
 
@@ -121,29 +121,24 @@ const uint8_t SAFE_BAG[] = {
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-  Block dataBlock(CERT, sizeof(CERT));
-  Data data(dataBlock);
-  SafeBag safeBag1(data, ENCRYPTED_KEY_BAG, sizeof(ENCRYPTED_KEY_BAG));
-
-  Block safeBagBlock(SAFE_BAG, sizeof(SAFE_BAG));
-  SafeBag safeBag2(safeBagBlock);
-
-  Buffer buffer(ENCRYPTED_KEY_BAG, sizeof(ENCRYPTED_KEY_BAG));
-  SafeBag safeBag3(data, buffer);
+  Data data(Block(CERT, sizeof(CERT)));
+  SafeBag safeBag1(data, ENCRYPTED_KEY);
+  SafeBag safeBag2(Block(SAFE_BAG, sizeof(SAFE_BAG)));
+  auto encKey = make_span(ENCRYPTED_KEY);
 
   BOOST_CHECK(safeBag1.getCertificate() == data);
-  BOOST_CHECK(safeBag1.getEncryptedKey() == buffer);
+  BOOST_CHECK_EQUAL_COLLECTIONS(safeBag1.getEncryptedKey().begin(), safeBag1.getEncryptedKey().end(),
+                                encKey.begin(), encKey.end());
   BOOST_CHECK(safeBag2.getCertificate() == data);
-  BOOST_CHECK(safeBag2.getEncryptedKey() == buffer);
-  BOOST_CHECK(safeBag3.getCertificate() == data);
-  BOOST_CHECK(safeBag3.getEncryptedKey() == buffer);
+  BOOST_CHECK_EQUAL_COLLECTIONS(safeBag2.getEncryptedKey().begin(), safeBag2.getEncryptedKey().end(),
+                                encKey.begin(), encKey.end());
 }
 
 BOOST_AUTO_TEST_CASE(EncoderAndDecoder)
 {
   Block dataBlock(CERT, sizeof(CERT));
   Data data(dataBlock);
-  SafeBag safeBag(data, ENCRYPTED_KEY_BAG, sizeof(ENCRYPTED_KEY_BAG));
+  SafeBag safeBag(data, ENCRYPTED_KEY);
 
   // wire encode
   Block wireBlock = safeBag.wireEncode();
@@ -157,8 +152,8 @@ BOOST_AUTO_TEST_CASE(EncoderAndDecoder)
   safeBag2.wireDecode(wireBlock);
 
   // check equal
-  Buffer buffer1 = safeBag2.getEncryptedKey();
-  Buffer buffer2(ENCRYPTED_KEY_BAG, sizeof(ENCRYPTED_KEY_BAG));
+  Buffer buffer1(safeBag2.getEncryptedKey().begin(), safeBag2.getEncryptedKey().end());
+  Buffer buffer2(ENCRYPTED_KEY, sizeof(ENCRYPTED_KEY));
   BOOST_CHECK(buffer1 == buffer2);
 }
 

@@ -39,10 +39,9 @@ SafeBag::SafeBag(const Block& wire)
   this->wireDecode(wire);
 }
 
-SafeBag::SafeBag(const Data& certificate,
-                 const Buffer& encryptedKey)
+SafeBag::SafeBag(const Data& certificate, span<const uint8_t> encryptedKey)
   : m_certificate(certificate)
-  , m_encryptedKey(encryptedKey)
+  , m_encryptedKey(encryptedKey.begin(), encryptedKey.end())
 {
 }
 

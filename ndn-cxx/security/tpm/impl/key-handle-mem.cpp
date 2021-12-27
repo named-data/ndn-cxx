@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,30 +39,31 @@ KeyHandleMem::KeyHandleMem(shared_ptr<transform::PrivateKey> key)
 }
 
 ConstBufferPtr
-KeyHandleMem::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const
+KeyHandleMem::doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs) const
 {
   using namespace transform;
 
   OBufferStream sigOs;
-  bufferSource(bufs) >> signerFilter(digestAlgorithm, *m_key) >> streamSink(sigOs);
+  bufferSource(bufs) >> signerFilter(digestAlgo, *m_key) >> streamSink(sigOs);
   return sigOs.buf();
 }
 
 bool
-KeyHandleMem::doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-                       const uint8_t* sig, size_t sigLen) const
+KeyHandleMem::doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs,
+                       span<const uint8_t> sig) const
 {
   using namespace transform;
 
   bool result = false;
-  bufferSource(bufs) >> verifierFilter(digestAlgorithm, *m_key, sig, sigLen) >> boolSink(result);
+  bufferSource(bufs) >> verifierFilter(digestAlgo, *m_key, sig.data(), sig.size())
+                     >> boolSink(result);
   return result;
 }
 
 ConstBufferPtr
-KeyHandleMem::doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const
+KeyHandleMem::doDecrypt(span<const uint8_t> cipherText) const
 {
-  return m_key->decrypt(cipherText, cipherTextLen);
+  return m_key->decrypt(cipherText);
 }
 
 ConstBufferPtr

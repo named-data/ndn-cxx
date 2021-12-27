@@ -64,16 +64,17 @@ saveBuffer(const uint8_t* buf, size_t size, std::ostream& os, IoEncoding encodin
 {
   namespace t = ndn::security::transform;
 
+  auto src = make_span(buf, size);
   try {
     switch (encoding) {
       case NO_ENCODING:
-        t::bufferSource(buf, size) >> t::streamSink(os);
+        t::bufferSource(src) >> t::streamSink(os);
         return;
       case BASE64:
-        t::bufferSource(buf, size) >> t::base64Encode() >> t::streamSink(os);
+        t::bufferSource(src) >> t::base64Encode() >> t::streamSink(os);
         return;
       case HEX:
-        t::bufferSource(buf, size) >> t::hexEncode(true) >> t::streamSink(os);
+        t::bufferSource(src) >> t::hexEncode(true) >> t::streamSink(os);
         return;
     }
   }

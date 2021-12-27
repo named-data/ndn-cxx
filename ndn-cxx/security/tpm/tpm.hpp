@@ -216,6 +216,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
    * @return The encoded private key wrapper.
+   *
    * @throw Error The key does not exist or it could not be exported.
    */
   ConstBufferPtr
@@ -224,16 +225,17 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
    * @brief Import a private key.
    *
-   * @param keyName The private key name
-   * @param pkcs8 The private key wrapper
-   * @param pkcs8Len The length of the private key wrapper
-   * @param pw The password to encrypt the private key
-   * @param pwLen The length of the password
+   * Import a private key in encrypted PKCS #8 format.
+   *
+   * @param keyName The private key name.
+   * @param pkcs8 The key encoded in PKCS #8 format.
+   * @param pw The password to decrypt the private key.
+   * @param pwLen The length of the password.
+   *
    * @throw Error The key could not be imported.
    */
   void
-  importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
-                   const char* pw, size_t pwLen);
+  importPrivateKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen);
 
   /**
    * @brief Import a private key.

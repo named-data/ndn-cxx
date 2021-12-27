@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,7 +61,18 @@ public:
    * @brief Load the public key in PKCS#8 format from a buffer @p buf
    */
   void
-  loadPkcs8(const uint8_t* buf, size_t size);
+  loadPkcs8(span<const uint8_t> buf);
+
+  /**
+   * @brief Load the public key in PKCS#8 format from a buffer @p buf
+   * @deprecated
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  void
+  loadPkcs8(const uint8_t* buf, size_t size)
+  {
+    loadPkcs8({buf, size});
+  }
 
   /**
    * @brief Load the public key in PKCS#8 format from a stream @p is
@@ -73,7 +84,18 @@ public:
    * @brief Load the public key in base64-encoded PKCS#8 format from a buffer @p buf
    */
   void
-  loadPkcs8Base64(const uint8_t* buf, size_t size);
+  loadPkcs8Base64(span<const uint8_t> buf);
+
+  /**
+   * @brief Load the public key in base64-encoded PKCS#8 format from a buffer @p buf
+   * @deprecated
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  void
+  loadPkcs8Base64(const uint8_t* buf, size_t size)
+  {
+    loadPkcs8Base64({buf, size});
+  }
 
   /**
    * @brief Load the public key in base64-encoded PKCS#8 format from a stream @p is
@@ -99,7 +121,20 @@ public:
    * Only RSA encryption is supported for now.
    */
   ConstBufferPtr
-  encrypt(const uint8_t* plainText, size_t plainLen) const;
+  encrypt(span<const uint8_t> plainText) const;
+
+  /**
+   * @return Cipher text of @p plainText encrypted using this public key.
+   * @deprecated
+   *
+   * Only RSA encryption is supported for now.
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  ConstBufferPtr
+  encrypt(const uint8_t* plainText, size_t plainLen) const
+  {
+    return encrypt({plainText, plainLen});
+  }
 
 private:
   friend class VerifierFilter;
@@ -117,7 +152,7 @@ private:
   toPkcs8() const;
 
   ConstBufferPtr
-  rsaEncrypt(const uint8_t* plainText, size_t plainLen) const;
+  rsaEncrypt(span<const uint8_t> plainText) const;
 
 private:
   class Impl;

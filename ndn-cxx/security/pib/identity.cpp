@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@ namespace pib {
 Identity::Identity() = default;
 
 Identity::Identity(weak_ptr<detail::IdentityImpl> impl)
-  : m_impl(impl)
+  : m_impl(std::move(impl))
 {
 }
 
@@ -42,13 +42,13 @@ Identity::getName() const
 Key
 Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
 {
-  return lock()->addKey(key, keyLen, keyName);
+  return lock()->addKey({key, keyLen}, keyName);
 }
 
 void
 Identity::removeKey(const Name& keyName) const
 {
-  return lock()->removeKey(keyName);
+  lock()->removeKey(keyName);
 }
 
 Key
@@ -72,7 +72,7 @@ Identity::setDefaultKey(const Name& keyName) const
 const Key&
 Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
 {
-  return lock()->setDefaultKey(key, keyLen, keyName);
+  return lock()->setDefaultKey({key, keyLen}, keyName);
 }
 
 const Key&

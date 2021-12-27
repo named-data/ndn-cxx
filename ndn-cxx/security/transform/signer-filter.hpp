@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ class PrivateKey;
 /**
  * @brief The module to sign data.
  */
-class SignerFilter : public Transform
+class SignerFilter final : public Transform
 {
 public:
   /**
@@ -42,7 +42,7 @@ public:
    */
   SignerFilter(DigestAlgorithm algo, const PrivateKey& key);
 
-  ~SignerFilter();
+  ~SignerFilter() final;
 
 private:
   /**
@@ -51,7 +51,7 @@ private:
    * @return The number of bytes that are actually accepted
    */
   size_t
-  convert(const uint8_t* buf, size_t size) final;
+  convert(span<const uint8_t> buf) final;
 
   /**
    * @brief Finalize signing and write the signature into next module.

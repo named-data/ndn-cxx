@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,12 +38,11 @@ BOOST_AUTO_TEST_SUITE(TestBase64Decode)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  std::string in =
+  const std::string in =
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8=\n";
-
-  uint8_t out[] = {
+  const uint8_t out[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -71,12 +70,11 @@ BOOST_AUTO_TEST_CASE(Basic)
 
 BOOST_AUTO_TEST_CASE(NoNewLine)
 {
-  std::string in =
+  const std::string in =
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8=";
-
-  uint8_t out[] = {
+  const uint8_t out[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -104,7 +102,7 @@ BOOST_AUTO_TEST_CASE(NoNewLine)
 
 BOOST_AUTO_TEST_CASE(StepByStep)
 {
-  std::string in =
+  const std::string in =
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n"
@@ -113,8 +111,7 @@ BOOST_AUTO_TEST_CASE(StepByStep)
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n"
     "AAECAwQFBgcICQoLDA0ODwABAgMEBQYHCAkKCwwNDg8AAQIDBAUGBwgJCgsMDQ4P\n";
-
-  uint8_t out[] = {
+  const uint8_t out[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -145,17 +142,17 @@ BOOST_AUTO_TEST_CASE(StepByStep)
   OBufferStream os;
   StepSource source;
   source >> base64Decode() >> streamSink(os);
-  source.write(input, 65);       // complete line with "\n"
-  source.write(input + 65, 64);  // complete line without "\n"
-  source.write(input + 129, 1);  // single "\n"
-  source.write(input + 130, 35); // front of a line
-  source.write(input + 165, 30); // end of a line with "\n"
-  source.write(input + 195, 25); // front of a line
-  source.write(input + 220, 20); // middle of a line
-  source.write(input + 240, 19); // end of a line without "\n"
-  source.write(input + 259, 101); // "\n" plus one and half line
-  source.write(input + 360, 65); // end of a line plus front of another line
-  source.write(input + 425, 95); // remaining
+  source.write({input, 65});       // complete line with "\n"
+  source.write({input + 65, 64});  // complete line without "\n"
+  source.write({input + 129, 1});  // single "\n"
+  source.write({input + 130, 35}); // front of a line
+  source.write({input + 165, 30}); // end of a line with "\n"
+  source.write({input + 195, 25}); // front of a line
+  source.write({input + 220, 20}); // middle of a line
+  source.write({input + 240, 19}); // end of a line without "\n"
+  source.write({input + 259, 101}); // "\n" plus one and half line
+  source.write({input + 360, 65}); // end of a line plus front of another line
+  source.write({input + 425, 95}); // remaining
   source.end();
 
   ConstBufferPtr buf1 = os.buf();
@@ -168,6 +165,7 @@ BOOST_AUTO_TEST_CASE(EmptyInput)
   StepSource source;
   source >> base64Decode() >> streamSink(os);
   source.end();
+
   BOOST_CHECK_EQUAL(os.buf()->size(), 0);
 }
 

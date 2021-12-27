@@ -575,10 +575,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(SigningInterface, T, SigningTests, T)
 
 BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, KeyChainFixture)
 {
-  Name keyName("/test/device2");
-  std::string rawKey("nPSNOHyZKsg2WLqHAs7MXGb0sjQb4zCT");
+  const Name keyName("/test/device2");
+  const uint8_t rawKey[] = "nPSNOHyZKsg2WLqHAs7MXGb0sjQb4zCT";
   auto key = make_shared<transform::PrivateKey>();
-  key->loadRaw(KeyType::HMAC, reinterpret_cast<const uint8_t*>(rawKey.data()), rawKey.size());
+  key->loadRaw(KeyType::HMAC, rawKey);
 
   m_keyChain.importPrivateKey(keyName, key);
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(keyName), true);

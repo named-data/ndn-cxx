@@ -364,8 +364,7 @@ PibSqlite3::hasKey(const Name& keyName) const
 }
 
 void
-PibSqlite3::addKey(const Name& identity, const Name& keyName,
-                   const uint8_t* key, size_t keyLen)
+PibSqlite3::addKey(const Name& identity, const Name& keyName, span<const uint8_t> key)
 {
   // ensure identity exists
   addIdentity(identity);
@@ -376,13 +375,13 @@ PibSqlite3::addKey(const Name& identity, const Name& keyName,
                                "VALUES ((SELECT id FROM identities WHERE identity=?), ?, ?)");
     statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
     statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
-    statement.bind(3, key, keyLen, SQLITE_STATIC);
+    statement.bind(3, key.data(), key.size(), SQLITE_STATIC);
     statement.step();
   }
   else {
     Sqlite3Statement statement(m_database,
                                "UPDATE keys SET key_bits=? WHERE key_name=?");
-    statement.bind(1, key, keyLen, SQLITE_STATIC);
+    statement.bind(1, key.data(), key.size(), SQLITE_STATIC);
     statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
     statement.step();
   }
@@ -486,8 +485,9 @@ void
 PibSqlite3::addCertificate(const Certificate& certificate)
 {
   // ensure key exists
-  const Block& content = certificate.getContent();
-  addKey(certificate.getIdentity(), certificate.getKeyName(), content.value(), content.value_size());
+  const auto& content = certificate.getContent();
+  addKey(certificate.getIdentity(), certificate.getKeyName(),
+         {content.value(), content.value_size()});
 
   if (!hasCertificate(certificate.getName())) {
     Sqlite3Statement statement(m_database,

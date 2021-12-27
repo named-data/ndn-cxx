@@ -162,7 +162,7 @@ operator<<(std::ostream& os, const Certificate& cert)
   {
     using namespace transform;
     util::IndentedStream os2(os, "  ");
-    bufferSource(cert.getPublicKey().data(), cert.getPublicKey().size()) >> base64Encode() >> streamSink(os2);
+    bufferSource(cert.getPublicKey()) >> base64Encode() >> streamSink(os2);
   }
 
   os << "Signature Information:\n";

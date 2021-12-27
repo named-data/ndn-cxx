@@ -19,48 +19,24 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_SECURITY_TPM_IMPL_KEY_HANDLE_MEM_HPP
-#define NDN_CXX_SECURITY_TPM_IMPL_KEY_HANDLE_MEM_HPP
+#ifndef NDN_CXX_UTIL_SPAN_HPP
+#define NDN_CXX_UTIL_SPAN_HPP
 
-#include "ndn-cxx/security/tpm/key-handle.hpp"
+#define span_CONFIG_SELECT_SPAN span_SPAN_NONSTD
+#ifdef NDEBUG
+#define span_CONFIG_CONTRACT_LEVEL_OFF
+#else
+#define span_CONFIG_CONTRACT_LEVEL_ON
+#endif
+#define span_FEATURE_MAKE_SPAN 1
+#include "ndn-cxx/detail/nonstd/span-lite.hpp"
 
 namespace ndn {
-namespace security {
 
-namespace transform {
-class PrivateKey;
-} // namespace transform
+using ::nonstd::span;
+using ::nonstd::dynamic_extent;
+using ::nonstd::make_span;
 
-namespace tpm {
-
-/**
- * @brief A TPM key handle that keeps the private key in memory
- */
-class KeyHandleMem : public KeyHandle
-{
-public:
-  explicit
-  KeyHandleMem(shared_ptr<transform::PrivateKey> key);
-
-private:
-  ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs) const final;
-
-  bool
-  doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs, span<const uint8_t> sig) const final;
-
-  ConstBufferPtr
-  doDecrypt(span<const uint8_t> cipherText) const final;
-
-  ConstBufferPtr
-  doDerivePublicKey() const final;
-
-private:
-  shared_ptr<transform::PrivateKey> m_key;
-};
-
-} // namespace tpm
-} // namespace security
 } // namespace ndn
 
-#endif // NDN_CXX_SECURITY_TPM_IMPL_KEY_HANDLE_MEM_HPP
+#endif // NDN_CXX_UTIL_SPAN_HPP

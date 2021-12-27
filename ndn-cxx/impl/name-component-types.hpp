@@ -63,10 +63,10 @@ public:
 
   /** \brief Return the minimum allowable TLV-VALUE of this component type.
    */
-  virtual const std::vector<uint8_t>&
+  virtual span<const uint8_t>
   getMinValue() const
   {
-    static std::vector<uint8_t> value;
+    static const std::vector<uint8_t> value;
     return value;
   }
 
@@ -197,13 +197,13 @@ public:
   Component
   create(ConstBufferPtr value) const
   {
-    return Component(Block(m_type, std::move(value)));
+    return Block(m_type, std::move(value));
   }
 
   Component
-  create(const uint8_t* value, size_t valueSize) const
+  create(span<const uint8_t> value) const
   {
-    return Component(makeBinaryBlock(m_type, value, valueSize));
+    return makeBinaryBlock(m_type, value);
   }
 
   std::pair<bool, Component>
@@ -218,10 +218,10 @@ public:
     return {false, Component(successor)};
   }
 
-  const std::vector<uint8_t>&
+  span<const uint8_t>
   getMinValue() const final
   {
-    static std::vector<uint8_t> value(util::Sha256::DIGEST_SIZE);
+    static const std::vector<uint8_t> value(util::Sha256::DIGEST_SIZE);
     return value;
   }
 

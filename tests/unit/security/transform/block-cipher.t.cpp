@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // encrypt
   OBufferStream os;
-  bufferSource(plainText, sizeof(plainText)) >>
+  bufferSource(plainText) >>
     blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
                 key, sizeof(key), iv, sizeof(iv)) >> streamSink(os);
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // decrypt
   OBufferStream os2;
-  bufferSource(cipherText, sizeof(cipherText)) >>
+  bufferSource(cipherText) >>
     blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::DECRYPT,
                 key, sizeof(key), iv, sizeof(iv)) >> streamSink(os2);
 

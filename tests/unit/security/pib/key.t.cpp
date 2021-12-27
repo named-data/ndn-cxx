@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   BOOST_CHECK(!key);
   BOOST_CHECK_EQUAL(static_cast<bool>(key), false);
 
-  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
-                                              make_shared<pib::PibMemory>());
+  auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
+                                                   std::make_shared<pib::PibMemory>());
   key = Key(keyImpl);
   BOOST_CHECK(key);
   BOOST_CHECK_EQUAL(!key, false);
@@ -56,8 +56,8 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
 // of pib::Key in this test case.
 BOOST_AUTO_TEST_CASE(SharedImpl)
 {
-  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
-                                              make_shared<pib::PibMemory>());
+  auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
+                                                   std::make_shared<pib::PibMemory>());
   Key key1(keyImpl);
   Key key2(keyImpl);
   BOOST_CHECK_EQUAL(key1, key2);

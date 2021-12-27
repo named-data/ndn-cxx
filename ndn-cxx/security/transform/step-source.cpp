@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,9 +26,9 @@ namespace security {
 namespace transform {
 
 size_t
-StepSource::write(const uint8_t* buf, size_t size)
+StepSource::write(span<const uint8_t> buf)
 {
-  return m_next->write(buf, size);
+  return m_next->write(buf);
 }
 
 void
@@ -36,7 +36,6 @@ StepSource::end()
 {
   m_next->end();
 }
-
 
 void
 StepSource::doPump()

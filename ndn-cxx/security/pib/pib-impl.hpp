@@ -151,13 +151,12 @@ public: // Key management
    * one as default key of the identity.  If no default identity has been set, @p identity
    * becomes the default.
    *
-   * @param identity The name of the belonged identity.
+   * @param identity The name of the identity that will own the added key.
    * @param keyName The key name.
    * @param key The public key bits.
-   * @param keyLen The length of the public key.
    */
   virtual void
-  addKey(const Name& identity, const Name& keyName, const uint8_t* key, size_t keyLen) = 0;
+  addKey(const Name& identity, const Name& keyName, span<const uint8_t> key) = 0;
 
   /**
    * @brief Remove a key with @p keyName and related certificates

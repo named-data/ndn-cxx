@@ -45,19 +45,17 @@ class ParseResult
 public:
   ParseResult() = default;
 
-  ParseResult(SignatureInfo info, InputBuffers bufs, const uint8_t* sig, size_t sigLen)
+  ParseResult(SignatureInfo info, InputBuffers bufs, span<const uint8_t> sig)
     : info(std::move(info))
     , bufs(std::move(bufs))
     , sig(sig)
-    , sigLen(sigLen)
   {
   }
 
 public:
   SignatureInfo info;
   InputBuffers bufs;
-  const uint8_t* sig = nullptr;
-  size_t sigLen = 0;
+  span<const uint8_t> sig;
 };
 
 } // namespace
@@ -85,7 +83,7 @@ verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
 {
   transform::PublicKey pKey;
   try {
-    pKey.loadPkcs8(key, keyLen);
+    pKey.loadPkcs8({key, keyLen});
   }
   catch (const transform::Error&) {
     return false;
@@ -100,8 +98,7 @@ parse(const Data& data)
   try {
     return ParseResult(data.getSignatureInfo(),
                        data.extractSignedRanges(),
-                       data.getSignatureValue().value(),
-                       data.getSignatureValue().value_size());
+                       {data.getSignatureValue().value(), data.getSignatureValue().value_size()});
   }
   catch (const tlv::Error&) {
     return ParseResult();
@@ -119,8 +116,7 @@ parse(const Interest& interest)
       Block sigValue = interest.getSignatureValue();
       return ParseResult(*interest.getSignatureInfo(),
                          interest.extractSignedRanges(),
-                         sigValue.value(),
-                         sigValue.value_size());
+                         {sigValue.value(), sigValue.value_size()});
     }
     else {
       // Verify using older Signed Interest semantics
@@ -135,8 +131,8 @@ parse(const Interest& interest)
       return ParseResult(info,
                          {{nameBlock.value(),
                            nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size()}},
-                         sigValue.value(),
-                         sigValue.value_size());
+                         {sigValue.value(),
+                          sigValue.value_size()});
     }
   }
   catch (const tlv::Error&) {
@@ -147,21 +143,22 @@ parse(const Interest& interest)
 static bool
 verifySignature(const ParseResult& params, const transform::PublicKey& key)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, params.sigLen, key);
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig.data(), params.sig.size(), key);
 }
 
 static bool
-verifySignature(const ParseResult& params, const uint8_t* key, size_t keyLen)
+verifySignature(const ParseResult& params, span<const uint8_t> key)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, params.sigLen, key, keyLen);
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig.data(), params.sig.size(),
+                                                 key.data(), key.size());
 }
 
 static bool
 verifySignature(const ParseResult& params, const tpm::Tpm& tpm, const Name& keyName,
                 DigestAlgorithm digestAlgorithm)
 {
-  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig, params.sigLen, keyName,
-                                                 digestAlgorithm));
+  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig.data(), params.sig.size(),
+                                                 keyName, digestAlgorithm));
 }
 
 static bool
@@ -181,24 +178,24 @@ verifyDigest(const ParseResult& params, DigestAlgorithm algorithm)
   }
   auto result = os.buf();
 
-  if (result->size() != params.sigLen) {
+  if (result->size() != params.sig.size()) {
     return false;
   }
 
   // constant-time buffer comparison to mitigate timing attacks
-  return CRYPTO_memcmp(result->data(), params.sig, params.sigLen) == 0;
+  return CRYPTO_memcmp(result->data(), params.sig.data(), params.sig.size()) == 0;
 }
 
 bool
 verifySignature(const Data& data, const uint8_t* key, size_t keyLen)
 {
-  return verifySignature(parse(data), key, keyLen);
+  return verifySignature(parse(data), make_span(key, keyLen));
 }
 
 bool
 verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen)
 {
-  return verifySignature(parse(interest), key, keyLen);
+  return verifySignature(parse(interest), make_span(key, keyLen));
 }
 
 bool
@@ -216,13 +213,13 @@ verifySignature(const Interest& interest, const transform::PublicKey& key)
 bool
 verifySignature(const Data& data, const pib::Key& key)
 {
-  return verifySignature(parse(data), key.getPublicKey().data(), key.getPublicKey().size());
+  return verifySignature(parse(data), key.getPublicKey());
 }
 
 bool
 verifySignature(const Interest& interest, const pib::Key& key)
 {
-  return verifySignature(parse(interest), key.getPublicKey().data(), key.getPublicKey().size());
+  return verifySignature(parse(interest), key.getPublicKey());
 }
 
 bool
@@ -230,7 +227,7 @@ verifySignature(const Data& data, const optional<Certificate>& cert)
 {
   auto parsed = parse(data);
   if (cert) {
-    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size());
+    return verifySignature(parsed, make_span(cert->getContent().value(), cert->getContent().value_size()));
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);
@@ -246,7 +243,7 @@ verifySignature(const Interest& interest, const optional<Certificate>& cert)
 {
   auto parsed = parse(interest);
   if (cert) {
-    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size());
+    return verifySignature(parsed, make_span(cert->getContent().value(), cert->getContent().value_size()));
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);

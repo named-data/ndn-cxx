@@ -40,8 +40,6 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
 BOOST_AUTO_TEST_SUITE(TestSignerFilter)
 
-const uint8_t DATA[] = {0x01, 0x02, 0x03, 0x04};
-
 BOOST_AUTO_TEST_CASE(Rsa)
 {
   const std::string publicKeyPkcs8 =
@@ -78,21 +76,23 @@ BOOST_AUTO_TEST_CASE(Rsa)
     "cuHICmsCgYAtFJ1idqMoHxES3mlRpf2JxyQudP3SCm2WpGmqVzhRYInqeatY5sUd\n"
     "lPLHm/p77RT7EyxQHTlwn8FJPuM/4ZH1rQd/vB+Y8qAtYJCexDMsbvLW+Js+VOvk\n"
     "jweEC0nrcL31j9mF0vz5E6tfRu4hhJ6L4yfWs0gSejskeVB/w8QY4g==\n";
+  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
   auto pubKey = os1.buf();
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
+  sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
+                        privateKeyPkcs1.size()});
 
   BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, sKey), Error);
 
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(data) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_TEST(verifySignature({{DATA, sizeof(DATA)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_TEST(verifySignature({{data, sizeof(data)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_CASE(Ecdsa)
@@ -114,21 +114,23 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
     "RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA\n"
     "//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABGhuFibgwLdEJBDOLdvSg1Hc\n"
     "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
+  const uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
 
   OBufferStream os1;
   bufferSource(publicKeyPkcs8) >> base64Decode() >> streamSink(os1);
   auto pubKey = os1.buf();
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
+  sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
+                        privateKeyPkcs1.size()});
 
   BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, sKey), Error);
 
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(data) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_TEST(verifySignature({{DATA, sizeof(DATA)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_TEST(verifySignature({{data, sizeof(data)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
 }
 
 BOOST_AUTO_TEST_SUITE(Hmac)
@@ -162,7 +164,7 @@ BOOST_AUTO_TEST_CASE(Rfc4231Test1)
                                 0x3a, 0x12, 0x68, 0x54};
 
   PrivateKey key;
-  key.loadRaw(KeyType::HMAC, rawKey, sizeof(rawKey));
+  key.loadRaw(KeyType::HMAC, rawKey);
 
   BOOST_CHECK_THROW(SignerFilter(DigestAlgorithm::NONE, key), Error);
 
@@ -198,7 +200,7 @@ BOOST_AUTO_TEST_CASE(Rfc4231Test2)
                                 0x38, 0x43};
 
   PrivateKey key;
-  key.loadRaw(KeyType::HMAC, reinterpret_cast<const uint8_t*>(rawKey), std::strlen(rawKey));
+  key.loadRaw(KeyType::HMAC, {reinterpret_cast<const uint8_t*>(rawKey), std::strlen(rawKey)});
 
   OBufferStream os256;
   bufferSource(data) >> signerFilter(DigestAlgorithm::SHA256, key) >> streamSink(os256);
@@ -222,10 +224,10 @@ BOOST_AUTO_TEST_CASE(Rfc4231Test3)
                                 0x65, 0xfe};
 
   PrivateKey key;
-  key.loadRaw(KeyType::HMAC, rawKey, sizeof(rawKey));
+  key.loadRaw(KeyType::HMAC, rawKey);
 
   OBufferStream os256;
-  bufferSource(data, sizeof(data)) >> signerFilter(DigestAlgorithm::SHA256, key) >> streamSink(os256);
+  bufferSource(data) >> signerFilter(DigestAlgorithm::SHA256, key) >> streamSink(os256);
   auto sig = os256.buf();
   BOOST_CHECK_EQUAL_COLLECTIONS(sig->begin(), sig->end(), hmacSha256, hmacSha256 + sizeof(hmacSha256));
 }

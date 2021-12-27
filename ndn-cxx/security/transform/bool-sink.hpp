@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,7 @@ private:
    * @return the same value as @p size.
    */
   size_t
-  doWrite(const uint8_t* buf, size_t size) final;
+  doWrite(span<const uint8_t> buf) final;
 
   /**
    * @brief Finalize sink processing

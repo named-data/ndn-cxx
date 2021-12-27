@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,11 +26,7 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-/**
- * @brief The implementation class which contains the internal state of the filter
- *        which includes openssl specific structures.
- */
-class Base64Encode::Impl
+class Base64Encode::Impl : boost::noncopyable
 {
 public:
   Impl()
@@ -51,6 +47,7 @@ public:
   BIO* m_sink; // BIO_f_base64 alone does not work without a sink
 };
 
+
 Base64Encode::Base64Encode(bool needBreak)
   : m_impl(make_unique<Impl>())
 {
@@ -67,12 +64,12 @@ Base64Encode::preTransform()
 }
 
 size_t
-Base64Encode::convert(const uint8_t* data, size_t dataLen)
+Base64Encode::convert(span<const uint8_t> data)
 {
-  if (dataLen == 0)
+  if (data.empty())
     return 0;
 
-  int wLen = BIO_write(m_impl->m_base64, data, dataLen);
+  int wLen = BIO_write(m_impl->m_base64, data.data(), data.size());
 
   if (wLen <= 0) { // fail to write data
     if (!BIO_should_retry(m_impl->m_base64)) {
@@ -116,13 +113,14 @@ Base64Encode::fillOutputBuffer()
 
   if (rLen < nRead)
     buffer->erase(buffer->begin() + rLen, buffer->end());
+
   setOutputBuffer(std::move(buffer));
 }
 
 bool
 Base64Encode::isConverterEmpty()
 {
-  return (BIO_pending(m_impl->m_sink) <= 0);
+  return BIO_pending(m_impl->m_sink) <= 0;
 }
 
 unique_ptr<Transform>
