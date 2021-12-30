@@ -355,7 +355,9 @@ public: // modifiers
    *  @param value a TLV element. If its TLV-TYPE is tlv::GenericNameComponent, it is
    *               appended as is. Otherwise, it is nested into a GenericNameComponent.
    *  @return a reference to this name, to allow chaining.
+   *  @deprecated
    */
+  [[deprecated]]
   Name&
   append(Block value)
   {

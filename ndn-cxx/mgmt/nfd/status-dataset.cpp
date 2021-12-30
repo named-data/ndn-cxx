@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,7 +42,7 @@ StatusDataset::getDatasetPrefix(const Name& prefix) const
 }
 
 void
-StatusDataset::addParameters(Name& name) const
+StatusDataset::addParameters(Name&) const
 {
 }
 
@@ -113,7 +113,8 @@ FaceQueryDataset::FaceQueryDataset(const FaceQueryFilter& filter)
 void
 FaceQueryDataset::addParameters(Name& name) const
 {
-  name.append(m_filter.wireEncode());
+  const auto& filterBlock = m_filter.wireEncode();
+  name.append(filterBlock.begin(), filterBlock.end());
 }
 
 ChannelDataset::ChannelDataset()

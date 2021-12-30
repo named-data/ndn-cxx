@@ -474,13 +474,17 @@ KeyChain::sign(Interest& interest, const SigningInfo& params)
   }
   else {
     Name signedName = interest.getName();
+
     // We encode in Data format because this is the format used prior to Packet Specification v0.3
-    signedName.append(sigInfo.wireEncode(SignatureInfo::Type::Data)); // SignatureInfo
+    const auto& sigInfoBlock = sigInfo.wireEncode(SignatureInfo::Type::Data);
+    signedName.append(sigInfoBlock.begin(), sigInfoBlock.end()); // SignatureInfo
+
     Block sigValue(tlv::SignatureValue,
                    sign({{signedName.wireEncode().value(), signedName.wireEncode().value_size()}},
                         keyName, params.getDigestAlgorithm()));
     sigValue.encode();
-    signedName.append(std::move(sigValue)); // SignatureValue
+    signedName.append(sigValue.begin(), sigValue.end()); // SignatureValue
+
     interest.setName(signedName);
   }
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,10 +60,11 @@ ControlCommand::getRequestName(const Name& commandPrefix,
 {
   this->validateRequest(parameters);
 
-  Name name = commandPrefix;
-  name.append(m_module).append(m_verb);
-  name.append(parameters.wireEncode());
-  return name;
+  const auto& paramBlock = parameters.wireEncode();
+  return Name(commandPrefix)
+         .append(m_module)
+         .append(m_verb)
+         .append(paramBlock.begin(), paramBlock.end());
 }
 
 ControlCommand::FieldValidator::FieldValidator()
@@ -75,7 +76,7 @@ ControlCommand::FieldValidator::FieldValidator()
 void
 ControlCommand::FieldValidator::validate(const ControlParameters& parameters) const
 {
-  const std::vector<bool>& presentFields = parameters.getPresentFields();
+  const auto& presentFields = parameters.getPresentFields();
 
   for (size_t i = 0; i < CONTROL_PARAMETER_UBOUND; ++i) {
     bool isPresent = presentFields[i];
