@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -299,12 +299,10 @@ prependNestedBlock(EncodingImpl<TAG>& encoder, uint32_t type, const U& value)
 {
   BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<U>));
 
-  size_t valueLength = value.wireEncode(encoder);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
-
-  return totalLength;
+  size_t length = value.wireEncode(encoder);
+  length += encoder.prependVarNumber(length);
+  length += encoder.prependVarNumber(type);
+  return length;
 }
 
 /** @brief Create a TLV block containing a nested TLV element.
@@ -322,7 +320,52 @@ makeNestedBlock(uint32_t type, const U& value)
 
   EncodingBuffer encoder(totalLength, 0);
   prependNestedBlock(encoder, type, value);
+  return encoder.block();
+}
 
+/** @brief Prepend a TLV element containing a sequence of nested TLV elements.
+ *  @tparam I bidirectional iterator to a type that satisfies WireEncodableWithEncodingBuffer concept
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number for outer TLV element
+ *  @param first begin iterator to inner TLV elements
+ *  @param last past-end iterator to inner TLV elements
+ *  @sa makeNestedBlock
+ */
+template<Tag TAG, class I>
+size_t
+prependNestedBlock(EncodingImpl<TAG>& encoder, uint32_t type, I first, I last)
+{
+  BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<typename std::iterator_traits<I>::value_type>));
+
+  auto rfirst = std::make_reverse_iterator(last);
+  auto rlast = std::make_reverse_iterator(first);
+
+  size_t length = 0;
+  for (auto i = rfirst; i != rlast; ++i) {
+    length += i->wireEncode(encoder);
+  }
+
+  length += encoder.prependVarNumber(length);
+  length += encoder.prependVarNumber(type);
+  return length;
+}
+
+/** @brief Create a TLV block containing a sequence of nested TLV elements.
+ *  @tparam I bidirectional iterator to a type that satisfies WireEncodableWithEncodingBuffer concept
+ *  @param type TLV-TYPE number for outer TLV element
+ *  @param first begin iterator to inner TLV elements
+ *  @param last past-end iterator to inner TLV elements
+ *  @sa prependNestedBlock
+ */
+template<class I>
+Block
+makeNestedBlock(uint32_t type, I first, I last)
+{
+  EncodingEstimator estimator;
+  size_t totalLength = prependNestedBlock(estimator, type, first, last);
+
+  EncodingBuffer encoder(totalLength, 0);
+  prependNestedBlock(encoder, type, first, last);
   return encoder.block();
 }
 

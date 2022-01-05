@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -110,8 +110,9 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   totalLength += encoder.prependByteArrayBlock(tlv::Nonce, m_nonce->data(), m_nonce->size());
 
   // ForwardingHint
-  if (!getForwardingHint().empty()) {
-    totalLength += getForwardingHint().wireEncode(encoder);
+  if (!m_forwardingHint.empty()) {
+    totalLength += prependNestedBlock(encoder, tlv::ForwardingHint,
+                                      m_forwardingHint.begin(), m_forwardingHint.end());
   }
 
   // MustBeFresh
@@ -186,7 +187,7 @@ Interest::wireDecode(const Block& wire)
   m_name = std::move(tempName);
 
   m_canBePrefix = m_mustBeFresh = false;
-  m_forwardingHint = {};
+  m_forwardingHint.clear();
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
   m_hopLimit.reset();
@@ -221,7 +222,37 @@ Interest::wireDecode(const Block& wire)
         if (lastElement >= 4) {
           NDN_THROW(Error("ForwardingHint element is out of order"));
         }
-        m_forwardingHint.wireDecode(*element);
+        // ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Name
+        // [previous format]
+        // ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Delegation
+        // Delegation = DELEGATION-TYPE TLV-LENGTH Preference Name
+        element->parse();
+        for (const auto& del : element->elements()) {
+          switch (del.type()) {
+            case tlv::Name:
+              try {
+                m_forwardingHint.emplace_back(del);
+              }
+              catch (const tlv::Error&) {
+                NDN_THROW_NESTED(Error("Invalid Name in ForwardingHint"));
+              }
+              break;
+            case tlv::LinkDelegation:
+              try {
+                del.parse();
+                m_forwardingHint.emplace_back(del.get(tlv::Name));
+              }
+              catch (const tlv::Error&) {
+                NDN_THROW_NESTED(Error("Invalid Name in ForwardingHint.Delegation"));
+              }
+              break;
+            default:
+              if (tlv::isCriticalType(del.type())) {
+                NDN_THROW(Error("Unexpected TLV-TYPE " + to_string(del.type()) + " while decoding ForwardingHint"));
+              }
+              break;
+          }
+        }
         lastElement = 4;
         break;
       }
@@ -356,9 +387,9 @@ Interest::setName(const Name& name)
 }
 
 Interest&
-Interest::setForwardingHint(const DelegationList& value)
+Interest::setForwardingHint(std::vector<Name> value)
 {
-  m_forwardingHint = value;
+  m_forwardingHint = std::move(value);
   m_wire.reset();
   return *this;
 }

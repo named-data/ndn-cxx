@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #ifndef NDN_CXX_INTEREST_HPP
 #define NDN_CXX_INTEREST_HPP
 
-#include "ndn-cxx/delegation-list.hpp"
 #include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/name.hpp"
 #include "ndn-cxx/security/security-common.hpp"
@@ -240,33 +239,14 @@ public: // element access
     return *this;
   }
 
-  const DelegationList&
+  span<const Name>
   getForwardingHint() const noexcept
   {
     return m_forwardingHint;
   }
 
   Interest&
-  setForwardingHint(const DelegationList& value);
-
-  /** @brief Modify ForwardingHint in-place.
-   *  @tparam Modifier a unary function that accepts DelegationList&
-   *
-   *  This is equivalent to, but more efficient (avoids copying) than:
-   *  @code
-   *  auto fh = interest.getForwardingHint();
-   *  modifier(fh);
-   *  interest.setForwardingHint(fh);
-   *  @endcode
-   */
-  template<typename Modifier>
-  Interest&
-  modifyForwardingHint(const Modifier& modifier)
-  {
-    modifier(m_forwardingHint);
-    m_wire.reset();
-    return *this;
-  }
+  setForwardingHint(std::vector<Name> value);
 
   /** @brief Check if the Nonce element is present.
    */
@@ -499,7 +479,7 @@ private:
   static bool s_autoCheckParametersDigest;
 
   Name m_name;
-  DelegationList m_forwardingHint;
+  std::vector<Name> m_forwardingHint;
   mutable optional<Nonce> m_nonce;
   time::milliseconds m_interestLifetime;
   optional<uint8_t> m_hopLimit;

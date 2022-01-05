@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -132,6 +132,21 @@ BOOST_AUTO_TEST_CASE(Nested)
   BOOST_CHECK_EQUAL(b1.elements().size(), 1);
   BOOST_CHECK_EQUAL(b1.elements().begin()->type(), name.wireEncode().type());
   BOOST_CHECK_EQUAL(*b1.elements().begin(), name.wireEncode());
+}
+
+BOOST_AUTO_TEST_CASE(NestedSequence)
+{
+  std::vector<Name> names;
+  names.emplace_back("/A");
+  names.emplace_back("/B");
+  Block b1 = makeNestedBlock(100, names.begin(), names.end());
+
+  BOOST_CHECK_EQUAL(b1.type(), 100);
+  b1.parse();
+  auto elements = b1.elements();
+  BOOST_REQUIRE_EQUAL(elements.size(), 2);
+  BOOST_CHECK_EQUAL(Name(elements[0]), names[0]);
+  BOOST_CHECK_EQUAL(Name(elements[1]), names[1]);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlockHelpers

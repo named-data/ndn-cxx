@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(TestLink)
 
 const uint8_t GOOD_LINK[] = {
-0x06, 0xda, // Data
+0x06, 0xd0, // Data
     0x07, 0x14, // Name
         0x08, 0x05,
             0x6c, 0x6f, 0x63, 0x61, 0x6c,
@@ -42,19 +42,13 @@ const uint8_t GOOD_LINK[] = {
             0x01,
         0x19, 0x02, // FreshnessPeriod
             0x27, 0x10,
-    0x15, 0x1a, // Content
-        0x1f, 0x0c, // LinkDelegation
-            0x1e, 0x01, // LinkPreference
-                0x0a,
-            0x07, 0x07, // Name
-                0x08, 0x05,
-                    0x6c, 0x6f, 0x63, 0x61, 0x6c,
-        0x1f, 0x0a, // LinkDelegation
-            0x1e, 0x01, // LinkPreference
-                0x14,
-            0x07, 0x05, // Name
-                0x08, 0x03,
-                    0x6e, 0x64, 0x6e,
+    0x15, 0x10, // Content
+        0x07, 0x07, // Name
+            0x08, 0x05,
+                0x6c, 0x6f, 0x63, 0x61, 0x6c,
+        0x07, 0x05, // Name
+            0x08, 0x03,
+                0x6e, 0x64, 0x6e,
     0x16, 0x1b, // SignatureInfo
         0x1b, 0x01, // SignatureType
             0x01,
@@ -85,8 +79,8 @@ BOOST_AUTO_TEST_CASE(Decode)
 {
   Link link(Block(GOOD_LINK, sizeof(GOOD_LINK)));
   BOOST_CHECK_EQUAL(link.getName(), Name("/local/ndn/prefix"));
-  BOOST_CHECK_EQUAL(link.getDelegationList(),
-                    DelegationList({{10, Name("/local")}, {20, Name("/ndn")}}));
+  BOOST_TEST(link.getDelegationList() == std::vector<Name>({"/local", "/ndn"}),
+             boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(DecodeBadContentType)
@@ -102,14 +96,14 @@ BOOST_AUTO_TEST_CASE(DecodeBadContentType)
 
 BOOST_AUTO_TEST_CASE(Encode)
 {
-  Link link1("/test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
+  Link link1("/test", {"/test1", "/test2", "/test3"});
   signData(link1);
   Block wire = link1.wireEncode();
 
   Link link2(wire);
   BOOST_CHECK_EQUAL(link2.getName(), "/test");
-  BOOST_CHECK_EQUAL(link2.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {20, "/test2"}, {100, "/test3"}}));
+  BOOST_TEST(link2.getDelegationList() == std::vector<Name>({"/test1", "/test2", "/test3"}),
+             boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // EncodeDecode
@@ -119,54 +113,55 @@ BOOST_AUTO_TEST_SUITE(Modify)
 BOOST_AUTO_TEST_CASE(SetDelegationList)
 {
   Link link("/test");
-  BOOST_CHECK_EQUAL(link.getDelegationList(), DelegationList());
+  BOOST_CHECK(link.getDelegationList().empty());
 
-  link.setDelegationList(DelegationList({{10, "/test1"}, {20, "/test2"}}));
-  BOOST_CHECK_EQUAL(link.getDelegationList(), DelegationList({{10, "/test1"}, {20, "/test2"}}));
+  link.setDelegationList(std::vector<Name>({"/test1", "/test2"}));
+  BOOST_TEST(link.getDelegationList() == std::vector<Name>({"/test1", "/test2"}),
+             boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(AddDelegation)
 {
-  Link link1("/test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  BOOST_CHECK_EQUAL(link1.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {20, "/test2"}, {100, "/test3"}}));
+  Link link1("/test", {"/test1", "/test2", "/test3"});
+  BOOST_TEST(link1.getDelegationList() == std::vector<Name>({"/test1", "/test2", "/test3"}),
+             boost::test_tools::per_element());
 
-  link1.addDelegation(30, "/test4");
-  BOOST_CHECK_EQUAL(link1.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {20, "/test2"}, {30, "/test4"}, {100, "/test3"}}));
+  BOOST_CHECK(link1.addDelegation("/test4"));
+  BOOST_TEST(link1.getDelegationList() == std::vector<Name>({"/test1", "/test2", "/test3", "/test4"}),
+             boost::test_tools::per_element());
 
-  link1.addDelegation(40, "/test2");
-  BOOST_CHECK_EQUAL(link1.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {30, "/test4"}, {40, "/test2"}, {100, "/test3"}}));
+  BOOST_CHECK(!link1.addDelegation("/test2"));
+  BOOST_TEST(link1.getDelegationList() == std::vector<Name>({"/test1", "/test2", "/test3", "/test4"}),
+             boost::test_tools::per_element());
 
   signData(link1);
   Link link2(link1.wireEncode());
-  BOOST_CHECK_EQUAL(link2.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {30, "/test4"}, {40, "/test2"}, {100, "/test3"}}));
+  BOOST_TEST(link2.getDelegationList() == std::vector<Name>({"/test1", "/test2", "/test3", "/test4"}),
+             boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(RemoveDelegation)
 {
-  Link link1("/test", {{10, "/test1"}, {20, "/test2"}, {100, "/test3"}});
-  BOOST_CHECK_EQUAL(link1.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {20, "/test2"}, {100, "/test3"}}));
+  Link link1("/test", {"/test1", "/test2", "/test3"});
+  BOOST_TEST(link1.getDelegationList() == std::vector<Name>({"/test1", "/test2", "/test3"}),
+             boost::test_tools::per_element());
 
-  link1.removeDelegation("/test4"); // non-existent
-  BOOST_CHECK_EQUAL(link1.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {20, "/test2"}, {100, "/test3"}}));
+  BOOST_CHECK(!link1.removeDelegation("/test4")); // non-existent
+  BOOST_TEST(link1.getDelegationList() == std::vector<Name>({"/test1", "/test2", "/test3"}),
+             boost::test_tools::per_element());
 
-  link1.removeDelegation("/test2");
-  BOOST_CHECK_EQUAL(link1.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {100, "/test3"}}));
+  BOOST_CHECK(link1.removeDelegation("/test2"));
+  BOOST_TEST(link1.getDelegationList() == std::vector<Name>({"/test1", "/test3"}),
+             boost::test_tools::per_element());
 
   signData(link1);
   Link link2(link1.wireEncode());
-  BOOST_CHECK_EQUAL(link2.getDelegationList(),
-                    DelegationList({{10, "/test1"}, {100, "/test3"}}));
+  BOOST_TEST(link2.getDelegationList() == std::vector<Name>({"/test1", "/test3"}),
+             boost::test_tools::per_element());
 
   link1.removeDelegation("/test1");
   link1.removeDelegation("/test3");
-  BOOST_CHECK_EQUAL(link1.getDelegationList(), DelegationList());
+  BOOST_CHECK(link1.getDelegationList().empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Modify
