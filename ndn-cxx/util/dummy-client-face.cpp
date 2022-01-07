@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@
 namespace ndn {
 namespace util {
 
-class DummyClientFace::Transport : public ndn::Transport
+class DummyClientFace::Transport final : public ndn::Transport
 {
 public:
   void
@@ -45,40 +45,24 @@ public:
   }
 
   void
-  close() override
+  send(const Block& block) final
+  {
+    onSendBlock(block);
+  }
+
+  void
+  close() final
   {
   }
 
   void
-  pause() override
+  pause() final
   {
   }
 
   void
-  resume() override
+  resume() final
   {
-  }
-
-  void
-  send(const Block& wire) override
-  {
-    onSendBlock(wire);
-  }
-
-  void
-  send(const Block& header, const Block& payload) override
-  {
-    EncodingBuffer encoder(header.size() + payload.size(), header.size() + payload.size());
-    encoder.appendByteArray(header.wire(), header.size());
-    encoder.appendByteArray(payload.wire(), payload.size());
-
-    this->send(encoder.block());
-  }
-
-  boost::asio::io_service&
-  getIoService()
-  {
-    return *m_ioService;
   }
 
 public:

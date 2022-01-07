@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,50 +49,47 @@ public:
   virtual
   ~Transport() = default;
 
-  /** \brief Asynchronously open the connection.
-   *  \param ioService io_service to create socket on
-   *  \param receiveCallback callback function when a TLV block is received; must not be empty
-   *  \throw boost::system::system_error connection cannot be established
+  /**
+   * \brief Asynchronously open the connection.
+   * \param ioService io_service to create socket on
+   * \param receiveCallback callback function when a TLV block is received; must not be empty
+   * \throw boost::system::system_error connection cannot be established
    */
   virtual void
   connect(boost::asio::io_service& ioService, ReceiveCallback receiveCallback);
 
-  /** \brief Close the connection.
+  /**
+   * \brief Close the connection.
    */
   virtual void
   close() = 0;
 
-  /** \brief send a TLV block through the transport
+  /**
+   * \brief Send a TLV block through the transport.
    */
   virtual void
-  send(const Block& wire) = 0;
+  send(const Block& block) = 0;
 
-  /** \brief send two memory blocks through the transport
-   *
-   *  Scatter/gather API is utilized to send two non-consecutive memory blocks together
-   *  (as part of the same message in datagram-oriented transports).
-   */
-  virtual void
-  send(const Block& header, const Block& payload) = 0;
-
-  /** \brief pause the transport
-   *  \post the receive callback will not be invoked
-   *  \note This operation has no effect if transport has been paused,
-   *        or when connection is being established.
+  /**
+   * \brief Pause the transport, canceling all pending operations.
+   * \post the receive callback will not be invoked
+   * \note This operation has no effect if the transport has been paused,
+   *       or when the connection is being established.
    */
   virtual void
   pause() = 0;
 
-  /** \brief resume the transport
-   *  \post the receive callback will be invoked
-   *  \note This operation has no effect if transport is not paused,
-   *        or when connection is being established.
+  /**
+   * \brief Resume the transport.
+   * \post the receive callback will be invoked
+   * \note This operation has no effect if the transport is not paused,
+   *       or when the connection is being established.
    */
   virtual void
   resume() = 0;
 
-  /** \retval true connection has been established
-   *  \retval false connection is not yet established or has been closed
+  /**
+   * \brief Return whether the transport is connected.
    */
   bool
   isConnected() const noexcept
@@ -100,8 +97,9 @@ public:
     return m_isConnected;
   }
 
-  /** \retval true incoming packets are expected, the receive callback will be invoked
-   *  \retval false incoming packets are not expected, the receive callback will not be invoked
+  /**
+   * \retval true incoming packets are expected, the receive callback will be invoked
+   * \retval false incoming packets are not expected, the receive callback will not be invoked
    */
   bool
   isReceiving() const noexcept

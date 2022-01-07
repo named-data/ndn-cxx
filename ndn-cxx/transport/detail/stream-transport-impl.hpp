@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,6 +28,7 @@
 #include <boost/asio/write.hpp>
 
 #include <list>
+#include <queue>
 
 namespace ndn {
 namespace detail {
@@ -42,8 +43,7 @@ class StreamTransportImpl : public std::enable_shared_from_this<StreamTransportI
 {
 public:
   using Impl = StreamTransportImpl<BaseTransport, Protocol>;
-  using BlockSequence = std::list<Block>;
-  using TransmissionQueue = std::list<BlockSequence>;
+  using TransmissionQueue = std::queue<Block, std::list<Block>>;
 
   StreamTransportImpl(BaseTransport& transport, boost::asio::io_service& ioService)
     : m_transport(transport)
@@ -85,7 +85,7 @@ public:
 
     m_transport.m_isConnected = false;
     m_transport.m_isReceiving = false;
-    m_transmissionQueue.clear();
+    TransmissionQueue{}.swap(m_transmissionQueue); // clear the queue
   }
 
   void
@@ -114,20 +114,15 @@ public:
   }
 
   void
-  send(const Block& wire)
+  send(const Block& block)
   {
-    BlockSequence sequence;
-    sequence.push_back(wire);
-    send(std::move(sequence));
-  }
+    m_transmissionQueue.push(block);
 
-  void
-  send(const Block& header, const Block& payload)
-  {
-    BlockSequence sequence;
-    sequence.push_back(header);
-    sequence.push_back(payload);
-    send(std::move(sequence));
+    if (m_transport.m_isConnected && m_transmissionQueue.size() == 1) {
+      asyncWrite();
+    }
+    // if not connected or there's another transmission in progress (m_transmissionQueue.size() > 1),
+    // the next write will be scheduled either in connectHandler or in asyncWriteHandler
   }
 
 protected:
@@ -162,26 +157,12 @@ protected:
   }
 
   void
-  send(BlockSequence&& sequence)
-  {
-    m_transmissionQueue.emplace_back(sequence);
-
-    if (m_transport.m_isConnected && m_transmissionQueue.size() == 1) {
-      asyncWrite();
-    }
-
-    // if not connected or there is transmission in progress (m_transmissionQueue.size() > 1),
-    // next write will be scheduled either in connectHandler or in asyncWriteHandler
-  }
-
-  void
   asyncWrite()
   {
     BOOST_ASSERT(!m_transmissionQueue.empty());
-    boost::asio::async_write(m_socket, m_transmissionQueue.front(),
+    boost::asio::async_write(m_socket, boost::asio::buffer(m_transmissionQueue.front()),
       // capture a copy of the shared_ptr to "this" to prevent deallocation
-      [this, self = this->shared_from_this(),
-       queueItem = m_transmissionQueue.begin()] (const auto& error, size_t) {
+      [this, self = this->shared_from_this()] (const auto& error, size_t) {
         if (error) {
           if (error == boost::system::errc::operation_canceled) {
             // async receive has been explicitly cancelled (e.g., socket close)
@@ -195,7 +176,8 @@ protected:
           return; // queue has been already cleared
         }
 
-        m_transmissionQueue.erase(queueItem);
+        BOOST_ASSERT(!m_transmissionQueue.empty());
+        m_transmissionQueue.pop();
 
         if (!m_transmissionQueue.empty()) {
           asyncWrite();
@@ -265,7 +247,6 @@ protected:
   typename Protocol::socket m_socket;
   uint8_t m_inputBuffer[MAX_NDN_PACKET_SIZE];
   size_t m_inputBufferSize = 0;
-
   TransmissionQueue m_transmissionQueue;
   boost::asio::steady_timer m_connectTimer;
   bool m_isConnecting = false;

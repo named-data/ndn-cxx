@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@
 namespace ndn {
 namespace util {
 
-/** \brief a client-side face for unit testing
+/** \brief A client-side face for unit testing.
  */
 class DummyClientFace : public ndn::Face
 {
@@ -98,7 +98,7 @@ public:
   DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
                   const Options& options = Options());
 
-  ~DummyClientFace();
+  ~DummyClientFace() override;
 
   /** \brief cause the Face to receive an interest
    */
