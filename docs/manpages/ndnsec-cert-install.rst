@@ -14,8 +14,9 @@ Description
 will be set as the default certificate for the corresponding identity and
 the identity will be set as the user's default identity.
 
-*file* can be a filesystem path or an HTTP URL of a file containing the certificate
-to install. If *file* is "-", the certificate will be read from the standard input.
+*file* is a path to a file that contains the certificate to install.
+If *file* is "-", the certificate will be read from the standard input.
+The certificate should be in Base64 encoding.
 
 Options
 -------
@@ -40,10 +41,6 @@ Example
 Install a certificate and set it as the default certificate::
 
     $ ndnsec-cert-install cert_file.cert
-
-Install a certificate via HTTP and set it as the default certificate::
-
-    $ ndnsec-cert-install "http://ndncert.domain.com/cert/get/my-certificate.ndncert"
 
 Install a certificate but do not change any default settings::
 
