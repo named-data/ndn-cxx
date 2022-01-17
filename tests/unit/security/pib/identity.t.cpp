@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,12 +62,12 @@ BOOST_AUTO_TEST_CASE(SharedImpl)
   BOOST_CHECK_NE(identity1, Identity());
   BOOST_CHECK_EQUAL(Identity(), Identity());
 
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  identity1.addKey(id1Key1, id1Key1Name);
   BOOST_CHECK_NO_THROW(identity2.getKey(id1Key1Name));
   identity2.removeKey(id1Key1Name);
   BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), pib::Pib::Error);
 
-  identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  identity1.setDefaultKey(id1Key1, id1Key1Name);
   BOOST_CHECK_NO_THROW(identity2.getDefaultKey());
 }
 

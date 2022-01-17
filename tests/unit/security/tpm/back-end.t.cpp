@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
   {
     using namespace transform;
     bufferSource(content1)
-      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, sigValueSingle->data(), sigValueSingle->size())
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueSingle)
       >> boolSink(resultSingle);
   }
   BOOST_CHECK_EQUAL(resultSingle, true);
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
   {
     using namespace transform;
     bufferSource(InputBuffers{content1, content2})
-      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, sigValueVector->data(), sigValueVector->size())
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueVector)
       >> boolSink(resultVector);
   }
   BOOST_CHECK_EQUAL(resultVector, true);
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   {
     using namespace transform;
     bufferSource(content1)
-      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, sigValueSingle->data(), sigValueSingle->size())
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueSingle)
       >> boolSink(resultSingle);
   }
   BOOST_CHECK_EQUAL(resultSingle, true);
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   {
     using namespace transform;
     bufferSource(InputBuffers{content1, content2})
-      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, sigValueVector->data(), sigValueVector->size())
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueVector)
       >> boolSink(resultVector);
   }
   BOOST_CHECK_EQUAL(resultVector, true);

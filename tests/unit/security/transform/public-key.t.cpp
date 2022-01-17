@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,14 +71,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
 {
   T dataSet;
 
-  auto pKeyPkcs8Base64 = reinterpret_cast<const uint8_t*>(dataSet.publicKeyPkcs8.data());
-  size_t pKeyPkcs8Base64Len = dataSet.publicKeyPkcs8.size();
+  auto pKeyPkcs8Base64 = make_span(reinterpret_cast<const uint8_t*>(dataSet.publicKeyPkcs8.data()),
+                                   dataSet.publicKeyPkcs8.size());
   OBufferStream os;
-  bufferSource(make_span(pKeyPkcs8Base64, pKeyPkcs8Base64Len)) >> base64Decode() >> streamSink(os);
+  bufferSource(pKeyPkcs8Base64) >> base64Decode() >> streamSink(os);
   auto pKeyPkcs8 = os.buf();
 
   PublicKey pKey1;
-  BOOST_CHECK_NO_THROW(pKey1.loadPkcs8Base64({pKeyPkcs8Base64, pKeyPkcs8Base64Len}));
+  BOOST_CHECK_NO_THROW(pKey1.loadPkcs8Base64(pKeyPkcs8Base64));
 
   std::stringstream ss2(dataSet.publicKeyPkcs8);
   PublicKey pKey2;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
 
   OBufferStream os5;
   BOOST_REQUIRE_NO_THROW(pKey1.savePkcs8Base64(os5));
-  BOOST_CHECK_EQUAL_COLLECTIONS(pKeyPkcs8Base64, pKeyPkcs8Base64 + pKeyPkcs8Base64Len,
+  BOOST_CHECK_EQUAL_COLLECTIONS(pKeyPkcs8Base64.begin(), pKeyPkcs8Base64.end(),
                                 os5.buf()->begin(), os5.buf()->end());
 
   OBufferStream os6;

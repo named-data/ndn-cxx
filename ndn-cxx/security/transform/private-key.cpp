@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -175,7 +175,7 @@ PrivateKey::loadRaw(KeyType type, span<const uint8_t> buf)
     NDN_THROW(Error("Failed to load private key"));
 
 #if OPENSSL_VERSION_NUMBER < 0x1010100fL
-  m_impl->keySize = size * 8;
+  m_impl->keySize = buf.size() * 8;
 #endif
 }
 

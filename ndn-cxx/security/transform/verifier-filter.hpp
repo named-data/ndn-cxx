@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,12 +43,12 @@ public:
   /**
    * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and public key @p key
    */
-  VerifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen);
+  VerifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig);
 
   /**
    * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and HMAC key @p key
    */
-  VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen);
+  VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig);
 
   ~VerifierFilter() final;
 
@@ -78,10 +78,10 @@ private:
 };
 
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen);
+verifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig);
 
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen);
+verifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig);
 
 } // namespace transform
 } // namespace security

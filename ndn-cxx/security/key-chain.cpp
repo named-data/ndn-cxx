@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -263,8 +263,7 @@ KeyChain::createKey(const Identity& identity, const KeyParams& params)
   Name keyName = m_tpm->createKey(identity.getName(), params);
 
   // set up key info in PIB
-  ConstBufferPtr pubKey = m_tpm->getPublicKey(keyName);
-  Key key = identity.addKey(pubKey->data(), pubKey->size(), keyName);
+  Key key = identity.addKey(*m_tpm->getPublicKey(keyName), keyName);
 
   NDN_LOG_DEBUG("Requesting self-signing for newly created key " << key.getName());
   selfSign(key);
@@ -397,7 +396,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   ConstBufferPtr sigBits;
   try {
-    sigBits = m_tpm->sign(content, 4, keyName, DigestAlgorithm::SHA256);
+    sigBits = m_tpm->sign({content}, keyName, DigestAlgorithm::SHA256);
   }
   catch (const std::runtime_error&) {
     m_tpm->deleteKey(keyName);
@@ -408,8 +407,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
     using namespace transform;
     PublicKey publicKey;
     publicKey.loadPkcs8(publicKeyBits);
-    bufferSource(content) >> verifierFilter(DigestAlgorithm::SHA256, publicKey,
-                                            sigBits->data(), sigBits->size())
+    bufferSource(content) >> verifierFilter(DigestAlgorithm::SHA256, publicKey, *sigBits)
                           >> boolSink(isVerified);
   }
   if (!isVerified) {
@@ -419,7 +417,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   }
 
   Identity id = m_pib->addIdentity(identity);
-  Key key = id.addKey(cert.getPublicKey().data(), cert.getPublicKey().size(), keyName);
+  Key key = id.addKey(cert.getPublicKey(), keyName);
   key.addCertificate(cert);
 }
 

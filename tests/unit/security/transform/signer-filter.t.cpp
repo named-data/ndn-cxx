@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(Rsa)
   bufferSource(data) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_TEST(verifySignature({{data, sizeof(data)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_TEST(verifySignature({data}, *sig, *pubKey));
 }
 
 BOOST_AUTO_TEST_CASE(Ecdsa)
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   bufferSource(data) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_TEST(verifySignature({{data, sizeof(data)}}, sig->data(), sig->size(), pubKey->data(), pubKey->size()));
+  BOOST_TEST(verifySignature({data}, *sig, *pubKey));
 }
 
 BOOST_AUTO_TEST_SUITE(Hmac)
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(Rfc4231Test1)
 BOOST_AUTO_TEST_CASE(Rfc4231Test2)
 {
   // Test case 2 (HMAC-SHA-256 only)
-  const char rawKey[] = "Jefe";
+  const uint8_t rawKey[] = {'J', 'e', 'f', 'e'};
   const std::string data("what do ya want for nothing?");
   const uint8_t hmacSha256[] = {0x5b, 0xdc, 0xc1, 0x46, 0xbf, 0x60, 0x75, 0x4e, 0x6a, 0x04,
                                 0x24, 0x26, 0x08, 0x95, 0x75, 0xc7, 0x5a, 0x00, 0x3f, 0x08,
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(Rfc4231Test2)
                                 0x38, 0x43};
 
   PrivateKey key;
-  key.loadRaw(KeyType::HMAC, {reinterpret_cast<const uint8_t*>(rawKey), std::strlen(rawKey)});
+  key.loadRaw(KeyType::HMAC, rawKey);
 
   OBufferStream os256;
   bufferSource(data) >> signerFilter(DigestAlgorithm::SHA256, key) >> streamSink(os256);

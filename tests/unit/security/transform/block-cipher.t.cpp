@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,9 +67,9 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // encrypt
   OBufferStream os;
-  bufferSource(plainText) >>
-    blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
-                key, sizeof(key), iv, sizeof(iv)) >> streamSink(os);
+  bufferSource(plainText)
+    >> blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT, key, iv)
+    >> streamSink(os);
 
   auto buf = os.buf();
   BOOST_CHECK_EQUAL_COLLECTIONS(cipherText, cipherText + sizeof(cipherText),
@@ -77,9 +77,9 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // decrypt
   OBufferStream os2;
-  bufferSource(cipherText) >>
-    blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::DECRYPT,
-                key, sizeof(key), iv, sizeof(iv)) >> streamSink(os2);
+  bufferSource(cipherText)
+    >> blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::DECRYPT, key, iv)
+    >> streamSink(os2);
 
   auto buf2 = os2.buf();
   BOOST_CHECK_EQUAL_COLLECTIONS(plainText, plainText + sizeof(plainText),
@@ -87,19 +87,19 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // invalid key length
   const uint8_t badKey[] = {0x00, 0x01, 0x02, 0x03};
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
-                                badKey, sizeof(badKey), iv, sizeof(iv)), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT, badKey, iv),
+                    Error);
 
   // wrong iv length
   const uint8_t badIv[] = {0x00, 0x01, 0x02, 0x03};
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
-                                key, sizeof(key), badIv, sizeof(badIv)), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT, key, badIv),
+                    Error);
 }
 
 BOOST_AUTO_TEST_CASE(InvalidAlgorithm)
 {
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::NONE, CipherOperator::ENCRYPT,
-                                nullptr, 0, nullptr, 0), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::NONE, CipherOperator::DECRYPT, {}, {}), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::NONE, CipherOperator::ENCRYPT, {}, {}), Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlockCipher

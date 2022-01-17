@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,10 +24,12 @@
 
 #define span_CONFIG_SELECT_SPAN span_SPAN_NONSTD
 #ifdef NDEBUG
-#define span_CONFIG_CONTRACT_LEVEL_OFF
+#define span_CONFIG_CONTRACT_LEVEL_OFF 1
 #else
-#define span_CONFIG_CONTRACT_LEVEL_ON
+#define span_CONFIG_CONTRACT_LEVEL_ON 1
 #endif
+#define span_FEATURE_WITH_INITIALIZER_LIST_P2447 1
+#define span_FEATURE_MEMBER_BACK_FRONT 1
 #define span_FEATURE_MAKE_SPAN 1
 #include "ndn-cxx/detail/nonstd/span-lite.hpp"
 

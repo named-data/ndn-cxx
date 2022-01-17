@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,9 +40,9 @@ Identity::getName() const
 }
 
 Key
-Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
+Identity::addKey(span<const uint8_t> key, const Name& keyName) const
 {
-  return lock()->addKey({key, keyLen}, keyName);
+  return lock()->addKey(key, keyName);
 }
 
 void
@@ -70,9 +70,9 @@ Identity::setDefaultKey(const Name& keyName) const
 }
 
 const Key&
-Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
+Identity::setDefaultKey(span<const uint8_t> key, const Name& keyName) const
 {
-  return lock()->setDefaultKey({key, keyLen}, keyName);
+  return lock()->setDefaultKey(key, keyName);
 }
 
 const Key&

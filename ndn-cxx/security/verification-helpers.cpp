@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,13 +61,12 @@ public:
 } // namespace
 
 bool
-verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const transform::PublicKey& key)
+verifySignature(const InputBuffers& blobs, span<const uint8_t> sig, const transform::PublicKey& key)
 {
   bool result = false;
   try {
     using namespace transform;
-    bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SHA256, key, sig, sigLen)
+    bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SHA256, key, sig)
                         >> boolSink(result);
   }
   catch (const transform::Error&) {
@@ -78,18 +77,17 @@ verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
 }
 
 bool
-verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const uint8_t* key, size_t keyLen)
+verifySignature(const InputBuffers& blobs, span<const uint8_t> sig, span<const uint8_t> key)
 {
   transform::PublicKey pKey;
   try {
-    pKey.loadPkcs8({key, keyLen});
+    pKey.loadPkcs8(key);
   }
   catch (const transform::Error&) {
     return false;
   }
 
-  return verifySignature(blobs, sig, sigLen, pKey);
+  return verifySignature(blobs, sig, pKey);
 }
 
 static ParseResult
@@ -143,22 +141,20 @@ parse(const Interest& interest)
 static bool
 verifySignature(const ParseResult& params, const transform::PublicKey& key)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig.data(), params.sig.size(), key);
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, key);
 }
 
 static bool
 verifySignature(const ParseResult& params, span<const uint8_t> key)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig.data(), params.sig.size(),
-                                                 key.data(), key.size());
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, key);
 }
 
 static bool
 verifySignature(const ParseResult& params, const tpm::Tpm& tpm, const Name& keyName,
                 DigestAlgorithm digestAlgorithm)
 {
-  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig.data(), params.sig.size(),
-                                                 keyName, digestAlgorithm));
+  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig, keyName, digestAlgorithm));
 }
 
 static bool
@@ -187,15 +183,15 @@ verifyDigest(const ParseResult& params, DigestAlgorithm algorithm)
 }
 
 bool
-verifySignature(const Data& data, const uint8_t* key, size_t keyLen)
+verifySignature(const Data& data, span<const uint8_t> key)
 {
-  return verifySignature(parse(data), make_span(key, keyLen));
+  return verifySignature(parse(data), key);
 }
 
 bool
-verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen)
+verifySignature(const Interest& interest, span<const uint8_t> key)
 {
-  return verifySignature(parse(interest), make_span(key, keyLen));
+  return verifySignature(parse(interest), key);
 }
 
 bool
@@ -227,7 +223,7 @@ verifySignature(const Data& data, const optional<Certificate>& cert)
 {
   auto parsed = parse(data);
   if (cert) {
-    return verifySignature(parsed, make_span(cert->getContent().value(), cert->getContent().value_size()));
+    return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()});
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);
@@ -243,7 +239,7 @@ verifySignature(const Interest& interest, const optional<Certificate>& cert)
 {
   auto parsed = parse(interest);
   if (cert) {
-    return verifySignature(parsed, make_span(cert->getContent().value(), cert->getContent().value_size()));
+    return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()});
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);

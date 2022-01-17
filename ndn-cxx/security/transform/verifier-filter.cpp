@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,30 +33,27 @@ namespace transform {
 class VerifierFilter::Impl
 {
 public:
-  Impl(const uint8_t* sig, size_t siglen)
+  explicit
+  Impl(span<const uint8_t> sig)
     : sig(sig)
-    , siglen(siglen)
   {
   }
 
 public:
   detail::EvpMdCtx ctx;
-  const uint8_t* sig;
-  size_t siglen;
+  span<const uint8_t> sig;
 };
 
 
-VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key,
-                               const uint8_t* sig, size_t sigLen)
-  : m_impl(make_unique<Impl>(sig, sigLen))
+VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig)
+  : m_impl(make_unique<Impl>(sig))
   , m_keyType(key.getKeyType())
 {
   init(algo, key.getEvpPkey());
 }
 
-VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key,
-                               const uint8_t* sig, size_t sigLen)
-  : m_impl(make_unique<Impl>(sig, sigLen))
+VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig)
+  : m_impl(make_unique<Impl>(sig))
   , m_keyType(key.getKeyType())
 {
   if (m_keyType != KeyType::HMAC)
@@ -113,10 +110,10 @@ VerifierFilter::finalize()
     if (EVP_DigestSignFinal(m_impl->ctx, hmacBuf->data(), &hmacLen) != 1)
       NDN_THROW(Error(getIndex(), "Failed to finalize HMAC"));
 
-    ok = CRYPTO_memcmp(hmacBuf->data(), m_impl->sig, std::min(hmacLen, m_impl->siglen)) == 0;
+    ok = CRYPTO_memcmp(hmacBuf->data(), m_impl->sig.data(), std::min(hmacLen, m_impl->sig.size())) == 0;
   }
   else {
-    ok = EVP_DigestVerifyFinal(m_impl->ctx, m_impl->sig, m_impl->siglen) == 1;
+    ok = EVP_DigestVerifyFinal(m_impl->ctx, m_impl->sig.data(), m_impl->sig.size()) == 1;
   }
 
   auto buffer = make_unique<OBuffer>(1);
@@ -127,15 +124,15 @@ VerifierFilter::finalize()
 }
 
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen)
+verifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig)
 {
-  return make_unique<VerifierFilter>(algo, key, sig, sigLen);
+  return make_unique<VerifierFilter>(algo, key, sig);
 }
 
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen)
+verifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig)
 {
-  return make_unique<VerifierFilter>(algo, key, sig, sigLen);
+  return make_unique<VerifierFilter>(algo, key, sig);
 }
 
 } // namespace transform

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,13 +50,12 @@ public:
 
 
 BlockCipher::BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
-                         const uint8_t* key, size_t keyLen,
-                         const uint8_t* iv, size_t ivLen)
+                         span<const uint8_t> key, span<const uint8_t> iv)
   : m_impl(make_unique<Impl>())
 {
   switch (algo) {
   case BlockCipherAlgorithm::AES_CBC:
-    initializeAesCbc(key, keyLen, iv, ivLen, op);
+    initializeAesCbc(key, iv, op);
     break;
   default:
     NDN_THROW(Error(getIndex(), "Unsupported block cipher algorithm " +
@@ -131,11 +130,10 @@ BlockCipher::isConverterEmpty() const
 }
 
 void
-BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeAesCbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_aes_128_cbc();
     break;
@@ -146,22 +144,22 @@ BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
     cipherType = EVP_aes_256_cbc();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(key.size())));
   }
 
-  size_t requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
-  if (ivLen != requiredIvLen)
+  auto requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
+  if (iv.size() != requiredIvLen)
     NDN_THROW(Error(getIndex(), "IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv, op == CipherOperator::ENCRYPT ? 1 : 0);
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
+                 op == CipherOperator::ENCRYPT ? 1 : 0);
 }
 
 unique_ptr<Transform>
 blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
-            const uint8_t* key, size_t keyLen,
-            const uint8_t* iv, size_t ivLen)
+            span<const uint8_t> key, span<const uint8_t> iv)
 {
-  return make_unique<BlockCipher>(algo, op, key, keyLen, iv, ivLen);
+  return make_unique<BlockCipher>(algo, op, key, iv);
 }
 
 } // namespace transform

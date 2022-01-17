@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   std::string out3 = os3.str();
   BOOST_CHECK_EQUAL_COLLECTIONS(out3.begin(), out3.end(), in3.begin(), in3.end());
 
-  InputBuffers in4{make_span(in), {reinterpret_cast<const uint8_t*>(in2.data()), in2.size()}};
+  InputBuffers in4{{in}, {reinterpret_cast<const uint8_t*>(in2.data()), in2.size()}};
   std::ostringstream os4;
   bufferSource(in4) >> streamSink(os4);
   std::string out4 = os4.str();

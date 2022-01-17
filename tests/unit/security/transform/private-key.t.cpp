@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -681,7 +681,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyGenParams)
     PublicKey pKey;
     pKey.loadPkcs8(*pKeyBits);
     BOOST_CHECK_NO_THROW(bufferSource(data) >>
-                         verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
+                         verifierFilter(DigestAlgorithm::SHA256, pKey, *sig) >>
                          boolSink(result));
   }
   else {
@@ -689,7 +689,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyGenParams)
     BOOST_CHECK_THROW(sKey->derivePublicKey(), PrivateKey::Error);
 #endif
     BOOST_CHECK_NO_THROW(bufferSource(data) >>
-                         verifierFilter(DigestAlgorithm::SHA256, *sKey, sig->data(), sig->size()) >>
+                         verifierFilter(DigestAlgorithm::SHA256, *sKey, *sig) >>
                          boolSink(result));
   }
   BOOST_CHECK(result);

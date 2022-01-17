@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,49 +73,32 @@ ConstBufferPtr
 Tpm::getPublicKey(const Name& keyName) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr)
-    return nullptr;
-  else
-    return key->derivePublicKey();
+  return key ? key->derivePublicKey() : nullptr;
 }
 
 ConstBufferPtr
 Tpm::sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr) {
-    return nullptr;
-  }
-  else {
-    return key->sign(digestAlgorithm, bufs);
-  }
+  return key ? key->sign(digestAlgorithm, bufs) : nullptr;
 }
 
 boost::logic::tribool
-Tpm::verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName,
+Tpm::verify(const InputBuffers& bufs, span<const uint8_t> sig, const Name& keyName,
             DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr) {
+  if (key == nullptr)
     return boost::logic::indeterminate;
-  }
-  else {
-    return key->verify(digestAlgorithm, bufs, {sig, sigLen});
-  }
+
+  return key->verify(digestAlgorithm, bufs, sig);
 }
 
 ConstBufferPtr
-Tpm::decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
+Tpm::decrypt(span<const uint8_t> buf, const Name& keyName) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr)
-    return nullptr;
-  else
-    return key->decrypt({buf, size});
+  return key ? key->decrypt(buf) : nullptr;
 }
 
 bool

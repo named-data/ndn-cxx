@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -110,14 +110,14 @@ public:
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
-   * @brief Add a @p key of @p keyLen bytes (in PKCS#8 format) with @p keyName.
-   * @return the handle of added key
+   * @brief Add @p key (in PKCS#8 format) with name @p keyName.
+   * @return Handle of the added key.
    * @throw std::invalid_argument key name does not match identity
    *
    * If a key with the same name already exists, overwrite the key.
    */
   Key
-  addKey(const uint8_t* key, size_t keyLen, const Name& keyName) const;
+  addKey(span<const uint8_t> key, const Name& keyName) const;
 
   /**
    * @brief Remove a key with @p keyName
@@ -127,22 +127,22 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   removeKey(const Name& keyName) const;
 
   /**
-   * @brief Set an existing key with @p keyName as the default key.
-   * @throw std::invalid_argument @p keyName does not match identity
+   * @brief Set an existing key with name @p keyName as the default key.
+   * @return The default key.
+   * @throw std::invalid_argument @p keyName does not match identity.
    * @throw Pib::Error the key does not exist.
-   * @return The default key
    */
   const Key&
   setDefaultKey(const Name& keyName) const;
 
   /**
-   * @brief Add a @p key of @p keyLen bytes with @p keyName and set it as the default key
-   * @throw std::invalid_argument @p keyName does not match identity
+   * @brief Add @p key with name @p keyName and set it as the default key.
+   * @return The default key.
+   * @throw std::invalid_argument @p keyName does not match identity.
    * @throw Pib::Error the key with the same name already exists.
-   * @return the default key
    */
   const Key&
-  setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName) const;
+  setDefaultKey(span<const uint8_t> key, const Name& keyName) const;
 
 private:
   /**

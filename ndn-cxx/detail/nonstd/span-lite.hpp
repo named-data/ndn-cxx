@@ -60,6 +60,10 @@
 
 // span configuration (features):
 
+#ifndef  span_FEATURE_WITH_INITIALIZER_LIST_P2447
+# define span_FEATURE_WITH_INITIALIZER_LIST_P2447  0
+#endif
+
 #ifndef  span_FEATURE_WITH_CONTAINER
 #ifdef   span_FEATURE_WITH_CONTAINER_TO_STD
 # define span_FEATURE_WITH_CONTAINER  span_IN_STD( span_FEATURE_WITH_CONTAINER_TO_STD )
@@ -1058,6 +1062,50 @@ public:
     {}
 #endif
 
+#if span_FEATURE( WITH_INITIALIZER_LIST_P2447 ) && span_HAVE( INITIALIZER_LIST )
+
+    // constexpr explicit(extent != dynamic_extent) span(std::initializer_list<value_type> il) noexcept;
+
+#if !span_BETWEEN( span_COMPILER_MSVC_VERSION, 120, 130 )
+
+#if span_COMPILER_GNUC_VERSION >= 900
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Winit-list-lifetime"
+#endif
+    template< extent_t U = Extent
+        span_REQUIRES_T((
+            U != dynamic_extent
+        ))
+    >
+    span_constexpr explicit span( std::initializer_list<value_type> il ) span_noexcept
+        : data_( il.begin() )
+        , size_( il.size()  )
+    {}
+#if span_COMPILER_GNUC_VERSION >= 900
+# pragma GCC diagnostic pop
+#endif
+
+#endif // MSVC 120 (VS2013)
+
+#if span_COMPILER_GNUC_VERSION >= 900
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Winit-list-lifetime"
+#endif
+    template< extent_t U = Extent
+        span_REQUIRES_T((
+            U == dynamic_extent
+        ))
+    >
+    span_constexpr /*explicit*/ span( std::initializer_list<value_type> il ) span_noexcept
+        : data_( il.begin() )
+        , size_( il.size()  )
+    {}
+#if span_COMPILER_GNUC_VERSION >= 900
+# pragma GCC diagnostic pop
+#endif
+
+#endif // P2447
+
 #if span_HAVE( IS_DEFAULT )
     span_constexpr span( span const & other ) span_noexcept = default;
 
@@ -1586,6 +1634,17 @@ make_span( std::array< T, N > const & arr ) span_noexcept
 }
 
 #endif // span_HAVE( ARRAY )
+
+#if span_USES_STD_SPAN || span_HAVE( INITIALIZER_LIST )
+
+template< class T >
+inline span_constexpr span< const T >
+make_span( std::initializer_list<T> il ) span_noexcept
+{
+    return span<const T>( il.begin(), il.size() );
+}
+
+#endif // span_HAVE( INITIALIZER_LIST )
 
 #if span_USES_STD_SPAN
 

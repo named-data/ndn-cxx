@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -105,9 +105,10 @@ public:
 
   /**
    * @brief Sign blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-   *
+   * @deprecated
    * @return The signature, or nullptr if the key does not exist.
    */
+  [[deprecated("use the overload that takes InputBuffers")]]
   ConstBufferPtr
   sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const
   {
@@ -122,22 +123,23 @@ public:
    * @retval false the signature is not valid
    * @retval indeterminate the key does not exist
    */
-  boost::logic::tribool
-  verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName,
+  NDN_CXX_NODISCARD boost::logic::tribool
+  verify(const InputBuffers& bufs, span<const uint8_t> sig, const Name& keyName,
          DigestAlgorithm digestAlgorithm) const;
 
   /**
    * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-   *
+   * @deprecated
    * @retval true the signature is valid
    * @retval false the signature is not valid
    * @retval indeterminate the key does not exist
    */
+  [[deprecated("use the overload that takes InputBuffers and span")]]
   boost::logic::tribool
   verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
          const Name& keyName, DigestAlgorithm digestAlgorithm) const
   {
-    return verify({{buf, bufLen}}, sig, sigLen, keyName, digestAlgorithm);
+    return verify({{buf, bufLen}}, {sig, sigLen}, keyName, digestAlgorithm);
   }
 
   /**
@@ -146,7 +148,19 @@ public:
    * @return The decrypted data, or nullptr if the key does not exist.
    */
   ConstBufferPtr
-  decrypt(const uint8_t* buf, size_t size, const Name& keyName) const;
+  decrypt(span<const uint8_t> buf, const Name& keyName) const;
+
+  /**
+   * @brief Decrypt blob using the key with name @p keyName.
+   * @deprecated
+   * @return The decrypted data, or nullptr if the key does not exist.
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  ConstBufferPtr
+  decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
+  {
+    return decrypt({buf, size}, keyName);
+  }
 
 public: // Management
   /**

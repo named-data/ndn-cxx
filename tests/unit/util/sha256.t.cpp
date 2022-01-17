@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(Print)
                             0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
                             0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
                             0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
-  std::string expected = toHex(origin, sizeof(origin));
+  const auto expected = toHex(origin);
 
   Sha256 digest;
   digest << "TEST";

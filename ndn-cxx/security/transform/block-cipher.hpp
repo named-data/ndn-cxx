@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,18 +39,15 @@ class BlockCipher final : public Transform
 {
 public:
   /**
-   * @brief Create a block cipher
+   * @brief Create a block cipher.
    *
-   * @param algo   The block cipher algorithm to use.
-   * @param op     Whether to encrypt or decrypt.
-   * @param key    Pointer to the key.
-   * @param keyLen Size of the key.
-   * @param iv     Pointer to the initialization vector.
-   * @param ivLen  Length of the initialization vector.
+   * @param algo The block cipher algorithm to use.
+   * @param op   The operation to perform (encrypt or decrypt).
+   * @param key  The symmetric key.
+   * @param iv   The initialization vector.
    */
   BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
-              const uint8_t* key, size_t keyLen,
-              const uint8_t* iv, size_t ivLen);
+              span<const uint8_t> key, span<const uint8_t> iv);
 
   ~BlockCipher() final;
 
@@ -89,8 +86,7 @@ private:
 
 private:
   void
-  initializeAesCbc(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeAesCbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
 
 private:
   class Impl;
@@ -99,8 +95,16 @@ private:
 
 unique_ptr<Transform>
 blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
+            span<const uint8_t> key, span<const uint8_t> iv);
+
+[[deprecated("use the overload that takes span<>")]]
+inline unique_ptr<Transform>
+blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
             const uint8_t* key, size_t keyLen,
-            const uint8_t* iv, size_t ivLen);
+            const uint8_t* iv, size_t ivLen)
+{
+  return blockCipher(algo, op, {key, keyLen}, {iv, ivLen});
+}
 
 } // namespace transform
 } // namespace security

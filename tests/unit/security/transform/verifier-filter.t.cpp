@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -98,12 +98,12 @@ BOOST_AUTO_TEST_CASE(Rsa)
   bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, *sig), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, *sig), Error);
 
   bool result = false;
   bufferSource(DATA) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, *sig) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
@@ -144,12 +144,12 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
 
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, *sig), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, *sig), Error);
 
   bool result = false;
   bufferSource(DATA) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, *sig) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
@@ -163,12 +163,12 @@ BOOST_AUTO_TEST_CASE(Hmac)
   bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, *sKey) >> streamSink(os);
   auto sig = os.buf();
 
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, *sig), Error);
 
 #if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   bool result = false;
   bufferSource(DATA) >>
-    verifierFilter(DigestAlgorithm::SHA256, *sKey, sig->data(), sig->size()) >>
+    verifierFilter(DigestAlgorithm::SHA256, *sKey, *sig) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
@@ -178,9 +178,9 @@ BOOST_AUTO_TEST_CASE(Hmac)
 BOOST_AUTO_TEST_CASE(InvalidKey)
 {
   PublicKey pubKey;
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pubKey, nullptr, 0), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pubKey, {}), Error);
   PrivateKey privKey;
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, privKey, nullptr, 0), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, privKey, {}), Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestVerifierFilter

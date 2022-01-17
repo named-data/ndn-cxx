@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -561,23 +561,23 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
                                          dataset.badSigInterestOldFormat.size()));
 
   BOOST_CHECK(verifySignature(data, key));
-  BOOST_CHECK(verifySignature(data, keyRaw.data(), keyRaw.size()));
+  BOOST_CHECK(verifySignature(data, keyRaw));
   BOOST_CHECK(verifySignature(data, cert));
   BOOST_CHECK(verifySignature(interest, key));
-  BOOST_CHECK(verifySignature(interest, keyRaw.data(), keyRaw.size()));
+  BOOST_CHECK(verifySignature(interest, keyRaw));
   BOOST_CHECK(verifySignature(interest, cert));
   BOOST_CHECK(verifySignature(interestOldFormat, key));
-  BOOST_CHECK(verifySignature(interestOldFormat, keyRaw.data(), keyRaw.size()));
+  BOOST_CHECK(verifySignature(interestOldFormat, keyRaw));
   BOOST_CHECK(verifySignature(interestOldFormat, cert));
 
   BOOST_CHECK(!verifySignature(badSigData, key));
-  BOOST_CHECK(!verifySignature(badSigData, keyRaw.data(), keyRaw.size()));
+  BOOST_CHECK(!verifySignature(badSigData, keyRaw));
   BOOST_CHECK(!verifySignature(badSigData, cert));
   BOOST_CHECK(!verifySignature(badSigInterest, key));
-  BOOST_CHECK(!verifySignature(badSigInterest, keyRaw.data(), keyRaw.size()));
+  BOOST_CHECK(!verifySignature(badSigInterest, keyRaw));
   BOOST_CHECK(!verifySignature(badSigInterest, cert));
   BOOST_CHECK(!verifySignature(badSigInterestOldFormat, key));
-  BOOST_CHECK(!verifySignature(badSigInterestOldFormat, keyRaw.data(), keyRaw.size()));
+  BOOST_CHECK(!verifySignature(badSigInterestOldFormat, keyRaw));
   BOOST_CHECK(!verifySignature(badSigInterestOldFormat, cert));
 
   Data unsignedData("/some/data");
@@ -593,9 +593,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   BOOST_CHECK(!verifySignature(unsignedInterest2, cert));
   BOOST_CHECK(!verifySignature(unsignedInterest2, key));
 
-  uint8_t invalidKey[] = {0x00, 0x00};
-  BOOST_CHECK(!verifySignature(unsignedData, invalidKey, sizeof(invalidKey)));
-  BOOST_CHECK(!verifySignature(unsignedInterest1, invalidKey, sizeof(invalidKey)));
+  const uint8_t invalidKey[] = {0x00, 0x00};
+  BOOST_CHECK(!verifySignature(unsignedData, invalidKey));
+  BOOST_CHECK(!verifySignature(unsignedInterest1, invalidKey));
 
   // - base version of verifySignature is tested transitively
   // - pib::Key version is tested as part of key-chain.t.cpp (Security/TestKeyChain)

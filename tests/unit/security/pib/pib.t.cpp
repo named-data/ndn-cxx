@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   BOOST_CHECK(id);
   BOOST_CHECK_EQUAL(!id, false);
 
-  Key key = id.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  Key key = id.addKey(id1Key1, id1Key1Name);
   BOOST_CHECK(key);
   BOOST_CHECK_EQUAL(!key, false);
 }

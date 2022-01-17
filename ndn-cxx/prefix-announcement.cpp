@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -122,7 +122,7 @@ PrefixAnnouncement::setValidityPeriod(optional<security::ValidityPeriod> validit
 const name::Component&
 PrefixAnnouncement::getKeywordComponent()
 {
-  static const name::Component nc(tlv::KeywordNameComponent, std::array<uint8_t, 2>({'P', 'A'}));
+  static const name::Component nc(tlv::KeywordNameComponent, {'P', 'A'});
   return nc;
 }
 
