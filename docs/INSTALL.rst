@@ -9,7 +9,7 @@ following platforms:
 
 -  Ubuntu 18.04 (amd64, armhf, i386)
 -  Ubuntu 20.04 (amd64)
--  Ubuntu 21.04 (amd64)
+-  Ubuntu 21.10 (amd64)
 -  macOS 10.15
 -  macOS 11 (Intel only)
 -  CentOS 8
@@ -23,7 +23,6 @@ supported:
 -  Gentoo Linux
 -  Raspberry Pi OS (formerly Raspbian) >= 2019-06-20
 -  FreeBSD >= 11.3
--  macOS 10.13
 -  macOS 10.14
 
 Prerequisites
