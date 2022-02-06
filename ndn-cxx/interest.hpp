@@ -96,7 +96,7 @@ public:
     friend std::ostream&
     operator<<(std::ostream& os, const Nonce& nonce)
     {
-      printHex(os, nonce.data(), nonce.size(), false);
+      printHex(os, nonce, false);
       return os;
     }
   };
@@ -345,16 +345,30 @@ public: // element access
   setApplicationParameters(const Block& block);
 
   /**
-   * @brief Set ApplicationParameters by copying from a raw buffer.
-   * @param value points to a buffer from which the TLV-VALUE of the parameters will be copied;
-   *              may be nullptr if @p length is zero
-   * @param length size of the buffer
+   * @brief Set ApplicationParameters by copying from a contiguous sequence of bytes.
+   * @param value buffer from which the TLV-VALUE of the parameters will be copied
    * @return a reference to this Interest
    *
    * This function will also recompute the value of the ParametersSha256DigestComponent in the
    * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
    * be appended to it.
    */
+  Interest&
+  setApplicationParameters(span<const uint8_t> value);
+
+  /**
+   * @brief Set ApplicationParameters by copying from a raw buffer.
+   * @param value points to a buffer from which the TLV-VALUE of the parameters will be copied;
+   *              may be nullptr if @p length is zero
+   * @param length size of the buffer
+   * @return a reference to this Interest
+   * @deprecated Use setApplicationParameters(span<const uint8_t>)
+   *
+   * This function will also recompute the value of the ParametersSha256DigestComponent in the
+   * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   * be appended to it.
+   */
+  [[deprecated("use the overload that takes a span<>")]]
   Interest&
   setApplicationParameters(const uint8_t* value, size_t length);
 

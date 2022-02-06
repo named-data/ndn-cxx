@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -70,7 +70,7 @@ Transform::flushOutputBuffer()
   if (isOutputBufferEmpty())
     return;
 
-  size_t nWritten = m_next->write(make_span(*m_oBuffer).last(m_oBuffer->size() - m_outputOffset));
+  size_t nWritten = m_next->write(make_span(*m_oBuffer).subspan(m_outputOffset));
   m_outputOffset += nWritten;
 }
 

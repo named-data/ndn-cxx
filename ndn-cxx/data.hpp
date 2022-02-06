@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -184,11 +184,21 @@ public: // Data fields
   setContent(const Block& block);
 
   /**
+   * @brief Set Content by copying from a contiguous sequence of bytes
+   * @param value buffer with the TLV-VALUE of the content
+   * @return a reference to this Data, to allow chaining
+   */
+  Data&
+  setContent(span<const uint8_t> value);
+
+  /**
    * @brief Set Content by copying from a raw buffer
    * @param value buffer with the TLV-VALUE of the content; may be nullptr if @p length is zero
    * @param length size of the buffer
    * @return a reference to this Data, to allow chaining
+   * @deprecated Use setContent(span<const uint8_t>)
    */
+  [[deprecated("use the overload that takes a span<>")]]
   Data&
   setContent(const uint8_t* value, size_t length);
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -182,7 +182,7 @@ BOOST_FIXTURE_TEST_CASE(Full, DataSigningKeyFixture)
   Data d("/local/ndn/prefix");
   d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(10_s);
-  d.setContent(CONTENT1, sizeof(CONTENT1));
+  d.setContent(CONTENT1);
 
   SignatureInfo signatureInfo;
   signatureInfo.setSignatureType(tlv::SignatureSha256WithRsa);
@@ -397,7 +397,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, KeyChainFixture)
   Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(10_s);
-  d.setContent(CONTENT1, sizeof(CONTENT1));
+  d.setContent(CONTENT1);
   BOOST_CHECK_THROW(d.getFullName(), Data::Error); // FullName is unavailable without signing
 
   m_keyChain.sign(d);
@@ -527,16 +527,17 @@ BOOST_AUTO_TEST_CASE(SetContent)
   // Block overload, default constructed (invalid)
   BOOST_CHECK_THROW(d.setContent(Block{}), std::invalid_argument);
 
-  // raw buffer overload
-  d.setContent(nested, sizeof(nested));
+  // span overload
+  d.setContent(nested);
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
                                 nested, nested + sizeof(nested));
-  d.setContent(nullptr, 0);
+  d.setContent(span<uint8_t>{});
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  // raw buffer overload (deprecated)
   BOOST_CHECK_THROW(d.setContent(nullptr, 1), std::invalid_argument);
 
   // ConstBufferPtr overload
@@ -631,11 +632,11 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a != b, false);
 
   static const uint8_t someData[] = "someData";
-  a.setContent(someData, sizeof(someData));
+  a.setContent(someData);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setContent(someData, sizeof(someData));
+  b.setContent(someData);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 

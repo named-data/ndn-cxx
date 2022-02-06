@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -259,15 +259,21 @@ Data::setContent(const Block& block)
 }
 
 Data&
+Data::setContent(span<const uint8_t> value)
+{
+  m_content = makeBinaryBlock(tlv::Content, value.data(), value.size());
+  resetWire();
+  return *this;
+}
+
+Data&
 Data::setContent(const uint8_t* value, size_t length)
 {
   if (value == nullptr && length != 0) {
     NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
   }
 
-  m_content = makeBinaryBlock(tlv::Content, value, length);
-  resetWire();
-  return *this;
+  return setContent(make_span(value, length));
 }
 
 Data&

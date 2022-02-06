@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,17 +62,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion2, T, InMemoryStorages)
 
   Name name("/a");
 
-  uint32_t content1 = 1;
-  shared_ptr<Data> data1 = makeData(name);
+  const uint8_t content1[] = {1, 2, 3, 4};
+  auto data1 = makeData(name);
   data1->setFreshnessPeriod(99999_ms);
-  data1->setContent(reinterpret_cast<const uint8_t*>(&content1), sizeof(content1));
+  data1->setContent(content1);
   signData(data1);
   ims.insert(*data1);
 
-  uint32_t content2 = 2;
-  shared_ptr<Data> data2 = makeData(name);
+  const uint8_t content2[] = {5, 6, 7, 8};
+  auto data2 = makeData(name);
   data2->setFreshnessPeriod(99999_ms);
-  data2->setContent(reinterpret_cast<const uint8_t*>(&content2), sizeof(content2));
+  data2->setContent(content2);
   signData(data2);
   ims.insert(*data2);
 
@@ -186,15 +186,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndNotFindByFullName, T, InMemoryStorages)
   T ims;
 
   Name name("/a");
-  uint32_t content1 = 1;
-  shared_ptr<Data> data1 = makeData(name);
-  data1->setContent(reinterpret_cast<const uint8_t*>(&content1), sizeof(content1));
+  const uint8_t content1[] = {1, 2, 3, 4};
+  auto data1 = makeData(name);
+  data1->setContent(content1);
   signData(data1);
   ims.insert(*data1);
 
-  uint32_t content2 = 2;
-  shared_ptr<Data> data2 = makeData(name);
-  data2->setContent(reinterpret_cast<const uint8_t*>(&content2), sizeof(content2));
+  const uint8_t content2[] = {5, 6, 7, 8};
+  auto data2 = makeData(name);
+  data2->setContent(content2);
   signData(data2);
 
   auto found = ims.find(data2->getFullName());
@@ -207,17 +207,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(InsertAndEraseByName, T, InMemoryStorages)
 
   Name name("/insertandremovebyname");
 
-  uint32_t content1 = 1;
-  shared_ptr<Data> data1 = makeData(name);
+  const uint8_t content1[] = {1, 2, 3, 4};
+  auto data1 = makeData(name);
   data1->setFreshnessPeriod(99999_ms);
-  data1->setContent(reinterpret_cast<const uint8_t*>(&content1), sizeof(content1));
+  data1->setContent(content1);
   signData(data1);
   ims.insert(*data1);
 
-  uint32_t content2 = 2;
-  shared_ptr<Data> data2 = makeData(name);
+  const uint8_t content2[] = {5, 6, 7, 8};
+  auto data2 = makeData(name);
   data2->setFreshnessPeriod(99999_ms);
-  data2->setContent(reinterpret_cast<const uint8_t*>(&content2), sizeof(content2));
+  data2->setContent(content2);
   signData(data2);
   ims.insert(*data2);
 
@@ -451,7 +451,7 @@ protected:
          const time::milliseconds& freshWindow = InMemoryStorage::INFINITE_WINDOW)
   {
     auto data = makeData(name);
-    data->setContent(reinterpret_cast<const uint8_t*>(&id), sizeof(id));
+    data->setContent(make_span(reinterpret_cast<const uint8_t*>(&id), sizeof(id)));
 
     if (modifyData != nullptr) {
       modifyData(*data);

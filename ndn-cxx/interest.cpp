@@ -492,16 +492,22 @@ Interest::setApplicationParameters(const Block& parameters)
 }
 
 Interest&
+Interest::setApplicationParameters(span<const uint8_t> value)
+{
+  setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value.data(), value.size()));
+  addOrReplaceParametersDigestComponent();
+  m_wire.reset();
+  return *this;
+}
+
+Interest&
 Interest::setApplicationParameters(const uint8_t* value, size_t length)
 {
   if (value == nullptr && length != 0) {
     NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
   }
 
-  setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value, length));
-  addOrReplaceParametersDigestComponent();
-  m_wire.reset();
-  return *this;
+  return setApplicationParameters(make_span(value, length));
 }
 
 Interest&

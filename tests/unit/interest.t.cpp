@@ -889,11 +889,12 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "24038001C1"_block);
   BOOST_CHECK_THROW(i.setApplicationParameters(Block{}), std::invalid_argument);
 
-  // raw buffer+size overload
-  i.setApplicationParameters(PARAMETERS1, sizeof(PARAMETERS1));
+  // span overload
+  i.setApplicationParameters(PARAMETERS1);
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C1"_block);
-  i.setApplicationParameters(nullptr, 0);
+  i.setApplicationParameters(span<uint8_t>{});
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
+  // raw buffer+size overload (deprecated)
   BOOST_CHECK_THROW(i.setApplicationParameters(nullptr, 42), std::invalid_argument);
 
   // ConstBufferPtr overload
@@ -983,7 +984,7 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
                     "/I/params-sha256=ff9100e04eaadcf30674d98026a051ba25f56b69bfa026dcccd72c6ea0f7315a");
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
 
-  i.setApplicationParameters(nullptr, 0); // updates ParametersSha256DigestComponent
+  i.setApplicationParameters(span<uint8_t>{}); // updates ParametersSha256DigestComponent
   BOOST_CHECK_EQUAL(i.getName(),
                     "/I/params-sha256=33b67cb5385ceddad93d0ee960679041613bed34b8b4a5e6362fe7539ba2d3ce");
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), true);
@@ -1141,7 +1142,7 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
   });
 
   // Test failure with missing InterestSignatureInfo
-  i3.setApplicationParameters(nullptr, 0);
+  i3.setApplicationParameters(span<uint8_t>{});
   BOOST_CHECK_EXCEPTION(i3.extractSignedRanges(), tlv::Error, [] (const auto& e) {
     return e.what() == "Interest missing InterestSignatureInfo"s;
   });

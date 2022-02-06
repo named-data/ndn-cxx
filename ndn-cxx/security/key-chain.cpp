@@ -576,7 +576,7 @@ KeyChain::selfSign(Key& key)
   certificate.setFreshnessPeriod(1_h);
 
   // set content
-  certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
+  certificate.setContent(key.getPublicKey());
 
   // set signature-info
   SignatureInfo signatureInfo;

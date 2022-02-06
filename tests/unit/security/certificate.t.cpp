@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(Setters)
   Certificate certificate;
   certificate.setName("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
   certificate.setFreshnessPeriod(1_h);
-  certificate.setContent(PUBLIC_KEY, sizeof(PUBLIC_KEY));
+  certificate.setContent(PUBLIC_KEY);
   generateFakeSignature(certificate);
 
   BOOST_CHECK_EQUAL(certificate.getName(), "/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriodChecking)
   Certificate certificate;
   certificate.setName("/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
   certificate.setFreshnessPeriod(1_h);
-  certificate.setContent(PUBLIC_KEY, sizeof(PUBLIC_KEY));
+  certificate.setContent(PUBLIC_KEY);
   generateFakeSignature(certificate);
 
   BOOST_CHECK_EQUAL(certificate.isValid(), true);
@@ -237,14 +237,14 @@ BOOST_FIXTURE_TEST_CASE(InvalidType, InvalidCertFixture)
 BOOST_FIXTURE_TEST_CASE(EmptyContent, InvalidCertFixture)
 {
   Data data(m_certBase);
-  data.setContent(nullptr, 0);
+  data.setContent(span<uint8_t>{});
   generateFakeSignature(data);
 
-  BOOST_CHECK_THROW((Certificate(data)), Certificate::Error);
-  BOOST_CHECK_THROW((Certificate(std::move(data))), Certificate::Error);
+  BOOST_CHECK_THROW(Certificate{data}, Certificate::Error);
+  BOOST_CHECK_THROW(Certificate{std::move(data)}, Certificate::Error);
 
   Certificate cert(m_certBase);
-  cert.setContent(nullptr, 0);
+  cert.setContent(span<uint8_t>{});
   generateFakeSignature(cert);
   BOOST_CHECK_THROW(cert.getPublicKey(), Certificate::Error);
 }
@@ -270,7 +270,7 @@ Signature Information:
   Certificate certificate(Block(CERT, sizeof(CERT)));
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate), expectedCertificateInfo);
 
-  // @todo Check output formats of other certificates
+  // TODO: Check output formats of other certificates
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificate

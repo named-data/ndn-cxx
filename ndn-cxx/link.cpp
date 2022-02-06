@@ -50,11 +50,11 @@ Link::encodeContent()
   setContentType(tlv::ContentType_Link);
 
   if (m_delegations.empty()) {
-    setContent(nullptr, 0);
-    return;
+    setContent(span<uint8_t>{});
   }
-
-  setContent(makeNestedBlock(tlv::Content, m_delegations.begin(), m_delegations.end()));
+  else {
+    setContent(makeNestedBlock(tlv::Content, m_delegations.begin(), m_delegations.end()));
+  }
 }
 
 void
