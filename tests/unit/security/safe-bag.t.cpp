@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -121,10 +121,10 @@ const uint8_t SAFE_BAG[] = {
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-  Data data(Block(CERT, sizeof(CERT)));
-  SafeBag safeBag1(data, ENCRYPTED_KEY);
-  SafeBag safeBag2(Block(SAFE_BAG, sizeof(SAFE_BAG)));
+  Data data(Block{CERT});
   auto encKey = make_span(ENCRYPTED_KEY);
+  SafeBag safeBag1(data, encKey);
+  SafeBag safeBag2(Block{SAFE_BAG});
 
   BOOST_CHECK(safeBag1.getCertificate() == data);
   BOOST_CHECK_EQUAL_COLLECTIONS(safeBag1.getEncryptedKey().begin(), safeBag1.getEncryptedKey().end(),
@@ -136,13 +136,12 @@ BOOST_AUTO_TEST_CASE(Constructor)
 
 BOOST_AUTO_TEST_CASE(EncoderAndDecoder)
 {
-  Block dataBlock(CERT, sizeof(CERT));
-  Data data(dataBlock);
+  Data data(Block{CERT});
   SafeBag safeBag(data, ENCRYPTED_KEY);
 
   // wire encode
-  Block wireBlock = safeBag.wireEncode();
-  Block block(SAFE_BAG, sizeof(SAFE_BAG));
+  const auto& wireBlock = safeBag.wireEncode();
+  Block block(SAFE_BAG);
 
   // check safe bag block
   BOOST_CHECK_EQUAL(wireBlock, block);

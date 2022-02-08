@@ -90,12 +90,12 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 
   // ApplicationParameters and following elements (in reverse order)
   for (const auto& block : m_parameters | boost::adaptors::reversed) {
-    totalLength += encoder.prependBlock(block);
+    totalLength += prependBlock(encoder, block);
   }
 
   // HopLimit
   if (getHopLimit()) {
-    totalLength += encoder.prependByteArrayBlock(tlv::HopLimit, &*m_hopLimit, 1);
+    totalLength += prependBinaryBlock(encoder, tlv::HopLimit, {*m_hopLimit});
   }
 
   // InterestLifetime
@@ -107,7 +107,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   // Nonce
   getNonce(); // if nonce was unset, this generates a fresh nonce
   BOOST_ASSERT(hasNonce());
-  totalLength += encoder.prependByteArrayBlock(tlv::Nonce, m_nonce->data(), m_nonce->size());
+  totalLength += prependBinaryBlock(encoder, tlv::Nonce, *m_nonce);
 
   // ForwardingHint
   if (!m_forwardingHint.empty()) {
@@ -494,7 +494,7 @@ Interest::setApplicationParameters(const Block& parameters)
 Interest&
 Interest::setApplicationParameters(span<const uint8_t> value)
 {
-  setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value.data(), value.size()));
+  setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value));
   addOrReplaceParametersDigestComponent();
   m_wire.reset();
   return *this;

@@ -117,19 +117,16 @@ DummyClientFace::~DummyClientFace()
 void
 DummyClientFace::construct(const Options& options)
 {
-  static_pointer_cast<Transport>(getTransport())->onSendBlock.connect([this] (const Block& blockFromDaemon) {
-    Block packet(blockFromDaemon);
+  static_pointer_cast<Transport>(getTransport())->onSendBlock.connect([this] (Block packet) {
     packet.encode();
     lp::Packet lpPacket(packet);
-
-    Buffer::const_iterator begin, end;
-    std::tie(begin, end) = lpPacket.get<lp::FragmentField>();
-    Block block(&*begin, std::distance(begin, end));
+    auto frag = lpPacket.get<lp::FragmentField>();
+    Block block({frag.first, frag.second});
 
     if (block.type() == tlv::Interest) {
-      shared_ptr<Interest> interest = make_shared<Interest>(block);
+      auto interest = make_shared<Interest>(block);
       if (lpPacket.has<lp::NackField>()) {
-        shared_ptr<lp::Nack> nack = make_shared<lp::Nack>(std::move(*interest));
+        auto nack = make_shared<lp::Nack>(std::move(*interest));
         nack->setHeader(lpPacket.get<lp::NackField>());
         addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(*nack, lpPacket);
         onSendNack(*nack);
@@ -141,7 +138,7 @@ DummyClientFace::construct(const Options& options)
       }
     }
     else if (block.type() == tlv::Data) {
-      shared_ptr<Data> data = make_shared<Data>(block);
+      auto data = make_shared<Data>(block);
       addTagFromField<lp::CachePolicyTag, lp::CachePolicyField>(*data, lpPacket);
       addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(*data, lpPacket);
       onSendData(*data);

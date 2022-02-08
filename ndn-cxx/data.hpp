@@ -60,36 +60,39 @@ public:
   explicit
   Data(const Block& wire);
 
-  /** @brief Prepend wire encoding to @p encoder
-   *  @param encoder EncodingEstimator or EncodingBuffer instance.
-   *  @param wantUnsignedPortionOnly If true, prepend only Name, MetaInfo, Content, and
-   *         SignatureInfo to @p encoder, but omit SignatureValue and the outermost TLV
-   *         Type and Length of the Data element. This is intended to be used with
-   *         wireEncode(EncodingBuffer&, const Block&) const.
-   *  @throw Error %Signature is not present and @p wantUnsignedPortionOnly is false.
+  /**
+   * @brief Prepend wire encoding to @p encoder.
+   * @param encoder EncodingEstimator or EncodingBuffer instance.
+   * @param wantUnsignedPortionOnly If true, prepend only Name, MetaInfo, Content, and
+   *        SignatureInfo to @p encoder, but omit SignatureValue and the outermost TLV
+   *        Type and Length of the %Data element. This is intended to be used with
+   *        wireEncode(EncodingBuffer&, span<const uint8_t>) const.
+   * @throw Error Signature is not present and @p wantUnsignedPortionOnly is false.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly = false) const;
 
-  /** @brief Finalize Data packet encoding with the specified SignatureValue
-   *  @param encoder EncodingBuffer containing Name, MetaInfo, Content, and SignatureInfo, but
-   *                 without SignatureValue and the outermost Type-Length of the Data element.
-   *  @param signatureValue SignatureValue element.
+  /**
+   * @brief Finalize Data packet encoding with the specified signature.
+   * @param encoder EncodingBuffer containing Name, MetaInfo, Content, and SignatureInfo, but
+   *                without SignatureValue and the outermost Type-Length of the %Data element.
+   * @param signature Raw signature bytes, without TLV Type and Length; this will become the
+   *                  TLV-VALUE of the SignatureValue element added to the packet.
    *
-   *  This method is intended to be used in concert with `wireEncode(encoder, true)`, e.g.:
-   *  @code
-   *     Data data;
-   *     ...
-   *     EncodingBuffer encoder;
-   *     data.wireEncode(encoder, true);
-   *     ...
-   *     Block signatureValue = <sign_over_unsigned_portion>(encoder.buf(), encoder.size());
-   *     data.wireEncode(encoder, signatureValue)
-   *  @endcode
+   * This method is intended to be used in concert with `wireEncode(encoder, true)`, e.g.:
+   * @code
+   * Data data;
+   * ...
+   * EncodingBuffer encoder;
+   * data.wireEncode(encoder, true);
+   * ...
+   * auto signature = create_signature_over_signed_portion(encoder.data(), encoder.size());
+   * data.wireEncode(encoder, signature);
+   * @endcode
    */
   const Block&
-  wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const;
+  wireEncode(EncodingBuffer& encoder, span<const uint8_t> signature) const;
 
   /** @brief Encode into a Block.
    *  @pre Data must be signed.

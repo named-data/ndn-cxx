@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,8 +38,28 @@ class Estimator : noncopyable
 {
 public: // common interface between Encoder and Estimator
   /**
-   * @brief Prepend a single byte
+   * @brief Prepend a sequence of bytes
    */
+  constexpr size_t
+  prependBytes(span<const uint8_t> bytes) const noexcept
+  {
+    return bytes.size();
+  }
+
+  /**
+   * @brief Append a sequence of bytes
+   */
+  constexpr size_t
+  appendBytes(span<const uint8_t> bytes) const noexcept
+  {
+    return bytes.size();
+  }
+
+  /**
+   * @brief Prepend a single byte
+   * @deprecated
+   */
+  [[deprecated("use prependBytes()")]]
   constexpr size_t
   prependByte(uint8_t) const noexcept
   {
@@ -48,7 +68,9 @@ public: // common interface between Encoder and Estimator
 
   /**
    * @brief Append a single byte
+   * @deprecated
    */
+  [[deprecated("use appendBytes()")]]
   constexpr size_t
   appendByte(uint8_t) const noexcept
   {
@@ -57,7 +79,9 @@ public: // common interface between Encoder and Estimator
 
   /**
    * @brief Prepend a byte array @p array of length @p length
+   * @deprecated
    */
+  [[deprecated("use prependBytes()")]]
   constexpr size_t
   prependByteArray(const uint8_t*, size_t length) const noexcept
   {
@@ -66,7 +90,9 @@ public: // common interface between Encoder and Estimator
 
   /**
    * @brief Append a byte array @p array of length @p length
+   * @deprecated
    */
+  [[deprecated("use appendBytes()")]]
   constexpr size_t
   appendByteArray(const uint8_t*, size_t length) const noexcept
   {
@@ -131,7 +157,9 @@ public: // common interface between Encoder and Estimator
 
   /**
    * @brief Prepend TLV block of type @p type and value from buffer @p array of size @p arraySize
+   * @deprecated
    */
+  [[deprecated("use encoding::prependBinaryBlock()")]]
   constexpr size_t
   prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
   {
@@ -140,7 +168,9 @@ public: // common interface between Encoder and Estimator
 
   /**
    * @brief Append TLV block of type @p type and value from buffer @p array of size @p arraySize
+   * @deprecated
    */
+  [[deprecated]]
   constexpr size_t
   appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
   {
@@ -149,18 +179,19 @@ public: // common interface between Encoder and Estimator
 
   /**
    * @brief Prepend TLV block @p block
+   * @deprecated
    */
+  [[deprecated("use encoding::prependBlock()")]]
   size_t
   prependBlock(const Block& block) const;
 
   /**
    * @brief Append TLV block @p block
+   * @deprecated
    */
+  [[deprecated]]
   size_t
-  appendBlock(const Block& block) const
-  {
-    return prependBlock(block);
-  }
+  appendBlock(const Block& block) const;
 };
 
 } // namespace encoding

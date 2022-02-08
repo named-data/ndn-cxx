@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -237,11 +237,13 @@ private:
   operator<<(std::ostream& os, const SignatureInfo& info);
 };
 
+#ifndef DOXYGEN
 extern template size_t
 SignatureInfo::wireEncode<encoding::EncoderTag>(EncodingBuffer&, SignatureInfo::Type) const;
 
 extern template size_t
 SignatureInfo::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, SignatureInfo::Type) const;
+#endif
 
 bool
 operator==(const SignatureInfo& lhs, const SignatureInfo& rhs);

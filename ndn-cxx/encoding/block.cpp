@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,6 +48,30 @@ Block::Block(const Block&) = default;
 Block&
 Block::operator=(const Block&) = default;
 
+Block::Block(span<const uint8_t> buffer)
+{
+  auto pos = buffer.begin();
+  const auto end = buffer.end();
+
+  m_type = tlv::readType(pos, end);
+  uint64_t length = tlv::readVarNumber(pos, end);
+  // pos now points to TLV-VALUE
+
+  BOOST_ASSERT(pos <= end);
+  if (length > static_cast<uint64_t>(std::distance(pos, end))) {
+    NDN_THROW(Error("Not enough bytes in the buffer to fully parse TLV"));
+  }
+  std::advance(pos, length);
+  // pos now points to the end of the TLV
+
+  m_buffer = std::make_shared<Buffer>(buffer.begin(), pos);
+  m_begin = m_buffer->begin();
+  m_end = m_buffer->end();
+  m_valueBegin = std::prev(m_end, length);
+  m_valueEnd = m_buffer->end();
+  m_size = m_buffer->size();
+}
+
 Block::Block(const EncodingBuffer& buffer)
   : Block(buffer.getBuffer(), buffer.begin(), buffer.end(), true)
 {
@@ -65,7 +89,7 @@ Block::Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_
   , m_end(end)
   , m_valueBegin(m_begin)
   , m_valueEnd(m_end)
-  , m_size(m_end - m_begin)
+  , m_size(static_cast<size_t>(std::distance(m_begin, m_end)))
 {
   if (m_buffer->empty()) {
     NDN_THROW(std::invalid_argument("Buffer is empty"));
@@ -102,32 +126,13 @@ Block::Block(ConstBufferPtr buffer, uint32_t type,
   , m_valueBegin(valueBegin)
   , m_valueEnd(valueEnd)
   , m_type(type)
-  , m_size(m_end - m_begin)
+  , m_size(static_cast<size_t>(std::distance(m_begin, m_end)))
 {
 }
 
 Block::Block(const uint8_t* buf, size_t bufSize)
+  : Block(make_span(buf, bufSize))
 {
-  const uint8_t* pos = buf;
-  const uint8_t* const end = buf + bufSize;
-
-  m_type = tlv::readType(pos, end);
-  uint64_t length = tlv::readVarNumber(pos, end);
-  // pos now points to TLV-VALUE
-
-  BOOST_ASSERT(pos <= end);
-  if (length > static_cast<uint64_t>(end - pos)) {
-    NDN_THROW(Error("Not enough bytes in the buffer to fully parse TLV"));
-  }
-
-  BOOST_ASSERT(pos > buf);
-  uint64_t typeLengthSize = static_cast<uint64_t>(pos - buf);
-  m_size = typeLengthSize + length;
-
-  m_buffer = make_shared<Buffer>(buf, m_size);
-  m_begin = m_buffer->begin();
-  m_end = m_valueEnd = m_buffer->end();
-  m_valueBegin = m_begin + typeLengthSize;
 }
 
 Block::Block(uint32_t type)
@@ -158,6 +163,70 @@ Block::Block(uint32_t type, const Block& value)
   m_size = tlv::sizeOfVarNumber(m_type) + tlv::sizeOfVarNumber(value_size()) + value_size();
 }
 
+std::tuple<bool, Block>
+Block::fromBuffer(ConstBufferPtr buffer, size_t offset)
+{
+  auto begin = std::next(buffer->begin(), offset);
+  auto pos = begin;
+  const auto end = buffer->end();
+
+  uint32_t type = 0;
+  bool isOk = tlv::readType(pos, end, type);
+  if (!isOk) {
+    return std::make_tuple(false, Block());
+  }
+
+  uint64_t length = 0;
+  isOk = tlv::readVarNumber(pos, end, length);
+  if (!isOk) {
+    return std::make_tuple(false, Block());
+  }
+  // pos now points to TLV-VALUE
+
+  BOOST_ASSERT(pos <= end);
+  if (length > static_cast<uint64_t>(std::distance(pos, end))) {
+    return std::make_tuple(false, Block());
+  }
+
+  return std::make_tuple(true, Block(std::move(buffer), type, begin, pos + length, pos, pos + length));
+}
+
+std::tuple<bool, Block>
+Block::fromBuffer(span<const uint8_t> buffer)
+{
+  auto pos = buffer.begin();
+  const auto end = buffer.end();
+
+  uint32_t type = 0;
+  bool isOk = tlv::readType(pos, end, type);
+  if (!isOk) {
+    return std::make_tuple(false, Block());
+  }
+  uint64_t length = 0;
+  isOk = tlv::readVarNumber(pos, end, length);
+  if (!isOk) {
+    return std::make_tuple(false, Block());
+  }
+  // pos now points to TLV-VALUE
+
+  BOOST_ASSERT(pos <= end);
+  if (length > static_cast<uint64_t>(std::distance(pos, end))) {
+    return std::make_tuple(false, Block());
+  }
+  std::advance(pos, length);
+  // pos now points to the end of the TLV
+
+  auto b = std::make_shared<Buffer>(buffer.begin(), pos);
+  return std::make_tuple(true, Block(b, type, b->begin(), b->end(),
+                                     std::prev(b->end(), length), b->end()));
+}
+
+std::tuple<bool, Block>
+Block::fromBuffer(const uint8_t* buf, size_t bufSize)
+{
+  return fromBuffer({buf, bufSize});
+}
+
 Block
 Block::fromStream(std::istream& is)
 {
@@ -176,7 +245,7 @@ Block::fromStream(std::istream& is)
   }
 
   EncodingBuffer eb(tlSize + length, length);
-  uint8_t* valueBuf = eb.buf();
+  uint8_t* valueBuf = eb.data();
   is.read(reinterpret_cast<char*>(valueBuf), length);
   if (length != static_cast<uint64_t>(is.gcount())) {
     NDN_THROW(Error("Not enough bytes from stream to fully parse TLV"));
@@ -188,60 +257,6 @@ Block::fromStream(std::istream& is)
   // TLV-VALUE is directly written into eb.buf(), eb.end() is not incremented, but eb.getBuffer()
   // has the correct layout.
   return Block(eb.getBuffer());
-}
-
-std::tuple<bool, Block>
-Block::fromBuffer(ConstBufferPtr buffer, size_t offset)
-{
-  auto begin = buffer->begin() + offset;
-  auto pos = begin;
-
-  uint32_t type = 0;
-  bool isOk = tlv::readType(pos, buffer->end(), type);
-  if (!isOk) {
-    return std::make_tuple(false, Block());
-  }
-
-  uint64_t length = 0;
-  isOk = tlv::readVarNumber(pos, buffer->end(), length);
-  if (!isOk) {
-    return std::make_tuple(false, Block());
-  }
-  // pos now points to TLV-VALUE
-
-  if (length > static_cast<uint64_t>(buffer->end() - pos)) {
-    return std::make_tuple(false, Block());
-  }
-
-  return std::make_tuple(true, Block(std::move(buffer), type, begin, pos + length, pos, pos + length));
-}
-
-std::tuple<bool, Block>
-Block::fromBuffer(const uint8_t* buf, size_t bufSize)
-{
-  const uint8_t* pos = buf;
-  const uint8_t* const end = buf + bufSize;
-
-  uint32_t type = 0;
-  bool isOk = tlv::readType(pos, end, type);
-  if (!isOk) {
-    return std::make_tuple(false, Block());
-  }
-  uint64_t length = 0;
-  isOk = tlv::readVarNumber(pos, end, length);
-  if (!isOk) {
-    return std::make_tuple(false, Block());
-  }
-  // pos now points to TLV-VALUE
-
-  if (length > static_cast<uint64_t>(end - pos)) {
-    return std::make_tuple(false, Block());
-  }
-
-  size_t typeLengthSize = pos - buf;
-  auto b = make_shared<Buffer>(buf, pos + length);
-  return std::make_tuple(true, Block(b, type, b->begin(), b->end(),
-                                     b->begin() + typeLengthSize, b->end()));
 }
 
 // ---- wire format ----
@@ -342,7 +357,7 @@ Block::parse() const
     }
     // pos now points to TLV-VALUE of sub element
 
-    auto subEnd = pos + length;
+    auto subEnd = std::next(pos, length);
     m_elements.emplace_back(m_buffer, type, begin, subEnd, pos, subEnd);
 
     begin = subEnd;

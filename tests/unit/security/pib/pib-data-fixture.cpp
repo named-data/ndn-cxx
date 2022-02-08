@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -360,15 +360,15 @@ const uint8_t ID2_KEY2_CERT2[] = {
 };
 
 PibDataFixture::PibDataFixture()
-  : id1Key1Cert1(Block(ID1_KEY1_CERT1, sizeof(ID1_KEY1_CERT1)))
-  , id1Key1Cert2(Block(ID1_KEY1_CERT2, sizeof(ID1_KEY1_CERT2)))
-  , id1Key2Cert1(Block(ID1_KEY2_CERT1, sizeof(ID1_KEY2_CERT1)))
-  , id1Key2Cert2(Block(ID1_KEY2_CERT2, sizeof(ID1_KEY2_CERT2)))
+  : id1Key1Cert1(Block(ID1_KEY1_CERT1))
+  , id1Key1Cert2(Block(ID1_KEY1_CERT2))
+  , id1Key2Cert1(Block(ID1_KEY2_CERT1))
+  , id1Key2Cert2(Block(ID1_KEY2_CERT2))
 
-  , id2Key1Cert1(Block(ID2_KEY1_CERT1, sizeof(ID2_KEY1_CERT1)))
-  , id2Key1Cert2(Block(ID2_KEY1_CERT2, sizeof(ID2_KEY1_CERT2)))
-  , id2Key2Cert1(Block(ID2_KEY2_CERT1, sizeof(ID2_KEY2_CERT1)))
-  , id2Key2Cert2(Block(ID2_KEY2_CERT2, sizeof(ID2_KEY2_CERT2)))
+  , id2Key1Cert1(Block(ID2_KEY1_CERT1))
+  , id2Key1Cert2(Block(ID2_KEY1_CERT2))
+  , id2Key2Cert1(Block(ID2_KEY2_CERT1))
+  , id2Key2Cert2(Block(ID2_KEY2_CERT2))
 
   , id1(id1Key1Cert1.getIdentity())
   , id2(id2Key1Cert1.getIdentity())

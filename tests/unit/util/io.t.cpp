@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveBuffer, T, Encodings)
 {
   T t;
   std::ostringstream os(std::ios_base::binary);
-  io::saveBuffer(t.blob.data(), t.blob.size(), os, t.encoding);
+  io::saveBuffer(t.blob, os, t.encoding);
   BOOST_CHECK_EQUAL(os.str(), t.stream.str());
 }
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(SaveBufferException)
   NullStreambuf nullbuf;
   std::ostream out(&nullbuf);
   const Buffer buffer(1);
-  BOOST_CHECK_THROW(io::saveBuffer(buffer.data(), buffer.size(), out, io::NO_ENCODING), io::Error);
+  BOOST_CHECK_THROW(io::saveBuffer(buffer, out, io::NO_ENCODING), io::Error);
 }
 
 BOOST_AUTO_TEST_CASE(UnknownIoEncoding)
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(UnknownIoEncoding)
   std::stringstream ss;
   BOOST_CHECK_THROW(io::loadTlv<Name>(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
   BOOST_CHECK_THROW(io::loadBuffer(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
-  BOOST_CHECK_THROW(io::saveBuffer(nullptr, 0, ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
+  BOOST_CHECK_THROW(io::saveBuffer({}, ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
 }
 
 class FileIoFixture

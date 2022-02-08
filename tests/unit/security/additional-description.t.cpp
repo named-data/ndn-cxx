@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestAdditionalDescription)
 
-const uint8_t description[] = {
+const uint8_t DESC[] = {
   0xfd, 0x01, 0x02, 0x28,
     0xfd, 0x02, 0x00, 0x10, // DescriptionEntry
       0xfd, 0x02, 0x01, 0x04, // DescriptionKey
@@ -43,8 +43,6 @@ const uint8_t description[] = {
       0xfd, 0x02, 0x02, 0x04, // DescriptionValue
         0x76, 0x61, 0x6c, 0x32, // "val2"
 };
-
-const std::string text = "[(key1:val1), (key2:val2)]";
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
@@ -76,12 +74,10 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   BOOST_CHECK_EQUAL_COLLECTIONS(aDescription.wireEncode().wire(),
                                 aDescription.wireEncode().wire() + aDescription.wireEncode().size(),
-                                description,
-                                description + sizeof(description));
+                                DESC,
+                                DESC + sizeof(DESC));
 
-  BOOST_REQUIRE_NO_THROW(AdditionalDescription(Block(description, sizeof(description))));
-  AdditionalDescription aDescription2(Block(description, sizeof(description)));
-
+  AdditionalDescription aDescription2(Block{DESC});
   BOOST_CHECK_EQUAL(aDescription2, aDescription);
 
   AdditionalDescription aDescription3;
@@ -92,7 +88,7 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   std::ostringstream os;
   os << aDescription;
-  BOOST_CHECK_EQUAL(os.str(), text);
+  BOOST_CHECK_EQUAL(os.str(), "[(key1:val1), (key2:val2)]");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestAdditionalDescription

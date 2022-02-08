@@ -126,7 +126,7 @@ const uint8_t CERT[] = {
 static void
 generateFakeSignature(Data& data)
 {
-  SignatureInfo signatureInfo(Block(SIG_INFO, sizeof(SIG_INFO)));
+  SignatureInfo signatureInfo(Block{SIG_INFO});
   signatureInfo.setKeyLocator(KeyLocator(Name("/ndn/site1/KEY/ksk-2516425377094")));
   signatureInfo.setValidityPeriod(ValidityPeriod(time::fromIsoString("20141111T050000"),
                                                  time::fromIsoString("20141111T060000")));
@@ -137,7 +137,7 @@ generateFakeSignature(Data& data)
 
 BOOST_AUTO_TEST_CASE(Construction)
 {
-  Block block(CERT, sizeof(CERT));
+  Block block(CERT);
   Certificate certificate(block);
 
   BOOST_CHECK_EQUAL(certificate.getName(), "/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
@@ -201,7 +201,7 @@ class InvalidCertFixture
 public:
   InvalidCertFixture()
   {
-    Certificate certBase(Block(CERT, sizeof(CERT)));
+    Certificate certBase(Block{CERT});
     BOOST_CHECK_NO_THROW((Certificate(certBase)));
 
     m_certBase = Data(certBase);
@@ -267,7 +267,7 @@ Signature Information:
   Key Locator: Name=/ndn/site1/KEY/ksk-2516425377094
 )INFO").substr(1);
 
-  Certificate certificate(Block(CERT, sizeof(CERT)));
+  Certificate certificate(Block{CERT});
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate), expectedCertificateInfo);
 
   // TODO: Check output formats of other certificates

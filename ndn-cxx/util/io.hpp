@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -156,12 +156,13 @@ load(const std::string& filename, IoEncoding encoding = BASE64)
   return load<T>(is, encoding);
 }
 
-/** \brief Writes a byte buffer to a stream.
- *  \throw Error error during saving
- *  \throw std::invalid_argument the specified encoding is not supported
+/**
+ * \brief Writes a sequence of bytes to a stream.
+ * \throw Error error during saving
+ * \throw std::invalid_argument the specified encoding is not supported
  */
 void
-saveBuffer(const uint8_t* buf, size_t size, std::ostream& os, IoEncoding encoding = BASE64);
+saveBuffer(span<const uint8_t> buf, std::ostream& os, IoEncoding encoding = BASE64);
 
 /** \brief Writes a TLV element to a stream.
  *  \tparam T type of TLV element; `T` must be WireEncodable and the nested type
@@ -184,7 +185,7 @@ save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
     NDN_THROW_NESTED(Error("Encode error during save: "s + e.what()));
   }
 
-  saveBuffer(block.wire(), block.size(), os, encoding);
+  saveBuffer({block.wire(), block.size()}, os, encoding);
 }
 
 /** \brief Writes a TLV element to a file.

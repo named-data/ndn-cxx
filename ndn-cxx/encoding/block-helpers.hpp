@@ -25,7 +25,6 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/util/concepts.hpp"
-#include "ndn-cxx/util/span.hpp"
 
 namespace ndn {
 namespace encoding {
@@ -182,10 +181,28 @@ makeDoubleBlock(uint32_t type, double value);
 double
 readDouble(const Block& block);
 
-/** @brief Create a TLV block copying the TLV-VALUE from a range.
- *  @param type TLV-TYPE number
- *  @param value range of bytes to use as TLV-VALUE
- *  @sa Encoder::prependByteArrayBlock
+/**
+ * @brief Prepend a TLV element containing a sequence of raw bytes.
+ * @param encoder an EncodingBuffer or EncodingEstimator
+ * @param type TLV-TYPE number
+ * @param value range of bytes to use as TLV-VALUE
+ * @sa makeBinaryBlock
+ */
+template<Tag TAG>
+size_t
+prependBinaryBlock(EncodingImpl<TAG>& encoder, uint32_t type, span<const uint8_t> value);
+
+extern template size_t
+prependBinaryBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, span<const uint8_t>);
+
+extern template size_t
+prependBinaryBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, span<const uint8_t>);
+
+/**
+ * @brief Create a TLV block copying the TLV-VALUE from a byte range.
+ * @param type TLV-TYPE number
+ * @param value range of bytes to use as TLV-VALUE
+ * @sa prependBinaryBlock
  */
 Block
 makeBinaryBlock(uint32_t type, span<const uint8_t> value);
@@ -194,8 +211,9 @@ makeBinaryBlock(uint32_t type, span<const uint8_t> value);
  *  @param type TLV-TYPE number
  *  @param value raw buffer as TLV-VALUE
  *  @param length length of value buffer
- *  @sa Encoder::prependByteArrayBlock
+ *  @deprecated
  */
+[[deprecated("use the overload that takes a span<>")]]
 inline Block
 makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length)
 {
@@ -206,7 +224,7 @@ makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length)
  *  @param type TLV-TYPE number
  *  @param value raw buffer as TLV-VALUE
  *  @param length length of value buffer
- *  @sa Encoder::prependByteArrayBlock
+ *  @deprecated
  */
 inline Block
 makeBinaryBlock(uint32_t type, const char* value, size_t length)
@@ -216,7 +234,8 @@ makeBinaryBlock(uint32_t type, const char* value, size_t length)
 
 namespace detail {
 
-/** @brief Create a binary block copying from RandomAccessIterator.
+/**
+ * @brief Create a binary block copying from RandomAccessIterator.
  */
 template<class Iterator>
 class BinaryBlockFast
@@ -242,7 +261,8 @@ public:
   }
 };
 
-/** @brief Create a binary block copying from generic InputIterator.
+/**
+ * @brief Create a binary block copying from generic InputIterator.
  */
 template<class Iterator>
 class BinaryBlockSlow
@@ -272,6 +292,7 @@ public:
  *  @param type TLV-TYPE number
  *  @param first begin iterator
  *  @param last past-the-end iterator
+ *  @sa prependBinaryBlock
  */
 template<class Iterator>
 Block
@@ -285,6 +306,21 @@ makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 
   return BinaryBlockHelper::makeBlock(type, first, last);
 }
+
+/**
+ * @brief Prepend a TLV element.
+ * @param encoder an EncodingBuffer or EncodingEstimator
+ * @param block the TLV element
+ */
+template<Tag TAG>
+size_t
+prependBlock(EncodingImpl<TAG>& encoder, const Block& block);
+
+extern template size_t
+prependBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, const Block&);
+
+extern template size_t
+prependBlock<EncoderTag>(EncodingImpl<EncoderTag>&, const Block&);
 
 /** @brief Prepend a TLV element containing a nested TLV element.
  *  @tparam U type that satisfies WireEncodableWithEncodingBuffer concept

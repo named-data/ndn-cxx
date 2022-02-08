@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(Signed)
   si.setNonce(nonce);
   Block sv("2E20 12471AE0F8723AC1156C370A38711EBEBF2817DE9B2DD94E9B7E62F117B876C1"_block);
 
-  Interest i1(Block(WIRE, sizeof(WIRE)));
+  Interest i1(Block{WIRE});
   BOOST_CHECK_EQUAL(i1.getName(),
                     "/local/ndn/prefix/params-sha256=6f29586053ee9fccd8a422122925287c0a18435f4074c40abb0d5b30e4aa6220");
   BOOST_CHECK_EQUAL(i1.getCanBePrefix(), false);
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE(SignedApplicationElements)
   si.setNonce(nonce);
   Block sv("2E20 12471AE0F8723AC1156C370A38711EBEBF2817DE9B2DD94E9B7E62F117B876C1"_block);
 
-  Interest i1(Block(WIRE, sizeof(WIRE)));
+  Interest i1(Block{WIRE});
   BOOST_CHECK_EQUAL(i1.getName(),
                     "/local/ndn/prefix/params-sha256=bc3630a4d65e0db5483dfa0d28b3312fcac1d441ec8961d4175e61751778108e");
   BOOST_CHECK_EQUAL(i1.getCanBePrefix(), false);
@@ -1125,7 +1125,7 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
                 0xbf, 0x28, 0x17, 0xde, 0x9b, 0x2d, 0xd9, 0x4e,
                 0x9b, 0x7e, 0x62, 0xf1, 0x17, 0xb8, 0x76, 0xc1,
   };
-  Block wire3(WIRE, sizeof(WIRE));
+  Block wire3(WIRE);
   Interest i2(wire3);
   auto ranges3 = i2.extractSignedRanges();
   BOOST_REQUIRE_EQUAL(ranges3.size(), 2);

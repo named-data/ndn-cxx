@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -257,11 +257,14 @@ BOOST_AUTO_TEST_CASE(AppendComponent)
   name.append("xKh");
   BOOST_CHECK_EQUAL(name.wireEncode(), "070B 080428F0A36B 0803784B68"_block);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   name.append("0100"_block);
   BOOST_CHECK_EQUAL(name.wireEncode(), "070F 080428F0A36B 0803784B68 08020100"_block);
 
   name.append("080109"_block);
   BOOST_CHECK_EQUAL(name.wireEncode(), "0712 080428F0A36B 0803784B68 08020100 080109"_block);
+#pragma GCC diagnostic pop
 }
 
 BOOST_AUTO_TEST_CASE(AppendPartialName)

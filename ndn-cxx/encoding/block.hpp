@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,7 @@
 #include "ndn-cxx/encoding/buffer.hpp"
 #include "ndn-cxx/encoding/encoding-buffer-fwd.hpp"
 #include "ndn-cxx/encoding/tlv.hpp"
+#include "ndn-cxx/util/span.hpp"
 
 namespace boost {
 namespace asio {
@@ -36,8 +37,9 @@ class const_buffer;
 
 namespace ndn {
 
-/** @brief Represents a TLV element of the NDN packet format.
- *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#tlv-encoding
+/**
+ * @brief Represents a TLV element of the NDN packet format.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html
  */
 class Block
 {
@@ -76,6 +78,15 @@ public: // construction, assignment
   Block&
   operator=(Block&&) noexcept;
 
+  /** @brief Parse Block from a byte range
+   *  @param buffer sequence of bytes containing a TLV element; the element must be found at
+   *                the beginning of the buffer but does not need to span the entire buffer
+   *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH exceeds the size of @p buffer
+   *  @note This constructor copies the TLV element octets to an internal buffer.
+   */
+  explicit
+  Block(span<const uint8_t> buffer);
+
   /** @brief Parse Block from an EncodingBuffer
    *  @param buffer an EncodingBuffer containing one TLV element
    *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
@@ -85,8 +96,8 @@ public: // construction, assignment
 
   /** @brief Parse Block from a wire Buffer
    *  @param buffer a Buffer containing one TLV element
-   *  @note This constructor takes shared ownership of @p buffer.
    *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
+   *  @note This constructor takes shared ownership of @p buffer.
    */
   explicit
   Block(const ConstBufferPtr& buffer);
@@ -98,7 +109,6 @@ public: // construction, assignment
    *  @param verifyLength if true, check TLV-LENGTH equals size of TLV-VALUE
    *  @throw std::invalid_argument @p buffer is empty, or [@p begin,@p end) range is not within @p buffer
    *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
-   *  @note This overload automatically detects TLV-TYPE and position of TLV-VALUE.
    */
   Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_iterator end,
         bool verifyLength = true);
@@ -130,8 +140,10 @@ public: // construction, assignment
    *  @param buf pointer to the first octet of a TLV element
    *  @param bufSize size of the raw buffer; may be greater than the actual size of the TLV element
    *  @throw tlv::Error Type-Length parsing fails, or size of TLV-VALUE exceeds @p bufSize
-   *  @note This overload copies the TLV element octets into an internal wire buffer.
+   *  @note This constructor copies the TLV element octets to an internal buffer.
+   *  @deprecated
    */
+  [[deprecated("use the constructor that takes a span<>")]]
   Block(const uint8_t* buf, size_t bufSize);
 
   /** @brief Create a zero-length Block with the specified TLV-TYPE
@@ -152,31 +164,43 @@ public: // construction, assignment
    */
   Block(uint32_t type, const Block& value);
 
+  /** @brief Try to parse Block from a wire buffer
+   *  @param buffer a Buffer containing a TLV element at offset @p offset
+   *  @param offset begin position of the TLV element within @p buffer
+   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
+   *  @note This function does not throw upon decoding failure.
+   */
+  NDN_CXX_NODISCARD static std::tuple<bool, Block>
+  fromBuffer(ConstBufferPtr buffer, size_t offset = 0);
+
+  /** @brief Try to parse Block from a byte range
+   *  @param buffer sequence of bytes containing a TLV element; the element must be found at
+   *                the beginning of the buffer but does not need to span the entire buffer
+   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
+   *  @note This overload copies the TLV element octets to an internal buffer.
+   *  @note This function does not throw upon decoding failure.
+   */
+  NDN_CXX_NODISCARD static std::tuple<bool, Block>
+  fromBuffer(span<const uint8_t> buffer);
+
+  /** @brief Try to parse Block from a raw buffer
+   *  @param buf pointer to the first octet of a TLV element
+   *  @param bufSize size of the raw buffer; may be greater than the actual size of the TLV element
+   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
+   *  @note This overload copies the TLV element octets to an internal buffer.
+   *  @note This function does not throw upon decoding failure.
+   *  @deprecated
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  NDN_CXX_NODISCARD static std::tuple<bool, Block>
+  fromBuffer(const uint8_t* buf, size_t bufSize);
+
   /** @brief Parse Block from an input stream
    *  @throw tlv::Error TLV-LENGTH is zero or exceeds upper bound
    *  @warning If decoding fails, bytes are still consumed from the input stream.
    */
   static Block
   fromStream(std::istream& is);
-
-  /** @brief Try to parse Block from a wire buffer
-   *  @param buffer a Buffer containing a TLV element at offset @p offset
-   *  @param offset begin position of the TLV element within @p buffer
-   *  @note This function does not throw upon decoding failure.
-   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
-   */
-  NDN_CXX_NODISCARD static std::tuple<bool, Block>
-  fromBuffer(ConstBufferPtr buffer, size_t offset);
-
-  /** @brief Try to parse Block from a raw buffer
-   *  @param buf pointer to the first octet of a TLV element
-   *  @param bufSize size of the raw buffer; may be greater than the actual size of the TLV element
-   *  @note This function does not throw upon decoding failure.
-   *  @note This overload copies the TLV element octets into an internal wire buffer.
-   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
-   */
-  NDN_CXX_NODISCARD static std::tuple<bool, Block>
-  fromBuffer(const uint8_t* buf, size_t bufSize);
 
 public: // wire format
   /** @brief Check if the Block is valid

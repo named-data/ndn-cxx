@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,7 +59,7 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
   auto visitor = overload(
     []  (monostate)           {}, // nothing to encode, TLV-VALUE is empty
     [&] (const Name& name)    { totalLength += name.wireEncode(encoder); },
-    [&] (const Block& digest) { totalLength += encoder.prependBlock(digest); },
+    [&] (const Block& digest) { totalLength += prependBlock(encoder, digest); },
     []  (uint32_t type)       { NDN_THROW(Error("Unsupported KeyLocator type " + to_string(type))); });
   visit(visitor, m_locator);
 

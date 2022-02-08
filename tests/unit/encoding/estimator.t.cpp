@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,14 +34,16 @@ BOOST_AUTO_TEST_CASE(Basic)
 {
   Estimator e;
 
-  BOOST_CHECK_EQUAL(e.prependByte(1), 1);
-  BOOST_CHECK_EQUAL(e.appendByte(1), 1);
+  BOOST_CHECK_EQUAL(e.prependBytes({1}), 1);
+  BOOST_CHECK_EQUAL(e.appendBytes({1}), 1);
 
-  uint8_t buf1[] = {'t', 'e', 's', 't', '1'};
-  BOOST_CHECK_EQUAL(e.prependByteArray(buf1, sizeof(buf1)), 5);
-  BOOST_CHECK_EQUAL(e.appendByteArray(buf1, sizeof(buf1)), 5);
+  const uint8_t buf1[] = {'t', 'e', 's', 't', '1'};
+  BOOST_CHECK_EQUAL(e.prependBytes(buf1), 5);
+  BOOST_CHECK_EQUAL(e.appendBytes(buf1), 5);
 
   std::vector<uint8_t> buf2 = {'t', 'e', 's', 't', '2'};
+  BOOST_CHECK_EQUAL(e.prependBytes(buf2), 5);
+  BOOST_CHECK_EQUAL(e.appendBytes(buf2), 5);
   BOOST_CHECK_EQUAL(e.prependRange(buf2.begin(), buf2.end()), 5);
   BOOST_CHECK_EQUAL(e.appendRange(buf2.begin(), buf2.end()), 5);
 
@@ -97,19 +99,16 @@ BOOST_AUTO_TEST_CASE(Tlv)
 
   //
 
-  uint8_t buf[] = {0x01, 0x03, 0x00, 0x00, 0x00};
-  Block block1(buf, sizeof(buf));
-
-  BOOST_CHECK_EQUAL(e.prependByteArrayBlock(100, buf, sizeof(buf)), 7);
-  BOOST_CHECK_EQUAL(e.appendByteArrayBlock(100, buf, sizeof(buf)), 7);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  Block block1({0x01, 0x03, 0x00, 0x00, 0x00});
   BOOST_CHECK_EQUAL(e.prependBlock(block1), 5);
   BOOST_CHECK_EQUAL(e.appendBlock(block1), 5);
 
   Block block2(100, block1);
-
   BOOST_CHECK_EQUAL(e.prependBlock(block2), 7);
   BOOST_CHECK_EQUAL(e.appendBlock(block2), 7);
+#pragma GCC diagnostic pop
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestEstimator

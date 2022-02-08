@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,10 +38,10 @@ BOOST_AUTO_TEST_CASE(Encode)
   policy.setPolicy(CachePolicyType::NO_CACHE);
 
   Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = policy.wireEncode());
+  BOOST_CHECK_NO_THROW(wire = policy.wireEncode());
 
   // Sample encoded value obtained with:
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
 
@@ -53,40 +53,31 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(policy.wireDecode(wire));
+  BOOST_CHECK_NO_THROW(policy.wireDecode(wire));
 }
 
 BOOST_AUTO_TEST_CASE(DecodeUnknownPolicyError)
 {
-  static const uint8_t expectedBlock[] = {
-    0xfd, 0x03, 0x34, 0x08, 0xfd, 0x03, 0x35, 0x04, 0xff, 0xff, 0xff, 0xff
-  };
+  const Block wire({0xfd, 0x03, 0x34, 0x08, 0xfd, 0x03, 0x35, 0x04, 0x1f, 0xff, 0xff, 0xff});
 
   CachePolicy policy;
-  Block wire(expectedBlock, sizeof(expectedBlock));
-  BOOST_REQUIRE_THROW(policy.wireDecode(wire), CachePolicy::Error);
+  BOOST_CHECK_THROW(policy.wireDecode(wire), CachePolicy::Error);
 }
 
 BOOST_AUTO_TEST_CASE(DecodeMissingPolicyError)
 {
-  static const uint8_t inputBlock[] = {
-    0xfd, 0x03, 0x34, 0x00
-  };
+  const Block wire({0xfd, 0x03, 0x34, 0x00});
 
   CachePolicy policy;
-  Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_REQUIRE_THROW(policy.wireDecode(wire), CachePolicy::Error);
+  BOOST_CHECK_THROW(policy.wireDecode(wire), CachePolicy::Error);
 }
 
 BOOST_AUTO_TEST_CASE(DecodeInvalidPolicyError)
 {
-  static const uint8_t inputBlock[] = {
-    0xfd, 0x03, 0x34, 0x05, 0xfd, 0x03, 0x35, 0x01, 0x00
-  };
+  const Block wire({0xfd, 0x03, 0x34, 0x05, 0xfd, 0x03, 0x35, 0x01, 0x00});
 
   CachePolicy policy;
-  Block wire(inputBlock, sizeof(inputBlock));
-  BOOST_REQUIRE_THROW(policy.wireDecode(wire), CachePolicy::Error);
+  BOOST_CHECK_THROW(policy.wireDecode(wire), CachePolicy::Error);
 }
 
 BOOST_AUTO_TEST_CASE(Policy)

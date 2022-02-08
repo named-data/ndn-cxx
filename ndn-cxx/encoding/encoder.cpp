@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -95,68 +95,40 @@ Encoder::reserve(size_t size, bool addInFront)
 }
 
 size_t
-Encoder::prependByte(uint8_t value)
+Encoder::prependBytes(span<const uint8_t> bytes)
 {
-  reserveFront(1);
-
-  m_begin--;
-  *m_begin = value;
-  return 1;
+  return prependRange(bytes.begin(), bytes.end());
 }
 
 size_t
-Encoder::appendByte(uint8_t value)
+Encoder::appendBytes(span<const uint8_t> bytes)
 {
-  reserveBack(1);
-
-  *m_end = value;
-  m_end++;
-  return 1;
-}
-
-size_t
-Encoder::prependByteArray(const uint8_t* array, size_t length)
-{
-  reserveFront(length);
-
-  m_begin -= length;
-  std::copy(array, array + length, m_begin);
-  return length;
-}
-
-size_t
-Encoder::appendByteArray(const uint8_t* array, size_t length)
-{
-  reserveBack(length);
-
-  std::copy(array, array + length, m_end);
-  m_end += length;
-  return length;
+  return appendRange(bytes.begin(), bytes.end());
 }
 
 size_t
 Encoder::prependVarNumber(uint64_t varNumber)
 {
   if (varNumber < 253) {
-    prependByte(static_cast<uint8_t>(varNumber));
+    prependBytes({static_cast<uint8_t>(varNumber)});
     return 1;
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
     uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
-    prependByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
-    prependByte(253);
+    prependBytes({reinterpret_cast<const uint8_t*>(&value), 2});
+    prependBytes({253});
     return 3;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
     uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
-    prependByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
-    prependByte(254);
+    prependBytes({reinterpret_cast<const uint8_t*>(&value), 4});
+    prependBytes({254});
     return 5;
   }
   else {
     uint64_t value = endian::native_to_big(varNumber);
-    prependByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
-    prependByte(255);
+    prependBytes({reinterpret_cast<const uint8_t*>(&value), 8});
+    prependBytes({255});
     return 9;
   }
 }
@@ -165,25 +137,25 @@ size_t
 Encoder::appendVarNumber(uint64_t varNumber)
 {
   if (varNumber < 253) {
-    appendByte(static_cast<uint8_t>(varNumber));
+    appendBytes({static_cast<uint8_t>(varNumber)});
     return 1;
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
-    appendByte(253);
+    appendBytes({253});
     uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
-    appendByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
+    appendBytes({reinterpret_cast<const uint8_t*>(&value), 2});
     return 3;
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
-    appendByte(254);
+    appendBytes({254});
     uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
-    appendByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
+    appendBytes({reinterpret_cast<const uint8_t*>(&value), 4});
     return 5;
   }
   else {
-    appendByte(255);
+    appendBytes({255});
     uint64_t value = endian::native_to_big(varNumber);
-    appendByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
+    appendBytes({reinterpret_cast<const uint8_t*>(&value), 8});
     return 9;
   }
 }
@@ -192,19 +164,19 @@ size_t
 Encoder::prependNonNegativeInteger(uint64_t varNumber)
 {
   if (varNumber <= std::numeric_limits<uint8_t>::max()) {
-    return prependByte(static_cast<uint8_t>(varNumber));
+    return prependBytes({static_cast<uint8_t>(varNumber)});
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
     uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
-    return prependByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
+    return prependBytes({reinterpret_cast<const uint8_t*>(&value), 2});
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
     uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
-    return prependByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
+    return prependBytes({reinterpret_cast<const uint8_t*>(&value), 4});
   }
   else {
     uint64_t value = endian::native_to_big(varNumber);
-    return prependByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
+    return prependBytes({reinterpret_cast<const uint8_t*>(&value), 8});
   }
 }
 
@@ -212,26 +184,26 @@ size_t
 Encoder::appendNonNegativeInteger(uint64_t varNumber)
 {
   if (varNumber <= std::numeric_limits<uint8_t>::max()) {
-    return appendByte(static_cast<uint8_t>(varNumber));
+    return appendBytes({static_cast<uint8_t>(varNumber)});
   }
   else if (varNumber <= std::numeric_limits<uint16_t>::max()) {
     uint16_t value = endian::native_to_big(static_cast<uint16_t>(varNumber));
-    return appendByteArray(reinterpret_cast<const uint8_t*>(&value), 2);
+    return appendBytes({reinterpret_cast<const uint8_t*>(&value), 2});
   }
   else if (varNumber <= std::numeric_limits<uint32_t>::max()) {
     uint32_t value = endian::native_to_big(static_cast<uint32_t>(varNumber));
-    return appendByteArray(reinterpret_cast<const uint8_t*>(&value), 4);
+    return appendBytes({reinterpret_cast<const uint8_t*>(&value), 4});
   }
   else {
     uint64_t value = endian::native_to_big(varNumber);
-    return appendByteArray(reinterpret_cast<const uint8_t*>(&value), 8);
+    return appendBytes({reinterpret_cast<const uint8_t*>(&value), 8});
   }
 }
 
 size_t
 Encoder::prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize)
 {
-  size_t totalLength = prependByteArray(array, arraySize);
+  size_t totalLength = prependBytes({array, arraySize});
   totalLength += prependVarNumber(arraySize);
   totalLength += prependVarNumber(type);
 
@@ -243,16 +215,18 @@ Encoder::appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arrayS
 {
   size_t totalLength = appendVarNumber(type);
   totalLength += appendVarNumber(arraySize);
-  totalLength += appendByteArray(array, arraySize);
+  totalLength += appendBytes({array, arraySize});
 
   return totalLength;
 }
+
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 size_t
 Encoder::prependBlock(const Block& block)
 {
   if (block.hasWire()) {
-    return prependByteArray(block.wire(), block.size());
+    return prependBytes({block.wire(), block.size()});
   }
   else {
     return prependByteArrayBlock(block.type(), block.value(), block.value_size());
@@ -263,7 +237,7 @@ size_t
 Encoder::appendBlock(const Block& block)
 {
   if (block.hasWire()) {
-    return appendByteArray(block.wire(), block.size());
+    return appendBytes({block.wire(), block.size()});
   }
   else {
     return appendByteArrayBlock(block.type(), block.value(), block.value_size());

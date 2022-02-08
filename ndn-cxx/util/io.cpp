@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,21 +60,20 @@ loadBuffer(std::istream& is, IoEncoding encoding)
 }
 
 void
-saveBuffer(const uint8_t* buf, size_t size, std::ostream& os, IoEncoding encoding)
+saveBuffer(span<const uint8_t> buf, std::ostream& os, IoEncoding encoding)
 {
   namespace t = ndn::security::transform;
 
-  auto src = make_span(buf, size);
   try {
     switch (encoding) {
       case NO_ENCODING:
-        t::bufferSource(src) >> t::streamSink(os);
+        t::bufferSource(buf) >> t::streamSink(os);
         return;
       case BASE64:
-        t::bufferSource(src) >> t::base64Encode() >> t::streamSink(os);
+        t::bufferSource(buf) >> t::base64Encode() >> t::streamSink(os);
         return;
       case HEX:
-        t::bufferSource(src) >> t::hexEncode(true) >> t::streamSink(os);
+        t::bufferSource(buf) >> t::hexEncode(true) >> t::streamSink(os);
         return;
     }
   }

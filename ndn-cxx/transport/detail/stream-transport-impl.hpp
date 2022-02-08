@@ -231,7 +231,7 @@ protected:
     while (offset < nBytesAvailable) {
       bool isOk = false;
       Block element;
-      std::tie(isOk, element) = Block::fromBuffer(buffer + offset, nBytesAvailable - offset);
+      std::tie(isOk, element) = Block::fromBuffer({buffer + offset, nBytesAvailable - offset});
       if (!isOk)
         return false;
 

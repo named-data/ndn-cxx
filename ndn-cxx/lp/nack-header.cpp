@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,7 +69,7 @@ size_t
 NackHeader::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t length = 0;
-  length += prependNonNegativeIntegerBlock(encoder, tlv::NackReason, static_cast<uint32_t>(m_reason));
+  length += prependNonNegativeIntegerBlock(encoder, tlv::NackReason, static_cast<uint64_t>(m_reason));
   length += encoder.prependVarNumber(length);
   length += encoder.prependVarNumber(tlv::Nack);
   return length;
@@ -107,10 +107,9 @@ NackHeader::wireDecode(const Block& wire)
   m_reason = NackReason::NONE;
 
   if (m_wire.elements_size() > 0) {
-    Block::element_const_iterator it = m_wire.elements_begin();
-
+    auto it = m_wire.elements_begin();
     if (it->type() == tlv::NackReason) {
-      m_reason = static_cast<NackReason>(readNonNegativeInteger(*it));
+      m_reason = readNonNegativeIntegerAs<NackReason>(*it);
     }
     else {
       NDN_THROW(ndn::tlv::Error("NackReason", it->type()));

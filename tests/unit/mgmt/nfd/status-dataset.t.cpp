@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -70,12 +70,12 @@ protected:
     BOOST_CONCEPT_ASSERT((WireEncodable<T1>));
     BOOST_CONCEPT_ASSERT((WireEncodable<T2>));
 
-    ndn::encoding::EncodingBuffer buffer;
+    EncodingBuffer buffer;
     payload2.wireEncode(buffer);
     payload1.wireEncode(buffer);
 
     auto data = this->prepareDatasetReply(prefix);
-    data->setContent(buffer.buf(), buffer.size());
+    data->setContent(buffer);
     face.receive(*signData(data));
   }
 

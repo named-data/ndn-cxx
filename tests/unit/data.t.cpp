@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(MinimalEmptyName)
 
 BOOST_AUTO_TEST_CASE(Full)
 {
-  d.wireDecode(Block(DATA1, sizeof(DATA1)));
+  d.wireDecode(Block(DATA1));
   BOOST_CHECK_EQUAL(d.getName(), "/local/ndn/prefix");
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
@@ -415,7 +415,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, KeyChainFixture)
   d.setFreshnessPeriod(100_s); // invalidates FullName
   BOOST_CHECK_THROW(d.getFullName(), Data::Error);
 
-  Data d1(Block(DATA1, sizeof(DATA1)));
+  Data d1(Block{DATA1});
   BOOST_CHECK_EQUAL(d1.getFullName(),
     "/local/ndn/prefix/"
     "sha256digest=28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
@@ -518,7 +518,7 @@ BOOST_AUTO_TEST_CASE(SetContent)
 
   // Block overload, nested inside Content element
   const uint8_t nested[] = {0x99, 0x02, 0xca, 0xfe};
-  d.setContent(Block(nested, sizeof(nested)));
+  d.setContent(Block(nested));
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
@@ -597,8 +597,7 @@ BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, KeyChainFixture)
           0x17, 0x00, // SignatureValue
           0xAA, 0x00 // Unrecognized non-critical element
   };
-  Block wire2(WIRE, sizeof(WIRE));
-  Data d2(wire2);
+  Data d2(Block{WIRE});
   auto ranges2 = d2.extractSignedRanges();
   BOOST_REQUIRE_EQUAL(ranges2.size(), 1);
   BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().begin(), ranges2.front().end(), &WIRE[2], &WIRE[9]);
@@ -651,7 +650,7 @@ BOOST_AUTO_TEST_CASE(Equality)
 
 BOOST_AUTO_TEST_CASE(Print)
 {
-  Data d1(Block(DATA1, sizeof(DATA1)));
+  Data d1(Block{DATA1});
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(d1),
                     "Name: /local/ndn/prefix\n"
                     "MetaInfo: [ContentType: 0, FreshnessPeriod: 10000 milliseconds]\n"

@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
   auto expected = fromHex("b372edfd4d6a4db2cfeaeead6c34fdee9b9e759f7b8d799cf8067e39e7f2886c");
 
   Sha256 statefulSha256;
-  statefulSha256 << Block{input, sizeof(input)};
+  statefulSha256 << Block{input};
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);

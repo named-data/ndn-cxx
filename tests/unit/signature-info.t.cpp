@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -243,8 +243,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
                                 encodedData.begin(), encodedData.end());
 
   // Decode as (Data)SignatureInfo
-  info = SignatureInfo(Block(sigInfoDataRsa, sizeof(sigInfoDataRsa)),
-                       SignatureInfo::Type::Data);
+  info = SignatureInfo(Block(sigInfoDataRsa), SignatureInfo::Type::Data);
 
   BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
@@ -265,8 +264,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
                                 encodedInterest.begin(), encodedInterest.end());
 
   // Decode as InterestSignatureInfo
-  info = SignatureInfo(Block(sigInfoInterestRsa, sizeof(sigInfoInterestRsa)),
-                       SignatureInfo::Type::Interest);
+  info = SignatureInfo(Block(sigInfoInterestRsa), SignatureInfo::Type::Interest);
 
   BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
@@ -285,8 +283,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
                                 encodedDataEcdsa.begin(), encodedDataEcdsa.end());
 
   // Decode as (Data)SignatureInfo
-  info = SignatureInfo(Block(sigInfoDataEcdsa, sizeof(sigInfoDataEcdsa)),
-                       SignatureInfo::Type::Data);
+  info = SignatureInfo(Block(sigInfoDataEcdsa), SignatureInfo::Type::Data);
 
   BOOST_CHECK_EQUAL(info.getSignatureType(), tlv::SignatureSha256WithEcdsa);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), true);
@@ -311,7 +308,7 @@ BOOST_AUTO_TEST_CASE(DecodeError)
           0x08, 0x07,
             0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
   };
-  Block errorBlock1(error1, sizeof(error1));
+  Block errorBlock1(error1);
   BOOST_CHECK_THROW(SignatureInfo(errorBlock1, SignatureInfo::Type::Data), tlv::Error);
 
   const uint8_t error2[] = {
@@ -320,13 +317,13 @@ BOOST_AUTO_TEST_CASE(DecodeError)
         0x01, // Sha256WithRsa
       0x83, 0x00, // Unrecognized critical TLV
   };
-  Block errorBlock2(error2, sizeof(error2));
+  Block errorBlock2(error2);
   BOOST_CHECK_THROW(SignatureInfo(errorBlock2, SignatureInfo::Type::Data), tlv::Error);
 
   const uint8_t error3[] = {
     0x16, 0x00 // Empty SignatureInfo
   };
-  Block errorBlock3(error3, sizeof(error3));
+  Block errorBlock3(error3);
   BOOST_CHECK_THROW(SignatureInfo(errorBlock3, SignatureInfo::Type::Data), tlv::Error);
 
   // Encoding is correct for SignatureInfo, but decoder is expecting InterestSignatureInfo
@@ -343,7 +340,7 @@ BOOST_AUTO_TEST_CASE(DecodeError)
           0x08, 0x07,
             0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
   };
-  Block errorBlock4(error4, sizeof(error4));
+  Block errorBlock4(error4);
   BOOST_CHECK_THROW(SignatureInfo(errorBlock4, SignatureInfo::Type::Interest), tlv::Error);
 
   // SignatureType and KeyLocator out-of-order
@@ -360,7 +357,7 @@ BOOST_AUTO_TEST_CASE(DecodeError)
       0x1b, 0x01, // SignatureType
         0x01, // Sha256WithRsa
   };
-  Block errorBlock5(error5, sizeof(error5));
+  Block errorBlock5(error5);
   BOOST_CHECK_THROW(SignatureInfo(errorBlock5, SignatureInfo::Type::Interest), tlv::Error);
 
   // Repeated KeyLocator
@@ -385,7 +382,7 @@ BOOST_AUTO_TEST_CASE(DecodeError)
           0x08, 0x07,
             0x6c, 0x6f, 0x63, 0x61, 0x74, 0x6f, 0x72
   };
-  Block errorBlock6(error6, sizeof(error6));
+  Block errorBlock6(error6);
   BOOST_CHECK_THROW(SignatureInfo(errorBlock6, SignatureInfo::Type::Interest), tlv::Error);
 
   // Zero-length SignatureNonce
@@ -395,7 +392,7 @@ BOOST_AUTO_TEST_CASE(DecodeError)
         0x01, // Sha256WithRsa
       0x26, 0x00 // SignatureNonce
   };
-  Block errorBlock7(error7, sizeof(error7));
+  Block errorBlock7(error7);
   BOOST_CHECK_THROW(SignatureInfo(errorBlock7, SignatureInfo::Type::Interest), tlv::Error);
 }
 
@@ -444,7 +441,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriod)
   BOOST_CHECK_EQUAL(info.hasWire(), true);
 
   // decode
-  Block block(sigInfo, sizeof(sigInfo));
+  Block block(sigInfo);
   SignatureInfo info2(block, SignatureInfo::Type::Data);
   BOOST_CHECK_EQUAL(info2.getValidityPeriod(), vp1);
   BOOST_CHECK_EQUAL(info2.hasWire(), true);
@@ -503,7 +500,7 @@ BOOST_AUTO_TEST_CASE(CustomTlvsEncoding) // Bug #3914
           0x6a, 0x05, 0x54, 0x68, 0x69, 0x72, 0x64 // 106 "Third"
   };
 
-  SignatureInfo info3(Block(infoBytes, sizeof(infoBytes)), SignatureInfo::Type::Data);
+  SignatureInfo info3(Block(infoBytes), SignatureInfo::Type::Data);
   BOOST_CHECK_EQUAL(info3, info1);
   BOOST_CHECK_EQUAL_COLLECTIONS(infoBytes, infoBytes + sizeof(infoBytes),
                                 info1.wireEncode().begin(), info1.wireEncode().end());

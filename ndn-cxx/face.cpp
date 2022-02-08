@@ -314,9 +314,8 @@ Face::onReceiveElement(const Block& blockFromDaemon)
   lp::Packet lpPacket(blockFromDaemon); // bare Interest/Data is a valid lp::Packet,
                                         // no need to distinguish
 
-  Buffer::const_iterator begin, end;
-  std::tie(begin, end) = lpPacket.get<lp::FragmentField>();
-  Block netPacket(&*begin, std::distance(begin, end));
+  auto frag = lpPacket.get<lp::FragmentField>();
+  Block netPacket({frag.first, frag.second});
   switch (netPacket.type()) {
     case tlv::Interest: {
       auto interest = make_shared<Interest>(netPacket);

@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_SUITE(EncodeDecode)
 
 BOOST_AUTO_TEST_CASE(Decode)
 {
-  Link link(Block(GOOD_LINK, sizeof(GOOD_LINK)));
+  Link link(Block{GOOD_LINK});
   BOOST_CHECK_EQUAL(link.getName(), Name("/local/ndn/prefix"));
   BOOST_TEST(link.getDelegationList() == std::vector<Name>({"/local", "/ndn"}),
              boost::test_tools::per_element());
@@ -85,11 +85,11 @@ BOOST_AUTO_TEST_CASE(Decode)
 
 BOOST_AUTO_TEST_CASE(DecodeBadContentType)
 {
-  Data linkData(Block(GOOD_LINK, sizeof(GOOD_LINK)));
+  Data linkData(Block{GOOD_LINK});
   linkData.setContentType(tlv::ContentType_Key);
   Block badLink = linkData.wireEncode();
 
-  BOOST_CHECK_THROW((Link(badLink)), Link::Error);
+  BOOST_CHECK_THROW(Link{badLink}, Link::Error);
   Link link;
   BOOST_CHECK_THROW(link.wireDecode(badLink), Link::Error);
 }

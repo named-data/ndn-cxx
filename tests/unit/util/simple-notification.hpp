@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2021 Regents of the University of California,
+ * Copyright (c) 2014-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -28,7 +28,7 @@
 #ifndef NDN_CXX_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
 #define NDN_CXX_TESTS_UNIT_UTIL_SIMPLE_NOTIFICATION_HPP
 
-#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
 
 namespace ndn {
 namespace util {
@@ -53,11 +53,7 @@ public:
   Block
   wireEncode() const
   {
-    ndn::EncodingBuffer buffer;
-    buffer.prependByteArrayBlock(0x8888,
-                                 reinterpret_cast<const uint8_t*>(m_message.c_str()),
-                                 m_message.size());
-    return buffer.block();
+    return makeStringBlock(0x8888, m_message);
   }
 
   void

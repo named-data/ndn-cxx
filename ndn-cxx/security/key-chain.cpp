@@ -450,10 +450,8 @@ KeyChain::sign(Data& data, const SigningInfo& params)
   EncodingBuffer encoder;
   data.wireEncode(encoder, true);
 
-  Block sigValue(tlv::SignatureValue,
-                 sign({{encoder.buf(), encoder.size()}}, keyName, params.getDigestAlgorithm()));
-
-  data.wireEncode(encoder, sigValue);
+  auto sigValue = sign({encoder}, keyName, params.getDigestAlgorithm());
+  data.wireEncode(encoder, *sigValue);
 }
 
 void

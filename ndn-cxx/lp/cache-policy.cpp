@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,7 +57,7 @@ CachePolicy::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   size_t length = 0;
-  length += prependNonNegativeIntegerBlock(encoder, tlv::CachePolicyType, static_cast<uint32_t>(m_policy));
+  length += prependNonNegativeIntegerBlock(encoder, tlv::CachePolicyType, static_cast<uint64_t>(m_policy));
   length += encoder.prependVarNumber(length);
   length += encoder.prependVarNumber(tlv::CachePolicy);
   return length;
@@ -103,8 +103,8 @@ CachePolicy::wireDecode(const Block& wire)
   }
 
   if (it->type() == tlv::CachePolicyType) {
-    m_policy = static_cast<CachePolicyType>(readNonNegativeInteger(*it));
-    if (this->getPolicy() == CachePolicyType::NONE) {
+    m_policy = readNonNegativeIntegerAs<CachePolicyType>(*it);
+    if (getPolicy() == CachePolicyType::NONE) {
       NDN_THROW(Error("Unknown CachePolicyType"));
     }
   }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,8 @@
 
 #include "ndn-cxx/meta-info.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
-#include "ndn-cxx/encoding/encoding-buffer.hpp"
+
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
 
@@ -132,8 +133,9 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
 
   size_t totalLength = 0;
 
-  for (auto it = m_appMetaInfo.rbegin(); it != m_appMetaInfo.rend(); ++it) {
-    totalLength += encoder.prependBlock(*it);
+  // AppMetaInfo (in reverse order)
+  for (const auto& block : m_appMetaInfo | boost::adaptors::reversed) {
+    totalLength += prependBlock(encoder, block);
   }
 
   // FinalBlockId
@@ -181,11 +183,11 @@ MetaInfo::wireDecode(const Block& wire)
   m_wire = wire;
   m_wire.parse();
 
-  // MetaInfo ::= META-INFO-TYPE TLV-LENGTH
-  //                ContentType?
-  //                FreshnessPeriod?
-  //                FinalBlockId?
-  //                AppMetaInfo*
+  // MetaInfo = META-INFO-TYPE TLV-LENGTH
+  //              [ContentType]
+  //              [FreshnessPeriod]
+  //              [FinalBlockId]
+  //              *AppMetaInfo
 
   auto val = m_wire.elements_begin();
 

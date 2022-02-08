@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -366,16 +366,15 @@ Component
 Component::fromNumberWithMarker(uint8_t marker, uint64_t number)
 {
   EncodingEstimator estimator;
-
   size_t valueLength = estimator.prependNonNegativeInteger(number);
-  valueLength += estimator.prependByteArray(&marker, 1);
+  valueLength += estimator.prependBytes({marker});
   size_t totalLength = valueLength;
   totalLength += estimator.prependVarNumber(valueLength);
   totalLength += estimator.prependVarNumber(tlv::GenericNameComponent);
 
   EncodingBuffer encoder(totalLength, 0);
   encoder.prependNonNegativeInteger(number);
-  encoder.prependByteArray(&marker, 1);
+  encoder.prependBytes({marker});
   encoder.prependVarNumber(valueLength);
   encoder.prependVarNumber(tlv::GenericNameComponent);
 
@@ -523,7 +522,7 @@ Component::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
   if (value_size() > 0)
-    totalLength += encoder.prependByteArray(value(), value_size());
+    totalLength += encoder.prependBytes({value(), value_size()});
   totalLength += encoder.prependVarNumber(value_size());
   totalLength += encoder.prependVarNumber(type());
   return totalLength;

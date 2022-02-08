@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,10 +50,10 @@ BOOST_AUTO_TEST_CASE(Encode)
   header.setReason(NackReason::DUPLICATE);
 
   Block wire;
-  BOOST_REQUIRE_NO_THROW(wire = header.wireEncode());
+  BOOST_CHECK_NO_THROW(wire = header.wireEncode());
 
   // Sample encoded value obtained with:
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
 
@@ -65,20 +65,20 @@ BOOST_AUTO_TEST_CASE(Encode)
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wire.begin(), wire.end());
 
-  BOOST_REQUIRE_NO_THROW(header.wireDecode(wire));
+  BOOST_CHECK_NO_THROW(header.wireDecode(wire));
 }
 
 BOOST_AUTO_TEST_CASE(DecodeUnknownReasonCode)
 {
   static const uint8_t expectedBlock[] = {
-    0xfd, 0x03, 0x20, 0x08, 0xfd, 0x03, 0x21, 0x04, 0xff, 0xff, 0xff, 0xff,
+    0xfd, 0x03, 0x20, 0x08, 0xfd, 0x03, 0x21, 0x04, 0x1f, 0xff, 0xff, 0xff,
   };
 
   NackHeader header;
-  Block wire(expectedBlock, sizeof(expectedBlock));
-  BOOST_REQUIRE_NO_THROW(header.wireDecode(wire));
+  Block wire(expectedBlock);
+  BOOST_CHECK_NO_THROW(header.wireDecode(wire));
   Block wireEncoded;
-  BOOST_REQUIRE_NO_THROW(wireEncoded = header.wireEncode());
+  BOOST_CHECK_NO_THROW(wireEncoded = header.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wireEncoded.begin(), wireEncoded.end());
   BOOST_CHECK_EQUAL(header.getReason(), NackReason::NONE);
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(DecodeOmitReason)
   };
 
   NackHeader header;
-  Block wire(expectedBlock, sizeof(expectedBlock));
-  BOOST_REQUIRE_NO_THROW(header.wireDecode(wire));
+  Block wire(expectedBlock);
+  BOOST_CHECK_NO_THROW(header.wireDecode(wire));
   Block wireEncoded;
-  BOOST_REQUIRE_NO_THROW(wireEncoded = header.wireEncode());
+  BOOST_CHECK_NO_THROW(wireEncoded = header.wireEncode());
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
                                 wireEncoded.begin(), wireEncoded.end());
   BOOST_CHECK_EQUAL(header.getReason(), NackReason::NONE);

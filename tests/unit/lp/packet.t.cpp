@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(DecodeNormal)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   packet.wireDecode(wire);
 
   BOOST_CHECK_EQUAL(packet.count<FragIndexField>(), 1);
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(DecodeIdle)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(0, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(1, packet.count<FragIndexField>());
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(DecodeFragment)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(DecodeNonDiscoveryHeader)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(true, packet.has<NonDiscoveryField>());
   packet.get<NonDiscoveryField>();
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE(DecodeEmpty)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(0, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE(DecodeRepeatedNonRepeatableHeader)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(DecodeRepeatedFragment)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(DecodeWrongOrderAmongHeaders)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(DecodeWrongOrderFragment)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(DecodeIgnoredHeader)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(1, packet.count<FragIndexField>());
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(DecodeUnrecognizedHeader)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(DecodeBareNetworkLayerPacket)
   };
 
   Packet packet;
-  Block wire(inputBlock, sizeof(inputBlock));
+  Block wire(inputBlock);
   packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
 
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE(DecodeSeqNum)
 BOOST_AUTO_TEST_CASE(DecodeUnrecognizedTlvType)
 {
   Packet packet;
-  Block wire = encoding::makeEmptyBlock(ndn::tlv::Name);
+  Block wire = makeEmptyBlock(ndn::tlv::Name);
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
