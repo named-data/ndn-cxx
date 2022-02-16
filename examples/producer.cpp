@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,7 +61,7 @@ private:
     // Create Data packet
     auto data = make_shared<Data>(interest.getName());
     data->setFreshnessPeriod(10_s);
-    data->setContent(reinterpret_cast<const uint8_t*>(content.data()), content.size());
+    data->setContent(make_span(reinterpret_cast<const uint8_t*>(content.data()), content.size()));
 
     // in order for the consumer application to be able to validate the packet, you need to setup
     // the following keys:
