@@ -32,7 +32,6 @@
 #include <array>
 
 #include <boost/endian/conversion.hpp>
-#include <boost/logic/tribool.hpp>
 
 namespace ndn {
 
@@ -180,26 +179,6 @@ public: // element access
    */
   Interest&
   setName(const Name& name);
-
-  /** @brief Declare the default CanBePrefix setting of the application.
-   *
-   *  As part of transitioning to NDN Packet Format v0.3, the default setting for CanBePrefix
-   *  has been changed from "true" to "false". Application developers are advised to review all
-   *  Interests expressed by their applications and decide what CanBePrefix setting is appropriate
-   *  for each Interest. Applications must set CanBePrefix on a per-Interest basis, if different
-   *  from the default value. Changing the application-wide default CanBePrefix setting via this
-   *  function is deprecated.
-   *
-   *  @deprecated
-   *  @note This function should not be used in libraries or in ndn-cxx unit tests.
-   *  @sa https://redmine.named-data.net/projects/nfd/wiki/Packet03Transition
-   */
-  [[deprecated]]
-  static void
-  setDefaultCanBePrefix(bool canBePrefix)
-  {
-    s_defaultCanBePrefix = canBePrefix;
-  }
 
   /** @brief Check whether the CanBePrefix element is present.
    */
@@ -489,7 +468,6 @@ private:
   findFirstParameter(uint32_t type) const;
 
 private:
-  static boost::logic::tribool s_defaultCanBePrefix;
   static bool s_autoCheckParametersDigest;
 
   Name m_name;

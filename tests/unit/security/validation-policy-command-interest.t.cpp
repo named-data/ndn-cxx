@@ -69,7 +69,6 @@ public:
   {
     if (wantV3) {
       Interest i(Name(identity.getName()).append("CMD"));
-      i.setCanBePrefix(false);
       m_signer.makeSignedInterest(i, signingByIdentity(identity));
       return i;
     }
@@ -113,7 +112,6 @@ BOOST_AUTO_TEST_CASE(BasicV3)
   VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
 
   Interest i3(Name(identity.getName()).append("CMD"));
-  i3.setCanBePrefix(false);
   m_signer.makeSignedInterest(i3, signingWithSha256());
   VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
 }

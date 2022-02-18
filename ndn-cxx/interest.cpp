@@ -40,17 +40,12 @@ BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
 static_assert(std::is_base_of<tlv::Error, Interest::Error>::value,
               "Interest::Error must inherit from tlv::Error");
 
-boost::logic::tribool Interest::s_defaultCanBePrefix = boost::logic::indeterminate;
 bool Interest::s_autoCheckParametersDigest = true;
 
 Interest::Interest(const Name& name, time::milliseconds lifetime)
 {
   setName(name);
   setInterestLifetime(lifetime);
-
-  if (!boost::logic::indeterminate(s_defaultCanBePrefix)) {
-    setCanBePrefix(bool(s_defaultCanBePrefix));
-  }
 }
 
 Interest::Interest(const Block& wire)

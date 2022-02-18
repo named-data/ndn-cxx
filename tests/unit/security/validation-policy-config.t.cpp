@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,7 +56,6 @@ BOOST_FIXTURE_TEST_CASE(EmptyConfig, HierarchicalValidatorFixture<ValidationPoli
   VALIDATE_FAILURE(d, "Empty policy should reject everything");
 
   Interest i("/Security/ValidationPolicyConfig/I");
-  i.setCanBePrefix(false);
   this->m_keyChain.sign(i, signingByIdentity(this->identity));
   VALIDATE_FAILURE(i, "Empty policy should reject everything");
 }
@@ -412,9 +411,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateInterest, Policy, InterestPolicies, Pol
 
   using Packet = typename Policy::Packet;
   Packet unsignedPacket("/Security/ValidatorFixture/Sub1/Sub2/Packet");
-  // All of the packet types inputed to this test case template are Interests, so we can call
-  // setCanBePrefix
-  unsignedPacket.setCanBePrefix(false);
 
   Packet packet = unsignedPacket;
   VALIDATE_FAILURE(packet, "Unsigned");
@@ -484,7 +480,6 @@ BOOST_FIXTURE_TEST_CASE(DigestSha256, HierarchicalValidatorFixture<ValidationPol
 
 
   Interest interest("/Security/ValidatorFixture/Sub1/Sub2/Packet");
-  interest.setCanBePrefix(false);
   this->m_keyChain.sign(interest, signingWithSha256());
   VALIDATE_SUCCESS(interest, "Should be accepted");
 
@@ -557,7 +552,6 @@ BOOST_FIXTURE_TEST_CASE(DigestSha256WithKeyLocator, HierarchicalValidatorFixture
 
 
   Interest interest("/localhost/identity/digest-sha256/foobar");
-  interest.setCanBePrefix(false);
   this->m_keyChain.sign(interest, signingWithSha256());
   VALIDATE_SUCCESS(interest, "Should be accepted");
 
@@ -630,7 +624,6 @@ BOOST_FIXTURE_TEST_CASE(SigTypeCheck, HierarchicalValidatorFixture<ValidationPol
 
 
   Interest interest("/localhost/identity/digest-sha256/foobar");
-  interest.setCanBePrefix(false);
   this->m_keyChain.sign(interest, signingWithSha256());
   VALIDATE_FAILURE(interest, "Signature type check should fail");
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -341,7 +341,7 @@ struct DataPkt
 
 struct InterestV02Pkt
 {
-  Interest packet = Interest{"/interest02"}.setCanBePrefix(false);
+  Interest packet{"/interest02"};
   SignedInterestFormat sigFormat = SignedInterestFormat::V02;
 
   SignatureInfo
@@ -353,7 +353,7 @@ struct InterestV02Pkt
 
 struct InterestV03Pkt
 {
-  Interest packet = Interest{"/interest03"}.setCanBePrefix(false);
+  Interest packet{"/interest03"};
   SignedInterestFormat sigFormat = SignedInterestFormat::V03;
 
   SignatureInfo

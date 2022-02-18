@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -157,7 +157,6 @@ BOOST_FIXTURE_TEST_CASE(ValidateSignedInterest, ValidatorConfigFixture)
 
   InterestSigner signer(m_keyChain);
   Interest i1("/hello/world");
-  i1.setCanBePrefix(false);
   signer.makeSignedInterest(i1);
   size_t nValidated = 0, nFailed = 0;
 
@@ -170,7 +169,6 @@ BOOST_FIXTURE_TEST_CASE(ValidateSignedInterest, ValidatorConfigFixture)
   BOOST_CHECK_EQUAL(nFailed, 1);
 
   Interest i2("/hello/world");
-  i2.setCanBePrefix(false);
   signer.makeSignedInterest(i2, signingWithSha256());
   validator.validate(i2, [&] (auto&&...) { ++nValidated; }, [&] (auto&&...) { ++nFailed; });
   BOOST_CHECK_EQUAL(nValidated, 2);

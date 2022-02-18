@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,12 +33,6 @@ namespace examples {
 class ConsumerWithTimer
 {
 public:
-  ConsumerWithTimer()
-    : m_face(m_ioService) // Create face with io_service object
-    , m_scheduler(m_ioService)
-  {
-  }
-
   void
   run()
   {
@@ -46,7 +40,6 @@ public:
     interestName.appendVersion();
 
     Interest interest(interestName);
-    interest.setCanBePrefix(false);
     interest.setMustBeFresh(true);
     interest.setInterestLifetime(2_s);
 
@@ -96,7 +89,6 @@ private:
     interestName.appendVersion();
 
     Interest interest(interestName);
-    interest.setCanBePrefix(false);
     interest.setMustBeFresh(true);
     interest.setInterestLifetime(2_s);
 
@@ -110,8 +102,8 @@ private:
 private:
   // Explicitly create io_service object, which will be shared between Face and Scheduler
   boost::asio::io_service m_ioService;
-  Face m_face;
-  Scheduler m_scheduler;
+  Face m_face{m_ioService};
+  Scheduler m_scheduler{m_ioService};
 };
 
 } // namespace examples

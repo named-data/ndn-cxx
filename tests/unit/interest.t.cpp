@@ -82,7 +82,6 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
-  i1.setCanBePrefix(false);
   i1.setNonce(0x01020304);
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
@@ -125,7 +124,6 @@ BOOST_AUTO_TEST_CASE(WithParameters)
 
   Interest i1;
   i1.setName("/local/ndn/prefix");
-  i1.setCanBePrefix(false);
   i1.setNonce(0x1);
   i1.setApplicationParameters("2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
@@ -265,7 +263,6 @@ BOOST_AUTO_TEST_CASE(Signed)
   BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
 
   Interest i2("/local/ndn/prefix");
-  i2.setCanBePrefix(false);
   i2.setMustBeFresh(true);
   i2.setNonce(0x4c1ecb4a);
   i2.setApplicationParameters("2404C0C1C2C3"_block);
@@ -347,7 +344,6 @@ BOOST_AUTO_TEST_CASE(MissingApplicationParameters)
 {
   Interest i;
   i.setName(Name("/A").appendParametersSha256DigestPlaceholder());
-  i.setCanBePrefix(false);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
   BOOST_CHECK_EXCEPTION(i.wireEncode(), tlv::Error, [] (const auto& e) {
     return e.what() == "Interest without parameters must not have a ParametersSha256DigestComponent"s;
@@ -783,7 +779,6 @@ BOOST_AUTO_TEST_CASE(GetNonce)
 BOOST_AUTO_TEST_CASE(SetNonce)
 {
   Interest i1("/A");
-  i1.setCanBePrefix(false);
   BOOST_CHECK(!i1.hasNonce());
 
   i1.setNonce(1);
@@ -820,7 +815,6 @@ BOOST_AUTO_TEST_CASE(RefreshNonce)
 BOOST_AUTO_TEST_CASE(NonceConversions)
 {
   Interest i;
-  i.setCanBePrefix(false);
 
   // 4-arg constructor
   Interest::Nonce n1(1, 2, 3, 4);
@@ -908,7 +902,6 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
 BOOST_AUTO_TEST_CASE(SetSignature)
 {
   Interest i;
-  i.setCanBePrefix(false);
   BOOST_CHECK(i.getSignatureInfo() == nullopt);
   BOOST_CHECK_EQUAL(i.isSigned(), false);
 
@@ -1055,7 +1048,6 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
 BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
 {
   Interest i1;
-  i1.setCanBePrefix(false);
   BOOST_CHECK_EXCEPTION(i1.extractSignedRanges(), tlv::Error, [] (const auto& e) {
     return e.what() == "Name has zero name components"s;
   });
@@ -1136,7 +1128,6 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
 
   // Test failure with missing ParametersSha256DigestComponent
   Interest i3("/a");
-  i3.setCanBePrefix(false);
   BOOST_CHECK_EXCEPTION(i3.extractSignedRanges(), tlv::Error, [] (const auto& e) {
     return e.what() == "Interest Name must end with a ParametersSha256DigestComponent"s;
   });
@@ -1151,7 +1142,6 @@ BOOST_AUTO_TEST_CASE(ExtractSignedRanges)
 BOOST_AUTO_TEST_CASE(ToUri)
 {
   Interest i;
-  i.setCanBePrefix(false);
   BOOST_CHECK_EQUAL(i.toUri(), "/");
 
   i.setName("/foo");

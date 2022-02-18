@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,7 +75,6 @@ public:
                      uint32_t signingFlags = InterestSigner::WantNonce | InterestSigner::WantTime)
   {
     Interest i(Name(identity.getName()).append("CMD"));
-    i.setCanBePrefix(false);
     m_signer.makeSignedInterest(i, signingByIdentity(identity), signingFlags);
     return i;
   }
@@ -102,7 +101,6 @@ BOOST_AUTO_TEST_CASE(BasicV3)
   VALIDATE_SUCCESS(i2, "Should succeed (timestamp and sequence number larger than previous)");
 
   Interest i3(Name(identity.getName()).append("CMD"));
-  i3.setCanBePrefix(false);
   m_signer.makeSignedInterest(i3, signingWithSha256());
   VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
 }

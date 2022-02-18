@@ -97,7 +97,6 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //     Interest interest1(Name("/test/interest").append(type));
 //     SigningInfo signingInfoV03(signingInfo);
 //     signingInfoV03.setSignedInterestFormat(SignedInterestFormat::V03);
-//     interest1.setCanBePrefix(false);
 //     interest1.setNonce(0xF72C8A4B);
 //     m_keyChain.sign(interest1, signingInfoV03);
 //     print("goodInterest", interest1.wireEncode().wire(), interest1.wireEncode().size());
@@ -113,7 +112,6 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //     Interest interest2(Name("/test/interest").append(type));
 //     SigningInfo signingInfoV02(signingInfo);
 //     signingInfoV02.setSignedInterestFormat(SignedInterestFormat::V03);
-//     interest2.setCanBePrefix(false);
 //     interest2.setNonce(0xF72C8A4B);
 //     m_keyChain.sign(interest2, signingInfoV02);
 //     print("goodInterestOldFormat", interest2.wireEncode().wire(), interest2.wireEncode().size());
@@ -580,9 +578,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
 
   Data unsignedData("/some/data");
   Interest unsignedInterest1("/some/interest/with/several/name/components");
-  unsignedInterest1.setCanBePrefix(false);
   Interest unsignedInterest2("/interest-with-one-name-component");
-  unsignedInterest2.setCanBePrefix(false);
 
   BOOST_CHECK(!verifySignature(unsignedData, cert));
   BOOST_CHECK(!verifySignature(unsignedData, key));
@@ -605,9 +601,7 @@ BOOST_FIXTURE_TEST_CASE(VerifyHmac, KeyChainFixture)
   const Tpm& tpm = m_keyChain.getTpm();
   Data data("/data");
   Interest interest("/interest");
-  interest.setCanBePrefix(false);
   Interest interestOldFormat("/interest");
-  interestOldFormat.setCanBePrefix(false);
   SigningInfo signingInfo;
   signingInfo.setSigningHmacKey("QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENUI0OTdGREZGMUE4RUE2RkYxMkY2"
                                 "RkI2NUFGMjcyMEI1OUNDRg==");
@@ -649,9 +643,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
 
   Data unsignedData("/some/data");
   Interest unsignedInterest1("/some/interest/with/several/name/components");
-  unsignedInterest1.setCanBePrefix(false);
   Interest unsignedInterest2("/interest-with-one-name-component");
-  unsignedInterest2.setCanBePrefix(false);
 
   BOOST_CHECK(!verifySignature(unsignedData, nullopt));
   BOOST_CHECK(!verifySignature(unsignedInterest1, nullopt));

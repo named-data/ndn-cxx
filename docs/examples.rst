@@ -18,7 +18,7 @@ callbacks to be called when Data/Nack is retrieved or Interest times out.
 .. literalinclude:: ../examples/consumer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 43-49,52-55,63,77,83
+   :emphasize-lines: 43-48,51-54,62,76,82
 
 Trivial producer
 ----------------
@@ -64,4 +64,4 @@ Interest approximately 3 seconds after the first one.
 .. literalinclude:: ../examples/consumer-with-timer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 37-38,54-57,60,91,104-107,112-114
+   :emphasize-lines: 47-50,53,84,96-99,104-106
