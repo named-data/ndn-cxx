@@ -685,9 +685,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyGenParams)
                          boolSink(result));
   }
   else {
-#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
     BOOST_CHECK_THROW(sKey->derivePublicKey(), PrivateKey::Error);
-#endif
     BOOST_CHECK_NO_THROW(bufferSource(data) >>
                          verifierFilter(DigestAlgorithm::SHA256, *sKey, *sig) >>
                          boolSink(result));
@@ -705,10 +703,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(GenerateKey, T, KeyGenParams)
     BOOST_CHECK(*os1.buf() != *os2.buf());
   }
   else {
-#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
     OBufferStream os1;
     BOOST_CHECK_THROW(sKey->savePkcs1(os1), PrivateKey::Error);
-#endif
   }
 }
 

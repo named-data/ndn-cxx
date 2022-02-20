@@ -51,18 +51,6 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-static void
-opensslInitAlgorithms()
-{
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  static bool isInitialized = false;
-  if (!isInitialized) {
-    OpenSSL_add_all_algorithms();
-    isInitialized = true;
-  }
-#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
-}
-
 class PrivateKey::Impl : noncopyable
 {
 public:
@@ -73,10 +61,6 @@ public:
 
 public:
   EVP_PKEY* key = nullptr;
-
-#if OPENSSL_VERSION_NUMBER < 0x1010100fL
-  size_t keySize = 0; // in bits, used only for HMAC
-#endif
 };
 
 PrivateKey::PrivateKey()
@@ -112,13 +96,9 @@ PrivateKey::getKeySize() const
     case KeyType::EC:
       return static_cast<size_t>(EVP_PKEY_bits(m_impl->key));
     case KeyType::HMAC: {
-#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
       size_t nBytes = 0;
       EVP_PKEY_get_raw_private_key(m_impl->key, nullptr, &nBytes);
       return nBytes * 8;
-#else
-      return m_impl->keySize;
-#endif
     }
     default:
       return 0;
@@ -132,15 +112,8 @@ PrivateKey::getKeyDigest(DigestAlgorithm algo) const
     NDN_THROW(Error("Digest is not supported for key type " +
                     boost::lexical_cast<std::string>(getKeyType())));
 
-  const uint8_t* buf = nullptr;
   size_t len = 0;
-#if OPENSSL_VERSION_NUMBER >= 0x1010000fL
-  buf = EVP_PKEY_get0_hmac(m_impl->key, &len);
-#else
-  const auto* octstr = reinterpret_cast<ASN1_OCTET_STRING*>(EVP_PKEY_get0(m_impl->key));
-  buf = octstr->data;
-  len = octstr->length;
-#endif
+  const uint8_t* buf = EVP_PKEY_get0_hmac(m_impl->key, &len);
   if (buf == nullptr)
     NDN_THROW(Error("Failed to obtain raw key pointer"));
   if (len * 8 != getKeySize())
@@ -165,25 +138,15 @@ PrivateKey::loadRaw(KeyType type, span<const uint8_t> buf)
     NDN_THROW(std::invalid_argument("Unsupported key type " + boost::lexical_cast<std::string>(type)));
   }
 
-  m_impl->key =
-#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
-      EVP_PKEY_new_raw_private_key(pkeyType, nullptr, buf.data(), buf.size());
-#else
-      EVP_PKEY_new_mac_key(pkeyType, nullptr, buf.data(), static_cast<int>(buf.size()));
-#endif
+  m_impl->key = EVP_PKEY_new_raw_private_key(pkeyType, nullptr, buf.data(), buf.size());
   if (m_impl->key == nullptr)
     NDN_THROW(Error("Failed to load private key"));
-
-#if OPENSSL_VERSION_NUMBER < 0x1010100fL
-  m_impl->keySize = buf.size() * 8;
-#endif
 }
 
 void
 PrivateKey::loadPkcs1(span<const uint8_t> buf)
 {
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
-  opensslInitAlgorithms();
 
   auto ptr = buf.data();
   if (d2i_AutoPrivateKey(&m_impl->key, &ptr, static_cast<long>(buf.size())) == nullptr)
@@ -219,7 +182,6 @@ PrivateKey::loadPkcs8(span<const uint8_t> buf, const char* pw, size_t pwLen)
 {
   BOOST_ASSERT(std::strlen(pw) == pwLen);
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
-  opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
   if (!membio.write(buf))
@@ -241,7 +203,6 @@ void
 PrivateKey::loadPkcs8(span<const uint8_t> buf, PasswordCallback pwCallback)
 {
   ENSURE_PRIVATE_KEY_NOT_LOADED(m_impl->key);
-  opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
   if (!membio.write(buf))
@@ -382,7 +343,6 @@ ConstBufferPtr
 PrivateKey::toPkcs1() const
 {
   ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
-  opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
   if (!i2d_PrivateKey_bio(membio, m_impl->key))
@@ -400,7 +360,6 @@ PrivateKey::toPkcs8(const char* pw, size_t pwLen) const
 {
   BOOST_ASSERT(std::strlen(pw) == pwLen);
   ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
-  opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
   if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_aes_256_cbc(), nullptr, 0,
@@ -418,7 +377,6 @@ ConstBufferPtr
 PrivateKey::toPkcs8(PasswordCallback pwCallback) const
 {
   ENSURE_PRIVATE_KEY_LOADED(m_impl->key);
-  opensslInitAlgorithms();
 
   detail::Bio membio(BIO_s_mem());
   if (!i2d_PKCS8PrivateKey_bio(membio, m_impl->key, EVP_aes_256_cbc(), nullptr, 0,
@@ -499,11 +457,6 @@ PrivateKey::generateEcKey(uint32_t keySize)
   }
 
   auto guard = make_scope_exit([eckey] { EC_KEY_free(eckey); });
-
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  EC_KEY_set_asn1_flag(eckey, OPENSSL_EC_NAMED_CURVE);
-#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
-
   if (EC_KEY_generate_key(eckey) != 1) {
     NDN_THROW(Error("Failed to generate EC key"));
   }

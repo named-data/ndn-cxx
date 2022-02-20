@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,13 +37,12 @@ digestAlgorithmToEvpMd(DigestAlgorithm algo)
     return EVP_sha384();
   case DigestAlgorithm::SHA512:
     return EVP_sha512();
-#if OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(OPENSSL_NO_BLAKE2)
+#ifndef OPENSSL_NO_BLAKE2
   case DigestAlgorithm::BLAKE2B_512:
     return EVP_blake2b512();
   case DigestAlgorithm::BLAKE2S_256:
     return EVP_blake2s256();
 #endif
-#if OPENSSL_VERSION_NUMBER >= 0x10101001L
   case DigestAlgorithm::SHA3_224:
     return EVP_sha3_224();
   case DigestAlgorithm::SHA3_256:
@@ -52,29 +51,19 @@ digestAlgorithmToEvpMd(DigestAlgorithm algo)
     return EVP_sha3_384();
   case DigestAlgorithm::SHA3_512:
     return EVP_sha3_512();
-#endif
   default:
     return nullptr;
   }
 }
 
 int
-getEvpPkeyType(EVP_PKEY* key)
+getEvpPkeyType(const EVP_PKEY* key)
 {
-  return
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    EVP_PKEY_type(key->type);
-#else
-    EVP_PKEY_base_id(key);
-#endif
+  return EVP_PKEY_base_id(key);
 }
 
 EvpMdCtx::EvpMdCtx()
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  : m_ctx(EVP_MD_CTX_create())
-#else
   : m_ctx(EVP_MD_CTX_new())
-#endif
 {
   if (m_ctx == nullptr)
     NDN_THROW(std::runtime_error("EVP_MD_CTX creation failed"));
@@ -82,11 +71,7 @@ EvpMdCtx::EvpMdCtx()
 
 EvpMdCtx::~EvpMdCtx()
 {
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  EVP_MD_CTX_destroy(m_ctx);
-#else
   EVP_MD_CTX_free(m_ctx);
-#endif
 }
 
 EvpPkeyCtx::EvpPkeyCtx(EVP_PKEY* key)
@@ -108,7 +93,7 @@ EvpPkeyCtx::~EvpPkeyCtx()
   EVP_PKEY_CTX_free(m_ctx);
 }
 
-Bio::Bio(Bio::MethodPtr method)
+Bio::Bio(const BIO_METHOD* method)
   : m_bio(BIO_new(method))
 {
   if (m_bio == nullptr)

@@ -36,7 +36,7 @@ Required
 -  Python >= 3.6
 -  pkg-config
 -  Boost >= 1.65.1
--  OpenSSL >= 1.0.2
+-  OpenSSL >= 1.1.1
 -  SQLite 3.x
 
 To build ndn-cxx from source, one must first install a C++ compiler and all necessary

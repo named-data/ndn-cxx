@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(AlgorithmSha512)
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), os.buf()->begin(), os.buf()->end());
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(OPENSSL_NO_BLAKE2)
+#ifndef OPENSSL_NO_BLAKE2
 BOOST_AUTO_TEST_CASE(AlgorithmBlake2b_512)
 {
   const uint8_t out[] = {
@@ -161,9 +161,8 @@ BOOST_AUTO_TEST_CASE(AlgorithmBlake2s_256)
   bufferSource("") >> digestFilter(DigestAlgorithm::BLAKE2S_256) >> streamSink(os);
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), os.buf()->begin(), os.buf()->end());
 }
-#endif // OPENSSL_VERSION_NUMBER >= 0x1010000fL && !defined(OPENSSL_NO_BLAKE2)
+#endif // !OPENSSL_NO_BLAKE2
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101001L
 BOOST_AUTO_TEST_CASE(AlgorithmSha3_224)
 {
   const uint8_t out[] = {
@@ -210,7 +209,6 @@ BOOST_AUTO_TEST_CASE(AlgorithmSha3_512)
   bufferSource("") >> digestFilter(DigestAlgorithm::SHA3_512) >> streamSink(os);
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), os.buf()->begin(), os.buf()->end());
 }
-#endif // OPENSSL_VERSION_NUMBER >= 0x10101001L
 
 BOOST_AUTO_TEST_SUITE_END() // TestDigestFilter
 BOOST_AUTO_TEST_SUITE_END() // Transform

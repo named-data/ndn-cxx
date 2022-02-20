@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,7 +33,7 @@ NDN_CXX_NODISCARD const EVP_MD*
 digestAlgorithmToEvpMd(DigestAlgorithm algo);
 
 NDN_CXX_NODISCARD int
-getEvpPkeyType(EVP_PKEY* key);
+getEvpPkeyType(const EVP_PKEY* key);
 
 class EvpMdCtx : noncopyable
 {
@@ -74,14 +74,8 @@ private:
 class Bio : noncopyable
 {
 public:
-#if OPENSSL_VERSION_NUMBER < 0x1010000fL
-  using MethodPtr = BIO_METHOD*;
-#else
-  using MethodPtr = const BIO_METHOD*;
-#endif // OPENSSL_VERSION_NUMBER < 0x1010000fL
-
   explicit
-  Bio(MethodPtr method);
+  Bio(const BIO_METHOD* method);
 
   ~Bio();
 
