@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(IsValidName)
 
   // invalid keyword name component
   name = name.getPrefix(-3)
-         .append(tlv::KeywordNameComponent, reinterpret_cast<const uint8_t*>("foo"), std::strlen("foo"))
+         .append(tlv::KeywordNameComponent, {'f', 'o', 'o'})
          .appendVersion()
          .appendSegment(0);
   BOOST_CHECK_EQUAL(MetadataObject::isValidName(name), false);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -241,9 +241,9 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilter, TransportType, Transports, FaceFix
   int nRegSuccess = 0;
   std::set<Name> receivedInterests;
   this->face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
-    [&] (const InterestFilter&, const Interest& interest) { receivedInterests.insert(interest.getName()); },
-    [&] (const Name&) { ++nRegSuccess; },
-    [] (const Name&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
+    [&] (auto&&, const auto& interest) { receivedInterests.insert(interest.getName()); },
+    [&] (auto&&) { ++nRegSuccess; },
+    [] (auto&&, const auto& msg) { BOOST_ERROR("unexpected register prefix failure: " << msg); });
 
   this->sched.schedule(700_ms, [] {
     std::string output = executeCommand("nfdc route list | grep /Hello/World");
@@ -258,8 +258,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilter, TransportType, Transports, FaceFix
   this->face.processEvents();
   BOOST_CHECK_EQUAL(nRegSuccess, 1);
   std::set<Name> expectedInterests{"/Hello/World/a/b", "/Hello/World/a/b/c"};
-  BOOST_CHECK_EQUAL_COLLECTIONS(receivedInterests.begin(), receivedInterests.end(),
-                                expectedInterests.begin(), expectedInterests.end());
+  BOOST_TEST(receivedInterests == expectedInterests, boost::test_tools::per_element());
 }
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(RegexFilterNoRegister, TransportType, Transports, FaceFixture<TransportType>)

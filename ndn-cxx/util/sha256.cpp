@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -88,40 +88,39 @@ Sha256::operator==(Sha256& digest)
 Sha256&
 Sha256::operator<<(Sha256& src)
 {
-  auto buf = src.computeDigest();
-  update(buf->data(), buf->size());
+  update(*src.computeDigest());
   return *this;
 }
 
 Sha256&
 Sha256::operator<<(const std::string& str)
 {
-  update(reinterpret_cast<const uint8_t*>(str.data()), str.size());
+  update({reinterpret_cast<const uint8_t*>(str.data()), str.size()});
   return *this;
 }
 
 Sha256&
 Sha256::operator<<(const Block& block)
 {
-  update(block.wire(), block.size());
+  update({block.wire(), block.size()});
   return *this;
 }
 
 Sha256&
 Sha256::operator<<(uint64_t value)
 {
-  update(reinterpret_cast<const uint8_t*>(&value), sizeof(uint64_t));
+  update({reinterpret_cast<const uint8_t*>(&value), sizeof(uint64_t)});
   return *this;
 }
 
 void
-Sha256::update(const uint8_t* buffer, size_t size)
+Sha256::update(span<const uint8_t> buffer)
 {
   if (m_isFinalized)
     NDN_THROW(Error("Digest has been already finalized"));
 
   BOOST_ASSERT(m_input != nullptr);
-  m_input->write({buffer, size});
+  m_input->write(buffer);
   m_isEmpty = false;
 }
 
@@ -133,10 +132,10 @@ Sha256::toString()
 }
 
 ConstBufferPtr
-Sha256::computeDigest(const uint8_t* buffer, size_t size)
+Sha256::computeDigest(span<const uint8_t> buffer)
 {
   Sha256 sha256;
-  sha256.update(buffer, size);
+  sha256.update(buffer);
   return sha256.computeDigest();
 }
 

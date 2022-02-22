@@ -169,9 +169,9 @@ parseUriEscapedValue(uint32_t type, const char* input, size_t len)
     if (value.size() < 3) {
       NDN_THROW(Component::Error("Illegal URI (name component cannot be . or ..)"));
     }
-    return Component(type, reinterpret_cast<const uint8_t*>(value.data()), value.size() - 3);
+    return Component(type, {reinterpret_cast<const uint8_t*>(value.data()), value.size() - 3});
   }
-  return Component(type, reinterpret_cast<const uint8_t*>(value.data()), value.size());
+  return Component(type, {reinterpret_cast<const uint8_t*>(value.data()), value.size()});
 }
 
 Component
@@ -513,7 +513,7 @@ Component::getSuccessor() const
 
   uint32_t type = this->type() + 1;
   auto value = detail::getComponentTypeTable().get(type).getMinValue();
-  return Component(type, value.data(), value.size());
+  return {type, value};
 }
 
 template<encoding::Tag TAG>

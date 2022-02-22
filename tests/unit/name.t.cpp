@@ -236,13 +236,13 @@ BOOST_AUTO_TEST_CASE(AppendComponent)
   name.append(Component("Emid"));
   BOOST_CHECK_EQUAL(name.wireEncode(), "0706 0804456D6964"_block);
 
-  name.append(25042, reinterpret_cast<const uint8_t*>("P3"), 2);
+  name.append(25042, {'P', '3'});
   BOOST_CHECK_EQUAL(name.wireEncode(), "070C 0804456D6964 FD61D2025033"_block);
 
-  name.append(reinterpret_cast<const uint8_t*>("."), 1);
+  name.append(Component(make_span<uint8_t>({'.'})));
   BOOST_CHECK_EQUAL(name.wireEncode(), "070F 0804456D6964 FD61D2025033 08012E"_block);
 
-  std::vector<uint8_t> v1{0x28, 0xF0, 0xA3, 0x6B};
+  const std::vector<uint8_t> v1{0x28, 0xF0, 0xA3, 0x6B};
   name.append(16, v1.begin(), v1.end());
   BOOST_CHECK_EQUAL(name.wireEncode(), "0715 0804456D6964 FD61D2025033 08012E 100428F0A36B"_block);
 

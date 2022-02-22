@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
   // // These octets are obtained by the snippet below.
   // // This check is intended to detect unexpected encoding change in the future.
   // const Block& wire = info1.wireEncode();
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   const uint8_t METAINFO[] = {0x14, 0x77, 0x18, 0x01, 0xc4, 0x19, 0x02, 0x0e, 0x10, 0x1a, 0x0c,

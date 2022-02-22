@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
   Block wire1 = i1.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
+  BOOST_TEST(wire1 == WIRE, boost::test_tools::per_element());
 
   Interest i2(wire1);
   BOOST_CHECK_EQUAL(i2.getName(), "/local/ndn/prefix");
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(WithParameters)
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
   Block wire1 = i1.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
+  BOOST_TEST(wire1 == WIRE, boost::test_tools::per_element());
 
   Interest i2(wire1);
   BOOST_CHECK_EQUAL(i2.getName(),
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
   Block wire1 = i1.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
+  BOOST_TEST(wire1 == WIRE, boost::test_tools::per_element());
 
   Interest i2(wire1);
   BOOST_CHECK_EQUAL(i2.getName(),
@@ -248,8 +248,7 @@ BOOST_AUTO_TEST_CASE(Signed)
   BOOST_CHECK_EQUAL(i1.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i1.getSignatureInfo()->getSignatureType(), tlv::DigestSha256);
   BOOST_CHECK(i1.getSignatureInfo()->getNonce() == nonce);
-  BOOST_CHECK_EQUAL_COLLECTIONS(i1.getSignatureValue().begin(), i1.getSignatureValue().end(),
-                                sv.begin(), sv.end());
+  BOOST_TEST(i1.getSignatureValue() == sv, boost::test_tools::per_element());
   BOOST_CHECK_EQUAL(i1.getApplicationParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
@@ -259,8 +258,7 @@ BOOST_AUTO_TEST_CASE(Signed)
   i1.setCanBePrefix(false);
   BOOST_CHECK_EQUAL(i1.hasWire(), false);
 
-  Block wire1 = i1.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
+  BOOST_TEST(i1.wireEncode() == WIRE, boost::test_tools::per_element());
 
   Interest i2("/local/ndn/prefix");
   i2.setMustBeFresh(true);
@@ -270,8 +268,7 @@ BOOST_AUTO_TEST_CASE(Signed)
   i2.setSignatureValue(make_shared<Buffer>(sv.value(), sv.value_size()));
   BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
 
-  Block wire2 = i2.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(wire2.begin(), wire2.end(), WIRE, WIRE + sizeof(WIRE));
+  BOOST_TEST(i2.wireEncode() == WIRE, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(SignedApplicationElements)
@@ -325,8 +322,7 @@ BOOST_AUTO_TEST_CASE(SignedApplicationElements)
   BOOST_CHECK_EQUAL(i1.getNonce(), 0x4c1ecb4a);
   BOOST_CHECK_EQUAL(i1.getSignatureInfo()->getSignatureType(), tlv::DigestSha256);
   BOOST_CHECK(i1.getSignatureInfo()->getNonce() == nonce);
-  BOOST_CHECK_EQUAL_COLLECTIONS(i1.getSignatureValue().begin(), i1.getSignatureValue().end(),
-                                sv.begin(), sv.end());
+  BOOST_TEST(i1.getSignatureValue() == sv, boost::test_tools::per_element());
   BOOST_CHECK_EQUAL(i1.getApplicationParameters(), "2404C0C1C2C3"_block);
   BOOST_CHECK_EQUAL(i1.isParametersDigestValid(), true);
 
@@ -336,8 +332,7 @@ BOOST_AUTO_TEST_CASE(SignedApplicationElements)
   i1.setCanBePrefix(false);
   BOOST_CHECK_EQUAL(i1.hasWire(), false);
 
-  Block wire1 = i1.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(wire1.begin(), wire1.end(), WIRE, WIRE + sizeof(WIRE));
+  BOOST_TEST(i1.wireEncode() == WIRE, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(MissingApplicationParameters)
@@ -888,8 +883,12 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C1"_block);
   i.setApplicationParameters(span<uint8_t>{});
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
+
   // raw buffer+size overload (deprecated)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   BOOST_CHECK_THROW(i.setApplicationParameters(nullptr, 42), std::invalid_argument);
+#pragma GCC diagnostic pop
 
   // ConstBufferPtr overload
   i.setApplicationParameters(make_shared<Buffer>(PARAMETERS2, sizeof(PARAMETERS2)));

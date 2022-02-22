@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //   auto print = [] (const std::string& name, const uint8_t* buf, size_t size) {
 //     std::cout << "  const Block " + name + "{{\n    ";
 
-//     std::string hex = toHex(buf, size);
+//     std::string hex = toHex({buf, size});
 
 //     for (size_t i = 0; i < hex.size(); i++) {
 //       if (i > 0 && i % 32 == 0)

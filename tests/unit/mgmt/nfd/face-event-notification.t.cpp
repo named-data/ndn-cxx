@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
 #include "ndn-cxx/mgmt/nfd/face-event-notification.hpp"
 
 #include "tests/boost-test.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE(Created)
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
@@ -120,7 +121,7 @@ BOOST_AUTO_TEST_CASE(Destroyed)
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
@@ -165,7 +166,7 @@ BOOST_AUTO_TEST_CASE(Up)
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {
@@ -210,7 +211,7 @@ BOOST_AUTO_TEST_CASE(Down)
 
   // These octets are obtained by the snippet below.
   // This check is intended to detect unexpected encoding change in the future.
-  // for (Buffer::const_iterator it = wire.begin(); it != wire.end(); ++it) {
+  // for (auto it = wire.begin(); it != wire.end(); ++it) {
   //   printf("0x%02x, ", *it);
   // }
   static const uint8_t expected[] = {

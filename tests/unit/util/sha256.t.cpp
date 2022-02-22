@@ -29,27 +29,27 @@
 
 namespace ndn {
 namespace util {
-namespace test {
+namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestSha256)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  const uint8_t input[] = {0x01, 0x02, 0x03, 0x04};
+  const uint8_t buf[] = {0x01, 0x02, 0x03, 0x04};
+  auto input = make_span(buf);
   auto expected = fromHex("9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a");
 
   Sha256 statefulSha256;
   BOOST_CHECK_EQUAL(statefulSha256.empty(), true);
 
-  statefulSha256.update(input, 1);
-  statefulSha256.update(input + 1, 1);
-  statefulSha256.update(input + 2, 1);
-  statefulSha256.update(input + 3, 1);
+  statefulSha256.update(input.subspan(0, 1));
+  statefulSha256.update(input.subspan(1, 1));
+  statefulSha256.update(input.subspan(2, 1));
+  statefulSha256.update(input.subspan(3, 1));
   ConstBufferPtr digest = statefulSha256.computeDigest();
   BOOST_CHECK_EQUAL(digest->size(), Sha256::DIGEST_SIZE);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
-                                digest->data(), digest->data() + digest->size());
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(ConstructFromStream)
@@ -63,8 +63,7 @@ BOOST_AUTO_TEST_CASE(ConstructFromStream)
   BOOST_CHECK_EQUAL(sha.toString(), "315F5BDB76D078C43B8AC0064E4A0164612B1FCE77C869345BFC94C75894EDD3");
 
   ConstBufferPtr digest = sha.computeDigest();
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
-                                digest->data(), digest->data() + digest->size());
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(Compare)
@@ -72,14 +71,13 @@ BOOST_AUTO_TEST_CASE(Compare)
   const uint8_t origin[] = {0x01, 0x02, 0x03, 0x04};
 
   Sha256 digest1;
-  digest1.update(origin, sizeof(origin));
+  digest1.update(origin);
   digest1.computeDigest();
 
   Sha256 digest2;
-  digest2.update(origin, 1);
-  digest2.update(origin + 1, 1);
-  digest2.update(origin + 2, 1);
-  digest2.update(origin + 3, 1);
+  auto in = make_span(origin);
+  digest2.update(in.first(2));
+  digest2.update(in.last(2));
   digest2.computeDigest();
 
   BOOST_CHECK_EQUAL(digest1 == digest2, true);
@@ -98,8 +96,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorSha256)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
-                                digest->data(), digest->data() + digest->size());
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(InsertionOperatorString)
@@ -112,8 +109,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorString)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
-                                digest->data(), digest->data() + digest->size());
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
@@ -138,8 +134,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
-                                digest->data(), digest->data() + digest->size());
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(InsertionOperatorUint64t)
@@ -154,8 +149,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorUint64t)
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
-                                digest->data(), digest->data() + digest->size());
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(Reset)
@@ -182,12 +176,10 @@ BOOST_AUTO_TEST_CASE(Error)
 
 BOOST_AUTO_TEST_CASE(StaticComputeDigest)
 {
-  const uint8_t input[] = {0x01, 0x02, 0x03, 0x04};
   auto expected = fromHex("9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a");
 
-  ConstBufferPtr digest = Sha256::computeDigest(input, sizeof(input));
-  BOOST_CHECK_EQUAL_COLLECTIONS(expected->data(), expected->data() + expected->size(),
-                                digest->data(), digest->data() + digest->size());
+  ConstBufferPtr digest = Sha256::computeDigest({0x01, 0x02, 0x03, 0x04});
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(Print)
@@ -209,6 +201,6 @@ BOOST_AUTO_TEST_CASE(Print)
 BOOST_AUTO_TEST_SUITE_END() // TestSha256
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace test
+} // namespace tests
 } // namespace util
 } // namespace ndn

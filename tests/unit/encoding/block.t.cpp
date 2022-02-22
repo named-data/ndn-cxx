@@ -111,7 +111,6 @@ BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyOriginal)
   };
 
   Block b1(buf);
-
   Block b2(b1, b1.begin(), b1.end());
   auto buf2 = b2.getBuffer();
 
@@ -120,9 +119,8 @@ BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyOriginal)
   b1.encode();
 
   b2.parse();
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(b2.begin(), b2.end(), buf, buf + sizeof(buf));
-  BOOST_CHECK_EQUAL(buf2, b2.getBuffer());
+  BOOST_TEST(b2 == buf, boost::test_tools::per_element());
+  BOOST_TEST(buf2 == b2.getBuffer()); // check pointers
 }
 
 BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyCopy)
@@ -133,7 +131,6 @@ BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyCopy)
 
   Block b1(buf);
   auto buf1 = b1.getBuffer();
-
   Block b2(b1, b1.begin(), b1.end());
 
   b2.parse();
@@ -141,8 +138,8 @@ BOOST_AUTO_TEST_CASE(FromBlockCopyOnWriteModifyCopy)
   b2.encode();
 
   b1.parse();
-  BOOST_CHECK_EQUAL_COLLECTIONS(b1.begin(), b1.end(), buf, buf + sizeof(buf));
-  BOOST_CHECK_EQUAL(buf1, b1.getBuffer());
+  BOOST_TEST(b1 == buf, boost::test_tools::per_element());
+  BOOST_TEST(buf1 == b1.getBuffer()); // check pointers
 }
 
 BOOST_AUTO_TEST_CASE(FromType)

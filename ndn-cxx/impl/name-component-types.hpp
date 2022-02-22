@@ -109,11 +109,12 @@ public:
   }
 
 protected:
-  /** \brief Calculate the successor of \p comp, extending TLV-LENGTH if value overflows.
-   *  \return whether TLV-LENGTH was extended, and the successor
+  /**
+   * \brief Calculate the successor of \p comp, extending TLV-LENGTH if value overflows.
+   * \return whether TLV-LENGTH was extended, and the successor
    */
-  std::tuple<bool, Block>
-  getSuccessorImpl(const Component& comp) const
+  static std::tuple<bool, Block>
+  getSuccessorImpl(const Component& comp)
   {
     EncodingBuffer encoder(comp.size() + 9, 9);
     // leave room for additional byte when TLV-VALUE overflows, and for TLV-LENGTH size increase
@@ -137,10 +138,11 @@ protected:
     return {isOverflow, encoder.block()};
   }
 
-  /** \brief Write TLV-VALUE as `<escaped-value>` of NDN URI syntax.
+  /**
+   * \brief Write TLV-VALUE as `<escaped-value>` of NDN URI syntax.
    */
-  void
-  writeUriEscapedValue(std::ostream& os, const Component& comp) const
+  static void
+  writeUriEscapedValue(std::ostream& os, const Component& comp)
   {
     bool isAllPeriods = std::all_of(comp.value_begin(), comp.value_end(),
                                     [] (uint8_t x) { return x == '.'; });
@@ -241,14 +243,14 @@ public:
     catch (const StringHelperError&) {
       NDN_THROW(Error("Cannot convert to " + m_typeName + " (invalid hex encoding)"));
     }
-    return Component(m_type, std::move(value));
+    return {m_type, std::move(value)};
   }
 
   void
   writeUri(std::ostream& os, const Component& comp) const final
   {
     os << m_uriPrefix << '=';
-    printHex(os, comp.value(), comp.value_size(), false);
+    printHex(os, {comp.value(), comp.value_size()}, false);
   }
 
 private:

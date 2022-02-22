@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -140,13 +140,18 @@ public:
   operator<<(uint64_t value);
 
   /**
-   * @brief Add a raw buffer to the digest calculation.
-   * @param buffer the input buffer
-   * @param size the size of the input buffer
+   * @brief Add a byte buffer to the digest calculation.
    * @throw Error the digest has already been finalized
    */
   void
-  update(const uint8_t* buffer, size_t size);
+  update(span<const uint8_t> buffer);
+
+  [[deprecated("use the overload that takes a span<>")]]
+  void
+  update(const uint8_t* buffer, size_t size)
+  {
+    update({buffer, size});
+  }
 
   /**
    * @brief Convert digest to std::string.
@@ -157,12 +162,17 @@ public:
 
   /**
    * @brief Stateless SHA-256 digest calculation.
-   * @param buffer the input buffer
-   * @param size the size of the input buffer
    * @return SHA-256 digest of the input buffer
    */
   static ConstBufferPtr
-  computeDigest(const uint8_t* buffer, size_t size);
+  computeDigest(span<const uint8_t> buffer);
+
+  [[deprecated("use the overload that takes a span<>")]]
+  static ConstBufferPtr
+  computeDigest(const uint8_t* buffer, size_t size)
+  {
+    return computeDigest({buffer, size});
+  }
 
 private:
   unique_ptr<security::transform::StepSource> m_input;

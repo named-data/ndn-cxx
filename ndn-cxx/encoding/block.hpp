@@ -44,6 +44,8 @@ namespace ndn {
 class Block
 {
 public:
+  using value_type             = Buffer::value_type;
+  using const_iterator         = Buffer::const_iterator;
   using element_container      = std::vector<Block>;
   using element_iterator       = element_container::iterator;
   using element_const_iterator = element_container::const_iterator;
@@ -121,7 +123,7 @@ public: // construction, assignment
    *  @throw std::invalid_argument [@p begin,@p end) range is not within @p block
    *  @throw tlv::Error Type-Length parsing fails, or TLV-LENGTH does not match size of TLV-VALUE
    */
-  Block(const Block& block, Buffer::const_iterator begin, Buffer::const_iterator end,
+  Block(const Block& block, Block::const_iterator begin, Block::const_iterator end,
         bool verifyLength = true);
 
   /** @brief Create a Block from a wire Buffer without parsing
@@ -141,7 +143,7 @@ public: // construction, assignment
    *  @param bufSize size of the raw buffer; may be greater than the actual size of the TLV element
    *  @throw tlv::Error Type-Length parsing fails, or size of TLV-VALUE exceeds @p bufSize
    *  @note This constructor copies the TLV element octets to an internal buffer.
-   *  @deprecated
+   *  @deprecated Use Block(span<const uint8_t>)
    */
   [[deprecated("use the constructor that takes a span<>")]]
   Block(const uint8_t* buf, size_t bufSize);
@@ -246,13 +248,13 @@ public: // wire format
   /** @brief Get begin iterator of encoded wire
    *  @pre `hasWire() == true`
    */
-  Buffer::const_iterator
+  const_iterator
   begin() const;
 
   /** @brief Get end iterator of encoded wire
    *  @pre `hasWire() == true`
    */
-  Buffer::const_iterator
+  const_iterator
   end() const;
 
   /** @brief Return a raw pointer to the beginning of the encoded wire
@@ -303,7 +305,7 @@ public: // type and value
   /** @brief Get begin iterator of TLV-VALUE
    *  @pre `hasValue() == true`
    */
-  Buffer::const_iterator
+  const_iterator
   value_begin() const
   {
     return m_valueBegin;
@@ -312,7 +314,7 @@ public: // type and value
   /** @brief Get end iterator of TLV-VALUE
    *  @pre `hasValue() == true`
    */
-  Buffer::const_iterator
+  const_iterator
   value_end() const
   {
     return m_valueEnd;
@@ -382,10 +384,17 @@ public: // sub-elements
   element_iterator
   erase(element_const_iterator first, element_const_iterator last);
 
-  /** @brief Append a sub-element
+  /**
+   * @brief Append a sub-element.
    */
   void
   push_back(const Block& element);
+
+  /**
+   * @brief Append a sub-element.
+   */
+  void
+  push_back(Block&& element);
 
   /** @brief Insert a sub-element
    *  @param pos position of the new sub-element

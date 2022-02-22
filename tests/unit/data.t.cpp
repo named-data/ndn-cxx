@@ -204,9 +204,7 @@ BOOST_FIXTURE_TEST_CASE(Full, DataSigningKeyFixture)
   }
   d.setSignatureValue(sig.buf());
 
-  Block dataBlock(d.wireEncode());
-  BOOST_CHECK_EQUAL_COLLECTIONS(DATA1, DATA1 + sizeof(DATA1),
-                                dataBlock.begin(), dataBlock.end());
+  BOOST_TEST(d.wireEncode() == DATA1, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Encode
@@ -537,8 +535,12 @@ BOOST_AUTO_TEST_CASE(SetContent)
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+
   // raw buffer overload (deprecated)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   BOOST_CHECK_THROW(d.setContent(nullptr, 1), std::invalid_argument);
+#pragma GCC diagnostic pop
 
   // ConstBufferPtr overload
   d.setContent(std::make_shared<Buffer>(direct, sizeof(direct)));

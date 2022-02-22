@@ -111,7 +111,7 @@ Block::Block(ConstBufferPtr buffer, Buffer::const_iterator begin, Buffer::const_
   }
 }
 
-Block::Block(const Block& block, Buffer::const_iterator begin, Buffer::const_iterator end,
+Block::Block(const Block& block, Block::const_iterator begin, Block::const_iterator end,
              bool verifyLength)
   : Block(block.m_buffer, begin, end, verifyLength)
 {
@@ -274,7 +274,7 @@ Block::resetWire() noexcept
   m_begin = m_end = m_valueBegin = m_valueEnd = {};
 }
 
-Buffer::const_iterator
+Block::const_iterator
 Block::begin() const
 {
   if (!hasWire())
@@ -283,7 +283,7 @@ Block::begin() const
   return m_begin;
 }
 
-Buffer::const_iterator
+Block::const_iterator
 Block::end() const
 {
   if (!hasWire())
@@ -475,6 +475,13 @@ Block::push_back(const Block& element)
   m_elements.push_back(element);
 }
 
+void
+Block::push_back(Block&& element)
+{
+  resetWire();
+  m_elements.push_back(std::move(element));
+}
+
 Block::element_iterator
 Block::insert(Block::element_const_iterator pos, const Block& element)
 {
@@ -515,7 +522,7 @@ operator<<(std::ostream& os, const Block& block)
   }
   else if (block.value_size() > 0) {
     os << block.type() << '[' << block.value_size() << "]=";
-    printHex(os, block.value(), block.value_size(), true);
+    printHex(os, {block.value(), block.value_size()}, true);
   }
   else {
     os << block.type() << "[empty]";

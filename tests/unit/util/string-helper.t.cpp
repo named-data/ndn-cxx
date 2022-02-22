@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@
 
 namespace ndn {
 namespace util {
-namespace test {
+namespace tests {
 
 using boost::test_tools::output_test_stream;
 
@@ -85,12 +85,12 @@ BOOST_AUTO_TEST_CASE(AsHex)
 
 BOOST_AUTO_TEST_CASE(ToHex)
 {
-  std::string test = "Hello, world!";
-  BOOST_CHECK_EQUAL(toHex(reinterpret_cast<const uint8_t*>(test.data()), test.size()),
+  const std::string test = "Hello, world!";
+  BOOST_CHECK_EQUAL(toHex({reinterpret_cast<const uint8_t*>(test.data()), test.size()}),
                     "48656C6C6F2C20776F726C6421");
-  BOOST_CHECK_EQUAL(toHex(reinterpret_cast<const uint8_t*>(test.data()), test.size(), false),
+  BOOST_CHECK_EQUAL(toHex({reinterpret_cast<const uint8_t*>(test.data()), test.size()}, false),
                     "48656c6c6f2c20776f726c6421");
-  BOOST_CHECK_EQUAL(toHex(nullptr, 0), "");
+  BOOST_CHECK_EQUAL(toHex({}), "");
 
   Buffer buffer(test.data(), test.size());
   BOOST_CHECK_EQUAL(toHex(buffer, false),  "48656c6c6f2c20776f726c6421");
@@ -99,13 +99,13 @@ BOOST_AUTO_TEST_CASE(ToHex)
 
 BOOST_AUTO_TEST_CASE(FromHex)
 {
-  BOOST_CHECK(*fromHex("") == Buffer{});
-  BOOST_CHECK(*fromHex("48656c6c6f2c20776f726c6421") ==
-              (std::vector<uint8_t>{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20,
-                                    0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21}));
-  BOOST_CHECK(*fromHex("012a3Bc4defAB5CdEF") ==
-              (std::vector<uint8_t>{0x01, 0x2a, 0x3b, 0xc4, 0xde,
-                                    0xfa, 0xb5, 0xcd, 0xef}));
+  BOOST_TEST(fromHex("")->empty());
+  const uint8_t expected1[] = {
+    0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21
+  };
+  BOOST_TEST(*fromHex("48656c6c6f2c20776f726c6421") == expected1, boost::test_tools::per_element());
+  const uint8_t expected2[] = {0x01, 0x2a, 0x3b, 0xc4, 0xde, 0xfa, 0xb5, 0xcd, 0xef};
+  BOOST_TEST(*fromHex("012a3Bc4defAB5CdEF") == expected2, boost::test_tools::per_element());
 
   BOOST_CHECK_THROW(fromHex("1"), StringHelperError);
   BOOST_CHECK_THROW(fromHex("zz"), StringHelperError);
@@ -209,6 +209,6 @@ BOOST_AUTO_TEST_CASE(Unescape)
 BOOST_AUTO_TEST_SUITE_END() // TestStringHelper
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace test
+} // namespace tests
 } // namespace util
 } // namespace ndn

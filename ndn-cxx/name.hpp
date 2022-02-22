@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -168,7 +168,7 @@ public: // access
     if (i < 0) {
       i += static_cast<ssize_t>(size());
     }
-    return reinterpret_cast<const Component&>(m_wire.elements()[i]);
+    return static_cast<const Component&>(m_wire.elements()[static_cast<size_t>(i)]);
   }
 
   /** @brief Equivalent to `get(i)`.
@@ -292,23 +292,38 @@ public: // modifiers
     return *this;
   }
 
-  /** @brief Append a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as
-   *         TLV-VALUE.
-   *  @return a reference to this name, to allow chaining.
+  /**
+   * @brief Append a NameComponent of TLV-TYPE @p type, copying the TLV-VALUE from @p value.
+   * @return a reference to this name, to allow chaining.
    */
+  Name&
+  append(uint32_t type, span<const uint8_t> value)
+  {
+    return append(Component(type, value));
+  }
+
+  /**
+   * @brief Append a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as TLV-VALUE.
+   * @return a reference to this name, to allow chaining.
+   * @deprecated Use append(uint32_t, span<const uint8_t>)
+   */
+  [[deprecated("use the overload that takes a span<>")]]
   Name&
   append(uint32_t type, const uint8_t* value, size_t count)
   {
-    return append(Component(type, value, count));
+    return append(Component(type, make_span(value, count)));
   }
 
-  /** @brief Append a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
-   *  @return a reference to this name, to allow chaining.
+  /**
+   * @brief Append a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
+   * @return a reference to this name, to allow chaining.
+   * @deprecated Use append(uint32_t, span<const uint8_t>) or append(const Component&)
    */
+  [[deprecated]]
   Name&
   append(const uint8_t* value, size_t count)
   {
-    return append(Component(value, count));
+    return append(Component(make_span(value, count)));
   }
 
   /** @brief Append a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from a range.

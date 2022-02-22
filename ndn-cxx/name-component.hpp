@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -152,12 +152,12 @@ public: // constructors
   }
 
   /**
-   * @brief Construct a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from @p buffer.
+   * @brief Construct a NameComponent of TLV-TYPE @p type, copying the TLV-VALUE from @p value.
    */
-  Component(uint32_t type, span<const uint8_t> buffer);
+  Component(uint32_t type, span<const uint8_t> value);
 
   /**
-   * @brief Construct a GenericNameComponent, copying TLV-VALUE from @p buffer.
+   * @brief Construct a GenericNameComponent, copying the TLV-VALUE from @p buffer.
    */
   explicit
   Component(span<const uint8_t> buffer)
@@ -168,7 +168,9 @@ public: // constructors
   /**
    * @brief Construct a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as
    *        TLV-VALUE.
+   * @deprecated Use Component(uint32_t, span<const uint8_t>)
    */
+  [[deprecated("use the constructor that takes a span<>")]]
   Component(uint32_t type, const uint8_t* value, size_t count)
     : Component(type, {value, count})
   {
@@ -176,7 +178,9 @@ public: // constructors
 
   /**
    * @brief Construct a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
+   * @deprecated Use Component(span<const uint8_t>)
    */
+  [[deprecated("use the constructor that takes a span<>")]]
   Component(const uint8_t* value, size_t count)
     : Component(tlv::GenericNameComponent, {value, count})
   {

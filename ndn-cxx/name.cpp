@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -170,15 +170,15 @@ Name::deepCopy() const
 const name::Component&
 Name::at(ssize_t i) const
 {
+  auto ssize = static_cast<ssize_t>(size());
+  if (i < -ssize || i >= ssize) {
+    NDN_THROW(Error("Component at offset " + to_string(i) + " does not exist (out of bounds)"));
+  }
+
   if (i < 0) {
-    i += static_cast<ssize_t>(size());
+    i += ssize;
   }
-
-  if (i < 0 || static_cast<size_t>(i) >= size()) {
-    NDN_THROW(Error("Requested component does not exist (out of bounds)"));
-  }
-
-  return reinterpret_cast<const Component&>(m_wire.elements()[i]);
+  return static_cast<const Component&>(m_wire.elements()[static_cast<size_t>(i)]);
 }
 
 PartialName
@@ -261,8 +261,7 @@ static constexpr uint8_t SHA256_OF_EMPTY_STRING[] = {
 Name&
 Name::appendParametersSha256DigestPlaceholder()
 {
-  static const Component placeholder(tlv::ParametersSha256DigestComponent,
-                                     SHA256_OF_EMPTY_STRING, sizeof(SHA256_OF_EMPTY_STRING));
+  static const Component placeholder(tlv::ParametersSha256DigestComponent, SHA256_OF_EMPTY_STRING);
   return append(placeholder);
 }
 

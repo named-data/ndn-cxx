@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,12 +51,16 @@ printHex(std::ostream& os, uint64_t num, bool wantUpperCase = false);
  * @param os Output stream
  * @param buffer Range of bytes to print in hexadecimal format
  * @param wantUpperCase if true (the default) print uppercase hex chars
+ *
+ * Each octet of input is always converted to two hex characters (e.g., "00" for octet==0).
+ * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
 void
 printHex(std::ostream& os, span<const uint8_t> buffer, bool wantUpperCase = true);
 
 /**
  * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
+ * @deprecated
  *
  * @param os Output stream
  * @param buffer Pointer to an array of bytes
@@ -71,9 +75,9 @@ printHex(std::ostream& os, span<const uint8_t> buffer, bool wantUpperCase = true
  * @endcode
  *
  * Each octet is always represented as two hex characters ("00" for octet==0).
- *
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
+[[deprecated("use the overload that takes a span<>")]]
 inline void
 printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase = true)
 {
@@ -117,12 +121,16 @@ private:
  *
  * @param buffer Range of bytes to convert to hexadecimal format
  * @param wantUpperCase if true (the default) use uppercase hex chars
+ *
+ * Each octet of input is always converted to two hex characters (e.g., "00" for octet==0).
+ * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
 NDN_CXX_NODISCARD std::string
 toHex(span<const uint8_t> buffer, bool wantUpperCase = true);
 
 /**
  * @brief Return a string containing the hex representation of the bytes in @p buffer
+ * @deprecated
  *
  * @param buffer Pointer to an array of bytes
  * @param length Size of the array
@@ -136,9 +144,9 @@ toHex(span<const uint8_t> buffer, bool wantUpperCase = true);
  * @endcode
  *
  * Each octet is always represented as two hex characters ("00" for octet==0).
- *
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
+[[deprecated("use the overload that takes a span<>")]]
 NDN_CXX_NODISCARD inline std::string
 toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true)
 {

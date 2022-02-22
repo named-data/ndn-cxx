@@ -201,7 +201,7 @@ operator<<(std::ostream& os, const KeyLocator& keyLocator)
     },
     [&] (const Block& digest) {
       os << "KeyDigest=";
-      printHex(os, digest.value(), std::min(digest.value_size(), MAX_KEY_DIGEST_OCTETS_TO_SHOW));
+      printHex(os, {digest.value(), std::min(digest.value_size(), MAX_KEY_DIGEST_OCTETS_TO_SHOW)});
       if (digest.value_size() > MAX_KEY_DIGEST_OCTETS_TO_SHOW) {
         os << "...";
       }
