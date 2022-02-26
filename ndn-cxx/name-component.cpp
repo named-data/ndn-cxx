@@ -122,7 +122,7 @@ Component::ensureValid() const
   if (type() < tlv::NameComponentMin || type() > tlv::NameComponentMax) {
     NDN_THROW(Error("TLV-TYPE " + to_string(type()) + " is not a valid NameComponent"));
   }
-  detail::getComponentTypeTable().get(type()).check(*this);
+  getComponentTypeTable().get(type()).check(*this);
 }
 
 Component::Component(uint32_t type)
@@ -191,7 +191,7 @@ Component::fromEscapedString(const std::string& input)
                                 input.data() + valuePos, input.size() - valuePos);
   }
 
-  auto ct = detail::getComponentTypeTable().findByUriPrefix(typePrefix);
+  auto ct = getComponentTypeTable().findByUriPrefix(typePrefix);
   if (ct == nullptr) {
     NDN_THROW(Error("Unknown TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
   }
@@ -202,10 +202,10 @@ void
 Component::toUri(std::ostream& os, UriFormat format) const
 {
   if (wantAltUri(format)) {
-    detail::getComponentTypeTable().get(type()).writeUri(os, *this);
+    getComponentTypeTable().get(type()).writeUri(os, *this);
   }
   else {
-    detail::ComponentType().writeUri(os, *this);
+    ComponentType().writeUri(os, *this);
   }
 }
 
@@ -234,13 +234,6 @@ Component::isNumberWithMarker(uint8_t marker) const
 }
 
 bool
-Component::isVersion() const
-{
-  return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(VERSION_MARKER)) ||
-         (canDecodeTypedConvention() && type() == tlv::VersionNameComponent && isNumber());
-}
-
-bool
 Component::isSegment() const
 {
   return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEGMENT_MARKER)) ||
@@ -252,6 +245,13 @@ Component::isByteOffset() const
 {
   return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEGMENT_OFFSET_MARKER)) ||
          (canDecodeTypedConvention() && type() == tlv::ByteOffsetNameComponent && isNumber());
+}
+
+bool
+Component::isVersion() const
+{
+  return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(VERSION_MARKER)) ||
+         (canDecodeTypedConvention() && type() == tlv::VersionNameComponent && isNumber());
 }
 
 bool
@@ -291,18 +291,6 @@ Component::toNumberWithMarker(uint8_t marker) const
 }
 
 uint64_t
-Component::toVersion() const
-{
-  if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
-    return toNumberWithMarker(VERSION_MARKER);
-  }
-  if (canDecodeTypedConvention() && type() == tlv::VersionNameComponent) {
-    return toNumber();
-  }
-  NDN_THROW(Error("Not a Version component"));
-}
-
-uint64_t
 Component::toSegment() const
 {
   if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
@@ -324,6 +312,18 @@ Component::toByteOffset() const
     return toNumber();
   }
   NDN_THROW(Error("Not a ByteOffset component"));
+}
+
+uint64_t
+Component::toVersion() const
+{
+  if (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent) {
+    return toNumberWithMarker(VERSION_MARKER);
+  }
+  if (canDecodeTypedConvention() && type() == tlv::VersionNameComponent) {
+    return toNumber();
+  }
+  NDN_THROW(Error("Not a Version component"));
 }
 
 time::system_clock::time_point
@@ -382,14 +382,6 @@ Component::fromNumberWithMarker(uint8_t marker, uint64_t number)
 }
 
 Component
-Component::fromVersion(uint64_t version)
-{
-  return g_conventionEncoding == Convention::MARKER ?
-         fromNumberWithMarker(VERSION_MARKER, version) :
-         fromNumber(version, tlv::VersionNameComponent);
-}
-
-Component
 Component::fromSegment(uint64_t segmentNo)
 {
   return g_conventionEncoding == Convention::MARKER ?
@@ -403,6 +395,14 @@ Component::fromByteOffset(uint64_t offset)
   return g_conventionEncoding == Convention::MARKER ?
          fromNumberWithMarker(SEGMENT_OFFSET_MARKER, offset) :
          fromNumber(offset, tlv::ByteOffsetNameComponent);
+}
+
+Component
+Component::fromVersion(uint64_t version)
+{
+  return g_conventionEncoding == Convention::MARKER ?
+         fromNumberWithMarker(VERSION_MARKER, version) :
+         fromNumber(version, tlv::VersionNameComponent);
 }
 
 Component
@@ -425,45 +425,39 @@ Component::fromSequenceNumber(uint64_t seqNo)
 ////////////////////////////////////////////////////////////////////////////////
 
 bool
-Component::isGeneric() const
-{
-  return type() == tlv::GenericNameComponent;
-}
-
-bool
 Component::isImplicitSha256Digest() const
 {
-  return detail::getComponentType1().match(*this);
+  return type() == tlv::ImplicitSha256DigestComponent && value_size() == util::Sha256::DIGEST_SIZE;
 }
 
 Component
 Component::fromImplicitSha256Digest(ConstBufferPtr digest)
 {
-  return detail::getComponentType1().create(std::move(digest));
+  return {tlv::ImplicitSha256DigestComponent, std::move(digest)};
 }
 
 Component
 Component::fromImplicitSha256Digest(span<const uint8_t> digest)
 {
-  return detail::getComponentType1().create(digest);
+  return {tlv::ImplicitSha256DigestComponent, digest};
 }
 
 bool
 Component::isParametersSha256Digest() const
 {
-  return detail::getComponentType2().match(*this);
+  return type() == tlv::ParametersSha256DigestComponent && value_size() == util::Sha256::DIGEST_SIZE;
 }
 
 Component
 Component::fromParametersSha256Digest(ConstBufferPtr digest)
 {
-  return detail::getComponentType2().create(std::move(digest));
+  return {tlv::ParametersSha256DigestComponent, std::move(digest)};
 }
 
 Component
 Component::fromParametersSha256Digest(span<const uint8_t> digest)
 {
-  return detail::getComponentType2().create(digest);
+  return {tlv::ParametersSha256DigestComponent, digest};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -506,13 +500,13 @@ Component::getSuccessor() const
 {
   bool isOverflow = false;
   Component successor;
-  std::tie(isOverflow, successor) = detail::getComponentTypeTable().get(type()).getSuccessor(*this);
+  std::tie(isOverflow, successor) = getComponentTypeTable().get(type()).getSuccessor(*this);
   if (!isOverflow) {
     return successor;
   }
 
   uint32_t type = this->type() + 1;
-  auto value = detail::getComponentTypeTable().get(type).getMinValue();
+  auto value = getComponentTypeTable().get(type).getMinValue();
   return {type, value};
 }
 

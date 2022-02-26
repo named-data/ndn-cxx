@@ -241,13 +241,14 @@ Name::appendTimestamp(const optional<time::system_clock::time_point>& timestamp)
 Name&
 Name::append(const PartialName& name)
 {
-  if (&name == this)
+  if (&name == this) {
     // Copying from this name, so need to make a copy first.
     return append(PartialName(name));
+  }
 
-  for (size_t i = 0; i < name.size(); ++i)
-    append(name.at(i));
-
+  for (const auto& c : name) {
+    append(c);
+  }
   return *this;
 }
 
@@ -268,11 +269,12 @@ Name::appendParametersSha256DigestPlaceholder()
 void
 Name::erase(ssize_t i)
 {
-  if (i < 0) {
-    i += static_cast<ssize_t>(size());
+  if (i >= 0) {
+    m_wire.erase(std::next(m_wire.elements_begin(), i));
   }
-
-  m_wire.erase(m_wire.elements_begin() + i);
+  else {
+    m_wire.erase(std::prev(m_wire.elements_end(), -i));
+  }
 }
 
 void

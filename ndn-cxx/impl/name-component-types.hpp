@@ -31,7 +31,7 @@
 
 namespace ndn {
 namespace name {
-namespace detail {
+namespace {
 
 /** \brief Declare rules for a NameComponent type.
  */
@@ -181,12 +181,6 @@ public:
   {
   }
 
-  bool
-  match(const Component& comp) const
-  {
-    return comp.type() == m_type && comp.value_size() == util::Sha256::DIGEST_SIZE;
-  }
-
   void
   check(const Component& comp) const final
   {
@@ -194,18 +188,6 @@ public:
     if (comp.value_size() != util::Sha256::DIGEST_SIZE) {
       NDN_THROW(Error(m_typeName + " TLV-LENGTH must be " + to_string(util::Sha256::DIGEST_SIZE)));
     }
-  }
-
-  Component
-  create(ConstBufferPtr value) const
-  {
-    return Block(m_type, std::move(value));
-  }
-
-  Component
-  create(span<const uint8_t> value) const
-  {
-    return makeBinaryBlock(m_type, value);
   }
 
   std::tuple<bool, Component>
@@ -258,22 +240,6 @@ private:
   const std::string m_typeName;
   const std::string m_uriPrefix;
 };
-
-inline const Sha256ComponentType&
-getComponentType1()
-{
-  static const Sha256ComponentType ct1(tlv::ImplicitSha256DigestComponent,
-                                       "ImplicitSha256DigestComponent", "sha256digest");
-  return ct1;
-}
-
-inline const Sha256ComponentType&
-getComponentType2()
-{
-  static const Sha256ComponentType ct2(tlv::ParametersSha256DigestComponent,
-                                       "ParametersSha256DigestComponent", "params-sha256");
-  return ct2;
-}
 
 /** \brief Rules for a component type holding a NonNegativeInteger value, written as
  *         a decimal number in URI representation.
@@ -335,14 +301,16 @@ private:
   const std::string m_uriPrefix;
 };
 
-/** \brief Rules regarding NameComponent types.
+/**
+ * \brief Encapsulates the rules for different NameComponent types.
  */
 class ComponentTypeTable : noncopyable
 {
 public:
   ComponentTypeTable();
 
-  /** \brief Retrieve ComponentType by TLV-TYPE.
+  /**
+   * \brief Retrieve a ComponentType by its TLV-TYPE.
    */
   const ComponentType&
   get(uint32_t type) const
@@ -353,7 +321,8 @@ public:
     return *m_table[type];
   }
 
-  /** \brief Retrieve ComponentType by alternate URI prefix.
+  /**
+   * \brief Retrieve a ComponentType by its alternate URI prefix.
    */
   const ComponentType*
   findByUriPrefix(const std::string& prefix) const
@@ -386,11 +355,18 @@ ComponentTypeTable::ComponentTypeTable()
 {
   m_table.fill(nullptr);
 
-  set(tlv::ImplicitSha256DigestComponent, getComponentType1());
-  set(tlv::ParametersSha256DigestComponent, getComponentType2());
+  static const Sha256ComponentType ct1(tlv::ImplicitSha256DigestComponent,
+                                       "ImplicitSha256DigestComponent", "sha256digest");
+  set(tlv::ImplicitSha256DigestComponent, ct1);
+  static const Sha256ComponentType ct2(tlv::ParametersSha256DigestComponent,
+                                       "ParametersSha256DigestComponent", "params-sha256");
+  set(tlv::ParametersSha256DigestComponent, ct2);
 
   static const GenericNameComponentType ct8;
   set(tlv::GenericNameComponent, ct8);
+
+  static const ComponentType ct32;
+  set(tlv::KeywordNameComponent, ct32);
 
   static const DecimalComponentType ct50(tlv::SegmentNameComponent, "SegmentNameComponent", "seg");
   set(tlv::SegmentNameComponent, ct50);
@@ -404,7 +380,8 @@ ComponentTypeTable::ComponentTypeTable()
   set(tlv::SequenceNumNameComponent, ct58);
 }
 
-/** \brief Get the global ComponentTypeTable.
+/**
+ * \brief Get the global ComponentTypeTable.
  */
 inline const ComponentTypeTable&
 getComponentTypeTable()
@@ -413,7 +390,7 @@ getComponentTypeTable()
   return ctt;
 }
 
-} // namespace detail
+} // namespace
 } // namespace name
 } // namespace ndn
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -91,6 +91,7 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_THROW(Component::fromEscapedString(""), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString("."), Component::Error);
   BOOST_CHECK_THROW(Component::fromEscapedString(".."), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("8="), Component::Error);
 }
 
 static void
@@ -104,7 +105,7 @@ testSha256Component(uint32_t type, const std::string& uriPrefix)
   }
   const std::string hexPctCanonical = "%28%BA%D4%B5%27%5B%D3%92%DB%B6p%C7%5C%F0%B6o%13%F7%94%2B%21%E8%0FU%C0%E8k7GS%A5H";
 
-  Component comp(Block(type, fromHex(hexLower)));
+  Component comp(type, fromHex(hexLower));
 
   BOOST_CHECK_EQUAL(comp.type(), type);
   BOOST_CHECK_EQUAL(comp.toUri(), uriPrefix + hexLower);
@@ -152,7 +153,7 @@ testDecimalComponent(uint32_t type, const std::string& uriPrefix)
   BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=%2A"));
   BOOST_CHECK_EQUAL(comp, Component::fromNumber(42, type));
 
-  const Component comp2(Block(type, fromHex("010203"))); // TLV-VALUE is *not* a NonNegativeInteger
+  const Component comp2(type, fromHex("010203")); // TLV-VALUE is *not* a NonNegativeInteger
   BOOST_CHECK_EQUAL(comp2.type(), type);
   BOOST_CHECK_EQUAL(comp2.isNumber(), false);
   const auto comp2Uri = to_string(type) + "=%01%02%03";
@@ -194,6 +195,29 @@ BOOST_AUTO_TEST_CASE(Timestamp)
 BOOST_AUTO_TEST_CASE(SequenceNum)
 {
   testDecimalComponent(tlv::SequenceNumNameComponent, "seq=");
+}
+
+BOOST_AUTO_TEST_CASE(Keyword)
+{
+  Component comp("2007 6E646E2D637878"_block);
+  BOOST_CHECK_EQUAL(comp.type(), tlv::KeywordNameComponent);
+  BOOST_CHECK_EQUAL(comp.isKeyword(), true);
+  BOOST_CHECK_EQUAL(comp.toUri(), "32=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), "32=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), "32=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), "32=ndn-cxx");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), "32=ndn-cxx");
+  BOOST_CHECK_EQUAL(Component::fromEscapedString("32=ndn-cxx"), comp);
+
+  comp.wireDecode("2000"_block);
+  BOOST_CHECK_EQUAL(comp.type(), tlv::KeywordNameComponent);
+  BOOST_CHECK_EQUAL(comp.isKeyword(), true);
+  BOOST_CHECK_EQUAL(comp.toUri(), "32=...");
+  BOOST_CHECK_EQUAL(Component::fromEscapedString("32=..."), comp);
+
+  BOOST_CHECK_THROW(Component::fromEscapedString("32="), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("32=."), Component::Error);
+  BOOST_CHECK_THROW(Component::fromEscapedString("32=.."), Component::Error);
 }
 
 BOOST_AUTO_TEST_CASE(OtherType)

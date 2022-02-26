@@ -713,7 +713,7 @@ Interest::addOrReplaceParametersDigestComponent()
   BOOST_ASSERT(hasApplicationParameters());
 
   ssize_t digestIndex = findParametersDigestComponent(getName());
-  auto digestComponent = name::Component::fromParametersSha256Digest(computeParametersDigest());
+  name::Component digestComponent(tlv::ParametersSha256DigestComponent, computeParametersDigest());
 
   if (digestIndex == -1) {
     // no existing digest components, append one

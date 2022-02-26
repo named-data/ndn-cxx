@@ -312,29 +312,42 @@ BOOST_AUTO_TEST_CASE(AppendParametersSha256Digest)
                     "0725 080150 0220E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"_block);
 }
 
-BOOST_AUTO_TEST_CASE(Markers)
+BOOST_AUTO_TEST_CASE(AppendTypedComponent)
 {
   // TestNameComponent/NamingConvention provides additional coverage for these methods,
-  // including verifications of the wire format.
+  // including verification of the wire format.
 
   Name name;
   uint64_t number;
 
-  BOOST_REQUIRE_NO_THROW(number = name.appendSegment(30923).at(-1).toSegment());
-  BOOST_CHECK_EQUAL(number, 30923);
+  BOOST_CHECK_NO_THROW(number = name.appendSegment(30923).at(-1).toSegment());
+  BOOST_TEST(number == 30923);
 
-  BOOST_REQUIRE_NO_THROW(number = name.appendVersion().at(-1).toVersion());
+  BOOST_CHECK_NO_THROW(number = name.appendByteOffset(41880).at(-1).toByteOffset());
+  BOOST_TEST(number == 41880);
 
-  BOOST_REQUIRE_NO_THROW(number = name.appendVersion(25912).at(-1).toVersion());
-  BOOST_CHECK_EQUAL(number, 25912);
+  auto before = time::toUnixTimestamp(time::system_clock::now());
+  BOOST_CHECK_NO_THROW(number = name.appendVersion().at(-1).toVersion());
+  auto after = time::toUnixTimestamp(time::system_clock::now());
+  BOOST_TEST(number >= before.count());
+  BOOST_TEST(number <= after.count());
+
+  BOOST_CHECK_NO_THROW(number = name.appendVersion(25912).at(-1).toVersion());
+  BOOST_TEST(number == 25912);
 
   const auto tp = time::system_clock::now();
   time::system_clock::TimePoint tp2;
-  BOOST_REQUIRE_NO_THROW(tp2 = name.appendTimestamp(tp).at(-1).toTimestamp());
-  BOOST_CHECK_LE(time::abs(tp2 - tp), 1_us);
+  BOOST_CHECK_NO_THROW(tp2 = name.appendTimestamp(tp).at(-1).toTimestamp());
+  BOOST_TEST(time::abs(tp2 - tp) <= 1_us);
 
-  BOOST_REQUIRE_NO_THROW(number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber());
-  BOOST_CHECK_EQUAL(number, 11676);
+  BOOST_CHECK_NO_THROW(number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber());
+  BOOST_TEST(number == 11676);
+
+  name.appendKeyword({0xab, 0xcd, 0xef});
+  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=%AB%CD%EF"));
+
+  name.appendKeyword("test-keyword");
+  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=test-keyword"));
 }
 
 BOOST_AUTO_TEST_CASE(EraseComponent)
@@ -343,15 +356,20 @@ BOOST_AUTO_TEST_CASE(EraseComponent)
   BOOST_CHECK_EQUAL(name.wireEncode(), "0709 080141 080142 080143"_block);
   BOOST_CHECK_EQUAL(name.hasWire(), true);
 
-  name.erase(1);
+  name.erase(-2);
   BOOST_CHECK_EQUAL(name.size(), 2);
   BOOST_CHECK_EQUAL(name.hasWire(), false);
   BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080141 080143"_block);
 
-  name.erase(-1);
+  name.erase(1);
   BOOST_CHECK_EQUAL(name.size(), 1);
   BOOST_CHECK_EQUAL(name.hasWire(), false);
   BOOST_CHECK_EQUAL(name.wireEncode(), "0703 080141"_block);
+
+  name.erase(0);
+  BOOST_CHECK_EQUAL(name.size(), 0);
+  BOOST_CHECK_EQUAL(name.hasWire(), false);
+  BOOST_CHECK_EQUAL(name.wireEncode(), "0700"_block);
 }
 
 BOOST_AUTO_TEST_CASE(Clear)

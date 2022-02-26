@@ -306,13 +306,6 @@ public: // naming conventions
   isNumberWithMarker(uint8_t marker) const;
 
   /**
-   * @brief Check if the component is a version per NDN naming conventions
-   * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   */
-  bool
-  isVersion() const;
-
-  /**
    * @brief Check if the component is a segment number per NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
@@ -325,6 +318,13 @@ public: // naming conventions
    */
   bool
   isByteOffset() const;
+
+  /**
+   * @brief Check if the component is a version per NDN naming conventions
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
+   */
+  bool
+  isVersion() const;
 
   /**
    * @brief Check if the component is a timestamp per NDN naming conventions
@@ -341,44 +341,30 @@ public: // naming conventions
   isSequenceNumber() const;
 
   /**
-   * @brief Interpret this name component as NonNegativeInteger
-   *
+   * @brief Interpret this name component as a NonNegativeInteger
    * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
-   *
-   * @return The integer number.
+   * @return The decoded non-negative integer.
    */
   uint64_t
   toNumber() const;
 
   /**
-   * @brief Interpret this name component as NameComponentWithMarker
+   * @brief Interpret this name component as a NameComponentWithMarker
    *
    * @sa NDN Naming Conventions revision 1 (obsolete)
    *     https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
    *
    * @param marker 1-byte octet of the marker
    * @return The integer number.
-   * @throws Error if name component does not have the specified marker.
-   *         tlv::Error if format does not follow NameComponentWithMarker specification.
+   * @throw Error if name component does not have the specified marker.
+   * @throw tlv::Error if format does not follow NameComponentWithMarker specification.
    */
   uint64_t
   toNumberWithMarker(uint8_t marker) const;
 
   /**
-   * @brief Interpret as version component using NDN naming conventions
-   *
-   * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   *
-   * @throw tlv::Error not a Version component interpreted by the chosen convention(s).
-   */
-  uint64_t
-  toVersion() const;
-
-  /**
    * @brief Interpret as segment number component using NDN naming conventions
-   *
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   *
    * @throw tlv::Error not a Segment component interpreted by the chosen convention(s).
    */
   uint64_t
@@ -386,19 +372,23 @@ public: // naming conventions
 
   /**
    * @brief Interpret as byte offset component using NDN naming conventions
-   *
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   *
    * @throw tlv::Error not a ByteOffset component interpreted by the chosen convention(s).
    */
   uint64_t
   toByteOffset() const;
 
   /**
-   * @brief Interpret as timestamp component using NDN naming conventions
-   *
+   * @brief Interpret as version component using NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   *
+   * @throw tlv::Error not a Version component interpreted by the chosen convention(s).
+   */
+  uint64_t
+  toVersion() const;
+
+  /**
+   * @brief Interpret as timestamp component using NDN naming conventions
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    * @throw tlv::Error not a Timestamp component interpreted by the chosen convention(s).
    */
   time::system_clock::time_point
@@ -406,9 +396,7 @@ public: // naming conventions
 
   /**
    * @brief Interpret as sequence number component using NDN naming conventions
-   *
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   *
    * @throw tlv::Error not a SequenceNumber component interpreted by the chosen convention(s).
    */
   uint64_t
@@ -446,16 +434,7 @@ public: // naming conventions
   fromNumberWithMarker(uint8_t marker, uint64_t number);
 
   /**
-   * @brief Create a version component using NDN naming conventions
-   *
-   * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   */
-  static Component
-  fromVersion(uint64_t version);
-
-  /**
    * @brief Create a segment number component using NDN naming conventions
-   *
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   static Component
@@ -463,15 +442,20 @@ public: // naming conventions
 
   /**
    * @brief Create a byte offset component using NDN naming conventions
-   *
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   static Component
   fromByteOffset(uint64_t offset);
 
   /**
+   * @brief Create a version component using NDN naming conventions
+   * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
+   */
+  static Component
+  fromVersion(uint64_t version);
+
+  /**
    * @brief Create a timestamp component using NDN naming conventions
-   *
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   static Component
@@ -479,7 +463,6 @@ public: // naming conventions
 
   /**
    * @brief Create a sequence number component using NDN naming conventions
-   *
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   static Component
@@ -487,46 +470,72 @@ public: // naming conventions
 
 public: // commonly used TLV-TYPEs
   /**
-   * @brief Check if the component is GenericNameComponent
+   * @brief Check if the component is a GenericNameComponent
+   * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
    */
   bool
-  isGeneric() const;
+  isGeneric() const noexcept
+  {
+    return type() == tlv::GenericNameComponent;
+  }
 
   /**
-   * @brief Check if the component is ImplicitSha256DigestComponent
+   * @brief Check if the component is an ImplicitSha256DigestComponent
+   * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#implicit-digest-component
    */
   bool
   isImplicitSha256Digest() const;
 
   /**
    * @brief Create ImplicitSha256DigestComponent component
+   * @deprecated Use Component(uint32_t, ConstBufferPtr)
    */
+  [[deprecated("use one of the name::Component constructors")]]
   static Component
   fromImplicitSha256Digest(ConstBufferPtr digest);
 
   /**
    * @brief Create ImplicitSha256DigestComponent component
+   * @deprecated Use Component(uint32_t, span<const uint8_t>)
    */
+  [[deprecated("use one of the name::Component constructors")]]
   static Component
   fromImplicitSha256Digest(span<const uint8_t> digest);
 
   /**
-   * @brief Check if the component is ParametersSha256DigestComponent
+   * @brief Check if the component is a ParametersSha256DigestComponent
+   * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#parameters-digest-component
    */
   bool
   isParametersSha256Digest() const;
 
   /**
    * @brief Create ParametersSha256DigestComponent component
+   * @deprecated Use Component(uint32_t, ConstBufferPtr)
    */
+  [[deprecated("use one of the name::Component constructors")]]
   static Component
   fromParametersSha256Digest(ConstBufferPtr digest);
 
   /**
    * @brief Create ParametersSha256DigestComponent component
+   * @deprecated Use Component(uint32_t, span<const uint8_t>)
    */
+  [[deprecated("use one of the name::Component constructors")]]
   static Component
   fromParametersSha256Digest(span<const uint8_t> digest);
+
+  /**
+   * @brief Check if the component is a KeywordNameComponent
+   * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
+   */
+  bool
+  isKeyword() const noexcept
+  {
+    return type() == tlv::KeywordNameComponent;
+  }
 
 public: // comparison
   NDN_CXX_NODISCARD bool

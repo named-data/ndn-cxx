@@ -419,17 +419,6 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a version component
-   * @param version the version number to append; if nullopt, the current UNIX time
-   *                in milliseconds is used
-   * @return a reference to this name, to allow chaining
-   * @sa NDN Naming Conventions
-   *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
-   */
-  Name&
-  appendVersion(const optional<uint64_t>& version = nullopt);
-
-  /**
    * @brief Append a segment number (sequential) component
    * @return a reference to this name, to allow chaining
    * @sa NDN Naming Conventions
@@ -452,6 +441,17 @@ public: // modifiers
   {
     return append(Component::fromByteOffset(offset));
   }
+
+  /**
+   * @brief Append a version component
+   * @param version the version number to append; if nullopt, the current UNIX time
+   *                in milliseconds is used
+   * @return a reference to this name, to allow chaining
+   * @sa NDN Naming Conventions
+   *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
+   */
+  Name&
+  appendVersion(const optional<uint64_t>& version = nullopt);
 
   /**
    * @brief Append a timestamp component
@@ -482,7 +482,7 @@ public: // modifiers
   Name&
   appendImplicitSha256Digest(ConstBufferPtr digest)
   {
-    return append(Component::fromImplicitSha256Digest(std::move(digest)));
+    return append(Component(tlv::ImplicitSha256DigestComponent, std::move(digest)));
   }
 
   /**
@@ -492,7 +492,7 @@ public: // modifiers
   Name&
   appendImplicitSha256Digest(span<const uint8_t> digestBytes)
   {
-    return append(Component::fromImplicitSha256Digest(digestBytes));
+    return append(Component(tlv::ImplicitSha256DigestComponent, digestBytes));
   }
 
   /**
@@ -502,7 +502,7 @@ public: // modifiers
   Name&
   appendParametersSha256Digest(ConstBufferPtr digest)
   {
-    return append(Component::fromParametersSha256Digest(std::move(digest)));
+    return append(Component(tlv::ParametersSha256DigestComponent, std::move(digest)));
   }
 
   /**
@@ -512,7 +512,7 @@ public: // modifiers
   Name&
   appendParametersSha256Digest(span<const uint8_t> digestBytes)
   {
-    return append(Component::fromParametersSha256Digest(digestBytes));
+    return append(Component(tlv::ParametersSha256DigestComponent, digestBytes));
   }
 
   /**
@@ -521,6 +521,27 @@ public: // modifiers
    */
   Name&
   appendParametersSha256DigestPlaceholder();
+
+  /**
+   * @brief Append a keyword component.
+   * @return a reference to this name, to allow chaining
+   */
+  Name&
+  appendKeyword(span<const uint8_t> keyword)
+  {
+    return append(Component(tlv::KeywordNameComponent, keyword));
+  }
+
+  /**
+   * @brief Append a keyword component.
+   * @return a reference to this name, to allow chaining
+   */
+  Name&
+  appendKeyword(const char* keyword)
+  {
+    return append(Component(tlv::KeywordNameComponent, {reinterpret_cast<const uint8_t*>(keyword),
+                                                        std::char_traits<char>::length(keyword)}));
+  }
 
   /** @brief Append a component
    *  @note This makes push_back an alias of append, giving Name a similar API as STL vector.
