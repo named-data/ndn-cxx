@@ -263,7 +263,7 @@ DummyClientFace::receive(const lp::Nack& nack)
   lp::Packet lpPacket;
   lpPacket.add<lp::NackField>(nack.getHeader());
   Block interest = nack.getInterest().wireEncode();
-  lpPacket.add<lp::FragmentField>(make_pair(interest.begin(), interest.end()));
+  lpPacket.add<lp::FragmentField>({interest.begin(), interest.end()});
 
   addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, nack);
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);

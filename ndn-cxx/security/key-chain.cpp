@@ -476,8 +476,7 @@ KeyChain::sign(Interest& interest, const SigningInfo& params)
     signedName.append(sigInfoBlock.begin(), sigInfoBlock.end()); // SignatureInfo
 
     Block sigValue(tlv::SignatureValue,
-                   sign({{signedName.wireEncode().value(), signedName.wireEncode().value_size()}},
-                        keyName, params.getDigestAlgorithm()));
+                   sign({signedName.wireEncode().value_bytes()}, keyName, params.getDigestAlgorithm()));
     sigValue.encode();
     signedName.append(sigValue.begin(), sigValue.end()); // SignatureValue
 

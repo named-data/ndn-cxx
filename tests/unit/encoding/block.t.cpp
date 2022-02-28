@@ -53,12 +53,13 @@ BOOST_AUTO_TEST_CASE(Default)
   BOOST_CHECK_EQUAL(b.type(), tlv::Invalid);
   BOOST_CHECK_EQUAL(b.hasValue(), false);
   BOOST_CHECK_EQUAL(b.value_size(), 0);
+  BOOST_CHECK_EQUAL(b.value_bytes().empty(), true);
   BOOST_CHECK(b.value() == nullptr);
 
-  BOOST_CHECK_THROW(b.size(), Block::Error);
   BOOST_CHECK_THROW(b.begin(), Block::Error);
   BOOST_CHECK_THROW(b.end(), Block::Error);
-  BOOST_CHECK_THROW(b.wire(), Block::Error);
+  BOOST_CHECK_THROW(b.data(), Block::Error);
+  BOOST_CHECK_THROW(b.size(), Block::Error);
   BOOST_CHECK_THROW(b.blockFromValue(), Block::Error);
 }
 
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE(FromBlock)
   Block block(buf);
 
   Block derivedBlock(block, block.begin(), block.end());
-  BOOST_CHECK_EQUAL(derivedBlock.wire(), block.wire()); // pointers should match
+  BOOST_CHECK_EQUAL(derivedBlock.data(), block.data()); // pointers should match
   BOOST_CHECK_EQUAL(derivedBlock, block); // blocks should match
 
   derivedBlock = Block(block, block.begin() + 2, block.begin() + 5);
@@ -150,6 +151,7 @@ BOOST_AUTO_TEST_CASE(FromType)
   BOOST_CHECK_EQUAL(b1.size(), 2); // 1-octet TLV-TYPE and 1-octet TLV-LENGTH
   BOOST_CHECK_EQUAL(b1.hasValue(), false);
   BOOST_CHECK_EQUAL(b1.value_size(), 0);
+  BOOST_CHECK_EQUAL(b1.value_bytes().empty(), true);
   BOOST_CHECK(b1.value() == nullptr);
 
   Block b2(258);
@@ -158,6 +160,7 @@ BOOST_AUTO_TEST_CASE(FromType)
   BOOST_CHECK_EQUAL(b2.size(), 4); // 3-octet TLV-TYPE and 1-octet TLV-LENGTH
   BOOST_CHECK_EQUAL(b2.hasValue(), false);
   BOOST_CHECK_EQUAL(b2.value_size(), 0);
+  BOOST_CHECK_EQUAL(b2.value_bytes().empty(), true);
   BOOST_CHECK(b2.value() == nullptr);
 
   Block b3(tlv::Invalid);
@@ -168,6 +171,7 @@ BOOST_AUTO_TEST_CASE(FromType)
   });
   BOOST_CHECK_EQUAL(b3.hasValue(), false);
   BOOST_CHECK_EQUAL(b3.value_size(), 0);
+  BOOST_CHECK_EQUAL(b3.value_bytes().empty(), true);
   BOOST_CHECK(b3.value() == nullptr);
 }
 
@@ -182,6 +186,8 @@ BOOST_AUTO_TEST_CASE(FromTypeAndBuffer)
   BOOST_CHECK_EQUAL(b1.size(), 6);
   BOOST_CHECK_EQUAL(b1.hasValue(), true);
   BOOST_CHECK_EQUAL(b1.value_size(), sizeof(VALUE));
+  BOOST_CHECK_EQUAL(b1.value_bytes().size(), sizeof(VALUE));
+  BOOST_CHECK_EQUAL(b1.value_bytes().front(), 0x11);
   BOOST_CHECK(b1.value() != nullptr);
 
   // empty buffer as TLV-VALUE
@@ -191,6 +197,7 @@ BOOST_AUTO_TEST_CASE(FromTypeAndBuffer)
   BOOST_CHECK_EQUAL(b2.size(), 2);
   BOOST_CHECK_EQUAL(b2.hasValue(), true);
   BOOST_CHECK_EQUAL(b2.value_size(), 0);
+  BOOST_CHECK_EQUAL(b2.value_bytes().empty(), true);
   BOOST_CHECK(b2.value() == nullptr);
 }
 
@@ -205,6 +212,8 @@ BOOST_AUTO_TEST_CASE(FromTypeAndBlock)
   BOOST_CHECK_EQUAL(b.size(), 10);
   BOOST_CHECK_EQUAL(b.hasValue(), true);
   BOOST_CHECK_EQUAL(b.value_size(), sizeof(buf));
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), sizeof(buf));
+  BOOST_CHECK_EQUAL(b.value_bytes().front(), 0x80);
   BOOST_CHECK(b.value() != nullptr);
 }
 
@@ -218,21 +227,26 @@ BOOST_AUTO_TEST_CASE(FromStream)
   BOOST_CHECK_EQUAL(b.type(), 66);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(), 0x42);
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), 1);
+  BOOST_CHECK_EQUAL(*b.data(), 0x42);
   BOOST_CHECK_EQUAL(*b.value(), 0xfa);
+  BOOST_CHECK_EQUAL(b.value_bytes().front(), 0xfa);
 
   b = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b.type(), 1);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(), 0x01);
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), 1);
+  BOOST_CHECK_EQUAL(*b.data(), 0x01);
   BOOST_CHECK_EQUAL(*b.value(), 0xfb);
+  BOOST_CHECK_EQUAL(b.value_bytes().front(), 0xfb);
 
   b = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b.type(), 0xffffffff);
   BOOST_CHECK_EQUAL(b.size(), 6);
   BOOST_CHECK_EQUAL(b.value_size(), 0);
-  BOOST_CHECK_EQUAL(*b.wire(), 0xfe);
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), 0);
+  BOOST_CHECK_EQUAL(*b.data(), 0xfe);
   BOOST_CHECK(b.value() == nullptr);
 
   BOOST_CHECK(stream.eof());
@@ -282,18 +296,20 @@ BOOST_AUTO_TEST_CASE(FromStreamZeroLength)
   Block b1 = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b1.type(), 0x70);
   BOOST_CHECK_EQUAL(b1.value_size(), 0);
+  BOOST_CHECK_EQUAL(b1.value_bytes().size(), 0);
   BOOST_CHECK(b1.value() == nullptr);
 
   Block b2 = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b2.type(), 0x71);
   BOOST_CHECK_EQUAL(b2.value_size(), 3);
+  BOOST_CHECK_EQUAL(b2.value_bytes().size(), 3);
   const uint8_t EXPECTED_VALUE2[] = {0x86, 0x11, 0x24};
-  BOOST_CHECK_EQUAL_COLLECTIONS(b2.value_begin(), b2.value_end(),
-                                EXPECTED_VALUE2, EXPECTED_VALUE2 + sizeof(EXPECTED_VALUE2));
+  BOOST_TEST(b2.value_bytes() == EXPECTED_VALUE2, boost::test_tools::per_element());
 
   Block b3 = Block::fromStream(stream);
   BOOST_CHECK_EQUAL(b3.type(), 0x72);
   BOOST_CHECK_EQUAL(b3.value_size(), 0);
+  BOOST_CHECK_EQUAL(b3.value_bytes().size(), 0);
   BOOST_CHECK(b3.value() == nullptr);
 
   BOOST_CHECK_EXCEPTION(Block::fromStream(stream), tlv::Error, [] (const auto& e) {
@@ -328,8 +344,10 @@ BOOST_AUTO_TEST_CASE(FromWireBuffer)
   BOOST_CHECK_EQUAL(b.type(), 66);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x42);
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), 1);
+  BOOST_CHECK_EQUAL(*b.data(), 0x42);
   BOOST_CHECK_EQUAL(*b.value(), 0xfa);
+  BOOST_CHECK_EQUAL(b.value_bytes().front(), 0xfa);
   size_t offset = b.size();
 
   std::tie(isOk, b) = Block::fromBuffer(buffer, offset);
@@ -337,8 +355,10 @@ BOOST_AUTO_TEST_CASE(FromWireBuffer)
   BOOST_CHECK_EQUAL(b.type(), 1);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x01);
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), 1);
+  BOOST_CHECK_EQUAL(*b.data(), 0x01);
   BOOST_CHECK_EQUAL(*b.value(), 0xfb);
+  BOOST_CHECK_EQUAL(b.value_bytes().front(), 0xfb);
   offset += b.size();
 
   std::tie(isOk, b) = Block::fromBuffer(buffer, offset);
@@ -346,7 +366,8 @@ BOOST_AUTO_TEST_CASE(FromWireBuffer)
   BOOST_CHECK_EQUAL(b.type(), 0xffffffff);
   BOOST_CHECK_EQUAL(b.size(), 6);
   BOOST_CHECK_EQUAL(b.value_size(), 0);
-  BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
+  BOOST_CHECK_EQUAL(b.value_bytes().empty(), true);
+  BOOST_CHECK_EQUAL(*b.data(), 0xfe);
   BOOST_CHECK(b.value() == nullptr);
 }
 
@@ -359,8 +380,10 @@ BOOST_AUTO_TEST_CASE(FromRawBuffer)
   BOOST_CHECK_EQUAL(b.type(), 66);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x42);
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), 1);
+  BOOST_CHECK_EQUAL(*b.data(), 0x42);
   BOOST_CHECK_EQUAL(*b.value(), 0xfa);
+  BOOST_CHECK_EQUAL(b.value_bytes().front(), 0xfa);
   auto offset = b.size();
 
   std::tie(isOk, b) = Block::fromBuffer(make_span(TEST_BUFFER).subspan(offset));
@@ -368,8 +391,10 @@ BOOST_AUTO_TEST_CASE(FromRawBuffer)
   BOOST_CHECK_EQUAL(b.type(), 1);
   BOOST_CHECK_EQUAL(b.size(), 3);
   BOOST_CHECK_EQUAL(b.value_size(), 1);
-  BOOST_CHECK_EQUAL(*b.wire(),  0x01);
+  BOOST_CHECK_EQUAL(b.value_bytes().size(), 1);
+  BOOST_CHECK_EQUAL(*b.data(), 0x01);
   BOOST_CHECK_EQUAL(*b.value(), 0xfb);
+  BOOST_CHECK_EQUAL(b.value_bytes().front(), 0xfb);
   offset += b.size();
 
   std::tie(isOk, b) = Block::fromBuffer(make_span(TEST_BUFFER).subspan(offset));
@@ -377,7 +402,8 @@ BOOST_AUTO_TEST_CASE(FromRawBuffer)
   BOOST_CHECK_EQUAL(b.type(), 0xffffffff);
   BOOST_CHECK_EQUAL(b.size(), 6);
   BOOST_CHECK_EQUAL(b.value_size(), 0);
-  BOOST_CHECK_EQUAL(*b.wire(),  0xfe);
+  BOOST_CHECK_EQUAL(b.value_bytes().empty(), true);
+  BOOST_CHECK_EQUAL(*b.data(), 0xfe);
   BOOST_CHECK(b.value() == nullptr);
 }
 
@@ -622,7 +648,7 @@ BOOST_AUTO_TEST_CASE(ToAsioConstBuffer)
 {
   Block block = "0101A0"_block;
   boost::asio::const_buffer buffer(block);
-  BOOST_CHECK_EQUAL(boost::asio::buffer_cast<const uint8_t*>(buffer), block.wire());
+  BOOST_CHECK_EQUAL(boost::asio::buffer_cast<const uint8_t*>(buffer), block.data());
   BOOST_CHECK_EQUAL(boost::asio::buffer_size(buffer), block.size());
 }
 

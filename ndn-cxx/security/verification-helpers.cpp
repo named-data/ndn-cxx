@@ -94,12 +94,11 @@ static ParseResult
 parse(const Data& data)
 {
   try {
-    return ParseResult(data.getSignatureInfo(),
-                       data.extractSignedRanges(),
-                       {data.getSignatureValue().value(), data.getSignatureValue().value_size()});
+    return {data.getSignatureInfo(), data.extractSignedRanges(),
+            data.getSignatureValue().value_bytes()};
   }
   catch (const tlv::Error&) {
-    return ParseResult();
+    return {};
   }
 }
 
@@ -111,30 +110,27 @@ parse(const Interest& interest)
 
     if (interest.getSignatureInfo() && interest.getSignatureValue().isValid()) {
       // Verify using v0.3 Signed Interest semantics
-      Block sigValue = interest.getSignatureValue();
-      return ParseResult(*interest.getSignatureInfo(),
-                         interest.extractSignedRanges(),
-                         {sigValue.value(), sigValue.value_size()});
+      return {*interest.getSignatureInfo(), interest.extractSignedRanges(),
+              interest.getSignatureValue().value_bytes()};
     }
     else {
       // Verify using older Signed Interest semantics
       const Name& interestName = interest.getName();
       if (interestName.size() < signed_interest::MIN_SIZE) {
-        return ParseResult();
+        return {};
       }
 
       const Block& nameBlock = interestName.wireEncode();
       SignatureInfo info(interestName[signed_interest::POS_SIG_INFO].blockFromValue());
       Block sigValue(interestName[signed_interest::POS_SIG_VALUE].blockFromValue());
-      return ParseResult(info,
-                         {{nameBlock.value(),
-                           nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size()}},
-                         {sigValue.value(),
-                          sigValue.value_size()});
+      return {info,
+              {{nameBlock.value(),
+                nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size()}},
+              sigValue.value_bytes()};
     }
   }
   catch (const tlv::Error&) {
-    return ParseResult();
+    return {};
   }
 }
 
@@ -223,7 +219,7 @@ verifySignature(const Data& data, const optional<Certificate>& cert)
 {
   auto parsed = parse(data);
   if (cert) {
-    return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()});
+    return verifySignature(parsed, cert->getContent().value_bytes());
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);
@@ -239,7 +235,7 @@ verifySignature(const Interest& interest, const optional<Certificate>& cert)
 {
   auto parsed = parse(interest);
   if (cert) {
-    return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()});
+    return verifySignature(parsed, cert->getContent().value_bytes());
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);

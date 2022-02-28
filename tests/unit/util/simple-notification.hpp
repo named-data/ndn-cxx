@@ -59,8 +59,7 @@ public:
   void
   wireDecode(const Block& block)
   {
-    m_message.assign(reinterpret_cast<const char*>(block.value()),
-                     block.value_size());
+    m_message = readString(block);
 
     // error for testing
     if (!m_message.empty() && m_message[0] == '\x07')

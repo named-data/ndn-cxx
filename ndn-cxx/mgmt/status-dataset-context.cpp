@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,7 +60,7 @@ StatusDatasetContext::setPrefix(const Name& prefix)
 }
 
 void
-StatusDatasetContext::append(const Block& block)
+StatusDatasetContext::append(span<const uint8_t> bytes)
 {
   if (m_state == State::FINALIZED) {
     NDN_THROW(std::logic_error("cannot call append() on a finalized context"));
@@ -68,21 +68,16 @@ StatusDatasetContext::append(const Block& block)
 
   m_state = State::RESPONDED;
 
-  auto cur = block.begin();
-  while (cur != block.end()) {
-    auto nBytesToAppend = std::min<std::ptrdiff_t>(std::distance(cur, block.end()),
-                                                   MAX_PAYLOAD_LENGTH - m_buffer.size());
-    auto next = std::next(cur, nBytesToAppend);
-    m_buffer.insert(m_buffer.end(), cur, next);
-    cur = next;
-
-    if (cur != block.end()) {
-      BOOST_ASSERT(m_buffer.size() == MAX_PAYLOAD_LENGTH);
+  while (!bytes.empty()) {
+    if (m_buffer.size() == MAX_PAYLOAD_LENGTH) {
       m_dataSender(Name(m_prefix).appendSegment(m_segmentNo++),
-                   makeBinaryBlock(tlv::Content, m_buffer),
-                   false);
+                   makeBinaryBlock(tlv::Content, m_buffer), false);
       m_buffer.clear();
     }
+
+    auto chunk = bytes.first(std::min(bytes.size(), MAX_PAYLOAD_LENGTH - m_buffer.size()));
+    m_buffer.insert(m_buffer.end(), chunk.begin(), chunk.end());
+    bytes = bytes.subspan(chunk.size());
   }
 }
 
@@ -94,9 +89,10 @@ StatusDatasetContext::end()
   }
 
   m_state = State::FINALIZED;
+
+  BOOST_ASSERT(m_buffer.size() <= MAX_PAYLOAD_LENGTH);
   m_dataSender(Name(m_prefix).appendSegment(m_segmentNo),
-               makeBinaryBlock(tlv::Content, m_buffer),
-               true);
+               makeBinaryBlock(tlv::Content, m_buffer), true);
 }
 
 void

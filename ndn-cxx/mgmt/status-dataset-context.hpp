@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,11 +60,11 @@ public:
   setPrefix(const Name& prefix);
 
   /**
-   * \brief Appends a Block to the response.
+   * \brief Appends a sequence of bytes to the response.
    * \throw std::logic_error end() or reject() has already been invoked
    */
   void
-  append(const Block& block);
+  append(span<const uint8_t> bytes);
 
   /**
    * \brief Finalizes the response successfully after appending zero or more blocks.

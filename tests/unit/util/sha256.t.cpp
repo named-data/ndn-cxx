@@ -112,7 +112,22 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorString)
   BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
 }
 
-BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
+BOOST_AUTO_TEST_CASE(InsertionOperatorUnsignedInt)
+{
+  const uint64_t input[] = {1, 2, 3, 4};
+  auto expected = fromHex("7236c00c170036c6de133a878210ddd58567aa1d0619a0f70f69e38ae6f916e9");
+
+  Sha256 statefulSha256;
+  for (size_t i = 0; i < sizeof(input) / sizeof(uint64_t); ++i) {
+    statefulSha256 << boost::endian::native_to_big(input[i]);
+  }
+  ConstBufferPtr digest = statefulSha256.computeDigest();
+
+  BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
+  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
+}
+
+BOOST_AUTO_TEST_CASE(InsertionOperatorSpan)
 {
   const uint8_t input[] = {
     0x16, 0x1b, // SignatureInfo
@@ -130,22 +145,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
   auto expected = fromHex("b372edfd4d6a4db2cfeaeead6c34fdee9b9e759f7b8d799cf8067e39e7f2886c");
 
   Sha256 statefulSha256;
-  statefulSha256 << Block{input};
-  ConstBufferPtr digest = statefulSha256.computeDigest();
-
-  BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
-  BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
-}
-
-BOOST_AUTO_TEST_CASE(InsertionOperatorUint64t)
-{
-  const uint64_t input[] = {1, 2, 3, 4};
-  auto expected = fromHex("7236c00c170036c6de133a878210ddd58567aa1d0619a0f70f69e38ae6f916e9");
-
-  Sha256 statefulSha256;
-  for (size_t i = 0; i < sizeof(input) / sizeof(uint64_t); ++i) {
-    statefulSha256 << boost::endian::native_to_big(input[i]);
-  }
+  statefulSha256 << input;
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
@@ -166,20 +166,20 @@ BOOST_AUTO_TEST_CASE(Reset)
   BOOST_CHECK_NO_THROW(sha << 42);
 }
 
-BOOST_AUTO_TEST_CASE(Error)
-{
-  Sha256 sha;
-  sha << 42;
-  sha.computeDigest(); // finalize
-  BOOST_CHECK_THROW(sha << 42, Sha256::Error);
-}
-
 BOOST_AUTO_TEST_CASE(StaticComputeDigest)
 {
   auto expected = fromHex("9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a");
 
   ConstBufferPtr digest = Sha256::computeDigest({0x01, 0x02, 0x03, 0x04});
   BOOST_TEST(*digest == *expected, boost::test_tools::per_element());
+}
+
+BOOST_AUTO_TEST_CASE(Error)
+{
+  Sha256 sha;
+  sha << 42;
+  sha.computeDigest(); // finalize
+  BOOST_CHECK_THROW(sha << 42, Sha256::Error);
 }
 
 BOOST_AUTO_TEST_CASE(Print)

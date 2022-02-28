@@ -187,10 +187,7 @@ public:
   void
   wireDecode(const Block& block)
   {
-    // block must be 0xBB, 0x01, 0xEE
-    BOOST_CHECK_EQUAL(block.type(), 0xBB);
-    BOOST_REQUIRE_EQUAL(block.value_size(), 1);
-    BOOST_CHECK_EQUAL(block.value()[0], 0xEE);
+    BOOST_TEST(block == "BB01EE"_block);
   }
 };
 

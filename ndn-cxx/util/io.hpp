@@ -185,7 +185,7 @@ save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
     NDN_THROW_NESTED(Error("Encode error during save: "s + e.what()));
   }
 
-  saveBuffer({block.wire(), block.size()}, os, encoding);
+  saveBuffer(block, os, encoding);
 }
 
 /** \brief Writes a TLV element to a file.

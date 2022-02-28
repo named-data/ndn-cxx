@@ -72,10 +72,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   it++;
   BOOST_CHECK(it == aDescription.end());
 
-  BOOST_CHECK_EQUAL_COLLECTIONS(aDescription.wireEncode().wire(),
-                                aDescription.wireEncode().wire() + aDescription.wireEncode().size(),
-                                DESC,
-                                DESC + sizeof(DESC));
+  BOOST_TEST(aDescription.wireEncode() == DESC, boost::test_tools::per_element());
 
   AdditionalDescription aDescription2(Block{DESC});
   BOOST_CHECK_EQUAL(aDescription2, aDescription);

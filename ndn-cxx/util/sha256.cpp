@@ -100,16 +100,16 @@ Sha256::operator<<(const std::string& str)
 }
 
 Sha256&
-Sha256::operator<<(const Block& block)
+Sha256::operator<<(uint64_t value)
 {
-  update({block.wire(), block.size()});
+  update({reinterpret_cast<const uint8_t*>(&value), sizeof(uint64_t)});
   return *this;
 }
 
 Sha256&
-Sha256::operator<<(uint64_t value)
+Sha256::operator<<(span<const uint8_t> bytes)
 {
-  update({reinterpret_cast<const uint8_t*>(&value), sizeof(uint64_t)});
+  update(bytes);
   return *this;
 }
 

@@ -293,7 +293,7 @@ Block::end() const
 }
 
 const uint8_t*
-Block::wire() const
+Block::data() const
 {
   if (!hasWire())
     NDN_THROW(Error("Underlying wire buffer is empty"));
@@ -317,12 +317,6 @@ const uint8_t*
 Block::value() const noexcept
 {
   return value_size() > 0 ? &*m_valueBegin : nullptr;
-}
-
-size_t
-Block::value_size() const noexcept
-{
-  return hasValue() ? static_cast<size_t>(m_valueEnd - m_valueBegin) : 0;
 }
 
 Block
@@ -493,7 +487,7 @@ Block::insert(Block::element_const_iterator pos, const Block& element)
 
 Block::operator boost::asio::const_buffer() const
 {
-  return {wire(), size()};
+  return {data(), size()};
 }
 
 bool
@@ -522,7 +516,7 @@ operator<<(std::ostream& os, const Block& block)
   }
   else if (block.value_size() > 0) {
     os << block.type() << '[' << block.value_size() << "]=";
-    printHex(os, {block.value(), block.value_size()}, true);
+    printHex(os, block.value_bytes(), true);
   }
   else {
     os << block.type() << "[empty]";
@@ -533,7 +527,7 @@ operator<<(std::ostream& os, const Block& block)
 }
 
 Block
-operator "" _block(const char* input, std::size_t len)
+operator ""_block(const char* input, std::size_t len)
 {
   namespace t = security::transform;
   t::StepSource ss;

@@ -139,9 +139,7 @@ BOOST_AUTO_TEST_CASE(AppMetaInfo)
 
     block = info2.findAppMetaInfo(tlvType);
     BOOST_REQUIRE(block != nullptr);
-
-    std::string s3(reinterpret_cast<const char*>(block->value()), block->value_size());
-    BOOST_CHECK_EQUAL(s3, ss[i]);
+    BOOST_CHECK_EQUAL(readString(*block), ss[i]);
   }
 }
 

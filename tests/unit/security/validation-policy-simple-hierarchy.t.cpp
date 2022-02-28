@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,15 +73,15 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 
 BOOST_AUTO_TEST_CASE(NonKeyNameInsideLocator)
 {
-  // auto cert = identity.getDefaultKey().getDefaultCertificate().wireEncode();
-  // std::cerr << "Certificate idCert{\"" << toHex(cert.wire(), cert.size()) << "\"_block};" << std::endl;
+//  auto cert = identity.getDefaultKey().getDefaultCertificate().wireEncode();
+//  std::cerr << "Certificate idCert{\"" << toHex(cert) << "\"_block};" << std::endl;
 
-  // cert = subIdentity.getDefaultKey().getDefaultCertificate().wireEncode();
-  // std::cerr << "Certificate subIdCert{\"" << toHex(cert.wire(), cert.size()) << "\"_block};" << std::endl;
+//  cert = subIdentity.getDefaultKey().getDefaultCertificate().wireEncode();
+//  std::cerr << "Certificate subIdCert{\"" << toHex(cert) << "\"_block};" << std::endl;
 
-  // Data packet("/Security/ValidatorFixture/Sub1/Sub2/Packet");
-  // m_keyChain.sign(packet, signingByIdentity(subIdentity));
-  // std::cerr << "Data packet{\"" << toHex(packet.wireEncode().wire(), packet.wireEncode().size()) << "\"_block};" << std::endl;
+//  Data pkt("/Security/ValidatorFixture/Sub1/Sub2/Packet");
+//  m_keyChain.sign(pkt, signingByIdentity(subIdentity));
+//  std::cerr << "Data packet{\"" << toHex(pkt.wireEncode()) << "\"_block};" << std::endl;
 
   // These are hard-coded with a key locator that is the exact name of the certificate
   Certificate idCert{"06FD014C073C08085365637572697479081056616C696461746F724669787475726508034B455"

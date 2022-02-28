@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(TwoCertsMultipleSegments)
 {
   // First segment contains first 250 bytes of cert1
   Data d;
-  d.setContent(make_span(certBlock1.wire(), 250));
+  d.setContent(make_span(certBlock1).first(250));
 
   // Second segment contains the rest of cert1 and the first 100 bytes of cert2
   auto buf = std::make_shared<Buffer>(certBlock1.begin() + 250, certBlock1.end());

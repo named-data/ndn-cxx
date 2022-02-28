@@ -48,10 +48,10 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //     {"Sha256", signingWithSha256()}
 //   };
 
-//   auto print = [] (const std::string& name, const uint8_t* buf, size_t size) {
+//   auto print = [] (const std::string& name, span<const uint8_t> buf) {
 //     std::cout << "  const Block " + name + "{{\n    ";
 
-//     std::string hex = toHex({buf, size});
+//     std::string hex = toHex(buf);
 
 //     for (size_t i = 0; i < hex.size(); i++) {
 //       if (i > 0 && i % 32 == 0)
@@ -74,23 +74,22 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //     std::cout << "  const std::string name = \"" << type << "\";\n";
 
 //     if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_ID) {
-//       print("cert", signingInfo.getPibIdentity().getDefaultKey().getDefaultCertificate().wireEncode().wire(),
-//             signingInfo.getPibIdentity().getDefaultKey().getDefaultCertificate().wireEncode().size());
+//       print("cert", signingInfo.getPibIdentity().getDefaultKey().getDefaultCertificate().wireEncode());
 //     }
 //     else {
-//       print("cert", nullptr, 0);
+//       print("cert", {});
 //     }
 //     std::cout << "\n";
 
 //     // Create data that can be verified by cert
 //     Data data(Name("/test/data").append(type));
 //     m_keyChain.sign(data, signingInfo);
-//     print("goodData", data.wireEncode().wire(), data.wireEncode().size());
+//     print("goodData", data.wireEncode());
 //     std::cout << "\n";
 
 //     // Create data that cannot be verified by cert
 //     m_keyChain.sign(data, signingByIdentity(wrongIdentity));
-//     print("badSigData", data.wireEncode().wire(), data.wireEncode().size());
+//     print("badSigData", data.wireEncode());
 //     std::cout << "\n";
 
 //     // Create interest that can be verified by cert
@@ -99,13 +98,13 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //     signingInfoV03.setSignedInterestFormat(SignedInterestFormat::V03);
 //     interest1.setNonce(0xF72C8A4B);
 //     m_keyChain.sign(interest1, signingInfoV03);
-//     print("goodInterest", interest1.wireEncode().wire(), interest1.wireEncode().size());
+//     print("goodInterest", interest1.wireEncode());
 //     std::cout << "\n";
 
 //     // Create interest that cannot be verified by cert
 //     m_keyChain.sign(interest1, signingByIdentity(wrongIdentity)
 //                                  .setSignedInterestFormat(SignedInterestFormat::V03));
-//     print("badSigInterest", interest1.wireEncode().wire(), interest1.wireEncode().size());
+//     print("badSigInterest", interest1.wireEncode());
 //     std::cout << "\n";
 
 //     // Create interest that can be verified by cert (old signed Interest format)
@@ -114,13 +113,13 @@ BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 //     signingInfoV02.setSignedInterestFormat(SignedInterestFormat::V03);
 //     interest2.setNonce(0xF72C8A4B);
 //     m_keyChain.sign(interest2, signingInfoV02);
-//     print("goodInterestOldFormat", interest2.wireEncode().wire(), interest2.wireEncode().size());
+//     print("goodInterestOldFormat", interest2.wireEncode());
 //     std::cout << "\n";
 
 //     // Create interest that cannot be verified by cert (old signed Interest format)
 //     m_keyChain.sign(interest2, signingByIdentity(wrongIdentity)
 //                                  .setSignedInterestFormat(SignedInterestFormat::V02));
-//     print("badSigInterestOldFormat", interest2.wireEncode().wire(), interest2.wireEncode().size());
+//     print("badSigInterestOldFormat", interest2.wireEncode());
 //     std::cout << "\n};\n\n";
 //   }
 // }

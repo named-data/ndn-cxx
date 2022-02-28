@@ -484,7 +484,7 @@ Component::compare(const Component& other) const
     // it's more efficient to simply compare the wire encoding.
     // This works because lexical order of TLV encoding happens to be
     // the same as canonical order of the value.
-    return std::memcmp(wire(), other.wire(), std::min(size(), other.size()));
+    return std::memcmp(data(), other.data(), std::min(size(), other.size()));
   }
 
   int cmpType = type() - other.type();
@@ -521,8 +521,9 @@ size_t
 Component::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
-  if (value_size() > 0)
-    totalLength += encoder.prependBytes({value(), value_size()});
+  if (value_size() > 0) {
+    totalLength += encoder.prependBytes(value_bytes());
+  }
   totalLength += encoder.prependVarNumber(value_size());
   totalLength += encoder.prependVarNumber(type());
   return totalLength;

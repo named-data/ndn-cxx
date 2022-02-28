@@ -247,7 +247,7 @@ public:
     {
       using namespace ndn::security::transform;
       const auto& cert = this->identity.getDefaultKey().getDefaultCertificate().wireEncode();
-      bufferSource(make_span(cert.wire(), cert.size())) >> base64Encode(false) >> streamSink(os);
+      bufferSource(cert) >> base64Encode(false) >> streamSink(os);
     }
 
     this->policy.load(this->baseConfig + R"CONF(

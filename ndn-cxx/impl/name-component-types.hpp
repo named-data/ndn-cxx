@@ -250,7 +250,7 @@ public:
   writeUri(std::ostream& os, const Component& comp) const final
   {
     os << m_uriPrefix << '=';
-    printHex(os, {comp.value(), comp.value_size()}, false);
+    printHex(os, comp.value_bytes(), false);
   }
 
 private:

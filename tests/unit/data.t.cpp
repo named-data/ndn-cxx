@@ -196,10 +196,10 @@ BOOST_FIXTURE_TEST_CASE(Full, DataSigningKeyFixture)
     tr::StepSource input;
     input >> tr::signerFilter(DigestAlgorithm::SHA256, m_privKey) >> tr::streamSink(sig);
 
-    input.write({d.getName().    wireEncode().wire(), d.getName().    wireEncode().size()});
-    input.write({d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size()});
-    input.write({d.getContent().              wire(), d.getContent().              size()});
-    input.write({signatureInfo.  wireEncode().wire(), signatureInfo.  wireEncode().size()});
+    input.write(d.getName().wireEncode());
+    input.write(d.getMetaInfo().wireEncode());
+    input.write(d.getContent());
+    input.write(signatureInfo.wireEncode());
     input.end();
   }
   d.setSignatureValue(sig.buf());
@@ -288,8 +288,7 @@ BOOST_AUTO_TEST_CASE(Full)
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
   BOOST_CHECK_EQUAL(d.getFinalBlock().has_value(), false);
   BOOST_CHECK_EQUAL(d.hasContent(), true);
-  BOOST_CHECK_EQUAL(std::string(reinterpret_cast<const char*>(d.getContent().value()),
-                                d.getContent().value_size()), "SUCCESS!");
+  BOOST_CHECK_EQUAL(readString(d.getContent()), "SUCCESS!");
   BOOST_CHECK_EQUAL(d.getSignatureType(), tlv::SignatureSha256WithRsa);
   BOOST_REQUIRE(d.getKeyLocator().has_value());
   BOOST_CHECK_EQUAL(d.getKeyLocator()->getName(), "/test/key/locator");

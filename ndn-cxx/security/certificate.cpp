@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -105,8 +105,9 @@ Buffer
 Certificate::getPublicKey() const
 {
   if (getContent().value_size() == 0)
-    NDN_THROW(Data::Error("Content is empty"));
-  return Buffer(getContent().value(), getContent().value_size());
+    NDN_THROW(Data::Error("Certificate Content is empty"));
+
+  return {getContent().value_begin(), getContent().value_end()};
 }
 
 ValidityPeriod

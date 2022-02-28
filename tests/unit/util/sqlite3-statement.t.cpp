@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   {
     Sqlite3Statement stmt(db, "INSERT INTO test VALUES (5, ?)");
-    stmt.bind(1, reinterpret_cast<const void*>(block.wire()), block.size(), SQLITE_STATIC);
+    stmt.bind(1, reinterpret_cast<const void*>(block.data()), block.size(), SQLITE_STATIC);
     stmt.step();
   }
 

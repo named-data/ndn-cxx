@@ -257,16 +257,27 @@ public: // wire format
   const_iterator
   end() const;
 
-  /** @brief Return a raw pointer to the beginning of the encoded wire
-   *  @pre `hasWire() == true`
-   *  @sa value()
+  /**
+   * @brief Return a raw pointer to the beginning of the encoded wire
+   * @pre `hasWire() == true`
+   * @sa value()
    */
   const uint8_t*
-  wire() const;
+  data() const;
 
-  /** @brief Return the size of the encoded wire, i.e. of the whole TLV
-   *  @pre `isValid() == true`
-   *  @sa value_size()
+  /**
+   * @deprecated Use data()
+   */
+  const uint8_t*
+  wire() const
+  {
+    return data();
+  }
+
+  /**
+   * @brief Return the size of the encoded wire, i.e., of the whole TLV
+   * @pre `isValid() == true`
+   * @sa value_size()
    */
   size_t
   size() const;
@@ -280,21 +291,23 @@ public: // wire format
   }
 
 public: // type and value
-  /** @brief Return the TLV-TYPE of the Block
-   *  @note This will return tlv::Invalid if isValid() is false.
+  /**
+   * @brief Return the TLV-TYPE of the Block
+   * @note This will return tlv::Invalid if isValid() is false.
    */
   uint32_t
-  type() const
+  type() const noexcept
   {
     return m_type;
   }
 
-  /** @brief Check if the Block has a non-empty TLV-VALUE
+  /**
+   * @brief Check if the Block has a non-empty TLV-VALUE
    *
-   *  This property reflects whether the underlying buffer contains a TLV-VALUE. If this is false,
-   *  TLV-VALUE has zero-length. If this is true, TLV-VALUE may be zero-length.
+   * This property reflects whether the underlying buffer contains a TLV-VALUE. If this is false,
+   * TLV-VALUE has zero-length. If this is true, TLV-VALUE may be zero-length.
    *
-   *  @sa value_size()
+   * @sa value_size()
    */
   bool
   hasValue() const noexcept
@@ -302,36 +315,59 @@ public: // type and value
     return m_buffer != nullptr;
   }
 
-  /** @brief Get begin iterator of TLV-VALUE
-   *  @pre `hasValue() == true`
+  /**
+   * @brief Get begin iterator of TLV-VALUE
+   * @pre `hasValue() == true`
    */
   const_iterator
-  value_begin() const
+  value_begin() const noexcept
   {
     return m_valueBegin;
   }
 
-  /** @brief Get end iterator of TLV-VALUE
-   *  @pre `hasValue() == true`
+  /**
+   * @brief Get end iterator of TLV-VALUE
+   * @pre `hasValue() == true`
    */
   const_iterator
-  value_end() const
+  value_end() const noexcept
   {
     return m_valueEnd;
   }
 
-  /** @brief Return a raw pointer to the beginning of TLV-VALUE
-   *  @sa wire()
+  /**
+   * @brief Return the size of TLV-VALUE, i.e., the TLV-LENGTH
+   * @sa size()
+   */
+  size_t
+  value_size() const noexcept
+  {
+    return hasValue() ? static_cast<size_t>(m_valueEnd - m_valueBegin) : 0;
+  }
+
+  /**
+   * @brief Return a read-only view of TLV-VALUE as a contiguous range of bytes
+   */
+  span<const uint8_t>
+  value_bytes() const noexcept
+  {
+    if (hasValue())
+      return {m_valueBegin, m_valueEnd};
+    else
+      return {};
+  }
+
+  /**
+   * @brief Return a raw pointer to the beginning of TLV-VALUE
+   * @sa value_bytes(), data()
    */
   const uint8_t*
   value() const noexcept;
 
-  /** @brief Return the size of TLV-VALUE, aka TLV-LENGTH
-   *  @sa size()
+  /**
+   * @brief Return a new Block constructed from the TLV-VALUE of this Block
+   * @pre `value_size() > 0`
    */
-  size_t
-  value_size() const noexcept;
-
   Block
   blockFromValue() const;
 
@@ -527,14 +563,14 @@ operator!=(const Block& lhs, const Block& rhs)
  *  @throw std::invalid_argument input is empty or has an odd number of hexadecimal digits.
  *  @throw tlv::Error @p input cannot be parsed into a valid Block.
  *
- *  Example
+ *  Example:
  *  @code
  *  Block nameBlock = "0706 080141 080142"_block;
  *  Block nackBlock = "FD032005 reason(no-route)=FD03210196"_block;
  *  @endcode
  */
 Block
-operator "" _block(const char* input, std::size_t len);
+operator ""_block(const char* input, std::size_t len);
 
 } // namespace ndn
 

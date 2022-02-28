@@ -59,7 +59,7 @@ Sqlite3Statement::bind(int index, const void* buf, size_t size, void(*destructor
 int
 Sqlite3Statement::bind(int index, const Block& block, void(*destructor)(void*))
 {
-  return sqlite3_bind_blob(m_stmt, index, block.wire(), block.size(), destructor);
+  return sqlite3_bind_blob(m_stmt, index, block.data(), block.size(), destructor);
 }
 
 int

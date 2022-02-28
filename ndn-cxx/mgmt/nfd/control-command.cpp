@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,11 +60,10 @@ ControlCommand::getRequestName(const Name& commandPrefix,
 {
   this->validateRequest(parameters);
 
-  const auto& paramBlock = parameters.wireEncode();
   return Name(commandPrefix)
          .append(m_module)
          .append(m_verb)
-         .append(paramBlock.begin(), paramBlock.end());
+         .append(tlv::GenericNameComponent, parameters.wireEncode());
 }
 
 ControlCommand::FieldValidator::FieldValidator()
@@ -329,7 +328,7 @@ StrategyChoiceUnsetCommand::validateRequest(const ControlParameters& parameters)
 {
   this->ControlCommand::validateRequest(parameters);
 
-  if (parameters.getName().size() == 0) {
+  if (parameters.getName().empty()) {
     NDN_THROW(ArgumentError("Name must not be ndn:/"));
   }
 }

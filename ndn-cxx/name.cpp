@@ -382,8 +382,7 @@ namespace std {
 size_t
 hash<ndn::Name>::operator()(const ndn::Name& name) const
 {
-  return boost::hash_range(name.wireEncode().wire(),
-                           name.wireEncode().wire() + name.wireEncode().size());
+  return boost::hash_range(name.wireEncode().begin(), name.wireEncode().end());
 }
 
 } // namespace std

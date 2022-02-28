@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(Signed)
   i2.setNonce(0x4c1ecb4a);
   i2.setApplicationParameters("2404C0C1C2C3"_block);
   i2.setSignatureInfo(si);
-  i2.setSignatureValue(make_shared<Buffer>(sv.value(), sv.value_size()));
+  i2.setSignatureValue(make_shared<Buffer>(sv.value_begin(), sv.value_end()));
   BOOST_CHECK_EQUAL(i2.isParametersDigestValid(), true);
 
   BOOST_TEST(i2.wireEncode() == WIRE, boost::test_tools::per_element());
@@ -906,7 +906,7 @@ BOOST_AUTO_TEST_CASE(SetSignature)
 
   // Throws because attempting to set InterestSignatureValue without set InterestSignatureInfo
   Block sv1("2E04 01020304"_block);
-  auto svBuffer1 = make_shared<Buffer>(sv1.value(), sv1.value_size());
+  auto svBuffer1 = make_shared<Buffer>(sv1.value_begin(), sv1.value_end());
   BOOST_CHECK_THROW(i.setSignatureValue(svBuffer1), tlv::Error);
 
   // Simple set/get case for InterestSignatureInfo (no prior set)
@@ -958,7 +958,7 @@ BOOST_AUTO_TEST_CASE(SetSignature)
   i.wireEncode();
   BOOST_CHECK_EQUAL(i.hasWire(), true);
   Block sv2("2E04 99887766"_block);
-  auto svBuffer2 = make_shared<Buffer>(sv2.value(), sv2.value_size());
+  auto svBuffer2 = make_shared<Buffer>(sv2.value_begin(), sv2.value_end());
   i.setSignatureValue(svBuffer2);
   BOOST_CHECK_EQUAL(i.hasWire(), false);
   BOOST_CHECK(i.getSignatureInfo() == si2);
@@ -1027,7 +1027,8 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
   BOOST_CHECK(i.getSignatureInfo() == si);
 
   Block sv("2E04 01020304"_block);
-  i.setSignatureValue(make_shared<Buffer>(sv.value(), sv.value_size())); // updates ParametersDigestSha256Component
+  i.setSignatureValue(make_shared<Buffer>(sv.value_begin(),
+                                          sv.value_end())); // updates ParametersDigestSha256Component
   BOOST_CHECK_EQUAL(i.getName(),
                     "/A/B/C/params-sha256=f649845ef944638390d1c689e2f0618ea02e471eff236110cbeb822d5932d342");
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);

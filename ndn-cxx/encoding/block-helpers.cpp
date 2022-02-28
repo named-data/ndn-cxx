@@ -212,11 +212,11 @@ size_t
 prependBlock(EncodingImpl<TAG>& encoder, const Block& block)
 {
   if (block.hasWire()) {
-    return encoder.prependBytes({block.wire(), block.size()});
+    return encoder.prependBytes(block);
   }
   else {
-    // FIXME: blindly calling Block::value() is not safe if the value is not wire-encoded
-    return prependBinaryBlock(encoder, block.type(), {block.value(), block.value_size()});
+    // FIXME: blindly calling Block::value_bytes() is not safe if the value is not wire-encoded
+    return prependBinaryBlock(encoder, block.type(), block.value_bytes());
   }
 }
 

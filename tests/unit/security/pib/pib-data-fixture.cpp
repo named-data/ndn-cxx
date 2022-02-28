@@ -63,7 +63,7 @@ namespace tests {
 
 //         EncodingBuffer buf;
 //         cert.wireEncode(buf, true);
-//         cert.setSignatureValue(tpm.sign(buf.buf(), buf.size(), keyName, DigestAlgorithm::SHA256));
+//         cert.setSignatureValue(tpm.sign({buf}, keyName, DigestAlgorithm::SHA256));
 
 //         printBytes(prefix + "_KEY" + to_string(keyId) + "_CERT" + to_string(certVersion),
 //                    cert.wireEncode());
@@ -72,18 +72,12 @@ namespace tests {
 //   }
 
 //   static void
-//   printBytes(const std::string& name, const Block& block)
-//   {
-//     printBytes(name, make_span(block.wire(), block.size()));
-//   }
-
-//   static void
-//   printBytes(const std::string& name, span<const uint8_t> buf)
+//   printBytes(const std::string& name, span<const uint8_t> bytes)
 //   {
 //     std::cout << "\nconst uint8_t " << name << "[] = {\n"
 //               << "  ";
 
-//     std::string hex = toHex(buf);
+//     std::string hex = toHex(bytes);
 
 //     for (size_t i = 0; i < hex.size(); i++) {
 //       if (i > 0 && i % 40 == 0)

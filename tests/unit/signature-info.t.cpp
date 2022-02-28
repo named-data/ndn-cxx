@@ -434,8 +434,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriod)
   // encode
   auto encoded = info.wireEncode();
   BOOST_CHECK_EQUAL(info.hasWire(), true);
-  BOOST_CHECK_EQUAL_COLLECTIONS(sigInfo, sigInfo + sizeof(sigInfo),
-                                encoded.wire(), encoded.wire() + encoded.size());
+  BOOST_TEST(encoded == sigInfo, boost::test_tools::per_element());
 
   info.setValidityPeriod(vp1);
   BOOST_CHECK_EQUAL(info.hasWire(), true);

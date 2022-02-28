@@ -211,7 +211,7 @@ Data::getFullName() const
       NDN_THROW(Error("Cannot compute full name because Data has no wire encoding (not signed)"));
     }
     m_fullName = m_name;
-    m_fullName.appendImplicitSha256Digest(util::Sha256::computeDigest({m_wire.wire(), m_wire.size()}));
+    m_fullName.appendImplicitSha256Digest(util::Sha256::computeDigest(m_wire));
   }
 
   return m_fullName;

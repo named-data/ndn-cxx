@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -134,7 +134,7 @@ Packet::wireDecode(const Block& wire)
 {
   if (wire.type() == ndn::tlv::Interest || wire.type() == ndn::tlv::Data) {
     m_wire = Block(tlv::LpPacket);
-    add<FragmentField>(make_pair(wire.begin(), wire.end()));
+    add<FragmentField>({wire.begin(), wire.end()});
     return;
   }
 

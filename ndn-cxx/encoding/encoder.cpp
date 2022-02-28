@@ -226,7 +226,7 @@ size_t
 Encoder::prependBlock(const Block& block)
 {
   if (block.hasWire()) {
-    return prependBytes({block.wire(), block.size()});
+    return prependBytes(block);
   }
   else {
     return prependByteArrayBlock(block.type(), block.value(), block.value_size());
@@ -237,7 +237,7 @@ size_t
 Encoder::appendBlock(const Block& block)
 {
   if (block.hasWire()) {
-    return appendBytes({block.wire(), block.size()});
+    return appendBytes(block);
   }
   else {
     return appendByteArrayBlock(block.type(), block.value(), block.value_size());

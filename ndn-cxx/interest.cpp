@@ -649,7 +649,7 @@ Interest::extractSignedRanges() const
     NDN_THROW(Error("Interest Name must end with a ParametersSha256DigestComponent"));
   }
 
-  bufs.emplace_back(m_name[0].wire(), m_name[-1].wire());
+  bufs.emplace_back(m_name[0].data(), m_name[-1].data());
 
   // Ensure InterestSignatureInfo element is present
   auto sigInfoIt = findFirstParameter(tlv::InterestSignatureInfo);
@@ -700,7 +700,7 @@ Interest::computeParametersDigest() const
   in >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(out);
 
   for (const auto& block : m_parameters) {
-    in.write({block.wire(), block.size()});
+    in.write(block);
   }
   in.end();
 

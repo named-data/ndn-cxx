@@ -102,7 +102,7 @@ struct DecodeHelper<TlvType, std::pair<Buffer::const_iterator, Buffer::const_ite
       NDN_THROW(ndn::tlv::Error("NDNLP field of TLV-TYPE " + to_string(wire.type()) +
                                 " cannot be empty"));
     }
-    return std::make_pair(wire.value_begin(), wire.value_end());
+    return {wire.value_begin(), wire.value_end()};
   }
 };
 

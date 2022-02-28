@@ -270,12 +270,11 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(DigestCalculation, T, InMemoryStorages)
 {
   shared_ptr<Data> data = makeData("/digest/compute");
 
-  auto digest1 = util::Sha256::computeDigest({data->wireEncode().wire(), data->wireEncode().size()});
+  auto digest1 = util::Sha256::computeDigest(data->wireEncode());
   BOOST_CHECK_EQUAL(digest1->size(), 32);
 
   InMemoryStorageEntry entry;
   entry.setData(*data);
-
   BOOST_CHECK_EQUAL_COLLECTIONS(digest1->begin(), digest1->end(),
                                 entry.getFullName()[-1].value_begin(),
                                 entry.getFullName()[-1].value_end());
@@ -368,7 +367,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
   shared_ptr<Data> data7 = makeData("/c/c/1");
   ims.insert(*data7);
 
-  auto digest1 = util::Sha256::computeDigest({data->wireEncode().wire(), data->wireEncode().size()});
+  auto digest1 = util::Sha256::computeDigest(data->wireEncode());
 
   Name name("/a");
   ims.erase(name);

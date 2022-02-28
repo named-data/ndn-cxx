@@ -126,18 +126,18 @@ public:
   operator<<(const std::string& str);
 
   /**
-   * @brief Add a block to the digest calculation.
-   * @throw Error the digest has already been finalized
-   */
-  Sha256&
-  operator<<(const Block& block);
-
-  /**
    * @brief Add a uint64_t value to the digest calculation.
    * @throw Error the digest has already been finalized
    */
   Sha256&
   operator<<(uint64_t value);
+
+  /**
+   * @brief Add a contiguous range of arbitrary bytes to the digest calculation.
+   * @throw Error the digest has already been finalized
+   */
+  Sha256&
+  operator<<(span<const uint8_t> bytes);
 
   /**
    * @brief Add a byte buffer to the digest calculation.

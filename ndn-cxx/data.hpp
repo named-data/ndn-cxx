@@ -164,10 +164,12 @@ public: // Data fields
    * If the element is not present (hasContent() == false), an invalid Block will be returned.
    *
    * The value of the returned Content Block (if valid) can be accessed through
-   * Block::value() / Block::value_size() or Block::value_begin() / Block::value_end().
+   *   - Block::value_bytes(), or
+   *   - Block::value() and Block::value_size(), or
+   *   - Block::value_begin() and Block::value_end().
    *
    * @sa hasContent()
-   * @sa Block::blockFromValue(), Block::parse()
+   * @sa Block::value_bytes(), Block::blockFromValue(), Block::parse()
    */
   const Block&
   getContent() const noexcept

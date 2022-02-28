@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(EncodeFragment)
   buf[1] = 0xe8;
 
   Packet packet;
-  packet.add<FragmentField>(std::make_pair(buf.begin(), buf.end()));
+  packet.add<FragmentField>({buf.begin(), buf.end()});
   packet.add<SequenceField>(1000);
   Block wire = packet.wireEncode();
   BOOST_CHECK_EQUAL_COLLECTIONS(expectedBlock, expectedBlock + sizeof(expectedBlock),
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(EncodeSortOrder)
   frag[1] = 0xe8;
 
   Packet packet;
-  packet.add<FragmentField>(std::make_pair(frag.begin(), frag.end()));
+  packet.add<FragmentField>({frag.begin(), frag.end()});
   packet.add<FragIndexField>(0);
   packet.add<AckField>(2);
   packet.wireEncode();

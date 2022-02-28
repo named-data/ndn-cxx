@@ -42,7 +42,6 @@ private:
 protected:
   StatusDatasetContextFixture()
     : interest(makeInterest("/test/context/interest"))
-    , contentBlock(makeStringBlock(tlv::Content, "/test/data/content"))
     , context(*interest,
               [this] (auto&&... args) {
                 sendDataHistory.push_back({std::forward<decltype(args)>(args)...});
@@ -60,23 +59,18 @@ protected:
     return name.appendSegment(segmentNo);
   }
 
-  Block
+  ConstBufferPtr
   concatenateDataContent() const
   {
-    EncodingBuffer encoder;
-    size_t valueLength = 0;
+    auto buf = std::make_shared<Buffer>();
     for (const auto& args : sendDataHistory) {
-      const auto& content = args.content;
-      valueLength += encoder.appendBytes({content.value(), content.value_size()});
+      buf->insert(buf->end(), args.content.value_begin(), args.content.value_end());
     }
-    encoder.prependVarNumber(valueLength);
-    encoder.prependVarNumber(tlv::Content);
-    return encoder.block();
+    return buf;
   }
 
 protected:
   shared_ptr<Interest> interest;
-  Block contentBlock;
   StatusDatasetContext context;
   std::vector<SendDataArgs> sendDataHistory;
   std::vector<ControlResponse> sendNackHistory;
@@ -125,7 +119,7 @@ BOOST_AUTO_TEST_CASE(SetInvalid)
 BOOST_AUTO_TEST_CASE(SetValidAfterAppend)
 {
   Name validPrefix = Name(interest->getName()).append("/valid");
-  context.append(contentBlock);
+  context.append({0x12, 0x34});
   BOOST_CHECK_EXCEPTION(context.setPrefix(validPrefix), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call setPrefix() after append/end/reject"s;
   });
@@ -155,7 +149,8 @@ BOOST_AUTO_TEST_SUITE(Respond)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  context.append(contentBlock);
+  const auto testBlock = makeStringBlock(tlv::Content, "TEST");
+  context.append(testBlock);
   BOOST_CHECK(sendDataHistory.empty()); // end() not called yet
 
   context.end();
@@ -163,19 +158,28 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   const auto& args = sendDataHistory[0];
   BOOST_CHECK_EQUAL(args.dataName, makeSegmentName(0));
-  BOOST_CHECK_EQUAL(args.content.blockFromValue(), contentBlock);
+  BOOST_CHECK_EQUAL(args.content.blockFromValue(), testBlock);
   BOOST_CHECK_EQUAL(args.isFinalBlock, true);
+}
+
+BOOST_AUTO_TEST_CASE(Empty)
+{
+  context.append({});
+  BOOST_TEST(sendDataHistory.empty()); // end() not called yet
+
+  context.end();
+  BOOST_TEST_REQUIRE(sendDataHistory.size() == 1);
+
+  const auto& args = sendDataHistory[0];
+  BOOST_TEST(args.dataName == makeSegmentName(0));
+  BOOST_TEST(args.content.value_size() == 0);
+  BOOST_TEST(args.isFinalBlock);
 }
 
 BOOST_AUTO_TEST_CASE(Large)
 {
-  const Block largeBlock = [] {
-    Block b(tlv::Content, std::make_shared<const Buffer>(10000));
-    b.encode();
-    return b;
-  }();
-
-  context.append(largeBlock);
+  const std::vector<uint8_t> big(10000, 'A');
+  context.append(big);
   BOOST_CHECK_EQUAL(sendDataHistory.size(), 1);
 
   context.end();
@@ -190,30 +194,31 @@ BOOST_AUTO_TEST_CASE(Large)
   BOOST_CHECK_EQUAL(sendDataHistory[1].isFinalBlock, true);
 
   // check data content
-  auto contentLargeBlock = concatenateDataContent();
-  BOOST_CHECK_NO_THROW(contentLargeBlock.parse());
-  BOOST_REQUIRE_EQUAL(contentLargeBlock.elements().size(), 1);
-  BOOST_CHECK_EQUAL(contentLargeBlock.elements()[0], largeBlock);
+  BOOST_TEST(*concatenateDataContent() == big, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(MultipleSmall)
 {
-  const size_t nBlocks = 100;
+  const size_t nBlocks = 1000;
+  const auto contentBlock = makeStringBlock(0xFFFF, "Test Data Content");
   for (size_t i = 0 ; i < nBlocks ; i ++) {
     context.append(contentBlock);
   }
   context.end();
 
-  // check data to in-memory storage
-  BOOST_REQUIRE_EQUAL(sendDataHistory.size(), 1);
-  BOOST_CHECK_EQUAL(sendDataHistory[0].dataName, makeSegmentName(0));
-  BOOST_CHECK_EQUAL(sendDataHistory[0].isFinalBlock, true);
+  BOOST_TEST_REQUIRE(sendDataHistory.size() == 3);
+  BOOST_TEST(sendDataHistory[0].dataName == makeSegmentName(0));
+  BOOST_TEST(!sendDataHistory[0].isFinalBlock);
+  BOOST_TEST(sendDataHistory[1].dataName == makeSegmentName(1));
+  BOOST_TEST(!sendDataHistory[1].isFinalBlock);
+  BOOST_TEST(sendDataHistory[2].dataName == makeSegmentName(2));
+  BOOST_TEST(sendDataHistory[2].isFinalBlock);
 
-  auto contentMultiBlocks = concatenateDataContent();
+  Block contentMultiBlocks(tlv::Content, concatenateDataContent());
   contentMultiBlocks.parse();
-  BOOST_CHECK_EQUAL(contentMultiBlocks.elements().size(), nBlocks);
+  BOOST_TEST(contentMultiBlocks.elements().size() == nBlocks);
   for (const auto& element : contentMultiBlocks.elements()) {
-    BOOST_CHECK_EQUAL(element, contentBlock);
+    BOOST_TEST(element == contentBlock, boost::test_tools::per_element());
   }
 }
 
@@ -236,8 +241,7 @@ BOOST_FIXTURE_TEST_SUITE(AbnormalState, AbnormalStateTestFixture)
 
 BOOST_AUTO_TEST_CASE(AppendReject)
 {
-  const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_NO_THROW(context.append(Block(buf)));
+  BOOST_CHECK_NO_THROW(context.append({0x82, 0x01, 0x02}));
   BOOST_CHECK_EXCEPTION(context.reject(), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call reject() after append/end"s;
   });
@@ -245,8 +249,7 @@ BOOST_AUTO_TEST_CASE(AppendReject)
 
 BOOST_AUTO_TEST_CASE(AppendEndReject)
 {
-  const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_NO_THROW(context.append(Block(buf)));
+  BOOST_CHECK_NO_THROW(context.append({0x82, 0x01, 0x02}));
   BOOST_CHECK_NO_THROW(context.end());
   BOOST_CHECK_EXCEPTION(context.reject(), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call reject() after append/end"s;
@@ -256,8 +259,7 @@ BOOST_AUTO_TEST_CASE(AppendEndReject)
 BOOST_AUTO_TEST_CASE(EndAppend)
 {
   BOOST_CHECK_NO_THROW(context.end());
-  const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_EXCEPTION(context.append(Block(buf)), std::logic_error, [] (const auto& e) {
+  BOOST_CHECK_EXCEPTION(context.append({0x82, 0x01, 0x02}), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call append() on a finalized context"s;
   });
 }
@@ -281,8 +283,7 @@ BOOST_AUTO_TEST_CASE(EndReject)
 BOOST_AUTO_TEST_CASE(RejectAppend)
 {
   BOOST_CHECK_NO_THROW(context.reject());
-  const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_EXCEPTION(context.append(Block(buf)), std::logic_error, [] (const auto& e) {
+  BOOST_CHECK_EXCEPTION(context.append({0x82, 0x01, 0x02}), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call append() on a finalized context"s;
   });
 }

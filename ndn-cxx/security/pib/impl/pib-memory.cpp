@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -126,7 +126,7 @@ PibMemory::getDefaultIdentity() const
 bool
 PibMemory::hasKey(const Name& keyName) const
 {
-  return (m_keys.count(keyName) > 0);
+  return m_keys.count(keyName) > 0;
 }
 
 void
@@ -212,8 +212,7 @@ PibMemory::addCertificate(const Certificate& certificate)
   const Name& certName = certificate.getName();
   const Name& keyName = certificate.getKeyName();
 
-  const auto& content = certificate.getContent();
-  addKey(certificate.getIdentity(), keyName, {content.value(), content.value_size()});
+  addKey(certificate.getIdentity(), keyName, certificate.getContent().value_bytes());
 
   m_certs[certName] = certificate;
   if (m_defaultCerts.count(keyName) == 0) {

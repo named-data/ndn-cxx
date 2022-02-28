@@ -333,7 +333,7 @@ private:
   finishEncoding(lp::Packet&& lpPacket, Block wire, char pktType, const Name& name)
   {
     if (!lpPacket.empty()) {
-      lpPacket.add<lp::FragmentField>(std::make_pair(wire.begin(), wire.end()));
+      lpPacket.add<lp::FragmentField>({wire.begin(), wire.end()});
       wire = lpPacket.wireEncode();
     }
 

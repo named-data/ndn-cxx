@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -132,7 +132,7 @@ ndnsec_cert_dump(int argc, char** argv)
       std::cerr << "ERROR: Failed to connect to repo instance" << std::endl;
       return 1;
     }
-    requestStream.write(reinterpret_cast<const char*>(certificate.wireEncode().wire()),
+    requestStream.write(reinterpret_cast<const char*>(certificate.wireEncode().data()),
                         certificate.wireEncode().size());
     return 0;
   }

@@ -398,10 +398,8 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   content = [&dataInStorage] () -> Block {
     EncodingBuffer encoder;
-    size_t valueLength = encoder.prependBytes({dataInStorage[1].getContent().value(),
-                                               dataInStorage[1].getContent().value_size()});
-    valueLength += encoder.prependBytes({dataInStorage[0].getContent().value(),
-                                         dataInStorage[0].getContent().value_size()});
+    size_t valueLength = encoder.prependBytes(dataInStorage[1].getContent().value_bytes());
+    valueLength += encoder.prependBytes(dataInStorage[0].getContent().value_bytes());
     encoder.prependVarNumber(valueLength);
     encoder.prependVarNumber(tlv::Content);
     return encoder.block();
