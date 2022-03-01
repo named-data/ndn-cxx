@@ -67,6 +67,10 @@ public:
      */
     bool enableRegistrationReply;
 
+    /** \brief FaceId used in prefix registration replies.
+     */
+    uint64_t registrationReplyFaceId = 1;
+
     /** \brief if not empty, face.processEvents() will be overridden by this function
      */
     std::function<void(time::milliseconds)> processEventsOverride;
@@ -138,7 +142,7 @@ private:
   enablePacketLogging();
 
   void
-  enableRegistrationReply();
+  enableRegistrationReply(uint64_t faceId);
 
   void
   doProcessEvents(time::milliseconds timeout, bool keepThread) override;

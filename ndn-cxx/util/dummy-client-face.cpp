@@ -149,7 +149,7 @@ DummyClientFace::construct(const Options& options)
     this->enablePacketLogging();
 
   if (options.enableRegistrationReply)
-    this->enableRegistrationReply();
+    this->enableRegistrationReply(options.registrationReplyFaceId);
 
   m_processEventsOverride = options.processEventsOverride;
 
@@ -203,17 +203,23 @@ DummyClientFace::enablePacketLogging()
 }
 
 void
-DummyClientFace::enableRegistrationReply()
+DummyClientFace::enableRegistrationReply(uint64_t faceId)
 {
-  onSendInterest.connect([this] (const Interest& interest) {
-    static const Name localhostRegistration("/localhost/nfd/rib");
-    if (!localhostRegistration.isPrefixOf(interest.getName()))
+  onSendInterest.connect([=] (const Interest& interest) {
+    static const Name localhostRibPrefix("/localhost/nfd/rib");
+    static const name::Component registerVerb("register");
+    const auto& name = interest.getName();
+    if (name.size() <= 4 || !localhostRibPrefix.isPrefixOf(name))
       return;
 
-    nfd::ControlParameters params(interest.getName().get(-5).blockFromValue());
-    params.setFaceId(1);
-    params.setOrigin(nfd::ROUTE_ORIGIN_APP);
-    if (interest.getName().get(3) == name::Component("register")) {
+    nfd::ControlParameters params(name[4].blockFromValue());
+    if (!params.hasFaceId()) {
+      params.setFaceId(faceId);
+    }
+    if (!params.hasOrigin()) {
+      params.setOrigin(nfd::ROUTE_ORIGIN_APP);
+    }
+    if (!params.hasCost() && name[3] == registerVerb) {
       params.setCost(0);
     }
 
@@ -221,11 +227,9 @@ DummyClientFace::enableRegistrationReply()
     resp.setCode(200);
     resp.setBody(params.wireEncode());
 
-    shared_ptr<Data> data = make_shared<Data>(interest.getName());
+    shared_ptr<Data> data = make_shared<Data>(name);
     data->setContent(resp.wireEncode());
-
     m_keyChain.sign(*data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
-
     this->getIoService().post([this, data] { this->receive(*data); });
   });
 }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/util/dummy-client-face.hpp"
+#include "ndn-cxx/mgmt/nfd/controller.hpp"
 
 #include "tests/test-common.hpp"
 #include "tests/unit/io-key-chain-fixture.hpp"
@@ -46,6 +47,54 @@ BOOST_AUTO_TEST_CASE(ProcessEventsOverride)
   BOOST_CHECK(isOverrideInvoked);
 }
 
+BOOST_AUTO_TEST_CASE(RegistrationReply)
+{
+  DummyClientFace::Options opts;
+  opts.enableRegistrationReply = true;
+  opts.registrationReplyFaceId = 3001;
+  DummyClientFace face(m_io, m_keyChain, opts);
+
+  ndn::nfd::Controller controller(face, m_keyChain);
+  ndn::nfd::ControlParameters params;
+  bool didRibRegisterSucceed = false;
+  controller.start<ndn::nfd::RibRegisterCommand>(
+    ndn::nfd::ControlParameters()
+      .setName("/Q")
+      .setOrigin(ndn::nfd::ROUTE_ORIGIN_NLSR)
+      .setCost(2400)
+      .setFlags(0),
+    [&] (const ndn::nfd::ControlParameters& p) {
+      BOOST_CHECK_EQUAL(p.getName(), "/Q");
+      BOOST_CHECK_EQUAL(p.getFaceId(), 3001);
+      BOOST_CHECK_EQUAL(p.getOrigin(), ndn::nfd::ROUTE_ORIGIN_NLSR);
+      BOOST_CHECK_EQUAL(p.getCost(), 2400);
+      BOOST_CHECK_EQUAL(p.getFlags(), 0);
+      didRibRegisterSucceed = true;
+    },
+    [] (const ndn::nfd::ControlResponse& r) {
+      BOOST_TEST_FAIL("RibRegisterCommand failed " << r);
+    });
+  advanceClocks(1_ms, 2);
+  BOOST_CHECK(didRibRegisterSucceed);
+
+  bool didRibUnregisterSucceed = false;
+  controller.start<ndn::nfd::RibUnregisterCommand>(
+    ndn::nfd::ControlParameters()
+      .setName("/Q")
+      .setOrigin(ndn::nfd::ROUTE_ORIGIN_NLSR),
+    [&] (const ndn::nfd::ControlParameters& p) {
+      BOOST_CHECK_EQUAL(p.getName(), "/Q");
+      BOOST_CHECK_EQUAL(p.getFaceId(), 3001);
+      BOOST_CHECK_EQUAL(p.getOrigin(), ndn::nfd::ROUTE_ORIGIN_NLSR);
+      didRibUnregisterSucceed = true;
+    },
+    [] (const ndn::nfd::ControlResponse& r) {
+      BOOST_TEST_FAIL("RibUnregisterCommand failed " << r);
+    });
+  advanceClocks(1_ms, 2);
+  BOOST_CHECK(didRibUnregisterSucceed);
+}
+
 BOOST_AUTO_TEST_CASE(BroadcastLink)
 {
   DummyClientFace face1(m_io, m_keyChain, DummyClientFace::Options{true, true});
@@ -56,13 +105,13 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
   int nFace2Interest = 0;
   face1.setInterestFilter("/face1",
                           [&] (const InterestFilter&, const Interest& interest) {
-                            BOOST_CHECK_EQUAL(interest.getName().toUri(), "/face1/data");
+                            BOOST_CHECK_EQUAL(interest.getName(), "/face1/data");
                             nFace1Interest++;
                             face1.put(ndn::tests::makeNack(interest, lp::NackReason::NO_ROUTE));
                           }, nullptr, nullptr);
   face2.setInterestFilter("/face2",
                           [&] (const InterestFilter&, const Interest& interest) {
-                            BOOST_CHECK_EQUAL(interest.getName().toUri(), "/face2/data");
+                            BOOST_CHECK_EQUAL(interest.getName(), "/face2/data");
                             nFace2Interest++;
                             face2.put(*ndn::tests::makeData("/face2/data"));
                             return;
@@ -74,7 +123,7 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
   int nFace2Nack = 0;
   face1.expressInterest(*makeInterest("/face2/data"),
                         [&] (const Interest& i, const Data& d) {
-                          BOOST_CHECK_EQUAL(d.getName().toUri(), "/face2/data");
+                          BOOST_CHECK_EQUAL(d.getName(), "/face2/data");
                           nFace1Data++;
                         }, nullptr, nullptr);
   face2.expressInterest(*makeInterest("/face1/data"),
@@ -82,7 +131,7 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
                           BOOST_CHECK(false);
                         },
                         [&] (const Interest& i, const lp::Nack& n) {
-                          BOOST_CHECK_EQUAL(n.getInterest().getName().toUri(), "/face1/data");
+                          BOOST_CHECK_EQUAL(n.getInterest().getName(), "/face1/data");
                           nFace2Nack++;
                         }, nullptr);
 
