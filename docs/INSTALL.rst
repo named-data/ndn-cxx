@@ -22,7 +22,7 @@ supported:
 -  Fedora >= 29
 -  Gentoo Linux
 -  Raspberry Pi OS (formerly Raspbian) >= 2019-06-20
--  FreeBSD >= 11.3
+-  FreeBSD >= 12.0
 -  macOS 10.14
 
 Prerequisites
@@ -31,8 +31,8 @@ Prerequisites
 Required
 ~~~~~~~~
 
--  GCC >= 7.4 or clang >= 4.0 (on Linux and FreeBSD)
--  Xcode >= 9.0 (on macOS)
+-  GCC >= 7.4 or clang >= 6.0 (if you are on Linux or FreeBSD)
+-  Xcode >= 11.3 or corresponding version of Command Line Tools (if you are on macOS)
 -  Python >= 3.6
 -  pkg-config
 -  Boost >= 1.65.1

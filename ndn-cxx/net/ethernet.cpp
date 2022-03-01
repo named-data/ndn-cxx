@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2018 Regents of the University of California,
+ * Copyright (c) 2014-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -29,7 +29,7 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <stdio.h>
+#include <cinttypes>
 #include <cstdio>
 #include <ostream>
 
@@ -65,7 +65,7 @@ Address::isBroadcast() const
 bool
 Address::isMulticast() const
 {
-  return (at(0) & 1) != 0;
+  return (front() & 1) != 0;
 }
 
 bool
@@ -77,43 +77,35 @@ Address::isNull() const
 std::string
 Address::toString(char sep) const
 {
+  const auto& a = *this;
   char s[18]; // 12 digits + 5 separators + null terminator
 
-  // - apparently gcc-4.6 does not support the 'hh' type modifier
-  // - std::snprintf not found in some environments
-  //   https://redmine.named-data.net/issues/2299 for more information
-  snprintf(s, sizeof(s), "%02x%c%02x%c%02x%c%02x%c%02x%c%02x",
-           at(0), sep, at(1), sep, at(2), sep, at(3), sep, at(4), sep, at(5));
-
-  return std::string(s);
+  std::snprintf(s, sizeof(s),
+                "%02" PRIx8 "%c%02" PRIx8 "%c%02" PRIx8 "%c%02" PRIx8 "%c%02" PRIx8 "%c%02" PRIx8,
+                a[0], sep, a[1], sep, a[2], sep, a[3], sep, a[4], sep, a[5]);
+  return s;
 }
 
 Address
 Address::fromString(const std::string& str)
 {
   Address a;
-  unsigned short temp[a.size()];
   char sep[5][2]; // 5 * (1 separator char + 1 null terminator)
   int n = 0; // num of chars read from the input string
 
-  // apparently gcc-4.6 does not support the 'hh' type modifier
-  int ret = std::sscanf(str.c_str(), "%2hx%1[:-]%2hx%1[:-]%2hx%1[:-]%2hx%1[:-]%2hx%1[:-]%2hx%n",
-                        &temp[0], &sep[0][0], &temp[1], &sep[1][0], &temp[2], &sep[2][0],
-                        &temp[3], &sep[3][0], &temp[4], &sep[4][0], &temp[5], &n);
+  int ret = std::sscanf(str.data(),
+                        "%2" SCNx8 "%1[:-]%2" SCNx8 "%1[:-]%2" SCNx8 "%1[:-]"
+                        "%2" SCNx8 "%1[:-]%2" SCNx8 "%1[:-]%2" SCNx8 "%n",
+                        &a[0], &sep[0][0], &a[1], &sep[1][0], &a[2], &sep[2][0],
+                        &a[3], &sep[3][0], &a[4], &sep[4][0], &a[5], &n);
 
   if (ret < 11 || static_cast<size_t>(n) != str.length())
-    return Address();
+    return {};
 
-  for (size_t i = 0; i < a.size(); ++i) {
-    // check that all separators are actually the same char (: or -)
-    if (i < 5 && sep[i][0] != sep[0][0])
-      return Address();
-
-    // check that each value fits into a uint8_t
-    if (temp[i] > 0xFF)
-      return Address();
-
-    a[i] = static_cast<uint8_t>(temp[i]);
+  // check that all separators are the same char (: or -)
+  for (size_t i = 1; i < 5; ++i) {
+    if (sep[i][0] != sep[0][0])
+      return {};
   }
 
   return a;

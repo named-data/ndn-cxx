@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,15 +37,10 @@
 #include <boost/range/iterator_range.hpp>
 
 #include <cinttypes> // for PRIdLEAST64
+#include <cstdio>    // for std::snprintf()
 #include <cstdlib>   // for std::abs()
 #include <iostream>
 #include <sstream>
-#include <stdio.h>   // for snprintf()
-
-// suppress warning caused by <boost/log/sinks/text_ostream_backend.hpp>
-#ifdef __clang__
-#pragma clang diagnostic ignored "-Wundefined-func-template"
-#endif
 
 namespace ndn {
 namespace util {
@@ -68,9 +63,8 @@ makeTimestamp()
 
   static_assert(std::is_same<microseconds::rep, int_least64_t>::value,
                 "PRIdLEAST64 is incompatible with microseconds::rep");
-  // std::snprintf unavailable on some platforms, see #2299
-  ::snprintf(&buffer.front(), buffer.size(), "%" PRIdLEAST64 ".%06" PRIdLEAST64,
-             usecs / usecsPerSec, usecs % usecsPerSec);
+  std::snprintf(&buffer.front(), buffer.size(), "%" PRIdLEAST64 ".%06" PRIdLEAST64,
+                usecs / usecsPerSec, usecs % usecsPerSec);
 
   // need to remove extra 1 byte ('\0')
   buffer.pop_back();

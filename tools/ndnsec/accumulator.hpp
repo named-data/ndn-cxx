@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,7 +69,7 @@ public:
   std::string
   name() const final
   {
-    return std::string();
+    return {};
   }
 
   // There are no tokens for an AccumulatorType
@@ -133,14 +133,6 @@ public:
     if (m_store)
       *m_store = *val;
   }
-
-#if (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106500)
-  bool
-  adjacent_tokens_only() const final
-  {
-    return false;
-  }
-#endif // (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106500)
 
 private:
   T* m_store;

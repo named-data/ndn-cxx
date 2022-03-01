@@ -21,7 +21,7 @@ jobs:
       WAF_JOBS: 3
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: |
           case ${RUNNER_OS} in

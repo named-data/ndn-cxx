@@ -21,8 +21,9 @@
 
 #include "ndn-cxx/key-locator.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
-#include "ndn-cxx/util/overload.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
+
+#include <boost/hana/functional/overload.hpp>
 
 namespace ndn {
 
@@ -56,7 +57,7 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
 
   size_t totalLength = 0;
 
-  auto visitor = overload(
+  auto visitor = boost::hana::overload(
     []  (monostate)           {}, // nothing to encode, TLV-VALUE is empty
     [&] (const Name& name)    { totalLength += name.wireEncode(encoder); },
     [&] (const Block& digest) { totalLength += prependBlock(encoder, digest); },
@@ -192,7 +193,7 @@ KeyLocator::setKeyDigest(const ConstBufferPtr& keyDigest)
 std::ostream&
 operator<<(std::ostream& os, const KeyLocator& keyLocator)
 {
-  auto visitor = overload(
+  auto visitor = boost::hana::overload(
     [&] (monostate) {
       os << "None";
     },

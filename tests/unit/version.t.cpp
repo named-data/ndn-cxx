@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,11 +20,10 @@
  */
 
 #include "ndn-cxx/version.hpp"
-#include "ndn-cxx/detail/common.hpp"
 
 #include "tests/boost-test.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 namespace ndn {
 namespace tests {
@@ -33,25 +32,28 @@ BOOST_AUTO_TEST_SUITE(TestVersion)
 
 BOOST_AUTO_TEST_CASE(VersionNumber)
 {
-  BOOST_TEST_MESSAGE("NDN_CXX_VERSION = " + to_string(NDN_CXX_VERSION));
+  BOOST_TEST_MESSAGE("NDN_CXX_VERSION = " << NDN_CXX_VERSION);
 
-  BOOST_CHECK_EQUAL(NDN_CXX_VERSION, NDN_CXX_VERSION_MAJOR * 1000000 +
-                                     NDN_CXX_VERSION_MINOR * 1000 +
-                                     NDN_CXX_VERSION_PATCH);
+  BOOST_TEST(NDN_CXX_VERSION == NDN_CXX_VERSION_MAJOR * 1000000 +
+                                NDN_CXX_VERSION_MINOR * 1000 +
+                                NDN_CXX_VERSION_PATCH);
+
+  static_assert(NDN_CXX_VERSION_MAJOR < 1000, "");
+  static_assert(NDN_CXX_VERSION_MINOR < 1000, "");
+  static_assert(NDN_CXX_VERSION_PATCH < 1000, "");
 }
 
 BOOST_AUTO_TEST_CASE(VersionString)
 {
   BOOST_TEST_MESSAGE("NDN_CXX_VERSION_STRING = " NDN_CXX_VERSION_STRING);
+  BOOST_TEST_MESSAGE("NDN_CXX_VERSION_BUILD_STRING = " NDN_CXX_VERSION_BUILD_STRING);
 
-  BOOST_STATIC_ASSERT(NDN_CXX_VERSION_MAJOR < 1000);
-  BOOST_STATIC_ASSERT(NDN_CXX_VERSION_MINOR < 1000);
-  BOOST_STATIC_ASSERT(NDN_CXX_VERSION_PATCH < 1000);
-  char buf[12];
-  ::snprintf(buf, sizeof(buf), "%d.%d.%d",
-             NDN_CXX_VERSION_MAJOR, NDN_CXX_VERSION_MINOR, NDN_CXX_VERSION_PATCH);
+  char s[12];
+  std::snprintf(s, sizeof(s), "%d.%d.%d",
+                NDN_CXX_VERSION_MAJOR, NDN_CXX_VERSION_MINOR, NDN_CXX_VERSION_PATCH);
 
-  BOOST_CHECK_EQUAL(NDN_CXX_VERSION_STRING, buf);
+  BOOST_TEST(NDN_CXX_VERSION_STRING == s);
+  BOOST_TEST(NDN_CXX_VERSION_BUILD_STRING != "");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestVersion

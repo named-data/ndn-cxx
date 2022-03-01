@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,11 +25,7 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/clock-fixture.hpp"
 
-#if BOOST_VERSION >= 105900
 #include <boost/test/tools/output_test_stream.hpp>
-#else
-#include <boost/test/output_test_stream.hpp>
-#endif
 
 namespace ndn {
 namespace util {

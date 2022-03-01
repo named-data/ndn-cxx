@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,7 +41,7 @@
 #endif
 
 //
-// http://wg21.link/P0188
+// https://wg21.link/P0188
 // [[fallthrough]] attribute (C++17)
 //
 #if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)
@@ -57,7 +57,7 @@
 #endif
 
 //
-// http://wg21.link/P0189
+// https://wg21.link/P0189
 // [[nodiscard]] attribute (C++17)
 //
 #if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(nodiscard)
@@ -66,17 +66,6 @@
 #  define NDN_CXX_NODISCARD [[gnu::warn_unused_result]]
 #else
 #  define NDN_CXX_NODISCARD
-#endif
-
-#ifndef NDEBUG
-#  define NDN_CXX_UNREACHABLE BOOST_ASSERT(false)
-#elif BOOST_COMP_GNUC || BOOST_COMP_CLANG
-#  define NDN_CXX_UNREACHABLE __builtin_unreachable()
-#elif BOOST_COMP_MSVC
-#  define NDN_CXX_UNREACHABLE __assume(0)
-#else
-#  include <cstdlib>
-#  define NDN_CXX_UNREACHABLE std::abort()
 #endif
 
 #ifndef NDN_CXX_HAVE_STD_TO_STRING
@@ -93,7 +82,7 @@ namespace ndn {
 using std::to_string;
 #else
 template<typename T>
-inline std::string
+std::string
 to_string(const T& val)
 {
   return boost::lexical_cast<std::string>(val);
@@ -140,6 +129,29 @@ to_underlying(T val) noexcept
   return static_cast<std::underlying_type_t<T>>(val);
 }
 #endif // __cpp_lib_to_underlying
+
+//
+// https://wg21.link/P0627
+// std::unreachable() (C++23)
+//
+#ifndef NDEBUG
+#  define NDN_CXX_UNREACHABLE BOOST_ASSERT(false)
+#elif __cpp_lib_unreachable >= 202202L
+#  define NDN_CXX_UNREACHABLE std::unreachable()
+#else
+#  define NDN_CXX_UNREACHABLE ::ndn::detail::unreachable()
+namespace detail {
+[[noreturn]] inline void
+unreachable()
+{
+#if BOOST_COMP_GNUC || BOOST_COMP_CLANG
+  __builtin_unreachable();
+#elif BOOST_COMP_MSVC
+  __assume(0);
+#endif
+} // unreachable()
+} // namespace detail
+#endif
 
 } // namespace ndn
 

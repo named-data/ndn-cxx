@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,50 +19,52 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_VERSION_HPP
-#define NDN_VERSION_HPP
+#ifndef NDN_CXX_VERSION_HPP
+#define NDN_CXX_VERSION_HPP
 
-namespace ndn {
+// ndn-cxx version follows Semantic Versioning 2.0.0
+// https://semver.org/spec/v2.0.0.html
 
-/** ndn-cxx version follows Semantic Versioning 2.0.0 specification
- *  http://semver.org/
- */
-
-/** \brief ndn-cxx version represented as an integer
+/**
+ * \brief ndn-cxx version represented as an integer.
  *
- *  MAJOR*1000000 + MINOR*1000 + PATCH
+ * Equivalent to: #NDN_CXX_VERSION_MAJOR*1000000 + #NDN_CXX_VERSION_MINOR*1000 + #NDN_CXX_VERSION_PATCH
  */
 #define NDN_CXX_VERSION @VERSION@
 
-/** \brief ndn-cxx version represented as a string
+/// The major version of ndn-cxx
+#define NDN_CXX_VERSION_MAJOR @VERSION_MAJOR@
+/// The minor version of ndn-cxx
+#define NDN_CXX_VERSION_MINOR @VERSION_MINOR@
+/// The patch version of ndn-cxx
+#define NDN_CXX_VERSION_PATCH @VERSION_PATCH@
+
+/**
+ * \brief ndn-cxx version represented as a string.
  *
- *  MAJOR.MINOR.PATCH
+ * Format:
+ * @code
+ * MAJOR.MINOR.PATCH
+ * @endcode
  */
 #define NDN_CXX_VERSION_STRING "@VERSION_STRING@"
 
-/** \brief ndn-cxx version string, including git commit information, if ndn-cxx is build from
- *         specific git commit
+/**
+ * \brief ndn-cxx version string, including git commit information if ndn-cxx is built from a
+ *        specific git commit.
  *
- * NDN_CXX_VERSION_BUILD_STRING is obtained using the following command (`ndn-cxx-` prefix is
- * afterwards removed):
+ * #NDN_CXX_VERSION_BUILD_STRING is obtained using the following command (`ndn-cxx-` prefix is
+ * afterwards removed): ``git describe --match 'ndn-cxx-*'``
  *
- *    `git describe --match 'ndn-cxx-*'`
+ * When ndn-cxx is not built from git, #NDN_CXX_VERSION_BUILD_STRING equals #NDN_CXX_VERSION_STRING.
  *
- * When ndn-cxx is built not from git, NDN_CXX_VERSION_BUILD_STRING equals NDN_CXX_VERSION_STRING
- *
+ * Format:
+ * @code
  * MAJOR.MINOR.PATCH(-release-candidate-tag)(-(number-of-commits-since-tag)-COMMIT-HASH)
+ * @endcode
  *
- * Example, 0.1.0-rc1-1-g5c86570
+ * Example: 0.1.0-rc1-1-g5c86570
  */
 #define NDN_CXX_VERSION_BUILD_STRING "@VERSION_BUILD@"
 
-/// MAJOR version
-#define NDN_CXX_VERSION_MAJOR @VERSION_MAJOR@
-/// MINOR version
-#define NDN_CXX_VERSION_MINOR @VERSION_MINOR@
-/// PATCH version
-#define NDN_CXX_VERSION_PATCH @VERSION_PATCH@
-
-} // namespace ndn
-
-#endif // NDN_VERSION_HPP
+#endif // NDN_CXX_VERSION_HPP
