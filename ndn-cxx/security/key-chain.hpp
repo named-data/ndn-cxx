@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -423,6 +423,19 @@ private: // signing
    */
   std::tuple<Name, SignatureInfo>
   prepareSignatureInfo(const SigningInfo& params);
+
+  std::tuple<Name, SignatureInfo>
+  prepareSignatureInfoSha256(const SigningInfo& params);
+
+  std::tuple<Name, SignatureInfo>
+  prepareSignatureInfoHmac(const SigningInfo& params);
+
+  std::tuple<Name, SignatureInfo>
+  prepareSignatureInfoWithIdentity(const SigningInfo& params, const pib::Identity& identity);
+
+  std::tuple<Name, SignatureInfo>
+  prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key& key,
+                              optional<Name> certName = nullopt);
 
   /**
    * @brief Generate and return a raw signature for the byte ranges in @p bufs using

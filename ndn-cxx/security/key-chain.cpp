@@ -591,100 +591,136 @@ KeyChain::selfSign(Key& key)
 std::tuple<Name, SignatureInfo>
 KeyChain::prepareSignatureInfo(const SigningInfo& params)
 {
-  SignatureInfo sigInfo = params.getSignatureInfo();
-  pib::Identity identity;
-  pib::Key key;
-
   switch (params.getSignerType()) {
     case SigningInfo::SIGNER_TYPE_NULL: {
+      pib::Identity identity;
       try {
         identity = m_pib->getDefaultIdentity();
       }
       catch (const Pib::Error&) { // no default identity, use sha256 for signing.
-        sigInfo.setSignatureType(tlv::DigestSha256);
-        NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
-        return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
+        return prepareSignatureInfoSha256(params);
       }
-      break;
+      return prepareSignatureInfoWithIdentity(params, identity);
     }
     case SigningInfo::SIGNER_TYPE_ID: {
-      identity = params.getPibIdentity();
+      auto identity = params.getPibIdentity();
       if (!identity) {
+        auto identityName = params.getSignerName();
         try {
-          identity = m_pib->getIdentity(params.getSignerName());
+          identity = m_pib->getIdentity(identityName);
         }
         catch (const Pib::Error&) {
           NDN_THROW_NESTED(InvalidSigningInfoError("Signing identity `" +
-                                                   params.getSignerName().toUri() + "` does not exist"));
+                                                   identityName.toUri() + "` does not exist"));
         }
       }
-      break;
+      if (!identity) {
+        NDN_THROW(InvalidSigningInfoError("Cannot determine signing parameters"));
+      }
+      return prepareSignatureInfoWithIdentity(params, identity);
     }
     case SigningInfo::SIGNER_TYPE_KEY: {
-      key = params.getPibKey();
+      auto key = params.getPibKey();
       if (!key) {
-        Name identityName = extractIdentityFromKeyName(params.getSignerName());
+        auto keyName = params.getSignerName();
+        auto identityName = extractIdentityFromKeyName(keyName);
         try {
-          key = m_pib->getIdentity(identityName).getKey(params.getSignerName());
+          key = m_pib->getIdentity(identityName).getKey(keyName);
         }
         catch (const Pib::Error&) {
           NDN_THROW_NESTED(InvalidSigningInfoError("Signing key `" +
-                                                   params.getSignerName().toUri() + "` does not exist"));
+                                                   keyName.toUri() + "` does not exist"));
         }
       }
-      break;
+      if (!key) {
+        NDN_THROW(InvalidSigningInfoError("Cannot determine signing parameters"));
+      }
+      return prepareSignatureInfoWithKey(params, key);
     }
     case SigningInfo::SIGNER_TYPE_CERT: {
-      Name identityName = extractIdentityFromCertName(params.getSignerName());
-      Name keyName = extractKeyNameFromCertName(params.getSignerName());
+      auto certName = params.getSignerName();
+      auto keyName = extractKeyNameFromCertName(certName);
+      auto identityName = extractIdentityFromCertName(certName);
+      pib::Key key;
       try {
-        identity = m_pib->getIdentity(identityName);
-        key = identity.getKey(keyName);
+        key = m_pib->getIdentity(identityName).getKey(keyName);
       }
       catch (const Pib::Error&) {
         NDN_THROW_NESTED(InvalidSigningInfoError("Signing certificate `" +
-                                                 params.getSignerName().toUri() + "` does not exist"));
+                                                 certName.toUri() + "` does not exist"));
       }
-      break;
+      return prepareSignatureInfoWithKey(params, key, certName);
     }
     case SigningInfo::SIGNER_TYPE_SHA256: {
-      sigInfo.setSignatureType(tlv::DigestSha256);
-      NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
-      return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
+      return prepareSignatureInfoSha256(params);
     }
     case SigningInfo::SIGNER_TYPE_HMAC: {
-      const Name& keyName = params.getSignerName();
-      if (!m_tpm->hasKey(keyName)) {
-        m_tpm->importPrivateKey(keyName, params.getHmacKey());
-      }
-      sigInfo.setSignatureType(getSignatureType(KeyType::HMAC, params.getDigestAlgorithm()));
-      sigInfo.setKeyLocator(keyName);
-      NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
-      return std::make_tuple(keyName, sigInfo);
-    }
-    default: {
-      NDN_THROW(InvalidSigningInfoError("Unrecognized signer type " +
-                                        boost::lexical_cast<std::string>(params.getSignerType())));
+      return prepareSignatureInfoHmac(params);
     }
   }
+  NDN_THROW(InvalidSigningInfoError("Unrecognized signer type " +
+                                    to_string(params.getSignerType())));
+}
 
-  if (!key) {
-    if (!identity) {
-      NDN_THROW(InvalidSigningInfoError("Cannot determine signing parameters"));
-    }
-    try {
-      key = identity.getDefaultKey();
-    }
-    catch (const Pib::Error&) {
-      NDN_THROW_NESTED(InvalidSigningInfoError("Signing identity `" + identity.getName().toUri() +
-                                               "` does not have a default certificate"));
-    }
+std::tuple<Name, SignatureInfo>
+KeyChain::prepareSignatureInfoSha256(const SigningInfo& params)
+{
+  auto sigInfo = params.getSignatureInfo();
+  sigInfo.setSignatureType(tlv::DigestSha256);
+
+  NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
+  return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
+}
+
+std::tuple<Name, SignatureInfo>
+KeyChain::prepareSignatureInfoHmac(const SigningInfo& params)
+{
+  const Name& keyName = params.getSignerName();
+  if (!m_tpm->hasKey(keyName)) {
+    m_tpm->importPrivateKey(keyName, params.getHmacKey());
   }
 
-  BOOST_ASSERT(key);
+  auto sigInfo = params.getSignatureInfo();
+  sigInfo.setSignatureType(getSignatureType(KeyType::HMAC, params.getDigestAlgorithm()));
+  sigInfo.setKeyLocator(keyName);
 
+  NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
+  return std::make_tuple(keyName, sigInfo);
+}
+
+std::tuple<Name, SignatureInfo>
+KeyChain::prepareSignatureInfoWithIdentity(const SigningInfo& params, const pib::Identity& identity)
+{
+  pib::Key key;
+  try {
+    key = identity.getDefaultKey();
+  }
+  catch (const Pib::Error&) {
+    NDN_THROW_NESTED(InvalidSigningInfoError("Signing identity `" + identity.getName().toUri() +
+                                              "` does not have a default key"));
+  }
+  return prepareSignatureInfoWithKey(params, key);
+}
+
+std::tuple<Name, SignatureInfo>
+KeyChain::prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key& key, optional<Name> certName)
+{
+  auto sigInfo = params.getSignatureInfo();
   sigInfo.setSignatureType(getSignatureType(key.getKeyType(), params.getDigestAlgorithm()));
-  sigInfo.setKeyLocator(key.getName());
+  if (!sigInfo.hasKeyLocator()) {
+    if (certName) {
+      sigInfo.setKeyLocator(certName);
+    }
+    else {
+      Name klName = key.getName();
+      try {
+        klName = key.getDefaultCertificate().getName();
+      }
+      catch (const Pib::Error&) {
+      }
+      sigInfo.setKeyLocator(klName);
+    }
+  }
 
   NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
   return std::make_tuple(key.getName(), sigInfo);

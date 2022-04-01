@@ -44,8 +44,11 @@ KeyChainFixture::~KeyChainFixture()
 }
 
 Certificate
-KeyChainFixture::makeCert(const Key& key, const std::string& issuer, const Key& signingKey)
+KeyChainFixture::makeCert(const Key& key, const std::string& issuer, const Key& signingKey,
+                          optional<KeyLocator> keyLocator)
 {
+  const Key& signer = signingKey ? signingKey : key;
+
   Certificate cert;
   cert.setName(Name(key.getName())
                .append(issuer)
@@ -62,8 +65,11 @@ KeyChainFixture::makeCert(const Key& key, const std::string& issuer, const Key& 
   ndn::SignatureInfo info;
   auto now = time::system_clock::now();
   info.setValidityPeriod(ValidityPeriod(now - 30_days, now + 30_days));
+  if (keyLocator) {
+    info.setKeyLocator(*keyLocator);
+  }
 
-  m_keyChain.sign(cert, signingByKey(signingKey ? signingKey : key).setSignatureInfo(info));
+  m_keyChain.sign(cert, signingByKey(signer).setSignatureInfo(info));
   return cert;
 }
 

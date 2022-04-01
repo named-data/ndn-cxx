@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,9 +50,12 @@ public:
    * @param issuer The IssuerId to include in the certificate name
    * @param signingKey The key with which to sign the certificate; if not provided, the
    *                   certificate will be self-signed
+   * @param keyLocator The KeyLocator name in the generated certificate; if nullopt,
+   *                   @p signingKey 's default certificate will be used
    */
   Certificate
-  makeCert(const Key& key, const std::string& issuer, const Key& signingKey = Key());
+  makeCert(const Key& key, const std::string& issuer, const Key& signingKey = Key(),
+           optional<KeyLocator> keyLocator = nullopt);
 
   /**
    * @brief Saves an NDN certificate to a file

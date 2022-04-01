@@ -36,7 +36,11 @@ ValidatorFixtureBase::ValidatorFixtureBase()
   processInterest = [this] (const Interest& interest) {
     auto cert = cache.find(interest);
     if (cert != nullptr) {
+      BOOST_TEST_MESSAGE("ValidatorFixture processInterest " << interest << " reply " << cert->getName());
       face.receive(*cert);
+    }
+    else {
+      BOOST_TEST_MESSAGE("ValidatorFixture processInterest " << interest << " no reply");
     }
   };
 }

@@ -425,7 +425,7 @@ struct AsymmetricSigningBase : protected KeyChainFixture, protected PacketType
 
   const uint32_t expectedSigType = SignatureTypeTlvValue;
   const bool shouldHaveKeyLocator = true;
-  const optional<KeyLocator> expectedKeyLocator = cert.getName().getPrefix(-2);
+  const optional<KeyLocator> expectedKeyLocator = cert.getName();
 
   bool
   verify(const SigningInfo&) const

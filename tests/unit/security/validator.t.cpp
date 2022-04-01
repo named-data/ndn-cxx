@@ -262,12 +262,13 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
     // create another key for the same identity and sign it properly
     Key parentKey = m_keyChain.createKey(subIdentity);
     Key requestedKey = subIdentity.getKey(interest.getName());
-    auto cert = makeCert(requestedKey, "looper", parentKey);
+    auto cert = makeCert(requestedKey, "looper", parentKey, parentKey.getName());
     face.receive(cert);
   };
 
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
-  m_keyChain.sign(data, signingByIdentity(subIdentity));
+  m_keyChain.sign(data, signingByIdentity(subIdentity).setSignatureInfo(
+                        SignatureInfo().setKeyLocator(subIdentity.getDefaultKey().getName())));
 
   validator.setMaxDepth(40);
   BOOST_CHECK_EQUAL(validator.getMaxDepth(), 40);
@@ -290,27 +291,23 @@ BOOST_AUTO_TEST_CASE(LoopedCertChain)
   auto k2 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key2")));
   auto k3 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key3")));
 
-  auto makeCert = [this] (Key& key, const Key& signer) {
-    Certificate request = key.getDefaultCertificate();
-    request.setName(Name(key.getName()).append("looper").appendVersion());
-
-    SignatureInfo info;
-    info.setValidityPeriod(ValidityPeriod(time::system_clock::now() - 100_days,
-                                          time::system_clock::now() + 100_days));
-    m_keyChain.sign(request, signingByKey(signer).setSignatureInfo(info));
-    m_keyChain.addCertificate(key, request);
-
-    cache.insert(request);
+  auto makeLoopCert = [this] (Key& key, const Key& signer) {
+    auto cert = this->makeCert(key, "looper", signer, signer.getName());
+    m_keyChain.setDefaultCertificate(key, cert);
+    cache.insert(cert);
   };
 
-  makeCert(k1, k2);
-  makeCert(k2, k3);
-  makeCert(k3, k1);
+  makeLoopCert(k1, k2);
+  makeLoopCert(k2, k3);
+  makeLoopCert(k3, k1);
 
   Data data("/loop/Data");
   m_keyChain.sign(data, signingByKey(k1));
   VALIDATE_FAILURE(data, "Should fail, as certificate chain loops");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 3);
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 3);
+  BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), k1.getDefaultCertificate().getName());
+  BOOST_CHECK_EQUAL(face.sentInterests[1].getName(), k2.getName());
+  BOOST_CHECK_EQUAL(face.sentInterests[2].getName(), k3.getName());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestValidator
