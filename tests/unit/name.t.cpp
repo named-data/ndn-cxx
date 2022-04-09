@@ -246,9 +246,7 @@ BOOST_AUTO_TEST_CASE(AppendComponent)
   name.append(16, v1.begin(), v1.end());
   BOOST_CHECK_EQUAL(name.wireEncode(), "0715 0804456D6964 FD61D2025033 08012E 100428F0A36B"_block);
 
-  BOOST_CHECK(!name.empty());
   name.clear();
-  BOOST_CHECK(name.empty());
   BOOST_CHECK_EQUAL(name.wireEncode(), "0700"_block);
 
   name.append(v1.begin(), v1.end());
@@ -256,15 +254,6 @@ BOOST_AUTO_TEST_CASE(AppendComponent)
 
   name.append("xKh");
   BOOST_CHECK_EQUAL(name.wireEncode(), "070B 080428F0A36B 0803784B68"_block);
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  name.append("0100"_block);
-  BOOST_CHECK_EQUAL(name.wireEncode(), "070F 080428F0A36B 0803784B68 08020100"_block);
-
-  name.append("080109"_block);
-  BOOST_CHECK_EQUAL(name.wireEncode(), "0712 080428F0A36B 0803784B68 08020100 080109"_block);
-#pragma GCC diagnostic pop
 }
 
 BOOST_AUTO_TEST_CASE(AppendPartialName)

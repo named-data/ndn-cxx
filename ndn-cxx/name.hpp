@@ -366,25 +366,6 @@ public: // modifiers
     return append(Component(str));
   }
 
-  /** @brief Append a GenericNameComponent from a TLV element.
-   *  @param value a TLV element. If its TLV-TYPE is tlv::GenericNameComponent, it is
-   *               appended as is. Otherwise, it is nested into a GenericNameComponent.
-   *  @return a reference to this name, to allow chaining.
-   *  @deprecated
-   */
-  [[deprecated]]
-  Name&
-  append(Block value)
-  {
-    if (value.type() == tlv::GenericNameComponent) {
-      m_wire.push_back(std::move(value));
-    }
-    else {
-      m_wire.push_back(Block(tlv::GenericNameComponent, std::move(value)));
-    }
-    return *this;
-  }
-
   /** @brief Append a PartialName.
    *  @param name the components to append
    *  @return a reference to this name, to allow chaining
