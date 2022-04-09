@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -44,7 +44,7 @@ public:
   SafeBag();
 
   /**
-   * @brief Create a new SafeBag object from the block
+   * @brief Create a new SafeBag object from a TLV block
    */
   explicit
   SafeBag(const Block& wire);
@@ -58,20 +58,6 @@ public:
   SafeBag(const Data& certificate, span<const uint8_t> encryptedKey);
 
   /**
-   * @brief Create a new SafeBag object with the given certificate and private key
-   * @deprecated Use SafeBag(const Data&, span<const uint8_t>)
-   *
-   * @param certificate A reference to the certificate data packet
-   * @param encryptedKey A pointer to the private key in PKCS #8 format
-   * @param encryptedKeyLen The length of @p encryptedKey
-   */
-  [[deprecated("use the constructor taking a span<>")]]
-  SafeBag(const Data& certificate,
-          const uint8_t* encryptedKey,
-          size_t encryptedKeyLen);
-
-public:
-  /**
    * @brief Fast encoding or block size estimation
    */
   template<encoding::Tag TAG>
@@ -79,7 +65,7 @@ public:
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
   /**
-   * @brief Encode to a wire format
+   * @brief Encode to wire format
    */
   const Block&
   wireEncode() const;
@@ -90,7 +76,7 @@ public:
   void
   wireDecode(const Block& wire);
 
-public:
+public: // accessors
   /**
    * @brief Get the certificate data packet from safe bag
    */

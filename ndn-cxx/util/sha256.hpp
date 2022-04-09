@@ -146,13 +146,6 @@ public:
   void
   update(span<const uint8_t> buffer);
 
-  [[deprecated("use the overload that takes a span<>")]]
-  void
-  update(const uint8_t* buffer, size_t size)
-  {
-    update({buffer, size});
-  }
-
   /**
    * @brief Convert digest to std::string.
    * @note This method invokes computeDigest(), finalizing the digest.
@@ -166,13 +159,6 @@ public:
    */
   static ConstBufferPtr
   computeDigest(span<const uint8_t> buffer);
-
-  [[deprecated("use the overload that takes a span<>")]]
-  static ConstBufferPtr
-  computeDigest(const uint8_t* buffer, size_t size)
-  {
-    return computeDigest({buffer, size});
-  }
 
 private:
   unique_ptr<security::transform::StepSource> m_input;

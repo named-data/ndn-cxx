@@ -5,8 +5,6 @@ import os, subprocess
 
 VERSION = '0.8.0'
 APPNAME = 'ndn-cxx'
-PACKAGE_BUGREPORT = 'https://redmine.named-data.net/projects/ndn-cxx'
-PACKAGE_URL = 'http://named-data.net/doc/ndn-cxx/'
 GIT_TAG_PREFIX = 'ndn-cxx-'
 
 def options(opt):

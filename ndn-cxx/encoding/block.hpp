@@ -138,16 +138,6 @@ public: // construction, assignment
         Buffer::const_iterator begin, Buffer::const_iterator end,
         Buffer::const_iterator valueBegin, Buffer::const_iterator valueEnd);
 
-  /** @brief Parse Block from a raw buffer
-   *  @param buf pointer to the first octet of a TLV element
-   *  @param bufSize size of the raw buffer; may be greater than the actual size of the TLV element
-   *  @throw tlv::Error Type-Length parsing fails, or size of TLV-VALUE exceeds @p bufSize
-   *  @note This constructor copies the TLV element octets to an internal buffer.
-   *  @deprecated Use Block(span<const uint8_t>)
-   */
-  [[deprecated("use the constructor that takes a span<>")]]
-  Block(const uint8_t* buf, size_t bufSize);
-
   /** @brief Create a zero-length Block with the specified TLV-TYPE
    *  @param type TLV-TYPE
    */
@@ -184,18 +174,6 @@ public: // construction, assignment
    */
   NDN_CXX_NODISCARD static std::tuple<bool, Block>
   fromBuffer(span<const uint8_t> buffer);
-
-  /** @brief Try to parse Block from a raw buffer
-   *  @param buf pointer to the first octet of a TLV element
-   *  @param bufSize size of the raw buffer; may be greater than the actual size of the TLV element
-   *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
-   *  @note This overload copies the TLV element octets to an internal buffer.
-   *  @note This function does not throw upon decoding failure.
-   *  @deprecated
-   */
-  [[deprecated("use the overload that takes a span<>")]]
-  NDN_CXX_NODISCARD static std::tuple<bool, Block>
-  fromBuffer(const uint8_t* buf, size_t bufSize);
 
   /** @brief Parse Block from an input stream
    *  @throw tlv::Error TLV-LENGTH is zero or exceeds upper bound

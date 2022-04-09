@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,16 +92,6 @@ public:
   write(span<const uint8_t> buf);
 
   /**
-   * @deprecated
-   */
-  [[deprecated("use the overload that takes a span<>")]]
-  size_t
-  write(const uint8_t* buf, size_t size)
-  {
-    return write({buf, size});
-  }
-
-  /**
    * @brief Close the input interface of a module.
    *
    * This method will notify this module that there is no more input and that the module
@@ -168,7 +158,6 @@ public:
 protected:
   Upstream() = default;
 
-protected:
   /**
    * @brief Connect to the next transformation module
    */

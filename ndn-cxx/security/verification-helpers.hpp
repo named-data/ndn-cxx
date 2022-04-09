@@ -56,18 +56,6 @@ verifySignature(const InputBuffers& blobs, span<const uint8_t> sig, const transf
 
 /**
  * @brief Verify @p blobs using @p key against @p sig.
- * @deprecated
- */
-[[deprecated("use the overload that takes a span<>")]]
-inline bool
-verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const transform::PublicKey& key)
-{
-  return verifySignature(blobs, {sig, sigLen}, key);
-}
-
-/**
- * @brief Verify @p blobs using @p key against @p sig.
  * @note @p key must be a public key in PKCS #8 format.
  */
 NDN_CXX_NODISCARD bool

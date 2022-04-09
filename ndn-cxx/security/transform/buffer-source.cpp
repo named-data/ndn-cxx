@@ -30,11 +30,6 @@ BufferSource::BufferSource(span<const uint8_t> buffer)
 {
 }
 
-BufferSource::BufferSource(const uint8_t* buf, size_t size)
-  : BufferSource(make_span(buf, size))
-{
-}
-
 BufferSource::BufferSource(const std::string& string)
   : m_bufs({{reinterpret_cast<const uint8_t*>(string.data()), string.size()}})
 {

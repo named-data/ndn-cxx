@@ -56,57 +56,13 @@ public: // common interface between Encoder and Estimator
   }
 
   /**
-   * @brief Prepend a single byte
-   * @deprecated
-   */
-  [[deprecated("use prependBytes()")]]
-  constexpr size_t
-  prependByte(uint8_t) const noexcept
-  {
-    return 1;
-  }
-
-  /**
-   * @brief Append a single byte
-   * @deprecated
-   */
-  [[deprecated("use appendBytes()")]]
-  constexpr size_t
-  appendByte(uint8_t) const noexcept
-  {
-    return 1;
-  }
-
-  /**
-   * @brief Prepend a byte array @p array of length @p length
-   * @deprecated
-   */
-  [[deprecated("use prependBytes()")]]
-  constexpr size_t
-  prependByteArray(const uint8_t*, size_t length) const noexcept
-  {
-    return length;
-  }
-
-  /**
-   * @brief Append a byte array @p array of length @p length
-   * @deprecated
-   */
-  [[deprecated("use appendBytes()")]]
-  constexpr size_t
-  appendByteArray(const uint8_t*, size_t length) const noexcept
-  {
-    return length;
-  }
-
-  /**
    * @brief Prepend bytes from the range [@p first, @p last)
    */
   template<class Iterator>
   constexpr size_t
   prependRange(Iterator first, Iterator last) const noexcept
   {
-    return std::distance(first, last);
+    return static_cast<size_t>(std::distance(first, last));
   }
 
   /**
@@ -116,7 +72,7 @@ public: // common interface between Encoder and Estimator
   constexpr size_t
   appendRange(Iterator first, Iterator last) const noexcept
   {
-    return std::distance(first, last);
+    return static_cast<size_t>(std::distance(first, last));
   }
 
   /**
@@ -154,44 +110,6 @@ public: // common interface between Encoder and Estimator
   {
     return tlv::sizeOfNonNegativeInteger(n);
   }
-
-  /**
-   * @brief Prepend TLV block of type @p type and value from buffer @p array of size @p arraySize
-   * @deprecated
-   */
-  [[deprecated("use encoding::prependBinaryBlock()")]]
-  constexpr size_t
-  prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
-  {
-    return tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(arraySize) + arraySize;
-  }
-
-  /**
-   * @brief Append TLV block of type @p type and value from buffer @p array of size @p arraySize
-   * @deprecated
-   */
-  [[deprecated]]
-  constexpr size_t
-  appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize) const noexcept
-  {
-    return tlv::sizeOfVarNumber(type) + tlv::sizeOfVarNumber(arraySize) + arraySize;
-  }
-
-  /**
-   * @brief Prepend TLV block @p block
-   * @deprecated
-   */
-  [[deprecated("use encoding::prependBlock()")]]
-  size_t
-  prependBlock(const Block& block) const;
-
-  /**
-   * @brief Append TLV block @p block
-   * @deprecated
-   */
-  [[deprecated]]
-  size_t
-  appendBlock(const Block& block) const;
 };
 
 } // namespace encoding

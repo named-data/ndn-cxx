@@ -45,14 +45,6 @@ SafeBag::SafeBag(const Data& certificate, span<const uint8_t> encryptedKey)
 {
 }
 
-SafeBag::SafeBag(const Data& certificate,
-                 const uint8_t* encryptedKey,
-                 size_t encryptedKeyLen)
-  : m_certificate(certificate)
-  , m_encryptedKey(encryptedKey, encryptedKeyLen)
-{
-}
-
 template<encoding::Tag TAG>
 size_t
 SafeBag::wireEncode(EncodingImpl<TAG>& encoder) const

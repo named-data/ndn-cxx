@@ -200,49 +200,5 @@ Encoder::appendNonNegativeInteger(uint64_t varNumber)
   }
 }
 
-size_t
-Encoder::prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize)
-{
-  size_t totalLength = prependBytes({array, arraySize});
-  totalLength += prependVarNumber(arraySize);
-  totalLength += prependVarNumber(type);
-
-  return totalLength;
-}
-
-size_t
-Encoder::appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize)
-{
-  size_t totalLength = appendVarNumber(type);
-  totalLength += appendVarNumber(arraySize);
-  totalLength += appendBytes({array, arraySize});
-
-  return totalLength;
-}
-
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
-size_t
-Encoder::prependBlock(const Block& block)
-{
-  if (block.hasWire()) {
-    return prependBytes(block);
-  }
-  else {
-    return prependByteArrayBlock(block.type(), block.value(), block.value_size());
-  }
-}
-
-size_t
-Encoder::appendBlock(const Block& block)
-{
-  if (block.hasWire()) {
-    return appendBytes(block);
-  }
-  else {
-    return appendByteArrayBlock(block.type(), block.value(), block.value_size());
-  }
-}
-
 } // namespace encoding
 } // namespace ndn

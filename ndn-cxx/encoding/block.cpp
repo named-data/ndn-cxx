@@ -130,11 +130,6 @@ Block::Block(ConstBufferPtr buffer, uint32_t type,
 {
 }
 
-Block::Block(const uint8_t* buf, size_t bufSize)
-  : Block(make_span(buf, bufSize))
-{
-}
-
 Block::Block(uint32_t type)
   : m_type(type)
   , m_size(tlv::sizeOfVarNumber(m_type) + tlv::sizeOfVarNumber(0))
@@ -219,12 +214,6 @@ Block::fromBuffer(span<const uint8_t> buffer)
   auto b = std::make_shared<Buffer>(buffer.begin(), pos);
   return std::make_tuple(true, Block(b, type, b->begin(), b->end(),
                                      std::prev(b->end(), length), b->end()));
-}
-
-std::tuple<bool, Block>
-Block::fromBuffer(const uint8_t* buf, size_t bufSize)
-{
-  return fromBuffer({buf, bufSize});
 }
 
 Block

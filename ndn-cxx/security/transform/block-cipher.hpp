@@ -97,15 +97,6 @@ unique_ptr<Transform>
 blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
             span<const uint8_t> key, span<const uint8_t> iv);
 
-[[deprecated("use the overload that takes span<>")]]
-inline unique_ptr<Transform>
-blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
-            const uint8_t* key, size_t keyLen,
-            const uint8_t* iv, size_t ivLen)
-{
-  return blockCipher(algo, op, {key, keyLen}, {iv, ivLen});
-}
-
 } // namespace transform
 } // namespace security
 } // namespace ndn

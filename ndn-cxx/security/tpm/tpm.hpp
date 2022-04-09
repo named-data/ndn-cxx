@@ -104,18 +104,6 @@ public:
   sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
 
   /**
-   * @brief Sign blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-   * @deprecated
-   * @return The signature, or nullptr if the key does not exist.
-   */
-  [[deprecated("use the overload that takes InputBuffers")]]
-  ConstBufferPtr
-  sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const
-  {
-    return sign({{buf, size}}, keyName, digestAlgorithm);
-  }
-
-  /**
    * @brief Verify discontiguous ranges using the key with name @p keyName and using the digest
    *        @p digestAlgorithm.
    *
@@ -128,39 +116,12 @@ public:
          DigestAlgorithm digestAlgorithm) const;
 
   /**
-   * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-   * @deprecated
-   * @retval true the signature is valid
-   * @retval false the signature is not valid
-   * @retval indeterminate the key does not exist
-   */
-  [[deprecated("use the overload that takes InputBuffers and span")]]
-  boost::logic::tribool
-  verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
-         const Name& keyName, DigestAlgorithm digestAlgorithm) const
-  {
-    return verify({{buf, bufLen}}, {sig, sigLen}, keyName, digestAlgorithm);
-  }
-
-  /**
    * @brief Decrypt blob using the key with name @p keyName.
    *
    * @return The decrypted data, or nullptr if the key does not exist.
    */
   ConstBufferPtr
   decrypt(span<const uint8_t> buf, const Name& keyName) const;
-
-  /**
-   * @brief Decrypt blob using the key with name @p keyName.
-   * @deprecated
-   * @return The decrypted data, or nullptr if the key does not exist.
-   */
-  [[deprecated("use the overload that takes a span<>")]]
-  ConstBufferPtr
-  decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
-  {
-    return decrypt({buf, size}, keyName);
-  }
 
 public: // Management
   /**

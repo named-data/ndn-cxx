@@ -50,50 +50,6 @@ public: // common interface between Encoder and Estimator
   appendBytes(span<const uint8_t> bytes);
 
   /**
-   * @brief Prepend a byte
-   * @deprecated
-   */
-  [[deprecated("use prependBytes()")]]
-  size_t
-  prependByte(uint8_t value)
-  {
-    return prependBytes({value});
-  }
-
-  /**
-   * @brief Append a byte
-   * @deprecated
-   */
-  [[deprecated("use appendBytes()")]]
-  size_t
-  appendByte(uint8_t value)
-  {
-    return appendBytes({value});
-  }
-
-  /**
-   * @brief Prepend a byte array @p array of length @p length
-   * @deprecated
-   */
-  [[deprecated("use prependBytes()")]]
-  size_t
-  prependByteArray(const uint8_t* array, size_t length)
-  {
-    return prependBytes({array, length});
-  }
-
-  /**
-   * @brief Append a byte array @p array of length @p length
-   * @deprecated
-   */
-  [[deprecated("use appendBytes()")]]
-  size_t
-  appendByteArray(const uint8_t* array, size_t length)
-  {
-    return appendBytes({array, length});
-  }
-
-  /**
    * @brief Prepend range of bytes from the range [@p first, @p last)
    */
   template<class Iterator>
@@ -134,38 +90,6 @@ public: // common interface between Encoder and Estimator
    */
   size_t
   appendNonNegativeInteger(uint64_t integer);
-
-  /**
-   * @brief Prepend TLV block of type @p type and value from buffer @p array of size @p arraySize
-   * @deprecated
-   */
-  [[deprecated("use encoding::prependBinaryBlock()")]]
-  size_t
-  prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize);
-
-  /**
-   * @brief Append TLV block of type @p type and value from buffer @p array of size @p arraySize
-   * @deprecated
-   */
-  [[deprecated]]
-  size_t
-  appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize);
-
-  /**
-   * @brief Prepend TLV block @p block
-   * @deprecated
-   */
-  [[deprecated("use encoding::prependBlock()")]]
-  size_t
-  prependBlock(const Block& block);
-
-  /**
-   * @brief Append TLV block @p block
-   * @deprecated
-   */
-  [[deprecated]]
-  size_t
-  appendBlock(const Block& block);
 
 public: // unique interface to the Encoder
   using value_type = Buffer::value_type;
@@ -292,26 +216,6 @@ public: // accessors
   data() const noexcept
   {
     return &*m_begin;
-  }
-
-  /**
-   * @deprecated
-   */
-  [[deprecated("use data()")]]
-  uint8_t*
-  buf() noexcept
-  {
-    return data();
-  }
-
-  /**
-   * @deprecated
-   */
-  [[deprecated("use data()")]]
-  const uint8_t*
-  buf() const noexcept
-  {
-    return data();
   }
 
   /**

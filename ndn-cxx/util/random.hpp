@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,16 +53,6 @@ generateSecureWord64();
  */
 void
 generateSecureBytes(span<uint8_t> buffer);
-
-/**
- * @deprecated Use generateSecureBytes(span<uint8_t>)
- */
-[[deprecated("use the overload that takes a span<>")]]
-inline void
-generateSecureBytes(uint8_t* bytes, size_t size)
-{
-  generateSecureBytes({bytes, size});
-}
 
 using RandomNumberEngine = std::mt19937;
 

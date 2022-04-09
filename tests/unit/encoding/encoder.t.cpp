@@ -87,6 +87,8 @@ BOOST_AUTO_TEST_CASE(Tlv)
 {
   Encoder e;
 
+  // VarNumber
+
   BOOST_CHECK_EQUAL(e.prependVarNumber(1), 1);
   BOOST_CHECK_EQUAL(e.appendVarNumber(1), 1);
 
@@ -102,7 +104,7 @@ BOOST_AUTO_TEST_CASE(Tlv)
   BOOST_CHECK_EQUAL(e.prependVarNumber(4294967296LL), 9);
   BOOST_CHECK_EQUAL(e.appendVarNumber(4294967296LL), 9);
 
-  //
+  // NonNegativeInteger
 
   BOOST_CHECK_EQUAL(e.prependNonNegativeInteger(1), 1);
   BOOST_CHECK_EQUAL(e.appendNonNegativeInteger(1), 1);
@@ -127,19 +129,6 @@ BOOST_AUTO_TEST_CASE(Tlv)
 
   BOOST_CHECK_EQUAL(e.prependNonNegativeInteger(4294967296LL), 8);
   BOOST_CHECK_EQUAL(e.appendNonNegativeInteger(4294967296LL), 8);
-
-  //
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  Block block1({0x01, 0x03, 0x00, 0x00, 0x00});
-  BOOST_CHECK_EQUAL(e.prependBlock(block1), 5);
-  BOOST_CHECK_EQUAL(e.appendBlock(block1), 5);
-
-  Block block2(100, block1);
-  BOOST_CHECK_EQUAL(e.prependBlock(block2), 7);
-  BOOST_CHECK_EQUAL(e.appendBlock(block2), 7);
-#pragma GCC diagnostic pop
 }
 
 BOOST_AUTO_TEST_CASE(Reserve)

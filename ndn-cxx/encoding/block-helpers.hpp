@@ -213,19 +213,6 @@ makeBinaryBlock(uint32_t type, span<const uint8_t> value);
  *  @param length length of value buffer
  *  @deprecated
  */
-[[deprecated("use the overload that takes a span<>")]]
-inline Block
-makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length)
-{
-  return makeBinaryBlock(type, {value, length});
-}
-
-/** @brief Create a TLV block copying the TLV-VALUE from a raw buffer.
- *  @param type TLV-TYPE number
- *  @param value raw buffer as TLV-VALUE
- *  @param length length of value buffer
- *  @deprecated
- */
 inline Block
 makeBinaryBlock(uint32_t type, const char* value, size_t length)
 {
