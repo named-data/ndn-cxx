@@ -271,78 +271,63 @@ BOOST_AUTO_TEST_CASE(InvalidType)
 
 BOOST_AUTO_TEST_SUITE_END() // Decode
 
-BOOST_AUTO_TEST_CASE(Compare)
+BOOST_AUTO_TEST_CASE(ConstructFromSpan)
 {
-  const std::vector<Component> comps = {
-    Component("0120 0000000000000000000000000000000000000000000000000000000000000000"_block),
-    Component("0120 0000000000000000000000000000000000000000000000000000000000000001"_block),
-    Component("0120 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"_block),
-    Component("0220 0000000000000000000000000000000000000000000000000000000000000000"_block),
-    Component("0220 0000000000000000000000000000000000000000000000000000000000000001"_block),
-    Component("0220 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"_block),
-    Component(0x03),
-    Component("0301 44"_block),
-    Component("0301 46"_block),
-    Component("0302 4141"_block),
-    Component(),
-    Component("D"),
-    Component("F"),
-    Component("AA"),
-    Component(0x53B2),
-    Component("FD53B201 44"_block),
-    Component("FD53B201 46"_block),
-    Component("FD53B202 4141"_block),
-  };
+  const uint8_t arr[] = {1, 2, 3};
+  Component c1(arr);
+  BOOST_TEST(c1.wireEncode() == "0803010203"_block);
+  Component c2(128, arr);
+  BOOST_TEST(c2.wireEncode() == "8003010203"_block);
 
-  for (size_t i = 0; i < comps.size(); ++i) {
-    for (size_t j = 0; j < comps.size(); ++j) {
-      Component lhs = comps[i];
-      Component rhs = comps[j];
-      BOOST_CHECK_EQUAL(lhs == rhs, i == j);
-      BOOST_CHECK_EQUAL(lhs != rhs, i != j);
-      BOOST_CHECK_EQUAL(lhs <  rhs, i <  j);
-      BOOST_CHECK_EQUAL(lhs <= rhs, i <= j);
-      BOOST_CHECK_EQUAL(lhs >  rhs, i >  j);
-      BOOST_CHECK_EQUAL(lhs >= rhs, i >= j);
-    }
-  }
+  const std::vector<uint8_t> vec = {4, 5, 6};
+  Component c3(vec);
+  BOOST_TEST(c3.wireEncode() == "0803040506"_block);
+  Component c4(128, vec);
+  BOOST_TEST(c4.wireEncode() == "8003040506"_block);
+
+  Component c5(128, {7, 8});
+  BOOST_TEST(c5.wireEncode() == "80020708"_block);
+
+  const Block b("090109"_block);
+  Component c6(128, b);
+  BOOST_TEST(c6.wireEncode() == "8003090109"_block);
 }
 
-BOOST_AUTO_TEST_SUITE(CreateFromIterators) // Bug 2490
+BOOST_AUTO_TEST_SUITE(ConstructFromIterators) // Bug 2490
 
 using ContainerTypes = boost::mpl::vector<std::vector<uint8_t>,
                                           std::list<uint8_t>,
                                           std::vector<int8_t>,
                                           std::list<int8_t>>;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(ZeroOctet, T, ContainerTypes)
+BOOST_AUTO_TEST_CASE_TEMPLATE(ZeroOctets, T, ContainerTypes)
 {
   T bytes;
   Component c(bytes.begin(), bytes.end());
-  BOOST_CHECK_EQUAL(c.type(), tlv::GenericNameComponent);
-  BOOST_CHECK_EQUAL(c.value_size(), 0);
-  BOOST_CHECK_EQUAL(c.size(), 2);
+  BOOST_TEST(c.type() == tlv::GenericNameComponent);
+  BOOST_TEST(c.value_size() == 0);
+  BOOST_TEST(c.size() == 2);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(OneOctet, T, ContainerTypes)
 {
   T bytes{1};
-  Component c(0x09, bytes.begin(), bytes.end());
-  BOOST_CHECK_EQUAL(c.type(), 0x09);
-  BOOST_CHECK_EQUAL(c.value_size(), 1);
-  BOOST_CHECK_EQUAL(c.size(), 3);
+  Component c(9, bytes.begin(), bytes.end());
+  BOOST_TEST(c.type() == 0x09);
+  BOOST_TEST(c.value_size() == 1);
+  BOOST_TEST(c.size() == 3);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(FourOctets, T, ContainerTypes)
 {
   T bytes{1, 2, 3, 4};
   Component c(0xFCEC, bytes.begin(), bytes.end());
-  BOOST_CHECK_EQUAL(c.type(), 0xFCEC);
-  BOOST_CHECK_EQUAL(c.value_size(), 4);
-  BOOST_CHECK_EQUAL(c.size(), 8);
+  BOOST_TEST(c.type() == 0xFCEC);
+  BOOST_TEST(c.value_size() == 4);
+  BOOST_TEST(c.size() == 8);
 }
 
-BOOST_AUTO_TEST_SUITE_END() // CreateFromIterators
+BOOST_AUTO_TEST_SUITE_END() // ConstructFromIterators
 
 BOOST_AUTO_TEST_SUITE(NamingConvention)
 
@@ -584,6 +569,43 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Convention, T, ConventionTests, T::ConventionRe
 }
 
 BOOST_AUTO_TEST_SUITE_END() // NamingConvention
+
+BOOST_AUTO_TEST_CASE(Compare)
+{
+  const std::vector<Component> comps = {
+    Component("0120 0000000000000000000000000000000000000000000000000000000000000000"_block),
+    Component("0120 0000000000000000000000000000000000000000000000000000000000000001"_block),
+    Component("0120 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"_block),
+    Component("0220 0000000000000000000000000000000000000000000000000000000000000000"_block),
+    Component("0220 0000000000000000000000000000000000000000000000000000000000000001"_block),
+    Component("0220 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"_block),
+    Component(0x03),
+    Component("0301 44"_block),
+    Component("0301 46"_block),
+    Component("0302 4141"_block),
+    Component(),
+    Component("D"),
+    Component("F"),
+    Component("AA"),
+    Component(0x53B2),
+    Component("FD53B201 44"_block),
+    Component("FD53B201 46"_block),
+    Component("FD53B202 4141"_block),
+  };
+
+  for (size_t i = 0; i < comps.size(); ++i) {
+    for (size_t j = 0; j < comps.size(); ++j) {
+      const auto& lhs = comps[i];
+      const auto& rhs = comps[j];
+      BOOST_CHECK_EQUAL(lhs == rhs, i == j);
+      BOOST_CHECK_EQUAL(lhs != rhs, i != j);
+      BOOST_CHECK_EQUAL(lhs <  rhs, i <  j);
+      BOOST_CHECK_EQUAL(lhs <= rhs, i <= j);
+      BOOST_CHECK_EQUAL(lhs >  rhs, i >  j);
+      BOOST_CHECK_EQUAL(lhs >= rhs, i >= j);
+    }
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END() // TestNameComponent
 

@@ -239,17 +239,18 @@ BOOST_AUTO_TEST_CASE(AppendComponent)
   name.append(25042, {'P', '3'});
   BOOST_CHECK_EQUAL(name.wireEncode(), "070C 0804456D6964 FD61D2025033"_block);
 
-  name.append(Component(make_span<uint8_t>({'.'})));
+  const uint8_t arr[] = {'.'};
+  name.append(arr);
   BOOST_CHECK_EQUAL(name.wireEncode(), "070F 0804456D6964 FD61D2025033 08012E"_block);
 
-  const std::vector<uint8_t> v1{0x28, 0xF0, 0xA3, 0x6B};
-  name.append(16, v1.begin(), v1.end());
+  const std::vector<uint8_t> vec{0x28, 0xF0, 0xA3, 0x6B};
+  name.append(16, vec.begin(), vec.end());
   BOOST_CHECK_EQUAL(name.wireEncode(), "0715 0804456D6964 FD61D2025033 08012E 100428F0A36B"_block);
 
   name.clear();
   BOOST_CHECK_EQUAL(name.wireEncode(), "0700"_block);
 
-  name.append(v1.begin(), v1.end());
+  name.append(vec.begin(), vec.end());
   BOOST_CHECK_EQUAL(name.wireEncode(), "0706 080428F0A36B"_block);
 
   name.append("xKh");

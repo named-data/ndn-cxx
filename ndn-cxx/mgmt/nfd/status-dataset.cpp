@@ -113,7 +113,7 @@ FaceQueryDataset::FaceQueryDataset(const FaceQueryFilter& filter)
 void
 FaceQueryDataset::addParameters(Name& name) const
 {
-  name.append(tlv::GenericNameComponent, m_filter.wireEncode());
+  name.append(m_filter.wireEncode());
 }
 
 ChannelDataset::ChannelDataset()

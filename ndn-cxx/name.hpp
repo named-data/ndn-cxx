@@ -17,10 +17,6 @@
  * <http://www.gnu.org/licenses/>.
  *
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- *
- * @author Jeff Thompson <jefft0@remap.ucla.edu>
- * @author Alexander Afanasyev <http://lasr.cs.ucla.edu/afanasyev/index.html>
- * @author Zhenkai Zhu <http://irl.cs.ucla.edu/~zhenkai/>
  */
 
 #ifndef NDN_CXX_NAME_HPP
@@ -303,6 +299,16 @@ public: // modifiers
   }
 
   /**
+   * @brief Append a GenericNameComponent, copying the TLV-VALUE from @p value.
+   * @return a reference to this name, to allow chaining.
+   */
+  Name&
+  append(span<const uint8_t> value)
+  {
+    return append(Component(tlv::GenericNameComponent, value));
+  }
+
+  /**
    * @brief Append a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as TLV-VALUE.
    * @return a reference to this name, to allow chaining.
    * @deprecated Use append(uint32_t, span<const uint8_t>)
@@ -311,19 +317,19 @@ public: // modifiers
   Name&
   append(uint32_t type, const uint8_t* value, size_t count)
   {
-    return append(Component(type, make_span(value, count)));
+    return append(type, make_span(value, count));
   }
 
   /**
    * @brief Append a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
    * @return a reference to this name, to allow chaining.
-   * @deprecated Use append(uint32_t, span<const uint8_t>) or append(const Component&)
+   * @deprecated Use append(span<const uint8_t>)
    */
-  [[deprecated]]
+  [[deprecated("use the overload that takes a span<>")]]
   Name&
   append(const uint8_t* value, size_t count)
   {
-    return append(Component(make_span(value, count)));
+    return append(make_span(value, count));
   }
 
   /** @brief Append a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from a range.
@@ -352,7 +358,7 @@ public: // modifiers
   Name&
   append(Iterator first, Iterator last)
   {
-    return append(Component(first, last));
+    return append(Component(tlv::GenericNameComponent, first, last));
   }
 
   /** @brief Append a GenericNameComponent, copying TLV-VALUE from a null-terminated string.
@@ -524,8 +530,9 @@ public: // modifiers
                                                         std::char_traits<char>::length(keyword)}));
   }
 
-  /** @brief Append a component
-   *  @note This makes push_back an alias of append, giving Name a similar API as STL vector.
+  /**
+   * @brief Append a component.
+   * @note This makes push_back an alias of append, giving Name a similar API as `std::vector`.
    */
   template<class T>
   void
@@ -534,16 +541,18 @@ public: // modifiers
     append(component);
   }
 
-  /** @brief Erase the component at the specified index.
-   *  @param i zero-based index of the component to replace;
-   *           if negative, it is interpreted as offset from the end of the name
-   *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
+  /**
+   * @brief Erase the component at the specified index.
+   * @param i zero-based index of the component to erase;
+   *          if negative, it is interpreted as offset from the end of the name
+   * @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
    */
   void
   erase(ssize_t i);
 
-  /** @brief Remove all components.
-   *  @post `empty() == true`
+  /**
+   * @brief Remove all components.
+   * @post `empty() == true`
    */
   void
   clear();

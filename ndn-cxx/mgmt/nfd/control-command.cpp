@@ -63,7 +63,7 @@ ControlCommand::getRequestName(const Name& commandPrefix,
   return Name(commandPrefix)
          .append(m_module)
          .append(m_verb)
-         .append(tlv::GenericNameComponent, parameters.wireEncode());
+         .append(parameters.wireEncode());
 }
 
 ControlCommand::FieldValidator::FieldValidator()

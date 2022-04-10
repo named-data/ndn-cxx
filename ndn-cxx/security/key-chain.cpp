@@ -473,12 +473,12 @@ KeyChain::sign(Interest& interest, const SigningInfo& params)
 
     // We encode in Data format because this is the format used prior to Packet Specification v0.3
     const auto& sigInfoBlock = sigInfo.wireEncode(SignatureInfo::Type::Data);
-    signedName.append(sigInfoBlock.begin(), sigInfoBlock.end()); // SignatureInfo
+    signedName.append(sigInfoBlock); // SignatureInfo
 
     Block sigValue(tlv::SignatureValue,
                    sign({signedName.wireEncode().value_bytes()}, keyName, params.getDigestAlgorithm()));
     sigValue.encode();
-    signedName.append(sigValue.begin(), sigValue.end()); // SignatureValue
+    signedName.append(sigValue); // SignatureValue
 
     interest.setName(signedName);
   }

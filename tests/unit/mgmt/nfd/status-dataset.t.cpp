@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(FaceQuery)
   this->advanceClocks(500_ms);
 
   Name prefix("/localhost/nfd/faces/query");
-  prefix.append(filter.wireEncode().begin(), filter.wireEncode().end());
+  prefix.append(filter.wireEncode());
   FaceStatus payload;
   payload.setFaceId(8795);
   this->sendDataset(prefix, payload);
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(FaceQueryWithOptions)
   this->advanceClocks(500_ms);
 
   Name prefix("/localhost/nfd/faces/query");
-  prefix.append(filter.wireEncode().begin(), filter.wireEncode().end());
+  prefix.append(filter.wireEncode());
   FaceStatus payload;
   payload.setFaceId(14022);
   this->sendDataset(prefix, payload);
