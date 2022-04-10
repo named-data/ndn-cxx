@@ -124,10 +124,9 @@ public: // constructors
   /**
    * @brief Construct a NameComponent from @p block.
    * @throw Error the NameComponent is invalid.
-   *
-   * This contructor enables implicit conversion from a Block.
    */
-  Component(const Block& wire);
+  explicit
+  Component(const Block& block);
 
   /**
    * @brief Construct a NameComponent of TLV-TYPE @p type, using TLV-VALUE from @p buffer.

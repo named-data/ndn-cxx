@@ -58,7 +58,7 @@ public:
   virtual std::tuple<bool, Component>
   getSuccessor(const Component& comp) const
   {
-    return {false, std::get<Block>(getSuccessorImpl(comp))};
+    return {false, Component(std::get<Block>(getSuccessorImpl(comp)))};
   }
 
   /** \brief Return the minimum allowable TLV-VALUE of this component type.
@@ -196,10 +196,7 @@ public:
     bool isExtended = false;
     Block successor;
     std::tie(isExtended, successor) = getSuccessorImpl(comp);
-    if (isExtended) {
-      return {true, comp};
-    }
-    return {false, Component(successor)};
+    return {isExtended, isExtended ? comp : Component(successor)};
   }
 
   span<const uint8_t>

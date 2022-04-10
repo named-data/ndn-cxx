@@ -359,7 +359,7 @@ Component::toSequenceNumber() const
 Component
 Component::fromNumber(uint64_t number, uint32_t type)
 {
-  return makeNonNegativeIntegerBlock(type, number);
+  return Component(makeNonNegativeIntegerBlock(type, number));
 }
 
 Component
@@ -378,7 +378,7 @@ Component::fromNumberWithMarker(uint8_t marker, uint64_t number)
   encoder.prependVarNumber(valueLength);
   encoder.prependVarNumber(tlv::GenericNameComponent);
 
-  return encoder.block();
+  return Component(encoder.block());
 }
 
 Component
@@ -537,14 +537,14 @@ Component::wireEncode() const
   EncodingBuffer buffer(estimatedSize, 0);
   wireEncode(buffer);
 
-  const_cast<Component&>(*this) = buffer.block();
+  const_cast<Component*>(this)->wireDecode(buffer.block());
   return *this;
 }
 
 void
 Component::wireDecode(const Block& wire)
 {
-  *this = wire;
+  *this = Component(wire);
   // validity check is done within Component(const Block& wire)
 }
 
