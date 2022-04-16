@@ -107,7 +107,7 @@ public:
    *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
    */
   explicit
-  Interest(const Name& name = Name(), time::milliseconds lifetime = DEFAULT_INTEREST_LIFETIME);
+  Interest(const Name& name = {}, time::milliseconds lifetime = DEFAULT_INTEREST_LIFETIME);
 
   /** @brief Construct an Interest by decoding from @p wire.
    *
@@ -473,7 +473,7 @@ private:
   Name m_name;
   std::vector<Name> m_forwardingHint;
   mutable optional<Nonce> m_nonce;
-  time::milliseconds m_interestLifetime;
+  time::milliseconds m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
   optional<uint8_t> m_hopLimit;
   bool m_canBePrefix = false;
   bool m_mustBeFresh = false;
