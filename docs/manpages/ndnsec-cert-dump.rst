@@ -11,7 +11,7 @@ Description
 -----------
 
 :program:`ndnsec-cert-dump` reads a certificate from the **Public Info Base (PIB)**
-or from a file, and prints it on the standard output.
+or from a file, and prints it on the standard output in Base64 encoding.
 
 By default, *name* is interpreted as a certificate name.
 
@@ -44,22 +44,21 @@ Dump a certificate from PIB to standard output::
 
     $ ndnsec-cert-dump /ndn/test/david/KEY/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
 
-Dump a certificate in human-readable format::
+Print the NDN testbed root certificate in human-readable format::
 
-    $ ndnsec-cert-dump -p /ndn/test/david/KEY/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
-    Certificate name:
-      /ndn/test/david/KEY/ksk-1396913058196/ID-CERT/%00%00%01E%3E%9D%A0%DE
+    $ curl -A ndnsec -fsLS https://named-data.net/ndnsec/ndn-testbed-root.ndncert.x3.base64 | ndnsec-cert-dump -fp -
+    Certificate Name:
+      /ndn/KEY/%EC%F1L%8EQ%23%15%E0/ndn/%FD%00%00%01u%E6%7F2%10
+    Additional Description:
+      fullname: NDN Testbed Root X3
+    Public Key:
+      Key Type: 256-bit EC
+      MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGx+3Y4FvYo1eScIvgD74lQhQdzN4
+      zq021dop8t7kGfEpfGdKf2HGpnn4/qoF9iJ1yUZE/7Na8zzO4xT6RpIM0Q==
     Validity:
-      NotBefore: 20140401T000000
-      NotAfter: 20150331T235959
-    Subject Description:
-      2.5.4.41: David
-      2.5.4.10: Some Organization
-    Public key bits:
-    MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEAtLq50tpynJ15zExEh9l6
-    jvh/HOmwhOppr/hTEPYUn2VTh21+JJIg5pHAAH/DQr8Bq5BGrdDUCIShxSxbaHwu
-    a1y4XgKP1MYBQP/WzcIhIzB/3PBDdmE0jM3Qg6yuk8BOwett3C07GtwW9dfgacwt
-    aC29xIHnYKfryH/gBSIDUIb38M7ILIDgQeIiQcHGHoFO8CbDtKY2OvVkFNgxowAR
-    Xn+gtkIfMdE77Z8p0S21pYfdvPuIpVVLy7lnFdwGzyCi3nmbtd/r9NSTepBczWQz
-    zBbThT7yfeNyHWLu0PZPdz84UpNPsBad3Bx9tT31noIVnt8yyBEfEU1jyEIVkm8U
-    VQIB
+      Not Before: 2020-11-20T16:31:37
+      Not After: 2024-12-31T23:59:59
+    Signature Information:
+      Signature Type: SignatureSha256WithEcdsa
+      Key Locator: Name=/ndn/KEY/%EC%F1L%8EQ%23%15%E0
+      Self-Signed: yes

@@ -25,7 +25,6 @@
 #include "ndn-cxx/security/certificate.hpp"
 #include "ndn-cxx/security/additional-description.hpp"
 #include "ndn-cxx/security/transform.hpp"
-#include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/util/indented-stream.hpp"
 
 namespace ndn {
@@ -35,8 +34,7 @@ inline namespace v2 {
 BOOST_CONCEPT_ASSERT((WireEncodable<Certificate>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Certificate>));
 
-// /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
-
+// /<IdentityName>/KEY/<KeyId>/<IssuerId>/<Version>
 const ssize_t Certificate::VERSION_OFFSET = -1;
 const ssize_t Certificate::ISSUER_ID_OFFSET = -2;
 const ssize_t Certificate::KEY_ID_OFFSET = -3;
@@ -135,48 +133,72 @@ Certificate::getExtension(uint32_t type) const
 bool
 Certificate::isValidName(const Name& certName)
 {
-  // /<NameSpace>/KEY/[KeyId]/[IssuerId]/[Version]
-  return (certName.size() >= Certificate::MIN_CERT_NAME_LENGTH &&
-          certName.get(Certificate::KEY_COMPONENT_OFFSET) == Certificate::KEY_COMPONENT);
+  // /<IdentityName>/KEY/<KeyId>/<IssuerId>/<Version>
+  return certName.size() >= Certificate::MIN_CERT_NAME_LENGTH &&
+         certName[Certificate::KEY_COMPONENT_OFFSET] == Certificate::KEY_COMPONENT;
 }
 
 std::ostream&
 operator<<(std::ostream& os, const Certificate& cert)
 {
-  os << "Certificate name:\n";
-  os << "  " << cert.getName() << "\n";
-  os << "Validity:\n";
-  {
-    os << "  NotBefore: " << time::toIsoString(cert.getValidityPeriod().getPeriod().first) << "\n";
-    os << "  NotAfter: "  << time::toIsoString(cert.getValidityPeriod().getPeriod().second)  << "\n";
-  }
+  os << "Certificate Name:\n"
+     << "  " << cert.getName() << "\n";
 
-  auto additionalDescription = cert.getSignatureInfo().getCustomTlv(tlv::AdditionalDescription);
-  if (additionalDescription) {
+  auto optAddlDesc = cert.getSignatureInfo().getCustomTlv(tlv::AdditionalDescription);
+  if (optAddlDesc) {
     os << "Additional Description:\n";
-    for (const auto& item : AdditionalDescription(*additionalDescription)) {
-      os << "  " << item.first << ": " << item.second << "\n";
+    try {
+      AdditionalDescription additionalDesc(*optAddlDesc);
+      for (const auto& item : additionalDesc) {
+        os << "  " << item.first << ": " << item.second << "\n";
+      }
+    }
+    catch (const tlv::Error&) {
+      using namespace transform;
+      util::IndentedStream os2(os, "  ");
+      bufferSource(optAddlDesc->value_bytes()) >> base64Encode() >> streamSink(os2);
     }
   }
 
-  os << "Public key bits:\n";
+  os << "Public Key:\n";
   {
     using namespace transform;
-    util::IndentedStream os2(os, "  ");
-    bufferSource(cert.getPublicKey()) >> base64Encode() >> streamSink(os2);
+
+    os << "  Key Type: ";
+    try {
+      PublicKey key;
+      key.loadPkcs8(cert.getPublicKey());
+      os << key.getKeySize() << "-bit " << key.getKeyType();
+    }
+    catch (const std::runtime_error&) {
+      os << "Unknown (" << cert.getContent().value_size() << " bytes)";
+    }
+    os << "\n";
+
+    if (cert.getContent().value_size() > 0) {
+      util::IndentedStream os2(os, "  ");
+      bufferSource(cert.getPublicKey()) >> base64Encode() >> streamSink(os2);
+    }
   }
 
-  os << "Signature Information:\n";
-  {
-    os << "  Signature Type: " << static_cast<tlv::SignatureTypeValue>(cert.getSignatureType()) << "\n";
+  try {
+    const auto& validityPeriod = cert.getValidityPeriod().getPeriod();
+    os << "Validity:\n"
+       << "  Not Before: " << time::toIsoExtendedString(validityPeriod.first) << "\n"
+       << "  Not After: "  << time::toIsoExtendedString(validityPeriod.second)  << "\n";
+  }
+  catch (const tlv::Error&) {
+    // ignore
+  }
 
-    auto keyLoc = cert.getKeyLocator();
-    if (keyLoc) {
-      os << "  Key Locator: ";
-      if (keyLoc->getType() == tlv::Name && keyLoc->getName() == cert.getKeyName()) {
-        os << "Self-Signed ";
-      }
-      os << *keyLoc << "\n";
+  os << "Signature Information:\n"
+     << "  Signature Type: " << static_cast<tlv::SignatureTypeValue>(cert.getSignatureType()) << "\n";
+
+  auto keyLoc = cert.getKeyLocator();
+  if (keyLoc) {
+    os << "  Key Locator: " << *keyLoc << "\n";
+    if (keyLoc->getType() == tlv::Name && keyLoc->getName() == cert.getKeyName()) {
+      os << "  Self-Signed: yes\n";
     }
   }
 

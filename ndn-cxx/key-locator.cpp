@@ -34,7 +34,7 @@ BOOST_CONCEPT_ASSERT((WireDecodable<KeyLocator>));
 static_assert(std::is_base_of<tlv::Error, KeyLocator::Error>::value,
               "KeyLocator::Error must inherit from tlv::Error");
 
-const size_t MAX_KEY_DIGEST_OCTETS_TO_SHOW = 5;
+const size_t MAX_KEY_DIGEST_OCTETS_TO_SHOW = 8;
 
 KeyLocator::KeyLocator() = default;
 

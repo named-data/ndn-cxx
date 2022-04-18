@@ -43,19 +43,25 @@ public:
 
 public:
   /**
-   * @brief Create an empty public key instance
+   * @brief Create an empty public key instance.
    *
-   * One must call loadXXXX(...) to load a public key.
+   * One must call `loadXXXX(...)` to load a public key.
    */
   PublicKey();
 
   ~PublicKey();
 
   /**
-   * @brief Get the type of the public key
+   * @brief Return the type of the public key.
    */
   KeyType
   getKeyType() const;
+
+  /**
+   * @brief Return the size of the public key in bits.
+   */
+  size_t
+  getKeySize() const;
 
   /**
    * @brief Load the public key in PKCS#8 format from a buffer @p buf

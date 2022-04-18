@@ -22,6 +22,8 @@
  */
 
 #include "ndn-cxx/security/certificate.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/util/io.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/clock-fixture.hpp"
@@ -145,12 +147,11 @@ BOOST_AUTO_TEST_CASE(Construction)
   BOOST_CHECK_EQUAL(certificate.getIdentity(), "/ndn/site1");
   BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
   BOOST_CHECK_EQUAL(certificate.getKeyId(), name::Component("ksk-1416425377094"));
-  BOOST_REQUIRE_EQUAL(certificate.getKeyLocator().has_value(), true);
-  BOOST_CHECK_EQUAL(certificate.getKeyLocator()->getName(), "/ndn/site1/KEY/ksk-2516425377094");
+  BOOST_CHECK_EQUAL(certificate.getKeyLocator().value().getName(), "/ndn/site1/KEY/ksk-2516425377094");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()),
                     "(20150814T223739, 20150818T223738)");
 
-  BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::Data::Error);
+  BOOST_CHECK_THROW(certificate.getExtension(12345), Data::Error);
   BOOST_CHECK_NO_THROW(certificate.getPublicKey());
 
   Data data(block);
@@ -171,12 +172,11 @@ BOOST_AUTO_TEST_CASE(Setters)
   BOOST_CHECK_EQUAL(certificate.getIdentity(), "/ndn/site1");
   BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
   BOOST_CHECK_EQUAL(certificate.getKeyId(), name::Component("ksk-1416425377094"));
-  BOOST_REQUIRE_EQUAL(certificate.getKeyLocator().has_value(), true);
-  BOOST_CHECK_EQUAL(certificate.getKeyLocator()->getName(), "/ndn/site1/KEY/ksk-2516425377094");
+  BOOST_CHECK_EQUAL(certificate.getKeyLocator().value().getName(), "/ndn/site1/KEY/ksk-2516425377094");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()),
                     "(20141111T050000, 20141111T060000)");
 
-  BOOST_CHECK_THROW(certificate.getExtension(12345), ndn::Data::Error);
+  BOOST_CHECK_THROW(certificate.getExtension(12345), Data::Error);
   BOOST_CHECK_NO_THROW(certificate.getPublicKey());
 }
 
@@ -202,15 +202,13 @@ public:
   InvalidCertFixture()
   {
     Certificate certBase(Block{CERT});
-    BOOST_CHECK_NO_THROW((Certificate(certBase)));
-
     m_certBase = Data(certBase);
     generateFakeSignature(m_certBase);
 
-    BOOST_CHECK_NO_THROW((Certificate(m_certBase)));
+    BOOST_REQUIRE_NO_THROW(Certificate{m_certBase});
   }
 
-public:
+protected:
   Data m_certBase;
 };
 
@@ -249,28 +247,129 @@ BOOST_FIXTURE_TEST_CASE(EmptyContent, InvalidCertFixture)
   BOOST_CHECK_THROW(cert.getPublicKey(), Certificate::Error);
 }
 
-BOOST_AUTO_TEST_CASE(PrintCertificateInfo)
+BOOST_AUTO_TEST_CASE(Print)
 {
-  const std::string expectedCertificateInfo = std::string(R"INFO(
-Certificate name:
+  const std::string expected1(
+R"TXT(Certificate Name:
+  /
+Public Key:
+  Key Type: Unknown (0 bytes)
+Signature Information:
+  Signature Type: Unknown(65535)
+)TXT");
+
+  Certificate cert1;
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert1), expected1);
+
+  const std::string expected2(
+R"TXT(Certificate Name:
   /ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B
-Validity:
-  NotBefore: 20150814T223739
-  NotAfter: 20150818T223738
-Public key bits:
+Public Key:
+  Key Type: 1024-bit RSA
   MIGdMA0GCSqGSIb3DQEBAQUAA4GLADCBhwKBgQCeBj5HhbI0N6qFR6wDJIO1nKgF
   OiQe64kBu+mbssMirGjj8GwCzmimxNCnBpCcqhsIHYtDmjNnRG0hoxuImpdeWcQV
   C9ksvVEHYYKtwbjXv5vPfSTCY/OXF+v+YiW6W02Kwnq9Q4qPuPLxxWow01CMyJrf
   7+0153pi6nZ8uwgmxwIBEQ==
+Validity:
+  Not Before: 2015-08-14T22:37:39
+  Not After: 2015-08-18T22:37:38
 Signature Information:
   Signature Type: SignatureSha256WithRsa
   Key Locator: Name=/ndn/site1/KEY/ksk-2516425377094
-)INFO").substr(1);
+)TXT");
 
-  Certificate certificate(Block{CERT});
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate), expectedCertificateInfo);
+  Certificate cert2(Block{CERT});
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert2), expected2);
 
-  // TODO: Check output formats of other certificates
+  const std::string expected3(
+R"TXT(Certificate Name:
+  /ndn/test/identity/KEY/%C7G%3A%D6%12P%B5%F0/self/v=1650251820652
+Public Key:
+  Key Type: 256-bit EC
+  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEnoGVuhO+9JnIRo6QSgJin8RgA8Gh
+  RN9oVbnXi2rAJa4jq1yuCKaLeOt2sdXlkW6uBByOhbTuDdovlbIUsJ8bhg==
+Validity:
+  Not Before: 1970-01-01T00:00:00
+  Not After: 2042-04-13T03:17:00
+Signature Information:
+  Signature Type: SignatureSha256WithEcdsa
+  Key Locator: Name=/ndn/test/identity/KEY/%C7G%3A%D6%12P%B5%F0
+  Self-Signed: yes
+)TXT");
+
+  std::istringstream is(
+R"BASE64(Bv0BPgc0CANuZG4IBHRlc3QICGlkZW50aXR5CANLRVkICMdHOtYSULXwCARzZWxm
+NggAAAGAOqxubBQJGAECGQQANu6AFVswWTATBgcqhkjOPQIBBggqhkjOPQMBBwNC
+AASegZW6E770mchGjpBKAmKfxGADwaFE32hVudeLasAlriOrXK4Ipot463ax1eWR
+bq4EHI6FtO4N2i+VshSwnxuGFlUbAQMcJgckCANuZG4IBHRlc3QICGlkZW50aXR5
+CANLRVkICMdHOtYSULXw/QD9Jv0A/g8xOTcwMDEwMVQwMDAwMDD9AP8PMjA0MjA0
+MTNUMDMxNzAwF0cwRQIgFRnwthtzKdqRgO3cZMNA1hfT3QcNu/+xjo7hUy+UvdsC
+IQCz3DHoRtKl7uZoJOgQsZP1/CGkNjlGZE3EQ+Ylwiprrw==)BASE64");
+  Certificate cert3 = io::loadTlv<Certificate>(is, io::BASE64);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert3), expected3);
+
+  const std::string expected4(
+R"TXT(Certificate Name:
+  /ndn/test/identity/KEY/%C7G%3A%D6%12P%B5%F0/self/v=1650251820652
+Public Key:
+  Key Type: Unknown (23 bytes)
+  bm90IGEgdmFsaWQgcHVibGljIGtleQA=
+Validity:
+  Not Before: 1970-01-01T00:00:00
+  Not After: 2042-04-13T03:17:00
+Signature Information:
+  Signature Type: SignatureSha256WithEcdsa
+  Key Locator: Name=/ndn/test/identity/KEY/%C7G%3A%D6%12P%B5%F0
+  Self-Signed: yes
+)TXT");
+
+  const uint8_t notAKey[] = "not a valid public key";
+  Certificate cert4(cert3);
+  cert4.setContent(notAKey);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert4), expected4);
+
+  const std::string expected5(
+R"TXT(Certificate Name:
+  /ndn/test/identity/KEY/%C7G%3A%D6%12P%B5%F0/self/v=1650251820652
+Additional Description:
+  bWFsZm9ybWVk
+Public Key:
+  Key Type: 256-bit EC
+  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEnoGVuhO+9JnIRo6QSgJin8RgA8Gh
+  RN9oVbnXi2rAJa4jq1yuCKaLeOt2sdXlkW6uBByOhbTuDdovlbIUsJ8bhg==
+Validity:
+  Not Before: 1970-01-01T00:00:00
+  Not After: 2042-04-13T03:17:00
+Signature Information:
+  Signature Type: SignatureSha256WithEcdsa
+  Key Locator: KeyDigest=0000000000000000
+)TXT");
+
+  auto sigInfo = cert3.getSignatureInfo();
+  sigInfo.addCustomTlv(makeStringBlock(tlv::AdditionalDescription, "malformed"));
+  sigInfo.setKeyLocator(KeyLocator().setKeyDigest(std::make_shared<Buffer>(8)));
+  Certificate cert5(cert3);
+  cert5.setSignatureInfo(sigInfo);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert5), expected5);
+
+  const std::string expected6(
+R"TXT(Certificate Name:
+  /ndn/test/identity/KEY/%C7G%3A%D6%12P%B5%F0/self/v=1650251820652
+Public Key:
+  Key Type: 256-bit EC
+  MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEnoGVuhO+9JnIRo6QSgJin8RgA8Gh
+  RN9oVbnXi2rAJa4jq1yuCKaLeOt2sdXlkW6uBByOhbTuDdovlbIUsJ8bhg==
+Signature Information:
+  Signature Type: DigestSha256
+)TXT");
+
+  sigInfo.removeCustomTlv(tlv::AdditionalDescription);
+  sigInfo.addCustomTlv(makeStringBlock(tlv::ValidityPeriod, "malformed"));
+  sigInfo.setSignatureType(tlv::DigestSha256);
+  sigInfo.setKeyLocator(nullopt);
+  Certificate cert6(cert3);
+  cert6.setSignatureInfo(sigInfo);
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert6), expected6);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificate

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -123,13 +123,13 @@ BOOST_AUTO_TEST_CASE(TypeKeyDigest)
   BOOST_CHECK_EQUAL(b.getType(), tlv::KeyDigest);
   BOOST_CHECK_EQUAL(b.getKeyDigest(), expectedDigestBlock);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=123456789A...");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=123456789ABCDEF1...");
 
-  b.setKeyDigest("1D03BCDEF1"_block);
+  b.setKeyDigest("1D050123456789"_block);
   BOOST_CHECK_EQUAL(b.getType(), tlv::KeyDigest);
-  BOOST_CHECK_EQUAL(b.getKeyDigest(), "1D03BCDEF1"_block);
+  BOOST_CHECK_EQUAL(b.getKeyDigest(), "1D050123456789"_block);
   BOOST_CHECK_THROW(b.getName(), KeyLocator::Error);
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=BCDEF1");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(b), "KeyDigest=0123456789");
 }
 
 BOOST_AUTO_TEST_CASE(TypeUnknown)
@@ -178,8 +178,8 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
-  const char digestOctets[] = "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD";
-  auto digestBuffer = make_shared<Buffer>(digestOctets, 8);
+  const uint8_t digestOctets[] = "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD";
+  auto digestBuffer = std::make_shared<Buffer>(digestOctets, sizeof(digestOctets) - 1);
 
   a.setKeyDigest(digestBuffer);
   BOOST_CHECK_EQUAL(a == b, false);
