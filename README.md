@@ -39,11 +39,11 @@ Therefore, when obtaining the type through detail::getEvpPkeyType(), it is impos
 ② When SM2 key is generated locally, the SM2 type of the key can be obtained via detail::getEvpPkeyType(). 
 This is because the initial EC group information is required when the key is generated locally. Therefore, we can call EVP_PKEY_id() in detail::getEvpPkeyType() to further distinguishe SM2 and ECDSA key types.
 
-In general, the bug is caused by that there is no enough group information when importing safebag outside in the current design directly via d2i_AutoPrivateKey、d2i_PUBKEY.
+In general, the bug is caused by that there is no enough group information when importing safebag outside in the current design directly via d2i_AutoPrivateKey()、d2i_PUBKEY().
 and the private key file only stores a key, no other information. therefore, it cannot distinguish the different curve types under the same ECC system, such as ECDSA and SM2.
 
 In order to ensure the compatibility and meet the requirements of manually importing and exporting key safebag,
-we have modified the interface, stored the type of key imported or generated from safebag in the SQLite3 db in Pib 
+we have modified the internal interfaces, stored the type of key imported or generated from safebag in the SQLite3 db in Pib 
 (the key type is interpreted and obtained from the sig type of certificate in safebag), 
 and added a key type parameter when calling the internal interfaces. The external interface remains unchanged.
 
