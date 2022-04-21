@@ -37,7 +37,7 @@ and there is not enough EC group information when importing safebag into the int
 Therefore, when obtaining the type through detail::getEvpPkeyType(), it is impossible to distinguish the SM2 and ECDSA key types under the same EC system.
 
 ② When SM2 key is generated locally, the SM2 type of the key can be obtained via detail::getEvpPkeyType(). 
-This is because the initial EC group information is required when the key is generated locally. Therefore, we can call EVP_PKEY_id() in detail::getEvpPkeyType() to further distinguishe SM2 and ECDSA key types.
+This is because the initial EC group information is required when the key is generated locally. Therefore, we can call EVP_PKEY_id() in detail::getEvpPkeyType() to further distinguish SM2 and ECDSA key types.
 
 In general, the bug is caused by that there is no enough group information when importing safebag outside in the current design directly via d2i_AutoPrivateKey()、d2i_PUBKEY().
 and the private key file only stores a key, no other information. therefore, it cannot distinguish the different curve types under the same ECC system, such as ECDSA and SM2.
@@ -52,7 +52,7 @@ through the general signature interface. There is a bug in toPkcs1(), which does
 the key processing of asymmetric algorithms such as ECDSA and HMAC algorithm. see the function toPkcs1(). 
 This new version of ndn-cxx also provides a HMAC key file, which can be generated and updated at any time by commanding 'ndnsec key-gen', 
 Keyname:/localhost/identity/hmac/KEY/123456789, stored in the directory $("HOME")/.ndn/ndnsec-key-file/, 
-the file name is 8436ea04965f58d93b751d551f5634646e2ff17fcd720bd413e51106c682808f.privkey。 
+the file name is 8436ea04965f58d93b751d551f5634646e2ff17fcd720bd413e51106c682808f.privkey. 
 In addition, the HMAC function can be called through the general signature interface. The user app only needs to define the parameters.
 
 
