@@ -1,0 +1,27 @@
+; "transport" specifies Face's default transport connection.
+; The value can be a "unix:" or "tcp4:" Face URI.
+;
+; For example:
+;   unix:///var/run/nfd.sock
+;   tcp://192.0.2.1
+;   tcp4://example.com:6363
+;
+; The default value of this field is platform-dependent, being unix:///run/nfd.sock on Linux and
+; unix:///var/run/nfd.sock on other platforms.
+;
+;transport=unix:///var/run/nfd.sock
+
+; "pib" determines which Public Info Base (PIB) should used by default in applications.
+; If "pib" is not specified, a platform-dependent default will be used.
+; If "pib" is specified, it may have a value of:
+;   pib-sqlite3
+;
+;pib=pib-sqlite3
+
+; "tpm" determines which Trusted Platform Module (TPM) should used by default in applications.
+; If "tpm" is not specified, a platform-dependent default will be used.
+; If "tpm" is specified, it may have a value of:
+;   tpm-osxkeychain (default on macOS)
+;   tpm-file (default in operating systems other than macOS)
+;
+;tpm=tpm-file

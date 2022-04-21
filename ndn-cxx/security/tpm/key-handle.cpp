@@ -1,0 +1,111 @@
+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+/*
+ * Copyright (c) 2013-2020 Regents of the University of California.
+ *
+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ *
+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ *
+ * You should have received copies of the GNU General Public License and GNU Lesser
+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
+ */
+
+#include "ndn-cxx/security/tpm/key-handle.hpp"
+
+namespace ndn {
+namespace security {
+namespace tpm {
+
+KeyHandle::~KeyHandle() = default;
+//added_GM, by liupenghui
+//SM2 Signer must use SM3, force to use SM3.
+// After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
+#if 1
+ConstBufferPtr
+KeyHandle::sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyType keyType) const
+{
+  return doSign(digestAlgorithm, bufs, keyType);
+}
+
+ConstBufferPtr
+KeyHandle::sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size, KeyType keyType) const
+{
+  return doSign(digestAlgorithm, {{buf, size}}, keyType);
+}
+
+bool
+KeyHandle::verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
+                  const uint8_t* sig, size_t sigLen, KeyType keyType) const
+{
+  return doVerify(digestAlgorithm, bufs, sig, sigLen, keyType);
+}
+
+bool
+KeyHandle::verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
+                  const uint8_t* sig, size_t sigLen, KeyType keyType) const
+{
+  return doVerify(digestAlgorithm, {{buf, bufLen}}, sig, sigLen, keyType);
+}
+
+ConstBufferPtr
+KeyHandle::decrypt(const uint8_t* cipherText, size_t cipherTextLen, KeyType keyType) const
+{
+  return doDecrypt(cipherText, cipherTextLen, keyType);
+}
+
+#else
+ConstBufferPtr
+KeyHandle::sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const
+{
+  return doSign(digestAlgorithm, bufs);
+}
+
+ConstBufferPtr
+KeyHandle::sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
+{
+  return doSign(digestAlgorithm, {{buf, size}});
+}
+
+bool
+KeyHandle::verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
+                  const uint8_t* sig, size_t sigLen) const
+{
+  return doVerify(digestAlgorithm, bufs, sig, sigLen);
+}
+
+bool
+KeyHandle::verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
+                  const uint8_t* sig, size_t sigLen) const
+{
+  return doVerify(digestAlgorithm, {{buf, bufLen}}, sig, sigLen);
+}
+
+ConstBufferPtr
+KeyHandle::decrypt(const uint8_t* cipherText, size_t cipherTextLen) const
+{
+  return doDecrypt(cipherText, cipherTextLen);
+}
+
+
+#endif
+
+
+ConstBufferPtr
+KeyHandle::derivePublicKey() const
+{
+  return doDerivePublicKey();
+}
+
+} // namespace tpm
+} // namespace security
+} // namespace ndn
+

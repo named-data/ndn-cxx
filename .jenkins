@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -e
+source .jenkins.d/util.sh
+
+if has Linux $NODE_LABELS; then
+    export PATH="${HOME}/.local/bin${PATH:+:}${PATH}"
+fi
+export CACHE_DIR=${CACHE_DIR:-/tmp}
+export WAF_JOBS=${WAF_JOBS:-1}
+[[ $JOB_NAME == *"code-coverage" ]] && export DISABLE_ASAN=yes
+
+for file in .jenkins.d/*; do
+    [[ -f $file && -x $file ]] || continue
+
+    if [[ -n $GITHUB_ACTIONS ]]; then
+        label=$(basename "$file" | sed -E 's/[[:digit:]]+-(.*)\..*/\1/')
+        echo "::group::${label}"
+    fi
+
+    echo "\$ $file"
+    "$file"
+
+    if [[ -n $GITHUB_ACTIONS ]]; then
+        echo "::endgroup::"
+    fi
+done

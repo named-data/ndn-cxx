@@ -1,0 +1,15 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+top = '../'
+
+def build(bld):
+    # common objects that can be shared among all tests
+    bld.objects(target='tests-common',
+                source=bld.path.ant_glob('*.cpp'),
+                features='pch',
+                headers='tests-pch.hpp',
+                use='ndn-cxx BOOST')
+
+    bld.recurse('benchmarks')
+    bld.recurse('integration')
+    bld.recurse('unit')

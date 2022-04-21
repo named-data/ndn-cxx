@@ -1,0 +1,45 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+from waflib import Utils
+
+top = '../'
+
+def build(bld):
+    # Single object tools:
+    # tools/foo.cpp is a self-contained tool with a main() function
+    # and is built as build/bin/foo. These tools cannot be unit-tested.
+    for tool in bld.path.ant_glob('*.cpp'):
+        name = tool.change_ext('').path_from(bld.path.get_bld())
+        bld.program(name='tool-%s' % name,
+                    target=top + 'bin/%s' % name,
+                    source=[tool],
+                    use='ndn-cxx')
+
+    # Sub-directory tools:
+    # tools/foo/**/*.cpp are compiled and linked into build/bin/foo.
+    # tools/foo/main.cpp must exist and must contain the main() function.
+    # All other objects are collected into 'tool-foo-objects' and can be unit-tested.
+    for subdir in bld.path.ant_glob('*', dir=True, src=False):
+        name = subdir.path_from(bld.path)
+        subWscript = subdir.find_node('wscript')
+        if subWscript:
+            # if the subdir has a wscript, delegate to it
+            bld.recurse(name)
+            continue
+
+        mainFile = subdir.find_node('main.cpp')
+        if mainFile is None:
+            # not a C++ tool, skip the subdir
+            continue
+
+        srcFiles = subdir.ant_glob('**/*.cpp', excl=['main.cpp'])
+        srcObjects = ''
+        if srcFiles:
+            srcObjects = 'tool-%s-objects' % name
+            bld.objects(target=srcObjects,
+                        source=srcFiles,
+                        use='ndn-cxx')
+        bld.program(name='tool-%s' % name,
+                    target=top + 'bin/%s' % name,
+                    source=[mainFile],
+                    use='ndn-cxx ' + srcObjects)

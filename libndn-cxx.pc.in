@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libndn-cxx
+Description: NDN C++ library with eXperimental eXtensions
+Version: @VERSION@
+Libs: -L${libdir} @EXTRA_LINKFLAGS@ @EXTRA_LDFLAGS@ -lndn-cxx @EXTRA_LIBS@ @EXTRA_FRAMEWORKS@
+Cflags: -I${includedir} @EXTRA_CXXFLAGS@ @EXTRA_INCLUDES@

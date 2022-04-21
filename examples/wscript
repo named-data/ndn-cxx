@@ -1,0 +1,23 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+top = '..'
+
+def build(bld):
+    # List all .cpp files (whole example in one .cpp)
+    for ex in bld.path.ant_glob('*.cpp'):
+        name = ex.change_ext('').path_from(bld.path.get_bld())
+        bld.program(name='example-%s' % name,
+                    target=name,
+                    source=[ex],
+                    use='ndn-cxx',
+                    install_path=None)
+
+    # List all directories (example can have multiple .cpp in the directory)
+    for subdir in bld.path.ant_glob('*', dir=True, src=False):
+        name = subdir.path_from(bld.path)
+        bld.program(name='example-%s' % name,
+                    target=name,
+                    source=subdir.ant_glob('**/*.cpp'),
+                    use='ndn-cxx',
+                    includes=name,
+                    install_path=None)

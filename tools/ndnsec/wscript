@@ -1,0 +1,24 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+top = '../../'
+
+def build(bld):
+    bld.objects(target='tool-ndnsec-objects',
+                source=bld.path.ant_glob('*.cpp', excl=['main.cpp']),
+                features='pch',
+                headers='ndnsec-pch.hpp',
+                use='ndn-cxx')
+
+    bld.program(name='tool-ndnsec',
+                target=top + 'bin/ndnsec',
+                source=['main.cpp'],
+                use='tool-ndnsec-objects')
+
+    # create convenience symlinks
+    for cmd in ('list', 'get-default', 'set-default', 'delete',
+                'key-gen', 'sign-req', 'cert-gen', 'cert-install',
+                'cert-dump', 'export', 'import', 'unlock-tpm',
+                # deprecated aliases
+                'certgen', 'dump-certificate', 'install-cert',
+                'keygen', 'ls-identity'):
+        bld.symlink_as('${BINDIR}/ndnsec-%s' % cmd, 'ndnsec')
