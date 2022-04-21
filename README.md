@@ -5,7 +5,8 @@ SM3 (hash) and SM4 with it symmetric algorithm modes (ECB, CBC, OFB, CFB).
 [![CI](https://github.com/named-data/ndn-cxx/actions/workflows/ci.yml/badge.svg)](https://github.com/named-data/ndn-cxx/actions/workflows/ci.yml)
 [![Docs](https://github.com/named-data/ndn-cxx/actions/workflows/docs.yml/badge.svg)](https://github.com/named-data/ndn-cxx/actions/workflows/docs.yml)
 ![Language](https://img.shields.io/badge/C%2B%2B-14-blue)
-![Latest version](https://img.shields.io/github/v/tag/named-data/ndn-cxx?label=Latest%20version)
+![Latest version](0.7.1)
+![Chinese cypto standard](SM2,SM3,SM4)
 
 
 **ndn-cxx** is a C++14 library implementing Named Data Networking (NDN) primitives
