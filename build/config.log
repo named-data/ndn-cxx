@@ -1,13 +1,13 @@
-# project ndn-cxx (0.7.1) configured on Mon Mar 28 18:35:23 2022 by
-# waf 2.0.21 (abi 20, python 3080af0 on linux)
+# project ndn-cxx (0.8.0) configured on Fri Apr 22 17:37:01 2022 by
+# waf 2.0.23 (abi 20, python 3080af0 on linux)
 # using ./waf configure --enable-static --with-tests
 #
 ----------------------------------------
 Setting top to
-/home/ndn-cxx
+/home/ndn-cxx 0.8.0
 ----------------------------------------
 Setting out to
-/home/ndn-cxx/build
+/home/ndn-cxx 0.8.0/build
 ----------------------------------------
 Building static library
 yes
@@ -390,10 +390,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_a8ebeef3cf2874c2e735b2a253d06665/test.cpp[0m
 
-['/usr/bin/g++', '-Werror', '-std=c++14', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_a8ebeef3cf2874c2e735b2a253d06665/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-Werror', '-std=c++14', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_a8ebeef3cf2874c2e735b2a253d06665/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_a8ebeef3cf2874c2e735b2a253d06665/testbuild/testprog[0m
 
-['/usr/bin/g++', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_a8ebeef3cf2874c2e735b2a253d06665/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_a8ebeef3cf2874c2e735b2a253d06665/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 -std=c++14
 ----------------------------------------
 Checking supported LINKFLAGS
@@ -407,10 +407,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_841792a9e403972e315823b70a8ee211/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_841792a9e403972e315823b70a8ee211/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_841792a9e403972e315823b70a8ee211/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_841792a9e403972e315823b70a8ee211/testbuild/testprog[0m
 
-['/usr/bin/g++', '-Werror', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_841792a9e403972e315823b70a8ee211/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-Werror', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_841792a9e403972e315823b70a8ee211/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 -fuse-ld=gold
 ----------------------------------------
 Checking for std::to_string
@@ -435,10 +435,10 @@ main()
 <==
 [1/2] Compiling [32mbuild/.conf_check_3188f624ce8ff1eb20933902d01ce878/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_3188f624ce8ff1eb20933902d01ce878/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_3188f624ce8ff1eb20933902d01ce878/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_3188f624ce8ff1eb20933902d01ce878/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_3188f624ce8ff1eb20933902d01ce878/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_3188f624ce8ff1eb20933902d01ce878/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 ----------------------------------------
 Checking for program 'doxygen'
@@ -468,10 +468,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_b16cdd2568617059cfef13168338ecbd/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_b16cdd2568617059cfef13168338ecbd/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_b16cdd2568617059cfef13168338ecbd/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_b16cdd2568617059cfef13168338ecbd/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_b16cdd2568617059cfef13168338ecbd/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-latomic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_b16cdd2568617059cfef13168338ecbd/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-latomic']
 yes
 ----------------------------------------
 Checking for library pthread
@@ -485,10 +485,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_e96a7c20569551188a73b82bc5633c97/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_e96a7c20569551188a73b82bc5633c97/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_e96a7c20569551188a73b82bc5633c97/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_e96a7c20569551188a73b82bc5633c97/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_e96a7c20569551188a73b82bc5633c97/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-lpthread']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_e96a7c20569551188a73b82bc5633c97/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-lpthread']
 yes
 ----------------------------------------
 Checking for library rt
@@ -502,10 +502,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_6a2f2daa1f92c80136c1962bf3baf63c/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_6a2f2daa1f92c80136c1962bf3baf63c/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_6a2f2daa1f92c80136c1962bf3baf63c/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_6a2f2daa1f92c80136c1962bf3baf63c/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_6a2f2daa1f92c80136c1962bf3baf63c/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-lrt']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_6a2f2daa1f92c80136c1962bf3baf63c/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-lrt']
 yes
 ----------------------------------------
 Checking for function getpass
@@ -515,10 +515,10 @@ Checking for function getpass
 <==
 [1/2] Compiling [32mbuild/.conf_check_6fe3eb9d17465ccaf5ef351764ea8680/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_6fe3eb9d17465ccaf5ef351764ea8680/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_6fe3eb9d17465ccaf5ef351764ea8680/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_6fe3eb9d17465ccaf5ef351764ea8680/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_6fe3eb9d17465ccaf5ef351764ea8680/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_6fe3eb9d17465ccaf5ef351764ea8680/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 ----------------------------------------
 Checking for netlink
@@ -537,10 +537,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_f85654f274dc1a569f5a1c86387086b0/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_f85654f274dc1a569f5a1c86387086b0/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_f85654f274dc1a569f5a1c86387086b0/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_f85654f274dc1a569f5a1c86387086b0/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_f85654f274dc1a569f5a1c86387086b0/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_f85654f274dc1a569f5a1c86387086b0/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 ----------------------------------------
 Checking for NETLINK_EXT_ACK
@@ -550,10 +550,10 @@ Checking for NETLINK_EXT_ACK
 <==
 [1/2] Compiling [32mbuild/.conf_check_4712014921d8e04fe25401f581c5490a/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_4712014921d8e04fe25401f581c5490a/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_4712014921d8e04fe25401f581c5490a/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_4712014921d8e04fe25401f581c5490a/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_4712014921d8e04fe25401f581c5490a/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_4712014921d8e04fe25401f581c5490a/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 ----------------------------------------
 Checking for IFA_FLAGS
@@ -563,10 +563,10 @@ Checking for IFA_FLAGS
 <==
 [1/2] Compiling [32mbuild/.conf_check_a1cf796dd23006c2a704ca088209150f/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_a1cf796dd23006c2a704ca088209150f/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_a1cf796dd23006c2a704ca088209150f/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_a1cf796dd23006c2a704ca088209150f/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_a1cf796dd23006c2a704ca088209150f/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_a1cf796dd23006c2a704ca088209150f/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 yes
 ----------------------------------------
 Checking for program 'pkg-config'
@@ -593,10 +593,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_7c8838bd90bf751e7a45dbbfdfb0ae6b/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_7c8838bd90bf751e7a45dbbfdfb0ae6b/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_7c8838bd90bf751e7a45dbbfdfb0ae6b/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_7c8838bd90bf751e7a45dbbfdfb0ae6b/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_7c8838bd90bf751e7a45dbbfdfb0ae6b/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-L/usr/lib', '-lcrypto']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_7c8838bd90bf751e7a45dbbfdfb0ae6b/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-L/usr/lib', '-lcrypto']
 yes
 ----------------------------------------
 Checking for program 'dpkg-architecture'
@@ -927,97 +927,97 @@ boost_system boost_program_options boost_chrono boost_date_time boost_filesystem
 Checking the flags needed to use pthreads
 [1/2] Compiling [32mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
 err: test.cpp.1.o:test.cpp:function main: 错误: 对‘pthread_create’未定义的引用
 test.cpp.1.o:test.cpp:function main: 错误: 对‘pthread_join’未定义的引用
 collect2: error: ld returned 1 exit status
 
-from /home/ndn-cxx: Test does not build: Traceback (most recent call last):
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Configure.py", line 335, in run_build
+from /home/ndn-cxx 0.8.0: Test does not build: Traceback (most recent call last):
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Build.py", line 176, in compile
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
-from /home/ndn-cxx: The configuration failed
+from /home/ndn-cxx 0.8.0: The configuration failed
 [1/2] Compiling [32mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-lpthreads', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-lpthreads', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', '-lpthreads', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
+['/usr/bin/g++', '-fuse-ld=gold', '-lpthreads', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
 err: /usr/bin/ld.gold：错误： cannot find -lpthreads
 test.cpp.1.o:test.cpp:function main: 错误: 对‘pthread_create’未定义的引用
 test.cpp.1.o:test.cpp:function main: 错误: 对‘pthread_join’未定义的引用
 collect2: error: ld returned 1 exit status
 
-from /home/ndn-cxx: Test does not build: Traceback (most recent call last):
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Configure.py", line 335, in run_build
+from /home/ndn-cxx 0.8.0: Test does not build: Traceback (most recent call last):
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Build.py", line 176, in compile
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
-from /home/ndn-cxx: The configuration failed
+from /home/ndn-cxx 0.8.0: The configuration failed
 [1/2] Compiling [32mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Kthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Kthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
 err: g++: error: unrecognized command line option ‘-Kthread’; did you mean ‘-pthread’?
 
-from /home/ndn-cxx: Test does not build: Traceback (most recent call last):
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Configure.py", line 335, in run_build
+from /home/ndn-cxx 0.8.0: Test does not build: Traceback (most recent call last):
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Build.py", line 176, in compile
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
-from /home/ndn-cxx: The configuration failed
+from /home/ndn-cxx 0.8.0: The configuration failed
 [1/2] Compiling [32mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-kthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-kthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
 err: g++: error: unrecognized command line option ‘-kthread’; did you mean ‘-pthread’?
 
-from /home/ndn-cxx: Test does not build: Traceback (most recent call last):
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Configure.py", line 335, in run_build
+from /home/ndn-cxx 0.8.0: Test does not build: Traceback (most recent call last):
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Build.py", line 176, in compile
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
-from /home/ndn-cxx: The configuration failed
+from /home/ndn-cxx 0.8.0: The configuration failed
 [1/2] Compiling [32mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-llthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-llthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', '-llthread', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
+['/usr/bin/g++', '-fuse-ld=gold', '-llthread', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
 err: /usr/bin/ld.gold：错误： cannot find -llthread
 test.cpp.1.o:test.cpp:function main: 错误: 对‘pthread_create’未定义的引用
 test.cpp.1.o:test.cpp:function main: 错误: 对‘pthread_join’未定义的引用
 collect2: error: ld returned 1 exit status
 
-from /home/ndn-cxx: Test does not build: Traceback (most recent call last):
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Configure.py", line 335, in run_build
+from /home/ndn-cxx 0.8.0: Test does not build: Traceback (most recent call last):
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Build.py", line 176, in compile
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
-from /home/ndn-cxx: The configuration failed
+from /home/ndn-cxx 0.8.0: The configuration failed
 [1/2] Compiling [32mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
+['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_c236721c7167d9c54646f51343c8e207/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
 -pthread
 -----------------------------------------
 Checking for boost linkage
@@ -1029,10 +1029,10 @@ int main() { boost::system::error_code c; }
 <==
 [1/2] Compiling [32mbuild/.conf_check_05da8de70d8dd8a623163740dd6e70b0/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_05da8de70d8dd8a623163740dd6e70b0/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_05da8de70d8dd8a623163740dd6e70b0/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_05da8de70d8dd8a623163740dd6e70b0/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_05da8de70d8dd8a623163740dd6e70b0/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
+['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_05da8de70d8dd8a623163740dd6e70b0/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
 ==>
 
 #include <boost/thread.hpp>
@@ -1041,10 +1041,10 @@ int main() { boost::thread t; }
 <==
 [1/2] Compiling [32mbuild/.conf_check_bf21b464b5838218ecd182c30380f4f4/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_bf21b464b5838218ecd182c30380f4f4/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_bf21b464b5838218ecd182c30380f4f4/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_bf21b464b5838218ecd182c30380f4f4/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_bf21b464b5838218ecd182c30380f4f4/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
+['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_bf21b464b5838218ecd182c30380f4f4/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
 ==>
 
 #include <boost/log/trivial.hpp>
@@ -1053,10 +1053,10 @@ int main() { BOOST_LOG_TRIVIAL(info) << "boost_log is working"; }
 <==
 [1/2] Compiling [32mbuild/.conf_check_cee1b304be9321807355ace120add1ef/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '-DBOOST_LOG_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_cee1b304be9321807355ace120add1ef/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-pthread', '-I/usr/include', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '-DBOOST_STACKTRACE_DYN_LINK', '-DBOOST_LOG_DYN_LINK', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_cee1b304be9321807355ace120add1ef/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_cee1b304be9321807355ace120add1ef/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_cee1b304be9321807355ace120add1ef/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
+['/usr/bin/g++', '-fuse-ld=gold', '-pthread', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_cee1b304be9321807355ace120add1ef/testbuild/testprog', '-Wl,-Bstatic', '-L/usr/lib/x86_64-linux-gnu', '-Wl,-Bdynamic', '-L/usr/lib/x86_64-linux-gnu', '-lboost_system', '-lboost_program_options', '-lboost_chrono', '-lboost_date_time', '-lboost_filesystem', '-lboost_thread', '-lboost_log', '-lboost_stacktrace_backtrace', '-lboost_unit_test_framework']
 ok
 -----------------------------------------
 Checking supported CXXFLAGS
@@ -1070,10 +1070,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_6e9924c4e813a12b87d3bf55eda42ceb/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-O2', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_6e9924c4e813a12b87d3bf55eda42ceb/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-O2', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_6e9924c4e813a12b87d3bf55eda42ceb/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_6e9924c4e813a12b87d3bf55eda42ceb/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_6e9924c4e813a12b87d3bf55eda42ceb/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_6e9924c4e813a12b87d3bf55eda42ceb/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1084,10 +1084,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_5cb416585c0b23f5a7b2f5c832c9c5f0/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-g', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_5cb416585c0b23f5a7b2f5c832c9c5f0/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-g', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_5cb416585c0b23f5a7b2f5c832c9c5f0/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_5cb416585c0b23f5a7b2f5c832c9c5f0/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_5cb416585c0b23f5a7b2f5c832c9c5f0/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_5cb416585c0b23f5a7b2f5c832c9c5f0/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1098,10 +1098,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_f587845fc35f6ff1a3031f32374d01a5/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-pedantic', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_f587845fc35f6ff1a3031f32374d01a5/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-pedantic', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_f587845fc35f6ff1a3031f32374d01a5/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_f587845fc35f6ff1a3031f32374d01a5/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_f587845fc35f6ff1a3031f32374d01a5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_f587845fc35f6ff1a3031f32374d01a5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1112,10 +1112,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_4749d9e8c04507dda76b3fefd1a26dd1/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-Wall', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_4749d9e8c04507dda76b3fefd1a26dd1/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-Wall', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_4749d9e8c04507dda76b3fefd1a26dd1/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_4749d9e8c04507dda76b3fefd1a26dd1/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_4749d9e8c04507dda76b3fefd1a26dd1/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_4749d9e8c04507dda76b3fefd1a26dd1/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1126,10 +1126,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_7f31cb7e73c3a618d739468613687f75/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-Wextra', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_7f31cb7e73c3a618d739468613687f75/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-Wextra', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_7f31cb7e73c3a618d739468613687f75/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_7f31cb7e73c3a618d739468613687f75/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_7f31cb7e73c3a618d739468613687f75/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_7f31cb7e73c3a618d739468613687f75/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1140,10 +1140,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_be44d6f6f21ba28958fa693eee769f6c/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-Wcatch-value=2', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_be44d6f6f21ba28958fa693eee769f6c/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-Wcatch-value=2', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_be44d6f6f21ba28958fa693eee769f6c/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_be44d6f6f21ba28958fa693eee769f6c/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_be44d6f6f21ba28958fa693eee769f6c/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_be44d6f6f21ba28958fa693eee769f6c/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1154,10 +1154,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_10842bf67cbab827eb1d622627973c71/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-Wextra-semi', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_10842bf67cbab827eb1d622627973c71/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-Wextra-semi', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_10842bf67cbab827eb1d622627973c71/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_10842bf67cbab827eb1d622627973c71/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_10842bf67cbab827eb1d622627973c71/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_10842bf67cbab827eb1d622627973c71/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1168,10 +1168,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_26357bb70aa2f4f90478aedb8f7628d3/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-Wnon-virtual-dtor', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_26357bb70aa2f4f90478aedb8f7628d3/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-Wnon-virtual-dtor', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_26357bb70aa2f4f90478aedb8f7628d3/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_26357bb70aa2f4f90478aedb8f7628d3/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_26357bb70aa2f4f90478aedb8f7628d3/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_26357bb70aa2f4f90478aedb8f7628d3/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1182,10 +1182,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_94f8a1fce90ed9c50731a3bf40b9f531/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-Wno-unused-parameter', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_94f8a1fce90ed9c50731a3bf40b9f531/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-Wno-unused-parameter', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_94f8a1fce90ed9c50731a3bf40b9f531/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_94f8a1fce90ed9c50731a3bf40b9f531/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_94f8a1fce90ed9c50731a3bf40b9f531/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_94f8a1fce90ed9c50731a3bf40b9f531/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1196,10 +1196,10 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_a2d74fcbeb8e363de2d9ac90ea844be5/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-fdiagnostics-color', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_a2d74fcbeb8e363de2d9ac90ea844be5/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-fdiagnostics-color', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_a2d74fcbeb8e363de2d9ac90ea844be5/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_a2d74fcbeb8e363de2d9ac90ea844be5/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_a2d74fcbeb8e363de2d9ac90ea844be5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_a2d74fcbeb8e363de2d9ac90ea844be5/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 ==>
 
 int main(int argc, char **argv) {
@@ -1210,18 +1210,18 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_a14d8f037c49dd72141582a027b58df8/test.cpp[0m
 
-['/usr/bin/g++', '-std=c++14', '-Werror', '-Wredundant-tags', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_a14d8f037c49dd72141582a027b58df8/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-std=c++14', '-Werror', '-Wredundant-tags', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_a14d8f037c49dd72141582a027b58df8/testbuild/test.cpp.1.o']
 err: g++: error: unrecognized command line option ‘-Wredundant-tags’; did you mean ‘-Wredundant-decls’?
 
-from /home/ndn-cxx: Test does not build: Traceback (most recent call last):
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Configure.py", line 335, in run_build
+from /home/ndn-cxx 0.8.0: Test does not build: Traceback (most recent call last):
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Configure.py", line 335, in run_build
     bld.compile()
-  File "/home/ndn-cxx/.waf3-2.0.21-16cd196b0fc7b4eebe195ce20396f3d1/waflib/Build.py", line 176, in compile
+  File "/home/ndn-cxx 0.8.0/.waf3-2.0.23-7dbdd0b348178777c338c9a31f6218a5/waflib/Build.py", line 176, in compile
     raise Errors.BuildError(self.producer.error)
 waflib.Errors.BuildError: Build failed
  -> task in 'testprog' failed with exit status 1 (run with -v to display more information)
 
-from /home/ndn-cxx: The configuration failed
+from /home/ndn-cxx 0.8.0: The configuration failed
 -O2 -g -pedantic -Wall -Wextra -Wcatch-value=2 -Wextra-semi -Wnon-virtual-dtor -Wno-unused-parameter -fdiagnostics-color
 -----------------------------------------
 Checking supported LINKFLAGS
@@ -1235,8 +1235,8 @@ int main(int argc, char **argv) {
 <==
 [1/2] Compiling [32mbuild/.conf_check_14e4ae6a9884b49336376db4e3a4b320/test.cpp[0m
 
-['/usr/bin/g++', '-O2', '-g', '-pedantic', '-Wall', '-Wextra', '-Wcatch-value=2', '-Wextra-semi', '-Wnon-virtual-dtor', '-Wno-unused-parameter', '-fdiagnostics-color', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx/build/.conf_check_14e4ae6a9884b49336376db4e3a4b320/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-O2', '-g', '-pedantic', '-Wall', '-Wextra', '-Wcatch-value=2', '-Wextra-semi', '-Wnon-virtual-dtor', '-Wno-unused-parameter', '-fdiagnostics-color', '-std=c++14', '-DHAVE_STD_TO_STRING=1', '-DHAVE_ATOMIC=1', '-DHAVE_PTHREAD=1', '-DHAVE_RT=1', '-DHAVE_GETPASS=1', '-DHAVE_NETLINK=1', '-DHAVE_NETLINK_EXT_ACK=1', '-DHAVE_IFA_FLAGS=1', '-DHAVE_SQLITE3=1', '-DHAVE_OPENSSL=1', '../test.cpp', '-c', '-o/home/ndn-cxx 0.8.0/build/.conf_check_14e4ae6a9884b49336376db4e3a4b320/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_14e4ae6a9884b49336376db4e3a4b320/testbuild/testprog[0m
 
-['/usr/bin/g++', '-fuse-ld=gold', '-Werror', '-Wl,-O1', 'test.cpp.1.o', '-o/home/ndn-cxx/build/.conf_check_14e4ae6a9884b49336376db4e3a4b320/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
+['/usr/bin/g++', '-fuse-ld=gold', '-Werror', '-Wl,-O1', 'test.cpp.1.o', '-o/home/ndn-cxx 0.8.0/build/.conf_check_14e4ae6a9884b49336376db4e3a4b320/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic']
 -Wl,-O1

@@ -23,6 +23,7 @@
 #define NDN_CXX_SECURITY_SECURITY_COMMON_HPP
 
 #include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/util/span.hpp"
 
 #include <vector>
 
@@ -55,9 +56,9 @@ const size_t MIN_SIZE = 4;
 } // namespace command_interest
 
 #ifndef DOXYGEN
-using InputBuffers = std::vector<std::pair<const uint8_t*, size_t>>;
+using InputBuffers = std::vector<span<const uint8_t>>;
 #else
-/// Represents a range of distcontiguous buffers as input to a security operation
+/// Represents a collection of discontiguous memory buffers as input to a security operation
 class InputBuffers;
 #endif
 
@@ -156,4 +157,3 @@ operator<<(std::ostream& os, CipherOperator op);
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_SECURITY_COMMON_HPP
-

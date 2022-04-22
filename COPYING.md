@@ -15,6 +15,9 @@ ndn-cxx relies on third-party software, licensed under the following licenses:
 - scope-lite by Martin Moene is licensed under the
   [Boost Software License 1.0](https://github.com/martinmoene/scope-lite/blob/master/LICENSE.txt)
 
+- span-lite by Martin Moene is licensed under the
+  [Boost Software License 1.0](https://github.com/martinmoene/span-lite/blob/master/LICENSE.txt)
+
 - variant-lite by Martin Moene is licensed under the
   [Boost Software License 1.0](https://github.com/martinmoene/variant-lite/blob/master/LICENSE.txt)
 

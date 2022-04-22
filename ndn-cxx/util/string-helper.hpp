@@ -23,6 +23,7 @@
 #define NDN_CXX_UTIL_STRING_HELPER_HPP
 
 #include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/util/span.hpp"
 
 namespace ndn {
 
@@ -48,6 +49,16 @@ printHex(std::ostream& os, uint64_t num, bool wantUpperCase = false);
  * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
  *
  * @param os Output stream
+ * @param buffer Range of bytes to print in hexadecimal format
+ * @param wantUpperCase if true (the default) print uppercase hex chars
+ */
+void
+printHex(std::ostream& os, span<const uint8_t> buffer, bool wantUpperCase = true);
+
+/**
+ * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
+ *
+ * @param os Output stream
  * @param buffer Pointer to an array of bytes
  * @param length Size of the array
  * @param wantUpperCase if true (the default) print uppercase hex chars
@@ -63,20 +74,10 @@ printHex(std::ostream& os, uint64_t num, bool wantUpperCase = false);
  *
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
-void
-printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase = true);
-
-/**
- * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
- *
- * @param os Output stream
- * @param buffer Buffer of bytes to print in hexadecimal format
- * @param wantUpperCase if true (the default) print uppercase hex chars
- */
 inline void
-printHex(std::ostream& os, const Buffer& buffer, bool wantUpperCase = true)
+printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase = true)
 {
-  return printHex(os, buffer.data(), buffer.size(), wantUpperCase);
+  printHex(os, {buffer, length}, wantUpperCase);
 }
 
 /**
@@ -114,6 +115,15 @@ private:
 /**
  * @brief Return a string containing the hex representation of the bytes in @p buffer
  *
+ * @param buffer Range of bytes to convert to hexadecimal format
+ * @param wantUpperCase if true (the default) use uppercase hex chars
+ */
+NDN_CXX_NODISCARD std::string
+toHex(span<const uint8_t> buffer, bool wantUpperCase = true);
+
+/**
+ * @brief Return a string containing the hex representation of the bytes in @p buffer
+ *
  * @param buffer Pointer to an array of bytes
  * @param length Size of the array
  * @param wantUpperCase if true (the default) use uppercase hex chars
@@ -129,19 +139,10 @@ private:
  *
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
-NDN_CXX_NODISCARD std::string
-toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true);
-
-/**
- * @brief Return a string containing the hex representation of the bytes in @p buffer
- *
- * @param buffer Buffer of bytes to convert to hexadecimal format
- * @param wantUpperCase if true (the default) use uppercase hex chars
- */
 NDN_CXX_NODISCARD inline std::string
-toHex(const Buffer& buffer, bool wantUpperCase = true)
+toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true)
 {
-  return toHex(buffer.data(), buffer.size(), wantUpperCase);
+  return toHex({buffer, length}, wantUpperCase);
 }
 
 /**

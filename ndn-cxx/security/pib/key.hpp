@@ -98,7 +98,7 @@ public:
   /**
    * @brief Get public key bits.
    */
-  const Buffer&
+  span<const uint8_t>
   getPublicKey() const;
 
   /**

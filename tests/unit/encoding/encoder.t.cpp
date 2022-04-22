@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,14 +41,16 @@ BOOST_AUTO_TEST_CASE(Basic)
   Encoder e2(100, 100);
   BOOST_CHECK_EQUAL(e2.capacity(), 100);
 
-  BOOST_CHECK_EQUAL(e.prependByte(1), 1);
-  BOOST_CHECK_EQUAL(e.appendByte(1), 1);
+  BOOST_CHECK_EQUAL(e.prependBytes({1}), 1);
+  BOOST_CHECK_EQUAL(e.appendBytes({1}), 1);
 
-  uint8_t buf1[] = {'t', 'e', 's', 't', '1'};
-  BOOST_CHECK_EQUAL(e1.prependByteArray(buf1, sizeof(buf1)), 5);
-  BOOST_CHECK_EQUAL(e1.appendByteArray(buf1, sizeof(buf1)), 5);
+  const uint8_t buf1[] = {'t', 'e', 's', 't', '1'};
+  BOOST_CHECK_EQUAL(e1.prependBytes(buf1), 5);
+  BOOST_CHECK_EQUAL(e1.appendBytes(buf1), 5);
 
   std::vector<uint8_t> buf2 = {'t', 'e', 's', 't', '2'};
+  BOOST_CHECK_EQUAL(e2.prependBytes(buf2), 5);
+  BOOST_CHECK_EQUAL(e2.appendBytes(buf2), 5);
   BOOST_CHECK_EQUAL(e1.prependRange(buf2.begin(), buf2.end()), 5);
   BOOST_CHECK_EQUAL(e1.appendRange(buf2.begin(), buf2.end()), 5);
 
@@ -56,17 +58,16 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(e2.prependRange(buf3.begin(), buf3.end()), 5);
   BOOST_CHECK_EQUAL(e2.appendRange(buf3.begin(), buf3.end()), 5);
 
-  uint8_t expected1[] = {1, 1};
-  BOOST_CHECK_EQUAL_COLLECTIONS(e.buf(), e.buf() + e.size(),
+  const uint8_t expected1[] = {1, 1};
+  BOOST_CHECK_EQUAL_COLLECTIONS(e.data(), e.data() + e.size(),
                                 expected1, expected1 + sizeof(expected1));
 
   const Encoder& constE = e;
-  BOOST_CHECK_EQUAL_COLLECTIONS(constE.buf(), constE.buf() + constE.size(),
+  BOOST_CHECK_EQUAL_COLLECTIONS(constE.data(), constE.data() + constE.size(),
                                 expected1, expected1 + sizeof(expected1));
 
-  uint8_t expected2[] = {'t', 'e', 's', 't', '2',
-                           't', 'e', 's', 't', '1', 't', 'e', 's', 't', '1',
-                         't', 'e', 's', 't', '2'};
+  const uint8_t expected2[] = {'t', 'e', 's', 't', '2', 't', 'e', 's', 't', '1',
+                               't', 'e', 's', 't', '1', 't', 'e', 's', 't', '2'};
   BOOST_CHECK_EQUAL_COLLECTIONS(e1.begin(), e1.end(),
                                 expected2, expected2 + sizeof(expected2));
   const Encoder& constE1 = e1;
@@ -129,19 +130,16 @@ BOOST_AUTO_TEST_CASE(Tlv)
 
   //
 
-  uint8_t buf[] = {0x01, 0x03, 0x00, 0x00, 0x00};
-  Block block1(buf, sizeof(buf));
-
-  BOOST_CHECK_EQUAL(e.prependByteArrayBlock(100, buf, sizeof(buf)), 7);
-  BOOST_CHECK_EQUAL(e.appendByteArrayBlock(100, buf, sizeof(buf)), 7);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  Block block1({0x01, 0x03, 0x00, 0x00, 0x00});
   BOOST_CHECK_EQUAL(e.prependBlock(block1), 5);
   BOOST_CHECK_EQUAL(e.appendBlock(block1), 5);
 
   Block block2(100, block1);
-
   BOOST_CHECK_EQUAL(e.prependBlock(block2), 7);
   BOOST_CHECK_EQUAL(e.appendBlock(block2), 7);
+#pragma GCC diagnostic pop
 }
 
 BOOST_AUTO_TEST_CASE(Reserve)

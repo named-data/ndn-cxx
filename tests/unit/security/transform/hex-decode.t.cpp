@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,13 +39,12 @@ BOOST_AUTO_TEST_SUITE(TestHexDecode)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  std::string in =
+  const std::string in =
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f";
-
-  uint8_t out[] = {
+  const uint8_t out[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -73,13 +72,12 @@ BOOST_AUTO_TEST_CASE(Basic)
 
 BOOST_AUTO_TEST_CASE(UpperCase)
 {
-  std::string in =
+  const std::string in =
     "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
     "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
     "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F"
     "000102030405060708090A0B0C0D0E0F000102030405060708090A0B0C0D0E0F";
-
-  uint8_t out[] = {
+  const uint8_t out[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -107,7 +105,7 @@ BOOST_AUTO_TEST_CASE(UpperCase)
 
 BOOST_AUTO_TEST_CASE(MixCase)
 {
-  std::string in =
+  const std::string in =
     "000102030405060708090a0b0c0d0e0f"
     "101112131415161718191a1b1c1d1e1f"
     "202122232425262728292a2b2c2d2e2f"
@@ -150,8 +148,7 @@ BOOST_AUTO_TEST_CASE(MixCase)
     "BaBbBcBdBeBfBABBBCBD"
     "CaCbCcCdCeCfCACBCCCD"
     "DaDbDcDdDeDfDADBDCDD";
-
-  uint8_t out[] = {
+  const uint8_t out[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
     0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
@@ -203,10 +200,9 @@ BOOST_AUTO_TEST_CASE(MixCase)
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), buf1->begin(), buf1->end());
 }
 
-
 BOOST_AUTO_TEST_CASE(StepByStep)
 {
-  std::string in =
+  const std::string in =
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
@@ -219,8 +215,7 @@ BOOST_AUTO_TEST_CASE(StepByStep)
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f"
     "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f";
-
-  uint8_t out[] = {
+  const uint8_t out[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -247,16 +242,16 @@ BOOST_AUTO_TEST_CASE(StepByStep)
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
   };
 
-  const uint8_t* input = reinterpret_cast<const uint8_t*>(in.data());
+  auto input = reinterpret_cast<const uint8_t*>(in.data());
   OBufferStream os;
   StepSource source;
   source >> hexDecode() >> streamSink(os);
-  source.write(input, 128);       // complete chunk
-  source.write(input + 128, 64);  // first half of a chunk
-  source.write(input + 192, 64);  // second half of a chunk
-  source.write(input + 256, 127); // odd number of byets
-  source.write(input + 383, 192); // one and half chunk
-  source.write(input + 575, 193); // remaining part
+  source.write({input, 128});       // complete chunk
+  source.write({input + 128, 64});  // first half of a chunk
+  source.write({input + 192, 64});  // second half of a chunk
+  source.write({input + 256, 127}); // odd number of byets
+  source.write({input + 383, 192}); // one and half chunk
+  source.write({input + 575, 193}); // remaining part
   source.end();
 
   ConstBufferPtr buf1 = os.buf();
@@ -265,15 +260,13 @@ BOOST_AUTO_TEST_CASE(StepByStep)
 
 BOOST_AUTO_TEST_CASE(OddByte)
 {
-  std::string in1 = "0001020304050";
-
+  const std::string in1 = "0001020304050";
   OBufferStream os1;
-  BOOST_REQUIRE_THROW(bufferSource(in1) >> hexDecode() >> streamSink(os1), transform::Error);
+  BOOST_CHECK_THROW(bufferSource(in1) >> hexDecode() >> streamSink(os1), transform::Error);
 
-  std::string in2 = "0001020304xy";
-
+  const std::string in2 = "0001020304xy";
   OBufferStream os2;
-  BOOST_REQUIRE_THROW(bufferSource(in2) >> hexDecode() >> streamSink(os2), transform::Error);
+  BOOST_CHECK_THROW(bufferSource(in2) >> hexDecode() >> streamSink(os2), transform::Error);
 }
 
 BOOST_AUTO_TEST_CASE(EmptyInput)
@@ -282,6 +275,7 @@ BOOST_AUTO_TEST_CASE(EmptyInput)
   StepSource source;
   source >> hexDecode() >> streamSink(os);
   source.end();
+
   BOOST_CHECK_EQUAL(os.buf()->size(), 0);
 }
 

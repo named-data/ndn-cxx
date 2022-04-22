@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@ uint32_t
 generateSecureWord32()
 {
   uint32_t random;
-  generateSecureBytes(reinterpret_cast<uint8_t*>(&random), sizeof(random));
+  generateSecureBytes({reinterpret_cast<uint8_t*>(&random), sizeof(random)});
   return random;
 }
 
@@ -37,14 +37,14 @@ uint64_t
 generateSecureWord64()
 {
   uint64_t random;
-  generateSecureBytes(reinterpret_cast<uint8_t*>(&random), sizeof(random));
+  generateSecureBytes({reinterpret_cast<uint8_t*>(&random), sizeof(random)});
   return random;
 }
 
 void
-generateSecureBytes(uint8_t* bytes, size_t size)
+generateSecureBytes(span<uint8_t> buf)
 {
-  if (RAND_bytes(bytes, size) != 1) {
+  if (RAND_bytes(buf.data(), buf.size()) != 1) {
     NDN_THROW(std::runtime_error("Failed to generate random bytes (error code " +
                                  to_string(ERR_get_error()) + ")"));
   }

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,25 +54,35 @@ public:
    * @return number of bytes that has been written into next module
    */
   size_t
-  write(const uint8_t* buf, size_t size);
+  write(span<const uint8_t> buf);
 
   /**
-   * @brief Close the input interface and directly notify the next module the end of input
+   * @deprecated
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  size_t
+  write(const uint8_t* buf, size_t size)
+  {
+    return write({buf, size});
+  }
+
+  /**
+   * @brief Close the input interface and directly notify the next module the end of input.
    */
   void
   end();
 
 private:
   /**
-   * @brief This method intentionally does nothing
+   * @brief This method intentionally does nothing.
    *
-   * use write() and end() method explicitly to input data.
+   * Use write() and end() explicitly to submit data.
    */
   void
   doPump() final;
 };
 
-typedef StepSource stepSource;
+using stepSource = StepSource;
 
 } // namespace transform
 } // namespace security

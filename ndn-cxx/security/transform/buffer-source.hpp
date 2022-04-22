@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,10 +37,20 @@ class BufferSource : public Source
 {
 public:
   /**
-   * @brief Take a buffer @p buf with size @p size as input.
+   * @brief Take @p buffer as input.
    *
    * Caller must not destroy the buffer before the transformation is completed.
    */
+  explicit
+  BufferSource(span<const uint8_t> buffer);
+
+  /**
+   * @brief Take a buffer @p buf with size @p size as input.
+   * @deprecated Use BufferSource(span<const uint8_t>)
+   *
+   * Caller must not destroy the buffer before the transformation is completed.
+   */
+  [[deprecated("use the constructor taking a span<>")]]
   BufferSource(const uint8_t* buf, size_t size);
 
   /**
@@ -50,14 +60,6 @@ public:
    */
   explicit
   BufferSource(const std::string& string);
-
-  /**
-   * @brief Take @p buffer as input.
-   *
-   * Caller must not destroy the buffer before the transformation is completed.
-   */
-  explicit
-  BufferSource(const Buffer& buffer);
 
   /**
    * @brief Take @p buffers as input.
@@ -78,7 +80,7 @@ private:
   InputBuffers m_bufs;
 };
 
-typedef BufferSource bufferSource;
+using bufferSource = BufferSource;
 
 } // namespace transform
 } // namespace security

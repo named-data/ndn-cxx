@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -117,11 +117,11 @@ BackEndMem::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
 }
 
 void
-BackEndMem::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen)
+BackEndMem::doImportKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen)
 {
   auto key = make_shared<PrivateKey>();
   try {
-    key->loadPkcs8(buf, size, pw, pwLen);
+    key->loadPkcs8(pkcs8, pw, pwLen);
   }
   catch (const PrivateKey::Error&) {
     NDN_THROW_NESTED(Error("Cannot import private key"));
@@ -138,4 +138,3 @@ BackEndMem::doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> k
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -55,18 +55,18 @@ public:
    *  If \p comp is the maximum possible value of this component type, return true to indicate
    *  that the successor should have a greater TLV-TYPE.
    */
-  virtual std::pair<bool, Component>
+  virtual std::tuple<bool, Component>
   getSuccessor(const Component& comp) const
   {
-    return {false, getSuccessorImpl(comp).second};
+    return {false, std::get<Block>(getSuccessorImpl(comp))};
   }
 
   /** \brief Return the minimum allowable TLV-VALUE of this component type.
    */
-  virtual const std::vector<uint8_t>&
+  virtual span<const uint8_t>
   getMinValue() const
   {
-    static std::vector<uint8_t> value;
+    static const std::vector<uint8_t> value;
     return value;
   }
 
@@ -112,7 +112,7 @@ protected:
   /** \brief Calculate the successor of \p comp, extending TLV-LENGTH if value overflows.
    *  \return whether TLV-LENGTH was extended, and the successor
    */
-  std::pair<bool, Block>
+  std::tuple<bool, Block>
   getSuccessorImpl(const Component& comp) const
   {
     EncodingBuffer encoder(comp.size() + 9, 9);
@@ -122,14 +122,14 @@ protected:
     size_t i = comp.value_size();
     for (; isOverflow && i > 0; i--) {
       uint8_t newValue = static_cast<uint8_t>((comp.value()[i - 1] + 1) & 0xFF);
-      encoder.prependByte(newValue);
+      encoder.prependBytes({newValue});
       isOverflow = (newValue == 0);
     }
-    encoder.prependByteArray(comp.value(), i);
+    encoder.prependBytes({comp.value(), i});
 
     if (isOverflow) {
       // new name component has to be extended
-      encoder.appendByte(0);
+      encoder.appendBytes({0});
     }
 
     encoder.prependVarNumber(encoder.size());
@@ -197,16 +197,16 @@ public:
   Component
   create(ConstBufferPtr value) const
   {
-    return Component(Block(m_type, std::move(value)));
+    return Block(m_type, std::move(value));
   }
 
   Component
-  create(const uint8_t* value, size_t valueSize) const
+  create(span<const uint8_t> value) const
   {
-    return Component(makeBinaryBlock(m_type, value, valueSize));
+    return makeBinaryBlock(m_type, value);
   }
 
-  std::pair<bool, Component>
+  std::tuple<bool, Component>
   getSuccessor(const Component& comp) const final
   {
     bool isExtended = false;
@@ -218,10 +218,10 @@ public:
     return {false, Component(successor)};
   }
 
-  const std::vector<uint8_t>&
+  span<const uint8_t>
   getMinValue() const final
   {
-    static std::vector<uint8_t> value(util::Sha256::DIGEST_SIZE);
+    static const std::vector<uint8_t> value(util::Sha256::DIGEST_SIZE);
     return value;
   }
 

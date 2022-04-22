@@ -226,12 +226,12 @@ typedef SimplePublicKeyParams<detail::RsaKeyParamsInfo> RsaKeyParams;
 
 /// @brief EcKeyParams carries parameters for EC key.
 typedef SimplePublicKeyParams<detail::EcKeyParamsInfo> EcKeyParams;
+
 //added_GM, by liupenghui
 #if 1
 /// @brief EcKeyParams carries parameters for SM2 key.
 typedef SimplePublicKeyParams<detail::sm2KeyParamsInfo> sm2KeyParams;
 #endif
-
 
 namespace detail {
 
@@ -342,4 +342,3 @@ typedef SimpleSymmetricKeyParams<detail::HmacKeyParamsInfo> HmacKeyParams;
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_KEY_PARAMS_HPP
-

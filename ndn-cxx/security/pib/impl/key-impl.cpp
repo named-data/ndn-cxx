@@ -28,13 +28,14 @@ namespace ndn {
 namespace security {
 namespace pib {
 namespace detail {
+
 //added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1
-KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, KeyType keyType, shared_ptr<PibImpl> pibImpl)
+KeyImpl::KeyImpl(const Name& keyName, span<const uint8_t> key, KeyType keyType, shared_ptr<PibImpl> pibImpl)
   : m_identity(extractIdentityFromKeyName(keyName))
   , m_keyName(keyName)
-  , m_key(key, keyLen)
+  , m_key(key.begin(), key.end())
   , m_pib(std::move(pibImpl))
   , m_certificates(keyName, m_pib)
   , m_isDefaultCertificateLoaded(false)
@@ -43,24 +44,26 @@ KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, KeyType
 
   transform::PublicKey publicKey;
   try {
-    publicKey.loadPkcs8(key, keyLen);
+    publicKey.loadPkcs8(key);
   }
   catch (const transform::PublicKey::Error&) {
     NDN_THROW_NESTED(std::invalid_argument("Invalid key bits"));
   }
+  
+  //the publicKey.getKeyType() can't get the SM2-type key  
   m_keyType = publicKey.getKeyType();
-
+  
   if (KeyType::NONE != keyType)
-	m_keyType = keyType;
-
-  m_pib->addKey(m_identity, m_keyName, m_keyType,  key, keyLen);
+  	m_keyType = keyType;
+  	
+  m_pib->addKey(m_identity, m_keyName, m_keyType, key);
 }
 
 #else
-KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> pibImpl)
+KeyImpl::KeyImpl(const Name& keyName, span<const uint8_t> key, shared_ptr<PibImpl> pibImpl)
   : m_identity(extractIdentityFromKeyName(keyName))
   , m_keyName(keyName)
-  , m_key(key, keyLen)
+  , m_key(key.begin(), key.end())
   , m_pib(std::move(pibImpl))
   , m_certificates(keyName, m_pib)
   , m_isDefaultCertificateLoaded(false)
@@ -69,14 +72,14 @@ KeyImpl::KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_
 
   transform::PublicKey publicKey;
   try {
-    publicKey.loadPkcs8(key, keyLen);
+    publicKey.loadPkcs8(key);
   }
   catch (const transform::PublicKey::Error&) {
     NDN_THROW_NESTED(std::invalid_argument("Invalid key bits"));
   }
   m_keyType = publicKey.getKeyType();
 
-  m_pib->addKey(m_identity, m_keyName, key, keyLen);
+  m_pib->addKey(m_identity, m_keyName, key);
 }
 #endif
 
@@ -98,9 +101,10 @@ KeyImpl::KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl)
   m_keyType = (KeyType)(m_pib->getKeyType(m_keyName));
 #else
   transform::PublicKey key;
-  key.loadPkcs8(m_key.data(), m_key.size());
+  key.loadPkcs8(m_key);
   m_keyType = key.getKeyType();
 #endif
+
 }
 
 void
@@ -171,4 +175,3 @@ KeyImpl::getDefaultCertificate() const
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

@@ -137,4 +137,3 @@ HmacKeyParamsInfo::getDefaultSize()
 
 } // namespace detail
 } // namespace ndn
-

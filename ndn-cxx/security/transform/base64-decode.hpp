@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,20 +31,20 @@ namespace transform {
 /**
  * @brief The module to perform Base64 decoding transformation.
  */
-class Base64Decode : public Transform
+class Base64Decode final : public Transform
 {
 public:
   /**
    * @brief Create a base64 decoding module
    *
-   * @p expectNewlineEvery64Bytes if true, expect newline after every 64 bytes, otherwise expect
-   *                              all input to be in a single line. Output is undefined if input
-   *                              does not conform to the requirement.
+   * @param expectNewlineEvery64Bytes If true, expect newline after every 64 bytes, otherwise
+   *                                  expect all input to be in a single line. Output is undefined
+   *                                  if input does not conform to the requirement.
    */
   explicit
   Base64Decode(bool expectNewlineEvery64Bytes = true);
 
-  ~Base64Decode();
+  ~Base64Decode() final;
 
 private:
   /**
@@ -54,12 +54,11 @@ private:
   preTransform() final;
 
   /**
-   * @brief Decode data @p buf in base64 format
-   *
-   * @return number of bytes that have been accepted by the converter
+   * @brief Decode @p buf from base64 format.
+   * @return The number of bytes that have been accepted by the converter.
    */
   size_t
-  convert(const uint8_t* buf, size_t size) final;
+  convert(span<const uint8_t> buf) final;
 
   /**
    * @brief Finalize base64 decoding

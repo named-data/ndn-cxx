@@ -542,4 +542,3 @@ writeNonNegativeInteger(std::ostream& os, uint64_t integer)
 } // namespace ndn
 
 #endif // NDN_CXX_ENCODING_TLV_HPP
-

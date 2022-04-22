@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -88,40 +88,40 @@ BOOST_AUTO_TEST_CASE(Rsa)
   auto pubKey = os1.buf();
 
   PublicKey pKey;
-  pKey.loadPkcs8(pubKey->data(), pubKey->size());
+  pKey.loadPkcs8(*pubKey);
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
-
+  sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
+                        privateKeyPkcs1.size()});
 
 //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::RSA;
-  
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey, keyType) >> streamSink(os2);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey, keyType) >> streamSink(os2);
   auto sig = os2.buf();
   
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, keyType, sig->data(), sig->size()), Error);
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, keyType, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, keyType, *sig), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, keyType, *sig), Error);
   
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, keyType, sig->data(), sig->size()) >>
+  bufferSource(DATA) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, keyType, *sig) >>
     boolSink(result);
 #else
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
   
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, *sig), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, *sig), Error);
   
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
+  bufferSource(DATA) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, *sig) >>
     boolSink(result);
 #endif
+
 
   BOOST_CHECK_EQUAL(result, true);
 }
@@ -151,41 +151,39 @@ BOOST_AUTO_TEST_CASE(Ecdsa)
   auto pubKey = os1.buf();
 
   PublicKey pKey;
-  pKey.loadPkcs8(pubKey->data(), pubKey->size());
+  pKey.loadPkcs8(*pubKey);
 
   PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()), privateKeyPkcs1.size());
+  sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
+                        privateKeyPkcs1.size()});
 
-
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::EC;
-	
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey, keyType) >> streamSink(os2);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey, keyType) >> streamSink(os2);
   auto sig = os2.buf();
   
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, keyType, sig->data(), sig->size()), Error);
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, keyType, sig->data(), sig->size()), Error);
-  
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, keyType, *sig), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, keyType, *sig), Error);
+
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, keyType, sig->data(), sig->size()) >>
+  bufferSource(DATA) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, keyType, *sig) >>
     boolSink(result);
 #else
   OBufferStream os2;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, sKey) >> streamSink(os2);
   auto sig = os2.buf();
-  
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, sig->data(), sig->size()), Error);
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, sig->data(), sig->size()), Error);
-  
+
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, *sig), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, *sig), Error);
+
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
-    verifierFilter(DigestAlgorithm::SHA256, pKey, sig->data(), sig->size()) >>
+  bufferSource(DATA) >>
+    verifierFilter(DigestAlgorithm::SHA256, pKey, *sig) >>
     boolSink(result);
 #endif
-
 
   BOOST_CHECK_EQUAL(result, true);
 }
@@ -210,22 +208,22 @@ BOOST_AUTO_TEST_CASE(Sm2)
 	auto pubKey = os1.buf();
   
 	PublicKey pKey;
-	pKey.loadPkcs8(pubKey->data(), pubKey->size());
+	pKey.loadPkcs8(*pubKey);
   
 	PrivateKey sKey;
-	sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
-						  privateKeyPkcs1.size());
+	sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privateKeyPkcs1.data()),
+						  privateKeyPkcs1.size()});
   
 	KeyType keyType = KeyType::SM2;
 	OBufferStream os2;
-	bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SM3, sKey, keyType) >> streamSink(os2);
+	bufferSource(DATA) >> signerFilter(DigestAlgorithm::SM3, sKey, keyType) >> streamSink(os2);
 	auto sig = os2.buf();
 	
-	BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, keyType, sig->data(), sig->size()), Error);
-	BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, keyType, sig->data(), sig->size()), Error);
+	BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, pKey, keyType, *sig), Error);
+	BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, sKey, keyType, *sig), Error);
 	bool result = false;
-	bufferSource(DATA, sizeof(DATA)) >>
-	  verifierFilter(DigestAlgorithm::SM3, pKey, keyType, sig->data(), sig->size()) >>
+	bufferSource(DATA) >>
+	  verifierFilter(DigestAlgorithm::SM3, pKey, keyType, *sig) >>
 	  boolSink(result);
   
 	BOOST_CHECK_EQUAL(result, true);
@@ -237,36 +235,34 @@ BOOST_AUTO_TEST_CASE(Hmac)
 {
   auto sKey = generatePrivateKey(HmacKeyParams());
 
-
 //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::HMAC;
   OBufferStream os;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, *sKey, keyType) >> streamSink(os);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, *sKey, keyType) >> streamSink(os);
   auto sig = os.buf();
   
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, keyType, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, keyType, *sig), Error);
   
 #if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
-  bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
-  verifierFilter(DigestAlgorithm::SHA256, *sKey, keyType, sig->data(), sig->size()) >>
-  boolSink(result);
+    bool result = false;
+    bufferSource(DATA) >>
+  	verifierFilter(DigestAlgorithm::SHA256, *sKey, keyType, *sig) >>
+  	boolSink(result);
   
-  BOOST_CHECK_EQUAL(result, true);
+    BOOST_CHECK_EQUAL(result, true);
 #endif
-  
 #else 
   OBufferStream os;
-  bufferSource(DATA, sizeof(DATA)) >> signerFilter(DigestAlgorithm::SHA256, *sKey) >> streamSink(os);
+  bufferSource(DATA) >> signerFilter(DigestAlgorithm::SHA256, *sKey) >> streamSink(os);
   auto sig = os.buf();
   
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, sig->data(), sig->size()), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, *sig), Error);
   
 #if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   bool result = false;
-  bufferSource(DATA, sizeof(DATA)) >>
-    verifierFilter(DigestAlgorithm::SHA256, *sKey, sig->data(), sig->size()) >>
+  bufferSource(DATA) >>
+    verifierFilter(DigestAlgorithm::SHA256, *sKey, *sig) >>
     boolSink(result);
   
   BOOST_CHECK_EQUAL(result, true);
@@ -277,18 +273,18 @@ BOOST_AUTO_TEST_CASE(Hmac)
 
 BOOST_AUTO_TEST_CASE(InvalidKey)
 {
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::NONE;
   PublicKey pubKey;
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pubKey, keyType, nullptr, 0), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pubKey, keyType, {}), Error);
   PrivateKey privKey;
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, privKey, keyType, nullptr, 0), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, privKey, keyType, {}), Error);
 #else
   PublicKey pubKey;
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pubKey, nullptr, 0), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, pubKey, {}), Error);
   PrivateKey privKey;
-  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, privKey, nullptr, 0), Error);
+  BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::SHA256, privKey, {}), Error);
 #endif
 }
 
@@ -300,4 +296,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

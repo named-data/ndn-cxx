@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -94,121 +94,141 @@ public:
   ConstBufferPtr
   getPublicKey(const Name& keyName) const;
 
-
-	//added_GM, by liupenghui
-	// After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
+//added_GM, by liupenghui
+// After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
 #if 1
   
   /**
    * @brief Sign discontiguous ranges using the key with name @p keyName and using the digest
-   *        @p digestAlgorithm.
+   *		  @p digestAlgorithm.
    *
    * @return The signature, or nullptr if the key does not exist.
    */
   ConstBufferPtr
   sign(const InputBuffers& bufs, const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm) const;
-
+  
   /**
    * @brief Sign blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-   *
+   * @deprecated
    * @return The signature, or nullptr if the key does not exist.
    */
+  [[deprecated("use the overload that takes InputBuffers")]]
   ConstBufferPtr
   sign(const uint8_t* buf, size_t size, const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm) const
   {
     return sign({{buf, size}}, keyName, keyType, digestAlgorithm);
   }
-
+  
   /**
    * @brief Verify discontiguous ranges using the key with name @p keyName and using the digest
-   *        @p digestAlgorithm.
+   *			@p digestAlgorithm.
    *
    * @retval true the signature is valid
    * @retval false the signature is not valid
    * @retval indeterminate the key does not exist
    */
-  boost::logic::tribool
-  verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName, KeyType keyType,
-         DigestAlgorithm digestAlgorithm) const;
-
+  NDN_CXX_NODISCARD boost::logic::tribool
+  verify(const InputBuffers& bufs, span<const uint8_t> sig, const Name& keyName, KeyType keyType,
+  	 DigestAlgorithm digestAlgorithm) const;
+  
   /**
    * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-   *
+   * @deprecated
    * @retval true the signature is valid
    * @retval false the signature is not valid
    * @retval indeterminate the key does not exist
    */
+  [[deprecated("use the overload that takes InputBuffers and span")]]
   boost::logic::tribool
   verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
-         const Name& keyName, KeyType keyType,DigestAlgorithm digestAlgorithm) const
+  	 const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm) const
   {
-    return verify({{buf, bufLen}}, sig, sigLen, keyName, keyType, digestAlgorithm);
+    return verify({{buf, bufLen}}, {sig, sigLen}, keyName, keyType, digestAlgorithm);
   }
-
+  
   /**
    * @brief Decrypt blob using the key with name @p keyName.
    *
    * @return The decrypted data, or nullptr if the key does not exist.
    */
   ConstBufferPtr
-  decrypt(const uint8_t* buf, size_t size, const Name& keyName, KeyType keyType) const;	
+  decrypt(span<const uint8_t> buf, const Name& keyName, KeyType keyType) const;
+  
+  /**
+   * @brief Decrypt blob using the key with name @p keyName.
+   * @deprecated
+   * @return The decrypted data, or nullptr if the key does not exist.
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  ConstBufferPtr
+  decrypt(const uint8_t* buf, size_t size, const Name& keyName, KeyType keyType) const
+  {
+    return decrypt({buf, size}, keyName, keyType);
+  }
+  
 #else   
-	/**
-	 * @brief Sign discontiguous ranges using the key with name @p keyName and using the digest
-	 *		  @p digestAlgorithm.
-	 *
-	 * @return The signature, or nullptr if the key does not exist.
-	 */
-	ConstBufferPtr
-	sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
-	
-	/**
-	 * @brief Sign blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-	 *
-	 * @return The signature, or nullptr if the key does not exist.
-	 */
-	ConstBufferPtr
-	sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const
-	{
-	  return sign({{buf, size}}, keyName, digestAlgorithm);
-	}
-	
-	/**
-	 * @brief Verify discontiguous ranges using the key with name @p keyName and using the digest
-	 *		  @p digestAlgorithm.
-	 *
-	 * @retval true the signature is valid
-	 * @retval false the signature is not valid
-	 * @retval indeterminate the key does not exist
-	 */
-	boost::logic::tribool
-	verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName,
-		   DigestAlgorithm digestAlgorithm) const;
-	
-	/**
-	 * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
-	 *
-	 * @retval true the signature is valid
-	 * @retval false the signature is not valid
-	 * @retval indeterminate the key does not exist
-	 */
-	boost::logic::tribool
-	verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
-		   const Name& keyName, DigestAlgorithm digestAlgorithm) const
-	{
-	  return verify({{buf, bufLen}}, sig, sigLen, keyName, digestAlgorithm);
-	}
-	
-	/**
-	 * @brief Decrypt blob using the key with name @p keyName.
-	 *
-	 * @return The decrypted data, or nullptr if the key does not exist.
-	 */
-	ConstBufferPtr
-	decrypt(const uint8_t* buf, size_t size, const Name& keyName) const;
+  ConstBufferPtr
+  sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+  
+  /**
+   * @brief Sign blob using the key with name @p keyName and using the digest @p digestAlgorithm.
+   * @deprecated
+   * @return The signature, or nullptr if the key does not exist.
+   */
+  [[deprecated("use the overload that takes InputBuffers")]]
+  ConstBufferPtr
+  sign(const uint8_t* buf, size_t size, const Name& keyName, DigestAlgorithm digestAlgorithm) const
+  {
+    return sign({{buf, size}}, keyName, digestAlgorithm);
+  }
+  
+  /**
+   * @brief Verify discontiguous ranges using the key with name @p keyName and using the digest
+   *		  @p digestAlgorithm.
+   *
+   * @retval true the signature is valid
+   * @retval false the signature is not valid
+   * @retval indeterminate the key does not exist
+   */
+  NDN_CXX_NODISCARD boost::logic::tribool
+  verify(const InputBuffers& bufs, span<const uint8_t> sig, const Name& keyName,
+  	   DigestAlgorithm digestAlgorithm) const;
+  
+  /**
+   * @brief Verify blob using the key with name @p keyName and using the digest @p digestAlgorithm.
+   * @deprecated
+   * @retval true the signature is valid
+   * @retval false the signature is not valid
+   * @retval indeterminate the key does not exist
+   */
+  [[deprecated("use the overload that takes InputBuffers and span")]]
+  boost::logic::tribool
+  verify(const uint8_t* buf, size_t bufLen, const uint8_t* sig, size_t sigLen,
+  	   const Name& keyName, DigestAlgorithm digestAlgorithm) const
+  {
+    return verify({{buf, bufLen}}, {sig, sigLen}, keyName, digestAlgorithm);
+  }
+  /**
+   * @brief Decrypt blob using the key with name @p keyName.
+   *
+   * @return The decrypted data, or nullptr if the key does not exist.
+   */
+  ConstBufferPtr
+  decrypt(span<const uint8_t> buf, const Name& keyName) const;
+  
+  /**
+   * @brief Decrypt blob using the key with name @p keyName.
+   * @deprecated
+   * @return The decrypted data, or nullptr if the key does not exist.
+   */
+  [[deprecated("use the overload that takes a span<>")]]
+  ConstBufferPtr
+  decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
+  {
+    return decrypt({buf, size}, keyName);
+  }
   
 #endif
-
 public: // Management
   /**
    * @brief Check if the TPM is in terminal mode.
@@ -277,6 +297,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    * @param pw The password to encrypt the private key
    * @param pwLen The length of the password
    * @return The encoded private key wrapper.
+   *
    * @throw Error The key does not exist or it could not be exported.
    */
   ConstBufferPtr
@@ -285,16 +306,17 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   /**
    * @brief Import a private key.
    *
-   * @param keyName The private key name
-   * @param pkcs8 The private key wrapper
-   * @param pkcs8Len The length of the private key wrapper
-   * @param pw The password to encrypt the private key
-   * @param pwLen The length of the password
+   * Import a private key in encrypted PKCS #8 format.
+   *
+   * @param keyName The private key name.
+   * @param pkcs8 The key encoded in PKCS #8 format.
+   * @param pw The password to decrypt the private key.
+   * @param pwLen The length of the password.
+   *
    * @throw Error The key could not be imported.
    */
   void
-  importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
-                   const char* pw, size_t pwLen);
+  importPrivateKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen);
 
   /**
    * @brief Import a private key.
@@ -341,4 +363,3 @@ using tpm::Tpm;
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_TPM_TPM_HPP
-

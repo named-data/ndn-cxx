@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,7 +28,7 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-class BlockCipher::Impl
+class BlockCipher::Impl : boost::noncopyable
 {
 public:
   Impl() noexcept
@@ -50,57 +50,56 @@ public:
 
 
 BlockCipher::BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
-                         const uint8_t* key, size_t keyLen,
-                         const uint8_t* iv, size_t ivLen)
+                         span<const uint8_t> key, span<const uint8_t> iv)
   : m_impl(make_unique<Impl>())
 {
-
 //added_GM, by liupenghui
 #if 1
-	  EVP_CIPHER_CTX *ctx = nullptr;
+  EVP_CIPHER_CTX *ctx = nullptr;
 #endif
 
   switch (algo) {
   case BlockCipherAlgorithm::AES_CBC:
-    initializeAesCbc(key, keyLen, iv, ivLen, op);
-    break;
+	initializeAesCbc(key, iv, op);
+	break;
 //added_GM, by liupenghui
 #if 1
-    case BlockCipherAlgorithm::AES_EBC:
-   	initializeAesEbc(key, keyLen, iv, ivLen, op);
-   	BIO_get_cipher_ctx(m_impl->m_cipher, &ctx);
-   	// if using padding for ECB mode with ver 1.1.1f, the decryption of openssl will raise an error.
-   	// the user must ensure the length of input data is a mutilple of 16.
-   	EVP_CIPHER_CTX_set_padding(ctx, 0);
-  	break;
-    case BlockCipherAlgorithm::AES_CFB:
-  	initializeAesCfb(key, keyLen, iv, ivLen, op);
-  	break;
-    case BlockCipherAlgorithm::AES_OFB:
-  	initializeAesOfb(key, keyLen, iv, ivLen, op);
-  	break;
-    case BlockCipherAlgorithm::SM4_CBC:
-  	initializeSm4Cbc(key, keyLen, iv, ivLen, op);
-  	break;
-    case BlockCipherAlgorithm::SM4_EBC:
-  	initializeSm4Ebc(key, keyLen, iv, ivLen, op);
-  	BIO_get_cipher_ctx(m_impl->m_cipher, &ctx);
-  	// if using padding for SM4 ECB mode with ver 1.1.1f, the decryption of openssl will raise an error.
-  	// the user must ensure the length of input data is a mutilple of 16.
-  	EVP_CIPHER_CTX_set_padding(ctx, 0);
-  	break;
-    case BlockCipherAlgorithm::SM4_CFB:
-  	initializeSm4Cfb(key, keyLen, iv, ivLen, op);
-  	break;
-    case BlockCipherAlgorithm::SM4_OFB:
-  	initializeSm4Ofb(key, keyLen, iv, ivLen, op);
-  	break;
+  case BlockCipherAlgorithm::AES_EBC:
+	initializeAesEbc(key, iv, op);
+	BIO_get_cipher_ctx(m_impl->m_cipher, &ctx);
+	// if using padding for ECB mode with ver 1.1.1f, the decryption of openssl will raise an error.
+	// the user must ensure the length of input data is a mutilple of 16.
+	EVP_CIPHER_CTX_set_padding(ctx, 0);
+	break;
+  case BlockCipherAlgorithm::AES_CFB:
+	initializeAesCfb(key, iv, op);
+	break;
+  case BlockCipherAlgorithm::AES_OFB:
+	initializeAesOfb(key, iv, op);
+	break;
+  case BlockCipherAlgorithm::SM4_CBC:
+	initializeSm4Cbc(key, iv, op);
+	break;
+  case BlockCipherAlgorithm::SM4_EBC:
+	initializeSm4Ebc(key, iv, op);
+	BIO_get_cipher_ctx(m_impl->m_cipher, &ctx);
+	// if using padding for SM4 ECB mode with ver 1.1.1f, the decryption of openssl will raise an error.
+	// the user must ensure the length of input data is a mutilple of 16.
+	EVP_CIPHER_CTX_set_padding(ctx, 0);
+	break;
+  case BlockCipherAlgorithm::SM4_CFB:
+	initializeSm4Cfb(key, iv, op);
+	break;
+  case BlockCipherAlgorithm::SM4_OFB:
+	initializeSm4Ofb(key, iv, op);
+	break;
 #endif
   default:
-    NDN_THROW(Error(getIndex(), "Unsupported block cipher algorithm " +
-                    boost::lexical_cast<std::string>(algo)));
+	NDN_THROW(Error(getIndex(), "Unsupported block cipher algorithm " +
+					boost::lexical_cast<std::string>(algo)));
   }
 }
+
 
 BlockCipher::~BlockCipher() = default;
 
@@ -111,12 +110,12 @@ BlockCipher::preTransform()
 }
 
 size_t
-BlockCipher::convert(const uint8_t* data, size_t dataLen)
+BlockCipher::convert(span<const uint8_t> data)
 {
-  if (dataLen == 0)
+  if (data.empty())
     return 0;
 
-  int wLen = BIO_write(m_impl->m_cipher, data, dataLen);
+  int wLen = BIO_write(m_impl->m_cipher, data.data(), data.size());
 
   if (wLen <= 0) { // failed to write data
     if (!BIO_should_retry(m_impl->m_cipher)) {
@@ -169,11 +168,10 @@ BlockCipher::isConverterEmpty() const
 }
 
 void
-BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeAesCbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_aes_128_cbc();
     break;
@@ -184,25 +182,25 @@ BlockCipher::initializeAesCbc(const uint8_t* key, size_t keyLen,
     cipherType = EVP_aes_256_cbc();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(key.size())));
   }
 
-  size_t requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
-  if (ivLen != requiredIvLen)
+  auto requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
+  if (iv.size() != requiredIvLen)
     NDN_THROW(Error(getIndex(), "IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv, op == CipherOperator::ENCRYPT ? 1 : 0);
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
+                 op == CipherOperator::ENCRYPT ? 1 : 0);
 }
 
 //added_GM, by liupenghui
 //SM4 only support 128bits block size, is enough to security apps.
 #if 1
 void
-BlockCipher::initializeAesEbc(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeAesEbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_aes_128_ecb();
     break;
@@ -213,19 +211,18 @@ BlockCipher::initializeAesEbc(const uint8_t* key, size_t keyLen,
     cipherType = EVP_aes_256_ecb();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(key.size())));
   }
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv,
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
                  op == CipherOperator::ENCRYPT ? 1 : 0);
 }
 
 void
-BlockCipher::initializeAesCfb(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeAesCfb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_aes_128_cfb();
     break;
@@ -236,24 +233,23 @@ BlockCipher::initializeAesCfb(const uint8_t* key, size_t keyLen,
     cipherType = EVP_aes_256_cfb();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(key.size())));
   }
   auto requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
-  if (ivLen != requiredIvLen)
-    NDN_THROW(Error(getIndex(), "SM4 IV length must be " + to_string(keyLen)));
+  if (iv.size() != requiredIvLen)
+    NDN_THROW(Error(getIndex(), "SM4 IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv,
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
                  op == CipherOperator::ENCRYPT ? 1 : 0);
   
   return;
 }
 
 void
-BlockCipher::initializeAesOfb(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeAesOfb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_aes_128_ofb();
     break;
@@ -264,14 +260,14 @@ BlockCipher::initializeAesOfb(const uint8_t* key, size_t keyLen,
     cipherType = EVP_aes_256_ofb();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "Unsupported key length " + to_string(key.size())));
   }
 
   auto requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
-  if (ivLen != requiredIvLen)
+  if (iv.size() != requiredIvLen)
     NDN_THROW(Error(getIndex(), "SM4 IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv,
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
                  op == CipherOperator::ENCRYPT ? 1 : 0);
   
   return;
@@ -279,88 +275,84 @@ BlockCipher::initializeAesOfb(const uint8_t* key, size_t keyLen,
 
 
 void
-BlockCipher::initializeSm4Cbc(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeSm4Cbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_sm4_cbc();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(key.size())));
   }
 
   auto requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
-  if (ivLen != requiredIvLen)
+  if (iv.size() != requiredIvLen)
     NDN_THROW(Error(getIndex(), "SM4 IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv,
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
                  op == CipherOperator::ENCRYPT ? 1 : 0);
   
   return;
 }
 
 void
-BlockCipher::initializeSm4Ebc(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeSm4Ebc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_sm4_ecb();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(key.size())));
   }
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv,
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
                  op == CipherOperator::ENCRYPT ? 1 : 0);
   
   return;
 }
 
 void
-BlockCipher::initializeSm4Cfb(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeSm4Cfb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_sm4_cfb();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(key.size())));
   }
 
   auto requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
-  if (ivLen != requiredIvLen)
+  if (iv.size() != requiredIvLen)
     NDN_THROW(Error(getIndex(), "SM4 IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv,
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
                  op == CipherOperator::ENCRYPT ? 1 : 0);
   
   return;
 }
 
 void
-BlockCipher::initializeSm4Ofb(const uint8_t* key, size_t keyLen,
-                              const uint8_t* iv, size_t ivLen, CipherOperator op)
+BlockCipher::initializeSm4Ofb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op)
 {
   const EVP_CIPHER* cipherType = nullptr;
-  switch (keyLen) {
+  switch (key.size()) {
   case 16:
     cipherType = EVP_sm4_ofb();
     break;
   default:
-    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(keyLen)));
+    NDN_THROW(Error(getIndex(), "SM4 Unsupported key length " + to_string(key.size())));
   }
 
   auto requiredIvLen = static_cast<size_t>(EVP_CIPHER_iv_length(cipherType));
-  if (ivLen != requiredIvLen)
+  if (iv.size() != requiredIvLen)
     NDN_THROW(Error(getIndex(), "SM4 IV length must be " + to_string(requiredIvLen)));
 
-  BIO_set_cipher(m_impl->m_cipher, cipherType, key, iv,
+  BIO_set_cipher(m_impl->m_cipher, cipherType, key.data(), iv.data(),
                  op == CipherOperator::ENCRYPT ? 1 : 0);
   
   return;
@@ -370,13 +362,11 @@ BlockCipher::initializeSm4Ofb(const uint8_t* key, size_t keyLen,
 
 unique_ptr<Transform>
 blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
-            const uint8_t* key, size_t keyLen,
-            const uint8_t* iv, size_t ivLen)
+            span<const uint8_t> key, span<const uint8_t> iv)
 {
-  return make_unique<BlockCipher>(algo, op, key, keyLen, iv, ivLen);
+  return make_unique<BlockCipher>(algo, op, key, iv);
 }
 
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

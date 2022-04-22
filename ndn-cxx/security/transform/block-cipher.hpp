@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,42 +35,39 @@ namespace transform {
  * The padding scheme of the block cipher is set to the OpenSSL default,
  * which is PKCS padding.
  */
-class BlockCipher : public Transform
+class BlockCipher final : public Transform
 {
 public:
   /**
-   * @brief Create a block cipher
+   * @brief Create a block cipher.
    *
-   * @param algo   The block cipher algorithm to use.
-   * @param op     Whether to encrypt or decrypt.
-   * @param key    Pointer to the key.
-   * @param keyLen Size of the key.
-   * @param iv     Pointer to the initialization vector.
-   * @param ivLen  Length of the initialization vector.
+   * @param algo The block cipher algorithm to use.
+   * @param op   The operation to perform (encrypt or decrypt).
+   * @param key  The symmetric key.
+   * @param iv   The initialization vector.
    */
   BlockCipher(BlockCipherAlgorithm algo, CipherOperator op,
-              const uint8_t* key, size_t keyLen,
-              const uint8_t* iv, size_t ivLen);
+              span<const uint8_t> key, span<const uint8_t> iv);
 
-  ~BlockCipher();
+  ~BlockCipher() final;
 
 private:
   /**
-   * @brief Read partial transformation result (if exists) from BIO
+   * @brief Read partial transformation result (if exists) from BIO.
    */
   void
   preTransform() final;
 
   /**
-   * @brief Write @p data into the cipher
+   * @brief Write @p data into the cipher.
    *
-   * @return number of bytes that are actually accepted
+   * @return Number of bytes that are actually accepted.
    */
   size_t
-  convert(const uint8_t* data, size_t dataLen) final;
+  convert(span<const uint8_t> data) final;
 
   /**
-   * @brief Finalize the encryption
+   * @brief Finalize the encryption.
    */
   void
   finalize() final;
@@ -89,32 +86,23 @@ private:
 
 private:
   void
-  initializeAesCbc(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
-
-//added_GM, by liupenghui
+  initializeAesCbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
+  //added_GM, by liupenghui
 #if 1
   void
-  initializeAesEbc(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeAesEbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
   void
-  initializeAesCfb(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeAesCfb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
   void
-  initializeAesOfb(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeAesOfb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
   void
-  initializeSm4Cbc(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeSm4Cbc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
   void
-  initializeSm4Ebc(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeSm4Ebc(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
   void
-  initializeSm4Cfb(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeSm4Cfb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
   void
-  initializeSm4Ofb(const uint8_t* key, size_t keyLen,
-                   const uint8_t* iv, size_t ivLen, CipherOperator op);
+  initializeSm4Ofb(span<const uint8_t> key, span<const uint8_t> iv, CipherOperator op);
 #endif
 
 private:
@@ -124,12 +112,19 @@ private:
 
 unique_ptr<Transform>
 blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
+            span<const uint8_t> key, span<const uint8_t> iv);
+
+[[deprecated("use the overload that takes span<>")]]
+inline unique_ptr<Transform>
+blockCipher(BlockCipherAlgorithm algo, CipherOperator op,
             const uint8_t* key, size_t keyLen,
-            const uint8_t* iv, size_t ivLen);
+            const uint8_t* iv, size_t ivLen)
+{
+  return blockCipher(algo, op, {key, keyLen}, {iv, ivLen});
+}
 
 } // namespace transform
 } // namespace security
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_BLOCK_CIPHER_HPP
-

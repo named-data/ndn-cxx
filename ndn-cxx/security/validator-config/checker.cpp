@@ -414,4 +414,3 @@ Checker::createKeyLocatorNameChecker(tlv::SignatureTypeValue sigType,
 } // inline namespace v2
 } // namespace security
 } // namespace ndn
-

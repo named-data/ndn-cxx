@@ -52,19 +52,20 @@ public:
   /**
    * @brief Create a new SafeBag object with the given certificate and private key
    *
-   * @param certificate A reference to the certificate data packet
-   * @param encryptedKey A reference to a Buffer with the private key in PKCS #8 format
+   * @param certificate The certificate data packet
+   * @param encryptedKey A buffer with the private key in PKCS #8 format
    */
-  SafeBag(const Data& certificate,
-          const Buffer& encryptedKey);
+  SafeBag(const Data& certificate, span<const uint8_t> encryptedKey);
 
   /**
    * @brief Create a new SafeBag object with the given certificate and private key
+   * @deprecated Use SafeBag(const Data&, span<const uint8_t>)
    *
    * @param certificate A reference to the certificate data packet
    * @param encryptedKey A pointer to the private key in PKCS #8 format
    * @param encryptedKeyLen The length of @p encryptedKey
    */
+  [[deprecated("use the constructor taking a span<>")]]
   SafeBag(const Data& certificate,
           const uint8_t* encryptedKey,
           size_t encryptedKeyLen);
@@ -102,7 +103,7 @@ public:
   /**
    * @brief Get the private key in PKCS #8 format from safe bag
    */
-  const Buffer&
+  span<const uint8_t>
   getEncryptedKey() const
   {
     return m_encryptedKey;

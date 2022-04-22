@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,7 +26,6 @@
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
-
 //added_HMAC, by liupenghui
 #if 1       
 #include <cstdlib>
@@ -160,7 +159,7 @@ toHmacKeyFileName(const Name& keyName)
   std::ostringstream os;
   {
 	using namespace transform;
-	bufferSource(keyName.wireEncode().wire(), keyName.wireEncode().size())
+	bufferSource(make_span(keyName.wireEncode().wire(), keyName.wireEncode().size()))
 	  >> digestFilter(DigestAlgorithm::SHA256)
 	  >> t::hexEncode()
 	  >> streamSink(os);
@@ -170,6 +169,7 @@ toHmacKeyFileName(const Name& keyName)
   return keystorePath / (os.str() + ".privkey");
 }
 #endif
+
 
 SigningInfo&
 SigningInfo::setSigningHmacKey(const std::string& hmacKey)
@@ -181,25 +181,24 @@ SigningInfo::setSigningHmacKey(const std::string& hmacKey)
     transform::base64Decode(false) >>
     transform::streamSink(os);
   m_hmacKey = make_shared<transform::PrivateKey>();
-  m_hmacKey->loadRaw(KeyType::HMAC, os.buf()->data(), os.buf()->size());
-	
-  //added_HMAC, by liupenghui
+  m_hmacKey->loadRaw(KeyType::HMAC, *os.buf());
+
+//added_HMAC, by liupenghui
 #if 1       
-	Name identity = getHmacIdentity();
-	Name keyName = identity.append("KEY").append(Name::Component::fromNumber(123456789));
-	std::string fileName = toHmacKeyFileName(keyName).string();
-	fs::remove(toHmacKeyFileName(keyName));
-	std::ofstream fos(fileName, std::ios::trunc);
-	m_hmacKey->savePkcs1Base64(fos);
-	::chmod(fileName.data(), 0000400);
-	
-	m_name = keyName;  
+  Name identity = getHmacIdentity();
+  Name keyName = identity.append("KEY").append(Name::Component::fromNumber(123456789));
+  std::string fileName = toHmacKeyFileName(keyName).string();
+  fs::remove(toHmacKeyFileName(keyName));
+  std::ofstream fos(fileName, std::ios::trunc);
+  m_hmacKey->savePkcs1Base64(fos);
+  ::chmod(fileName.data(), 0000400);
+  
+  m_name = keyName;  
 #else
   // generate key name
   m_name = getHmacIdentity();
   m_name.append(name::Component(m_hmacKey->getKeyDigest(DigestAlgorithm::SHA256)));
 #endif
-
 
   return *this;
 }
@@ -271,4 +270,3 @@ operator<<(std::ostream& os, const SignedInterestFormat& format)
 
 } // namespace security
 } // namespace ndn
-

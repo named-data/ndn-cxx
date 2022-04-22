@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorBlock)
   auto expected = fromHex("b372edfd4d6a4db2cfeaeead6c34fdee9b9e759f7b8d799cf8067e39e7f2886c");
 
   Sha256 statefulSha256;
-  statefulSha256 << Block{input, sizeof(input)};
+  statefulSha256 << Block{input};
   ConstBufferPtr digest = statefulSha256.computeDigest();
 
   BOOST_CHECK_EQUAL(statefulSha256.empty(), false);
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(Print)
                             0x01, 0xCC, 0x4B, 0xF9, 0x06, 0x13, 0xE0, 0x81,
                             0x4F, 0x00, 0xA7, 0xB0, 0x8B, 0xC7, 0xC6, 0x48,
                             0xFD, 0x86, 0x5A, 0x2A, 0xF6, 0xA2, 0x2C, 0xC2};
-  std::string expected = toHex(origin, sizeof(origin));
+  const auto expected = toHex(origin);
 
   Sha256 digest;
   digest << "TEST";

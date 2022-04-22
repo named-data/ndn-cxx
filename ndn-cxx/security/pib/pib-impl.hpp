@@ -151,19 +151,18 @@ public: // Key management
    * one as default key of the identity.  If no default identity has been set, @p identity
    * becomes the default.
    *
-   * @param identity The name of the belonged identity.
+   * @param identity The name of the identity that will own the added key.
    * @param keyName The key name.
    * @param key The public key bits.
-   * @param keyLen The length of the public key.
    */
-  //added_GM, by liupenghui
-  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
+//added_GM, by liupenghui
+// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
   virtual void
-  addKey(const Name& identity, const Name& keyName, KeyType keyType, const uint8_t* key, size_t keyLen) = 0;
+  addKey(const Name& identity, const Name& keyName, KeyType keyType, span<const uint8_t> key) = 0;
 #else
   virtual void
-  addKey(const Name& identity, const Name& keyName, const uint8_t* key, size_t keyLen) = 0;
+  addKey(const Name& identity, const Name& keyName, span<const uint8_t> key) = 0;
 #endif
 
   /**
@@ -185,14 +184,13 @@ public: // Key management
   
   //added_GM, by liupenghui
   // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
-#if 1
   /**
    * @brief Get the key type of a key with name @p keyName.
    *
-   * @return key type
+   * @return key type 
    * @throw Pib::Error the key does not exist.
    */
-  
+#if 1
   virtual int
   getKeyType(const Name& keyName) const = 0;
 #endif
@@ -302,4 +300,3 @@ public: // Certificate Management
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_PIB_PIB_IMPL_HPP
-

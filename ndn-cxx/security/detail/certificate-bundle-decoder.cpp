@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,7 +45,7 @@ CertificateBundleDecoder::decode()
   while (!m_bufferedData.empty()) {
     bool isOk;
     Block element;
-    std::tie(isOk, element) = Block::fromBuffer(m_bufferedData.data(), m_bufferedData.size());
+    std::tie(isOk, element) = Block::fromBuffer(m_bufferedData);
     if (!isOk) {
       return;
     }

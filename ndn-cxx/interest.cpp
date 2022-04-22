@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -90,12 +90,12 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
 
   // ApplicationParameters and following elements (in reverse order)
   for (const auto& block : m_parameters | boost::adaptors::reversed) {
-    totalLength += encoder.prependBlock(block);
+    totalLength += prependBlock(encoder, block);
   }
 
   // HopLimit
   if (getHopLimit()) {
-    totalLength += encoder.prependByteArrayBlock(tlv::HopLimit, &*m_hopLimit, 1);
+    totalLength += prependBinaryBlock(encoder, tlv::HopLimit, {*m_hopLimit});
   }
 
   // InterestLifetime
@@ -107,11 +107,12 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   // Nonce
   getNonce(); // if nonce was unset, this generates a fresh nonce
   BOOST_ASSERT(hasNonce());
-  totalLength += encoder.prependByteArrayBlock(tlv::Nonce, m_nonce->data(), m_nonce->size());
+  totalLength += prependBinaryBlock(encoder, tlv::Nonce, *m_nonce);
 
   // ForwardingHint
-  if (!getForwardingHint().empty()) {
-    totalLength += getForwardingHint().wireEncode(encoder);
+  if (!m_forwardingHint.empty()) {
+    totalLength += prependNestedBlock(encoder, tlv::ForwardingHint,
+                                      m_forwardingHint.begin(), m_forwardingHint.end());
   }
 
   // MustBeFresh
@@ -186,7 +187,7 @@ Interest::wireDecode(const Block& wire)
   m_name = std::move(tempName);
 
   m_canBePrefix = m_mustBeFresh = false;
-  m_forwardingHint = {};
+  m_forwardingHint.clear();
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
   m_hopLimit.reset();
@@ -221,7 +222,37 @@ Interest::wireDecode(const Block& wire)
         if (lastElement >= 4) {
           NDN_THROW(Error("ForwardingHint element is out of order"));
         }
-        m_forwardingHint.wireDecode(*element);
+        // ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Name
+        // [previous format]
+        // ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Delegation
+        // Delegation = DELEGATION-TYPE TLV-LENGTH Preference Name
+        element->parse();
+        for (const auto& del : element->elements()) {
+          switch (del.type()) {
+            case tlv::Name:
+              try {
+                m_forwardingHint.emplace_back(del);
+              }
+              catch (const tlv::Error&) {
+                NDN_THROW_NESTED(Error("Invalid Name in ForwardingHint"));
+              }
+              break;
+            case tlv::LinkDelegation:
+              try {
+                del.parse();
+                m_forwardingHint.emplace_back(del.get(tlv::Name));
+              }
+              catch (const tlv::Error&) {
+                NDN_THROW_NESTED(Error("Invalid Name in ForwardingHint.Delegation"));
+              }
+              break;
+            default:
+              if (tlv::isCriticalType(del.type())) {
+                NDN_THROW(Error("Unexpected TLV-TYPE " + to_string(del.type()) + " while decoding ForwardingHint"));
+              }
+              break;
+          }
+        }
         lastElement = 4;
         break;
       }
@@ -356,9 +387,9 @@ Interest::setName(const Name& name)
 }
 
 Interest&
-Interest::setForwardingHint(const DelegationList& value)
+Interest::setForwardingHint(std::vector<Name> value)
 {
-  m_forwardingHint = value;
+  m_forwardingHint = std::move(value);
   m_wire.reset();
   return *this;
 }
@@ -461,16 +492,22 @@ Interest::setApplicationParameters(const Block& parameters)
 }
 
 Interest&
+Interest::setApplicationParameters(span<const uint8_t> value)
+{
+  setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value));
+  addOrReplaceParametersDigestComponent();
+  m_wire.reset();
+  return *this;
+}
+
+Interest&
 Interest::setApplicationParameters(const uint8_t* value, size_t length)
 {
   if (value == nullptr && length != 0) {
     NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
   }
 
-  setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value, length));
-  addOrReplaceParametersDigestComponent();
-  m_wire.reset();
-  return *this;
+  return setApplicationParameters(make_span(value, length));
 }
 
 Interest&
@@ -611,15 +648,15 @@ Interest::extractSignedRanges() const
   wireEncode();
 
   // Get Interest name minus any ParametersSha256DigestComponent
-  // Name is guaranteed to be non-empty if wireEncode does not throw
+  // Name is guaranteed to be non-empty if wireEncode() does not throw
   BOOST_ASSERT(!m_name.empty());
   if (m_name[-1].type() != tlv::ParametersSha256DigestComponent) {
     NDN_THROW(Error("Interest Name must end with a ParametersSha256DigestComponent"));
   }
 
-  bufs.emplace_back(m_name[0].wire(), std::distance(m_name[0].wire(), m_name[-1].wire()));
+  bufs.emplace_back(m_name[0].wire(), m_name[-1].wire());
 
-  // Ensure has InterestSignatureInfo field
+  // Ensure InterestSignatureInfo element is present
   auto sigInfoIt = findFirstParameter(tlv::InterestSignatureInfo);
   if (sigInfoIt == m_parameters.end()) {
     NDN_THROW(Error("Interest missing InterestSignatureInfo"));
@@ -628,9 +665,10 @@ Interest::extractSignedRanges() const
   // Get range from ApplicationParameters to InterestSignatureValue
   // or end of parameters (whichever is first)
   BOOST_ASSERT(!m_parameters.empty() && m_parameters.begin()->type() == tlv::ApplicationParameters);
-  auto sigValueIt = findFirstParameter(tlv::InterestSignatureValue);
-  bufs.emplace_back(m_parameters.begin()->wire(),
-                    std::distance(m_parameters.begin()->begin(), std::prev(sigValueIt)->end()));
+  auto lastSignedIt = std::prev(findFirstParameter(tlv::InterestSignatureValue));
+  // Note: we assume that both iterators point to the same underlying buffer
+  bufs.emplace_back(m_parameters.front().begin(), lastSignedIt->end());
+
   return bufs;
 }
 
@@ -667,7 +705,7 @@ Interest::computeParametersDigest() const
   in >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(out);
 
   for (const auto& block : m_parameters) {
-    in.write(block.wire(), block.size());
+    in.write({block.wire(), block.size()});
   }
   in.end();
 

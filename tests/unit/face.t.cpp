@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #include "ndn-cxx/lp/tags.hpp"
 #include "ndn-cxx/transport/tcp-transport.hpp"
 #include "ndn-cxx/transport/unix-transport.hpp"
+#include "ndn-cxx/util/config-file.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 

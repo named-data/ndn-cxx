@@ -113,21 +113,20 @@ public:
       std::cout << "       +->  ";
 
     std::cout << cert.getName() << std::endl;
-	//added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1   
 	
 	Name keyName = cert.getKeyName();
 	std::ostringstream oss;
 	{
 	  using namespace ndn::security::transform;
-	  bufferSource(keyName.wireEncode().wire(), keyName.wireEncode().size())
+	  bufferSource(make_span(keyName.wireEncode().wire(), keyName.wireEncode().size()))
 		>> digestFilter(DigestAlgorithm::SHA256)
 		>> hexEncode()
 		>> streamSink(oss);
 	}
 	std::cout <<"			 Privatekey filename:"<< oss.str() << std::endl;
 #endif
-
     if (m_verboseLevel >= 3) {
       util::IndentedStream os(std::cout, "            ");
       os << cert;
@@ -202,4 +201,3 @@ ndnsec_list(int argc, char** argv)
 
 } // namespace ndnsec
 } // namespace ndn
-

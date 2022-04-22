@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,20 +31,14 @@ Error::Error(size_t index, const std::string& what)
 {
 }
 
-Downstream::Downstream()
-  : m_isEnd(false)
-  , m_index(0)
-{
-}
-
 size_t
-Downstream::write(const uint8_t* buf, size_t size)
+Downstream::write(span<const uint8_t> buf)
 {
   if (m_isEnd)
     NDN_THROW(Error(getIndex(), "Module is closed, no more input"));
 
-  size_t nBytesWritten = doWrite(buf, size);
-  BOOST_ASSERT(nBytesWritten <= size);
+  size_t nBytesWritten = doWrite(buf);
+  BOOST_ASSERT(nBytesWritten <= buf.size());
   return nBytesWritten;
 }
 
@@ -55,12 +49,7 @@ Downstream::end()
     return;
 
   m_isEnd = true;
-  return doEnd();
-}
-
-Upstream::Upstream()
-  : m_next(nullptr)
-{
+  doEnd();
 }
 
 void
@@ -75,20 +64,13 @@ Upstream::appendChain(unique_ptr<Downstream> tail)
   }
 }
 
-Transform::Transform()
-  : m_oBuffer(nullptr)
-  , m_outputOffset(0)
-{
-}
-
 void
 Transform::flushOutputBuffer()
 {
   if (isOutputBufferEmpty())
     return;
 
-  size_t nWritten = m_next->write(&(*m_oBuffer)[m_outputOffset],
-                                  m_oBuffer->size() - m_outputOffset);
+  size_t nWritten = m_next->write(make_span(*m_oBuffer).subspan(m_outputOffset));
   m_outputOffset += nWritten;
 }
 
@@ -111,11 +93,11 @@ Transform::setOutputBuffer(unique_ptr<OBuffer> buffer)
 bool
 Transform::isOutputBufferEmpty() const
 {
-  return (m_oBuffer == nullptr || m_oBuffer->size() == m_outputOffset);
+  return m_oBuffer == nullptr || m_oBuffer->size() == m_outputOffset;
 }
 
 size_t
-Transform::doWrite(const uint8_t* data, size_t dataLen)
+Transform::doWrite(span<const uint8_t> data)
 {
   flushOutputBuffer();
   if (!isOutputBufferEmpty())
@@ -126,10 +108,8 @@ Transform::doWrite(const uint8_t* data, size_t dataLen)
   if (!isOutputBufferEmpty())
     return 0;
 
-  size_t nConverted = convert(data, dataLen);
-
+  size_t nConverted = convert(data);
   flushOutputBuffer();
-
   return nConverted;
 }
 
@@ -151,11 +131,6 @@ Transform::finalize()
   flushAllOutput();
 }
 
-Source::Source()
-  : m_nModules(1) // source per se is counted as one module
-{
-}
-
 void
 Source::pump()
 {
@@ -167,7 +142,7 @@ Source::operator>>(unique_ptr<Transform> transform)
 {
   transform->setIndex(m_nModules);
   m_nModules++;
-  this->appendChain(std::move(transform));
+  appendChain(std::move(transform));
 
   return *this;
 }
@@ -177,9 +152,9 @@ Source::operator>>(unique_ptr<Sink> sink)
 {
   sink->setIndex(m_nModules);
   m_nModules++;
-  this->appendChain(std::move(sink));
+  appendChain(std::move(sink));
 
-  this->pump();
+  pump();
 }
 
 } // namespace transform

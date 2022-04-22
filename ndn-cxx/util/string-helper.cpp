@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,18 +42,17 @@ printHex(std::ostream& os, uint64_t num, bool wantUpperCase)
 }
 
 void
-printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase)
+printHex(std::ostream& os, span<const uint8_t> buffer, bool wantUpperCase)
 {
   namespace tr = security::transform;
-  BOOST_ASSERT(buffer != nullptr || length == 0);
-  tr::bufferSource(buffer, length) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(os);
+  tr::bufferSource(buffer) >> tr::hexEncode(wantUpperCase) >> tr::streamSink(os);
 }
 
 std::string
-toHex(const uint8_t* buffer, size_t length, bool wantUpperCase)
+toHex(span<const uint8_t> buffer, bool wantUpperCase)
 {
   std::ostringstream result;
-  printHex(result, buffer, length, wantUpperCase);
+  printHex(result, buffer, wantUpperCase);
   return result.str();
 }
 

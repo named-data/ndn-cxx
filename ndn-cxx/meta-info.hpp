@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,26 +35,25 @@ namespace ndn {
 const time::milliseconds DEFAULT_FRESHNESS_PERIOD = time::milliseconds::zero();
 
 /**
- * A MetaInfo holds the meta info which is signed inside the data packet.
+ * @brief A MetaInfo holds the meta info which is signed inside the data packet.
  *
- * The class allows experimentation with application-defined meta information blocks,
- * which slightly violates NDN-TLV specification.  When using the application-defined
- * meta information blocks be aware that this may result in packet drop (NFD and
- * previous versions of ndn-cxx will gracefully accept such packet).
+ * The class allows experimentation with application-defined meta-information elements.
+ * When using these application-defined elements, be aware that it may result in dropped
+ * packets (NFD and previous versions of ndn-cxx will gracefully accept such packets).
  *
- * The following definition of MetaInfo block is assumed in this implementation (compared
- * to the NDN-TLV spec, definition extended to allow optional AppMetaInfo TLV blocks):
+ * The following definition of the MetaInfo element is assumed in this implementation (compared
+ * to the NDN-TLV spec, the definition is extended to allow optional AppMetaInfo elements):
  *
- *     MetaInfo ::= META-INFO-TYPE TLV-LENGTH
- *                    ContentType?
- *                    FreshnessPeriod?
- *                    FinalBlockId?
- *                    AppMetaInfo*
+ *     MetaInfo = META-INFO-TYPE TLV-LENGTH
+ *                  [ContentType]
+ *                  [FreshnessPeriod]
+ *                  [FinalBlockId]
+ *                  *AppMetaInfo
  *
- *     AppMetaInfo ::= any TLV block with type in the restricted application range [128, 252]
+ * Note that AppMetaInfo elements are application-defined and must have a TLV-TYPE inside
+ * the range reserved for application use, i.e., `[128, 252]`.
  *
- * Note that AppMetaInfo blocks are application-defined and must have TLV type from
- * the restricted application range [128, 252].
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html#metainfo
  */
 class MetaInfo
 {
@@ -133,8 +132,6 @@ public: // app-defined MetaInfo items
   /**
    * @brief Get all app-defined MetaInfo items
    *
-   * @note Warning: Experimental API, which may change or disappear in the future
-   *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
    */
@@ -147,9 +144,7 @@ public: // app-defined MetaInfo items
    * This method will replace all existing app-defined MetaInfo items, if they existed.
    *
    * @throw Error if some block in @p info has type not in the application range
-   *              (http://named-data.net/doc/ndn-tlv/types.html)
-   *
-   * @note Warning: Experimental API, which may change or disappear in the future
+   *              (https://named-data.net/doc/NDN-packet-spec/0.3/types.html)
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
@@ -161,9 +156,7 @@ public: // app-defined MetaInfo items
    * @brief Add an app-defined MetaInfo item
    *
    * @throw Error if @p block has type not in the application range
-   *              (http://named-data.net/doc/ndn-tlv/types.html)
-   *
-   * @note Warning: Experimental API, which may change or disappear in the future
+   *              (https://named-data.net/doc/NDN-packet-spec/0.3/types.html)
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
@@ -175,8 +168,6 @@ public: // app-defined MetaInfo items
    * @brief Remove a first app-defined MetaInfo item with type @p tlvType
    *
    * @return true if an item was deleted
-   *
-   * @note Warning: Experimental API, which may change or disappear in the future
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
@@ -190,9 +181,7 @@ public: // app-defined MetaInfo items
    * @return NULL if an item is not found, otherwise const pointer to the item
    *
    * @throw Error if @p tlvType is not in the application range
-   *              (http://named-data.net/doc/ndn-tlv/types.html)
-   *
-   * @note Warning: Experimental API, which may change or disappear in the future
+   *              (https://named-data.net/doc/NDN-packet-spec/0.3/types.html)
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost

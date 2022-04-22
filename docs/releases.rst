@@ -9,6 +9,12 @@ All ndn-cxx Releases
 
     release-notes/*
 
+* **ndn-cxx version 0.8.0**
+  (:doc:`Release Notes <release-notes/release-notes-0.8.0>`, `Documentation <https://named-data.net/doc/ndn-cxx/0.8.0/>`__)
+
+  `src (git) <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.8.0>`__,
+  `src (tarball) <https://named-data.net/downloads/ndn-cxx-0.8.0.tar.bz2>`__ (`checksum <https://named-data.net/downloads/ndn-cxx-0.8.0.tar.bz2.sha256>`__)
+
 * **ndn-cxx version 0.7.1**
   (:doc:`Release Notes <release-notes/release-notes-0.7.1>`, `Documentation <https://named-data.net/doc/ndn-cxx/0.7.1/>`__)
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -62,12 +62,12 @@ BOOST_AUTO_TEST_CASE(SharedImpl)
   BOOST_CHECK_NE(identity1, Identity());
   BOOST_CHECK_EQUAL(Identity(), Identity());
 
-	//added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::NONE;
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name, keyType);
+  identity1.addKey(id1Key1, id1Key1Name, keyType);
 #else
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  identity1.addKey(id1Key1, id1Key1Name);
 #endif
 
   BOOST_CHECK_NO_THROW(identity2.getKey(id1Key1Name));
@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE(SharedImpl)
 
 //added_GM, by liupenghui
 #if 1
-  identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name, keyType);
+  identity1.setDefaultKey(id1Key1, id1Key1Name, keyType);
 #else
-  identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  identity1.setDefaultKey(id1Key1, id1Key1Name);
 #endif
   BOOST_CHECK_NO_THROW(identity2.getDefaultKey());
 }
@@ -91,4 +91,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

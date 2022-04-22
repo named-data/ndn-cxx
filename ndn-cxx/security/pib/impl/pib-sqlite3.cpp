@@ -34,7 +34,6 @@ namespace security {
 namespace pib {
 
 using util::Sqlite3Statement;
-
 //added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1
@@ -351,8 +350,10 @@ CREATE TRIGGER IF NOT EXISTS
       WHERE key_id=NEW.key_id;
   END;
 )SQL";
+
 	
 #endif
+
 
 PibSqlite3::PibSqlite3(const std::string& location)
 {
@@ -530,8 +531,7 @@ PibSqlite3::hasKey(const Name& keyName) const
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
 void
-PibSqlite3::addKey(const Name& identity, const Name& keyName, KeyType keyType,
-                   const uint8_t* key, size_t keyLen)
+PibSqlite3::addKey(const Name& identity, const Name& keyName, KeyType keyType, span<const uint8_t> key)
 {
   // ensure identity exists
   addIdentity(identity);
@@ -542,14 +542,14 @@ PibSqlite3::addKey(const Name& identity, const Name& keyName, KeyType keyType,
                                "VALUES ((SELECT id FROM identities WHERE identity=?), ?, ?, ?)");
     statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
     statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
-    statement.bind(3, key, keyLen, SQLITE_STATIC);
+    statement.bind(3, key.data(), key.size(), SQLITE_STATIC);
     statement.bind(4, (int)keyType);
     statement.step();
   }
   else {
     Sqlite3Statement statement(m_database,
                                "UPDATE keys SET key_bits=?, key_type=? WHERE key_name=?");
-    statement.bind(1, key, keyLen, SQLITE_STATIC);
+    statement.bind(1, key.data(), key.size(), SQLITE_STATIC);
     statement.bind(2, (int)keyType);
     statement.bind(3, keyName.wireEncode(), SQLITE_TRANSIENT);
     statement.step();
@@ -559,11 +559,9 @@ PibSqlite3::addKey(const Name& identity, const Name& keyName, KeyType keyType,
     setDefaultKeyOfIdentity(identity, keyName);
   }
 }
-
 #else
 void
-PibSqlite3::addKey(const Name& identity, const Name& keyName,
-                   const uint8_t* key, size_t keyLen)
+PibSqlite3::addKey(const Name& identity, const Name& keyName, span<const uint8_t> key)
 {
   // ensure identity exists
   addIdentity(identity);
@@ -574,13 +572,13 @@ PibSqlite3::addKey(const Name& identity, const Name& keyName,
                                "VALUES ((SELECT id FROM identities WHERE identity=?), ?, ?)");
     statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
     statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
-    statement.bind(3, key, keyLen, SQLITE_STATIC);
+    statement.bind(3, key.data(), key.size(), SQLITE_STATIC);
     statement.step();
   }
   else {
     Sqlite3Statement statement(m_database,
                                "UPDATE keys SET key_bits=? WHERE key_name=?");
-    statement.bind(1, key, keyLen, SQLITE_STATIC);
+    statement.bind(1, key.data(), key.size(), SQLITE_STATIC);
     statement.bind(2, keyName.wireEncode(), SQLITE_TRANSIENT);
     statement.step();
   }
@@ -589,7 +587,6 @@ PibSqlite3::addKey(const Name& identity, const Name& keyName,
     setDefaultKeyOfIdentity(identity, keyName);
   }
 }
-
 #endif
 
 
@@ -703,9 +700,9 @@ void
 PibSqlite3::addCertificate(const Certificate& certificate)
 {
   // ensure key exists
-  const Block& content = certificate.getContent();
-	//added_GM, by liupenghui
-	// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
+  const auto& content = certificate.getContent();
+//added_GM, by liupenghui
+// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
   KeyType keyType = KeyType::NONE;
   int32_t Signature_type = certificate.getSignatureType();
@@ -717,10 +714,12 @@ PibSqlite3::addCertificate(const Certificate& certificate)
     keyType =  KeyType::HMAC;
   else if (Signature_type == tlv::SignatureSm3WithSm2)
     keyType =  KeyType::SM2;
-	  
-  addKey(certificate.getIdentity(), certificate.getKeyName(), keyType, content.value(), content.value_size());
+    
+  addKey(certificate.getIdentity(), certificate.getKeyName(), keyType,
+  	   {content.value(), content.value_size()});
 #else
-  addKey(certificate.getIdentity(), certificate.getKeyName(), content.value(), content.value_size());
+  addKey(certificate.getIdentity(), certificate.getKeyName(),
+         {content.value(), content.value_size()});
 #endif
 
   if (!hasCertificate(certificate.getName())) {
@@ -827,4 +826,3 @@ PibSqlite3::hasDefaultCertificateOfKey(const Name& keyName) const
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,7 +49,7 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-class PublicKey::Impl
+class PublicKey::Impl : noncopyable
 {
 public:
   Impl() noexcept
@@ -95,11 +95,12 @@ PublicKey::getKeyType() const
 }
 
 void
-PublicKey::loadPkcs8(const uint8_t* buf, size_t size)
+PublicKey::loadPkcs8(span<const uint8_t> buf)
 {
   ENSURE_PUBLIC_KEY_NOT_LOADED(m_impl->key);
 
-  if (d2i_PUBKEY(&m_impl->key, &buf, static_cast<long>(size)) == nullptr)
+  auto ptr = buf.data();
+  if (d2i_PUBKEY(&m_impl->key, &ptr, static_cast<long>(buf.size())) == nullptr)
     NDN_THROW(Error("Failed to load public key"));
 }
 
@@ -108,15 +109,15 @@ PublicKey::loadPkcs8(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size());
+  loadPkcs8(*os.buf());
 }
 
 void
-PublicKey::loadPkcs8Base64(const uint8_t* buf, size_t size)
+PublicKey::loadPkcs8Base64(span<const uint8_t> buf)
 {
   OBufferStream os;
-  bufferSource(buf, size) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size());
+  bufferSource(buf) >> base64Decode() >> streamSink(os);
+  loadPkcs8(*os.buf());
 }
 
 void
@@ -124,50 +125,47 @@ PublicKey::loadPkcs8Base64(std::istream& is)
 {
   OBufferStream os;
   streamSource(is) >> base64Decode() >> streamSink(os);
-  this->loadPkcs8(os.buf()->data(), os.buf()->size());
+  loadPkcs8(*os.buf());
 }
 
 void
 PublicKey::savePkcs8(std::ostream& os) const
 {
-  bufferSource(*this->toPkcs8()) >> streamSink(os);
+  bufferSource(*toPkcs8()) >> streamSink(os);
 }
 
 void
 PublicKey::savePkcs8Base64(std::ostream& os) const
 {
-  bufferSource(*this->toPkcs8()) >> base64Encode() >> streamSink(os);
+  bufferSource(*toPkcs8()) >> base64Encode() >> streamSink(os);
 }
-
 
 //added_GM, by liupenghui
 //detail::getEvpPkeyType(m_impl->key)) can't differ SM2 from ECDSA, thus, we add a parameter keyType.
 #if 1
 ConstBufferPtr
-PublicKey::encrypt(const uint8_t* plainText, size_t plainLen, KeyType keyType) const
+PublicKey::encrypt(span<const uint8_t> plainText, KeyType keyType) const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
-  //int keyType = detail::getEvpPkeyType(m_impl->key);
+ // int keyType = detail::getEvpPkeyType(m_impl->key);
   switch (keyType) {
     case KeyType::NONE:
       NDN_THROW(Error("Failed to determine key type"));
     case KeyType::RSA:
-      return rsaEncrypt(plainText, plainLen);
+      return rsaEncrypt(plainText);
 //added_GM, by liupenghui
 #if 1
-    case KeyType::SM2:
-      return sm2Encrypt(plainText, plainLen);
+	case KeyType::SM2:
+	  return sm2Encrypt(plainText);
 #endif
     default:
       NDN_THROW(Error("Encryption is not supported for key type " + to_string((int)keyType)));
   }
 }
-
 #else
-
 ConstBufferPtr
-PublicKey::encrypt(const uint8_t* plainText, size_t plainLen) const
+PublicKey::encrypt(span<const uint8_t> plainText) const
 {
   ENSURE_PUBLIC_KEY_LOADED(m_impl->key);
 
@@ -176,17 +174,13 @@ PublicKey::encrypt(const uint8_t* plainText, size_t plainLen) const
     case EVP_PKEY_NONE:
       NDN_THROW(Error("Failed to determine key type"));
     case EVP_PKEY_RSA:
-      return rsaEncrypt(plainText, plainLen);
-//added_GM, by liupenghui
-#if 1
-    case KeyType::SM2:
-  	  return sm2Encrypt(plainText, plainLen);
-#endif
+      return rsaEncrypt(plainText);
     default:
       NDN_THROW(Error("Encryption is not supported for key type " + to_string(keyType)));
   }
 }
 #endif
+
 
 void*
 PublicKey::getEvpPkey() const
@@ -211,7 +205,7 @@ PublicKey::toPkcs8() const
 }
 
 ConstBufferPtr
-PublicKey::rsaEncrypt(const uint8_t* plainText, size_t plainLen) const
+PublicKey::rsaEncrypt(span<const uint8_t> plainText) const
 {
   detail::EvpPkeyCtx ctx(m_impl->key);
 
@@ -223,11 +217,11 @@ PublicKey::rsaEncrypt(const uint8_t* plainText, size_t plainLen) const
 
   size_t outlen = 0;
   // Determine buffer length
-  if (EVP_PKEY_encrypt(ctx, nullptr, &outlen, plainText, plainLen) <= 0)
+  if (EVP_PKEY_encrypt(ctx, nullptr, &outlen, plainText.data(), plainText.size()) <= 0)
     NDN_THROW(Error("Failed to estimate output length"));
 
   auto out = make_shared<Buffer>(outlen);
-  if (EVP_PKEY_encrypt(ctx, out->data(), &outlen, plainText, plainLen) <= 0)
+  if (EVP_PKEY_encrypt(ctx, out->data(), &outlen, plainText.data(), plainText.size()) <= 0)
     NDN_THROW(Error("Failed to encrypt plaintext"));
 
   out->resize(outlen);
@@ -237,7 +231,7 @@ PublicKey::rsaEncrypt(const uint8_t* plainText, size_t plainLen) const
 //added_GM, by liupenghui
 #if 1
 ConstBufferPtr
-PublicKey::sm2Encrypt(const uint8_t* plainText, size_t plainLen) const
+PublicKey::sm2Encrypt(span<const uint8_t> plainText) const
 {
   size_t outlen = 0;
 	
@@ -251,13 +245,13 @@ PublicKey::sm2Encrypt(const uint8_t* plainText, size_t plainLen) const
     NDN_THROW(Error("Failed to initialize decryption context"));
   }
 	
-  if ((EVP_PKEY_encrypt(ectx, nullptr, &outlen, plainText, plainLen)) != 1) {
+  if ((EVP_PKEY_encrypt(ectx, nullptr, &outlen, plainText.data(), plainText.size())) != 1) {
     NDN_THROW(Error("Failed to estimate output length"));
   }
 	
   auto out = make_shared<Buffer>(outlen);
 	
-  if ((EVP_PKEY_encrypt(ectx, out->data(), &outlen, plainText, plainLen)) != 1) {
+  if ((EVP_PKEY_encrypt(ectx, out->data(), &outlen, plainText.data(), plainText.size())) != 1) {
     NDN_THROW(Error("Failed to encrypt plaintext"));
   }
 	
@@ -270,4 +264,3 @@ PublicKey::sm2Encrypt(const uint8_t* plainText, size_t plainLen) const
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

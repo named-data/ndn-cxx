@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,9 +30,9 @@ namespace security {
 namespace transform {
 
 /**
- * @brief The module to calculate digest.
+ * @brief The module to calculate digests.
  */
-class DigestFilter : public Transform
+class DigestFilter final : public Transform
 {
 public:
   /**
@@ -41,7 +41,7 @@ public:
   explicit
   DigestFilter(DigestAlgorithm algo);
 
-  ~DigestFilter();
+  ~DigestFilter() final;
 
 private:
   /**
@@ -50,7 +50,7 @@ private:
    * @return The number of bytes that have been accepted
    */
   size_t
-  convert(const uint8_t* buf, size_t size) final;
+  convert(span<const uint8_t> buf) final;
 
   /**
    * @brief Finalize digest calculation and write the digest into next module.

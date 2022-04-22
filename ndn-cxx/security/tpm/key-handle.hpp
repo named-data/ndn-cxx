@@ -50,73 +50,42 @@ public:
   /**
    * @brief Generate a digital signature for @p bufs using this key with @p digestAlgorithm.
    */
-
   //added_GM, by liupenghui
   //SM2 Signer must use SM3, force to use SM3.
   // After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
-#if 1	
+#if 1
 	ConstBufferPtr
-	sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyType keyType) const;
-	
+	sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,KeyType keyType) const;
+  
 	/**
-	 * @brief Generate a digital signature for @p buf using this key with @p digestAlgorithm.
-	 */
-	ConstBufferPtr
-	sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size, KeyType keyType) const;
-	
-	/**
-	 * @brief Verify the signature @p sig for @p bufs using this key and @p digestAlgorithm.
+	 * @brief Verify the signature @p sig over @p bufs using this key and @p digestAlgorithm.
 	 */
 	bool
 	verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-		   const uint8_t* sig, size_t sigLen, KeyType keyType) const;
-	
-	/**
-	 * @brief Verify the signature @p sig for @p buf using this key and @p digestAlgorithm.
-	 */
-	bool
-	verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
-		   const uint8_t* sig, size_t sigLen, KeyType keyType) const;
-	
+					span<const uint8_t> sig, KeyType keyType) const;
 	/**
 	 * @brief Return plain text content decrypted from @p cipherText using this key.
 	 */
 	ConstBufferPtr
-	decrypt(const uint8_t* cipherText, size_t cipherTextLen, KeyType keyType) const;
-	
+	decrypt(span<const uint8_t> cipherText, KeyType keyType) const;
   
 #else
 	ConstBufferPtr
 	sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const;
 	
 	/**
-	 * @brief Generate a digital signature for @p buf using this key with @p digestAlgorithm.
-	 */
-	ConstBufferPtr
-	sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const;
-	
-	/**
-	 * @brief Verify the signature @p sig for @p bufs using this key and @p digestAlgorithm.
+	 * @brief Verify the signature @p sig over @p bufs using this key and @p digestAlgorithm.
 	 */
 	bool
-	verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-		   const uint8_t* sig, size_t sigLen) const;
-	
-	/**
-	 * @brief Verify the signature @p sig for @p buf using this key and @p digestAlgorithm.
-	 */
-	bool
-	verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
-		   const uint8_t* sig, size_t sigLen) const;
+	verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, span<const uint8_t> sig) const;
 	
 	/**
 	 * @brief Return plain text content decrypted from @p cipherText using this key.
 	 */
 	ConstBufferPtr
-	decrypt(const uint8_t* cipherText, size_t cipherTextLen) const;
-	
+	decrypt(span<const uint8_t> cipherText) const;
 #endif
-   
+
   /**
    * @return the PCKS#8 encoded public key bits derived from this key.
    */
@@ -139,27 +108,25 @@ private:
 //added_GM, by liupenghui
 //SM2 Signer must use SM3, force to use SM3.
 // After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
-#if 1   
+#if 1
   virtual ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyType keyType) const = 0;
+  doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs, KeyType keyType) const = 0;
   
   virtual bool
-  doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-  		const uint8_t* sig, size_t sigLen, KeyType keyType) const = 0;
+  doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs, span<const uint8_t> sig, KeyType keyType) const = 0;
   
   virtual ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen, KeyType keyType) const = 0;
+  doDecrypt(span<const uint8_t> cipherText, KeyType keyType) const = 0;
   
 #else
   virtual ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const = 0;
+  doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs) const = 0;
   
   virtual bool
-  doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-  		const uint8_t* sig, size_t sigLen) const = 0;
+  doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs, span<const uint8_t> sig) const = 0;
   
   virtual ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const = 0;
+  doDecrypt(span<const uint8_t> cipherText) const = 0;
 #endif
 
   virtual ConstBufferPtr

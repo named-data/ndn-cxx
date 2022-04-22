@@ -47,13 +47,13 @@ operator<<(std::ostream& os, KeyType keyType)
       return os << "NONE";
     case KeyType::RSA:
       return os << "RSA";
+    case KeyType::EC:
+      return os << "EC";
 //added_GM, by liupenghui
 #if 1
     case KeyType::SM2:
-  	return os << "SM2";
+      return os << "SM2";
 #endif
-    case KeyType::EC:
-      return os << "EC";
     case KeyType::AES:
       return os << "AES";
     case KeyType::HMAC:
@@ -91,7 +91,7 @@ operator<<(std::ostream& os, DigestAlgorithm algorithm)
 //added_GM, by liupenghui
 #if 1
     case DigestAlgorithm::SM3:
-  	return os << "SM3";
+  	  return os << "SM3";
 #endif	  
   }
   return os << to_underlying(algorithm);
@@ -108,19 +108,19 @@ operator<<(std::ostream& os, BlockCipherAlgorithm algorithm)
 //added_GM, by liupenghui
 #if 1
     case BlockCipherAlgorithm::AES_CFB:
-  	return os << "AES_CFB";
+  	  return os << "AES_CFB";
     case BlockCipherAlgorithm::AES_OFB:
-  	return os << "AES_OFB";
+  	  return os << "AES_OFB";
     case BlockCipherAlgorithm::SM4_CBC:
-  	return os << "SM4_CBC";
+  	  return os << "SM4_CBC";
     case BlockCipherAlgorithm::SM4_EBC:
-  	return os << "SM4_EBC";
+  	  return os << "SM4_EBC";
     case BlockCipherAlgorithm::AES_EBC:
-  	return os << "AES_EBC";
+  	  return os << "AES_EBC";
     case BlockCipherAlgorithm::SM4_CFB:
-  	return os << "SM4_CFB";
+  	  return os << "SM4_CFB";
     case BlockCipherAlgorithm::SM4_OFB:
-  	return os << "SM4_OFB";
+  	  return os << "SM4_OFB";
 #endif
   }
   return os << to_underlying(algorithm);
@@ -139,4 +139,3 @@ operator<<(std::ostream& os, CipherOperator op)
 }
 
 } // namespace ndn
-

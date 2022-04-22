@@ -23,6 +23,7 @@
 #define NDN_CXX_UTIL_RANDOM_HPP
 
 #include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/util/span.hpp"
 
 #include <random>
 
@@ -46,12 +47,22 @@ uint64_t
 generateSecureWord64();
 
 /**
- * @brief Fill @p bytes of @p size with cryptographically secure random bytes
+ * @brief Fill @p buffer with cryptographically secure random bytes
  *
  * @throw std::runtime_error if generation fails.
  */
 void
-generateSecureBytes(uint8_t* bytes, size_t size);
+generateSecureBytes(span<uint8_t> buffer);
+
+/**
+ * @deprecated Use generateSecureBytes(span<uint8_t>)
+ */
+[[deprecated("use the overload that takes a span<>")]]
+inline void
+generateSecureBytes(uint8_t* bytes, size_t size)
+{
+  generateSecureBytes({bytes, size});
+}
 
 using RandomNumberEngine = std::mt19937;
 

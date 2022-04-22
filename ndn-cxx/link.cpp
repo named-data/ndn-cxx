@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,14 +32,14 @@ static_assert(std::is_base_of<Data::Error, Link::Error>::value,
 
 Link::Link() = default;
 
-Link::Link(const Block& wire, bool wantSort)
+Link::Link(const Block& wire)
 {
-  this->wireDecode(wire, wantSort);
+  this->wireDecode(wire);
 }
 
-Link::Link(const Name& name, std::initializer_list<Delegation> dels)
+Link::Link(const Name& name, std::initializer_list<Name> delegations)
   : Data(name)
-  , m_delList(dels)
+  , m_delegations(delegations)
 {
   encodeContent();
 }
@@ -49,22 +49,16 @@ Link::encodeContent()
 {
   setContentType(tlv::ContentType_Link);
 
-  if (m_delList.size() > 0) {
-    EncodingEstimator estimator;
-    size_t estimatedSize = m_delList.wireEncode(estimator, tlv::Content);
-
-    EncodingBuffer buffer(estimatedSize, 0);
-    m_delList.wireEncode(buffer, tlv::Content);
-
-    setContent(buffer.block());
+  if (m_delegations.empty()) {
+    setContent(span<uint8_t>{});
   }
   else {
-    setContent(nullptr, 0);
+    setContent(makeNestedBlock(tlv::Content, m_delegations.begin(), m_delegations.end()));
   }
 }
 
 void
-Link::wireDecode(const Block& wire, bool wantSort)
+Link::wireDecode(const Block& wire)
 {
   Data::wireDecode(wire);
 
@@ -72,31 +66,51 @@ Link::wireDecode(const Block& wire, bool wantSort)
     NDN_THROW(Error("Expecting ContentType Link, got " + to_string(getContentType())));
   }
 
-  m_delList.wireDecode(getContent(), wantSort);
+  // LinkContent = CONTENT-TYPE TLV-LENGTH 1*Name
+
+  m_delegations.clear();
+  auto content = getContent();
+  content.parse();
+  for (const auto& del : content.elements()) {
+    if (del.type() == tlv::Name) {
+      m_delegations.emplace_back(del);
+    }
+    else if (tlv::isCriticalType(del.type())) {
+      NDN_THROW(Error("Unexpected TLV-TYPE " + to_string(del.type()) + " while decoding LinkContent"));
+    }
+  }
 }
 
 void
-Link::setDelegationList(const DelegationList& dels)
+Link::setDelegationList(std::vector<Name> delegations)
 {
-  m_delList = dels;
+  m_delegations = std::move(delegations);
   encodeContent();
 }
 
-void
-Link::addDelegation(uint32_t preference, const Name& name)
+bool
+Link::addDelegation(const Name& name)
 {
-  m_delList.insert(preference, name, DelegationList::INS_REPLACE);
+  if (std::find(m_delegations.begin(), m_delegations.end(), name) != m_delegations.end()) {
+    return false;
+  }
+
+  m_delegations.push_back(name);
   encodeContent();
+  return true;
 }
 
 bool
 Link::removeDelegation(const Name& name)
 {
-  size_t nErased = m_delList.erase(name);
-  if (nErased > 0) {
-    encodeContent();
+  auto last = std::remove(m_delegations.begin(), m_delegations.end(), name);
+  if (last == m_delegations.end()) {
+    return false;
   }
-  return nErased > 0;
+
+  m_delegations.erase(last, m_delegations.end());
+  encodeContent();
+  return true;
 }
 
 } // namespace ndn

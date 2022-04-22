@@ -63,22 +63,22 @@ public:
   }
 
   /**
-   * @brief Add a @p key of @p keyLen bytes with @p keyName (in PKCS#8 format).
+   * @brief Add @p key with name @p keyName (in PKCS #8 format).
    *
    * If no default key is set before, the new key will be set as the default key of the identity.
-   * If a key with the same name already exists, overwrite the key.
+   * If a key with the same name already exists, it will be overwritten.
    *
    * @return the added key.
    * @throw std::invalid_argument key name does not match identity
    */
-//added_GM, by liupenghui
-// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
+  //added_GM, by liupenghui
+  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1   
 	Key
-	addKey(const uint8_t* key, size_t keyLen, const Name& keyName, KeyType keyType);
+	addKey(span<const uint8_t> key, const Name& keyName, KeyType keyType);
 #else
 	Key
-	addKey(const uint8_t* key, size_t keyLen, const Name& keyName);
+	addKey(span<const uint8_t> key, const Name& keyName);
 #endif
 
   /**
@@ -113,19 +113,19 @@ public:
   setDefaultKey(const Name& keyName);
 
   /**
-   * @brief Add @p key of @p keyLen bytes with @p keyName and set it as the default key
+   * @brief Add @p key with name @p keyName and set it as the default key.
    * @throw std::invalid_argument @p keyName does not match identity
    * @throw Pib::Error the key with the same name already exists
    * @return the default key
    */
-//added_GM, by liupenghui
-// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
+  //added_GM, by liupenghui
+  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1   
-	const Key&
-	setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName, KeyType keyType);
+  const Key&
+  setDefaultKey(span<const uint8_t> key, const Name& keyName, KeyType keyType);
 #else
-	const Key&
-	setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName);
+  const Key&
+  setDefaultKey(span<const uint8_t> key, const Name& keyName);
 #endif
 
   /**
@@ -151,4 +151,3 @@ private:
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_PIB_IMPL_IDENTITY_IMPL_HPP
-

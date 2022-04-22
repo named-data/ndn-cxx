@@ -95,16 +95,15 @@ public: // Key management
   bool
   hasKey(const Name& keyName) const final;
 
-  //added_GM, by liupenghui
-  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
+
+//added_GM, by liupenghui
+// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
   void
-  addKey(const Name& identity, const Name& keyName, KeyType keyType,
-  	   const uint8_t* key, size_t keyLen) final;
+  addKey(const Name& identity, const Name& keyName, KeyType keyType, span<const uint8_t> key) final;
 #else
   void
-  addKey(const Name& identity, const Name& keyName,
-  	   const uint8_t* key, size_t keyLen) final;
+  addKey(const Name& identity, const Name& keyName, span<const uint8_t> key) final;
 #endif
 
   void
@@ -112,9 +111,9 @@ public: // Key management
 
   Buffer
   getKeyBits(const Name& keyName) const final;
-
-  //added_GM, by liupenghui
-  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
+  
+//added_GM, by liupenghui
+// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
   int
   getKeyType(const Name& keyName) const final;
@@ -170,4 +169,3 @@ private:
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITTY_PIB_IMPL_PIB_SQLITE3_HPP
-

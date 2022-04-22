@@ -34,9 +34,9 @@ class PibImpl;
 namespace detail {
 
 /**
- * @brief Backend instance of Key
+ * @brief Backend instance of Key.
  *
- * An Key has only one backend instance, but may have multiple frontend handles.
+ * A Key has only one backend instance, but may have multiple frontend handles.
  * Each frontend handle is associated with the only one backend KeyImpl.
  *
  * @throw PibImpl::Error when underlying implementation has non-semantic error.
@@ -51,17 +51,16 @@ public:
    * If a key with the same name already exists, it will be overwritten.
    *
    * @param keyName The name of the key.
-   * @param key The public key to add.
-   * @param keyLen The length of the key.
+   * @param key The public key bits.
    * @param pibImpl The Pib backend implementation.
    * @throw std::invalid_argument @p key is invalid.
    */
-  //added_GM, by liupenghui
-  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
+//added_GM, by liupenghui
+// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1
-  KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, KeyType keyType, shared_ptr<PibImpl> pibImpl);
+  KeyImpl(const Name& keyName, span<const uint8_t> key, KeyType keyType, shared_ptr<PibImpl> pibImpl);
 #else
-  KeyImpl(const Name& keyName, const uint8_t* key, size_t keyLen, shared_ptr<PibImpl> pibImpl);
+  KeyImpl(const Name& keyName, span<const uint8_t> key, shared_ptr<PibImpl> pibImpl);
 #endif
 
   /**
@@ -103,7 +102,7 @@ public:
   /**
    * @brief Get public key bits.
    */
-  const Buffer&
+  span<const uint8_t>
   getPublicKey() const
   {
     return m_key;
@@ -191,4 +190,3 @@ private:
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_PIB_IMPL_KEY_IMPL_HPP
-

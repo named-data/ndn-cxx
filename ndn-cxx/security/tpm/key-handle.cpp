@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,30 +36,17 @@ KeyHandle::sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyTy
   return doSign(digestAlgorithm, bufs, keyType);
 }
 
-ConstBufferPtr
-KeyHandle::sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size, KeyType keyType) const
-{
-  return doSign(digestAlgorithm, {{buf, size}}, keyType);
-}
-
 bool
 KeyHandle::verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-                  const uint8_t* sig, size_t sigLen, KeyType keyType) const
+                  span<const uint8_t> sig, KeyType keyType) const
 {
-  return doVerify(digestAlgorithm, bufs, sig, sigLen, keyType);
-}
-
-bool
-KeyHandle::verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
-                  const uint8_t* sig, size_t sigLen, KeyType keyType) const
-{
-  return doVerify(digestAlgorithm, {{buf, bufLen}}, sig, sigLen, keyType);
+  return doVerify(digestAlgorithm, bufs, sig, keyType);
 }
 
 ConstBufferPtr
-KeyHandle::decrypt(const uint8_t* cipherText, size_t cipherTextLen, KeyType keyType) const
+KeyHandle::decrypt(span<const uint8_t> cipherText, KeyType keyType) const
 {
-  return doDecrypt(cipherText, cipherTextLen, keyType);
+  return doDecrypt(cipherText, keyType);
 }
 
 #else
@@ -69,32 +56,18 @@ KeyHandle::sign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const
   return doSign(digestAlgorithm, bufs);
 }
 
-ConstBufferPtr
-KeyHandle::sign(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t size) const
-{
-  return doSign(digestAlgorithm, {{buf, size}});
-}
-
 bool
 KeyHandle::verify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-                  const uint8_t* sig, size_t sigLen) const
+                  span<const uint8_t> sig) const
 {
-  return doVerify(digestAlgorithm, bufs, sig, sigLen);
-}
-
-bool
-KeyHandle::verify(DigestAlgorithm digestAlgorithm, const uint8_t* buf, size_t bufLen,
-                  const uint8_t* sig, size_t sigLen) const
-{
-  return doVerify(digestAlgorithm, {{buf, bufLen}}, sig, sigLen);
+  return doVerify(digestAlgorithm, bufs, sig);
 }
 
 ConstBufferPtr
-KeyHandle::decrypt(const uint8_t* cipherText, size_t cipherTextLen) const
+KeyHandle::decrypt(span<const uint8_t> cipherText) const
 {
-  return doDecrypt(cipherText, cipherTextLen);
+  return doDecrypt(cipherText);
 }
-
 
 #endif
 
@@ -108,4 +81,3 @@ KeyHandle::derivePublicKey() const
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-

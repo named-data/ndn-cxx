@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,6 @@
 #define NDN_CXX_TRANSPORT_UNIX_TRANSPORT_HPP
 
 #include "ndn-cxx/transport/transport.hpp"
-#include "ndn-cxx/util/config-file.hpp"
 
 #include <boost/asio/local/stream_protocol.hpp>
 
@@ -60,9 +59,6 @@ public:
 
   void
   send(const Block& wire) override;
-
-  void
-  send(const Block& header, const Block& payload) override;
 
   /** \brief Create transport with parameters defined in URI
    *  \throw Transport::Error incorrect URI or unsupported protocol is specified

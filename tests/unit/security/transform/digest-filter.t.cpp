@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -104,11 +104,11 @@ static const unsigned char expected2[32] = {
 BOOST_AUTO_TEST_CASE(sm3)
 {
   OBufferStream os1;
-  bufferSource(input1, sizeof(input1)) >> digestFilter(DigestAlgorithm::SM3) >> streamSink(os1);
+  bufferSource(input1) >> digestFilter(DigestAlgorithm::SM3) >> streamSink(os1);
   BOOST_CHECK_EQUAL_COLLECTIONS(expected1, expected1 + sizeof(expected1), os1.buf()->begin(), os1.buf()->end());
   
   OBufferStream os2;
-  bufferSource(input2, sizeof(input2)) >> digestFilter(DigestAlgorithm::SM3) >> streamSink(os2);
+  bufferSource(input2) >> digestFilter(DigestAlgorithm::SM3) >> streamSink(os2);
   BOOST_CHECK_EQUAL_COLLECTIONS(expected2, expected2 + sizeof(expected2), os2.buf()->begin(), os2.buf()->end());
 }
 #endif
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(sm3)
 BOOST_AUTO_TEST_CASE(BufferInput)
 {
   OBufferStream os;
-  bufferSource(in, sizeof(in)) >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
+  bufferSource(in) >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), os.buf()->begin(), os.buf()->end());
 }
 
@@ -125,12 +125,12 @@ BOOST_AUTO_TEST_CASE(StepInput)
   StepSource source;
   OBufferStream os;
   source >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
-  source.write(in, 32);
-  source.write(in + 32, 1);
-  source.write(in + 33, 2);
-  source.write(in + 35, 3);
-  source.write(in + 38, 26);
-  source.write(in + 64, 64);
+  source.write({in, 32});
+  source.write({in + 32, 1});
+  source.write({in + 33, 2});
+  source.write({in + 35, 3});
+  source.write({in + 38, 26});
+  source.write({in + 64, 64});
   source.end();
   BOOST_CHECK_EQUAL_COLLECTIONS(out, out + sizeof(out), os.buf()->begin(), os.buf()->end());
 }
@@ -270,4 +270,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

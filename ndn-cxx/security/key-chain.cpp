@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -263,13 +263,11 @@ KeyChain::createKey(const Identity& identity, const KeyParams& params)
   Name keyName = m_tpm->createKey(identity.getName(), params);
 
   // set up key info in PIB
-  ConstBufferPtr pubKey = m_tpm->getPublicKey(keyName);
-  // set up key info in PIB
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1  
-  Key key = identity.addKey(pubKey->data(), pubKey->size(), keyName, params.getKeyType());
+  Key key = identity.addKey(*m_tpm->getPublicKey(keyName), keyName, params.getKeyType());
 #else
-  Key key = identity.addKey(pubKey->data(), pubKey->size(), keyName);
+  Key key = identity.addKey(*m_tpm->getPublicKey(keyName), keyName);
 #endif
 
   NDN_LOG_DEBUG("Requesting self-signing for newly created key " << key.getName());
@@ -377,42 +375,34 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   Certificate cert(std::move(certData));
   Name identity = cert.getIdentity();
   Name keyName = cert.getKeyName();
-  const Buffer publicKeyBits = cert.getPublicKey();
+  const auto publicKeyBits = cert.getPublicKey();
 
 //added_GM, by liupenghui
 // PublicKey.getKeyType() can't differ SM2 from ECDSA.
 #if 1
-	KeyType keyType = KeyType::NONE;
-	KeyType keyTypefromSig = KeyType::NONE;
-	
-	int32_t Signature_type = cert.getSignatureType();
-	if (Signature_type == tlv::SignatureSha256WithRsa)
-	  keyTypefromSig =	KeyType::RSA;
-	else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-	  keyTypefromSig =	KeyType::EC;
-	else if (Signature_type == tlv::SignatureHmacWithSha256)
-	  keyTypefromSig =	KeyType::HMAC;
-	else if (Signature_type == tlv::SignatureSm3WithSm2)
-	  keyTypefromSig =	KeyType::SM2;
-	else
-	  keyTypefromSig = KeyType::NONE;
-	
-	transform::PrivateKey pkey;
-	pkey.loadPkcs8(safeBag.getEncryptedKey().data(), safeBag.getEncryptedKey().size(), pw, pwLen);
-	keyType = pkey.getKeyType();
-	// After loading Pkcs8 key from outside file, pkey.getKeyType() can't differ SM2 from ECDSA,
-	// Thus, we use the key type from signature, in general only SM2 public key certificate will use SignatureSm3WithSm2.
-	if (keyTypefromSig != keyType) {
-	  keyType = keyTypefromSig;
-	}
-#endif
-
-//added_GM, by liupenghui
-//test, output the Pkcs1Base64 of PrivateKey.
-#if 0
-	std::string fileName2("/root/.ndn/ndnsec-key-file/Testprivatekey.privkey");
-	std::ofstream os2(fileName2);
-	pkey.savePkcs1Base64(os2);
+  KeyType keyType = KeyType::NONE;
+  KeyType keyTypefromSig = KeyType::NONE;
+  
+  int32_t Signature_type = cert.getSignatureType();
+  if (Signature_type == tlv::SignatureSha256WithRsa)
+    keyTypefromSig =	KeyType::RSA;
+  else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+    keyTypefromSig =	KeyType::EC;
+  else if (Signature_type == tlv::SignatureHmacWithSha256)
+    keyTypefromSig =	KeyType::HMAC;
+  else if (Signature_type == tlv::SignatureSm3WithSm2)
+    keyTypefromSig =	KeyType::SM2;
+  else
+    keyTypefromSig = KeyType::NONE;
+  
+  transform::PrivateKey pkey;
+  pkey.loadPkcs8(safeBag.getEncryptedKey(), pw, pwLen);
+  keyType = pkey.getKeyType();
+  // After loading Pkcs8 key from outside file, pkey.getKeyType() can't differ SM2 from ECDSA,
+  // Thus, we use the key type from signature, in general only SM2 public key certificate will use SignatureSm3WithSm2.
+  if (keyTypefromSig != keyType) {
+    keyType = keyTypefromSig;
+  }
 #endif
 
   if (m_tpm->hasKey(keyName)) {
@@ -429,9 +419,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   }
 
   try {
-    m_tpm->importPrivateKey(keyName,
-                            safeBag.getEncryptedKey().data(), safeBag.getEncryptedKey().size(),
-                            pw, pwLen);
+    m_tpm->importPrivateKey(keyName, safeBag.getEncryptedKey(), pw, pwLen);
   }
   catch (const Tpm::Error&) {
     NDN_THROW_NESTED(Error("Failed to import private key `" + keyName.toUri() + "`"));
@@ -441,15 +429,15 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
   ConstBufferPtr sigBits;
   try {
-//added_GM, by liupenghui
-#if 1
-  	  if (keyType == KeyType::SM2)
-	    sigBits = m_tpm->sign(content, 4, keyName, keyType, DigestAlgorithm::SM3);
-	  else
-		sigBits = m_tpm->sign(content, 4, keyName, keyType, DigestAlgorithm::SHA256);
-#else 
-	  sigBits = m_tpm->sign(content, 4, keyName, DigestAlgorithm::SHA256);
-#endif
+    //added_GM, by liupenghui
+    #if 1
+    if (keyType == KeyType::SM2)
+      sigBits = m_tpm->sign({content}, keyName, keyType, DigestAlgorithm::SM3);
+    else
+      sigBits = m_tpm->sign({content}, keyName, keyType, DigestAlgorithm::SHA256);
+    #else 
+    sigBits = m_tpm->sign({content}, keyName, DigestAlgorithm::SHA256);
+    #endif
   }
   catch (const std::runtime_error&) {
     m_tpm->deleteKey(keyName);
@@ -459,33 +447,23 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   {
     using namespace transform;
     PublicKey publicKey;
-    publicKey.loadPkcs8(publicKeyBits.data(), publicKeyBits.size());
-//added_GM, by liupenghui
-//test, output the pkcs8base64 of publicKey.
-#if 0
-		std::string fileName5("/root/.ndn/ndnsec-key-file/Testpublickey.pubkey");
-		std::ofstream os5(fileName5);
-		publicKey.savePkcs8Base64(os5);
-#endif
+    publicKey.loadPkcs8(publicKeyBits);
 
 //added_GM, by liupenghui
 #if 1
-		if (keyType == KeyType::SM2) {
-		  bufferSource(content, sizeof(content)) >> verifierFilter(DigestAlgorithm::SM3, publicKey, keyType,
-																   sigBits->data(), sigBits->size())
-												 >> boolSink(isVerified);
-		}
-		else {
-			bufferSource(content, sizeof(content)) >> verifierFilter(DigestAlgorithm::SHA256, publicKey, keyType,
-																	 sigBits->data(), sigBits->size())
-												   >> boolSink(isVerified);
-		}
+	if (keyType == KeyType::SM2) {
+	  bufferSource(content) >> verifierFilter(DigestAlgorithm::SM3, publicKey, keyType, *sigBits)
+					  >> boolSink(isVerified);
+	}
+	else {
+		bufferSource(content) >> verifierFilter(DigestAlgorithm::SHA256, publicKey, keyType, *sigBits)
+						>> boolSink(isVerified);
+	}
 #else	
-		bufferSource(content, sizeof(content)) >> verifierFilter(DigestAlgorithm::SHA256, publicKey,
-																 sigBits->data(), sigBits->size())
-											   >> boolSink(isVerified);
+    bufferSource(content) >> verifierFilter(DigestAlgorithm::SHA256, publicKey, *sigBits)
+                          >> boolSink(isVerified);
 #endif	
-	
+
   }
   if (!isVerified) {
     m_tpm->deleteKey(keyName);
@@ -496,9 +474,9 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   Identity id = m_pib->addIdentity(identity);
 //added_GM, by liupenghui
 #if 1  
-  Key key = id.addKey(cert.getPublicKey().data(), cert.getPublicKey().size(), keyName, keyType);
+  Key key = id.addKey(cert.getPublicKey(), keyName, keyType);
 #else
-  Key key = id.addKey(cert.getPublicKey().data(), cert.getPublicKey().size(), keyName);
+  Key key = id.addKey(cert.getPublicKey(), keyName);
 #endif
   key.addCertificate(cert);
 }
@@ -526,6 +504,46 @@ KeyChain::sign(Data& data, const SigningInfo& params)
   Name keyName;
   SignatureInfo sigInfo;
   std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
+
+//added_GM, by liupenghui
+#if 1
+  KeyType keyTypefromSig = KeyType::NONE;
+  int32_t Signature_type = sigInfo.getSignatureType();
+  if (Signature_type == tlv::SignatureSha256WithRsa)
+    keyTypefromSig =	KeyType::RSA;
+  else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+    keyTypefromSig =	KeyType::EC;
+  else if (Signature_type == tlv::SignatureHmacWithSha256)
+    keyTypefromSig =	KeyType::HMAC;
+  else if (Signature_type == tlv::SignatureSm3WithSm2)
+    keyTypefromSig =	KeyType::SM2;
+  else
+    keyTypefromSig = KeyType::NONE;
+#endif
+
+  data.setSignatureInfo(sigInfo);
+
+  EncodingBuffer encoder;
+  data.wireEncode(encoder, true);
+
+//added_GM, by liupenghui
+#if 1	 
+  auto sigValue = sign({encoder}, keyName, keyTypefromSig, params.getDigestAlgorithm());
+  
+#else
+  auto sigValue = sign({encoder}, keyName, params.getDigestAlgorithm());
+#endif
+
+  data.wireEncode(encoder, *sigValue);
+}
+
+void
+KeyChain::sign(Interest& interest, const SigningInfo& params)
+{
+  Name keyName;
+  SignatureInfo sigInfo;
+  std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
+  
 //added_GM, by liupenghui
 #if 1
   KeyType keyTypefromSig = KeyType::NONE;
@@ -542,75 +560,39 @@ KeyChain::sign(Data& data, const SigningInfo& params)
 	keyTypefromSig = KeyType::NONE;
 #endif
 
-  data.setSignatureInfo(sigInfo);
-
-  EncodingBuffer encoder;
-  data.wireEncode(encoder, true);
-
-//added_GM, by liupenghui
-#if 1	 
-  Block sigValue(tlv::SignatureValue,
-			   sign({{encoder.buf(), encoder.size()}}, keyName, keyTypefromSig, params.getDigestAlgorithm()));
-#else
-	Block sigValue(tlv::SignatureValue,
-				   sign({{encoder.buf(), encoder.size()}}, keyName, params.getDigestAlgorithm()));
-#endif
-
-  data.wireEncode(encoder, sigValue);
-}
-
-void
-KeyChain::sign(Interest& interest, const SigningInfo& params)
-{
-  Name keyName;
-  SignatureInfo sigInfo;
-  std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
-
-  //added_GM, by liupenghui
-#if 1
-	KeyType keyTypefromSig = KeyType::NONE;
-	int32_t Signature_type = sigInfo.getSignatureType();
-	if (Signature_type == tlv::SignatureSha256WithRsa)
-	  keyTypefromSig =	KeyType::RSA;
-	else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-	  keyTypefromSig =	KeyType::EC;
-	else if (Signature_type == tlv::SignatureHmacWithSha256)
-	  keyTypefromSig =	KeyType::HMAC;
-	else if (Signature_type == tlv::SignatureSm3WithSm2)
-	  keyTypefromSig =	KeyType::SM2;
-	else
-	  keyTypefromSig = KeyType::NONE;
-#endif
-
   if (params.getSignedInterestFormat() == SignedInterestFormat::V03) {
     interest.setSignatureInfo(sigInfo);
 
     // Extract function will throw if not all necessary elements are present in Interest
     //added_GM, by liupenghui
 #if 1	 
-      auto sigValue = sign(interest.extractSignedRanges(), keyName, keyTypefromSig, params.getDigestAlgorithm());
+    auto sigValue = sign(interest.extractSignedRanges(), keyName, keyTypefromSig, params.getDigestAlgorithm());
 #else
-	  auto sigValue = sign(interest.extractSignedRanges(), keyName, params.getDigestAlgorithm());
+    auto sigValue = sign(interest.extractSignedRanges(), keyName, params.getDigestAlgorithm());
 #endif
     interest.setSignatureValue(std::move(sigValue));
   }
   else {
     Name signedName = interest.getName();
+
     // We encode in Data format because this is the format used prior to Packet Specification v0.3
-    signedName.append(sigInfo.wireEncode(SignatureInfo::Type::Data)); // SignatureInfo
+    const auto& sigInfoBlock = sigInfo.wireEncode(SignatureInfo::Type::Data);
+    signedName.append(sigInfoBlock.begin(), sigInfoBlock.end()); // SignatureInfo
 	//added_GM, by liupenghui
 #if 1	 
-      Block sigValue(tlv::SignatureValue,
+    Block sigValue(tlv::SignatureValue,
 			   sign({{signedName.wireEncode().value(), signedName.wireEncode().value_size()}},
 					keyName, keyTypefromSig, params.getDigestAlgorithm()));
 
 #else
-	  Block sigValue(tlv::SignatureValue,
-					 sign({{signedName.wireEncode().value(), signedName.wireEncode().value_size()}},
-						  keyName, params.getDigestAlgorithm()));
+    Block sigValue(tlv::SignatureValue,
+                   sign({{signedName.wireEncode().value(), signedName.wireEncode().value_size()}},
+                        keyName, params.getDigestAlgorithm()));
 #endif
+
     sigValue.encode();
-    signedName.append(std::move(sigValue)); // SignatureValue
+    signedName.append(sigValue.begin(), sigValue.end()); // SignatureValue
+
     interest.setName(signedName);
   }
 }
@@ -704,7 +686,7 @@ KeyChain::selfSign(Key& key)
   certificate.setFreshnessPeriod(1_h);
 
   // set content
-  certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
+  certificate.setContent(key.getPublicKey());
 
   // set signature-info
   SignatureInfo signatureInfo;
@@ -844,7 +826,6 @@ KeyChain::sign(const InputBuffers& bufs, const Name& keyName, KeyType keyType, D
 
   return signature;
 }
-
 #else
 ConstBufferPtr
 KeyChain::sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const
@@ -866,7 +847,9 @@ KeyChain::sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm di
 
   return signature;
 }
+
 #endif
+
 
 tlv::SignatureTypeValue
 KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm)
@@ -891,4 +874,3 @@ KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm)
 } // inline namespace v2
 } // namespace security
 } // namespace ndn
-

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,6 @@
 #define NDN_CXX_LINK_HPP
 
 #include "ndn-cxx/data.hpp"
-#include "ndn-cxx/delegation-list.hpp"
 
 namespace ndn {
 
@@ -49,7 +48,6 @@ public:
 
   /** @brief Decode a Link object from a Block
    *  @param wire a TLV block
-   *  @param wantSort if false, relative order among delegations is preserved
    *
    *  Note that in certain contexts that use Link::shared_from_this(), Link must be
    *  created using `make_shared`:
@@ -57,51 +55,49 @@ public:
    *      shared_ptr<Link> linkObject = make_shared<Link>(block);
    */
   explicit
-  Link(const Block& wire, bool wantSort = true);
+  Link(const Block& wire);
 
   /** @brief Create a Link object with the given name and delegations
    *  @param name A reference to the name of the redirected namespace
-   *  @param dels Delegations in payload
+   *  @param delegations Delegations in payload
    *
    *  Note that in certain contexts that use Link::shared_from_this(), Link must be
    *  created using `make_shared`:
    *
-   *      shared_ptr<Link> link = make_shared<Link>(name, dels);
+   *      shared_ptr<Link> link = make_shared<Link>(name, delegations);
    */
   explicit
-  Link(const Name& name, std::initializer_list<Delegation> dels = {});
+  Link(const Name& name, std::initializer_list<Name> delegations = {});
 
   /** @brief Decode from the wire format
    *  @param wire a TLV block
-   *  @param wantSort if false, relative order among delegations is preserved
    */
   void
-  wireDecode(const Block& wire, bool wantSort = true);
+  wireDecode(const Block& wire);
 
   /** @brief Get the delegations
    */
-  const DelegationList&
+  span<const Name>
   getDelegationList() const
   {
-    return m_delList;
+    return m_delegations;
   }
 
   /** @brief Set the delegations
    *  @note This is more efficient than multiple addDelegation and removeDelegation invocations.
    */
   void
-  setDelegationList(const DelegationList& dels);
+  setDelegationList(std::vector<Name> delegations);
 
-  /** @brief Add a delegation in the format of <Name, Preference>
-   *  @param preference The preference of the delegation to be added
-   *  @param name The name of the delegation to be added
-   *  @note If a delegation with @p name exists, its preference will be updated
+  /** @brief Append a delegation at the end
+   *  @param name Delegation name
+   *  @return true if delegation is added, false if same name already exists
    */
-  void
-  addDelegation(uint32_t preference, const Name& name);
+  bool
+  addDelegation(const Name& name);
 
   /** @brief Remove a delegation whose name is @p name
-   *  @param name The name of the delegation to be removed
+   *  @param name Delegation name
    *  @return true if delegation is removed, otherwise false
    */
   bool
@@ -112,7 +108,7 @@ private:
   encodeContent();
 
 private:
-  DelegationList m_delList;
+  std::vector<Name> m_delegations;
 };
 
 } // namespace ndn

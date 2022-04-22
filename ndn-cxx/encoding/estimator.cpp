@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,8 @@
 namespace ndn {
 namespace encoding {
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 size_t
 Estimator::prependBlock(const Block& block) const
 {
@@ -33,6 +35,12 @@ Estimator::prependBlock(const Block& block) const
   else {
     return prependByteArrayBlock(block.type(), block.value(), block.value_size());
   }
+}
+
+size_t
+Estimator::appendBlock(const Block& block) const
+{
+  return prependBlock(block);
 }
 
 } // namespace encoding

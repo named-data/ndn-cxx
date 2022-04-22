@@ -78,7 +78,7 @@ public:
     std::ostringstream os;
     {
       using namespace transform;
-      bufferSource(keyName.wireEncode().wire(), keyName.wireEncode().size())
+      bufferSource(make_span(keyName.wireEncode().wire(), keyName.wireEncode().size()))
         >> digestFilter(DigestAlgorithm::SHA256)
         >> hexEncode()
         >> streamSink(os);
@@ -141,7 +141,7 @@ BackEndFile::doCreateKey(const Name& identityName, const KeyParams& params)
 //added_HMAC, by liupenghui
 #if 1 
   case KeyType::HMAC:
-#endif
+#endif    
     break;
   default:
     NDN_THROW(std::invalid_argument("File-based TPM does not support creating a key of type " +
@@ -195,11 +195,11 @@ BackEndFile::doExportKey(const Name& keyName, const char* pw, size_t pwLen)
 }
 
 void
-BackEndFile::doImportKey(const Name& keyName, const uint8_t* buf, size_t size, const char* pw, size_t pwLen)
+BackEndFile::doImportKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen)
 {
   try {
     PrivateKey key;
-    key.loadPkcs8(buf, size, pw, pwLen);
+    key.loadPkcs8(pkcs8, pw, pwLen);
     saveKey(keyName, key);
   }
   catch (const PrivateKey::Error&) {
@@ -228,11 +228,11 @@ BackEndFile::loadKey(const Name& keyName) const
   Name identity = ndn::security::SigningInfo::getHmacIdentity();
   Name hamcKeyName = identity.append("KEY").append(Name::Component::fromNumber(123456789));
   if(hamcKeyName == keyName) {
-  	 key->loadHamcPkcs1Base64(is);
-  	 return key;
+  	key->loadHamcPkcs1Base64(is);
+  	return key;
   }	  
 #endif
-
+  
   key->loadPkcs1Base64(is);
   return key;
 }
@@ -251,4 +251,3 @@ BackEndFile::saveKey(const Name& keyName, const PrivateKey& key)
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-

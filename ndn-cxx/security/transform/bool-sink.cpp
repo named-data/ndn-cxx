@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,13 +32,13 @@ BoolSink::BoolSink(bool& value)
 }
 
 size_t
-BoolSink::doWrite(const uint8_t* buf, size_t size)
+BoolSink::doWrite(span<const uint8_t> buf)
 {
-  if (!m_hasValue && size > 0) {
-    m_value = (buf[0] != 0);
+  if (!m_hasValue && !buf.empty()) {
+    m_value = (buf.front() != 0);
     m_hasValue = true;
   }
-  return size;
+  return buf.size();
 }
 
 void

@@ -79,16 +79,16 @@ public: // Identity management
 public: // Key management
   bool
   hasKey(const Name& keyName) const override;
-
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
   void
-  addKey(const Name& identity, const Name& keyName, KeyType keyType,const uint8_t* key, size_t keyLen) final;
+  addKey(const Name& identity, const Name& keyName, KeyType keyType, span<const uint8_t> key) final;
 #else
   void
-  addKey(const Name& identity, const Name& keyName, const uint8_t* key, size_t keyLen) final;
+  addKey(const Name& identity, const Name& keyName, span<const uint8_t> key) override;
 #endif
+
 
   void
   removeKey(const Name& keyName) override;
@@ -96,8 +96,8 @@ public: // Key management
   Buffer
   getKeyBits(const Name& keyName) const override;
   
-  //added_GM, by liupenghui
-  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
+//added_GM, by liupenghui
+// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
   int
   getKeyType(const Name& keyName) const override;
@@ -146,17 +146,17 @@ private:
   std::map<Name, Name> m_defaultKeys;
 
   /// @brief keyName => keyBits
-  //added_GM, by liupenghui
-  // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
+//added_GM, by liupenghui
+// the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
-  class keyConst {
-   public:
-    KeyType keyType;
-    Buffer keyBits;
-  };
-  std::map<Name, keyConst> m_keys;
+   class keyConst {
+	 public:
+	  KeyType keyType;
+	  Buffer keyBits;
+   };
+   std::map<Name, keyConst> m_keys;
 #else
-  std::map<Name, Buffer> m_keys;
+   std::map<Name, Buffer> m_keys;
 #endif
 
   /// @brief keyName => default certificate Name
@@ -171,4 +171,3 @@ private:
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_PIB_IMPL_PIB_MEMORY_HPP
-

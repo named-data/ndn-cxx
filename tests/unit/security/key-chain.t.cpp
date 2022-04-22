@@ -509,23 +509,24 @@ struct HmacSigning : protected KeyChainFixture, protected PacketType
   {
 //added_GM, by liupenghui
 #if 1
-	int32_t Signature_type = si.getSignatureInfo().getSignatureType();
-	KeyType keyType;
-	if (Signature_type == tlv::SignatureSha256WithRsa)
-	  keyType =  KeyType::RSA;
-	else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-	  keyType =  KeyType::EC;
-	else if (Signature_type == tlv::SignatureHmacWithSha256)
-	  keyType =  KeyType::HMAC;
-	else if (Signature_type == tlv::SignatureSm3WithSm2)
-	  keyType =  KeyType::SM2;
-	else
-	  keyType = KeyType::NONE;
-
+    int32_t Signature_type = si.getSignatureInfo().getSignatureType();
+    KeyType keyType;
+    if (Signature_type == tlv::SignatureSha256WithRsa)
+      keyType =  KeyType::RSA;
+    else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+  	  keyType =  KeyType::EC;
+    else if (Signature_type == tlv::SignatureHmacWithSha256)
+  	  keyType =  KeyType::HMAC;
+    else if (Signature_type == tlv::SignatureSm3WithSm2)
+  	  keyType =  KeyType::SM2;
+    else
+  	  keyType = KeyType::NONE;
+  
     return verifySignature(this->packet, m_keyChain.getTpm(), si.getSignerName(), keyType, DigestAlgo);
 #else
     return verifySignature(this->packet, m_keyChain.getTpm(), si.getSignerName(), DigestAlgo);
 #endif
+
   }
 };
 
@@ -593,10 +594,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(SigningInterface, T, SigningTests, T)
 
 BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, KeyChainFixture)
 {
-  Name keyName("/test/device2");
-  std::string rawKey("nPSNOHyZKsg2WLqHAs7MXGb0sjQb4zCT");
+  const Name keyName("/test/device2");
+  const uint8_t rawKey[] = "nPSNOHyZKsg2WLqHAs7MXGb0sjQb4zCT";
   auto key = make_shared<transform::PrivateKey>();
-  key->loadRaw(KeyType::HMAC, reinterpret_cast<const uint8_t*>(rawKey.data()), rawKey.size());
+  key->loadRaw(KeyType::HMAC, rawKey);
 
   m_keyChain.importPrivateKey(keyName, key);
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(keyName), true);
@@ -652,4 +653,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // inline namespace v2
 } // namespace security
 } // namespace ndn
-

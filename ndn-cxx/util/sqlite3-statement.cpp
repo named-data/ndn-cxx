@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,7 +47,7 @@ Sqlite3Statement::bind(int index, const char* value, size_t size, void(*destruct
 int
 Sqlite3Statement::bind(int index, const std::string& value, void(*destructor)(void*))
 {
-  return sqlite3_bind_text(m_stmt, index, value.c_str(), value.size(), destructor);
+  return sqlite3_bind_text(m_stmt, index, value.data(), value.size(), destructor);
 }
 
 int
@@ -78,8 +78,8 @@ Sqlite3Statement::getString(int column)
 Block
 Sqlite3Statement::getBlock(int column)
 {
-  return Block(reinterpret_cast<const uint8_t*>(sqlite3_column_blob(m_stmt, column)),
-               sqlite3_column_bytes(m_stmt, column));
+  return Block(make_span(reinterpret_cast<const uint8_t*>(sqlite3_column_blob(m_stmt, column)),
+                         sqlite3_column_bytes(m_stmt, column)));
 }
 
 int
@@ -87,7 +87,6 @@ Sqlite3Statement::getInt(int column)
 {
   return sqlite3_column_int(m_stmt, column);
 }
-
 
 const uint8_t*
 Sqlite3Statement::getBlob(int column)

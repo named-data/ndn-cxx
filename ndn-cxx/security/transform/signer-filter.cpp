@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -101,12 +101,12 @@ SignerFilter::SignerFilter(DigestAlgorithm algo, const PrivateKey& key)
 SignerFilter::~SignerFilter() = default;
 
 size_t
-SignerFilter::convert(const uint8_t* buf, size_t size)
+SignerFilter::convert(span<const uint8_t> buf)
 {
-  if (EVP_DigestSignUpdate(m_impl->ctx, buf, size) != 1)
+  if (EVP_DigestSignUpdate(m_impl->ctx, buf.data(), buf.size()) != 1)
     NDN_THROW(Error(getIndex(), "Failed to accept more input"));
 
-  return size;
+  return buf.size();
 }
 
 void
@@ -119,7 +119,7 @@ SignerFilter::finalize()
   auto buffer = make_unique<OBuffer>(sigLen);
   if (EVP_DigestSignFinal(m_impl->ctx, buffer->data(), &sigLen) != 1)
     NDN_THROW(Error(getIndex(), "Failed to finalize signature"));
-//added_GM, by liupenghui
+  //added_GM, by liupenghui
 #if 1
   if ((EVP_MD_CTX_pkey_ctx(m_impl->ctx) != nullptr) && (m_keyType == KeyType::SM2)) {
     EVP_PKEY_CTX_free(EVP_MD_CTX_pkey_ctx(m_impl->ctx));
@@ -153,4 +153,3 @@ signerFilter(DigestAlgorithm algo, const PrivateKey& key)
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

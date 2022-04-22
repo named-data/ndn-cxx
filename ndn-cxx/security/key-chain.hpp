@@ -428,13 +428,13 @@ private: // signing
    * @brief Generate and return a raw signature for the byte ranges in @p bufs using
    *        the specified key and digest algorithm.
    */
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
-  ConstBufferPtr
-  sign(const InputBuffers& bufs, const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm) const;
+	ConstBufferPtr
+	sign(const InputBuffers& bufs, const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm) const;
 #else   
-  ConstBufferPtr
-  sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
+	ConstBufferPtr
+	sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const;
 #endif
 
 private:
@@ -489,4 +489,3 @@ using security::KeyChain;
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_KEY_CHAIN_HPP
-

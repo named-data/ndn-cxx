@@ -47,13 +47,12 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::EC;
-  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(), keyType,
-												make_shared<pib::PibMemory>());
+  auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1, keyType,
+  											 std::make_shared<pib::PibMemory>());
 #else
-  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
-  											make_shared<pib::PibMemory>());
+  auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
+                                                   std::make_shared<pib::PibMemory>());
 #endif  
-
   key = Key(keyImpl);
   BOOST_CHECK(key);
   BOOST_CHECK_EQUAL(!key, false);
@@ -67,12 +66,13 @@ BOOST_AUTO_TEST_CASE(SharedImpl)
   //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::EC;
-  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(), keyType,
-												make_shared<pib::PibMemory>());
+  auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1, keyType,
+  											 std::make_shared<pib::PibMemory>());
 #else
-  auto keyImpl = make_shared<detail::KeyImpl>(id1Key1Name, id1Key1.data(), id1Key1.size(),
-												make_shared<pib::PibMemory>());
+  auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
+  												 std::make_shared<pib::PibMemory>());
 #endif  
+
   Key key1(keyImpl);
   Key key2(keyImpl);
   BOOST_CHECK_EQUAL(key1, key2);
@@ -114,4 +114,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

@@ -154,16 +154,13 @@ public: // constructors
   /**
    * @brief Construct a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from @p buffer.
    */
-  Component(uint32_t type, const Buffer& buffer)
-    : Component(type, buffer.data(), buffer.size())
-  {
-  }
+  Component(uint32_t type, span<const uint8_t> buffer);
 
   /**
    * @brief Construct a GenericNameComponent, copying TLV-VALUE from @p buffer.
    */
   explicit
-  Component(const Buffer& buffer)
+  Component(span<const uint8_t> buffer)
     : Component(tlv::GenericNameComponent, buffer)
   {
   }
@@ -172,13 +169,16 @@ public: // constructors
    * @brief Construct a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as
    *        TLV-VALUE.
    */
-  Component(uint32_t type, const uint8_t* value, size_t count);
+  Component(uint32_t type, const uint8_t* value, size_t count)
+    : Component(type, {value, count})
+  {
+  }
 
   /**
    * @brief Construct a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
    */
   Component(const uint8_t* value, size_t count)
-    : Component(tlv::GenericNameComponent, value, count)
+    : Component(tlv::GenericNameComponent, {value, count})
   {
   }
 
@@ -504,7 +504,7 @@ public: // commonly used TLV-TYPEs
    * @brief Create ImplicitSha256DigestComponent component
    */
   static Component
-  fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize);
+  fromImplicitSha256Digest(span<const uint8_t> digest);
 
   /**
    * @brief Check if the component is ParametersSha256DigestComponent
@@ -522,7 +522,7 @@ public: // commonly used TLV-TYPEs
    * @brief Create ParametersSha256DigestComponent component
    */
   static Component
-  fromParametersSha256Digest(const uint8_t* digest, size_t digestSize);
+  fromParametersSha256Digest(span<const uint8_t> digest);
 
 public: // comparison
   NDN_CXX_NODISCARD bool

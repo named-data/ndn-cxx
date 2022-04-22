@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,12 +31,13 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-/** \brief strip whitespace characters from a stream
+/**
+ * \brief Strip whitespace characters from a stream.
  *
- *  This transform interprets the input as a byte string, and puts all bytes except
- *  whitespace characters on the output.
+ * This transform interprets the input as a byte string, and puts all bytes except
+ * whitespace characters on the output.
  */
-class StripSpace : public Transform
+class StripSpace final : public Transform
 {
 public:
   static const char* const DEFAULT_WHITESPACES;
@@ -46,7 +47,7 @@ public:
 
 private:
   size_t
-  convert(const uint8_t* buf, size_t buflen) final;
+  convert(span<const uint8_t> data) final;
 
 private:
   static constexpr size_t CHARMAP_SIZE = 1 << CHAR_BIT;

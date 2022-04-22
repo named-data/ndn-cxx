@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,32 +33,29 @@ namespace transform {
 class VerifierFilter::Impl
 {
 public:
-  Impl(const uint8_t* sig, size_t siglen)
+  explicit
+  Impl(span<const uint8_t> sig)
     : sig(sig)
-    , siglen(siglen)
   {
   }
 
 public:
   detail::EvpMdCtx ctx;
-  const uint8_t* sig;
-  size_t siglen;
+  span<const uint8_t> sig;
 };
 
 //added_GM, by liupenghui
 //the PublicKey.getKeyType() can't differ the SM2-type key from ECDSA key, we add a common paramter Type to initiate the Key.
 #if 1
-VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType,
-                               const uint8_t* sig, size_t sigLen)
-  : m_impl(make_unique<Impl>(sig, sigLen))
+VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType, span<const uint8_t> sig)
+  : m_impl(make_unique<Impl>(sig))
   , m_keyType(keyType)
 {
   init(algo, key.getEvpPkey());
 }
 
-VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType,
-                               const uint8_t* sig, size_t sigLen)
-  : m_impl(make_unique<Impl>(sig, sigLen))
+VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType, span<const uint8_t> sig)
+  : m_impl(make_unique<Impl>(sig))
   , m_keyType(keyType)
 {
   if (m_keyType != KeyType::HMAC)
@@ -66,19 +63,16 @@ VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyT
 
   init(algo, key.getEvpPkey());
 }
-
 #else
-VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key,
-                               const uint8_t* sig, size_t sigLen)
-  : m_impl(make_unique<Impl>(sig, sigLen))
+VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig)
+  : m_impl(make_unique<Impl>(sig))
   , m_keyType(key.getKeyType())
 {
   init(algo, key.getEvpPkey());
 }
 
-VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key,
-                               const uint8_t* sig, size_t sigLen)
-  : m_impl(make_unique<Impl>(sig, sigLen))
+VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig)
+  : m_impl(make_unique<Impl>(sig))
   , m_keyType(key.getKeyType())
 {
   if (m_keyType != KeyType::HMAC)
@@ -86,8 +80,8 @@ VerifierFilter::VerifierFilter(DigestAlgorithm algo, const PrivateKey& key,
 
   init(algo, key.getEvpPkey());
 }
-
 #endif
+
 
 VerifierFilter::~VerifierFilter() = default;
 
@@ -100,27 +94,27 @@ VerifierFilter::init(DigestAlgorithm algo, void* pkey)
                     boost::lexical_cast<std::string>(algo)));
 //added_GM, by liupenghui
 #if 1
-	if (m_keyType == KeyType::SM2) {
-	  EVP_PKEY_CTX *sctx = nullptr; 	
-	  /* The default user id as specified in GM/T 0009-2012 */
-	  const char *sm2_id = "1234567812345678";
-		  
-	  if ((EVP_PKEY_set_alias_type(reinterpret_cast<EVP_PKEY*>(pkey), EVP_PKEY_SM2)) != 1) {
-		NDN_THROW(Error(getIndex(), "Failed to EVP_PKEY_set_alias_type"));
-	  }
-		
-	  if (!(sctx = EVP_PKEY_CTX_new(reinterpret_cast<EVP_PKEY*>(pkey), nullptr))) {
-		NDN_THROW(Error(getIndex(), "Failed to EVP_PKEY_CTX_new"));
-	  }
-	 
-	  if (EVP_PKEY_CTX_set1_id(sctx, (const uint8_t *)sm2_id, strlen(sm2_id)) <= 0) {
-		 EVP_PKEY_CTX_free(sctx);
-		 NDN_THROW(Error(getIndex(), "Failed to EVP_PKEY_CTX_set1_id"));
-	  }
-	 
-	  EVP_MD_CTX_set_pkey_ctx(m_impl->ctx, sctx);
-	}
-		
+if (m_keyType == KeyType::SM2) {
+  EVP_PKEY_CTX *sctx = nullptr; 	
+  /* The default user id as specified in GM/T 0009-2012 */
+  const char *sm2_id = "1234567812345678";
+	  
+  if ((EVP_PKEY_set_alias_type(reinterpret_cast<EVP_PKEY*>(pkey), EVP_PKEY_SM2)) != 1) {
+	NDN_THROW(Error(getIndex(), "Failed to EVP_PKEY_set_alias_type"));
+  }
+	
+  if (!(sctx = EVP_PKEY_CTX_new(reinterpret_cast<EVP_PKEY*>(pkey), nullptr))) {
+	NDN_THROW(Error(getIndex(), "Failed to EVP_PKEY_CTX_new"));
+  }
+ 
+  if (EVP_PKEY_CTX_set1_id(sctx, (const uint8_t *)sm2_id, strlen(sm2_id)) <= 0) {
+	 EVP_PKEY_CTX_free(sctx);
+	 NDN_THROW(Error(getIndex(), "Failed to EVP_PKEY_CTX_set1_id"));
+  }
+ 
+  EVP_MD_CTX_set_pkey_ctx(m_impl->ctx, sctx);
+}
+	
 #endif
 
   int ret;
@@ -136,18 +130,18 @@ VerifierFilter::init(DigestAlgorithm algo, void* pkey)
 }
 
 size_t
-VerifierFilter::convert(const uint8_t* buf, size_t size)
+VerifierFilter::convert(span<const uint8_t> buf)
 {
   int ret;
   if (m_keyType == KeyType::HMAC)
-    ret = EVP_DigestSignUpdate(m_impl->ctx, buf, size);
+    ret = EVP_DigestSignUpdate(m_impl->ctx, buf.data(), buf.size());
   else
-    ret = EVP_DigestVerifyUpdate(m_impl->ctx, buf, size);
+    ret = EVP_DigestVerifyUpdate(m_impl->ctx, buf.data(), buf.size());
 
   if (ret != 1)
     NDN_THROW(Error(getIndex(), "Failed to accept more input"));
 
-  return size;
+  return buf.size();
 }
 
 void
@@ -161,13 +155,13 @@ VerifierFilter::finalize()
     if (EVP_DigestSignFinal(m_impl->ctx, hmacBuf->data(), &hmacLen) != 1)
       NDN_THROW(Error(getIndex(), "Failed to finalize HMAC"));
 
-    ok = CRYPTO_memcmp(hmacBuf->data(), m_impl->sig, std::min(hmacLen, m_impl->siglen)) == 0;
+    ok = CRYPTO_memcmp(hmacBuf->data(), m_impl->sig.data(), std::min(hmacLen, m_impl->sig.size())) == 0;
   }
   else {
-    ok = EVP_DigestVerifyFinal(m_impl->ctx, m_impl->sig, m_impl->siglen) == 1;
+    ok = EVP_DigestVerifyFinal(m_impl->ctx, m_impl->sig.data(), m_impl->sig.size()) == 1;
   }
 
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
   if ((EVP_MD_CTX_pkey_ctx(m_impl->ctx) != nullptr) && (m_keyType == KeyType::SM2)) {
     EVP_PKEY_CTX_free(EVP_MD_CTX_pkey_ctx(m_impl->ctx));
@@ -185,33 +179,31 @@ VerifierFilter::finalize()
 //the PublicKey.getKeyType() can't differ the SM2-type key from ECDSA key, we add a common paramter Type to initiate the Key.
 #if 1
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType, const uint8_t* sig, size_t sigLen)
+verifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType, span<const uint8_t> sig)
 {
-  return make_unique<VerifierFilter>(algo, key, keyType, sig, sigLen);
+  return make_unique<VerifierFilter>(algo, key, keyType, sig);
 }
 
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType, const uint8_t* sig, size_t sigLen)
+verifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType, span<const uint8_t> sig)
 {
-  return make_unique<VerifierFilter>(algo, key, keyType, sig, sigLen);
+  return make_unique<VerifierFilter>(algo, key, keyType, sig);
 }
-
 #else
-
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen)
+verifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig)
 {
-  return make_unique<VerifierFilter>(algo, key, sig, sigLen);
+  return make_unique<VerifierFilter>(algo, key, sig);
 }
 
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen)
+verifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig)
 {
-  return make_unique<VerifierFilter>(algo, key, sig, sigLen);
+  return make_unique<VerifierFilter>(algo, key, sig);
 }
 #endif
+
 
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

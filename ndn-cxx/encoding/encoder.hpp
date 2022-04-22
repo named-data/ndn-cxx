@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,36 +28,70 @@ namespace ndn {
 namespace encoding {
 
 /**
- * @brief Helper class to perform TLV encoding
- * Interface of this class (mostly) matches interface of Estimator class
+ * @brief Helper class to perform TLV encoding.
+ *
+ * The interface of this class (mostly) matches that of the Estimator class.
+ *
  * @sa Estimator
  */
 class Encoder : noncopyable
 {
 public: // common interface between Encoder and Estimator
   /**
-   * @brief Prepend a byte
+   * @brief Prepend a sequence of bytes
    */
   size_t
-  prependByte(uint8_t value);
+  prependBytes(span<const uint8_t> bytes);
+
+  /**
+   * @brief Append a sequence of bytes
+   */
+  size_t
+  appendBytes(span<const uint8_t> bytes);
+
+  /**
+   * @brief Prepend a byte
+   * @deprecated
+   */
+  [[deprecated("use prependBytes()")]]
+  size_t
+  prependByte(uint8_t value)
+  {
+    return prependBytes({value});
+  }
 
   /**
    * @brief Append a byte
+   * @deprecated
    */
+  [[deprecated("use appendBytes()")]]
   size_t
-  appendByte(uint8_t value);
+  appendByte(uint8_t value)
+  {
+    return appendBytes({value});
+  }
 
   /**
    * @brief Prepend a byte array @p array of length @p length
+   * @deprecated
    */
+  [[deprecated("use prependBytes()")]]
   size_t
-  prependByteArray(const uint8_t* array, size_t length);
+  prependByteArray(const uint8_t* array, size_t length)
+  {
+    return prependBytes({array, length});
+  }
 
   /**
    * @brief Append a byte array @p array of length @p length
+   * @deprecated
    */
+  [[deprecated("use appendBytes()")]]
   size_t
-  appendByteArray(const uint8_t* array, size_t length);
+  appendByteArray(const uint8_t* array, size_t length)
+  {
+    return appendBytes({array, length});
+  }
 
   /**
    * @brief Prepend range of bytes from the range [@p first, @p last)
@@ -74,54 +108,62 @@ public: // common interface between Encoder and Estimator
   appendRange(Iterator first, Iterator last);
 
   /**
-   * @brief Prepend VarNumber @p varNumber of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Prepend @p number encoded as a VAR-NUMBER in NDN-TLV format
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html
    */
   size_t
-  prependVarNumber(uint64_t varNumber);
+  prependVarNumber(uint64_t number);
 
   /**
-   * @brief Prepend VarNumber @p varNumber of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Append @p number encoded as a VAR-NUMBER in NDN-TLV format
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html
    */
   size_t
-  appendVarNumber(uint64_t varNumber);
+  appendVarNumber(uint64_t number);
 
   /**
-   * @brief Prepend non-negative integer @p integer of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Prepend @p integer encoded as a NonNegativeInteger in NDN-TLV format
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html
    */
   size_t
   prependNonNegativeInteger(uint64_t integer);
 
   /**
-   * @brief Append non-negative integer @p integer of NDN TLV encoding
-   * @sa http://named-data.net/doc/ndn-tlv/
+   * @brief Append @p integer encoded as a NonNegativeInteger in NDN-TLV format
+   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html
    */
   size_t
   appendNonNegativeInteger(uint64_t integer);
 
   /**
    * @brief Prepend TLV block of type @p type and value from buffer @p array of size @p arraySize
+   * @deprecated
    */
+  [[deprecated("use encoding::prependBinaryBlock()")]]
   size_t
   prependByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize);
 
   /**
    * @brief Append TLV block of type @p type and value from buffer @p array of size @p arraySize
+   * @deprecated
    */
+  [[deprecated]]
   size_t
   appendByteArrayBlock(uint32_t type, const uint8_t* array, size_t arraySize);
 
   /**
    * @brief Prepend TLV block @p block
+   * @deprecated
    */
+  [[deprecated("use encoding::prependBlock()")]]
   size_t
   prependBlock(const Block& block);
 
   /**
    * @brief Append TLV block @p block
+   * @deprecated
    */
+  [[deprecated]]
   size_t
   appendBlock(const Block& block);
 
@@ -183,56 +225,103 @@ public: // unique interface to the Encoder
    * @brief Get size of the underlying buffer
    */
   size_t
-  capacity() const noexcept;
+  capacity() const noexcept
+  {
+    return m_buffer->size();
+  }
 
   /**
    * @brief Get underlying buffer
    */
   shared_ptr<Buffer>
-  getBuffer() const noexcept;
+  getBuffer() const noexcept
+  {
+    return m_buffer;
+  }
 
 public: // accessors
   /**
-   * @brief Get an iterator pointing to the first byte of the encoded buffer
+   * @brief Returns an iterator pointing to the first byte of the encoded buffer
    */
   iterator
-  begin();
+  begin() noexcept
+  {
+    return m_begin;
+  }
 
   /**
-   * @brief Get an iterator pointing to the past-the-end byte of the encoded buffer
+   * @brief Returns an iterator pointing to the first byte of the encoded buffer
+   */
+  const_iterator
+  begin() const noexcept
+  {
+    return m_begin;
+  }
+
+  /**
+   * @brief Returns an iterator pointing to the past-the-end byte of the encoded buffer
    */
   iterator
-  end();
+  end() noexcept
+  {
+    return m_end;
+  }
 
   /**
-   * @brief Get an iterator pointing to the first byte of the encoded buffer
+   * @brief Returns an iterator pointing to the past-the-end byte of the encoded buffer
    */
   const_iterator
-  begin() const;
+  end() const noexcept
+  {
+    return m_end;
+  }
 
   /**
-   * @brief Get an iterator pointing to the past-the-end byte of the encoded buffer
-   */
-  const_iterator
-  end() const;
-
-  /**
-   * @brief Get a pointer to the first byte of the encoded buffer
+   * @brief Returns a pointer to the first byte of the encoded buffer
    */
   uint8_t*
-  buf();
+  data() noexcept
+  {
+    return &*m_begin;
+  }
 
   /**
-   * @brief Get a pointer to the first byte of the encoded buffer
+   * @brief Returns a pointer to the first byte of the encoded buffer
    */
   const uint8_t*
-  buf() const;
+  data() const noexcept
+  {
+    return &*m_begin;
+  }
 
   /**
-   * @brief Get the size of the encoded buffer
+   * @deprecated
+   */
+  [[deprecated("use data()")]]
+  uint8_t*
+  buf() noexcept
+  {
+    return data();
+  }
+
+  /**
+   * @deprecated
+   */
+  [[deprecated("use data()")]]
+  const uint8_t*
+  buf() const noexcept
+  {
+    return data();
+  }
+
+  /**
+   * @brief Returns the size of the encoded buffer
    */
   size_t
-  size() const noexcept;
+  size() const noexcept
+  {
+    return static_cast<size_t>(std::distance(m_begin, m_end));
+  }
 
   /**
    * @brief Create Block from the underlying buffer
@@ -253,60 +342,6 @@ private:
   iterator m_end;
 };
 
-inline size_t
-Encoder::size() const noexcept
-{
-  return m_end - m_begin;
-}
-
-inline shared_ptr<Buffer>
-Encoder::getBuffer() const noexcept
-{
-  return m_buffer;
-}
-
-inline size_t
-Encoder::capacity() const noexcept
-{
-  return m_buffer->size();
-}
-
-inline Buffer::iterator
-Encoder::begin()
-{
-  return m_begin;
-}
-
-inline Buffer::iterator
-Encoder::end()
-{
-  return m_end;
-}
-
-inline Buffer::const_iterator
-Encoder::begin() const
-{
-  return m_begin;
-}
-
-inline Buffer::const_iterator
-Encoder::end() const
-{
-  return m_end;
-}
-
-inline uint8_t*
-Encoder::buf()
-{
-  return &(*m_begin);
-}
-
-inline const uint8_t*
-Encoder::buf() const
-{
-  return &(*m_begin);
-}
-
 template<class Iterator>
 size_t
 Encoder::prependRange(Iterator first, Iterator last)
@@ -317,7 +352,7 @@ Encoder::prependRange(Iterator first, Iterator last)
   size_t length = std::distance(first, last);
   reserveFront(length);
 
-  m_begin -= length;
+  std::advance(m_begin, -length);
   std::copy(first, last, m_begin);
   return length;
 }
@@ -333,7 +368,7 @@ Encoder::appendRange(Iterator first, Iterator last)
   reserveBack(length);
 
   std::copy(first, last, m_end);
-  m_end += length;
+  std::advance(m_end, length);
   return length;
 }
 

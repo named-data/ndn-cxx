@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -121,75 +121,61 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaSigning, T, TestBackEnds)
   Name keyName = key->getKeyName();
 
   transform::PublicKey pubKey;
-  ConstBufferPtr pubKeyBits = key->derivePublicKey();
-  pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
+  auto pubKeyBits = key->derivePublicKey();
+  pubKey.loadPkcs8(*pubKeyBits);
 
-  // Sign using single buffer API
+  // Sign a single buffer
   const uint8_t content1[] = {0x01, 0x02, 0x03, 0x04};
-//added_GM, by liupenghui
+  //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::RSA;
-  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1), keyType);
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, {content1}, keyType);
 #else  
-  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1));
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, {content1});
 #endif
-
   BOOST_REQUIRE(sigValueSingle != nullptr);
 
   bool resultSingle;
   {
-
 //added_GM, by liupenghui
-#if 1  
+#if 1
     using namespace transform;
-    bufferSource(content1, sizeof(content1)) >>
-  	verifierFilter(DigestAlgorithm::SHA256, pubKey, keyType,
-  				   sigValueSingle->data(), sigValueSingle->size()) >>
-  	boolSink(resultSingle);
+    bufferSource(content1)
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, keyType, *sigValueSingle)
+      >> boolSink(resultSingle);
 #else
-	using namespace transform;
-	bufferSource(content1, sizeof(content1)) >>
-	verifierFilter(DigestAlgorithm::SHA256, pubKey,
-				 sigValueSingle->data(), sigValueSingle->size()) >>
-	boolSink(resultSingle);
+	  using namespace transform;
+	  bufferSource(content1)
+		>> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueSingle)
+		>> boolSink(resultSingle);
 #endif	
-
-  	
   }
   BOOST_CHECK_EQUAL(resultSingle, true);
 
-  // Sign using vectored API
+  // Sign multiple buffers
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
-  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
-														  {content2, sizeof(content2)}}, keyType);
-
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {content1, content2}, keyType);
 #else  
-  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
-  														  {content2, sizeof(content2)}});
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {content1, content2});
 #endif
-
   BOOST_REQUIRE(sigValueVector != nullptr);
 
   bool resultVector;
   {
-
 //added_GM, by liupenghui
 #if 1
     using namespace transform;
-    bufferSource({{content1, sizeof(content1)}, {content2, sizeof(content2)}}) >>
-      verifierFilter(DigestAlgorithm::SHA256, pubKey, keyType,
-                     sigValueVector->data(), sigValueVector->size()) >>
-      boolSink(resultVector);
+    bufferSource(InputBuffers{content1, content2})
+    >> verifierFilter(DigestAlgorithm::SHA256, pubKey, keyType, *sigValueVector)
+    >> boolSink(resultVector);
 #else
     using namespace transform;
-    bufferSource({{content1, sizeof(content1)}, {content2, sizeof(content2)}}) >>
-      verifierFilter(DigestAlgorithm::SHA256, pubKey,
-                     sigValueVector->data(), sigValueVector->size()) >>
-      boolSink(resultVector);
+    bufferSource(InputBuffers{content1, content2})
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueVector)
+      >> boolSink(resultVector);
 #endif	
-
   }
   BOOST_CHECK_EQUAL(resultVector, true);
 
@@ -210,18 +196,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(RsaDecryption, T, TestBackEnds)
   const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
 
   transform::PublicKey pubKey;
-  ConstBufferPtr pubKeyBits = key->derivePublicKey();
-  pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
+  auto pubKeyBits = key->derivePublicKey();
+  pubKey.loadPkcs8(*pubKeyBits);
 
 
   //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::RSA;
-  ConstBufferPtr cipherText = pubKey.encrypt(content, sizeof(content), keyType);
-  ConstBufferPtr plainText = key->decrypt(cipherText->data(), cipherText->size(), keyType);
+  ConstBufferPtr cipherText = pubKey.encrypt(content, keyType);
+  ConstBufferPtr plainText = key->decrypt(*cipherText, keyType);
 #else
-  ConstBufferPtr cipherText = pubKey.encrypt(content, sizeof(content));
-  ConstBufferPtr plainText = key->decrypt(cipherText->data(), cipherText->size());
+  ConstBufferPtr cipherText = pubKey.encrypt(content);
+  ConstBufferPtr plainText = key->decrypt(*cipherText);
 #endif
 
   BOOST_CHECK_EQUAL_COLLECTIONS(content, content + sizeof(content),
@@ -242,78 +228,61 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EcdsaSigning, T, TestBackEnds)
   Name ecKeyName = key->getKeyName();
 
   transform::PublicKey pubKey;
-  ConstBufferPtr pubKeyBits = key->derivePublicKey();
-  pubKey.loadPkcs8(pubKeyBits->data(), pubKeyBits->size());
+  auto pubKeyBits = key->derivePublicKey();
+  pubKey.loadPkcs8(*pubKeyBits);
 
-  // Sign using single buffer API
+  // Sign a single buffer
   const uint8_t content1[] = {0x01, 0x02, 0x03, 0x04};
-
-  //added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
-	KeyType keyType = KeyType::EC;	
-	auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1), keyType);
-	BOOST_REQUIRE(sigValueSingle != nullptr);
+  KeyType keyType = KeyType::EC;  
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, {content1}, keyType);
 #else
-	auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1));
-	BOOST_REQUIRE(sigValueSingle != nullptr);
-#endif
-  
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, {content1});
+#endif  
+  BOOST_REQUIRE(sigValueSingle != nullptr);
 
   bool resultSingle;
   {
-
 //added_GM, by liupenghui
 #if 1
     using namespace transform;
-    bufferSource(content1, sizeof(content1)) >>
-      verifierFilter(DigestAlgorithm::SHA256, pubKey,keyType,
-    				 sigValueSingle->data(), sigValueSingle->size()) >>
-      boolSink(resultSingle);
-	
+    bufferSource(content1)
+    >> verifierFilter(DigestAlgorithm::SHA256, pubKey, keyType, *sigValueSingle)
+    >> boolSink(resultSingle);
 #else
     using namespace transform;
-    bufferSource(content1, sizeof(content1)) >>
-      verifierFilter(DigestAlgorithm::SHA256, pubKey,
-                     sigValueSingle->data(), sigValueSingle->size()) >>
-      boolSink(resultSingle);
+    bufferSource(content1)
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueSingle)
+      >> boolSink(resultSingle);
 #endif
-  	
   }
   BOOST_CHECK_EQUAL(resultSingle, true);
 
-  // Sign using vectored API
+  // Sign multiple buffers
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
-
 //added_GM, by liupenghui
 #if 1  
-  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
-  														  {content2, sizeof(content2)}}, keyType);
-  BOOST_REQUIRE(sigValueVector != nullptr);
-	
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {content1, content2}, keyType);
 #else
-  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
-															{content2, sizeof(content2)}});
-  BOOST_REQUIRE(sigValueVector != nullptr);
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {content1, content2});
 #endif
+  BOOST_REQUIRE(sigValueVector != nullptr);
 
   bool resultVector;
   {
 //added_GM, by liupenghui
 #if 1
     using namespace transform;
-    bufferSource({{content1, sizeof(content1)}, {content2, sizeof(content2)}}) >>
-      verifierFilter(DigestAlgorithm::SHA256, pubKey,keyType,
-    				 sigValueVector->data(), sigValueVector->size()) >>
-      boolSink(resultVector);
-		  
+    bufferSource(InputBuffers{content1, content2})
+    >> verifierFilter(DigestAlgorithm::SHA256, pubKey, keyType, *sigValueVector)
+    >> boolSink(resultVector);
 #else
     using namespace transform;
-    bufferSource({{content1, sizeof(content1)}, {content2, sizeof(content2)}}) >>
-  	verifierFilter(DigestAlgorithm::SHA256, pubKey,
-  				   sigValueVector->data(), sigValueVector->size()) >>
-  	boolSink(resultVector);
+    bufferSource(InputBuffers{content1, content2})
+      >> verifierFilter(DigestAlgorithm::SHA256, pubKey, *sigValueVector)
+      >> boolSink(resultVector);
 #endif
-
   }
   BOOST_CHECK_EQUAL(resultVector, true);
 
@@ -332,44 +301,34 @@ BOOST_AUTO_TEST_CASE(HmacSigningAndVerifying)
   unique_ptr<KeyHandle> key = tpm.createKey(identity, HmacKeyParams());
   Name hmacKeyName = key->getKeyName();
 
-  // Sign and verify using single buffer API
+  // Sign and verify a single buffer
   const uint8_t content1[] = {0x01, 0x02, 0x03, 0x04};
+
   //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::HMAC;	  
-  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1), keyType);
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, {content1}, keyType);
   BOOST_REQUIRE(sigValueSingle != nullptr);
-  bool resultSingle = key->verify(DigestAlgorithm::SHA256, content1, sizeof(content1),
-  								sigValueSingle->data(), sigValueSingle->size(), keyType);
+  bool resultSingle = key->verify(DigestAlgorithm::SHA256, {content1}, *sigValueSingle, keyType);
   BOOST_CHECK_EQUAL(resultSingle, true);
   
-  // Sign and verify using vectored API
+  // Sign and verify multiple buffers
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
-  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
-  														  {content2, sizeof(content2)}}, keyType);
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {content1, content2}, keyType);
   BOOST_REQUIRE(sigValueVector != nullptr);
-  bool resultVector = key->verify(DigestAlgorithm::SHA256,
-  								{{content1, sizeof(content1)},
-  								 {content2, sizeof(content2)}},
-  								sigValueVector->data(), sigValueVector->size(), keyType);
+  bool resultVector = key->verify(DigestAlgorithm::SHA256, {content1, content2}, *sigValueVector, keyType);
   BOOST_CHECK_EQUAL(resultVector, true);
-	  
 #else
-  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, content1, sizeof(content1));
+  auto sigValueSingle = key->sign(DigestAlgorithm::SHA256, {content1});
   BOOST_REQUIRE(sigValueSingle != nullptr);
-  bool resultSingle = key->verify(DigestAlgorithm::SHA256, content1, sizeof(content1),
-								  sigValueSingle->data(), sigValueSingle->size());
+  bool resultSingle = key->verify(DigestAlgorithm::SHA256, {content1}, *sigValueSingle);
   BOOST_CHECK_EQUAL(resultSingle, true);
   
-  // Sign and verify using vectored API
+  // Sign and verify multiple buffers
   const uint8_t content2[] = {0x05, 0x06, 0x07, 0x08};
-  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {{content1, sizeof(content1)},
-															{content2, sizeof(content2)}});
+  auto sigValueVector = key->sign(DigestAlgorithm::SHA256, {content1, content2});
   BOOST_REQUIRE(sigValueVector != nullptr);
-  bool resultVector = key->verify(DigestAlgorithm::SHA256,
-								  {{content1, sizeof(content1)},
-								   {content2, sizeof(content2)}},
-								  sigValueVector->data(), sigValueVector->size());
+  bool resultVector = key->verify(DigestAlgorithm::SHA256, {content1, content2}, *sigValueVector);
   BOOST_CHECK_EQUAL(resultVector, true);
 #endif
 
@@ -417,22 +376,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
   BOOST_REQUIRE_EQUAL(tpm.hasKey(keyName), false);
 
   transform::PrivateKey sKey;
-  sKey.loadPkcs1Base64(reinterpret_cast<const uint8_t*>(privKeyPkcs1.data()), privKeyPkcs1.size());
+  sKey.loadPkcs1Base64({reinterpret_cast<const uint8_t*>(privKeyPkcs1.data()), privKeyPkcs1.size()});
   OBufferStream os;
   sKey.savePkcs8(os, password.data(), password.size());
   auto pkcs8 = os.buf();
 
   // import with wrong password
-  BOOST_CHECK_THROW(tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), wrongPassword.data(), wrongPassword.size()),
+  BOOST_CHECK_THROW(tpm.importKey(keyName, *pkcs8, wrongPassword.data(), wrongPassword.size()),
                     Tpm::Error);
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), false);
 
   // import with correct password
-  tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), password.data(), password.size());
+  tpm.importKey(keyName, *pkcs8, password.data(), password.size());
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
 
   // import already present key
-  BOOST_CHECK_THROW(tpm.importKey(keyName, pkcs8->data(), pkcs8->size(), password.data(), password.size()),
+  BOOST_CHECK_THROW(tpm.importKey(keyName, *pkcs8, password.data(), password.size()),
                     Tpm::Error);
 
   // test derivePublicKey with the imported key
@@ -445,7 +404,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ImportExport, T, TestBackEnds)
   BOOST_CHECK_EQUAL(tpm.hasKey(keyName), true);
 
   transform::PrivateKey sKey2;
-  sKey2.loadPkcs8(exportedKey->data(), exportedKey->size(), password.data(), password.size());
+  sKey2.loadPkcs8(*exportedKey, password.data(), password.size());
   OBufferStream os2;
   sKey.savePkcs1Base64(os2);
   auto pkcs1 = os2.buf();
@@ -482,5 +441,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-
-

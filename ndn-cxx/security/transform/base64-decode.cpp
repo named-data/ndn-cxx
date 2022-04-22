@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,11 +26,7 @@ namespace ndn {
 namespace security {
 namespace transform {
 
-/**
- * @brief The implementation class which contains the internal state of the filter
- *        which includes openssl specific structures.
- */
-class Base64Decode::Impl
+class Base64Decode::Impl : boost::noncopyable
 {
 public:
   Impl()
@@ -55,7 +51,6 @@ public:
   BIO* m_source; // BIO_f_base64 alone does not work without a source
 };
 
-static const size_t BUFFER_LENGTH = 1024;
 
 Base64Decode::Base64Decode(bool expectNewlineEvery64Bytes)
   : m_impl(make_unique<Impl>())
@@ -79,9 +74,9 @@ Base64Decode::preTransform()
 }
 
 size_t
-Base64Decode::convert(const uint8_t* buf, size_t size)
+Base64Decode::convert(span<const uint8_t> buf)
 {
-  int wLen = BIO_write(m_impl->m_source, buf, size);
+  int wLen = BIO_write(m_impl->m_source, buf.data(), buf.size());
 
   if (wLen <= 0) { // fail to write data
     if (!BIO_should_retry(m_impl->m_source)) {
@@ -114,7 +109,7 @@ Base64Decode::fillOutputBuffer()
 {
   // OpenSSL base64 BIO cannot give us the number bytes of partial decoded result,
   // so we just try to read a chunk.
-  auto buffer = make_unique<OBuffer>(BUFFER_LENGTH);
+  auto buffer = make_unique<OBuffer>(1024);
   int rLen = BIO_read(m_impl->m_base64, buffer->data(), buffer->size());
   if (rLen <= 0)
     return;

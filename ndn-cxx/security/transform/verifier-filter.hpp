@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,35 +37,38 @@ class PublicKey;
  *
  * The next module in the chain is usually BoolSink.
  */
-class VerifierFilter : public Transform
+class VerifierFilter final : public Transform
 {
 public:
+  /**
+   * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and public key @p key
+   */
+
+  //added_GM, by liupenghui
   //the PublicKey.getKeyType() can't differ the SM2-type key from ECDSA key, we add a common paramter Type to initiate the Key.
 #if 1
   /**
    * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and public key @p key
    */
-  VerifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType,const uint8_t* sig, size_t sigLen);
+  VerifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType, span<const uint8_t> sig);
   
   /**
    * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and HMAC key @p key
    */
-  VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType, const uint8_t* sig, size_t sigLen);
-  //added_GM, by liupenghui
+  VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType, span<const uint8_t> sig);
 #else
   /**
    * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and public key @p key
    */
-  VerifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen);
+  VerifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig);
   
   /**
    * @brief Create a verifier module to verify signature @p sig using algorithm @p algo and HMAC key @p key
    */
-  VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen);
-  //added_GM, by liupenghui
+	VerifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig);
 #endif
 
-  ~VerifierFilter();
+  ~VerifierFilter() final;
 
 private:
   void
@@ -77,7 +80,7 @@ private:
    * @return The number of bytes that are actually written
    */
   size_t
-  convert(const uint8_t* buf, size_t size) final;
+  convert(span<const uint8_t> buf) final;
 
   /**
    * @brief Finalize verification and write the result (single byte) into next module.
@@ -91,21 +94,19 @@ private:
 
   KeyType m_keyType;
 };
+
 //added_GM, by liupenghui
 //the PublicKey.getKeyType() can't differ the SM2-type key from ECDSA key, we add a common paramter Type to initiate the Key.
 #if 1
-
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType, const uint8_t* sig, size_t sigLen);
-
+verifierFilter(DigestAlgorithm algo, const PublicKey& key, KeyType keyType, span<const uint8_t> sig);
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType, const uint8_t* sig, size_t sigLen);
+verifierFilter(DigestAlgorithm algo, const PrivateKey& key, KeyType keyType, span<const uint8_t> sig);
 #else
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PublicKey& key, const uint8_t* sig, size_t sigLen);
-
+verifierFilter(DigestAlgorithm algo, const PublicKey& key, span<const uint8_t> sig);
 unique_ptr<Transform>
-verifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, size_t sigLen);
+verifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> sig);
 #endif
 
 } // namespace transform
@@ -113,4 +114,3 @@ verifierFilter(DigestAlgorithm algo, const PrivateKey& key, const uint8_t* sig, 
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_VERIFIER_FILTER_HPP
-

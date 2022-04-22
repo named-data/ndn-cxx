@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@
 namespace ndn {
 namespace util {
 
-class DummyClientFace::Transport : public ndn::Transport
+class DummyClientFace::Transport final : public ndn::Transport
 {
 public:
   void
@@ -45,40 +45,24 @@ public:
   }
 
   void
-  close() override
+  send(const Block& block) final
+  {
+    onSendBlock(block);
+  }
+
+  void
+  close() final
   {
   }
 
   void
-  pause() override
+  pause() final
   {
   }
 
   void
-  resume() override
+  resume() final
   {
-  }
-
-  void
-  send(const Block& wire) override
-  {
-    onSendBlock(wire);
-  }
-
-  void
-  send(const Block& header, const Block& payload) override
-  {
-    EncodingBuffer encoder(header.size() + payload.size(), header.size() + payload.size());
-    encoder.appendByteArray(header.wire(), header.size());
-    encoder.appendByteArray(payload.wire(), payload.size());
-
-    this->send(encoder.block());
-  }
-
-  boost::asio::io_service&
-  getIoService()
-  {
-    return *m_ioService;
   }
 
 public:
@@ -133,19 +117,16 @@ DummyClientFace::~DummyClientFace()
 void
 DummyClientFace::construct(const Options& options)
 {
-  static_pointer_cast<Transport>(getTransport())->onSendBlock.connect([this] (const Block& blockFromDaemon) {
-    Block packet(blockFromDaemon);
+  static_pointer_cast<Transport>(getTransport())->onSendBlock.connect([this] (Block packet) {
     packet.encode();
     lp::Packet lpPacket(packet);
-
-    Buffer::const_iterator begin, end;
-    std::tie(begin, end) = lpPacket.get<lp::FragmentField>();
-    Block block(&*begin, std::distance(begin, end));
+    auto frag = lpPacket.get<lp::FragmentField>();
+    Block block({frag.first, frag.second});
 
     if (block.type() == tlv::Interest) {
-      shared_ptr<Interest> interest = make_shared<Interest>(block);
+      auto interest = make_shared<Interest>(block);
       if (lpPacket.has<lp::NackField>()) {
-        shared_ptr<lp::Nack> nack = make_shared<lp::Nack>(std::move(*interest));
+        auto nack = make_shared<lp::Nack>(std::move(*interest));
         nack->setHeader(lpPacket.get<lp::NackField>());
         addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(*nack, lpPacket);
         onSendNack(*nack);
@@ -157,7 +138,7 @@ DummyClientFace::construct(const Options& options)
       }
     }
     else if (block.type() == tlv::Data) {
-      shared_ptr<Data> data = make_shared<Data>(block);
+      auto data = make_shared<Data>(block);
       addTagFromField<lp::CachePolicyTag, lp::CachePolicyField>(*data, lpPacket);
       addTagFromField<lp::CongestionMarkTag, lp::CongestionMarkField>(*data, lpPacket);
       onSendData(*data);

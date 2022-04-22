@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -101,22 +101,50 @@ BOOST_AUTO_TEST_CASE(Double)
   BOOST_CHECK_THROW(readDouble("64043E800000"_block), tlv::Error);
 }
 
-BOOST_AUTO_TEST_CASE(Data)
+BOOST_AUTO_TEST_CASE(Binary)
 {
   std::string buf1{1, 1, 1, 1};
   const uint8_t buf2[]{1, 1, 1, 1};
   std::list<uint8_t> buf3{1, 1, 1, 1};
 
-  Block b1 = makeBinaryBlock(100, buf1.data(), buf1.size());
-  Block b2 = makeBinaryBlock(100, buf2, sizeof(buf2));
+  Block b1 = makeBinaryBlock(100, buf1.data(), buf1.size()); // char* overload
+  Block b2 = makeBinaryBlock(100, buf2);                     // span overload
   Block b3 = makeBinaryBlock(100, buf1.begin(), buf1.end()); // fast encoding (random access iterator)
   Block b4 = makeBinaryBlock(100, buf3.begin(), buf3.end()); // slow encoding (general iterator)
 
   BOOST_CHECK_EQUAL(b1, b2);
   BOOST_CHECK_EQUAL(b1, b3);
+  BOOST_CHECK_EQUAL(b1, b4);
   BOOST_CHECK_EQUAL(b1.type(), 100);
   BOOST_CHECK_EQUAL(b1.value_size(), buf1.size());
   BOOST_CHECK_EQUAL_COLLECTIONS(b1.value_begin(), b1.value_end(), buf2, buf2 + sizeof(buf2));
+
+  EncodingEstimator estimator;
+  size_t length = prependBinaryBlock(estimator, 100, buf2);
+  BOOST_CHECK_EQUAL(length, 6);
+
+  EncodingBuffer encoder(length, 0);
+  BOOST_CHECK_EQUAL(prependBinaryBlock(encoder, 100, buf2), 6);
+  BOOST_CHECK_EQUAL(encoder.block(), b1);
+}
+
+BOOST_AUTO_TEST_CASE(PrependBlock)
+{
+  EncodingEstimator estimator;
+  Block b1({0x01, 0x03, 0x00, 0x00, 0x00});
+  size_t length = prependBlock(estimator, b1);
+  BOOST_CHECK_EQUAL(length, 5);
+  Block b2(100, b1);
+  length += prependBlock(estimator, b2);
+  BOOST_CHECK_EQUAL(length, 12);
+
+  EncodingBuffer encoder(length, 0);
+  BOOST_CHECK_EQUAL(prependBlock(encoder, b1), 5);
+  BOOST_CHECK_EQUAL(prependBlock(encoder, b2), 7);
+  BOOST_CHECK_EQUAL(encoder.size(), 12);
+  encoder.prependVarNumber(encoder.size());
+  encoder.prependVarNumber(200);
+  BOOST_CHECK_EQUAL(encoder.block(), "C80C 64050103000000 0103000000"_block);
 }
 
 BOOST_AUTO_TEST_CASE(Nested)
@@ -129,6 +157,21 @@ BOOST_AUTO_TEST_CASE(Nested)
   BOOST_CHECK_EQUAL(b1.elements().size(), 1);
   BOOST_CHECK_EQUAL(b1.elements().begin()->type(), name.wireEncode().type());
   BOOST_CHECK_EQUAL(*b1.elements().begin(), name.wireEncode());
+}
+
+BOOST_AUTO_TEST_CASE(NestedSequence)
+{
+  std::vector<Name> names;
+  names.emplace_back("/A");
+  names.emplace_back("/B");
+  Block b1 = makeNestedBlock(100, names.begin(), names.end());
+
+  BOOST_CHECK_EQUAL(b1.type(), 100);
+  b1.parse();
+  auto elements = b1.elements();
+  BOOST_REQUIRE_EQUAL(elements.size(), 2);
+  BOOST_CHECK_EQUAL(Name(elements[0]), names[0]);
+  BOOST_CHECK_EQUAL(Name(elements[1]), names[1]);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlockHelpers

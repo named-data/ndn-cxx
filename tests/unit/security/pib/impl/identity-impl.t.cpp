@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -65,12 +65,11 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
 //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::EC;
-  // add key
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name, keyType);
+  identity1.addKey(id1Key1, id1Key1Name, keyType);
   BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
 #else 
   // add key
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
+  identity1.addKey(id1Key1, id1Key1Name);
   BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
 #endif
 
@@ -78,7 +77,8 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
   const Key& defaultKey0 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey0.getName(), id1Key1Name);
-  BOOST_CHECK(defaultKey0.getPublicKey() == id1Key1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey0.getPublicKey().begin(), defaultKey0.getPublicKey().end(),
+                                id1Key1.begin(), id1Key1.end());
 
   // remove key
   identity1.removeKey(id1Key1Name);
@@ -88,10 +88,10 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   //added_GM, by liupenghui
 #if 1
   // set default key directly
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name, keyType));
+  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name, keyType));
 #else 
   // set default key directly
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name));
+  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name));
 #endif
 
   BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
@@ -100,15 +100,18 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   // check default key
   const Key& defaultKey1 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey1.getName(), id1Key1Name);
-  BOOST_CHECK(defaultKey1.getPublicKey() == id1Key1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey1.getPublicKey().begin(), defaultKey1.getPublicKey().end(),
+                                id1Key1.begin(), id1Key1.end());
 
-  //added_GM, by liupenghui
-#if 1  // add another key
-  identity1.addKey(id1Key2.data(), id1Key2.size(), id1Key2Name, keyType);
+
+//added_GM, by liupenghui
+#if 1
+  // add another key
+  identity1.addKey(id1Key2, id1Key2Name, keyType);
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 2);
 #else 
   // add another key
-  identity1.addKey(id1Key2.data(), id1Key2.size(), id1Key2Name);
+  identity1.addKey(id1Key2, id1Key2Name);
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 2);
 #endif
 
@@ -117,25 +120,27 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
   const Key& defaultKey2 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey2.getName(), id1Key2Name);
-  BOOST_CHECK(defaultKey2.getPublicKey() == id1Key2);
+  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey2.getPublicKey().begin(), defaultKey2.getPublicKey().end(),
+                                id1Key2.begin(), id1Key2.end());
 
   // remove key
   identity1.removeKey(id1Key1Name);
   BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 1);
-  
-	//added_GM, by liupenghui
+
+  //added_GM, by liupenghui
 #if 1
   // set default key directly again, change the default setting
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name, keyType));
+  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name, keyType));
 #else 
   // set default key directly again, change the default setting
-  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1.data(), id1Key1.size(), id1Key1Name));
+  BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name));
 #endif
 
   const Key& defaultKey3 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey3.getName(), id1Key1Name);
-  BOOST_CHECK(defaultKey3.getPublicKey() == id1Key1);
+  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey3.getPublicKey().begin(), defaultKey3.getPublicKey().end(),
+                                id1Key1.begin(), id1Key1.end());
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 2);
 
   // remove all keys
@@ -153,23 +158,30 @@ BOOST_AUTO_TEST_CASE(Overwrite)
   auto pibImpl = make_shared<pib::PibMemory>();
   IdentityImpl identity1(id1, pibImpl, true);
 
-
 //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::EC;
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name, keyType);
-  BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key1);
-
-  identity1.addKey(id1Key2.data(), id1Key2.size(), id1Key1Name, keyType); // overwriting key should work
-  BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key2);
-#else 
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
-  BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key1);
-
-  identity1.addKey(id1Key2.data(), id1Key2.size(), id1Key1Name); // overwriting key should work
-  BOOST_CHECK(identity1.getKey(id1Key1Name).getPublicKey() == id1Key2);
-#endif
+  identity1.addKey(id1Key1, id1Key1Name, keyType);
+  auto k1 = identity1.getKey(id1Key1Name);
+  BOOST_CHECK_EQUAL_COLLECTIONS(k1.getPublicKey().begin(), k1.getPublicKey().end(),
+  							  id1Key1.begin(), id1Key1.end());
   
+  identity1.addKey(id1Key2, id1Key1Name, keyType); // overwriting key should work
+  auto k2 = identity1.getKey(id1Key1Name);
+  BOOST_CHECK_EQUAL_COLLECTIONS(k2.getPublicKey().begin(), k2.getPublicKey().end(),
+  							  id1Key2.begin(), id1Key2.end());
+#else 
+  identity1.addKey(id1Key1, id1Key1Name);
+  auto k1 = identity1.getKey(id1Key1Name);
+  BOOST_CHECK_EQUAL_COLLECTIONS(k1.getPublicKey().begin(), k1.getPublicKey().end(),
+  							  id1Key1.begin(), id1Key1.end());
+  
+  identity1.addKey(id1Key2, id1Key1Name); // overwriting key should work
+  auto k2 = identity1.getKey(id1Key1Name);
+  BOOST_CHECK_EQUAL_COLLECTIONS(k2.getPublicKey().begin(), k2.getPublicKey().end(),
+  							  id1Key2.begin(), id1Key2.end());
+#endif
+
 }
 
 BOOST_AUTO_TEST_CASE(Errors)
@@ -179,26 +191,23 @@ BOOST_AUTO_TEST_CASE(Errors)
   BOOST_CHECK_THROW(IdentityImpl(id1, pibImpl, false), Pib::Error);
   IdentityImpl identity1(id1, pibImpl, true);
 
-
   //added_GM, by liupenghui
 #if 1
   KeyType keyType = KeyType::EC;
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name, keyType);
-  BOOST_CHECK_THROW(identity1.addKey(id2Key1.data(), id2Key1.size(), id2Key1Name, keyType), std::invalid_argument);
+  identity1.addKey(id1Key1, id1Key1Name, keyType);
+  BOOST_CHECK_THROW(identity1.addKey(id2Key1, id2Key1Name, keyType), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.getKey(id2Key1Name), std::invalid_argument);
-  BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1.data(), id2Key1.size(), id2Key1Name, keyType), std::invalid_argument);
+  BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1, id2Key1Name, keyType), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1Name), std::invalid_argument);
-
 #else
-  identity1.addKey(id1Key1.data(), id1Key1.size(), id1Key1Name);
-  BOOST_CHECK_THROW(identity1.addKey(id2Key1.data(), id2Key1.size(), id2Key1Name), std::invalid_argument);
+  identity1.addKey(id1Key1, id1Key1Name);
+  BOOST_CHECK_THROW(identity1.addKey(id2Key1, id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.getKey(id2Key1Name), std::invalid_argument);
-  BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1.data(), id2Key1.size(), id2Key1Name), std::invalid_argument);
+  BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1, id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.setDefaultKey(id2Key1Name), std::invalid_argument);
 #endif  
- 
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIdentityImpl
@@ -210,4 +219,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

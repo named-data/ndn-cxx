@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -67,7 +67,7 @@ protected:
     size_t valueLength = 0;
     for (const auto& args : sendDataHistory) {
       const auto& content = args.content;
-      valueLength += encoder.appendByteArray(content.value(), content.value_size());
+      valueLength += encoder.appendBytes({content.value(), content.value_size()});
     }
     encoder.prependVarNumber(valueLength);
     encoder.prependVarNumber(tlv::Content);
@@ -237,7 +237,7 @@ BOOST_FIXTURE_TEST_SUITE(AbnormalState, AbnormalStateTestFixture)
 BOOST_AUTO_TEST_CASE(AppendReject)
 {
   const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_NO_THROW(context.append(Block(buf, sizeof(buf))));
+  BOOST_CHECK_NO_THROW(context.append(Block(buf)));
   BOOST_CHECK_EXCEPTION(context.reject(), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call reject() after append/end"s;
   });
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(AppendReject)
 BOOST_AUTO_TEST_CASE(AppendEndReject)
 {
   const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_NO_THROW(context.append(Block(buf, sizeof(buf))));
+  BOOST_CHECK_NO_THROW(context.append(Block(buf)));
   BOOST_CHECK_NO_THROW(context.end());
   BOOST_CHECK_EXCEPTION(context.reject(), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call reject() after append/end"s;
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(EndAppend)
 {
   BOOST_CHECK_NO_THROW(context.end());
   const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_EXCEPTION(context.append(Block(buf, sizeof(buf))), std::logic_error, [] (const auto& e) {
+  BOOST_CHECK_EXCEPTION(context.append(Block(buf)), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call append() on a finalized context"s;
   });
 }
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE(RejectAppend)
 {
   BOOST_CHECK_NO_THROW(context.reject());
   const uint8_t buf[] = {0x82, 0x01, 0x02};
-  BOOST_CHECK_EXCEPTION(context.append(Block(buf, sizeof(buf))), std::logic_error, [] (const auto& e) {
+  BOOST_CHECK_EXCEPTION(context.append(Block(buf)), std::logic_error, [] (const auto& e) {
     return e.what() == "cannot call append() on a finalized context"s;
   });
 }

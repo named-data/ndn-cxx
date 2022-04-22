@@ -43,31 +43,27 @@ public:
   KeyHandleMem(shared_ptr<transform::PrivateKey> key);
 
 private:
-
-  //added_GM, by liupenghui
-  // After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
+//added_GM, by liupenghui
+// After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
 #if 1
   ConstBufferPtr
-  doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyType keyType) const final;
+  doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs, KeyType keyType) const final;
   
   bool
-  doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-  		 const uint8_t* sig, size_t sigLen, KeyType keyType) const final;
+  doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs, span<const uint8_t> sig, KeyType keyType) const final;
   
   ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen, KeyType keyType) const final;
+  doDecrypt(span<const uint8_t> cipherText, KeyType keyType) const final;
 #else
-	ConstBufferPtr
-	doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const final;
-	
-	bool
-	doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-			 const uint8_t* sig, size_t sigLen) const final;
-	
-	ConstBufferPtr
-	doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+  ConstBufferPtr
+  doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs) const final;
+  
+  bool
+  doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs, span<const uint8_t> sig) const final;
+  
+  ConstBufferPtr
+  doDecrypt(span<const uint8_t> cipherText) const final;
 #endif
-	
 
   ConstBufferPtr
   doDerivePublicKey() const final;
@@ -81,4 +77,3 @@ private:
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_TPM_IMPL_KEY_HANDLE_MEM_HPP
-

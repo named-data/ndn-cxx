@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,17 +35,16 @@ BOOST_AUTO_TEST_SUITE(TestBufferSource)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  uint8_t in[16] = {
+  const uint8_t in[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
   };
-
   std::ostringstream os1;
-  bufferSource(in, sizeof(in)) >> streamSink(os1);
+  bufferSource(in) >> streamSink(os1);
   std::string out1 = os1.str();
   BOOST_CHECK_EQUAL_COLLECTIONS(out1.begin(), out1.end(), in, in + sizeof(in));
 
-  std::string in2 =
+  const std::string in2 =
     "0123456701234567012345670123456701234567012345670123456701234567"
     "0123456701234567012345670123456701234567012345670123456701234567"
     "0123456701234567012345670123456701234567012345670123456701234567"
@@ -66,27 +65,26 @@ BOOST_AUTO_TEST_CASE(Basic)
     "0123456701234567012345670123456701234567012345670123456701234567"
     "0123456701234567012345670123456701234567012345670123456701234567"
     "0123456701234567012345670123456701234567012345670123456701234567";
-
   std::ostringstream os2;
   bufferSource(in2) >> streamSink(os2);
   std::string out2 = os2.str();
   BOOST_CHECK_EQUAL_COLLECTIONS(out2.begin(), out2.end(), in2.begin(), in2.end());
 
-  Buffer in3(in, sizeof(in));
+  std::vector<uint8_t> in3(in, in + sizeof(in));
   std::ostringstream os3;
   bufferSource(in3) >> streamSink(os3);
   std::string out3 = os3.str();
   BOOST_CHECK_EQUAL_COLLECTIONS(out3.begin(), out3.end(), in3.begin(), in3.end());
 
-  InputBuffers in4{{in, sizeof(in)}, {reinterpret_cast<const uint8_t*>(in2.data()), in2.size()}};
+  InputBuffers in4{{in}, {reinterpret_cast<const uint8_t*>(in2.data()), in2.size()}};
   std::ostringstream os4;
   bufferSource(in4) >> streamSink(os4);
   std::string out4 = os4.str();
   BOOST_CHECK_EQUAL(out4.size(), sizeof(in) + in2.size());
-  BOOST_CHECK_EQUAL_COLLECTIONS(out4.begin(), out4.begin() + in4[0].second,
-                                in4[0].first, in4[0].first + in4[0].second);
-  BOOST_CHECK_EQUAL_COLLECTIONS(out4.begin() + in4[0].second, out4.end(),
-                                in4[1].first, in4[1].first + in4[1].second);
+  BOOST_CHECK_EQUAL_COLLECTIONS(out4.begin(), out4.begin() + sizeof(in),
+                                in4[0].begin(), in4[0].end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(out4.begin() + sizeof(in), out4.end(),
+                                in4[1].begin(), in4[1].end());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBufferSource

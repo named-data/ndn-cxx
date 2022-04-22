@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -103,9 +103,9 @@ class DataSigningKeyFixture
 protected:
   DataSigningKeyFixture()
   {
-    m_privKey.loadPkcs1(PRIVATE_KEY_DER, sizeof(PRIVATE_KEY_DER));
+    m_privKey.loadPkcs1(PRIVATE_KEY_DER);
     auto buf = m_privKey.derivePublicKey();
-    m_pubKey.loadPkcs8(buf->data(), buf->size());
+    m_pubKey.loadPkcs8(*buf);
   }
 
 protected:
@@ -182,7 +182,7 @@ BOOST_FIXTURE_TEST_CASE(Full, DataSigningKeyFixture)
   Data d("/local/ndn/prefix");
   d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(10_s);
-  d.setContent(CONTENT1, sizeof(CONTENT1));
+  d.setContent(CONTENT1);
 
   SignatureInfo signatureInfo;
   signatureInfo.setSignatureType(tlv::SignatureSha256WithRsa);
@@ -199,13 +199,13 @@ BOOST_FIXTURE_TEST_CASE(Full, DataSigningKeyFixture)
 	KeyType keyType = KeyType::RSA;
 	input >> tr::signerFilter(DigestAlgorithm::SHA256, m_privKey, keyType) >> tr::streamSink(sig);
 #else
-    input >> tr::signerFilter(DigestAlgorithm::SHA256, m_privKey) >> tr::streamSink(sig);
+	input >> tr::signerFilter(DigestAlgorithm::SHA256, m_privKey) >> tr::streamSink(sig);
 #endif
 
-    input.write(d.getName().    wireEncode().wire(), d.getName().    wireEncode().size());
-    input.write(d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size());
-    input.write(d.getContent().              wire(), d.getContent().              size());
-    input.write(signatureInfo.  wireEncode().wire(), signatureInfo.  wireEncode().size());
+    input.write({d.getName().    wireEncode().wire(), d.getName().    wireEncode().size()});
+    input.write({d.getMetaInfo().wireEncode().wire(), d.getMetaInfo().wireEncode().size()});
+    input.write({d.getContent().              wire(), d.getContent().              size()});
+    input.write({signatureInfo.  wireEncode().wire(), signatureInfo.  wireEncode().size()});
     input.end();
   }
   d.setSignatureValue(sig.buf());
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(MinimalEmptyName)
 
 BOOST_AUTO_TEST_CASE(Full)
 {
-  d.wireDecode(Block(DATA1, sizeof(DATA1)));
+  d.wireDecode(Block(DATA1));
   BOOST_CHECK_EQUAL(d.getName(), "/local/ndn/prefix");
   BOOST_CHECK_EQUAL(d.getContentType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(d.getFreshnessPeriod(), 10_s);
@@ -403,7 +403,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, KeyChainFixture)
   Data d(Name("/local/ndn/prefix"));
   d.setContentType(tlv::ContentType_Blob);
   d.setFreshnessPeriod(10_s);
-  d.setContent(CONTENT1, sizeof(CONTENT1));
+  d.setContent(CONTENT1);
   BOOST_CHECK_THROW(d.getFullName(), Data::Error); // FullName is unavailable without signing
 
   m_keyChain.sign(d);
@@ -421,7 +421,7 @@ BOOST_FIXTURE_TEST_CASE(FullName, KeyChainFixture)
   d.setFreshnessPeriod(100_s); // invalidates FullName
   BOOST_CHECK_THROW(d.getFullName(), Data::Error);
 
-  Data d1(Block(DATA1, sizeof(DATA1)));
+  Data d1(Block{DATA1});
   BOOST_CHECK_EQUAL(d1.getFullName(),
     "/local/ndn/prefix/"
     "sha256digest=28bad4b5275bd392dbb670c75cf0b66f13f7942b21e80f55c0e86b374753a548");
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE(SetContent)
 
   // Block overload, nested inside Content element
   const uint8_t nested[] = {0x99, 0x02, 0xca, 0xfe};
-  d.setContent(Block(nested, sizeof(nested)));
+  d.setContent(Block(nested));
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
@@ -533,16 +533,17 @@ BOOST_AUTO_TEST_CASE(SetContent)
   // Block overload, default constructed (invalid)
   BOOST_CHECK_THROW(d.setContent(Block{}), std::invalid_argument);
 
-  // raw buffer overload
-  d.setContent(nested, sizeof(nested));
+  // span overload
+  d.setContent(nested);
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
                                 nested, nested + sizeof(nested));
-  d.setContent(nullptr, 0);
+  d.setContent(span<uint8_t>{});
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  // raw buffer overload (deprecated)
   BOOST_CHECK_THROW(d.setContent(nullptr, 1), std::invalid_argument);
 
   // ConstBufferPtr overload
@@ -589,7 +590,7 @@ BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, KeyChainFixture)
   const Block& wire1 = d1.wireEncode();
   const auto& sigInfoWire1 = wire1.find(tlv::SignatureInfo);
   BOOST_REQUIRE(sigInfoWire1 != wire1.elements_end());
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().first, ranges1.front().first + ranges1.front().second,
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges1.front().begin(), ranges1.front().end(),
                                 wire1.value_begin(), sigInfoWire1->value_end());
 
   // Test with decoded Data and ensure excludes elements after SignatureValue
@@ -602,12 +603,10 @@ BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, KeyChainFixture)
           0x17, 0x00, // SignatureValue
           0xAA, 0x00 // Unrecognized non-critical element
   };
-  Block wire2(WIRE, sizeof(WIRE));
-  Data d2(wire2);
+  Data d2(Block{WIRE});
   auto ranges2 = d2.extractSignedRanges();
   BOOST_REQUIRE_EQUAL(ranges2.size(), 1);
-  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().first, ranges2.front().first + ranges2.front().second,
-                                &WIRE[2], &WIRE[9]);
+  BOOST_CHECK_EQUAL_COLLECTIONS(ranges2.front().begin(), ranges2.front().end(), &WIRE[2], &WIRE[9]);
 }
 
 BOOST_AUTO_TEST_CASE(Equality)
@@ -638,11 +637,11 @@ BOOST_AUTO_TEST_CASE(Equality)
   BOOST_CHECK_EQUAL(a != b, false);
 
   static const uint8_t someData[] = "someData";
-  a.setContent(someData, sizeof(someData));
+  a.setContent(someData);
   BOOST_CHECK_EQUAL(a == b, false);
   BOOST_CHECK_EQUAL(a != b, true);
 
-  b.setContent(someData, sizeof(someData));
+  b.setContent(someData);
   BOOST_CHECK_EQUAL(a == b, true);
   BOOST_CHECK_EQUAL(a != b, false);
 
@@ -657,7 +656,7 @@ BOOST_AUTO_TEST_CASE(Equality)
 
 BOOST_AUTO_TEST_CASE(Print)
 {
-  Data d1(Block(DATA1, sizeof(DATA1)));
+  Data d1(Block{DATA1});
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(d1),
                     "Name: /local/ndn/prefix\n"
                     "MetaInfo: [ContentType: 0, FreshnessPeriod: 10000 milliseconds]\n"
@@ -675,4 +674,3 @@ BOOST_AUTO_TEST_SUITE_END() // TestData
 
 } // namespace tests
 } // namespace ndn
-

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,67 +37,69 @@ KeyHandleMem::KeyHandleMem(shared_ptr<transform::PrivateKey> key)
 {
   BOOST_ASSERT(m_key != nullptr);
 }
+
+
 //added_GM, by liupenghui
 //SM2 Signer must use SM3, force to use SM3.
 // After loading Pkcs8 key from outside file, PrivateKey.getKeyType() also can't differ SM2 from ECDSA,
 #if 1
 ConstBufferPtr
-KeyHandleMem::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyType keyType) const
+KeyHandleMem::doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs, KeyType keyType) const
 {
   using namespace transform;
 
   OBufferStream sigOs;
-  bufferSource(bufs) >> signerFilter(digestAlgorithm, *m_key, keyType) >> streamSink(sigOs);
+  bufferSource(bufs) >> signerFilter(digestAlgo, *m_key, keyType) >> streamSink(sigOs);
   return sigOs.buf();
 }
-
 bool
-KeyHandleMem::doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-                       const uint8_t* sig, size_t sigLen, KeyType keyType) const
+KeyHandleMem::doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs,
+                       span<const uint8_t> sig, KeyType keyType) const
 {
   using namespace transform;
 
   bool result = false;
-  bufferSource(bufs) >> verifierFilter(digestAlgorithm, *m_key, keyType, sig, sigLen) >> boolSink(result);
+  bufferSource(bufs) >> verifierFilter(digestAlgo, *m_key, keyType, sig)
+					 >> boolSink(result);
   return result;
 }
 
 ConstBufferPtr
-KeyHandleMem::doDecrypt(const uint8_t* cipherText, size_t cipherTextLen, KeyType keyType) const
+KeyHandleMem::doDecrypt(span<const uint8_t> cipherText, KeyType keyType) const
 {
-  return m_key->decrypt(cipherText, cipherTextLen, keyType);
+  return m_key->decrypt(cipherText, keyType);
 }
 
 #else
 ConstBufferPtr
-KeyHandleMem::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const
+KeyHandleMem::doSign(DigestAlgorithm digestAlgo, const InputBuffers& bufs) const
 {
   using namespace transform;
 
   OBufferStream sigOs;
-  bufferSource(bufs) >> signerFilter(digestAlgorithm, *m_key) >> streamSink(sigOs);
+  bufferSource(bufs) >> signerFilter(digestAlgo, *m_key) >> streamSink(sigOs);
   return sigOs.buf();
 }
 
 bool
-KeyHandleMem::doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-                       const uint8_t* sig, size_t sigLen) const
+KeyHandleMem::doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs,
+                       span<const uint8_t> sig) const
 {
   using namespace transform;
 
   bool result = false;
-  bufferSource(bufs) >> verifierFilter(digestAlgorithm, *m_key, sig, sigLen) >> boolSink(result);
+  bufferSource(bufs) >> verifierFilter(digestAlgo, *m_key, sig)
+                     >> boolSink(result);
   return result;
 }
 
 ConstBufferPtr
-KeyHandleMem::doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const
+KeyHandleMem::doDecrypt(span<const uint8_t> cipherText) const
 {
-  return m_key->decrypt(cipherText, cipherTextLen);
+  return m_key->decrypt(cipherText);
 }
 
 #endif
-
 
 ConstBufferPtr
 KeyHandleMem::doDerivePublicKey() const
@@ -108,4 +110,3 @@ KeyHandleMem::doDerivePublicKey() const
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-

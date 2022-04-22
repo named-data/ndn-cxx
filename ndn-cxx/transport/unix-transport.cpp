@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -94,13 +94,6 @@ UnixTransport::send(const Block& wire)
 {
   BOOST_ASSERT(m_impl != nullptr);
   m_impl->send(wire);
-}
-
-void
-UnixTransport::send(const Block& header, const Block& payload)
-{
-  BOOST_ASSERT(m_impl != nullptr);
-  m_impl->send(header, payload);
 }
 
 void

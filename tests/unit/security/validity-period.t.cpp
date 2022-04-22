@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -87,15 +87,11 @@ BOOST_AUTO_TEST_CASE(EncodingDecoding)
 {
   time::system_clock::TimePoint notBefore = time::getUnixEpoch();
   time::system_clock::TimePoint notAfter = notBefore + 1_day;
-
   ValidityPeriod v1(notBefore, notAfter);
-
   BOOST_CHECK_EQUAL_COLLECTIONS(v1.wireEncode().begin(), v1.wireEncode().end(),
                                 VP1, VP1 + sizeof(VP1));
 
-  BOOST_REQUIRE_NO_THROW(ValidityPeriod(Block(VP1, sizeof(VP1))));
-  Block block(VP1, sizeof(VP1));
-  ValidityPeriod v2(block);
+  ValidityPeriod v2(Block{VP1});
   BOOST_CHECK(v1.getPeriod() == v2.getPeriod());
 }
 
@@ -159,21 +155,17 @@ const uint8_t VP_E6[] = {
       0x54, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30
 };
 
-
 BOOST_AUTO_TEST_CASE(DecodingError)
 {
-  BOOST_CHECK_THROW(ValidityPeriod(Block(VP_E1, sizeof(VP_E1))), ValidityPeriod::Error);
-
-  BOOST_CHECK_THROW(ValidityPeriod(Block(VP_E2, sizeof(VP_E2))), ValidityPeriod::Error);
-  BOOST_CHECK_THROW(ValidityPeriod(Block(VP_E3, sizeof(VP_E3))), ValidityPeriod::Error);
-
-  BOOST_CHECK_THROW(ValidityPeriod(Block(VP_E4, sizeof(VP_E4))), ValidityPeriod::Error);
-  BOOST_CHECK_THROW(ValidityPeriod(Block(VP_E5, sizeof(VP_E5))), ValidityPeriod::Error);
+  BOOST_CHECK_THROW(ValidityPeriod(Block{VP_E1}), ValidityPeriod::Error);
+  BOOST_CHECK_THROW(ValidityPeriod(Block{VP_E2}), ValidityPeriod::Error);
+  BOOST_CHECK_THROW(ValidityPeriod(Block{VP_E3}), ValidityPeriod::Error);
+  BOOST_CHECK_THROW(ValidityPeriod(Block{VP_E4}), ValidityPeriod::Error);
+  BOOST_CHECK_THROW(ValidityPeriod(Block{VP_E5}), ValidityPeriod::Error);
+  BOOST_CHECK_THROW(ValidityPeriod(Block{VP_E6}), ValidityPeriod::Error);
 
   Block emptyBlock;
-  BOOST_CHECK_THROW((ValidityPeriod(emptyBlock)), ValidityPeriod::Error);
-
-  BOOST_CHECK_THROW(ValidityPeriod(Block(VP_E6, sizeof(VP_E6))), ValidityPeriod::Error);
+  BOOST_CHECK_THROW(ValidityPeriod{emptyBlock}, ValidityPeriod::Error);
 }
 
 BOOST_AUTO_TEST_CASE(Comparison)

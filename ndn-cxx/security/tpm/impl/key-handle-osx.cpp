@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,7 +37,6 @@ KeyHandleOsx::KeyHandleOsx(const KeyRefOsx& key)
 //SM2 Signer must use SM3, force to use SM3.
 // After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
 #if 1
-
 ConstBufferPtr
 KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyType keyType) const
 {
@@ -45,8 +44,7 @@ KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, 
 }
 
 bool
-KeyHandleOsx::doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-                       const uint8_t* sig, size_t sigLen, KeyType keyType) const
+KeyHandleOsx::doVerify(DigestAlgorithm digestAlgo, const InputBuffers& bufs, span<const uint8_t> sig, KeyType keyType) const
 {
   NDN_THROW(Error("Signature verification is not supported with macOS Keychain-based TPM"));
 }
@@ -59,17 +57,18 @@ KeyHandleOsx::doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) 
 }
 
 bool
-KeyHandleOsx::doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-                       const uint8_t* sig, size_t sigLen) const
+KeyHandleOsx::doVerify(DigestAlgorithm, const InputBuffers&, span<const uint8_t>) const
 {
   NDN_THROW(Error("Signature verification is not supported with macOS Keychain-based TPM"));
 }
+
 #endif
 
+
 ConstBufferPtr
-KeyHandleOsx::doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const
+KeyHandleOsx::doDecrypt(span<const uint8_t> cipherText) const
 {
-  return BackEndOsx::decrypt(m_key, cipherText, cipherTextLen);
+  return BackEndOsx::decrypt(m_key, cipherText);
 }
 
 ConstBufferPtr
@@ -81,4 +80,3 @@ KeyHandleOsx::doDerivePublicKey() const
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(TwoCertsMultipleSegments)
 {
   // First segment contains first 250 bytes of cert1
   Data d;
-  d.setContent(certBlock1.wire(), 250);
+  d.setContent(make_span(certBlock1.wire(), 250));
 
   // Second segment contains the rest of cert1 and the first 100 bytes of cert2
   auto buf = std::make_shared<Buffer>(certBlock1.begin() + 250, certBlock1.end());
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(InvalidCert)
   };
   // Second segment contains non-Certificate data
   Data d2;
-  d2.setContent(buf, sizeof(buf));
+  d2.setContent(buf);
 
   // Third segment contains all of cert2
   Data d3;

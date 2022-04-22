@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,12 +34,11 @@ template<Tag TAG>
 size_t
 prependNonNegativeIntegerBlock(EncodingImpl<TAG>& encoder, uint32_t type, uint64_t value)
 {
-  size_t valueLength = encoder.prependNonNegativeInteger(value);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
+  size_t length = encoder.prependNonNegativeInteger(value);
+  length += encoder.prependVarNumber(length);
+  length += encoder.prependVarNumber(type);
 
-  return totalLength;
+  return length;
 }
 
 template size_t
@@ -73,10 +72,10 @@ template<Tag TAG>
 size_t
 prependEmptyBlock(EncodingImpl<TAG>& encoder, uint32_t type)
 {
-  size_t totalLength = encoder.prependVarNumber(0);
-  totalLength += encoder.prependVarNumber(type);
+  size_t length = encoder.prependVarNumber(0);
+  length += encoder.prependVarNumber(type);
 
-  return totalLength;
+  return length;
 }
 
 template size_t
@@ -103,7 +102,7 @@ template<Tag TAG>
 size_t
 prependStringBlock(EncodingImpl<TAG>& encoder, uint32_t type, const std::string& value)
 {
-  return encoder.prependByteArrayBlock(type, reinterpret_cast<const uint8_t*>(value.data()), value.size());
+  return prependBinaryBlock(encoder, type, {reinterpret_cast<const uint8_t*>(value.data()), value.size()});
 }
 
 template size_t
@@ -135,7 +134,7 @@ prependDoubleBlock(EncodingImpl<TAG>& encoder, uint32_t type, double value)
   uint64_t temp = 0;
   std::memcpy(&temp, &value, 8);
   endian::native_to_big_inplace(temp);
-  return encoder.prependByteArrayBlock(type, reinterpret_cast<const uint8_t*>(&temp), 8);
+  return prependBinaryBlock(encoder, type, {reinterpret_cast<const uint8_t*>(&temp), 8});
 }
 
 template size_t
@@ -177,23 +176,55 @@ readDouble(const Block& block)
 
 // ---- binary ----
 
+template<Tag TAG>
+size_t
+prependBinaryBlock(EncodingImpl<TAG>& encoder, uint32_t type, span<const uint8_t> value)
+{
+  size_t length = encoder.prependBytes(value);
+  length += encoder.prependVarNumber(length);
+  length += encoder.prependVarNumber(type);
+
+  return length;
+}
+
+template size_t
+prependBinaryBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, span<const uint8_t>);
+
+template size_t
+prependBinaryBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, span<const uint8_t>);
+
 Block
-makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length)
+makeBinaryBlock(uint32_t type, span<const uint8_t> value)
 {
   EncodingEstimator estimator;
-  size_t totalLength = estimator.prependByteArrayBlock(type, value, length);
+  size_t totalLength = prependBinaryBlock(estimator, type, value);
 
   EncodingBuffer encoder(totalLength, 0);
-  encoder.prependByteArrayBlock(type, value, length);
+  prependBinaryBlock(encoder, type, value);
 
   return encoder.block();
 }
 
-Block
-makeBinaryBlock(uint32_t type, const char* value, size_t length)
+// ---- block ----
+
+template<Tag TAG>
+size_t
+prependBlock(EncodingImpl<TAG>& encoder, const Block& block)
 {
-  return makeBinaryBlock(type, reinterpret_cast<const uint8_t*>(value), length);
+  if (block.hasWire()) {
+    return encoder.prependBytes({block.wire(), block.size()});
+  }
+  else {
+    // FIXME: blindly calling Block::value() is not safe if the value is not wire-encoded
+    return prependBinaryBlock(encoder, block.type(), {block.value(), block.value_size()});
+  }
 }
+
+template size_t
+prependBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, const Block&);
+
+template size_t
+prependBlock<EncoderTag>(EncodingImpl<EncoderTag>&, const Block&);
 
 } // namespace encoding
 } // namespace ndn

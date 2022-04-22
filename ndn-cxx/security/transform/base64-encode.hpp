@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,18 +31,18 @@ namespace transform {
 /**
  * @brief The module to perform Base64 encoding transformation.
  */
-class Base64Encode : public Transform
+class Base64Encode final : public Transform
 {
 public:
   /**
    * @brief Create a base64 encoding module
    *
-   * @p needBreak if true, insert newline after every 64 bytes, otherwise no newline is inserted
+   * @param needBreak if true, insert newline after every 64 bytes, otherwise no newline is inserted
    */
   explicit
   Base64Encode(bool needBreak = true);
 
-  ~Base64Encode();
+  ~Base64Encode() final;
 
 private:
   /**
@@ -56,7 +56,7 @@ private:
    * @return The number of input bytes that have been accepted by the converter.
    */
   size_t
-  convert(const uint8_t* data, size_t dataLen) final;
+  convert(span<const uint8_t> data) final;
 
   /**
    * @brief Finalize base64 encoding

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -245,7 +245,7 @@ public:
   Block
   wireEncode() const final
   {
-    return Block();
+    return {};
   }
 
   void
@@ -298,8 +298,7 @@ BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization) // Bug 4059
 
 BOOST_AUTO_TEST_CASE(StatusDataset)
 {
-  const uint8_t smallBuf[] = {0x81, 0x01, 0x01};
-  const Block smallBlock(smallBuf, sizeof(smallBuf));
+  const Block smallBlock({0x81, 0x01, 0x01});
   const Block largeBlock = [] {
     Block b(129, std::make_shared<const Buffer>(3000));
     b.encode();
@@ -399,10 +398,10 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
   content = [&dataInStorage] () -> Block {
     EncodingBuffer encoder;
-    size_t valueLength = encoder.prependByteArray(dataInStorage[1].getContent().value(),
-                                                  dataInStorage[1].getContent().value_size());
-    valueLength += encoder.prependByteArray(dataInStorage[0].getContent().value(),
-                                            dataInStorage[0].getContent().value_size());
+    size_t valueLength = encoder.prependBytes({dataInStorage[1].getContent().value(),
+                                               dataInStorage[1].getContent().value_size()});
+    valueLength += encoder.prependBytes({dataInStorage[0].getContent().value(),
+                                         dataInStorage[0].getContent().value_size()});
     encoder.prependVarNumber(valueLength);
     encoder.prependVarNumber(tlv::Content);
     return encoder.block();
@@ -427,8 +426,7 @@ BOOST_AUTO_TEST_CASE(StatusDataset)
 
 BOOST_AUTO_TEST_CASE(NotificationStream)
 {
-  const uint8_t buf[] = {0x82, 0x01, 0x02};
-  const Block block(buf, sizeof(buf));
+  const Block block({0x82, 0x01, 0x02});
   auto post = dispatcher.addNotificationStream("test");
 
   post(block);

@@ -86,4 +86,3 @@ operator<<(std::ostream& os, ContentTypeValue ct)
 
 } // namespace tlv
 } // namespace ndn
-

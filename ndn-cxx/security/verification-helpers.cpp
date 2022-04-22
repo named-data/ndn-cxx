@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,36 +49,35 @@ class ParseResult
 public:
   ParseResult() = default;
 
-  ParseResult(SignatureInfo info, InputBuffers bufs, const uint8_t* sig, size_t sigLen)
+  ParseResult(SignatureInfo info, InputBuffers bufs, span<const uint8_t> sig)
     : info(std::move(info))
     , bufs(std::move(bufs))
     , sig(sig)
-    , sigLen(sigLen)
   {
   }
 
 public:
   SignatureInfo info;
   InputBuffers bufs;
-  const uint8_t* sig = nullptr;
-  size_t sigLen = 0;
+  span<const uint8_t> sig;
 };
 
 } // namespace
+
 //added_GM, by liupenghui 
 #if 1
 bool
-verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const transform::PublicKey& key, KeyType keyType)
+verifySignature(const InputBuffers& blobs, span<const uint8_t> sig, const transform::PublicKey& key, KeyType keyType)
 {
   bool result = false;
   try {
     using namespace transform;
+	
 	if (keyType == KeyType::SM2) {
-	  bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SM3, key, keyType, sig, sigLen)
-						  >> boolSink(result);
+      bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SM3, key, keyType, sig)
+                        >> boolSink(result);
 	} else {
-	  bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SHA256, key, keyType, sig, sigLen)
+	  bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SHA256, key, keyType, sig)
 							>> boolSink(result);
 	}
   }
@@ -90,29 +89,26 @@ verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
 }
 
 bool
-verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const uint8_t* key, size_t keyLen, KeyType keyType)
+verifySignature(const InputBuffers& blobs, span<const uint8_t> sig, span<const uint8_t> key, KeyType keyType)
 {
   transform::PublicKey pKey;
   try {
-    pKey.loadPkcs8(key, keyLen);
+    pKey.loadPkcs8(key);
   }
   catch (const transform::Error&) {
     return false;
   }
 
-  return verifySignature(blobs, sig, sigLen, pKey, keyType);
+  return verifySignature(blobs, sig, pKey, keyType);
 }
-
 #else
 bool
-verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const transform::PublicKey& key)
+verifySignature(const InputBuffers& blobs, span<const uint8_t> sig, const transform::PublicKey& key)
 {
   bool result = false;
   try {
     using namespace transform;
-    bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SHA256, key, sig, sigLen)
+    bufferSource(blobs) >> verifierFilter(DigestAlgorithm::SHA256, key, sig)
                         >> boolSink(result);
   }
   catch (const transform::Error&) {
@@ -123,22 +119,20 @@ verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
 }
 
 bool
-verifySignature(const InputBuffers& blobs, const uint8_t* sig, size_t sigLen,
-                const uint8_t* key, size_t keyLen)
+verifySignature(const InputBuffers& blobs, span<const uint8_t> sig, span<const uint8_t> key)
 {
   transform::PublicKey pKey;
   try {
-    pKey.loadPkcs8(key, keyLen);
+    pKey.loadPkcs8(key);
   }
   catch (const transform::Error&) {
     return false;
   }
 
-  return verifySignature(blobs, sig, sigLen, pKey);
+  return verifySignature(blobs, sig, pKey);
 }
 
 #endif
-
 
 static ParseResult
 parse(const Data& data)
@@ -146,8 +140,7 @@ parse(const Data& data)
   try {
     return ParseResult(data.getSignatureInfo(),
                        data.extractSignedRanges(),
-                       data.getSignatureValue().value(),
-                       data.getSignatureValue().value_size());
+                       {data.getSignatureValue().value(), data.getSignatureValue().value_size()});
   }
   catch (const tlv::Error&) {
     return ParseResult();
@@ -165,8 +158,7 @@ parse(const Interest& interest)
       Block sigValue = interest.getSignatureValue();
       return ParseResult(*interest.getSignatureInfo(),
                          interest.extractSignedRanges(),
-                         sigValue.value(),
-                         sigValue.value_size());
+                         {sigValue.value(), sigValue.value_size()});
     }
     else {
       // Verify using older Signed Interest semantics
@@ -181,8 +173,8 @@ parse(const Interest& interest)
       return ParseResult(info,
                          {{nameBlock.value(),
                            nameBlock.value_size() - interestName[signed_interest::POS_SIG_VALUE].size()}},
-                         sigValue.value(),
-                         sigValue.value_size());
+                         {sigValue.value(),
+                          sigValue.value_size()});
     }
   }
   catch (const tlv::Error&) {
@@ -190,51 +182,47 @@ parse(const Interest& interest)
   }
 }
 
-
 //added_GM, by liupenghui
 #if 1
 static bool
 verifySignature(const ParseResult& params, const transform::PublicKey& key, KeyType keyType)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, params.sigLen, key, keyType);
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, key, keyType);
 }
 
 static bool
-verifySignature(const ParseResult& params, const uint8_t* key, size_t keyLen, KeyType keyType)
+verifySignature(const ParseResult& params, span<const uint8_t> key, KeyType keyType)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, params.sigLen, key, keyLen, keyType);
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, key, keyType);
 }
 
 static bool
 verifySignature(const ParseResult& params, const tpm::Tpm& tpm, const Name& keyName, KeyType keyType,
                 DigestAlgorithm digestAlgorithm)
 {
-  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig, params.sigLen, keyName, keyType,
-                                                 digestAlgorithm));
+  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig, keyName, keyType, digestAlgorithm));
 }
 
 #else
 static bool
 verifySignature(const ParseResult& params, const transform::PublicKey& key)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, params.sigLen, key);
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, key);
 }
 
 static bool
-verifySignature(const ParseResult& params, const uint8_t* key, size_t keyLen)
+verifySignature(const ParseResult& params, span<const uint8_t> key)
 {
-  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, params.sigLen, key, keyLen);
+  return !params.bufs.empty() && verifySignature(params.bufs, params.sig, key);
 }
 
 static bool
 verifySignature(const ParseResult& params, const tpm::Tpm& tpm, const Name& keyName,
                 DigestAlgorithm digestAlgorithm)
 {
-  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig, params.sigLen, keyName,
-                                                 digestAlgorithm));
+  return !params.bufs.empty() && bool(tpm.verify(params.bufs, params.sig, keyName, digestAlgorithm));
 }
 #endif
-
 
 static bool
 verifyDigest(const ParseResult& params, DigestAlgorithm algorithm)
@@ -253,16 +241,16 @@ verifyDigest(const ParseResult& params, DigestAlgorithm algorithm)
   }
   auto result = os.buf();
 
-  if (result->size() != params.sigLen) {
+  if (result->size() != params.sig.size()) {
     return false;
   }
 
   // constant-time buffer comparison to mitigate timing attacks
-  return CRYPTO_memcmp(result->data(), params.sig, params.sigLen) == 0;
+  return CRYPTO_memcmp(result->data(), params.sig.data(), params.sig.size()) == 0;
 }
 
 bool
-verifySignature(const Data& data, const uint8_t* key, size_t keyLen)
+verifySignature(const Data& data, span<const uint8_t> key)
 {
 //added_GM, by liupenghui 
 #if 1
@@ -279,14 +267,15 @@ verifySignature(const Data& data, const uint8_t* key, size_t keyLen)
   else
 	keyType = KeyType::NONE;
   
-  return verifySignature(parse(data), key, keyLen, keyType);
+  return verifySignature(parse(data), key, keyType);
 #else
-  return verifySignature(parse(data), key, keyLen);
+  return verifySignature(parse(data), key);
 #endif
 }
 
+
 bool
-verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen)
+verifySignature(const Interest& interest, span<const uint8_t> key)
 {
 //added_GM, by liupenghui 
 #if 1
@@ -335,12 +324,12 @@ verifySignature(const Interest& interest, const uint8_t* key, size_t keyLen)
 	return false;
   }
   
-  return verifySignature(parse(interest), key, keyLen, keyType);
+  return verifySignature(parse(interest), key, keyType);
 #else
-  return verifySignature(parse(interest), key, keyLen);
+  return verifySignature(parse(interest), key);
 #endif
-
 }
+
 
 bool
 verifySignature(const Data& data, const transform::PublicKey& key)
@@ -366,6 +355,7 @@ verifySignature(const Data& data, const transform::PublicKey& key)
   return verifySignature(parse(data), key);
 #endif
 }
+
 
 bool
 verifySignature(const Interest& interest, const transform::PublicKey& key)
@@ -422,7 +412,9 @@ verifySignature(const Interest& interest, const transform::PublicKey& key)
 #else
   return verifySignature(parse(interest), key);
 #endif
+
 }
+
 
 bool
 verifySignature(const Data& data, const pib::Key& key)
@@ -450,11 +442,12 @@ verifySignature(const Data& data, const pib::Key& key)
 	return false;
   }
   
-  return verifySignature(parse(data), key.getPublicKey().data(), key.getPublicKey().size(), keyType);
+  return verifySignature(parse(data), key.getPublicKey(), keyType);
 #else
-  return verifySignature(parse(data), key.getPublicKey().data(), key.getPublicKey().size());
+  return verifySignature(parse(data), key.getPublicKey());
 #endif
 }
+
 
 bool
 verifySignature(const Interest& interest, const pib::Key& key)
@@ -513,11 +506,12 @@ verifySignature(const Interest& interest, const pib::Key& key)
 	return false;
   }
   
-  return verifySignature(parse(interest), key.getPublicKey().data(), key.getPublicKey().size(), keyType);
+  return verifySignature(parse(interest), key.getPublicKey(), keyType);
 #else
-  return verifySignature(parse(interest), key.getPublicKey().data(), key.getPublicKey().size());
+  return verifySignature(parse(interest), key.getPublicKey());
 #endif
 }
+
 
 bool
 verifySignature(const Data& data, const optional<Certificate>& cert)
@@ -526,133 +520,135 @@ verifySignature(const Data& data, const optional<Certificate>& cert)
   if (cert) {
 //added_GM, by liupenghui 
 #if 1 
-    KeyType keyTypefromData = KeyType::NONE;
-    KeyType keyTypefromCert = KeyType::NONE;
-    
-    int32_t Signature_type = data.getSignatureType();
-    if (Signature_type == tlv::SignatureSha256WithRsa)
-  	keyTypefromData =  KeyType::RSA;
-    else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-  	keyTypefromData =  KeyType::EC;
-    else if (Signature_type == tlv::SignatureHmacWithSha256)
-  	keyTypefromData =  KeyType::HMAC;
-    else if (Signature_type == tlv::SignatureSm3WithSm2)
-  	keyTypefromData =  KeyType::SM2;
-    else
-  	keyTypefromData = KeyType::NONE;
-  
-    SignatureInfo info = cert->getSignatureInfo();
-    Signature_type = info.getSignatureType();
-    if (Signature_type == tlv::SignatureSha256WithRsa)
-  	keyTypefromCert =  KeyType::RSA;
-    else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-  	keyTypefromCert =  KeyType::EC;
-    else if (Signature_type == tlv::SignatureHmacWithSha256)
-  	keyTypefromCert =  KeyType::HMAC;
-    else if (Signature_type == tlv::SignatureSm3WithSm2)
-  	keyTypefromCert =  KeyType::SM2;
-    else
-  	keyTypefromCert = KeyType::NONE;
-    
-    //The type of data  sig key can be different with the one used by certificate signature, but not a good action...
-    if (keyTypefromData != keyTypefromCert)
-  	std::cout<<"the type of data sig key is not the same as the one used by certificate signature."<<std::endl;
-    
-    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size(), keyTypefromData);
+	KeyType keyTypefromData = KeyType::NONE;
+	KeyType keyTypefromCert = KeyType::NONE;
+	
+	int32_t Signature_type = data.getSignatureType();
+	if (Signature_type == tlv::SignatureSha256WithRsa)
+	  keyTypefromData =  KeyType::RSA;
+	else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+	  keyTypefromData =  KeyType::EC;
+	else if (Signature_type == tlv::SignatureHmacWithSha256)
+	  keyTypefromData =  KeyType::HMAC;
+	else if (Signature_type == tlv::SignatureSm3WithSm2)
+	  keyTypefromData =  KeyType::SM2;
+	else
+	  keyTypefromData = KeyType::NONE;
+
+	SignatureInfo info = cert->getSignatureInfo();
+	Signature_type = info.getSignatureType();
+	if (Signature_type == tlv::SignatureSha256WithRsa)
+	  keyTypefromCert =  KeyType::RSA;
+	else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+	  keyTypefromCert =  KeyType::EC;
+	else if (Signature_type == tlv::SignatureHmacWithSha256)
+	  keyTypefromCert =  KeyType::HMAC;
+	else if (Signature_type == tlv::SignatureSm3WithSm2)
+	  keyTypefromCert =  KeyType::SM2;
+	else
+	  keyTypefromCert = KeyType::NONE;
+	
+	//The type of data	sig key can be different with the one used by certificate signature, but not a good action...
+	if (keyTypefromData != keyTypefromCert)
+	  std::cout<<"the type of data sig key is not the same as the one used by certificate signature."<<std::endl;
+	
+	return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()}, keyTypefromData);
 #else  	
-    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size());
+	return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()});
 #endif
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
-    return verifyDigest(parsed, DigestAlgorithm::SHA256);
+	return verifyDigest(parsed, DigestAlgorithm::SHA256);
   }
   // Add any other self-verifying signatures here (if any)
   else {
-    return false;
+	return false;
   }
 }
+
 
 bool
 verifySignature(const Interest& interest, const optional<Certificate>& cert)
 {
   auto parsed = parse(interest);
   if (cert) {
+
 //added_GM, by liupenghui 
 #if 1 
-    KeyType keyTypefromSig = KeyType::NONE;
-    
-    try {
-  	interest.wireEncode();
-    
-  	if (interest.getSignatureInfo()) {
-  	  // Verify using v0.3 Signed Interest semantics
-  	  SignatureInfo info = *interest.getSignatureInfo();
-  	  int32_t Signature_type = info.getSignatureType();
-  	  if (Signature_type == tlv::SignatureSha256WithRsa)
-  		keyTypefromSig =  KeyType::RSA;
-  	  else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-  		keyTypefromSig =  KeyType::EC;
-  	  else if (Signature_type == tlv::SignatureHmacWithSha256)
-  		keyTypefromSig =  KeyType::HMAC;
-  	  else if (Signature_type == tlv::SignatureSm3WithSm2)
-  		keyTypefromSig =  KeyType::SM2;
-  	  else
-  		keyTypefromSig = KeyType::NONE;
-  	}
-  	else {
-  	  // Verify using older Signed Interest semantics
-  	  const Name& interestName = interest.getName();
-  	  if (interestName.size() < signed_interest::MIN_SIZE) {
-  		return false;
-  	  }
-    
-  	  SignatureInfo info(interestName[signed_interest::POS_SIG_INFO].blockFromValue());
-  	  int32_t Signature_type = info.getSignatureType();
-  	  if (Signature_type == tlv::SignatureSha256WithRsa)
-  		keyTypefromSig =  KeyType::RSA;
-  	  else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-  		keyTypefromSig =  KeyType::EC;
-  	  else if (Signature_type == tlv::SignatureHmacWithSha256)
-  		keyTypefromSig =  KeyType::HMAC;
-  	  else if (Signature_type == tlv::SignatureSm3WithSm2)
-  		keyTypefromSig =  KeyType::SM2;
-  	  else
-  		keyTypefromSig = KeyType::NONE;
-  	}
-    }
-    catch (const tlv::Error&) {
-  	return false;
-    }
-    
-    KeyType keyTypefromCert = KeyType::NONE;
-    SignatureInfo info = cert->getSignatureInfo();
-    int32_t Signature_type = info.getSignatureType();
-    if (Signature_type == tlv::SignatureSha256WithRsa)
-  	keyTypefromCert =  KeyType::RSA;
-    else if (Signature_type == tlv::SignatureSha256WithEcdsa)
-  	keyTypefromCert =  KeyType::EC;
-    else if (Signature_type == tlv::SignatureHmacWithSha256)
-  	keyTypefromCert =  KeyType::HMAC;
-    else if (Signature_type == tlv::SignatureSm3WithSm2)
-  	keyTypefromCert =  KeyType::SM2;
-    else
-  	keyTypefromCert = KeyType::NONE;
-  
-    //The type of interest sig key can be different with the one used by certificate signature, but not a good action...
-    if (keyTypefromSig != keyTypefromCert)
-  	std::cout<<"the type of data sig key is not the same as the one used by certificate signature."<<std::endl;
-    
-    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size(), keyTypefromSig);
+	KeyType keyTypefromSig = KeyType::NONE;
+	
+	try {
+	  interest.wireEncode();
+	
+	  if (interest.getSignatureInfo()) {
+		// Verify using v0.3 Signed Interest semantics
+		SignatureInfo info = *interest.getSignatureInfo();
+		int32_t Signature_type = info.getSignatureType();
+		if (Signature_type == tlv::SignatureSha256WithRsa)
+		  keyTypefromSig =	KeyType::RSA;
+		else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+		  keyTypefromSig =	KeyType::EC;
+		else if (Signature_type == tlv::SignatureHmacWithSha256)
+		  keyTypefromSig =	KeyType::HMAC;
+		else if (Signature_type == tlv::SignatureSm3WithSm2)
+		  keyTypefromSig =	KeyType::SM2;
+		else
+		  keyTypefromSig = KeyType::NONE;
+	  }
+	  else {
+		// Verify using older Signed Interest semantics
+		const Name& interestName = interest.getName();
+		if (interestName.size() < signed_interest::MIN_SIZE) {
+		  return false;
+		}
+	
+		SignatureInfo info(interestName[signed_interest::POS_SIG_INFO].blockFromValue());
+		int32_t Signature_type = info.getSignatureType();
+		if (Signature_type == tlv::SignatureSha256WithRsa)
+		  keyTypefromSig =	KeyType::RSA;
+		else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+		  keyTypefromSig =	KeyType::EC;
+		else if (Signature_type == tlv::SignatureHmacWithSha256)
+		  keyTypefromSig =	KeyType::HMAC;
+		else if (Signature_type == tlv::SignatureSm3WithSm2)
+		  keyTypefromSig =	KeyType::SM2;
+		else
+		  keyTypefromSig = KeyType::NONE;
+	  }
+	}
+	catch (const tlv::Error&) {
+	  return false;
+	}
+	
+	KeyType keyTypefromCert = KeyType::NONE;
+	SignatureInfo info = cert->getSignatureInfo();
+	int32_t Signature_type = info.getSignatureType();
+	if (Signature_type == tlv::SignatureSha256WithRsa)
+	  keyTypefromCert =  KeyType::RSA;
+	else if (Signature_type == tlv::SignatureSha256WithEcdsa)
+	  keyTypefromCert =  KeyType::EC;
+	else if (Signature_type == tlv::SignatureHmacWithSha256)
+	  keyTypefromCert =  KeyType::HMAC;
+	else if (Signature_type == tlv::SignatureSm3WithSm2)
+	  keyTypefromCert =  KeyType::SM2;
+	else
+	  keyTypefromCert = KeyType::NONE;
+
+	//The type of interest sig key can be different with the one used by certificate signature, but not a good action...
+	if (keyTypefromSig != keyTypefromCert)
+	  std::cout<<"the type of data sig key is not the same as the one used by certificate signature."<<std::endl;
+	
+	return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()}, keyTypefromSig);
 #else  	
-    return verifySignature(parsed, cert->getContent().value(), cert->getContent().value_size());
+	return verifySignature(parsed, {cert->getContent().value(), cert->getContent().value_size()});
 #endif
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
-    return verifyDigest(parsed, DigestAlgorithm::SHA256);
+	return verifyDigest(parsed, DigestAlgorithm::SHA256);
   }
   // Add any other self-verifying signatures here (if any)
   else {
-    return false;
+	return false;
   }
 }
 
@@ -660,7 +656,7 @@ verifySignature(const Interest& interest, const optional<Certificate>& cert)
 #if 1
 bool
 verifySignature(const Data& data, const tpm::Tpm& tpm,
-                const Name& keyName,KeyType keyType, DigestAlgorithm digestAlgorithm)
+                const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm)
 {
   return verifySignature(parse(data), tpm, keyName, keyType, digestAlgorithm);
 }
@@ -669,9 +665,8 @@ bool
 verifySignature(const Interest& interest, const tpm::Tpm& tpm,
                 const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm)
 {
-  return verifySignature(parse(interest), tpm, keyName, keyType, digestAlgorithm);
+  return verifySignature(parse(interest), tpm, keyName,keyType, digestAlgorithm);
 }
-
 #else
 bool
 verifySignature(const Data& data, const tpm::Tpm& tpm,
@@ -691,4 +686,3 @@ verifySignature(const Interest& interest, const tpm::Tpm& tpm,
 
 } // namespace security
 } // namespace ndn
-

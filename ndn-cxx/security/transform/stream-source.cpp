@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,7 @@ StreamSource::doPump()
   while (dataLen > 0 || !m_is.eof()) {
     if (dataLen > 0) {
       // we have some leftover, handle them first
-      size_t nBytesWritten = m_next->write(&buffer[dataOffset], dataLen);
+      size_t nBytesWritten = m_next->write({&buffer[dataOffset], dataLen});
 
       dataOffset += nBytesWritten;
       dataLen -= nBytesWritten;

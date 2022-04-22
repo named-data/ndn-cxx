@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,9 @@
 #include "ndn-cxx/security/transform/public-key.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/security/transform/base64-decode.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 
 #include "tests/boost-test.hpp"
 
@@ -69,37 +71,35 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveLoad, T, KeyTestDataSets)
 {
   T dataSet;
 
-  const uint8_t* pKeyPkcs8Base64 = reinterpret_cast<const uint8_t*>(dataSet.publicKeyPkcs8.c_str());
-  size_t pKeyPkcs8Base64Len = dataSet.publicKeyPkcs8.size();
+  auto pKeyPkcs8Base64 = make_span(reinterpret_cast<const uint8_t*>(dataSet.publicKeyPkcs8.data()),
+                                   dataSet.publicKeyPkcs8.size());
   OBufferStream os;
-  bufferSource(pKeyPkcs8Base64, pKeyPkcs8Base64Len) >> base64Decode() >> streamSink(os);
-  ConstBufferPtr pKeyPkcs8Buf = os.buf();
-  const uint8_t* pKeyPkcs8 = pKeyPkcs8Buf->data();
-  size_t pKeyPkcs8Len = pKeyPkcs8Buf->size();
+  bufferSource(pKeyPkcs8Base64) >> base64Decode() >> streamSink(os);
+  auto pKeyPkcs8 = os.buf();
 
   PublicKey pKey1;
-  BOOST_CHECK_NO_THROW(pKey1.loadPkcs8Base64(pKeyPkcs8Base64, pKeyPkcs8Base64Len));
+  BOOST_CHECK_NO_THROW(pKey1.loadPkcs8Base64(pKeyPkcs8Base64));
 
   std::stringstream ss2(dataSet.publicKeyPkcs8);
   PublicKey pKey2;
   BOOST_CHECK_NO_THROW(pKey2.loadPkcs8Base64(ss2));
 
   PublicKey pKey3;
-  BOOST_CHECK_NO_THROW(pKey3.loadPkcs8(pKeyPkcs8, pKeyPkcs8Len));
+  BOOST_CHECK_NO_THROW(pKey3.loadPkcs8(*pKeyPkcs8));
 
   std::stringstream ss4;
-  ss4.write(reinterpret_cast<const char*>(pKeyPkcs8), pKeyPkcs8Len);
+  ss4.write(reinterpret_cast<const char*>(pKeyPkcs8->data()), pKeyPkcs8->size());
   PublicKey pKey4;
   BOOST_CHECK_NO_THROW(pKey4.loadPkcs8(ss4));
 
   OBufferStream os5;
   BOOST_REQUIRE_NO_THROW(pKey1.savePkcs8Base64(os5));
-  BOOST_CHECK_EQUAL_COLLECTIONS(pKeyPkcs8Base64, pKeyPkcs8Base64 + pKeyPkcs8Base64Len,
+  BOOST_CHECK_EQUAL_COLLECTIONS(pKeyPkcs8Base64.begin(), pKeyPkcs8Base64.end(),
                                 os5.buf()->begin(), os5.buf()->end());
 
   OBufferStream os6;
   BOOST_REQUIRE_NO_THROW(pKey1.savePkcs8(os6));
-  BOOST_CHECK_EQUAL_COLLECTIONS(pKeyPkcs8, pKeyPkcs8 + pKeyPkcs8Len,
+  BOOST_CHECK_EQUAL_COLLECTIONS(pKeyPkcs8->begin(), pKeyPkcs8->end(),
                                 os6.buf()->begin(), os6.buf()->end());
 }
 
@@ -113,19 +113,19 @@ BOOST_AUTO_TEST_CASE(UnsupportedEcEncryption)
   EcKeyTestData dataSet;
 
   PublicKey pKey;
-  pKey.loadPkcs8Base64(reinterpret_cast<const uint8_t*>(dataSet.publicKeyPkcs8.c_str()),
-                       dataSet.publicKeyPkcs8.size());
+  pKey.loadPkcs8Base64({reinterpret_cast<const uint8_t*>(dataSet.publicKeyPkcs8.data()),
+                        dataSet.publicKeyPkcs8.size()});
   BOOST_CHECK_EQUAL(pKey.getKeyType(), KeyType::EC);
 
   OBufferStream os;
   bufferSource("Y2lhbyFob2xhIWhlbGxvIQ==") >> base64Decode() >> streamSink(os);
 
-	//added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1   
   KeyType keyType = KeyType::EC;
-  BOOST_CHECK_THROW(pKey.encrypt(os.buf()->data(), os.buf()->size(), keyType), PublicKey::Error);
+  BOOST_CHECK_THROW(pKey.encrypt(*os.buf(), keyType), PublicKey::Error);
 #else
-  BOOST_CHECK_THROW(pKey.encrypt(os.buf()->data(), os.buf()->size()), PublicKey::Error);
+  BOOST_CHECK_THROW(pKey.encrypt(*os.buf()), PublicKey::Error);
 #endif  
 }
 
@@ -137,4 +137,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

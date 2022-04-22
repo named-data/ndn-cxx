@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/security/impl/openssl-helper.hpp"
+//added_GM, by liupenghui
 #if 1
 #include <iostream>
 #endif
@@ -59,7 +60,7 @@ digestAlgorithmToEvpMd(DigestAlgorithm algo)
 //openssl ver 1.1.1 or later support SM3 
 #if 1
   case DigestAlgorithm::SM3:
-	return EVP_sm3();
+    return EVP_sm3();
 #endif	
 #endif
   default:
@@ -74,37 +75,37 @@ getEvpPkeyType(EVP_PKEY* key)
 #if 1
   int keyType =   
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
-        EVP_PKEY_type(key->type);
+		EVP_PKEY_type(key->type);
 #else
 		EVP_PKEY_base_id(key);
 #endif
-  #if 0
+#if 0
   std::cout << "getEvpPkeyType EVP_PKEY_base_id keyType:"<<keyType<<"\n"<< std::endl; 
   std::cout << "getEvpPkeyType EVP_PKEY_id keyType:"<<EVP_PKEY_id(key)<<"\n"<< std::endl; 
-  #endif
+#endif
   
   if (EVP_PKEY_EC == keyType) {
-  	if(EVP_PKEY_id(key) == EVP_PKEY_SM2) {
+	if(EVP_PKEY_id(key) == EVP_PKEY_SM2) {
 		//for debug, don't delete it
-        #if 0 
-		 std::cout << "getEvpPkeyType keyType:EVP_PKEY_SM2.\n"<< std::endl;	
-		#endif
+    #if 0 
+		 std::cout << "getEvpPkeyType keyType:EVP_PKEY_SM2.\n"<< std::endl; 
+	#endif
 		 keyType = EVP_PKEY_SM2;	
-  	}
+	}
   }
   
-  return keyType;    
+  return keyType;	 
   
 #else
   return
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
-    EVP_PKEY_type(key->type);
+	EVP_PKEY_type(key->type);
 #else
-    EVP_PKEY_base_id(key);
+	EVP_PKEY_base_id(key);
 #endif
 #endif
-
 }
+
 
 EvpMdCtx::EvpMdCtx()
 #if OPENSSL_VERSION_NUMBER < 0x1010000fL
@@ -158,22 +159,21 @@ Bio::~Bio()
 }
 
 bool
-Bio::read(uint8_t* buf, size_t buflen) const noexcept
+Bio::read(span<uint8_t> buf) const noexcept
 {
-  BOOST_ASSERT(buflen <= std::numeric_limits<int>::max());
-  int n = BIO_read(m_bio, buf, static_cast<int>(buflen));
-  return n >= 0 && static_cast<size_t>(n) == buflen;
+  BOOST_ASSERT(buf.size() <= std::numeric_limits<int>::max());
+  int n = BIO_read(m_bio, buf.data(), static_cast<int>(buf.size()));
+  return n >= 0 && static_cast<size_t>(n) == buf.size();
 }
 
 bool
-Bio::write(const uint8_t* buf, size_t buflen) noexcept
+Bio::write(span<const uint8_t> buf) noexcept
 {
-  BOOST_ASSERT(buflen <= std::numeric_limits<int>::max());
-  int n = BIO_write(m_bio, buf, static_cast<int>(buflen));
-  return n >= 0 && static_cast<size_t>(n) == buflen;
+  BOOST_ASSERT(buf.size() <= std::numeric_limits<int>::max());
+  int n = BIO_write(m_bio, buf.data(), static_cast<int>(buf.size()));
+  return n >= 0 && static_cast<size_t>(n) == buf.size();
 }
 
 } // namespace detail
 } // namespace security
 } // namespace ndn
-

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ namespace transform {
  * For example, if the input is a byte stream 0x01, 0x23, 0x45,
  * the output will be a string "012345".
  */
-class HexEncode : public Transform
+class HexEncode final : public Transform
 {
 public:
   /**
@@ -52,7 +52,7 @@ private:
    * @return The number of input bytes that have been accepted by the converter.
    */
   size_t
-  convert(const uint8_t* data, size_t dataLen) final;
+  convert(span<const uint8_t> data) final;
 
   /**
    * @return results of encoding @p data

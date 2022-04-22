@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,7 +42,7 @@ InterestSigner::makeSignedInterest(Interest& interest, SigningInfo params, uint3
 
   if (signingFlags & WantNonce) {
     std::vector<uint8_t> nonce(8);
-    random::generateSecureBytes(nonce.data(), nonce.size());
+    random::generateSecureBytes(nonce);
     info.setNonce(nonce);
   }
 

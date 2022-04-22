@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -181,27 +181,61 @@ makeDoubleBlock(uint32_t type, double value);
 double
 readDouble(const Block& block);
 
-/** @brief Create a TLV block copying TLV-VALUE from raw buffer.
- *  @param type TLV-TYPE number
- *  @param value raw buffer as TLV-VALUE
- *  @param length length of value buffer
- *  @sa Encoder::prependByteArrayBlock
+/**
+ * @brief Prepend a TLV element containing a sequence of raw bytes.
+ * @param encoder an EncodingBuffer or EncodingEstimator
+ * @param type TLV-TYPE number
+ * @param value range of bytes to use as TLV-VALUE
+ * @sa makeBinaryBlock
  */
-Block
-makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length);
+template<Tag TAG>
+size_t
+prependBinaryBlock(EncodingImpl<TAG>& encoder, uint32_t type, span<const uint8_t> value);
 
-/** @brief Create a TLV block copying TLV-VALUE from raw buffer.
+extern template size_t
+prependBinaryBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, span<const uint8_t>);
+
+extern template size_t
+prependBinaryBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, span<const uint8_t>);
+
+/**
+ * @brief Create a TLV block copying the TLV-VALUE from a byte range.
+ * @param type TLV-TYPE number
+ * @param value range of bytes to use as TLV-VALUE
+ * @sa prependBinaryBlock
+ */
+Block
+makeBinaryBlock(uint32_t type, span<const uint8_t> value);
+
+/** @brief Create a TLV block copying the TLV-VALUE from a raw buffer.
  *  @param type TLV-TYPE number
  *  @param value raw buffer as TLV-VALUE
  *  @param length length of value buffer
- *  @sa Encoder::prependByteArrayBlock
+ *  @deprecated
  */
-Block
-makeBinaryBlock(uint32_t type, const char* value, size_t length);
+[[deprecated("use the overload that takes a span<>")]]
+inline Block
+makeBinaryBlock(uint32_t type, const uint8_t* value, size_t length)
+{
+  return makeBinaryBlock(type, {value, length});
+}
+
+/** @brief Create a TLV block copying the TLV-VALUE from a raw buffer.
+ *  @param type TLV-TYPE number
+ *  @param value raw buffer as TLV-VALUE
+ *  @param length length of value buffer
+ *  @deprecated
+ */
+inline Block
+makeBinaryBlock(uint32_t type, const char* value, size_t length)
+{
+  return makeBinaryBlock(type, {reinterpret_cast<const uint8_t*>(value), length});
+}
 
 namespace detail {
 
-/** @brief Create a binary block copying from RandomAccessIterator.
+/**
+ * @brief Create a binary block copying from RandomAccessIterator.
  */
 template<class Iterator>
 class BinaryBlockFast
@@ -227,7 +261,8 @@ public:
   }
 };
 
-/** @brief Create a binary block copying from generic InputIterator.
+/**
+ * @brief Create a binary block copying from generic InputIterator.
  */
 template<class Iterator>
 class BinaryBlockSlow
@@ -252,11 +287,12 @@ public:
 } // namespace detail
 
 /** @brief Create a TLV block copying TLV-VALUE from iterators.
- *  @tparam Iterator an InputIterator dereferencable to an 1-octet type; faster implementation is
- *                   available for RandomAccessIterator
+ *  @tparam Iterator an InputIterator dereferenceable to a 1-octet type; a faster implementation is
+ *                   automatically selected for RandomAccessIterator
  *  @param type TLV-TYPE number
  *  @param first begin iterator
  *  @param last past-the-end iterator
+ *  @sa prependBinaryBlock
  */
 template<class Iterator>
 Block
@@ -271,6 +307,21 @@ makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
   return BinaryBlockHelper::makeBlock(type, first, last);
 }
 
+/**
+ * @brief Prepend a TLV element.
+ * @param encoder an EncodingBuffer or EncodingEstimator
+ * @param block the TLV element
+ */
+template<Tag TAG>
+size_t
+prependBlock(EncodingImpl<TAG>& encoder, const Block& block);
+
+extern template size_t
+prependBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, const Block&);
+
+extern template size_t
+prependBlock<EncoderTag>(EncodingImpl<EncoderTag>&, const Block&);
+
 /** @brief Prepend a TLV element containing a nested TLV element.
  *  @tparam U type that satisfies WireEncodableWithEncodingBuffer concept
  *  @param encoder an EncodingBuffer or EncodingEstimator
@@ -284,12 +335,10 @@ prependNestedBlock(EncodingImpl<TAG>& encoder, uint32_t type, const U& value)
 {
   BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<U>));
 
-  size_t valueLength = value.wireEncode(encoder);
-  size_t totalLength = valueLength;
-  totalLength += encoder.prependVarNumber(valueLength);
-  totalLength += encoder.prependVarNumber(type);
-
-  return totalLength;
+  size_t length = value.wireEncode(encoder);
+  length += encoder.prependVarNumber(length);
+  length += encoder.prependVarNumber(type);
+  return length;
 }
 
 /** @brief Create a TLV block containing a nested TLV element.
@@ -307,7 +356,52 @@ makeNestedBlock(uint32_t type, const U& value)
 
   EncodingBuffer encoder(totalLength, 0);
   prependNestedBlock(encoder, type, value);
+  return encoder.block();
+}
 
+/** @brief Prepend a TLV element containing a sequence of nested TLV elements.
+ *  @tparam I bidirectional iterator to a type that satisfies WireEncodableWithEncodingBuffer concept
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number for outer TLV element
+ *  @param first begin iterator to inner TLV elements
+ *  @param last past-end iterator to inner TLV elements
+ *  @sa makeNestedBlock
+ */
+template<Tag TAG, class I>
+size_t
+prependNestedBlock(EncodingImpl<TAG>& encoder, uint32_t type, I first, I last)
+{
+  BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<typename std::iterator_traits<I>::value_type>));
+
+  auto rfirst = std::make_reverse_iterator(last);
+  auto rlast = std::make_reverse_iterator(first);
+
+  size_t length = 0;
+  for (auto i = rfirst; i != rlast; ++i) {
+    length += i->wireEncode(encoder);
+  }
+
+  length += encoder.prependVarNumber(length);
+  length += encoder.prependVarNumber(type);
+  return length;
+}
+
+/** @brief Create a TLV block containing a sequence of nested TLV elements.
+ *  @tparam I bidirectional iterator to a type that satisfies WireEncodableWithEncodingBuffer concept
+ *  @param type TLV-TYPE number for outer TLV element
+ *  @param first begin iterator to inner TLV elements
+ *  @param last past-end iterator to inner TLV elements
+ *  @sa prependNestedBlock
+ */
+template<class I>
+Block
+makeNestedBlock(uint32_t type, I first, I last)
+{
+  EncodingEstimator estimator;
+  size_t totalLength = prependNestedBlock(estimator, type, first, last);
+
+  EncodingBuffer encoder(totalLength, 0);
+  prependNestedBlock(encoder, type, first, last);
   return encoder.block();
 }
 

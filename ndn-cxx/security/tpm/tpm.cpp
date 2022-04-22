@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,12 +73,9 @@ ConstBufferPtr
 Tpm::getPublicKey(const Name& keyName) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr)
-    return nullptr;
-  else
-    return key->derivePublicKey();
+  return key ? key->derivePublicKey() : nullptr;
 }
+
 
 //added_GM, by liupenghui
 // After loading Pkcs8 key from outside file, key.getKeyType() can't differ SM2 from ECDSA,
@@ -88,81 +85,54 @@ ConstBufferPtr
 Tpm::sign(const InputBuffers& bufs, const Name& keyName, KeyType keyType, DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr) {
-    return nullptr;
-  }
-  else {
-    return key->sign(digestAlgorithm, bufs, keyType);
-  }
+  return key ? key->sign(digestAlgorithm, bufs, keyType) : nullptr;
 }
 
 boost::logic::tribool
-Tpm::verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName, KeyType keyType,
+Tpm::verify(const InputBuffers& bufs, span<const uint8_t> sig, const Name& keyName, KeyType keyType,
             DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr) {
+  if (key == nullptr)
     return boost::logic::indeterminate;
-  }
-  else {
-    return key->verify(digestAlgorithm, bufs, sig, sigLen, keyType);
-  }
+
+  return key->verify(digestAlgorithm, bufs, sig, keyType);
 }
 
 ConstBufferPtr
-Tpm::decrypt(const uint8_t* buf, size_t size, const Name& keyName, KeyType keyType) const
+Tpm::decrypt(span<const uint8_t> buf, const Name& keyName, KeyType keyType) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr)
-    return nullptr;
-  else
-    return key->decrypt(buf, size, keyType);
+  return key ? key->decrypt(buf, keyType) : nullptr;
 }
-
 #else
+
 
 ConstBufferPtr
 Tpm::sign(const InputBuffers& bufs, const Name& keyName, DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr) {
-    return nullptr;
-  }
-  else {
-    return key->sign(digestAlgorithm, bufs);
-  }
+  return key ? key->sign(digestAlgorithm, bufs) : nullptr;
 }
 
 boost::logic::tribool
-Tpm::verify(const InputBuffers& bufs, const uint8_t* sig, size_t sigLen, const Name& keyName,
+Tpm::verify(const InputBuffers& bufs, span<const uint8_t> sig, const Name& keyName,
             DigestAlgorithm digestAlgorithm) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr) {
+  if (key == nullptr)
     return boost::logic::indeterminate;
-  }
-  else {
-    return key->verify(digestAlgorithm, bufs, sig, sigLen);
-  }
+
+  return key->verify(digestAlgorithm, bufs, sig);
 }
 
 ConstBufferPtr
-Tpm::decrypt(const uint8_t* buf, size_t size, const Name& keyName) const
+Tpm::decrypt(span<const uint8_t> buf, const Name& keyName) const
 {
   const KeyHandle* key = findKey(keyName);
-
-  if (key == nullptr)
-    return nullptr;
-  else
-    return key->decrypt(buf, size);
+  return key ? key->decrypt(buf) : nullptr;
 }
 #endif
-
 
 bool
 Tpm::isTerminalMode() const
@@ -195,10 +165,9 @@ Tpm::exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const
 }
 
 void
-Tpm::importPrivateKey(const Name& keyName, const uint8_t* pkcs8, size_t pkcs8Len,
-                      const char* pw, size_t pwLen)
+Tpm::importPrivateKey(const Name& keyName, span<const uint8_t> pkcs8, const char* pw, size_t pwLen)
 {
-  m_backEnd->importKey(keyName, pkcs8, pkcs8Len, pw, pwLen);
+  m_backEnd->importKey(keyName, pkcs8, pw, pwLen);
 }
 
 void
@@ -226,4 +195,3 @@ Tpm::findKey(const Name& keyName) const
 } // namespace tpm
 } // namespace security
 } // namespace ndn
-

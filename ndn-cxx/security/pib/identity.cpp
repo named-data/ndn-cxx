@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@ namespace pib {
 Identity::Identity() = default;
 
 Identity::Identity(weak_ptr<detail::IdentityImpl> impl)
-  : m_impl(impl)
+  : m_impl(std::move(impl))
 {
 }
 
@@ -39,28 +39,26 @@ Identity::getName() const
   return lock()->getName();
 }
 
-
 //added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1      
 Key
-Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName, KeyType keyType) const
+Identity::addKey(span<const uint8_t> key, const Name& keyName, KeyType keyType) const
 {
-  return lock()->addKey(key, keyLen, keyName, keyType);
+  return lock()->addKey(key, keyName, keyType);
 }
-
 #else
 Key
-Identity::addKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
+Identity::addKey(span<const uint8_t> key, const Name& keyName) const
 {
-  return lock()->addKey(key, keyLen, keyName);
+  return lock()->addKey(key, keyName);
 }
 #endif
 
 void
 Identity::removeKey(const Name& keyName) const
 {
-  return lock()->removeKey(keyName);
+  lock()->removeKey(keyName);
 }
 
 Key
@@ -81,21 +79,19 @@ Identity::setDefaultKey(const Name& keyName) const
   return lock()->setDefaultKey(keyName);
 }
 
-
 //added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1      
 const Key&
-Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName, KeyType keyType) const
+Identity::setDefaultKey(span<const uint8_t> key, const Name& keyName, KeyType m_keyType) const
 {
-  return lock()->setDefaultKey(key, keyLen, keyName, keyType);
+ return lock()->setDefaultKey(key, keyName, m_keyType);
 }
-
 #else
 const Key&
-Identity::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName) const
+Identity::setDefaultKey(span<const uint8_t> key, const Name& keyName) const
 {
-  return lock()->setDefaultKey(key, keyLen, keyName);
+  return lock()->setDefaultKey(key, keyName);
 }
 #endif
 
@@ -142,4 +138,3 @@ operator<<(std::ostream& os, const Identity& id)
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

@@ -117,7 +117,7 @@ KeyContainer::size() const
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1   
 Key
-KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName, KeyType keyType)
+KeyContainer::add(span<const uint8_t> key, const Name& keyName, KeyType keyType)
 {
   if (m_identity != extractIdentityFromKeyName(keyName)) {
     NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
@@ -125,14 +125,12 @@ KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName, KeyTyp
   }
 
   m_keyNames.insert(keyName);
-  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, keyLen, keyType, m_pib);
-
+  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, keyType, m_pib);
   return get(keyName);
 }
-
 #else
 Key
-KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
+KeyContainer::add(span<const uint8_t> key, const Name& keyName)
 {
   if (m_identity != extractIdentityFromKeyName(keyName)) {
     NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
@@ -140,11 +138,11 @@ KeyContainer::add(const uint8_t* key, size_t keyLen, const Name& keyName)
   }
 
   m_keyNames.insert(keyName);
-  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, keyLen, m_pib);
-
+  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, m_pib);
   return get(keyName);
 }
 #endif
+
 
 void
 KeyContainer::remove(const Name& keyName)
@@ -190,4 +188,3 @@ KeyContainer::isConsistent() const
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

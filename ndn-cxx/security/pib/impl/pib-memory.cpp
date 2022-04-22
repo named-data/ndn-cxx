@@ -128,39 +128,34 @@ PibMemory::hasKey(const Name& keyName) const
 {
   return (m_keys.count(keyName) > 0);
 }
-
 //added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to store the PIB Key.
 #if 1
 void
-PibMemory::addKey(const Name& identity, const Name& keyName, KeyType keyType, 
-                  const uint8_t* key, size_t keyLen)
+PibMemory::addKey(const Name& identity, const Name& keyName, KeyType keyType, span<const uint8_t> key)
 {
   addIdentity(identity);
   PibMemory::keyConst ks;
   ks.keyType = keyType;
-  ks.keyBits = Buffer(key, keyLen);
+  ks.keyBits = Buffer(key.begin(), key.end());
   m_keys[keyName] = ks;
 
   if (m_defaultKeys.count(identity) == 0) {
     m_defaultKeys[identity] = keyName;
   }
 }
-
 #else
 void
-PibMemory::addKey(const Name& identity, const Name& keyName,
-                  const uint8_t* key, size_t keyLen)
+PibMemory::addKey(const Name& identity, const Name& keyName, span<const uint8_t> key)
 {
   addIdentity(identity);
 
-  m_keys[keyName] = Buffer(key, keyLen);
+  m_keys[keyName] = Buffer(key.begin(), key.end());
 
   if (m_defaultKeys.count(identity) == 0) {
     m_defaultKeys[identity] = keyName;
   }
 }
-
 #endif
 
 
@@ -215,6 +210,7 @@ PibMemory::getKeyType(const Name& keyName) const
 
 #endif
 
+
 std::set<Name>
 PibMemory::getKeysOfIdentity(const Name& identity) const
 {
@@ -257,11 +253,12 @@ PibMemory::hasCertificate(const Name& certName) const
 void
 PibMemory::addCertificate(const Certificate& certificate)
 {
-  Name certName = certificate.getName();
-  Name keyName = certificate.getKeyName();
-  Name identity = certificate.getIdentity();
+  const Name& certName = certificate.getName();
+  const Name& keyName = certificate.getKeyName();
+
+  const auto& content = certificate.getContent();
 //added_GM, by liupenghui
-#if 1 
+#if 1
   KeyType keyType = KeyType::NONE;
   int32_t Signature_type = certificate.getSignatureType();
   if (Signature_type == tlv::SignatureSha256WithRsa)
@@ -272,10 +269,10 @@ PibMemory::addCertificate(const Certificate& certificate)
  	keyType =  KeyType::HMAC;
   else if (Signature_type == tlv::SignatureSm3WithSm2)
  	keyType =  KeyType::SM2;
-		
-  addKey(identity, keyName, keyType, certificate.getContent().value(), certificate.getContent().value_size());
+ 	
+  addKey(certificate.getIdentity(), keyName, keyType, {content.value(),content.value_size()});
 #else
-  addKey(identity, keyName, certificate.getContent().value(), certificate.getContent().value_size());
+  addKey(certificate.getIdentity(), keyName, {content.value(), content.value_size()});
 #endif
 
   m_certs[certName] = certificate;
@@ -343,4 +340,3 @@ PibMemory::getDefaultCertificateOfKey(const Name& keyName) const
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

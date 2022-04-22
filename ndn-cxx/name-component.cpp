@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -143,8 +143,8 @@ Component::Component(uint32_t type, ConstBufferPtr buffer)
   ensureValid();
 }
 
-Component::Component(uint32_t type, const uint8_t* value, size_t valueLen)
-  : Block(makeBinaryBlock(type, value, valueLen))
+Component::Component(uint32_t type, span<const uint8_t> value)
+  : Block(makeBinaryBlock(type, value))
 {
   ensureValid();
 }
@@ -366,16 +366,15 @@ Component
 Component::fromNumberWithMarker(uint8_t marker, uint64_t number)
 {
   EncodingEstimator estimator;
-
   size_t valueLength = estimator.prependNonNegativeInteger(number);
-  valueLength += estimator.prependByteArray(&marker, 1);
+  valueLength += estimator.prependBytes({marker});
   size_t totalLength = valueLength;
   totalLength += estimator.prependVarNumber(valueLength);
   totalLength += estimator.prependVarNumber(tlv::GenericNameComponent);
 
   EncodingBuffer encoder(totalLength, 0);
   encoder.prependNonNegativeInteger(number);
-  encoder.prependByteArray(&marker, 1);
+  encoder.prependBytes({marker});
   encoder.prependVarNumber(valueLength);
   encoder.prependVarNumber(tlv::GenericNameComponent);
 
@@ -440,13 +439,13 @@ Component::isImplicitSha256Digest() const
 Component
 Component::fromImplicitSha256Digest(ConstBufferPtr digest)
 {
-  return detail::getComponentType1().create(digest);
+  return detail::getComponentType1().create(std::move(digest));
 }
 
 Component
-Component::fromImplicitSha256Digest(const uint8_t* digest, size_t digestSize)
+Component::fromImplicitSha256Digest(span<const uint8_t> digest)
 {
-  return detail::getComponentType1().create(digest, digestSize);
+  return detail::getComponentType1().create(digest);
 }
 
 bool
@@ -458,13 +457,13 @@ Component::isParametersSha256Digest() const
 Component
 Component::fromParametersSha256Digest(ConstBufferPtr digest)
 {
-  return detail::getComponentType2().create(digest);
+  return detail::getComponentType2().create(std::move(digest));
 }
 
 Component
-Component::fromParametersSha256Digest(const uint8_t* digest, size_t digestSize)
+Component::fromParametersSha256Digest(span<const uint8_t> digest)
 {
-  return detail::getComponentType2().create(digest, digestSize);
+  return detail::getComponentType2().create(digest);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -507,14 +506,13 @@ Component::getSuccessor() const
 {
   bool isOverflow = false;
   Component successor;
-  std::tie(isOverflow, successor) =
-    detail::getComponentTypeTable().get(type()).getSuccessor(*this);
+  std::tie(isOverflow, successor) = detail::getComponentTypeTable().get(type()).getSuccessor(*this);
   if (!isOverflow) {
     return successor;
   }
 
   uint32_t type = this->type() + 1;
-  const std::vector<uint8_t>& value = detail::getComponentTypeTable().get(type).getMinValue();
+  auto value = detail::getComponentTypeTable().get(type).getMinValue();
   return Component(type, value.data(), value.size());
 }
 
@@ -524,7 +522,7 @@ Component::wireEncode(EncodingImpl<TAG>& encoder) const
 {
   size_t totalLength = 0;
   if (value_size() > 0)
-    totalLength += encoder.prependByteArray(value(), value_size());
+    totalLength += encoder.prependBytes({value(), value_size()});
   totalLength += encoder.prependVarNumber(value_size());
   totalLength += encoder.prependVarNumber(type());
   return totalLength;

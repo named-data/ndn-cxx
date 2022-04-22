@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -103,7 +103,7 @@ ndnsec_sign_req(int argc, char** argv)
   certificate.setFreshnessPeriod(1_h);
 
   // set content
-  certificate.setContent(key.getPublicKey().data(), key.getPublicKey().size());
+  certificate.setContent(key.getPublicKey());
 
   // set signature-info
   SignatureInfo signatureInfo;
@@ -127,4 +127,3 @@ ndnsec_sign_req(int argc, char** argv)
 
 } // namespace ndnsec
 } // namespace ndn
-

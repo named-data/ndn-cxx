@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,18 +37,13 @@ namespace tests {
 // class TestCertDataGenerator
 // {
 // public:
-//   TestCertDataGenerator()
-//     : tpm("test", "test", make_unique<tpm::BackEndMem>())
-//   {
-//   }
-
 //   void
 //   printTestDataForId(const std::string& prefix, const Name& id)
 //   {
-//     for (int keyId : {1, 2}) {
+//     for (auto keyId : {1u, 2u}) {
 //       Name keyName = tpm.createKey(id, EcKeyParams(name::Component::fromNumber(keyId)));
 
-//       for (int certVersion : {1, 2}) {
+//       for (auto certVersion : {1u, 2u}) {
 //         Name certName = keyName;
 //         certName
 //           .append("issuer")
@@ -79,22 +74,16 @@ namespace tests {
 //   static void
 //   printBytes(const std::string& name, const Block& block)
 //   {
-//     printBytes(name, block.wire(), block.size());
+//     printBytes(name, make_span(block.wire(), block.size()));
 //   }
 
 //   static void
-//   printBytes(const std::string& name, const Buffer& buffer)
-//   {
-//     printBytes(name, buffer.data(), buffer.size());
-//   }
-
-//   static void
-//   printBytes(const std::string& name, const uint8_t* buf, size_t size)
+//   printBytes(const std::string& name, span<const uint8_t> buf)
 //   {
 //     std::cout << "\nconst uint8_t " << name << "[] = {\n"
 //               << "  ";
 
-//     std::string hex = toHex(buf, size);
+//     std::string hex = toHex(buf);
 
 //     for (size_t i = 0; i < hex.size(); i++) {
 //       if (i > 0 && i % 40 == 0)
@@ -103,7 +92,7 @@ namespace tests {
 //       std::cout << "0x" << hex[i];
 //       std::cout << hex[++i];
 
-//       if ((i + 1) != hex.size())
+//       if (i + 1 != hex.size())
 //         std::cout << ", ";
 //     }
 //     std::cout << "\n"
@@ -112,7 +101,7 @@ namespace tests {
 
 // private:
 //   pib::PibMemory pib;
-//   Tpm tpm;
+//   Tpm tpm{"test", "test", make_unique<tpm::BackEndMem>()};
 // };
 
 // // The test data can be generated using this test case
@@ -371,15 +360,15 @@ const uint8_t ID2_KEY2_CERT2[] = {
 };
 
 PibDataFixture::PibDataFixture()
-  : id1Key1Cert1(Block(ID1_KEY1_CERT1, sizeof(ID1_KEY1_CERT1)))
-  , id1Key1Cert2(Block(ID1_KEY1_CERT2, sizeof(ID1_KEY1_CERT2)))
-  , id1Key2Cert1(Block(ID1_KEY2_CERT1, sizeof(ID1_KEY2_CERT1)))
-  , id1Key2Cert2(Block(ID1_KEY2_CERT2, sizeof(ID1_KEY2_CERT2)))
+  : id1Key1Cert1(Block(ID1_KEY1_CERT1))
+  , id1Key1Cert2(Block(ID1_KEY1_CERT2))
+  , id1Key2Cert1(Block(ID1_KEY2_CERT1))
+  , id1Key2Cert2(Block(ID1_KEY2_CERT2))
 
-  , id2Key1Cert1(Block(ID2_KEY1_CERT1, sizeof(ID2_KEY1_CERT1)))
-  , id2Key1Cert2(Block(ID2_KEY1_CERT2, sizeof(ID2_KEY1_CERT2)))
-  , id2Key2Cert1(Block(ID2_KEY2_CERT1, sizeof(ID2_KEY2_CERT1)))
-  , id2Key2Cert2(Block(ID2_KEY2_CERT2, sizeof(ID2_KEY2_CERT2)))
+  , id2Key1Cert1(Block(ID2_KEY1_CERT1))
+  , id2Key1Cert2(Block(ID2_KEY1_CERT2))
+  , id2Key2Cert1(Block(ID2_KEY2_CERT1))
+  , id2Key2Cert2(Block(ID2_KEY2_CERT2))
 
   , id1(id1Key1Cert1.getIdentity())
   , id2(id2Key1Cert1.getIdentity())

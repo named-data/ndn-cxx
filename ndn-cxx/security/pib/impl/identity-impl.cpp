@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,22 +45,22 @@ IdentityImpl::IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl
 }
 
 
+
 //added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1   
 Key
-IdentityImpl::addKey(const uint8_t* key, size_t keyLen, const Name& keyName, KeyType keyType)
+IdentityImpl::addKey(span<const uint8_t> key, const Name& keyName, KeyType keyType)
 {
   BOOST_ASSERT(m_keys.isConsistent());
-  return m_keys.add(key, keyLen, keyName, keyType);
+  return m_keys.add(key, keyName, keyType);
 }
-
 #else
 Key
-IdentityImpl::addKey(const uint8_t* key, size_t keyLen, const Name& keyName)
+IdentityImpl::addKey(span<const uint8_t> key, const Name& keyName)
 {
   BOOST_ASSERT(m_keys.isConsistent());
-  return m_keys.add(key, keyLen, keyName);
+  return m_keys.add(key, keyName);
 }
 #endif
 
@@ -100,25 +100,25 @@ IdentityImpl::setDefaultKey(const Name& keyName)
   return m_defaultKey;
 }
 
+
+
 //added_GM, by liupenghui
 // the publicKey.getKeyType() can't get the SM2-type key, we add a paramter Type to initiate the Key.
 #if 1   
 const Key&
-IdentityImpl::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName, KeyType keyType)
+IdentityImpl::setDefaultKey(span<const uint8_t> key, const Name& keyName, KeyType keyType)
 {
-  addKey(key, keyLen, keyName, keyType);
+  addKey(key, keyName, keyType);
   return setDefaultKey(keyName);
 }
-
 #else
 const Key&
-IdentityImpl::setDefaultKey(const uint8_t* key, size_t keyLen, const Name& keyName)
+IdentityImpl::setDefaultKey(span<const uint8_t> key, const Name& keyName)
 {
-  addKey(key, keyLen, keyName);
+  addKey(key, keyName);
   return setDefaultKey(keyName);
 }
 #endif
-
 
 const Key&
 IdentityImpl::getDefaultKey() const
@@ -138,4 +138,3 @@ IdentityImpl::getDefaultKey() const
 } // namespace pib
 } // namespace security
 } // namespace ndn
-

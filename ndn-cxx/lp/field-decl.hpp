@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -121,12 +121,9 @@ template<typename encoding::Tag TAG, typename TlvType>
 struct EncodeHelper<TAG, TlvType, EmptyValue>
 {
   static size_t
-  encode(EncodingImpl<TAG>& encoder, const EmptyValue value)
+  encode(EncodingImpl<TAG>& encoder, EmptyValue)
   {
-    size_t length = 0;
-    length += encoder.prependVarNumber(0);
-    length += encoder.prependVarNumber(TlvType::value);
-    return length;
+    return prependEmptyBlock(encoder, TlvType::value);
   }
 };
 
@@ -147,8 +144,8 @@ struct EncodeHelper<TAG, TlvType, uint64_t>
   encode(EncodingImpl<TAG>& encoder, uint64_t value)
   {
     boost::endian::native_to_big_inplace(value);
-    return encoder.prependByteArrayBlock(TlvType::value,
-                                         reinterpret_cast<const uint8_t*>(&value), sizeof(value));
+    return prependBinaryBlock(encoder, TlvType::value,
+                              {reinterpret_cast<const uint8_t*>(&value), sizeof(value)});
   }
 };
 

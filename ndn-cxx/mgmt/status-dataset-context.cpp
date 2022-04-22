@@ -79,7 +79,7 @@ StatusDatasetContext::append(const Block& block)
     if (cur != block.end()) {
       BOOST_ASSERT(m_buffer.size() == MAX_PAYLOAD_LENGTH);
       m_dataSender(Name(m_prefix).appendSegment(m_segmentNo++),
-                   makeBinaryBlock(tlv::Content, m_buffer.begin(), m_buffer.end()),
+                   makeBinaryBlock(tlv::Content, m_buffer),
                    false);
       m_buffer.clear();
     }
@@ -95,7 +95,7 @@ StatusDatasetContext::end()
 
   m_state = State::FINALIZED;
   m_dataSender(Name(m_prefix).appendSegment(m_segmentNo),
-               makeBinaryBlock(tlv::Content, m_buffer.begin(), m_buffer.end()),
+               makeBinaryBlock(tlv::Content, m_buffer),
                true);
 }
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE(sm4Cbc)
 
   // encrypt
   OBufferStream os;
-  bufferSource(plainText, sizeof(plainText))
-	>> blockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::ENCRYPT, key, sizeof(key), iv, sizeof(iv))
+  bufferSource(plainText)
+	>> blockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::ENCRYPT, key, iv)
 	>> streamSink(os);
 
   auto buf = os.buf();
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE(sm4Cbc)
 
   // decrypt
   OBufferStream os2;
-  bufferSource(cipherText, sizeof(cipherText))
-	>> blockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::DECRYPT, key, sizeof(key), iv, sizeof(iv))
+  bufferSource(cipherText)
+	>> blockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::DECRYPT, key, iv)
 	>> streamSink(os2);
 
   auto buf2 = os2.buf();
@@ -89,12 +89,12 @@ BOOST_AUTO_TEST_CASE(sm4Cbc)
 
   // invalid key length
   const uint8_t badKey[] = {0x00, 0x01, 0x02, 0x03};
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::ENCRYPT, badKey, sizeof(badKey), iv, sizeof(iv)),
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::ENCRYPT, badKey, iv),
 					Error);
 
   // wrong iv length
   const uint8_t badIv[] = {0x00, 0x01, 0x02, 0x03};
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::ENCRYPT, key, sizeof(key), badIv, sizeof(badIv)),
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::SM4_CBC, CipherOperator::ENCRYPT, key, badIv),
 					Error);
 }
 
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE(sm4Ecb)
 	// encrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os;
-	bufferSource(input, sizeof(input))
-	  >> blockCipher(BlockCipherAlgorithm::SM4_EBC, CipherOperator::ENCRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(input, 16))
+	  >> blockCipher(BlockCipherAlgorithm::SM4_EBC, CipherOperator::ENCRYPT, key, iv)
 	  >> streamSink(os);
 	
 	auto buf = os.buf();
@@ -137,8 +137,8 @@ BOOST_AUTO_TEST_CASE(sm4Ecb)
 	// decrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os2;
-	bufferSource(expected, sizeof(expected))
-	  >> blockCipher(BlockCipherAlgorithm::SM4_EBC, CipherOperator::DECRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(expected, 16))
+	  >> blockCipher(BlockCipherAlgorithm::SM4_EBC, CipherOperator::DECRYPT, key, iv)
 	  >> streamSink(os2);
 	
 	auto buf2 = os2.buf();
@@ -177,8 +177,8 @@ BOOST_AUTO_TEST_CASE(AesEcb)
 	// encrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os;
-	bufferSource(input, sizeof(input))
-	  >> blockCipher(BlockCipherAlgorithm::AES_EBC, CipherOperator::ENCRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(input, 16))
+	  >> blockCipher(BlockCipherAlgorithm::AES_EBC, CipherOperator::ENCRYPT, key, iv)
 	  >> streamSink(os);
 	
 	auto buf = os.buf();
@@ -189,8 +189,8 @@ BOOST_AUTO_TEST_CASE(AesEcb)
 	// decrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os2;
-	bufferSource(expected, sizeof(expected))
-	  >> blockCipher(BlockCipherAlgorithm::AES_EBC, CipherOperator::DECRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(expected, 16))
+	  >> blockCipher(BlockCipherAlgorithm::AES_EBC, CipherOperator::DECRYPT, key, iv)
 	  >> streamSink(os2);
 	
 	auto buf2 = os2.buf();
@@ -233,8 +233,8 @@ BOOST_AUTO_TEST_CASE(sm4Ofb)
 	// encrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os;
-	bufferSource(input, sizeof(input))
-	  >> blockCipher(BlockCipherAlgorithm::SM4_OFB, CipherOperator::ENCRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(input, 32))
+	  >> blockCipher(BlockCipherAlgorithm::SM4_OFB, CipherOperator::ENCRYPT, key, iv)
 	  >> streamSink(os);
 	
 		
@@ -244,8 +244,8 @@ BOOST_AUTO_TEST_CASE(sm4Ofb)
 	// decrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os2;
-	bufferSource(expected, sizeof(expected))
-	  >> blockCipher(BlockCipherAlgorithm::SM4_OFB, CipherOperator::DECRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(expected, 32))
+	  >> blockCipher(BlockCipherAlgorithm::SM4_OFB, CipherOperator::DECRYPT, key, iv)
 	  >> streamSink(os2);
 	
 	auto buf2 = os2.buf();
@@ -287,8 +287,8 @@ BOOST_AUTO_TEST_CASE(sm4Cfb)
 	// encrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os;
-	bufferSource(input, sizeof(input))
-	  >> blockCipher(BlockCipherAlgorithm::SM4_CFB, CipherOperator::ENCRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(input, 32))
+	  >> blockCipher(BlockCipherAlgorithm::SM4_CFB, CipherOperator::ENCRYPT, key, iv)
 	  >> streamSink(os);
 
 	
@@ -298,8 +298,8 @@ BOOST_AUTO_TEST_CASE(sm4Cfb)
 	// decrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os2;
-	bufferSource(expected, sizeof(expected))
-	  >> blockCipher(BlockCipherAlgorithm::SM4_CFB, CipherOperator::DECRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(expected, 32))
+	  >> blockCipher(BlockCipherAlgorithm::SM4_CFB, CipherOperator::DECRYPT, key, iv)
 	  >> streamSink(os2);
 	
 	auto buf2 = os2.buf();
@@ -341,8 +341,8 @@ BOOST_AUTO_TEST_CASE(aesOfb)
 	// encrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os;
-	bufferSource(input, sizeof(input))
-	  >> blockCipher(BlockCipherAlgorithm::AES_OFB, CipherOperator::ENCRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(input, 32))
+	  >> blockCipher(BlockCipherAlgorithm::AES_OFB, CipherOperator::ENCRYPT, key, iv)
 	  >> streamSink(os);
 	
 		
@@ -352,8 +352,8 @@ BOOST_AUTO_TEST_CASE(aesOfb)
 	// decrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os2;
-	bufferSource(expected, sizeof(expected))
-	  >> blockCipher(BlockCipherAlgorithm::AES_OFB, CipherOperator::DECRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(expected, 32))
+	  >> blockCipher(BlockCipherAlgorithm::AES_OFB, CipherOperator::DECRYPT, key, iv)
 	  >> streamSink(os2);
 	
 	auto buf2 = os2.buf();
@@ -395,8 +395,8 @@ BOOST_AUTO_TEST_CASE(aesCfb)
 	// encrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os;
-	bufferSource(input, sizeof(input))
-	  >> blockCipher(BlockCipherAlgorithm::AES_CFB, CipherOperator::ENCRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(input, 32))
+	  >> blockCipher(BlockCipherAlgorithm::AES_CFB, CipherOperator::ENCRYPT, key, iv)
 	  >> streamSink(os);
 
 	
@@ -406,8 +406,8 @@ BOOST_AUTO_TEST_CASE(aesCfb)
 	// decrypt
 	// the user must ensure the length of input data is a mutilple of 16.
 	OBufferStream os2;
-	bufferSource(expected, sizeof(expected))
-	  >> blockCipher(BlockCipherAlgorithm::AES_CFB, CipherOperator::DECRYPT, key, sizeof(key), iv, sizeof(iv))
+	bufferSource(make_span(expected, 32))
+	  >> blockCipher(BlockCipherAlgorithm::AES_CFB, CipherOperator::DECRYPT, key, iv)
 	  >> streamSink(os2);
 	
 	auto buf2 = os2.buf();
@@ -449,9 +449,9 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // encrypt
   OBufferStream os;
-  bufferSource(plainText, sizeof(plainText)) >>
-    blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
-                key, sizeof(key), iv, sizeof(iv)) >> streamSink(os);
+  bufferSource(plainText)
+    >> blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT, key, iv)
+    >> streamSink(os);
 
   auto buf = os.buf();
   BOOST_CHECK_EQUAL_COLLECTIONS(cipherText, cipherText + sizeof(cipherText),
@@ -459,9 +459,9 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // decrypt
   OBufferStream os2;
-  bufferSource(cipherText, sizeof(cipherText)) >>
-    blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::DECRYPT,
-                key, sizeof(key), iv, sizeof(iv)) >> streamSink(os2);
+  bufferSource(cipherText)
+    >> blockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::DECRYPT, key, iv)
+    >> streamSink(os2);
 
   auto buf2 = os2.buf();
   BOOST_CHECK_EQUAL_COLLECTIONS(plainText, plainText + sizeof(plainText),
@@ -469,19 +469,19 @@ BOOST_AUTO_TEST_CASE(AesCbc)
 
   // invalid key length
   const uint8_t badKey[] = {0x00, 0x01, 0x02, 0x03};
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
-                                badKey, sizeof(badKey), iv, sizeof(iv)), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT, badKey, iv),
+                    Error);
 
   // wrong iv length
   const uint8_t badIv[] = {0x00, 0x01, 0x02, 0x03};
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT,
-                                key, sizeof(key), badIv, sizeof(badIv)), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::AES_CBC, CipherOperator::ENCRYPT, key, badIv),
+                    Error);
 }
 
 BOOST_AUTO_TEST_CASE(InvalidAlgorithm)
 {
-  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::NONE, CipherOperator::ENCRYPT,
-                                nullptr, 0, nullptr, 0), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::NONE, CipherOperator::DECRYPT, {}, {}), Error);
+  BOOST_CHECK_THROW(BlockCipher(BlockCipherAlgorithm::NONE, CipherOperator::ENCRYPT, {}, {}), Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBlockCipher
@@ -492,4 +492,3 @@ BOOST_AUTO_TEST_SUITE_END() // Security
 } // namespace transform
 } // namespace security
 } // namespace ndn
-

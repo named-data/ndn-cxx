@@ -52,20 +52,18 @@ private:
   doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, KeyType keyType) const final;
   
   bool
-  doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-  		 const uint8_t* sig, size_t sigLen, KeyType keyType) const final;
-
+  doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs, span<const uint8_t> sig, KeyType keyType) const final;
 #else
   ConstBufferPtr
   doSign(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs) const final;
   
   bool
   doVerify(DigestAlgorithm digestAlgorithm, const InputBuffers& bufs,
-  		 const uint8_t* sig, size_t sigLen) const final;
+  		 span<const uint8_t> sig) const final;
 #endif
 
   ConstBufferPtr
-  doDecrypt(const uint8_t* cipherText, size_t cipherTextLen) const final;
+  doDecrypt(span<const uint8_t> cipherText) const final;
 
   ConstBufferPtr
   doDerivePublicKey() const final;
@@ -79,4 +77,3 @@ private:
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_TPM_IMPL_KEY_HANDLE_OSX_HPP
-

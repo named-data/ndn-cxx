@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(Encode)
 
 BOOST_AUTO_TEST_CASE(Decode)
 {
-  ControlResponse cr(Block(WIRE, sizeof(WIRE)));
+  ControlResponse cr(Block{WIRE});
   BOOST_CHECK_EQUAL(cr.getCode(), 404);
   BOOST_CHECK_EQUAL(cr.getText(), "Nothing not found");
 }

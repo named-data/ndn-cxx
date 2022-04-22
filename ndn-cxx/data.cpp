@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,7 +60,7 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
     if (!m_signatureInfo) {
       NDN_THROW(Error("Requested wire format, but Data has not been signed"));
     }
-    totalLength += encoder.prependBlock(m_signatureValue);
+    totalLength += prependBlock(encoder, m_signatureValue);
   }
 
   // SignatureInfo
@@ -68,7 +68,7 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
 
   // Content
   if (hasContent()) {
-    totalLength += encoder.prependBlock(m_content);
+    totalLength += prependBlock(encoder, m_content);
   }
 
   // MetaInfo
@@ -91,10 +91,12 @@ template size_t
 Data::wireEncode<encoding::EstimatorTag>(EncodingEstimator&, bool) const;
 
 const Block&
-Data::wireEncode(EncodingBuffer& encoder, const Block& signatureValue) const
+Data::wireEncode(EncodingBuffer& encoder, span<const uint8_t> signature) const
 {
   size_t totalLength = encoder.size();
-  totalLength += encoder.appendBlock(signatureValue);
+  totalLength += encoder.appendVarNumber(tlv::SignatureValue);
+  totalLength += encoder.appendVarNumber(signature.size());
+  totalLength += encoder.appendBytes(signature);
 
   encoder.prependVarNumber(totalLength);
   encoder.prependVarNumber(tlv::Data);
@@ -259,15 +261,21 @@ Data::setContent(const Block& block)
 }
 
 Data&
+Data::setContent(span<const uint8_t> value)
+{
+  m_content = makeBinaryBlock(tlv::Content, value);
+  resetWire();
+  return *this;
+}
+
+Data&
 Data::setContent(const uint8_t* value, size_t length)
 {
   if (value == nullptr && length != 0) {
     NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
   }
 
-  m_content = makeBinaryBlock(tlv::Content, value, length);
-  resetWire();
-  return *this;
+  return setContent(make_span(value, length));
 }
 
 Data&
@@ -318,8 +326,9 @@ Data::extractSignedRanges() const
 
   wireEncode();
   auto lastSignedIt = std::prev(m_wire.find(tlv::SignatureValue));
-  bufs.emplace_back(m_wire.value(),
-                    std::distance(m_wire.value_begin(), lastSignedIt->end()));
+  // Note: we assume that both iterators point to the same underlying buffer
+  bufs.emplace_back(m_wire.value_begin(), lastSignedIt->end());
+
   return bufs;
 }
 

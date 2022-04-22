@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -70,12 +70,12 @@ protected:
     BOOST_CONCEPT_ASSERT((WireEncodable<T1>));
     BOOST_CONCEPT_ASSERT((WireEncodable<T2>));
 
-    ndn::encoding::EncodingBuffer buffer;
+    EncodingBuffer buffer;
     payload2.wireEncode(buffer);
     payload1.wireEncode(buffer);
 
     auto data = this->prepareDatasetReply(prefix);
-    data->setContent(buffer.buf(), buffer.size());
+    data->setContent(buffer);
     face.receive(*signData(data));
   }
 
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(Timeout)
   CommandOptions options;
   options.setTimeout(3000_ms);
   controller.fetch<FaceDataset>(
-    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    [] (auto&&) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback,
     options);
   this->advanceClocks(500_ms);
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(Timeout)
 BOOST_AUTO_TEST_CASE(DataHasNoSegment)
 {
   controller.fetch<FaceDataset>(
-    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    [] (auto&&) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
   this->advanceClocks(500_ms);
 
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
   this->setValidationResult(false);
 
   controller.fetch<FaceDataset>(
-    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    [] (auto&&) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
   this->advanceClocks(500_ms);
 
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
 BOOST_AUTO_TEST_CASE(Nack)
 {
   controller.fetch<FaceDataset>(
-    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    [] (auto&&) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
   this->advanceClocks(500_ms);
 
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(Nack)
 BOOST_AUTO_TEST_CASE(ParseError1)
 {
   controller.fetch<FaceDataset>(
-    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    [] (auto&&) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
   this->advanceClocks(500_ms);
 
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(ParseError1)
 BOOST_AUTO_TEST_CASE(ParseError2)
 {
   controller.fetch<FaceDataset>(
-    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    [] (auto&&) { BOOST_FAIL("fetchDataset should not succeed"); },
     datasetFailCallback);
   this->advanceClocks(500_ms);
 
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(Failure)
   CommandOptions options;
   options.setTimeout(3000_ms);
   controller.fetch<FaceDataset>(
-    [] (const std::vector<FaceStatus>& result) { BOOST_FAIL("fetchDataset should not succeed"); },
+    [] (auto&&) { BOOST_FAIL("fetchDataset should not succeed"); },
     nullptr,
     options);
   BOOST_CHECK_NO_THROW(this->advanceClocks(500_ms, 7));
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(FaceQuery)
   this->advanceClocks(500_ms);
 
   Name prefix("/localhost/nfd/faces/query");
-  prefix.append(filter.wireEncode());
+  prefix.append(filter.wireEncode().begin(), filter.wireEncode().end());
   FaceStatus payload;
   payload.setFaceId(8795);
   this->sendDataset(prefix, payload);
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(FaceQueryWithOptions)
   this->advanceClocks(500_ms);
 
   Name prefix("/localhost/nfd/faces/query");
-  prefix.append(filter.wireEncode());
+  prefix.append(filter.wireEncode().begin(), filter.wireEncode().end());
   FaceStatus payload;
   payload.setFaceId(14022);
   this->sendDataset(prefix, payload);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -55,22 +55,23 @@ HexDecode::HexDecode()
 }
 
 size_t
-HexDecode::convert(const uint8_t* hex, size_t hexLen)
+HexDecode::convert(span<const uint8_t> hex)
 {
-  if (hexLen == 0)
+  if (hex.empty())
     return 0;
 
-  setOutputBuffer(toBytes(hex, hexLen));
+  setOutputBuffer(toBytes(hex.data(), hex.size()));
 
-  size_t totalDecodedLen = hexLen + (m_hasOddByte ? 1 : 0);
+  size_t totalDecodedLen = hex.size() + (m_hasOddByte ? 1 : 0);
   if (totalDecodedLen % 2 == 1) {
-    m_oddByte = hex[hexLen - 1];
+    m_oddByte = hex.back();
     m_hasOddByte = true;
   }
-  else
+  else {
     m_hasOddByte = false;
+  }
 
-  return hexLen;
+  return hex.size();
 }
 
 void

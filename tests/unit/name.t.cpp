@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -257,11 +257,14 @@ BOOST_AUTO_TEST_CASE(AppendComponent)
   name.append("xKh");
   BOOST_CHECK_EQUAL(name.wireEncode(), "070B 080428F0A36B 0803784B68"_block);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   name.append("0100"_block);
   BOOST_CHECK_EQUAL(name.wireEncode(), "070F 080428F0A36B 0803784B68 08020100"_block);
 
   name.append("080109"_block);
   BOOST_CHECK_EQUAL(name.wireEncode(), "0712 080428F0A36B 0803784B68 08020100 080109"_block);
+#pragma GCC diagnostic pop
 }
 
 BOOST_AUTO_TEST_CASE(AppendPartialName)
@@ -294,12 +297,12 @@ BOOST_AUTO_TEST_CASE(AppendParametersSha256Digest)
   auto digest = make_shared<Buffer>(32);
 
   Name name("/P");
-  name.appendParametersSha256Digest(digest);
+  name.appendParametersSha256Digest(digest); // ConstBufferPtr overload
   BOOST_CHECK_EQUAL(name.wireEncode(),
                     "0725 080150 02200000000000000000000000000000000000000000000000000000000000000000"_block);
 
   name = "/P";
-  name.appendParametersSha256Digest(digest->data(), digest->size());
+  name.appendParametersSha256Digest(*digest); // span overload
   BOOST_CHECK_EQUAL(name.wireEncode(),
                     "0725 080150 02200000000000000000000000000000000000000000000000000000000000000000"_block);
 

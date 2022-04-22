@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(BadKeyLocatorType)
 {
   auto i1 = makeCommandInterest(identity);
   KeyLocator kl;
-  kl.setKeyDigest(makeBinaryBlock(tlv::KeyDigest, "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD", 8));
+  kl.setKeyDigest(makeBinaryBlock(tlv::KeyDigest, {0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD}));
   SignatureInfo sigInfo(tlv::SignatureSha256WithRsa);
   sigInfo.setKeyLocator(kl);
   setNameComponent(i1, command_interest::POS_SIG_INFO,

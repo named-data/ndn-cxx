@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,7 +56,7 @@ KeyChainFixture::makeCert(const Key& key, const std::string& issuer, const Key& 
   cert.setFreshnessPeriod(1_h);
 
   // set content
-  cert.setContent(key.getPublicKey().data(), key.getPublicKey().size());
+  cert.setContent(key.getPublicKey());
 
   // set signature info
   ndn::SignatureInfo info;

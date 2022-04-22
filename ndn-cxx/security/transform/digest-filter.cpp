@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,12 +49,12 @@ DigestFilter::DigestFilter(DigestAlgorithm algo)
 DigestFilter::~DigestFilter() = default;
 
 size_t
-DigestFilter::convert(const uint8_t* buf, size_t size)
+DigestFilter::convert(span<const uint8_t> buf)
 {
-  if (EVP_DigestUpdate(m_impl->ctx, buf, size) == 0)
+  if (EVP_DigestUpdate(m_impl->ctx, buf.data(), buf.size()) == 0)
     NDN_THROW(Error(getIndex(), "Failed to accept more input"));
 
-  return size;
+  return buf.size();
 }
 
 void

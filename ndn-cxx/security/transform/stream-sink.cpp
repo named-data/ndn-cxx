@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2021 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,14 +33,14 @@ StreamSink::StreamSink(std::ostream& os)
 }
 
 size_t
-StreamSink::doWrite(const uint8_t* buf, size_t size)
+StreamSink::doWrite(span<const uint8_t> buf)
 {
-  m_os.write(reinterpret_cast<const char*>(buf), size);
+  m_os.write(reinterpret_cast<const char*>(buf.data()), buf.size());
 
   if (m_os.bad())
     NDN_THROW(Error(getIndex(), "Fail to write data into output stream"));
 
-  return size;
+  return buf.size();
 }
 
 void
@@ -54,7 +54,6 @@ streamSink(std::ostream& os)
 {
   return make_unique<StreamSink>(os);
 }
-
 
 } // namespace transform
 } // namespace security

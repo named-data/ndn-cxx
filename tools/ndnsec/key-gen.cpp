@@ -21,11 +21,6 @@
 
 #include "ndnsec.hpp"
 #include "util.hpp"
-//added_HMAC, by liupenghui
-#if 1       
-#include "ndn-cxx/security/key-params.hpp"
-#include "ndn-cxx/security/signing-info.hpp"
-#endif
 
 namespace ndn {
 namespace ndnsec {
@@ -47,29 +42,25 @@ ndnsec_key_gen(int argc, char** argv)
     "Options");
   description.add_options()
     ("help,h", "produce help message")
-    
-	  //added_HMAC, by liupenghui
-#if 1       
+  //added_HMAC, by liupenghui
+  #if 1       
     ("identity,i",	po::value<Name>(&identityName), "identity name, e.g., /ndn/edu/ucla/alice, for HMAC, it will be ignored, only use /localhost/identity/hmac")
-#else
-    ("identity,i",    po::value<Name>(&identityName), "identity name, e.g., /ndn/edu/ucla/alice")
-#endif
-
+  #else
+    ("identity,i",	po::value<Name>(&identityName), "identity name, e.g., /ndn/edu/ucla/alice")
+  #endif
     ("not-default,n", po::bool_switch(&wantNotDefault), "do not set the identity as default")
-    
-//added_GM, HMAC support, by liupenghui
-#if 1   
-    ("type,t",        po::value<char>(&keyTypeChoice)->default_value('e'),
-                      "key type: 'r' for RSA, 'e' for ECDSA, 's' for SM2, 'h' for HMAC")						  
-#else
-	("type,t",        po::value<char>(&keyTypeChoice)->default_value('e'),
-                      "key type: 'r' for RSA, 'e' for ECDSA")
-#endif                      
-                      
-    ("keyid-type,k",  po::value<char>(&keyIdTypeChoice),
-                      "key id type: 'h' for the SHA-256 of the public key, 'r' for a 64-bit "
-                      "random number (the default unless --keyid is specified)")
-    ("keyid",         po::value<std::string>(&userKeyId), "user-specified key id")
+  //added_GM, HMAC support, by liupenghui
+  #if 1   
+    ("type,t",		po::value<char>(&keyTypeChoice)->default_value('e'),
+  					"key type: 'r' for RSA, 'e' for ECDSA, 's' for SM2, 'h' for HMAC")
+  #else
+    ("type,t",		po::value<char>(&keyTypeChoice)->default_value('e'),
+  					"key type: 'r' for RSA, 'e' for ECDSA")
+  #endif                      
+    ("keyid-type,k",	po::value<char>(&keyIdTypeChoice),
+  					"key id type: 'h' for the SHA-256 of the public key, 'r' for a 64-bit "
+  					"random number (the default unless --keyid is specified)")
+    ("keyid", 		po::value<std::string>(&userKeyId), "user-specified key id")
     ;
 
   po::positional_options_description p;
@@ -149,27 +140,27 @@ ndnsec_key_gen(int argc, char** argv)
       params = make_unique<EcKeyParams>(detail::EcKeyParamsInfo::getDefaultSize(), keyIdType);
     }
     break;
-	//added_GM, by liupenghui
+//added_GM, by liupenghui
 #if 1
   case 's':
-	if (keyIdType == KeyIdType::USER_SPECIFIED) {
-	  params = make_unique<sm2KeyParams>(userKeyIdComponent);
-	}
-	else {
-	  params = make_unique<sm2KeyParams>(detail::sm2KeyParamsInfo::getDefaultSize(), keyIdType);
-	}
-	break;
-//added_HMAC
+    if (keyIdType == KeyIdType::USER_SPECIFIED) {
+  	params = make_unique<sm2KeyParams>(userKeyIdComponent);
+    }
+    else {
+  	params = make_unique<sm2KeyParams>(detail::sm2KeyParamsInfo::getDefaultSize(), keyIdType);
+    }
+    break;
+  //added_HMAC
   case 'h':
-	{
-	  //only one HMAC key will be supported in system: hmacIdentity("/localhost/identity/hmac");
-	  // keyname = /localhost/identity/hmac/KEY/123456789
-	  KeyChain tmpKeyChain;
-	  Name::Component keyId = Name::Component::fromNumber(123456789);
-	  tmpKeyChain.createHmacKey(ndn::security::SigningInfo::getHmacIdentity(), ndn::HmacKeyParams(keyId));
-	  return 0;
-	}
-	break;
+    {
+  	//only one HMAC key will be supported in system: hmacIdentity("/localhost/identity/hmac");
+  	// keyname = /localhost/identity/hmac/KEY/123456789
+  	KeyChain tmpKeyChain;
+  	Name::Component keyId = Name::Component::fromNumber(123456789);
+  	tmpKeyChain.createHmacKey(ndn::security::SigningInfo::getHmacIdentity(), ndn::HmacKeyParams(keyId));
+  	return 0;
+    }
+    break;
 #endif
   default:
     std::cerr << "ERROR: unrecognized key type '" << keyTypeChoice << "'" << std::endl;

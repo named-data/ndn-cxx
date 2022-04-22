@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,10 +39,9 @@ SafeBag::SafeBag(const Block& wire)
   this->wireDecode(wire);
 }
 
-SafeBag::SafeBag(const Data& certificate,
-                 const Buffer& encryptedKey)
+SafeBag::SafeBag(const Data& certificate, span<const uint8_t> encryptedKey)
   : m_certificate(certificate)
-  , m_encryptedKey(encryptedKey)
+  , m_encryptedKey(encryptedKey.begin(), encryptedKey.end())
 {
 }
 
@@ -61,16 +60,13 @@ SafeBag::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
 
   // EncryptedKey
-  totalLength += encoder.prependByteArrayBlock(tlv::security::EncryptedKey,
-                                               m_encryptedKey.data(),
-                                               m_encryptedKey.size());
+  totalLength += prependBinaryBlock(encoder, tlv::security::EncryptedKey, m_encryptedKey);
 
   // Certificate
-  totalLength += this->m_certificate.wireEncode(encoder);
+  totalLength += m_certificate.wireEncode(encoder);
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::security::SafeBag);
-
   return totalLength;
 }
 
