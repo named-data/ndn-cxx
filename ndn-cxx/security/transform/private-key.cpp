@@ -30,7 +30,9 @@
 #include "ndn-cxx/security/key-params.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/util/random.hpp"
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
 #include "ndn-cxx/util/scope.hpp"
+#endif
 
 #include <boost/lexical_cast.hpp>
 #include <cstring>
@@ -417,17 +419,26 @@ PrivateKey::rsaDecrypt(span<const uint8_t> cipherText) const
 unique_ptr<PrivateKey>
 PrivateKey::generateRsaKey(uint32_t keySize)
 {
+  auto privateKey = make_unique<PrivateKey>();
+  BOOST_ASSERT(privateKey->m_impl->key == nullptr);
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  privateKey->m_impl->key = EVP_RSA_gen(keySize);
+
+  if (privateKey->m_impl->key == nullptr)
+    NDN_THROW(Error("Failed to generate RSA key"));
+#else // OPENSSL_VERSION_NUMBER
   detail::EvpPkeyCtx kctx(EVP_PKEY_RSA);
 
   if (EVP_PKEY_keygen_init(kctx) <= 0)
-    NDN_THROW(PrivateKey::Error("Failed to initialize RSA keygen context"));
+    NDN_THROW(Error("Failed to initialize RSA keygen context"));
 
   if (EVP_PKEY_CTX_set_rsa_keygen_bits(kctx, static_cast<int>(keySize)) <= 0)
-    NDN_THROW(PrivateKey::Error("Failed to set RSA key length"));
+    NDN_THROW(Error("Failed to set RSA key length"));
 
-  auto privateKey = make_unique<PrivateKey>();
   if (EVP_PKEY_keygen(kctx, &privateKey->m_impl->key) <= 0)
-    NDN_THROW(PrivateKey::Error("Failed to generate RSA key"));
+    NDN_THROW(Error("Failed to generate RSA key"));
+#endif // OPENSSL_VERSION_NUMBER
 
   return privateKey;
 }
@@ -435,6 +446,24 @@ PrivateKey::generateRsaKey(uint32_t keySize)
 unique_ptr<PrivateKey>
 PrivateKey::generateEcKey(uint32_t keySize)
 {
+  auto privateKey = make_unique<PrivateKey>();
+  BOOST_ASSERT(privateKey->m_impl->key == nullptr);
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  switch (keySize) {
+  case 224:
+  case 256:
+  case 384:
+  case 521:
+    privateKey->m_impl->key = EVP_EC_gen(("P-" + to_string(keySize)).data());
+    break;
+  default:
+    NDN_THROW(std::invalid_argument("Unsupported EC key length " + to_string(keySize)));
+  }
+
+  if (privateKey->m_impl->key == nullptr)
+    NDN_THROW(Error("Failed to generate EC key"));
+#else // OPENSSL_VERSION_NUMBER
   EC_KEY* eckey = nullptr;
   switch (keySize) {
   case 224:
@@ -461,12 +490,12 @@ PrivateKey::generateEcKey(uint32_t keySize)
     NDN_THROW(Error("Failed to generate EC key"));
   }
 
-  auto privateKey = make_unique<PrivateKey>();
   privateKey->m_impl->key = EVP_PKEY_new();
   if (privateKey->m_impl->key == nullptr)
     NDN_THROW(Error("Failed to create EVP_PKEY"));
   if (EVP_PKEY_set1_EC_KEY(privateKey->m_impl->key, eckey) != 1)
     NDN_THROW(Error("Failed to assign EC key"));
+#endif // OPENSSL_VERSION_NUMBER
 
   return privateKey;
 }

@@ -46,6 +46,13 @@ BOOST_AUTO_TEST_CASE(ThreadLocalEngine)
   BOOST_CHECK_EQUAL(r1, r3);
 }
 
+// RAND_get_rand_method() and RAND_set_rand_method() are deprecated in OpenSSL 3.0
+// and there is no straightforward replacement. Suppress the warnings for now, but
+// we may have to drop this test case when OpenSSL removes the RAND_METHOD API.
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 // This fixture uses OpenSSL routines to set a dummy random generator that always fails
 class FailRandMethodFixture
 {
@@ -110,7 +117,7 @@ private:
 
 BOOST_FIXTURE_TEST_CASE(Error, FailRandMethodFixture)
 {
-  std::array<uint8_t, 1024> buf;
+  std::array<uint8_t, 512> buf;
   BOOST_CHECK_THROW(random::generateSecureBytes(buf), std::runtime_error);
 }
 
