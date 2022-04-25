@@ -47,7 +47,7 @@ we have modified the internal interfaces, stored the type of key imported or gen
 and added a key type parameter when calling the internal interfaces. The external interface remains unchanged.
 
 In addition, the original version of ndn-cxx does not support the generation of HMAC key file in file-based TPM. 
-There is a bug in toPkcs1(), which does not distinguish the key processing between asymmetric algorithms such as ECDSA and HMAC algorithm. see the function toPkcs1(). 
+There is a bug in toPkcs1(), which does not distinguish the key processing between asymmetric algorithm such as ECDSA and HMAC algorithm. see the function toPkcs1(). 
 This new version of ndn-cxx also provides a HMAC key file, which can be generated and updated at any time by commanding 'ndnsec key-gen', 
 Keyname:/localhost/identity/hmac/KEY/123456789, stored in the directory $("HOME")/.ndn/ndnsec-key-file/, 
 the file name is 8436ea04965f58d93b751d551f5634646e2ff17fcd720bd413e51106c682808f.privkey. 
