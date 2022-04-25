@@ -20,7 +20,7 @@ used by the following projects:
 * [NAC - Name-based Access Control](https://github.com/named-data/name-based-access-control)
 * [NDNS - Domain Name Service for NDN](https://github.com/named-data/ndns)
 
-## Bugs in function detail::getEvpPkeyType() in the original verion of ndn-cxx.
+## Bugs in function detail::getEvpPkeyType() in the original verion of ndn-cxx at https://github.com/named-data/ndn-cxx
 
 The origianl verion of ndn-cxx tests the key type through PrivateKey.getKeyType()->detail::getEvpPkeyType(), which 
 has a bug when testing the ECC key type, it cannot distinguish the different curve types under the same ECC system, such as ECDSA and SM2. 
