@@ -43,7 +43,7 @@ and the private key file only stores a key, no other information. therefore, it 
 
 In order to ensure the compatibility and meet the requirements of manually importing and exporting key safebag,
 we have modified the internal interfaces, stored the type of key imported or generated from safebag in the SQLite3 db in Pib 
-(the true value of key type is interpreted and obtained from the sig type of certificate in safebag, but I also recommend adding a new parameter in command "ndnsec import", I don't select this option), 
+(the true value of key type is interpreted and obtained from the sig type of certificate in safebag, but I also recommend adding a new parameter keyType in command "ndnsec import", I don't select this option), 
 and added a key type parameter when calling the internal interfaces. The external interface remains unchanged.
 
 In addition, the original version of ndn-cxx does not support the generation of HMAC key file in file-based TPM. 
