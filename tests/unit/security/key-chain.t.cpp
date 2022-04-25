@@ -26,6 +26,7 @@
 
 #include "tests/boost-test.hpp"
 #include "tests/key-chain-fixture.hpp"
+#include "tests/unit/clock-fixture.hpp"
 #include "tests/unit/test-home-env-saver.hpp"
 
 #include <boost/mpl/vector.hpp>
@@ -572,6 +573,146 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(SigningInterface, T, SigningTests, T)
     }
   }
 }
+
+class MakeCertificateFixture : public ClockFixture
+{
+public:
+  MakeCertificateFixture()
+    : requesterKeyChain("pib-memory:", "tpm-memory:")
+    , signerKeyChain("pib-memory:", "tpm-memory:")
+  {
+    m_systemClock->setNow(time::fromIsoString("20091117T203458,651387237").time_since_epoch());
+
+    requester = requesterKeyChain.createIdentity("/requester").getDefaultKey();
+    Name signerIdentityName("/signer");
+    signerKey = signerKeyChain.createIdentity(signerIdentityName).getDefaultKey();
+    signerParams = signingByIdentity(signerIdentityName);
+  }
+
+  void
+  checkKeyLocatorName(const Certificate& cert, optional<Name> klName = nullopt) const
+  {
+    auto kl = cert.getKeyLocator();
+    if (!kl.has_value()) {
+      BOOST_ERROR("KeyLocator is missing");
+      return;
+    }
+    BOOST_CHECK_EQUAL(kl->getName(),
+                      klName.value_or(signerKey.getDefaultCertificate().getName()));
+  }
+
+  void
+  checkCertFromDefaults(const Certificate& cert) const
+  {
+    BOOST_CHECK(Certificate::isValidName(cert.getName()));
+    BOOST_CHECK_EQUAL(cert.getKeyName(), requester.getName());
+    BOOST_CHECK_EQUAL(cert.getName()[-2], name::Component("NA"));
+    BOOST_CHECK(cert.getName()[-1].isVersion());
+
+    BOOST_CHECK_EQUAL(cert.getContentType(), tlv::ContentType_Key);
+    BOOST_CHECK_EQUAL(cert.getFreshnessPeriod(), 1_h);
+
+    BOOST_TEST(cert.getContent().value_bytes() == requester.getPublicKey(),
+               boost::test_tools::per_element());
+
+    checkKeyLocatorName(cert);
+
+    BOOST_CHECK(cert.isValid());
+    auto vp = cert.getValidityPeriod().getPeriod();
+    BOOST_CHECK_EQUAL(vp.first, time::fromIsoString("20091117T203458"));
+    BOOST_CHECK_EQUAL(vp.second, time::fromIsoString("20101117T203458"));
+
+    auto adBlock = cert.getSignatureInfo().getCustomTlv(tlv::AdditionalDescription);
+    BOOST_CHECK(!adBlock.has_value());
+  }
+
+public:
+  KeyChain requesterKeyChain;
+  pib::Key requester;
+
+  KeyChain signerKeyChain;
+  pib::Key signerKey;
+  Name signerCertificateName;
+  SigningInfo signerParams;
+};
+
+BOOST_FIXTURE_TEST_SUITE(MakeCertificate, MakeCertificateFixture)
+
+BOOST_AUTO_TEST_CASE(DefaultsFromKey)
+{
+  auto cert = signerKeyChain.makeCertificate(requester, signerParams);
+  checkCertFromDefaults(cert);
+}
+
+BOOST_AUTO_TEST_CASE(DefaultsFromCert)
+{
+  auto cert = signerKeyChain.makeCertificate(requester.getDefaultCertificate(), signerParams);
+  checkCertFromDefaults(cert);
+}
+
+BOOST_AUTO_TEST_CASE(Options)
+{
+  MakeCertificateOptions opts;
+  opts.issuerId = name::Component::fromEscapedString("ISSUER");
+  opts.version = 41218268;
+  opts.freshnessPeriod = 321_s;
+  opts.validity.emplace(time::fromIsoString("20060702T150405"),
+                        time::fromIsoString("20160702T150405"));
+
+  SignatureInfo sigInfo;
+  sigInfo.setKeyLocator(signerKey.getName());
+  sigInfo.setValidityPeriod(ValidityPeriod(time::fromIsoString("20060102T150405"),
+                                           time::fromIsoString("20160102T150405")));
+  sigInfo.addCustomTlv(Block(0xF0));
+  signerParams.setSignatureInfo(sigInfo);
+
+  auto cert = signerKeyChain.makeCertificate(requester, signerParams, opts);
+
+  BOOST_CHECK_EQUAL(cert.getName(),
+                    Name(requester.getName()).append(PartialName("ISSUER/v=41218268")));
+  BOOST_CHECK_EQUAL(cert.getFreshnessPeriod(), 321_s);
+  checkKeyLocatorName(cert, signerKey.getName());
+
+  auto vp = cert.getValidityPeriod().getPeriod();
+  BOOST_CHECK_EQUAL(vp.first, time::fromIsoString("20060702T150405"));
+  BOOST_CHECK_EQUAL(vp.second, time::fromIsoString("20160702T150405"));
+
+  BOOST_CHECK(cert.getSignatureInfo().getCustomTlv(0xF0).has_value());
+}
+
+BOOST_AUTO_TEST_CASE(ErrSigner)
+{
+  signerParams = signingByIdentity("/nonexistent");
+  BOOST_CHECK_THROW(signerKeyChain.makeCertificate(requester, signerParams), KeyChain::Error);
+}
+
+BOOST_AUTO_TEST_CASE(ErrZeroFreshness)
+{
+  MakeCertificateOptions opts;
+  opts.freshnessPeriod = 0_ms;
+  BOOST_CHECK_THROW(signerKeyChain.makeCertificate(requester, signerParams, opts),
+                    std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(ErrNegativeFreshness)
+{
+  MakeCertificateOptions opts;
+  opts.freshnessPeriod = -1_ms;
+  BOOST_CHECK_THROW(signerKeyChain.makeCertificate(requester, signerParams, opts),
+                    std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(ErrContent)
+{
+  Certificate request(requester.getDefaultCertificate());
+  const auto& oldContent = request.getContent();
+  std::vector<uint8_t> content(oldContent.value_begin(), oldContent.value_end());
+  content[0] ^= 0x80;
+  request.setContent(content);
+  BOOST_CHECK_THROW(signerKeyChain.makeCertificate(request, signerParams), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_SUITE_END() // MakeCertificate
 
 BOOST_FIXTURE_TEST_CASE(ImportPrivateKey, KeyChainFixture)
 {

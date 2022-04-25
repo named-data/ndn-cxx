@@ -35,6 +35,34 @@ using namespace ndn::tests;
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestValidityPeriod)
 
+BOOST_AUTO_TEST_SUITE(MakeRelative)
+
+BOOST_AUTO_TEST_CASE(FromNow)
+{
+  auto vp = ValidityPeriod::makeRelative(-1_s, 365_days, time::fromIsoString("20091117T203458,651387237"));
+  auto period = vp.getPeriod();
+  BOOST_CHECK_EQUAL(period.first, time::fromIsoString("20091117T203458"));
+  BOOST_CHECK_EQUAL(period.second, time::fromIsoString("20101117T203458"));
+}
+
+BOOST_AUTO_TEST_CASE(Positive)
+{
+  auto vp = ValidityPeriod::makeRelative(10_s, 1_days, time::fromIsoString("20091117T203458,651387237"));
+  auto period = vp.getPeriod();
+  BOOST_CHECK_EQUAL(period.first, time::fromIsoString("20091117T203509"));
+  BOOST_CHECK_EQUAL(period.second, time::fromIsoString("20091118T203458"));
+}
+
+BOOST_AUTO_TEST_CASE(Negative)
+{
+  auto vp = ValidityPeriod::makeRelative(-1_days, -10_s, time::fromIsoString("20091117T203458,651387237"));
+  auto period = vp.getPeriod();
+  BOOST_CHECK_EQUAL(period.first, time::fromIsoString("20091116T203459"));
+  BOOST_CHECK_EQUAL(period.second, time::fromIsoString("20091117T203448"));
+}
+
+BOOST_AUTO_TEST_SUITE_END() // MakeRelative
+
 BOOST_FIXTURE_TEST_CASE(ConstructorSetter, ClockFixture)
 {
   auto now = m_systemClock->getNow();

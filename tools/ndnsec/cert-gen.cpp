@@ -63,8 +63,10 @@ ndnsec_cert_gen(int argc, char** argv)
                        "\"affiliation University of California, Los Angeles\"); "
                        "this option may be repeated multiple times")
     ("sign-id,s",      po::value<Name>(&signId), "signing identity")
-    ("issuer-id,i",    po::value<std::string>(&issuerId)->default_value("NA"),
-                       "issuer's ID to be included in the issued certificate name")
+    ("issuer-id,i",    po::value<std::string>(&issuerId),
+                       ("issuer's ID to be included in the issued certificate name, interpreted as "
+                        "name component in URI format (default: \"" +
+                        security::Certificate::DEFAULT_ISSUER_ID.toUri() + "\")").data())
     ;
 
   po::positional_options_description p;
@@ -124,39 +126,24 @@ ndnsec_cert_gen(int argc, char** argv)
 
   KeyChain keyChain;
 
-  auto certRequest = loadFromFile<security::Certificate>(requestFile);
+  auto request = loadFromFile<security::Certificate>(requestFile);
 
-  // validate that the content is a public key
-  auto keyContent = certRequest.getPublicKey();
-  security::transform::PublicKey pubKey;
-  pubKey.loadPkcs8(keyContent);
-
-  Name certName = certRequest.getKeyName();
-  certName
-    .append(issuerId)
-    .appendVersion();
-
-  security::Certificate cert;
-  cert.setName(certName);
-  cert.setContent(certRequest.getContent());
-  // TODO: add ability to customize
-  cert.setFreshnessPeriod(1_h);
-
-  SignatureInfo signatureInfo;
-  signatureInfo.setValidityPeriod(security::ValidityPeriod(notBefore, notAfter));
+  security::SigningInfo signer;
+  if (vm.count("sign-id") > 0) {
+    signer.setSigningIdentity(signId);
+  }
   if (!additionalDescription.empty()) {
-    signatureInfo.addCustomTlv(additionalDescription.wireEncode());
+    SignatureInfo sigInfo;
+    sigInfo.addCustomTlv(additionalDescription.wireEncode());
+    signer.setSignatureInfo(sigInfo);
   }
 
-  security::Identity identity;
-  if (vm.count("sign-id") == 0) {
-    identity = keyChain.getPib().getDefaultIdentity();
+  security::MakeCertificateOptions opts;
+  if (vm.count("issuer-id") > 0) {
+    opts.issuerId = name::Component::fromEscapedString(issuerId);
   }
-  else {
-    identity = keyChain.getPib().getIdentity(signId);
-  }
-
-  keyChain.sign(cert, security::SigningInfo(identity).setSignatureInfo(signatureInfo));
+  opts.validity.emplace(notBefore, notAfter);
+  auto cert = keyChain.makeCertificate(request, signer, opts);
 
   {
     using namespace security::transform;

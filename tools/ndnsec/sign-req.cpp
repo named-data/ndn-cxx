@@ -22,6 +22,8 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
+#include "ndn-cxx/security/signing-helpers.hpp"
+
 namespace ndn {
 namespace ndnsec {
 
@@ -81,28 +83,10 @@ ndnsec_sign_req(int argc, char** argv)
   }
 
   // Create signing request (similar to self-signed certificate)
-  security::Certificate certificate;
-
-  // set name
-  Name certificateName = key.getName();
-  certificateName
-    .append("cert-request")
-    .appendVersion();
-  certificate.setName(certificateName);
-
-  // set metainfo
-  certificate.setContentType(tlv::ContentType_Key);
-  certificate.setFreshnessPeriod(1_h);
-
-  // set content
-  certificate.setContent(key.getPublicKey());
-
-  // set signature-info
-  SignatureInfo signatureInfo;
-  auto now = time::system_clock::now();
-  signatureInfo.setValidityPeriod(security::ValidityPeriod(now, now + 10_days));
-
-  keyChain.sign(certificate, security::SigningInfo(key).setSignatureInfo(signatureInfo));
+  security::MakeCertificateOptions opts;
+  opts.issuerId = name::Component::fromEscapedString("cert-request");
+  opts.validity = security::ValidityPeriod::makeRelative(-1_s, 10_days);
+  auto certificate = keyChain.makeCertificate(key, security::signingByKey(key), opts);
 
   io::save(certificate, std::cout);
 

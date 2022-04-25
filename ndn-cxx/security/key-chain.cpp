@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/security/key-chain.hpp"
+#include "ndn-cxx/security/signing-helpers.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/util/config-file.hpp"
@@ -68,6 +69,7 @@ inline namespace v2 {
 
 NDN_LOG_INIT(ndn.security.KeyChain);
 
+const name::Component SELF("self");
 std::string KeyChain::s_defaultPibLocator;
 std::string KeyChain::s_defaultTpmLocator;
 
@@ -484,6 +486,29 @@ KeyChain::sign(Interest& interest, const SigningInfo& params)
   }
 }
 
+Certificate
+KeyChain::makeCertificate(const pib::Key& publicKey, const SigningInfo& params,
+                          const MakeCertificateOptions& opts)
+{
+  return makeCertificate(publicKey.getName(), publicKey.getPublicKey(), params, opts);
+}
+
+Certificate
+KeyChain::makeCertificate(const Certificate& certRequest, const SigningInfo& params,
+                          const MakeCertificateOptions& opts)
+{
+  auto pkcs8 = certRequest.getContent().value_bytes();
+  try {
+    transform::PublicKey pub;
+    pub.loadPkcs8(pkcs8);
+  }
+  catch (const transform::PublicKey::Error& e) {
+    NDN_THROW_NESTED(std::invalid_argument("Certificate request contains invalid public key"));
+  }
+
+  return makeCertificate(extractKeyNameFromCertName(certRequest.getName()), pkcs8, params, opts);
+}
+
 // public: PIB/TPM creation helpers
 
 static inline std::tuple<std::string/*type*/, std::string/*location*/>
@@ -557,35 +582,52 @@ KeyChain::createTpm(const std::string& tpmLocator)
 // private: signing
 
 Certificate
+KeyChain::makeCertificate(const Name& keyName, span<const uint8_t> publicKey,
+                          SigningInfo params, const MakeCertificateOptions& opts)
+{
+  if (opts.freshnessPeriod <= 0_ms) {
+    // Certificate format requires FreshnessPeriod field to appear in the packet.
+    // We cannot rely on Certificate constructor to check this, because:
+    // (1) Metadata::wireEncode omits zero FreshnessPeriod in the wire encoding, but
+    //     Certificate constructor does not throw in this condition
+    // (2) Certificate constructor throws Data::Error, not a std::invalid_argument
+    NDN_THROW(std::invalid_argument("FreshnessPeriod is not positive"));
+  }
+
+  Name name(keyName);
+  name.append(opts.issuerId);
+  name.appendVersion(opts.version);
+
+  Data data;
+  data.setName(name);
+  data.setContentType(tlv::ContentType_Key);
+  data.setFreshnessPeriod(opts.freshnessPeriod);
+  data.setContent(publicKey);
+
+  auto sigInfo = params.getSignatureInfo();
+  // Call ValidityPeriod::makeRelative here instead of in MakeCertificateOptions struct
+  // because the caller may prepare MakeCertificateOptions first and call makeCertificate
+  // at a later time.
+  sigInfo.setValidityPeriod(opts.validity.value_or(ValidityPeriod::makeRelative(-1_s, 365_days)));
+  params.setSignatureInfo(sigInfo);
+
+  sign(data, params);
+  // let Certificate constructor double-check correctness of this function
+  return Certificate(std::move(data));
+}
+
+Certificate
 KeyChain::selfSign(Key& key)
 {
-  Certificate certificate;
-
-  // set name
-  Name certificateName = key.getName();
-  certificateName
-    .append("self")
-    .appendVersion();
-  certificate.setName(certificateName);
-
-  // set metainfo
-  certificate.setContentType(tlv::ContentType_Key);
-  certificate.setFreshnessPeriod(1_h);
-
-  // set content
-  certificate.setContent(key.getPublicKey());
-
-  // set signature-info
-  SignatureInfo signatureInfo;
+  MakeCertificateOptions opts;
+  opts.issuerId = SELF;
   // Note time::system_clock::max() or other NotAfter date results in incorrect encoded value
-  // because of overflow during conversion to boost::posix_time::ptime (bug #3915).
-  signatureInfo.setValidityPeriod(ValidityPeriod(time::system_clock::TimePoint(),
-                                                 time::system_clock::now() + 20 * 365_days));
+  // because of overflow during conversion to boost::posix_time::ptime (bug #3915, bug #5176).
+  opts.validity = ValidityPeriod::makeRelative(-1_s, 20 * 365_days);
+  auto cert = makeCertificate(key, signingByKey(key), opts);
 
-  sign(certificate, SigningInfo(key).setSignatureInfo(signatureInfo));
-
-  key.addCertificate(certificate);
-  return certificate;
+  key.addCertificate(cert);
+  return cert;
 }
 
 std::tuple<Name, SignatureInfo>

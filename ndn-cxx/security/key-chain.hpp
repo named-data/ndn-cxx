@@ -32,6 +32,47 @@
 
 namespace ndn {
 namespace security {
+
+/**
+ * @brief Options to KeyChain::makeCertificate() .
+ */
+struct MakeCertificateOptions
+{
+  /**
+   * @brief Certificate name IssuerId component.
+   *
+   * Default is "NA".
+   */
+  name::Component issuerId = Certificate::DEFAULT_ISSUER_ID;
+
+  /**
+   * @brief Certificate name version component.
+   *
+   * Default is deriving from current timestamp using the logic of Name::appendVersion() .
+   */
+  optional<uint64_t> version;
+
+  /**
+   * @brief Certificate packet FreshnessPeriod.
+   *
+   * As required by the certificate format, this must be positive.
+   * Setting this to zero or negative causes @c std::invalid_argument exception.
+   *
+   * Default is 1 hour.
+   */
+  time::milliseconds freshnessPeriod = 1_h;
+
+  /**
+   * @brief Certificate ValidityPeriod.
+   *
+   * It isn't an error to specify a ValidityPeriod that does not include the current time
+   * or has zero duration, but the certificate won't be valid.
+   *
+   * Default is a ValidityPeriod from now until 365 days later.
+   */
+  optional<ValidityPeriod> validity;
+};
+
 inline namespace v2 {
 
 /**
@@ -289,6 +330,39 @@ public: // signing
   void
   sign(Interest& interest, const SigningInfo& params = SigningInfo());
 
+  /**
+   * @brief Create and sign a certificate packet.
+   * @param publicKey Public key being certified. It does not need to exist in this KeyChain.
+   * @param params Signing parameters. The referenced key must exist in this KeyChain.
+   *               It may contain SignatureInfo for customizing KeyLocator and CustomTlv (including
+   *               AdditionalDescription), but ValidityPeriod will be overwritten.
+   * @param opts Optional arguments.
+   * @return A certificate of @p publicKey signed by a key from this KeyChain found by @p params .
+   * @throw std::invalid_argument @p opts.freshnessPeriod is not positive.
+   * @throw Error Certificate signing failure.
+   */
+  Certificate
+  makeCertificate(const pib::Key& publicKey, const SigningInfo& params = SigningInfo(),
+                  const MakeCertificateOptions& opts = {});
+
+  /**
+   * @brief Create and sign a certificate packet.
+   * @param certRequest Certificate request enclosing the public key being certified.
+   *                    It does not need to exist in this KeyChain.
+   * @param params Signing parameters. The referenced key must exist in this KeyChain.
+   *               It may contain SignatureInfo for customizing KeyLocator and CustomTlv (including
+   *               AdditionalDescription), but ValidityPeriod will be overwritten.
+   * @param opts Optional arguments.
+   * @return A certificate of the public key enclosed in @p certRequest signed by a key from this
+   *         KeyChain found by @p params .
+   * @throw std::invalid_argument @p opts.freshnessPeriod is not positive.
+   * @throw std::invalid_argument @p certRequest contains invalid public key.
+   * @throw Error Certificate signing failure.
+   */
+  Certificate
+  makeCertificate(const Certificate& certRequest, const SigningInfo& params = SigningInfo(),
+                  const MakeCertificateOptions& opts = {});
+
 public: // export & import
   /**
    * @brief Export a certificate and its corresponding private key.
@@ -405,6 +479,10 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   getSignatureType(KeyType keyType, DigestAlgorithm digestAlgorithm);
 
 private: // signing
+  Certificate
+  makeCertificate(const Name& keyName, span<const uint8_t> publicKey, SigningInfo params,
+                  const MakeCertificateOptions& opts);
+
   /**
    * @brief Generate a self-signed certificate for a public key.
    *

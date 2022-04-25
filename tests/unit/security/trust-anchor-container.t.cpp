@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,6 +58,23 @@ public:
   ~TrustAnchorContainerFixture() override
   {
     boost::filesystem::remove_all(certDirPath);
+  }
+
+  void
+  checkFindByInterest(const Name& name, bool canBePrefix, optional<Certificate> expected) const
+  {
+    Interest interest(name);
+    interest.setCanBePrefix(canBePrefix);
+    BOOST_TEST_CONTEXT(interest) {
+      auto found = anchorContainer.find(interest);
+      if (expected) {
+        BOOST_REQUIRE(found != nullptr);
+        BOOST_CHECK_EQUAL(found->getName(), expected->getName());
+      }
+      else {
+        BOOST_CHECK(found == nullptr);
+      }
+    }
   }
 
 public:
@@ -150,29 +167,31 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 BOOST_AUTO_TEST_CASE(FindByInterest)
 {
   anchorContainer.insert("group1", certPath1.string(), 1_s);
-  Interest interest1;
-  interest1.setCanBePrefix(true);
-  interest1.setName(identity1.getName());
-  BOOST_CHECK(anchorContainer.find(interest1) != nullptr);
-  interest1.setName(identity1.getName().getPrefix(-1));
-  BOOST_CHECK(anchorContainer.find(interest1) != nullptr);
-  interest1.setName(Name(identity1.getName()).appendVersion());
-  BOOST_CHECK(anchorContainer.find(interest1) == nullptr);
 
-  auto cert3 = makeCert(identity1.getDefaultKey(), "3");
-  auto cert4 = makeCert(identity1.getDefaultKey(), "4");
-  auto cert5 = makeCert(identity1.getDefaultKey(), "5");
+  checkFindByInterest(identity1.getName(), true, cert1);
+  checkFindByInterest(identity1.getName().getPrefix(-1), true, cert1);
+  checkFindByInterest(cert1.getKeyName(), true, cert1);
+  checkFindByInterest(cert1.getName(), false, cert1);
+  checkFindByInterest(Name(identity1.getName()).appendVersion(), true, nullopt);
+
+  auto makeIdentity1Cert = [=] (const std::string& issuerId) {
+    auto key = identity1.getDefaultKey();
+    MakeCertificateOptions opts;
+    opts.issuerId = name::Component::fromEscapedString(issuerId);
+    return m_keyChain.makeCertificate(key, signingByKey(key), opts);
+  };
+
+  auto cert3 = makeIdentity1Cert("3");
+  auto cert4 = makeIdentity1Cert("4");
+  auto cert5 = makeIdentity1Cert("5");
 
   Certificate cert3Copy = cert3;
   anchorContainer.insert("group2", std::move(cert3Copy));
   anchorContainer.insert("group3", std::move(cert4));
   anchorContainer.insert("group4", std::move(cert5));
 
-  auto interest3 = Interest(cert3.getKeyName()).setCanBePrefix(true);
-  const Certificate* foundCert = anchorContainer.find(interest3);
-  BOOST_REQUIRE(foundCert != nullptr);
-  BOOST_CHECK(interest3.getName().isPrefixOf(foundCert->getName()));
-  BOOST_CHECK_EQUAL(foundCert->getName(), cert3.getName());
+  checkFindByInterest(cert3.getKeyName(), true, cert3);
+  checkFindByInterest(cert3.getName(), false, cert3);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestTrustAnchorContainer

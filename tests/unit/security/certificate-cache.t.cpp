@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,6 +42,23 @@ public:
     cert = identity.getDefaultKey().getDefaultCertificate();
   }
 
+  void
+  checkFindByInterest(const Name& name, bool canBePrefix, optional<Certificate> expected) const
+  {
+    Interest interest(name);
+    interest.setCanBePrefix(canBePrefix);
+    BOOST_TEST_CONTEXT(interest) {
+      auto found = certCache.find(interest);
+      if (expected) {
+        BOOST_REQUIRE(found != nullptr);
+        BOOST_CHECK_EQUAL(found->getName(), expected->getName());
+      }
+      else {
+        BOOST_CHECK(found == nullptr);
+      }
+    }
+  }
+
 public:
   CertificateCache certCache;
   Identity identity;
@@ -75,18 +92,13 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
 {
   BOOST_CHECK_NO_THROW(certCache.insert(cert));
 
-  Interest i;
-  i.setCanBePrefix(true);
-  i.setName(cert.getIdentity());
-  BOOST_CHECK(certCache.find(i) != nullptr);
-  i.setName(cert.getKeyName());
-  BOOST_CHECK(certCache.find(i) != nullptr);
-  i.setName(Name(cert.getName()).appendVersion());
-  BOOST_CHECK(certCache.find(i) == nullptr);
+  checkFindByInterest(cert.getIdentity(), true, cert);
+  checkFindByInterest(cert.getKeyName(), true, cert);
+  checkFindByInterest(cert.getName(), false, cert);
+  checkFindByInterest(Name(cert.getName()).appendVersion(), true, nullopt);
 
   advanceClocks(12_s);
-  i.setName(cert.getIdentity());
-  BOOST_CHECK(certCache.find(i) == nullptr);
+  checkFindByInterest(cert.getIdentity(), true, nullopt);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateCache

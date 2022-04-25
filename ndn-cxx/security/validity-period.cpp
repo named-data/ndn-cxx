@@ -39,6 +39,13 @@ static const size_t NOT_AFTER_OFFSET = 1;
 
 using boost::chrono::time_point_cast;
 
+ValidityPeriod
+ValidityPeriod::makeRelative(time::seconds validFrom, time::seconds validUntil,
+                             const time::system_clock::TimePoint& now)
+{
+  return ValidityPeriod(now + validFrom, now + validUntil);
+}
+
 ValidityPeriod::ValidityPeriod()
   : ValidityPeriod(time::system_clock::TimePoint() + 1_ns,
                    time::system_clock::TimePoint())

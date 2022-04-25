@@ -42,6 +42,7 @@ const ssize_t Certificate::KEY_COMPONENT_OFFSET = -4;
 const size_t Certificate::MIN_CERT_NAME_LENGTH = 4;
 const size_t Certificate::MIN_KEY_NAME_LENGTH = 2;
 const name::Component Certificate::KEY_COMPONENT("KEY");
+const name::Component Certificate::DEFAULT_ISSUER_ID("NA");
 
 Certificate::Certificate()
 {

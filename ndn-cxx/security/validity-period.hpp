@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,18 @@ public:
     using tlv::Error::Error;
   };
 
-public:
+  /**
+   * @brief Construct ValidityPeriod relative to a timepoint.
+   * @param validFrom NotBefore is computed as @c now+validFrom .
+   *                  This should be negative to construct a ValidityPeriod that includes @p now .
+   * @param validUntil NotAfter is computed as @c now+validTo .
+   *                   This should be positive to construct a ValidityPeriod that includes @p now .
+   * @param now Reference timepoint. Default is current system clock timestamp.
+   */
+  static ValidityPeriod
+  makeRelative(time::seconds validFrom, time::seconds validUntil,
+               const time::system_clock::TimePoint& now = time::system_clock::now());
+
   /** @brief Set validity period [UNIX epoch + 1 nanosecond, UNIX epoch] that is always invalid
    */
   ValidityPeriod();

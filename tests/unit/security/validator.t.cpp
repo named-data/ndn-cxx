@@ -262,7 +262,12 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
     // create another key for the same identity and sign it properly
     Key parentKey = m_keyChain.createKey(subIdentity);
     Key requestedKey = subIdentity.getKey(interest.getName());
-    auto cert = makeCert(requestedKey, "looper", parentKey, parentKey.getName());
+
+    SignatureInfo sigInfo;
+    sigInfo.setKeyLocator(parentKey.getName());
+    auto si = signingByKey(parentKey).setSignatureInfo(sigInfo);
+
+    auto cert = m_keyChain.makeCertificate(requestedKey, si);
     face.receive(cert);
   };
 
@@ -292,7 +297,11 @@ BOOST_AUTO_TEST_CASE(LoopedCertChain)
   auto k3 = m_keyChain.createKey(s1, RsaKeyParams(name::Component("key3")));
 
   auto makeLoopCert = [this] (Key& key, const Key& signer) {
-    auto cert = this->makeCert(key, "looper", signer, signer.getName());
+    SignatureInfo sigInfo;
+    sigInfo.setKeyLocator(signer.getName());
+    auto si = signingByKey(signer).setSignatureInfo(sigInfo);
+
+    auto cert = m_keyChain.makeCertificate(key, si);
     m_keyChain.setDefaultCertificate(key, cert);
     cache.insert(cert);
   };
