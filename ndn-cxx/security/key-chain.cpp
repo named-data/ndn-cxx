@@ -816,6 +816,9 @@ KeyChain::sign(const InputBuffers& bufs, const Name& keyName, KeyType keyType, D
     bufferSource(bufs) >> digestFilter(DigestAlgorithm::SHA256) >> streamSink(os);
     return os.buf();
   }
+	
+  if (keyType == KeyType::SM2)
+  	digestAlgorithm = DigestAlgorithm::SM3;
 
   auto signature = m_tpm->sign(bufs, keyName, keyType, digestAlgorithm);
   if (!signature) {
