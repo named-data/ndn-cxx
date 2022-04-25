@@ -1,6 +1,6 @@
 # ndn-cxx: NDN C++ library with ISO-chinese cypto standard algorithms SM2, SM3, SM4 eXperimental eXtensions
 This ndn-cxx version is forked from original release 0.8.0 supports ISO-chinese cypto standard algorithms SM2 (encryption and decryption, signature and verification,
-SM2 certificate definition), SM3 (hash) and SM4 with its symmetric algorithm modes (ECB, CBC, OFB, CFB). additionally, it also support AES (ECB, CBC, OFB, CFB).
+SM2 certificate definition), SM3 (hash) and SM4 with its symmetric algorithm modes (ECB, CBC, OFB, CFB). additionally, it also supports AES (ECB, CBC, OFB, CFB).
 [![CI](https://github.com/named-data/ndn-cxx/actions/workflows/ci.yml/badge.svg)](https://github.com/named-data/ndn-cxx/actions/workflows/ci.yml)
 [![Docs](https://github.com/named-data/ndn-cxx/actions/workflows/docs.yml/badge.svg)](https://github.com/named-data/ndn-cxx/actions/workflows/docs.yml)
 ![Language](https://img.shields.io/badge/C%2B%2B-14-blue)
