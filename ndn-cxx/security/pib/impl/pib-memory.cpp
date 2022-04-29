@@ -20,24 +20,23 @@
  */
 
 #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
-#include "ndn-cxx/security/security-common.hpp"
 
+#include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <boost/range/algorithm_ext/insert.hpp>
 
 namespace ndn {
 namespace security {
 namespace pib {
 
 PibMemory::PibMemory(const std::string&)
-  : m_hasDefaultIdentity(false)
 {
 }
 
 const std::string&
 PibMemory::getScheme()
 {
-  static std::string scheme = "pib-memory";
+  static const std::string scheme("pib-memory");
   return scheme;
 }
 
@@ -47,16 +46,10 @@ PibMemory::setTpmLocator(const std::string& tpmLocator)
   m_tpmLocator = tpmLocator;
 }
 
-std::string
-PibMemory::getTpmLocator() const
-{
-  return m_tpmLocator;
-}
-
 bool
 PibMemory::hasIdentity(const Name& identity) const
 {
-  return (m_identities.count(identity) > 0);
+  return m_identities.count(identity) > 0;
 }
 
 void
@@ -64,9 +57,8 @@ PibMemory::addIdentity(const Name& identity)
 {
   m_identities.insert(identity);
 
-  if (!m_hasDefaultIdentity) {
+  if (!m_defaultIdentity) {
     m_defaultIdentity = identity;
-    m_hasDefaultIdentity = true;
   }
 }
 
@@ -74,13 +66,12 @@ void
 PibMemory::removeIdentity(const Name& identity)
 {
   m_identities.erase(identity);
+
   if (identity == m_defaultIdentity) {
-    m_hasDefaultIdentity = false;
-    m_defaultIdentity.clear();
+    m_defaultIdentity.reset();
   }
 
-  auto keyNames = getKeysOfIdentity(identity);
-  for (const Name& keyName : keyNames) {
+  for (const Name& keyName : getKeysOfIdentity(identity)) {
     removeKey(keyName);
   }
 }
@@ -88,8 +79,7 @@ PibMemory::removeIdentity(const Name& identity)
 void
 PibMemory::clearIdentities()
 {
-  m_hasDefaultIdentity = false;
-  m_defaultIdentity.clear();
+  m_defaultIdentity.reset();
   m_identities.clear();
   m_defaultKeys.clear();
   m_keys.clear();
@@ -109,18 +99,18 @@ PibMemory::setDefaultIdentity(const Name& identityName)
   if (!hasIdentity(identityName)) {
     NDN_THROW(Pib::Error("Cannot set non-existing identity `" + identityName.toUri() + "` as default"));
   }
+
   m_defaultIdentity = identityName;
-  m_hasDefaultIdentity = true;
 }
 
 Name
 PibMemory::getDefaultIdentity() const
 {
-  if (m_hasDefaultIdentity) {
-    return m_defaultIdentity;
+  if (!m_defaultIdentity) {
+    NDN_THROW(Pib::Error("No default identity"));
   }
 
-  NDN_THROW(Pib::Error("No default identity"));
+  return *m_defaultIdentity;
 }
 
 bool
@@ -132,9 +122,10 @@ PibMemory::hasKey(const Name& keyName) const
 void
 PibMemory::addKey(const Name& identity, const Name& keyName, span<const uint8_t> key)
 {
+  // ensure identity exists
   addIdentity(identity);
 
-  m_keys[keyName] = Buffer(key.begin(), key.end());
+  m_keys[keyName] = Buffer(key.begin(), key.end()); // use insert_or_assign in C++17
 
   if (m_defaultKeys.count(identity) == 0) {
     m_defaultKeys[identity] = keyName;
@@ -149,8 +140,7 @@ PibMemory::removeKey(const Name& keyName)
   m_keys.erase(keyName);
   m_defaultKeys.erase(identity);
 
-  auto certNames = getCertificatesOfKey(keyName);
-  for (const auto& certName : certNames) {
+  for (const auto& certName : getCertificatesOfKey(keyName)) {
     removeCertificate(certName);
   }
 }
@@ -159,7 +149,7 @@ Buffer
 PibMemory::getKeyBits(const Name& keyName) const
 {
   if (!hasKey(keyName)) {
-    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` not found"));
+    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` not found in PIB"));
   }
 
   auto key = m_keys.find(keyName);
@@ -170,20 +160,18 @@ PibMemory::getKeyBits(const Name& keyName) const
 std::set<Name>
 PibMemory::getKeysOfIdentity(const Name& identity) const
 {
-  std::set<Name> ids;
-  for (const auto& keyName : m_keys | boost::adaptors::map_keys) {
-    if (identity == extractIdentityFromKeyName(keyName)) {
-      ids.insert(keyName);
-    }
-  }
-  return ids;
+  std::set<Name> keyNames;
+  boost::insert(keyNames,
+                m_keys | boost::adaptors::map_keys | boost::adaptors::filtered(
+                  [&] (const auto& kn) { return extractIdentityFromKeyName(kn) == identity; }));
+  return keyNames;
 }
 
 void
 PibMemory::setDefaultKeyOfIdentity(const Name& identity, const Name& keyName)
 {
   if (!hasKey(keyName)) {
-    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` not found"));
+    NDN_THROW(Pib::Error("Cannot set non-existing key `" + keyName.toUri() + "` as default"));
   }
 
   m_defaultKeys[identity] = keyName;
@@ -203,7 +191,7 @@ PibMemory::getDefaultKeyOfIdentity(const Name& identity) const
 bool
 PibMemory::hasCertificate(const Name& certName) const
 {
-  return (m_certs.count(certName) > 0);
+  return m_certs.count(certName) > 0;
 }
 
 void
@@ -212,6 +200,7 @@ PibMemory::addCertificate(const Certificate& certificate)
   const Name& certName = certificate.getName();
   const Name& keyName = certificate.getKeyName();
 
+  // ensure key exists
   addKey(certificate.getIdentity(), keyName, certificate.getContent().value_bytes());
 
   m_certs[certName] = certificate;
@@ -234,7 +223,7 @@ Certificate
 PibMemory::getCertificate(const Name& certName) const
 {
   if (!hasCertificate(certName)) {
-    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
+    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() + "` not found in PIB"));
   }
 
   auto it = m_certs.find(certName);
@@ -245,11 +234,9 @@ std::set<Name>
 PibMemory::getCertificatesOfKey(const Name& keyName) const
 {
   std::set<Name> certNames;
-  for (const auto& it : m_certs) {
-    if (extractKeyNameFromCertName(it.second.getName()) == keyName) {
-      certNames.insert(it.first);
-    }
-  }
+  boost::insert(certNames,
+                m_certs | boost::adaptors::map_keys | boost::adaptors::filtered(
+                  [&] (const auto& cn) { return extractKeyNameFromCertName(cn) == keyName; }));
   return certNames;
 }
 
@@ -257,7 +244,7 @@ void
 PibMemory::setDefaultCertificateOfKey(const Name& keyName, const Name& certName)
 {
   if (!hasCertificate(certName)) {
-    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() +  "` does not exist"));
+    NDN_THROW(Pib::Error("Cannot set non-existing certificate `" + certName.toUri() + "` as default"));
   }
 
   m_defaultCerts[keyName] = certName;

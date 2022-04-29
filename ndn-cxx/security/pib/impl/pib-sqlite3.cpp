@@ -20,8 +20,6 @@
  */
 
 #include "ndn-cxx/security/pib/impl/pib-sqlite3.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
-#include "ndn-cxx/security/security-common.hpp"
 #include "ndn-cxx/util/sqlite3-statement.hpp"
 
 #include <sqlite3.h>
@@ -35,7 +33,7 @@ namespace pib {
 
 using util::Sqlite3Statement;
 
-static const std::string INITIALIZATION = R"SQL(
+static const char DB_INIT[] = R"SQL(
 CREATE TABLE IF NOT EXISTS
   tpmInfo(
     tpm_locator           BLOB
@@ -136,7 +134,6 @@ CREATE TRIGGER IF NOT EXISTS
       WHERE identity_id=NEW.identity_id;
   END;
 
-
 CREATE TABLE IF NOT EXISTS
   certificates(
     id                    INTEGER PRIMARY KEY,
@@ -230,7 +227,7 @@ PibSqlite3::PibSqlite3(const std::string& location)
 
   // initialize PIB tables
   char* errmsg = nullptr;
-  result = sqlite3_exec(m_database, INITIALIZATION.c_str(), nullptr, nullptr, &errmsg);
+  result = sqlite3_exec(m_database, DB_INIT, nullptr, nullptr, &errmsg);
   if (result != SQLITE_OK && errmsg != nullptr) {
     std::string what = "PIB database cannot be initialized: "s + errmsg;
     sqlite3_free(errmsg);
@@ -246,7 +243,7 @@ PibSqlite3::~PibSqlite3()
 const std::string&
 PibSqlite3::getScheme()
 {
-  static std::string scheme = "pib-sqlite3";
+  static const std::string scheme("pib-sqlite3");
   return scheme;
 }
 
@@ -269,11 +266,11 @@ std::string
 PibSqlite3::getTpmLocator() const
 {
   Sqlite3Statement statement(m_database, "SELECT tpm_locator FROM tpmInfo");
-  int res = statement.step();
-  if (res == SQLITE_ROW)
+
+  if (statement.step() == SQLITE_ROW)
     return statement.getString(0);
-  else
-    return "";
+
+  return {};
 }
 
 bool
@@ -319,9 +316,9 @@ PibSqlite3::getIdentities() const
   std::set<Name> identities;
   Sqlite3Statement statement(m_database, "SELECT identity FROM identities");
 
-  while (statement.step() == SQLITE_ROW)
+  while (statement.step() == SQLITE_ROW) {
     identities.insert(Name(statement.getBlock(0)));
-
+  }
   return identities;
 }
 
@@ -331,6 +328,7 @@ PibSqlite3::setDefaultIdentity(const Name& identityName)
   if (!hasIdentity(identityName)) {
     NDN_THROW(Pib::Error("Cannot set non-existing identity `" + identityName.toUri() + "` as default"));
   }
+
   Sqlite3Statement statement(m_database, "UPDATE identities SET is_default=1 WHERE identity=?");
   statement.bind(1, identityName.wireEncode(), SQLITE_TRANSIENT);
   statement.step();
@@ -343,15 +341,15 @@ PibSqlite3::getDefaultIdentity() const
 
   if (statement.step() == SQLITE_ROW)
     return Name(statement.getBlock(0));
-  else
-    NDN_THROW(Pib::Error("No default identity"));
+
+  NDN_THROW(Pib::Error("No default identity"));
 }
 
 bool
 PibSqlite3::hasDefaultIdentity() const
 {
   Sqlite3Statement statement(m_database, "SELECT identity FROM identities WHERE is_default=1");
-  return (statement.step() == SQLITE_ROW);
+  return statement.step() == SQLITE_ROW;
 }
 
 bool
@@ -359,8 +357,7 @@ PibSqlite3::hasKey(const Name& keyName) const
 {
   Sqlite3Statement statement(m_database, "SELECT id FROM keys WHERE key_name=?");
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
-
-  return (statement.step() == SQLITE_ROW);
+  return statement.step() == SQLITE_ROW;
 }
 
 void
@@ -407,15 +404,14 @@ PibSqlite3::getKeyBits(const Name& keyName) const
 
   if (statement.step() == SQLITE_ROW)
     return Buffer(statement.getBlob(0), statement.getSize(0));
-  else
-    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` does not exist"));
+
+  NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` not found in PIB"));
 }
 
 std::set<Name>
 PibSqlite3::getKeysOfIdentity(const Name& identity) const
 {
   std::set<Name> keyNames;
-
   Sqlite3Statement statement(m_database,
                              "SELECT key_name "
                              "FROM keys JOIN identities ON keys.identity_id=identities.id "
@@ -425,7 +421,6 @@ PibSqlite3::getKeysOfIdentity(const Name& identity) const
   while (statement.step() == SQLITE_ROW) {
     keyNames.insert(Name(statement.getBlock(0)));
   }
-
   return keyNames;
 }
 
@@ -433,7 +428,7 @@ void
 PibSqlite3::setDefaultKeyOfIdentity(const Name& identity, const Name& keyName)
 {
   if (!hasKey(keyName)) {
-    NDN_THROW(Pib::Error("Key `" + keyName.toUri() + "` does not exist"));
+    NDN_THROW(Pib::Error("Cannot set non-existing key `" + keyName.toUri() + "` as default"));
   }
 
   Sqlite3Statement statement(m_database, "UPDATE keys SET is_default=1 WHERE key_name=?");
@@ -454,11 +449,10 @@ PibSqlite3::getDefaultKeyOfIdentity(const Name& identity) const
                              "WHERE identities.identity=? AND keys.is_default=1");
   statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
 
-  if (statement.step() == SQLITE_ROW) {
+  if (statement.step() == SQLITE_ROW)
     return Name(statement.getBlock(0));
-  }
-  else
-    NDN_THROW(Pib::Error("No default key for identity `" + identity.toUri() + "`"));
+
+  NDN_THROW(Pib::Error("No default key for identity `" + identity.toUri() + "`"));
 }
 
 bool
@@ -469,8 +463,7 @@ PibSqlite3::hasDefaultKeyOfIdentity(const Name& identity) const
                              "FROM keys JOIN identities ON keys.identity_id=identities.id "
                              "WHERE identities.identity=? AND keys.is_default=1");
   statement.bind(1, identity.wireEncode(), SQLITE_TRANSIENT);
-
-  return (statement.step() == SQLITE_ROW);
+  return statement.step() == SQLITE_ROW;
 }
 
 bool
@@ -478,7 +471,7 @@ PibSqlite3::hasCertificate(const Name& certName) const
 {
   Sqlite3Statement statement(m_database, "SELECT id FROM certificates WHERE certificate_name=?");
   statement.bind(1, certName.wireEncode(), SQLITE_TRANSIENT);
-  return (statement.step() == SQLITE_ROW);
+  return statement.step() == SQLITE_ROW;
 }
 
 void
@@ -527,24 +520,23 @@ PibSqlite3::getCertificate(const Name& certName) const
 
   if (statement.step() == SQLITE_ROW)
     return Certificate(statement.getBlock(0));
-  else
-    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() + "` does not exit"));
+
+  NDN_THROW(Pib::Error("Certificate `" + certName.toUri() + "` not found in PIB"));
 }
 
 std::set<Name>
 PibSqlite3::getCertificatesOfKey(const Name& keyName) const
 {
   std::set<Name> certNames;
-
   Sqlite3Statement statement(m_database,
                              "SELECT certificate_name "
                              "FROM certificates JOIN keys ON certificates.key_id=keys.id "
                              "WHERE keys.key_name=?");
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
 
-  while (statement.step() == SQLITE_ROW)
+  while (statement.step() == SQLITE_ROW) {
     certNames.insert(Name(statement.getBlock(0)));
-
+  }
   return certNames;
 }
 
@@ -552,7 +544,7 @@ void
 PibSqlite3::setDefaultCertificateOfKey(const Name& keyName, const Name& certName)
 {
   if (!hasCertificate(certName)) {
-    NDN_THROW(Pib::Error("Certificate `" + certName.toUri() + "` does not exist"));
+    NDN_THROW(Pib::Error("Cannot set non-existing certificate `" + certName.toUri() + "` as default"));
   }
 
   Sqlite3Statement statement(m_database,
@@ -572,8 +564,8 @@ PibSqlite3::getDefaultCertificateOfKey(const Name& keyName) const
 
   if (statement.step() == SQLITE_ROW)
     return Certificate(statement.getBlock(0));
-  else
-    NDN_THROW(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
+
+  NDN_THROW(Pib::Error("No default certificate for key `" + keyName.toUri() + "`"));
 }
 
 bool

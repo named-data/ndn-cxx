@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,7 @@ namespace pib {
 class PibImpl;
 
 /**
- * @brief represents the PIB
+ * @brief Frontend to the Public Information Base.
  *
  * The PIB (Public Information Base) stores the public portion of a user's cryptography keys.
  * The format and location of stored information is indicated by the PibLocator.
@@ -40,88 +40,85 @@ class PibImpl;
  * by the PIB to enforce this association and prevent one from operating on mismatched PIB and TPM.
  *
  * Information in the PIB is organized in a hierarchy of Identity-Key-Certificate. At the top level,
- * the Pib class provides access to identities, and allows setting a default identity. Properties of
- * an identity can be accessed after obtaining an Identity object.
+ * the Pib class provides access to identities and allows setting a default identity. The properties
+ * of an identity can be accessed after obtaining an Identity object.
  *
  * @note Pib instance is created and managed only by KeyChain. KeyChain::getPib() returns
- *       a const reference to the managed Pib instance, through which it is possible to
+ *       a reference to the managed Pib instance, through which it is possible to
  *       retrieve information about identities, keys, and certificates.
  *
- * @throw PibImpl::Error when underlying implementation has non-semantic error.
+ * @throw PibImpl::Error When the underlying implementation has a non-semantic error.
  */
 class Pib : noncopyable
 {
 public:
-  /// @brief represents a semantic error
+  /// @brief Represents a semantic error.
   class Error : public std::runtime_error
   {
   public:
     using std::runtime_error::runtime_error;
   };
 
-public:
   ~Pib();
 
   /**
-   * @brief return the scheme of the PIB Locator
+   * @brief Return the scheme of the PIB Locator.
    */
-  std::string
+  const std::string&
   getScheme() const
   {
     return m_scheme;
   }
 
   /**
-   * @brief Get PIB Locator
+   * @brief Return the PIB Locator.
    */
   std::string
   getPibLocator() const;
 
   /**
-   * @brief Set the corresponding TPM information to @p tpmLocator.
-   *
-   * If the provided @p tpmLocator is different from the existing one, PIB will be reset.
-   * Otherwise, nothing will be changed.
+   * @brief Set the associated TPM information to @p tpmLocator.
+   * @note If the provided @p tpmLocator differs from the current one, reset() is called.
    */
   void
   setTpmLocator(const std::string& tpmLocator);
 
   /**
-   * @brief Get TPM Locator
-   * @throws Error if TPM locator is empty
+   * @brief Return the associated TPM Locator.
+   * @throws Error TPM locator is not set
    */
   std::string
   getTpmLocator() const;
 
   /**
-   * @brief Reset content in PIB, including reset of the TPM locator
+   * @brief Reset the contents of the PIB, including reset of the TPM Locator.
    */
   void
   reset();
 
   /**
-   * @brief Get an identity with name @p identityName.
-   * @throw Pib::Error if the identity does not exist.
+   * @brief Return an identity with name @p identityName.
+   * @throw Pib::Error The desired identity does not exist.
    */
   Identity
   getIdentity(const Name& identityName) const;
 
   /**
-   * @brief Get all the identities
+   * @brief Return all the identities.
    */
   const IdentityContainer&
   getIdentities() const;
 
   /**
-   * @brief Get the default identity.
-   * @throw Pib::Error if no default identity exists.
+   * @brief Return the default identity.
+   * @throw Pib::Error No default identity exists.
    */
-  const Identity&
+  Identity
   getDefaultIdentity() const;
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only by KeyChain
   /**
-   * @brief Create a Pib instance
+   * @brief Create a Pib instance.
    *
    * @param scheme The scheme for the Pib
    * @param location The location for the Pib
@@ -132,7 +129,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
    * @brief Add an identity.
    *
-   * If no default identity is set before, the new identity will be set as the default identity
+   * If no default identity is currently set, the new identity will become the default identity.
    *
    * @return handle of the added identity.
    */
@@ -142,7 +139,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
    * @brief Remove an identity.
    *
-   * If the default identity is being removed, no default identity will be selected.
+   * If the default identity is being removed, the PIB will no longer have a default identity.
    */
   void
   removeIdentity(const Name& identity);
@@ -150,29 +147,20 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
   /**
    * @brief Set an identity as the default identity.
    *
-   * Create the identity if it does not exist.
+   * The identity will be created if it does not exist.
    *
    * @return handle of the default identity
    */
-  const Identity&
+  Identity
   setDefaultIdentity(const Name& identity);
 
-  shared_ptr<PibImpl>
-  getImpl()
-  {
-    return m_impl;
-  }
-
-protected:
-  std::string m_scheme;
-  std::string m_location;
-
-  mutable bool m_isDefaultIdentityLoaded;
-  mutable Identity m_defaultIdentity;
+private:
+  const std::string m_scheme;
+  const std::string m_location;
+  const shared_ptr<PibImpl> m_impl;
 
   IdentityContainer m_identities;
-
-  shared_ptr<PibImpl> m_impl;
+  mutable Identity m_defaultIdentity;
 
   friend KeyChain;
 };

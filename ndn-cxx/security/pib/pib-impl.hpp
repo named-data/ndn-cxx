@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,27 +32,28 @@ namespace security {
 namespace pib {
 
 /**
- * @brief Abstract class of PIB implementation
+ * @brief PIB backend interface.
  *
- * This class defines the interface that an actual PIB (e.g., one based on sqlite3)
- * implementation should provide.
+ * This abstract class defines the interface that an actual PIB implementation
+ * (e.g., one based on sqlite3) must provide.
+ *
+ * @sa Pib
  */
 class PibImpl : noncopyable
 {
 public:
   /**
-   * @brief represents a non-semantic error
+   * @brief Represents a non-semantic error.
    *
    * A subclass of PibImpl may throw a subclass of this type when
    * there's a non-semantic error, such as a storage problem.
-  */
+   */
   class Error : public std::runtime_error
   {
   public:
     using std::runtime_error::runtime_error;
   };
 
-public:
   virtual
   ~PibImpl() = default;
 

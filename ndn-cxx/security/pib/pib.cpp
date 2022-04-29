@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,14 +27,13 @@ namespace ndn {
 namespace security {
 namespace pib {
 
-NDN_LOG_INIT(ndn.security.pib.Pib);
+NDN_LOG_INIT(ndn.security.Pib);
 
 Pib::Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl)
   : m_scheme(scheme)
   , m_location(location)
-  , m_isDefaultIdentityLoaded(false)
-  , m_identities(impl)
   , m_impl(std::move(impl))
+  , m_identities(m_impl)
 {
   BOOST_ASSERT(m_impl != nullptr);
 }
@@ -53,6 +52,8 @@ Pib::setTpmLocator(const std::string& tpmLocator)
   if (tpmLocator == m_impl->getTpmLocator()) {
     return;
   }
+
+  NDN_LOG_DEBUG("Resetting TPM locator to " << tpmLocator);
   reset();
   m_impl->setTpmLocator(tpmLocator);
 }
@@ -60,7 +61,7 @@ Pib::setTpmLocator(const std::string& tpmLocator)
 std::string
 Pib::getTpmLocator() const
 {
-  std::string tpmLocator = m_impl->getTpmLocator();
+  auto tpmLocator = m_impl->getTpmLocator();
   if (tpmLocator.empty()) {
     NDN_THROW(Pib::Error("TPM info does not exist"));
   }
@@ -70,37 +71,35 @@ Pib::getTpmLocator() const
 void
 Pib::reset()
 {
-  m_impl->clearIdentities();
   m_impl->setTpmLocator("");
-  m_isDefaultIdentityLoaded = false;
+  m_impl->clearIdentities();
+  m_defaultIdentity = {};
   m_identities.reset();
 }
 
 Identity
-Pib::addIdentity(const Name& identity)
+Pib::addIdentity(const Name& identityName)
 {
   BOOST_ASSERT(m_identities.isConsistent());
-
-  return m_identities.add(identity);
+  return m_identities.add(identityName);
 }
 
 void
-Pib::removeIdentity(const Name& identity)
+Pib::removeIdentity(const Name& identityName)
 {
   BOOST_ASSERT(m_identities.isConsistent());
 
-  if (m_isDefaultIdentityLoaded && m_defaultIdentity.getName() == identity) {
-    m_isDefaultIdentityLoaded = false;
+  if (m_defaultIdentity && m_defaultIdentity.getName() == identityName) {
+    NDN_LOG_DEBUG("Removing default identity " << identityName);
+    m_defaultIdentity = {};
   }
-
-  m_identities.remove(identity);
+  m_identities.remove(identityName);
 }
 
 Identity
 Pib::getIdentity(const Name& identity) const
 {
   BOOST_ASSERT(m_identities.isConsistent());
-
   return m_identities.get(identity);
 }
 
@@ -108,36 +107,34 @@ const IdentityContainer&
 Pib::getIdentities() const
 {
   BOOST_ASSERT(m_identities.isConsistent());
-
   return m_identities;
 }
 
-const Identity&
+Identity
 Pib::setDefaultIdentity(const Name& identityName)
 {
   BOOST_ASSERT(m_identities.isConsistent());
 
   m_defaultIdentity = m_identities.add(identityName);
-  m_isDefaultIdentityLoaded = true;
-  NDN_LOG_DEBUG("Default identity is set to " << identityName);
-
   m_impl->setDefaultIdentity(identityName);
+  NDN_LOG_DEBUG("Default identity set to " << identityName);
+
+  BOOST_ASSERT(m_defaultIdentity);
   return m_defaultIdentity;
 }
 
-const Identity&
+Identity
 Pib::getDefaultIdentity() const
 {
   BOOST_ASSERT(m_identities.isConsistent());
 
-  if (!m_isDefaultIdentityLoaded) {
+  if (!m_defaultIdentity) {
     m_defaultIdentity = m_identities.get(m_impl->getDefaultIdentity());
-    m_isDefaultIdentityLoaded = true;
-    NDN_LOG_DEBUG("Default identity is " << m_defaultIdentity.getName());
+    NDN_LOG_DEBUG("Caching default identity " << m_defaultIdentity.getName());
   }
 
-  BOOST_ASSERT(m_impl->getDefaultIdentity() == m_defaultIdentity.getName());
-
+  BOOST_ASSERT(m_defaultIdentity);
+  BOOST_ASSERT(m_defaultIdentity.getName() == m_impl->getDefaultIdentity());
   return m_defaultIdentity;
 }
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,17 +29,17 @@ namespace security {
 namespace pib {
 
 /**
- * @brief An in-memory implementation of Pib
+ * @brief An in-memory PIB implementation.
  *
- * All the contents in Pib are stored in memory
- * and have the same lifetime as the implementation instance.
+ * All the contents of an instance of this PIB are stored in memory only
+ * and have the same lifetime as the class instance itself.
  */
 class PibMemory : public PibImpl
 {
 public:
   /**
-   * @brief Create memory based PIB backend
-   * @param location Not used (required by the PIB-registration interface)
+   * @brief Create memory-based PIB backend.
+   * @param location Ignored (required by the PIB registration interface)
    */
   explicit
   PibMemory(const std::string& location = "");
@@ -48,11 +48,14 @@ public:
   getScheme();
 
 public: // TpmLocator management
+  std::string
+  getTpmLocator() const override
+  {
+    return m_tpmLocator;
+  }
+
   void
   setTpmLocator(const std::string& tpmLocator) override;
-
-  std::string
-  getTpmLocator() const override;
 
 public: // Identity management
   bool
@@ -123,21 +126,19 @@ public: // Certificate management
 private:
   std::string m_tpmLocator;
 
-  bool m_hasDefaultIdentity;
-  Name m_defaultIdentity;
-
   std::set<Name> m_identities;
+  optional<Name> m_defaultIdentity;
 
-  /// @brief identity => default key Name
+  /// identity name => default key name
   std::map<Name, Name> m_defaultKeys;
 
-  /// @brief keyName => keyBits
+  /// key name => key bits
   std::map<Name, Buffer> m_keys;
 
-  /// @brief keyName => default certificate Name
+  /// key name => default certificate name
   std::map<Name, Name> m_defaultCerts;
 
-  /// @brief certificate Name => certificate
+  /// certificate name => certificate object
   std::map<Name, Certificate> m_certs;
 };
 
