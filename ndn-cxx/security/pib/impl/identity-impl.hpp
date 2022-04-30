@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,101 +33,80 @@ class PibImpl;
 namespace detail {
 
 /**
- * @brief Backend instance of Identity
+ * @brief Backend instance of Identity.
  *
  * An Identity has only one backend instance, but may have multiple frontend handles.
  * Each frontend handle is associated with the only one backend IdentityImpl.
  *
- * @throw PibImpl::Error when underlying implementation has non-semantic error.
+ * @throw PibImpl::Error When the underlying implementation has a non-semantic error.
+ * @sa Identity
  */
 class IdentityImpl : noncopyable
 {
 public:
   /**
-   * @brief Create an Identity with @p identityName.
+   * @brief Create an identity with name @p identityName.
    *
-   * @param identityName The name of the Identity.
+   * @param identityName The name of the identity.
    * @param pibImpl The PIB backend implementation.
    * @param needInit If true, create the identity in backend when the identity does not exist.
    *                 Otherwise, throw Pib::Error when the identity does not exist.
    */
   IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl, bool needInit = false);
 
-  /**
-   * @brief Get the name of the identity.
-   */
+  // See security::pib::Identity for the documentation of the following methods
+
   const Name&
   getName() const
   {
     return m_name;
   }
 
-  /**
-   * @brief Add @p key with name @p keyName (in PKCS #8 format).
-   *
-   * If no default key is set before, the new key will be set as the default key of the identity.
-   * If a key with the same name already exists, it will be overwritten.
-   *
-   * @return the added key.
-   * @throw std::invalid_argument key name does not match identity
-   */
   Key
   addKey(span<const uint8_t> key, const Name& keyName);
 
-  /**
-   * @brief Remove a key with @p keyName
-   * @throw std::invalid_argument @p keyName does not match identity
-   */
   void
   removeKey(const Name& keyName);
 
-  /**
-   * @brief Get a key with id @p keyName.
-   *
-   * @throw std::invalid_argument @p keyName does not match identity
-   * @throw Pib::Error the key does not exist.
-   */
   Key
-  getKey(const Name& keyName) const;
+  getKey(const Name& keyName) const
+  {
+    BOOST_ASSERT(m_keys.isConsistent());
+    return m_keys.get(keyName);
+  }
 
-  /**
-   * @brief Get all keys for this Identity.
-   */
   const KeyContainer&
-  getKeys() const;
+  getKeys() const
+  {
+    BOOST_ASSERT(m_keys.isConsistent());
+    return m_keys;
+  }
 
-  /**
-   * @brief Set the key with id @p keyName.
-   * @throw std::invalid_argument @p keyName does not match identity
-   * @throw Pib::Error the key does not exist.
-   * @return The default key
-   */
-  const Key&
-  setDefaultKey(const Name& keyName);
+  Key
+  setDefaultKey(const Name& keyName)
+  {
+    return setDefaultKey(m_keys.get(keyName));
+  }
 
-  /**
-   * @brief Add @p key with name @p keyName and set it as the default key.
-   * @throw std::invalid_argument @p keyName does not match identity
-   * @throw Pib::Error the key with the same name already exists
-   * @return the default key
-   */
-  const Key&
-  setDefaultKey(span<const uint8_t> key, const Name& keyName);
+  Key
+  setDefaultKey(span<const uint8_t> key, const Name& keyName)
+  {
+    return setDefaultKey(m_keys.add(key, keyName));
+  }
 
-  /**
-   * @brief Get the default key for this Identity.
-   * @throw Pib::Error the default key does not exist.
-   */
-  const Key&
+  Key
   getDefaultKey() const;
 
 private:
-  Name m_name;
+  Key
+  setDefaultKey(Key key);
 
-  shared_ptr<PibImpl> m_pib;
+private:
+  const Name m_name;
+
+  const shared_ptr<PibImpl> m_pib;
 
   KeyContainer m_keys;
-  mutable bool m_isDefaultKeyLoaded;
   mutable Key m_defaultKey;
 };
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,19 +36,17 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestIdentityImpl, ndn::security::tests::PibDataFixture)
 
-using security::Pib;
+using pib::Pib;
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
-  IdentityImpl identity1(id1, pibImpl, true);
-
+  IdentityImpl identity1(id1, std::make_shared<pib::PibMemory>(), true);
   BOOST_CHECK_EQUAL(identity1.getName(), id1);
 }
 
-BOOST_AUTO_TEST_CASE(KeyOperation)
+BOOST_AUTO_TEST_CASE(KeyOperations)
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
+  auto pibImpl = std::make_shared<pib::PibMemory>();
   IdentityImpl identity1(id1, pibImpl, true);
   BOOST_CHECK_NO_THROW(IdentityImpl(id1, pibImpl, false));
 
@@ -60,18 +58,18 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
   // get default key, throw Pib::Error
   BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
   // set non-existing key as default key, throw Pib::Error
-  BOOST_REQUIRE_THROW(identity1.setDefaultKey(id1Key1Name), Pib::Error);
+  BOOST_CHECK_THROW(identity1.setDefaultKey(id1Key1Name), Pib::Error);
 
   // add key
   identity1.addKey(id1Key1, id1Key1Name);
-  BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
+  const auto& addedKey = identity1.getKey(id1Key1Name);
+  BOOST_CHECK_EQUAL(addedKey.getName(), id1Key1Name);
+  BOOST_TEST(addedKey.getPublicKey() == id1Key1, boost::test_tools::per_element());
 
   // new key becomes default key when there is no default key
-  BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
-  const Key& defaultKey0 = identity1.getDefaultKey();
+  const auto& defaultKey0 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey0.getName(), id1Key1Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey0.getPublicKey().begin(), defaultKey0.getPublicKey().end(),
-                                id1Key1.begin(), id1Key1.end());
+  BOOST_TEST(defaultKey0.getPublicKey() == id1Key1, boost::test_tools::per_element());
 
   // remove key
   identity1.removeKey(id1Key1Name);
@@ -80,14 +78,9 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
 
   // set default key directly
   BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name));
-  BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
-  BOOST_CHECK_NO_THROW(identity1.getKey(id1Key1Name));
-
-  // check default key
-  const Key& defaultKey1 = identity1.getDefaultKey();
+  const auto& defaultKey1 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey1.getName(), id1Key1Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey1.getPublicKey().begin(), defaultKey1.getPublicKey().end(),
-                                id1Key1.begin(), id1Key1.end());
+  BOOST_TEST(defaultKey1.getPublicKey() == id1Key1, boost::test_tools::per_element());
 
   // add another key
   identity1.addKey(id1Key2, id1Key2Name);
@@ -95,11 +88,9 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
 
   // set default key through name
   BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key2Name));
-  BOOST_REQUIRE_NO_THROW(identity1.getDefaultKey());
-  const Key& defaultKey2 = identity1.getDefaultKey();
+  const auto& defaultKey2 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey2.getName(), id1Key2Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey2.getPublicKey().begin(), defaultKey2.getPublicKey().end(),
-                                id1Key2.begin(), id1Key2.end());
+  BOOST_TEST(defaultKey2.getPublicKey() == id1Key2, boost::test_tools::per_element());
 
   // remove key
   identity1.removeKey(id1Key1Name);
@@ -108,10 +99,9 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
 
   // set default key directly again, change the default setting
   BOOST_REQUIRE_NO_THROW(identity1.setDefaultKey(id1Key1, id1Key1Name));
-  const Key& defaultKey3 = identity1.getDefaultKey();
+  const auto& defaultKey3 = identity1.getDefaultKey();
   BOOST_CHECK_EQUAL(defaultKey3.getName(), id1Key1Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(defaultKey3.getPublicKey().begin(), defaultKey3.getPublicKey().end(),
-                                id1Key1.begin(), id1Key1.end());
+  BOOST_TEST(defaultKey3.getPublicKey() == id1Key1, boost::test_tools::per_element());
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 2);
 
   // remove all keys
@@ -126,23 +116,20 @@ BOOST_AUTO_TEST_CASE(KeyOperation)
 
 BOOST_AUTO_TEST_CASE(Overwrite)
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
-  IdentityImpl identity1(id1, pibImpl, true);
+  IdentityImpl identity1(id1, std::make_shared<pib::PibMemory>(), true);
 
   identity1.addKey(id1Key1, id1Key1Name);
   auto k1 = identity1.getKey(id1Key1Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(k1.getPublicKey().begin(), k1.getPublicKey().end(),
-                                id1Key1.begin(), id1Key1.end());
+  BOOST_TEST(k1.getPublicKey() == id1Key1, boost::test_tools::per_element());
 
   identity1.addKey(id1Key2, id1Key1Name); // overwriting key should work
   auto k2 = identity1.getKey(id1Key1Name);
-  BOOST_CHECK_EQUAL_COLLECTIONS(k2.getPublicKey().begin(), k2.getPublicKey().end(),
-                                id1Key2.begin(), id1Key2.end());
+  BOOST_TEST(k2.getPublicKey() == id1Key2, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(Errors)
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
+  auto pibImpl = std::make_shared<pib::PibMemory>();
 
   BOOST_CHECK_THROW(IdentityImpl(id1, pibImpl, false), Pib::Error);
   IdentityImpl identity1(id1, pibImpl, true);

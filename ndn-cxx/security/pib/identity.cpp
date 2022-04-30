@@ -26,9 +26,9 @@ namespace ndn {
 namespace security {
 namespace pib {
 
-Identity::Identity() = default;
+Identity::Identity() noexcept = default;
 
-Identity::Identity(weak_ptr<detail::IdentityImpl> impl)
+Identity::Identity(weak_ptr<detail::IdentityImpl> impl) noexcept
   : m_impl(std::move(impl))
 {
 }
@@ -63,25 +63,25 @@ Identity::getKeys() const
   return lock()->getKeys();
 }
 
-const Key&
+Key
 Identity::setDefaultKey(const Name& keyName) const
 {
   return lock()->setDefaultKey(keyName);
 }
 
-const Key&
+Key
 Identity::setDefaultKey(span<const uint8_t> key, const Name& keyName) const
 {
   return lock()->setDefaultKey(key, keyName);
 }
 
-const Key&
+Key
 Identity::getDefaultKey() const
 {
   return lock()->getDefaultKey();
 }
 
-Identity::operator bool() const
+Identity::operator bool() const noexcept
 {
   return !m_impl.expired();
 }
@@ -90,29 +90,17 @@ shared_ptr<detail::IdentityImpl>
 Identity::lock() const
 {
   auto impl = m_impl.lock();
-
-  if (impl == nullptr)
-    NDN_THROW(std::domain_error("Invalid Identity instance"));
-
+  if (impl == nullptr) {
+    NDN_THROW(std::domain_error("Invalid PIB identity instance"));
+  }
   return impl;
 }
 
 bool
-operator!=(const Identity& lhs, const Identity& rhs)
+Identity::equals(const Identity& other) const noexcept
 {
-  return lhs.m_impl.owner_before(rhs.m_impl) || rhs.m_impl.owner_before(lhs.m_impl);
-}
-
-std::ostream&
-operator<<(std::ostream& os, const Identity& id)
-{
-  if (id) {
-    os << id.getName();
-  }
-  else {
-    os << "(empty)";
-  }
-  return os;
+  return !this->m_impl.owner_before(other.m_impl) &&
+         !other.m_impl.owner_before(this->m_impl);
 }
 
 } // namespace pib

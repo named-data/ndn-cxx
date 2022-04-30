@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,6 +32,7 @@ namespace ndn {
 namespace security {
 namespace pib {
 
+class Pib;
 class PibImpl;
 
 namespace detail {
@@ -39,13 +40,18 @@ class IdentityImpl;
 } // namespace detail
 
 /**
- * @brief Container of identities of a Pib
+ * @brief Container of identities of a PIB.
  *
- * The container is used to search/enumerate identities of a Pib.
- * The container can be created only by Pib.
+ * The container is used to search/enumerate the identities in a PIB.
+ * It can be created only by the Pib class.
+ *
+ * @sa Pib::getIdentities()
  */
 class IdentityContainer : noncopyable
 {
+private:
+  using NameSet = std::set<Name>;
+
 public:
   class const_iterator
   {
@@ -56,118 +62,135 @@ public:
     using pointer           = value_type*;
     using reference         = value_type&;
 
-    const_iterator();
+    const_iterator() = default;
 
     Identity
     operator*();
 
     const_iterator&
-    operator++();
+    operator++()
+    {
+      ++m_it;
+      return *this;
+    }
 
     const_iterator
-    operator++(int);
+    operator++(int)
+    {
+      const_iterator it(*this);
+      ++m_it;
+      return it;
+    }
 
     bool
-    operator==(const const_iterator& other);
+    operator==(const const_iterator& other) const;
 
     bool
-    operator!=(const const_iterator& other);
+    operator!=(const const_iterator& other) const
+    {
+      return !this->operator==(other);
+    }
 
   private:
-    const_iterator(std::set<Name>::const_iterator it, const IdentityContainer& container);
+    const_iterator(NameSet::const_iterator it, const IdentityContainer& container) noexcept;
 
   private:
-    std::set<Name>::const_iterator m_it;
-    const IdentityContainer* m_container;
+    NameSet::const_iterator m_it;
+    const IdentityContainer* m_container = nullptr;
 
-    friend class IdentityContainer;
+    friend IdentityContainer;
   };
 
-  typedef const_iterator iterator;
+  using iterator = const_iterator;
 
 public:
   const_iterator
-  begin() const;
+  begin() const noexcept
+  {
+    return {m_identityNames.begin(), *this};
+  }
 
   const_iterator
-  end() const;
+  end() const noexcept
+  {
+    return {};
+  }
 
   const_iterator
-  find(const Name& keyId) const;
-
-  size_t
-  size() const;
+  find(const Name& identity) const;
 
   /**
-   * @brief Add @p identity into the container
+   * @brief Check whether the container is empty.
+   */
+  NDN_CXX_NODISCARD bool
+  empty() const noexcept
+  {
+    return m_identityNames.empty();
+  }
+
+  /**
+   * @brief Return the number of identities in the container.
+   */
+  size_t
+  size() const noexcept
+  {
+    return m_identityNames.size();
+  }
+
+  /**
+   * @brief Add @p identity into the container.
    */
   Identity
-  add(const Name& identityName);
+  add(const Name& identity);
 
   /**
-   * @brief Remove @p identity from the container
+   * @brief Remove @p identity from the container.
    */
   void
   remove(const Name& identity);
 
   /**
-   * @brief Get @p identity from the container
-   * @throw Pib::Error @p identity does not exist
+   * @brief Return an identity by name.
+   * @throw Pib::Error The identity does not exist.
    */
   Identity
   get(const Name& identity) const;
 
   /**
-   * @brief Reset state of the container
+   * @brief Reset the state of the container.
    *
-   * This method removes all loaded identities and retrieves identity names from the PIB
-   * implementation.
+   * This clears all cached information and reloads the identity names from the PIB backend.
    */
   void
   reset();
 
   /**
-   * @brief Check if the container is consistent with the backend storage
-   *
-   * @note this method is heavyweight and should be used in debugging mode only.
+   * @brief Check if the container is consistent with the backend storage.
+   * @note This method is heavyweight and should be used in debugging mode only.
    */
   bool
   isConsistent() const;
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // private interface for Pib
   /**
-   * @brief Create identity container
-   * @param impl The PIB backend implementation.
+   * @brief Create identity container.
+   * @param pibImpl The PIB backend implementation.
    */
   explicit
   IdentityContainer(shared_ptr<PibImpl> pibImpl);
 
-  const std::set<Name>&
-  getIdentityNames() const
-  {
-    return m_identityNames;
-  }
-
-  const std::unordered_map<Name, shared_ptr<detail::IdentityImpl>>&
-  getLoadedIdentities() const
-  {
-    return m_identities;
-  }
-
-private:
-  std::set<Name> m_identityNames;
-  /// @brief Cache of loaded detail::IdentityImpl.
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  // cache of loaded IdentityImpl
   mutable std::unordered_map<Name, shared_ptr<detail::IdentityImpl>> m_identities;
 
-  shared_ptr<PibImpl> m_pibImpl;
+private:
+  NameSet m_identityNames;
+  const shared_ptr<PibImpl> m_pib;
 
-  friend class Pib;
+  friend Pib;
 };
 
 } // namespace pib
-
-using pib::IdentityContainer;
-
 } // namespace security
 } // namespace ndn
 

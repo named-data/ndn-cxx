@@ -41,34 +41,41 @@ BOOST_FIXTURE_TEST_SUITE(TestIdentity, PibDataFixture)
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
   Identity id;
-  BOOST_CHECK(!id);
-  BOOST_CHECK_EQUAL(static_cast<bool>(id), false);
+  BOOST_TEST(!id);
+  BOOST_TEST(id == Identity());
 
-  auto identityImpl = make_shared<detail::IdentityImpl>(id1, make_shared<PibMemory>(), true);
-  id = Identity(identityImpl);
-  BOOST_CHECK(id);
-  BOOST_CHECK_EQUAL(!id, false);
+  auto impl = std::make_shared<detail::IdentityImpl>(id1, std::make_shared<PibMemory>(), true);
+  id = Identity(impl);
+  BOOST_TEST(id);
+  BOOST_TEST(id != Identity());
+
+  impl.reset();
+  BOOST_TEST(!id);
 }
 
-// pib::Identity is a wrapper of pib::detail::IdentityImpl.  Since the functionalities of
-// IdentityImpl have already been tested in detail/identity-impl.t.cpp, we only test the shared
+// pib::Identity is a wrapper of pib::detail::IdentityImpl. Since the functionality
+// of IdentityImpl is already tested in identity-impl.t.cpp, we only test the shared
 // property of pib::Identity in this test case.
 BOOST_AUTO_TEST_CASE(SharedImpl)
 {
-  auto identityImpl = make_shared<detail::IdentityImpl>(id1, make_shared<pib::PibMemory>(), true);
-  Identity identity1(identityImpl);
-  Identity identity2(identityImpl);
-  BOOST_CHECK_EQUAL(identity1, identity2);
-  BOOST_CHECK_NE(identity1, Identity());
-  BOOST_CHECK_EQUAL(Identity(), Identity());
+  auto impl = std::make_shared<detail::IdentityImpl>(id1, std::make_shared<pib::PibMemory>(), true);
+  Identity identity1(impl);
+  Identity identity2(impl);
 
+  BOOST_TEST(identity1 == identity2);
+  BOOST_TEST(identity1 != Identity());
+  BOOST_TEST(Identity() != identity2);
+  BOOST_TEST(Identity() == Identity());
+
+  BOOST_CHECK_THROW(identity2.getKey(id1Key1Name), pib::Pib::Error);
   identity1.addKey(id1Key1, id1Key1Name);
-  BOOST_CHECK_NO_THROW(identity2.getKey(id1Key1Name));
+  BOOST_TEST(identity2.getKey(id1Key1Name));
+
   identity2.removeKey(id1Key1Name);
   BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), pib::Pib::Error);
 
   identity1.setDefaultKey(id1Key1, id1Key1Name);
-  BOOST_CHECK_NO_THROW(identity2.getDefaultKey());
+  BOOST_TEST(identity2.getDefaultKey().getName() == id1Key1Name);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIdentity

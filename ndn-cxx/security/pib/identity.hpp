@@ -33,116 +33,117 @@ class KeyChain;
 
 namespace pib {
 
+class IdentityContainer;
+
 namespace detail {
 class IdentityImpl;
 } // namespace detail
 
 /**
- * @brief A frontend handle of an Identity
+ * @brief Frontend handle for an identity in the PIB.
  *
  * Identity is at the top level in PIB's Identity-Key-Certificate hierarchy.  An identity has a
- * Name, and contains zero or more keys, at most one of which is set as the default key of this
- * identity.  Properties of a key can be accessed after obtaining a Key object.
+ * name, and contains zero or more keys, at most one of which is set as the default key of that
+ * identity.  The properties of a key can be accessed after obtaining a Key object.
  */
 class Identity
 {
 public:
   /**
-   * @brief Default Constructor
+   * @brief Default constructor.
    *
-   * Identity created using this default constructor is just a place holder.
-   * It can obtain an actual instance from Pib::getIdentity(...).  A typical
+   * An Identity created using this default constructor is just a placeholder.
+   * You can obtain an actual instance from Pib::getIdentity(). A typical
    * usage would be for exception handling:
    *
-   *   Identity id;
-   *   try {
-   *     id = pib.getIdentity(...);
-   *   }
-   *   catch (const Pib::Error&) {
-   *     ...
-   *   }
+   * @code
+   * Identity id;
+   * try {
+   *   id = pib.getIdentity(...);
+   * }
+   * catch (const Pib::Error&) {
+   *   ...
+   * }
+   * @endcode
    *
-   * An Identity instance created using this constructor is invalid. Calling a
-   * member method on an invalid Identity instance may cause an std::domain_error.
+   * An instance created using this constructor is invalid. Calling a member
+   * function on an invalid Identity instance may throw an std::domain_error.
    */
-  Identity();
+  Identity() noexcept;
 
   /**
-   * @brief Create an Identity with a backend implementation @p impl.
-   *
-   * This method should only be used by IdentityContainer.
-   */
-  explicit
-  Identity(weak_ptr<detail::IdentityImpl> impl);
-
-  /**
-   * @brief Get the name of the identity.
+   * @brief Return the name of the identity.
    */
   const Name&
   getName() const;
 
   /**
-   * @brief Get a key with id @p keyName.
-   * @throw std::invalid_argument @p keyName does not match identity
+   * @brief Obtain a handle to the key with the given name.
+   * @throw std::invalid_argument @p keyName does not match the identity.
    * @throw Pib::Error the key does not exist.
    */
   Key
   getKey(const Name& keyName) const;
 
   /**
-   * @brief Get all keys for this identity.
+   * @brief Return all the keys of this identity.
    */
   const KeyContainer&
   getKeys() const;
 
   /**
-   * @brief Get the default key for this Identity.
+   * @brief Return the default key for this identity.
    * @throw Pib::Error the default key does not exist.
    */
-  const Key&
+  Key
   getDefaultKey() const;
 
   /**
-   * @return True if the identity instance is valid
+   * @brief Returns true if the instance is valid.
    */
   explicit
-  operator bool() const;
+  operator bool() const noexcept;
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only by KeyChain
   /**
-   * @brief Add @p key (in PKCS#8 format) with name @p keyName.
-   * @return Handle of the added key.
-   * @throw std::invalid_argument key name does not match identity
+   * @brief Add @p key (in PKCS #8 format) with name @p keyName.
    *
-   * If a key with the same name already exists, overwrite the key.
+   * If no default key is set before, the new key will be set as the default key of the identity.
+   * If a key with the same name already exists, it will be overwritten.
+   *
+   * @return Handle to the added key.
+   * @throw std::invalid_argument @p keyName does not match the identity.
    */
   Key
   addKey(span<const uint8_t> key, const Name& keyName) const;
 
   /**
-   * @brief Remove a key with @p keyName
-   * @throw std::invalid_argument @p keyName does not match identity
+   * @brief Remove key with given name.
+   * @throw std::invalid_argument @p keyName does not match the identity.
    */
   void
   removeKey(const Name& keyName) const;
 
   /**
    * @brief Set an existing key with name @p keyName as the default key.
-   * @return The default key.
-   * @throw std::invalid_argument @p keyName does not match identity.
+   * @return Handle to the default key.
+   * @throw std::invalid_argument @p keyName does not match the identity.
    * @throw Pib::Error the key does not exist.
    */
-  const Key&
+  Key
   setDefaultKey(const Name& keyName) const;
 
   /**
-   * @brief Add @p key with name @p keyName and set it as the default key.
-   * @return The default key.
-   * @throw std::invalid_argument @p keyName does not match identity.
-   * @throw Pib::Error the key with the same name already exists.
+   * @brief Add/replace @p key with name @p keyName and set it as the default key.
+   * @return Handle to the default key.
+   * @throw std::invalid_argument @p keyName does not match the identity.
    */
-  const Key&
+  Key
   setDefaultKey(span<const uint8_t> key, const Name& keyName) const;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // private interface for IdentityContainer
+  explicit
+  Identity(weak_ptr<detail::IdentityImpl> impl) noexcept;
 
 private:
   /**
@@ -153,24 +154,37 @@ private:
   shared_ptr<detail::IdentityImpl>
   lock() const;
 
+  bool
+  equals(const Identity& other) const noexcept;
+
+  // NOTE
+  // The following "hidden friend" non-member operators are available
+  // via argument-dependent lookup only and must be defined inline.
+
+  friend bool
+  operator==(const Identity& lhs, const Identity& rhs)
+  {
+    return lhs.equals(rhs);
+  }
+
+  friend bool
+  operator!=(const Identity& lhs, const Identity& rhs)
+  {
+    return !lhs.equals(rhs);
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const Identity& id)
+  {
+    return os << (id ? id.getName() : "(empty)");
+  }
+
 private:
   weak_ptr<detail::IdentityImpl> m_impl;
 
   friend KeyChain;
-  friend bool operator!=(const Identity&, const Identity&);
+  friend IdentityContainer;
 };
-
-bool
-operator!=(const Identity& lhs, const Identity& rhs);
-
-inline bool
-operator==(const Identity& lhs, const Identity& rhs)
-{
-  return !(lhs != rhs);
-}
-
-std::ostream&
-operator<<(std::ostream& os, const Identity& id);
 
 } // namespace pib
 
