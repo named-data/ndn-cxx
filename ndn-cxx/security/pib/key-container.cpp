@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,20 +23,18 @@
 #include "ndn-cxx/security/pib/impl/key-impl.hpp"
 #include "ndn-cxx/security/pib/pib-impl.hpp"
 #include "ndn-cxx/util/concepts.hpp"
+#include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
 namespace security {
 namespace pib {
 
+NDN_LOG_INIT(ndn.security.KeyContainer);
+
 NDN_CXX_ASSERT_FORWARD_ITERATOR(KeyContainer::const_iterator);
 
-KeyContainer::const_iterator::const_iterator()
-  : m_container(nullptr)
-{
-}
-
-KeyContainer::const_iterator::const_iterator(std::set<Name>::const_iterator it,
-                                             const KeyContainer& container)
+KeyContainer::const_iterator::const_iterator(NameSet::const_iterator it,
+                                             const KeyContainer& container) noexcept
   : m_it(it)
   , m_container(&container)
 {
@@ -49,35 +47,14 @@ KeyContainer::const_iterator::operator*()
   return m_container->get(*m_it);
 }
 
-KeyContainer::const_iterator&
-KeyContainer::const_iterator::operator++()
-{
-  ++m_it;
-  return *this;
-}
-
-KeyContainer::const_iterator
-KeyContainer::const_iterator::operator++(int)
-{
-  const_iterator it(*this);
-  ++m_it;
-  return it;
-}
-
 bool
-KeyContainer::const_iterator::operator==(const const_iterator& other)
+KeyContainer::const_iterator::operator==(const const_iterator& other) const
 {
   bool isThisEnd = m_container == nullptr || m_it == m_container->m_keyNames.end();
   bool isOtherEnd = other.m_container == nullptr || other.m_it == other.m_container->m_keyNames.end();
-  return ((isThisEnd || isOtherEnd) ?
-          (isThisEnd == isOtherEnd) :
-          m_container->m_pib == other.m_container->m_pib && m_it == other.m_it);
-}
-
-bool
-KeyContainer::const_iterator::operator!=(const const_iterator& other)
-{
-  return !(*this == other);
+  if (isThisEnd)
+    return isOtherEnd;
+  return !isOtherEnd && m_container->m_pib == other.m_container->m_pib && m_it == other.m_it;
 }
 
 KeyContainer::KeyContainer(const Name& identity, shared_ptr<PibImpl> pibImpl)
@@ -89,40 +66,25 @@ KeyContainer::KeyContainer(const Name& identity, shared_ptr<PibImpl> pibImpl)
 }
 
 KeyContainer::const_iterator
-KeyContainer::begin() const
-{
-  return {m_keyNames.begin(), *this};
-}
-
-KeyContainer::const_iterator
-KeyContainer::end() const
-{
-  return {};
-}
-
-KeyContainer::const_iterator
 KeyContainer::find(const Name& keyName) const
 {
   return {m_keyNames.find(keyName), *this};
 }
 
-size_t
-KeyContainer::size() const
-{
-  return m_keyNames.size();
-}
-
 Key
-KeyContainer::add(span<const uint8_t> key, const Name& keyName)
+KeyContainer::add(span<const uint8_t> keyBits, const Name& keyName)
 {
   if (m_identity != extractIdentityFromKeyName(keyName)) {
     NDN_THROW(std::invalid_argument("Key name `" + keyName.toUri() + "` does not match identity "
                                     "`" + m_identity.toUri() + "`"));
   }
 
-  m_keyNames.insert(keyName);
-  m_keys[keyName] = make_shared<detail::KeyImpl>(keyName, key, m_pib);
-  return get(keyName);
+  bool isNew = m_keyNames.insert(keyName).second;
+  NDN_LOG_DEBUG((isNew ? "Adding " : "Replacing ") << keyName);
+
+  auto key = std::make_shared<detail::KeyImpl>(keyName, keyBits, m_pib);
+  m_keys[keyName] = key; // use insert_or_assign in C++17
+  return Key(key);
 }
 
 void
@@ -133,8 +95,14 @@ KeyContainer::remove(const Name& keyName)
                                     "`" + m_identity.toUri() + "`"));
   }
 
-  m_keyNames.erase(keyName);
-  m_keys.erase(keyName);
+  if (m_keyNames.erase(keyName) > 0) {
+    NDN_LOG_DEBUG("Removing " << keyName);
+    m_keys.erase(keyName);
+  }
+  else {
+    // consistency check
+    BOOST_ASSERT(m_keys.find(keyName) == m_keys.end());
+  }
   m_pib->removeKey(keyName);
 }
 
@@ -146,17 +114,13 @@ KeyContainer::get(const Name& keyName) const
                                     "`" + m_identity.toUri() + "`"));
   }
 
-  shared_ptr<detail::KeyImpl> key;
   auto it = m_keys.find(keyName);
-
   if (it != m_keys.end()) {
-    key = it->second;
-  }
-  else {
-    key = make_shared<detail::KeyImpl>(keyName, m_pib);
-    m_keys[keyName] = key;
+    return Key(it->second);
   }
 
+  auto key = std::make_shared<detail::KeyImpl>(keyName, m_pib);
+  m_keys[keyName] = key;
   return Key(key);
 }
 

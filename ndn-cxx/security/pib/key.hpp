@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,134 +34,135 @@ class KeyChain;
 
 namespace pib {
 
+class KeyContainer;
+
 namespace detail {
 class KeyImpl;
 } // namespace detail
 
 /**
- * @brief A frontend handle of a key instance
+ * @brief Frontend handle for a key in the PIB.
  *
- * Key is at the second level in PIB's Identity-Key-Certificate hierarchy.  A Key has a Name
- * (identity + "KEY" + keyId), and contains one or more certificates, one of which is set as
- * the default certificate of this key.  A certificate can be directly accessed from a Key
- * object.
+ * Key is at the second level in PIB's Identity-Key-Certificate hierarchy. A key has the name
+ * `/<Identity>/KEY/<KeyId>`, and contains one or more certificates, one of which is set as
+ * default certificate of that key. Certificates can be directly accessed from a Key object.
  */
 class Key
 {
 public:
   /**
-   * @brief Default Constructor
+   * @brief Default constructor.
    *
-   * Key created using this default constructor is just a place holder.
-   * It can obtain an actual instance from Identity::getKey(...).  A typical
+   * A Key created using this default constructor is just a placeholder.
+   * You can obtain an actual instance from Identity::getKey(). A typical
    * usage would be for exception handling:
    *
-   *   Key key;
-   *   try {
-   *     key = identity.getKey(...);
-   *   }
-   *   catch (const Pib::Error&) {
-   *     ...
-   *   }
+   * @code
+   * Key key;
+   * try {
+   *   key = identity.getKey(...);
+   * }
+   * catch (const Pib::Error&) {
+   *   ...
+   * }
+   * @endcode
    *
-   * A Key instance created using this constructor is invalid. Calling a
-   * member method on an invalid Key instance may cause an std::domain_error.
+   * An instance created using this constructor is invalid. Calling a member
+   * function on an invalid Key instance may throw an std::domain_error.
    */
-  Key();
+  Key() noexcept;
 
   /**
-   * @brief Create a Key with a backend implementation @p impl.
-   *
-   * This method should only be used by KeyContainer.
-   */
-  explicit
-  Key(weak_ptr<detail::KeyImpl> impl);
-
-  /**
-   * @brief Get key name.
+   * @brief Return the name of the key.
    */
   const Name&
   getName() const;
 
   /**
-   * @brief Get the name of the belonging identity.
+   * @brief Return the name of the owning identity.
    */
   const Name&
   getIdentity() const;
 
   /**
-   * @brief Get key type.
+   * @brief Return the key type.
    */
   KeyType
   getKeyType() const;
 
   /**
-   * @brief Get public key bits.
+   * @brief Return the raw public key bits.
    */
   span<const uint8_t>
   getPublicKey() const;
 
   /**
-   * @brief Get a certificate with @p certName
-   * @throw std::invalid_argument @p certName does not match key name
+   * @brief Return the certificate with the given name.
+   * @throw std::invalid_argument @p certName does not match the key name.
    * @throw Pib::Error the certificate does not exist.
    */
   Certificate
   getCertificate(const Name& certName) const;
 
   /**
-   * @brief Get all certificates for this key.
+   * @brief Return all the certificates of this key.
    */
   const CertificateContainer&
   getCertificates() const;
 
   /**
-   * @brief Get the default certificate for this Key.
+   * @brief Return the default certificate for this key.
    * @throw Pib::Error the default certificate does not exist.
    */
   const Certificate&
   getDefaultCertificate() const;
 
   /**
-   * @brief Check if the Key instance is valid.
+   * @brief Returns true if the instance is valid.
    */
   explicit
-  operator bool() const;
+  operator bool() const noexcept;
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations should be private
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only by KeyChain
   /**
    * @brief Add @p certificate.
-   * @throw std::invalid_argument certificate name does not match key name
    *
-   * If a certificate with the same name (without implicit digest) already exists, overwrite
-   * the certificate.
+   * If no default certificate is set before, the new certificate will be set as the default
+   * certificate of the key.
+   * If a certificate with the same name (excluding implicit digest) already exists, it will
+   * be overwritten.
+   *
+   * @throw std::invalid_argument the certificate name does not match the key name.
    */
   void
   addCertificate(const Certificate& certificate) const;
 
   /**
-   * @brief Remove a certificate with @p certName
-   * @throw std::invalid_argument @p certName does not match key name
+   * @brief Remove a certificate with @p certName.
+   * @throw std::invalid_argument @p certName does not match the key name.
    */
   void
   removeCertificate(const Name& certName) const;
 
   /**
-   * @brief Set an existing certificate with @p certName as the default certificate
-   * @throw std::invalid_argument @p certName does not match key name
+   * @brief Set an existing certificate with name @p certName as the default certificate.
+   * @return The default certificate.
+   * @throw std::invalid_argument @p certName does not match the key name.
    * @throw Pib::Error the certificate does not exist.
-   * @return the default certificate
    */
   const Certificate&
   setDefaultCertificate(const Name& certName) const;
 
   /**
-   * @brief Add @p certificate and set it as the default certificate of the key
-   * @throw std::invalid_argument @p certificate does not match key name
-   * @return the default certificate
+   * @brief Add/replace @p certificate and set it as the default certificate.
+   * @throw std::invalid_argument the certificate name does not match the key name.
    */
-  const Certificate&
+  void
   setDefaultCertificate(const Certificate& certificate) const;
+
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // private interface for KeyContainer
+  explicit
+  Key(weak_ptr<detail::KeyImpl> impl) noexcept;
 
 private:
   /**
@@ -172,24 +173,37 @@ private:
   shared_ptr<detail::KeyImpl>
   lock() const;
 
+  bool
+  equals(const Key& other) const noexcept;
+
+  // NOTE
+  // The following "hidden friend" non-member operators are available
+  // via argument-dependent lookup only and must be defined inline.
+
+  friend bool
+  operator==(const Key& lhs, const Key& rhs)
+  {
+    return lhs.equals(rhs);
+  }
+
+  friend bool
+  operator!=(const Key& lhs, const Key& rhs)
+  {
+    return !lhs.equals(rhs);
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const Key& key)
+  {
+    return os << (key ? key.getName() : "(empty)");
+  }
+
 private:
   weak_ptr<detail::KeyImpl> m_impl;
 
   friend KeyChain;
-  friend bool operator!=(const Key&, const Key&);
+  friend KeyContainer;
 };
-
-bool
-operator!=(const Key& lhs, const Key& rhs);
-
-inline bool
-operator==(const Key& lhs, const Key& rhs)
-{
-  return !(lhs != rhs);
-}
-
-std::ostream&
-operator<<(std::ostream& os, const Key& key);
 
 } // namespace pib
 
@@ -216,7 +230,6 @@ Name
 extractIdentityFromKeyName(const Name& keyName);
 
 } // inline namespace v2
-
 } // namespace security
 } // namespace ndn
 

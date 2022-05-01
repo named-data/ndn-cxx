@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,18 +35,23 @@ namespace pib {
 class PibImpl;
 
 namespace detail {
-class KeyImpl;
 class IdentityImpl;
+class KeyImpl;
 } // namespace detail
 
 /**
- * @brief Container of keys of an identity
+ * @brief Container of keys of an identity.
  *
- * The container is used to search/enumerate keys of an identity.
- * The container can be created only by detail::IdentityImpl.
+ * The container is used to search/enumerate the keys of an identity.
+ * It can be created only by the IdentityImpl private class.
+ *
+ * @sa Identity::getKeys()
  */
 class KeyContainer : noncopyable
 {
+private:
+  using NameSet = std::set<Name>;
+
 public:
   class const_iterator
   {
@@ -57,117 +62,133 @@ public:
     using pointer           = value_type*;
     using reference         = value_type&;
 
-    const_iterator();
+    const_iterator() = default;
 
     Key
     operator*();
 
     const_iterator&
-    operator++();
+    operator++()
+    {
+      ++m_it;
+      return *this;
+    }
 
     const_iterator
-    operator++(int);
+    operator++(int)
+    {
+      const_iterator it(*this);
+      ++m_it;
+      return it;
+    }
 
     bool
-    operator==(const const_iterator& other);
+    operator==(const const_iterator& other) const;
 
     bool
-    operator!=(const const_iterator& other);
+    operator!=(const const_iterator& other) const
+    {
+      return !this->operator==(other);
+    }
 
   private:
-    const_iterator(std::set<Name>::const_iterator it, const KeyContainer& container);
+    const_iterator(NameSet::const_iterator it, const KeyContainer& container) noexcept;
 
   private:
-    std::set<Name>::const_iterator m_it;
-    const KeyContainer* m_container;
+    NameSet::const_iterator m_it;
+    const KeyContainer* m_container = nullptr;
 
-    friend class KeyContainer;
+    friend KeyContainer;
   };
 
   using iterator = const_iterator;
 
 public:
   const_iterator
-  begin() const;
+  begin() const noexcept
+  {
+    return {m_keyNames.begin(), *this};
+  }
 
   const_iterator
-  end() const;
+  end() const noexcept
+  {
+    return {};
+  }
 
   const_iterator
   find(const Name& keyName) const;
 
+  /**
+   * @brief Check whether the container is empty.
+   */
+  NDN_CXX_NODISCARD bool
+  empty() const noexcept
+  {
+    return m_keyNames.empty();
+  }
+
+  /**
+   * @brief Return the number of keys in the container.
+   */
   size_t
-  size() const;
+  size() const noexcept
+  {
+    return m_keyNames.size();
+  }
 
   /**
    * @brief Add @p key with name @p keyName into the container.
    *
    * If a key with the same name already exists, it will be overwritten.
    *
-   * @throw std::invalid_argument @p keyName does not match the identity
+   * @throw std::invalid_argument @p keyName does not match the identity.
    */
   Key
   add(span<const uint8_t> key, const Name& keyName);
 
   /**
-   * @brief Remove a key with @p keyName from the container
-   * @throw std::invalid_argument @p keyName does not match the identity
+   * @brief Remove a key with @p keyName from the container.
+   * @throw std::invalid_argument @p keyName does not match the identity.
    */
   void
   remove(const Name& keyName);
 
   /**
-   * @brief Get a key with @p keyName from the container
-   * @throw std::invalid_argument @p keyName does not match the identity
-   * @throw Pib::Error the key does not exist
+   * @brief Return a key by name.
+   * @throw Pib::Error The key does not exist.
+   * @throw std::invalid_argument @p keyName does not match the identity.
    */
   Key
   get(const Name& keyName) const;
 
   /**
-   * @brief Check if the container is consistent with the backend storage
-   *
-   * @note this method is heavyweight and should be used in debugging mode only.
+   * @brief Check if the container is consistent with the backend storage.
+   * @note This method is heavyweight and should be used in debugging mode only.
    */
   bool
   isConsistent() const;
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // private interface for IdentityImpl
   /**
-   * @brief Create key container for @p identity
+   * @brief Create key container for @p identity.
    * @param pibImpl The PIB backend implementation.
    */
   KeyContainer(const Name& identity, shared_ptr<PibImpl> pibImpl);
 
-  const std::set<Name>&
-  getKeyNames() const
-  {
-    return m_keyNames;
-  }
-
-  const std::unordered_map<Name, shared_ptr<detail::KeyImpl>>&
-  getLoadedKeys() const
-  {
-    return m_keys;
-  }
-
-private:
-  Name m_identity;
-  std::set<Name> m_keyNames;
-  /// @brief Cache of loaded detail::KeyImpl.
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  // cache of loaded KeyImpl
   mutable std::unordered_map<Name, shared_ptr<detail::KeyImpl>> m_keys;
 
-  shared_ptr<PibImpl> m_pib;
+private:
+  NameSet m_keyNames;
+  const Name m_identity;
+  const shared_ptr<PibImpl> m_pib;
 
-#ifndef DOXYGEN
   friend detail::IdentityImpl;
-#endif
 };
 
 } // namespace pib
-
-using pib::KeyContainer;
-
 } // namespace security
 } // namespace ndn
 

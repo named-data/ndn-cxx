@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,36 +41,42 @@ BOOST_FIXTURE_TEST_SUITE(TestKey, PibDataFixture)
 BOOST_AUTO_TEST_CASE(ValidityChecking)
 {
   Key key;
-  BOOST_CHECK(!key);
-  BOOST_CHECK_EQUAL(static_cast<bool>(key), false);
+  BOOST_TEST(!key);
+  BOOST_TEST(key == Key());
 
-  auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
-                                                   std::make_shared<pib::PibMemory>());
-  key = Key(keyImpl);
-  BOOST_CHECK(key);
-  BOOST_CHECK_EQUAL(!key, false);
+  auto impl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1, std::make_shared<pib::PibMemory>());
+  key = Key(impl);
+  BOOST_TEST(key);
+  BOOST_TEST(key != Key());
+
+  impl.reset();
+  BOOST_TEST(!key);
 }
 
-// pib::Key is a wrapper of pib::detail::KeyImpl.  Since the functionalities of KeyImpl
-// have already been tested in detail/key-impl.t.cpp, we only test the shared property
-// of pib::Key in this test case.
+// pib::Key is a wrapper of pib::detail::KeyImpl. Since the functionality of KeyImpl is
+// already tested in key-impl.t.cpp, we only test the shared property of pib::Key in
+// this test case.
 BOOST_AUTO_TEST_CASE(SharedImpl)
 {
   auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
                                                    std::make_shared<pib::PibMemory>());
   Key key1(keyImpl);
   Key key2(keyImpl);
-  BOOST_CHECK_EQUAL(key1, key2);
-  BOOST_CHECK_NE(key1, Key());
-  BOOST_CHECK_EQUAL(Key(), Key());
 
+  BOOST_TEST(key1 == key2);
+  BOOST_TEST(key1 != Key());
+  BOOST_TEST(Key() != key2);
+  BOOST_TEST(Key() == Key());
+
+  BOOST_CHECK_THROW(key2.getCertificate(id1Key1Cert1.getName()), pib::Pib::Error);
   key1.addCertificate(id1Key1Cert1);
-  BOOST_CHECK_NO_THROW(key2.getCertificate(id1Key1Cert1.getName()));
+  BOOST_TEST(key2.getCertificate(id1Key1Cert1.getName()) == id1Key1Cert1);
+
   key2.removeCertificate(id1Key1Cert1.getName());
   BOOST_CHECK_THROW(key1.getCertificate(id1Key1Cert1.getName()), pib::Pib::Error);
 
   key1.setDefaultCertificate(id1Key1Cert1);
-  BOOST_CHECK_NO_THROW(key2.getDefaultCertificate());
+  BOOST_TEST(key2.getDefaultCertificate() == id1Key1Cert1);
 }
 
 BOOST_AUTO_TEST_CASE(Helpers)
