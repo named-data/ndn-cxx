@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,6 @@
 
 #include "ndn-cxx/security/pib/certificate-container.hpp"
 #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
@@ -37,82 +36,78 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestCertificateContainer, PibDataFixture)
 
-using pib::Pib;
-
-BOOST_AUTO_TEST_CASE(Basic)
+BOOST_AUTO_TEST_CASE(AddGetRemove)
 {
   auto pibImpl = make_shared<PibMemory>();
 
-  // start with an empty container
-  CertificateContainer container(id1Key1Name, pibImpl);
-  BOOST_CHECK_EQUAL(container.size(), 0);
-  BOOST_CHECK_EQUAL(container.getCache().size(), 0);
+  {
+    // start with an empty container
+    CertificateContainer container(id1Key1Name, pibImpl);
+    BOOST_CHECK_EQUAL(container.size(), 0);
+    BOOST_CHECK_EQUAL(container.m_certs.size(), 0);
 
-  // add one cert
-  container.add(id1Key1Cert1);
-  BOOST_CHECK_EQUAL(container.size(), 1);
-  BOOST_CHECK_EQUAL(container.getCache().size(), 1);
-  BOOST_CHECK(container.find(id1Key1Cert1.getName()) != container.end());
+    // add one cert
+    container.add(id1Key1Cert1);
+    BOOST_CHECK_EQUAL(container.size(), 1);
+    BOOST_CHECK_EQUAL(container.m_certs.size(), 1);
+    BOOST_CHECK(container.find(id1Key1Cert1.getName()) != container.end());
 
-  // add the same cert again
-  container.add(id1Key1Cert1);
-  BOOST_CHECK_EQUAL(container.size(), 1);
-  BOOST_CHECK_EQUAL(container.getCache().size(), 1);
-  BOOST_CHECK(container.find(id1Key1Cert1.getName()) != container.end());
+    // add the same cert again
+    container.add(id1Key1Cert1);
+    BOOST_CHECK_EQUAL(container.size(), 1);
+    BOOST_CHECK_EQUAL(container.m_certs.size(), 1);
+    BOOST_CHECK(container.find(id1Key1Cert1.getName()) != container.end());
 
-  // add another cert
-  container.add(id1Key1Cert2);
-  BOOST_CHECK_EQUAL(container.size(), 2);
-  BOOST_CHECK_EQUAL(container.getCache().size(), 2);
-  BOOST_CHECK(container.find(id1Key1Cert1.getName()) != container.end());
-  BOOST_CHECK(container.find(id1Key1Cert2.getName()) != container.end());
+    // add another cert
+    container.add(id1Key1Cert2);
+    BOOST_CHECK_EQUAL(container.size(), 2);
+    BOOST_CHECK_EQUAL(container.m_certs.size(), 2);
+    BOOST_CHECK(container.find(id1Key1Cert1.getName()) != container.end());
+    BOOST_CHECK(container.find(id1Key1Cert2.getName()) != container.end());
 
-  // get certs
-  BOOST_REQUIRE_NO_THROW(container.get(id1Key1Cert1.getName()));
-  BOOST_REQUIRE_NO_THROW(container.get(id1Key1Cert2.getName()));
-  Name id1Key1Cert3Name = id1Key1Name;
-  id1Key1Cert3Name.append("issuer").appendVersion(3);
-  BOOST_CHECK_THROW(container.get(id1Key1Cert3Name), Pib::Error);
+    // check certs
+    Certificate cert1 = container.get(id1Key1Cert1.getName());
+    Certificate cert2 = container.get(id1Key1Cert2.getName());
+    BOOST_CHECK_EQUAL(cert1, id1Key1Cert1);
+    BOOST_CHECK_EQUAL(cert2, id1Key1Cert2);
+    Name id1Key1Cert3Name = Name(id1Key1Name).append("issuer").appendVersion(3);
+    BOOST_CHECK_THROW(container.get(id1Key1Cert3Name), pib::Pib::Error);
+  }
 
-  // check cert
-  Certificate cert1 = container.get(id1Key1Cert1.getName());
-  Certificate cert2 = container.get(id1Key1Cert2.getName());
-  BOOST_CHECK_EQUAL(cert1, id1Key1Cert1);
-  BOOST_CHECK_EQUAL(cert2, id1Key1Cert2);
+  {
+    // create a container from an existing (non-empty) PibImpl
+    // names are loaded immediately but the certificate cache should initially be empty
+    CertificateContainer container2(id1Key1Name, pibImpl);
+    BOOST_CHECK_EQUAL(container2.size(), 2);
+    BOOST_CHECK_EQUAL(container2.m_certs.size(), 0);
 
-  // create another container from the same PibImpl
-  // cache should be empty
-  CertificateContainer container2(id1Key1Name, pibImpl);
-  BOOST_CHECK_EQUAL(container2.size(), 2);
-  BOOST_CHECK_EQUAL(container2.getCache().size(), 0);
+    // fetching the certificates should populate the cache
+    BOOST_CHECK_EQUAL(container2.get(id1Key1Cert1.getName()), id1Key1Cert1);
+    BOOST_CHECK_EQUAL(container2.size(), 2);
+    BOOST_CHECK_EQUAL(container2.m_certs.size(), 1);
 
-  // get certificate, cache should be filled
-  BOOST_REQUIRE_NO_THROW(container2.get(id1Key1Cert1.getName()));
-  BOOST_CHECK_EQUAL(container2.size(), 2);
-  BOOST_CHECK_EQUAL(container2.getCache().size(), 1);
+    BOOST_CHECK_EQUAL(container2.get(id1Key1Cert2.getName()), id1Key1Cert2);
+    BOOST_CHECK_EQUAL(container2.size(), 2);
+    BOOST_CHECK_EQUAL(container2.m_certs.size(), 2);
 
-  BOOST_REQUIRE_NO_THROW(container2.get(id1Key1Cert2.getName()));
-  BOOST_CHECK_EQUAL(container2.size(), 2);
-  BOOST_CHECK_EQUAL(container2.getCache().size(), 2);
+    // remove a certificate
+    container2.remove(id1Key1Cert1.getName());
+    BOOST_CHECK_EQUAL(container2.size(), 1);
+    BOOST_CHECK_EQUAL(container2.m_certs.size(), 1);
+    BOOST_CHECK(container2.find(id1Key1Cert1.getName()) == container2.end());
+    BOOST_CHECK(container2.find(id1Key1Cert2.getName()) != container2.end());
 
-  // remove a certificate
-  container2.remove(id1Key1Cert1.getName());
-  BOOST_CHECK_EQUAL(container2.size(), 1);
-  BOOST_CHECK_EQUAL(container2.getCache().size(), 1);
-  BOOST_CHECK(container2.find(id1Key1Cert1.getName()) == container2.end());
-  BOOST_CHECK(container2.find(id1Key1Cert2.getName()) != container2.end());
-
-  // remove another certificate
-  container2.remove(id1Key1Cert2.getName());
-  BOOST_CHECK_EQUAL(container2.size(), 0);
-  BOOST_CHECK_EQUAL(container2.getCache().size(), 0);
-  BOOST_CHECK(container2.find(id1Key1Cert2.getName()) == container2.end());
+    // remove another certificate
+    container2.remove(id1Key1Cert2.getName());
+    BOOST_CHECK_EQUAL(container2.size(), 0);
+    BOOST_CHECK_EQUAL(container2.m_certs.size(), 0);
+    BOOST_CHECK(container2.find(id1Key1Cert2.getName()) == container2.end());
+  }
 }
 
 BOOST_AUTO_TEST_CASE(Errors)
 {
   auto pibImpl = make_shared<PibMemory>();
-
   CertificateContainer container(id1Key1Name, pibImpl);
 
   BOOST_CHECK_THROW(container.add(id1Key2Cert1), std::invalid_argument);
@@ -123,17 +118,13 @@ BOOST_AUTO_TEST_CASE(Errors)
 BOOST_AUTO_TEST_CASE(Iterator)
 {
   auto pibImpl = make_shared<PibMemory>();
-
-  // start with an empty container
   CertificateContainer container(id1Key1Name, pibImpl);
   container.add(id1Key1Cert1);
   container.add(id1Key1Cert2);
 
-  std::set<Name> certNames;
-  certNames.insert(id1Key1Cert1.getName());
-  certNames.insert(id1Key1Cert2.getName());
+  const std::set<Name> certNames{id1Key1Cert1.getName(), id1Key1Cert2.getName()};
 
-  auto it = container.begin();
+  CertificateContainer::const_iterator it = container.begin();
   auto testIt = certNames.begin();
   BOOST_CHECK_EQUAL((*it).getName(), *testIt);
   it++;
@@ -143,7 +134,8 @@ BOOST_AUTO_TEST_CASE(Iterator)
   testIt++;
   BOOST_CHECK(it == container.end());
 
-  size_t count = 0;
+  // test range-based for
+  int count = 0;
   testIt = certNames.begin();
   for (const auto& cert : container) {
     BOOST_CHECK_EQUAL(cert.getName(), *testIt);

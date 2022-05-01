@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,13 +39,18 @@ class KeyImpl;
 } // namespace detail
 
 /**
- * @brief Container of certificates of a key
+ * @brief Container of certificates of a key.
  *
- * The container is used to search/enumerate certificates of a key.
- * The container can be created only by detail::KeyImpl.
+ * The container is used to search/enumerate the certificates of a key.
+ * It can be created only by the KeyImpl private class.
+ *
+ * @sa Key::getCertificates()
  */
 class CertificateContainer : noncopyable
 {
+private:
+  using NameSet = std::set<Name>;
+
 public:
   class const_iterator
   {
@@ -56,113 +61,130 @@ public:
     using pointer           = value_type*;
     using reference         = value_type&;
 
-    const_iterator();
+    const_iterator() = default;
 
     Certificate
     operator*();
 
     const_iterator&
-    operator++();
+    operator++()
+    {
+      ++m_it;
+      return *this;
+    }
 
     const_iterator
-    operator++(int);
+    operator++(int)
+    {
+      const_iterator it(*this);
+      ++m_it;
+      return it;
+    }
 
     bool
     operator==(const const_iterator& other) const;
 
     bool
-    operator!=(const const_iterator& other) const;
+    operator!=(const const_iterator& other) const
+    {
+      return !this->operator==(other);
+    }
 
   private:
-    const_iterator(std::set<Name>::const_iterator it, const CertificateContainer& container);
+    const_iterator(NameSet::const_iterator it, const CertificateContainer& container) noexcept;
 
   private:
-    std::set<Name>::const_iterator m_it;
-    const CertificateContainer* m_container;
+    NameSet::const_iterator m_it;
+    const CertificateContainer* m_container = nullptr;
 
-    friend class CertificateContainer;
+    friend CertificateContainer;
   };
 
   using iterator = const_iterator;
 
 public:
   const_iterator
-  begin() const;
+  begin() const noexcept
+  {
+    return {m_certNames.begin(), *this};
+  }
 
   const_iterator
-  end() const;
+  end() const noexcept
+  {
+    return {};
+  }
 
   const_iterator
   find(const Name& certName) const;
 
-  size_t
-  size() const;
+  /**
+   * @brief Check whether the container is empty.
+   */
+  NDN_CXX_NODISCARD bool
+  empty() const noexcept
+  {
+    return m_certNames.empty();
+  }
 
   /**
-   * @brief Add @p certificate into the container
-   * @throw std::invalid_argument the name of @p certificate does not match the key name
+   * @brief Return the number of certificates in the container.
+   */
+  size_t
+  size() const noexcept
+  {
+    return m_certNames.size();
+  }
+
+  /**
+   * @brief Add @p certificate into the container.
+   * @throw std::invalid_argument The name of @p certificate does not match the key name.
    */
   void
   add(const Certificate& certificate);
 
   /**
-   * @brief Remove a certificate with @p certName from the container
-   * @throw std::invalid_argument @p certName does not match the key name
+   * @brief Remove a certificate with @p certName from the container.
+   * @throw std::invalid_argument @p certName does not match the key name.
    */
   void
   remove(const Name& certName);
 
   /**
-   * @brief Get a certificate with @p certName from the container
-   * @throw std::invalid_argument @p certName does not match the key name
-   * @throw Pib::Error the certificate does not exist
+   * @brief Return a certificate by name.
+   * @throw Pib::Error The certificate does not exist.
+   * @throw std::invalid_argument @p certName does not match the key name.
    */
   Certificate
   get(const Name& certName) const;
 
   /**
-   * @brief Check if the container is consistent with the backend storage
-   * @note this method is heavyweight and should be used in debugging mode only.
+   * @brief Check if the container is consistent with the backend storage.
+   * @note This method is heavyweight and should be used in debugging mode only.
    */
   bool
   isConsistent() const;
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // private interface for KeyImpl
   /**
-   * @brief Create certificate container for a key with @p keyName
+   * @brief Create certificate container for @p keyName.
    * @param pibImpl The PIB backend implementation.
    */
   CertificateContainer(const Name& keyName, shared_ptr<PibImpl> pibImpl);
 
-  const std::set<Name>&
-  getCertNames() const
-  {
-    return m_certNames;
-  }
-
-  const std::unordered_map<Name, Certificate>&
-  getCache() const
-  {
-    return m_certs;
-  }
-
-private:
-  Name m_keyName;
-  std::set<Name> m_certNames;
-  /// @brief Cache of loaded certificates
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  // cache of loaded certificates
   mutable std::unordered_map<Name, Certificate> m_certs;
 
-  shared_ptr<PibImpl> m_pib;
+private:
+  NameSet m_certNames;
+  const Name m_keyName;
+  const shared_ptr<PibImpl> m_pib;
 
-#ifndef DOXYGEN
   friend detail::KeyImpl;
-#endif
 };
 
 } // namespace pib
-
-using pib::CertificateContainer;
-
 } // namespace security
 } // namespace ndn
 
