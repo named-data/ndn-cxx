@@ -30,19 +30,13 @@ namespace detail {
 
 NDN_LOG_INIT(ndn.security.Identity);
 
-IdentityImpl::IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl, bool needInit)
+IdentityImpl::IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl)
   : m_name(identityName)
   , m_pib(std::move(pibImpl))
-  , m_keys(identityName, m_pib)
+  , m_keys(m_name, m_pib)
 {
   BOOST_ASSERT(m_pib != nullptr);
-
-  if (needInit) {
-    m_pib->addIdentity(m_name);
-  }
-  else if (!m_pib->hasIdentity(m_name)) {
-    NDN_THROW(Pib::Error("Identity " + m_name.toUri() + " does not exist"));
-  }
+  BOOST_ASSERT(m_pib->hasIdentity(m_name));
 }
 
 Key

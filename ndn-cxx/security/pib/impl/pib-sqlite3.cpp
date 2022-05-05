@@ -439,10 +439,6 @@ PibSqlite3::setDefaultKeyOfIdentity(const Name& identity, const Name& keyName)
 Name
 PibSqlite3::getDefaultKeyOfIdentity(const Name& identity) const
 {
-  if (!hasIdentity(identity)) {
-    NDN_THROW(Pib::Error("Identity `" + identity.toUri() + "` does not exist"));
-  }
-
   Sqlite3Statement statement(m_database,
                              "SELECT key_name "
                              "FROM keys JOIN identities ON keys.identity_id=identities.id "
@@ -576,7 +572,6 @@ PibSqlite3::hasDefaultCertificateOfKey(const Name& keyName) const
                              "FROM certificates JOIN keys ON certificates.key_id=keys.id "
                              "WHERE certificates.is_default=1 AND keys.key_name=?");
   statement.bind(1, keyName.wireEncode(), SQLITE_TRANSIENT);
-
   return statement.step() == SQLITE_ROW;
 }
 

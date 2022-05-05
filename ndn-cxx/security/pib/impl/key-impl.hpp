@@ -46,26 +46,15 @@ class KeyImpl : noncopyable
 {
 public:
   /**
-   * @brief Create a new key with name @p keyName.
-   *
-   * If the key does not exist in the backend, it will be added.
-   * If a key with the same name already exists, it will be overwritten.
+   * @brief Create a key with name @p keyName.
    *
    * @param keyName The name of the key.
    * @param key The public key bits.
    * @param pibImpl The PIB backend implementation.
+   * @pre The key must exist in the backend.
    * @throw std::invalid_argument @p key is invalid or unsupported.
    */
-  KeyImpl(const Name& keyName, span<const uint8_t> key, shared_ptr<PibImpl> pibImpl);
-
-  /**
-   * @brief Load an existing key with name @p keyName.
-   *
-   * @param keyName The name of the key.
-   * @param pibImpl The PIB backend implementation.
-   * @throw Pib::Error The key does not exist in the backend.
-   */
-  KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl);
+  KeyImpl(const Name& keyName, Buffer key, shared_ptr<PibImpl> pibImpl);
 
   // See security::pib::Key for the documentation of the following methods
 
@@ -136,7 +125,7 @@ private:
 private:
   const Name m_identity;
   const Name m_keyName;
-  Buffer m_key;
+  const Buffer m_key;
   KeyType m_keyType;
 
   const shared_ptr<PibImpl> m_pib;

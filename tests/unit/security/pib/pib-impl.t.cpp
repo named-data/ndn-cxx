@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,6 @@
 
 #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 #include "ndn-cxx/security/pib/impl/pib-sqlite3.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
 #include "ndn-cxx/security/security-common.hpp"
 
 #include "tests/boost-test.hpp"
@@ -34,8 +33,6 @@ namespace ndn {
 namespace security {
 namespace pib {
 namespace tests {
-
-using namespace ndn::security::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)

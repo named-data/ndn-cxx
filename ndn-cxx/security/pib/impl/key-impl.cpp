@@ -31,40 +31,24 @@ namespace detail {
 
 NDN_LOG_INIT(ndn.security.Key);
 
-KeyImpl::KeyImpl(const Name& keyName, span<const uint8_t> key, shared_ptr<PibImpl> pibImpl)
+KeyImpl::KeyImpl(const Name& keyName, Buffer key, shared_ptr<PibImpl> pibImpl)
   : m_identity(extractIdentityFromKeyName(keyName))
   , m_keyName(keyName)
-  , m_key(key.begin(), key.end())
+  , m_key(std::move(key))
   , m_pib(std::move(pibImpl))
-  , m_certificates(keyName, m_pib)
+  , m_certificates(m_keyName, m_pib)
 {
   BOOST_ASSERT(m_pib != nullptr);
+  BOOST_ASSERT(m_pib->hasKey(m_keyName));
 
   transform::PublicKey publicKey;
   try {
-    publicKey.loadPkcs8(key);
+    publicKey.loadPkcs8(m_key);
   }
   catch (const transform::PublicKey::Error&) {
     NDN_THROW_NESTED(std::invalid_argument("Invalid key bits"));
   }
   m_keyType = publicKey.getKeyType();
-
-  m_pib->addKey(m_identity, m_keyName, key);
-}
-
-KeyImpl::KeyImpl(const Name& keyName, shared_ptr<PibImpl> pibImpl)
-  : m_identity(extractIdentityFromKeyName(keyName))
-  , m_keyName(keyName)
-  , m_pib(std::move(pibImpl))
-  , m_certificates(keyName, m_pib)
-{
-  BOOST_ASSERT(m_pib != nullptr);
-
-  m_key = m_pib->getKeyBits(m_keyName);
-
-  transform::PublicKey key;
-  key.loadPkcs8(m_key);
-  m_keyType = key.getKeyType();
 }
 
 void

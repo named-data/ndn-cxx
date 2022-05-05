@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,15 +23,23 @@
 #define NDN_CXX_TESTS_UNIT_SECURITY_PIB_PIB_DATA_FIXTURE_HPP
 
 #include "ndn-cxx/security/certificate.hpp"
+#include "ndn-cxx/security/pib/pib-impl.hpp"
 
 namespace ndn {
 namespace security {
+namespace pib {
 namespace tests {
 
 class PibDataFixture
 {
 public:
   PibDataFixture();
+
+  NDN_CXX_NODISCARD static shared_ptr<PibImpl>
+  makePibWithIdentity(const Name& idName);
+
+  NDN_CXX_NODISCARD static shared_ptr<PibImpl>
+  makePibWithKey(const Name& keyName, span<const uint8_t> key);
 
 public:
   Certificate id1Key1Cert1;
@@ -58,6 +66,7 @@ public:
 };
 
 } // namespace tests
+} // namespace pib
 } // namespace security
 } // namespace ndn
 

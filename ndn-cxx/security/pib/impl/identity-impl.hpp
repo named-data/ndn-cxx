@@ -49,10 +49,9 @@ public:
    *
    * @param identityName The name of the identity.
    * @param pibImpl The PIB backend implementation.
-   * @param needInit If true, create the identity in backend when the identity does not exist.
-   *                 Otherwise, throw Pib::Error when the identity does not exist.
+   * @pre The identity must exist in the backend.
    */
-  IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl, bool needInit = false);
+  IdentityImpl(const Name& identityName, shared_ptr<PibImpl> pibImpl);
 
   // See security::pib::Identity for the documentation of the following methods
 

@@ -21,8 +21,6 @@
 
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/pib/impl/key-impl.hpp"
-#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
@@ -31,8 +29,6 @@ namespace ndn {
 namespace security {
 namespace pib {
 namespace tests {
-
-using namespace ndn::security::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
@@ -44,7 +40,8 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   BOOST_TEST(!key);
   BOOST_TEST(key == Key());
 
-  auto impl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1, std::make_shared<pib::PibMemory>());
+  auto impl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
+                                                makePibWithKey(id1Key1Name, id1Key1));
   key = Key(impl);
   BOOST_TEST(key);
   BOOST_TEST(key != Key());
@@ -59,7 +56,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
 BOOST_AUTO_TEST_CASE(SharedImpl)
 {
   auto keyImpl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
-                                                   std::make_shared<pib::PibMemory>());
+                                                   makePibWithKey(id1Key1Name, id1Key1));
   Key key1(keyImpl);
   Key key2(keyImpl);
 

@@ -21,8 +21,6 @@
 
 #include "ndn-cxx/security/pib/identity.hpp"
 #include "ndn-cxx/security/pib/impl/identity-impl.hpp"
-#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
@@ -31,8 +29,6 @@ namespace ndn {
 namespace security {
 namespace pib {
 namespace tests {
-
-using namespace ndn::security::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
@@ -44,7 +40,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   BOOST_TEST(!id);
   BOOST_TEST(id == Identity());
 
-  auto impl = std::make_shared<detail::IdentityImpl>(id1, std::make_shared<PibMemory>(), true);
+  auto impl = std::make_shared<detail::IdentityImpl>(id1, makePibWithIdentity(id1));
   id = Identity(impl);
   BOOST_TEST(id);
   BOOST_TEST(id != Identity());
@@ -58,7 +54,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
 // property of pib::Identity in this test case.
 BOOST_AUTO_TEST_CASE(SharedImpl)
 {
-  auto impl = std::make_shared<detail::IdentityImpl>(id1, std::make_shared<pib::PibMemory>(), true);
+  auto impl = std::make_shared<detail::IdentityImpl>(id1, makePibWithIdentity(id1));
   Identity identity1(impl);
   Identity identity2(impl);
 

@@ -30,8 +30,6 @@ namespace security {
 namespace pib {
 namespace tests {
 
-using namespace ndn::security::tests;
-
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestIdentityContainer, PibDataFixture)

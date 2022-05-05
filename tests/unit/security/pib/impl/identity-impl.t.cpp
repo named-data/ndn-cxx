@@ -20,8 +20,6 @@
  */
 
 #include "ndn-cxx/security/pib/impl/identity-impl.hpp"
-#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
@@ -34,23 +32,26 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
-BOOST_FIXTURE_TEST_SUITE(TestIdentityImpl, ndn::security::tests::PibDataFixture)
 
 using pib::Pib;
 
-BOOST_AUTO_TEST_CASE(Basic)
+class IdentityImplFixture : public pib::tests::PibDataFixture
 {
-  IdentityImpl identity1(id1, std::make_shared<pib::PibMemory>(), true);
+protected:
+  const shared_ptr<PibImpl> pibImpl = makePibWithIdentity(id1);
+  IdentityImpl identity1{id1, pibImpl};
+};
+
+BOOST_FIXTURE_TEST_SUITE(TestIdentityImpl, IdentityImplFixture)
+
+BOOST_AUTO_TEST_CASE(Properties)
+{
   BOOST_CHECK_EQUAL(identity1.getName(), id1);
 }
 
 BOOST_AUTO_TEST_CASE(KeyOperations)
 {
-  auto pibImpl = std::make_shared<pib::PibMemory>();
-  IdentityImpl identity1(id1, pibImpl, true);
-  BOOST_CHECK_NO_THROW(IdentityImpl(id1, pibImpl, false));
-
-  // identity does not have any key
+  // identity does not have any keys
   BOOST_CHECK_EQUAL(identity1.getKeys().size(), 0);
 
   // get non-existing key, throw Pib::Error
@@ -114,26 +115,19 @@ BOOST_AUTO_TEST_CASE(KeyOperations)
   BOOST_CHECK_THROW(identity1.getDefaultKey(), Pib::Error);
 }
 
-BOOST_AUTO_TEST_CASE(Overwrite)
+BOOST_AUTO_TEST_CASE(ReplaceKey)
 {
-  IdentityImpl identity1(id1, std::make_shared<pib::PibMemory>(), true);
-
   identity1.addKey(id1Key1, id1Key1Name);
   auto k1 = identity1.getKey(id1Key1Name);
   BOOST_TEST(k1.getPublicKey() == id1Key1, boost::test_tools::per_element());
 
-  identity1.addKey(id1Key2, id1Key1Name); // overwriting key should work
+  identity1.addKey(id1Key2, id1Key1Name); // overwrite key
   auto k2 = identity1.getKey(id1Key1Name);
   BOOST_TEST(k2.getPublicKey() == id1Key2, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(Errors)
 {
-  auto pibImpl = std::make_shared<pib::PibMemory>();
-
-  BOOST_CHECK_THROW(IdentityImpl(id1, pibImpl, false), Pib::Error);
-  IdentityImpl identity1(id1, pibImpl, true);
-
   identity1.addKey(id1Key1, id1Key1Name);
   BOOST_CHECK_THROW(identity1.addKey(id2Key1, id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), std::invalid_argument);

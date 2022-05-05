@@ -20,8 +20,8 @@
  */
 
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
+#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 
-// #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 // #include "ndn-cxx/security/tpm/impl/back-end-mem.hpp"
 // #include "ndn-cxx/security/tpm/tpm.hpp"
 // #include "ndn-cxx/util/string-helper.hpp"
@@ -32,6 +32,7 @@
 
 namespace ndn {
 namespace security {
+namespace pib {
 namespace tests {
 
 // class TestCertDataGenerator
@@ -378,36 +379,42 @@ PibDataFixture::PibDataFixture()
   , id2Key1(id2Key1Cert1.getPublicKey())
   , id2Key2(id2Key2Cert1.getPublicKey())
 {
-  BOOST_ASSERT(id1Key1Cert1.getPublicKey() == id1Key1Cert2.getPublicKey());
-  BOOST_ASSERT(id1Key2Cert1.getPublicKey() == id1Key2Cert2.getPublicKey());
-  BOOST_ASSERT(id2Key1Cert1.getPublicKey() == id2Key1Cert2.getPublicKey());
-  BOOST_ASSERT(id2Key2Cert1.getPublicKey() == id2Key2Cert2.getPublicKey());
-
-  BOOST_ASSERT(id1Key1Cert1.getPublicKey() == id1Key1);
-  BOOST_ASSERT(id1Key1Cert2.getPublicKey() == id1Key1);
-  BOOST_ASSERT(id1Key2Cert1.getPublicKey() == id1Key2);
-  BOOST_ASSERT(id1Key2Cert2.getPublicKey() == id1Key2);
-
-  BOOST_ASSERT(id2Key1Cert1.getPublicKey() == id2Key1);
-  BOOST_ASSERT(id2Key1Cert2.getPublicKey() == id2Key1);
-  BOOST_ASSERT(id2Key2Cert1.getPublicKey() == id2Key2);
-  BOOST_ASSERT(id2Key2Cert2.getPublicKey() == id2Key2);
-
   BOOST_ASSERT(id1Key1Cert2.getIdentity() == id1);
   BOOST_ASSERT(id1Key2Cert1.getIdentity() == id1);
   BOOST_ASSERT(id1Key2Cert2.getIdentity() == id1);
-
   BOOST_ASSERT(id2Key1Cert2.getIdentity() == id2);
   BOOST_ASSERT(id2Key2Cert1.getIdentity() == id2);
   BOOST_ASSERT(id2Key2Cert2.getIdentity() == id2);
 
   BOOST_ASSERT(id1Key1Cert2.getKeyName() == id1Key1Name);
   BOOST_ASSERT(id1Key2Cert2.getKeyName() == id1Key2Name);
-
   BOOST_ASSERT(id2Key1Cert2.getKeyName() == id2Key1Name);
   BOOST_ASSERT(id2Key2Cert2.getKeyName() == id2Key2Name);
+
+  BOOST_ASSERT(id1Key1Cert2.getPublicKey() == id1Key1);
+  BOOST_ASSERT(id1Key2Cert2.getPublicKey() == id1Key2);
+  BOOST_ASSERT(id2Key1Cert2.getPublicKey() == id2Key1);
+  BOOST_ASSERT(id2Key2Cert2.getPublicKey() == id2Key2);
+}
+
+shared_ptr<PibImpl>
+PibDataFixture::makePibWithIdentity(const Name& idName)
+{
+  auto pib = std::make_shared<PibMemory>();
+  pib->addIdentity(idName);
+  return pib;
+}
+
+shared_ptr<PibImpl>
+PibDataFixture::makePibWithKey(const Name& keyName, span<const uint8_t> key)
+{
+  auto pib = std::make_shared<PibMemory>();
+  pib->addIdentity(extractIdentityFromKeyName(keyName));
+  pib->addKey(extractIdentityFromKeyName(keyName), keyName, key);
+  return pib;
 }
 
 } // namespace tests
+} // namespace pib
 } // namespace security
 } // namespace ndn

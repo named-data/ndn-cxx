@@ -20,8 +20,6 @@
  */
 
 #include "ndn-cxx/security/pib/impl/key-impl.hpp"
-#include "ndn-cxx/security/pib/impl/pib-memory.hpp"
-#include "ndn-cxx/security/pib/pib.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/key-chain-fixture.hpp"
@@ -35,34 +33,29 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Pib)
-BOOST_FIXTURE_TEST_SUITE(TestKeyImpl, security::tests::PibDataFixture)
 
 using pib::Pib;
 
-BOOST_AUTO_TEST_CASE(Basic)
+class KeyImplFixture : public pib::tests::PibDataFixture
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
-  KeyImpl key11(id1Key1Name, id1Key1, pibImpl);
+protected:
+  const shared_ptr<PibImpl> pibImpl = makePibWithKey(id1Key1Name, id1Key1);
+  KeyImpl key11{id1Key1Name, id1Key1, pibImpl};
+};
 
-  BOOST_CHECK_EQUAL(key11.getName(), id1Key1Name);
+BOOST_FIXTURE_TEST_SUITE(TestKeyImpl, KeyImplFixture)
+
+BOOST_AUTO_TEST_CASE(Properties)
+{
   BOOST_CHECK_EQUAL(key11.getIdentity(), id1);
+  BOOST_CHECK_EQUAL(key11.getName(), id1Key1Name);
   BOOST_CHECK_EQUAL(key11.getKeyType(), KeyType::EC);
   BOOST_TEST(key11.getPublicKey() == id1Key1, boost::test_tools::per_element());
-
-  KeyImpl key11Bak(id1Key1Name, pibImpl);
-  BOOST_CHECK_EQUAL(key11Bak.getName(), id1Key1Name);
-  BOOST_CHECK_EQUAL(key11Bak.getIdentity(), id1);
-  BOOST_CHECK_EQUAL(key11Bak.getKeyType(), KeyType::EC);
-  BOOST_TEST(key11Bak.getPublicKey() == id1Key1, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(CertificateOperations)
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
-  KeyImpl key11(id1Key1Name, id1Key1, pibImpl);
-  BOOST_CHECK_NO_THROW(KeyImpl(id1Key1Name, pibImpl));
-
-  // key does not have any certificate
+  // key does not have any certificates
   BOOST_CHECK_EQUAL(key11.getCertificates().size(), 0);
 
   // get non-existing certificate, throw Pib::Error
@@ -121,56 +114,35 @@ BOOST_AUTO_TEST_CASE(CertificateOperations)
   BOOST_CHECK_THROW(key11.getDefaultCertificate(), Pib::Error);
 }
 
-class OverwriteFixture : public ndn::security::tests::PibDataFixture,
-                         public ndn::tests::KeyChainFixture
+class ReplaceFixture : public ndn::tests::KeyChainFixture,
+                       public KeyImplFixture
 {
 };
 
-BOOST_FIXTURE_TEST_CASE(Overwrite, OverwriteFixture)
+BOOST_FIXTURE_TEST_CASE(ReplaceCertificate, ReplaceFixture)
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
-
-  BOOST_CHECK_THROW(KeyImpl(id1Key1Name, pibImpl), Pib::Error);
-  KeyImpl(id1Key1Name, id1Key1, pibImpl);
-  KeyImpl key1(id1Key1Name, pibImpl);
-
-  KeyImpl(id1Key1Name, id1Key2, pibImpl); // overwriting of the key should work
-  KeyImpl key2(id1Key1Name, pibImpl);
-
-  Buffer key1buf(key1.getPublicKey().begin(), key1.getPublicKey().end());
-  Buffer key2buf(key2.getPublicKey().begin(), key2.getPublicKey().end());
-  BOOST_CHECK(key1buf != key2buf); // key1 cached the original public key
-  BOOST_CHECK(key2buf == id1Key2);
-
-  key1.addCertificate(id1Key1Cert1);
-  BOOST_CHECK_EQUAL(key1.getCertificate(id1Key1Cert1.getName()), id1Key1Cert1);
+  key11.addCertificate(id1Key1Cert1);
+  BOOST_CHECK_EQUAL(key11.getCertificate(id1Key1Cert1.getName()), id1Key1Cert1);
 
   auto otherCert = id1Key1Cert1;
   SignatureInfo info;
   info.setValidityPeriod(ValidityPeriod::makeRelative(-1_s, 10_s));
   m_keyChain.sign(otherCert, SigningInfo().setSignatureInfo(info));
-
   BOOST_TEST(otherCert.getName() == id1Key1Cert1.getName());
   BOOST_TEST(otherCert.getContent() == id1Key1Cert1.getContent());
   BOOST_TEST(otherCert != id1Key1Cert1);
 
-  key1.addCertificate(otherCert);
-  BOOST_TEST(key1.getCertificate(id1Key1Cert1.getName()) == otherCert);
+  key11.addCertificate(otherCert); // overwrite cert
+  BOOST_TEST(key11.getCertificate(id1Key1Cert1.getName()) == otherCert);
 }
 
 BOOST_AUTO_TEST_CASE(Errors)
 {
-  auto pibImpl = make_shared<pib::PibMemory>();
-
-  BOOST_CHECK_THROW(KeyImpl(id1Key1Name, pibImpl), Pib::Error);
-  KeyImpl key11(id1Key1Name, id1Key1, pibImpl);
-
-  BOOST_CHECK_THROW(KeyImpl(Name("/wrong"), pibImpl), std::invalid_argument);
   BOOST_CHECK_THROW(KeyImpl(Name("/wrong"), id1Key1, pibImpl), std::invalid_argument);
-  Buffer wrongKey;
-  BOOST_CHECK_THROW(KeyImpl(id1Key2Name, wrongKey, pibImpl), std::invalid_argument);
 
-  key11.addCertificate(id1Key1Cert1);
+  Buffer invalidKey;
+  BOOST_CHECK_THROW(KeyImpl(id1Key1Name, invalidKey, pibImpl), std::invalid_argument);
+
   BOOST_CHECK_THROW(key11.addCertificate(id1Key2Cert1), std::invalid_argument);
   BOOST_CHECK_THROW(key11.removeCertificate(id1Key2Cert1.getName()), std::invalid_argument);
   BOOST_CHECK_THROW(key11.getCertificate(id1Key2Cert1.getName()), std::invalid_argument);

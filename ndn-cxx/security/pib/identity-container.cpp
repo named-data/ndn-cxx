@@ -80,8 +80,9 @@ IdentityContainer::add(const Name& identityName)
   }
 
   NDN_LOG_DEBUG("Adding " << identityName);
+  m_pib->addIdentity(identityName);
   auto ret = m_identities.emplace(identityName,
-                                  std::make_shared<detail::IdentityImpl>(identityName, m_pib, true));
+                                  std::make_shared<detail::IdentityImpl>(identityName, m_pib));
   // consistency check
   BOOST_ASSERT(ret.second);
 
@@ -110,7 +111,12 @@ IdentityContainer::get(const Name& identityName) const
     return Identity(it->second);
   }
 
-  auto id = std::make_shared<detail::IdentityImpl>(identityName, m_pib, false);
+  // check that the identity exists in the backend
+  if (!m_pib->hasIdentity(identityName)) {
+    NDN_THROW(Pib::Error("Identity `" + identityName.toUri() + "` does not exist"));
+  }
+
+  auto id = std::make_shared<detail::IdentityImpl>(identityName, m_pib);
   m_identities[identityName] = id;
   return Identity(id);
 }

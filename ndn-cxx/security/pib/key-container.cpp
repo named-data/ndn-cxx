@@ -81,8 +81,9 @@ KeyContainer::add(span<const uint8_t> keyBits, const Name& keyName)
 
   bool isNew = m_keyNames.insert(keyName).second;
   NDN_LOG_DEBUG((isNew ? "Adding " : "Replacing ") << keyName);
+  m_pib->addKey(m_identity, keyName, keyBits);
 
-  auto key = std::make_shared<detail::KeyImpl>(keyName, keyBits, m_pib);
+  auto key = std::make_shared<detail::KeyImpl>(keyName, Buffer(keyBits.begin(), keyBits.end()), m_pib);
   m_keys[keyName] = key; // use insert_or_assign in C++17
   return Key(key);
 }
@@ -119,7 +120,11 @@ KeyContainer::get(const Name& keyName) const
     return Key(it->second);
   }
 
-  auto key = std::make_shared<detail::KeyImpl>(keyName, m_pib);
+  // no need to check that the key exists in the backend
+  // because getKeyBits will throw if it doesn't
+  auto keyBits = m_pib->getKeyBits(keyName);
+
+  auto key = std::make_shared<detail::KeyImpl>(keyName, std::move(keyBits), m_pib);
   m_keys[keyName] = key;
   return Key(key);
 }
