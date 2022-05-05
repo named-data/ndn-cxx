@@ -243,7 +243,8 @@ public: // Data fields
   Data&
   setSignatureInfo(const SignatureInfo& info);
 
-  /** @brief Get SignatureValue
+  /**
+   * @brief Get the SignatureValue element.
    */
   const Block&
   getSignatureValue() const noexcept
@@ -251,14 +252,28 @@ public: // Data fields
     return m_signatureValue;
   }
 
-  /** @brief Set SignatureValue
-   *  @param value buffer containing the TLV-VALUE of the SignatureValue; must not be nullptr
+  /**
+   * @brief Set SignatureValue by copying from a contiguous sequence of bytes.
+   * @param value buffer from which the TLV-VALUE of the SignatureValue will be copied
+   * @return a reference to this Data, to allow chaining
    *
-   *  This is a low-level function that should not normally be called directly by applications.
-   *  Instead, use KeyChain::sign() to sign the packet.
+   * This is a low-level function that should not normally be called directly by applications.
+   * Instead, use KeyChain::sign() to sign the packet.
    *
-   *  @return a reference to this Data, to allow chaining
-   *  @warning SignatureValue is overwritten when the packet is signed via KeyChain::sign().
+   * @warning SignatureValue is overwritten when the packet is signed via KeyChain::sign().
+   */
+  Data&
+  setSignatureValue(span<const uint8_t> value);
+
+  /**
+   * @brief Set SignatureValue from a shared buffer.
+   * @param value buffer containing the TLV-VALUE of the SignatureValue; must not be nullptr
+   * @return a reference to this Data, to allow chaining
+   *
+   * This is a low-level function that should not normally be called directly by applications.
+   * Instead, use KeyChain::sign() to sign the packet.
+   *
+   * @warning SignatureValue is overwritten when the packet is signed via KeyChain::sign().
    */
   Data&
   setSignatureValue(ConstBufferPtr value);

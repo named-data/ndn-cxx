@@ -392,18 +392,32 @@ public: // element access
   Interest&
   setSignatureInfo(const SignatureInfo& info);
 
-  /** @brief Get the InterestSignatureValue
+  /**
+   * @brief Get the InterestSignatureValue element.
    *
-   *  If the element is not present, an invalid Block will be returned.
+   * If the element is not present, an invalid Block will be returned.
    */
   Block
   getSignatureValue() const;
 
-  /** @brief Set the InterestSignatureValue
-   *  @param value Buffer containing the TLV-VALUE of the InterestSignatureValue; must not be nullptr
-   *  @throw Error InterestSignatureInfo is unset
+  /**
+   * @brief Set InterestSignatureValue by copying from a contiguous sequence of bytes.
+   * @param value buffer from which the TLV-VALUE of the InterestSignatureValue will be copied
+   * @return a reference to this Interest
+   * @throw Error InterestSignatureInfo is unset
    *
-   *  InterestSignatureInfo must be set before setting InterestSignatureValue
+   * InterestSignatureInfo must be set before setting InterestSignatureValue.
+   */
+  Interest&
+  setSignatureValue(span<const uint8_t> value);
+
+  /**
+   * @brief Set InterestSignatureValue from a shared buffer.
+   * @param value buffer containing the TLV-VALUE of the InterestSignatureValue; must not be nullptr
+   * @return a reference to this Interest
+   * @throw Error InterestSignatureInfo is unset
+   *
+   * InterestSignatureInfo must be set before setting InterestSignatureValue.
    */
   Interest&
   setSignatureValue(ConstBufferPtr value);
@@ -439,8 +453,11 @@ public: // ParametersSha256DigestComponent support
   isParametersDigestValid() const;
 
 private:
-  void
+  Interest&
   setApplicationParametersInternal(Block parameters);
+
+  Interest&
+  setSignatureValueInternal(Block sigValue);
 
   NDN_CXX_NODISCARD shared_ptr<Buffer>
   computeParametersDigest() const;

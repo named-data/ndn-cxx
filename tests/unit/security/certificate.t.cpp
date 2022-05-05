@@ -129,12 +129,12 @@ static void
 generateFakeSignature(Data& data)
 {
   SignatureInfo signatureInfo(Block{SIG_INFO});
-  signatureInfo.setKeyLocator(KeyLocator(Name("/ndn/site1/KEY/ksk-2516425377094")));
+  signatureInfo.setKeyLocator(Name("/ndn/site1/KEY/ksk-2516425377094"));
   signatureInfo.setValidityPeriod(ValidityPeriod(time::fromIsoString("20141111T050000"),
                                                  time::fromIsoString("20141111T060000")));
 
   data.setSignatureInfo(signatureInfo);
-  data.setSignatureValue(make_shared<Buffer>(SIG_VALUE, sizeof(SIG_VALUE)));
+  data.setSignatureValue(SIG_VALUE);
 }
 
 BOOST_AUTO_TEST_CASE(Construction)

@@ -307,6 +307,14 @@ Data::setSignatureInfo(const SignatureInfo& info)
 }
 
 Data&
+Data::setSignatureValue(span<const uint8_t> value)
+{
+  m_signatureValue = makeBinaryBlock(tlv::SignatureValue, value);
+  resetWire();
+  return *this;
+}
+
+Data&
 Data::setSignatureValue(ConstBufferPtr value)
 {
   if (value == nullptr) {

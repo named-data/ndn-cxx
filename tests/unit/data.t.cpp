@@ -510,16 +510,14 @@ BOOST_AUTO_TEST_CASE(SetContent)
   d.setContent("1502CAFE"_block);
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
-  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
-                                direct, direct + sizeof(direct));
+  BOOST_TEST(d.getContent().value_bytes() == direct, boost::test_tools::per_element());
 
   // Block overload, nested inside Content element
   const uint8_t nested[] = {0x99, 0x02, 0xca, 0xfe};
   d.setContent(Block(nested));
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
-  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
-                                nested, nested + sizeof(nested));
+  BOOST_TEST(d.getContent().value_bytes() == nested, boost::test_tools::per_element());
 
   // Block overload, default constructed (invalid)
   BOOST_CHECK_THROW(d.setContent(Block{}), std::invalid_argument);
@@ -528,8 +526,7 @@ BOOST_AUTO_TEST_CASE(SetContent)
   d.setContent(nested);
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
-  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
-                                nested, nested + sizeof(nested));
+  BOOST_TEST(d.getContent().value_bytes() == nested, boost::test_tools::per_element());
   d.setContent(span<uint8_t>{});
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
@@ -545,8 +542,7 @@ BOOST_AUTO_TEST_CASE(SetContent)
   d.setContent(std::make_shared<Buffer>(direct, sizeof(direct)));
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
-  BOOST_CHECK_EQUAL_COLLECTIONS(d.getContent().value_begin(), d.getContent().value_end(),
-                                direct, direct + sizeof(direct));
+  BOOST_TEST(d.getContent().value_bytes() == direct, boost::test_tools::per_element());
   d.setContent(std::make_shared<Buffer>());
   BOOST_CHECK_EQUAL(d.hasContent(), true);
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
@@ -565,11 +561,18 @@ BOOST_AUTO_TEST_CASE(SetSignatureValue)
   Data d;
   BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::Invalid);
 
-  d.setSignatureValue(fromHex("FACADE"));
+  // span overload
+  const uint8_t sv1[] = {0xbe, 0xef};
+  d.setSignatureValue(sv1);
   BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::SignatureValue);
-  BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 3);
+  BOOST_TEST(d.getSignatureValue().value_bytes() == sv1, boost::test_tools::per_element());
 
-  d.setSignatureValue(std::make_shared<Buffer>()); // empty buffer
+  // ConstBufferPtr overload
+  const uint8_t sv2[] = {0xfa, 0xca, 0xde};
+  d.setSignatureValue(std::make_shared<Buffer>(sv2, sizeof(sv2)));
+  BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::SignatureValue);
+  BOOST_TEST(d.getSignatureValue().value_bytes() == sv2, boost::test_tools::per_element());
+  d.setSignatureValue(std::make_shared<Buffer>());
   BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::SignatureValue);
   BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 0);
 

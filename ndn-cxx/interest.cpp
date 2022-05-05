@@ -455,7 +455,7 @@ Interest::setHopLimit(optional<uint8_t> hopLimit)
   return *this;
 }
 
-void
+Interest&
 Interest::setApplicationParametersInternal(Block parameters)
 {
   parameters.encode(); // ensure we have wire encoding needed by computeParametersDigest()
@@ -466,6 +466,10 @@ Interest::setApplicationParametersInternal(Block parameters)
     BOOST_ASSERT(m_parameters[0].type() == tlv::ApplicationParameters);
     m_parameters[0] = std::move(parameters);
   }
+
+  addOrReplaceParametersDigestComponent();
+  m_wire.reset();
+  return *this;
 }
 
 Interest&
@@ -476,23 +480,17 @@ Interest::setApplicationParameters(const Block& parameters)
   }
 
   if (parameters.type() == tlv::ApplicationParameters) {
-    setApplicationParametersInternal(parameters);
+    return setApplicationParametersInternal(parameters);
   }
   else {
-    setApplicationParametersInternal(Block(tlv::ApplicationParameters, parameters));
+    return setApplicationParametersInternal({tlv::ApplicationParameters, parameters});
   }
-  addOrReplaceParametersDigestComponent();
-  m_wire.reset();
-  return *this;
 }
 
 Interest&
 Interest::setApplicationParameters(span<const uint8_t> value)
 {
-  setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value));
-  addOrReplaceParametersDigestComponent();
-  m_wire.reset();
-  return *this;
+  return setApplicationParametersInternal(makeBinaryBlock(tlv::ApplicationParameters, value));
 }
 
 Interest&
@@ -512,10 +510,7 @@ Interest::setApplicationParameters(ConstBufferPtr value)
     NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
   }
 
-  setApplicationParametersInternal(Block(tlv::ApplicationParameters, std::move(value)));
-  addOrReplaceParametersDigestComponent();
-  m_wire.reset();
-  return *this;
+  return setApplicationParametersInternal({tlv::ApplicationParameters, std::move(value)});
 }
 
 Interest&
@@ -595,12 +590,8 @@ Interest::getSignatureValue() const
 }
 
 Interest&
-Interest::setSignatureValue(ConstBufferPtr value)
+Interest::setSignatureValueInternal(Block sigValue)
 {
-  if (value == nullptr) {
-    NDN_THROW(std::invalid_argument("InterestSignatureValue buffer cannot be nullptr"));
-  }
-
   // Ensure presence of InterestSignatureInfo
   auto infoIt = findFirstParameter(tlv::InterestSignatureInfo);
   if (infoIt == m_parameters.end()) {
@@ -611,27 +602,42 @@ Interest::setSignatureValue(ConstBufferPtr value)
     return block.type() == tlv::InterestSignatureValue;
   });
 
-  Block valueBlock(tlv::InterestSignatureValue, std::move(value));
   if (valueIt != m_parameters.end()) {
-    if (*valueIt == valueBlock) {
+    if (*valueIt == sigValue) {
       // New InterestSignatureValue is the same as the old InterestSignatureValue
       return *this;
     }
 
     // Replace existing InterestSignatureValue
-    *valueIt = std::move(valueBlock);
+    *valueIt = std::move(sigValue);
   }
   else {
     // Place after first InterestSignatureInfo element
-    valueIt = m_parameters.insert(std::next(infoIt), std::move(valueBlock));
+    valueIt = m_parameters.insert(std::next(infoIt), std::move(sigValue));
   }
 
-  // computeParametersDigest needs encoded SignatureValue
+  // computeParametersDigest needs encoded InterestSignatureValue
   valueIt->encode();
 
   addOrReplaceParametersDigestComponent();
   m_wire.reset();
   return *this;
+}
+
+Interest&
+Interest::setSignatureValue(span<const uint8_t> value)
+{
+  return setSignatureValueInternal(makeBinaryBlock(tlv::InterestSignatureValue, value));
+}
+
+Interest&
+Interest::setSignatureValue(ConstBufferPtr value)
+{
+  if (value == nullptr) {
+    NDN_THROW(std::invalid_argument("InterestSignatureValue buffer cannot be nullptr"));
+  }
+
+  return setSignatureValueInternal({tlv::InterestSignatureValue, std::move(value)});
 }
 
 InputBuffers
