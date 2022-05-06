@@ -44,11 +44,11 @@ KeyImpl::KeyImpl(const Name& keyName, Buffer key, shared_ptr<PibImpl> pibImpl)
   transform::PublicKey publicKey;
   try {
     publicKey.loadPkcs8(m_key);
+    m_keyType = publicKey.getKeyType();
   }
-  catch (const transform::PublicKey::Error&) {
-    NDN_THROW_NESTED(std::invalid_argument("Invalid key bits"));
+  catch (const std::runtime_error& e) {
+    NDN_LOG_WARN("Invalid or unsupported key " << m_keyName << " (" << e.what() << ")");
   }
-  m_keyType = publicKey.getKeyType();
 }
 
 void

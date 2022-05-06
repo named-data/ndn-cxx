@@ -39,14 +39,17 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   Identity id;
   BOOST_TEST(!id);
   BOOST_TEST(id == Identity());
+  BOOST_CHECK_THROW(id.getName(), std::domain_error);
 
   auto impl = std::make_shared<detail::IdentityImpl>(id1, makePibWithIdentity(id1));
   id = Identity(impl);
   BOOST_TEST(id);
   BOOST_TEST(id != Identity());
+  BOOST_TEST(id.getName() == id1);
 
   impl.reset();
   BOOST_TEST(!id);
+  BOOST_CHECK_THROW(id.getName(), std::domain_error);
 }
 
 // pib::Identity is a wrapper of pib::detail::IdentityImpl. Since the functionality

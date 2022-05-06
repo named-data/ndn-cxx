@@ -126,7 +126,7 @@ private:
   const Name m_identity;
   const Name m_keyName;
   const Buffer m_key;
-  KeyType m_keyType;
+  KeyType m_keyType = KeyType::NONE;
 
   const shared_ptr<PibImpl> m_pib;
 

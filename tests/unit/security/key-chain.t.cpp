@@ -590,15 +590,14 @@ public:
   }
 
   void
-  checkKeyLocatorName(const Certificate& cert, optional<Name> klName = nullopt) const
+  checkKeyLocatorName(const Certificate& cert, const optional<Name>& klName = nullopt) const
   {
     auto kl = cert.getKeyLocator();
     if (!kl.has_value()) {
       BOOST_ERROR("KeyLocator is missing");
       return;
     }
-    BOOST_CHECK_EQUAL(kl->getName(),
-                      klName.value_or(signerKey.getDefaultCertificate().getName()));
+    BOOST_CHECK_EQUAL(kl->getName(), klName.value_or(signerKey.getDefaultCertificate().getName()));
   }
 
   void
@@ -705,10 +704,16 @@ BOOST_AUTO_TEST_CASE(ErrNegativeFreshness)
 BOOST_AUTO_TEST_CASE(ErrContent)
 {
   Certificate request(requester.getDefaultCertificate());
+
+  // malformed public key
   const auto& oldContent = request.getContent();
   std::vector<uint8_t> content(oldContent.value_begin(), oldContent.value_end());
   content[0] ^= 0x80;
   request.setContent(content);
+  BOOST_CHECK_THROW(signerKeyChain.makeCertificate(request, signerParams), std::invalid_argument);
+
+  // empty content
+  request.setContent(span<uint8_t>{});
   BOOST_CHECK_THROW(signerKeyChain.makeCertificate(request, signerParams), std::invalid_argument);
 }
 

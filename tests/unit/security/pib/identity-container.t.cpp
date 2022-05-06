@@ -97,6 +97,13 @@ BOOST_AUTO_TEST_CASE(AddGetRemove)
     BOOST_CHECK(container2.find(id1) == container2.end());
     BOOST_CHECK(container2.find(id2) != container2.end());
 
+    // removing the same identity again is a no-op
+    container2.remove(id1);
+    BOOST_CHECK_EQUAL(container2.size(), 1);
+    BOOST_CHECK_EQUAL(container2.m_identities.size(), 1);
+    BOOST_CHECK(container2.find(id1) == container2.end());
+    BOOST_CHECK(container2.find(id2) != container2.end());
+
     // remove another identity
     container2.remove(id2);
     BOOST_CHECK_EQUAL(container2.size(), 0);

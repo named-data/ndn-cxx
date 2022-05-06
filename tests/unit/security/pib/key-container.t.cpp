@@ -103,6 +103,13 @@ BOOST_AUTO_TEST_CASE(AddGetRemove)
     BOOST_CHECK(container2.find(id1Key1Name) == container2.end());
     BOOST_CHECK(container2.find(id1Key2Name) != container2.end());
 
+    // removing the same key again is a no-op
+    container2.remove(id1Key1Name);
+    BOOST_CHECK_EQUAL(container2.size(), 1);
+    BOOST_CHECK_EQUAL(container2.m_keys.size(), 1);
+    BOOST_CHECK(container2.find(id1Key1Name) == container2.end());
+    BOOST_CHECK(container2.find(id1Key2Name) != container2.end());
+
     // remove another key
     container2.remove(id1Key2Name);
     BOOST_CHECK_EQUAL(container2.size(), 0);

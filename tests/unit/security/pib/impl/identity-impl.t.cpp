@@ -46,7 +46,7 @@ BOOST_FIXTURE_TEST_SUITE(TestIdentityImpl, IdentityImplFixture)
 
 BOOST_AUTO_TEST_CASE(Properties)
 {
-  BOOST_CHECK_EQUAL(identity1.getName(), id1);
+  BOOST_TEST(identity1.getName() == id1);
 }
 
 BOOST_AUTO_TEST_CASE(KeyOperations)
@@ -128,7 +128,6 @@ BOOST_AUTO_TEST_CASE(ReplaceKey)
 
 BOOST_AUTO_TEST_CASE(Errors)
 {
-  identity1.addKey(id1Key1, id1Key1Name);
   BOOST_CHECK_THROW(identity1.addKey(id2Key1, id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.removeKey(id2Key1Name), std::invalid_argument);
   BOOST_CHECK_THROW(identity1.getKey(id2Key1Name), std::invalid_argument);

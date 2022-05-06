@@ -39,15 +39,18 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   Key key;
   BOOST_TEST(!key);
   BOOST_TEST(key == Key());
+  BOOST_CHECK_THROW(key.getName(), std::domain_error);
 
   auto impl = std::make_shared<detail::KeyImpl>(id1Key1Name, id1Key1,
                                                 makePibWithKey(id1Key1Name, id1Key1));
   key = Key(impl);
   BOOST_TEST(key);
   BOOST_TEST(key != Key());
+  BOOST_TEST(key.getName() == id1Key1Name);
 
   impl.reset();
   BOOST_TEST(!key);
+  BOOST_CHECK_THROW(key.getName(), std::domain_error);
 }
 
 // pib::Key is a wrapper of pib::detail::KeyImpl. Since the functionality of KeyImpl is

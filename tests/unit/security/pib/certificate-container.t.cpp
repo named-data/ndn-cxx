@@ -95,6 +95,13 @@ BOOST_AUTO_TEST_CASE(AddGetRemove)
     BOOST_CHECK(container2.find(id1Key1Cert1.getName()) == container2.end());
     BOOST_CHECK(container2.find(id1Key1Cert2.getName()) != container2.end());
 
+    // removing the same certificate again is a no-op
+    container2.remove(id1Key1Cert1.getName());
+    BOOST_CHECK_EQUAL(container2.size(), 1);
+    BOOST_CHECK_EQUAL(container2.m_certs.size(), 1);
+    BOOST_CHECK(container2.find(id1Key1Cert1.getName()) == container2.end());
+    BOOST_CHECK(container2.find(id1Key1Cert2.getName()) != container2.end());
+
     // remove another certificate
     container2.remove(id1Key1Cert2.getName());
     BOOST_CHECK_EQUAL(container2.size(), 0);

@@ -47,9 +47,9 @@ BOOST_FIXTURE_TEST_SUITE(TestKeyImpl, KeyImplFixture)
 
 BOOST_AUTO_TEST_CASE(Properties)
 {
-  BOOST_CHECK_EQUAL(key11.getIdentity(), id1);
-  BOOST_CHECK_EQUAL(key11.getName(), id1Key1Name);
-  BOOST_CHECK_EQUAL(key11.getKeyType(), KeyType::EC);
+  BOOST_TEST(key11.getIdentity() == id1);
+  BOOST_TEST(key11.getName() == id1Key1Name);
+  BOOST_TEST(key11.getKeyType() == KeyType::EC);
   BOOST_TEST(key11.getPublicKey() == id1Key1, boost::test_tools::per_element());
 }
 
@@ -138,16 +138,27 @@ BOOST_FIXTURE_TEST_CASE(ReplaceCertificate, ReplaceFixture)
 
 BOOST_AUTO_TEST_CASE(Errors)
 {
+  // illegal key name
   BOOST_CHECK_THROW(KeyImpl(Name("/wrong"), id1Key1, pibImpl), std::invalid_argument);
-
-  Buffer invalidKey;
-  BOOST_CHECK_THROW(KeyImpl(id1Key1Name, invalidKey, pibImpl), std::invalid_argument);
 
   BOOST_CHECK_THROW(key11.addCertificate(id1Key2Cert1), std::invalid_argument);
   BOOST_CHECK_THROW(key11.removeCertificate(id1Key2Cert1.getName()), std::invalid_argument);
   BOOST_CHECK_THROW(key11.getCertificate(id1Key2Cert1.getName()), std::invalid_argument);
   BOOST_CHECK_THROW(key11.setDefaultCertificate(id1Key2Cert1), std::invalid_argument);
   BOOST_CHECK_THROW(key11.setDefaultCertificate(id1Key2Cert1.getName()), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(UnknownKeyType)
+{
+  Name keyName = security::constructKeyName(id1, name::Component::fromEscapedString("foo"));
+  Buffer invalidKey{0x01, 0x02, 0x03, 0x04};
+  pibImpl->addKey(id1, keyName, invalidKey);
+
+  KeyImpl unknown(keyName, invalidKey, pibImpl);
+  BOOST_TEST(unknown.getIdentity() == id1);
+  BOOST_TEST(unknown.getName() == keyName);
+  BOOST_TEST(unknown.getKeyType() == KeyType::NONE);
+  BOOST_TEST(unknown.getPublicKey() == invalidKey, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyImpl

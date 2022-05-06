@@ -113,23 +113,42 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(LoadAndSave, T, KeyTestDataSets)
   BOOST_TEST(*os6.buf() == *pKeyPkcs8, boost::test_tools::per_element());
 }
 
+BOOST_AUTO_TEST_CASE(LoadError)
+{
+  EcKeyTestData dataSet;
+  auto pkcs8Base64 = make_span(reinterpret_cast<const uint8_t*>(dataSet.pkcs8Base64.data()),
+                               dataSet.pkcs8Base64.size());
+  OBufferStream os;
+  bufferSource(pkcs8Base64) >> base64Decode() >> streamSink(os);
+  auto pkcs8 = os.buf();
+
+  PublicKey pKey;
+  // empty
+  BOOST_CHECK_THROW(pKey.loadPkcs8(span<uint8_t>{}), PublicKey::Error);
+  BOOST_CHECK_THROW(pKey.loadPkcs8Base64(span<uint8_t>{}), PublicKey::Error);
+  // truncated
+  BOOST_CHECK_THROW(pKey.loadPkcs8(make_span(*pkcs8).first(10)), PublicKey::Error);
+  BOOST_CHECK_THROW(pKey.loadPkcs8Base64(pkcs8Base64.first(10)), PublicKey::Error);
+}
+
 // NOTE: We cannot test RSA encryption by comparing the computed ciphertext to
 //       a known-good one, because OAEP padding is randomized and would produce
 //       different results every time. An encrypt/decrypt round-trip test is
 //       performed in private-key.t.cpp
 
-BOOST_AUTO_TEST_CASE(UnsupportedEcEncryption)
+BOOST_AUTO_TEST_CASE(UnsupportedEncryption)
 {
-  EcKeyTestData dataSet;
-
-  PublicKey pKey;
-  pKey.loadPkcs8Base64({reinterpret_cast<const uint8_t*>(dataSet.pkcs8Base64.data()),
-                        dataSet.pkcs8Base64.size()});
-
   OBufferStream os;
   bufferSource("Y2lhbyFob2xhIWhlbGxvIQ==") >> base64Decode() >> streamSink(os);
+  auto plain = os.buf();
 
-  BOOST_CHECK_THROW(pKey.encrypt(*os.buf()), PublicKey::Error);
+  PublicKey pKey;
+  BOOST_CHECK_THROW(pKey.encrypt(*plain), PublicKey::Error);
+
+  EcKeyTestData dataSet;
+  pKey.loadPkcs8Base64({reinterpret_cast<const uint8_t*>(dataSet.pkcs8Base64.data()),
+                        dataSet.pkcs8Base64.size()});
+  BOOST_CHECK_THROW(pKey.encrypt(*plain), PublicKey::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestPublicKey
