@@ -66,9 +66,8 @@ using PibImpls = boost::mpl::vector<PibMemoryFixture, PibSqlite3Fixture>;
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(TpmLocator, T, PibImpls, T)
 {
   // Basic getting and setting
-  BOOST_CHECK_NO_THROW(this->pib.getTpmLocator());
-
-  BOOST_CHECK_NO_THROW(this->pib.setTpmLocator("tpmLocator"));
+  BOOST_CHECK_EQUAL(this->pib.getTpmLocator(), "");
+  this->pib.setTpmLocator("tpmLocator");
   BOOST_CHECK_EQUAL(this->pib.getTpmLocator(), "tpmLocator");
 
   // Add cert, and do not change TPM locator
@@ -101,7 +100,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(IdentityManagement, T, PibImpls, T)
   // add id1, should be default
   this->pib.addIdentity(this->id1);
   BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
-  BOOST_CHECK_NO_THROW(this->pib.getDefaultIdentity());
   BOOST_CHECK_EQUAL(this->pib.getDefaultIdentity(), this->id1);
 
   // add id2, should not be default
@@ -164,8 +162,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(KeyManagement, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
   BOOST_CHECK_EQUAL(this->pib.hasIdentity(this->id1), true);
   const Buffer& keyBits = this->pib.getKeyBits(this->id1Key1Name);
-  BOOST_CHECK(keyBits == this->id1Key1);
-  BOOST_CHECK_NO_THROW(this->pib.getDefaultKeyOfIdentity(this->id1));
+  BOOST_TEST(keyBits == this->id1Key1, boost::test_tools::per_element());
   BOOST_CHECK_EQUAL(this->pib.getDefaultKeyOfIdentity(this->id1), this->id1Key1Name);
 
   // add id1Key2, should not be default
@@ -221,7 +218,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(CertificateManagement, T, PibImpls, T)
   BOOST_CHECK_EQUAL(this->pib.hasKey(this->id1Key1Name), true);
   BOOST_CHECK_EQUAL(this->pib.getCertificate(this->id1Key1Cert1.getName()).wireEncode(),
                     this->id1Key1Cert1.wireEncode());
-  BOOST_CHECK_NO_THROW(this->pib.getDefaultCertificateOfKey(this->id1Key1Name));
   BOOST_CHECK_EQUAL(this->pib.getDefaultCertificateOfKey(this->id1Key1Name), this->id1Key1Cert1);
 
   // add id1Key1Cert2, should not be default

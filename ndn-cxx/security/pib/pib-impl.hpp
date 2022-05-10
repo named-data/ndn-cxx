@@ -57,20 +57,20 @@ public:
   virtual
   ~PibImpl() = default;
 
-public: // TpmLocator management
+public: // TPM Locator management
   /**
-   * @brief Set the corresponding TPM information to @p tpmLocator
-   *
-   * This method does not reset contents of the PIB
-   */
-  virtual void
-  setTpmLocator(const std::string& tpmLocator) = 0;
-
-  /**
-   * @brief Get TPM Locator
+   * @brief Return the associated TPM Locator or an empty string if unset.
    */
   virtual std::string
   getTpmLocator() const = 0;
+
+  /**
+   * @brief Set the associated TPM information to @p tpmLocator.
+   *
+   * This method does *not* reset the contents of the PIB.
+   */
+  virtual void
+  setTpmLocator(const std::string& tpmLocator) = 0;
 
 public: // Identity management
   /**

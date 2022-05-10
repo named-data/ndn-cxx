@@ -62,19 +62,19 @@ public:
   ~Pib();
 
   /**
-   * @brief Return the scheme of the PIB Locator.
+   * @brief Return the PIB Locator.
    */
   const std::string&
-  getScheme() const
+  getPibLocator() const
   {
-    return m_scheme;
+    return m_locator;
   }
 
   /**
-   * @brief Return the PIB Locator.
+   * @brief Return the associated TPM Locator or an empty string if unset.
    */
   std::string
-  getPibLocator() const;
+  getTpmLocator() const;
 
   /**
    * @brief Set the associated TPM information to @p tpmLocator.
@@ -82,13 +82,6 @@ public:
    */
   void
   setTpmLocator(const std::string& tpmLocator);
-
-  /**
-   * @brief Return the associated TPM Locator.
-   * @throws Error TPM locator is not set
-   */
-  std::string
-  getTpmLocator() const;
 
   /**
    * @brief Reset the contents of the PIB, including reset of the TPM Locator.
@@ -120,11 +113,10 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only 
   /**
    * @brief Create a Pib instance.
    *
-   * @param scheme The scheme for the Pib
-   * @param location The location for the Pib
+   * @param locator The PIB locator
    * @param impl The backend implementation
    */
-  Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl);
+  Pib(const std::string& locator, shared_ptr<PibImpl> impl);
 
   /**
    * @brief Add an identity.
@@ -155,8 +147,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only 
   setDefaultIdentity(const Name& identity);
 
 private:
-  const std::string m_scheme;
-  const std::string m_location;
+  const std::string m_locator;
   const shared_ptr<PibImpl> m_impl;
 
   IdentityContainer m_identities;

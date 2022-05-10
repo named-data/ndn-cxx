@@ -44,6 +44,7 @@
 #include "ndn-cxx/security/transform/verifier-filter.hpp"
 
 #include <boost/lexical_cast.hpp>
+#include <cstdlib>  // for std::getenv()
 
 namespace ndn {
 namespace security {
@@ -70,8 +71,6 @@ inline namespace v2 {
 NDN_LOG_INIT(ndn.security.KeyChain);
 
 const name::Component SELF("self");
-std::string KeyChain::s_defaultPibLocator;
-std::string KeyChain::s_defaultTpmLocator;
 
 KeyChain::PibFactories&
 KeyChain::getPibFactories()
@@ -87,62 +86,20 @@ KeyChain::getTpmFactories()
   return tpmFactories;
 }
 
-const std::string&
-KeyChain::getDefaultPibScheme()
+static const auto&
+getDefaultPibScheme()
 {
   return pib::PibSqlite3::getScheme();
 }
 
-const std::string&
-KeyChain::getDefaultTpmScheme()
+static const auto&
+getDefaultTpmScheme()
 {
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
   return tpm::BackEndOsx::getScheme();
 #else
   return tpm::BackEndFile::getScheme();
 #endif // defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
-}
-
-const std::string&
-KeyChain::getDefaultPibLocator()
-{
-  if (!s_defaultPibLocator.empty())
-    return s_defaultPibLocator;
-
-  if (getenv("NDN_CLIENT_PIB") != nullptr) {
-    s_defaultPibLocator = getenv("NDN_CLIENT_PIB");
-  }
-  else {
-    ConfigFile config;
-    s_defaultPibLocator = config.getParsedConfiguration().get<std::string>("pib", getDefaultPibScheme() + ":");
-  }
-
-  std::string pibScheme, pibLocation;
-  std::tie(pibScheme, pibLocation) = parseAndCheckPibLocator(s_defaultPibLocator);
-  s_defaultPibLocator = pibScheme + ":" + pibLocation;
-
-  return s_defaultPibLocator;
-}
-
-const std::string&
-KeyChain::getDefaultTpmLocator()
-{
-  if (!s_defaultTpmLocator.empty())
-    return s_defaultTpmLocator;
-
-  if (getenv("NDN_CLIENT_TPM") != nullptr) {
-    s_defaultTpmLocator = getenv("NDN_CLIENT_TPM");
-  }
-  else {
-    ConfigFile config;
-    s_defaultTpmLocator = config.getParsedConfiguration().get<std::string>("tpm", getDefaultTpmScheme() + ":");
-  }
-
-  std::string tpmScheme, tpmLocation;
-  std::tie(tpmScheme, tpmLocation) = parseAndCheckTpmLocator(s_defaultTpmLocator);
-  s_defaultTpmLocator = tpmScheme + ":" + tpmLocation;
-
-  return s_defaultTpmLocator;
 }
 
 const KeyParams&
@@ -154,56 +111,86 @@ KeyChain::getDefaultKeyParams()
 
 //
 
+class KeyChain::Locator
+{
+public:
+  NDN_CXX_NODISCARD bool
+  empty() const
+  {
+    return scheme.empty();
+  }
+
+  NDN_CXX_NODISCARD std::string
+  canonical() const
+  {
+    return scheme + ':' + location;
+  }
+
+  friend bool
+  operator==(const Locator& lhs, const Locator& rhs)
+  {
+    return lhs.scheme == rhs.scheme && lhs.location == rhs.location;
+  }
+
+public:
+  std::string scheme;
+  std::string location;
+};
+
+KeyChain::Locator KeyChain::s_defaultPibLocator;
+KeyChain::Locator KeyChain::s_defaultTpmLocator;
+
+//
+
 KeyChain::KeyChain()
   : KeyChain(getDefaultPibLocator(), getDefaultTpmLocator(), true)
 {
 }
 
 KeyChain::KeyChain(const std::string& pibLocator, const std::string& tpmLocator, bool allowReset)
+  : KeyChain(parseAndCheckPibLocator(pibLocator),
+             parseAndCheckTpmLocator(tpmLocator),
+             allowReset)
 {
-  // PIB Locator
-  std::string pibScheme, pibLocation;
-  std::tie(pibScheme, pibLocation) = parseAndCheckPibLocator(pibLocator);
-  std::string canonicalPibLocator = pibScheme + ":" + pibLocation;
+}
 
+KeyChain::KeyChain(Locator pibLocator, Locator tpmLocator, bool allowReset)
+{
   // Create PIB
-  m_pib = createPib(canonicalPibLocator);
-  std::string oldTpmLocator;
-  try {
-    oldTpmLocator = m_pib->getTpmLocator();
-  }
-  catch (const Pib::Error&) {
-    // TPM locator is not set in PIB yet.
-  }
+  auto pibFactory = getPibFactories().find(pibLocator.scheme);
+  BOOST_ASSERT(pibFactory != getPibFactories().end());
+  m_pib.reset(new Pib(pibLocator.canonical(), pibFactory->second(pibLocator.location)));
 
-  // TPM Locator
-  std::string tpmScheme, tpmLocation;
-  std::tie(tpmScheme, tpmLocation) = parseAndCheckTpmLocator(tpmLocator);
-  std::string canonicalTpmLocator = tpmScheme + ":" + tpmLocation;
-
-  if (canonicalPibLocator == getDefaultPibLocator()) {
+  // Figure out the TPM Locator
+  std::string oldTpmLocator = m_pib->getTpmLocator();
+  if (pibLocator == getDefaultPibLocator()) {
     // Default PIB must use default TPM
-    if (!oldTpmLocator.empty() && oldTpmLocator != getDefaultTpmLocator()) {
+    if (!oldTpmLocator.empty() && oldTpmLocator != getDefaultTpmLocator().canonical()) {
       m_pib->reset();
-      canonicalTpmLocator = getDefaultTpmLocator();
+      tpmLocator = getDefaultTpmLocator();
     }
   }
   else {
     // non-default PIB check consistency
-    if (!oldTpmLocator.empty() && oldTpmLocator != canonicalTpmLocator) {
+    if (!oldTpmLocator.empty() && oldTpmLocator != tpmLocator.canonical()) {
       if (allowReset)
         m_pib->reset();
       else
-        NDN_THROW(LocatorMismatchError("TPM locator supplied does not match TPM locator in PIB: " +
-                                       oldTpmLocator + " != " + canonicalTpmLocator));
+        NDN_THROW(LocatorMismatchError("Supplied TPM locator (" + tpmLocator.canonical() +
+                                       ") does not match TPM locator in PIB (" + oldTpmLocator + ")"));
     }
   }
-
-  // note that key mismatch may still happen if the TPM locator is initially set to a
+  // Note that key mismatch may still happen if the TPM locator is initially set to a
   // wrong one or if the PIB was shared by more than one TPMs before.  This is due to the
-  // old PIB does not have TPM info, new pib should not have this problem.
-  m_tpm = createTpm(canonicalTpmLocator);
-  m_pib->setTpmLocator(canonicalTpmLocator);
+  // old PIB not having TPM info, the new PIB should not have this problem.
+
+  // Create TPM
+  auto tpmFactory = getTpmFactories().find(tpmLocator.scheme);
+  BOOST_ASSERT(tpmFactory != getTpmFactories().end());
+  m_tpm.reset(new Tpm(tpmLocator.canonical(), tpmFactory->second(tpmLocator.location)));
+
+  // Link PIB with TPM
+  m_pib->setTpmLocator(tpmLocator.canonical());
 }
 
 KeyChain::~KeyChain() = default;
@@ -498,28 +485,28 @@ KeyChain::makeCertificate(const Certificate& certRequest, const SigningInfo& par
     transform::PublicKey pub;
     pub.loadPkcs8(pkcs8);
   }
-  catch (const transform::PublicKey::Error& e) {
+  catch (const transform::PublicKey::Error&) {
     NDN_THROW_NESTED(std::invalid_argument("Certificate request contains invalid public key"));
   }
 
   return makeCertificate(extractKeyNameFromCertName(certRequest.getName()), pkcs8, params, opts);
 }
 
-// public: PIB/TPM creation helpers
+// private: PIB/TPM locator helpers
 
-static inline std::tuple<std::string/*type*/, std::string/*location*/>
+static std::tuple<std::string/*scheme*/, std::string/*location*/>
 parseLocatorUri(const std::string& uri)
 {
-  size_t pos = uri.find(':');
+  auto pos = uri.find(':');
   if (pos != std::string::npos) {
-    return std::make_tuple(uri.substr(0, pos), uri.substr(pos + 1));
+    return {uri.substr(0, pos), uri.substr(pos + 1)};
   }
   else {
-    return std::make_tuple(uri, "");
+    return {uri, ""};
   }
 }
 
-std::tuple<std::string/*type*/, std::string/*location*/>
+KeyChain::Locator
 KeyChain::parseAndCheckPibLocator(const std::string& pibLocator)
 {
   std::string pibScheme, pibLocation;
@@ -534,20 +521,10 @@ KeyChain::parseAndCheckPibLocator(const std::string& pibLocator)
     NDN_THROW(Error("PIB scheme `" + pibScheme + "` is not supported"));
   }
 
-  return std::make_tuple(pibScheme, pibLocation);
+  return {pibScheme, pibLocation};
 }
 
-unique_ptr<Pib>
-KeyChain::createPib(const std::string& pibLocator)
-{
-  std::string pibScheme, pibLocation;
-  std::tie(pibScheme, pibLocation) = parseAndCheckPibLocator(pibLocator);
-  auto pibFactory = getPibFactories().find(pibScheme);
-  BOOST_ASSERT(pibFactory != getPibFactories().end());
-  return unique_ptr<Pib>(new Pib(pibScheme, pibLocation, pibFactory->second(pibLocation)));
-}
-
-std::tuple<std::string/*type*/, std::string/*location*/>
+KeyChain::Locator
 KeyChain::parseAndCheckTpmLocator(const std::string& tpmLocator)
 {
   std::string tpmScheme, tpmLocation;
@@ -562,18 +539,59 @@ KeyChain::parseAndCheckTpmLocator(const std::string& tpmLocator)
     NDN_THROW(Error("TPM scheme `" + tpmScheme + "` is not supported"));
   }
 
-  return std::make_tuple(tpmScheme, tpmLocation);
+  return {tpmScheme, tpmLocation};
 }
 
-unique_ptr<Tpm>
-KeyChain::createTpm(const std::string& tpmLocator)
+const KeyChain::Locator&
+KeyChain::getDefaultPibLocator()
 {
-  std::string tpmScheme, tpmLocation;
-  std::tie(tpmScheme, tpmLocation) = parseAndCheckTpmLocator(tpmLocator);
-  auto tpmFactory = getTpmFactories().find(tpmScheme);
-  BOOST_ASSERT(tpmFactory != getTpmFactories().end());
-  return unique_ptr<Tpm>(new Tpm(tpmScheme, tpmLocation, tpmFactory->second(tpmLocation)));
+  if (!s_defaultPibLocator.empty())
+    return s_defaultPibLocator;
+
+  std::string input;
+  const char* pibEnv = std::getenv("NDN_CLIENT_PIB");
+  if (pibEnv != nullptr) {
+    input = pibEnv;
+  }
+  else {
+    ConfigFile config;
+    input = config.getParsedConfiguration().get<std::string>("pib", getDefaultPibScheme());
+  }
+
+  s_defaultPibLocator = parseAndCheckPibLocator(input);
+  BOOST_ASSERT(!s_defaultPibLocator.empty());
+  return s_defaultPibLocator;
 }
+
+const KeyChain::Locator&
+KeyChain::getDefaultTpmLocator()
+{
+  if (!s_defaultTpmLocator.empty())
+    return s_defaultTpmLocator;
+
+  std::string input;
+  const char* tpmEnv = std::getenv("NDN_CLIENT_TPM");
+  if (tpmEnv != nullptr) {
+    input = tpmEnv;
+  }
+  else {
+    ConfigFile config;
+    input = config.getParsedConfiguration().get<std::string>("tpm", getDefaultTpmScheme());
+  }
+
+  s_defaultTpmLocator = parseAndCheckTpmLocator(input);
+  BOOST_ASSERT(!s_defaultTpmLocator.empty());
+  return s_defaultTpmLocator;
+}
+
+#ifdef NDN_CXX_HAVE_TESTS
+void
+KeyChain::resetDefaultLocators()
+{
+  s_defaultPibLocator = {};
+  s_defaultTpmLocator = {};
+}
+#endif
 
 // private: signing
 

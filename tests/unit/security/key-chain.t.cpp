@@ -53,19 +53,7 @@ public:
 
   ~TestHomeAndPibFixture()
   {
-    try {
-      const_cast<std::string&>(KeyChain::getDefaultPibLocator()).clear();
-    }
-    catch (const KeyChain::Error&) {
-      // ignore
-    }
-
-    try {
-      const_cast<std::string&>(KeyChain::getDefaultTpmLocator()).clear();
-    }
-    catch (const KeyChain::Error&) {
-      // ignore
-    }
+    KeyChain::resetDefaultLocators();
   }
 };
 
@@ -77,8 +65,6 @@ struct PibPathConfigFileHome
 BOOST_FIXTURE_TEST_CASE(ConstructorNormalConfig, TestHomeAndPibFixture<PibPathConfigFileHome>)
 {
   createClientConf({"pib=pib-memory:", "tpm=tpm-memory:"});
-
-  BOOST_REQUIRE_NO_THROW(KeyChain());
 
   KeyChain keyChain;
   BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-memory:");
@@ -110,7 +96,6 @@ BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathCon
     unsetenv("HOME");
 #endif
 
-  BOOST_REQUIRE_NO_THROW(KeyChain());
   KeyChain keyChain;
   BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-memory:");
 
@@ -143,8 +128,6 @@ struct PibPathConfigFileEmpty2Home
 BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig2, TestHomeAndPibFixture<PibPathConfigFileEmpty2Home>)
 {
   createClientConf({"tpm=tpm-memory:"});
-
-  BOOST_REQUIRE_NO_THROW(KeyChain());
 
   KeyChain keyChain;
   BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-sqlite3:");
@@ -200,14 +183,13 @@ BOOST_FIXTURE_TEST_CASE(ConstructorNonCanonicalTpm, TestHomeAndPibFixture<PibPat
 
 BOOST_AUTO_TEST_CASE(KeyChainWithCustomTpmAndPib)
 {
-  BOOST_REQUIRE_NO_THROW((KeyChain("pib-memory", "tpm-memory")));
-  BOOST_REQUIRE_NO_THROW((KeyChain("pib-memory:", "tpm-memory:")));
-  BOOST_REQUIRE_NO_THROW((KeyChain("pib-memory:/something", "tpm-memory:/something")));
-
   KeyChain keyChain("pib-memory", "tpm-memory");
   BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-memory:");
   BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-memory:");
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-memory:");
+
+  BOOST_CHECK_NO_THROW(KeyChain("pib-memory:", "tpm-memory:"));
+  BOOST_CHECK_NO_THROW(KeyChain("pib-memory:/something", "tpm-memory:/something"));
 }
 
 BOOST_FIXTURE_TEST_CASE(SigningWithCorruptedPibTpm, KeyChainFixture)

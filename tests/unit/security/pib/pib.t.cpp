@@ -38,13 +38,13 @@ using pib::Pib;
 
 BOOST_AUTO_TEST_CASE(TpmLocator)
 {
-  Pib pib("pib-memory", "", make_shared<PibMemory>());
+  Pib pib("pib-memory:", make_shared<PibMemory>());
 
   BOOST_CHECK_EQUAL(pib.getPibLocator(), "pib-memory:");
-  BOOST_CHECK_THROW(pib.getTpmLocator(), Pib::Error);
+  BOOST_CHECK_EQUAL(pib.getTpmLocator(), "");
 
   pib.setTpmLocator("test-tpm-locator");
-  BOOST_CHECK_NO_THROW(pib.getTpmLocator());
+  BOOST_CHECK_EQUAL(pib.getTpmLocator(), "test-tpm-locator");
 
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
   pib.addIdentity(id1);
@@ -52,17 +52,18 @@ BOOST_AUTO_TEST_CASE(TpmLocator)
 
   pib.setTpmLocator("another-tpm-locator");
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
+  BOOST_CHECK_EQUAL(pib.getTpmLocator(), "another-tpm-locator");
 
   pib.addIdentity(id1);
   BOOST_CHECK_NO_THROW(pib.getIdentity(id1));
   pib.reset();
   BOOST_CHECK_THROW(pib.getIdentity(id1), Pib::Error);
-  BOOST_CHECK_THROW(pib.getTpmLocator(), Pib::Error);
+  BOOST_CHECK_EQUAL(pib.getTpmLocator(), "");
 }
 
 BOOST_AUTO_TEST_CASE(IdentityOperations)
 {
-  Pib pib("pib-memory", "", make_shared<PibMemory>());
+  Pib pib("pib-memory:", make_shared<PibMemory>());
 
   // PIB starts with no identities
   BOOST_CHECK_EQUAL(pib.getIdentities().size(), 0);

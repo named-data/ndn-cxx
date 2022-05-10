@@ -73,8 +73,14 @@ public:
 
   ~Tpm();
 
-  std::string
-  getTpmLocator() const;
+  /**
+   * @brief Return the TPM Locator.
+   */
+  const std::string&
+  getTpmLocator() const
+  {
+    return m_locator;
+  }
 
   /**
    * @brief Check if a private key exists.
@@ -153,15 +159,14 @@ public: // Management
   NDN_CXX_NODISCARD bool
   unlockTpm(const char* password, size_t passwordLength) const;
 
-NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // operations accessible only by KeyChain
   /**
-   * @brief Create a new TPM instance with the specified @p location.
+   * @brief Create a Tpm instance.
    *
-   * @param scheme The scheme for the TPM
-   * @param location The location for the TPM
-   * @param impl The back-end implementation
+   * @param locator The TPM locator
+   * @param impl The backend implementation
    */
-  Tpm(const std::string& scheme, const std::string& location, unique_ptr<BackEnd> impl);
+  Tpm(const std::string& locator, unique_ptr<BackEnd> impl);
 
   /**
    * @brief Create key for @p identityName according to @p params.
@@ -239,12 +244,10 @@ private:
   findKey(const Name& keyName) const;
 
 private:
-  std::string m_scheme;
-  std::string m_location;
+  const std::string m_locator;
+  const unique_ptr<BackEnd> m_backEnd;
 
   mutable std::unordered_map<Name, unique_ptr<KeyHandle>> m_keys;
-
-  const unique_ptr<BackEnd> m_backEnd;
 
   friend KeyChain;
 };

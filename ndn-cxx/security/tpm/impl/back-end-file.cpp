@@ -96,7 +96,7 @@ BackEndFile::~BackEndFile() = default;
 const std::string&
 BackEndFile::getScheme()
 {
-  static std::string scheme = "tpm-file";
+  static const std::string scheme("tpm-file");
   return scheme;
 }
 

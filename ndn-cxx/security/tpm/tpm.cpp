@@ -29,20 +29,13 @@ namespace ndn {
 namespace security {
 namespace tpm {
 
-Tpm::Tpm(const std::string& scheme, const std::string& location, unique_ptr<BackEnd> backEnd)
-  : m_scheme(scheme)
-  , m_location(location)
+Tpm::Tpm(const std::string& locator, unique_ptr<BackEnd> backEnd)
+  : m_locator(locator)
   , m_backEnd(std::move(backEnd))
 {
 }
 
 Tpm::~Tpm() = default;
-
-std::string
-Tpm::getTpmLocator() const
-{
-  return m_scheme + ":" + m_location;
-}
 
 bool
 Tpm::hasKey(const Name& keyName) const

@@ -113,24 +113,22 @@ public:
   /**
    * @brief Constructor to create KeyChain with default PIB and TPM.
    *
-   * Default PIB and TPM are platform-dependent and can be overriden system-wide or
-   * individually for the user.
+   * The default PIB and TPM are platform-dependent and can be overridden system-wide
+   * or on a per-user or even per-application basis.
    *
-   * @sa manpage ndn-client.conf
-   *
-   * @todo Add detailed description about config file behavior here
+   * @sa man ndn-client.conf(5)
    */
   KeyChain();
 
   /**
-   * @brief KeyChain constructor
-   *
-   * @sa manpage ndn-client.conf
+   * @brief KeyChain constructor.
    *
    * @param pibLocator PIB locator, e.g., `pib-sqlite3:/example/dir`
    * @param tpmLocator TPM locator, e.g., `tpm-memory:`
    * @param allowReset if true, the PIB will be reset when the supplied @p tpmLocator
    *                   does not match the one in the PIB
+   *
+   * @sa man ndn-client.conf(5)
    */
   KeyChain(const std::string& pibLocator, const std::string& tpmLocator, bool allowReset = false);
 
@@ -402,36 +400,36 @@ public: // export & import
 
 public: // PIB & TPM backend registry
   /**
-   * @brief Register a new PIB backend
-   * @param scheme Name for the registered PIB backend scheme
-   *
-   * @note This interface is implementation detail and may change without notice.
+   * @brief Register a new PIB backend type.
+   * @param scheme Unique identifier for the registered PIB backend type.
    */
   template<class PibBackendType>
   static void
   registerPibBackend(const std::string& scheme)
   {
-    getPibFactories().emplace(scheme, [] (const std::string& locator) {
-      return shared_ptr<pib::PibImpl>(new PibBackendType(locator));
+    getPibFactories().emplace(scheme, [] (const std::string& location) {
+      return shared_ptr<pib::PibImpl>(new PibBackendType(location));
     });
   }
 
   /**
-   * @brief Register a new TPM backend
-   * @param scheme Name for the registered TPM backend scheme
-   *
-   * @note This interface is implementation detail and may change without notice.
+   * @brief Register a new TPM backend type.
+   * @param scheme Unique identifier for the registered TPM backend type.
    */
   template<class TpmBackendType>
   static void
   registerTpmBackend(const std::string& scheme)
   {
-    getTpmFactories().emplace(scheme, [] (const std::string& locator) {
-      return unique_ptr<tpm::BackEnd>(new TpmBackendType(locator));
+    getTpmFactories().emplace(scheme, [] (const std::string& location) {
+      return unique_ptr<tpm::BackEnd>(new TpmBackendType(location));
     });
   }
 
 private:
+  class Locator;
+
+  KeyChain(Locator pibLocator, Locator tpmLocator, bool allowReset);
+
   using PibFactories = std::map<std::string, std::function<shared_ptr<pib::PibImpl>(const std::string&)>>;
   using TpmFactories = std::map<std::string, std::function<unique_ptr<tpm::BackEnd>(const std::string&)>>;
 
@@ -441,36 +439,23 @@ private:
   static TpmFactories&
   getTpmFactories();
 
-  static std::tuple<std::string/*type*/, std::string/*location*/>
+  static Locator
   parseAndCheckPibLocator(const std::string& pibLocator);
 
-  static std::tuple<std::string/*type*/, std::string/*location*/>
+  static Locator
   parseAndCheckTpmLocator(const std::string& tpmLocator);
 
-  static const std::string&
-  getDefaultPibScheme();
-
-  static const std::string&
-  getDefaultTpmScheme();
-
-  /**
-    * @brief Create a PIB according to @p pibLocator
-    */
-  static unique_ptr<Pib>
-  createPib(const std::string& pibLocator);
-
-  /**
-   * @brief Create a TPM according to @p tpmLocator
-   */
-  static unique_ptr<Tpm>
-  createTpm(const std::string& tpmLocator);
-
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  static const std::string&
+  static const Locator&
   getDefaultPibLocator();
 
-  static const std::string&
+  static const Locator&
   getDefaultTpmLocator();
+
+#ifdef NDN_CXX_HAVE_TESTS
+  static void
+  resetDefaultLocators();
+#endif
 
   /**
    * @brief Derive SignatureTypeValue according to key type and digest algorithm.
@@ -526,17 +511,15 @@ private:
   unique_ptr<Pib> m_pib;
   unique_ptr<Tpm> m_tpm;
 
-  static std::string s_defaultPibLocator;
-  static std::string s_defaultTpmLocator;
+  static Locator s_defaultPibLocator;
+  static Locator s_defaultTpmLocator;
 };
 
 /**
  * @brief Register Pib backend class in KeyChain
  *
  * This macro should be placed once in the implementation file of the
- * Pib backend class within the namespace where the type is declared.
- *
- * @note This interface is an implementation detail and may change without notice.
+ * Pib backend class, inside the namespace where the type is declared.
  */
 #define NDN_CXX_KEYCHAIN_REGISTER_PIB_BACKEND(PibType)     \
 static class NdnCxxAuto ## PibType ## PibRegistrationClass    \
@@ -552,9 +535,7 @@ public:                                                       \
  * @brief Register Tpm backend class in KeyChain
  *
  * This macro should be placed once in the implementation file of the
- * Tpm backend class within the namespace where the type is declared.
- *
- * @note This interface is an implementation detail and may change without notice.
+ * Tpm backend class, inside the namespace where the type is declared.
  */
 #define NDN_CXX_KEYCHAIN_REGISTER_TPM_BACKEND(TpmType)     \
 static class NdnCxxAuto ## TpmType ## TpmRegistrationClass    \

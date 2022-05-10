@@ -29,9 +29,8 @@ namespace pib {
 
 NDN_LOG_INIT(ndn.security.Pib);
 
-Pib::Pib(const std::string& scheme, const std::string& location, shared_ptr<PibImpl> impl)
-  : m_scheme(scheme)
-  , m_location(location)
+Pib::Pib(const std::string& locator, shared_ptr<PibImpl> impl)
+  : m_locator(locator)
   , m_impl(std::move(impl))
   , m_identities(m_impl)
 {
@@ -41,9 +40,9 @@ Pib::Pib(const std::string& scheme, const std::string& location, shared_ptr<PibI
 Pib::~Pib() = default;
 
 std::string
-Pib::getPibLocator() const
+Pib::getTpmLocator() const
 {
-  return m_scheme + ":" + m_location;
+  return m_impl->getTpmLocator();
 }
 
 void
@@ -56,16 +55,6 @@ Pib::setTpmLocator(const std::string& tpmLocator)
   NDN_LOG_DEBUG("Resetting TPM locator to " << tpmLocator);
   reset();
   m_impl->setTpmLocator(tpmLocator);
-}
-
-std::string
-Pib::getTpmLocator() const
-{
-  auto tpmLocator = m_impl->getTpmLocator();
-  if (tpmLocator.empty()) {
-    NDN_THROW(Pib::Error("TPM info does not exist"));
-  }
-  return tpmLocator;
 }
 
 void
