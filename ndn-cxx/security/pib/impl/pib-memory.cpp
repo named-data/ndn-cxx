@@ -201,7 +201,7 @@ PibMemory::addCertificate(const Certificate& certificate)
   const Name& keyName = certificate.getKeyName();
 
   // ensure key exists
-  addKey(certificate.getIdentity(), keyName, certificate.getContent().value_bytes());
+  addKey(certificate.getIdentity(), keyName, certificate.getPublicKey());
 
   m_certs[certName] = certificate;
   if (m_defaultCerts.count(keyName) == 0) {

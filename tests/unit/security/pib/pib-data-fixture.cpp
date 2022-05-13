@@ -374,10 +374,10 @@ PibDataFixture::PibDataFixture()
   , id2Key1Name(id2Key1Cert1.getKeyName())
   , id2Key2Name(id2Key2Cert1.getKeyName())
 
-  , id1Key1(id1Key1Cert1.getPublicKey())
-  , id1Key2(id1Key2Cert1.getPublicKey())
-  , id2Key1(id2Key1Cert1.getPublicKey())
-  , id2Key2(id2Key2Cert1.getPublicKey())
+  , id1Key1(id1Key1Cert1.getPublicKey().begin(), id1Key1Cert1.getPublicKey().end())
+  , id1Key2(id1Key2Cert1.getPublicKey().begin(), id1Key2Cert1.getPublicKey().end())
+  , id2Key1(id2Key1Cert1.getPublicKey().begin(), id2Key1Cert1.getPublicKey().end())
+  , id2Key2(id2Key2Cert1.getPublicKey().begin(), id2Key2Cert1.getPublicKey().end())
 {
   BOOST_ASSERT(id1Key1Cert2.getIdentity() == id1);
   BOOST_ASSERT(id1Key2Cert1.getIdentity() == id1);
@@ -391,10 +391,10 @@ PibDataFixture::PibDataFixture()
   BOOST_ASSERT(id2Key1Cert2.getKeyName() == id2Key1Name);
   BOOST_ASSERT(id2Key2Cert2.getKeyName() == id2Key2Name);
 
-  BOOST_ASSERT(id1Key1Cert2.getPublicKey() == id1Key1);
-  BOOST_ASSERT(id1Key2Cert2.getPublicKey() == id1Key2);
-  BOOST_ASSERT(id2Key1Cert2.getPublicKey() == id2Key1);
-  BOOST_ASSERT(id2Key2Cert2.getPublicKey() == id2Key2);
+  BOOST_ASSERT(id1Key1Cert2.getContent() == id1Key1Cert1.getContent());
+  BOOST_ASSERT(id1Key2Cert2.getContent() == id1Key2Cert1.getContent());
+  BOOST_ASSERT(id2Key1Cert2.getContent() == id2Key1Cert1.getContent());
+  BOOST_ASSERT(id2Key2Cert2.getContent() == id2Key2Cert1.getContent());
 }
 
 shared_ptr<PibImpl>

@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(InvalidCert)
   BOOST_CHECK_EQUAL(nCertsCompleted, 1);
 
   BOOST_CHECK_EXCEPTION(cbd.append(d2.getContent()), tlv::Error, [] (const auto& e) {
-    return e.what() == "Name does not follow the naming convention for certificate"s;
+    return e.what() == "Certificate name does not follow the naming conventions"s;
   });
   BOOST_CHECK_EQUAL(cbd.hasError(), true);
   BOOST_CHECK_EQUAL(nCertsCompleted, 1);

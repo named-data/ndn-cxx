@@ -313,13 +313,10 @@ KeyChain::addCertificate(const Key& key, const Certificate& certificate)
 {
   BOOST_ASSERT(static_cast<bool>(key));
 
-  const auto& certContent = certificate.getContent();
-  if (certContent.value_size() == 0) {
-    NDN_THROW(std::invalid_argument("Certificate `" + certificate.getName().toUri() + "` is empty"));
-  }
-
+  auto pk = key.getPublicKey();
+  auto pkCert = certificate.getPublicKey();
   if (key.getName() != certificate.getKeyName() ||
-      !std::equal(certContent.value_begin(), certContent.value_end(), key.getPublicKey().begin())) {
+      !std::equal(pk.begin(), pk.end(), pkCert.begin(), pkCert.end())) {
     NDN_THROW(std::invalid_argument("Key `" + key.getName().toUri() + "` "
                                     "does not match certificate `" + certificate.getName().toUri() + "`"));
   }
@@ -372,7 +369,6 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   Certificate cert(std::move(certData));
   Name identity = cert.getIdentity();
   Name keyName = cert.getKeyName();
-  const auto publicKeyBits = cert.getPublicKey();
 
   if (m_tpm->hasKey(keyName)) {
     NDN_THROW(Error("Private key `" + keyName.toUri() + "` already exists"));
@@ -408,7 +404,7 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
   {
     using namespace transform;
     PublicKey publicKey;
-    publicKey.loadPkcs8(publicKeyBits);
+    publicKey.loadPkcs8(cert.getPublicKey());
     bufferSource(content) >> verifierFilter(DigestAlgorithm::SHA256, publicKey, *sigBits)
                           >> boolSink(isVerified);
   }
@@ -497,7 +493,7 @@ Certificate
 KeyChain::makeCertificate(const Certificate& certRequest, const SigningInfo& params,
                           const MakeCertificateOptions& opts)
 {
-  auto pkcs8 = certRequest.getContent().value_bytes();
+  auto pkcs8 = certRequest.getPublicKey();
   try {
     transform::PublicKey pub;
     pub.loadPkcs8(pkcs8);
@@ -586,11 +582,8 @@ KeyChain::makeCertificate(const Name& keyName, span<const uint8_t> publicKey,
                           SigningInfo params, const MakeCertificateOptions& opts)
 {
   if (opts.freshnessPeriod <= 0_ms) {
-    // Certificate format requires FreshnessPeriod field to appear in the packet.
-    // We cannot rely on Certificate constructor to check this, because:
-    // (1) Metadata::wireEncode omits zero FreshnessPeriod in the wire encoding, but
-    //     Certificate constructor does not throw in this condition
-    // (2) Certificate constructor throws Data::Error, not a std::invalid_argument
+    // We cannot rely on Certificate constructor to check this, because
+    // it throws Certificate::Error, not std::invalid_argument
     NDN_THROW(std::invalid_argument("FreshnessPeriod is not positive"));
   }
 

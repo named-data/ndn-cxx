@@ -43,7 +43,6 @@ inline namespace v2 {
  *                   Key Name
  * @endcode
  *
- * Notes:
  * - `KeyId` is an opaque name component to identify an instance of the public key for the
  *   certificate namespace.  The value of KeyId is controlled by the namespace owner.  The
  *   library includes helpers for generation of key IDs using 8-byte random number, SHA-256
@@ -52,14 +51,20 @@ inline namespace v2 {
  *   value is controlled by the issuer.  The library includes helpers to set issuer ID to a
  *   8-byte random number, SHA-256 digest of the issuer's public key, or a specified numerical
  *   identifier.
- * - `Key %Name` is a logical name of the key used for management purposes.  The key name
+ * - `Key %Name` is the logical name of the key used for management purposes.  The key name
  *   includes the identity name, the keyword `KEY`, and the `KeyId` component.
  *
- * @see doc/specs/certificate.rst
+ * @sa <a href="../specs/certificate.html">Certificate Format</a>
  */
 class Certificate : public Data
 {
 public:
+  class Error : public Data::Error
+  {
+  public:
+    using Data::Error::Error;
+  };
+
   Certificate();
 
   /**
@@ -84,16 +89,16 @@ public:
   Certificate(const Block& block);
 
   /**
-   * @brief Get key name
-   */
-  Name
-  getKeyName() const;
-
-  /**
    * @brief Get identity name
    */
   Name
   getIdentity() const;
+
+  /**
+   * @brief Get key name
+   */
+  Name
+  getKeyName() const;
 
   /**
    * @brief Get key ID
@@ -108,11 +113,14 @@ public:
   getIssuerId() const;
 
   /**
-   * @brief Get public key bits (in PKCS#8 format)
-   * @throw Error If content is empty
+   * @brief Return the public key as a DER-encoded SubjectPublicKeyInfo structure,
+   *        i.e., exactly as it appears in the serialized certificate.
    */
-  Buffer
-  getPublicKey() const;
+  span<const uint8_t>
+  getPublicKey() const noexcept
+  {
+    return getContent().value_bytes();
+  }
 
   /**
    * @brief Get validity period of the certificate

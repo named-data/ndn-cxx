@@ -611,8 +611,7 @@ public:
     BOOST_CHECK_EQUAL(cert.getContentType(), tlv::ContentType_Key);
     BOOST_CHECK_EQUAL(cert.getFreshnessPeriod(), 1_h);
 
-    BOOST_TEST(cert.getContent().value_bytes() == requester.getPublicKey(),
-               boost::test_tools::per_element());
+    BOOST_TEST(cert.getPublicKey() == requester.getPublicKey(), boost::test_tools::per_element());
 
     checkKeyLocatorName(cert);
 

@@ -474,7 +474,7 @@ void
 PibSqlite3::addCertificate(const Certificate& certificate)
 {
   // ensure key exists
-  addKey(certificate.getIdentity(), certificate.getKeyName(), certificate.getContent().value_bytes());
+  addKey(certificate.getIdentity(), certificate.getKeyName(), certificate.getPublicKey());
 
   if (!hasCertificate(certificate.getName())) {
     Sqlite3Statement statement(m_database,

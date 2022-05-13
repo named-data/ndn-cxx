@@ -33,6 +33,8 @@ inline namespace v2 {
 
 BOOST_CONCEPT_ASSERT((WireEncodable<Certificate>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Certificate>));
+static_assert(std::is_base_of<Data::Error, Certificate::Error>::value,
+              "Certificate::Error must inherit from Data::Error");
 
 // /<IdentityName>/KEY/<KeyId>/<IssuerId>/<Version>
 const ssize_t Certificate::VERSION_OFFSET = -1;
@@ -47,22 +49,20 @@ const name::Component Certificate::DEFAULT_ISSUER_ID("NA");
 Certificate::Certificate()
 {
   setContentType(tlv::ContentType_Key);
+  setFreshnessPeriod(1_h);
 }
 
 Certificate::Certificate(Data&& data)
   : Data(std::move(data))
 {
   if (!isValidName(getName())) {
-    NDN_THROW(Data::Error("Name does not follow the naming convention for certificate"));
+    NDN_THROW(Error("Certificate name does not follow the naming conventions"));
   }
   if (getContentType() != tlv::ContentType_Key) {
-    NDN_THROW(Data::Error("Expecting ContentType Key, got " + to_string(getContentType())));
+    NDN_THROW(Error("Expecting ContentType=Key, got " + to_string(getContentType())));
   }
-  if (getFreshnessPeriod() < time::seconds::zero()) {
-    NDN_THROW(Data::Error("FreshnessPeriod is not set"));
-  }
-  if (getContent().value_size() == 0) {
-    NDN_THROW(Data::Error("Content is empty"));
+  if (getFreshnessPeriod() <= 0_ms) {
+    NDN_THROW(Error("Certificate FreshnessPeriod cannot be zero"));
   }
 }
 
@@ -77,15 +77,15 @@ Certificate::Certificate(const Block& block)
 }
 
 Name
-Certificate::getKeyName() const
-{
-  return getName().getPrefix(KEY_ID_OFFSET + 1);
-}
-
-Name
 Certificate::getIdentity() const
 {
   return getName().getPrefix(KEY_COMPONENT_OFFSET);
+}
+
+Name
+Certificate::getKeyName() const
+{
+  return getName().getPrefix(KEY_ID_OFFSET + 1);
 }
 
 name::Component
@@ -98,15 +98,6 @@ name::Component
 Certificate::getIssuerId() const
 {
   return getName().at(ISSUER_ID_OFFSET);
-}
-
-Buffer
-Certificate::getPublicKey() const
-{
-  if (getContent().value_size() == 0)
-    NDN_THROW(Data::Error("Certificate Content is empty"));
-
-  return {getContent().value_begin(), getContent().value_end()};
 }
 
 ValidityPeriod
@@ -172,11 +163,11 @@ operator<<(std::ostream& os, const Certificate& cert)
       os << key.getKeySize() << "-bit " << key.getKeyType();
     }
     catch (const std::runtime_error&) {
-      os << "Unknown (" << cert.getContent().value_size() << " bytes)";
+      os << "Unknown (" << cert.getPublicKey().size() << " bytes)";
     }
     os << "\n";
 
-    if (cert.getContent().value_size() > 0) {
+    if (!cert.getPublicKey().empty()) {
       util::IndentedStream os2(os, "  ");
       bufferSource(cert.getPublicKey()) >> base64Encode() >> streamSink(os2);
     }

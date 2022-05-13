@@ -219,7 +219,7 @@ verifySignature(const Data& data, const optional<Certificate>& cert)
 {
   auto parsed = parse(data);
   if (cert) {
-    return verifySignature(parsed, cert->getContent().value_bytes());
+    return verifySignature(parsed, cert->getPublicKey());
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);
@@ -235,7 +235,7 @@ verifySignature(const Interest& interest, const optional<Certificate>& cert)
 {
   auto parsed = parse(interest);
   if (cert) {
-    return verifySignature(parsed, cert->getContent().value_bytes());
+    return verifySignature(parsed, cert->getPublicKey());
   }
   else if (parsed.info.getSignatureType() == tlv::SignatureTypeValue::DigestSha256) {
     return verifyDigest(parsed, DigestAlgorithm::SHA256);

@@ -141,18 +141,20 @@ BOOST_AUTO_TEST_CASE(Construction)
 {
   Block block(CERT);
   Certificate certificate(block);
+  const ValidityPeriod vp(time::fromIsoString("20150814T223739"),
+                          time::fromIsoString("20150818T223738"));
 
   BOOST_CHECK_EQUAL(certificate.getName(), "/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
   BOOST_CHECK_EQUAL(certificate.getKeyName(), "/ndn/site1/KEY/ksk-1416425377094");
   BOOST_CHECK_EQUAL(certificate.getIdentity(), "/ndn/site1");
-  BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
   BOOST_CHECK_EQUAL(certificate.getKeyId(), name::Component("ksk-1416425377094"));
+  BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
+  BOOST_TEST(certificate.getPublicKey() == PUBLIC_KEY, boost::test_tools::per_element());
   BOOST_CHECK_EQUAL(certificate.getKeyLocator().value().getName(), "/ndn/site1/KEY/ksk-2516425377094");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()),
-                    "(20150814T223739, 20150818T223738)");
+  BOOST_CHECK_EQUAL(certificate.getValidityPeriod(), vp);
 
-  BOOST_CHECK_THROW(certificate.getExtension(12345), Data::Error);
-  BOOST_CHECK_NO_THROW(certificate.getPublicKey());
+  BOOST_CHECK_EQUAL(certificate.getExtension(tlv::ValidityPeriod), vp.wireEncode());
+  BOOST_CHECK_THROW(certificate.getExtension(12345), tlv::Error);
 
   Data data(block);
   Certificate certificate2(std::move(data));
@@ -167,17 +169,20 @@ BOOST_AUTO_TEST_CASE(Setters)
   certificate.setContent(PUBLIC_KEY);
   generateFakeSignature(certificate);
 
+  const ValidityPeriod vp(time::fromIsoString("20141111T050000"),
+                          time::fromIsoString("20141111T060000"));
+
   BOOST_CHECK_EQUAL(certificate.getName(), "/ndn/site1/KEY/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
   BOOST_CHECK_EQUAL(certificate.getKeyName(), "/ndn/site1/KEY/ksk-1416425377094");
   BOOST_CHECK_EQUAL(certificate.getIdentity(), "/ndn/site1");
-  BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
   BOOST_CHECK_EQUAL(certificate.getKeyId(), name::Component("ksk-1416425377094"));
+  BOOST_CHECK_EQUAL(certificate.getIssuerId(), name::Component("0123"));
+  BOOST_TEST(certificate.getPublicKey() == PUBLIC_KEY, boost::test_tools::per_element());
   BOOST_CHECK_EQUAL(certificate.getKeyLocator().value().getName(), "/ndn/site1/KEY/ksk-2516425377094");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(certificate.getValidityPeriod()),
-                    "(20141111T050000, 20141111T060000)");
+  BOOST_CHECK_EQUAL(certificate.getValidityPeriod(), vp);
 
-  BOOST_CHECK_THROW(certificate.getExtension(12345), Data::Error);
-  BOOST_CHECK_NO_THROW(certificate.getPublicKey());
+  BOOST_CHECK_EQUAL(certificate.getExtension(tlv::ValidityPeriod), vp.wireEncode());
+  BOOST_CHECK_THROW(certificate.getExtension(12345), tlv::Error);
 }
 
 BOOST_AUTO_TEST_CASE(ValidityPeriodChecking)
@@ -216,35 +221,30 @@ BOOST_FIXTURE_TEST_CASE(InvalidName, InvalidCertFixture)
 {
   Data data(m_certBase);
   data.setName("/ndn/site1/ksk-1416425377094/0123/%FD%00%00%01I%C9%8B");
-  generateFakeSignature(data);
 
-  BOOST_CHECK_THROW((Certificate(data)), Certificate::Error);
-  BOOST_CHECK_THROW((Certificate(std::move(data))), Certificate::Error);
+  BOOST_CHECK_EXCEPTION(Certificate{std::move(data)}, Certificate::Error, [] (const auto& e) {
+    return e.what() == "Certificate name does not follow the naming conventions"s;
+  });
 }
 
-BOOST_FIXTURE_TEST_CASE(InvalidType, InvalidCertFixture)
+BOOST_FIXTURE_TEST_CASE(InvalidContentType, InvalidCertFixture)
 {
   Data data(m_certBase);
   data.setContentType(tlv::ContentType_Blob);
-  generateFakeSignature(data);
 
-  BOOST_CHECK_THROW((Certificate(data)), Certificate::Error);
-  BOOST_CHECK_THROW((Certificate(std::move(data))), Certificate::Error);
+  BOOST_CHECK_EXCEPTION(Certificate{std::move(data)}, Certificate::Error, [] (const auto& e) {
+    return e.what() == "Expecting ContentType=Key, got 0"s;
+  });
 }
 
-BOOST_FIXTURE_TEST_CASE(EmptyContent, InvalidCertFixture)
+BOOST_FIXTURE_TEST_CASE(InvalidFreshnessPeriod, InvalidCertFixture)
 {
   Data data(m_certBase);
-  data.setContent(span<uint8_t>{});
-  generateFakeSignature(data);
+  data.setFreshnessPeriod(0_ms);
 
-  BOOST_CHECK_THROW(Certificate{data}, Certificate::Error);
-  BOOST_CHECK_THROW(Certificate{std::move(data)}, Certificate::Error);
-
-  Certificate cert(m_certBase);
-  cert.setContent(span<uint8_t>{});
-  generateFakeSignature(cert);
-  BOOST_CHECK_THROW(cert.getPublicKey(), Certificate::Error);
+  BOOST_CHECK_EXCEPTION(Certificate{std::move(data)}, Certificate::Error, [] (const auto& e) {
+    return e.what() == "Certificate FreshnessPeriod cannot be zero"s;
+  });
 }
 
 BOOST_AUTO_TEST_CASE(Print)
@@ -370,6 +370,25 @@ Signature Information:
   Certificate cert6(cert3);
   cert6.setSignatureInfo(sigInfo);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert6), expected6);
+}
+
+BOOST_AUTO_TEST_CASE(Helpers)
+{
+  BOOST_CHECK_EQUAL(extractIdentityFromCertName("/KEY/hello/world/v=1"), "/");
+  BOOST_CHECK_EQUAL(extractIdentityFromCertName("/hello/world/KEY/!/self/v=42"), "/hello/world");
+
+  BOOST_CHECK_THROW(extractIdentityFromCertName("/hello"), std::invalid_argument);
+  BOOST_CHECK_THROW(extractIdentityFromCertName("/hello/KEY/keyid"), std::invalid_argument);
+  BOOST_CHECK_THROW(extractIdentityFromCertName("/hello/KEY/keyid/issuer"), std::invalid_argument);
+  BOOST_CHECK_THROW(extractIdentityFromCertName("/a/long/enough/but/invalid/name"), std::invalid_argument);
+
+  BOOST_CHECK_EQUAL(extractKeyNameFromCertName("/KEY/hello/world/v=1"), "/KEY/hello");
+  BOOST_CHECK_EQUAL(extractKeyNameFromCertName("/hello/world/KEY/!/self/v=42"), "/hello/world/KEY/!");
+
+  BOOST_CHECK_THROW(extractKeyNameFromCertName("/hello"), std::invalid_argument);
+  BOOST_CHECK_THROW(extractKeyNameFromCertName("/hello/KEY/keyid"), std::invalid_argument);
+  BOOST_CHECK_THROW(extractKeyNameFromCertName("/hello/KEY/keyid/issuer"), std::invalid_argument);
+  BOOST_CHECK_THROW(extractKeyNameFromCertName("/a/long/enough/but/invalid/name"), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificate
