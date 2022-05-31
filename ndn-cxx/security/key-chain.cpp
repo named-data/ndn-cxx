@@ -21,10 +21,7 @@
 
 #include "ndn-cxx/security/key-chain.hpp"
 #include "ndn-cxx/security/signing-helpers.hpp"
-
-#include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/util/config-file.hpp"
-#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/security/verification-helpers.hpp"
 
 #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 #include "ndn-cxx/security/pib/impl/pib-sqlite3.hpp"
@@ -35,13 +32,16 @@
 #include "ndn-cxx/security/tpm/impl/back-end-osx.hpp"
 #endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
 
-#include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
 #include "ndn-cxx/security/transform/public-key.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
-#include "ndn-cxx/security/transform/verifier-filter.hpp"
+
+#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/util/config-file.hpp"
+#include "ndn-cxx/util/logger.hpp"
+#include "ndn-cxx/util/random.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <cstdlib>  // for std::getenv()
@@ -200,6 +200,7 @@ KeyChain::~KeyChain() = default;
 Identity
 KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
 {
+  NDN_LOG_DEBUG("Requesting creation of identity " << identityName);
   Identity id = m_pib->addIdentity(identityName);
 
   Key key;
@@ -214,7 +215,7 @@ KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
     key.getDefaultCertificate();
   }
   catch (const Pib::Error&) {
-    NDN_LOG_DEBUG("No default cert for " << key.getName() << ", requesting self-signing");
+    NDN_LOG_DEBUG("No default certificate for " << key << ", requesting self-signing");
     selfSign(key);
   }
 
@@ -224,9 +225,12 @@ KeyChain::createIdentity(const Name& identityName, const KeyParams& params)
 void
 KeyChain::deleteIdentity(const Identity& identity)
 {
-  BOOST_ASSERT(static_cast<bool>(identity));
+  if (!identity) {
+    return;
+  }
 
   Name identityName = identity.getName();
+  NDN_LOG_DEBUG("Requesting deletion of identity " << identityName);
 
   for (const auto& key : identity.getKeys()) {
     m_tpm->deleteKey(key.getName());
@@ -238,7 +242,7 @@ KeyChain::deleteIdentity(const Identity& identity)
 void
 KeyChain::setDefaultIdentity(const Identity& identity)
 {
-  BOOST_ASSERT(static_cast<bool>(identity));
+  BOOST_ASSERT(identity);
 
   m_pib->setDefaultIdentity(identity.getName());
 }
@@ -246,7 +250,7 @@ KeyChain::setDefaultIdentity(const Identity& identity)
 Key
 KeyChain::createKey(const Identity& identity, const KeyParams& params)
 {
-  BOOST_ASSERT(static_cast<bool>(identity));
+  BOOST_ASSERT(identity);
 
   // create key in TPM
   Name keyName = m_tpm->createKey(identity.getName(), params);
@@ -254,7 +258,7 @@ KeyChain::createKey(const Identity& identity, const KeyParams& params)
   // set up key info in PIB
   Key key = identity.addKey(*m_tpm->getPublicKey(keyName), keyName);
 
-  NDN_LOG_DEBUG("Requesting self-signing for newly created key " << key.getName());
+  NDN_LOG_DEBUG("Requesting self-signing for newly created key " << key);
   selfSign(key);
 
   return key;
@@ -269,15 +273,12 @@ KeyChain::createHmacKey(const Name& prefix, const HmacKeyParams& params)
 void
 KeyChain::deleteKey(const Identity& identity, const Key& key)
 {
-  BOOST_ASSERT(static_cast<bool>(identity));
-  BOOST_ASSERT(static_cast<bool>(key));
-
-  Name keyName = key.getName();
-  if (identity.getName() != key.getIdentity()) {
-    NDN_THROW(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
-                                    "does not match key `" + keyName.toUri() + "`"));
+  BOOST_ASSERT(identity);
+  if (!key) {
+    return;
   }
 
+  Name keyName = key.getName();
   identity.removeKey(keyName);
   m_tpm->deleteKey(keyName);
 }
@@ -285,12 +286,8 @@ KeyChain::deleteKey(const Identity& identity, const Key& key)
 void
 KeyChain::setDefaultKey(const Identity& identity, const Key& key)
 {
-  BOOST_ASSERT(static_cast<bool>(identity));
-  BOOST_ASSERT(static_cast<bool>(key));
-
-  if (identity.getName() != key.getIdentity())
-    NDN_THROW(std::invalid_argument("Identity `" + identity.getName().toUri() + "` "
-                                    "does not match key `" + key.getName().toUri() + "`"));
+  BOOST_ASSERT(identity);
+  BOOST_ASSERT(key);
 
   identity.setDefaultKey(key.getName());
 }
@@ -298,44 +295,30 @@ KeyChain::setDefaultKey(const Identity& identity, const Key& key)
 void
 KeyChain::addCertificate(const Key& key, const Certificate& certificate)
 {
-  BOOST_ASSERT(static_cast<bool>(key));
-
-  auto pk = key.getPublicKey();
-  auto pkCert = certificate.getPublicKey();
-  if (key.getName() != certificate.getKeyName() ||
-      !std::equal(pk.begin(), pk.end(), pkCert.begin(), pkCert.end())) {
-    NDN_THROW(std::invalid_argument("Key `" + key.getName().toUri() + "` "
-                                    "does not match certificate `" + certificate.getName().toUri() + "`"));
-  }
+  BOOST_ASSERT(key);
 
   key.addCertificate(certificate);
 }
 
 void
-KeyChain::deleteCertificate(const Key& key, const Name& certificateName)
+KeyChain::deleteCertificate(const Key& key, const Name& certName)
 {
-  BOOST_ASSERT(static_cast<bool>(key));
+  BOOST_ASSERT(key);
 
-  if (!Certificate::isValidName(certificateName)) {
-    NDN_THROW(std::invalid_argument("Wrong certificate name `" + certificateName.toUri() + "`"));
-  }
-
-  key.removeCertificate(certificateName);
+  key.removeCertificate(certName);
 }
 
 void
 KeyChain::setDefaultCertificate(const Key& key, const Certificate& cert)
 {
-  BOOST_ASSERT(static_cast<bool>(key));
+  BOOST_ASSERT(key);
 
-  addCertificate(key, cert);
-  key.setDefaultCertificate(cert.getName());
+  key.setDefaultCertificate(cert);
 }
 
 shared_ptr<SafeBag>
 KeyChain::exportSafeBag(const Certificate& certificate, const char* pw, size_t pwLen)
 {
-  Name identity = certificate.getIdentity();
   Name keyName = certificate.getKeyName();
 
   ConstBufferPtr encryptedKey;
@@ -352,18 +335,18 @@ KeyChain::exportSafeBag(const Certificate& certificate, const char* pw, size_t p
 void
 KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
 {
-  Data certData = safeBag.getCertificate();
-  Certificate cert(std::move(certData));
+  Certificate cert(safeBag.getCertificate());
   Name identity = cert.getIdentity();
   Name keyName = cert.getKeyName();
 
+  // check if private key already exists
   if (m_tpm->hasKey(keyName)) {
     NDN_THROW(Error("Private key `" + keyName.toUri() + "` already exists"));
   }
 
+  // check if public key already exists
   try {
-    Identity existingId = m_pib->getIdentity(identity);
-    existingId.getKey(keyName);
+    m_pib->getIdentity(identity).getKey(keyName);
     NDN_THROW(Error("Public key `" + keyName.toUri() + "` already exists"));
   }
   catch (const Pib::Error&) {
@@ -377,25 +360,18 @@ KeyChain::importSafeBag(const SafeBag& safeBag, const char* pw, size_t pwLen)
     NDN_THROW_NESTED(Error("Failed to import private key `" + keyName.toUri() + "`"));
   }
 
-  // check the consistency of private key and certificate
-  const uint8_t content[] = {0x01, 0x02, 0x03, 0x04};
+  // check the consistency of private key and certificate (sign/verify a random message)
+  const auto r = random::generateWord64();
+  const auto msg = make_span(reinterpret_cast<const uint8_t*>(&r), sizeof(r));
   ConstBufferPtr sigBits;
   try {
-    sigBits = m_tpm->sign({content}, keyName, DigestAlgorithm::SHA256);
+    sigBits = m_tpm->sign({msg}, keyName, DigestAlgorithm::SHA256);
   }
   catch (const std::runtime_error&) {
     m_tpm->deleteKey(keyName);
     NDN_THROW(Error("Invalid private key `" + keyName.toUri() + "`"));
   }
-  bool isVerified = false;
-  {
-    using namespace transform;
-    PublicKey publicKey;
-    publicKey.loadPkcs8(cert.getPublicKey());
-    bufferSource(content) >> verifierFilter(DigestAlgorithm::SHA256, publicKey, *sigBits)
-                          >> boolSink(isVerified);
-  }
-  if (!isVerified) {
+  if (!verifySignature({msg}, *sigBits, cert.getPublicKey())) {
     m_tpm->deleteKey(keyName);
     NDN_THROW(Error("Certificate `" + cert.getName().toUri() + "` "
                     "and private key `" + keyName.toUri() + "` do not match"));
@@ -708,7 +684,7 @@ KeyChain::prepareSignatureInfo(const SigningInfo& params)
       return prepareSignatureInfoSha256(params);
     }
     case SigningInfo::SIGNER_TYPE_HMAC: {
-      return prepareSignatureInfoHmac(params);
+      return prepareSignatureInfoHmac(params, *m_tpm);
     }
   }
   NDN_THROW(InvalidSigningInfoError("Unrecognized signer type " +
@@ -722,15 +698,15 @@ KeyChain::prepareSignatureInfoSha256(const SigningInfo& params)
   sigInfo.setSignatureType(tlv::DigestSha256);
 
   NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
-  return std::make_tuple(SigningInfo::getDigestSha256Identity(), sigInfo);
+  return {SigningInfo::getDigestSha256Identity(), sigInfo};
 }
 
 std::tuple<Name, SignatureInfo>
-KeyChain::prepareSignatureInfoHmac(const SigningInfo& params)
+KeyChain::prepareSignatureInfoHmac(const SigningInfo& params, Tpm& tpm)
 {
   const Name& keyName = params.getSignerName();
-  if (!m_tpm->hasKey(keyName)) {
-    m_tpm->importPrivateKey(keyName, params.getHmacKey());
+  if (!tpm.hasKey(keyName)) {
+    tpm.importPrivateKey(keyName, params.getHmacKey());
   }
 
   auto sigInfo = params.getSignatureInfo();
@@ -738,7 +714,7 @@ KeyChain::prepareSignatureInfoHmac(const SigningInfo& params)
   sigInfo.setKeyLocator(keyName);
 
   NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
-  return std::make_tuple(keyName, sigInfo);
+  return {keyName, sigInfo};
 }
 
 std::tuple<Name, SignatureInfo>
@@ -756,7 +732,8 @@ KeyChain::prepareSignatureInfoWithIdentity(const SigningInfo& params, const pib:
 }
 
 std::tuple<Name, SignatureInfo>
-KeyChain::prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key& key, optional<Name> certName)
+KeyChain::prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key& key,
+                                      const optional<Name>& certName)
 {
   auto sigInfo = params.getSignatureInfo();
   sigInfo.setSignatureType(getSignatureType(key.getKeyType(), params.getDigestAlgorithm()));
@@ -776,7 +753,7 @@ KeyChain::prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key&
   }
 
   NDN_LOG_TRACE("Prepared signature info: " << sigInfo);
-  return std::make_tuple(key.getName(), sigInfo);
+  return {key.getName(), sigInfo};
 }
 
 ConstBufferPtr

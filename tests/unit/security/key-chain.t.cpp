@@ -215,57 +215,59 @@ BOOST_FIXTURE_TEST_CASE(SigningWithNonExistingIdentity, KeyChainFixture)
 
 BOOST_FIXTURE_TEST_CASE(Management, KeyChainFixture)
 {
-  Name identityName("/test/id");
-  Name identity2Name("/test/id2");
-
   BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 0);
-  BOOST_REQUIRE_THROW(m_keyChain.getPib().getDefaultIdentity(), Pib::Error);
+  BOOST_CHECK_THROW(m_keyChain.getPib().getDefaultIdentity(), Pib::Error);
 
-  // Create identity
-  Identity id = m_keyChain.createIdentity(identityName);
-  BOOST_CHECK(id);
-  BOOST_CHECK(m_keyChain.getPib().getIdentities().find(identityName) != m_keyChain.getPib().getIdentities().end());
+  // Create an identity
+  Name idName("/test/id");
+  Identity id = m_keyChain.createIdentity(idName);
+  BOOST_REQUIRE(id);
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 1);
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentity(idName), id);
+
   // The first added identity becomes the default identity
-  BOOST_CHECK_NO_THROW(m_keyChain.getPib().getDefaultIdentity());
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getDefaultIdentity(), id);
   // The default key of the added identity must exist
   Key key = id.getDefaultKey();
+  BOOST_REQUIRE(key);
+  BOOST_CHECK_EQUAL(id.getKeys().size(), 1);
   // The default certificate of the default key must exist
   BOOST_CHECK_NO_THROW(key.getDefaultCertificate());
+  BOOST_CHECK_EQUAL(key.getCertificates().size(), 1);
 
   // Delete key
   Name key1Name = key.getName();
-  BOOST_CHECK_NO_THROW(id.getKey(key1Name));
-  BOOST_CHECK_EQUAL(id.getKeys().size(), 1);
   m_keyChain.deleteKey(id, key);
   // The key instance should not be valid any more
   BOOST_CHECK(!key);
+  BOOST_CHECK_THROW(id.getDefaultKey(), Pib::Error);
   BOOST_CHECK_THROW(id.getKey(key1Name), Pib::Error);
   BOOST_CHECK_EQUAL(id.getKeys().size(), 0);
 
   // Create another key
   m_keyChain.createKey(id);
-  // The added key becomes the default key.
+  // The added key becomes the default key
   Key key2 = id.getDefaultKey();
   BOOST_REQUIRE(key2);
   BOOST_CHECK_NE(key2.getName(), key1Name);
   BOOST_CHECK_EQUAL(id.getKeys().size(), 1);
   BOOST_CHECK_NO_THROW(key2.getDefaultCertificate());
+  BOOST_CHECK_EQUAL(key2.getCertificates().size(), 1);
 
-  // Create the third key
+  // Create a third key
   Key key3 = m_keyChain.createKey(id);
   BOOST_CHECK_NE(key3.getName(), key2.getName());
-  // The added key will not be the default key, because the default key already exists
-  BOOST_CHECK_EQUAL(id.getDefaultKey().getName(), key2.getName());
   BOOST_CHECK_EQUAL(id.getKeys().size(), 2);
-  BOOST_CHECK_NO_THROW(key3.getDefaultCertificate());
+  // The added key will not be the default key, because the default was already set
+  BOOST_CHECK_EQUAL(id.getDefaultKey().getName(), key2.getName());
 
   // Delete cert
-  BOOST_CHECK_EQUAL(key3.getCertificates().size(), 1);
+  BOOST_REQUIRE_EQUAL(key3.getCertificates().size(), 1);
   Certificate key3Cert1 = *key3.getCertificates().begin();
   Name key3CertName = key3Cert1.getName();
   m_keyChain.deleteCertificate(key3, key3CertName);
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 0);
-  BOOST_REQUIRE_THROW(key3.getDefaultCertificate(), Pib::Error);
+  BOOST_CHECK_THROW(key3.getDefaultCertificate(), Pib::Error);
 
   // Add cert
   m_keyChain.addCertificate(key3, key3Cert1);
@@ -273,41 +275,58 @@ BOOST_FIXTURE_TEST_CASE(Management, KeyChainFixture)
   BOOST_CHECK_NO_THROW(key3.getDefaultCertificate());
   m_keyChain.addCertificate(key3, key3Cert1); // overwriting the cert should work
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 1);
+
   // Add another cert
   Certificate key3Cert2 = key3Cert1;
   Name key3Cert2Name = key3.getName();
-  key3Cert2Name.append("Self");
-  key3Cert2Name.appendVersion();
+  key3Cert2Name.append("Self").appendVersion();
   key3Cert2.setName(key3Cert2Name);
   m_keyChain.addCertificate(key3, key3Cert2);
   BOOST_CHECK_EQUAL(key3.getCertificates().size(), 2);
+
   // Add empty cert
   Certificate key3Cert3 = key3Cert1;
   key3Cert3.unsetContent();
   BOOST_CHECK_THROW(m_keyChain.addCertificate(key3, key3Cert3), std::invalid_argument);
 
-  // Default certificate setting
-  BOOST_CHECK_EQUAL(key3.getDefaultCertificate().getName(), key3CertName);
-  m_keyChain.setDefaultCertificate(key3, key3Cert2);
-  BOOST_CHECK_EQUAL(key3.getDefaultCertificate().getName(), key3Cert2Name);
+  // Create another identity
+  Name id2Name("/test/id2");
+  Identity id2 = m_keyChain.createIdentity(id2Name);
+  BOOST_REQUIRE(id2);
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 2);
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentity(id2Name), id2);
+
+  // Default identity setting
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getDefaultIdentity().getName(), id.getName());
+  m_keyChain.setDefaultIdentity(id2);
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getDefaultIdentity().getName(), id2.getName());
 
   // Default key setting
   BOOST_CHECK_EQUAL(id.getDefaultKey().getName(), key2.getName());
   m_keyChain.setDefaultKey(id, key3);
   BOOST_CHECK_EQUAL(id.getDefaultKey().getName(), key3.getName());
+  // Set key of a different identity as default
+  BOOST_CHECK_THROW(m_keyChain.setDefaultKey(id, id2.getDefaultKey()), std::invalid_argument);
 
-  // Default identity setting
-  Identity id2 = m_keyChain.createIdentity(identity2Name);
-  BOOST_CHECK_EQUAL(m_keyChain.getPib().getDefaultIdentity().getName(), id.getName());
-  m_keyChain.setDefaultIdentity(id2);
-  BOOST_CHECK_EQUAL(m_keyChain.getPib().getDefaultIdentity().getName(), id2.getName());
+  // Default certificate setting
+  BOOST_CHECK_EQUAL(key3.getDefaultCertificate().getName(), key3CertName);
+  m_keyChain.setDefaultCertificate(key3, key3Cert2);
+  BOOST_CHECK_EQUAL(key3.getDefaultCertificate().getName(), key3Cert2Name);
+  // Set certificate of a different key as default
+  BOOST_CHECK_THROW(m_keyChain.setDefaultCertificate(key3, key2.getDefaultCertificate()),
+                    std::invalid_argument);
+
+  // Delete certificate name mismatch
+  BOOST_CHECK_THROW(m_keyChain.deleteCertificate(key2, key3CertName), std::invalid_argument);
+  // Delete key name mismatch
+  BOOST_CHECK_THROW(m_keyChain.deleteKey(id, id2.getDefaultKey()), std::invalid_argument);
 
   // Delete identity
   m_keyChain.deleteIdentity(id);
   // The identity instance should not be valid any more
   BOOST_CHECK(!id);
-  BOOST_CHECK_THROW(m_keyChain.getPib().getIdentity(identityName), Pib::Error);
-  BOOST_CHECK(m_keyChain.getPib().getIdentities().find(identityName) == m_keyChain.getPib().getIdentities().end());
+  BOOST_CHECK_THROW(m_keyChain.getPib().getIdentity(idName), Pib::Error);
+  BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 1);
 }
 
 struct DataPkt
@@ -718,18 +737,21 @@ BOOST_FIXTURE_TEST_CASE(ExportImport, KeyChainFixture)
   Certificate cert = id.getDefaultKey().getDefaultCertificate();
 
   shared_ptr<SafeBag> exported = m_keyChain.exportSafeBag(cert, "1234", 4);
-  Block block = exported->wireEncode();
+  const auto& block = exported->wireEncode();
 
   m_keyChain.deleteIdentity(id);
-  BOOST_CHECK_THROW(m_keyChain.exportSafeBag(cert, "1234", 4), KeyChain::Error);
+  BOOST_CHECK_EXCEPTION(m_keyChain.exportSafeBag(cert, "1234", 4), KeyChain::Error, [] (const auto& e) {
+    return std::string(e.what()).find("Failed to export private key") == 0;
+  });
 
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), false);
   BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 0);
 
-  SafeBag imported;
-  imported.wireDecode(block);
+  SafeBag imported(block);
   m_keyChain.importSafeBag(imported, "1234", 4);
-  BOOST_CHECK_THROW(m_keyChain.importSafeBag(imported, "1234", 4), KeyChain::Error);
+  BOOST_CHECK_EXCEPTION(m_keyChain.importSafeBag(imported, "1234", 4), KeyChain::Error, [] (const auto& e) {
+    return std::string(e.what()).find("already exists") != std::string::npos;
+  });
 
   BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), true);
   BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 1);
@@ -737,11 +759,31 @@ BOOST_FIXTURE_TEST_CASE(ExportImport, KeyChainFixture)
   BOOST_CHECK_EQUAL(newId.getKeys().size(), 1);
   Key newKey = newId.getKey(cert.getKeyName());
   BOOST_CHECK_EQUAL(newKey.getCertificates().size(), 1);
-  BOOST_CHECK_NO_THROW(newKey.getCertificate(cert.getName()));
+  Certificate newCert = newKey.getCertificate(cert.getName());
+  BOOST_CHECK_EQUAL(newCert, cert);
+}
 
-  m_keyChain.deleteIdentity(newId);
-  BOOST_CHECK_EQUAL(m_keyChain.getPib().getIdentities().size(), 0);
-  BOOST_CHECK_EQUAL(m_keyChain.getTpm().hasKey(cert.getKeyName()), false);
+BOOST_FIXTURE_TEST_CASE(ImportInvalid, KeyChainFixture)
+{
+  Identity id = m_keyChain.createIdentity("/TestKeyChain/ExportIdentity");
+  Certificate cert = id.getDefaultKey().getDefaultCertificate();
+
+  auto exported = m_keyChain.exportSafeBag(cert, "1234", 4);
+  m_keyChain.deleteIdentity(id);
+
+  Identity id2 = m_keyChain.createIdentity("/TestKeyChain/AnotherIdentity");
+  Certificate cert2 = id2.getDefaultKey().getDefaultCertificate();
+  m_keyChain.deleteIdentity(id2);
+
+  SafeBag mismatch(cert2, exported->getEncryptedKey());
+  BOOST_CHECK_EXCEPTION(m_keyChain.importSafeBag(mismatch, "1234", 4), KeyChain::Error, [] (const auto& e) {
+    return std::string(e.what()).find("do not match") != std::string::npos;
+  });
+
+  SafeBag invalidPriv(cert2, {0xCA, 0xFE});
+  BOOST_CHECK_EXCEPTION(m_keyChain.importSafeBag(invalidPriv, "1234", 4), KeyChain::Error, [] (const auto& e) {
+    return std::string(e.what()).find("Failed to import private key") == 0;
+  });
 }
 
 BOOST_FIXTURE_TEST_CASE(SelfSignedCertValidity, KeyChainFixture)

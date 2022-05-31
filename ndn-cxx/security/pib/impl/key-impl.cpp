@@ -55,6 +55,12 @@ void
 KeyImpl::addCertificate(const Certificate& cert)
 {
   BOOST_ASSERT(m_certificates.isConsistent());
+
+  auto certKey = cert.getPublicKey();
+  if (!std::equal(m_key.begin(), m_key.end(), certKey.begin(), certKey.end())) {
+    NDN_THROW(std::invalid_argument("Public key of certificate `" + cert.getName().toUri() + "` "
+                                    "does not match key `" + m_keyName.toUri() + "`"));
+  }
   m_certificates.add(cert);
 }
 

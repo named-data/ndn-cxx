@@ -76,12 +76,12 @@ struct MakeCertificateOptions
 inline namespace v2 {
 
 /**
- * @brief The interface of signing key management.
+ * @brief The main interface for signing key management.
  *
  * The KeyChain class provides an interface to manage entities related to packet signing,
  * such as Identity, Key, and Certificates.  It consists of two parts: a private key module
- * (TPM) and a public key information base (PIB).  Managing signing key and its related
- * entities through KeyChain interface guarantees the consistency between TPM and PIB.
+ * (TPM) and a public key information base (PIB).  Managing signing keys and their related
+ * entities through the KeyChain interface guarantees the consistency between TPM and PIB.
  */
 class KeyChain : noncopyable
 {
@@ -153,34 +153,34 @@ public: // Identity management
   /**
    * @brief Create an identity @p identityName.
    *
-   * This method will check if the identity exists in PIB and whether the identity has a
-   * default key and default certificate.  If the identity does not exist, this method will
-   * create the identity in PIB.  If the identity's default key does not exist, this method
-   * will create a key pair and set it as the identity's default key.  If the key's default
-   * certificate is missing, this method will create a self-signed certificate for the key.
+   * This method will check if the identity exists in the PIB and whether the identity has
+   * a default key and default certificate.  If the identity does not exist, this method
+   * will create it.  If the identity's default key does not exist, this method will create
+   * a key pair and set it as the identity's default key.  If the key's default certificate
+   * is missing, this method will create a self-signed certificate for the key.
    *
    * If @p identityName did not exist and no default identity was selected before, the created
-   * identity will be set as the default identity
+   * identity will be set as the default identity.
    *
    * @param identityName The name of the identity.
    * @param params The key parameters if a key needs to be created for the identity (default:
-   *               EC key with random key id)
+   *               EC key with random key id).
    * @return The created Identity instance.
    */
   Identity
   createIdentity(const Name& identityName, const KeyParams& params = getDefaultKeyParams());
 
   /**
-   * @brief delete @p identity.
+   * @brief Delete @p identity from this KeyChain.
    *
-   * @pre @p identity must be valid.
-   * @post @p identity becomes invalid.
+   * Attempting to delete an invalid identity has no effect.
    */
   void
   deleteIdentity(const Identity& identity);
 
   /**
    * @brief Set @p identity as the default identity.
+   *
    * @pre @p identity must be valid.
    */
   void
@@ -190,14 +190,14 @@ public: // Key management
   /**
    * @brief Create a new key for @p identity.
    *
-   * @param identity Reference to a valid Identity object
-   * @param params Key creation parameters (default: EC key with random key id)
-   * @pre @p identity must be valid.
-   *
    * If @p identity had no default key selected, the created key will be set as the default for
    * this identity.
    *
    * This method will also create a self-signed certificate for the created key.
+   *
+   * @param identity The identity that will own the created key; must be valid.
+   * @param params Key creation parameters (default: EC key with random key id).
+   * @return The created Key instance.
    */
   Key
   createKey(const Identity& identity, const KeyParams& params = getDefaultKeyParams());
@@ -205,24 +205,24 @@ public: // Key management
    /**
    * @brief Create a new HMAC key.
    *
-   * @param prefix Prefix used to construct the key name (default: `/localhost/identity/hmac`);
-   *               the full key name will include additional components according to @p params
-   * @param params Key creation parameters
-   * @return A name that can be subsequently used to reference the created key.
-   *
    * The newly created key will be inserted in the TPM. HMAC keys don't have any PIB entries.
+   *
+   * @param prefix Prefix used to construct the key name (default: `/localhost/identity/hmac`);
+   *               the full key name will include additional components according to @p params.
+   * @param params Key creation parameters.
+   * @return A name that can be subsequently used to reference the created key.
    */
   Name
   createHmacKey(const Name& prefix = SigningInfo::getHmacIdentity(),
                 const HmacKeyParams& params = HmacKeyParams());
 
   /**
-   * @brief Delete a key @p key of @p identity.
+   * @brief Delete @p key from @p identity.
+   *
+   * Attempting to delete an invalid key has no effect.
    *
    * @pre @p identity must be valid.
-   * @pre @p key must be valid.
-   * @post @p key becomes invalid.
-   * @throw std::invalid_argument @p key does not belong to @p identity
+   * @throw std::invalid_argument @p key does not belong to @p identity.
    */
   void
   deleteKey(const Identity& identity, const Key& key);
@@ -232,49 +232,49 @@ public: // Key management
    *
    * @pre @p identity must be valid.
    * @pre @p key must be valid.
-   * @throw std::invalid_argument @p key does not belong to @p identity
+   * @throw std::invalid_argument @p key does not belong to @p identity.
    */
   void
   setDefaultKey(const Identity& identity, const Key& key);
 
 public: // Certificate management
   /**
-   * @brief Add a certificate @p certificate for @p key
+   * @brief Add a certificate @p cert for @p key.
    *
    * If @p key had no default certificate selected, the added certificate will be set as the
    * default certificate for this key.
    *
-   * @note This method overwrites certificate with the same name, without considering the
-   *       implicit digest.
+   * This method will overwrite a certificate with the same name (without considering the
+   * implicit digest).
    *
    * @pre @p key must be valid.
-   * @throw std::invalid_argument @p key does not match @p certificate
+   * @throw std::invalid_argument The certificate does not match the key.
    */
   void
-  addCertificate(const Key& key, const Certificate& certificate);
+  addCertificate(const Key& key, const Certificate& cert);
 
   /**
-   * @brief delete a certificate with name @p certificateName of @p key.
+   * @brief Delete a certificate with name @p certName from @p key.
    *
-   * If the certificate @p certificateName does not exist, this method has no effect.
+   * If the certificate does not exist, this method has no effect.
    *
    * @pre @p key must be valid.
-   * @throw std::invalid_argument @p certificateName does not follow certificate naming convention.
+   * @throw std::invalid_argument The certificate name is invalid or does not match the key name.
    */
   void
-  deleteCertificate(const Key& key, const Name& certificateName);
+  deleteCertificate(const Key& key, const Name& certName);
 
   /**
    * @brief Set @p cert as the default certificate of @p key.
    *
-   * The certificate @p cert will be added to the @p key, potentially overriding existing
-   * certificate if it has the same name (without considering implicit digest).
+   * The certificate @p cert will be added to @p key, potentially overwriting an existing
+   * certificate with the same name (without considering the implicit digest).
    *
    * @pre @p key must be valid.
-   * @throw std::invalid_argument @p key does not match @p certificate
+   * @throw std::invalid_argument The certificate does not match the key.
    */
   void
-  setDefaultCertificate(const Key& key, const Certificate& certificate);
+  setDefaultCertificate(const Key& key, const Certificate& cert);
 
 public: // signing
   /**
@@ -487,18 +487,18 @@ private: // signing
   std::tuple<Name, SignatureInfo>
   prepareSignatureInfo(const SigningInfo& params);
 
-  std::tuple<Name, SignatureInfo>
+  static std::tuple<Name, SignatureInfo>
   prepareSignatureInfoSha256(const SigningInfo& params);
 
-  std::tuple<Name, SignatureInfo>
-  prepareSignatureInfoHmac(const SigningInfo& params);
+  static std::tuple<Name, SignatureInfo>
+  prepareSignatureInfoHmac(const SigningInfo& params, Tpm& tpm);
 
-  std::tuple<Name, SignatureInfo>
+  static std::tuple<Name, SignatureInfo>
   prepareSignatureInfoWithIdentity(const SigningInfo& params, const pib::Identity& identity);
 
-  std::tuple<Name, SignatureInfo>
+  static std::tuple<Name, SignatureInfo>
   prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key& key,
-                              optional<Name> certName = nullopt);
+                              const optional<Name>& certName = nullopt);
 
   /**
    * @brief Generate and return a raw signature for the byte ranges in @p bufs using
