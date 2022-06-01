@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,6 +43,7 @@ KeyParams::~KeyParams() = default;
 namespace detail {
 
 const uint32_t MIN_RSA_KEY_SIZE = 2048;
+const uint32_t MAX_RSA_KEY_SIZE = 16384;
 const uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
 const uint32_t EC_KEY_SIZES[] = {224, 256, 384, 521};
 const uint32_t DEFAULT_EC_KEY_SIZE = 256;
@@ -53,7 +54,7 @@ const uint32_t DEFAULT_HMAC_KEY_SIZE = 256;
 uint32_t
 RsaKeyParamsInfo::checkKeySize(uint32_t size)
 {
-  if (size < MIN_RSA_KEY_SIZE)
+  if (size < MIN_RSA_KEY_SIZE || size > MAX_RSA_KEY_SIZE)
     NDN_THROW(KeyParams::Error("Unsupported RSA key size " + to_string(size)));
   return size;
 }
@@ -67,8 +68,8 @@ RsaKeyParamsInfo::getDefaultSize()
 uint32_t
 EcKeyParamsInfo::checkKeySize(uint32_t size)
 {
-  for (size_t i = 0; i < (sizeof(EC_KEY_SIZES) / sizeof(EC_KEY_SIZES[0])); i++) {
-    if (EC_KEY_SIZES[i] == size)
+  for (auto s : EC_KEY_SIZES) {
+    if (s == size)
       return size;
   }
   NDN_THROW(KeyParams::Error("Unsupported EC key size " + to_string(size)));
@@ -83,8 +84,8 @@ EcKeyParamsInfo::getDefaultSize()
 uint32_t
 AesKeyParamsInfo::checkKeySize(uint32_t size)
 {
-  for (size_t i = 0; i < (sizeof(AES_KEY_SIZES) / sizeof(AES_KEY_SIZES[0])); i++) {
-    if (AES_KEY_SIZES[i] == size)
+  for (auto s : AES_KEY_SIZES) {
+    if (s == size)
       return size;
   }
   NDN_THROW(KeyParams::Error("Unsupported AES key size " + to_string(size)));
