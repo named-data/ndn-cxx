@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,9 +47,10 @@ ndnsec_key_gen(int argc, char** argv)
     ("type,t",        po::value<char>(&keyTypeChoice)->default_value('e'),
                       "key type: 'r' for RSA, 'e' for ECDSA")
     ("keyid-type,k",  po::value<char>(&keyIdTypeChoice),
-                      "key id type: 'h' for the SHA-256 of the public key, 'r' for a 64-bit "
+                      "key ID type: 'h' for the SHA-256 of the public key, 'r' for a 64-bit "
                       "random number (the default unless --keyid is specified)")
-    ("keyid",         po::value<std::string>(&userKeyId), "user-specified key id")
+    ("keyid",         po::value<std::string>(&userKeyId),
+                      "user-specified key ID, interpreted as a name component in URI format")
     ;
 
   po::positional_options_description p;
@@ -87,12 +88,11 @@ ndnsec_key_gen(int argc, char** argv)
 
     keyIdType = KeyIdType::USER_SPECIFIED;
     userKeyIdComponent = name::Component::fromEscapedString(userKeyId);
-    if (userKeyIdComponent.empty()) {
-      std::cerr << "ERROR: key id cannot be an empty name component" << std::endl;
-      return 2;
-    }
-    if (!userKeyIdComponent.isGeneric()) {
-      std::cerr << "ERROR: key id must be a GenericNameComponent" << std::endl;
+    if (userKeyIdComponent.empty() ||
+        userKeyIdComponent.isImplicitSha256Digest() ||
+        userKeyIdComponent.isParametersSha256Digest() ||
+        userKeyIdComponent.isKeyword()) {
+      std::cerr << "ERROR: '" << userKeyIdComponent << "' cannot be used as key ID" << std::endl;
       return 2;
     }
   }
@@ -106,7 +106,7 @@ ndnsec_key_gen(int argc, char** argv)
       // KeyIdType::RANDOM is the default
       break;
     default:
-      std::cerr << "ERROR: unrecognized key id type '" << keyIdTypeChoice << "'" << std::endl;
+      std::cerr << "ERROR: unrecognized key ID type '" << keyIdTypeChoice << "'" << std::endl;
       return 2;
     }
   }

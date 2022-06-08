@@ -25,7 +25,6 @@
 #include "ndn-cxx/security/additional-description.hpp"
 #include "ndn-cxx/security/transform/base64-encode.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
-#include "ndn-cxx/security/transform/public-key.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 
 namespace ndn {
@@ -35,13 +34,14 @@ int
 ndnsec_cert_gen(int argc, char** argv)
 {
   namespace po = boost::program_options;
+  using security::Certificate;
 
   std::string requestFile;
   std::string notBeforeStr;
   std::string notAfterStr;
   std::vector<std::string> infos;
   Name signId;
-  std::string issuerId;
+  std::string issuer;
 
   po::options_description description(
     "Usage: ndnsec cert-gen [-h] [-S TIMESTAMP] [-E TIMESTAMP] [-I INFO]...\n"
@@ -51,22 +51,20 @@ ndnsec_cert_gen(int argc, char** argv)
   description.add_options()
     ("help,h", "produce help message")
     ("request,r",      po::value<std::string>(&requestFile)->default_value("-"),
-                       "request file name, '-' for stdin (the default)")
+                       "certificate request file name, '-' for stdin (the default)")
     ("not-before,S",   po::value<std::string>(&notBeforeStr),
                        "certificate validity start date/time in YYYYMMDDhhmmss format (default: now)")
     ("not-after,E",    po::value<std::string>(&notAfterStr),
                        "certificate validity end date/time in YYYYMMDDhhmmss format (default: "
                        "365 days after the --not-before timestamp)")
     ("info,I",         po::value<std::vector<std::string>>(&infos),
-                       "key and value (must be separated by a single space) of the additional "
-                       "description to be included in the issued certificate (e.g., "
-                       "\"affiliation University of California, Los Angeles\"); "
-                       "this option may be repeated multiple times")
+                       "key and value (separated by a single space) of the additional description "
+                       "to be included in the issued certificate (e.g., \"affiliation University of "
+                       "California, Los Angeles\"); this option may be repeated multiple times")
     ("sign-id,s",      po::value<Name>(&signId), "signing identity")
-    ("issuer-id,i",    po::value<std::string>(&issuerId),
-                       ("issuer's ID to be included in the issued certificate name, interpreted as "
-                        "name component in URI format (default: \"" +
-                        security::Certificate::DEFAULT_ISSUER_ID.toUri() + "\")").data())
+    ("issuer-id,i",    po::value<std::string>(&issuer)->default_value(Certificate::DEFAULT_ISSUER_ID.toUri()),
+                       "issuer's ID to be included in the issued certificate name, interpreted as a "
+                       "name component in URI format")
     ;
 
   po::positional_options_description p;
@@ -124,9 +122,17 @@ ndnsec_cert_gen(int argc, char** argv)
     }
   }
 
+  auto issuerId = name::Component::fromEscapedString(issuer);
+  if (issuerId.isImplicitSha256Digest() ||
+      issuerId.isParametersSha256Digest() ||
+      issuerId.isKeyword()) {
+    std::cerr << "ERROR: '" << issuerId << "' cannot be used as issuer ID" << std::endl;
+    return 2;
+  }
+
   KeyChain keyChain;
 
-  auto request = loadFromFile<security::Certificate>(requestFile);
+  auto request = loadFromFile<Certificate>(requestFile);
 
   security::SigningInfo signer;
   if (vm.count("sign-id") > 0) {
@@ -139,9 +145,7 @@ ndnsec_cert_gen(int argc, char** argv)
   }
 
   security::MakeCertificateOptions opts;
-  if (vm.count("issuer-id") > 0) {
-    opts.issuerId = name::Component::fromEscapedString(issuerId);
-  }
+  opts.issuerId = issuerId;
   opts.validity.emplace(notBefore, notAfter);
   auto cert = keyChain.makeCertificate(request, signer, opts);
 

@@ -75,17 +75,18 @@ Example
     ug/vLAIgY3xJITCwf55sqey33q5GIQSk1TRCkNNl58ojvPs5sNU=
 
     $ ndnsec-cert-dump -p -f signed.cert
-    Certificate name:
+    Certificate Name:
       /example/KEY/%E4%14%99%7F%28%96%82%EB/Universe/%FD%00%00%01q%D1%02N%82
-    Validity:
-      NotBefore: 20200501T000000
-      NotAfter: 20210101T000000
     Additional Description:
       affiliation: Some Organization
       foobar: Foo Bar
-    Public key bits:
+    Public Key:
+      Key Type: 256-bit EC
       MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEOkmwKS8TlEyPFFV3IrpbrP4WgKr6
       pEQSf+zF/6faCeyXbmqbU1qsJ9IZ/3rMgnL0FED1u24wx65aUA3/Ka8wXA==
+    Validity:
+      Not Before: 2020-05-01T00:00:00
+      Not After: 2021-01-01T00:00:00
     Signature Information:
       Signature Type: SignatureSha256WithEcdsa
       Key Locator: Name=/ndn/test/KEY/I%3FS%9A%28%BB%9A%95
