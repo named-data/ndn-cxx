@@ -20,13 +20,13 @@
  */
 
 #include "ndn-cxx/security/verification-helpers.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/transform/public-key.hpp"
 // #include "ndn-cxx/util/string-helper.hpp"
 
 #include "tests/key-chain-fixture.hpp"
 #include "tests/test-common.hpp"
 
+#include <openssl/opensslv.h>
 #include <boost/mpl/vector.hpp>
 
 namespace ndn {

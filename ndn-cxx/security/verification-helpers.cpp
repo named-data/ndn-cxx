@@ -25,7 +25,6 @@
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/security/certificate.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/tpm/tpm.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
@@ -34,6 +33,8 @@
 #include "ndn-cxx/security/transform/public-key.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/security/transform/verifier-filter.hpp"
+
+#include <openssl/crypto.h>
 
 namespace ndn {
 namespace security {

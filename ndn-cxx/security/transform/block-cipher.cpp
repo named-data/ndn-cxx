@@ -20,7 +20,9 @@
  */
 
 #include "ndn-cxx/security/transform/block-cipher.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
+
+#include <openssl/bio.h>
+#include <openssl/evp.h>
 
 #include <boost/lexical_cast.hpp>
 

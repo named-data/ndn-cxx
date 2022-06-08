@@ -37,6 +37,11 @@
 #include <boost/lexical_cast.hpp>
 #include <cstring>
 
+#include <openssl/ec.h>
+#include <openssl/pem.h>
+#include <openssl/rsa.h>
+#include <openssl/x509.h>
+
 #define ENSURE_PRIVATE_KEY_LOADED(key) \
   do { \
     if ((key) == nullptr) \

@@ -20,9 +20,10 @@
  */
 
 #include "ndn-cxx/util/random.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
 
 #include "tests/boost-test.hpp"
+
+#include <openssl/rand.h>
 
 #include <array>
 #include <thread>

@@ -28,6 +28,9 @@
 #include "ndn-cxx/security/impl/openssl-helper.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 
+#include <openssl/rsa.h>
+#include <openssl/x509.h>
+
 #define ENSURE_PUBLIC_KEY_LOADED(key) \
   do { \
     if ((key) == nullptr) \

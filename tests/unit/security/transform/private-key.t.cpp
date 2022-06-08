@@ -22,7 +22,6 @@
 #include "ndn-cxx/security/transform/private-key.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/key-params.hpp"
 #include "ndn-cxx/security/transform/base64-decode.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
@@ -35,8 +34,8 @@
 
 #include "tests/boost-test.hpp"
 
+#include <openssl/opensslv.h>
 #include <boost/mpl/vector.hpp>
-
 #include <sstream>
 
 namespace ndn {

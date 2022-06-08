@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/security/key-chain.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
 #include "ndn-cxx/security/verification-helpers.hpp"
 
@@ -29,6 +28,7 @@
 #include "tests/unit/clock-fixture.hpp"
 #include "tests/unit/test-home-env-saver.hpp"
 
+#include <openssl/opensslv.h>
 #include <boost/mpl/vector.hpp>
 
 namespace ndn {

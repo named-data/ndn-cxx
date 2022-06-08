@@ -21,10 +21,11 @@
 
 #include "ndn-cxx/util/sha256.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/transform/digest-filter.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/security/transform/stream-source.hpp"
+
+#include <openssl/crypto.h>
 
 namespace ndn {
 namespace util {

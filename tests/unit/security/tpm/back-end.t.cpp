@@ -22,7 +22,6 @@
 #include "ndn-cxx/security/tpm/back-end.hpp"
 
 #include "ndn-cxx/encoding/buffer-stream.hpp"
-#include "ndn-cxx/security/impl/openssl.hpp"
 #include "ndn-cxx/security/pib/key.hpp"
 #include "ndn-cxx/security/transform/bool-sink.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
@@ -38,6 +37,7 @@
 
 #include "tests/boost-test.hpp"
 
+#include <openssl/opensslv.h>
 #include <boost/mpl/vector.hpp>
 #include <set>
 
