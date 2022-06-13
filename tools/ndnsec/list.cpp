@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,27 +27,116 @@
 
 namespace ndn {
 namespace ndnsec {
+namespace {
 
-class Printer
+// https://en.wikipedia.org/wiki/Box_Drawing
+// https://git.altlinux.org/people/legion/packages/kbd.git?p=kbd.git;a=blob;f=data/consolefonts/README.eurlatgr
+static const char GLYPH_HORIZONTAL[]         = "\u2500 ";      // "─ "
+static const char GLYPH_VERTICAL[]           = "\u2502 ";      // "│ "
+static const char GLYPH_VERTICAL_AND_RIGHT[] = "\u251c\u2500"; // "├─"
+static const char GLYPH_UP_AND_RIGHT[]       = "\u2514\u2500"; // "└─"
+static const char GLYPH_SPACE[]              = "  ";
+static const char GLYPH_STAR[]               = "* ";
+
+enum class Verbosity {
+  IDENTITY = 0,
+  KEY = 1,
+  CERT_NAME = 2,
+  CERT_FULL = 3,
+};
+
+class TreePrinter
 {
 public:
   explicit
-  Printer(int verboseLevel)
-    : m_verboseLevel(verboseLevel)
+  TreePrinter(std::ostream& output)
+    : m_out(output)
   {
+  }
+
+  template<typename C, typename F>
+  void
+  forEachChild(const C& container, F fn) const
+  {
+    m_branches.push_back(false);
+
+    auto end = container.end();
+    for (auto it = container.begin(); it != end; ++it) {
+      bool isLast = std::next(it) == end;
+      if (isLast) {
+        m_branches.back() = true;
+      }
+      printBranches(m_out);
+      fn(*it);
+    }
+
+    m_branches.pop_back();
+  }
+
+  std::string
+  getIndent() const
+  {
+    std::ostringstream oss;
+    printBranches(oss, true);
+    return oss.str();
+  }
+
+private:
+  void
+  printBranches(std::ostream& os, bool ignoreLast = false) const
+  {
+    for (size_t i = 0; i < m_branches.size(); ++i) {
+      if (i == m_branches.size() - 1 && !ignoreLast) {
+        os << (m_branches[i] ? GLYPH_UP_AND_RIGHT : GLYPH_VERTICAL_AND_RIGHT);
+      }
+      else {
+        os << (m_branches[i] ? GLYPH_SPACE : GLYPH_VERTICAL) << GLYPH_SPACE;
+      }
+    }
+  }
+
+protected:
+  std::ostream& m_out;
+
+private:
+  mutable std::vector<bool> m_branches;
+};
+
+class Printer : private TreePrinter
+{
+public:
+  explicit
+  Printer(std::ostream& output, Verbosity verbosity)
+    : TreePrinter(output)
+    , m_verbosity(verbosity)
+  {
+  }
+
+  void
+  printPib(const security::Pib& pib) const
+  {
+    m_out << pib.getPibLocator() << std::endl;
+
+    security::Identity defaultIdentity;
+    try {
+      defaultIdentity = pib.getDefaultIdentity();
+    }
+    catch (const security::Pib::Error&) {
+      // no default identity
+    }
+
+    forEachChild(pib.getIdentities(), [&] (const auto& identity) {
+      printIdentity(identity, identity == defaultIdentity);
+    });
   }
 
   void
   printIdentity(const security::Identity& identity, bool isDefault) const
   {
-    if (isDefault)
-      std::cout << "* ";
-    else
-      std::cout << "  ";
+    printDefault(isDefault);
+    m_out << identity.getName() << std::endl;
 
-    std::cout << identity.getName() << std::endl;
-
-    if (m_verboseLevel >= 1) {
+    if (m_verbosity >= Verbosity::KEY) {
       security::Key defaultKey;
       try {
         defaultKey = identity.getDefaultKey();
@@ -56,25 +145,19 @@ public:
         // no default key
       }
 
-      for (const auto& key : identity.getKeys()) {
+      forEachChild(identity.getKeys(), [&] (const auto& key) {
         printKey(key, key == defaultKey);
-      }
-
-      std::cout << std::endl;
+      });
     }
   }
 
   void
   printKey(const security::Key& key, bool isDefault) const
   {
-    if (isDefault)
-      std::cout << "  +->* ";
-    else
-      std::cout << "  +->  ";
+    printDefault(isDefault);
+    m_out << key.getName() << std::endl;
 
-    std::cout << key.getName() << std::endl;
-
-    if (m_verboseLevel >= 2) {
+    if (m_verbosity >= Verbosity::CERT_NAME) {
       security::Certificate defaultCert;
       try {
         defaultCert = key.getDefaultCertificate();
@@ -83,31 +166,36 @@ public:
         // no default certificate
       }
 
-      for (const auto& cert : key.getCertificates()) {
+      forEachChild(key.getCertificates(), [&] (const auto& cert) {
         printCertificate(cert, cert == defaultCert);
-      }
+      });
     }
   }
 
   void
   printCertificate(const security::Certificate& cert, bool isDefault) const
   {
-    if (isDefault)
-      std::cout << "       +->* ";
-    else
-      std::cout << "       +->  ";
+    printDefault(isDefault);
+    m_out << cert.getName() << std::endl;
 
-    std::cout << cert.getName() << std::endl;
-
-    if (m_verboseLevel >= 3) {
-      util::IndentedStream os(std::cout, "            ");
+    if (m_verbosity >= Verbosity::CERT_FULL) {
+      util::IndentedStream os(m_out, getIndent() + GLYPH_SPACE);
       os << cert;
     }
   }
 
 private:
-  int m_verboseLevel;
+  void
+  printDefault(bool isDefault) const
+  {
+    m_out << (isDefault ? GLYPH_STAR : GLYPH_HORIZONTAL);
+  }
+
+private:
+  Verbosity m_verbosity;
 };
+
+} // namespace
 
 int
 ndnsec_list(int argc, char** argv)
@@ -116,10 +204,7 @@ ndnsec_list(int argc, char** argv)
 
   bool wantKey = false;
   bool wantCert = false;
-  int verboseLevel = 0; // 0 print identity only
-                        // 1 print key name
-                        // 2 print cert name
-                        // 3 print cert content
+  auto verboseLevel = to_underlying(Verbosity::IDENTITY);
 
   po::options_description description(
     "Usage: ndnsec list [-h] [-k] [-c] [-v]\n"
@@ -129,7 +214,7 @@ ndnsec_list(int argc, char** argv)
     ("help,h", "produce help message")
     ("key,k",     po::bool_switch(&wantKey), "list all keys associated with each identity")
     ("cert,c",    po::bool_switch(&wantCert), "list all certificates associated with each key")
-    ("verbose,v", accumulator<int>(&verboseLevel),
+    ("verbose,v", accumulator<std::underlying_type_t<Verbosity>>(&verboseLevel),
                   "verbose mode, can be repeated for increased verbosity: -v is equivalent to -k, "
                   "-vv is equivalent to -c, -vvv shows detailed information for each certificate")
     ;
@@ -150,23 +235,14 @@ ndnsec_list(int argc, char** argv)
     return 0;
   }
 
-  verboseLevel = std::max(verboseLevel, wantCert ? 2 : wantKey ? 1 : 0);
-
   KeyChain keyChain;
 
-  // TODO: add API to check for default identity (may be from the identity itself)
-  security::Identity defaultIdentity;
-  try {
-    defaultIdentity = keyChain.getPib().getDefaultIdentity();
-  }
-  catch (const security::Pib::Error&) {
-    // no default identity
-  }
-
-  Printer printer(verboseLevel);
-  for (const auto& identity : keyChain.getPib().getIdentities()) {
-    printer.printIdentity(identity, identity == defaultIdentity);
-  }
+  auto verbosity = std::max(static_cast<Verbosity>(verboseLevel),
+                            wantCert ? Verbosity::CERT_NAME :
+                                       wantKey ? Verbosity::KEY :
+                                                 Verbosity::IDENTITY);
+  Printer printer(std::cout, verbosity);
+  printer.printPib(keyChain.getPib());
 
   return 0;
 }
