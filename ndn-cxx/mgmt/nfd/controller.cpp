@@ -58,9 +58,10 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
                          const CommandFailCallback& onFailure,
                          const CommandOptions& options)
 {
-  Name requestName = command->getRequestName(options.getPrefix(), parameters);
-  Interest interest = m_signer.makeCommandInterest(requestName, options.getSigningInfo());
+  Interest interest;
+  interest.setName(command->getRequestName(options.getPrefix(), parameters));
   interest.setInterestLifetime(options.getTimeout());
+  m_signer.makeSignedInterest(interest, options.getSigningInfo());
 
   m_face.expressInterest(interest,
     [=] (const Interest&, const Data& data) {
@@ -171,7 +172,7 @@ Controller::processDatasetFetchError(const DatasetFailCallback& onFailure,
   BOOST_ASSERT(onFailure);
 
   switch (static_cast<SegmentFetcher::ErrorCode>(code)) {
-    // It's intentional to cast as SegmentFetcher::ErrorCode, and to not have a 'default' clause.
+    // It's intentional to cast to SegmentFetcher::ErrorCode and to not have a 'default' clause.
     // This forces the switch statement to handle every defined SegmentFetcher::ErrorCode,
     // and breaks compilation if it does not.
     case SegmentFetcher::ErrorCode::INTEREST_TIMEOUT:
@@ -182,8 +183,8 @@ Controller::processDatasetFetchError(const DatasetFailCallback& onFailure,
       onFailure(ERROR_SERVER, msg);
       break;
     case SegmentFetcher::ErrorCode::SEGMENT_VALIDATION_FAIL:
-      /// \todo When SegmentFetcher exposes validator error code, Controller::ERROR_VALIDATION
-      ///       should be replaced with a range that corresponds to validator error codes.
+      // TODO: When SegmentFetcher exposes validator error code, Controller::ERROR_VALIDATION
+      //       should be replaced with a range that corresponds to validator error codes.
       onFailure(ERROR_VALIDATION, msg);
       break;
     case SegmentFetcher::ErrorCode::NACK_ERROR:

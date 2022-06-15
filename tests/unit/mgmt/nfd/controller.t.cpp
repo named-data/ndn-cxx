@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -81,16 +81,17 @@ BOOST_AUTO_TEST_CASE(Success)
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
   const Interest& requestInterest = face.sentInterests[0];
 
-  FaceCreateCommand command;
   BOOST_CHECK(Name("/localhost/nfd/faces/create").isPrefixOf(requestInterest.getName()));
-  // 9 components: ndn:/localhost/nfd/faces/create/<parameters>/<signed Interest x4>
-  BOOST_REQUIRE_EQUAL(requestInterest.getName().size(), 9);
-  ControlParameters request;
-  // 4th component: <parameters>
-  BOOST_REQUIRE_NO_THROW(request.wireDecode(requestInterest.getName().at(4).blockFromValue()));
-  BOOST_CHECK_NO_THROW(command.validateRequest(request));
-  BOOST_CHECK_EQUAL(request.getUri(), parameters.getUri());
+  BOOST_CHECK(requestInterest.isSigned());
+  BOOST_CHECK(requestInterest.isParametersDigestValid());
   BOOST_CHECK_EQUAL(requestInterest.getInterestLifetime(), CommandOptions::DEFAULT_TIMEOUT);
+
+  // 6 components: /localhost/nfd/faces/create/<parameters>/params-sha256=...
+  BOOST_REQUIRE_EQUAL(requestInterest.getName().size(), 6);
+  ControlParameters requestParams(requestInterest.getName()[4].blockFromValue());
+  FaceCreateCommand command;
+  BOOST_CHECK_NO_THROW(command.validateRequest(requestParams));
+  BOOST_CHECK_EQUAL(requestParams.getUri(), parameters.getUri());
 
   ControlParameters responseBody = makeFaceCreateResponse();
   ControlResponse responsePayload(201, "created");
@@ -136,6 +137,8 @@ BOOST_AUTO_TEST_CASE(OptionsPrefix)
 
   FaceCreateCommand command;
   BOOST_CHECK(Name("/localhop/net/example/router1/nfd/rib/register").isPrefixOf(requestInterest.getName()));
+  BOOST_CHECK(requestInterest.isSigned());
+  BOOST_CHECK(requestInterest.isParametersDigestValid());
 }
 
 BOOST_AUTO_TEST_CASE(InvalidRequest)
@@ -144,8 +147,7 @@ BOOST_AUTO_TEST_CASE(InvalidRequest)
   parameters.setName("ndn:/should-not-have-this-field");
   // Uri is missing
 
-  BOOST_CHECK_THROW(controller.start<FaceCreateCommand>(
-                      parameters, succeedCallback, commandFailCallback),
+  BOOST_CHECK_THROW(controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback),
                     ControlCommand::ArgumentError);
 }
 
