@@ -10,9 +10,9 @@ following platforms:
 -  Ubuntu 18.04 (amd64, armhf, i386)
 -  Ubuntu 20.04 (amd64)
 -  Ubuntu 21.10 (amd64)
+-  CentOS Stream 9
 -  macOS 10.15
 -  macOS 11 (Intel only)
--  CentOS 8
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
@@ -109,7 +109,6 @@ The following lists the steps to install these prerequisites on various common p
 
   .. code-block:: sh
 
-    sudo dnf config-manager --enable powertools  # on CentOS only
     sudo dnf install doxygen graphviz python3-pip
     pip3 install --user sphinx sphinxcontrib-doxylink
 
@@ -137,7 +136,7 @@ To build in a terminal, change directory to the ndn-cxx root, then enter:
 
 .. code-block:: sh
 
-    ./waf configure  # on CentOS, add --without-pch
+    ./waf configure
     ./waf
     sudo ./waf install
 
@@ -164,12 +163,12 @@ been installed:
     sudo ldconfig
 
 .. note::
-  When the library is installed in a non-standard path (in general: not in ``/usr/lib``
-  or ``/usr/local/lib``; on some Linux distros including Fedora: not in ``/usr/lib``),
-  additional actions may be necessary.
+  When the library is installed in a non-default location (in general: not in ``/usr/lib``
+  or ``/usr/local/lib``; on some Linux distros like Fedora and its derivatives, including
+  CentOS: not in ``/usr/lib``), the following additional actions may be necessary.
 
-  The installation path should be added to ``/etc/ld.so.conf`` (or in
-  ``/etc/ld.so.conf.d``) **before** running ``sudo ldconfig``. For example:
+  The library installation path should be added to ``/etc/ld.so.conf`` or in
+  ``/etc/ld.so.conf.d/*.conf`` **before** running ``ldconfig``. For example:
 
   .. code-block:: sh
 
@@ -215,7 +214,7 @@ them, pass ``--with-examples`` during the configuration step:
 
 .. code-block:: sh
 
-    ./waf configure --with-examples  # on CentOS, add --without-pch
+    ./waf configure --with-examples
     ./waf
     sudo ./waf install
     sudo ldconfig  # on Linux only
@@ -306,7 +305,7 @@ The following is the suggested build procedure for development builds:
 
 .. code-block:: sh
 
-    ./waf configure --debug --with-tests  # on CentOS, add --without-pch
+    ./waf configure --debug --with-tests
     ./waf
     sudo ./waf install
     sudo ldconfig  # on Linux only

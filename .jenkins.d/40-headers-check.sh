@@ -13,7 +13,7 @@ if [[ -n $DISABLE_HEADERS_CHECK ]]; then
   exit 0
 fi
 
-if has CentOS-8 $NODE_LABELS; then
+if has CentOS $NODE_LABELS; then
   export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
 fi
 

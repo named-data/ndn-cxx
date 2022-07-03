@@ -10,8 +10,7 @@ fi
 if [[ $JOB_NAME == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
 fi
-if has CentOS-8 $NODE_LABELS; then
-    # https://bugzilla.redhat.com/show_bug.cgi?id=1721553
+if [[ -n $DISABLE_PCH ]]; then
     PCH="--without-pch"
 fi
 
@@ -40,7 +39,7 @@ fi
 # Install
 sudo_preserve_env PATH -- ./waf --color=yes install
 
-if has CentOS-8 $NODE_LABELS; then
+if has CentOS $NODE_LABELS; then
     sudo tee /etc/ld.so.conf.d/ndn.conf >/dev/null <<< /usr/local/lib64
 fi
 if has Linux $NODE_LABELS; then
