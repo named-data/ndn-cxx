@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(AsynchronousV4AndV6)
   SKIP_IF_IPV4_UNAVAILABLE();
   SKIP_IF_IPV6_UNAVAILABLE();
 
-  asyncResolve("www.named-data.net",
+  asyncResolve("named-data.net",
                std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v4()), true, false),
                [this] (auto&&...) { onFailure(false); },
                m_ioService, Ipv4Only());
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(Synchronous)
 {
   SKIP_IF_IP_UNAVAILABLE();
 
-  IpAddress address = syncResolve("www.named-data.net", m_ioService);
+  IpAddress address = syncResolve("named-data.net", m_ioService);
   BOOST_CHECK(address.is_v4() || address.is_v6());
 }
 

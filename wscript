@@ -78,7 +78,7 @@ def configure(conf):
     conf.env.WITH_TOOLS = conf.options.with_tools
     conf.env.WITH_EXAMPLES = conf.options.with_examples
 
-    conf.find_program('dot', var='DOT', mandatory=False)
+    conf.find_program('dot', mandatory=False)
 
     conf.check_cxx(lib='atomic', uselib_store='ATOMIC', define_name='HAVE_ATOMIC', mandatory=False)
     conf.check_cxx(lib='pthread', uselib_store='PTHREAD', define_name='HAVE_PTHREAD', mandatory=False)
