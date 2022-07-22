@@ -6,8 +6,8 @@ ndn-cxx relies on third-party software, licensed under the following licenses:
 - The Boost libraries are licensed under the
   [Boost Software License 1.0](https://www.boost.org/users/license.html)
 
-- any-lite by Martin Moene is licensed under the
-  [Boost Software License 1.0](https://github.com/martinmoene/any-lite/blob/master/LICENSE.txt)
+- OpenSSL is licensed under the
+  [Apache License 2.0](https://www.openssl.org/source/license.html)
 
 - optional-lite by Martin Moene is licensed under the
   [Boost Software License 1.0](https://github.com/martinmoene/optional-lite/blob/master/LICENSE.txt)
@@ -27,16 +27,13 @@ ndn-cxx relies on third-party software, licensed under the following licenses:
   [BSD license](https://github.com/named-data/ndn-cxx/blob/master/waf)
 
 
-The ndn-cxx library also relies on several other third-party libraries with non-GPL
-compatible license. These library fall into category of "System Libraries" under GPL
-license definitions and are used in accordance with GPL license exception for "System
-Libraries":
-
-- OpenSSL is licensed under an
-  [Apache-style license](https://www.openssl.org/source/license.html)
+The ndn-cxx library also relies on other third-party software with a GPL-incompatible
+free software license. The following libraries fall into the category of "System
+Libraries" under the GPL license definitions and are used in accordance with the GPL
+license exception for "System Libraries":
 
 - (macOS platform only) The macOS Security Framework is licensed under the
-  [Apple Public Source License](https://opensource.apple.com/apsl)
+  [Apple Public Source License 2.0](https://opensource.apple.com/apsl)
 
 
 The LGPL and GPL licenses are provided below in this file.  For more information
