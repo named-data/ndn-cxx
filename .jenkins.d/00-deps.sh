@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-if has OSX $NODE_LABELS; then
+if has macos $NODE_LABELS; then
     FORMULAE=(boost openssl pkg-config)
     if [[ $JOB_NAME == *"Docs" ]]; then
         FORMULAE+=(doxygen graphviz)

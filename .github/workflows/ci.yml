@@ -53,7 +53,7 @@ jobs:
             os: macos-11
     runs-on: ${{ matrix.os }}
     env:
-      NODE_LABELS: OSX
+      NODE_LABELS: macos
       WAF_JOBS: 3
     steps:
       - name: Set up Xcode

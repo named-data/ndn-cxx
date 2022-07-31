@@ -4,7 +4,7 @@ set -ex
 # Prepare environment
 rm -rf ~/.ndn
 
-if has OSX $NODE_LABELS; then
+if has macos-10.15 $NODE_LABELS; then
     security unlock-keychain -p named-data
 fi
 

@@ -10,6 +10,9 @@ fi
 if [[ $JOB_NAME == *"code-coverage" ]]; then
     COVERAGE="--with-coverage"
 fi
+if has macos-12 $NODE_LABELS; then
+    KEYCHAIN="--without-osx-keychain"
+fi
 if [[ -n $DISABLE_PCH ]]; then
     PCH="--without-pch"
 fi
@@ -31,7 +34,7 @@ if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
 fi
 
 # Build shared library in debug mode with tests and examples
-./waf --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples $ASAN $COVERAGE $PCH
+./waf --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples $ASAN $COVERAGE $KEYCHAIN $PCH
 ./waf --color=yes build -j$WAF_JOBS
 
 # (tests will be run against the debug version)

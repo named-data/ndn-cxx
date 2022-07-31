@@ -4,6 +4,8 @@ source .jenkins.d/util.sh
 
 if has Linux $NODE_LABELS; then
     export PATH="${HOME}/.local/bin${PATH:+:}${PATH}"
+elif [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 export CACHE_DIR=${CACHE_DIR:-/tmp}
 export WAF_JOBS=${WAF_JOBS:-1}

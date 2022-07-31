@@ -19,8 +19,11 @@ import re
 from waflib import Utils
 from waflib.Configure import conf
 
-OPENSSL_DIR_OSX = ['/usr/local', '/opt/local', '/usr/local/opt/openssl']
 OPENSSL_DIR = ['/usr', '/usr/local', '/opt/local', '/sw']
+OPENSSL_DIR_MACOS = ['/usr/local',
+                     '/opt/homebrew/opt/openssl', # Homebrew on arm64
+                     '/usr/local/opt/openssl',    # Homebrew on x86_64
+                     '/opt/local']                # MacPorts
 
 def options(opt):
     opt.add_option('--with-openssl', type='string', default=None, dest='openssl_dir',
@@ -43,7 +46,7 @@ def __openssl_find_root_and_version_file(self, root):
 
     openssl_dirs = OPENSSL_DIR
     if Utils.unversioned_sys_platform() == 'darwin':
-        openssl_dirs = OPENSSL_DIR_OSX
+        openssl_dirs = OPENSSL_DIR_MACOS
 
     for dir in openssl_dirs:
         file = self.__openssl_get_version_file(dir)

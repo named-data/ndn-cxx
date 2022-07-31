@@ -7,23 +7,23 @@ Supported platforms
 ndn-cxx is built against a continuous integration system and has been tested on the
 following platforms:
 
--  Ubuntu 18.04 (amd64, armhf, i386)
--  Ubuntu 20.04 (amd64)
--  Ubuntu 21.10 (amd64)
--  CentOS Stream 9
--  macOS 10.15
--  macOS 11 (Intel only)
+- Ubuntu 18.04
+- Ubuntu 20.04
+- Ubuntu 22.04
+- Debian 11
+- CentOS Stream 9
+- macOS 10.15
+- macOS 11
+- macOS 12
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
 
--  Alpine >= 3.12
--  Debian >= 10
--  Fedora >= 29
--  Gentoo Linux
--  Raspberry Pi OS (formerly Raspbian) >= 2019-06-20
--  FreeBSD >= 12.0
--  macOS 10.14
+- Alpine >= 3.12
+- Fedora >= 29
+- Gentoo Linux
+- Raspberry Pi OS (formerly Raspbian) >= 2019-06-20
+- FreeBSD >= 12.0
 
 Prerequisites
 -------------
@@ -31,13 +31,13 @@ Prerequisites
 Required
 ~~~~~~~~
 
--  GCC >= 7.4 or clang >= 6.0 (if you are on Linux or FreeBSD)
--  Xcode >= 11.3 or corresponding version of Command Line Tools (if you are on macOS)
--  Python >= 3.6
--  pkg-config
--  Boost >= 1.65.1
--  OpenSSL >= 1.1.1
--  SQLite 3.x
+- GCC >= 7.4 or clang >= 6.0 (if you are on Linux or FreeBSD)
+- Xcode >= 11.3 or corresponding version of Command Line Tools (if you are on macOS)
+- Python >= 3.6
+- pkg-config
+- Boost >= 1.65.1
+- OpenSSL >= 1.1.1
+- SQLite 3.x
 
 To build ndn-cxx from source, one must first install a C++ compiler and all necessary
 development tools and libraries:
@@ -83,10 +83,10 @@ Optional
 To build tutorials, man pages, and API documentation the following additional dependencies
 need to be installed:
 
--  doxygen
--  graphviz
--  sphinx >= 1.3
--  sphinxcontrib-doxylink
+- doxygen
+- graphviz
+- sphinx >= 1.3
+- sphinxcontrib-doxylink
 
 The following lists the steps to install these prerequisites on various common platforms.
 

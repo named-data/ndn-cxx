@@ -26,7 +26,7 @@ jobs:
         run: |
           case ${RUNNER_OS} in
             Linux) export NODE_LABELS="Linux Ubuntu" ;;
-            macOS) export NODE_LABELS="OSX" ;;
+            macOS) export NODE_LABELS="macos" ;;
           esac
           find .jenkins.d/ -type f -name '[1-9]*.sh' -exec chmod -x '{}' +
           ./.jenkins

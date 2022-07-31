@@ -1,6 +1,6 @@
-# CONTINUOUS INTEGRATION SCRIPTS
+# Continuous Integration Scripts
 
-## Environment Variables Used in Build Scripts
+## Environment Variables
 
 - `NODE_LABELS`: space-separated list of platform properties. The included values are used by
   the build scripts to select the proper behavior for different operating systems and versions.
@@ -9,9 +9,9 @@
 
   Example values:
 
-  - `[OS_TYPE]`: `Linux`, `OSX`
+  - `[OS_TYPE]`: `Linux`, `macos`
   - `[DISTRO_TYPE]`: `Ubuntu`, `CentOS`
-  - `[DISTRO_VERSION]`: `Ubuntu-16.04`, `Ubuntu-18.04`, `CentOS-8`, `OSX-10.14`, `OSX-10.15`
+  - `[DISTRO_VERSION]`: `ubuntu-20.04`, `ubuntu-22.04`, `centos-9`, `macos-10.15`, `macos-11`
 
 - `JOB_NAME`: optional variable that defines the type of build job. Depending on the job type,
   the build scripts can perform different tasks.
