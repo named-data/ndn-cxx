@@ -75,7 +75,7 @@ tpm
 
   Possible values for ``[scheme]`` are:
 
-  * ``tpm-osx-keychain`` (default on macOS): secure storage of private keys in the macOS
+  * ``tpm-osxkeychain`` (default on macOS): secure storage of private keys in the macOS
     Keychain with OS-provided access restrictions.
 
     The ``[location]`` parameter is ignored.

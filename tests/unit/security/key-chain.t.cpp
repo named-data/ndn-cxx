@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathCon
   KeyChain keyChain;
   BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-memory:");
 
-#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
+#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
   BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-osxkeychain:");
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-osxkeychain:");
 #else

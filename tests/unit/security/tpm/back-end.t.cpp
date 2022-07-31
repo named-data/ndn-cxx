@@ -53,9 +53,9 @@ BOOST_AUTO_TEST_SUITE(TestBackEnd)
 using tpm::Tpm;
 
 using TestBackEnds = boost::mpl::vector<
-#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
+#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
   BackEndWrapperOsx,
-#endif // NDN_CXX_HAVE_OSX_FRAMEWORKS
+#endif
   BackEndWrapperMem,
   BackEndWrapperFile>;
 
