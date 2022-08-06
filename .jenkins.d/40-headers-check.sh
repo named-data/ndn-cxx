@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-
+set -eo pipefail
 # It's intentional not to use `set -x`, because this script explicitly prints useful information
 # and should not run in trace mode.
-# It's intentional not to use `set -e`, because this script wants to check all headers
-# (similar to running all test cases), instead of failing at the first error.
 
 PROJ=ndn-cxx
 PCFILE=libndn-cxx
@@ -13,7 +11,7 @@ if [[ -n $DISABLE_HEADERS_CHECK ]]; then
   exit 0
 fi
 
-if has CentOS $NODE_LABELS; then
+if [[ $ID_LIKE == *fedora* ]]; then
   export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
 fi
 
@@ -28,9 +26,8 @@ NCHECKED=0
 NERRORS=0
 while IFS= read -r -d '' H; do
   echo "Checking header ${H#${INCLUDEDIR}/}"
-  "$CXX" -xc++ $STD $CXXFLAGS -c -o /dev/null "$H"
-  [[ $? -eq 0 ]] || ((NERRORS++))
-  ((NCHECKED++))
+  "$CXX" -xc++ $STD $CXXFLAGS -c -o /dev/null "$H" || : $((NERRORS++))
+  : $((NCHECKED++))
 done < <(find "$INCLUDEDIR" -name '*.hpp' -type f -print0 2>/dev/null)
 
 if [[ $NCHECKED -eq 0 ]]; then

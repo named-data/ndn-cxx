@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
-set -ex
-
-# Prepare environment
-rm -rf ~/.ndn
-
-if has macos-10.15 $NODE_LABELS; then
-    security unlock-keychain -p named-data
-fi
+set -eo pipefail
 
 # https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
 ASAN_OPTIONS="color=always"
@@ -18,10 +11,20 @@ ASAN_OPTIONS+=":detect_invalid_pointer_pairs=2"
 ASAN_OPTIONS+=":strip_path_prefix=${PWD}/"
 export ASAN_OPTIONS
 
+# https://www.boost.org/doc/libs/release/libs/test/doc/html/boost_test/runtime_config/summary.html
 export BOOST_TEST_BUILD_INFO=1
 export BOOST_TEST_COLOR_OUTPUT=1
 export BOOST_TEST_DETECT_MEMORY_LEAK=0
 export BOOST_TEST_LOGGER=HRF,test_suite,stdout:XML,all,build/xunit-log.xml
+
+set -x
+
+# Prepare environment
+rm -rf ~/.ndn
+
+if [[ $ID == macos && ${VERSION_ID%%.*} -lt 11 ]]; then
+    security unlock-keychain -p named-data
+fi
 
 # Run unit tests
 ./build/unit-tests
