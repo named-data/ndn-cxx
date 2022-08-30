@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,7 +93,7 @@ ValidationPolicyCommandInterest::parseCommandInterest(const Interest& interest,
     // TODO: Refactor to support other/combinations of the restrictions based on Nonce, Time, and/or SeqNum
     if (!optionalTimestamp) {
       state->fail({ValidationError::POLICY_ERROR, "Signed Interest `" +
-                   interest.getName().toUri() + "` doesn't include required SignatureTime element"});
+                   interest.getName().toUri() + "` does not include required SignatureTime element"});
       return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
     }
     timestamp = *optionalTimestamp;
@@ -106,10 +106,10 @@ ValidationPolicyCommandInterest::parseCommandInterest(const Interest& interest,
       return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
     }
 
-    const name::Component& timestampComp = name.at(command_interest::POS_TIMESTAMP);
+    const auto& timestampComp = name.at(command_interest::POS_TIMESTAMP);
     if (!timestampComp.isNumber()) {
       state->fail({ValidationError::POLICY_ERROR, "Command interest `" +
-                   interest.getName().toUri() + "` doesn't include timestamp component"});
+                   interest.getName().toUri() + "` does not include timestamp component"});
       return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
     }
     timestamp = time::fromUnixTimestamp(time::milliseconds(timestampComp.toNumber()));

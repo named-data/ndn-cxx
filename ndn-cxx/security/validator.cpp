@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,10 +20,9 @@
  */
 
 #include "ndn-cxx/security/validator.hpp"
-
-#include "ndn-cxx/face.hpp"
-#include "ndn-cxx/security/transform/public-key.hpp"
 #include "ndn-cxx/util/logger.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace security {
@@ -37,7 +36,6 @@ NDN_LOG_INIT(ndn.security.Validator);
 Validator::Validator(unique_ptr<ValidationPolicy> policy, unique_ptr<CertificateFetcher> certFetcher)
   : m_policy(std::move(policy))
   , m_certFetcher(std::move(certFetcher))
-  , m_maxDepth(25)
 {
   BOOST_ASSERT(m_policy != nullptr);
   BOOST_ASSERT(m_certFetcher != nullptr);
@@ -45,31 +43,7 @@ Validator::Validator(unique_ptr<ValidationPolicy> policy, unique_ptr<Certificate
   m_certFetcher->setCertificateStorage(*this);
 }
 
-Validator::~Validator() = default;
-
-ValidationPolicy&
-Validator::getPolicy()
-{
-  return *m_policy;
-}
-
-CertificateFetcher&
-Validator::getFetcher()
-{
-  return *m_certFetcher;
-}
-
-void
-Validator::setMaxDepth(size_t depth)
-{
-  m_maxDepth = depth;
-}
-
-size_t
-Validator::getMaxDepth() const
-{
-  return m_maxDepth;
-}
+Validator::~Validator() noexcept = default;
 
 void
 Validator::validate(const Data& data,
@@ -77,10 +51,11 @@ Validator::validate(const Data& data,
                     const DataValidationFailureCallback& failureCb)
 {
   auto state = make_shared<DataValidationState>(data, successCb, failureCb);
+
   NDN_LOG_DEBUG_DEPTH("Start validating data " << data.getName());
 
   m_policy->checkPolicy(data, state,
-      [this] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
+    [this] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
       if (certRequest == nullptr) {
         state->bypassValidation();
       }
@@ -97,14 +72,13 @@ Validator::validate(const Interest& interest,
                     const InterestValidationFailureCallback& failureCb)
 {
   auto state = make_shared<InterestValidationState>(interest, successCb, failureCb);
-
   auto fmt = interest.getSignatureInfo() ? SignedInterestFormat::V03 : SignedInterestFormat::V02;
   state->setTag(make_shared<SignedInterestFormatTag>(fmt));
 
   NDN_LOG_DEBUG_DEPTH("Start validating interest (" << fmt << ") " << interest.getName());
 
   m_policy->checkPolicy(interest, state,
-      [this] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
+    [this] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
       if (certRequest == nullptr) {
         state->bypassValidation();
       }
@@ -121,12 +95,12 @@ Validator::validate(const Certificate& cert, const shared_ptr<ValidationState>& 
   NDN_LOG_DEBUG_DEPTH("Start validating certificate " << cert.getName());
 
   if (!cert.isValid()) {
-    return state->fail({ValidationError::Code::EXPIRED_CERT, "Retrieved certificate is not yet valid or expired "
-          "`" + cert.getName().toUri() + "`"});
+    return state->fail({ValidationError::EXPIRED_CERT, "`" + cert.getName().toUri() + "` is valid "
+                        "between " + boost::lexical_cast<std::string>(cert.getValidityPeriod())});
   }
 
   m_policy->checkPolicy(cert, state,
-      [this, cert] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
+    [this, cert] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
       if (certRequest == nullptr) {
         state->fail({ValidationError::POLICY_ERROR, "Validation policy is not allowed to designate `" +
                      cert.getName().toUri() + "` as a trust anchor"});
@@ -143,10 +117,8 @@ void
 Validator::requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
                               const shared_ptr<ValidationState>& state)
 {
-  // TODO configurable check for the maximum number of steps
   if (state->getDepth() >= m_maxDepth) {
-    state->fail({ValidationError::Code::EXCEEDED_DEPTH_LIMIT,
-                 "Exceeded validation depth limit (" + to_string(m_maxDepth) + ")"});
+    state->fail({ValidationError::EXCEEDED_DEPTH_LIMIT, to_string(m_maxDepth)});
     return;
   }
 
@@ -156,8 +128,7 @@ Validator::requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
   }
 
   if (state->hasSeenCertificateName(certRequest->interest.getName())) {
-    state->fail({ValidationError::Code::LOOP_DETECTED,
-                 "Validation loop detected for certificate `" + certRequest->interest.getName().toUri() + "`"});
+    state->fail({ValidationError::LOOP_DETECTED, "`" + certRequest->interest.getName().toUri() + "`"});
     return;
   }
 
@@ -179,9 +150,9 @@ Validator::requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
     return;
   }
 
-  m_certFetcher->fetch(certRequest, state, [this] (const Certificate& cert, const shared_ptr<ValidationState>& state) {
-      validate(cert, state);
-    });
+  m_certFetcher->fetch(certRequest, state, [this] (auto&&... args) {
+    validate(std::forward<decltype(args)>(args)...);
+  });
 }
 
 ////////////////////////////////////////////////////////////////////////

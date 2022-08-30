@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -294,11 +294,10 @@ ValidationPolicyConfig::checkPolicy(const Interest& interest, const shared_ptr<V
 
         SignatureInfo si;
         try {
-          si.wireDecode(interest.getName().at(signed_interest::POS_SIG_INFO).blockFromValue());
+          si.wireDecode(interest.getName()[signed_interest::POS_SIG_INFO].blockFromValue());
         }
         catch (const tlv::Error& e) {
-          state->fail({ValidationError::Code::INVALID_KEY_LOCATOR,
-                       "Invalid signed Interest: " + std::string(e.what())});
+          state->fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: "s + e.what()});
           return;
         }
 

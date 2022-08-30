@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,12 +34,12 @@ BOOST_AUTO_TEST_SUITE(TestValidationError)
 
 BOOST_AUTO_TEST_CASE(Basic)
 {
-  ValidationError e1{ValidationError::Code::INVALID_SIGNATURE};
+  ValidationError e1{ValidationError::INVALID_SIGNATURE};
   BOOST_CHECK_EQUAL(e1.getCode(), 1);
   BOOST_CHECK_EQUAL(e1.getInfo(), "");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(e1), "Invalid signature");
 
-  ValidationError e2{ValidationError::Code::NO_SIGNATURE, "message"};
+  ValidationError e2{ValidationError::NO_SIGNATURE, "message"};
   BOOST_CHECK_EQUAL(e2.getCode(), 2);
   BOOST_CHECK_EQUAL(e2.getInfo(), "message");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(e2), "Missing signature (message)");

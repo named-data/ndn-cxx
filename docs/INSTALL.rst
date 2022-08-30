@@ -42,7 +42,7 @@ Required
 To build ndn-cxx from source, one must first install a C++ compiler and all necessary
 development tools and libraries:
 
-- On **Ubuntu**
+- On **Debian** and **Ubuntu**
 
     In a terminal, enter::
 
@@ -98,7 +98,7 @@ The following lists the steps to install these prerequisites on various common p
 
       export PATH="${HOME}/.local/bin${PATH:+:}${PATH}"
 
-- On **Ubuntu**:
+- On **Debian** and **Ubuntu**:
 
   .. code-block:: sh
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,12 +50,11 @@ public:
     INVALID_KEY_LOCATOR  = 8,
     POLICY_ERROR         = 9,
     IMPLEMENTATION_ERROR = 255,
-    USER_MIN             = 256 // custom error codes should use >=256
+    USER_MIN             = 256, // custom error codes should use >=256
   };
 
-public:
   /**
-   * @brief Validation error, implicitly convertible from an error code and info
+   * @brief Validation error, implicitly convertible from an error code and info string
    */
   ValidationError(uint32_t code, const std::string& info = "")
     : m_code(code)
@@ -76,15 +75,24 @@ public:
   }
 
 private:
+  void
+  print(std::ostream& os) const;
+
+  // hidden friend non-member operator, must be defined inline
+  friend std::ostream&
+  operator<<(std::ostream& os, const ValidationError& err)
+  {
+    err.print(os);
+    return os;
+  }
+
+private:
   uint32_t m_code;
   std::string m_info;
 };
 
 std::ostream&
 operator<<(std::ostream& os, ValidationError::Code code);
-
-std::ostream&
-operator<<(std::ostream& os, const ValidationError& error);
 
 } // inline namespace v2
 } // namespace security

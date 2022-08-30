@@ -8,7 +8,7 @@ PIP_PKGS=()
 case $JOB_NAME in
     *code-coverage)
         APT_PKGS+=(lcov python3-pip)
-        PIP_PKGS+=('gcovr~=5.1')
+        PIP_PKGS+=('gcovr~=5.2')
         ;;
     *Docs)
         APT_PKGS+=(doxygen graphviz python3-pip)

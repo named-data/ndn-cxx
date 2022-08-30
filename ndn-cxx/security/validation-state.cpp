@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,21 +33,10 @@ NDN_LOG_INIT(ndn.security.ValidationState);
 #define NDN_LOG_DEBUG_DEPTH(x) NDN_LOG_DEBUG(std::string(this->getDepth() + 1, '>') << " " << x)
 #define NDN_LOG_TRACE_DEPTH(x) NDN_LOG_TRACE(std::string(this->getDepth() + 1, '>') << " " << x)
 
-ValidationState::ValidationState()
-  : m_outcome(boost::logic::indeterminate)
-{
-}
-
 ValidationState::~ValidationState()
 {
   NDN_LOG_TRACE(__func__);
   BOOST_ASSERT(!boost::logic::indeterminate(m_outcome));
-}
-
-size_t
-ValidationState::getDepth() const
-{
-  return m_certificateChain.size();
 }
 
 bool
@@ -70,7 +59,7 @@ ValidationState::verifyCertificateChain(const Certificate& trustedCert)
     const auto& certToValidate = *it;
 
     if (!verifySignature(certToValidate, *validatedCert)) {
-      this->fail({ValidationError::Code::INVALID_SIGNATURE, "Invalid signature of certificate `" +
+      this->fail({ValidationError::INVALID_SIGNATURE, "Invalid signature of certificate `" +
                   certToValidate.getName().toUri() + "`"});
       m_certificateChain.erase(it, m_certificateChain.end());
       return nullptr;
@@ -99,7 +88,7 @@ DataValidationState::DataValidationState(const Data& data,
 DataValidationState::~DataValidationState()
 {
   if (boost::logic::indeterminate(m_outcome)) {
-    this->fail({ValidationError::Code::IMPLEMENTATION_ERROR,
+    this->fail({ValidationError::IMPLEMENTATION_ERROR,
                 "Validator/policy did not invoke success or failure callback"});
   }
 }
@@ -114,7 +103,7 @@ DataValidationState::verifyOriginalPacket(const optional<Certificate>& trustedCe
     m_outcome = true;
   }
   else {
-    this->fail({ValidationError::Code::INVALID_SIGNATURE, "Invalid signature of data `" +
+    this->fail({ValidationError::INVALID_SIGNATURE, "Invalid signature of data `" +
                 m_data.getName().toUri() + "`"});
   }
 }
@@ -137,12 +126,6 @@ DataValidationState::fail(const ValidationError& error)
   m_outcome = false;
 }
 
-const Data&
-DataValidationState::getOriginalData() const
-{
-  return m_data;
-}
-
 /////// InterestValidationState
 
 InterestValidationState::InterestValidationState(const Interest& interest,
@@ -159,7 +142,7 @@ InterestValidationState::InterestValidationState(const Interest& interest,
 InterestValidationState::~InterestValidationState()
 {
   if (boost::logic::indeterminate(m_outcome)) {
-    this->fail({ValidationError::Code::IMPLEMENTATION_ERROR,
+    this->fail({ValidationError::IMPLEMENTATION_ERROR,
                 "Validator/policy did not invoke success or failure callback"});
   }
 }
@@ -174,7 +157,7 @@ InterestValidationState::verifyOriginalPacket(const optional<Certificate>& trust
     m_outcome = true;
   }
   else {
-    this->fail({ValidationError::Code::INVALID_SIGNATURE, "Invalid signature of interest `" +
+    this->fail({ValidationError::INVALID_SIGNATURE, "Invalid signature of interest `" +
                 m_interest.getName().toUri() + "`"});
   }
 }
@@ -195,12 +178,6 @@ InterestValidationState::fail(const ValidationError& error)
   m_failureCb(m_interest, error);
   BOOST_ASSERT(boost::logic::indeterminate(m_outcome));
   m_outcome = false;
-}
-
-const Interest&
-InterestValidationState::getOriginalInterest() const
-{
-  return m_interest;
 }
 
 } // inline namespace v2

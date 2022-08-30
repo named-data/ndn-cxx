@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,8 +32,8 @@ CertificateFetcherOffline::doFetch(const shared_ptr<CertificateRequest>& certReq
                                    const shared_ptr<ValidationState>& state,
                                    const ValidationContinuation&)
 {
-  state->fail({ValidationError::Code::CANNOT_RETRIEVE_CERT,
-               "Cannot fetch certificate " + certRequest->interest.getName().toUri() + " in offline mode"});
+  state->fail({ValidationError::CANNOT_RETRIEVE_CERT,
+               "Cannot fetch `" + certRequest->interest.getName().toUri() + "` in offline mode"});
 }
 
 } // inline namespace v2

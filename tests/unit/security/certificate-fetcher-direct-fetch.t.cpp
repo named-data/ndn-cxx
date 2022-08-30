@@ -216,7 +216,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataNoTagDirectOnly, T, Failures
 
   VALIDATE_FAILURE(this->data, "Should fail, as no interests are expected");
   BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 0);
-  BOOST_CHECK(this->lastError.getCode() != ValidationError::Code::IMPLEMENTATION_ERROR);
+  BOOST_CHECK_NE(this->lastError.getCode(), ValidationError::IMPLEMENTATION_ERROR);
 }
 
 BOOST_FIXTURE_TEST_CASE(ValidateSuccessInterest, CertificateFetcherDirectFetchFixture<Cert>)

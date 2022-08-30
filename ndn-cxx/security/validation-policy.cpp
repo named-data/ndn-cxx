@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,14 +68,14 @@ getKeyLocatorName(const SignatureInfo& si, ValidationState& state)
   }
 
   if (!si.hasKeyLocator()) {
-    state.fail({ValidationError::Code::INVALID_KEY_LOCATOR, "KeyLocator is missing"});
-    return Name();
+    state.fail({ValidationError::INVALID_KEY_LOCATOR, "KeyLocator is missing"});
+    return {};
   }
 
   const KeyLocator& kl = si.getKeyLocator();
   if (kl.getType() != tlv::Name) {
-    state.fail({ValidationError::Code::INVALID_KEY_LOCATOR, "KeyLocator type is not Name"});
-    return Name();
+    state.fail({ValidationError::INVALID_KEY_LOCATOR, "KeyLocator type is not Name"});
+    return {};
   }
 
   return kl.getName();
@@ -102,17 +102,16 @@ getKeyLocatorName(const Interest& interest, ValidationState& state)
   const Name& name = interest.getName();
   if (name.size() < signed_interest::MIN_SIZE) {
     state.fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: name too short"});
-    return Name();
+    return {};
   }
 
   SignatureInfo si;
   try {
-    si.wireDecode(name.at(signed_interest::POS_SIG_INFO).blockFromValue());
+    si.wireDecode(name[signed_interest::POS_SIG_INFO].blockFromValue());
   }
   catch (const tlv::Error& e) {
-    state.fail({ValidationError::Code::INVALID_KEY_LOCATOR,
-                "Invalid signed Interest: " + std::string(e.what())});
-    return Name();
+    state.fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: "s + e.what()});
+    return {};
   }
 
   return getKeyLocatorName(si, state);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,6 @@
 
 #include "ndn-cxx/security/validation-error.hpp"
 
-#include <ostream>
-
 namespace ndn {
 namespace security {
 inline namespace v2 {
@@ -31,29 +29,29 @@ std::ostream&
 operator<<(std::ostream& os, ValidationError::Code code)
 {
   switch (code) {
-    case ValidationError::Code::NO_ERROR:
+    case ValidationError::NO_ERROR:
       return os << "No error";
-    case ValidationError::Code::INVALID_SIGNATURE:
+    case ValidationError::INVALID_SIGNATURE:
       return os << "Invalid signature";
-    case ValidationError::Code::NO_SIGNATURE:
+    case ValidationError::NO_SIGNATURE:
       return os << "Missing signature";
-    case ValidationError::Code::CANNOT_RETRIEVE_CERT:
+    case ValidationError::CANNOT_RETRIEVE_CERT:
       return os << "Cannot retrieve certificate";
-    case ValidationError::Code::EXPIRED_CERT:
-      return os << "Certificate expired";
-    case ValidationError::Code::LOOP_DETECTED:
+    case ValidationError::EXPIRED_CERT:
+      return os << "Certificate expired or not yet valid";
+    case ValidationError::LOOP_DETECTED:
       return os << "Loop detected in certification chain";
-    case ValidationError::Code::MALFORMED_CERT:
+    case ValidationError::MALFORMED_CERT:
       return os << "Malformed certificate";
-    case ValidationError::Code::EXCEEDED_DEPTH_LIMIT:
+    case ValidationError::EXCEEDED_DEPTH_LIMIT:
       return os << "Exceeded validation depth limit";
-    case ValidationError::Code::INVALID_KEY_LOCATOR:
+    case ValidationError::INVALID_KEY_LOCATOR:
       return os << "Key locator violates validation policy";
-    case ValidationError::Code::POLICY_ERROR:
+    case ValidationError::POLICY_ERROR:
       return os << "Validation policy error";
-    case ValidationError::Code::IMPLEMENTATION_ERROR:
-      return os << "Internal implementation error";
-    case ValidationError::Code::USER_MIN:
+    case ValidationError::IMPLEMENTATION_ERROR:
+      return os << "Internal error";
+    case ValidationError::USER_MIN:
       break;
   }
   if (code >= ValidationError::Code::USER_MIN) {
@@ -64,14 +62,13 @@ operator<<(std::ostream& os, ValidationError::Code code)
   }
 }
 
-std::ostream&
-operator<<(std::ostream& os, const ValidationError& error)
+void
+ValidationError::print(std::ostream& os) const
 {
-  os << static_cast<ValidationError::Code>(error.getCode());
-  if (!error.getInfo().empty()) {
-    os << " (" << error.getInfo() << ")";
+  os << static_cast<ValidationError::Code>(m_code);
+  if (!m_info.empty()) {
+    os << " (" << m_info << ")";
   }
-  return os;
 }
 
 } // inline namespace v2

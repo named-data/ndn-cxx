@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,8 +46,8 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
                                        const shared_ptr<ValidationState>& state,
                                        const ValidationContinuation& continueValidation)
 {
-  auto interestState = dynamic_pointer_cast<InterestValidationState>(state);
   uint64_t incomingFaceId = 0;
+  auto interestState = dynamic_pointer_cast<InterestValidationState>(state);
   if (interestState != nullptr) {
     auto incomingFaceIdTag = interestState->getOriginalInterest().getTag<lp::IncomingFaceIdTag>();
     if (incomingFaceIdTag != nullptr) {
@@ -61,6 +61,7 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
       incomingFaceId = incomingFaceIdTag->get();
     }
   }
+
   if (incomingFaceId != 0) {
     Interest directInterest(keyRequest->interest);
     directInterest.refreshNonce();
@@ -89,8 +90,7 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
     CertificateFetcherFromNetwork::doFetch(keyRequest, state, continueValidation);
   }
   else if (incomingFaceId == 0) {
-    state->fail({ValidationError::Code::CANNOT_RETRIEVE_CERT,
-          "Cannot direct fetch certificate as IncomingFaceId tag is not set"});
+    state->fail({ValidationError::CANNOT_RETRIEVE_CERT, "IncomingFaceId not set"});
   }
 }
 

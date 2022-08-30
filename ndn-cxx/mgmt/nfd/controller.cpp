@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -66,9 +66,10 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
     [=] (const Interest&, const Data& data) {
       processCommandResponse(data, command, onSuccess, onFailure);
     },
-    [=] (const Interest&, const lp::Nack&) {
+    [=] (const Interest&, const lp::Nack& nack) {
       if (onFailure)
-        onFailure(ControlResponse(Controller::ERROR_NACK, "network Nack received"));
+        onFailure(ControlResponse(Controller::ERROR_NACK,
+                                  "received Nack: " + boost::lexical_cast<std::string>(nack.getReason())));
     },
     [=] (const Interest&) {
       if (onFailure)
@@ -159,8 +160,8 @@ Controller::fetchDataset(const Name& prefix,
   }
 
   auto it = m_fetchers.insert(fetcher).first;
-  fetcher->onComplete.connect([this, it] (ConstBufferPtr) { m_fetchers.erase(it); });
-  fetcher->onError.connect([this, it] (uint32_t, const std::string&) { m_fetchers.erase(it); });
+  fetcher->onComplete.connect([this, it] (auto&&...) { m_fetchers.erase(it); });
+  fetcher->onError.connect([this, it] (auto&&...) { m_fetchers.erase(it); });
 }
 
 void

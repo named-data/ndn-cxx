@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,8 +71,7 @@ CertificateFetcherFromNetwork::dataCallback(const Data& data,
     cert = Certificate(data);
   }
   catch (const tlv::Error& e) {
-    return state->fail({ValidationError::Code::MALFORMED_CERT, "Fetched a malformed certificate "
-                        "`" + data.getName().toUri() + "` (" + e.what() + ")"});
+    return state->fail({ValidationError::MALFORMED_CERT, "`" + data.getName().toUri() + "`: " + e.what()});
   }
   continueValidation(cert, state);
 }
@@ -83,7 +82,7 @@ CertificateFetcherFromNetwork::nackCallback(const lp::Nack& nack,
                                             const shared_ptr<ValidationState>& state,
                                             const ValidationContinuation& continueValidation)
 {
-  NDN_LOG_DEBUG_DEPTH("NACK (" << nack.getReason() <<  ") while fetching certificate "
+  NDN_LOG_DEBUG_DEPTH("Nack (" << nack.getReason() << ") while fetching certificate "
                       << certRequest->interest.getName());
 
   --certRequest->nRetriesLeft;
@@ -93,8 +92,8 @@ CertificateFetcherFromNetwork::nackCallback(const lp::Nack& nack,
     certRequest->waitAfterNack *= 2;
   }
   else {
-    state->fail({ValidationError::Code::CANNOT_RETRIEVE_CERT, "Cannot fetch certificate after all "
-                 "retries `" + certRequest->interest.getName().toUri() + "`"});
+    state->fail({ValidationError::CANNOT_RETRIEVE_CERT, "Nack after exhausting all retries for "
+                 "`" + certRequest->interest.getName().toUri() + "`"});
   }
 }
 
@@ -103,16 +102,15 @@ CertificateFetcherFromNetwork::timeoutCallback(const shared_ptr<CertificateReque
                                                const shared_ptr<ValidationState>& state,
                                                const ValidationContinuation& continueValidation)
 {
-  NDN_LOG_DEBUG_DEPTH("Timeout while fetching certificate " << certRequest->interest.getName()
-                      << ", retrying");
+  NDN_LOG_DEBUG_DEPTH("Timeout while fetching certificate " << certRequest->interest.getName());
 
   --certRequest->nRetriesLeft;
   if (certRequest->nRetriesLeft >= 0) {
     fetch(certRequest, state, continueValidation);
   }
   else {
-    state->fail({ValidationError::Code::CANNOT_RETRIEVE_CERT, "Cannot fetch certificate after all "
-                 "retries `" + certRequest->interest.getName().toUri() + "`"});
+    state->fail({ValidationError::CANNOT_RETRIEVE_CERT, "Timeout after exhausting all retries for "
+                 "`" + certRequest->interest.getName().toUri() + "`"});
   }
 }
 

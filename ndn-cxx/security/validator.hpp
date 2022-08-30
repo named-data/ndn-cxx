@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -64,30 +64,42 @@ public:
   /**
    * @brief Validator constructor.
    *
-   * @param policy      Validation policy to be associated with the validator
+   * @param policy      Validation policy to be associated with the validator.
    * @param certFetcher Certificate fetcher implementation.
    */
   Validator(unique_ptr<ValidationPolicy> policy, unique_ptr<CertificateFetcher> certFetcher);
 
-  ~Validator();
+  ~Validator() noexcept;
 
   ValidationPolicy&
-  getPolicy();
+  getPolicy() const noexcept
+  {
+    return *m_policy;
+  }
 
   CertificateFetcher&
-  getFetcher();
+  getFetcher() const noexcept
+  {
+    return *m_certFetcher;
+  }
 
   /**
-   * @brief Set the maximum depth of the certificate chain
-   */
-  void
-  setMaxDepth(size_t depth);
-
-  /**
-   * @return The maximum depth of the certificate chain
+   * @brief Return the maximum depth of the certificate chain.
    */
   size_t
-  getMaxDepth() const;
+  getMaxDepth() const noexcept
+  {
+    return m_maxDepth;
+  }
+
+  /**
+   * @brief Set the maximum depth of the certificate chain.
+   */
+  void
+  setMaxDepth(size_t depth) noexcept
+  {
+    m_maxDepth = depth;
+  }
 
   /**
    * @brief Asynchronously validate @p data
@@ -179,7 +191,7 @@ private: // Common validator operations
 private:
   unique_ptr<ValidationPolicy> m_policy;
   unique_ptr<CertificateFetcher> m_certFetcher;
-  size_t m_maxDepth;
+  size_t m_maxDepth{25};
 };
 
 } // inline namespace v2

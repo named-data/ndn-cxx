@@ -68,7 +68,7 @@ protected:
   util::DummyClientFace face{m_io, {true, true}};
   std::function<void(const Interest&)> processInterest;
   CertificateCache cache{100_days};
-  ValidationError lastError{ValidationError::Code::NO_ERROR};
+  ValidationError lastError{ValidationError::NO_ERROR};
 
 private:
   const static time::milliseconds s_mockPeriod;

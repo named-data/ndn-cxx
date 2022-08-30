@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,12 +41,12 @@ ValidationPolicySimpleHierarchy::checkPolicy(const Data& data, const shared_ptr<
     }
   }
   catch (const KeyLocator::Error& e) {
-    state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, e.what()});
+    state->fail({ValidationError::INVALID_KEY_LOCATOR, e.what()});
     return;
   }
 
-  state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Data signing policy violation for " +
-        data.getName().toUri() + " by " + klName.toUri()});
+  state->fail({ValidationError::INVALID_KEY_LOCATOR, "Data signing policy violation for " +
+               data.getName().toUri() + " by " + klName.toUri()});
 }
 
 void
@@ -65,12 +65,12 @@ ValidationPolicySimpleHierarchy::checkPolicy(const Interest& interest, const sha
     }
   }
   catch (const KeyLocator::Error& e) {
-    state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, e.what()});
+    state->fail({ValidationError::INVALID_KEY_LOCATOR, e.what()});
     return;
   }
 
-  state->fail({ValidationError::Code::INVALID_KEY_LOCATOR, "Interest signing policy violation for " +
-        interest.getName().toUri() + " by " + klName.toUri()});
+  state->fail({ValidationError::INVALID_KEY_LOCATOR, "Interest signing policy violation for " +
+               interest.getName().toUri() + " by " + klName.toUri()});
 }
 
 } // inline namespace v2

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,16 +59,11 @@ class Validator;
 class ValidationState : public TagHost, noncopyable
 {
 public:
-  /**
-   * @brief Create validation state
-   */
-  ValidationState();
-
   virtual
   ~ValidationState();
 
   boost::logic::tribool
-  getOutcome() const
+  getOutcome() const noexcept
   {
     return m_outcome;
   }
@@ -83,7 +78,10 @@ public:
    * @return Depth of certificate chain
    */
   size_t
-  getDepth() const;
+  getDepth() const noexcept
+  {
+    return m_certificateChain.size();
+  }
 
   /**
    * @brief Check if @p certName has been previously seen and record the supplied name
@@ -139,7 +137,7 @@ private: // Interface intended to be used only by Validator class
   verifyCertificateChain(const Certificate& trustedCert);
 
 protected:
-  boost::logic::tribool m_outcome;
+  boost::logic::tribool m_outcome{boost::logic::indeterminate};
 
 private:
   std::unordered_set<Name> m_seenCertificateNames;
@@ -186,7 +184,10 @@ public:
    * @return Original data being validated
    */
   const Data&
-  getOriginalData() const;
+  getOriginalData() const
+  {
+    return m_data;
+  }
 
 private:
   void
@@ -232,7 +233,10 @@ public:
    * @return Original interest being validated
    */
   const Interest&
-  getOriginalInterest() const;
+  getOriginalInterest() const
+  {
+    return m_interest;
+  }
 
 public:
   util::Signal<InterestValidationState, Interest> afterSuccess;
