@@ -56,6 +56,12 @@ ValidatorFixtureBase::mockNetworkOperations()
   advanceClocks(s_mockPeriod, s_mockTimes);
 }
 
+void
+ValidatorFixtureBase::rewindClockAfterValidation()
+{
+  m_systemClock->advance(s_mockPeriod * s_mockTimes * -1);
+}
+
 Identity
 ValidatorFixtureBase::addSubCertificate(const Name& subIdentityName, const Identity& issuer)
 {

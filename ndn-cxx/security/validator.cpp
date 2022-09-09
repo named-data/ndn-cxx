@@ -51,19 +51,11 @@ Validator::validate(const Data& data,
                     const DataValidationFailureCallback& failureCb)
 {
   auto state = make_shared<DataValidationState>(data, successCb, failureCb);
-
   NDN_LOG_DEBUG_DEPTH("Start validating data " << data.getName());
 
-  m_policy->checkPolicy(data, state,
-    [this] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
-      if (certRequest == nullptr) {
-        state->bypassValidation();
-      }
-      else {
-        // need to fetch key and validate it
-        requestCertificate(certRequest, state);
-      }
-    });
+  m_policy->checkPolicy(data, state, [this] (auto&&... args) {
+    continueValidation(std::forward<decltype(args)>(args)...);
+  });
 }
 
 void
@@ -72,21 +64,20 @@ Validator::validate(const Interest& interest,
                     const InterestValidationFailureCallback& failureCb)
 {
   auto state = make_shared<InterestValidationState>(interest, successCb, failureCb);
-  auto fmt = interest.getSignatureInfo() ? SignedInterestFormat::V03 : SignedInterestFormat::V02;
-  state->setTag(make_shared<SignedInterestFormatTag>(fmt));
+  NDN_LOG_DEBUG_DEPTH("Start validating interest " << interest.getName());
 
-  NDN_LOG_DEBUG_DEPTH("Start validating interest (" << fmt << ") " << interest.getName());
+  try {
+    auto fmt = interest.getSignatureInfo() ? SignedInterestFormat::V03 : SignedInterestFormat::V02;
+    state->setTag(make_shared<SignedInterestFormatTag>(fmt));
+  }
+  catch (const tlv::Error& e) {
+    return state->fail({ValidationError::NO_SIGNATURE, "Malformed InterestSignatureInfo in `" +
+                        interest.getName().toUri() + "`: " + e.what()});
+  }
 
-  m_policy->checkPolicy(interest, state,
-    [this] (const shared_ptr<CertificateRequest>& certRequest, const shared_ptr<ValidationState>& state) {
-      if (certRequest == nullptr) {
-        state->bypassValidation();
-      }
-      else {
-        // need to fetch key and validate it
-        requestCertificate(certRequest, state);
-      }
-    });
+  m_policy->checkPolicy(interest, state, [this] (auto&&... args) {
+    continueValidation(std::forward<decltype(args)>(args)...);
+  });
 }
 
 void
@@ -114,6 +105,21 @@ Validator::validate(const Certificate& cert, const shared_ptr<ValidationState>& 
 }
 
 void
+Validator::continueValidation(const shared_ptr<CertificateRequest>& certRequest,
+                              const shared_ptr<ValidationState>& state)
+{
+  BOOST_ASSERT(state);
+
+  if (certRequest == nullptr) {
+    state->bypassValidation();
+  }
+  else {
+    // need to fetch key and validate it
+    requestCertificate(certRequest, state);
+  }
+}
+
+void
 Validator::requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
                               const shared_ptr<ValidationState>& state)
 {
@@ -128,7 +134,7 @@ Validator::requestCertificate(const shared_ptr<CertificateRequest>& certRequest,
   }
 
   if (state->hasSeenCertificateName(certRequest->interest.getName())) {
-    state->fail({ValidationError::LOOP_DETECTED, "`" + certRequest->interest.getName().toUri() + "`"});
+    state->fail({ValidationError::LOOP_DETECTED, certRequest->interest.getName().toUri()});
     return;
   }
 

@@ -59,15 +59,13 @@ ValidationState::verifyCertificateChain(const Certificate& trustedCert)
     const auto& certToValidate = *it;
 
     if (!verifySignature(certToValidate, *validatedCert)) {
-      this->fail({ValidationError::INVALID_SIGNATURE, "Invalid signature of certificate `" +
-                  certToValidate.getName().toUri() + "`"});
+      this->fail({ValidationError::INVALID_SIGNATURE, "Certificate " + certToValidate.getName().toUri()});
       m_certificateChain.erase(it, m_certificateChain.end());
       return nullptr;
     }
-    else {
-      NDN_LOG_TRACE_DEPTH("OK signature for certificate `" << certToValidate.getName() << "`");
-      validatedCert = &certToValidate;
-    }
+
+    NDN_LOG_TRACE_DEPTH("OK signature for certificate `" << certToValidate.getName() << "`");
+    validatedCert = &certToValidate;
   }
   return validatedCert;
 }
@@ -103,8 +101,7 @@ DataValidationState::verifyOriginalPacket(const optional<Certificate>& trustedCe
     m_outcome = true;
   }
   else {
-    this->fail({ValidationError::INVALID_SIGNATURE, "Invalid signature of data `" +
-                m_data.getName().toUri() + "`"});
+    this->fail({ValidationError::INVALID_SIGNATURE, "Data " + m_data.getName().toUri()});
   }
 }
 
@@ -157,8 +154,7 @@ InterestValidationState::verifyOriginalPacket(const optional<Certificate>& trust
     m_outcome = true;
   }
   else {
-    this->fail({ValidationError::INVALID_SIGNATURE, "Invalid signature of interest `" +
-                m_interest.getName().toUri() + "`"});
+    this->fail({ValidationError::INVALID_SIGNATURE, "Interest " + m_interest.getName().toUri()});
   }
 }
 

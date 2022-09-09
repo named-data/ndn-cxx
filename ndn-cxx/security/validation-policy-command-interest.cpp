@@ -61,7 +61,59 @@ ValidationPolicyCommandInterest::checkPolicy(const Interest& interest, const sha
   if (!checkTimestamp(state, keyName, timestamp)) {
     return;
   }
-  getInnerPolicy().checkPolicy(interest, state, std::bind(continueValidation, _1, _2));
+
+  getInnerPolicy().checkPolicy(interest, state, continueValidation);
+}
+
+std::tuple<bool, Name, time::system_clock::TimePoint>
+ValidationPolicyCommandInterest::parseCommandInterest(const Interest& interest,
+                                                      const shared_ptr<ValidationState>& state)
+{
+  auto sigInfo = getSignatureInfo(interest, *state);
+  if (!state->getOutcome()) { // already failed
+    return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+  }
+
+  time::system_clock::TimePoint timestamp;
+
+  auto fmt = state->getTag<SignedInterestFormatTag>();
+  BOOST_ASSERT(fmt);
+  if (*fmt == SignedInterestFormat::V03) {
+    // SignatureTime is a hard requirement of this policy
+    // New apps should use the more flexible ValidationPolicySignedInterest (v0.3 only)
+    auto optionalTimestamp = sigInfo.getTime();
+    if (!optionalTimestamp) {
+      state->fail({ValidationError::POLICY_ERROR, "Signed Interest `" +
+                   interest.getName().toUri() + "` lacks required SignatureTime element"});
+      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+    }
+
+    timestamp = *optionalTimestamp;
+  }
+  else {
+    const Name& name = interest.getName();
+    if (name.size() < command_interest::MIN_SIZE) {
+      state->fail({ValidationError::POLICY_ERROR,
+                   "Command Interest name too short `" + interest.getName().toUri() + "`"});
+      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+    }
+
+    const auto& timestampComp = name.at(command_interest::POS_TIMESTAMP);
+    if (!timestampComp.isNumber()) {
+      state->fail({ValidationError::POLICY_ERROR, "Command Interest `" +
+                   interest.getName().toUri() + "` lacks required timestamp component"});
+      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+    }
+
+    timestamp = time::fromUnixTimestamp(time::milliseconds(timestampComp.toNumber()));
+  }
+
+  Name klName = getKeyLocatorName(sigInfo, *state);
+  if (!state->getOutcome()) { // already failed
+    return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
+  }
+
+  return std::make_tuple(true, klName, timestamp);
 }
 
 void
@@ -74,53 +126,6 @@ ValidationPolicyCommandInterest::cleanup()
           m_queue.size() > static_cast<size_t>(m_options.maxRecords))) {
     m_queue.pop_front();
   }
-}
-
-std::tuple<bool, Name, time::system_clock::TimePoint>
-ValidationPolicyCommandInterest::parseCommandInterest(const Interest& interest,
-                                                      const shared_ptr<ValidationState>& state) const
-{
-  auto fmt = state->getTag<SignedInterestFormatTag>();
-  BOOST_ASSERT(fmt);
-
-  time::system_clock::TimePoint timestamp;
-
-  if (*fmt == SignedInterestFormat::V03) {
-    BOOST_ASSERT(interest.getSignatureInfo());
-    auto optionalTimestamp = interest.getSignatureInfo()->getTime();
-
-    // Note that timestamp is a hard requirement of this policy
-    // TODO: Refactor to support other/combinations of the restrictions based on Nonce, Time, and/or SeqNum
-    if (!optionalTimestamp) {
-      state->fail({ValidationError::POLICY_ERROR, "Signed Interest `" +
-                   interest.getName().toUri() + "` does not include required SignatureTime element"});
-      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
-    }
-    timestamp = *optionalTimestamp;
-  }
-  else {
-    const Name& name = interest.getName();
-    if (name.size() < command_interest::MIN_SIZE) {
-      state->fail({ValidationError::POLICY_ERROR, "Command interest name `" +
-                   interest.getName().toUri() + "` is too short"});
-      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
-    }
-
-    const auto& timestampComp = name.at(command_interest::POS_TIMESTAMP);
-    if (!timestampComp.isNumber()) {
-      state->fail({ValidationError::POLICY_ERROR, "Command interest `" +
-                   interest.getName().toUri() + "` does not include timestamp component"});
-      return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
-    }
-    timestamp = time::fromUnixTimestamp(time::milliseconds(timestampComp.toNumber()));
-  }
-
-  Name klName = getKeyLocatorName(interest, *state);
-  if (!state->getOutcome()) { // already failed
-    return std::make_tuple(false, Name(), time::system_clock::TimePoint{});
-  }
-
-  return std::make_tuple(true, klName, timestamp);
 }
 
 bool

@@ -29,48 +29,58 @@ void
 ValidationPolicySimpleHierarchy::checkPolicy(const Data& data, const shared_ptr<ValidationState>& state,
                                              const ValidationContinuation& continueValidation)
 {
-  Name klName = getKeyLocatorName(data, *state);
+  Name klName = getKeyLocatorName(data.getSignatureInfo(), *state);
   if (!state->getOutcome()) { // already failed
     return;
   }
 
+  Name identity;
   try {
-    if (extractIdentityNameFromKeyLocator(klName).isPrefixOf(data.getName())) {
-      continueValidation(make_shared<CertificateRequest>(klName), state);
-      return;
-    }
+    identity = extractIdentityNameFromKeyLocator(klName);
   }
   catch (const KeyLocator::Error& e) {
     state->fail({ValidationError::INVALID_KEY_LOCATOR, e.what()});
     return;
   }
 
-  state->fail({ValidationError::INVALID_KEY_LOCATOR, "Data signing policy violation for " +
-               data.getName().toUri() + " by " + klName.toUri()});
+  if (!identity.isPrefixOf(data.getName())) {
+    state->fail({ValidationError::POLICY_ERROR,
+                 "Data " + data.getName().toUri() + " signed by " + klName.toUri()});
+    return;
+  }
+
+  continueValidation(make_shared<CertificateRequest>(klName), state);
 }
 
 void
 ValidationPolicySimpleHierarchy::checkPolicy(const Interest& interest, const shared_ptr<ValidationState>& state,
                                              const ValidationContinuation& continueValidation)
 {
-  Name klName = getKeyLocatorName(interest, *state);
+  auto sigInfo = getSignatureInfo(interest, *state);
+  if (!state->getOutcome()) { // already failed
+    return;
+  }
+  Name klName = getKeyLocatorName(sigInfo, *state);
   if (!state->getOutcome()) { // already failed
     return;
   }
 
+  Name identity;
   try {
-    if (extractIdentityNameFromKeyLocator(klName).isPrefixOf(interest.getName())) {
-      continueValidation(make_shared<CertificateRequest>(klName), state);
-      return;
-    }
+    identity = extractIdentityNameFromKeyLocator(klName);
   }
   catch (const KeyLocator::Error& e) {
     state->fail({ValidationError::INVALID_KEY_LOCATOR, e.what()});
     return;
   }
 
-  state->fail({ValidationError::INVALID_KEY_LOCATOR, "Interest signing policy violation for " +
-               interest.getName().toUri() + " by " + klName.toUri()});
+  if (!identity.isPrefixOf(interest.getName())) {
+    state->fail({ValidationError::POLICY_ERROR,
+                 "Interest " + interest.getName().toUri() + " signed by " + klName.toUri()});
+    return;
+  }
+
+  continueValidation(make_shared<CertificateRequest>(klName), state);
 }
 
 } // inline namespace v2

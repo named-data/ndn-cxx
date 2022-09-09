@@ -43,10 +43,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 
   auto packet = Packet::makePacket(name);
   VALIDATE_FAILURE(packet, "Unsigned");
+  BOOST_TEST((lastError.getCode() == ValidationError::NO_SIGNATURE ||        // Interest
+              lastError.getCode() == ValidationError::INVALID_KEY_LOCATOR)); // Data
 
   packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingWithSha256());
   VALIDATE_FAILURE(packet, "Should not be accepted, name not prefix of /localhost/identity/digest-sha256");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   packet = Packet::makePacket("/localhost/identity/digest-sha256/foobar");
   m_keyChain.sign(packet, signingWithSha256());
@@ -63,15 +66,17 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
   packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(otherIdentity));
   VALIDATE_FAILURE(packet, "Should fail, as signed by the policy-violating cert");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(subSelfSignedIdentity));
   VALIDATE_FAILURE(packet, "Should fail, because subSelfSignedIdentity is not a trust anchor");
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
 
   // TODO add checks with malformed packets
 }
 
-BOOST_AUTO_TEST_CASE(NonKeyNameInsideLocator)
+BOOST_AUTO_TEST_CASE(CertNameInKeyLocator)
 {
 //  auto cert = identity.getDefaultKey().getDefaultCertificate().wireEncode();
 //  std::cerr << "Certificate idCert{\"" << toHex(cert) << "\"_block};" << std::endl;
@@ -107,13 +112,12 @@ BOOST_AUTO_TEST_CASE(NonKeyNameInsideLocator)
       "483046022100BDD3E0EF2385658825EB73E87A02D1A16AA8ACE50840C1B91782836164AACA3B0221008007B3EBA9"
       "B7638BD204766B08AF6E4221CDB88156CC7DA13CD916610D6D3AED"_block};
 
+  BOOST_REQUIRE_EQUAL(packet.getKeyLocator().value().getName(),
+                      "/Security/ValidatorFixture/Sub1/KEY/%D7j1%B0%1E%14%09%2B/parent/%FD%00%00%01I%9DY%8C%A0");
+
   this->cache.insert(idCert);
   this->cache.insert(subIdCert);
   this->validator.loadAnchor("", std::move(idCert));
-
-  BOOST_REQUIRE(packet.getKeyLocator());
-  BOOST_CHECK_EQUAL(packet.getKeyLocator()->getName(),
-                    "/Security/ValidatorFixture/Sub1/KEY/%D7j1%B0%1E%14%09%2B/parent/%FD%00%00%01I%9DY%8C%A0");
 
   VALIDATE_SUCCESS(packet, "Should get accepted, as signed by the policy-compliant cert");
 }

@@ -28,7 +28,6 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 
 namespace ndn {
@@ -40,9 +39,8 @@ using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 
-class CommandInterestDefaultOptions
+struct CommandInterestDefaultOptions
 {
-public:
   static ValidationPolicyCommandInterest::Options
   getOptions()
   {
@@ -61,62 +59,82 @@ public:
 };
 
 template<class T, class InnerPolicy = ValidationPolicySimpleHierarchy>
-class ValidationPolicyCommandInterestFixture : public HierarchicalValidatorFixture<CommandInterestPolicyWrapper<T, InnerPolicy>>
+class ValidationPolicyCommandInterestFixture
+  : public HierarchicalValidatorFixture<CommandInterestPolicyWrapper<T, InnerPolicy>>
 {
-public:
+protected:
   Interest
-  makeCommandInterest(const Identity& identity, bool wantV3 = false)
+  makeCommandInterest(const Identity& identity, SignedInterestFormat format = SignedInterestFormat::V02)
   {
-    if (wantV3) {
-      Interest i(Name(identity.getName()).append("CMD"));
-      m_signer.makeSignedInterest(i, signingByIdentity(identity));
-      return i;
+    Name name = identity.getName();
+    name.append("CMD");
+    switch (format) {
+      case SignedInterestFormat::V02:
+        return m_signer.makeCommandInterest(name, signingByIdentity(identity));
+      case SignedInterestFormat::V03: {
+        Interest interest(name);
+        m_signer.makeSignedInterest(interest, signingByIdentity(identity));
+        return interest;
+      }
     }
-    else {
-      return m_signer.makeCommandInterest(Name(identity.getName()).append("CMD"),
-                                          signingByIdentity(identity));
-    }
+    NDN_CXX_UNREACHABLE;
   }
 
-public:
+protected:
   InterestSigner m_signer{this->m_keyChain};
 };
 
 BOOST_FIXTURE_TEST_SUITE(TestValidationPolicyCommandInterest,
                          ValidationPolicyCommandInterestFixture<CommandInterestDefaultOptions>)
 
+template<int secs>
+struct GracePeriodSeconds
+{
+  static ValidationPolicyCommandInterest::Options
+  getOptions()
+  {
+    ValidationPolicyCommandInterest::Options options;
+    options.gracePeriod = time::seconds(secs);
+    return options;
+  }
+};
+
 BOOST_AUTO_TEST_SUITE(Accepts)
 
-BOOST_AUTO_TEST_CASE(Basic)
+BOOST_AUTO_TEST_CASE(BasicV02)
 {
-  auto i1 = makeCommandInterest(identity);
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V02);
   VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
   VALIDATE_FAILURE(i1, "Should fail (replay attack)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   advanceClocks(5_ms);
-  auto i2 = makeCommandInterest(identity);
+  auto i2 = makeCommandInterest(identity, SignedInterestFormat::V02);
   VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
 
-  auto i3 =  m_signer.makeCommandInterest(Name(identity.getName()).append("CMD"), signingWithSha256());
+  auto i3 = m_signer.makeCommandInterest(Name(identity.getName()).append("CMD"), signingWithSha256());
   VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
-BOOST_AUTO_TEST_CASE(BasicV3)
+BOOST_AUTO_TEST_CASE(BasicV03)
 {
-  auto i1 = makeCommandInterest(identity, true);
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V03);
   VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
   VALIDATE_FAILURE(i1, "Should fail (replay attack)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   advanceClocks(5_ms);
-  auto i2 = makeCommandInterest(identity, true);
+  auto i2 = makeCommandInterest(identity, SignedInterestFormat::V03);
   VALIDATE_SUCCESS(i2, "Should succeed (timestamp larger than previous)");
 
   Interest i3(Name(identity.getName()).append("CMD"));
   m_signer.makeSignedInterest(i3, signingWithSha256());
   VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
-BOOST_AUTO_TEST_CASE(DataPassthru)
+BOOST_AUTO_TEST_CASE(DataPassthrough)
 {
   Data d1("/Security/ValidatorFixture/Sub1");
   m_keyChain.sign(d1);
@@ -131,6 +149,7 @@ BOOST_FIXTURE_TEST_CASE(SignedWithSha256, ValidationPolicyAcceptAllCommands) // 
   auto i1 = m_signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
   VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
   VALIDATE_FAILURE(i1, "Should fail (replay attack)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   advanceClocks(5_ms);
   auto i2 = m_signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
@@ -141,89 +160,118 @@ BOOST_AUTO_TEST_SUITE_END() // Accepts
 
 BOOST_AUTO_TEST_SUITE(Rejects)
 
-BOOST_AUTO_TEST_CASE(NameTooShort)
+BOOST_AUTO_TEST_CASE(NotSigned)
 {
-  auto i1 = makeInterest("/name/too/short");
-  VALIDATE_FAILURE(*i1, "Should fail (name is too short)");
-}
-
-BOOST_AUTO_TEST_CASE(BadTimestamp)
-{
-  auto i1 = makeCommandInterest(identity);
-  setNameComponent(i1, command_interest::POS_TIMESTAMP, "not-timestamp");
-  VALIDATE_FAILURE(i1, "Should fail (timestamp is missing)");
+  auto i1 = Interest("/short");
+  BOOST_TEST_REQUIRE(i1.getName().size() < signed_interest::MIN_SIZE);
+  VALIDATE_FAILURE(i1, "Should fail (not signed / name too short)");
+  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
 }
 
 BOOST_AUTO_TEST_CASE(BadSigInfo)
 {
-  auto i1 = makeCommandInterest(identity);
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V02);
   setNameComponent(i1, command_interest::POS_SIG_INFO, "not-SignatureInfo");
+  BOOST_TEST_REQUIRE(i1.getName().size() >= command_interest::MIN_SIZE);
   VALIDATE_FAILURE(i1, "Should fail (signature info is missing)");
+  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
 }
 
-BOOST_AUTO_TEST_CASE(MissingKeyLocator)
+BOOST_AUTO_TEST_CASE(BadTimestampV02)
 {
-  auto i1 = makeCommandInterest(identity);
+  // i1 is a valid signed interest (in v0.2 format) but is not a valid command interest
+  auto i1 = Interest("/short");
+  m_keyChain.sign(i1, signingByIdentity(identity).setSignedInterestFormat(SignedInterestFormat::V02));
+  BOOST_TEST_REQUIRE((i1.getName().size() >= signed_interest::MIN_SIZE &&
+                      i1.getName().size() < command_interest::MIN_SIZE));
+  VALIDATE_FAILURE(i1, "Should fail (timestamp is missing)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
+
+  auto i2 = makeCommandInterest(identity, SignedInterestFormat::V02);
+  setNameComponent(i2, command_interest::POS_TIMESTAMP, "not-timestamp");
+  BOOST_TEST_REQUIRE(i2.getName().size() >= command_interest::MIN_SIZE);
+  VALIDATE_FAILURE(i2, "Should fail (timestamp is malformed)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
+}
+
+BOOST_AUTO_TEST_CASE(BadTimestampV03)
+{
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V03);
+  auto si = i1.getSignatureInfo().value();
+  si.setTime(nullopt);
+  i1.setSignatureInfo(si);
+  VALIDATE_FAILURE(i1, "Should fail (timestamp is missing)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
+}
+
+BOOST_AUTO_TEST_CASE(MissingKeyLocatorV02)
+{
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V02);
   SignatureInfo sigInfo(tlv::SignatureSha256WithRsa);
   setNameComponent(i1, command_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
   VALIDATE_FAILURE(i1, "Should fail (missing KeyLocator)");
+  BOOST_TEST(lastError.getCode() == ValidationError::INVALID_KEY_LOCATOR);
+}
+
+BOOST_AUTO_TEST_CASE(MissingKeyLocatorV03)
+{
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V03);
+  auto si = i1.getSignatureInfo().value();
+  si.setKeyLocator(nullopt);
+  i1.setSignatureInfo(si);
+  VALIDATE_FAILURE(i1, "Should fail (missing KeyLocator)");
+  BOOST_TEST(lastError.getCode() == ValidationError::INVALID_KEY_LOCATOR);
 }
 
 BOOST_AUTO_TEST_CASE(BadKeyLocatorType)
 {
-  auto i1 = makeCommandInterest(identity);
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V02);
   KeyLocator kl;
   kl.setKeyDigest(makeBinaryBlock(tlv::KeyDigest, {0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD, 0xDD}));
-  SignatureInfo sigInfo(tlv::SignatureSha256WithRsa);
-  sigInfo.setKeyLocator(kl);
+  SignatureInfo sigInfo(tlv::SignatureSha256WithRsa, kl);
   setNameComponent(i1, command_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
   VALIDATE_FAILURE(i1, "Should fail (bad KeyLocator type)");
+  BOOST_TEST(lastError.getCode() == ValidationError::INVALID_KEY_LOCATOR);
 }
 
 BOOST_AUTO_TEST_CASE(BadCertName)
 {
-  auto i1 = makeCommandInterest(identity);
-  KeyLocator kl;
-  kl.setName("/bad/cert/name");
-  SignatureInfo sigInfo(tlv::SignatureSha256WithRsa);
-  sigInfo.setKeyLocator(kl);
+  auto i1 = makeCommandInterest(identity, SignedInterestFormat::V02);
+  SignatureInfo sigInfo(tlv::SignatureSha256WithEcdsa, KeyLocator("/bad/cert/name"));
   setNameComponent(i1, command_interest::POS_SIG_INFO,
                    sigInfo.wireEncode().begin(), sigInfo.wireEncode().end());
   VALIDATE_FAILURE(i1, "Should fail (bad certificate name)");
+  BOOST_TEST(lastError.getCode() == ValidationError::INVALID_KEY_LOCATOR);
 }
 
 BOOST_AUTO_TEST_CASE(InnerPolicyReject)
 {
-  auto i1 = makeCommandInterest(otherIdentity);
+  auto i1 = makeCommandInterest(otherIdentity, SignedInterestFormat::V02);
   VALIDATE_FAILURE(i1, "Should fail (inner policy should reject)");
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
+
+  auto i2 = makeCommandInterest(otherIdentity, SignedInterestFormat::V03);
+  VALIDATE_FAILURE(i2, "Should fail (inner policy should reject)");
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
 }
 
-class GracePeriod15Sec
-{
-public:
-  static ValidationPolicyCommandInterest::Options
-  getOptions()
-  {
-    ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = 15_s;
-    return options;
-  }
-};
-
-BOOST_FIXTURE_TEST_CASE(TimestampOutOfGracePositive, ValidationPolicyCommandInterestFixture<GracePeriod15Sec>)
+BOOST_FIXTURE_TEST_CASE(TimestampOutOfGracePositive,
+                        ValidationPolicyCommandInterestFixture<GracePeriodSeconds<15>>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
   advanceClocks(16_s); // verifying at +16s
   VALIDATE_FAILURE(i1, "Should fail (timestamp outside the grace period)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   auto i2 = makeCommandInterest(identity); // signed at +16s
   VALIDATE_SUCCESS(i2, "Should succeed");
 }
 
-BOOST_FIXTURE_TEST_CASE(TimestampOutOfGraceNegative, ValidationPolicyCommandInterestFixture<GracePeriod15Sec>)
+BOOST_FIXTURE_TEST_CASE(TimestampOutOfGraceNegative,
+                        ValidationPolicyCommandInterestFixture<GracePeriodSeconds<15>>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
   advanceClocks(1_s);
@@ -233,10 +281,12 @@ BOOST_FIXTURE_TEST_CASE(TimestampOutOfGraceNegative, ValidationPolicyCommandInte
 
   m_systemClock->advance(-18_s); // verifying at -16s
   VALIDATE_FAILURE(i1, "Should fail (timestamp outside the grace period)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   // CommandInterestValidator should not remember i1's timestamp
   VALIDATE_FAILURE(i2, "Should fail (timestamp outside the grace period)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   // CommandInterestValidator should not remember i2's timestamp, and should treat i3 as initial
@@ -250,9 +300,9 @@ BOOST_AUTO_TEST_CASE(TimestampReorderEqual)
   VALIDATE_SUCCESS(i1, "Should succeed");
 
   auto i2 = makeCommandInterest(identity); // signed at 0s
-  setNameComponent(i2, command_interest::POS_TIMESTAMP,
-                   i1.getName()[command_interest::POS_TIMESTAMP]);
+  setNameComponent(i2, command_interest::POS_TIMESTAMP, i1.getName()[command_interest::POS_TIMESTAMP]);
   VALIDATE_FAILURE(i2, "Should fail (timestamp reordered)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   advanceClocks(2_s);
   auto i3 = makeCommandInterest(identity); // signed at +2s
@@ -275,11 +325,13 @@ BOOST_AUTO_TEST_CASE(TimestampReorderNegative)
 
   m_systemClock->advance(-1100_ms); // verifying at 0ms
   VALIDATE_FAILURE(i2, "Should fail (timestamp reordered)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   // CommandInterestValidator should not remember i2's timestamp
   advanceClocks(200_ms); // verifying at +200ms
   VALIDATE_FAILURE(i3, "Should fail (timestamp reordered)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   advanceClocks(1200_ms); // verifying at 1400ms
@@ -290,25 +342,12 @@ BOOST_AUTO_TEST_SUITE_END() // Rejects
 
 BOOST_AUTO_TEST_SUITE(Options)
 
-template<class T>
-class GracePeriod
-{
-public:
-  static ValidationPolicyCommandInterest::Options
-  getOptions()
-  {
-    ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = time::seconds(T::value);
-    return options;
-  }
-};
+using NonPositiveGracePeriods = boost::mpl::vector<
+  GracePeriodSeconds<0>,
+  GracePeriodSeconds<-1>
+>;
 
-typedef boost::mpl::vector<
-  GracePeriod<boost::mpl::int_<0>>,
-  GracePeriod<boost::mpl::int_<-1>>
-> GraceNonPositiveValues;
-
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, GraceNonPositiveValues,
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, NonPositiveGracePeriods,
                                  ValidationPolicyCommandInterestFixture<GracePeriod>)
 {
   auto i1 = this->makeCommandInterest(this->identity); // signed at 0ms
@@ -323,6 +362,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, GraceNonPositive
 
   this->advanceClocks(1_ms);
   VALIDATE_FAILURE(i2, "Should fail when validating at 1ms");
+  BOOST_TEST(this->lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
 class LimitedRecordsOptions
@@ -402,11 +442,12 @@ BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicyCommandInterestFixture
   advanceClocks(1_s);
   for (size_t i = 0; i < 20; ++i) {
     auto i2 = makeCommandInterest(identities.at(i)); // signed at +1s
-
     VALIDATE_SUCCESS(i2, "Should succeed");
     rewindClockAfterValidation();
   }
+
   VALIDATE_FAILURE(i1, "Should fail (timestamp reorder)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
 class ZeroRecordsOptions

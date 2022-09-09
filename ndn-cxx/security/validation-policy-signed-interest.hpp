@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,9 +34,12 @@ namespace ndn {
 namespace security {
 inline namespace v2 {
 
-/** \brief Validation policy for signed Interests
+/**
+ * @brief Validation policy for signed Interests.
  *
- *  This policy checks the timestamp, sequence number, and nonce fields of signed Interests.
+ * This policy checks the timestamp, sequence number, and/or nonce fields of signed Interests.
+ *
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signed-interest.html
  */
 class ValidationPolicySignedInterest : public ValidationPolicy
 {

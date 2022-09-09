@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,17 +35,21 @@ BOOST_FIXTURE_TEST_SUITE(TestValidationPolicy, ndn::tests::KeyChainFixture)
 BOOST_AUTO_TEST_CASE(ExtractIdentityNameFromKeyLocator)
 {
   auto id = m_keyChain.createIdentity("/random/identity");
-
   auto keyName = id.getDefaultKey().getName();
   auto certName = id.getDefaultKey().getDefaultCertificate().getName();
-  auto partialCertName = id.getDefaultKey().getDefaultCertificate().getName().getPrefix(-1);
+  auto partialCertName = certName.getPrefix(-1);
 
   BOOST_CHECK_EQUAL(extractIdentityNameFromKeyLocator(keyName), "/random/identity");
   BOOST_CHECK_EQUAL(extractIdentityNameFromKeyLocator(certName), "/random/identity");
   BOOST_CHECK_EQUAL(extractIdentityNameFromKeyLocator(partialCertName), "/random/identity");
+  BOOST_CHECK_EQUAL(extractIdentityNameFromKeyLocator("/KEY"), "/");
 
-  BOOST_CHECK_THROW(extractIdentityNameFromKeyLocator(Name("/name/without/key/component")), std::runtime_error);
-  BOOST_CHECK_THROW(extractIdentityNameFromKeyLocator(Name("/name/with/KEY/but/in/a/wrong/place")), std::runtime_error);
+  BOOST_CHECK_THROW(extractIdentityNameFromKeyLocator(Name("/short/name")),
+                    KeyLocator::Error);
+  BOOST_CHECK_THROW(extractIdentityNameFromKeyLocator(Name("/name/without/key/component")),
+                    KeyLocator::Error);
+  BOOST_CHECK_THROW(extractIdentityNameFromKeyLocator(Name("/name/with/KEY/but/in/a/wrong/place")),
+                    KeyLocator::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestValidationPolicy

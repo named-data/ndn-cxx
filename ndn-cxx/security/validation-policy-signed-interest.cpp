@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -52,37 +52,40 @@ ValidationPolicySignedInterest::checkPolicy(const Interest& interest,
                                             const shared_ptr<ValidationState>& state,
                                             const ValidationContinuation& continueValidation)
 {
-  auto fmt = state->getTag<SignedInterestFormatTag>();
-  BOOST_ASSERT(fmt);
-
   if (!state->getOutcome()) {
     return;
   }
 
+  auto fmt = state->getTag<SignedInterestFormatTag>();
+  BOOST_ASSERT(fmt);
   if (*fmt == SignedInterestFormat::V03 && !checkIncomingInterest(state, interest)) {
     return;
   }
 
-  getInnerPolicy().checkPolicy(interest, state, std::bind(continueValidation, _1, _2));
+  getInnerPolicy().checkPolicy(interest, state, continueValidation);
 }
 
 bool
 ValidationPolicySignedInterest::checkIncomingInterest(const shared_ptr<ValidationState>& state,
                                                       const Interest& interest)
 {
-  // Extract information from Interest
-  BOOST_ASSERT(interest.getSignatureInfo());
-  Name keyName = getKeyLocatorName(interest, *state);
-  auto timestamp = interest.getSignatureInfo()->getTime();
-  auto seqNum = interest.getSignatureInfo()->getSeqNum();
-  auto nonce = interest.getSignatureInfo()->getNonce();
+  auto sigInfo = getSignatureInfo(interest, *state);
+  if (!state->getOutcome()) {
+    return false;
+  }
+  Name keyName = getKeyLocatorName(sigInfo, *state);
+  if (!state->getOutcome()) {
+    return false;
+  }
+  auto timestamp = sigInfo.getTime();
+  auto seqNum = sigInfo.getSeqNum();
+  auto nonce = sigInfo.getNonce();
 
   auto record = m_byKeyName.find(keyName);
 
   if (m_options.shouldValidateTimestamps) {
     if (!timestamp.has_value()) {
-      state->fail({ValidationError::POLICY_ERROR,
-                   "Timestamp is required by policy but is not present"});
+      state->fail({ValidationError::POLICY_ERROR, "Timestamp is required by policy but is not present"});
       return false;
     }
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@ namespace security {
 inline namespace v2 {
 
 /**
- * @brief Abstraction that implements validation policy for Data and Interest packets
+ * @brief Abstraction that implements a validation policy for Interest and Data packets.
  */
 class ValidationPolicy : noncopyable
 {
@@ -147,26 +147,29 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   unique_ptr<ValidationPolicy> m_innerPolicy;
 };
 
-/** \brief extract KeyLocator.Name from a Data packet
+/**
+ * @brief Extract SignatureInfo from a signed Interest.
  *
- *  The Data packet must contain a KeyLocator of Name type.
- *  Otherwise, state.fail is invoked with INVALID_KEY_LOCATOR error.
+ * Signed Interests according to Packet Specification v0.3+, as identified by the
+ * SignedInterestFormatTag inside @p state, must have an InterestSignatureInfo element.
+ * Legacy signed Interests must contain a (%Data)%SignatureInfo name component.
+ * In both cases, if any TLV parsing errors are encountered, ValidationState::fail()
+ * is invoked on @p state with a ValidationError::NO_SIGNATURE error code.
+ *
+ * @pre @p state must contain a SignedInterestFormatTag to indicate whether the %Interest is
+ *      signed according to Packet Specification v0.3+ or a previous specification.
  */
-Name
-getKeyLocatorName(const Data& data, ValidationState& state);
+SignatureInfo
+getSignatureInfo(const Interest& interest, ValidationState& state);
 
-/** \brief extract KeyLocator.Name from signed Interest
+/**
+ * @brief Extract the KeyLocator name from a SignatureInfo element.
  *
- *  Signed Interests according to Packet Specification v0.3+, as identified inside the state, must
- *  have an InterestSignatureInfo element. Legacy signed Interests must contain a
- *  (Data)SignatureInfo name component. In both cases, the included KeyLocator must be of the Name
- *  type. otherwise, state.fail will be invoked with an INVALID_KEY_LOCATOR error.
- *
- *  Interests specified to this method must be tagged with a SignedInterestFormatTag to indicate
- *  whether they are signed according to Packet Specification v0.3+ or a previous specification.
+ * @p sigInfo must contain a KeyLocator of %Name type. Otherwise, ValidationState::fail()
+ * is invoked on @p state with a ValidationError::INVALID_KEY_LOCATOR error code.
  */
 Name
-getKeyLocatorName(const Interest& interest, ValidationState& state);
+getKeyLocatorName(const SignatureInfo& sigInfo, ValidationState& state);
 
 /**
  * @brief Extract identity name from key, version-less certificate, or certificate name

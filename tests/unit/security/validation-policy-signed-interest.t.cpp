@@ -28,7 +28,6 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 
 namespace ndn {
@@ -40,9 +39,8 @@ using namespace ndn::tests;
 
 BOOST_AUTO_TEST_SUITE(Security)
 
-class SignedInterestDefaultOptions
+struct SignedInterestDefaultOptions
 {
-public:
   static ValidationPolicySignedInterest::Options
   getOptions()
   {
@@ -64,12 +62,7 @@ template<class T, class InnerPolicy = ValidationPolicySimpleHierarchy>
 class ValidationPolicySignedInterestFixture
   : public HierarchicalValidatorFixture<SignedInterestPolicyWrapper<T, InnerPolicy>>
 {
-public:
-  ValidationPolicySignedInterestFixture()
-    : m_signer(this->m_keyChain)
-  {
-  }
-
+protected:
   Interest
   makeSignedInterest(const Identity& identity,
                      uint32_t signingFlags = InterestSigner::WantNonce | InterestSigner::WantTime)
@@ -79,8 +72,8 @@ public:
     return i;
   }
 
-public:
-  InterestSigner m_signer;
+protected:
+  InterestSigner m_signer{this->m_keyChain};
 
   static constexpr uint32_t WantAll = InterestSigner::WantNonce |
                                         InterestSigner::WantTime |
@@ -90,11 +83,12 @@ public:
 BOOST_FIXTURE_TEST_SUITE(TestValidationPolicySignedInterest,
                          ValidationPolicySignedInterestFixture<SignedInterestDefaultOptions>)
 
-BOOST_AUTO_TEST_CASE(BasicV3)
+BOOST_AUTO_TEST_CASE(Basic)
 {
   auto i1 = makeSignedInterest(identity, WantAll);
   VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
   VALIDATE_FAILURE(i1, "Should fail (replay attack)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   advanceClocks(5_ms);
   auto i2 = makeSignedInterest(identity, WantAll);
@@ -103,6 +97,7 @@ BOOST_AUTO_TEST_CASE(BasicV3)
   Interest i3(Name(identity.getName()).append("CMD"));
   m_signer.makeSignedInterest(i3, signingWithSha256());
   VALIDATE_FAILURE(i3, "Should fail (Sha256 signature violates policy)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
 BOOST_AUTO_TEST_CASE(DataPassthrough)
@@ -116,22 +111,23 @@ BOOST_AUTO_TEST_CASE(InnerPolicyReject)
 {
   auto i1 = makeSignedInterest(otherIdentity);
   VALIDATE_FAILURE(i1, "Should fail (inner policy should reject)");
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
 }
 
-class LimitedRecordsOptions
+template<ssize_t count>
+struct MaxRecordCount
 {
-public:
   static ValidationPolicySignedInterest::Options
   getOptions()
   {
     ValidationPolicySignedInterest::Options options;
     options.timestampGracePeriod = 15_s;
-    options.maxRecordCount = 3;
+    options.maxRecordCount = count;
     return options;
   }
 };
 
-BOOST_FIXTURE_TEST_CASE(LimitedRecords, ValidationPolicySignedInterestFixture<LimitedRecordsOptions>)
+BOOST_FIXTURE_TEST_CASE(LimitedRecords, ValidationPolicySignedInterestFixture<MaxRecordCount<3>>)
 {
   Identity id1 = addSubCertificate("/Security/ValidatorFixture/Sub1", identity);
   cache.insert(id1.getDefaultKey().getDefaultCertificate());
@@ -169,20 +165,7 @@ BOOST_FIXTURE_TEST_CASE(LimitedRecords, ValidationPolicySignedInterestFixture<Li
   VALIDATE_SUCCESS(i01, "Should succeed despite timestamp is reordered, because record has been evicted");
 }
 
-class UnlimitedRecordsOptions
-{
-public:
-  static ValidationPolicySignedInterest::Options
-  getOptions()
-  {
-    ValidationPolicySignedInterest::Options options;
-    options.timestampGracePeriod = 15_s;
-    options.maxRecordCount = -1;
-    return options;
-  }
-};
-
-BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicySignedInterestFixture<UnlimitedRecordsOptions>)
+BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicySignedInterestFixture<MaxRecordCount<-1>>)
 {
   std::vector<Identity> identities;
   for (size_t i = 0; i < 20; ++i) {
@@ -195,27 +178,15 @@ BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicySignedInterestFixture<
   advanceClocks(1_s);
   for (size_t i = 0; i < 20; ++i) {
     auto i2 = makeSignedInterest(identities.at(i)); // signed at +1s
-
     VALIDATE_SUCCESS(i2, "Should succeed");
     rewindClockAfterValidation();
   }
+
   VALIDATE_FAILURE(i1, "Should fail (timestamp reorder)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
-class ZeroRecordsOptions
-{
-public:
-  static ValidationPolicySignedInterest::Options
-  getOptions()
-  {
-    ValidationPolicySignedInterest::Options options;
-    options.timestampGracePeriod = 15_s;
-    options.maxRecordCount = 0;
-    return options;
-  }
-};
-
-BOOST_FIXTURE_TEST_CASE(ZeroRecords, ValidationPolicySignedInterestFixture<ZeroRecordsOptions>)
+BOOST_FIXTURE_TEST_CASE(ZeroRecords, ValidationPolicySignedInterestFixture<MaxRecordCount<0>>)
 {
   auto i1 = makeSignedInterest(identity); // signed at 0s
   advanceClocks(1_s);
@@ -232,11 +203,11 @@ BOOST_AUTO_TEST_CASE(MissingTimestamp)
 {
   auto i1 = makeSignedInterest(identity, InterestSigner::WantSeqNum);
   VALIDATE_FAILURE(i1, "Should fail (timestamp missing)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
-class DisabledTimestampValidationOptions
+struct DisabledTimestampValidationOptions
 {
-public:
   static ValidationPolicySignedInterest::Options
   getOptions()
   {
@@ -261,30 +232,31 @@ BOOST_FIXTURE_TEST_CASE(Disabled,
   VALIDATE_SUCCESS(i2, "Should succeed");
 }
 
-class GracePeriod15Sec
+template<int secs>
+struct GracePeriodSeconds
 {
-public:
   static ValidationPolicySignedInterest::Options
   getOptions()
   {
     ValidationPolicySignedInterest::Options options;
-    options.timestampGracePeriod = 15_s;
+    options.timestampGracePeriod = time::seconds(secs);
     return options;
   }
 };
 
-BOOST_FIXTURE_TEST_CASE(TimestampTooOld, ValidationPolicySignedInterestFixture<GracePeriod15Sec>)
+BOOST_FIXTURE_TEST_CASE(TimestampTooOld, ValidationPolicySignedInterestFixture<GracePeriodSeconds<15>>)
 {
   auto i1 = makeSignedInterest(identity); // signed at 0s
   advanceClocks(16_s); // verifying at +16s
   VALIDATE_FAILURE(i1, "Should fail (timestamp outside the grace period)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   auto i2 = makeSignedInterest(identity); // signed at +16s
   VALIDATE_SUCCESS(i2, "Should succeed");
 }
 
-BOOST_FIXTURE_TEST_CASE(TimestampTooNew, ValidationPolicySignedInterestFixture<GracePeriod15Sec>)
+BOOST_FIXTURE_TEST_CASE(TimestampTooNew, ValidationPolicySignedInterestFixture<GracePeriodSeconds<15>>)
 {
   auto i1 = makeSignedInterest(identity); // signed at 0s
   advanceClocks(1_s);
@@ -294,10 +266,12 @@ BOOST_FIXTURE_TEST_CASE(TimestampTooNew, ValidationPolicySignedInterestFixture<G
 
   m_systemClock->advance(-18_s); // verifying at -16s
   VALIDATE_FAILURE(i1, "Should fail (timestamp outside the grace period)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   // SignedInterestValidator should not remember i1's timestamp
   VALIDATE_FAILURE(i2, "Should fail (timestamp outside the grace period)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   // SignedInterestValidator should not remember i2's timestamp, and should treat i3 as initial
@@ -315,6 +289,7 @@ BOOST_AUTO_TEST_CASE(TimestampReorderEqual)
   si2->setTime(i1.getSignatureInfo()->getTime());
   i2.setSignatureInfo(*si2);
   VALIDATE_FAILURE(i2, "Should fail (timestamp reordered)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   advanceClocks(2_s);
   auto i3 = makeSignedInterest(identity); // signed at +2s
@@ -337,36 +312,25 @@ BOOST_AUTO_TEST_CASE(TimestampReorderNegative)
 
   m_systemClock->advance(-1100_ms); // verifying at 0ms
   VALIDATE_FAILURE(i2, "Should fail (timestamp reordered)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   // SignedInterestValidator should not remember i2's timestamp
   advanceClocks(200_ms); // verifying at +200ms
   VALIDATE_FAILURE(i3, "Should fail (timestamp reordered)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
   rewindClockAfterValidation();
 
   advanceClocks(1200_ms); // verifying at 1400ms
   VALIDATE_SUCCESS(i4, "Should succeed");
 }
 
-template<class T>
-class GracePeriod
-{
-public:
-  static ValidationPolicySignedInterest::Options
-  getOptions()
-  {
-    ValidationPolicySignedInterest::Options options;
-    options.timestampGracePeriod = time::seconds(T::value);
-    return options;
-  }
-};
+using NonPositiveGracePeriods = boost::mpl::vector<
+  GracePeriodSeconds<0>,
+  GracePeriodSeconds<-1>
+>;
 
-typedef boost::mpl::vector<
-  GracePeriod<boost::mpl::int_<0>>,
-  GracePeriod<boost::mpl::int_<-1>>
-> GraceNonPositiveValues;
-
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, GraceNonPositiveValues,
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, NonPositiveGracePeriods,
                                  ValidationPolicySignedInterestFixture<GracePeriod>)
 {
   auto i1 = this->makeSignedInterest(this->identity); // signed at 0ms
@@ -383,6 +347,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, GraceNonPositive
 
   this->advanceClocks(1_ms);
   VALIDATE_FAILURE(i2, "Should fail when validating at 1ms");
+  BOOST_TEST(this->lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TimestampValidation
@@ -403,9 +368,8 @@ BOOST_AUTO_TEST_CASE(Disabled)
   VALIDATE_SUCCESS(i2, "Should succeed");
 }
 
-class SeqNumValidationOptions
+struct SeqNumValidationOptions
 {
-public:
   static ValidationPolicySignedInterest::Options
   getOptions()
   {
@@ -420,6 +384,7 @@ BOOST_FIXTURE_TEST_CASE(MissingSeqNum,
 {
   auto i1 = makeSignedInterest(identity, InterestSigner::WantTime);
   VALIDATE_FAILURE(i1, "Should fail (sequence number missing");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
 BOOST_FIXTURE_TEST_CASE(SeqNumReorder,
@@ -433,6 +398,7 @@ BOOST_FIXTURE_TEST_CASE(SeqNumReorder,
   si2->setSeqNum(i1.getSignatureInfo()->getSeqNum());
   i2.setSignatureInfo(*si2);
   VALIDATE_FAILURE(i2, "Should fail (sequence number reordered)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   auto i3 = makeSignedInterest(identity, WantAll); // seq num is i+2
   VALIDATE_SUCCESS(i3, "Should succeed");
@@ -446,6 +412,7 @@ BOOST_AUTO_TEST_CASE(MissingNonce)
 {
   auto i1 = makeSignedInterest(identity, InterestSigner::WantTime); // Specifically exclude nonce
   VALIDATE_FAILURE(i1, "Should fail (nonce missing)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
 BOOST_AUTO_TEST_CASE(DuplicateNonce)
@@ -458,6 +425,7 @@ BOOST_AUTO_TEST_CASE(DuplicateNonce)
   si2->setNonce(i1.getSignatureInfo()->getNonce());
   i2.setSignatureInfo(*si2);
   VALIDATE_FAILURE(i2, "Should fail (duplicate nonce)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   auto i3 = makeSignedInterest(identity, WantAll);
   // On the off chance that the generated nonce is identical to i1
@@ -467,9 +435,8 @@ BOOST_AUTO_TEST_CASE(DuplicateNonce)
   VALIDATE_SUCCESS(i3, "Should succeed");
 }
 
-class DisabledNonceValidationOptions
+struct DisabledNonceValidationOptions
 {
-public:
   static ValidationPolicySignedInterest::Options
   getOptions()
   {
@@ -499,9 +466,8 @@ BOOST_FIXTURE_TEST_CASE(Disabled,
   VALIDATE_SUCCESS(i3, "Should succeed");
 }
 
-class NonceLimit2Options
+struct NonceLimit2Options
 {
-public:
   static ValidationPolicySignedInterest::Options
   getOptions()
   {
@@ -533,6 +499,7 @@ BOOST_FIXTURE_TEST_CASE(NonceRecordLimit,
   m_keyChain.sign(i3, signingByIdentity(identity).setSignedInterestFormat(SignedInterestFormat::V03)
                                                  .setSignatureInfo(*si3));
   VALIDATE_FAILURE(i3, "Should fail (duplicate nonce)");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 
   // Pop i1's nonce off the list
   auto i4 = makeSignedInterest(identity, WantAll);

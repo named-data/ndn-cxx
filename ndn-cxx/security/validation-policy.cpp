@@ -60,7 +60,7 @@ ValidationPolicy::setValidator(Validator& validator)
   }
 }
 
-static Name
+Name
 getKeyLocatorName(const SignatureInfo& si, ValidationState& state)
 {
   if (si.getSignatureType() == tlv::DigestSha256) {
@@ -81,40 +81,32 @@ getKeyLocatorName(const SignatureInfo& si, ValidationState& state)
   return kl.getName();
 }
 
-Name
-getKeyLocatorName(const Data& data, ValidationState& state)
-{
-  return getKeyLocatorName(data.getSignatureInfo(), state);
-}
-
-Name
-getKeyLocatorName(const Interest& interest, ValidationState& state)
+SignatureInfo
+getSignatureInfo(const Interest& interest, ValidationState& state)
 {
   auto fmt = state.getTag<SignedInterestFormatTag>();
   BOOST_ASSERT(fmt);
 
   if (*fmt == SignedInterestFormat::V03) {
-    BOOST_ASSERT(interest.getSignatureInfo());
-    return getKeyLocatorName(*interest.getSignatureInfo(), state);
+    BOOST_ASSERT(interest.getSignatureInfo().has_value());
+    return *interest.getSignatureInfo();
   }
 
-  // Try Signed Interest format from Packet Specification v0.2
+  // Try the old Signed Interest format from Packet Specification v0.2
   const Name& name = interest.getName();
   if (name.size() < signed_interest::MIN_SIZE) {
-    state.fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: name too short"});
+    state.fail({ValidationError::NO_SIGNATURE, "Interest name too short `" + name.toUri() + "`"});
     return {};
   }
 
-  SignatureInfo si;
   try {
-    si.wireDecode(name[signed_interest::POS_SIG_INFO].blockFromValue());
+    return SignatureInfo(name[signed_interest::POS_SIG_INFO].blockFromValue());
   }
   catch (const tlv::Error& e) {
-    state.fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: "s + e.what()});
+    state.fail({ValidationError::NO_SIGNATURE,
+                "Malformed SignatureInfo in `" + name.toUri() + "`: " + e.what()});
     return {};
   }
-
-  return getKeyLocatorName(si, state);
 }
 
 Name
@@ -126,13 +118,17 @@ extractIdentityNameFromKeyLocator(const Name& keyLocator)
     return keyLocator;
   }
 
-  for (ssize_t i = 1; i <= std::min<ssize_t>(-Certificate::KEY_COMPONENT_OFFSET, keyLocator.size()); ++i) {
-    if (keyLocator[-i] == Certificate::KEY_COMPONENT) {
-      return keyLocator.getPrefix(-i);
+  auto len = static_cast<ssize_t>(keyLocator.size());
+  // note that KEY_COMPONENT_OFFSET is negative
+  auto lowerBound = std::max<ssize_t>(len + Certificate::KEY_COMPONENT_OFFSET, 0);
+  for (ssize_t i = len - 1; i >= lowerBound; --i) {
+    if (keyLocator[i] == Certificate::KEY_COMPONENT) {
+      return keyLocator.getPrefix(i);
     }
   }
 
-  NDN_THROW(KeyLocator::Error("KeyLocator name `" + keyLocator.toUri() + "` does not respect the naming conventions"));
+  NDN_THROW(KeyLocator::Error("KeyLocator `" + keyLocator.toUri() +
+                              "` does not respect the naming conventions"));
 }
 
 } // inline namespace v2

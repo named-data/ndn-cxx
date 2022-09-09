@@ -179,9 +179,19 @@ private: // Common validator operations
   validate(const Certificate& cert, const shared_ptr<ValidationState>& state);
 
   /**
+   * @brief Validation callback invoked by the policy.
+   *
+   * @param certRequest  Certificate request, may be nullptr.
+   * @param state        The current validation state.
+   */
+  void
+  continueValidation(const shared_ptr<CertificateRequest>& certRequest,
+                     const shared_ptr<ValidationState>& state);
+
+  /**
    * @brief Request certificate for further validation.
    *
-   * @param certRequest  Certificate request.
+   * @param certRequest  Certificate request, must not be nullptr.
    * @param state        The current validation state.
    */
   void

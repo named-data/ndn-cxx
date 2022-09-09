@@ -44,13 +44,11 @@ protected:
   void
   mockNetworkOperations();
 
-  /** \brief undo clock advancement of mockNetworkOperations()
+  /**
+   * @brief Undo clock advancement of mockNetworkOperations()
    */
   void
-  rewindClockAfterValidation()
-  {
-    m_systemClock->advance(s_mockPeriod * s_mockTimes * -1);
-  }
+  rewindClockAfterValidation();
 
   /**
    * @brief Issues a certificate for @p subIdentityName signed by @p issuer
@@ -71,8 +69,8 @@ protected:
   ValidationError lastError{ValidationError::NO_ERROR};
 
 private:
-  const static time::milliseconds s_mockPeriod;
-  const static int s_mockTimes;
+  static const time::milliseconds s_mockPeriod;
+  static const int s_mockTimes;
 };
 
 template<class ValidationPolicyT, class CertificateFetcherT = CertificateFetcherFromNetwork>
@@ -93,6 +91,7 @@ protected:
     size_t nCallbacks = 0;
     this->validator.validate(packet,
       [&] (const Packet&) {
+        lastError = ValidationError::NO_ERROR;
         ++nCallbacks;
         BOOST_CHECK_MESSAGE(expectSuccess,
                             (expectSuccess ? "OK: " : "FAILED: ") + detailedInfo);

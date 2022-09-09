@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,7 +54,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
   auto packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(subIdentity));
   VALIDATE_FAILURE(packet, "Should fail, as no cert should be requested");
-  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 0);
+  BOOST_TEST(this->lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
+  BOOST_TEST(this->face.sentInterests.size() == 0);
 
   packet = Packet::makePacket(name);
   m_keyChain.sign(packet, signingByIdentity(identity));

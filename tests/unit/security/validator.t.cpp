@@ -22,7 +22,7 @@
 #include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
 
-#include "tests/boost-test.hpp"
+#include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
 namespace ndn {
@@ -46,33 +46,75 @@ BOOST_AUTO_TEST_CASE(ConstructorSetValidator)
   BOOST_CHECK(validator.getPolicy().m_validator != nullptr);
   BOOST_CHECK(validator.getPolicy().getInnerPolicy().m_validator != nullptr);
   BOOST_CHECK(validator.getPolicy().getInnerPolicy().getInnerPolicy().m_validator != nullptr);
+
+  BOOST_CHECK_THROW(validator.getPolicy().setInnerPolicy(nullptr), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(Timeouts)
+BOOST_AUTO_TEST_CASE(BadSignatureInfo)
 {
-  processInterest = nullptr; // no response for all interests
+  Interest interest("/Security/ValidatorFixture/Sub1/Sub2/Interest");
+  m_keyChain.sign(interest, signingByIdentity(subIdentity)
+                            .setSignedInterestFormat(SignedInterestFormat::V03));
+
+  // add an unrecognized critical element inside InterestSignatureInfo
+  auto si = interest.getSignatureInfo().value();
+  si.addCustomTlv("7F00"_block);
+  interest.setSignatureInfo(si);
+  BOOST_REQUIRE_THROW(interest.getSignatureInfo(), tlv::Error);
+  BOOST_REQUIRE_NO_THROW(interest.getSignatureValue());
+
+  VALIDATE_FAILURE(interest, "InterestSignatureInfo decoding should fail");
+  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
+  BOOST_TEST(face.sentInterests.size() == 0);
+}
+
+BOOST_AUTO_TEST_CASE(BadSignatureValue)
+{
+  const uint8_t sv[] = {0x12, 0x34, 0x56, 0x78};
+
+  Interest interest("/Security/ValidatorFixture/Sub1/Sub2/Interest");
+  m_keyChain.sign(interest, signingByIdentity(subIdentity)
+                            .setSignedInterestFormat(SignedInterestFormat::V03));
+  interest.setSignatureValue(sv);
+
+  VALIDATE_FAILURE(interest, "Signature check should fail");
+  BOOST_TEST(lastError.getCode() == ValidationError::INVALID_SIGNATURE);
+  BOOST_TEST(face.sentInterests.size() == 1);
+
+  Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
+  m_keyChain.sign(data, signingByIdentity(subIdentity));
+  data.setSignatureValue(sv);
+
+  VALIDATE_FAILURE(data, "Signature check should fail");
+  BOOST_TEST(lastError.getCode() == ValidationError::INVALID_SIGNATURE);
+  BOOST_TEST(face.sentInterests.size() == 1);
+}
+
+BOOST_AUTO_TEST_CASE(Timeout)
+{
+  processInterest = nullptr; // no response for any interest
 
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
   m_keyChain.sign(data, signingByIdentity(subIdentity));
 
   VALIDATE_FAILURE(data, "Should fail to retrieve certificate");
-  BOOST_CHECK_GT(face.sentInterests.size(), 1);
+  BOOST_TEST(lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
+  BOOST_TEST(face.sentInterests.size() == 4);
 }
 
-BOOST_AUTO_TEST_CASE(NackedInterests)
+BOOST_AUTO_TEST_CASE(Nack)
 {
   processInterest = [this] (const Interest& interest) {
-    lp::Nack nack(interest);
-    nack.setReason(lp::NackReason::NO_ROUTE);
-    face.receive(nack);
+    face.receive(makeNack(interest, lp::NackReason::NO_ROUTE));
   };
 
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
   m_keyChain.sign(data, signingByIdentity(subIdentity));
 
   VALIDATE_FAILURE(data, "All interests should get NACKed");
+  BOOST_TEST(lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
   // 1 for the first interest, 3 for the retries on nack
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 4);
+  BOOST_TEST(face.sentInterests.size() == 4);
 }
 
 BOOST_AUTO_TEST_CASE(MalformedCert)
@@ -84,7 +126,7 @@ BOOST_AUTO_TEST_CASE(MalformedCert)
   BOOST_REQUIRE_THROW(Certificate(malformedCert.wireEncode()), tlv::Error);
 
   auto originalProcessInterest = processInterest;
-  processInterest = [this, &originalProcessInterest, &malformedCert] (const Interest& interest) {
+  processInterest = [&] (const Interest& interest) {
     if (interest.getName().isPrefixOf(malformedCert.getName())) {
       face.receive(malformedCert);
     }
@@ -97,20 +139,20 @@ BOOST_AUTO_TEST_CASE(MalformedCert)
   m_keyChain.sign(data, signingByIdentity(subIdentity));
 
   VALIDATE_FAILURE(data, "Signed by a malformed certificate");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  BOOST_TEST(lastError.getCode() == ValidationError::MALFORMED_CERT);
+  BOOST_TEST(face.sentInterests.size() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(ExpiredCert)
 {
   Data expiredCert = subIdentity.getDefaultKey().getDefaultCertificate();
   SignatureInfo info;
-  info.setValidityPeriod(ValidityPeriod(time::system_clock::now() - 2_h,
-                                        time::system_clock::now() - 1_h));
+  info.setValidityPeriod(ValidityPeriod::makeRelative(-2_h, -1_h));
   m_keyChain.sign(expiredCert, signingByIdentity(identity).setSignatureInfo(info));
   BOOST_REQUIRE_NO_THROW(Certificate(expiredCert.wireEncode()));
 
   auto originalProcessInterest = processInterest;
-  processInterest = [this, &originalProcessInterest, &expiredCert] (const Interest& interest) {
+  processInterest = [&] (const Interest& interest) {
     if (interest.getName().isPrefixOf(expiredCert.getName())) {
       face.receive(expiredCert);
     }
@@ -123,7 +165,8 @@ BOOST_AUTO_TEST_CASE(ExpiredCert)
   m_keyChain.sign(data, signingByIdentity(subIdentity));
 
   VALIDATE_FAILURE(data, "Signed by an expired certificate");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  BOOST_TEST(lastError.getCode() == ValidationError::EXPIRED_CERT);
+  BOOST_TEST(face.sentInterests.size() == 1);
 }
 
 BOOST_AUTO_TEST_CASE(ResetAnchors)
@@ -133,6 +176,7 @@ BOOST_AUTO_TEST_CASE(ResetAnchors)
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
   m_keyChain.sign(data, signingByIdentity(subIdentity));
   VALIDATE_FAILURE(data, "Should fail, as no anchors configured");
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
 }
 
 BOOST_AUTO_TEST_CASE(TrustedCertCaching)
@@ -141,23 +185,23 @@ BOOST_AUTO_TEST_CASE(TrustedCertCaching)
   m_keyChain.sign(data, signingByIdentity(subIdentity));
 
   VALIDATE_SUCCESS(data, "Should get accepted, as signed by the policy-compliant cert");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  BOOST_TEST(face.sentInterests.size() == 1);
   face.sentInterests.clear();
 
   processInterest = nullptr; // disable data responses from mocked network
 
   VALIDATE_SUCCESS(data, "Should get accepted, based on the cached trusted cert");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  BOOST_TEST(face.sentInterests.size() == 0);
   face.sentInterests.clear();
 
   advanceClocks(1_h, 2); // expire trusted cache
 
   VALIDATE_FAILURE(data, "Should try and fail to retrieve certs");
-  BOOST_CHECK_GT(face.sentInterests.size(), 1);
-  face.sentInterests.clear();
+  BOOST_TEST(lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
+  BOOST_TEST(face.sentInterests.size() > 1);
 }
 
-BOOST_AUTO_TEST_CASE(ResetVerifiedCertificates)
+BOOST_AUTO_TEST_CASE(ResetVerifiedCerts)
 {
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
   m_keyChain.sign(data, signingByIdentity(subIdentity));
@@ -170,6 +214,7 @@ BOOST_AUTO_TEST_CASE(ResetVerifiedCertificates)
   // reset trusted cache
   validator.resetVerifiedCertificates();
   VALIDATE_FAILURE(data, "Should fail, as no trusted cache or anchors");
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
 }
 
 BOOST_AUTO_TEST_CASE(UntrustedCertCaching)
@@ -178,20 +223,22 @@ BOOST_AUTO_TEST_CASE(UntrustedCertCaching)
   m_keyChain.sign(data, signingByIdentity(subSelfSignedIdentity));
 
   VALIDATE_FAILURE(data, "Should fail, as signed by the policy-violating cert");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
+  BOOST_TEST(face.sentInterests.size() == 1);
   face.sentInterests.clear();
 
   processInterest = nullptr; // disable data responses from mocked network
 
   VALIDATE_FAILURE(data, "Should fail again, but no network operations expected");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
+  BOOST_TEST(face.sentInterests.size() == 0);
   face.sentInterests.clear();
 
   advanceClocks(10_min, 2); // expire untrusted cache
 
   VALIDATE_FAILURE(data, "Should try and fail to retrieve certs");
-  BOOST_CHECK_GT(face.sentInterests.size(), 1);
-  face.sentInterests.clear();
+  BOOST_TEST(lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
+  BOOST_TEST(face.sentInterests.size() > 1);
 }
 
 class ValidationPolicySimpleHierarchyForInterestOnly : public ValidationPolicySimpleHierarchy
@@ -209,41 +256,45 @@ BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
                         HierarchicalValidatorFixture<ValidationPolicySimpleHierarchyForInterestOnly>)
 {
   Interest interest("/Security/ValidatorFixture/Sub1/Sub2/Interest");
-  Data data("/Security/ValidatorFixture/Sub1/Sub2/Interest");
+  Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
 
   VALIDATE_FAILURE(interest, "Unsigned");
-  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
+  VALIDATE_SUCCESS(data, "Policy bypasses validation for all data");
+  BOOST_TEST(face.sentInterests.size() == 0);
   face.sentInterests.clear();
 
   interest = Interest("/Security/ValidatorFixture/Sub1/Sub2/Interest");
   m_keyChain.sign(interest, signingWithSha256());
   m_keyChain.sign(data, signingWithSha256());
   VALIDATE_FAILURE(interest, "Required KeyLocator/Name missing (not passed to policy)");
-  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
+  VALIDATE_SUCCESS(data, "Policy bypasses validation for all data");
+  BOOST_TEST(face.sentInterests.size() == 0);
   face.sentInterests.clear();
 
   m_keyChain.sign(interest, signingByIdentity(identity));
   m_keyChain.sign(data, signingByIdentity(identity));
   VALIDATE_SUCCESS(interest, "Should get accepted, as signed by the anchor");
-  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  VALIDATE_SUCCESS(data, "Policy bypasses validation for all data");
+  BOOST_TEST(face.sentInterests.size() == 0);
   face.sentInterests.clear();
 
   m_keyChain.sign(interest, signingByIdentity(subIdentity));
   m_keyChain.sign(data, signingByIdentity(subIdentity));
   VALIDATE_FAILURE(interest, "Should fail, as policy is not allowed to create new trust anchors");
-  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
+  VALIDATE_SUCCESS(data, "Policy bypasses validation for all data");
+  BOOST_TEST(face.sentInterests.size() == 1);
   face.sentInterests.clear();
 
   m_keyChain.sign(interest, signingByIdentity(otherIdentity));
   m_keyChain.sign(data, signingByIdentity(otherIdentity));
   VALIDATE_FAILURE(interest, "Should fail, as signed by the policy-violating cert");
-  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
+  VALIDATE_SUCCESS(data, "Policy bypasses validation for all data");
   // no network operations expected, as certificate is not validated by the policy
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 0);
+  BOOST_TEST(face.sentInterests.size() == 0);
   face.sentInterests.clear();
 
   advanceClocks(1_h, 2); // expire trusted cache
@@ -251,8 +302,9 @@ BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
   m_keyChain.sign(interest, signingByIdentity(subSelfSignedIdentity));
   m_keyChain.sign(data, signingByIdentity(subSelfSignedIdentity));
   VALIDATE_FAILURE(interest, "Should fail, as policy is not allowed to create new trust anchors");
-  VALIDATE_SUCCESS(data, "Policy requests validation bypassing for all data");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 1);
+  BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
+  VALIDATE_SUCCESS(data, "Policy bypasses validation for all data");
+  BOOST_TEST(face.sentInterests.size() == 1);
   face.sentInterests.clear();
 }
 
@@ -272,13 +324,15 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
   };
 
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
-  m_keyChain.sign(data, signingByIdentity(subIdentity).setSignatureInfo(
-                        SignatureInfo().setKeyLocator(subIdentity.getDefaultKey().getName())));
+  m_keyChain.sign(data, signingByIdentity(subIdentity)
+                        .setSignatureInfo(SignatureInfo()
+                                          .setKeyLocator(subIdentity.getDefaultKey().getName())));
 
   validator.setMaxDepth(40);
   BOOST_CHECK_EQUAL(validator.getMaxDepth(), 40);
   VALIDATE_FAILURE(data, "Should fail, as certificate should be looped");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 40);
+  BOOST_TEST(lastError.getCode() == ValidationError::EXCEEDED_DEPTH_LIMIT);
+  BOOST_TEST(face.sentInterests.size() == 40);
   face.sentInterests.clear();
 
   advanceClocks(1_h, 5); // expire caches
@@ -286,7 +340,8 @@ BOOST_AUTO_TEST_CASE(InfiniteCertChain)
   validator.setMaxDepth(30);
   BOOST_CHECK_EQUAL(validator.getMaxDepth(), 30);
   VALIDATE_FAILURE(data, "Should fail, as certificate chain is infinite");
-  BOOST_CHECK_EQUAL(face.sentInterests.size(), 30);
+  BOOST_TEST(lastError.getCode() == ValidationError::EXCEEDED_DEPTH_LIMIT);
+  BOOST_TEST(face.sentInterests.size() == 30);
 }
 
 BOOST_AUTO_TEST_CASE(LoopedCertChain)
@@ -313,7 +368,8 @@ BOOST_AUTO_TEST_CASE(LoopedCertChain)
   Data data("/loop/Data");
   m_keyChain.sign(data, signingByKey(k1));
   VALIDATE_FAILURE(data, "Should fail, as certificate chain loops");
-  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 3);
+  BOOST_TEST(lastError.getCode() == ValidationError::LOOP_DETECTED);
+  BOOST_TEST_REQUIRE(face.sentInterests.size() == 3);
   BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), k1.getDefaultCertificate().getName());
   BOOST_CHECK_EQUAL(face.sentInterests[1].getName(), k2.getName());
   BOOST_CHECK_EQUAL(face.sentInterests[2].getName(), k3.getName());

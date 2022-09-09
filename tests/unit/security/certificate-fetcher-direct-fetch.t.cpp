@@ -21,11 +21,10 @@
 
 #include "ndn-cxx/security/certificate-fetcher-direct-fetch.hpp"
 
-#include "ndn-cxx/lp/nack.hpp"
 #include "ndn-cxx/lp/tags.hpp"
 #include "ndn-cxx/security/validation-policy-simple-hierarchy.hpp"
 
-#include "tests/boost-test.hpp"
+#include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
 #include <boost/range/adaptor/sliced.hpp>
@@ -133,9 +132,7 @@ template<>
 void
 CertificateFetcherDirectFetchFixture<Nack>::makeResponse(const Interest& interest)
 {
-  lp::Nack nack(interest);
-  nack.setHeader(lp::NackHeader().setReason(lp::NackReason::NO_ROUTE));
-  face.receive(nack);
+  face.receive(makeNack(interest, lp::NackReason::NO_ROUTE));
 }
 
 using Failures = boost::mpl::vector<Timeout, Nack>;
@@ -174,9 +171,10 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccessDataDirectOnly, CertificateFetcherDirectF
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureData, T, Failures, CertificateFetcherDirectFetchFixture<T>)
 {
   VALIDATE_FAILURE(this->data, "Should fail, as all interests either NACKed or timeout");
+  BOOST_TEST(this->lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
   // Direct fetcher sends two interests each time - to network and face
   // 3 retries on nack or timeout (2 * (1 + 3) = 8)
-  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 8);
+  BOOST_TEST(this->face.sentInterests.size() == 8);
 
   // odd interests
   for (const auto& sentInterest : this->face.sentInterests | boost::adaptors::strided(2)) {
@@ -197,9 +195,10 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataDirectOnly, T, Failures, Cer
   static_cast<CertificateFetcherDirectFetch&>(this->validator.getFetcher()).setSendDirectInterestOnly(true);
 
   VALIDATE_FAILURE(this->data, "Should fail, as all interests either NACKed or timeout");
+  BOOST_TEST(this->lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
   // Direct fetcher sends two interests each time - to network and face
   // 3 retries on nack or timeout (1 + 3 = 4)
-  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 4);
+  BOOST_TEST(this->face.sentInterests.size() == 4);
 
   for (const auto& sentInterest : this->face.sentInterests) {
     BOOST_CHECK(sentInterest.template getTag<lp::NextHopFaceIdTag>() != nullptr);
@@ -215,8 +214,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataNoTagDirectOnly, T, Failures
   this->interest.template removeTag<lp::IncomingFaceIdTag>();
 
   VALIDATE_FAILURE(this->data, "Should fail, as no interests are expected");
-  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 0);
-  BOOST_CHECK_NE(this->lastError.getCode(), ValidationError::IMPLEMENTATION_ERROR);
+  BOOST_TEST(this->lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
+  BOOST_TEST(this->face.sentInterests.size() == 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(ValidateSuccessInterest, CertificateFetcherDirectFetchFixture<Cert>)
@@ -240,9 +239,10 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccessInterest, CertificateFetcherDirectFetchFi
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureInterest, T, Failures, CertificateFetcherDirectFetchFixture<T>)
 {
   VALIDATE_FAILURE(this->interest, "Should fail, as all interests either NACKed or timeout");
+  BOOST_TEST(this->lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
   // Direct fetcher sends two interests each time - to network and face
   // 3 retries on nack or timeout (2 * (1 + 3) = 4)
-  BOOST_CHECK_EQUAL(this->face.sentInterests.size(), 8);
+  BOOST_TEST(this->face.sentInterests.size() == 8);
 
   // odd interests
   for (const auto& sentInterest : this->face.sentInterests | boost::adaptors::strided(2)) {

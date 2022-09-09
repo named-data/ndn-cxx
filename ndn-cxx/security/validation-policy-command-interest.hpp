@@ -33,11 +33,13 @@ namespace ndn {
 namespace security {
 inline namespace v2 {
 
-/** \brief Validation policy for stop-and-wait command Interests
- *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
+/**
+ * @brief Validation policy for stop-and-wait command Interests.
  *
- *  This policy checks the timestamp field of a stop-and-wait command Interest.
- *  Signed Interest validation and Data validation requests are delegated to an inner policy.
+ * This policy checks the timestamp field of a stop-and-wait command Interest.
+ * Signed Interest validation and Data validation requests are delegated to an inner policy.
+ *
+ * @sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
  */
 class ValidationPolicyCommandInterest : public ValidationPolicy
 {
@@ -112,11 +114,11 @@ protected:
               const ValidationContinuation& continueValidation) override;
 
 private:
+  static std::tuple<bool, Name, time::system_clock::TimePoint>
+  parseCommandInterest(const Interest& interest, const shared_ptr<ValidationState>& state);
+
   void
   cleanup();
-
-  std::tuple<bool, Name, time::system_clock::TimePoint>
-  parseCommandInterest(const Interest& interest, const shared_ptr<ValidationState>& state) const;
 
   bool
   checkTimestamp(const shared_ptr<ValidationState>& state,

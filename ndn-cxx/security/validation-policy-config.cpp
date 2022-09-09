@@ -241,15 +241,16 @@ ValidationPolicyConfig::checkPolicy(const Data& data, const shared_ptr<Validatio
     return continueValidation(nullptr, state);
   }
 
-  Name klName = getKeyLocatorName(data, *state);
+  Name klName = getKeyLocatorName(data.getSignatureInfo(), *state);
   if (!state->getOutcome()) { // already failed
     return;
   }
 
+  auto sigType = tlv::SignatureTypeValue(data.getSignatureType());
+
   for (const auto& rule : m_dataRules) {
     if (rule->match(tlv::Data, data.getName(), state)) {
-      if (rule->check(tlv::Data, tlv::SignatureTypeValue(data.getSignatureType()),
-                      data.getName(), klName, state)) {
+      if (rule->check(tlv::Data, sigType, data.getName(), klName, state)) {
         return continueValidation(make_shared<CertificateRequest>(klName), state);
       }
       // rule->check calls state->fail(...) if the check fails
@@ -271,39 +272,20 @@ ValidationPolicyConfig::checkPolicy(const Interest& interest, const shared_ptr<V
     return continueValidation(nullptr, state);
   }
 
-  Name klName = getKeyLocatorName(interest, *state);
+  auto sigInfo = getSignatureInfo(interest, *state);
   if (!state->getOutcome()) { // already failed
     return;
   }
 
+  Name klName = getKeyLocatorName(sigInfo, *state);
+  if (!state->getOutcome()) { // already failed
+    return;
+  }
+
+  auto sigType = tlv::SignatureTypeValue(sigInfo.getSignatureType());
+
   for (const auto& rule : m_interestRules) {
     if (rule->match(tlv::Interest, interest.getName(), state)) {
-
-      tlv::SignatureTypeValue sigType;
-      auto fmt = state->getTag<SignedInterestFormatTag>();
-      BOOST_ASSERT(fmt);
-
-      if (*fmt == SignedInterestFormat::V03) {
-        sigType = tlv::SignatureTypeValue(interest.getSignatureInfo()->getSignatureType());
-      }
-      else {
-        if (interest.getName().size() < signed_interest::MIN_SIZE) {
-          state->fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: name too short"});
-          return;
-        }
-
-        SignatureInfo si;
-        try {
-          si.wireDecode(interest.getName()[signed_interest::POS_SIG_INFO].blockFromValue());
-        }
-        catch (const tlv::Error& e) {
-          state->fail({ValidationError::INVALID_KEY_LOCATOR, "Invalid signed Interest: "s + e.what()});
-          return;
-        }
-
-        sigType = tlv::SignatureTypeValue(si.getSignatureType());
-      }
-
       if (rule->check(tlv::Interest, sigType, interest.getName(), klName, state)) {
         return continueValidation(make_shared<CertificateRequest>(klName), state);
       }
