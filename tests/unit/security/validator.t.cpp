@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(BadSignatureInfo)
   BOOST_REQUIRE_NO_THROW(interest.getSignatureValue());
 
   VALIDATE_FAILURE(interest, "InterestSignatureInfo decoding should fail");
-  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
+  BOOST_TEST(lastError.getCode() == ValidationError::MALFORMED_SIGNATURE);
   BOOST_TEST(face.sentInterests.size() == 0);
 }
 
@@ -259,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE(ValidateInterestsButBypassForData,
   Data data("/Security/ValidatorFixture/Sub1/Sub2/Data");
 
   VALIDATE_FAILURE(interest, "Unsigned");
-  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
+  BOOST_TEST(lastError.getCode() == ValidationError::MALFORMED_SIGNATURE);
   VALIDATE_SUCCESS(data, "Policy bypasses validation for all data");
   BOOST_TEST(face.sentInterests.size() == 0);
   face.sentInterests.clear();

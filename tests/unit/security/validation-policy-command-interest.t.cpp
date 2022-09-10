@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(NotSigned)
   auto i1 = Interest("/short");
   BOOST_TEST_REQUIRE(i1.getName().size() < signed_interest::MIN_SIZE);
   VALIDATE_FAILURE(i1, "Should fail (not signed / name too short)");
-  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
+  BOOST_TEST(lastError.getCode() == ValidationError::MALFORMED_SIGNATURE);
 }
 
 BOOST_AUTO_TEST_CASE(BadSigInfo)
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(BadSigInfo)
   setNameComponent(i1, command_interest::POS_SIG_INFO, "not-SignatureInfo");
   BOOST_TEST_REQUIRE(i1.getName().size() >= command_interest::MIN_SIZE);
   VALIDATE_FAILURE(i1, "Should fail (signature info is missing)");
-  BOOST_TEST(lastError.getCode() == ValidationError::NO_SIGNATURE);
+  BOOST_TEST(lastError.getCode() == ValidationError::MALFORMED_SIGNATURE);
 }
 
 BOOST_AUTO_TEST_CASE(BadTimestampV02)

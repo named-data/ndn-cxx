@@ -71,7 +71,7 @@ Validator::validate(const Interest& interest,
     state->setTag(make_shared<SignedInterestFormatTag>(fmt));
   }
   catch (const tlv::Error& e) {
-    return state->fail({ValidationError::NO_SIGNATURE, "Malformed InterestSignatureInfo in `" +
+    return state->fail({ValidationError::MALFORMED_SIGNATURE, "Malformed InterestSignatureInfo in `" +
                         interest.getName().toUri() + "`: " + e.what()});
   }
 

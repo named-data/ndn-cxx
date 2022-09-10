@@ -95,7 +95,8 @@ getSignatureInfo(const Interest& interest, ValidationState& state)
   // Try the old Signed Interest format from Packet Specification v0.2
   const Name& name = interest.getName();
   if (name.size() < signed_interest::MIN_SIZE) {
-    state.fail({ValidationError::NO_SIGNATURE, "Interest name too short `" + name.toUri() + "`"});
+    state.fail({ValidationError::MALFORMED_SIGNATURE,
+                "Interest name too short `" + name.toUri() + "`"});
     return {};
   }
 
@@ -103,7 +104,7 @@ getSignatureInfo(const Interest& interest, ValidationState& state)
     return SignatureInfo(name[signed_interest::POS_SIG_INFO].blockFromValue());
   }
   catch (const tlv::Error& e) {
-    state.fail({ValidationError::NO_SIGNATURE,
+    state.fail({ValidationError::MALFORMED_SIGNATURE,
                 "Malformed SignatureInfo in `" + name.toUri() + "`: " + e.what()});
     return {};
   }

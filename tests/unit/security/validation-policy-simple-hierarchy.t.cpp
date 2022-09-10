@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 
   auto packet = Packet::makePacket(name);
   VALIDATE_FAILURE(packet, "Unsigned");
-  BOOST_TEST((lastError.getCode() == ValidationError::NO_SIGNATURE ||        // Interest
+  BOOST_TEST((lastError.getCode() == ValidationError::MALFORMED_SIGNATURE || // Interest
               lastError.getCode() == ValidationError::INVALID_KEY_LOCATOR)); // Data
 
   packet = Packet::makePacket(name);

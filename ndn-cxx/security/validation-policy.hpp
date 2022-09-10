@@ -154,7 +154,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
  * SignedInterestFormatTag inside @p state, must have an InterestSignatureInfo element.
  * Legacy signed Interests must contain a (%Data)%SignatureInfo name component.
  * In both cases, if any TLV parsing errors are encountered, ValidationState::fail()
- * is invoked on @p state with a ValidationError::NO_SIGNATURE error code.
+ * is invoked on @p state with a ValidationError::MALFORMED_SIGNATURE error code.
  *
  * @pre @p state must contain a SignedInterestFormatTag to indicate whether the %Interest is
  *      signed according to Packet Specification v0.3+ or a previous specification.

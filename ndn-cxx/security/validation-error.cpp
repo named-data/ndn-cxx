@@ -32,9 +32,9 @@ operator<<(std::ostream& os, ValidationError::Code code)
     case ValidationError::NO_ERROR:
       return os << "No error";
     case ValidationError::INVALID_SIGNATURE:
-      return os << "Invalid signature";
-    case ValidationError::NO_SIGNATURE:
-      return os << "Missing signature";
+      return os << "Signature verification failed";
+    case ValidationError::MALFORMED_SIGNATURE:
+      return os << "Missing or malformed signature";
     case ValidationError::CANNOT_RETRIEVE_CERT:
       return os << "Cannot retrieve certificate";
     case ValidationError::EXPIRED_CERT:
@@ -46,9 +46,9 @@ operator<<(std::ostream& os, ValidationError::Code code)
     case ValidationError::EXCEEDED_DEPTH_LIMIT:
       return os << "Exceeded validation depth limit";
     case ValidationError::INVALID_KEY_LOCATOR:
-      return os << "Key locator violates validation policy";
+      return os << "Invalid key locator";
     case ValidationError::POLICY_ERROR:
-      return os << "Validation policy error";
+      return os << "Policy violation";
     case ValidationError::IMPLEMENTATION_ERROR:
       return os << "Internal error";
     case ValidationError::USER_MIN:
@@ -58,14 +58,14 @@ operator<<(std::ostream& os, ValidationError::Code code)
     return os << "Custom error code " << to_underlying(code);
   }
   else {
-    return os << "Unrecognized error code " << to_underlying(code);
+    return os << "Unknown error code " << to_underlying(code);
   }
 }
 
 void
 ValidationError::print(std::ostream& os) const
 {
-  os << static_cast<ValidationError::Code>(m_code);
+  os << m_code;
   if (!m_info.empty()) {
     os << " (" << m_info << ")";
   }
