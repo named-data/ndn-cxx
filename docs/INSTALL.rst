@@ -85,7 +85,7 @@ need to be installed:
 
 - doxygen
 - graphviz
-- sphinx >= 1.3
+- sphinx >= 4.0
 - sphinxcontrib-doxylink
 
 The following lists the steps to install these prerequisites on various common platforms.
