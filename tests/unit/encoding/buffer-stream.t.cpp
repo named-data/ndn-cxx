@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -63,11 +63,22 @@ BOOST_AUTO_TEST_CASE(Write)
 BOOST_AUTO_TEST_CASE(Destructor) // Bug 3727
 {
   auto os = make_unique<OBufferStream>();
+  auto buf = os->buf();
   *os << 'x';
-  os.reset(); // should not cause use-after-free
+  // do NOT flush or call buf() here
 
-  // avoid "test case [...] did not check any assertions" message from Boost.Test
-  BOOST_CHECK(true);
+  os.reset(); // should not cause use-after-free
+  BOOST_CHECK_EQUAL(buf->size(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(Close) // Bug 5240
+{
+  OBufferStream os;
+  os << "foo";
+  os.close();
+
+  auto buf = os.buf(); // should not cause assertion failure
+  BOOST_CHECK_EQUAL(buf->size(), 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBufferStream

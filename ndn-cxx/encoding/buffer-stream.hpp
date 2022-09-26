@@ -26,63 +26,61 @@
 
 #include "ndn-cxx/encoding/buffer.hpp"
 
-#include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
 
 namespace ndn {
-
 namespace detail {
 
-/** @brief (implementation detail) a Boost.Iostreams.Sink which appends to an \p ndn::Buffer
+/**
+ * @brief (implementation detail) A Boost.Iostreams.Sink that appends to a Buffer.
  */
-class BufferAppendDevice
+class BufferSink : public boost::iostreams::sink
 {
 public:
-  typedef char char_type;
-  typedef boost::iostreams::sink_tag category;
-
   explicit
-  BufferAppendDevice(Buffer& container);
+  BufferSink(Buffer& container);
 
   std::streamsize
   write(const char_type* s, std::streamsize n);
 
-protected:
+private:
   Buffer& m_container;
 };
 
 } // namespace detail
 
-/** @brief implements an output stream that constructs \p ndn::Buffer
+/**
+ * @brief An output stream that writes to a Buffer.
  *
- *  The benefit of using stream interface is that it provides automatic buffering of
- *  written data and eliminates (or reduces) overhead of resizing the underlying buffer
- *  when writing small pieces of data.
+ * The benefit of using stream interface is that it provides automatic buffering of
+ * written data and eliminates (or reduces) overhead of resizing the underlying buffer
+ * when writing small pieces of data.
  *
- *  Usage example:
- *  @code
- *  OBufferStream obuf;
- *  obuf.put(0);
- *  obuf.write(anotherBuffer, anotherBufferSize);
- *  shared_ptr<Buffer> buf = obuf.buf();
- *  @endcode
+ * Usage example:
+ * @code
+ * OBufferStream obuf;
+ * obuf << "foo";
+ * obuf.put(0);
+ * obuf.write(anotherBuffer, anotherBufferSize);
+ * std::shared_ptr<Buffer> buf = obuf.buf();
+ * @endcode
  */
-class OBufferStream : public boost::iostreams::stream<detail::BufferAppendDevice>
+class OBufferStream : public boost::iostreams::stream<detail::BufferSink>
 {
 public:
   OBufferStream();
 
-  ~OBufferStream() override;
+  ~OBufferStream() noexcept override;
 
   /**
-   * Flush written data to the stream and return shared pointer to the underlying buffer
+   * @brief Return a shared pointer to the underlying buffer.
    */
   shared_ptr<Buffer>
   buf();
 
 private:
-  BufferPtr m_buffer;
-  detail::BufferAppendDevice m_device;
+  shared_ptr<Buffer> m_buffer;
 };
 
 } // namespace ndn
