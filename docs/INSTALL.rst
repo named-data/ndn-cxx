@@ -23,7 +23,7 @@ supported:
 - Fedora >= 29
 - Gentoo Linux
 - Raspberry Pi OS (formerly Raspbian) >= 2019-06-20
-- FreeBSD >= 12.0
+- FreeBSD >= 12.2
 
 Prerequisites
 -------------
@@ -123,7 +123,7 @@ The following lists the steps to install these prerequisites on various common p
 
   .. code-block:: sh
 
-    sudo pkg install doxygen graphviz py37-sphinx
+    sudo pkg install doxygen graphviz py39-sphinx
 
 Build
 -----
