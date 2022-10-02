@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,6 +23,7 @@
 #define NDN_CXX_UTIL_OPTIONAL_HPP
 
 #define optional_CONFIG_SELECT_OPTIONAL optional_OPTIONAL_NONSTD
+#define optional_CONFIG_NO_EXTENSIONS 1
 #include "ndn-cxx/detail/nonstd/optional-lite.hpp"
 
 namespace ndn {
