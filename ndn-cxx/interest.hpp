@@ -37,13 +37,14 @@ namespace ndn {
 
 class Data;
 
-/** @var const unspecified_duration_type DEFAULT_INTEREST_LIFETIME;
- *  @brief default value for InterestLifetime
+/**
+ * @brief Default value of `InterestLifetime`.
  */
 const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 
-/** @brief Represents an %Interest packet.
- *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/interest.html
+/**
+ * @brief Represents an %Interest packet.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/interest.html
  */
 class Interest : public PacketBase, public std::enable_shared_from_this<Interest>
 {
@@ -174,13 +175,15 @@ public: // element access
     return m_name;
   }
 
-  /** @brief Set the Interest's name.
-   *  @throw std::invalid_argument @p name is invalid
+  /**
+   * @brief Set the %Interest's name.
+   * @throw std::invalid_argument @p name is invalid
    */
   Interest&
   setName(const Name& name);
 
-  /** @brief Check whether the CanBePrefix element is present.
+  /**
+   * @brief Check whether the `CanBePrefix` element is present.
    */
   bool
   getCanBePrefix() const noexcept
@@ -188,8 +191,9 @@ public: // element access
     return m_canBePrefix;
   }
 
-  /** @brief Add or remove CanBePrefix element.
-   *  @param canBePrefix whether CanBePrefix element should be present.
+  /**
+   * @brief Add or remove `CanBePrefix` element.
+   * @param canBePrefix Whether the element should be present.
    */
   Interest&
   setCanBePrefix(bool canBePrefix)
@@ -199,7 +203,8 @@ public: // element access
     return *this;
   }
 
-  /** @brief Check whether the MustBeFresh element is present.
+  /**
+   * @brief Check whether the `MustBeFresh` element is present.
    */
   bool
   getMustBeFresh() const noexcept
@@ -207,8 +212,9 @@ public: // element access
     return m_mustBeFresh;
   }
 
-  /** @brief Add or remove MustBeFresh element.
-   *  @param mustBeFresh whether MustBeFresh element should be present.
+  /**
+   * @brief Add or remove `MustBeFresh` element.
+   * @param mustBeFresh Whether the element should be present.
    */
   Interest&
   setMustBeFresh(bool mustBeFresh)
@@ -227,7 +233,8 @@ public: // element access
   Interest&
   setForwardingHint(std::vector<Name> value);
 
-  /** @brief Check if the Nonce element is present.
+  /**
+   * @brief Check if the `Nonce` element is present.
    */
   bool
   hasNonce() const noexcept
@@ -235,55 +242,66 @@ public: // element access
     return m_nonce.has_value();
   }
 
-  /** @brief Get nonce value.
+  /**
+   * @brief Get nonce value.
    *
-   *  If nonce was not present, it is added and assigned a random value.
+   * If nonce was not present, it is added and assigned a random value.
    */
   Nonce
   getNonce() const;
 
-  /** @brief Set the Interest's nonce.
+  /**
+   * @brief Set the %Interest's nonce.
    *
-   *  Use `setNonce(nullopt)` to remove any nonce from the Interest.
+   * Use `setNonce(nullopt)` to remove any nonce from the Interest.
    */
   Interest&
   setNonce(optional<Nonce> nonce);
 
-  /** @brief Change nonce value.
+  /**
+   * @brief Change nonce value.
    *
-   *  If the Nonce element is present, the new nonce value will differ from the old value.
-   *  If the Nonce element is not present, this method does nothing.
+   * If the `Nonce` element is present, the new nonce value will differ from the old value.
+   * If the `Nonce` element is not present, this method does nothing.
    */
   void
   refreshNonce();
 
+  /**
+   * @brief Get the %Interest's lifetime.
+   */
   time::milliseconds
   getInterestLifetime() const noexcept
   {
     return m_interestLifetime;
   }
 
-  /** @brief Set the Interest's lifetime.
-   *  @throw std::invalid_argument @p lifetime is negative
+  /**
+   * @brief Set the %Interest's lifetime.
+   * @throw std::invalid_argument @p lifetime is negative
    */
   Interest&
   setInterestLifetime(time::milliseconds lifetime);
 
+  /**
+   * @brief Get the %Interest's hop limit.
+   */
   optional<uint8_t>
   getHopLimit() const noexcept
   {
     return m_hopLimit;
   }
 
-  /** @brief Set the Interest's hop limit.
+  /**
+   * @brief Set the %Interest's hop limit.
    *
-   *  Use `setHopLimit(nullopt)` to remove any hop limit from the Interest.
+   * Use `setHopLimit(nullopt)` to remove any hop limit from the Interest.
    */
   Interest&
   setHopLimit(optional<uint8_t> hopLimit);
 
   /**
-   * @brief Return whether this Interest has any ApplicationParameters.
+   * @brief Return whether this Interest has any `ApplicationParameters` element.
    */
   bool
   hasApplicationParameters() const noexcept
@@ -292,7 +310,7 @@ public: // element access
   }
 
   /**
-   * @brief Get the ApplicationParameters.
+   * @brief Get the `ApplicationParameters` element.
    *
    * If the element is not present, an invalid Block will be returned.
    *
@@ -308,9 +326,9 @@ public: // element access
   }
 
   /**
-   * @brief Set ApplicationParameters from a Block.
+   * @brief Set `ApplicationParameters` from a Block.
    * @param block TLV block to be used as ApplicationParameters; must be valid
-   * @return a reference to this Interest
+   * @return A reference to this Interest.
    *
    * If the block's TLV-TYPE is tlv::ApplicationParameters, it will be used directly as
    * this Interest's ApplicationParameters element. Otherwise, the block will be nested
@@ -324,9 +342,9 @@ public: // element access
   setApplicationParameters(const Block& block);
 
   /**
-   * @brief Set ApplicationParameters by copying from a contiguous sequence of bytes.
+   * @brief Set `ApplicationParameters` by copying from a contiguous sequence of bytes.
    * @param value buffer from which the TLV-VALUE of the parameters will be copied
-   * @return a reference to this Interest
+   * @return A reference to this Interest.
    *
    * This function will also recompute the value of the ParametersSha256DigestComponent in the
    * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
@@ -336,11 +354,11 @@ public: // element access
   setApplicationParameters(span<const uint8_t> value);
 
   /**
-   * @brief Set ApplicationParameters by copying from a raw buffer.
+   * @brief Set `ApplicationParameters` by copying from a raw buffer.
    * @param value points to a buffer from which the TLV-VALUE of the parameters will be copied;
    *              may be nullptr if @p length is zero
    * @param length size of the buffer
-   * @return a reference to this Interest
+   * @return A reference to this Interest.
    * @deprecated Use setApplicationParameters(span<const uint8_t>)
    *
    * This function will also recompute the value of the ParametersSha256DigestComponent in the
@@ -352,9 +370,9 @@ public: // element access
   setApplicationParameters(const uint8_t* value, size_t length);
 
   /**
-   * @brief Set ApplicationParameters from a shared buffer.
+   * @brief Set `ApplicationParameters` from a shared buffer.
    * @param value buffer containing the TLV-VALUE of the parameters; must not be nullptr
-   * @return a reference to this Interest
+   * @return A reference to this Interest.
    *
    * This function will also recompute the value of the ParametersSha256DigestComponent in the
    * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
@@ -364,8 +382,8 @@ public: // element access
   setApplicationParameters(ConstBufferPtr value);
 
   /**
-   * @brief Remove the ApplicationParameters element from this Interest.
-   * @return a reference to this Interest
+   * @brief Remove the `ApplicationParameters` element from this Interest.
+   * @return A reference to this Interest.
    * @post hasApplicationParameters() == false
    *
    * This function will also remove any InterestSignatureInfo and InterestSignatureValue elements
@@ -374,26 +392,29 @@ public: // element access
   Interest&
   unsetApplicationParameters();
 
-  /** @brief Return whether the Interest is signed
-   *  @warning This function only determines whether signature information is present in the
-   *           Interest and does not verify that the signature is valid.
+  /**
+   * @brief Return whether the Interest is signed.
+   * @warning This function only determines whether signature information is present in the
+   *          Interest; it does not verify that the signature is valid.
    */
   bool
   isSigned() const noexcept;
 
-  /** @brief Get the InterestSignatureInfo
-   *  @retval nullopt InterestSignatureInfo is not present
+  /**
+   * @brief Get the `InterestSignatureInfo` element.
+   * @retval nullopt The element is not present.
    */
   optional<SignatureInfo>
   getSignatureInfo() const;
 
-  /** @brief Set the InterestSignatureInfo
+  /**
+   * @brief Set the `InterestSignatureInfo` element.
    */
   Interest&
   setSignatureInfo(const SignatureInfo& info);
 
   /**
-   * @brief Get the InterestSignatureValue element.
+   * @brief Get the `InterestSignatureValue` element.
    *
    * If the element is not present, an invalid Block will be returned.
    */
@@ -401,9 +422,9 @@ public: // element access
   getSignatureValue() const;
 
   /**
-   * @brief Set InterestSignatureValue by copying from a contiguous sequence of bytes.
+   * @brief Set `InterestSignatureValue` by copying from a contiguous sequence of bytes.
    * @param value buffer from which the TLV-VALUE of the InterestSignatureValue will be copied
-   * @return a reference to this Interest
+   * @return A reference to this Interest.
    * @throw Error InterestSignatureInfo is unset
    *
    * InterestSignatureInfo must be set before setting InterestSignatureValue.
@@ -412,9 +433,9 @@ public: // element access
   setSignatureValue(span<const uint8_t> value);
 
   /**
-   * @brief Set InterestSignatureValue from a shared buffer.
+   * @brief Set `InterestSignatureValue` from a shared buffer.
    * @param value buffer containing the TLV-VALUE of the InterestSignatureValue; must not be nullptr
-   * @return a reference to this Interest
+   * @return A reference to this Interest.
    * @throw Error InterestSignatureInfo is unset
    *
    * InterestSignatureInfo must be set before setting InterestSignatureValue.

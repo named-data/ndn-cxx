@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,13 +41,14 @@ namespace ndn {
 const size_t MAX_NDN_PACKET_SIZE = 8800;
 
 /**
- * @brief Namespace defining NDN Packet Format related constants and procedures
+ * @brief Contains constants and low-level functions related to the NDN packet format.
  */
 namespace tlv {
 
-/** @brief represents an error in TLV encoding or decoding
+/**
+ * @brief Represents an error in TLV encoding or decoding.
  *
- *  Element::Error SHOULD inherit from this Error class.
+ * `Element::Error` SHOULD inherit from this Error class.
  */
 class Error : public std::runtime_error
 {
@@ -57,8 +58,9 @@ public:
   Error(const char* expectedType, uint32_t actualType);
 };
 
-/** @brief TLV-TYPE numbers defined in NDN Packet Format v0.3
- *  @sa https://named-data.net/doc/NDN-packet-spec/current/types.html
+/**
+ * @brief TLV-TYPE numbers defined in NDN Packet Format v0.3.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/types.html
  */
 enum : uint32_t {
   Invalid                         = 0,
@@ -100,8 +102,9 @@ enum : uint32_t {
   AppPrivateBlock2 = 32768,
 };
 
-/** @brief TLV-TYPE numbers defined in NDN Packet Format v0.2 but not in v0.3
- *  @sa https://named-data.net/doc/NDN-packet-spec/0.2.1/types.html
+/**
+ * @brief TLV-TYPE numbers defined in NDN Packet Format v0.2 but not in v0.3.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.2.1/types.html
  */
 enum : uint32_t {
   Selectors                 = 9,
@@ -113,8 +116,9 @@ enum : uint32_t {
   Any                       = 19,
 };
 
-/** @brief TLV-TYPE numbers for typed name components.
- *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
+/**
+ * @brief TLV-TYPE numbers for typed name components.
+ * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
  */
 enum : uint32_t {
   KeywordNameComponent     = 32,
@@ -125,9 +129,10 @@ enum : uint32_t {
   SequenceNumNameComponent = 58,
 };
 
-/** @brief SignatureType values
- *  @sa https://named-data.net/doc/NDN-packet-spec/current/signature.html
- *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/SignatureType
+/**
+ * @brief SignatureType values.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signature.html
+ * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/SignatureType
  */
 enum SignatureTypeValue : uint16_t {
   DigestSha256             = 0,
@@ -140,8 +145,9 @@ enum SignatureTypeValue : uint16_t {
 std::ostream&
 operator<<(std::ostream& os, SignatureTypeValue st);
 
-/** @brief TLV-TYPE numbers for SignatureInfo extensions
- *  @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
+/**
+ * @brief TLV-TYPE numbers for SignatureInfo extensions.
+ * @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
  */
 enum : uint32_t {
   ValidityPeriod = 253,
@@ -154,8 +160,9 @@ enum : uint32_t {
   DescriptionValue = 514
 };
 
-/** @brief ContentType values
- *  @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/ContentType
+/**
+ * @brief ContentType values.
+ * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/ContentType
  */
 enum ContentTypeValue : uint32_t {
   ContentType_Blob      = 0,    ///< payload
@@ -250,7 +257,7 @@ sizeOfVarNumber(uint64_t number) noexcept;
 
 /**
  * @brief Write VAR-NUMBER to the specified stream.
- * @return length of written VAR-NUMBER
+ * @return Length of written VAR-NUMBER.
  */
 size_t
 writeVarNumber(std::ostream& os, uint64_t number);
@@ -280,7 +287,7 @@ sizeOfNonNegativeInteger(uint64_t integer) noexcept;
 
 /**
  * @brief Write a NonNegativeInteger to the specified stream.
- * @return length of written NonNegativeInteger
+ * @return Length of written NonNegativeInteger.
  */
 size_t
 writeNonNegativeInteger(std::ostream& os, uint64_t integer);
@@ -297,7 +304,7 @@ writeNonNegativeInteger(std::ostream& os, uint64_t integer);
 
 namespace detail {
 
-/** @brief Function object to read a number from InputIterator
+/** @brief Function object to read a number from InputIterator.
  */
 template<typename Iterator>
 class ReadNumberSlow
@@ -315,7 +322,7 @@ public:
   }
 };
 
-/** @brief Function object to read a number from ContiguousIterator
+/** @brief Function object to read a number from ContiguousIterator.
  */
 template<typename Iterator>
 class ReadNumberFast
@@ -362,7 +369,7 @@ public:
   }
 };
 
-/** @brief Determine whether to select ReadNumber implementation for ContiguousIterator
+/** @brief Determine whether to select ReadNumber implementation for ContiguousIterator.
  *
  *  This is not a full ContiguousIterator detection implementation. It returns true for the most
  *  common ContiguousIterator types used with TLV decoding function templates.

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -86,7 +86,7 @@ std::ostream&
 operator<<(std::ostream& os, FaceEventKind faceEventKind);
 
 /** \ingroup management
- *  \brief CS enablement flags
+ *  \brief CS enablement flags.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Update-config
  */
 enum CsFlagBit {
@@ -107,7 +107,7 @@ enum RouteOrigin : uint16_t {
   ROUTE_ORIGIN_STATIC        = 255,
 };
 
-/** \brief extract RouteOrigin from stream
+/** \brief Extract RouteOrigin from stream.
  *  \post if the first token in \p contains a valid RouteOrigin as string or numeric value, it is
  *        extracted into \p routeOrigin ; otherwise, \p routeOrigin is set to \p ROUTE_ORIGIN_NONE ,
  *        and failbit is set on \p is

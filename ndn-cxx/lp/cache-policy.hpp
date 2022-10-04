@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,7 @@ namespace ndn {
 namespace lp {
 
 /**
- * \brief indicates the cache policy applied to a Data packet
+ * \brief Indicates the cache policy applied to a Data packet.
  */
 enum class CachePolicyType {
   NONE = 0,
@@ -42,7 +42,7 @@ std::ostream&
 operator<<(std::ostream& os, CachePolicyType policy);
 
 /**
- * \brief represents a CachePolicy header field
+ * \brief Represents a CachePolicy header field.
  */
 class CachePolicy
 {
@@ -59,7 +59,7 @@ public:
   CachePolicy(const Block& block);
 
   /**
-   * \brief prepend CachePolicy to encoder
+   * \brief Prepend CachePolicy to encoder.
    * \pre getPolicy() != CachePolicyType::NONE
    * \throw Error policy type is unset
    */
@@ -68,27 +68,27 @@ public:
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
   /**
-   * \brief encode CachePolicy into wire format
+   * \brief Encode CachePolicy into wire format.
    */
   const Block&
   wireEncode() const;
 
   /**
-   * \brief get CachePolicyType from wire format
+   * \brief Get CachePolicyType from wire format.
    */
   void
   wireDecode(const Block& wire);
 
 public: // policy type
   /**
-   * \return policy type code
+   * \brief Get policy type code.
    * \retval CachePolicyType::NONE if policy type is unset or has an unknown code
    */
   CachePolicyType
   getPolicy() const;
 
   /**
-   * \brief set policy type code
+   * \brief Set policy type code.
    * \param policy a policy type code; CachePolicyType::NONE clears the policy
    */
   CachePolicy&

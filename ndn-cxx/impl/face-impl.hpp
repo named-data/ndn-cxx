@@ -53,7 +53,7 @@ NDN_LOG_INIT(ndn.Face);
 
 namespace ndn {
 
-/** @brief implementation detail of Face
+/** @brief Implementation detail of Face.
  */
 class Face::Impl : public std::enable_shared_from_this<Face::Impl>
 {
@@ -123,7 +123,8 @@ public: // consumer
     m_pendingInterestTable.clear();
   }
 
-  /** @return whether the Data should be sent to the forwarder, if it does not come from the forwarder
+  /**
+   * @return Whether the Data should be sent to the forwarder, if it does not come from the forwarder.
    */
   bool
   satisfyPendingInterests(const Data& data)
@@ -150,7 +151,8 @@ public: // consumer
     return hasForwarderMatch || !hasAppMatch;
   }
 
-  /** @return a Nack to be sent to the forwarder, or nullopt if no Nack should be sent
+  /**
+   * @return A Nack to be sent to the forwarder, or nullopt if no Nack should be sent.
    */
   optional<lp::Nack>
   nackPendingInterests(const lp::Nack& nack)
@@ -321,7 +323,7 @@ public: // IO routine
   }
 
 private:
-  /** @brief Finish packet encoding
+  /** @brief Finish packet encoding.
    *  @param lpPacket NDNLP packet without FragmentField
    *  @param wire wire encoding of Interest or Data
    *  @param pktType packet type, 'I' for Interest, 'D' for Data, 'N' for Nack

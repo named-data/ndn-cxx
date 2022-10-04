@@ -123,7 +123,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only 
    *
    * If no default identity is currently set, the new identity will become the default identity.
    *
-   * @return handle of the added identity.
+   * @return Handle of the added identity.
    */
   Identity
   addIdentity(const Name& identity);
@@ -141,7 +141,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only 
    *
    * The identity will be created if it does not exist.
    *
-   * @return handle of the default identity
+   * @return Handle of the default identity.
    */
   Identity
   setDefaultIdentity(const Name& identity);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -78,7 +78,7 @@ public:
   ~Checker() = default;
 
   /**
-   * @brief Check if packet name and KeyLocator satisfy the checker's conditions
+   * @brief Check if packet name and KeyLocator satisfy the checker's conditions.
    *
    * @param pktType tlv::Interest or tlv::Data
    * @param sigType Signature type
@@ -91,7 +91,7 @@ public:
         const Name& pktName, const Name& klName, const ValidationState& state);
 
   /**
-   * @brief create a checker from configuration section
+   * @brief Create a checker from configuration section.
    *
    * @param configSection The section containing the definition of checker.
    * @param configFilename The configuration file name.
@@ -102,7 +102,7 @@ public:
 
 protected:
   /**
-   * @brief Base version of name checking
+   * @brief Base version of name checking.
    * @return always returns accept()
    */
   virtual Result

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief represents NFD General Status dataset
+ * \brief Represents NFD General Status dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus#General-Status-Dataset
  */
 class ForwarderStatus
@@ -47,7 +47,7 @@ public:
   explicit
   ForwarderStatus(const Block& payload);
 
-  /** \brief prepend ForwarderStatus as a Content block to the encoder
+  /** \brief Prepend ForwarderStatus as a Content block to the encoder.
    *
    *  The outermost Content element isn't part of ForwarderStatus structure.
    */
@@ -55,14 +55,14 @@ public:
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** \brief encode ForwarderStatus as a Content block
+  /** \brief Encode ForwarderStatus as a Content block.
    *
    *  The outermost Content element isn't part of ForwarderStatus structure.
    */
   const Block&
   wireEncode() const;
 
-  /** \brief decode ForwarderStatus from a Content block
+  /** \brief Decode ForwarderStatus from a Content block.
    *
    *  The outermost Content element isn't part of ForwarderStatus structure.
    */

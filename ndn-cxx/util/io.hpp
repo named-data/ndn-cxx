@@ -79,7 +79,7 @@ checkNestedError(...)
 
 /**
  * \brief Reads bytes from a stream until EOF.
- * \return a Buffer containing the bytes read from the stream
+ * \return A Buffer containing the bytes read from the stream.
  * \throw Error An error occurred, e.g., malformed input.
  * \throw std::invalid_argument The specified encoding is not supported.
  */
@@ -89,7 +89,7 @@ loadBuffer(std::istream& is, IoEncoding encoding = BASE64);
 /**
  * \brief Reads a TLV element of type `T` from a stream.
  * \tparam T Class type representing the TLV element; must be WireDecodable.
- * \return the parsed TLV element
+ * \return The parsed TLV element.
  * \throw Error An error occurred, e.g., malformed input.
  * \throw std::invalid_argument The specified encoding is not supported.
  */
@@ -112,7 +112,7 @@ loadTlv(std::istream& is, IoEncoding encoding = BASE64)
  * \brief Reads a TLV element from a stream.
  * \tparam T Type of TLV element; `T` must be WireDecodable and the nested type
  *           `T::Error`, if defined, must be a subclass of ndn::tlv::Error.
- * \return the TLV element, or nullptr if an error occurs
+ * \return The TLV element, or nullptr if an error occurs.
  * \note This function has a peculiar error handling behavior. Consider using loadTlv() instead.
  */
 template<typename T>
@@ -145,7 +145,7 @@ load(std::istream& is, IoEncoding encoding = BASE64)
  * \brief Reads a TLV element from a file.
  * \tparam T Type of TLV element; `T` must be WireDecodable and the nested type
  *           `T::Error`, if defined, must be a subclass of ndn::tlv::Error.
- * \return the TLV element, or nullptr if an error occurs
+ * \return The TLV element, or nullptr if an error occurs.
  * \note This function has a peculiar error handling behavior. Consider using loadTlv() instead.
  */
 template<typename T>

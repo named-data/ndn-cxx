@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,9 @@
 #include "ndn-cxx/lp/fields.hpp"
 
 namespace ndn {
+/**
+ * @brief Contains classes and functions related to NDNLPv2.
+ */
 namespace lp {
 
 class Packet
@@ -42,13 +45,13 @@ public:
   Packet(const Block& wire);
 
   /**
-   * \brief encode packet into wire format
+   * \brief Encode packet into wire format.
    */
   Block
   wireEncode() const;
 
   /**
-   * \brief decode packet from wire format
+   * \brief Decode packet from wire format.
    * \throws Error unknown TLV-TYPE
    */
   void
@@ -66,7 +69,7 @@ public:
 
 public: // field access
   /**
-   * \return true if FIELD occurs one or more times
+   * \brief Returns true if \c FIELD occurs one or more times.
    * \details This is equivalent to count() > 0
    */
   template<typename FIELD>
@@ -77,7 +80,7 @@ public: // field access
   }
 
   /**
-   * \return number of occurrences of FIELD
+   * \brief Returns the number of occurrences of \c FIELD.
    */
   template<typename FIELD>
   NDN_CXX_NODISCARD size_t
@@ -88,8 +91,8 @@ public: // field access
   }
 
   /**
-   * \return value of index-th occurrence of FIELD
-   * \throw std::out_of_range if index>=count()
+   * \brief Returns the value of the index-th occurrence of \c FIELD.
+   * \throw std::out_of_range if index >= count()
    */
   template<typename FIELD>
   typename FIELD::ValueType
@@ -109,7 +112,7 @@ public: // field access
   }
 
   /**
-   * \return values of all occurrences of FIELD
+   * \brief Returns the values of all occurrences of \c FIELD.
    */
   template<typename FIELD>
   NDN_CXX_NODISCARD std::vector<typename FIELD::ValueType>
@@ -128,7 +131,7 @@ public: // field access
   }
 
   /**
-   * \brief remove all occurrences of FIELD, and add a FIELD with value
+   * \brief Remove all occurrences of \c FIELD, and add a \c FIELD with value.
    * \details This equivalent to clear() followed by add(value)
    */
   template<typename FIELD>
@@ -140,7 +143,7 @@ public: // field access
   }
 
   /**
-   * \brief add a FIELD with value
+   * \brief Add a \c FIELD with value.
    * \throw std::invalid_argument if field already exists and is not repeatable
    */
   template<typename FIELD>
@@ -165,7 +168,7 @@ public: // field access
   }
 
   /**
-   * \brief remove the index-th occurrence of FIELD
+   * \brief Remove the index-th occurrence of \c FIELD.
    * \throw std::out_of_range if index>=count()
    */
   template<typename FIELD>
@@ -187,7 +190,7 @@ public: // field access
   }
 
   /**
-   * \brief remove all occurrences of FIELD
+   * \brief Remove all occurrences of \c FIELD.
    */
   template<typename FIELD>
   Packet&

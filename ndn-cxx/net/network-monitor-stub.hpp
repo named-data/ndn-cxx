@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,23 +29,24 @@ namespace net {
 
 class NetworkMonitorImplStub;
 
-/** \brief a stub NetworkMonitor for unit testing
+/**
+ * \brief A dummy NetworkMonitor for unit testing.
  */
 class NetworkMonitorStub : public NetworkMonitor
 {
 public:
-  /** \brief constructor
+  /** \brief Constructor.
    *  \param capabilities capabilities reported by \p getCapabilities
    */
   explicit
   NetworkMonitorStub(uint32_t capabilities);
 
-  /** \brief create a NetworkInterface instance
+  /** \brief Create a NetworkInterface instance.
    */
   static shared_ptr<NetworkInterface>
   makeNetworkInterface();
 
-  /** \brief emit the \p onInterfaceAdded signal and add \p netif internally
+  /** \brief Emit the \p onInterfaceAdded signal and add \p netif internally.
    *  \param netif new network interface
    *  \post getNetworkInterface(netif->getName()) == netif
    *  \post listNetworkInterface() contains netif
@@ -54,7 +55,7 @@ public:
   void
   addInterface(shared_ptr<NetworkInterface> netif);
 
-  /** \brief emit the \p onInterfaceRemoved signal and remove \p netif internally
+  /** \brief Emit the \p onInterfaceRemoved signal and remove \p netif internally.
    *  \param ifname network interface name
    *  \post getNetworkInterface(ifname) == nullptr
    *  \post listNetworkInterface() does not contains an interface with specified name
@@ -63,7 +64,7 @@ public:
   void
   removeInterface(const std::string& ifname);
 
-  /** \brief emit the \p onEnumerationCompleted signal
+  /** \brief Emit the \p onEnumerationCompleted signal.
    *
    *  A real NetworkMonitor starts with an "enumerating" state, during which the initial
    *  information about network interfaces is collected from the OS. Upon discovering a network

@@ -85,7 +85,7 @@ public:
    * If a Downstream implementation expects structured input (e.g., hex decoding requires byte-pair),
    * it should not return less than size if final portion of input is not a complete record.
    *
-   * @return number of bytes that has been written into this module
+   * @return Number of bytes that have been written into this module.
    * @throws Error if this module is closed or transformation error happens.
    */
   size_t

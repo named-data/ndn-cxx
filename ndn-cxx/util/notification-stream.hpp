@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@
 namespace ndn {
 namespace util {
 
-/** \brief provides a publisher of Notification Stream
+/** \brief Provides a publisher of Notification Stream.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
  */
 template<typename Notification>

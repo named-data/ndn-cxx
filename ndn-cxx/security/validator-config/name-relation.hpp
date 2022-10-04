@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,13 +40,13 @@ std::ostream&
 operator<<(std::ostream& os, NameRelation relation);
 
 /**
- * @brief check whether @p name1 and @p name2 satisfies @p relation
+ * @brief Check whether @p name1 and @p name2 satisfies @p relation.
  */
 bool
 checkNameRelation(NameRelation relation, const Name& name1, const Name& name2);
 
 /**
- * @brief convert @p relationString to NameRelation
+ * @brief Convert @p relationString to NameRelation.
  * @throw Error if @p relationString cannot be converted
  */
 NameRelation

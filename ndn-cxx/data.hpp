@@ -31,8 +31,9 @@
 
 namespace ndn {
 
-/** @brief Represents a %Data packet.
- *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html
+/**
+ * @brief Represents a %Data packet.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html
  */
 class Data : public PacketBase, public std::enable_shared_from_this<Data>
 {
@@ -121,7 +122,8 @@ public:
   getFullName() const;
 
 public: // Data fields
-  /** @brief Get name
+  /**
+   * @brief Get the data name.
    */
   const Name&
   getName() const noexcept
@@ -129,13 +131,15 @@ public: // Data fields
     return m_name;
   }
 
-  /** @brief Set name
-   *  @return a reference to this Data, to allow chaining
+  /**
+   * @brief Set the data name.
+   * @return A reference to this Data, to allow chaining.
    */
   Data&
   setName(const Name& name);
 
-  /** @brief Get MetaInfo
+  /**
+   * @brief Get the `MetaInfo` element.
    */
   const MetaInfo&
   getMetaInfo() const noexcept
@@ -143,14 +147,15 @@ public: // Data fields
     return m_metaInfo;
   }
 
-  /** @brief Set MetaInfo
-   *  @return a reference to this Data, to allow chaining
+  /**
+   * @brief Set the `MetaInfo` element.
+   * @return A reference to this Data, to allow chaining.
    */
   Data&
   setMetaInfo(const MetaInfo& metaInfo);
 
   /**
-   * @brief Return whether this Data has a Content element
+   * @brief Return whether this Data has a `Content` element.
    */
   bool
   hasContent() const noexcept
@@ -159,7 +164,7 @@ public: // Data fields
   }
 
   /**
-   * @brief Get the Content element
+   * @brief Get the `Content` element.
    *
    * If the element is not present (hasContent() == false), an invalid Block will be returned.
    *
@@ -178,9 +183,9 @@ public: // Data fields
   }
 
   /**
-   * @brief Set Content from a Block
+   * @brief Set `Content` from a Block.
    * @param block TLV block to be used as Content; must be valid
-   * @return a reference to this Data, to allow chaining
+   * @return A reference to this Data, to allow chaining.
    *
    * If the block's TLV-TYPE is tlv::Content, it will be used directly as this Data's
    * Content element. Otherwise, the block will be nested into a Content element.
@@ -189,18 +194,18 @@ public: // Data fields
   setContent(const Block& block);
 
   /**
-   * @brief Set Content by copying from a contiguous sequence of bytes
+   * @brief Set `Content` by copying from a contiguous sequence of bytes.
    * @param value buffer with the TLV-VALUE of the content
-   * @return a reference to this Data, to allow chaining
+   * @return A reference to this Data, to allow chaining.
    */
   Data&
   setContent(span<const uint8_t> value);
 
   /**
-   * @brief Set Content by copying from a raw buffer
+   * @brief Set `Content` by copying from a raw buffer.
    * @param value buffer with the TLV-VALUE of the content; may be nullptr if @p length is zero
    * @param length size of the buffer
-   * @return a reference to this Data, to allow chaining
+   * @return A reference to this Data, to allow chaining.
    * @deprecated Use setContent(span<const uint8_t>)
    */
   [[deprecated("use the overload that takes a span<>")]]
@@ -208,22 +213,23 @@ public: // Data fields
   setContent(const uint8_t* value, size_t length);
 
   /**
-   * @brief Set Content from a shared buffer
+   * @brief Set `Content` from a shared buffer.
    * @param value buffer with the TLV-VALUE of the content; must not be nullptr
-   * @return a reference to this Data, to allow chaining
+   * @return A reference to this Data, to allow chaining.
    */
   Data&
   setContent(ConstBufferPtr value);
 
   /**
-   * @brief Remove the Content element
-   * @return a reference to this Data, to allow chaining
+   * @brief Remove the `Content` element.
+   * @return A reference to this Data, to allow chaining.
    * @post hasContent() == false
    */
   Data&
   unsetContent();
 
-  /** @brief Get SignatureInfo
+  /**
+   * @brief Get the `SignatureInfo` element.
    */
   const SignatureInfo&
   getSignatureInfo() const noexcept
@@ -231,12 +237,12 @@ public: // Data fields
     return m_signatureInfo;
   }
 
-  /** @brief Set SignatureInfo
+  /** @brief Set the `SignatureInfo` element.
    *
    *  This is a low-level function that should not normally be called directly by applications.
    *  Instead, provide a SignatureInfo to the SigningInfo object passed to KeyChain::sign().
    *
-   *  @return a reference to this Data, to allow chaining
+   *  @return A reference to this Data, to allow chaining.
    *  @warning SignatureInfo is overwritten when the packet is signed via KeyChain::sign().
    *  @sa SigningInfo
    */
@@ -244,7 +250,7 @@ public: // Data fields
   setSignatureInfo(const SignatureInfo& info);
 
   /**
-   * @brief Get the SignatureValue element.
+   * @brief Get the `SignatureValue` element.
    */
   const Block&
   getSignatureValue() const noexcept
@@ -253,9 +259,9 @@ public: // Data fields
   }
 
   /**
-   * @brief Set SignatureValue by copying from a contiguous sequence of bytes.
+   * @brief Set `SignatureValue` by copying from a contiguous sequence of bytes.
    * @param value buffer from which the TLV-VALUE of the SignatureValue will be copied
-   * @return a reference to this Data, to allow chaining
+   * @return A reference to this Data, to allow chaining.
    *
    * This is a low-level function that should not normally be called directly by applications.
    * Instead, use KeyChain::sign() to sign the packet.
@@ -266,9 +272,9 @@ public: // Data fields
   setSignatureValue(span<const uint8_t> value);
 
   /**
-   * @brief Set SignatureValue from a shared buffer.
+   * @brief Set `SignatureValue` from a shared buffer.
    * @param value buffer containing the TLV-VALUE of the SignatureValue; must not be nullptr
-   * @return a reference to this Data, to allow chaining
+   * @return A reference to this Data, to allow chaining.
    *
    * This is a low-level function that should not normally be called directly by applications.
    * Instead, use KeyChain::sign() to sign the packet.
@@ -278,7 +284,7 @@ public: // Data fields
   Data&
   setSignatureValue(ConstBufferPtr value);
 
-  /** @brief Extract ranges of Data covered by the signature
+  /** @brief Extract ranges of Data covered by the signature.
    *  @throw Error Data cannot be encoded or is missing ranges necessary for signing
    *  @warning The returned pointers will be invalidated if wireDecode() or wireEncode() are called.
    */
@@ -314,8 +320,9 @@ public: // MetaInfo fields
   setFinalBlock(optional<name::Component> finalBlockId);
 
 public: // SignatureInfo fields
-  /** @brief Get SignatureType
-   *  @return tlv::SignatureTypeValue, or -1 to indicate the signature is invalid
+  /**
+   * @brief Get the `SignatureType`.
+   * @return tlv::SignatureTypeValue, or -1 to indicate the signature is invalid.
    */
   int32_t
   getSignatureType() const noexcept
@@ -323,7 +330,8 @@ public: // SignatureInfo fields
     return m_signatureInfo.getSignatureType();
   }
 
-  /** @brief Get KeyLocator
+  /**
+   * @brief Get the `KeyLocator` element.
    */
   optional<KeyLocator>
   getKeyLocator() const noexcept

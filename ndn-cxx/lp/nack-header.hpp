@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@ namespace ndn {
 namespace lp {
 
 /**
- * \brief indicates the reason type of a network NACK
+ * \brief Indicates the reason type of a %Network %Nack.
  */
 enum class NackReason {
   NONE = 0,
@@ -44,15 +44,16 @@ enum class NackReason {
 std::ostream&
 operator<<(std::ostream& os, NackReason reason);
 
-/** \brief compare NackReason for severity
+/**
+ * \brief Compare NackReason according to severity.
  *
- *  lp::NackReason::NONE is treated as most severe
+ * NackReason::NONE is treated as most severe.
  */
 bool
 isLessSevere(lp::NackReason x, lp::NackReason y);
 
 /**
- * \brief represents a Network NACK header
+ * \brief Represents a %Network %Nack header.
  */
 class NackHeader
 {
@@ -74,14 +75,14 @@ public:
 
 public: // reason
   /**
-   * \return reason code
+   * \brief Get reason code.
    * \retval NackReason::NONE if NackReason element does not exist or has an unknown code
    */
   NackReason
   getReason() const;
 
   /**
-   * \brief set reason code
+   * \brief Set reason code.
    * \param reason a reason code; NackReason::NONE clears the reason
    */
   NackHeader&

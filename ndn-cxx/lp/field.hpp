@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ namespace ndn {
 namespace lp {
 
 /**
- * \brief indicates where a field may occur
+ * \brief Indicates where a field may occur.
  */
 namespace field_location_tags {
 
@@ -39,14 +39,14 @@ class Base
 };
 
 /**
- * \brief a header field
+ * \brief A header field.
  */
 class Header : public Base
 {
 };
 
 /**
- * \brief the Fragment field
+ * \brief The Fragment field.
  */
 class Fragment : public Base
 {
@@ -55,7 +55,7 @@ class Fragment : public Base
 } // namespace field_location_tags
 
 /**
- * \brief concept check for fields
+ * \brief Concept check for fields.
  */
 template<class X>
 struct Field

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,7 @@
 namespace ndn {
 namespace lp {
 
-/** \brief represents a PrefixAnnouncement header field in NDNLP
+/** \brief Represents a PrefixAnnouncement header field in NDNLP.
  */
 class PrefixAnnouncementHeader
 {
@@ -43,14 +43,14 @@ public:
   explicit
   PrefixAnnouncementHeader(const Block& block);
 
-  /** \brief constructs PrefixAnnouncementHeader using PrefixAnnouncement
+  /** \brief Constructs PrefixAnnouncementHeader using PrefixAnnouncement.
    *
    *  \throw Error PrefixAnnouncement does not contain Data.
    */
   explicit
   PrefixAnnouncementHeader(PrefixAnnouncement prefixAnn);
 
-  /** \brief encodes the prefix announcement header to the wire format
+  /** \brief Encodes the prefix announcement header to the wire format.
    *
    *  \throw Error this instance does not contain a PrefixAnnouncement.
    */

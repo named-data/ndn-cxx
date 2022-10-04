@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,7 +37,7 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief base class of NFD StatusDataset
+ * \brief Base class of NFD `%StatusDataset`.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
  */
 class StatusDataset : noncopyable
@@ -48,29 +48,29 @@ public:
 
 #ifdef DOXYGEN
   /**
-   * \brief if defined, specifies constructor argument type;
-   *        otherwise, constructor has no argument
+   * \brief If defined, specifies constructor argument type;
+   *        otherwise, the constructor has no arguments.
    */
   using ParamType = int;
 #endif
 
   /**
-   * \brief constructs a name prefix for the dataset
+   * \brief Constructs a name prefix for the dataset.
    * \param prefix top-level prefix, such as ndn:/localhost/nfd
-   * \return name prefix without version and segment components
+   * \return %Name prefix without version and segment components.
    */
   Name
   getDatasetPrefix(const Name& prefix) const;
 
 #ifdef DOXYGEN
   /**
-   * \brief provides the result type, usually a vector
+   * \brief Specifies the result type, usually a vector.
    */
   using ResultType = std::vector<int>;
 #endif
 
   /**
-   * \brief indicates reassembled payload cannot be parsed as ResultType
+   * \brief Indicates reassembled payload cannot be parsed as ResultType.
    */
   class ParseResultError : public tlv::Error
   {
@@ -80,7 +80,7 @@ public:
 
 #ifdef DOXYGEN
   /**
-   * \brief parses a result from reassembled payload
+   * \brief Parses a result from reassembled payload.
    * \param payload reassembled payload
    * \throw tlv::Error cannot parse payload
    */
@@ -90,7 +90,7 @@ public:
 
 protected:
   /**
-   * \brief constructs a StatusDataset instance with given sub-prefix
+   * \brief Constructs a StatusDataset instance with given sub-prefix.
    * \param datasetName dataset name after top-level prefix, such as faces/list
    */
   explicit
@@ -98,7 +98,7 @@ protected:
 
 private:
   /**
-   * \brief appends parameters to the dataset name prefix
+   * \brief Appends parameters to the dataset name prefix.
    * \param[in,out] the dataset name prefix onto which parameter components can be appended
    */
   virtual void
@@ -110,7 +110,7 @@ private:
 
 /**
  * \ingroup management
- * \brief represents a status/general dataset
+ * \brief Represents a `status/general` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus#General-Status-Dataset
  */
 class ForwarderGeneralStatusDataset : public StatusDataset
@@ -126,7 +126,7 @@ public:
 
 /**
  * \ingroup management
- * \brief provides common functionality among FaceDataset and FaceQueryDataset
+ * \brief Provides common functionality among FaceDataset and FaceQueryDataset.
  */
 class FaceDatasetBase : public StatusDataset
 {
@@ -143,7 +143,7 @@ protected:
 
 /**
  * \ingroup management
- * \brief represents a faces/list dataset
+ * \brief Represents a `faces/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
  */
 class FaceDataset : public FaceDatasetBase
@@ -154,7 +154,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a faces/query dataset
+ * \brief Represents a `faces/query` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Query-Operation
  */
 class FaceQueryDataset : public FaceDatasetBase
@@ -175,7 +175,7 @@ private:
 
 /**
  * \ingroup management
- * \brief represents a faces/channels dataset
+ * \brief Represents a `faces/channels` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Channel-Dataset
  */
 class ChannelDataset : public StatusDataset
@@ -191,7 +191,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a fib/list dataset
+ * \brief Represents a `fib/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#FIB-Dataset
  */
 class FibDataset : public StatusDataset
@@ -207,7 +207,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a cs/info dataset
+ * \brief Represents a `cs/info` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#CS-Information-Dataset
  */
 class CsInfoDataset : public StatusDataset
@@ -223,7 +223,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a strategy-choice/list dataset
+ * \brief Represents a `strategy-choice/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Strategy-Choice-Dataset
  */
 class StrategyChoiceDataset : public StatusDataset
@@ -239,7 +239,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a rib/list dataset
+ * \brief Represents a `rib/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#RIB-Dataset
  */
 class RibDataset : public StatusDataset

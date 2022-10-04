@@ -298,7 +298,7 @@ Face::shutdown()
 }
 
 /**
- * @brief extract local fields from NDNLPv2 packet and tag onto a network layer packet
+ * @brief Extract local fields from NDNLPv2 packet and tag onto a network layer packet.
  */
 template<typename NetPkt>
 static void

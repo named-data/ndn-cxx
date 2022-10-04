@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,7 @@ namespace ndn {
 namespace nfd {
 
 /** \ingroup management
- *  \brief represents the CS Information dataset
+ *  \brief Represents the CS Information dataset.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#CS-Information-Dataset
  */
 class CsInfo
@@ -58,7 +58,7 @@ public:
   void
   wireDecode(const Block& wire);
 
-  /** \brief get CS capacity (in number of packets)
+  /** \brief Get CS capacity (in number of packets).
    */
   uint64_t
   getCapacity() const
@@ -69,7 +69,7 @@ public:
   CsInfo&
   setCapacity(uint64_t capacity);
 
-  /** \brief get CS_ENABLE_ADMIT flag
+  /** \brief Get \c CS_ENABLE_ADMIT flag.
    */
   bool
   getEnableAdmit() const
@@ -80,7 +80,7 @@ public:
   CsInfo&
   setEnableAdmit(bool enableAdmit);
 
-  /** \brief get CS_ENABLE_SERVE flag
+  /** \brief Get \c CS_ENABLE_SERVE flag.
    */
   bool
   getEnableServe() const
@@ -91,7 +91,7 @@ public:
   CsInfo&
   setEnableServe(bool enableServe);
 
-  /** \brief get number of stored CS entries
+  /** \brief Get number of stored CS entries.
    */
   uint64_t
   getNEntries() const
@@ -102,7 +102,7 @@ public:
   CsInfo&
   setNEntries(uint64_t nEntries);
 
-  /** \brief get number of CS lookup hits since NFD starts
+  /** \brief Get number of CS lookup hits since NFD started.
    */
   uint64_t
   getNHits() const
@@ -113,7 +113,7 @@ public:
   CsInfo&
   setNHits(uint64_t nHits);
 
-  /** \brief get number of CS lookup misses since NFD starts
+  /** \brief Get number of CS lookup misses since NFD started.
    */
   uint64_t
   getNMisses() const

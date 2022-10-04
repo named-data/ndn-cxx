@@ -38,7 +38,7 @@ class StreamTransportWithResolverImpl;
 
 } // namespace detail
 
-/** \brief a transport using TCP socket
+/** \brief A transport using TCP socket.
  */
 class TcpTransport : public Transport
 {
@@ -63,7 +63,7 @@ public:
   void
   send(const Block& wire) override;
 
-  /** \brief Create transport with parameters defined in URI
+  /** \brief Create transport with parameters defined in URI.
    *  \throw Transport::Error incorrect URI or unsupported protocol is specified
    */
   static shared_ptr<TcpTransport>

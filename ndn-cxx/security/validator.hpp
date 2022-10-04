@@ -102,7 +102,7 @@ public:
   }
 
   /**
-   * @brief Asynchronously validate @p data
+   * @brief Asynchronously validate @p data.
    *
    * @note @p successCb and @p failureCb must not be nullptr
    */
@@ -112,7 +112,7 @@ public:
            const DataValidationFailureCallback& failureCb);
 
   /**
-   * @brief Asynchronously validate @p interest
+   * @brief Asynchronously validate @p interest.
    *
    * @note @p successCb and @p failureCb must not be nullptr
    */
@@ -123,7 +123,7 @@ public:
 
 public: // anchor management
   /**
-   * @brief load static trust anchor.
+   * @brief Load static trust anchor.
    *
    * Static trust anchors are permanently associated with the validator and never expire.
    *
@@ -134,7 +134,7 @@ public: // anchor management
   loadAnchor(const std::string& groupId, Certificate&& cert);
 
   /**
-   * @brief load dynamic trust anchors.
+   * @brief Load dynamic trust anchors.
    *
    * Dynamic trust anchors are associated with the validator for as long as the underlying
    * trust anchor file (set of files) exist(s).
@@ -149,13 +149,13 @@ public: // anchor management
              time::nanoseconds refreshPeriod, bool isDir = false);
 
   /**
-   * @brief remove any previously loaded static or dynamic trust anchor
+   * @brief Remove any previously loaded static or dynamic trust anchor.
    */
   void
   resetAnchors();
 
   /**
-   * @brief Cache verified @p cert a period of time (1 hour)
+   * @brief Cache verified @p cert a period of time (1 hour).
    *
    * @todo Add ability to customize time period
    */
@@ -163,14 +163,14 @@ public: // anchor management
   cacheVerifiedCertificate(Certificate&& cert);
 
   /**
-   * @brief Remove any cached verified certificates
+   * @brief Remove any cached verified certificates.
    */
   void
   resetVerifiedCertificates();
 
 private: // Common validator operations
   /**
-   * @brief Recursive validation of the certificate in the certification chain
+   * @brief Recursive validation of the certificate in the certification chain.
    *
    * @param cert   The certificate to check.
    * @param state  The current validation state.

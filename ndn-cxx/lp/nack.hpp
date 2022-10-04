@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,9 +31,10 @@
 namespace ndn {
 namespace lp {
 
-/** \brief represents a Network Nack
+/**
+ * \brief Represents a %Network %Nack.
  *
- *  This type binds a NackHeader and an Interest, and is intended for use in network layer.
+ * This type binds a NackHeader and an Interest, and is intended for use in network layer.
  */
 class Nack : public PacketBase
 {

@@ -51,7 +51,7 @@ public:
    * One can keep calling this method to until end() is called, which
    * indicates the end of input.  After that, calling this method will cause Error.
    *
-   * @return number of bytes that has been written into next module
+   * @return Number of bytes that have been written into the next module.
    */
   size_t
   write(span<const uint8_t> buf);

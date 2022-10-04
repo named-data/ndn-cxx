@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,12 +29,13 @@
 
 namespace ndn {
 
-/** \brief Base class to store tag information (e.g., inside Interest and Data packets)
+/**
+ * \brief Base class to store tag information, e.g., inside Interest and Data packets.
  */
 class TagHost
 {
 public:
-  /** \brief get a tag item
+  /** \brief Get a tag item.
    *  \tparam T type of the tag, which must be a subclass of ndn::Tag
    *  \retval nullptr if no Tag of type T is stored
    */
@@ -42,7 +43,7 @@ public:
   shared_ptr<T>
   getTag() const;
 
-  /** \brief set a tag item
+  /** \brief Set (add or replace) a tag item.
    *  \tparam T type of the tag, which must be a subclass of ndn::Tag
    *  \note Tag can be set even on a const tag host instance
    */
@@ -50,7 +51,7 @@ public:
   void
   setTag(shared_ptr<T> tag) const;
 
-  /** \brief remove tag item
+  /** \brief Remove a tag item.
    *  \note Tag can be removed even on a const tag host instance
    */
   template<typename T>

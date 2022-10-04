@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,29 +37,29 @@ namespace mgmt {
 
 // ---- AUTHORIZATION ----
 
-/** \brief a function to be called if authorization is successful
+/** \brief A function to be called if authorization is successful.
  *  \param requester a string that indicates the requester, whose semantics is determined by
  *                   the Authorization function; this value is intended for logging only,
  *                   and should not affect how the request is processed
  */
 typedef std::function<void(const std::string& requester)> AcceptContinuation;
 
-/** \brief indicate how to reply in case authorization is rejected
+/** \brief Indicate how to reply in case authorization is rejected.
  */
 enum class RejectReply {
-  /** \brief do not reply
+  /** \brief Do not reply.
    */
   SILENT,
-  /** \brief reply with a ControlResponse where StatusCode is 403
+  /** \brief Reply with a ControlResponse where StatusCode is 403.
    */
   STATUS403
 };
 
-/** \brief a function to be called if authorization is rejected
+/** \brief A function to be called if authorization is rejected.
  */
 typedef std::function<void(RejectReply reply)> RejectContinuation;
 
-/** \brief a function that performs authorization
+/** \brief A function that performs authorization.
  *  \param prefix top-level prefix, e.g., "/localhost/nfd";
  *                This argument can be inspected to allow Interests only under a subset of
  *                top-level prefixes (e.g., allow "/localhost/nfd" only),
@@ -76,25 +76,25 @@ typedef std::function<void(const Name& prefix, const Interest& interest,
                            const AcceptContinuation& accept,
                            const RejectContinuation& reject)> Authorization;
 
-/** \brief return an Authorization that accepts all Interests, with empty string as requester
+/** \brief Return an Authorization that accepts all Interests, with empty string as requester.
  */
 Authorization
 makeAcceptAllAuthorization();
 
 // ---- CONTROL COMMAND ----
 
-/** \brief a function to validate input ControlParameters
+/** \brief A function to validate input ControlParameters.
  *  \param params parsed ControlParameters;
  *                This is guaranteed to have correct type for the command.
  */
 typedef std::function<bool(const ControlParameters& params)> ValidateParameters;
 
-/** \brief a function to be called after ControlCommandHandler completes
+/** \brief A function to be called after ControlCommandHandler completes.
  *  \param resp the response to be sent to requester
  */
 typedef std::function<void(const ControlResponse& resp)> CommandContinuation;
 
-/** \brief a function to handle an authorized ControlCommand
+/** \brief A function to handle an authorized ControlCommand.
  *  \param prefix top-level prefix, e.g., "/localhost/nfd";
  *  \param interest incoming Interest
  *  \param params parsed ControlParameters;
@@ -107,7 +107,7 @@ typedef std::function<void(const Name& prefix, const Interest& interest,
 
 // ---- STATUS DATASET ----
 
-/** \brief a function to handle a StatusDataset request
+/** \brief A function to handle a StatusDataset request.
  *  \param prefix top-level prefix, e.g., "/localhost/nfd";
  *  \param interest incoming Interest; its Name doesn't contain version and segment components
  *
@@ -119,18 +119,18 @@ typedef std::function<void(const Name& prefix, const Interest& interest,
 
 //---- NOTIFICATION STREAM ----
 
-/** \brief a function to post a notification
+/** \brief A function to post a notification.
  */
 typedef std::function<void(const Block& notification)> PostNotification;
 
 // ---- DISPATCHER ----
 
-/** \brief represents a dispatcher on server side of NFD Management protocol
+/** \brief Implements a request dispatcher on server side of NFD Management protocol.
  */
 class Dispatcher : noncopyable
 {
 public:
-  /** \brief constructor
+  /** \brief Constructor.
    *  \param face the Face on which the dispatcher operates
    *  \param keyChain a KeyChain to sign Data
    *  \param signingInfo signing parameters to sign Data with \p keyChain
@@ -143,7 +143,7 @@ public:
   virtual
   ~Dispatcher();
 
-  /** \brief add a top-level prefix
+  /** \brief Add a top-level prefix.
    *  \param prefix a top-level prefix, e.g., "/localhost/nfd"
    *  \param wantRegister whether prefix registration should be performed through the Face
    *  \param signingInfo signing parameters to sign the prefix registration command
@@ -166,7 +166,7 @@ public:
   addTopPrefix(const Name& prefix, bool wantRegister = true,
                const security::SigningInfo& signingInfo = security::SigningInfo());
 
-  /** \brief remove a top-level prefix
+  /** \brief Remove a top-level prefix.
    *  \param prefix a top-level prefix, e.g., "/localhost/nfd"
    *
    *  Procedure for removing a top-level prefix:
@@ -178,7 +178,7 @@ public:
   removeTopPrefix(const Name& prefix);
 
 public: // ControlCommand
-  /** \brief register a ControlCommand
+  /** \brief Register a ControlCommand.
    *  \tparam CP subclass of ControlParameters used by this command
    *  \param relPrefix a prefix for this command, e.g., "faces/create";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
@@ -211,7 +211,7 @@ public: // ControlCommand
                     ControlCommandHandler handle);
 
 public: // StatusDataset
-  /** \brief register a StatusDataset or a prefix under which StatusDatasets can be requested
+  /** \brief Register a StatusDataset or a prefix under which StatusDatasets can be requested.
    *  \param relPrefix a prefix for this dataset, e.g., "faces/list";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
    *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
@@ -247,7 +247,7 @@ public: // StatusDataset
                    StatusDatasetHandler handle);
 
 public: // NotificationStream
-  /** \brief register a NotificationStream
+  /** \brief Register a NotificationStream.
    *  \param relPrefix a prefix for this notification stream, e.g., "faces/events";
    *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
    *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
@@ -280,8 +280,8 @@ private:
   using AuthorizationRejectedCallback = std::function<void(RejectReply, const Interest&)>;
 
   /**
-   * @brief the parser for extracting control parameters from a name component.
-   * @return a shared pointer to the extracted ControlParameters.
+   * @brief The parser for extracting control parameters from a name component.
+   * @return A shared pointer to the extracted ControlParameters.
    * @throw tlv::Error if the name component cannot be parsed as ControlParameters
    */
   using ControlParametersParser = std::function<shared_ptr<ControlParameters>(const name::Component&)>;
@@ -290,7 +290,7 @@ private:
   isOverlappedWithOthers(const PartialName& relPrefix) const;
 
   /**
-   * @brief process unauthorized request
+   * @brief Process unauthorized request.
    * @param act action to reply
    * @param interest the incoming Interest
    */
@@ -298,7 +298,7 @@ private:
   afterAuthorizationRejected(RejectReply act, const Interest& interest);
 
   /**
-   * @brief query Data the in-memory storage by a given Interest
+   * @brief Query Data the in-memory storage by a given Interest.
    *
    * if the query fails, invoke @p missContinuation to process @p interest.
    *
@@ -317,7 +317,7 @@ private:
   };
 
   /**
-   * @brief send data to the face and/or in-memory storage
+   * @brief Send data to the face and/or in-memory storage.
    *
    * Create a Data packet with the given @p dataName, @p content, and @p metaInfo,
    * set its FreshnessPeriod to 1 second, and then send it out through the face
@@ -336,7 +336,7 @@ private:
            SendDestination destination);
 
   /**
-   * @brief send out a data packt through the face
+   * @brief Send out a data packt through the face.
    *
    * @param data the data packet to insert
    */
@@ -344,7 +344,7 @@ private:
   sendOnFace(const Data& data);
 
   /**
-   * @brief process the control-command Interest before authorization.
+   * @brief Process the control-command Interest before authorization.
    *
    * @param prefix the top-level prefix
    * @param relPrefix the relative prefix
@@ -364,7 +364,7 @@ private:
                                 const AuthorizationRejectedCallback& rejected);
 
   /**
-   * @brief process the authorized control-command.
+   * @brief Process the authorized control-command.
    *
    * @param requester the requester
    * @param prefix the top-level prefix
@@ -385,7 +385,7 @@ private:
   sendControlResponse(const ControlResponse& resp, const Interest& interest, bool isNack = false);
 
   /**
-   * @brief process the status-dataset Interest before authorization.
+   * @brief Process the status-dataset Interest before authorization.
    *
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
@@ -401,7 +401,7 @@ private:
                                const AuthorizationRejectedCallback& rejected);
 
   /**
-   * @brief process the authorized StatusDataset request
+   * @brief Process the authorized StatusDataset request.
    *
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
@@ -413,7 +413,7 @@ private:
                                          const StatusDatasetHandler& handler);
 
   /**
-   * @brief send a segment of StatusDataset
+   * @brief Send a segment of StatusDataset.
    *
    * @param dataName the name of this piece of data
    * @param content the content of this piece of data

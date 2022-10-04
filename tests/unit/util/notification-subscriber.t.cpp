@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2021 Regents of the University of California,
+ * Copyright (c) 2014-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -49,7 +49,7 @@ public:
   {
   }
 
-  /** \brief deliver one notification to subscriber
+  /** \brief Deliver one notification to subscriber.
    */
   void
   deliverNotification(const std::string& msg)
@@ -69,7 +69,7 @@ public:
     subscriberFace.receive(data);
   }
 
-  /** \brief deliver a Nack to subscriber
+  /** \brief Deliver a Nack to subscriber.
    */
   void
   deliverNack(const Interest& interest, const lp::NackReason& reason)

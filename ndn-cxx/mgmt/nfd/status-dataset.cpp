@@ -47,7 +47,7 @@ StatusDataset::addParameters(Name&) const
 }
 
 /**
- * \brief parses elements into a vector of T
+ * \brief Parses elements into a vector of T.
  * \tparam T element type
  * \param payload pointer to a buffer of zero or more blocks of decodable by T
  * \return a vector of T

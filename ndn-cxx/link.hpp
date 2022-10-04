@@ -26,7 +26,9 @@
 
 namespace ndn {
 
-/** @brief represents a Link object
+/**
+ * @brief Represents a `%LinkObject` TLV element.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/link.html
  */
 class Link : public Data
 {
@@ -37,7 +39,7 @@ public:
     using Data::Error::Error;
   };
 
-  /** @brief Create an empty Link object
+  /** @brief Create an empty Link object.
    *
    *  Note that in certain contexts that use Link::shared_from_this(), Link must be
    *  created using `make_shared`:
@@ -46,7 +48,7 @@ public:
    */
   Link();
 
-  /** @brief Decode a Link object from a Block
+  /** @brief Decode a Link object from a Block.
    *  @param wire a TLV block
    *
    *  Note that in certain contexts that use Link::shared_from_this(), Link must be
@@ -57,7 +59,7 @@ public:
   explicit
   Link(const Block& wire);
 
-  /** @brief Create a Link object with the given name and delegations
+  /** @brief Create a Link object with the given name and delegations.
    *  @param name A reference to the name of the redirected namespace
    *  @param delegations Delegations in payload
    *
@@ -69,13 +71,13 @@ public:
   explicit
   Link(const Name& name, std::initializer_list<Name> delegations = {});
 
-  /** @brief Decode from the wire format
+  /** @brief Decode from the wire format.
    *  @param wire a TLV block
    */
   void
   wireDecode(const Block& wire);
 
-  /** @brief Get the delegations
+  /** @brief Get the delegations.
    */
   span<const Name>
   getDelegationList() const
@@ -83,20 +85,20 @@ public:
     return m_delegations;
   }
 
-  /** @brief Set the delegations
+  /** @brief Set the delegations.
    *  @note This is more efficient than multiple addDelegation and removeDelegation invocations.
    */
   void
   setDelegationList(std::vector<Name> delegations);
 
-  /** @brief Append a delegation at the end
+  /** @brief Append a delegation at the end.
    *  @param name Delegation name
    *  @return true if delegation is added, false if same name already exists
    */
   bool
   addDelegation(const Name& name);
 
-  /** @brief Remove a delegation whose name is @p name
+  /** @brief Remove a delegation whose name is @p name.
    *  @param name Delegation name
    *  @return true if delegation is removed, otherwise false
    */

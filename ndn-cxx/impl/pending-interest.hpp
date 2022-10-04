@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,14 +40,14 @@ enum class PendingInterestOrigin
   FORWARDER ///< Interest was received from the forwarder via Transport
 };
 
-std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, PendingInterestOrigin origin)
 {
   switch (origin) {
-    case PendingInterestOrigin::APP:
-      return os << "app";
-    case PendingInterestOrigin::FORWARDER:
-      return os << "forwarder";
+  case PendingInterestOrigin::APP:
+    return os << "app";
+  case PendingInterestOrigin::FORWARDER:
+    return os << "forwarder";
   }
   NDN_CXX_UNREACHABLE;
 }
@@ -77,7 +77,7 @@ public:
   }
 
   /**
-   * @brief Construct a pending Interest record for an Interest from the forwarder
+   * @brief Construct a pending Interest record for an Interest from the forwarder.
    */
   PendingInterest(shared_ptr<const Interest> interest, Scheduler& scheduler)
     : m_interest(std::move(interest))
@@ -99,7 +99,7 @@ public:
   }
 
   /**
-   * @brief Record that the Interest has been forwarded to one destination
+   * @brief Record that the Interest has been forwarded to one destination.
    *
    * A "destination" could be either a local InterestFilter or the forwarder.
    */
@@ -110,9 +110,9 @@ public:
   }
 
   /**
-   * @brief Record an incoming Nack against a forwarded Interest
-   * @return least severe Nack if all destinations where the Interest was forwarded have Nacked;
-   *         otherwise, nullopt
+   * @brief Record an incoming Nack against a forwarded Interest.
+   * @return Least severe Nack if all destinations where the Interest was forwarded have Nacked;
+   *         otherwise, @c nullopt.
    */
   optional<lp::Nack>
   recordNack(const lp::Nack& nack)

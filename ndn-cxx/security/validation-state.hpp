@@ -143,7 +143,7 @@ private:
   std::unordered_set<Name> m_seenCertificateNames;
 
   /**
-   * @brief the certificate chain
+   * @brief The certificate chain.
    *
    * Each certificate in the chain signs the next certificate.  The last certificate signs the
    * original packet.

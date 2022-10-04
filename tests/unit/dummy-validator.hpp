@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,12 +29,13 @@
 namespace ndn {
 namespace tests {
 
-/** \brief A validation policy for unit testing
+/**
+ * \brief A dummy validation policy for unit testing.
  */
 class DummyValidationPolicy : public security::ValidationPolicy
 {
 public:
-  /** \brief constructor
+  /** \brief Constructor.
    *  \param shouldAccept whether to accept or reject all validation requests
    */
   explicit
@@ -43,7 +44,7 @@ public:
     this->setResult(shouldAccept);
   }
 
-  /** \brief change the validation result
+  /** \brief Change the validation result.
    *  \param shouldAccept whether to accept or reject all validation requests
    */
   void
@@ -52,7 +53,7 @@ public:
     m_decide = [shouldAccept] (const Name&) { return shouldAccept; };
   }
 
-  /** \brief set a callback for validation
+  /** \brief Set a callback for validation.
    *  \param cb a callback which receives the Interest/Data name for each validation request;
    *            its return value determines the validation result
    */

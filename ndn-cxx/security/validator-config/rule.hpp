@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,7 +57,7 @@ public:
   addChecker(unique_ptr<Checker> checker);
 
   /**
-   * @brief check if the packet name matches rule's filter
+   * @brief Check if the packet name matches rule's filter.
    *
    * If no filters were added, the rule matches everything.
    *
@@ -93,7 +93,7 @@ public:
 
 public:
   /**
-   * @brief create a rule from configuration section
+   * @brief Create a rule from configuration section.
    *
    * @param configSection The section containing the definition of checker.
    * @param configFilename The configuration file name.

@@ -35,7 +35,7 @@ class StreamTransportImpl;
 
 } // namespace detail
 
-/** \brief a transport using Unix stream socket
+/** \brief A transport using Unix stream socket.
  */
 class UnixTransport : public Transport
 {
@@ -60,7 +60,7 @@ public:
   void
   send(const Block& wire) override;
 
-  /** \brief Create transport with parameters defined in URI
+  /** \brief Create transport with parameters defined in URI.
    *  \throw Transport::Error incorrect URI or unsupported protocol is specified
    */
   static shared_ptr<UnixTransport>

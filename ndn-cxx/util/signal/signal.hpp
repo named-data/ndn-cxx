@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,7 +33,7 @@ namespace signal {
 
 class DummyExtraArg;
 
-/** \brief provides a lightweight signal / event system
+/** \brief Provides a lightweight signal / event system.
  *
  *  To declare a signal:
  *    public:
@@ -52,7 +52,7 @@ template<typename Owner, typename ...TArgs>
 class Signal : noncopyable
 {
 public: // API for anyone
-  /** \brief represents a function that can connect to the signal
+  /** \brief Represents a function that can connect to the signal.
    */
   typedef function<void(const TArgs&...)> Handler;
 
@@ -60,14 +60,14 @@ public: // API for anyone
 
   ~Signal();
 
-  /** \brief connects a handler to the signal
+  /** \brief Connects a handler to the signal.
    *  \note If invoked from a handler, the new handler won't receive the current emitted signal.
    *  \warning The handler is permitted to disconnect itself, but it must ensure its validity.
    */
   Connection
   connect(Handler handler);
 
-  /** \brief connects a single-shot handler to the signal
+  /** \brief Connects a single-shot handler to the signal.
    *
    *  After the handler is executed once, it is automatically disconnected.
    */
@@ -80,7 +80,7 @@ private: // API for owner
   bool
   isEmpty() const;
 
-  /** \brief emits a signal
+  /** \brief Emits a signal.
    *  \param args arguments passed to all handlers
    *  \warning Emitting the signal from a handler is undefined behavior.
    *  \warning Destructing the Signal object during signal emission is undefined behavior.
@@ -90,7 +90,7 @@ private: // API for owner
   void
   operator()(const TArgs&... args);
 
-  /** \brief (implementation detail) emits a signal
+  /** \brief (implementation detail) Emits a signal.
    *  \note This overload is used by signal-emit.hpp.
    */
   void
@@ -102,15 +102,15 @@ private: // API for owner
 private: // internal implementation
   typedef Signal<Owner, TArgs...> Self;
 
-  /** \brief stores a handler function, and a function to disconnect this handler
+  /** \brief Stores a handler function, and a function to disconnect this handler.
    */
   struct Slot
   {
-    /** \brief the handler function who will receive emitted signals
+    /** \brief The handler function who will receive emitted signals.
      */
     Handler handler;
 
-    /** \brief the disconnect function which will disconnect this handler
+    /** \brief The disconnect function which will disconnect this handler.
      *
      *  In practice this is the Signal::disconnect method bound to an iterator
      *  pointing at this slot.
@@ -123,23 +123,23 @@ private: // internal implementation
     shared_ptr<DisconnectFunction> disconnect;
   };
 
-  /** \brief stores slots
+  /** \brief Stores slots.
    *  \note std::list is used because iterators must not be invalidated
    *        when other slots are added or removed
    */
   typedef std::list<Slot> SlotList;
   SlotList m_slots;
 
-  /** \brief is a signal handler executing?
+  /** \brief Is a signal handler executing?
    */
   bool m_isExecuting;
 
-  /** \brief iterator to current executing slot
+  /** \brief Iterator to current executing slot.
    *  \note This field is meaningful when isExecuting==true
    */
   typename SlotList::iterator m_currentSlot;
 
-  /** \brief disconnects the handler in a slot
+  /** \brief Disconnects the handler in a slot.
    */
   void
   disconnect(typename SlotList::iterator it);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ class InterestFilterRecord : public detail::RecordBase<InterestFilterRecord>
 {
 public:
   /**
-   * @brief Construct an Interest filter record
+   * @brief Constructor.
    *
    * @param filter an InterestFilter that represents what Interest should invoke the callback
    * @param callback invoked when matching Interest is received
@@ -52,7 +52,7 @@ public:
   }
 
   /**
-   * @brief Check if Interest name matches the filter
+   * @brief Check if Interest name matches the filter.
    * @param name Interest Name
    */
   bool
@@ -63,7 +63,7 @@ public:
   }
 
   /**
-   * @brief invokes the InterestCallback
+   * @brief Invokes the InterestCallback.
    * @note This method does nothing if the Interest callback is empty
    */
   void

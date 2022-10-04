@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,28 +28,29 @@ namespace ndn {
 namespace nfd {
 
 /** \ingroup management
- *  \brief contains options for ControlCommand execution
+ *  \brief Contains options for ControlCommand execution.
  *  \note This type is intentionally copyable
  */
 class CommandOptions
 {
 public:
-  /** \brief constructs CommandOptions
+  /** \brief Constructs CommandOptions.
    *  \post getTimeout() == DEFAULT_TIMEOUT
    *  \post getPrefix() == DEFAULT_PREFIX
    *  \post getSigningInfo().getSignerType() == SIGNER_TYPE_NULL
    */
   CommandOptions();
 
-  /** \return command timeout
+  /**
+   * \brief Returns the command timeout.
    */
-  const time::milliseconds&
+  time::milliseconds
   getTimeout() const
   {
     return m_timeout;
   }
 
-  /** \brief sets command timeout
+  /** \brief Sets the command timeout.
    *  \param timeout the new command timeout, must be positive
    *  \throw std::out_of_range if timeout is non-positive
    *  \return self
@@ -57,7 +58,8 @@ public:
   CommandOptions&
   setTimeout(const time::milliseconds& timeout);
 
-  /** \return command prefix
+  /**
+   * \brief Returns the command prefix.
    */
   const Name&
   getPrefix() const
@@ -65,13 +67,14 @@ public:
     return m_prefix;
   }
 
-  /** \brief sets command prefix
+  /** \brief Sets the command prefix.
    *  \return self
    */
   CommandOptions&
   setPrefix(const Name& prefix);
 
-  /** \return signing parameters
+  /**
+   * \brief Returns the signing parameters.
    */
   const security::SigningInfo&
   getSigningInfo() const
@@ -79,19 +82,17 @@ public:
     return m_signingInfo;
   }
 
-  /** \brief sets signing parameters
+  /** \brief Sets the signing parameters.
    *  \return self
    */
   CommandOptions&
   setSigningInfo(const security::SigningInfo& signingInfo);
 
 public:
-  /** \brief gives the default command timeout: 10000ms
-   */
+  /// The default command timeout: 10 seconds.
   static const time::milliseconds DEFAULT_TIMEOUT;
 
-  /** \brief gives the default command prefix: ndn:/localhost/nfd
-   */
+  /// The default command prefix: `/localhost/nfd`.
   static const Name DEFAULT_PREFIX;
 
 private:

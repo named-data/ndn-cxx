@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@ namespace security {
 inline namespace v2 {
 
 /**
- * @brief represents a container for trust anchors.
+ * @brief A container for trust anchors.
  *
  * There are two kinds of anchors:
  * - static anchors that are permanent for the lifetime of the container
@@ -92,13 +92,13 @@ public:
          time::nanoseconds refreshPeriod, bool isDir = false);
 
   /**
-   * @brief Remove all static or dynamic anchors
+   * @brief Remove all static or dynamic anchors.
    */
   void
   clear();
 
   /**
-   * @brief Search for certificate across all groups (longest prefix match)
+   * @brief Search for certificate across all groups (longest prefix match).
    * @param keyName  Key name prefix for searching the certificate.
    * @return The found certificate, nullptr if not found.
    *
@@ -108,26 +108,25 @@ public:
   find(const Name& keyName) const;
 
   /**
-   * @brief Find certificate given interest
+   * @brief Find certificate given interest.
    * @param interest  The input interest packet.
    * @return The found certificate, nullptr if not found.
    *
    * @note The returned value may be invalidated after next call to one of `find` methods.
-   *
    * @note Interest with implicit digest is not supported.
    */
   const Certificate*
   find(const Interest& interest) const;
 
   /**
-   * @brief Get trusted anchor group
+   * @brief Get trusted anchor group.
    * @throw Error @p groupId does not exist
    */
   TrustAnchorGroup&
   getGroup(const std::string& groupId) const;
 
   /**
-   * @brief Get number of trust anchors across all groups
+   * @brief Get number of trust anchors across all groups.
    */
   size_t
   size() const;

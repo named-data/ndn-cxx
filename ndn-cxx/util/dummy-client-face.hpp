@@ -34,7 +34,7 @@ namespace util {
 class DummyClientFace : public ndn::Face
 {
 public:
-  /** \brief options for DummyClientFace
+  /** \brief %Options for DummyClientFace.
    */
   class Options
   {
@@ -58,12 +58,12 @@ public:
     }
 
   public:
-    /** \brief if true, packets sent out of DummyClientFace will be appended to a container
+    /** \brief If true, packets sent out of DummyClientFace will be appended to a container.
      */
     bool enablePacketLogging;
 
-    /** \brief if true, prefix registration command will be automatically
-     *         replied with a successful response
+    /** \brief If true, prefix registration command will be automatically
+     *         replied with a successful response.
      */
     bool enableRegistrationReply;
 
@@ -71,7 +71,7 @@ public:
      */
     uint64_t registrationReplyFaceId = 1;
 
-    /** \brief if not empty, face.processEvents() will be overridden by this function
+    /** \brief If not empty, `face.processEvents()` will be overridden by this function.
      */
     std::function<void(time::milliseconds)> processEventsOverride;
   };
@@ -82,49 +82,49 @@ public:
     AlreadyLinkedError();
   };
 
-  /** \brief Create a dummy face with internal IO service
+  /** \brief Create a dummy face with internal IO service.
    */
   explicit
   DummyClientFace(const Options& options = Options());
 
-  /** \brief Create a dummy face with internal IO service and the specified KeyChain
+  /** \brief Create a dummy face with internal IO service and the specified KeyChain.
    */
   explicit
   DummyClientFace(KeyChain& keyChain, const Options& options = Options());
 
-  /** \brief Create a dummy face with the provided IO service
+  /** \brief Create a dummy face with the provided IO service.
    */
   explicit
   DummyClientFace(boost::asio::io_service& ioService, const Options& options = Options());
 
-  /** \brief Create a dummy face with the provided IO service and the specified KeyChain
+  /** \brief Create a dummy face with the provided IO service and the specified KeyChain.
    */
   DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
                   const Options& options = Options());
 
   ~DummyClientFace() override;
 
-  /** \brief cause the Face to receive an interest
+  /** \brief Cause the Face to receive an Interest packet.
    */
   void
   receive(const Interest& interest);
 
-  /** \brief cause the Face to receive a data
+  /** \brief Cause the Face to receive a Data packet.
    */
   void
   receive(const Data& data);
 
-  /** \brief cause the Face to receive a nack
+  /** \brief Cause the Face to receive a Nack packet.
    */
   void
   receive(const lp::Nack& nack);
 
-  /** \brief link another DummyClientFace through a broadcast media
+  /** \brief Link another DummyClientFace through a broadcast media.
    */
   void
   linkTo(DummyClientFace& other);
 
-  /** \brief unlink the broadcast media if previously linked
+  /** \brief Unlink the broadcast media if previously linked.
    */
   void
   unlink();
@@ -148,7 +148,7 @@ private:
   doProcessEvents(time::milliseconds timeout, bool keepThread) override;
 
 public:
-  /** \brief Interests sent out of this DummyClientFace
+  /** \brief Interests sent out of this DummyClientFace.
    *
    *  Sent Interests are appended to this container if options.enablePacketLogger is true.
    *  User of this class is responsible for cleaning up the container, if necessary.
@@ -156,7 +156,7 @@ public:
    */
   std::vector<Interest> sentInterests;
 
-  /** \brief Data sent out of this DummyClientFace
+  /** \brief Data sent out of this DummyClientFace.
    *
    *  Sent Data are appended to this container if options.enablePacketLogger is true.
    *  User of this class is responsible for cleaning up the container, if necessary.
@@ -164,7 +164,7 @@ public:
    */
   std::vector<Data> sentData;
 
-  /** \brief Nacks sent out of this DummyClientFace
+  /** \brief Nacks sent out of this DummyClientFace.
    *
    *  Sent Nacks are appended to this container if options.enablePacketLogger is true.
    *  User of this class is responsible for cleaning up the container, if necessary.
@@ -172,19 +172,19 @@ public:
    */
   std::vector<lp::Nack> sentNacks;
 
-  /** \brief emits whenever an Interest is sent
+  /** \brief Emits whenever an Interest is sent.
    *
    *  After .expressInterest, .processEvents must be called before this signal would be emitted.
    */
   Signal<DummyClientFace, Interest> onSendInterest;
 
-  /** \brief emits whenever a Data packet is sent
+  /** \brief Emits whenever a Data packet is sent.
    *
    *  After .put, .processEvents must be called before this signal would be emitted.
    */
   Signal<DummyClientFace, Data> onSendData;
 
-  /** \brief emits whenever a Nack is sent
+  /** \brief Emits whenever a Nack is sent.
    *
    *  After .put, .processEvents must be called before this signal would be emitted.
    */

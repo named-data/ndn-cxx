@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,23 +35,20 @@ class StreamSink : public Sink
 {
 public:
   /**
-   * @brief Create a stream sink which outputs to @p os
+   * @brief Create a stream sink which outputs to @p os.
    */
   explicit
   StreamSink(std::ostream& os);
 
 private:
   /**
-   * @brief Write data into the stream
+   * @brief Write data into the stream.
    *
-   * @return number of bytes that have been written into the stream
+   * @return Number of bytes that have been written into the stream.
    */
   size_t
   doWrite(span<const uint8_t> buf) final;
 
-  /**
-   * @brief Finalize sink processing
-   */
   void
   doEnd() final;
 

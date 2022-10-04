@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,50 +29,46 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief base class of NFD ControlCommand
+ * \brief Base class of NFD `%ControlCommand`.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/ControlCommand
  */
 class ControlCommand : noncopyable
 {
 public:
-  /** \brief represents an error in ControlParameters
+  /** \brief Represents an error in ControlParameters.
    */
   class ArgumentError : public std::invalid_argument
   {
   public:
-    explicit
-    ArgumentError(const std::string& what)
-      : std::invalid_argument(what)
-    {
-    }
+    using std::invalid_argument::invalid_argument;
   };
 
   virtual
   ~ControlCommand();
 
-  /** \brief validate request parameters
+  /** \brief Validate request parameters.
    *  \throw ArgumentError if parameters are invalid
    */
   virtual void
   validateRequest(const ControlParameters& parameters) const;
 
-  /** \brief apply default values to missing fields in request
+  /** \brief Apply default values to missing fields in request.
    */
   virtual void
   applyDefaultsToRequest(ControlParameters& parameters) const;
 
-  /** \brief validate response parameters
+  /** \brief Validate response parameters.
    *  \throw ArgumentError if parameters are invalid
    */
   virtual void
   validateResponse(const ControlParameters& parameters) const;
 
-  /** \brief apply default values to missing fields in response
+  /** \brief Apply default values to missing fields in response.
    */
   virtual void
   applyDefaultsToResponse(ControlParameters& parameters) const;
 
-  /** \brief construct the Name for a request Interest
+  /** \brief Construct the Name for a request Interest.
    *  \throw ArgumentError if parameters are invalid
    */
   Name
@@ -86,7 +82,7 @@ protected:
   public:
     FieldValidator();
 
-    /** \brief declare a required field
+    /** \brief Declare a required field.
      */
     FieldValidator&
     required(ControlParameterField field)
@@ -95,7 +91,7 @@ protected:
       return *this;
     }
 
-    /** \brief declare an optional field
+    /** \brief Declare an optional field.
      */
     FieldValidator&
     optional(ControlParameterField field)
@@ -104,8 +100,8 @@ protected:
       return *this;
     }
 
-    /** \brief verify that all required fields are present,
-     *         and all present fields are either required or optional
+    /** \brief Verify that all required fields are present,
+     *         and all present fields are either required or optional.
      *  \throw ArgumentError
      */
     void
@@ -117,12 +113,12 @@ protected:
   };
 
 protected:
-  /** \brief FieldValidator for request ControlParameters
+  /** \brief FieldValidator for request ControlParameters.
    *
    *  Constructor of subclass should populate this validator.
    */
   FieldValidator m_requestValidator;
-  /** \brief FieldValidator for response ControlParameters
+  /** \brief FieldValidator for response ControlParameters.
    *
    *  Constructor of subclass should populate this validator.
    */
@@ -136,7 +132,7 @@ private:
 
 /**
  * \ingroup management
- * \brief represents a faces/create command
+ * \brief Represents a `faces/create` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Create-a-face
  */
 class FaceCreateCommand : public ControlCommand
@@ -154,7 +150,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a faces/update command
+ * \brief Represents a `faces/update` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Update-the-static-properties-of-a-face
  */
 class FaceUpdateCommand : public ControlCommand
@@ -176,7 +172,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a faces/destroy command
+ * \brief Represents a `faces/destroy` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Destroy-a-face
  */
 class FaceDestroyCommand : public ControlCommand
@@ -194,7 +190,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a fib/add-nexthop command
+ * \brief Represents a `fib/add-nexthop` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#Add-a-nexthop
  */
 class FibAddNextHopCommand : public ControlCommand
@@ -212,7 +208,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a fib/remove-nexthop command
+ * \brief Represents a `fib/remove-nexthop` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#Remove-a-nexthop
  */
 class FibRemoveNextHopCommand : public ControlCommand
@@ -230,7 +226,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a cs/config command
+ * \brief Represents a `cs/config` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Update-configuration
  */
 class CsConfigCommand : public ControlCommand
@@ -242,7 +238,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a cs/erase command
+ * \brief Represents a `cs/erase` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#Erase-entries
  */
 class CsEraseCommand : public ControlCommand
@@ -260,7 +256,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a strategy-choice/set command
+ * \brief Represents a `strategy-choice/set` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Set-the-strategy-for-a-namespace
  */
 class StrategyChoiceSetCommand : public ControlCommand
@@ -272,7 +268,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a strategy-choice/set command
+ * \brief Represents a `strategy-choice/set` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Unset-the-strategy-for-a-namespace
  */
 class StrategyChoiceUnsetCommand : public ControlCommand
@@ -290,7 +286,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a rib/register command
+ * \brief Represents a `rib/register` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Register-a-route
  */
 class RibRegisterCommand : public ControlCommand
@@ -308,7 +304,7 @@ public:
 
 /**
  * \ingroup management
- * \brief represents a rib/unregister command
+ * \brief Represents a `rib/unregister` command.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Unregister-a-route
  */
 class RibUnregisterCommand : public ControlCommand

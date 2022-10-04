@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,7 +74,7 @@ const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
 
 /**
  * \ingroup management
- * \brief represents parameters in a ControlCommand request or response
+ * \brief Represents parameters in a ControlCommand request or response.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
  * \details This type is copyable because it's an abstraction of a TLV type.
  */
@@ -529,7 +529,7 @@ public: // getters & setters
     return m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD];
   }
 
-  /** \brief get default congestion threshold (measured in bytes)
+  /** \brief Get default congestion threshold (measured in bytes).
    */
   uint64_t
   getDefaultCongestionThreshold() const
@@ -538,7 +538,7 @@ public: // getters & setters
     return m_defaultCongestionThreshold;
   }
 
-  /** \brief set default congestion threshold (measured in bytes)
+  /** \brief Set default congestion threshold (measured in bytes).
    */
   ControlParameters&
   setDefaultCongestionThreshold(uint64_t threshold)
@@ -563,7 +563,7 @@ public: // getters & setters
     return m_hasFields[CONTROL_PARAMETER_MTU];
   }
 
-  /** \brief get MTU (measured in bytes)
+  /** \brief Get MTU (measured in bytes).
    *
    *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
    */
@@ -574,7 +574,7 @@ public: // getters & setters
     return m_mtu;
   }
 
-  /** \brief set MTU (measured in bytes)
+  /** \brief Set MTU (measured in bytes).
    *
    *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
    */
@@ -617,7 +617,7 @@ public: // Flags and Mask helpers
   getFlagBit(size_t bit) const;
 
   /**
-   * \brief set a bit in Flags
+   * \brief Set a bit in Flags.
    * \param bit bit position within range [0, 64) (least significant bit is 0)
    * \param value new value in Flags
    * \param wantMask if true, enable the bit in Mask
@@ -626,7 +626,7 @@ public: // Flags and Mask helpers
   setFlagBit(size_t bit, bool value, bool wantMask = true);
 
   /**
-   * \brief disable a bit in Mask
+   * \brief Disable a bit in Mask.
    * \param bit bit position within range [0, 64) (least significant bit is 0)
    * \post If all bits are disabled, Flags and Mask fields are deleted.
    */

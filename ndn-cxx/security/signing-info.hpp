@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -152,21 +152,21 @@ public:
   setSha256Signing();
 
   /**
-   * @brief Set signer as a PIB identity handler @p identity
+   * @brief Set signer as a PIB identity handle @p identity
    * @post Change the signerType to SIGNER_TYPE_ID
    */
   SigningInfo&
   setPibIdentity(const Identity& identity);
 
   /**
-   * @brief Set signer as a PIB key handler @p key
+   * @brief Set signer as a PIB key handle @p key
    * @post Change the signerType to SIGNER_TYPE_KEY
    */
   SigningInfo&
   setPibKey(const Key& key);
 
   /**
-   * @return Type of the signer
+   * @brief Return the signer type.
    */
   SignerType
   getSignerType() const
@@ -175,7 +175,7 @@ public:
   }
 
   /**
-   * @return Name of signer; interpretation differs per signerType
+   * @return Name of signer; interpretation differs per signerType.
    */
   const Name&
   getSignerName() const
@@ -185,8 +185,8 @@ public:
 
   /**
    * @pre signerType must be SIGNER_TYPE_ID
-   * @return the identity handler of signer, or Identity() if getSignerName() should be used
-   *         to find the identity
+   * @return The identity handle of signer, or Identity() if getSignerName() should be used
+   *         to find the identity.
    */
   const Identity&
   getPibIdentity() const
@@ -197,7 +197,7 @@ public:
 
   /**
    * @pre signerType must be SIGNER_TYPE_KEY
-   * @return the key handler of signer, or Key() if getSignerName() should be used to find the key
+   * @return The key handle of signer, or Key() if getSignerName() should be used to find the key.
    */
   const Key&
   getPibKey() const
@@ -214,7 +214,7 @@ public:
   }
 
   /**
-   * @brief Set the digest algorithm for signing operations
+   * @brief Set the digest algorithm for signing operations.
    */
   SigningInfo&
   setDigestAlgorithm(const DigestAlgorithm& algorithm)
@@ -224,7 +224,7 @@ public:
   }
 
   /**
-   * @return The digest algorithm for signing operations
+   * @brief Get the digest algorithm for signing operations.
    */
   DigestAlgorithm
   getDigestAlgorithm() const
@@ -233,13 +233,13 @@ public:
   }
 
   /**
-   * @brief Set a semi-prepared SignatureInfo
+   * @brief Set a semi-prepared SignatureInfo.
    */
   SigningInfo&
   setSignatureInfo(const SignatureInfo& signatureInfo);
 
   /**
-   * @return Semi-prepared SignatureInfo
+   * @brief Get a semi-prepared SignatureInfo.
    */
   const SignatureInfo&
   getSignatureInfo() const
@@ -248,7 +248,7 @@ public:
   }
 
   /**
-   * @brief Set signed Interest format
+   * @brief Set the signed %Interest format.
    * @note  This is a transitional API to handle the change in signed Interest format and will
    *        disappear after a few releases.
    */
@@ -260,9 +260,9 @@ public:
   }
 
   /**
-   * @return Signed Interest format
-   * @note   This is a transitional API to handle the change in signed Interest format and will
-   *         disappear after a few releases.
+   * @brief Get the signed %Interest format.
+   * @note  This is a transitional API to handle the change in signed Interest format and will
+   *        disappear after a few releases.
    */
   SignedInterestFormat
   getSignedInterestFormat() const

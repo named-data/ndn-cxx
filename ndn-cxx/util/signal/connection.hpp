@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ namespace signal {
 
 using DisconnectFunction = std::function<void()>;
 
-/** \brief represents a connection to a signal
+/** \brief Represents a connection to a signal.
  *  \note This type is copyable. Any copy can be used to disconnect.
  */
 class Connection
@@ -39,7 +39,7 @@ public:
   constexpr
   Connection() noexcept = default;
 
-  /** \brief disconnects from the signal
+  /** \brief Disconnects from the signal.
    *  \note If the connection is already disconnected, or if the Signal has been destructed,
    *        this operation has no effect.
    *  \warning During signal emission, attempting to disconnect a connection other than
@@ -48,7 +48,7 @@ public:
   void
   disconnect();
 
-  /** \brief check if connected to the signal
+  /** \brief Check if connected to the signal.
    */
   bool
   isConnected() const noexcept
@@ -69,7 +69,7 @@ private:
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
 
-  /** \brief compare for equality
+  /** \brief Compare for equality.
    *
    *  Two connections are equal if they both refer to the same connection that isn't disconnected,
    *  or they are both disconnected.

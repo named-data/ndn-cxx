@@ -221,7 +221,7 @@ public: // constructors
 
 public: // consumer
   /**
-   * @brief Express Interest
+   * @brief Express an Interest.
    * @param interest the Interest; a copy will be made, so that the caller is not
    *                 required to maintain the argument unchanged
    * @param afterSatisfied function to be invoked if Data is returned
@@ -238,13 +238,13 @@ public: // consumer
                   const TimeoutCallback& afterTimeout);
 
   /**
-   * @brief Cancel all previously expressed Interests
+   * @brief Cancel all previously expressed Interests.
    */
   void
   removeAllPendingInterests();
 
   /**
-   * @brief Get number of pending Interests
+   * @brief Get number of pending Interests.
    */
   size_t
   getNPendingInterests() const;
@@ -252,7 +252,7 @@ public: // consumer
 public: // producer
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
-   * callback and register the filtered prefix with the connected NDN forwarder
+   * callback and register the filtered prefix with the connected NDN forwarder.
    *
    * This version of setInterestFilter combines setInterestFilter and registerPrefix
    * operations and is intended to be used when only one filter for the same prefix needed
@@ -277,7 +277,7 @@ public: // producer
 
   /**
    * @brief Set InterestFilter to dispatch incoming matching interest to onInterest
-   * callback and register the filtered prefix with the connected NDN forwarder
+   * callback and register the filtered prefix with the connected NDN forwarder.
    *
    * This version of setInterestFilter combines setInterestFilter and registerPrefix
    * operations and is intended to be used when only one filter for the same prefix needed
@@ -318,7 +318,7 @@ public: // producer
   setInterestFilter(const InterestFilter& filter, const InterestCallback& onInterest);
 
   /**
-   * @brief Register prefix with the connected NDN forwarder
+   * @brief Register prefix with the connected NDN forwarder.
    *
    * This method only modifies forwarder's RIB and does not associate any
    * onInterest callbacks.  Use setInterestFilter method to dispatch incoming Interests to
@@ -342,7 +342,7 @@ public: // producer
                  uint64_t flags = nfd::ROUTE_FLAG_CHILD_INHERIT);
 
   /**
-   * @brief Publish data packet
+   * @brief Publish a Data packet.
    * @param data the Data; a copy will be made, so that the caller is not required to
    *             maintain the argument unchanged
    *
@@ -355,7 +355,7 @@ public: // producer
   put(Data data);
 
   /**
-   * @brief Send a network NACK
+   * @brief Send a %Network Nack.
    * @param nack the Nack; a copy will be made, so that the caller is not required to
    *             maintain the argument unchanged
    * @throw OversizedPacketError encoded Nack size exceeds MAX_NDN_PACKET_SIZE

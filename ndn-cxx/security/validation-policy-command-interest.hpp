@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,7 @@ public:
     }
 
   public:
-    /** \brief tolerance of initial timestamp
+    /** \brief Tolerance of initial timestamp.
      *
      *  A stop-and-wait command Interest is considered "initial" if the validator
      *  has not recorded the last timestamp from the same public key, or when
@@ -65,7 +65,7 @@ public:
      */
     time::nanoseconds gracePeriod = 2_min;
 
-    /** \brief max number of distinct public keys of which to record the last timestamp
+    /** \brief Max number of distinct public keys of which to record the last timestamp.
      *
      *  The validator records last timestamps for every public key.
      *  For a subsequent command Interest using the same public key,
@@ -82,7 +82,7 @@ public:
      */
     ssize_t maxRecords = 1000;
 
-    /** \brief max lifetime of a last timestamp record
+    /** \brief Max lifetime of a last timestamp record.
      *
      *  A last timestamp record expires and can be deleted if it has not been refreshed
      *  within this duration.
@@ -92,7 +92,7 @@ public:
     time::nanoseconds recordLifetime = 1_h;
   };
 
-  /** \brief constructor
+  /** \brief Constructor.
    *  \param inner a Validator for signed Interest signature validation and Data validation;
    *               this must not be nullptr
    *  \param options stop-and-wait command Interest validation options

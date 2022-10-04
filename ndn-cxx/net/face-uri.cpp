@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California,
+ * Copyright (c) 2013-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -211,7 +211,7 @@ operator<<(std::ostream& os, const FaceUri& uri)
 }
 
 
-/** \brief a CanonizeProvider provides FaceUri canonization functionality for a group of schemes
+/** \brief A CanonizeProvider provides FaceUri canonization functionality for a group of schemes.
  */
 class CanonizeProvider : noncopyable
 {
@@ -389,7 +389,7 @@ private:
     onFailure(reason);
   }
 
-  /** \brief when overriden in a subclass, check the IP address is allowable
+  /** \brief When overriden in a subclass, check the IP address is allowable.
    *  \return (true,ignored) if the address is allowable;
    *          (false,reason) if the address is not allowable.
    */

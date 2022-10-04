@@ -31,12 +31,14 @@ namespace ndn {
 
 class Name;
 
-/** @brief Represents an arbitrary sequence of name components
+/**
+ * @brief Represents an arbitrary sequence of name components.
  */
 using PartialName = Name;
 
-/** @brief Represents an absolute name
- *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html
+/**
+ * @brief Represents an absolute name.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html
  */
 class Name
 {
@@ -61,12 +63,12 @@ public: // nested types
   using size_type              = component_container::size_type;
 
 public: // constructors, encoding, decoding
-  /** @brief Create an empty name
+  /** @brief Create an empty name.
    *  @post empty() == true
    */
   Name();
 
-  /** @brief Decode Name from wire encoding
+  /** @brief Decode Name from wire encoding.
    *  @throw tlv::Error wire encoding is invalid
    *
    *  This is a more efficient equivalent for
@@ -78,25 +80,25 @@ public: // constructors, encoding, decoding
   explicit
   Name(const Block& wire);
 
-  /** @brief Parse name from NDN URI
+  /** @brief Parse name from NDN URI.
    *  @param uri a null-terminated URI string
    *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   Name(const char* uri);
 
-  /** @brief Create name from NDN URI
+  /** @brief Create name from NDN URI.
    *  @param uri a URI string
    *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   Name(std::string uri);
 
-  /** @brief Write URI representation of the name to the output stream
+  /** @brief Write URI representation of the name to the output stream.
    *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   void
   toUri(std::ostream& os, name::UriFormat format = name::UriFormat::DEFAULT) const;
 
-  /** @brief Get URI representation of the name
+  /** @brief Get URI representation of the name.
    *  @return URI representation; the "ndn:" scheme identifier is not included
    *  @note To print URI representation into a stream, it is more efficient to use `os << name`.
    *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
@@ -104,7 +106,7 @@ public: // constructors, encoding, decoding
   std::string
   toUri(name::UriFormat format = name::UriFormat::DEFAULT) const;
 
-  /** @brief Check if this instance already has wire encoding
+  /** @brief Check if this instance already has wire encoding.
    */
   bool
   hasWire() const noexcept
@@ -112,26 +114,26 @@ public: // constructors, encoding, decoding
     return m_wire.hasWire();
   }
 
-  /** @brief Fast encoding or block size estimation
+  /** @brief Fast encoding or block size estimation.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** @brief Perform wire encoding, or return existing wire encoding
+  /** @brief Perform wire encoding, or return existing wire encoding.
    *  @post hasWire() == true
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode name from wire encoding
+  /** @brief Decode name from wire encoding.
    *  @throw tlv::Error wire encoding is invalid
    *  @post hasWire() == true
    */
   void
   wireDecode(const Block& wire);
 
-  /** @brief Make a deep copy of the name, reallocating the underlying memory buffer
+  /** @brief Make a deep copy of the name, reallocating the underlying memory buffer.
    */
   Name
   deepCopy() const;
@@ -215,7 +217,7 @@ public: // access
   }
 
 public: // iterators
-  /** @brief Begin iterator
+  /** @brief Begin iterator.
    */
   const_iterator
   begin() const
@@ -223,7 +225,7 @@ public: // iterators
     return reinterpret_cast<const_iterator>(m_wire.elements().data());
   }
 
-  /** @brief End iterator
+  /** @brief End iterator.
    */
   const_iterator
   end() const
@@ -231,7 +233,7 @@ public: // iterators
     return reinterpret_cast<const_iterator>(m_wire.elements().data() + m_wire.elements().size());
   }
 
-  /** @brief Reverse begin iterator
+  /** @brief Reverse begin iterator.
    */
   const_reverse_iterator
   rbegin() const
@@ -239,7 +241,7 @@ public: // iterators
     return const_reverse_iterator(end());
   }
 
-  /** @brief Reverse end iterator
+  /** @brief Reverse end iterator.
    */
   const_reverse_iterator
   rend() const
@@ -252,7 +254,7 @@ public: // modifiers
    *  @param i zero-based index of the component to replace;
    *           if negative, it is interpreted as offset from the end of the name
    *  @param component the new component to use as a replacement
-   *  @return a reference to this name, to allow chaining.
+   *  @return A reference to this Name, to allow chaining.
    *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
    */
   Name&
@@ -262,14 +264,15 @@ public: // modifiers
    *  @param i zero-based index of the component to replace;
    *           if negative, it is interpreted as offset from the end of the name
    *  @param component the new component to use as a replacement
-   *  @return a reference to this name, to allow chaining.
+   *  @return A reference to this Name, to allow chaining.
    *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
    */
   Name&
   set(ssize_t i, Component&& component);
 
-  /** @brief Append a component.
-   *  @return a reference to this name, to allow chaining.
+  /**
+   * @brief Append a name component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   append(const Component& component)
@@ -278,8 +281,9 @@ public: // modifiers
     return *this;
   }
 
-  /** @brief Append a component.
-   *  @return a reference to this name, to allow chaining.
+  /**
+   * @brief Append a name component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   append(Component&& component)
@@ -289,8 +293,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a NameComponent of TLV-TYPE @p type, copying the TLV-VALUE from @p value.
-   * @return a reference to this name, to allow chaining.
+   * @brief Append a `NameComponent` of TLV-TYPE @p type, copying the TLV-VALUE from @p value.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   append(uint32_t type, span<const uint8_t> value)
@@ -299,8 +303,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a GenericNameComponent, copying the TLV-VALUE from @p value.
-   * @return a reference to this name, to allow chaining.
+   * @brief Append a `GenericNameComponent`, copying the TLV-VALUE from @p value.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   append(span<const uint8_t> value)
@@ -309,8 +313,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as TLV-VALUE.
-   * @return a reference to this name, to allow chaining.
+   * @brief Append a `NameComponent` of TLV-TYPE @p type, copying @p count bytes at @p value as TLV-VALUE.
+   * @return A reference to this Name, to allow chaining.
    * @deprecated Use append(uint32_t, span<const uint8_t>)
    */
   [[deprecated("use the overload that takes a span<>")]]
@@ -321,8 +325,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
-   * @return a reference to this name, to allow chaining.
+   * @brief Append a `GenericNameComponent`, copying @p count bytes at @p value as TLV-VALUE.
+   * @return A reference to this Name, to allow chaining.
    * @deprecated Use append(span<const uint8_t>)
    */
   [[deprecated("use the overload that takes a span<>")]]
@@ -332,13 +336,13 @@ public: // modifiers
     return append(make_span(value, count));
   }
 
-  /** @brief Append a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from a range.
+  /** @brief Append a `NameComponent` of TLV-TYPE @p type, copying TLV-VALUE from a range.
    *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
    *                   implementation is available when it is a @c RandomAccessIterator.
    *  @param type      the TLV-TYPE.
    *  @param first     beginning of the range.
    *  @param last      past-end of the range.
-   *  @return a reference to this name, to allow chaining.
+   *  @return A reference to this Name, to allow chaining.
    */
   template<class Iterator>
   Name&
@@ -347,12 +351,12 @@ public: // modifiers
     return append(Component(type, first, last));
   }
 
-  /** @brief Append a GenericNameComponent, copying TLV-VALUE from a range.
+  /** @brief Append a `GenericNameComponent`, copying TLV-VALUE from a range.
    *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
    *                   implementation is available when it is a @c RandomAccessIterator.
    *  @param first     beginning of the range.
    *  @param last      past-end of the range.
-   *  @return a reference to this name, to allow chaining.
+   *  @return A reference to this Name, to allow chaining.
    */
   template<class Iterator>
   Name&
@@ -361,10 +365,10 @@ public: // modifiers
     return append(Component(tlv::GenericNameComponent, first, last));
   }
 
-  /** @brief Append a GenericNameComponent, copying TLV-VALUE from a null-terminated string.
+  /** @brief Append a `GenericNameComponent`, copying TLV-VALUE from a null-terminated string.
    *  @param str a null-terminated string. Bytes from the string are copied as is, and not
    *             interpreted as URI component.
-   *  @return a reference to this name, to allow chaining.
+   *  @return A reference to this Name, to allow chaining.
    */
   Name&
   append(const char* str)
@@ -374,13 +378,13 @@ public: // modifiers
 
   /** @brief Append a PartialName.
    *  @param name the components to append
-   *  @return a reference to this name, to allow chaining
+   *  @return A reference to this Name, to allow chaining.
    */
   Name&
   append(const PartialName& name);
 
-  /** @brief Append a component with a NonNegativeInteger
-   *  @return a reference to this name, to allow chaining
+  /** @brief Append a component with a NonNegativeInteger.
+   *  @return A reference to this Name, to allow chaining.
    *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    */
   Name&
@@ -389,13 +393,13 @@ public: // modifiers
     return append(Component::fromNumber(number));
   }
 
-  /** @brief Append a component with a marked number
+  /** @brief Append a component with a marked number.
    *  @param marker 1-octet marker
    *  @param number the number
    *
    *  The component is encoded as a 1-octet marker, followed by a NonNegativeInteger.
    *
-   *  @return a reference to this name, to allow chaining
+   *  @return A reference to this Name, to allow chaining.
    *  @sa NDN Naming Conventions revision 1 (obsolete)
    *      https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
    */
@@ -406,8 +410,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a segment number (sequential) component
-   * @return a reference to this name, to allow chaining
+   * @brief Append a segment number (sequential) component.
+   * @return A reference to this Name, to allow chaining.
    * @sa NDN Naming Conventions
    *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
@@ -418,8 +422,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a byte offset component
-   * @return a reference to this name, to allow chaining
+   * @brief Append a byte offset component.
+   * @return A reference to this Name, to allow chaining.
    * @sa NDN Naming Conventions
    *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
@@ -430,10 +434,10 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a version component
+   * @brief Append a version component.
    * @param version the version number to append; if nullopt, the current UNIX time
    *                in milliseconds is used
-   * @return a reference to this name, to allow chaining
+   * @return A reference to this Name, to allow chaining.
    * @sa NDN Naming Conventions
    *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
@@ -441,9 +445,9 @@ public: // modifiers
   appendVersion(const optional<uint64_t>& version = nullopt);
 
   /**
-   * @brief Append a timestamp component
+   * @brief Append a timestamp component.
    * @param timestamp the timestamp to append; if nullopt, the current system time is used
-   * @return a reference to this name, to allow chaining
+   * @return A reference to this Name, to allow chaining.
    * @sa NDN Naming Conventions
    *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
@@ -451,8 +455,8 @@ public: // modifiers
   appendTimestamp(const optional<time::system_clock::time_point>& timestamp = nullopt);
 
   /**
-   * @brief Append a sequence number component
-   * @return a reference to this name, to allow chaining
+   * @brief Append a sequence number component.
+   * @return A reference to this Name, to allow chaining.
    * @sa NDN Naming Conventions
    *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
@@ -463,8 +467,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append an ImplicitSha256Digest component.
-   * @return a reference to this name, to allow chaining
+   * @brief Append an `ImplicitSha256Digest` component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   appendImplicitSha256Digest(ConstBufferPtr digest)
@@ -473,8 +477,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append an ImplicitSha256Digest component.
-   * @return a reference to this name, to allow chaining
+   * @brief Append an `ImplicitSha256Digest` component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   appendImplicitSha256Digest(span<const uint8_t> digestBytes)
@@ -483,8 +487,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a ParametersSha256Digest component.
-   * @return a reference to this name, to allow chaining
+   * @brief Append a `ParametersSha256Digest` component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   appendParametersSha256Digest(ConstBufferPtr digest)
@@ -493,8 +497,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a ParametersSha256Digest component.
-   * @return a reference to this name, to allow chaining
+   * @brief Append a `ParametersSha256Digest` component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   appendParametersSha256Digest(span<const uint8_t> digestBytes)
@@ -503,15 +507,15 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a placeholder for a ParametersSha256Digest component.
-   * @return a reference to this name, to allow chaining
+   * @brief Append a placeholder for a `ParametersSha256Digest` component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   appendParametersSha256DigestPlaceholder();
 
   /**
    * @brief Append a keyword component.
-   * @return a reference to this name, to allow chaining
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   appendKeyword(span<const uint8_t> keyword)
@@ -521,7 +525,7 @@ public: // modifiers
 
   /**
    * @brief Append a keyword component.
-   * @return a reference to this name, to allow chaining
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   appendKeyword(const char* keyword)
@@ -531,8 +535,8 @@ public: // modifiers
   }
 
   /**
-   * @brief Append a component.
-   * @note This makes push_back an alias of append, giving Name a similar API as `std::vector`.
+   * @brief Append a name component.
+   * @note This makes push_back() an alias of append(), giving Name a similar API as `std::vector`.
    */
   template<class T>
   void
@@ -558,7 +562,7 @@ public: // modifiers
   clear();
 
 public: // algorithms
-  /** @brief Get the successor of a name
+  /** @brief Get the successor of a name.
    *
    *  The successor of a name is defined as follows:
    *
@@ -585,7 +589,7 @@ public: // algorithms
   Name
   getSuccessor() const;
 
-  /** @brief Check if this name is a prefix of another name
+  /** @brief Check if this name is a prefix of another name.
    *
    *  This name is a prefix of @p other if the N components of this name are same as the first N
    *  components of @p other.
@@ -596,7 +600,7 @@ public: // algorithms
   bool
   isPrefixOf(const Name& other) const;
 
-  /** @brief Check if this name equals another name
+  /** @brief Check if this name equals another name.
    *
    *  Two names are equal if they have the same number of components, and components at each index
    *  are equal.
@@ -631,8 +635,8 @@ public: // algorithms
     return this->compare(0, npos, other);
   }
 
-  /** @brief compares [pos1, pos1+count1) components in this Name
-   *         to [pos2, pos2+count2) components in @p other
+  /** @brief Compares `[pos1, pos1+count1)` components in this Name
+   *         to `[pos2, pos2+count2)` components in @p other.
    *
    *  Equivalent to `getSubName(pos1, count1).compare(other.getSubName(pos2, count2))`.
    */

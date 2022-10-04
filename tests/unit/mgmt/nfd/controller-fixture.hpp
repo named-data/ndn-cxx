@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -48,7 +48,7 @@ protected:
     m_keyChain.setDefaultIdentity(m_keyChain.createIdentity("/localhost/ControllerFixture"));
   }
 
-  /** \brief controls whether Controller's validator should accept or reject validation requests
+  /** \brief Controls whether Controller's validator should accept or reject validation requests.
    *
    *  Initially, the validator accepts all requests.
    *  Setting \p false causes validator to reject all requests.

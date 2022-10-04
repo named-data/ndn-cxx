@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,7 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief represents Face Query Filter
+ * \brief Represents Face Query Filter.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Query-Operation
  */
 class FaceQueryFilter
@@ -48,23 +48,23 @@ public:
   explicit
   FaceQueryFilter(const Block& block);
 
-  /** \brief prepend FaceQueryFilter to the encoder
+  /** \brief Prepend FaceQueryFilter to the encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** \brief encode FaceQueryFilter
+  /** \brief Encode FaceQueryFilter.
    */
   const Block&
   wireEncode() const;
 
-  /** \brief decode FaceQueryFilter
+  /** \brief Decode FaceQueryFilter.
    */
   void
   wireDecode(const Block& wire);
 
-  /** \return whether the filter is empty
+  /** \return Whether the filter is empty.
    */
   bool
   empty() const;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,7 +49,7 @@ using milliseconds = boost::chrono::milliseconds;
 using microseconds = boost::chrono::microseconds;
 using nanoseconds  = boost::chrono::nanoseconds;
 
-/** \return the absolute value of the duration d
+/** \return The absolute value of the duration \p d.
  *  \note The function does not participate in the overload resolution
  *        unless std::numeric_limits<Rep>::is_signed is true.
  */

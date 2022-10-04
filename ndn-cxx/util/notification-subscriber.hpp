@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2021 Regents of the University of California,
+ * Copyright (c) 2014-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -43,7 +43,7 @@ public:
   virtual
   ~NotificationSubscriberBase();
 
-  /** \return InterestLifetime of Interests to retrieve notifications
+  /** \return InterestLifetime of Interests to retrieve notifications.
    *
    *  This must be greater than FreshnessPeriod of Notification Data packets,
    *  to ensure correct operation of this subscriber implementation.
@@ -60,22 +60,22 @@ public:
     return m_isRunning;
   }
 
-  /** \brief start or resume receiving notifications
+  /** \brief Start or resume receiving notifications.
    *  \note onNotification must have at least one listener,
    *        otherwise this operation has no effect.
    */
   void
   start();
 
-  /** \brief stop receiving notifications
+  /** \brief Stop receiving notifications.
    */
   void
   stop();
 
 protected:
-  /** \brief construct a NotificationSubscriber
+  /** \brief Construct a NotificationSubscriber.
    *  \note The subscriber is not started after construction.
-   *        User should add one or more handlers to onNotification, and invoke .start().
+   *        User should add one or more handlers to onNotification, and invoke start().
    */
   NotificationSubscriberBase(Face& face, const Name& prefix,
                              time::milliseconds interestLifetime);
@@ -102,7 +102,7 @@ private:
   void
   afterReceiveData(const Data& data);
 
-  /** \brief decode the Data as a notification, and deliver it to subscribers
+  /** \brief Decode the Data as a notification, and deliver it to subscribers.
    *  \return whether decode was successful
    */
   virtual bool
@@ -118,15 +118,15 @@ private:
   exponentialBackoff(lp::Nack nack);
 
 public:
-  /** \brief fires when a NACK is received
+  /** \brief Fires when a Nack is received.
    */
   signal::Signal<NotificationSubscriberBase, lp::Nack> onNack;
 
-  /** \brief fires when no Notification is received within .getInterestLifetime period
+  /** \brief Fires when no Notification is received within getInterestLifetime() period.
    */
   signal::Signal<NotificationSubscriberBase> onTimeout;
 
-  /** \brief fires when a Data packet in the Notification Stream cannot be decoded as Notification
+  /** \brief Fires when a Data packet in the Notification Stream cannot be decoded as Notification.
    */
   signal::Signal<NotificationSubscriberBase, Data> onDecodeError;
 
@@ -143,7 +143,7 @@ private:
   time::milliseconds m_interestLifetime;
 };
 
-/** \brief provides a subscriber of Notification Stream
+/** \brief Provides a subscriber of Notification Stream.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
  *  \tparam Notification type of Notification item, appears in payload of Data packets
  */
@@ -154,7 +154,7 @@ public:
   BOOST_CONCEPT_ASSERT((boost::DefaultConstructible<Notification>));
   BOOST_CONCEPT_ASSERT((WireDecodable<Notification>));
 
-  /** \brief construct a NotificationSubscriber
+  /** \brief Construct a NotificationSubscriber.
    *  \note The subscriber is not started after construction.
    *        User should add one or more handlers to onNotification, and invoke .start().
    */
@@ -165,7 +165,7 @@ public:
   }
 
 public:
-  /** \brief fires when a Notification is received
+  /** \brief Fires when a Notification is received.
    *  \note Removing all handlers will cause the subscriber to stop.
    */
   signal::Signal<NotificationSubscriber, Notification> onNotification;

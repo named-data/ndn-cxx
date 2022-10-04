@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,50 +22,49 @@
 #ifndef NDN_CXX_SECURITY_SIGNING_HELPERS_HPP
 #define NDN_CXX_SECURITY_SIGNING_HELPERS_HPP
 
-#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/security/signing-info.hpp"
 
 namespace ndn {
 namespace security {
 
 /**
- * \return a SigningInfo for signing with an identity
+ * \brief Return a SigningInfo for signing with an identity.
  */
 SigningInfo
 signingByIdentity(const Name& identityName);
 
 /**
- * \return a SigningInfo for signing with an identity
+ * \brief Return a SigningInfo for signing with an identity.
  */
 SigningInfo
 signingByIdentity(const Identity& identity);
 
 /**
- * \return a SigningInfo for signing with a key
+ * \brief Return a SigningInfo for signing with a key.
  */
 SigningInfo
 signingByKey(const Name& keyName);
 
 /**
- * \return a SigningInfo for signing with a key
+ * \brief Return a SigningInfo for signing with a key.
  */
 SigningInfo
 signingByKey(const Key& key);
 
 /**
- * \return a SigningInfo for signing with a certificate
+ * \brief Return a SigningInfo for signing with a certificate.
  */
 SigningInfo
 signingByCertificate(const Name& certName);
 
 /**
- * \return a SigningInfo for signing with a certificate
+ * \brief Return a SigningInfo for signing with a certificate.
  */
 SigningInfo
 signingByCertificate(const Certificate& cert);
 
 /**
- * \return a SigningInfo for signing with Sha256
+ * \brief Return a SigningInfo for signing with a SHA-256 digest.
  */
 SigningInfo
 signingWithSha256();

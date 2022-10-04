@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,7 +54,7 @@ private:
   std::bitset<CHARMAP_SIZE> m_isWhitespace; // char => whether char is whitespace
 };
 
-/** \brief constructs a StripSpace transform
+/** \brief Constructs a StripSpace transform.
  *  \param whitespaces characters classified as whitespaces, terminated with null
  */
 unique_ptr<Transform>

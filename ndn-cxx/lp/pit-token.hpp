@@ -28,7 +28,7 @@
 namespace ndn {
 namespace lp {
 
-/** \brief represent a PIT token field
+/** \brief Represent a PIT token field.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/NDNLPv2#PIT-Token
  */
 class PitToken : public Buffer, public Tag

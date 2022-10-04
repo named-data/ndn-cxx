@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,7 +32,7 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief represents a route in a RibEntry
+ * \brief Represents a route in a RibEntry.
  *
  * A route indicates the availability of content via a certain face and
  * provides meta-information about the face.
@@ -144,7 +144,7 @@ operator<<(std::ostream& os, const Route& route);
 
 /**
  * \ingroup management
- * \brief represents an item in NFD RIB dataset
+ * \brief Represents an item in NFD RIB dataset.
  *
  * A RIB entry contains one or more routes for a name prefix
  *

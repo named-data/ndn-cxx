@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief represents a Face status change notification
+ * \brief Represents a Face status change notification.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Status-Change-Notification
  */
 class FaceEventNotification : public FaceTraits<FaceEventNotification>
@@ -40,18 +40,18 @@ public:
   explicit
   FaceEventNotification(const Block& block);
 
-  /** \brief prepend FaceEventNotification to the encoder
+  /** \brief Prepend FaceEventNotification to the encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** \brief encode FaceEventNotification
+  /** \brief Encode FaceEventNotification.
    */
   const Block&
   wireEncode() const;
 
-  /** \brief decode FaceEventNotification
+  /** \brief Decode FaceEventNotification.
    */
   void
   wireDecode(const Block& wire);

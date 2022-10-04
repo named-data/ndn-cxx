@@ -32,10 +32,13 @@
 
 namespace ndn {
 
-const time::milliseconds DEFAULT_FRESHNESS_PERIOD = time::milliseconds::zero();
+/**
+ * @brief Default value of `FreshnessPeriod`.
+ */
+const time::milliseconds DEFAULT_FRESHNESS_PERIOD{0};
 
 /**
- * @brief A MetaInfo holds the meta info which is signed inside the data packet.
+ * @brief A MetaInfo holds the meta info which is signed inside the Data packet.
  *
  * The class allows experimentation with application-defined meta-information elements.
  * When using these application-defined elements, be aware that it may result in dropped
@@ -67,7 +70,7 @@ public:
   MetaInfo();
 
   /**
-   * @brief Create from wire encoding
+   * @brief Create from wire encoding.
    */
   explicit
   MetaInfo(const Block& block);
@@ -83,9 +86,9 @@ public:
   wireDecode(const Block& wire);
 
 public: // getter/setter
-  /** @brief return ContentType
+  /** @brief Return the value of `ContentType`.
    *
-   *  If ContentType element is omitted, returns \c tlv::ContentType_Blob.
+   *  If the `ContentType` element is not present, returns tlv::ContentType_Blob.
    */
   uint32_t
   getType() const
@@ -93,15 +96,15 @@ public: // getter/setter
     return m_type;
   }
 
-  /** @brief set ContentType
-   *  @param type a number defined in \c tlv::ContentTypeValue
+  /** @brief Set `ContentType`.
+   *  @param type a number defined in tlv::ContentTypeValue
    */
   MetaInfo&
   setType(uint32_t type);
 
-  /** @brief return FreshnessPeriod
+  /** @brief Return the value of `FreshnessPeriod`.
    *
-   *  If FreshnessPeriod element is omitted, returns \c DEFAULT_FRESHNESS_PERIOD.
+   *  If the `FreshnessPeriod` element is not present, returns #DEFAULT_FRESHNESS_PERIOD.
    */
   time::milliseconds
   getFreshnessPeriod() const
@@ -109,13 +112,13 @@ public: // getter/setter
     return m_freshnessPeriod;
   }
 
-  /** @brief set FreshnessPeriod
+  /** @brief Set `FreshnessPeriod`.
    *  @throw std::invalid_argument specified FreshnessPeriod is negative
    */
   MetaInfo&
   setFreshnessPeriod(time::milliseconds freshnessPeriod);
 
-  /** @brief return FinalBlockId
+  /** @brief Return the value of `FinalBlockId`.
    */
   const optional<name::Component>&
   getFinalBlock() const
@@ -123,14 +126,14 @@ public: // getter/setter
     return m_finalBlockId;
   }
 
-  /** @brief set FinalBlockId
+  /** @brief Set `FinalBlockId`.
    */
   MetaInfo&
   setFinalBlock(optional<name::Component> finalBlockId);
 
 public: // app-defined MetaInfo items
   /**
-   * @brief Get all app-defined MetaInfo items
+   * @brief Get all app-defined MetaInfo items.
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
@@ -139,7 +142,7 @@ public: // app-defined MetaInfo items
   getAppMetaInfo() const;
 
   /**
-   * @brief Set app-defined MetaInfo items
+   * @brief Set app-defined MetaInfo items.
    *
    * This method will replace all existing app-defined MetaInfo items, if they existed.
    *
@@ -153,7 +156,7 @@ public: // app-defined MetaInfo items
   setAppMetaInfo(const std::list<Block>& info);
 
   /**
-   * @brief Add an app-defined MetaInfo item
+   * @brief Add an app-defined MetaInfo item.
    *
    * @throw Error if @p block has type not in the application range
    *              (https://named-data.net/doc/NDN-packet-spec/0.3/types.html)
@@ -165,7 +168,7 @@ public: // app-defined MetaInfo items
   addAppMetaInfo(const Block& block);
 
   /**
-   * @brief Remove a first app-defined MetaInfo item with type @p tlvType
+   * @brief Remove a first app-defined MetaInfo item with type @p tlvType.
    *
    * @return true if an item was deleted
    *
@@ -176,7 +179,7 @@ public: // app-defined MetaInfo items
   removeAppMetaInfo(uint32_t tlvType);
 
   /**
-   * @brief Find a first app-defined MetaInfo item of type @p tlvType
+   * @brief Find a first app-defined MetaInfo item of type @p tlvType.
    *
    * @return NULL if an item is not found, otherwise const pointer to the item
    *

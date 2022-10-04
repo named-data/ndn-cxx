@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,7 @@ namespace nfd {
 
 /**
  * \ingroup management
- * \brief represents an item in NFD Face dataset
+ * \brief Represents an item in NFD %Face dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
  */
 class FaceStatus : public FaceTraits<FaceStatus>
@@ -42,18 +42,18 @@ public:
   explicit
   FaceStatus(const Block& block);
 
-  /** \brief prepend FaceStatus to the encoder
+  /** \brief Prepend FaceStatus to the encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** \brief encode FaceStatus
+  /** \brief Encode FaceStatus.
    */
   const Block&
   wireEncode() const;
 
-  /** \brief decode FaceStatus
+  /** \brief Decode FaceStatus.
    */
   void
   wireDecode(const Block& wire);
@@ -103,7 +103,7 @@ public: // getters & setters
     return !!m_defaultCongestionThreshold;
   }
 
-  /** \brief get default congestion threshold (measured in bytes)
+  /** \brief Get default congestion threshold (measured in bytes).
    */
   uint64_t
   getDefaultCongestionThreshold() const
@@ -112,7 +112,7 @@ public: // getters & setters
     return *m_defaultCongestionThreshold;
   }
 
-  /** \brief set default congestion threshold (measured in bytes)
+  /** \brief Set default congestion threshold (measured in bytes).
    */
   FaceStatus&
   setDefaultCongestionThreshold(uint64_t threshold);
@@ -126,7 +126,7 @@ public: // getters & setters
     return !!m_mtu;
   }
 
-  /** \brief get MTU (measured in bytes)
+  /** \brief Get MTU (measured in bytes).
    *
    *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
    */
@@ -137,7 +137,7 @@ public: // getters & setters
     return *m_mtu;
   }
 
-  /** \brief set MTU (measured in bytes)
+  /** \brief Set MTU (measured in bytes).
    *
    *  This value is capped at MAX_NDN_PACKET_SIZE, even if the MTU of the face is unlimited.
    */

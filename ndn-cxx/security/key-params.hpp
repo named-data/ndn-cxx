@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -70,7 +70,7 @@ public:
 
 protected:
   /**
-   * @brief Constructor
+   * @brief Constructor.
    *
    * @param keyType Type of the created key
    * @param keyIdType The method how the key id should be generated; must not be
@@ -79,7 +79,7 @@ protected:
   KeyParams(KeyType keyType, KeyIdType keyIdType);
 
   /**
-   * @brief Constructor
+   * @brief Constructor.
    *
    * @param keyType Type of the created key
    * @param keyId The user-specified key id. The keyIdType will be set to KeyIdType::USER_SPECIFIED.
@@ -108,7 +108,7 @@ public:
   }
 
   /**
-   * @brief check if @p size is valid and supported for this key type.
+   * @brief Check if @p size is valid and supported for this key type.
    *
    * @throw KeyParams::Error if the key size is not supported.
    */
@@ -130,7 +130,7 @@ public:
   }
 
   /**
-   * @brief check if @p size is valid and supported for this key type.
+   * @brief Check if @p size is valid and supported for this key type.
    *
    * @throw KeyParams::Error if the key size is not supported.
    */
@@ -215,7 +215,7 @@ public:
   }
 
   /**
-   * @brief check if @p size is valid and supported for this key type.
+   * @brief Check if @p size is valid and supported for this key type.
    *
    * @throw KeyParams::Error if the key size is not supported.
    */
@@ -237,7 +237,7 @@ public:
   }
 
   /**
-   * @brief check if @p size is valid and supported for this key type.
+   * @brief Check if @p size is valid and supported for this key type.
    *
    * @throw KeyParams::Error if the key size is not supported.
    */

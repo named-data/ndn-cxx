@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,47 +30,53 @@
 namespace ndn {
 namespace lp {
 
-/** \class IncomingFaceIdTag
- *  \brief a packet tag for IncomingFaceId field
+/**
+ * \class IncomingFaceIdTag
+ * \brief A packet tag for IncomingFaceId field.
  *
- *  This tag can be attached to Interest, Data, Nack.
+ * This tag can be attached to Interest, Data, Nack.
  */
-typedef SimpleTag<uint64_t, 10> IncomingFaceIdTag;
+using IncomingFaceIdTag = SimpleTag<uint64_t, 10>;
 
-/** \class NextHopFaceIdTag
- *  \brief a packet tag for NextHopFaceId field
+/**
+ * \class NextHopFaceIdTag
+ * \brief A packet tag for NextHopFaceId field.
  *
- *  This tag can be attached to Interest.
+ * This tag can be attached to Interest.
  */
-typedef SimpleTag<uint64_t, 11> NextHopFaceIdTag;
+using NextHopFaceIdTag = SimpleTag<uint64_t, 11>;
 
-/** \class CachePolicyTag
- *  \brief a packet tag for CachePolicy field
+/**
+ * \class CachePolicyTag
+ * \brief A packet tag for CachePolicy field.
  *
- *  This tag can be attached to Data.
+ * This tag can be attached to Data.
  */
-typedef SimpleTag<CachePolicy, 12> CachePolicyTag;
+using CachePolicyTag = SimpleTag<CachePolicy, 12>;
 
-/** \class CongestionMarkTag
- *  \brief a packet tag for CongestionMark field
+/**
+ * \class CongestionMarkTag
+ * \brief A packet tag for CongestionMark field.
  *
- *  This tag can be attached to Interest, Data, Nack.
+ * This tag can be attached to Interest, Data, Nack.
  */
-typedef SimpleTag<uint64_t, 13> CongestionMarkTag;
+using CongestionMarkTag = SimpleTag<uint64_t, 13>;
 
-/** \class NonDiscoveryTag
- *  \brief a packet tag for NonDiscovery field
+/**
+ * \class NonDiscoveryTag
+ * \brief A packet tag for NonDiscovery field.
  *
- *  This tag can be attached to Interest.
+ * This tag can be attached to Interest.
  */
-typedef SimpleTag<EmptyValue, 14> NonDiscoveryTag;
+using NonDiscoveryTag = SimpleTag<EmptyValue, 14>;
 
-/** \class PrefixAnnouncementTag
- *  \brief a packet tag for PrefixAnnouncement field
+/**
+ * \class PrefixAnnouncementTag
+ * \brief A packet tag for PrefixAnnouncement field.
  *
- *  This tag can be attached to Data.
+ * This tag can be attached to Data.
  */
-typedef SimpleTag<PrefixAnnouncementHeader, 15> PrefixAnnouncementTag;
+using PrefixAnnouncementTag = SimpleTag<PrefixAnnouncementHeader, 15>;
 
 } // namespace lp
 } // namespace ndn

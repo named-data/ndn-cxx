@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@ namespace security {
 inline namespace v2 {
 
 /**
- * @brief Request for a certificate, associated with the number of attempts
+ * @brief Request for a certificate, associated with the number of attempts.
  */
 class CertificateRequest : noncopyable
 {
@@ -50,11 +50,11 @@ public:
   }
 
 public:
-  /// @brief the name for the requested data/certificate.
+  /// The name for the requested certificate.
   Interest interest;
-  /// @brief the number of remaining retries after timeout or NACK.
+  /// The number of remaining retries after a timeout or Nack.
   int nRetriesLeft = 0;
-  /// @brief the amount of time to wait before sending the next interest after a NACK.
+  /// The amount of time to wait before sending the next Interest after a Nack.
   time::milliseconds waitAfterNack = 500_ms;
 };
 

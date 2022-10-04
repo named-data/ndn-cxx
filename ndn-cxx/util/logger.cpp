@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -75,10 +75,6 @@ parseLogLevel(const std::string& s)
   NDN_THROW(std::invalid_argument("unrecognized log level '" + s + "'"));
 }
 
-/**
- * \brief checks if incoming logger name meets criteria
- * \param name name of logger
- */
 static bool
 isValidLoggerName(const std::string& name)
 {

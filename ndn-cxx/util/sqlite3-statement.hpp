@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,14 +31,14 @@ namespace ndn {
 namespace util {
 
 /**
- * @brief wrap an SQLite3 prepared statement
+ * @brief Wrap an SQLite3 prepared statement.
  * @warning This class is implementation detail of ndn-cxx library.
  */
 class Sqlite3Statement : noncopyable
 {
 public:
   /**
-   * @brief initialize and prepare Sqlite3 statement
+   * @brief Initialize and prepare Sqlite3 statement.
    * @param database handler to open sqlite3 database
    * @param statement SQL statement
    * @throw std::domain_error SQL statement is bad
@@ -46,12 +46,12 @@ public:
   Sqlite3Statement(sqlite3* database, const std::string& statement);
 
   /**
-   * @brief finalize the statement
+   * @brief Finalize the statement.
    */
   ~Sqlite3Statement();
 
   /**
-   * @brief bind a string to the statement
+   * @brief Bind a string to the statement.
    *
    * @param index The binding position
    * @param value The pointer of the binding string
@@ -63,7 +63,7 @@ public:
   bind(int index, const char* value, size_t size, void(*destructor)(void*));
 
   /**
-   * @brief bind a string to the statement
+   * @brief Bind a string to the statement.
    *
    * @param index The binding position
    * @param value The binding string
@@ -74,7 +74,7 @@ public:
   bind(int index, const std::string& value, void(*destructor)(void*));
 
   /**
-   * @brief bind a byte blob to the statement
+   * @brief Bind a byte blob to the statement.
    *
    * @param index The binding position
    * @param value The pointer of the blob
@@ -86,7 +86,7 @@ public:
   bind(int index, const void* value, size_t size, void(*destructor)(void*));
 
   /**
-   * @brief bind a byte blob to the statement
+   * @brief Bind a byte blob to the statement.
    *
    * @param index The binding position
    * @param block The binding block
@@ -97,7 +97,7 @@ public:
   bind(int index, const Block& block, void(*destructor)(void*));
 
   /**
-   * @brief bind an integer to the statement
+   * @brief Bind an integer to the statement.
    *
    * @param index The binding position
    * @param number The binding integer
@@ -107,43 +107,43 @@ public:
   bind(int index, int number);
 
   /**
-   * @brief get a string from @p column.
+   * @brief Get a string from @p column.
    */
   std::string
   getString(int column);
 
   /**
-   * @brief get a block from @p column.
+   * @brief Get a block from @p column.
    */
   Block
   getBlock(int column);
 
   /**
-   * @brief get an integer from @p column.
+   * @brief Get an integer from @p column.
    */
   int
   getInt(int column);
 
   /**
-   * @brief get a pointer of byte blob from @p column.
+   * @brief Get a pointer of byte blob from @p column.
    */
   const uint8_t*
   getBlob(int column);
 
   /**
-   * @brief get the size of @p column.
+   * @brief Get the size of @p column.
    */
   int
   getSize(int column);
 
   /**
-   * @brief wrapper of sqlite3_step
+   * @brief Wrapper of `sqlite3_step`.
    */
   int
   step();
 
   /**
-   * @brief implicitly converts to sqlite3_stmt* to be used in SQLite C API
+   * @brief Implicitly converts to `sqlite3_stmt*` to be used in SQLite C API.
    */
   operator sqlite3_stmt*();
 

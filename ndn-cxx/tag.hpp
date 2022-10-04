@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,20 +25,19 @@
 namespace ndn {
 
 /**
- * @brief Base class for packet tags that can hold any arbitrary information
+ * @brief Base class for packet tags that can hold any arbitrary information.
  */
 class Tag
 {
 public:
   virtual
-  ~Tag();
+  ~Tag() = default;
 
+#ifdef DOXYGEN
   /**
-   * @fn static constexpr int getTypeId() noexcept
-   * @return an integer that uniquely identifies this Tag type
+   * @brief Returns an integer that uniquely identifies this Tag type.
    * @sa https://redmine.named-data.net/projects/ndn-cxx/wiki/PacketTagTypes
    */
-#ifdef DOXYGEN
   static constexpr int
   getTypeId() noexcept
   {
@@ -47,12 +46,10 @@ public:
 #endif // DOXYGEN
 };
 
-inline
-Tag::~Tag() = default;
-
-/** @brief provides a tag type for simple types
- *  @tparam T the value type
- *  @tparam TypeId the TypeId
+/**
+ * @brief Provides a tag type for simple types.
+ * @tparam T the value type
+ * @tparam TypeId the TypeId
  */
 template<typename T, int TypeId>
 class SimpleTag : public Tag
@@ -64,7 +61,8 @@ public:
     return TypeId;
   }
 
-  /** \brief explicitly convertible from T
+  /**
+   * \brief Explicitly convertible from \c T.
    */
   constexpr explicit
   SimpleTag(const T& value) noexcept
@@ -72,15 +70,17 @@ public:
   {
   }
 
-  /** \brief implicitly convertible to T
-   *  \return a copy of the enclosed value
+  /**
+   * \brief Implicitly convertible to \c T.
+   * \return A copy of the enclosed value.
    */
   operator T() const
   {
     return m_value;
   }
 
-  /** \return the enclosed value
+  /**
+   * \brief Returns the enclosed value.
    */
   constexpr const T&
   get() const noexcept

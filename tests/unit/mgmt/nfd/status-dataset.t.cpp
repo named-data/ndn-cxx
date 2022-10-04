@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(Nfd)
 class ControllerStatusDatasetFixture : public ControllerFixture
 {
 protected:
-  /** \brief send one WireEncodable as Data reply
+  /** \brief Send one WireEncodable as Data reply.
    *  \param prefix dataset prefix without version and segment
    *  \param payload payload block
    *  \note payload must fit in one Data
@@ -53,7 +53,7 @@ protected:
     face.receive(*signData(data));
   }
 
-  /** \brief send two WireEncodables as Data reply
+  /** \brief Send two WireEncodables as Data reply.
    *  \param prefix dataset prefix without version and segment
    *  \param payload1 first vector item
    *  \param payload2 second vector item

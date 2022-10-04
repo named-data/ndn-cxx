@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,24 +39,23 @@ public:
   CertificateStorage();
 
   /**
-   * @brief Find a trusted certificate in trust anchor container or in verified cache
+   * @brief Find a trusted certificate in trust anchor container or in verified cache.
    * @param interestForCert Interest for certificate
-   * @return found certificate, nullptr if not found.
+   * @return Found certificate, nullptr if not found.
    *
-   * @note The returned pointer may get invalidated after next findTrustedCert or findCert calls.
+   * @note The returned pointer may get invalidated after next findTrustedCert() or findCert() calls.
    */
   const Certificate*
   findTrustedCert(const Interest& interestForCert) const;
 
   /**
-   * @brief Check if certificate exists in verified, unverified cache, or in the set of trust
-   *        anchors
+   * @brief Check if certificate exists in the verified/unverified cache or in the set of trust anchors.
    */
   bool
   isCertKnown(const Name& certPrefix) const;
 
   /**
-   * @brief Cache unverified certificate for a period of time (5 minutes)
+   * @brief Cache unverified certificate for a period of time (5 minutes).
    * @param cert  The certificate packet
    *
    * @todo Add ability to customize time period
@@ -84,7 +83,7 @@ public:
 
 protected:
   /**
-   * @brief load static trust anchor.
+   * @brief Load static trust anchor.
    *
    * Static trust anchors are permanently associated with the validator and never expire.
    *
@@ -95,7 +94,7 @@ protected:
   loadAnchor(const std::string& groupId, Certificate&& cert);
 
   /**
-   * @brief load dynamic trust anchors.
+   * @brief Load dynamic trust anchors.
    *
    * Dynamic trust anchors are associated with the validator for as long as the underlying
    * trust anchor file (set of files) exist(s).
@@ -110,13 +109,13 @@ protected:
              time::nanoseconds refreshPeriod, bool isDir = false);
 
   /**
-   * @brief remove any previously loaded static or dynamic trust anchor
+   * @brief Remove any previously loaded static or dynamic trust anchor.
    */
   void
   resetAnchors();
 
   /**
-   * @brief Cache verified certificate a period of time (1 hour)
+   * @brief Cache verified certificate a period of time (1 hour).
    * @param cert  The certificate packet
    *
    * @todo Add ability to customize time period
@@ -125,7 +124,7 @@ protected:
   cacheVerifiedCert(Certificate&& cert);
 
   /**
-   * @brief Remove any cached verified certificates
+   * @brief Remove any cached verified certificates.
    */
   void
   resetVerifiedCerts();

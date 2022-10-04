@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California,
+ * Copyright (c) 2013-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -38,8 +38,9 @@
 
 namespace ndn {
 
-/** \brief represents the underlying protocol and address used by a Face
- *  \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#FaceUri
+/**
+ * \brief The underlying protocol and address used by a Face.
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#FaceUri
  */
 class FaceUri
 {
@@ -52,10 +53,10 @@ public:
 
   FaceUri();
 
-  /** \brief construct by parsing
-   *
-   *  \param uri scheme://host[:port]/path
-   *  \throw FaceUri::Error if URI cannot be parsed
+  /**
+   * \brief Construct by parsing.
+   * \param uri scheme://host[:port]/path
+   * \throw FaceUri::Error if URI cannot be parsed
    */
   explicit
   FaceUri(const std::string& uri);
@@ -65,84 +66,85 @@ public:
   explicit
   FaceUri(const char* uri);
 
-  /// exception-safe parsing
+  /// Exception-safe parsing.
   NDN_CXX_NODISCARD bool
   parse(const std::string& uri);
 
 public: // scheme-specific construction
-  /// construct udp4 or udp6 canonical FaceUri
+  /// Construct a udp4 or udp6 canonical FaceUri.
   explicit
   FaceUri(const boost::asio::ip::udp::endpoint& endpoint);
 
-  /// construct tcp4 or tcp6 canonical FaceUri
+  /// Construct a tcp4 or tcp6 canonical FaceUri.
   explicit
   FaceUri(const boost::asio::ip::tcp::endpoint& endpoint);
 
-  /// construct tcp canonical FaceUri with custom scheme
+  /// Construct a tcp canonical FaceUri with custom scheme.
   FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::string& scheme);
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
-  /// construct unix canonical FaceUri
+  /// Construct a unix canonical FaceUri.
   explicit
   FaceUri(const boost::asio::local::stream_protocol::endpoint& endpoint);
 #endif // BOOST_ASIO_HAS_LOCAL_SOCKETS
 
-  /// create fd FaceUri from file descriptor
+  /// Construct an fd FaceUri from a file descriptor.
   static FaceUri
   fromFd(int fd);
 
-  /// construct ether canonical FaceUri
+  /// Construct an ether canonical FaceUri.
   explicit
   FaceUri(const ethernet::Address& address);
 
-  /// create dev FaceUri from network device name
+  /// Construct a dev FaceUri from a network device name.
   static FaceUri
   fromDev(const std::string& ifname);
 
-  /// create udp4 or udp6 NIC-associated FaceUri from endpoint and network device name
+  /// Construct a udp4 or udp6 NIC-associated FaceUri from endpoint and network device name.
   static FaceUri
   fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, const std::string& ifname);
 
 public: // getters
-  /// get scheme (protocol)
+  /// Get scheme (protocol)
   const std::string&
   getScheme() const
   {
     return m_scheme;
   }
 
-  /// get host (domain)
+  /// Get host (domain)
   const std::string&
   getHost() const
   {
     return m_host;
   }
 
-  /// get port
+  /// Get port
   const std::string&
   getPort() const
   {
     return m_port;
   }
 
-  /// get path
+  /// Get path
   const std::string&
   getPath() const
   {
     return m_path;
   }
 
-  /// write as a string
+  /// Serialize as a string
   std::string
   toString() const;
 
 public: // canonical FaceUri
-  /** \return whether a FaceUri of the scheme can be canonized
+  /**
+   * \brief Return whether a FaceUri of the specified scheme can be canonized.
    */
   static bool
   canCanonize(const std::string& scheme);
 
-  /** \brief determine whether this FaceUri is in canonical form
+  /** \brief Determine whether this FaceUri is in canonical form.
    *  \return true if this FaceUri is in canonical form,
    *          false if this FaceUri is not in canonical form or
    *          or it's undetermined whether this FaceUri is in canonical form
@@ -153,7 +155,7 @@ public: // canonical FaceUri
   typedef function<void(const FaceUri&)> CanonizeSuccessCallback;
   typedef function<void(const std::string& reason)> CanonizeFailureCallback;
 
-  /** \brief asynchronously convert this FaceUri to canonical form
+  /** \brief Asynchronously convert this FaceUri to canonical form.
    *  \param onSuccess function to call after this FaceUri is converted to canonical form
    *  \note A new FaceUri in canonical form will be created; this FaceUri is unchanged.
    *  \param onFailure function to call if this FaceUri cannot be converted to canonical form

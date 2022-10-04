@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@
 
 namespace ndn {
 
-/** @brief Represents in-memory storage
+/** @brief Represents in-memory storage.
  */
 class InMemoryStorage : noncopyable
 {
@@ -59,7 +59,7 @@ public:
     >
   > Cache;
 
-  /** @brief Represents a self-defined const_iterator for the in-memory storage
+  /** @brief Represents a self-defined const_iterator for the in-memory storage.
    *
    *  @note Don't try to instantiate this class directly, use InMemoryStorage::begin() instead.
    */
@@ -100,7 +100,7 @@ public:
   };
 
   /** @brief Represents an error might be thrown during reduce the current capacity of the
-   *  in-memory storage through function setCapacity(size_t nMaxPackets).
+   *         in-memory storage through function setCapacity(size_t nMaxPackets).
    */
   class Error : public std::runtime_error
   {
@@ -111,13 +111,15 @@ public:
     }
   };
 
-  /** @brief Create a InMemoryStorage with up to @p limit entries
+  /** @brief Create a InMemoryStorage with up to @p limit entries.
+   *
    *  The InMemoryStorage created through this method will ignore MustBeFresh in interest processing
    */
   explicit
   InMemoryStorage(size_t limit = std::numeric_limits<size_t>::max());
 
-  /** @brief Create a InMemoryStorage with up to @p limit entries
+  /** @brief Create a InMemoryStorage with up to @p limit entries.
+   *
    *  The InMemoryStorage created through this method will handle MustBeFresh in interest processing
    */
   explicit
@@ -125,12 +127,12 @@ public:
                   size_t limit = std::numeric_limits<size_t>::max());
 
   /** @note Please make sure to implement it to free m_freeEntries and evict
-    * all items in the derived class for anybody who wishes to inherit this class
-    */
+   *        all items in the derived class for anybody who wishes to inherit this class.
+   */
   virtual
   ~InMemoryStorage();
 
-  /** @brief Inserts a Data packet
+  /** @brief Inserts a Data packet.
    *
    *  @param data the packet to insert, must be signed and have wire encoding
    *  @param mustBeFreshProcessingWindow Beyond this time period after the data is inserted, the
@@ -145,7 +147,7 @@ public:
   void
   insert(const Data& data, const time::milliseconds& mustBeFreshProcessingWindow = INFINITE_WINDOW);
 
-  /** @brief Finds the best match Data for an Interest
+  /** @brief Finds the best match Data for an Interest.
    *
    *  @note It will invoke afterAccess(shared_ptr<InMemoryStorageEntry>).
    *  As currently it is impossible to determine whether a Name contains implicit digest or not,
@@ -153,13 +155,12 @@ public:
    *  including implicit digest) whose name is not the full name of the data matching the
    *  implicit digest.
    *
-   *  @return{ the best match, if any; otherwise a null shared_ptr }
+   *  @return the best match, if any; otherwise a null shared_ptr
    */
   shared_ptr<const Data>
   find(const Interest& interest);
 
-  /** @brief Finds the best match Data for a Name with or without
-   *  the implicit digest.
+  /** @brief Finds the best match Data for a Name with or without implicit digest.
    *
    *  If packets with the same name but different digests exist
    *  and the Name supplied is the one without implicit digest, a packet
@@ -167,12 +168,13 @@ public:
    *
    *  @note It will invoke afterAccess(shared_ptr<InMemoryStorageEntry>).
    *
-   *  @return{ the one matched the Name; otherwise a null shared_ptr }
+   *  @return the one matched the Name; otherwise a null shared_ptr
    */
   shared_ptr<const Data>
   find(const Name& name);
 
   /** @brief Deletes in-memory storage entry by prefix by default.
+   *
    *  @param prefix Exact name of a prefix of the data to remove
    *  @param isPrefix If false, the function will only delete the
    *  entry completely matched with the prefix according to canonical ordering.
@@ -185,7 +187,7 @@ public:
   void
   erase(const Name& prefix, const bool isPrefix = true);
 
-  /** @return{ maximum number of packets that can be allowed to store in in-memory storage }
+  /** @return Maximum number of packets that can be allowed to store in in-memory storage.
    */
   size_t
   getLimit() const
@@ -193,7 +195,7 @@ public:
     return m_limit;
   }
 
-  /** @return{ number of packets stored in in-memory storage }
+  /** @return Number of packets stored in in-memory storage.
    */
   size_t
   size() const
@@ -201,18 +203,16 @@ public:
     return m_nPackets;
   }
 
-  /** @brief Returns begin iterator of the in-memory storage ordering by
-   *  name with digest
+  /** @brief Returns begin iterator of the in-memory storage ordering by name with digest.
    *
-   *  @return{ const_iterator pointing to the beginning of the m_cache }
+   *  @return const_iterator pointing to the beginning of the m_cache
    */
   InMemoryStorage::const_iterator
   begin() const;
 
-  /** @brief Returns end iterator of the in-memory storage ordering by
-   *  name with digest
+  /** @brief Returns end iterator of the in-memory storage ordering by name with digest.
    *
-   *  @return{ const_iterator pointing to the end of the m_cache }
+   *  @return const_iterator pointing to the end of the m_cache
    */
   InMemoryStorage::const_iterator
   end() const;
@@ -249,13 +249,13 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   evictItem() = 0;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
-  /** @brief sets current capacity of in-memory storage (in packets)
+  /** @brief Sets current capacity of in-memory storage (in packets).
    */
   void
   setCapacity(size_t nMaxPackets);
 
-  /** @brief returns current capacity of in-memory storage (in packets)
-   *  @return{ number of packets that can be stored in application cache }
+  /** @brief Returns current capacity of in-memory storage (in packets).
+   *  @return number of packets that can be stored in application cache
    */
   size_t
   getCapacity() const
@@ -263,7 +263,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
     return m_capacity;
   }
 
-  /** @brief returns true if the in-memory storage uses up the current capacity, false otherwise
+  /** @brief Returns true if the in-memory storage uses up the current capacity, false otherwise.
    */
   bool
   isFull() const
@@ -271,7 +271,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
     return size() >= m_capacity;
   }
 
-  /** @brief deletes in-memory storage entries by the Name with implicit digest.
+  /** @brief Deletes in-memory storage entries by the Name with implicit digest.
    *
    *  This is the function one should use to erase entry in the cache
    *  in derived class.
@@ -280,19 +280,20 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   void
   eraseImpl(const Name& name);
 
-  /** @brief Prints contents of the in-memory storage
+  /** @brief Prints contents of the in-memory storage.
    */
   void
   printCache(std::ostream& os) const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-  /** @brief free in-memory storage entries by an iterator pointing to that entry.
-      @return An iterator pointing to the element that followed the last element erased.
+  /** @brief Free in-memory storage entries by an iterator pointing to that entry.
+   *  @return An iterator pointing to the element that followed the last element erased.
    */
   Cache::iterator
   freeEntry(Cache::iterator it);
 
   /** @brief Implements child selector (leftmost, rightmost, undeclared).
+   *
    *  Operates on the first layer of a skip list.
    *
    *  startingPoint must be less than Interest Name.
@@ -304,13 +305,14 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
    *  other selectors. When childSelector = rightmost, it goes till the end, and returns application
    *  cache entry that satisfies other selectors. Returned application cache entry is the leftmost
    *  child of the rightmost child.
-   *  @return{ the best match, if any; otherwise 0 }
+   *
+   *  @return the best match, if any; otherwise 0
    */
   InMemoryStorageEntry*
   selectChild(const Interest& interest,
               Cache::index<byFullName>::type::iterator startingPoint) const;
 
-  /** @brief Get the next iterator (include startingPoint) that satisfies MustBeFresh requirement
+  /** @brief Get the next iterator (include startingPoint) that satisfies MustBeFresh requirement.
    *
    *  @param startingPoint The iterator to start with.
    *  @return The next qualified iterator

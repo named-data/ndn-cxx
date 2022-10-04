@@ -27,7 +27,8 @@
 
 namespace ndn {
 
-/** @brief Represents a SignatureInfo or InterestSignatureInfo TLV element
+/**
+ * @brief Represents a `%SignatureInfo` or `%InterestSignatureInfo` TLV element.
  */
 class SignatureInfo
 {
@@ -71,7 +72,7 @@ public:
    *  @param encoder EncodingEstimator or EncodingBuffer instance
    *  @param type Which type of SignatureInfo block to encode
    *
-   *  Elements are encoded in the following order: SignatureType, KeyLocator (if present), and
+   *  Elements are encoded in the following order: `SignatureType`, `%KeyLocator` (if present), and
    *  other elements in the order they were set (changing the value of an already present element
    *  will not change that element's encoding order).
    */
@@ -82,7 +83,7 @@ public:
   /** @brief Encode to wire format
    *  @param type Which type of SignatureInfo block to encode
    *
-   *  Elements are encoded in the following order: SignatureType, KeyLocator (if present), and
+   *  Elements are encoded in the following order: `SignatureType`, `%KeyLocator` (if present), and
    *  other elements in the order they were set (changing the value of an already present element
    *  will not change that element's encoding order).
    */
@@ -106,8 +107,8 @@ public:
   }
 
 public: // field access
-  /** @brief Get SignatureType
-   *  @return tlv::SignatureTypeValue, or -1 to indicate an invalid SignatureInfo
+  /** @brief Get the `SignatureType`.
+   *  @return tlv::SignatureTypeValue, or -1 to indicate an invalid SignatureInfo.
    */
   int32_t
   getSignatureType() const noexcept
@@ -115,13 +116,13 @@ public: // field access
     return m_type;
   }
 
-  /** @brief Set SignatureType
-   *  @return A reference to this SignatureInfo, to allow chaining
+  /** @brief Set the `SignatureType`.
+   *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
   setSignatureType(tlv::SignatureTypeValue type);
 
-  /** @brief Check if KeyLocator is present
+  /** @brief Check if `%KeyLocator` is present.
    */
   bool
   hasKeyLocator() const noexcept
@@ -129,30 +130,32 @@ public: // field access
     return m_keyLocator.has_value();
   }
 
-  /** @brief Get KeyLocator
-   *  @throw Error This SignatureInfo does not contain a KeyLocator
+  /** @brief Get the `%KeyLocator` element.
+   *  @throw Error This SignatureInfo does not contain a `%KeyLocator` element.
    */
   const KeyLocator&
   getKeyLocator() const;
 
-  /** @brief Set KeyLocator
-   *  @return A reference to this SignatureInfo, to allow chaining
+  /** @brief Set or unset the `%KeyLocator` element.
    *
-   *  Passing `nullopt` will remove the KeyLocator.
+   *  Passing `nullopt` will remove the `%KeyLocator` element.
+   *
+   *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
   setKeyLocator(optional<KeyLocator> keyLocator);
 
-  /** @brief Get ValidityPeriod
+  /** @brief Get the `ValidityPeriod` element.
    *  @throw Error This SignatureInfo does not contain a ValidityPeriod
    */
   security::ValidityPeriod
   getValidityPeriod() const;
 
-  /** @brief Append or replace ValidityPeriod
-   *  @return A reference to this SignatureInfo, to allow chaining
+  /** @brief Append, replace, or remove the `ValidityPeriod` element.
    *
-   *  Passing `nullopt` will remove the ValidityPeriod.
+   *  Passing `nullopt` will remove the `ValidityPeriod` element.
+   *
+   *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
   setValidityPeriod(optional<security::ValidityPeriod> validityPeriod);
@@ -164,9 +167,10 @@ public: // field access
   getNonce() const;
 
   /** @brief Append or replace SignatureNonce
-   *  @return A reference to this SignatureInfo, to allow chaining
    *
    *  Passing `nullopt` will remove the SignatureNonce.
+   *
+   *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
   setNonce(optional<span<const uint8_t>> nonce);
@@ -178,9 +182,10 @@ public: // field access
   getTime() const;
 
   /** @brief Append or replace SignatureTime
-   *  @return A reference to this SignatureInfo, to allow chaining
    *
    *  Passing `nullopt` will remove the SignatureTime.
+   *
+   *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
   setTime(optional<time::system_clock::time_point> time = time::system_clock::now());
@@ -192,9 +197,10 @@ public: // field access
   getSeqNum() const;
 
   /** @brief Append or replace SignatureSeqNum
-   *  @return A reference to this SignatureInfo, to allow chaining
    *
    *  Passing `nullopt` will remove the SignatureSeqNum.
+   *
+   *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
   setSeqNum(optional<uint64_t> seqNum);

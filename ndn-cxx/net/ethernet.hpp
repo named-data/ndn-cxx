@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2021 Regents of the University of California,
+ * Copyright (c) 2014-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -46,37 +46,37 @@ const size_t MIN_DATA_LEN = 46;     ///< Min octets in Ethernet payload (assumin
 const size_t MAX_DATA_LEN = 1500;   ///< Max octets in Ethernet payload
 const size_t CRC_LEN      = 4;      ///< Octets in Ethernet frame check sequence
 
-
-/** \brief represents an Ethernet hardware address
+/**
+ * \brief Represents an Ethernet hardware address.
  */
 class Address : public std::array<uint8_t, ADDR_LEN>
 {
 public:
-  /// Constructs a null Ethernet address (00:00:00:00:00:00)
+  /// Constructs a null Ethernet address (`00:00:00:00:00:00`).
   Address();
 
-  /// Constructs a new Ethernet address with the given octets
+  /// Constructs a new Ethernet address with the given octets.
   Address(uint8_t a1, uint8_t a2, uint8_t a3,
           uint8_t a4, uint8_t a5, uint8_t a6);
 
-  /// Constructs a new Ethernet address with the given octets
+  /// Constructs a new Ethernet address with the given octets.
   explicit
   Address(const uint8_t octets[ADDR_LEN]);
 
-  /// True if this is a broadcast address (ff:ff:ff:ff:ff:ff)
+  /// True if this is a broadcast address (`ff:ff:ff:ff:ff:ff`).
   bool
   isBroadcast() const;
 
-  /// True if this is a multicast address
+  /// True if this is a multicast address.
   bool
   isMulticast() const;
 
-  /// True if this is a null address (00:00:00:00:00:00)
+  /// True if this is a null address (`00:00:00:00:00:00`).
   bool
   isNull() const;
 
   /**
-   * \brief Converts the address to a human-readable string
+   * \brief Converts the address to a human-readable string.
    *
    * \param sep A character used to visually separate the octets,
    *            usually ':' (the default value) or '-'
@@ -86,7 +86,7 @@ public:
 
   /**
    * \brief Creates an Address from a string containing an Ethernet address
-   *        in hexadecimal notation, with colons or hyphens as separators
+   *        in hexadecimal notation, with colons or hyphens as separators.
    *
    * \param str The string to be parsed
    * \return Always an instance of Address, which will be null
@@ -96,11 +96,15 @@ public:
   fromString(const std::string& str);
 };
 
-/// Returns the Ethernet broadcast address (ff:ff:ff:ff:ff:ff)
+/**
+ * @brief Returns the Ethernet broadcast address (`ff:ff:ff:ff:ff:ff`).
+ */
 Address
 getBroadcastAddress();
 
-/// Returns the default Ethernet multicast address for NDN
+/**
+ * @brief Returns the default Ethernet multicast address for NDN.
+ */
 Address
 getDefaultMulticastAddress();
 

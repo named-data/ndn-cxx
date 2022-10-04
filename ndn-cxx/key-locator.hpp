@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -88,26 +88,26 @@ public: // attributes
   KeyLocator&
   clear();
 
-  /** \brief Get nested Name element.
+  /** \brief Get nested `%Name` element.
    *  \throw Error if type is not tlv::Name
    */
   const Name&
   getName() const;
 
-  /** \brief Set nested Name element.
+  /** \brief Set nested `%Name` element.
    *  \post `getType() == tlv::Name`
    *  \return self
    */
   KeyLocator&
   setName(const Name& name);
 
-  /** \brief Get nested KeyDigest element.
+  /** \brief Get nested `KeyDigest` element.
    *  \throw Error if type is not tlv::KeyDigest
    */
   const Block&
   getKeyDigest() const;
 
-  /** \brief Set nested KeyDigest element (whole TLV).
+  /** \brief Set nested `KeyDigest` element (whole TLV).
    *  \post `getType() == tlv::KeyDigest`
    *  \throw std::invalid_argument Block type is not tlv::KeyDigest
    *  \return self
@@ -115,8 +115,8 @@ public: // attributes
   KeyLocator&
   setKeyDigest(const Block& keyDigest);
 
-  /** \brief Set nested KeyDigest element value.
-   *  \param keyDigest buffer to use as TLV-VALUE of the nested KeyDigest element.
+  /** \brief Set nested `KeyDigest` element value.
+   *  \param keyDigest buffer to use as TLV-VALUE of the nested `KeyDigest` element.
    *  \post `getType() == tlv::KeyDigest`
    *  \return self
    */

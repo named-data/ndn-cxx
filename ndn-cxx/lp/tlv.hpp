@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,10 +24,13 @@
 
 namespace ndn {
 namespace lp {
+/**
+ * @brief Contains constants related to the NDNLPv2 packet format.
+ */
 namespace tlv {
 
 /**
- * \brief TLV-TYPE numbers for NDNLPv2
+ * \brief TLV-TYPE numbers for NDNLPv2.
  */
 enum {
   LpPacket = 100,
@@ -51,22 +54,22 @@ enum {
 
 enum {
   /**
-   * \brief lower bound of 1-octet header field
+   * \brief Lower bound of 1-octet header field.
    */
   HEADER1_MIN = 81,
 
   /**
-   * \brief upper bound of 1-octet header field
+   * \brief Upper bound of 1-octet header field.
    */
   HEADER1_MAX = 99,
 
   /**
-   * \brief lower bound of 3-octet header field
+   * \brief Lower bound of 3-octet header field.
    */
   HEADER3_MIN = 800,
 
   /**
-   * \brief upper bound of 3-octet header field
+   * \brief Upper bound of 3-octet header field.
    */
   HEADER3_MAX = 959
 };

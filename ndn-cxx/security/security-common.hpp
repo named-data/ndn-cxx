@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,7 @@ namespace signed_interest {
 const ssize_t POS_SIG_VALUE = -1;
 const ssize_t POS_SIG_INFO = -2;
 
-/** \brief minimal number of components for Signed Interest
+/** \brief Minimum number of name components for an old-style Signed %Interest.
  *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/SignedInterest
  */
 const size_t MIN_SIZE = 2;
@@ -48,7 +48,7 @@ using signed_interest::POS_SIG_INFO;
 const ssize_t POS_RANDOM_VAL = -3;
 const ssize_t POS_TIMESTAMP = -4;
 
-/** \brief minimal number of components for Command Interest
+/** \brief Minimum number of name components for a Command %Interest.
  *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
  */
 const size_t MIN_SIZE = 4;

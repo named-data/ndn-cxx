@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2021 Regents of the University of California,
+ * Copyright (c) 2014-2022 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -38,7 +38,7 @@
 
 namespace ndn {
 
-/** \brief a concept check for TLV abstraction with .wireEncode method
+/** \brief A concept check for TLV abstraction with a `wireEncode()` method.
  */
 template<class X>
 class WireEncodable
@@ -54,7 +54,7 @@ private:
   X j;
 };
 
-/** \brief a concept check for TLV abstraction with .wireEncode method
+/** \brief A concept check for TLV abstraction with a `wireEncode(EncodingBuffer)` method.
  */
 template<class X>
 class WireEncodableWithEncodingBuffer
@@ -73,8 +73,8 @@ private:
   X j;
 };
 
-/** \brief a concept check for TLV abstraction with .wireDecode method
- *         and constructible from Block
+/** \brief A concept check for TLV abstraction with a `wireDecode(Block)` method
+ *         and constructible from Block.
  */
 template<class X>
 class WireDecodable
@@ -108,7 +108,7 @@ public:
 
 } // namespace detail
 
-/** \brief concept check for an item in a Status Dataset
+/** \brief Concept check for an item in a Status Dataset.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
  */
 template<class X>
@@ -116,7 +116,7 @@ class StatusDatasetItem : public detail::NfdMgmtProtocolStruct<X>
 {
 };
 
-/** \brief concept check for an item in a Notification Stream
+/** \brief Concept check for an item in a Notification Stream.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
  */
 template<class X>
@@ -139,7 +139,7 @@ class StlForwardIteratorConcept : public boost::ForwardIterator<T>
 } // namespace detail
 } // namespace ndn
 
-/** \brief assert T is a forward iterator
+/** \brief Assert T is a forward iterator.
  *  \sa http://en.cppreference.com/w/cpp/concept/ForwardIterator
  *  \note A forward iterator should be default constructible, but boost::ForwardIterator follows
  *        SGI standard which doesn't require DefaultConstructible, so a separate check is needed.

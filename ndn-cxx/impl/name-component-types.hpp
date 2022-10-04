@@ -76,8 +76,8 @@ public:
    *  in the form of `<prefix>=<value>`, in addition to the plain `<type-number>=<escaped-value>`
    *  syntax.
    *
-   *  \return the `<prefix>` portion of the alternate URI representation.
-   *  \retval nullptr this component does not have an alternate URI representation.
+   *  \return The `<prefix>` portion of the alternate URI representation.
+   *  \retval nullptr This component does not have an alternate URI representation.
    */
   virtual const char*
   getAltUriPrefix() const
@@ -111,7 +111,7 @@ public:
 protected:
   /**
    * \brief Calculate the successor of \p comp, extending TLV-LENGTH if value overflows.
-   * \return whether TLV-LENGTH was extended, and the successor
+   * \return Whether TLV-LENGTH was extended, and the successor.
    */
   static std::tuple<bool, Block>
   getSuccessorImpl(const Component& comp)

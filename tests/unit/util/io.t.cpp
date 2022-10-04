@@ -114,7 +114,7 @@ protected:
   }
 
   /**
-   * \brief create a directory at `filepath`, so that it's neither readable nor writable as a file
+   * \brief Create a directory at `filepath`, so that it's neither readable nor writable as a file.
    */
   void
   mkdir() const
