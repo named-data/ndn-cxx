@@ -297,7 +297,7 @@ Name::getSuccessor() const
 }
 
 bool
-Name::isPrefixOf(const Name& other) const
+Name::isPrefixOf(const Name& other) const noexcept
 {
   // This name is longer than the name we are checking against.
   if (size() > other.size())
@@ -313,7 +313,7 @@ Name::isPrefixOf(const Name& other) const
 }
 
 bool
-Name::equals(const Name& other) const
+Name::equals(const Name& other) const noexcept
 {
   if (size() != other.size())
     return false;

@@ -35,45 +35,47 @@ class NetworkMonitorImplStub;
 class NetworkMonitorStub : public NetworkMonitor
 {
 public:
-  /** \brief Constructor.
-   *  \param capabilities capabilities reported by \p getCapabilities
+  /**
+   * \brief Constructor.
+   * \param capabilities The capabilities reported by getCapabilities()
    */
   explicit
   NetworkMonitorStub(uint32_t capabilities);
 
-  /** \brief Create a NetworkInterface instance.
+  /**
+   * \brief Create a NetworkInterface instance.
    */
   static shared_ptr<NetworkInterface>
   makeNetworkInterface();
 
-  /** \brief Emit the \p onInterfaceAdded signal and add \p netif internally.
+  /** \brief Emit the #onInterfaceAdded signal and add \p netif internally.
    *  \param netif new network interface
    *  \post getNetworkInterface(netif->getName()) == netif
-   *  \post listNetworkInterface() contains netif
-   *  \throw std::invalid_argument a network interface with same name already exists
+   *  \post listNetworkInterfaces() contains netif
+   *  \throw std::invalid_argument a network interface with the same name already exists
    */
   void
   addInterface(shared_ptr<NetworkInterface> netif);
 
-  /** \brief Emit the \p onInterfaceRemoved signal and remove \p netif internally.
+  /** \brief Emit the #onInterfaceRemoved signal and remove \p netif internally.
    *  \param ifname network interface name
    *  \post getNetworkInterface(ifname) == nullptr
-   *  \post listNetworkInterface() does not contains an interface with specified name
-   *  \note If specified interface name does not exist, this operation has no effect.
+   *  \post listNetworkInterfaces() does not contains an interface with specified name
+   *  \note If the specified interface name does not exist, this operation has no effect.
    */
   void
   removeInterface(const std::string& ifname);
 
-  /** \brief Emit the \p onEnumerationCompleted signal.
+  /** \brief Emit the #onEnumerationCompleted signal.
    *
    *  A real NetworkMonitor starts with an "enumerating" state, during which the initial
    *  information about network interfaces is collected from the OS. Upon discovering a network
-   *  interface, it emits the \p onInterfaceAdded signal. When the initial enumerating completes,
+   *  interface, it emits the #onInterfaceAdded signal. When the initial enumerating completes,
    *  it emits the onEnumerationCompleted signal.
    *
    *  To simulate this procedure on a newly constructed MockNetworkMonitor, the caller should
-   *  invoke \p addInterface once for each network interface that already exists, and then invoke
-   *  \p signalEnumerationCompleted .
+   *  invoke addInterface() once for each network interface that already exists, and then invoke
+   *  emitEnumerationCompleted().
    */
   void
   emitEnumerationCompleted();

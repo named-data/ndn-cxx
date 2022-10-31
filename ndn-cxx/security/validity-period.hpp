@@ -45,9 +45,9 @@ public:
 
   /**
    * @brief Construct ValidityPeriod relative to a timepoint.
-   * @param validFrom NotBefore is computed as @c now+validFrom .
+   * @param validFrom NotBefore is computed as `now+validFrom`.
    *                  This should be negative to construct a ValidityPeriod that includes @p now .
-   * @param validUntil NotAfter is computed as @c now+validTo .
+   * @param validUntil NotAfter is computed as `now+validTo`.
    *                   This should be positive to construct a ValidityPeriod that includes @p now .
    * @param now Reference timepoint. Default is current system clock timestamp.
    */

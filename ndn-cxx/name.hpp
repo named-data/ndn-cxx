@@ -139,29 +139,32 @@ public: // constructors, encoding, decoding
   deepCopy() const;
 
 public: // access
-  /** @brief Checks if the name is empty, i.e. has no components.
+  /**
+   * @brief Checks if the name is empty, i.e., has no components.
    */
   NDN_CXX_NODISCARD bool
-  empty() const
+  empty() const noexcept
   {
     return m_wire.elements().empty();
   }
 
-  /** @brief Returns the number of components.
+  /**
+   * @brief Returns the number of components.
    */
   size_t
-  size() const
+  size() const noexcept
   {
     return m_wire.elements_size();
   }
 
-  /** @brief Returns an immutable reference to the component at the specified index.
-   *  @param i zero-based index of the component to return;
-   *           if negative, it is interpreted as offset from the end of the name
-   *  @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
+  /**
+   * @brief Returns an immutable reference to the component at the specified index.
+   * @param i zero-based index of the component to return;
+   *          if negative, it is interpreted as offset from the end of the name
+   * @warning No bounds checking is performed, using an out-of-range index is undefined behavior.
    */
   const Component&
-  get(ssize_t i) const
+  get(ssize_t i) const noexcept
   {
     if (i < 0) {
       i += static_cast<ssize_t>(size());
@@ -169,19 +172,21 @@ public: // access
     return static_cast<const Component&>(m_wire.elements()[static_cast<size_t>(i)]);
   }
 
-  /** @brief Equivalent to `get(i)`.
+  /**
+   * @brief Equivalent to get().
    */
   const Component&
-  operator[](ssize_t i) const
+  operator[](ssize_t i) const noexcept
   {
     return get(i);
   }
 
-  /** @brief Returns an immutable reference to the component at the specified index,
-   *         with bounds checking.
-   *  @param i zero-based index of the component to return;
-   *           if negative, it is interpreted as offset from the end of the name
-   *  @throws Error The index is out of bounds.
+  /**
+   * @brief Returns an immutable reference to the component at the specified index,
+   *        with bounds checking.
+   * @param i zero-based index of the component to return;
+   *          if negative, it is interpreted as offset from the end of the name
+   * @throws Error The index is out of bounds.
    */
   const Component&
   at(ssize_t i) const;
@@ -190,7 +195,7 @@ public: // access
    *  @param iStartComponent zero-based index of the first component;
    *                         if negative, size()+iStartComponent is used instead
    *  @param nComponents number of desired components, starting at @p iStartComponent;
-   *                     use @c npos to return all components until the end of the name
+   *                     use #npos to return all components until the end of the name
    *  @return a new PartialName containing the extracted components
    *
    *  If @p iStartComponent is positive and indexes out of bounds, returns an empty PartialName.
@@ -220,7 +225,7 @@ public: // iterators
   /** @brief Begin iterator.
    */
   const_iterator
-  begin() const
+  begin() const noexcept
   {
     return reinterpret_cast<const_iterator>(m_wire.elements().data());
   }
@@ -228,7 +233,7 @@ public: // iterators
   /** @brief End iterator.
    */
   const_iterator
-  end() const
+  end() const noexcept
   {
     return reinterpret_cast<const_iterator>(m_wire.elements().data() + m_wire.elements().size());
   }
@@ -236,7 +241,7 @@ public: // iterators
   /** @brief Reverse begin iterator.
    */
   const_reverse_iterator
-  rbegin() const
+  rbegin() const noexcept
   {
     return const_reverse_iterator(end());
   }
@@ -244,7 +249,7 @@ public: // iterators
   /** @brief Reverse end iterator.
    */
   const_reverse_iterator
-  rend() const
+  rend() const noexcept
   {
     return const_reverse_iterator(begin());
   }
@@ -598,7 +603,7 @@ public: // algorithms
    *  @retval false this name is not a prefix of @p other
    */
   bool
-  isPrefixOf(const Name& other) const;
+  isPrefixOf(const Name& other) const noexcept;
 
   /** @brief Check if this name equals another name.
    *
@@ -606,7 +611,7 @@ public: // algorithms
    *  are equal.
    */
   bool
-  equals(const Name& other) const;
+  equals(const Name& other) const noexcept;
 
   /** @brief Compare this to the other Name using NDN canonical ordering.
    *
@@ -649,13 +654,13 @@ private: // non-member operators
   //       argument-dependent lookup only and must be defined inline.
 
   friend bool
-  operator==(const Name& lhs, const Name& rhs)
+  operator==(const Name& lhs, const Name& rhs) noexcept
   {
     return lhs.equals(rhs);
   }
 
   friend bool
-  operator!=(const Name& lhs, const Name& rhs)
+  operator!=(const Name& lhs, const Name& rhs) noexcept
   {
     return !lhs.equals(rhs);
   }
@@ -684,8 +689,9 @@ private: // non-member operators
     return lhs.compare(rhs) >= 0;
   }
 
-  /** @brief Print the URI representation of a name.
-   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+  /**
+   * @brief Print the URI representation of a name.
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   friend std::ostream&
   operator<<(std::ostream& os, const Name& name)
@@ -695,7 +701,8 @@ private: // non-member operators
   }
 
 public:
-  /** @brief Indicates "until the end" in getSubName() and compare().
+  /**
+   * @brief Indicates "until the end" in getSubName() and compare().
    */
   static const size_t npos;
 
@@ -705,8 +712,9 @@ private:
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Name);
 
-/** @brief Parse URI from stream as Name.
- *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+/**
+ * @brief Parse URI from stream as Name.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
  */
 std::istream&
 operator>>(std::istream& is, Name& name);

@@ -122,21 +122,23 @@ public:
     return *m_regexFilter;
   }
 
-  /** \brief Get whether Interest loopback is allowed.
+  /**
+   * \brief Get whether Interest loopback is allowed.
    */
   NDN_CXX_NODISCARD bool
-  allowsLoopback() const
+  allowsLoopback() const noexcept
   {
     return m_allowsLoopback;
   }
 
-  /** \brief Set whether Interest loopback is allowed.
-   *  \param wantLoopback if true, this InterestFilter may receive Interests that are expressed
-   *                      locally on the same \p ndn::Face ; if false, this InterestFilter can only
-   *                      receive Interests received from the forwarder. The default is true.
+  /**
+   * \brief Set whether Interest loopback is allowed.
+   * \param wantLoopback If true, this InterestFilter may receive Interests that are expressed
+   *                     locally on the same Face; if false, this InterestFilter can only
+   *                     receive Interests received from the forwarder. The default is true.
    */
   InterestFilter&
-  allowLoopback(bool wantLoopback)
+  allowLoopback(bool wantLoopback) noexcept
   {
     m_allowsLoopback = wantLoopback;
     return *this;

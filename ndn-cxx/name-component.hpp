@@ -66,29 +66,33 @@ enum : uint8_t {
   SEQUENCE_NUMBER_MARKER = 0xFE,
 };
 
-/** @brief Return which Naming Conventions style to use while encoding.
+/**
+ * @brief Return which Naming Conventions style to use while encoding.
  *
- *  The library default is Convention::TYPED.
+ * The library default is Convention::TYPED.
  */
 Convention
-getConventionEncoding();
+getConventionEncoding() noexcept;
 
-/** @brief Set which Naming Conventions style to use while encoding.
- *  @param convention either Convention::MARKER or Convention::TYPED.
+/**
+ * @brief Set which Naming Conventions style to use while encoding.
+ * @param convention Either Convention::MARKER or Convention::TYPED.
  */
 void
 setConventionEncoding(Convention convention);
 
-/** @brief Return which Naming Conventions style(s) to accept while decoding.
+/**
+ * @brief Return which Naming Conventions style(s) to accept while decoding.
  *
- *  The current library default is Convention::EITHER, but this will change in the future.
+ * The current library default is Convention::EITHER, but this may change in the future.
  */
 Convention
-getConventionDecoding();
+getConventionDecoding() noexcept;
 
-/** @brief Set which Naming Conventions style(s) to accept while decoding.
- *  @param convention Convention::MARKER or Convention::TYPED accepts the specified style only;
- *                    Convention::EITHER accepts either.
+/**
+ * @brief Set which Naming Conventions style(s) to accept while decoding.
+ * @param convention Convention::MARKER or Convention::TYPED accepts the specified style only;
+ *                   Convention::EITHER accepts either.
  */
 void
 setConventionDecoding(Convention convention);
@@ -294,7 +298,7 @@ public: // naming conventions
    * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
    */
   bool
-  isNumber() const;
+  isNumber() const noexcept;
 
   /**
    * @brief Check if the component is a NameComponentWithMarker per NDN naming conventions rev1
@@ -302,42 +306,42 @@ public: // naming conventions
    *     https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
    */
   bool
-  isNumberWithMarker(uint8_t marker) const;
+  isNumberWithMarker(uint8_t marker) const noexcept;
 
   /**
    * @brief Check if the component is a segment number per NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   bool
-  isSegment() const;
+  isSegment() const noexcept;
 
   /**
    * @brief Check if the component is a byte offset per NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   bool
-  isByteOffset() const;
+  isByteOffset() const noexcept;
 
   /**
    * @brief Check if the component is a version per NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   bool
-  isVersion() const;
+  isVersion() const noexcept;
 
   /**
    * @brief Check if the component is a timestamp per NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   bool
-  isTimestamp() const;
+  isTimestamp() const noexcept;
 
   /**
    * @brief Check if the component is a sequence number per NDN naming conventions
    * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   bool
-  isSequenceNumber() const;
+  isSequenceNumber() const noexcept;
 
   /**
    * @brief Interpret this name component as a NonNegativeInteger
@@ -484,7 +488,7 @@ public: // commonly used TLV-TYPEs
    * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#implicit-digest-component
    */
   bool
-  isImplicitSha256Digest() const;
+  isImplicitSha256Digest() const noexcept;
 
   /**
    * @brief Create ImplicitSha256DigestComponent component
@@ -508,7 +512,7 @@ public: // commonly used TLV-TYPEs
    * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#parameters-digest-component
    */
   bool
-  isParametersSha256Digest() const;
+  isParametersSha256Digest() const noexcept;
 
   /**
    * @brief Create ParametersSha256DigestComponent component
@@ -538,7 +542,7 @@ public: // commonly used TLV-TYPEs
 
 public: // comparison
   NDN_CXX_NODISCARD bool
-  empty() const
+  empty() const noexcept
   {
     return value_size() == 0;
   }
@@ -550,7 +554,7 @@ public: // comparison
    * @return true if the components are equal, otherwise false.
    */
   bool
-  equals(const Component& other) const;
+  equals(const Component& other) const noexcept;
 
   /**
    * @brief Compare this to the other Component using NDN canonical ordering
@@ -605,13 +609,13 @@ private: // non-member operators
   //       argument-dependent lookup only and must be defined inline.
 
   friend bool
-  operator==(const Component& lhs, const Component& rhs)
+  operator==(const Component& lhs, const Component& rhs) noexcept
   {
     return lhs.equals(rhs);
   }
 
   friend bool
-  operator!=(const Component& lhs, const Component& rhs)
+  operator!=(const Component& lhs, const Component& rhs) noexcept
   {
     return !lhs.equals(rhs);
   }

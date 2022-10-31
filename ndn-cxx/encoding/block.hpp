@@ -367,14 +367,14 @@ public: // sub-elements
   encode();
 
   /** @brief Return the first sub-element of the specified TLV-TYPE
-   *  @pre parse() has been executed
+   *  @pre parse() has been called
    *  @throw tlv::Error a sub-element of the specified type does not exist
    */
   const Block&
   get(uint32_t type) const;
 
   /** @brief Find the first sub-element of the specified TLV-TYPE
-   *  @pre parse() has been executed
+   *  @pre parse() has been called
    *  @return iterator in elements() to the found sub-element, or elements_end() if no such
    *          sub-element exists in elements()
    */
@@ -382,7 +382,7 @@ public: // sub-elements
   find(uint32_t type) const;
 
   /** @brief Remove all sub-elements of the specified TLV-TYPE
-   *  @pre parse() has been executed
+   *  @pre parse() has been called
    *  @post `find(type) == elements_end()`
    */
   void
@@ -418,41 +418,46 @@ public: // sub-elements
   element_iterator
   insert(element_const_iterator pos, const Block& element);
 
-  /** @brief Get container of sub-elements
-   *  @pre parse() has been executed
+  /**
+   * @brief Get container of sub-elements.
+   * @pre parse() has been called.
    */
   const element_container&
-  elements() const
+  elements() const noexcept
   {
     return m_elements;
   }
 
-  /** @brief Equivalent to elements().begin()
+  /**
+   * @brief Equivalent to `elements().begin()`.
    */
   element_const_iterator
-  elements_begin() const
+  elements_begin() const noexcept
   {
     return m_elements.begin();
   }
 
-  /** @brief Equivalent to elements().end()
+  /**
+   * @brief Equivalent to `elements().end()`.
    */
   element_const_iterator
-  elements_end() const
+  elements_end() const noexcept
   {
     return m_elements.end();
   }
 
-  /** @brief Equivalent to elements().size()
+  /**
+   * @brief Equivalent to `elements().size()`.
    */
   size_t
-  elements_size() const
+  elements_size() const noexcept
   {
     return m_elements.size();
   }
 
 public: // misc
-  /** @brief Implicit conversion to `boost::asio::const_buffer`
+  /**
+   * @brief Implicit conversion to `boost::asio::const_buffer`.
    */
   operator boost::asio::const_buffer() const;
 
@@ -492,26 +497,29 @@ protected:
 
   uint32_t m_type = tlv::Invalid; ///< TLV-TYPE
 
-  /** @brief Total size including Type-Length-Value
+  /**
+   * @brief Total size including Type-Length-Value.
    *
-   *  This field is meaningful only if isValid() is true.
+   * This field is meaningful only if isValid() is true.
    */
   size_t m_size = 0;
 
-  /** @brief Contains the sub-elements
+  /**
+   * @brief Contains the sub-elements.
    *
-   *  This field is valid only if parse() has been executed.
+   * This field is valid only if parse() has been called on the Block instance.
    */
   mutable element_container m_elements;
 
-  /** @brief Print @p block to @p os.
+  /**
+   * @brief Print @p block to @p os.
    *
-   *  Default-constructed Block is printed as: `[invalid]`.
-   *  Zero-length Block is printed as: `TT[empty]`, where TT is TLV-TYPE in decimal.
-   *  Non-zero-length Block on which parse() has not been called is printed as: `TT[LL]=VVVV`,
-   *  where LL is TLV-LENGTH in decimal, and VVVV is TLV-VALUE in hexadecimal.
-   *  Block on which parse() has been called is printed as: `TT[LL]={SUB,SUB}`,
-   *  where each SUB is a sub-element printed using this format.
+   * Default-constructed Block is printed as: `[invalid]`.
+   * Zero-length Block is printed as: `TT[empty]`, where TT is TLV-TYPE in decimal.
+   * Non-zero-length Block on which parse() has not been called is printed as: `TT[LL]=VVVV`,
+   * where LL is TLV-LENGTH in decimal, and VVVV is TLV-VALUE in hexadecimal.
+   * Block on which parse() has been called is printed as: `TT[LL]={SUB,SUB}`,
+   * where each SUB is a sub-element printed using this format.
    */
   friend std::ostream&
   operator<<(std::ostream& os, const Block& block);
@@ -523,13 +531,14 @@ Block::Block(Block&&) noexcept = default;
 inline Block&
 Block::operator=(Block&&) noexcept = default;
 
-/** @brief Compare whether two Blocks have same TLV-TYPE, TLV-LENGTH, and TLV-VALUE
+/**
+ * @brief Compare whether two Blocks have the same TLV-TYPE, TLV-LENGTH, and TLV-VALUE.
  */
 bool
-operator==(const Block& lhs, const Block& rhs);
+operator==(const Block& lhs, const Block& rhs) noexcept;
 
 inline bool
-operator!=(const Block& lhs, const Block& rhs)
+operator!=(const Block& lhs, const Block& rhs) noexcept
 {
   return !(lhs == rhs);
 }

@@ -480,7 +480,7 @@ Block::operator boost::asio::const_buffer() const
 }
 
 bool
-operator==(const Block& lhs, const Block& rhs)
+operator==(const Block& lhs, const Block& rhs) noexcept
 {
   return lhs.type() == rhs.type() &&
          lhs.value_size() == rhs.value_size() &&

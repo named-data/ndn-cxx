@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,9 +46,10 @@ class Logger;
 class Logging : noncopyable
 {
 public:
-  /** \brief Get list of all registered logger names.
+  /**
+   * \brief Get list of all registered logger names.
    */
-  static std::set<std::string>
+  NDN_CXX_NODISCARD static std::set<std::string>
   getLoggerNames();
 
   /** \brief Set severity level.
@@ -58,7 +59,7 @@ public:
    *  \param level minimum severity level
    *
    *  Log messages are output only if their severity is greater than the current minimum severity
-   *  level. The initial severity level is \c LogLevel::NONE, which enables FATAL messages only.
+   *  level. The initial severity level is LogLevel::NONE, which enables FATAL messages only.
    */
   static void
   setLevel(const std::string& prefix, LogLevel level);
@@ -81,7 +82,7 @@ public:
   setLevel(const std::string& config);
 
   /** \brief Set or replace log destination.
-   *  \param destination log backend, e.g., returned by `makeDefaultStreamDestination`
+   *  \param destination log backend, e.g., returned by makeDefaultStreamDestination()
    *
    *  The initial destination is `std::clog`.
    *
@@ -98,23 +99,25 @@ public:
    *  \param os a stream for log output; caller must ensure it remains valid
    *            until setDestination() is invoked again or program exits
    *  \param wantAutoFlush if true, the created logging sink will be auto-flushed
-   *`
-   *  This is equivalent to `setDestination(makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, nullDeleter)))`.
    *
+   *  This is equivalent to
+   *  `setDestination(makeDefaultStreamDestination(shared_ptr<std::ostream>(&os, nullDeleter)))`.
    */
   static void
   setDestination(std::ostream& os, bool wantAutoFlush);
 
-  /** \brief Flush log backend.
+  /**
+   * \brief Flush log backend.
    *
-   *  This ensures all log messages are written to the destination stream.
+   * This ensures all log messages are written to the destination stream.
    */
   static void
   flush();
 
-  /** \brief Create stream log destination using default formatting
+  /**
+   * \brief Create stream log destination using default formatting.
    */
-  static boost::shared_ptr<boost::log::sinks::sink>
+  NDN_CXX_NODISCARD static boost::shared_ptr<boost::log::sinks::sink>
   makeDefaultStreamDestination(shared_ptr<std::ostream> os, bool wantAutoFlush = true);
 
 private:
@@ -126,7 +129,7 @@ private:
   void
   registerLoggerNameImpl(std::string name);
 
-  std::set<std::string>
+  NDN_CXX_NODISCARD std::set<std::string>
   getLoggerNamesImpl() const;
 
   /**

@@ -46,7 +46,7 @@ static Convention g_conventionEncoding = Convention::TYPED;
 static Convention g_conventionDecoding = Convention::EITHER;
 
 Convention
-getConventionEncoding()
+getConventionEncoding() noexcept
 {
   return g_conventionEncoding;
 }
@@ -65,7 +65,7 @@ setConventionEncoding(Convention convention)
 }
 
 Convention
-getConventionDecoding()
+getConventionDecoding() noexcept
 {
   return g_conventionDecoding;
 }
@@ -77,13 +77,13 @@ setConventionDecoding(Convention convention)
 }
 
 static bool
-canDecodeMarkerConvention()
+canDecodeMarkerConvention() noexcept
 {
   return (to_underlying(g_conventionDecoding) & to_underlying(Convention::MARKER)) != 0;
 }
 
 static bool
-canDecodeTypedConvention()
+canDecodeTypedConvention() noexcept
 {
   return (to_underlying(g_conventionDecoding) & to_underlying(Convention::TYPED)) != 0;
 }
@@ -220,49 +220,49 @@ Component::toUri(UriFormat format) const
 ////////////////////////////////////////////////////////////////////////////////
 
 bool
-Component::isNumber() const
+Component::isNumber() const noexcept
 {
   return value_size() == 1 || value_size() == 2 ||
          value_size() == 4 || value_size() == 8;
 }
 
 bool
-Component::isNumberWithMarker(uint8_t marker) const
+Component::isNumberWithMarker(uint8_t marker) const noexcept
 {
   return (value_size() == 2 || value_size() == 3 ||
           value_size() == 5 || value_size() == 9) && value()[0] == marker;
 }
 
 bool
-Component::isSegment() const
+Component::isSegment() const noexcept
 {
   return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEGMENT_MARKER)) ||
          (canDecodeTypedConvention() && type() == tlv::SegmentNameComponent && isNumber());
 }
 
 bool
-Component::isByteOffset() const
+Component::isByteOffset() const noexcept
 {
   return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEGMENT_OFFSET_MARKER)) ||
          (canDecodeTypedConvention() && type() == tlv::ByteOffsetNameComponent && isNumber());
 }
 
 bool
-Component::isVersion() const
+Component::isVersion() const noexcept
 {
   return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(VERSION_MARKER)) ||
          (canDecodeTypedConvention() && type() == tlv::VersionNameComponent && isNumber());
 }
 
 bool
-Component::isTimestamp() const
+Component::isTimestamp() const noexcept
 {
   return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(TIMESTAMP_MARKER)) ||
          (canDecodeTypedConvention() && type() == tlv::TimestampNameComponent && isNumber());
 }
 
 bool
-Component::isSequenceNumber() const
+Component::isSequenceNumber() const noexcept
 {
   return (canDecodeMarkerConvention() && type() == tlv::GenericNameComponent && isNumberWithMarker(SEQUENCE_NUMBER_MARKER)) ||
          (canDecodeTypedConvention() && type() == tlv::SequenceNumNameComponent && isNumber());
@@ -425,7 +425,7 @@ Component::fromSequenceNumber(uint64_t seqNo)
 ////////////////////////////////////////////////////////////////////////////////
 
 bool
-Component::isImplicitSha256Digest() const
+Component::isImplicitSha256Digest() const noexcept
 {
   return type() == tlv::ImplicitSha256DigestComponent && value_size() == util::Sha256::DIGEST_SIZE;
 }
@@ -443,7 +443,7 @@ Component::fromImplicitSha256Digest(span<const uint8_t> digest)
 }
 
 bool
-Component::isParametersSha256Digest() const
+Component::isParametersSha256Digest() const noexcept
 {
   return type() == tlv::ParametersSha256DigestComponent && value_size() == util::Sha256::DIGEST_SIZE;
 }
@@ -463,7 +463,7 @@ Component::fromParametersSha256Digest(span<const uint8_t> digest)
 ////////////////////////////////////////////////////////////////////////////////
 
 bool
-Component::equals(const Component& other) const
+Component::equals(const Component& other) const noexcept
 {
   return type() == other.type() &&
          value_size() == other.value_size() &&
