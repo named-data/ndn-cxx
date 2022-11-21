@@ -139,6 +139,7 @@ enum SignatureTypeValue : uint16_t {
   SignatureSha256WithRsa   = 1,
   SignatureSha256WithEcdsa = 3,
   SignatureHmacWithSha256  = 4,
+  SignatureEd25519         = 5,
   NullSignature            = 200,
 };
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,7 @@
 
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/encoding/buffer.hpp"
+#include "ndn-cxx/util/span.hpp"
 
 #include "tests/boost-test.hpp"
 
@@ -112,15 +113,6 @@ checkArchetype()
   static_cast<void>(ok);
 }
 
-static const uint8_t BUFFER[] = {
-  0x00, // == 0
-  0x01, // == 1
-  0xfc, // == 252
-  0xfd, 0x00, 0xfd, // == 253
-  0xfe, 0x00, 0x01, 0x00, 0x00, // == 65536
-  0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 // == 4294967296
-};
-
 BOOST_AUTO_TEST_CASE(SizeOf)
 {
   BOOST_CHECK_EQUAL(sizeOfVarNumber(0), 1);
@@ -131,6 +123,15 @@ BOOST_AUTO_TEST_CASE(SizeOf)
   BOOST_CHECK_EQUAL(sizeOfVarNumber(4294967295), 5);
   BOOST_CHECK_EQUAL(sizeOfVarNumber(4294967296), 9);
 }
+
+static const uint8_t BUFFER[] = {
+  0x00, // == 0
+  0x01, // == 1
+  0xfc, // == 252
+  0xfd, 0x00, 0xfd, // == 253
+  0xfe, 0x00, 0x01, 0x00, 0x00, // == 65536
+  0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 // == 4294967296
+};
 
 BOOST_AUTO_TEST_CASE(Write)
 {
@@ -144,11 +145,8 @@ BOOST_AUTO_TEST_CASE(Write)
   writeVarNumber(os, 4294967296);
 
   std::string buffer = os.str();
-  const uint8_t* actual = reinterpret_cast<const uint8_t*>(buffer.data());
-
-  BOOST_CHECK_EQUAL(buffer.size(), sizeof(BUFFER));
-  BOOST_CHECK_EQUAL_COLLECTIONS(BUFFER, BUFFER + sizeof(BUFFER),
-                                actual, actual + sizeof(BUFFER));
+  BOOST_TEST(make_span(reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size()) == BUFFER,
+             boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(ReadFromBuffer)
@@ -446,14 +444,6 @@ checkArchetype()
   readNonNegativeInteger(0, begin, end);
 }
 
-static const uint8_t BUFFER[] = {
-  0x01, // 1
-  0xff, // 255
-  0x01, 0x02, // 258
-  0x01, 0x01, 0x01, 0x02, // 16843010
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02 // 72340172838076674
-};
-
 BOOST_AUTO_TEST_CASE(SizeOf)
 {
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(1), 1);
@@ -466,6 +456,14 @@ BOOST_AUTO_TEST_CASE(SizeOf)
   BOOST_CHECK_EQUAL(sizeOfNonNegativeInteger(72340172838076673), 8);
 }
 
+static const uint8_t BUFFER[] = {
+  0x01, // 1
+  0xff, // 255
+  0x01, 0x02, // 258
+  0x01, 0x01, 0x01, 0x02, // 16843010
+  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02 // 72340172838076674
+};
+
 BOOST_AUTO_TEST_CASE(Write)
 {
   std::ostringstream os;
@@ -477,10 +475,8 @@ BOOST_AUTO_TEST_CASE(Write)
   writeNonNegativeInteger(os, 72340172838076674);
 
   std::string buffer = os.str();
-  const uint8_t* actual = reinterpret_cast<const uint8_t*>(buffer.data());
-
-  BOOST_CHECK_EQUAL_COLLECTIONS(BUFFER, BUFFER + sizeof(BUFFER),
-                                actual, actual + sizeof(BUFFER));
+  BOOST_TEST(make_span(reinterpret_cast<const uint8_t*>(buffer.data()), buffer.size()) == BUFFER,
+             boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(ReadFromBuffer)
@@ -578,7 +574,8 @@ BOOST_AUTO_TEST_CASE(PrintSignatureTypeValue)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(2)), "Unknown(2)");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureSha256WithEcdsa), "SignatureSha256WithEcdsa");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureHmacWithSha256), "SignatureHmacWithSha256");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(5)), "Unknown(5)");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(SignatureEd25519), "SignatureEd25519");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(6)), "Unknown(6)");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(199)), "Unknown(199)");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(NullSignature), "NullSignature");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<SignatureTypeValue>(201)), "Unknown(201)");
