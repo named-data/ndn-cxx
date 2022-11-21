@@ -354,22 +354,6 @@ public: // element access
   setApplicationParameters(span<const uint8_t> value);
 
   /**
-   * @brief Set `ApplicationParameters` by copying from a raw buffer.
-   * @param value points to a buffer from which the TLV-VALUE of the parameters will be copied;
-   *              may be nullptr if @p length is zero
-   * @param length size of the buffer
-   * @return A reference to this Interest.
-   * @deprecated Use setApplicationParameters(span<const uint8_t>)
-   *
-   * This function will also recompute the value of the ParametersSha256DigestComponent in the
-   * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
-   * be appended to it.
-   */
-  [[deprecated("use the overload that takes a span<>")]]
-  Interest&
-  setApplicationParameters(const uint8_t* value, size_t length);
-
-  /**
    * @brief Set `ApplicationParameters` from a shared buffer.
    * @param value buffer containing the TLV-VALUE of the parameters; must not be nullptr
    * @return A reference to this Interest.

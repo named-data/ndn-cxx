@@ -532,12 +532,6 @@ BOOST_AUTO_TEST_CASE(SetContent)
   BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
   BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
 
-  // raw buffer overload (deprecated)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  BOOST_CHECK_THROW(d.setContent(nullptr, 1), std::invalid_argument);
-#pragma GCC diagnostic pop
-
   // ConstBufferPtr overload
   d.setContent(std::make_shared<Buffer>(direct, sizeof(direct)));
   BOOST_CHECK_EQUAL(d.hasContent(), true);

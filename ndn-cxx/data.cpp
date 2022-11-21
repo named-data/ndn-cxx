@@ -269,16 +269,6 @@ Data::setContent(span<const uint8_t> value)
 }
 
 Data&
-Data::setContent(const uint8_t* value, size_t length)
-{
-  if (value == nullptr && length != 0) {
-    NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
-  }
-
-  return setContent(make_span(value, length));
-}
-
-Data&
 Data::setContent(ConstBufferPtr value)
 {
   if (value == nullptr) {

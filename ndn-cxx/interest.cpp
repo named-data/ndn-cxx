@@ -494,16 +494,6 @@ Interest::setApplicationParameters(span<const uint8_t> value)
 }
 
 Interest&
-Interest::setApplicationParameters(const uint8_t* value, size_t length)
-{
-  if (value == nullptr && length != 0) {
-    NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
-  }
-
-  return setApplicationParameters(make_span(value, length));
-}
-
-Interest&
 Interest::setApplicationParameters(ConstBufferPtr value)
 {
   if (value == nullptr) {

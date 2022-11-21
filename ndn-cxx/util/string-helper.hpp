@@ -34,7 +34,7 @@ public:
 };
 
 /**
- * @brief Output the hex representation of @p num to the output stream @p os
+ * @brief Output the hex representation of @p num to the output stream @p os.
  *
  * @param os Output stream
  * @param num Number to print in hexadecimal format
@@ -46,7 +46,7 @@ void
 printHex(std::ostream& os, uint64_t num, bool wantUpperCase = false);
 
 /**
- * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
+ * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os.
  *
  * @param os Output stream
  * @param buffer Range of bytes to print in hexadecimal format
@@ -59,34 +59,8 @@ void
 printHex(std::ostream& os, span<const uint8_t> buffer, bool wantUpperCase = true);
 
 /**
- * @brief Output the hex representation of the bytes in @p buffer to the output stream @p os
- * @deprecated
- *
- * @param os Output stream
- * @param buffer Pointer to an array of bytes
- * @param length Size of the array
- * @param wantUpperCase if true (the default) print uppercase hex chars
- *
- * Examples:
- *
- * @code
- * printHex(std::cout, "Hello, World!");        // outputs "48656C6C6F2C20776F726C6421"
- * printHex(std::cout, "Hello, World!", false); // outputs "48656c6c6f2c20776f726c6421"
- * @endcode
- *
- * Each octet is always represented as two hex characters ("00" for octet==0).
- * The output string is a continuous sequence of hex characters without any whitespace separators.
- */
-[[deprecated("use the overload that takes a span<>")]]
-inline void
-printHex(std::ostream& os, const uint8_t* buffer, size_t length, bool wantUpperCase = true)
-{
-  printHex(os, {buffer, length}, wantUpperCase);
-}
-
-/**
- * @brief Helper class to convert a number to hexadecimal
- *        format, for use with stream insertion operators
+ * @brief Helper class to convert a number to hexadecimal format, for use with
+ *        stream insertion operators.
  *
  * Example usage:
  *
@@ -117,7 +91,7 @@ private:
 };
 
 /**
- * @brief Return a string containing the hex representation of the bytes in @p buffer
+ * @brief Return a string containing the hex representation of the bytes in @p buffer.
  *
  * @param buffer Range of bytes to convert to hexadecimal format
  * @param wantUpperCase if true (the default) use uppercase hex chars
@@ -129,41 +103,16 @@ NDN_CXX_NODISCARD std::string
 toHex(span<const uint8_t> buffer, bool wantUpperCase = true);
 
 /**
- * @brief Return a string containing the hex representation of the bytes in @p buffer
- * @deprecated
- *
- * @param buffer Pointer to an array of bytes
- * @param length Size of the array
- * @param wantUpperCase if true (the default) use uppercase hex chars
- *
- * Examples:
- *
- * @code
- * toHex("Hello, World!") == "48656C6C6F2C20776F726C6421"
- * toHex("Hello, World!", false) == "48656c6c6f2c20776f726c6421"
- * @endcode
- *
- * Each octet is always represented as two hex characters ("00" for octet==0).
- * The output string is a continuous sequence of hex characters without any whitespace separators.
- */
-[[deprecated("use the overload that takes a span<>")]]
-NDN_CXX_NODISCARD inline std::string
-toHex(const uint8_t* buffer, size_t length, bool wantUpperCase = true)
-{
-  return toHex({buffer, length}, wantUpperCase);
-}
-
-/**
- * @brief Convert the hex string to buffer
- * @param hexString sequence of pairs of hex numbers (lower and upper case can be mixed)
+ * @brief Convert a hex string to a raw byte buffer.
+ * @param hexString Sequence of pairs of hex numbers (lower and upper case can be mixed)
  *        without any whitespace separators (e.g., "48656C6C6F2C20776F726C6421")
- * @throw StringHelperError if input is invalid
+ * @throw StringHelperError Input string is invalid
  */
 shared_ptr<Buffer>
 fromHex(const std::string& hexString);
 
 /**
- * @brief Convert (the least significant nibble of) @p n to the corresponding hex character
+ * @brief Convert (the least significant nibble of) @p n to the corresponding hex character.
  */
 NDN_CXX_NODISCARD constexpr char
 toHexChar(unsigned int n, bool wantUpperCase = true) noexcept
@@ -174,7 +123,7 @@ toHexChar(unsigned int n, bool wantUpperCase = true) noexcept
 }
 
 /**
- * @brief Convert the hex character @p c to an integer in [0, 15], or -1 if it's not a hex character
+ * @brief Convert the hex character @p c to an integer in [0, 15], or -1 if it's not a hex character.
  */
 NDN_CXX_NODISCARD constexpr int
 fromHexChar(char c) noexcept
@@ -186,13 +135,12 @@ fromHexChar(char c) noexcept
 }
 
 /**
- * @brief Percent-encode a string
- * @see RFC 3986 section 2
+ * @brief Percent-encode a string.
  *
  * This function will encode all characters that are not one of the following:
  * ALPHA ("a" to "z" and "A" to "Z") / DIGIT (0 to 9) / "-" / "." / "_" / "~"
  *
- * The hex encoding uses the numbers 0-9 and the uppercase letters A-F.
+ * The hex encoding uses the numbers `0-9` and the uppercase letters `A-F`.
  *
  * Examples:
  *
@@ -200,6 +148,8 @@ fromHexChar(char c) noexcept
  * escape("hello world") == "hello%20world"
  * escape("100%") == "100%25"
  * @endcode
+ *
+ * @see RFC 3986 section 2
  */
 NDN_CXX_NODISCARD std::string
 escape(const std::string& str);
@@ -208,10 +158,9 @@ void
 escape(std::ostream& os, const char* str, size_t len);
 
 /**
- * @brief Decode a percent-encoded string
- * @see RFC 3986 section 2
+ * @brief Decode a percent-encoded string.
  *
- * When % is not followed by two hex characters, the output is not transformed.
+ * When `%` is not followed by two hex characters, the output is not transformed.
  *
  * Examples:
  *
@@ -219,6 +168,8 @@ escape(std::ostream& os, const char* str, size_t len);
  * unescape("hello%20world") == "hello world"
  * unescape("hello%20world%FooBar") == "hello world%FooBar"
  * @endcode
+ *
+ * @see RFC 3986 section 2
  */
 NDN_CXX_NODISCARD std::string
 unescape(const std::string& str);

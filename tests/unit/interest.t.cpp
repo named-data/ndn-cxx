@@ -884,12 +884,6 @@ BOOST_AUTO_TEST_CASE(SetApplicationParameters)
   i.setApplicationParameters(span<uint8_t>{});
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2400"_block);
 
-  // raw buffer+size overload (deprecated)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  BOOST_CHECK_THROW(i.setApplicationParameters(nullptr, 42), std::invalid_argument);
-#pragma GCC diagnostic pop
-
   // ConstBufferPtr overload
   i.setApplicationParameters(make_shared<Buffer>(PARAMETERS2, sizeof(PARAMETERS2)));
   BOOST_CHECK_EQUAL(i.getApplicationParameters(), "2401C2"_block);

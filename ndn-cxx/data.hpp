@@ -202,17 +202,6 @@ public: // Data fields
   setContent(span<const uint8_t> value);
 
   /**
-   * @brief Set `Content` by copying from a raw buffer.
-   * @param value buffer with the TLV-VALUE of the content; may be nullptr if @p length is zero
-   * @param length size of the buffer
-   * @return A reference to this Data, to allow chaining.
-   * @deprecated Use setContent(span<const uint8_t>)
-   */
-  [[deprecated("use the overload that takes a span<>")]]
-  Data&
-  setContent(const uint8_t* value, size_t length);
-
-  /**
    * @brief Set `Content` from a shared buffer.
    * @param value buffer with the TLV-VALUE of the content; must not be nullptr
    * @return A reference to this Data, to allow chaining.
