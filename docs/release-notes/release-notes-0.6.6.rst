@@ -23,7 +23,8 @@ New features
 - ``NDN_THROW`` macro to throw exceptions including file position and runtime context of the
   throw statement (:issue:`4834`)
 
-- Ensure that a ``Block`` with TLV-TYPE zero is treated as invalid (:issue:`4726`, :issue:`4895`)
+- Ensure that a :ndn-cxx:`Block` with TLV-TYPE zero is treated as invalid (:issue:`4726`,
+  :issue:`4895`)
 
 Improvements and bug fixes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

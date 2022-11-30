@@ -22,9 +22,8 @@
 #ifndef NDN_CXX_SECURITY_VALIDITY_PERIOD_HPP
 #define NDN_CXX_SECURITY_VALIDITY_PERIOD_HPP
 
-#include "ndn-cxx/detail/common.hpp"
-#include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
@@ -32,7 +31,7 @@ namespace security {
 
 /**
  * @brief Represents a %ValidityPeriod TLV element.
- * @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html
  */
 class ValidityPeriod
 {

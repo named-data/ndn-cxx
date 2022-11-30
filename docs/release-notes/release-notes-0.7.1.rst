@@ -12,10 +12,11 @@ Additionally, this release drops support for CentOS 7 and adds support for CentO
 New features
 ^^^^^^^^^^^^
 
-- Signed Interests according to Packet Specification v0.3 (:issue:`4804`)
+- `Signed Interests <https://named-data.net/doc/NDN-packet-spec/0.3/signed-interest.html>`__
+  according to Packet Specification v0.3 (:issue:`4804`)
 
-- Add "in-order" mode to ``SegmentFetcher`` and a corresponding signal that is emitted after each
-  segment is received and validated in segment order. Segments that arrive out-of-order will be
+- Add "in-order" mode to :ndn-cxx:`SegmentFetcher` and a corresponding signal that is emitted after
+  each segment is received and validated in segment order. Segments that arrive out-of-order will be
   buffered internally until all earlier segments have arrived and passed validation.
 
 - Allow ``KeyLocator`` to either identify the full name of a certificate, an unversioned certificate
@@ -34,7 +35,7 @@ Improvements and bug fixes
 
 - Fix spurious error message from ``ndnsec-key-gen`` when ``key-id`` is specified (:issue:`5057`)
 
-- Provide more fine-grained choices for ``name::UriFormat`` (:issue:`4777`)
+- Provide more fine-grained choices for :ndn-cxx:`name::UriFormat` (:issue:`4777`)
 
 - Allow automatic log flushing to be disabled (:issue:`3668`)
 
@@ -49,7 +50,7 @@ Improvements and bug fixes
 
 - Correctly handle non-existent identity in ``PibImpl::setDefaultIdentity``
 
-- Fix incompatibility with ``time::toIsoString`` in Boost 1.73.0+
+- Fix incompatibility with Boost 1.73.0+ in :ndn-cxx:`time::toIsoString`
 
 - Fix incompatibility with ``<version>`` header in C++20
 

@@ -192,7 +192,7 @@ The ``./waf install`` command installs the following files:
    package is installed and ``PKG_CONFIG_PATH`` is configured properly (or if
    ``<LIBPATH>/pkgconfig`` is a default search path), the command ``pkg-config --cflags
    --libs libndn-cxx`` will return all necessary compile and link flags for the library.
--  ``<BINPATH>/ndnsec``: tool to manage NDN keys and certificates.
+-  ``<BINPATH>/ndnsec``: command-line tool to manage NDN keys and certificates.
 -  ``<BINPATH>/ndnsec-*``: convenience aliases for ``ndnsec`` tools.
 
 If configured with tests (``./waf configure --with-tests``), the above commands

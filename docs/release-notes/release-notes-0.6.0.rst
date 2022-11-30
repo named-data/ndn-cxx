@@ -11,12 +11,12 @@ New features
 - **(breaking change)** Security framework version 2 (:issue:`3098`, :issue:`3920`,
   :issue:`3644`, :issue:`4085`, :issue:`4323`, :issue:`4339`).
 
-  The released version of the library only supports the new version of the security (v2
-  certificate format) and features a number of updates of KeyChain and Validator
-  interfaces. At the same time, management APIs for :ndn-cxx:`ValidatorConfig` remained
-  intact; transition to the new framework would require only adjusting
-  :ndn-cxx:`Validator::validate` calls and updating configuration files to follow the new
-  naming conventions of :doc:`/specs/certificate`.
+  This release of the library supports only the new version of the security framework
+  and features a number of updates to the KeyChain and Validator interfaces.
+  At the same time, management APIs for :ndn-cxx:`ValidatorConfig` remained intact;
+  transition to the new framework only requires adjusting :ndn-cxx:`Validator::validate`
+  calls and updating configuration files to follow the naming conventions of the new
+  `Certificate format <https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html>`__.
 
 - Integration of fetching certificates using Certificate Bundle as part of specialized
   ``CertificateFetcher`` (:issue:`3891`)
@@ -25,7 +25,7 @@ New features
   to include ``ForwardingHint`` instead of ``LinkObject``, following the latest NDN
   specification updates (:issue:`4054`, :issue:`4055`)
 
-- Fine-grained signals on interface/address changes in NetworkMonitor
+- Fine-grained signals on interface/address changes in :ndn-cxx:`NetworkMonitor`
   for all supported platforms (:issue:`3353`, :issue:`4025`, :issue:`3817`, :issue:`4024`)
 
 - Addition of ``TxSequence`` field and ``Ack``, the first repeatable field in
@@ -51,7 +51,7 @@ Improvements and bug fixes
 
 - FaceUri now accepts link-local IPv6 addresses (:issue:`1428`)
 
-- Rename variables in ``FaceStatus`` and ``ForwarderStatus`` ('datas' => 'data')
+- Rename fields in :ndn-cxx:`FaceStatus` and :ndn-cxx:`ForwarderStatus` ('datas' => 'data')
   (:issue:`3955`)
 
 - Improve logging framework and its uses
@@ -63,19 +63,19 @@ Improvements and bug fixes
   * Add logging capabilities to ``Face``, ``UnixTransport``, ``TcpTransport``, and the new
     security framework (:issue:`3563`)
 
-  To enable logging, set environment variable ``NDN_LOG`` to enable specific, subset, or all
-  logging module at appropriate levels.  Examples:
+  To configure logging, set the environment variable :doc:`NDN_LOG </manpages/ndn-log>`.
+  Examples:
 
-  ::
+  .. code-block:: sh
 
-     export NDN_LOG=*=ALL
-     export NDN_LOG=ndn.*=ALL
-     export NDN_LOG=ndn.security=DEBUG:ndn.TcpTransport=ALL
+     export NDN_LOG="*=ALL"
+     export NDN_LOG="ndn.*=ALL"
+     export NDN_LOG="ndn.security=DEBUG:ndn.TcpTransport=ALL"
 
-- Ensure that ``Face`` sends ``Nack`` only after every ``InterestCallback`` has responded
-  (:issue:`4228`)
+- Ensure that :ndn-cxx:`Face` sends a ``Nack`` only after every ``InterestCallback`` has
+  responded (:issue:`4228`)
 
-- Fix potential overflow in ``time::toIsoString`` (:issue:`3915`)
+- Fix potential overflow in :ndn-cxx:`time::toIsoString` (:issue:`3915`)
 
 - Fix potentially misaligned memory accesses (:issue:`4172`, :issue:`4097`, :issue:`4175`,
   :issue:`4190`, :issue:`4191`)
@@ -86,20 +86,15 @@ Improvements and bug fixes
 
 - Source/header reorganization (:issue:`3940`)
 
-    * Move network-related files to ``src/net``
+    * Move network-related files to ``src/net``. Note the following namespace changes:
 
-      .. note::
-         Namespace changes
+      + ``ndn::util::FaceUri`` is now ``ndn::FaceUri``
+      + ``ndn::util::ethernet`` is now ``ndn::ethernet``
+      + ``ndn::util::NetworkMonitor`` and related classes are now in ``ndn::net``
 
-         * ndn::util::FaceUri is now ndn::FaceUri
-         * ndn::util::ethernet is now ndn::ethernet
-         * ndn::util::NetworkMonitor and related classes are now in ndn::net
-
-    * Move signal-related files into ``src/util/signal/`` directory, except for
+    * Move signal-related files into ``src/util/signal`` directory, except for
       the main include ``signal.hpp``
-
-    * Move InMemoryStorage to ``src/ims``
-
+    * Move :ndn-cxx:`InMemoryStorage` and related classes to ``src/ims``
     * Rename ``digest.hpp`` to ``sha256.hpp`` to match the ``Sha256`` class declared within
 
 Removed

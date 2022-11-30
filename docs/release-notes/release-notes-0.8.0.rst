@@ -19,7 +19,7 @@ Important changes
 
 - Change TLV-TYPE number of ``IncomingFaceId`` field in NDNLP (:issue:`5185`)
 
-- Update ``Interest::ForwardingHint`` format (:issue:`5187`)
+- Update Interest ``ForwardingHint`` format (:issue:`5187`)
 
 Improvements and bug fixes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -27,19 +27,19 @@ Improvements and bug fixes
 - Support certificate name, versionless certificate name, and key name options for
   KeyLocator name in ``ValidatorConfig`` (:issue:`5142`)
 
-- Fix ``ValidatorConfig`` rule processing bug (:issue:`5145`)
-
 - Generalize signature verification to allow ``digest-sha256``, effectively adding
   support of digest integrity verification in ``ValidatorConfig``
 
 - Enforce ``sig-type`` check in ``ValidatorConfig`` (:issue:`4524`)
 
-- Refactor and cleanup of ``StatusDatasetContext``, including increase of max payload size
-  of each segment produced by ``StatusDatasetContext`` to 8,000 bytes
+- Fix ``ValidatorConfig`` rule processing bug (:issue:`5145`)
 
 - Prevent potential dereferencing of past-the-end iterator in ``Block::value()``
 
-- Fail early in ``Block::blockFromValue()``, if TLV length is zero
+- Fail early in :ndn-cxx:`Block::blockFromValue` if TLV length is zero
+
+- Refactor and cleanup of :ndn-cxx:`StatusDatasetContext`, including increase of maximum
+  payload size of each produced segment to 8000 bytes
 
 - Improve error reporting when loading a ``Certificate`` or ``SafeBag`` fails
 
@@ -50,7 +50,7 @@ Improvements and bug fixes
 - Introduce ``time::{to,from}IsoExtendedString()`` utility functions
 
 - Add support for OpenSSL 3.0. Note that because of the API changes, HMAC implementation
-  does not currently work when compiled with OpenSSL 3.0, use older version of OpenSSL
+  does not currently work when compiled with OpenSSL 3.0+, use older version of OpenSSL
   when needed.
 
 - Various build system and documentation extension and fixes

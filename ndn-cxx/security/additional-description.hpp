@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #ifndef NDN_CXX_SECURITY_ADDITIONAL_DESCRIPTION_HPP
 #define NDN_CXX_SECURITY_ADDITIONAL_DESCRIPTION_HPP
 
-#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/tlv.hpp"
 
@@ -34,7 +33,7 @@ inline namespace v2 {
 
 /**
  * @brief Represents an %AdditionalDescription TLV element.
- * @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html
  */
 class AdditionalDescription
 {
@@ -45,8 +44,8 @@ public:
     using tlv::Error::Error;
   };
 
-  typedef std::map<std::string, std::string>::iterator iterator;
-  typedef std::map<std::string, std::string>::const_iterator const_iterator;
+  using iterator = std::map<std::string, std::string>::iterator;
+  using const_iterator = std::map<std::string, std::string>::const_iterator;
 
 public:
   /**

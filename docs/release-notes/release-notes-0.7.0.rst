@@ -17,28 +17,29 @@ New features
 
 - HMAC signing support (:issue:`3075`)
 
-- Support for ``ParametersSha256DigestComponent`` in ``Name`` and ``Interest`` classes
+- Support for ``ParametersSha256DigestComponent`` in :ndn-cxx:`Name` and :ndn-cxx:`Interest`
   (:issue:`4658`)
 
-- Encoding/decoding of ``HopLimit`` field in Interest (:issue:`4806`)
+- Encoding and decoding of ``HopLimit`` field in Interest (:issue:`4806`)
 
-- PIT token (:issue:`4532`).
+- Support for encoding and decoding PIT token as NDNLPv2 field (:issue:`4532`).
 
   PIT token is a hop-by-hop header field that identifies an Interest-Data exchange. The
   downstream node can assign an opaque token to an outgoing Interest, and the upstream node
   is expected to return the same token on the Data or Nack in reply to that Interest. This
   would allow the downstream node to accelerate its processing, especially in PIT lookup.
 
-- ``io::loadBuffer`` and ``io::saveBuffer`` helper functions
+- :ndn-cxx:`io::loadBuffer` and :ndn-cxx:`io::saveBuffer` helper functions
 
 Improvements and bug fixes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Various improvements in the Linux implementation of ``NetworkMonitor`` class
+- Various improvements in the Linux implementation of :ndn-cxx:`NetworkMonitor`
 
 - Rework of ``RttEstimator`` class:
 
-  * split into two classes: ``RttEstimator`` and ``RttEstimatorWithStats`` (:issue:`4887`)
+  * split into two classes: :ndn-cxx:`RttEstimator` and :ndn-cxx:`RttEstimatorWithStats`
+    (:issue:`4887`)
   * add a getter for the smoothed RTT value (:issue:`4892`)
   * switch to use ``time::nanoseconds`` (:issue:`4887`)
 
@@ -64,7 +65,7 @@ Removals
 
 - Unused ``v2::PublicKey`` alias of ``transform::PublicKey``
 
-- ``HmacFilter`` class, use SignerFilter and VerifierFilter instead
+- ``HmacFilter`` class, use :ndn-cxx:`SignerFilter` and :ndn-cxx:`VerifierFilter` instead
 
 - Ill-defined equality operators for ``Interest``, ``MetaInfo``, ``Signature`` (:issue:`4569`)
 

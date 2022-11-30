@@ -49,7 +49,6 @@ ndn-cxx Documentation
 
 - :doc:`specs`
 
-   + :doc:`specs/certificate`
    + :doc:`specs/safe-bag`
    + :doc:`specs/signed-interest`
 

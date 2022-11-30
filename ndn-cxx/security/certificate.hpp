@@ -32,7 +32,7 @@ namespace security {
 inline namespace v2 {
 
 /**
- * @brief Represents an NDN certificate following the version 2.0 format.
+ * @brief Represents an NDN certificate.
  *
  * Example of an NDN certificate name:
  * @code{.unparsed}
@@ -54,7 +54,7 @@ inline namespace v2 {
  * - `Key %Name` is the logical name of the key used for management purposes.  The key name
  *   includes the identity name, the keyword `KEY`, and the `KeyId` component.
  *
- * @sa <a href="../specs/certificate.html">Certificate Format</a>
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html
  */
 class Certificate : public Data
 {
