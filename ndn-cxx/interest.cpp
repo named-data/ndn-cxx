@@ -217,10 +217,11 @@ Interest::wireDecode(const Block& wire)
         if (lastElement >= 4) {
           NDN_THROW(Error("ForwardingHint element is out of order"));
         }
-        // ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Name
-        // [previous format]
-        // ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Delegation
-        // Delegation = DELEGATION-TYPE TLV-LENGTH Preference Name
+        // Current format:
+        //   ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Name
+        // Previous format, partially supported for backward compatibility:
+        //   ForwardingHint = FORWARDING-HINT-TYPE TLV-LENGTH 1*Delegation
+        //   Delegation = DELEGATION-TYPE TLV-LENGTH Preference Name
         element->parse();
         for (const auto& del : element->elements()) {
           switch (del.type()) {
@@ -232,7 +233,8 @@ Interest::wireDecode(const Block& wire)
                 NDN_THROW_NESTED(Error("Invalid Name in ForwardingHint"));
               }
               break;
-            case tlv::LinkDelegation:
+            case 31: // Delegation
+              // old ForwardingHint format, try to parse the nested Name for compatibility
               try {
                 del.parse();
                 m_forwardingHint.emplace_back(del.get(tlv::Name));

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2022 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,10 +33,11 @@ namespace validator_config {
 /**
  * @brief A validator that can be set up via a configuration file.
  *
- * @note For command Interest validation, this policy must be combined with
- *       @p ValidationPolicyCommandInterest, in order to guard against replay attacks.
+ * @note For %Command %Interest validation, this policy must be combined with
+ *       ValidationPolicyCommandInterest, in order to guard against replay attacks.
  * @note This policy does not support inner policies (a sole policy or a terminal inner policy)
- * @sa https://named-data.net/doc/ndn-cxx/current/tutorials/security-validator-config.html
+ *
+ * @sa <a href="../tutorials/security-validator-config.html">Validator Configuration File Format</a>
  */
 class ValidationPolicyConfig : public ValidationPolicy
 {

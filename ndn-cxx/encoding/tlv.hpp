@@ -61,15 +61,24 @@ public:
 /**
  * @brief TLV-TYPE numbers defined in NDN Packet Format v0.3.
  * @sa https://named-data.net/doc/NDN-packet-spec/0.3/types.html
+ * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
  */
 enum : uint32_t {
   Invalid                         = 0,
   Interest                        = 5,
   Data                            = 6,
+
   Name                            = 7,
   GenericNameComponent            = 8,
   ImplicitSha256DigestComponent   = 1,
   ParametersSha256DigestComponent = 2,
+  KeywordNameComponent            = 32,
+  SegmentNameComponent            = 50,
+  ByteOffsetNameComponent         = 52,
+  VersionNameComponent            = 54,
+  TimestampNameComponent          = 56,
+  SequenceNumNameComponent        = 58,
+
   CanBePrefix                     = 33,
   MustBeFresh                     = 18,
   ForwardingHint                  = 30,
@@ -79,6 +88,7 @@ enum : uint32_t {
   ApplicationParameters           = 36,
   InterestSignatureInfo           = 44,
   InterestSignatureValue          = 46,
+
   MetaInfo                        = 20,
   Content                         = 21,
   SignatureInfo                   = 22,
@@ -86,14 +96,21 @@ enum : uint32_t {
   ContentType                     = 24,
   FreshnessPeriod                 = 25,
   FinalBlockId                    = 26,
+
   SignatureType                   = 27,
   KeyLocator                      = 28,
   KeyDigest                       = 29,
   SignatureNonce                  = 38,
   SignatureTime                   = 40,
   SignatureSeqNum                 = 42,
-  LinkDelegation                  = 31,
-  LinkPreference                  = 30,
+
+  ValidityPeriod                  = 253,
+  NotBefore                       = 254,
+  NotAfter                        = 255,
+  AdditionalDescription           = 258,
+  DescriptionEntry                = 512,
+  DescriptionKey                  = 513,
+  DescriptionValue                = 514,
 
   NameComponentMin = 1,
   NameComponentMax = 65535,
@@ -103,35 +120,8 @@ enum : uint32_t {
 };
 
 /**
- * @brief TLV-TYPE numbers defined in NDN Packet Format v0.2 but not in v0.3.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.2.1/types.html
- */
-enum : uint32_t {
-  Selectors                 = 9,
-  MinSuffixComponents       = 13,
-  MaxSuffixComponents       = 14,
-  PublisherPublicKeyLocator = 15,
-  Exclude                   = 16,
-  ChildSelector             = 17,
-  Any                       = 19,
-};
-
-/**
- * @brief TLV-TYPE numbers for typed name components.
- * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
- */
-enum : uint32_t {
-  KeywordNameComponent     = 32,
-  SegmentNameComponent     = 50,
-  ByteOffsetNameComponent  = 52,
-  VersionNameComponent     = 54,
-  TimestampNameComponent   = 56,
-  SequenceNumNameComponent = 58,
-};
-
-/**
  * @brief SignatureType values.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signature.html
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signature.html#signaturetype
  * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/SignatureType
  */
 enum SignatureTypeValue : uint16_t {
@@ -147,22 +137,8 @@ std::ostream&
 operator<<(std::ostream& os, SignatureTypeValue st);
 
 /**
- * @brief TLV-TYPE numbers for SignatureInfo extensions.
- * @sa <a href="../specs/certificate.html">NDN Certificate Format</a>
- */
-enum : uint32_t {
-  ValidityPeriod = 253,
-  NotBefore = 254,
-  NotAfter = 255,
-
-  AdditionalDescription = 258,
-  DescriptionEntry = 512,
-  DescriptionKey = 513,
-  DescriptionValue = 514
-};
-
-/**
  * @brief ContentType values.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html#contenttype
  * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/ContentType
  */
 enum ContentTypeValue : uint32_t {

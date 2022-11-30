@@ -22,7 +22,6 @@
 #ifndef NDN_CXX_NAME_COMPONENT_HPP
 #define NDN_CXX_NAME_COMPONENT_HPP
 
-#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/util/time.hpp"
@@ -30,8 +29,9 @@
 namespace ndn {
 namespace name {
 
-/** @brief Format used for the URI representation of a name.
- *  @sa http://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+/**
+ * @brief Format used for the URI representation of a name.
+ * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
  */
 enum class UriFormat {
   /// Always use `<type-number>=<percent-encoded-value>` format
@@ -46,8 +46,9 @@ enum class UriFormat {
   DEFAULT = ENV_OR_ALTERNATE,
 };
 
-/** @brief Identify a style of NDN Naming Conventions.
- *  @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
+/**
+ * @brief Identify a style of NDN Naming Conventions.
+ * @sa https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
  */
 enum class Convention {
   MARKER = 1 << 0, ///< Component markers (revision 1)
@@ -55,8 +56,9 @@ enum class Convention {
   EITHER = MARKER | TYPED,
 };
 
-/** @brief Name component markers defined in Naming Conventions revision 1 (obsolete).
- *  @sa https://named-data.net/publications/techreports/ndn-tr-22-ndn-memo-naming-conventions/
+/**
+ * @brief Name component markers defined in Naming Conventions revision 1 (obsolete).
+ * @sa https://named-data.net/publications/techreports/ndn-tr-22-ndn-memo-naming-conventions/
  */
 enum : uint8_t {
   SEGMENT_MARKER = 0x00,
@@ -279,15 +281,15 @@ public: // encoding and URI
   fromEscapedString(const std::string& input);
 
   /**
-   * @brief Write *this to the output stream, escaping characters according to the NDN URI format.
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   * @brief Write `*this` to the output stream, escaping characters according to the NDN URI format.
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   void
   toUri(std::ostream& os, UriFormat format = UriFormat::DEFAULT) const;
 
   /**
-   * @brief Convert *this by escaping characters according to the NDN URI format.
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#ndn-uri-scheme
+   * @brief Convert `*this` by escaping characters according to the NDN URI format.
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   std::string
   toUri(UriFormat format = UriFormat::DEFAULT) const;
@@ -295,7 +297,7 @@ public: // encoding and URI
 public: // naming conventions
   /**
    * @brief Check if the component is a NonNegativeInteger
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    */
   bool
   isNumber() const noexcept;
@@ -345,7 +347,7 @@ public: // naming conventions
 
   /**
    * @brief Interpret this name component as a NonNegativeInteger
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    * @return The decoded non-negative integer.
    */
   uint64_t
@@ -408,7 +410,7 @@ public: // naming conventions
   /**
    * @brief Create a component encoded as NonNegativeInteger
    *
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/tlv.html#non-negative-integer-encoding
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    *
    * @param number The non-negative number
    * @param type TLV-TYPE
@@ -564,7 +566,7 @@ public: // comparison
    * @retval zero this equals other
    * @retval positive this comes after other in canonical ordering
    *
-   * @sa https://named-data.net/doc/NDN-packet-spec/current/name.html#canonical-order
+   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#canonical-order
    */
   int
   compare(const Component& other) const;

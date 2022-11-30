@@ -45,7 +45,7 @@ const time::milliseconds DEFAULT_FRESHNESS_PERIOD{0};
  * packets (NFD and previous versions of ndn-cxx will gracefully accept such packets).
  *
  * The following definition of the MetaInfo element is assumed in this implementation (compared
- * to the NDN-TLV spec, the definition is extended to allow optional AppMetaInfo elements):
+ * to the NDN packet spec, the definition is extended to allow optional AppMetaInfo elements):
  *
  *     MetaInfo = META-INFO-TYPE TLV-LENGTH
  *                  [ContentType]
