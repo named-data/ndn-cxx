@@ -30,7 +30,8 @@
 
 namespace ndn {
 
-/** \brief Provides TLV-block delivery service.
+/**
+ * \brief Provides a "TLV-oriented" delivery service.
  */
 class Transport : noncopyable
 {
@@ -43,9 +44,16 @@ public:
     Error(const boost::system::error_code& code, const std::string& msg);
   };
 
-  using ReceiveCallback = std::function<void(const Block& wire)>;
-  using ErrorCallback = std::function<void()>;
+  enum class State {
+    CLOSED,
+    CONNECTING,
+    RUNNING,
+    PAUSED,
+  };
 
+  using ReceiveCallback = std::function<void(const Block&)>;
+
+public:
   virtual
   ~Transport() = default;
 
@@ -89,29 +97,27 @@ public:
   resume() = 0;
 
   /**
-   * \brief Return whether the transport is connected.
+   * \brief Return the current state of the transport.
    */
-  bool
-  isConnected() const noexcept
+  State
+  getState() const noexcept
   {
-    return m_isConnected;
+    return m_state;
   }
 
-  /**
-   * \retval true incoming packets are expected, the receive callback will be invoked
-   * \retval false incoming packets are not expected, the receive callback will not be invoked
-   */
-  bool
-  isReceiving() const noexcept
+protected:
+  void
+  setState(State state) noexcept
   {
-    return m_isReceiving;
+    m_state = state;
   }
 
 protected:
   boost::asio::io_service* m_ioService = nullptr;
   ReceiveCallback m_receiveCallback;
-  bool m_isConnected = false;
-  bool m_isReceiving = false;
+
+private:
+  State m_state = State::CLOSED;
 };
 
 } // namespace ndn

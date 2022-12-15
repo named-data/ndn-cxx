@@ -42,10 +42,10 @@ public:
   void
   connect(const typename Protocol::resolver::query& query)
   {
-    if (this->m_isConnecting) {
+    if (this->m_transport.getState() == Transport::State::CONNECTING) {
       return;
     }
-    this->m_isConnecting = true;
+    this->m_transport.setState(Transport::State::CONNECTING);
 
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable

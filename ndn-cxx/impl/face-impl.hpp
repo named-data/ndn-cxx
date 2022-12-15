@@ -304,12 +304,12 @@ public: // IO routine
   void
   ensureConnected(bool wantResume)
   {
-    if (!m_face.m_transport->isConnected()) {
+    if (m_face.m_transport->getState() == Transport::State::CLOSED) {
       m_face.m_transport->connect(m_face.getIoService(),
                                   [this] (const Block& wire) { m_face.onReceiveElement(wire); });
     }
 
-    if (wantResume && !m_face.m_transport->isReceiving()) {
+    if (wantResume) {
       m_face.m_transport->resume();
     }
   }

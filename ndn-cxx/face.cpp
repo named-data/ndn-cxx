@@ -292,7 +292,7 @@ Face::shutdown()
 {
   IO_CAPTURE_WEAK_IMPL(post) {
     impl->shutdown();
-    if (m_transport->isConnected())
+    if (m_transport->getState() != Transport::State::CLOSED)
       m_transport->close();
   } IO_CAPTURE_WEAK_IMPL_END
 }

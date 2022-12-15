@@ -55,10 +55,10 @@ public:
   void
   connect(const typename Protocol::endpoint& endpoint)
   {
-    if (m_isConnecting) {
+    if (m_transport.getState() == Transport::State::CONNECTING) {
       return;
     }
-    m_isConnecting = true;
+    m_transport.setState(Transport::State::CONNECTING);
 
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable
@@ -76,38 +76,30 @@ public:
   void
   close()
   {
-    m_isConnecting = false;
+    m_transport.setState(Transport::State::CLOSED);
 
     boost::system::error_code error; // to silently ignore all errors
     m_connectTimer.cancel(error);
     m_socket.cancel(error);
     m_socket.close(error);
 
-    m_transport.m_isConnected = false;
-    m_transport.m_isReceiving = false;
     TransmissionQueue{}.swap(m_transmissionQueue); // clear the queue
   }
 
   void
   pause()
   {
-    if (m_isConnecting)
-      return;
-
-    if (m_transport.m_isReceiving) {
-      m_transport.m_isReceiving = false;
+    if (m_transport.getState() == Transport::State::RUNNING) {
       m_socket.cancel();
+      m_transport.setState(Transport::State::PAUSED);
     }
   }
 
   void
   resume()
   {
-    if (m_isConnecting)
-      return;
-
-    if (!m_transport.m_isReceiving) {
-      m_transport.m_isReceiving = true;
+    if (m_transport.getState() == Transport::State::PAUSED) {
+      m_transport.setState(Transport::State::RUNNING);
       m_inputBufferSize = 0;
       asyncReceive();
     }
@@ -118,7 +110,9 @@ public:
   {
     m_transmissionQueue.push(block);
 
-    if (m_transport.m_isConnected && m_transmissionQueue.size() == 1) {
+    if (m_transport.getState() != Transport::State::CLOSED &&
+        m_transport.getState() != Transport::State::CONNECTING &&
+        m_transmissionQueue.size() == 1) {
       asyncWrite();
     }
     // if not connected or there's another transmission in progress (m_transmissionQueue.size() > 1),
@@ -129,16 +123,14 @@ protected:
   void
   connectHandler(const boost::system::error_code& error)
   {
-    m_isConnecting = false;
     m_connectTimer.cancel();
 
     if (error) {
-      m_transport.m_isConnected = false;
       m_transport.close();
       NDN_THROW(Transport::Error(error, "error while connecting to the forwarder"));
     }
 
-    m_transport.m_isConnected = true;
+    m_transport.setState(Transport::State::PAUSED);
 
     if (!m_transmissionQueue.empty()) {
       resume();
@@ -172,8 +164,8 @@ protected:
           NDN_THROW(Transport::Error(error, "error while writing data to socket"));
         }
 
-        if (!m_transport.m_isConnected) {
-          return; // queue has been already cleared
+        if (m_transport.getState() == Transport::State::CLOSED) {
+          return; // queue has already been cleared
         }
 
         BOOST_ASSERT(!m_transmissionQueue.empty());
@@ -249,7 +241,6 @@ protected:
   size_t m_inputBufferSize = 0;
   TransmissionQueue m_transmissionQueue;
   boost::asio::steady_timer m_connectTimer;
-  bool m_isConnecting = false;
 };
 
 } // namespace detail
