@@ -26,18 +26,16 @@ ndn-cxx relies on third-party software, licensed under the following licenses:
 - The waf build system is licensed under the terms of the
   [BSD license](https://github.com/named-data/ndn-cxx/blob/master/waf)
 
-
 The ndn-cxx library also relies on other third-party software with a GPL-incompatible
 free software license. The following libraries fall into the category of "System
 Libraries" under the GPL license definitions and are used in accordance with the GPL
 license exception for "System Libraries":
 
-- (macOS platform only) The macOS Security Framework is licensed under the
+- *(macOS platform only)* The macOS Security Framework is licensed under the
   [Apple Public Source License 2.0](https://opensource.apple.com/apsl)
 
-
 The LGPL and GPL licenses are provided below in this file.  For more information
-about these licenses, see https://www.gnu.org/licenses/
+about these licenses, see <https://www.gnu.org/licenses/>
 
 --------------------------------------------------------------------------------
 

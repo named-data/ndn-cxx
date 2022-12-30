@@ -7,14 +7,10 @@ Supported platforms
 ndn-cxx is built against a continuous integration system and has been tested on the
 following platforms:
 
-- Ubuntu 18.04
-- Ubuntu 20.04
-- Ubuntu 22.04
+- Ubuntu 18.04 / 20.04 / 22.04
 - Debian 11
 - CentOS Stream 9
-- macOS 10.15
-- macOS 11
-- macOS 12
+- macOS 10.15 / 11 / 12 / 13
 
 ndn-cxx is known to work on the following platforms, although they are not officially
 supported:
@@ -316,5 +312,5 @@ will be treated as errors. This default behavior can be overridden by setting th
 
 .. code-block:: sh
 
-    CXXFLAGS="-O1 -g3" ./waf configure --debug --with-tests
-    ...
+    CXXFLAGS="-O1 -g3 -Wall" ./waf configure --debug --with-tests
+    ./waf

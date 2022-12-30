@@ -1,8 +1,8 @@
 # ndn-cxx Authors
 
-The following lists maintainers, primary developers, and all much-appreciated contributors to ndn-cxx in alphabetic order.
+The following lists maintainers, primary developers, and all much-appreciated contributors to ndn-cxx in alphabetical order.
 The specific contributions of individual authors can be obtained from the git history of the [official ndn-cxx repository](https://github.com/named-data/ndn-cxx).
-If you would like to become a contributor to the official repository, please follow the recommendations in https://github.com/named-data/.github/blob/master/CONTRIBUTING.md.
+If you would like to become a contributor to the official repository, please follow the recommendations in <https://github.com/named-data/.github/blob/master/CONTRIBUTING.md>.
 
 * Sepehr Abdous <https://sepehrabdous.github.io>
 * ***(Maintainer)*** Alexander Afanasyev <https://users.cs.fiu.edu/~afanasyev>
@@ -23,7 +23,7 @@ If you would like to become a contributor to the official repository, please fol
 * Xiaoke Jiang <http://netarchlab.tsinghua.edu.cn/~shock>
 * Marcin Juszkiewicz <https://marcin.juszkiewicz.com.pl>
 * Luca Keidel <https://lucakeidel.de>
-* Spencer Lee <https://wwsw.linkedin.com/in/spenlee>
+* Spencer Lee <https://www.linkedin.com/in/spenlee>
 * Vince Lehman <http://vslehman.com>
 * Yanbiao Li <https://www.linkedin.com/pub/yanbiao-li/24/7a1/4ba>
 * Teng Liang <https://cs.arizona.edu/~philoliang>
@@ -39,7 +39,7 @@ If you would like to become a contributor to the official repository, please fol
 * Arthi Padmanabhan <https://github.com/arthipadmanabhan>
 * Ju Pan <https://cs-jupan.com>
 * João Pereira <http://website.jpereira.co.uk>
-* Davide Pesavento <https://github.com/Pesa>
+* ***(Maintainer)*** Davide Pesavento <https://github.com/Pesa>
 * José Quevedo <http://atnog.av.it.pt/members/jquevedo>
 * Md Ashiqur Rahman <https://ashiqrahman.com>
 * Niv Sardi <http://core.evilgiggle.com>

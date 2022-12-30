@@ -7,10 +7,10 @@ Important changes
 ^^^^^^^^^^^^^^^^^
 
 - Flip default value of ``CanBePrefix`` to **false** (:issue:`4582`). This means that
-  Interests created without explicitly specifying ``CanBePrefix`` option, will be treaded
+  Interests created without explicitly specifying ``CanBePrefix`` option will be treated
   as Interests for exact Data name.
 
-- Change default name component encoding convention to typed (:issue:`5044`)
+- Change default name component encoding convention to ``TYPED`` (:issue:`5044`)
 
 - Update TLV-TYPE numbers to revision 3 of the `naming conventions`_
 
