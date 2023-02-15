@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -381,7 +381,8 @@ class IdCertFixture : public FileIoFixture
 BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
 {
   auto identity = m_keyChain.createIdentity("/TestIo/IdCert", RsaKeyParams());
-  const auto& cert = identity.getDefaultKey().getDefaultCertificate();
+  auto key = identity.getDefaultKey();
+  const auto& cert = key.getDefaultCertificate();
   io::save(cert, filename);
 
   auto readCert = io::load<security::Certificate>(filename);
