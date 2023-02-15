@@ -1,6 +1,6 @@
 <div align="center">
 
-[<img alt height="70" src="docs/named_data_theme/static/ndn-logo.svg"/>](https://named-data.net/)
+[<img alt height="65" src="docs/named_data_theme/static/ndn-logo.svg"/>](https://named-data.net/)
 
 # ndn-cxx: NDN C++ library with eXperimental eXtensions
 
@@ -30,21 +30,22 @@ used by the following projects:
 
 See [`docs/INSTALL.rst`](docs/INSTALL.rst) for compilation and installation instructions.
 
-Extensive documentation is available on the library's [homepage](https://named-data.net/doc/ndn-cxx/).
+Extensive documentation is available on the library's [homepage](https://docs.named-data.net/ndn-cxx/).
 
 ## Reporting bugs
 
-Please submit any bugs or feature requests to the
+Please submit any bug reports or feature requests to the
 [ndn-cxx issue tracker](https://redmine.named-data.net/projects/ndn-cxx/issues).
 
 ## Contributing
 
-We greatly appreciate contributions to the ndn-cxx code base.
-If you are new to the NDN software community, please read the
-[Contributor's Guide](https://github.com/named-data/.github/blob/master/CONTRIBUTING.md)
-to get started.
+Contributions to ndn-cxx are greatly appreciated and can be made through our
+[Gerrit code review site](https://gerrit.named-data.net/).
+If you are new to the NDN software community, please read our
+[Contributor's Guide](https://github.com/named-data/.github/blob/main/CONTRIBUTING.md)
+and [`README-dev.md`](README-dev.md) to get started.
 
 ## License
 
-ndn-cxx is an open source project licensed under the LGPL version 3.
-See [`COPYING.md`](COPYING.md) for more information.
+ndn-cxx is free software distributed under the GNU Lesser General Public License version 3.
+See [`COPYING.md`](COPYING.md) for details.

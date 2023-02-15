@@ -51,7 +51,7 @@ Documentation
 For developers
 ^^^^^^^^^^^^^^
 
-- `NDN Software Contributor's Guide <https://github.com/named-data/.github/blob/master/CONTRIBUTING.md>`__
+- `NDN Software Contributor's Guide <https://github.com/named-data/.github/blob/main/CONTRIBUTING.md>`__
   (guide for newcomers to the NDN community of software)
 
 - :doc:`specs`

@@ -3,7 +3,7 @@ on:
   push:
     paths-ignore:
       - 'docs/**'
-      - '*.conf.sample'
+      - '*.conf.sample*'
       - '*.md'
       - '.mailmap'
   workflow_dispatch:

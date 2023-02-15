@@ -2,7 +2,7 @@
 
 The following lists maintainers, primary developers, and all much-appreciated contributors to ndn-cxx in alphabetical order.
 The specific contributions of individual authors can be obtained from the git history of the [official ndn-cxx repository](https://github.com/named-data/ndn-cxx).
-If you would like to become a contributor to the official repository, please follow the recommendations in <https://github.com/named-data/.github/blob/master/CONTRIBUTING.md>.
+If you would like to become a contributor to the official repository, please follow the recommendations in <https://github.com/named-data/.github/blob/main/CONTRIBUTING.md>.
 
 * Sepehr Abdous <https://sepehrabdous.github.io>
 * ***(Maintainer)*** Alexander Afanasyev <https://users.cs.fiu.edu/~afanasyev>

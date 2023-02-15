@@ -1,8 +1,8 @@
 Notes for ndn-cxx developers
 ============================
 
-If you are new to the NDN community of software generally, read the
-[Contributor's Guide](https://github.com/named-data/.github/blob/master/CONTRIBUTING.md).
+If you are new to the NDN software community, please read our
+[Contributor's Guide](https://github.com/named-data/.github/blob/main/CONTRIBUTING.md).
 
 Code style
 ----------
@@ -12,9 +12,9 @@ ndn-cxx code is subject to [ndn-cxx code style](https://named-data.net/doc/ndn-c
 Licensing
 ---------
 
-Contributions to the library must be licensed under the LGPL v3 or compatible license.  If
-you are choosing LGPL v3, please use the following license boilerplate in all `.hpp` and
-`.cpp` files:
+Contributions to ndn-cxx must be licensed under the LGPL v3 or a compatible license.
+If you choose the LGPL v3, please use the following license boilerplate in all `.hpp`
+and `.cpp` files:
 
     /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
     /*
@@ -35,11 +35,6 @@ you are choosing LGPL v3, please use the following license boilerplate in all `.
      * <http://www.gnu.org/licenses/>.
      *
      * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
-     ////// [optional part] //////
-     *
-     * @author Author's Name <email@domain-or-homepage://url>
-     * @author Other Author's Name <another.email@domain-or-homepage://url>
-     ////// [end of optional part] //////
      */
 
 If you are affiliated to an NSF-supported NDN project institution, please use the [NDN Team License

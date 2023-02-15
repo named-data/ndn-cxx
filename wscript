@@ -400,7 +400,9 @@ def version(ctx):
         Logs.warn('%s is not writable (%s)' % (versionFile, e.strerror))
 
 def dist(ctx):
+    ctx.algo = 'tar.xz'
     version(ctx)
 
 def distcheck(ctx):
+    ctx.algo = 'tar.xz'
     version(ctx)
