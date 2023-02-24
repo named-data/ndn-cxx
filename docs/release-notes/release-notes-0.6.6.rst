@@ -5,15 +5,15 @@ Release date: April 27, 2019
 
 .. note::
    This is the last release to support the `NDN packet format version 0.2.1
-   <https://named-data.net/doc/NDN-packet-spec/0.2.1/>`__.
+   <https://docs.named-data.net/NDN-packet-spec/0.2.1/>`__.
    The next release will be able to encode and decode only the `v0.3 packet format
-   <https://named-data.net/doc/NDN-packet-spec/0.3/>`__.
+   <https://docs.named-data.net/NDN-packet-spec/0.3/>`__.
 
 New features
 ^^^^^^^^^^^^
 
 - More support for `NDN packet format version 0.3
-  <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
+  <https://docs.named-data.net/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
 
   * Support new naming conventions to encode/decode segment numbers, byte offsets, versions,
     timestamps, and sequence numbers based on typed name components (:issue:`4777`)

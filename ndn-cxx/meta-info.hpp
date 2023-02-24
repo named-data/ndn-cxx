@@ -56,7 +56,7 @@ const time::milliseconds DEFAULT_FRESHNESS_PERIOD{0};
  * Note that AppMetaInfo elements are application-defined and must have a TLV-TYPE inside
  * the range reserved for application use, i.e., `[128, 252]`.
  *
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html#metainfo
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/data.html#metainfo
  */
 class MetaInfo
 {
@@ -147,7 +147,7 @@ public: // app-defined MetaInfo items
    * This method will replace all existing app-defined MetaInfo items, if they existed.
    *
    * @throw Error if some block in @p info has type not in the application range
-   *              (https://named-data.net/doc/NDN-packet-spec/0.3/types.html)
+   *              (https://docs.named-data.net/NDN-packet-spec/0.3/types.html)
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
@@ -159,7 +159,7 @@ public: // app-defined MetaInfo items
    * @brief Add an app-defined MetaInfo item.
    *
    * @throw Error if @p block has type not in the application range
-   *              (https://named-data.net/doc/NDN-packet-spec/0.3/types.html)
+   *              (https://docs.named-data.net/NDN-packet-spec/0.3/types.html)
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost
@@ -184,7 +184,7 @@ public: // app-defined MetaInfo items
    * @return NULL if an item is not found, otherwise const pointer to the item
    *
    * @throw Error if @p tlvType is not in the application range
-   *              (https://named-data.net/doc/NDN-packet-spec/0.3/types.html)
+   *              (https://docs.named-data.net/NDN-packet-spec/0.3/types.html)
    *
    * @note If MetaInfo is decoded from wire and setType, setFreshnessPeriod, or setFinalBlock
    *       is called before *AppMetaInfo, all app-defined blocks will be lost

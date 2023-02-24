@@ -38,7 +38,7 @@ public:
   /**
    * @brief Flags to indicate which elements to include in Interest signatures created with
    *        makeSignedInterest.
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signature.html#interest-signature
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/signature.html#interest-signature
    */
   enum SigningFlags : uint32_t {
     WantNonce = 1 << 0,

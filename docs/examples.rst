@@ -5,7 +5,7 @@ Trivial applications
 
     To successfully run the following examples, please make sure that NFD is properly
     configured and running.  For more information about NFD, refer to `NFD's official
-    homepage <https://named-data.net/doc/NFD/>`_.
+    homepage <https://docs.named-data.net/NFD/>`__.
 
 Trivial consumer
 ----------------

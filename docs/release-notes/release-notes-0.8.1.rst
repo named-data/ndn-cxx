@@ -32,7 +32,7 @@ Important changes and new features
   (:issue:`5112`)
 
 - NFD management commands sent by :ndn-cxx:`nfd::Controller` now use the `new signed Interest
-  format <https://named-data.net/doc/NDN-packet-spec/0.3/signed-interest.html>`__ (:issue:`4804`)
+  format <https://docs.named-data.net/NDN-packet-spec/0.3/signed-interest.html>`__ (:issue:`4804`)
 
 Improvements and bug fixes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -7,7 +7,7 @@ New features
 ^^^^^^^^^^^^
 
 - More support for `NDN packet format version 0.3
-  <https://named-data.net/doc/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
+  <https://docs.named-data.net/NDN-packet-spec/0.3/>`__ (:issue:`4527`)
 
   * Stop using ``ChildSelector`` in ``NotificationSubscriber`` (:issue:`4664`)
 

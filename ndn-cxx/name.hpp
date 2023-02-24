@@ -38,7 +38,7 @@ using PartialName = Name;
 
 /**
  * @brief Represents an absolute name.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html
  */
 class Name
 {
@@ -82,18 +82,18 @@ public: // constructors, encoding, decoding
 
   /** @brief Parse name from NDN URI.
    *  @param uri a null-terminated URI string
-   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   Name(const char* uri);
 
   /** @brief Create name from NDN URI.
    *  @param uri a URI string
-   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   Name(std::string uri);
 
   /** @brief Write URI representation of the name to the output stream.
-   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   void
   toUri(std::ostream& os, name::UriFormat format = name::UriFormat::DEFAULT) const;
@@ -101,7 +101,7 @@ public: // constructors, encoding, decoding
   /** @brief Get URI representation of the name.
    *  @return URI representation; the "ndn:" scheme identifier is not included
    *  @note To print URI representation into a stream, it is more efficient to use `os << name`.
-   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   std::string
   toUri(name::UriFormat format = name::UriFormat::DEFAULT) const;
@@ -390,7 +390,7 @@ public: // modifiers
 
   /** @brief Append a component with a NonNegativeInteger.
    *  @return A reference to this Name, to allow chaining.
-   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
+   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    */
   Name&
   appendNumber(uint64_t number)
@@ -632,7 +632,7 @@ public: // algorithms
    *  @retval zero this equals other
    *  @retval positive this comes after other in canonical ordering
    *
-   *  @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#canonical-order
+   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#canonical-order
    */
   int
   compare(const Name& other) const
@@ -691,7 +691,7 @@ private: // non-member operators
 
   /**
    * @brief Print the URI representation of a name.
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   friend std::ostream&
   operator<<(std::ostream& os, const Name& name)
@@ -714,7 +714,7 @@ NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Name);
 
 /**
  * @brief Parse URI from stream as Name.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
  */
 std::istream&
 operator>>(std::istream& is, Name& name);

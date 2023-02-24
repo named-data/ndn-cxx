@@ -4,7 +4,7 @@ Signed Interest Version 0.2 (DEPRECATED)
 .. warning::
     This document describes a deprecated format for signed Interest packets. The current format can
     be found in the
-    `NDN Packet Specification <https://named-data.net/doc/NDN-packet-spec/current/signed-interest.html>`__.
+    `NDN Packet Specification <https://docs.named-data.net/NDN-packet-spec/current/signed-interest.html>`__.
 
 **Signed Interest** is a mechanism to issue an authenticated interest.
 
@@ -52,21 +52,21 @@ Timestamp component (n-3 *th*)
 
 The value of the n-3 *th* component is the interest's timestamp (in terms of millisecond offset
 from UTC 1970-01-01 00:00:00) encoded as
-`NonNegativeInteger <https://named-data.net/doc/NDN-packet-spec/0.2.1/tlv.html#non-negative-integer-encoding>`__.
+`NonNegativeInteger <https://docs.named-data.net/NDN-packet-spec/0.2.1/tlv.html#non-negative-integer-encoding>`__.
 The timestamp may be used to protect against replay attack.
 
 Nonce component (n-2 *th*)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The value of the n-2 *th* component is random value (encoded as
-`NonNegativeInteger <https://named-data.net/doc/NDN-packet-spec/0.2.1/tlv.html#non-negative-integer-encoding>`__)
+`NonNegativeInteger <https://docs.named-data.net/NDN-packet-spec/0.2.1/tlv.html#non-negative-integer-encoding>`__)
 that adds additional assurances that the interest will be unique.
 
 SignatureInfo component (n-1 *th*)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The value of the n-1 *th* component is actually a
-`SignatureInfo <https://named-data.net/doc/NDN-packet-spec/0.2.1/signature.html>`__ TLV.
+`SignatureInfo <https://docs.named-data.net/NDN-packet-spec/0.2.1/signature.html>`__ TLV.
 
 ::
 
@@ -84,7 +84,7 @@ SignatureValue component (n *th*)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The value of the n *th* component is actually a
-`SignatureValue <https://named-data.net/doc/NDN-packet-spec/0.2.1/signature.html>`__ TLV.
+`SignatureValue <https://docs.named-data.net/NDN-packet-spec/0.2.1/signature.html>`__ TLV.
 
 ::
 
@@ -109,7 +109,7 @@ be signed, it will be treated as invalid in the following three cases:
    missing or cannot be parsed correctly;
 -  the key is not trusted for signing the Interest;
 -  the signature cannot be verified with the public key pointed by the
-   `KeyLocator <https://named-data.net/doc/NDN-packet-spec/0.2.1/signature.html#keylocator>`__ in
+   `KeyLocator <https://docs.named-data.net/NDN-packet-spec/0.2.1/signature.html#keylocator>`__ in
    SignatureInfo.
 
 Recipients of a signed interest may further check the timestamp and the uniqueness of the

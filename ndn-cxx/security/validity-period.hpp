@@ -31,7 +31,7 @@ namespace security {
 
 /**
  * @brief Represents a %ValidityPeriod TLV element.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html
  */
 class ValidityPeriod
 {

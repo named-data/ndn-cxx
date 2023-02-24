@@ -16,7 +16,7 @@ New features
 - Add version 2 of the security framework in ``security::v2`` namespace
 
   * `NDN Certificate Format version 2.0
-    <https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html>`__ (:issue:`3103`)
+    <https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html>`__ (:issue:`3103`)
   * New Public Information Base (PIB) and Trusted Platform Module (TPM) framework to manage
     public/private keys and NDN Certificate version 2.0 (:issue:`2948`, :issue:`3202`)
   * New KeyChain implementation (:issue:`2926`)

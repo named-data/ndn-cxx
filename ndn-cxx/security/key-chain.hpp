@@ -323,7 +323,7 @@ public: // signing
    *                                or certificate does not exist
    * @see SigningInfo
    * @see SignatureInfo
-   * @see https://named-data.net/doc/NDN-packet-spec/0.3/signed-interest.html
+   * @see https://docs.named-data.net/NDN-packet-spec/0.3/signed-interest.html
    */
   void
   sign(Interest& interest, const SigningInfo& params = SigningInfo());

@@ -33,7 +33,7 @@ inline namespace v2 {
 
 /**
  * @brief Represents an %AdditionalDescription TLV element.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html
  */
 class AdditionalDescription
 {

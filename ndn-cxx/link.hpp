@@ -28,7 +28,7 @@ namespace ndn {
 
 /**
  * @brief Represents a `%LinkObject` TLV element.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/link.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/link.html
  */
 class Link : public Data
 {

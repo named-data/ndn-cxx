@@ -54,7 +54,7 @@ inline namespace v2 {
  * - `Key %Name` is the logical name of the key used for management purposes.  The key name
  *   includes the identity name, the keyword `KEY`, and the `KeyId` component.
  *
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html
  */
 class Certificate : public Data
 {

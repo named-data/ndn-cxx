@@ -7,7 +7,7 @@ If you are new to the NDN software community, please read our
 Code style
 ----------
 
-ndn-cxx code is subject to [ndn-cxx code style](https://named-data.net/doc/ndn-cxx/current/code-style.html).
+ndn-cxx code is subject to [ndn-cxx code style](https://docs.named-data.net/ndn-cxx/current/code-style.html).
 
 Licensing
 ---------

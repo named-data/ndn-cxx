@@ -35,7 +35,7 @@ The current features include:
 
 - **Wire format**
 
-  + Full support of `NDN-TLV packet format v0.1 <https://named-data.net/doc/NDN-packet-spec/0.1/>`_
+  + Full support of `NDN-TLV packet format v0.1 <https://docs.named-data.net/NDN-packet-spec/0.1/>`__
   + Pure C++ implementation of wire encoding/decoding with simple access to wire format
     of all NDN packet abstractions via ``wireEncode`` and ``wireDecode`` methods
 

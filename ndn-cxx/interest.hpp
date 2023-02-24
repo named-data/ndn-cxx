@@ -44,7 +44,7 @@ const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 
 /**
  * @brief Represents an %Interest packet.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/interest.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/interest.html
  */
 class Interest : public PacketBase, public std::enable_shared_from_this<Interest>
 {

@@ -31,7 +31,7 @@ namespace name {
 
 /**
  * @brief Format used for the URI representation of a name.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
  */
 enum class UriFormat {
   /// Always use `<type-number>=<percent-encoded-value>` format
@@ -282,14 +282,14 @@ public: // encoding and URI
 
   /**
    * @brief Write `*this` to the output stream, escaping characters according to the NDN URI format.
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   void
   toUri(std::ostream& os, UriFormat format = UriFormat::DEFAULT) const;
 
   /**
    * @brief Convert `*this` by escaping characters according to the NDN URI format.
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   std::string
   toUri(UriFormat format = UriFormat::DEFAULT) const;
@@ -297,7 +297,7 @@ public: // encoding and URI
 public: // naming conventions
   /**
    * @brief Check if the component is a NonNegativeInteger
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    */
   bool
   isNumber() const noexcept;
@@ -347,7 +347,7 @@ public: // naming conventions
 
   /**
    * @brief Interpret this name component as a NonNegativeInteger
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    * @return The decoded non-negative integer.
    */
   uint64_t
@@ -410,7 +410,7 @@ public: // naming conventions
   /**
    * @brief Create a component encoded as NonNegativeInteger
    *
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    *
    * @param number The non-negative number
    * @param type TLV-TYPE
@@ -487,7 +487,7 @@ public: // commonly used TLV-TYPEs
   /**
    * @brief Check if the component is an ImplicitSha256DigestComponent
    * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#implicit-digest-component
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#implicit-digest-component
    */
   bool
   isImplicitSha256Digest() const noexcept;
@@ -511,7 +511,7 @@ public: // commonly used TLV-TYPEs
   /**
    * @brief Check if the component is a ParametersSha256DigestComponent
    * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#parameters-digest-component
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#parameters-digest-component
    */
   bool
   isParametersSha256Digest() const noexcept;
@@ -566,7 +566,7 @@ public: // comparison
    * @retval zero this equals other
    * @retval positive this comes after other in canonical ordering
    *
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/name.html#canonical-order
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#canonical-order
    */
   int
   compare(const Component& other) const;

@@ -60,7 +60,7 @@ public:
 
 /**
  * @brief TLV-TYPE numbers defined in NDN Packet Format v0.3.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/types.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/types.html
  * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
  */
 enum : uint32_t {
@@ -121,7 +121,7 @@ enum : uint32_t {
 
 /**
  * @brief SignatureType values.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signature.html#signaturetype
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/signature.html#signaturetype
  * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/SignatureType
  */
 enum SignatureTypeValue : uint16_t {
@@ -138,7 +138,7 @@ operator<<(std::ostream& os, SignatureTypeValue st);
 
 /**
  * @brief ContentType values.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html#contenttype
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/data.html#contenttype
  * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/ContentType
  */
 enum ContentTypeValue : uint32_t {
@@ -156,7 +156,7 @@ operator<<(std::ostream& os, ContentTypeValue ct);
 
 /**
  * @brief Determine whether a TLV-TYPE is "critical" for evolvability purpose.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html#considerations-for-evolvability-of-tlv-based-encoding
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html#considerations-for-evolvability-of-tlv-based-encoding
  */
 constexpr bool
 isCriticalType(uint32_t type) noexcept

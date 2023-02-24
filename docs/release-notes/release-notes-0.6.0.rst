@@ -16,7 +16,7 @@ New features
   At the same time, management APIs for :ndn-cxx:`ValidatorConfig` remained intact;
   transition to the new framework only requires adjusting :ndn-cxx:`Validator::validate`
   calls and updating configuration files to follow the naming conventions of the new
-  `Certificate format <https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html>`__.
+  `Certificate format <https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html>`__.
 
 - Integration of fetching certificates using Certificate Bundle as part of specialized
   ``CertificateFetcher`` (:issue:`3891`)

@@ -65,28 +65,28 @@ public: // common interface between Encoder and Estimator
 
   /**
    * @brief Prepend @p number encoded as a VAR-NUMBER in NDN-TLV format
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html
    */
   size_t
   prependVarNumber(uint64_t number);
 
   /**
    * @brief Append @p number encoded as a VAR-NUMBER in NDN-TLV format
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html
    */
   size_t
   appendVarNumber(uint64_t number);
 
   /**
    * @brief Prepend @p integer encoded as a NonNegativeInteger in NDN-TLV format
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html
    */
   size_t
   prependNonNegativeInteger(uint64_t integer);
 
   /**
    * @brief Append @p integer encoded as a NonNegativeInteger in NDN-TLV format
-   * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html
    */
   size_t
   appendNonNegativeInteger(uint64_t integer);

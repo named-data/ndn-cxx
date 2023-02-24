@@ -33,7 +33,7 @@ namespace ndn {
 
 /**
  * @brief Represents a %Data packet.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/data.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/data.html
  */
 class Data : public PacketBase, public std::enable_shared_from_this<Data>
 {

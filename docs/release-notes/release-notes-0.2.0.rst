@@ -38,7 +38,7 @@ New features
   + New :ndn-cxx:`SignatureSha256WithEcdsa` signature type
 
   + Updates in ``Signature`` data structure to reflect changes in the `NDN-TLV spec v0.1.1
-    <https://named-data.net/doc/NDN-packet-spec/0.1.1/>`_
+    <https://docs.named-data.net/NDN-packet-spec/0.1.1/>`__
 
 - **Wire encoding**
 
@@ -111,8 +111,8 @@ Updates and bug fixes
   + Allow user to explicitly specify the cert name prefix before 'KEY' component in
     ``ndnsec-certgen``
 
-  + ``SignatureSha256`` has been renamed to :ndn-cxx:`DigestSha256` to conform to
-    `NDN-TLV specification <https://named-data.net/doc/NDN-packet-spec/0.1.1/>`_
+  + ``SignatureSha256`` has been renamed to :ndn-cxx:`DigestSha256` to conform to the
+    `NDN-TLV specification <https://docs.named-data.net/NDN-packet-spec/0.1.1/>`__
 
   + Add checking of Timestamp and Nonce fields in signed Interest within
     :ndn-cxx:`ValidatorConfig`

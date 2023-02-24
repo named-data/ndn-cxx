@@ -113,7 +113,7 @@ Deprecated
   ``security::v1::PublicKey``, ``security::v1::Certificate``, ``security::v1::IdentityCertificate``,
   ``security::v1::CertificateExtension``, ``security::v1::CertificateSubjectDescription`` instead.
   The next release will feature `a new version of the NDN Certificate format
-  <https://named-data.net/doc/NDN-packet-spec/0.3/certificate.html>`__.
+  <https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html>`__.
 
 Removed
 ^^^^^^^

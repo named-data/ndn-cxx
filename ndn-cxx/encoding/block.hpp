@@ -39,7 +39,7 @@ namespace ndn {
 
 /**
  * @brief Represents a TLV element of the NDN packet format.
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/tlv.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html
  */
 class Block
 {

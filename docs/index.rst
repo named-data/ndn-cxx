@@ -65,7 +65,7 @@ For developers
 Issues
 ------
 
-Please submit any bugs or feature requests to the
+Please submit any bug reports or feature requests to the
 `ndn-cxx issue tracker <https://redmine.named-data.net/projects/ndn-cxx/issues>`__.
 
 License

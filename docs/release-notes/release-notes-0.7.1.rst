@@ -12,7 +12,7 @@ Additionally, this release drops support for CentOS 7 and adds support for CentO
 New features
 ^^^^^^^^^^^^
 
-- `Signed Interests <https://named-data.net/doc/NDN-packet-spec/0.3/signed-interest.html>`__
+- `Signed Interests <https://docs.named-data.net/NDN-packet-spec/0.3/signed-interest.html>`__
   according to Packet Specification v0.3 (:issue:`4804`)
 
 - Add "in-order" mode to :ndn-cxx:`SegmentFetcher` and a corresponding signal that is emitted after

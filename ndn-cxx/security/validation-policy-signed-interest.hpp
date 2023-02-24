@@ -39,7 +39,7 @@ inline namespace v2 {
  *
  * This policy checks the timestamp, sequence number, and/or nonce fields of signed Interests.
  *
- * @sa https://named-data.net/doc/NDN-packet-spec/0.3/signed-interest.html
+ * @sa https://docs.named-data.net/NDN-packet-spec/0.3/signed-interest.html
  */
 class ValidationPolicySignedInterest : public ValidationPolicy
 {
