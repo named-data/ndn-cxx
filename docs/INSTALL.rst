@@ -7,18 +7,20 @@ Supported platforms
 ndn-cxx is built against a continuous integration system and has been tested on the
 following platforms:
 
-- Ubuntu 18.04 / 20.04 / 22.04
-- Debian 11
+- Ubuntu 20.04 (focal)
+- Ubuntu 22.04 (jammy)
+- Debian 11 (bullseye)
 - CentOS Stream 9
-- macOS 10.15 / 11 / 12 / 13
+- macOS 11 / 12 / 13
 
-ndn-cxx is known to work on the following platforms, although they are not officially
+ndn-cxx should also work on the following platforms, although they are not officially
 supported:
 
+- Any other recent version of Ubuntu not listed above
 - Alpine >= 3.12
-- Fedora >= 29
-- Gentoo Linux
-- Raspberry Pi OS (formerly Raspbian) >= 2019-06-20
+- Fedora >= 32
+- Any version of Raspberry Pi OS based on Debian 11 (bullseye)
+- macOS 10.15
 - FreeBSD >= 12.2
 
 Prerequisites
@@ -27,9 +29,9 @@ Prerequisites
 Required
 ~~~~~~~~
 
-- GCC >= 7.4 or clang >= 6.0 (if you are on Linux or FreeBSD)
-- Xcode >= 11.3 or corresponding version of Command Line Tools (if you are on macOS)
-- Python >= 3.6
+- GCC >= 9.3 or clang >= 7.0 (if you are on Linux or FreeBSD)
+- Xcode >= 12.4 or corresponding version of Command Line Tools (if you are on macOS)
+- Python >= 3.8
 - pkg-config
 - Boost >= 1.65.1
 - OpenSSL >= 1.1.1
@@ -60,7 +62,6 @@ development tools and libraries:
       .. code-block:: sh
 
         brew install boost openssl pkg-config
-        brew install python  # only on macOS 10.14 and earlier
 
       .. warning::
 

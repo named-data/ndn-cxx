@@ -22,9 +22,5 @@ set -x
 # Prepare environment
 rm -rf ~/.ndn
 
-if [[ $ID == macos && ${VERSION_ID%%.*} -lt 11 ]]; then
-    security unlock-keychain -p named-data
-fi
-
 # Run unit tests
 ./build/unit-tests
