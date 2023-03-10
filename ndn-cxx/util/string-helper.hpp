@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -99,7 +99,7 @@ private:
  * Each octet of input is always converted to two hex characters (e.g., "00" for octet==0).
  * The output string is a continuous sequence of hex characters without any whitespace separators.
  */
-NDN_CXX_NODISCARD std::string
+[[nodiscard]] std::string
 toHex(span<const uint8_t> buffer, bool wantUpperCase = true);
 
 /**
@@ -114,7 +114,7 @@ fromHex(const std::string& hexString);
 /**
  * @brief Convert (the least significant nibble of) @p n to the corresponding hex character.
  */
-NDN_CXX_NODISCARD constexpr char
+[[nodiscard]] constexpr char
 toHexChar(unsigned int n, bool wantUpperCase = true) noexcept
 {
   return wantUpperCase ?
@@ -125,7 +125,7 @@ toHexChar(unsigned int n, bool wantUpperCase = true) noexcept
 /**
  * @brief Convert the hex character @p c to an integer in [0, 15], or -1 if it's not a hex character.
  */
-NDN_CXX_NODISCARD constexpr int
+[[nodiscard]] constexpr int
 fromHexChar(char c) noexcept
 {
   return (c >= '0' && c <= '9') ? int(c - '0') :
@@ -151,7 +151,7 @@ fromHexChar(char c) noexcept
  *
  * @see RFC 3986 section 2
  */
-NDN_CXX_NODISCARD std::string
+[[nodiscard]] std::string
 escape(const std::string& str);
 
 void
@@ -171,7 +171,7 @@ escape(std::ostream& os, const char* str, size_t len);
  *
  * @see RFC 3986 section 2
  */
-NDN_CXX_NODISCARD std::string
+[[nodiscard]] std::string
 unescape(const std::string& str);
 
 void

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -92,7 +92,7 @@ public:
    * @warning May return incomplete results if called before the
    *          #onEnumerationCompleted signal has been emitted.
    */
-  NDN_CXX_NODISCARD std::vector<shared_ptr<const NetworkInterface>>
+  [[nodiscard]] std::vector<shared_ptr<const NetworkInterface>>
   listNetworkInterfaces() const;
 
 protected:

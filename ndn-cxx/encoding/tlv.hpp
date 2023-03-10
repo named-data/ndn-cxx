@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -176,7 +176,7 @@ isCriticalType(uint32_t type) noexcept
  * @return true if number was successfully read from input, false otherwise
  */
 template<typename Iterator>
-NDN_CXX_NODISCARD bool
+[[nodiscard]] bool
 readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept;
 
 /**
@@ -193,7 +193,7 @@ readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept;
  *       the TLV-TYPE is zero or larger than 2^32-1 (maximum allowed by the packet format).
  */
 template<typename Iterator>
-NDN_CXX_NODISCARD bool
+[[nodiscard]] bool
 readType(Iterator& begin, Iterator end, uint32_t& type) noexcept;
 
 /**

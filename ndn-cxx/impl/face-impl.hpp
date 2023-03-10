@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -109,7 +109,7 @@ public: // consumer
   void
   asyncRemovePendingInterest(detail::RecordId id)
   {
-    m_face.getIoService().post([id, w = weak_ptr<Impl>{shared_from_this()}] { // use weak_from_this() in C++17
+    m_face.getIoService().post([id, w = weak_from_this()] {
       auto impl = w.lock();
       if (impl != nullptr) {
         impl->m_pendingInterestTable.erase(id);
@@ -195,7 +195,7 @@ public: // producer
   void
   asyncUnsetInterestFilter(detail::RecordId id)
   {
-    m_face.getIoService().post([id, w = weak_ptr<Impl>{shared_from_this()}] { // use weak_from_this() in C++17
+    m_face.getIoService().post([id, w = weak_from_this()] {
       auto impl = w.lock();
       if (impl != nullptr) {
         impl->unsetInterestFilter(id);
@@ -292,7 +292,7 @@ public: // prefix registration
                         const UnregisterPrefixSuccessCallback& onSuccess,
                         const UnregisterPrefixFailureCallback& onFailure)
   {
-    m_face.getIoService().post([=, w = weak_ptr<Impl>{shared_from_this()}] { // use weak_from_this() in C++17
+    m_face.getIoService().post([=, w = weak_from_this()] {
       auto impl = w.lock();
       if (impl != nullptr) {
         impl->unregisterPrefix(id, onSuccess, onFailure);

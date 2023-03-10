@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,9 +30,9 @@
 
 #include "ndn-cxx/detail/config.hpp"
 
-// require C++14
-#if __cplusplus < 201402L
-#error "ndn-cxx applications must be compiled using the C++14 standard (-std=c++14)"
+// require C++17
+#if __cplusplus < 201703L
+#error "ndn-cxx applications must be compiled using the C++17 standard (-std=c++17)"
 #endif
 
 // ndn-cxx specific macros declared in this and other headers must have NDN_CXX_ prefix

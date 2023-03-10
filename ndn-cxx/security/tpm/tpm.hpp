@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -117,7 +117,7 @@ public:
    * @retval false the signature is not valid
    * @retval indeterminate the key does not exist
    */
-  NDN_CXX_NODISCARD boost::logic::tribool
+  [[nodiscard]] boost::logic::tribool
   verify(const InputBuffers& bufs, span<const uint8_t> sig, const Name& keyName,
          DigestAlgorithm digestAlgorithm) const;
 
@@ -156,7 +156,7 @@ public: // Management
    * @param password The password to unlock the TPM.
    * @param passwordLength The password size.
    */
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   unlockTpm(const char* password, size_t passwordLength) const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // operations accessible only by KeyChain

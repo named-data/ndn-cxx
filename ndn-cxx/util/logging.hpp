@@ -50,7 +50,7 @@ public:
   /**
    * \brief Get list of all registered logger names.
    */
-  NDN_CXX_NODISCARD static std::set<std::string>
+  [[nodiscard]] static std::set<std::string>
   getLoggerNames();
 
   /** \brief Set severity level.
@@ -118,7 +118,7 @@ public:
   /**
    * \brief Create stream log destination using default formatting.
    */
-  NDN_CXX_NODISCARD static boost::shared_ptr<boost::log::sinks::sink>
+  [[nodiscard]] static boost::shared_ptr<boost::log::sinks::sink>
   makeDefaultStreamDestination(shared_ptr<std::ostream> os, bool wantAutoFlush = true);
 
 private:
@@ -130,7 +130,7 @@ private:
   void
   registerLoggerNameImpl(std::string name);
 
-  NDN_CXX_NODISCARD std::set<std::string>
+  [[nodiscard]] std::set<std::string>
   getLoggerNamesImpl() const;
 
   /**

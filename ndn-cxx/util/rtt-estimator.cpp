@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (C) 2016-2019, Arizona Board of Regents.
+ * Copyright (C) 2016-2023, Arizona Board of Regents.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,15 +59,15 @@ RttEstimator::addMeasurement(time::nanoseconds rtt, size_t nExpectedSamples)
                                                       beta * time::abs(m_sRtt - rtt));
     m_sRtt = time::duration_cast<time::nanoseconds>((1 - alpha) * m_sRtt + alpha * rtt);
   }
-  m_rto = clamp(m_sRtt + m_options->k * m_rttVar,
-                m_options->minRto, m_options->maxRto);
+  m_rto = std::clamp(m_sRtt + m_options->k * m_rttVar,
+                     m_options->minRto, m_options->maxRto);
 }
 
 void
 RttEstimator::backoffRto()
 {
-  m_rto = clamp(m_rto * m_options->rtoBackoffMultiplier,
-                m_options->minRto, m_options->maxRto);
+  m_rto = std::clamp(m_rto * m_options->rtoBackoffMultiplier,
+                     m_options->minRto, m_options->maxRto);
 }
 
 void

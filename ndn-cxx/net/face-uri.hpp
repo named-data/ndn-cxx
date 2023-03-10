@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California,
+ * Copyright (c) 2013-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -67,7 +67,7 @@ public:
   FaceUri(const char* uri);
 
   /// Exception-safe parsing.
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   parse(const std::string& uri);
 
 public: // scheme-specific construction

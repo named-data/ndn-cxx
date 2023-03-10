@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -125,7 +125,7 @@ public:
   /**
    * \brief Get whether Interest loopback is allowed.
    */
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   allowsLoopback() const noexcept
   {
     return m_allowsLoopback;

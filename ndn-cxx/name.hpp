@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -142,7 +142,7 @@ public: // access
   /**
    * @brief Checks if the name is empty, i.e., has no components.
    */
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   empty() const noexcept
   {
     return m_wire.elements().empty();

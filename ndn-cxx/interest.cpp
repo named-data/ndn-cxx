@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -758,8 +758,7 @@ operator<<(std::ostream& os, const Interest& interest)
   auto printOne = [&] (const auto&... args) {
     os << delim;
     delim = '&';
-    using expand = int[];
-    (void)expand{(os << args, 0)...}; // use a fold expression when we switch to C++17
+    (os << ... << args);
   };
 
   if (interest.getCanBePrefix()) {

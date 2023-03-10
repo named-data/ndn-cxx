@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,49 +28,11 @@
 #include <boost/predef/compiler/gcc.h>
 #include <boost/predef/compiler/visualc.h>
 
-#ifdef __has_cpp_attribute
-#  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
-#else
-#  define NDN_CXX_HAS_CPP_ATTRIBUTE(x) 0
-#endif
-
-#ifdef __has_include
-#  define NDN_CXX_HAS_INCLUDE(x) __has_include(x)
-#else
-#  define NDN_CXX_HAS_INCLUDE(x) 0
-#endif
-
-//
-// https://wg21.link/P0188
-// [[fallthrough]] attribute (C++17)
-//
-#if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(fallthrough)
-#  define NDN_CXX_FALLTHROUGH [[fallthrough]]
-#elif NDN_CXX_HAS_CPP_ATTRIBUTE(clang::fallthrough)
-#  define NDN_CXX_FALLTHROUGH [[clang::fallthrough]]
-#elif NDN_CXX_HAS_CPP_ATTRIBUTE(gnu::fallthrough)
-#  define NDN_CXX_FALLTHROUGH [[gnu::fallthrough]]
-#elif BOOST_COMP_GNUC >= BOOST_VERSION_NUMBER(7,0,0)
-#  define NDN_CXX_FALLTHROUGH __attribute__((fallthrough))
-#else
-#  define NDN_CXX_FALLTHROUGH ((void)0)
-#endif
-
-//
-// https://wg21.link/P0189
-// [[nodiscard]] attribute (C++17)
-//
-#if (__cplusplus > 201402L) && NDN_CXX_HAS_CPP_ATTRIBUTE(nodiscard)
-#  define NDN_CXX_NODISCARD [[nodiscard]]
-#elif NDN_CXX_HAS_CPP_ATTRIBUTE(gnu::warn_unused_result)
-#  define NDN_CXX_NODISCARD [[gnu::warn_unused_result]]
-#else
-#  define NDN_CXX_NODISCARD
-#endif
-
 #ifndef NDN_CXX_HAVE_STD_TO_STRING
 #include <boost/lexical_cast.hpp>
 #endif
+
+#include <utility>
 
 namespace ndn {
 
@@ -90,30 +52,6 @@ to_string(const T& val)
 #endif // NDN_CXX_HAVE_STD_TO_STRING
 
 //
-// https://wg21.link/P0025
-// std::clamp() (C++17)
-//
-#if __cpp_lib_clamp >= 201603L
-using std::clamp;
-#else
-template<typename T, typename Compare>
-constexpr const T&
-clamp(const T& v, const T& lo, const T& hi, Compare comp)
-{
-  BOOST_ASSERT(!comp(hi, lo));
-  return comp(v, lo) ? lo : comp(hi, v) ? hi : v;
-}
-
-template<typename T>
-constexpr const T&
-clamp(const T& v, const T& lo, const T& hi)
-{
-  BOOST_ASSERT(!(hi < lo));
-  return (v < lo) ? lo : (hi < v) ? hi : v;
-}
-#endif // __cpp_lib_clamp
-
-//
 // https://wg21.link/P1682
 // std::to_underlying() (C++23)
 //
@@ -121,7 +59,7 @@ clamp(const T& v, const T& lo, const T& hi)
 using std::to_underlying;
 #else
 template<typename T>
-NDN_CXX_NODISCARD constexpr std::underlying_type_t<T>
+[[nodiscard]] constexpr std::underlying_type_t<T>
 to_underlying(T val) noexcept
 {
   // instantiating underlying_type with a non-enum type is UB before C++20

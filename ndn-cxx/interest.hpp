@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -464,7 +464,7 @@ private:
   Interest&
   setSignatureValueInternal(Block sigValue);
 
-  NDN_CXX_NODISCARD shared_ptr<Buffer>
+  [[nodiscard]] shared_ptr<Buffer>
   computeParametersDigest() const;
 
   /** @brief Append a ParametersSha256DigestComponent to the Interest's name

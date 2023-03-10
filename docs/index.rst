@@ -19,7 +19,7 @@ ndn-cxx: NDN C++ library with eXperimental eXtensions
    release-notes
    releases
 
-**ndn-cxx** is a C++14 library implementing Named Data Networking (NDN) primitives
+**ndn-cxx** is a C++17 library implementing Named Data Networking (NDN) primitives
 that can be used to write various NDN applications. The library is currently being
 used by the following projects:
 

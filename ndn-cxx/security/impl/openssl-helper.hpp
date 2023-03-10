@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,10 +31,10 @@ namespace ndn {
 namespace security {
 namespace detail {
 
-NDN_CXX_NODISCARD const EVP_MD*
+[[nodiscard]] const EVP_MD*
 digestAlgorithmToEvpMd(DigestAlgorithm algo);
 
-NDN_CXX_NODISCARD int
+[[nodiscard]] int
 getEvpPkeyType(const EVP_PKEY* key);
 
 class EvpMdCtx : noncopyable
@@ -86,10 +86,10 @@ public:
     return m_bio;
   }
 
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   read(span<uint8_t> buf) const noexcept;
 
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   write(span<const uint8_t> buf) noexcept;
 
 private:

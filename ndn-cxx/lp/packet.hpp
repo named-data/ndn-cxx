@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,7 +61,7 @@ public:
    * \retval true packet has no field
    * \retval false packet has one or more fields
    */
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   empty() const
   {
     return m_wire.elements_size() == 0;
@@ -73,7 +73,7 @@ public: // field access
    * \details This is equivalent to count() > 0
    */
   template<typename FIELD>
-  NDN_CXX_NODISCARD bool
+  [[nodiscard]] bool
   has() const
   {
     return count<FIELD>() > 0;
@@ -83,7 +83,7 @@ public: // field access
    * \brief Returns the number of occurrences of \c FIELD.
    */
   template<typename FIELD>
-  NDN_CXX_NODISCARD size_t
+  [[nodiscard]] size_t
   count() const
   {
     return std::count_if(m_wire.elements_begin(), m_wire.elements_end(),
@@ -115,7 +115,7 @@ public: // field access
    * \brief Returns the values of all occurrences of \c FIELD.
    */
   template<typename FIELD>
-  NDN_CXX_NODISCARD std::vector<typename FIELD::ValueType>
+  [[nodiscard]] std::vector<typename FIELD::ValueType>
   list() const
   {
     std::vector<typename FIELD::ValueType> output;

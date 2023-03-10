@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -162,7 +162,7 @@ public: // construction, assignment
    *  @return `true` and the parsed Block if parsing succeeds; otherwise `false` and an invalid Block
    *  @note This function does not throw upon decoding failure.
    */
-  NDN_CXX_NODISCARD static std::tuple<bool, Block>
+  [[nodiscard]] static std::tuple<bool, Block>
   fromBuffer(ConstBufferPtr buffer, size_t offset = 0);
 
   /** @brief Try to parse Block from a byte range
@@ -172,7 +172,7 @@ public: // construction, assignment
    *  @note This overload copies the TLV element octets to an internal buffer.
    *  @note This function does not throw upon decoding failure.
    */
-  NDN_CXX_NODISCARD static std::tuple<bool, Block>
+  [[nodiscard]] static std::tuple<bool, Block>
   fromBuffer(span<const uint8_t> buffer);
 
   /** @brief Parse Block from an input stream

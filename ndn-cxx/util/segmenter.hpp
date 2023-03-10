@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,7 @@ public:
    * @param contentType The `ContentType` of created Data packets.
    * @note A minimum of one Data packet is always returned, even if @p buffer is empty.
    */
-  NDN_CXX_NODISCARD std::vector<std::shared_ptr<Data>>
+  [[nodiscard]] std::vector<std::shared_ptr<Data>>
   segment(span<const uint8_t> buffer,
           const Name& dataName,
           size_t maxSegmentSize,
@@ -66,7 +66,7 @@ public:
    * @param contentType The `ContentType` of created Data packets.
    * @note A minimum of one Data packet is always returned, even if @p input is empty.
    */
-  NDN_CXX_NODISCARD std::vector<std::shared_ptr<Data>>
+  [[nodiscard]] std::vector<std::shared_ptr<Data>>
   segment(std::istream& input,
           const Name& dataName,
           size_t maxSegmentSize,
