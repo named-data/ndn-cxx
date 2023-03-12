@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,7 +58,7 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
   size_t totalLength = 0;
 
   auto visitor = boost::hana::overload(
-    []  (monostate)           {}, // nothing to encode, TLV-VALUE is empty
+    []  (std::monostate)      {}, // nothing to encode, TLV-VALUE is empty
     [&] (const Name& name)    { totalLength += name.wireEncode(encoder); },
     [&] (const Block& digest) { totalLength += prependBlock(encoder, digest); },
     []  (uint32_t type)       { NDN_THROW(Error("Unsupported KeyLocator type " + to_string(type))); });
@@ -126,7 +126,7 @@ KeyLocator::getType() const
   case 2:
     return tlv::KeyDigest;
   case 3:
-    return get<uint32_t>(m_locator);
+    return std::get<uint32_t>(m_locator);
   default:
     NDN_CXX_UNREACHABLE;
   }
@@ -135,7 +135,7 @@ KeyLocator::getType() const
 KeyLocator&
 KeyLocator::clear()
 {
-  m_locator = monostate{};
+  m_locator = std::monostate{};
   m_wire.reset();
   return *this;
 }
@@ -144,9 +144,9 @@ const Name&
 KeyLocator::getName() const
 {
   try {
-    return get<Name>(m_locator);
+    return std::get<Name>(m_locator);
   }
-  catch (const bad_variant_access&) {
+  catch (const std::bad_variant_access&) {
     NDN_THROW(Error("KeyLocator does not contain a Name"));
   }
 }
@@ -163,9 +163,9 @@ const Block&
 KeyLocator::getKeyDigest() const
 {
   try {
-    return get<Block>(m_locator);
+    return std::get<Block>(m_locator);
   }
-  catch (const bad_variant_access&) {
+  catch (const std::bad_variant_access&) {
     NDN_THROW(Error("KeyLocator does not contain a KeyDigest"));
   }
 }
@@ -194,7 +194,7 @@ std::ostream&
 operator<<(std::ostream& os, const KeyLocator& keyLocator)
 {
   auto visitor = boost::hana::overload(
-    [&] (monostate) {
+    [&] (std::monostate) {
       os << "None";
     },
     [&] (const Name& name) {

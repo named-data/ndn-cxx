@@ -23,7 +23,8 @@
 #define NDN_CXX_KEY_LOCATOR_HPP
 
 #include "ndn-cxx/name.hpp"
-#include "ndn-cxx/util/variant.hpp"
+
+#include <variant>
 
 namespace ndn {
 
@@ -74,7 +75,7 @@ public: // attributes
   [[nodiscard]] bool
   empty() const
   {
-    return holds_alternative<monostate>(m_locator);
+    return std::holds_alternative<std::monostate>(m_locator);
   }
 
   uint32_t
@@ -144,7 +145,7 @@ private:
   // - Name is used when the nested TLV contains a name
   // - Block is used when the nested TLV is a KeyDigest
   // - in all other (unsupported) cases the nested TLV type is stored as uint32_t
-  variant<monostate, Name, Block, uint32_t> m_locator;
+  std::variant<std::monostate, Name, Block, uint32_t> m_locator;
 
   mutable Block m_wire;
 

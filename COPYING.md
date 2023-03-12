@@ -18,9 +18,6 @@ ndn-cxx relies on third-party software, licensed under the following licenses:
 - span-lite by Martin Moene is licensed under the
   [Boost Software License 1.0](https://github.com/martinmoene/span-lite/blob/master/LICENSE.txt)
 
-- variant-lite by Martin Moene is licensed under the
-  [Boost Software License 1.0](https://github.com/martinmoene/variant-lite/blob/master/LICENSE.txt)
-
 - SQLite is in the [public domain](https://www.sqlite.org/copyright.html)
 
 - The waf build system is licensed under the terms of the
