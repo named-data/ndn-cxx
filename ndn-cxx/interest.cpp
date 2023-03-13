@@ -411,7 +411,7 @@ Interest::getNonce() const
 }
 
 Interest&
-Interest::setNonce(optional<Interest::Nonce> nonce)
+Interest::setNonce(std::optional<Interest::Nonce> nonce)
 {
   if (nonce != m_nonce) {
     m_nonce = nonce;
@@ -448,7 +448,7 @@ Interest::setInterestLifetime(time::milliseconds lifetime)
 }
 
 Interest&
-Interest::setHopLimit(optional<uint8_t> hopLimit)
+Interest::setHopLimit(std::optional<uint8_t> hopLimit)
 {
   if (hopLimit != m_hopLimit) {
     m_hopLimit = hopLimit;
@@ -527,14 +527,14 @@ Interest::isSigned() const noexcept
          m_name[-1].type() == tlv::ParametersSha256DigestComponent;
 }
 
-optional<SignatureInfo>
+std::optional<SignatureInfo>
 Interest::getSignatureInfo() const
 {
   auto blockIt = findFirstParameter(tlv::InterestSignatureInfo);
   if (blockIt != m_parameters.end()) {
-    return make_optional<SignatureInfo>(*blockIt, SignatureInfo::Type::Interest);
+    return std::make_optional<SignatureInfo>(*blockIt, SignatureInfo::Type::Interest);
   }
-  return nullopt;
+  return std::nullopt;
 }
 
 Interest&

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -158,9 +158,9 @@ private:
 
   void
   insertRecord(const Name& keyName,
-               optional<time::system_clock::TimePoint> timestamp,
-               optional<uint64_t> seqNum,
-               optional<SigNonce> nonce);
+               std::optional<time::system_clock::TimePoint> timestamp,
+               std::optional<uint64_t> seqNum,
+               std::optional<SigNonce> nonce);
 
 private:
   Options m_options;
@@ -181,8 +181,8 @@ private:
   struct LastInterestRecord
   {
     LastInterestRecord(const Name& keyName,
-                       optional<time::system_clock::TimePoint> timestamp,
-                       optional<uint64_t> seqNum)
+                       std::optional<time::system_clock::TimePoint> timestamp,
+                       std::optional<uint64_t> seqNum)
       : keyName(keyName)
       , timestamp(timestamp)
       , seqNum(seqNum)
@@ -191,8 +191,8 @@ private:
     }
 
     Name keyName;
-    optional<time::system_clock::TimePoint> timestamp;
-    optional<uint64_t> seqNum;
+    std::optional<time::system_clock::TimePoint> timestamp;
+    std::optional<uint64_t> seqNum;
     NonceContainer observedNonces;
     time::steady_clock::TimePoint lastRefreshed;
   };

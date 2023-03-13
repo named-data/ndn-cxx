@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,10 +25,10 @@
 #include "ndn-cxx/name-component.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
-#include "ndn-cxx/util/optional.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 #include <list>
+#include <optional>
 
 namespace ndn {
 
@@ -118,18 +118,20 @@ public: // getter/setter
   MetaInfo&
   setFreshnessPeriod(time::milliseconds freshnessPeriod);
 
-  /** @brief Return the value of `FinalBlockId`.
+  /**
+   * @brief Return the value of `FinalBlockId`.
    */
-  const optional<name::Component>&
+  const std::optional<name::Component>&
   getFinalBlock() const
   {
     return m_finalBlockId;
   }
 
-  /** @brief Set `FinalBlockId`.
+  /**
+   * @brief Set `FinalBlockId`.
    */
   MetaInfo&
-  setFinalBlock(optional<name::Component> finalBlockId);
+  setFinalBlock(std::optional<name::Component> finalBlockId);
 
 public: // app-defined MetaInfo items
   /**
@@ -195,7 +197,7 @@ public: // app-defined MetaInfo items
 private:
   uint32_t m_type;
   time::milliseconds m_freshnessPeriod;
-  optional<name::Component> m_finalBlockId;
+  std::optional<name::Component> m_finalBlockId;
   std::list<Block> m_appMetaInfo;
 
   mutable Block m_wire;

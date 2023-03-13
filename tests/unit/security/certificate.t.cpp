@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -366,7 +366,7 @@ Signature Information:
   sigInfo.removeCustomTlv(tlv::AdditionalDescription);
   sigInfo.addCustomTlv(makeStringBlock(tlv::ValidityPeriod, "malformed"));
   sigInfo.setSignatureType(tlv::DigestSha256);
-  sigInfo.setKeyLocator(nullopt);
+  sigInfo.setKeyLocator(std::nullopt);
   Certificate cert6(cert3);
   cert6.setSignatureInfo(sigInfo);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert6), expected6);

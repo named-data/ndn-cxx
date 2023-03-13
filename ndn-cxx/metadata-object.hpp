@@ -83,7 +83,7 @@ public:
   makeData(Name discoveryInterestName,
            KeyChain& keyChain,
            const ndn::security::SigningInfo& si = security::SigningInfo(),
-           optional<uint64_t> version = nullopt,
+           std::optional<uint64_t> version = std::nullopt,
            time::milliseconds freshnessPeriod = 10_ms) const;
 
   /**

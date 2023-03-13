@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,7 +68,7 @@ PrefixAnnouncement::PrefixAnnouncement(Data data)
 
 const Data&
 PrefixAnnouncement::toData(KeyChain& keyChain, const ndn::security::SigningInfo& si,
-                           optional<uint64_t> version) const
+                           std::optional<uint64_t> version) const
 {
   if (!m_data) {
     Name dataName = m_announcedName;
@@ -112,7 +112,7 @@ PrefixAnnouncement::setExpiration(time::milliseconds expiration)
 }
 
 PrefixAnnouncement&
-PrefixAnnouncement::setValidityPeriod(optional<security::ValidityPeriod> validity)
+PrefixAnnouncement::setValidityPeriod(std::optional<security::ValidityPeriod> validity)
 {
   m_data.reset();
   m_validity = std::move(validity);

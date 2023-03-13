@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -299,14 +299,14 @@ public: // MetaInfo fields
   Data&
   setFreshnessPeriod(time::milliseconds freshnessPeriod);
 
-  const optional<name::Component>&
+  const std::optional<name::Component>&
   getFinalBlock() const
   {
     return m_metaInfo.getFinalBlock();
   }
 
   Data&
-  setFinalBlock(optional<name::Component> finalBlockId);
+  setFinalBlock(std::optional<name::Component> finalBlockId);
 
 public: // SignatureInfo fields
   /**
@@ -322,10 +322,13 @@ public: // SignatureInfo fields
   /**
    * @brief Get the `KeyLocator` element.
    */
-  optional<KeyLocator>
+  std::optional<KeyLocator>
   getKeyLocator() const noexcept
   {
-    return m_signatureInfo.hasKeyLocator() ? make_optional(m_signatureInfo.getKeyLocator()) : nullopt;
+    if (m_signatureInfo.hasKeyLocator()) {
+      return m_signatureInfo.getKeyLocator();
+    }
+    return std::nullopt;
   }
 
 protected:

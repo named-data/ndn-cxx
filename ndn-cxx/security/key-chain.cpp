@@ -733,7 +733,7 @@ KeyChain::prepareSignatureInfoWithIdentity(const SigningInfo& params, const pib:
 
 std::tuple<Name, SignatureInfo>
 KeyChain::prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key& key,
-                                      const optional<Name>& certName)
+                                      const std::optional<Name>& certName)
 {
   auto sigInfo = params.getSignatureInfo();
   sigInfo.setSignatureType(getSignatureType(key.getKeyType(), params.getDigestAlgorithm()));

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/meta-info.hpp"
-#include "ndn-cxx/data.hpp"
 
 #include "tests/boost-test.hpp"
 
@@ -35,7 +34,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   MetaInfo a("1406 type=180100 freshness=190100"_block);
   BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 0_ms);
-  BOOST_CHECK(a.getFinalBlock() == nullopt);
+  BOOST_CHECK(a.getFinalBlock() == std::nullopt);
 
   MetaInfo b;
   BOOST_CHECK_NE(a.wireEncode(), b.wireEncode());

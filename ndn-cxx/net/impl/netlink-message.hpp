@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,7 +26,6 @@
 
 #include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/net/ethernet.hpp"
-#include "ndn-cxx/util/optional.hpp"
 
 #ifndef NDN_CXX_HAVE_NETLINK
 #error "This file should not be included ..."
@@ -38,6 +37,7 @@
 
 #include <cstring>
 #include <map>
+#include <optional>
 
 #include <boost/asio/ip/address.hpp>
 
@@ -227,12 +227,12 @@ public:
   }
 
   template<typename U>
-  optional<U>
+  std::optional<U>
   getAttributeByType(uint16_t attrType) const
   {
     auto it = m_attrs.find(attrType);
     if (it == m_attrs.end())
-      return nullopt;
+      return std::nullopt;
 
     return convertAttrValue(getAttributeValue(it->second),
                             getAttributeValueLength(it->second),
@@ -261,48 +261,48 @@ private:
   }
 
   template<typename Integral>
-  static std::enable_if_t<std::is_integral<Integral>::value, optional<Integral>>
+  static std::enable_if_t<std::is_integral<Integral>::value, std::optional<Integral>>
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<Integral>)
   {
     if (len < sizeof(Integral))
-      return nullopt;
+      return std::nullopt;
 
     Integral i;
     std::memcpy(&i, val, sizeof(Integral));
     return i;
   }
 
-  static optional<std::string>
+  static std::optional<std::string>
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<std::string>)
   {
     auto str = reinterpret_cast<const char*>(val);
     if (::strnlen(str, len) >= len)
-      return nullopt;
+      return std::nullopt;
 
-    return std::string(str);
+    return std::make_optional<std::string>(str);
   }
 
-  static optional<ethernet::Address>
+  static std::optional<ethernet::Address>
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<ethernet::Address>)
   {
     if (len < ethernet::ADDR_LEN)
-      return nullopt;
+      return std::nullopt;
 
-    return ethernet::Address(val);
+    return std::make_optional<ethernet::Address>(val);
   }
 
   template<typename IpAddress>
   static std::enable_if_t<std::is_same<IpAddress, boost::asio::ip::address_v4>::value ||
                           std::is_same<IpAddress, boost::asio::ip::address_v6>::value,
-                          optional<IpAddress>>
+                          std::optional<IpAddress>>
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<IpAddress>)
   {
     typename IpAddress::bytes_type bytes;
     if (len < bytes.size())
-      return nullopt;
+      return std::nullopt;
 
     std::copy_n(val, bytes.size(), bytes.begin());
-    return IpAddress(bytes);
+    return std::make_optional<IpAddress>(bytes);
   }
 
 private:

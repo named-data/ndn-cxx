@@ -23,9 +23,9 @@
 #define NDN_CXX_NAME_HPP
 
 #include "ndn-cxx/name-component.hpp"
-#include "ndn-cxx/util/optional.hpp"
 
 #include <iterator>
+#include <optional>
 
 namespace ndn {
 
@@ -447,7 +447,7 @@ public: // modifiers
    *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   Name&
-  appendVersion(const optional<uint64_t>& version = nullopt);
+  appendVersion(const std::optional<uint64_t>& version = std::nullopt);
 
   /**
    * @brief Append a timestamp component.
@@ -457,7 +457,7 @@ public: // modifiers
    *     https://named-data.net/publications/techreports/ndn-tr-22-3-ndn-memo-naming-conventions/
    */
   Name&
-  appendTimestamp(const optional<time::system_clock::time_point>& timestamp = nullopt);
+  appendTimestamp(const std::optional<time::system_clock::time_point>& timestamp = std::nullopt);
 
   /**
    * @brief Append a sequence number component.

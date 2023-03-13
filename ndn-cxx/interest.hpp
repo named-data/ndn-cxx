@@ -256,7 +256,7 @@ public: // element access
    * Use `setNonce(nullopt)` to remove any nonce from the Interest.
    */
   Interest&
-  setNonce(optional<Nonce> nonce);
+  setNonce(std::optional<Nonce> nonce);
 
   /**
    * @brief Change nonce value.
@@ -286,7 +286,7 @@ public: // element access
   /**
    * @brief Get the %Interest's hop limit.
    */
-  optional<uint8_t>
+  std::optional<uint8_t>
   getHopLimit() const noexcept
   {
     return m_hopLimit;
@@ -298,7 +298,7 @@ public: // element access
    * Use `setHopLimit(nullopt)` to remove any hop limit from the Interest.
    */
   Interest&
-  setHopLimit(optional<uint8_t> hopLimit);
+  setHopLimit(std::optional<uint8_t> hopLimit);
 
   /**
    * @brief Return whether this Interest has any `ApplicationParameters` element.
@@ -388,7 +388,7 @@ public: // element access
    * @brief Get the `InterestSignatureInfo` element.
    * @retval nullopt The element is not present.
    */
-  optional<SignatureInfo>
+  std::optional<SignatureInfo>
   getSignatureInfo() const;
 
   /**
@@ -494,9 +494,9 @@ private:
 
   Name m_name;
   std::vector<Name> m_forwardingHint;
-  mutable optional<Nonce> m_nonce;
+  mutable std::optional<Nonce> m_nonce;
   time::milliseconds m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
-  optional<uint8_t> m_hopLimit;
+  std::optional<uint8_t> m_hopLimit;
   bool m_canBePrefix = false;
   bool m_mustBeFresh = false;
 

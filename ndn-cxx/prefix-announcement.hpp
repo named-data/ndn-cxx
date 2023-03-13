@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -58,7 +58,7 @@ public:
 
   /** \brief Get the Data representing the prefix announcement, if available.
    */
-  const optional<Data>&
+  const std::optional<Data>&
   getData() const
   {
     return m_data;
@@ -74,7 +74,7 @@ public:
   const Data&
   toData(KeyChain& keyChain,
          const ndn::security::SigningInfo& si = security::SigningInfo(),
-         optional<uint64_t> version = nullopt) const;
+         std::optional<uint64_t> version = std::nullopt) const;
 
   /** \brief Return announced name.
    */
@@ -107,7 +107,7 @@ public:
 
   /** \brief Return absolute validity period.
    */
-  optional<security::ValidityPeriod>
+  std::optional<security::ValidityPeriod>
   getValidityPeriod() const
   {
     return m_validity;
@@ -117,7 +117,7 @@ public:
    *  \post getData() == nullopt
    */
   PrefixAnnouncement&
-  setValidityPeriod(optional<security::ValidityPeriod> validity);
+  setValidityPeriod(std::optional<security::ValidityPeriod> validity);
 
 public: // static methods
   /**
@@ -127,10 +127,10 @@ public: // static methods
   getKeywordComponent();
 
 private:
-  mutable optional<Data> m_data;
+  mutable std::optional<Data> m_data;
   Name m_announcedName;
   time::milliseconds m_expiration = 0_ms;
-  optional<security::ValidityPeriod> m_validity;
+  std::optional<security::ValidityPeriod> m_validity;
 };
 
 /**

@@ -154,17 +154,17 @@ public: // consumer
   /**
    * @return A Nack to be sent to the forwarder, or nullopt if no Nack should be sent.
    */
-  optional<lp::Nack>
+  std::optional<lp::Nack>
   nackPendingInterests(const lp::Nack& nack)
   {
-    optional<lp::Nack> outNack;
+    std::optional<lp::Nack> outNack;
     m_pendingInterestTable.removeIf([&] (PendingInterest& entry) {
       if (!nack.getInterest().matchesInterest(*entry.getInterest())) {
         return false;
       }
       NDN_LOG_DEBUG("   nacking " << *entry.getInterest() << " from " << entry.getOrigin());
 
-      optional<lp::Nack> outNack1 = entry.recordNack(nack);
+      auto outNack1 = entry.recordNack(nack);
       if (!outNack1) {
         return false;
       }
@@ -234,7 +234,7 @@ public: // producer
   putNack(const lp::Nack& nack)
   {
     NDN_LOG_DEBUG("<N " << nack.getInterest() << '~' << nack.getHeader().getReason());
-    optional<lp::Nack> outNack = nackPendingInterests(nack);
+    auto outNack = nackPendingInterests(nack);
     if (!outNack) {
       return;
     }
@@ -255,8 +255,10 @@ public: // prefix registration
   registerPrefix(const Name& prefix,
                  const RegisterPrefixSuccessCallback& onSuccess,
                  const RegisterPrefixFailureCallback& onFailure,
-                 uint64_t flags, const nfd::CommandOptions& options,
-                 const optional<InterestFilter>& filter, const InterestCallback& onInterest)
+                 uint64_t flags,
+                 const nfd::CommandOptions& options,
+                 const std::optional<InterestFilter>& filter,
+                 const InterestCallback& onInterest)
   {
     NDN_LOG_INFO("registering prefix: " << prefix);
     auto id = m_registeredPrefixTable.allocateId();

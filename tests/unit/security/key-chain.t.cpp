@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -427,7 +427,7 @@ struct AsymmetricSigningBase : protected KeyChainFixture, protected PacketType
 
   const uint32_t expectedSigType = SignatureTypeTlvValue;
   const bool shouldHaveKeyLocator = true;
-  const optional<KeyLocator> expectedKeyLocator = cert.getName();
+  const std::optional<KeyLocator> expectedKeyLocator = cert.getName();
 
   bool
   verify(const SigningInfo&) const
@@ -504,7 +504,7 @@ struct HmacSigning : protected KeyChainFixture, protected PacketType
 
   const uint32_t expectedSigType = SignatureTypeTlvValue;
   const bool shouldHaveKeyLocator = true;
-  const optional<KeyLocator> expectedKeyLocator = nullopt; // don't check KeyLocator value
+  const std::optional<KeyLocator> expectedKeyLocator = std::nullopt; // don't check KeyLocator value
 
   bool
   verify(const SigningInfo& si) const
@@ -524,12 +524,12 @@ struct Sha256Signing : protected KeyChainFixture, protected PacketType
 
   const uint32_t expectedSigType = tlv::DigestSha256;
   const bool shouldHaveKeyLocator = false;
-  const optional<KeyLocator> expectedKeyLocator = nullopt;
+  const std::optional<KeyLocator> expectedKeyLocator = std::nullopt;
 
   bool
   verify(const SigningInfo&) const
   {
-    return verifySignature(this->packet, nullopt);
+    return verifySignature(this->packet, std::nullopt);
   }
 };
 
@@ -591,7 +591,8 @@ public:
   }
 
   void
-  checkKeyLocatorName(const Certificate& cert, const optional<Name>& klName = nullopt) const
+  checkKeyLocatorName(const Certificate& cert,
+                      const std::optional<Name>& klName = std::nullopt) const
   {
     auto kl = cert.getKeyLocator();
     if (!kl.has_value()) {

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,7 @@ struct MakeCertificateOptions
    *
    * Default is deriving from current timestamp using the logic of Name::appendVersion() .
    */
-  optional<uint64_t> version;
+  std::optional<uint64_t> version;
 
   /**
    * @brief Certificate packet FreshnessPeriod.
@@ -70,7 +70,7 @@ struct MakeCertificateOptions
    *
    * Default is a ValidityPeriod from now until 365 days later.
    */
-  optional<ValidityPeriod> validity;
+  std::optional<ValidityPeriod> validity;
 };
 
 inline namespace v2 {
@@ -498,7 +498,7 @@ private: // signing
 
   static std::tuple<Name, SignatureInfo>
   prepareSignatureInfoWithKey(const SigningInfo& params, const pib::Key& key,
-                              const optional<Name>& certName = nullopt);
+                              const std::optional<Name>& certName = std::nullopt);
 
   /**
    * @brief Generate and return a raw signature for the byte ranges in @p bufs using

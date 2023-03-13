@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,6 @@
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/impl/face-impl.hpp"
 #include "ndn-cxx/net/face-uri.hpp"
-#include "ndn-cxx/security/signing-helpers.hpp"
 #include "ndn-cxx/util/config-file.hpp"
 #include "ndn-cxx/util/scope.hpp"
 #include "ndn-cxx/util/time.hpp"
@@ -252,7 +251,7 @@ Face::registerPrefix(const Name& prefix,
   nfd::CommandOptions options;
   options.setSigningInfo(signingInfo);
 
-  auto id = m_impl->registerPrefix(prefix, onSuccess, onFailure, flags, options, nullopt, nullptr);
+  auto id = m_impl->registerPrefix(prefix, onSuccess, onFailure, flags, options, std::nullopt, nullptr);
   return RegisteredPrefixHandle(m_impl, id);
 }
 

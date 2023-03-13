@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -142,9 +142,9 @@ ValidationPolicySignedInterest::checkIncomingInterest(const shared_ptr<Validatio
 
 void
 ValidationPolicySignedInterest::insertRecord(const Name& keyName,
-                                             optional<time::system_clock::TimePoint> timestamp,
-                                             optional<uint64_t> seqNum,
-                                             optional<SigNonce> nonce)
+                                             std::optional<time::system_clock::TimePoint> timestamp,
+                                             std::optional<uint64_t> seqNum,
+                                             std::optional<SigNonce> nonce)
 {
   // If key record exists, update last refreshed time. Otherwise, create new record.
   Container::nth_index<0>::type::iterator it;

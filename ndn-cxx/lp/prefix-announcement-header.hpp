@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -61,14 +61,14 @@ public:
   void
   wireDecode(const Block& wire);
 
-  const optional<PrefixAnnouncement>&
+  const std::optional<PrefixAnnouncement>&
   getPrefixAnn() const
   {
     return m_prefixAnn;
   }
 
 private:
-  optional<PrefixAnnouncement> m_prefixAnn;
+  std::optional<PrefixAnnouncement> m_prefixAnn;
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(PrefixAnnouncementHeader);

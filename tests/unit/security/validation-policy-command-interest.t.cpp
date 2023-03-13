@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -64,16 +64,16 @@ class ValidationPolicyCommandInterestFixture
 {
 protected:
   Interest
-  makeCommandInterest(const Identity& identity, SignedInterestFormat format = SignedInterestFormat::V02)
+  makeCommandInterest(const Identity& id, SignedInterestFormat format = SignedInterestFormat::V02)
   {
-    Name name = identity.getName();
+    Name name = id.getName();
     name.append("CMD");
     switch (format) {
       case SignedInterestFormat::V02:
-        return m_signer.makeCommandInterest(name, signingByIdentity(identity));
+        return m_signer.makeCommandInterest(name, signingByIdentity(id));
       case SignedInterestFormat::V03: {
         Interest interest(name);
-        m_signer.makeSignedInterest(interest, signingByIdentity(identity));
+        m_signer.makeSignedInterest(interest, signingByIdentity(id));
         return interest;
       }
     }
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(BadTimestampV03)
 {
   auto i1 = makeCommandInterest(identity, SignedInterestFormat::V03);
   auto si = i1.getSignatureInfo().value();
-  si.setTime(nullopt);
+  si.setTime(std::nullopt);
   i1.setSignatureInfo(si);
   VALIDATE_FAILURE(i1, "Should fail (timestamp is missing)");
   BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(MissingKeyLocatorV03)
 {
   auto i1 = makeCommandInterest(identity, SignedInterestFormat::V03);
   auto si = i1.getSignatureInfo().value();
-  si.setKeyLocator(nullopt);
+  si.setKeyLocator(std::nullopt);
   i1.setSignatureInfo(si);
   VALIDATE_FAILURE(i1, "Should fail (missing KeyLocator)");
   BOOST_TEST(lastError.getCode() == ValidationError::INVALID_KEY_LOCATOR);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,7 +71,7 @@ KeyImpl::removeCertificate(const Name& certName)
 
   if (m_defaultCert && m_defaultCert->getName() == certName) {
     NDN_LOG_DEBUG("Removing default certificate " << certName);
-    m_defaultCert = nullopt;
+    m_defaultCert = std::nullopt;
   }
   m_certificates.remove(certName);
 }

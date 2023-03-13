@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -148,7 +148,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_expirationPeriod = nullopt;
+    m_expirationPeriod = std::nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FaceScope) {
@@ -180,7 +180,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_baseCongestionMarkingInterval = nullopt;
+    m_baseCongestionMarkingInterval = std::nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::DefaultCongestionThreshold) {
@@ -188,7 +188,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_defaultCongestionThreshold = nullopt;
+    m_defaultCongestionThreshold = std::nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Mtu) {
@@ -196,7 +196,7 @@ FaceStatus::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_mtu = nullopt;
+    m_mtu = std::nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::NInInterests) {
@@ -284,7 +284,7 @@ FaceStatus&
 FaceStatus::unsetExpirationPeriod()
 {
   m_wire.reset();
-  m_expirationPeriod = nullopt;
+  m_expirationPeriod = std::nullopt;
   return *this;
 }
 
@@ -300,7 +300,7 @@ FaceStatus&
 FaceStatus::unsetBaseCongestionMarkingInterval()
 {
   m_wire.reset();
-  m_baseCongestionMarkingInterval = nullopt;
+  m_baseCongestionMarkingInterval = std::nullopt;
   return *this;
 }
 
@@ -316,7 +316,7 @@ FaceStatus&
 FaceStatus::unsetDefaultCongestionThreshold()
 {
   m_wire.reset();
-  m_defaultCongestionThreshold = nullopt;
+  m_defaultCongestionThreshold = std::nullopt;
   return *this;
 }
 
@@ -332,7 +332,7 @@ FaceStatus&
 FaceStatus::unsetMtu()
 {
   m_wire.reset();
-  m_mtu = nullopt;
+  m_mtu = std::nullopt;
   return *this;
 }
 

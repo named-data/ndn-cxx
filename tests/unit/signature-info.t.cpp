@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(KeyLocatorField)
 
   info.wireEncode();
   BOOST_CHECK_EQUAL(info.hasWire(), true);
-  info.setKeyLocator(nullopt);
+  info.setKeyLocator(std::nullopt);
   BOOST_CHECK_EQUAL(info.hasKeyLocator(), false);
   BOOST_CHECK_THROW(info.getKeyLocator(), SignatureInfo::Error);
   BOOST_CHECK_EQUAL(info.hasWire(), false);
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(SignatureNonce)
 
   info.wireEncode();
   BOOST_CHECK_EQUAL(info.hasWire(), true);
-  info.setNonce(nullopt);
+  info.setNonce(std::nullopt);
   BOOST_CHECK_EQUAL(info.hasWire(), false);
   BOOST_CHECK(!info.getNonce());
 }
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(SignatureTime)
 
   info.wireEncode();
   BOOST_CHECK_EQUAL(info.hasWire(), true);
-  info.setTime(nullopt);
+  info.setTime(std::nullopt);
   BOOST_CHECK_EQUAL(info.hasWire(), false);
   BOOST_CHECK(!info.getTime());
 }
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(SignatureSeqNum)
 
   info.wireEncode();
   BOOST_CHECK_EQUAL(info.hasWire(), true);
-  info.setSeqNum(nullopt);
+  info.setSeqNum(std::nullopt);
   BOOST_CHECK_EQUAL(info.hasWire(), false);
   BOOST_CHECK(!info.getSeqNum());
 }
@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriod)
 
   info2.wireEncode();
   BOOST_CHECK_EQUAL(info2.hasWire(), true);
-  info2.setValidityPeriod(nullopt);
+  info2.setValidityPeriod(std::nullopt);
   BOOST_CHECK_THROW(info2.getValidityPeriod(), SignatureInfo::Error);
   BOOST_CHECK_EQUAL(info2.hasWire(), false);
 }

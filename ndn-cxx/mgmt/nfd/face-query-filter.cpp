@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -119,7 +119,7 @@ FaceQueryFilter::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_faceId = nullopt;
+    m_faceId = std::nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::UriScheme) {
@@ -151,7 +151,7 @@ FaceQueryFilter::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_faceScope = nullopt;
+    m_faceScope = std::nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::FacePersistency) {
@@ -159,7 +159,7 @@ FaceQueryFilter::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_facePersistency = nullopt;
+    m_facePersistency = std::nullopt;
   }
 
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::LinkType) {
@@ -167,7 +167,7 @@ FaceQueryFilter::wireDecode(const Block& block)
     ++val;
   }
   else {
-    m_linkType = nullopt;
+    m_linkType = std::nullopt;
   }
 }
 
@@ -195,7 +195,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetFaceId()
 {
   m_wire.reset();
-  m_faceId = nullopt;
+  m_faceId = std::nullopt;
   return *this;
 }
 
@@ -253,7 +253,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetFaceScope()
 {
   m_wire.reset();
-  m_faceScope = nullopt;
+  m_faceScope = std::nullopt;
   return *this;
 }
 
@@ -269,7 +269,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetFacePersistency()
 {
   m_wire.reset();
-  m_facePersistency = nullopt;
+  m_facePersistency = std::nullopt;
   return *this;
 }
 
@@ -285,7 +285,7 @@ FaceQueryFilter&
 FaceQueryFilter::unsetLinkType()
 {
   m_wire.reset();
-  m_linkType = nullopt;
+  m_linkType = std::nullopt;
   return *this;
 }
 

@@ -26,6 +26,7 @@
 
 #include <cstring>
 #include <iterator>
+#include <limits>
 #include <ostream>
 #include <vector>
 
@@ -168,10 +169,10 @@ isCriticalType(uint32_t type) noexcept
  * @brief Read VAR-NUMBER in NDN-TLV encoding.
  * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
- * @param [inout] begin  Begin of the buffer, will be incremented to point to the first byte after
+ * @param[in,out] begin  Begin of the buffer, will be incremented to point to the first byte after
  *                       the read VAR-NUMBER
- * @param [in]    end    End of the buffer
- * @param [out]   number Read VAR-NUMBER
+ * @param[in]     end    End of the buffer
+ * @param[out]    number Read VAR-NUMBER
  *
  * @return true if number was successfully read from input, false otherwise
  */
@@ -183,10 +184,10 @@ readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept;
  * @brief Read TLV-TYPE.
  * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
- * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
+ * @param[in,out] begin Begin of the buffer, will be incremented to point to the first byte after
  *                      the read TLV-TYPE
- * @param [in]    end   End of the buffer
- * @param [out]   type  Read TLV-TYPE
+ * @param[in]     end   End of the buffer
+ * @param[out]    type  Read TLV-TYPE
  *
  * @return true if TLV-TYPE was successfully read from input, false otherwise
  * @note This function is largely equivalent to readVarNumber(), except that it returns false if
@@ -200,9 +201,9 @@ readType(Iterator& begin, Iterator end, uint32_t& type) noexcept;
  * @brief Read VAR-NUMBER in NDN-TLV encoding.
  * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
- * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
+ * @param[in,out] begin Begin of the buffer, will be incremented to point to the first byte after
  *                      the read VAR-NUMBER
- * @param [in]    end   End of the buffer
+ * @param[in]     end   End of the buffer
  *
  * @throw tlv::Error VAR-NUMBER cannot be read
  */
@@ -214,9 +215,9 @@ readVarNumber(Iterator& begin, Iterator end);
  * @brief Read TLV-TYPE.
  * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
- * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
+ * @param[in,out] begin Begin of the buffer, will be incremented to point to the first byte after
  *                      the read TLV-TYPE
- * @param [in]    end   End of the buffer
+ * @param[in]     end   End of the buffer
  *
  * @throw tlv::Error TLV-TYPE cannot be read
  * @note This function is largely equivalent to readVarNumber(), except that it throws if
@@ -243,10 +244,10 @@ writeVarNumber(std::ostream& os, uint64_t number);
  * @brief Read a NonNegativeInteger in NDN-TLV encoding.
  * @tparam Iterator an iterator or pointer that dereferences to uint8_t or compatible type
  *
- * @param [in]    size  size of the NonNegativeInteger
- * @param [inout] begin Begin of the buffer, will be incremented to point to the first byte after
+ * @param[in]     size  size of the NonNegativeInteger
+ * @param[in,out] begin Begin of the buffer, will be incremented to point to the first byte after
  *                      the read NonNegativeInteger
- * @param [in]    end   End of the buffer
+ * @param[in]     end   End of the buffer
  *
  * @throw tlv::Error number cannot be read
  * @note How many bytes to read is directly controlled by \p size, which can be either 1, 2, 4, or 8.

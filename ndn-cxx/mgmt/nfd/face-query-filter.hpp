@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,8 @@
 
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/nfd-constants.hpp"
-#include "ndn-cxx/util/optional.hpp"
+
+#include <optional>
 
 namespace ndn {
 namespace nfd {
@@ -204,13 +205,13 @@ public: // getters & setters
   unsetLinkType();
 
 private:
-  optional<uint64_t> m_faceId;
+  std::optional<uint64_t> m_faceId;
   std::string m_uriScheme;
   std::string m_remoteUri;
   std::string m_localUri;
-  optional<FaceScope> m_faceScope;
-  optional<FacePersistency> m_facePersistency;
-  optional<LinkType> m_linkType;
+  std::optional<FaceScope> m_faceScope;
+  std::optional<FacePersistency> m_facePersistency;
+  std::optional<LinkType> m_linkType;
 
   mutable Block m_wire;
 };

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/security/trust-anchor-container.hpp"
-#include "ndn-cxx/util/io.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/key-chain-fixture.hpp"
@@ -61,7 +60,7 @@ public:
   }
 
   void
-  checkFindByInterest(const Name& name, bool canBePrefix, optional<Certificate> expected) const
+  checkFindByInterest(const Name& name, bool canBePrefix, std::optional<Certificate> expected) const
   {
     Interest interest(name);
     interest.setCanBePrefix(canBePrefix);
@@ -172,7 +171,7 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
   checkFindByInterest(identity1.getName().getPrefix(-1), true, cert1);
   checkFindByInterest(cert1.getKeyName(), true, cert1);
   checkFindByInterest(cert1.getName(), false, cert1);
-  checkFindByInterest(Name(identity1.getName()).appendVersion(), true, nullopt);
+  checkFindByInterest(Name(identity1.getName()).appendVersion(), true, std::nullopt);
 
   auto makeIdentity1Cert = [=] (const std::string& issuerId) {
     auto key = identity1.getDefaultKey();

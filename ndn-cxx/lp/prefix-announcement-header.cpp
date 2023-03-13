@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,7 @@ PrefixAnnouncementHeader::PrefixAnnouncementHeader(const Block& block)
 PrefixAnnouncementHeader::PrefixAnnouncementHeader(PrefixAnnouncement prefixAnn)
   : m_prefixAnn(std::move(prefixAnn))
 {
-  if (m_prefixAnn->getData() == nullopt) {
+  if (!m_prefixAnn->getData()) {
     NDN_THROW(Error("PrefixAnnouncement does not contain Data"));
   }
 }
@@ -44,7 +44,7 @@ template<encoding::Tag TAG>
 size_t
 PrefixAnnouncementHeader::wireEncode(EncodingImpl<TAG>& encoder) const
 {
-  if (m_prefixAnn == nullopt) {
+  if (!m_prefixAnn) {
     NDN_THROW(Error("PrefixAnnouncementHeader does not contain a PrefixAnnouncement"));
   }
 

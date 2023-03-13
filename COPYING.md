@@ -9,9 +9,6 @@ ndn-cxx relies on third-party software, licensed under the following licenses:
 - OpenSSL is licensed under the
   [Apache License 2.0](https://www.openssl.org/source/license.html)
 
-- optional-lite by Martin Moene is licensed under the
-  [Boost Software License 1.0](https://github.com/martinmoene/optional-lite/blob/master/LICENSE.txt)
-
 - scope-lite by Martin Moene is licensed under the
   [Boost Software License 1.0](https://github.com/martinmoene/scope-lite/blob/master/LICENSE.txt)
 

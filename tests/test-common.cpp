@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,8 @@ namespace ndn {
 namespace tests {
 
 shared_ptr<Interest>
-makeInterest(const Name& name, bool canBePrefix, optional<time::milliseconds> lifetime,
-             optional<Interest::Nonce> nonce)
+makeInterest(const Name& name, bool canBePrefix, std::optional<time::milliseconds> lifetime,
+             std::optional<Interest::Nonce> nonce)
 {
   auto interest = std::make_shared<Interest>(name);
   interest->setCanBePrefix(canBePrefix);

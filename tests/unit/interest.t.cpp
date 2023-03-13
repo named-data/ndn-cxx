@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,11 +57,11 @@ BOOST_AUTO_TEST_CASE(DefaultConstructor)
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i.getHopLimit() == nullopt);
+  BOOST_CHECK(i.getHopLimit() == std::nullopt);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), true);
-  BOOST_CHECK(i.getSignatureInfo() == nullopt);
+  BOOST_CHECK(i.getSignatureInfo() == std::nullopt);
   BOOST_CHECK_EQUAL(i.getSignatureValue().isValid(), false);
   BOOST_CHECK_EQUAL(i.isSigned(), false);
 }
@@ -96,10 +96,10 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(i2.hasNonce(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 0x01020304);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i2.getHopLimit() == nullopt);
+  BOOST_CHECK(i2.getHopLimit() == std::nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters().isValid(), false);
-  BOOST_CHECK(i2.getSignatureInfo() == nullopt);
+  BOOST_CHECK(i2.getSignatureInfo() == std::nullopt);
   BOOST_CHECK_EQUAL(i2.getSignatureValue().isValid(), false);
   BOOST_CHECK_EQUAL(i2.isSigned(), false);
 }
@@ -140,10 +140,10 @@ BOOST_AUTO_TEST_CASE(WithParameters)
   BOOST_CHECK_EQUAL(i2.hasNonce(), true);
   BOOST_CHECK_EQUAL(i2.getNonce(), 0x1);
   BOOST_CHECK_EQUAL(i2.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i2.getHopLimit() == nullopt);
+  BOOST_CHECK(i2.getHopLimit() == std::nullopt);
   BOOST_CHECK_EQUAL(i2.hasApplicationParameters(), true);
   BOOST_CHECK_EQUAL(i2.getApplicationParameters(), "2404C0C1C2C3"_block);
-  BOOST_CHECK(i2.getSignatureInfo() == nullopt);
+  BOOST_CHECK(i2.getSignatureInfo() == std::nullopt);
   BOOST_CHECK_EQUAL(i2.getSignatureValue().isValid(), false);
   BOOST_CHECK_EQUAL(i2.isSigned(), false);
 }
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(NameOnly)
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i.getHopLimit() == nullopt);
+  BOOST_CHECK(i.getHopLimit() == std::nullopt);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 
@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE(NameCanBePrefix)
   BOOST_CHECK_EQUAL(i.getForwardingHint().empty(), true);
   BOOST_CHECK_EQUAL(i.hasNonce(), false);
   BOOST_CHECK_EQUAL(i.getInterestLifetime(), DEFAULT_INTEREST_LIFETIME);
-  BOOST_CHECK(i.getHopLimit() == nullopt);
+  BOOST_CHECK(i.getHopLimit() == std::nullopt);
   BOOST_CHECK_EQUAL(i.hasApplicationParameters(), false);
   BOOST_CHECK_EQUAL(i.getApplicationParameters().isValid(), false);
 }
@@ -789,7 +789,7 @@ BOOST_AUTO_TEST_CASE(SetNonce)
   BOOST_CHECK_EQUAL(i2.getNonce(), 2);
   BOOST_CHECK_EQUAL(i1.getNonce(), 1); // should not affect i1's Nonce (Bug #4168)
 
-  i2.setNonce(nullopt);
+  i2.setNonce(std::nullopt);
   BOOST_CHECK(!i2.hasNonce());
 }
 
@@ -852,11 +852,11 @@ BOOST_AUTO_TEST_CASE(SetInterestLifetime)
 BOOST_AUTO_TEST_CASE(SetHopLimit)
 {
   Interest i;
-  BOOST_CHECK(i.getHopLimit() == nullopt);
+  BOOST_CHECK(i.getHopLimit() == std::nullopt);
   i.setHopLimit(42);
   BOOST_CHECK(i.getHopLimit() == 42);
-  i.setHopLimit(nullopt);
-  BOOST_CHECK(i.getHopLimit() == nullopt);
+  i.setHopLimit(std::nullopt);
+  BOOST_CHECK(i.getHopLimit() == std::nullopt);
 }
 
 BOOST_AUTO_TEST_CASE(SetApplicationParameters)
@@ -901,7 +901,7 @@ BOOST_AUTO_TEST_CASE(SetSignature)
     return e.what() == "InterestSignatureInfo must be present to set InterestSignatureValue"s;
   });
 
-  BOOST_CHECK(i.getSignatureInfo() == nullopt);
+  BOOST_CHECK(i.getSignatureInfo() == std::nullopt);
   BOOST_CHECK_EQUAL(i.getSignatureValue().isValid(), false);
   BOOST_CHECK_EQUAL(i.isSigned(), false);
 
@@ -1010,7 +1010,7 @@ BOOST_AUTO_TEST_CASE(ParametersSha256DigestComponent)
   BOOST_CHECK(i.getSignatureInfo() == si);
 
   i.unsetApplicationParameters(); // removes ParametersSha256DigestComponent and InterestSignatureInfo
-  BOOST_CHECK(i.getSignatureInfo() == nullopt);
+  BOOST_CHECK(i.getSignatureInfo() == std::nullopt);
   BOOST_CHECK_EQUAL(i.getSignatureValue().isValid(), false);
   BOOST_CHECK_EQUAL(i.getName(), "/A/B/C");
 
@@ -1157,7 +1157,7 @@ BOOST_AUTO_TEST_CASE(ToUri)
 
   i.setCanBePrefix(false);
   i.setMustBeFresh(false);
-  i.setHopLimit(nullopt);
+  i.setHopLimit(std::nullopt);
   i.setApplicationParameters("2402CAFE"_block);
   BOOST_CHECK_EQUAL(i.toUri(),
                     "/foo/params-sha256=8621f5e8321f04104640c8d02877d7c5142cad6e203c5effda1783b1a0e476d6"

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -127,7 +127,7 @@ private:
   std::string m_tpmLocator;
 
   std::set<Name> m_identities;
-  optional<Name> m_defaultIdentity;
+  std::optional<Name> m_defaultIdentity;
 
   /// identity name => default key name
   std::map<Name, Name> m_defaultKeys;

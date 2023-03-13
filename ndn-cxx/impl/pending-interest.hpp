@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -114,7 +114,7 @@ public:
    * @return Least severe Nack if all destinations where the Interest was forwarded have Nacked;
    *         otherwise, @c nullopt.
    */
-  optional<lp::Nack>
+  std::optional<lp::Nack>
   recordNack(const lp::Nack& nack)
   {
     --m_nNotNacked;
@@ -124,7 +124,7 @@ public:
       m_leastSevereNack = nack;
     }
 
-    return m_nNotNacked > 0 ? nullopt : m_leastSevereNack;
+    return m_nNotNacked > 0 ? std::nullopt : m_leastSevereNack;
   }
 
   /**
@@ -180,7 +180,7 @@ private:
   TimeoutCallback m_timeoutCallback;
   scheduler::ScopedEventId m_timeoutEvent;
   int m_nNotNacked = 0; ///< number of Interest destinations that have not Nacked
-  optional<lp::Nack> m_leastSevereNack;
+  std::optional<lp::Nack> m_leastSevereNack;
 };
 
 } // namespace ndn

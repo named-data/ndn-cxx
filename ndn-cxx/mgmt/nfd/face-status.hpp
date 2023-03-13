@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,8 +23,9 @@
 #define NDN_CXX_MGMT_NFD_FACE_STATUS_HPP
 
 #include "ndn-cxx/mgmt/nfd/face-traits.hpp"
-#include "ndn-cxx/util/optional.hpp"
 #include "ndn-cxx/util/time.hpp"
+
+#include <optional>
 
 namespace ndn {
 namespace nfd {
@@ -220,10 +221,10 @@ public: // getters & setters
   setNOutBytes(uint64_t nOutBytes);
 
 private:
-  optional<time::milliseconds> m_expirationPeriod;
-  optional<time::nanoseconds> m_baseCongestionMarkingInterval;
-  optional<uint64_t> m_defaultCongestionThreshold;
-  optional<uint64_t> m_mtu;
+  std::optional<time::milliseconds> m_expirationPeriod;
+  std::optional<time::nanoseconds> m_baseCongestionMarkingInterval;
+  std::optional<uint64_t> m_defaultCongestionThreshold;
+  std::optional<uint64_t> m_mtu;
   uint64_t m_nInInterests;
   uint64_t m_nInData;
   uint64_t m_nInNacks;

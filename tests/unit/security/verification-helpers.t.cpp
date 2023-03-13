@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -632,21 +632,21 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
   Interest interestOldFormat(dataset.goodInterestOldFormat);
   Interest badSigInterestOldFormat(dataset.badSigInterestOldFormat);
 
-  BOOST_CHECK(verifySignature(data, nullopt));
-  BOOST_CHECK(verifySignature(interest, nullopt));
-  BOOST_CHECK(verifySignature(interestOldFormat, nullopt));
+  BOOST_CHECK(verifySignature(data, std::nullopt));
+  BOOST_CHECK(verifySignature(interest, std::nullopt));
+  BOOST_CHECK(verifySignature(interestOldFormat, std::nullopt));
 
-  BOOST_CHECK(!verifySignature(badSigData, nullopt));
-  BOOST_CHECK(!verifySignature(badSigInterest, nullopt));
-  BOOST_CHECK(!verifySignature(badSigInterestOldFormat, nullopt));
+  BOOST_CHECK(!verifySignature(badSigData, std::nullopt));
+  BOOST_CHECK(!verifySignature(badSigInterest, std::nullopt));
+  BOOST_CHECK(!verifySignature(badSigInterestOldFormat, std::nullopt));
 
   Data unsignedData("/some/data");
   Interest unsignedInterest1("/some/interest/with/several/name/components");
   Interest unsignedInterest2("/interest-with-one-name-component");
 
-  BOOST_CHECK(!verifySignature(unsignedData, nullopt));
-  BOOST_CHECK(!verifySignature(unsignedInterest1, nullopt));
-  BOOST_CHECK(!verifySignature(unsignedInterest2, nullopt));
+  BOOST_CHECK(!verifySignature(unsignedData, std::nullopt));
+  BOOST_CHECK(!verifySignature(unsignedInterest1, std::nullopt));
+  BOOST_CHECK(!verifySignature(unsignedInterest2, std::nullopt));
 }
 
 const uint8_t sha256DataUnrecognizedElements[] = {
@@ -673,8 +673,8 @@ BOOST_AUTO_TEST_CASE(VerifyWithUnrecognizedElements) // Bug #4583
   Data data(Block{sha256DataUnrecognizedElements});
   Interest interest(Block{sha256InterestUnrecognizedElements});
 
-  BOOST_CHECK(verifySignature(data, nullopt));
-  BOOST_CHECK(verifySignature(interest, nullopt));
+  BOOST_CHECK(verifySignature(data, std::nullopt));
+  BOOST_CHECK(verifySignature(interest, std::nullopt));
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestVerificationHelpers

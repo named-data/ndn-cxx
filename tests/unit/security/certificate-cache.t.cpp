@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,7 @@ public:
   }
 
   void
-  checkFindByInterest(const Name& name, bool canBePrefix, optional<Certificate> expected) const
+  checkFindByInterest(const Name& name, bool canBePrefix, std::optional<Certificate> expected) const
   {
     Interest interest(name);
     interest.setCanBePrefix(canBePrefix);
@@ -95,10 +95,10 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
   checkFindByInterest(cert.getIdentity(), true, cert);
   checkFindByInterest(cert.getKeyName(), true, cert);
   checkFindByInterest(cert.getName(), false, cert);
-  checkFindByInterest(Name(cert.getName()).appendVersion(), true, nullopt);
+  checkFindByInterest(Name(cert.getName()).appendVersion(), true, std::nullopt);
 
   advanceClocks(12_s);
-  checkFindByInterest(cert.getIdentity(), true, nullopt);
+  checkFindByInterest(cert.getIdentity(), true, std::nullopt);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateCache

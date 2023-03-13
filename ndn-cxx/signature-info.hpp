@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -50,7 +50,7 @@ public:
   /** @brief Create with the specified type and KeyLocator
    */
   explicit
-  SignatureInfo(tlv::SignatureTypeValue type, optional<KeyLocator> keyLocator = nullopt);
+  SignatureInfo(tlv::SignatureTypeValue type, std::optional<KeyLocator> keyLocator = std::nullopt);
 
   /** @brief Create from wire encoding
    *  @param wire Wire to decode from
@@ -143,7 +143,7 @@ public: // field access
    *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
-  setKeyLocator(optional<KeyLocator> keyLocator);
+  setKeyLocator(std::optional<KeyLocator> keyLocator);
 
   /** @brief Get the `ValidityPeriod` element.
    *  @throw Error This SignatureInfo does not contain a ValidityPeriod
@@ -158,12 +158,12 @@ public: // field access
    *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
-  setValidityPeriod(optional<security::ValidityPeriod> validityPeriod);
+  setValidityPeriod(std::optional<security::ValidityPeriod> validityPeriod);
 
   /** @brief Get SignatureNonce
    *  @retval nullopt SignatureNonce is not set
    */
-  optional<std::vector<uint8_t>>
+  std::optional<std::vector<uint8_t>>
   getNonce() const;
 
   /** @brief Append or replace SignatureNonce
@@ -173,12 +173,12 @@ public: // field access
    *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
-  setNonce(optional<span<const uint8_t>> nonce);
+  setNonce(std::optional<span<const uint8_t>> nonce);
 
   /** @brief Get SignatureTime
    *  @retval nullopt SignatureTime is not set
    */
-  optional<time::system_clock::time_point>
+  std::optional<time::system_clock::time_point>
   getTime() const;
 
   /** @brief Append or replace SignatureTime
@@ -188,12 +188,12 @@ public: // field access
    *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
-  setTime(optional<time::system_clock::time_point> time = time::system_clock::now());
+  setTime(std::optional<time::system_clock::time_point> time = time::system_clock::now());
 
   /** @brief Get SignatureSeqNum
    *  @retval nullopt SignatureSeqNum is not set
    */
-  optional<uint64_t>
+  std::optional<uint64_t>
   getSeqNum() const;
 
   /** @brief Append or replace SignatureSeqNum
@@ -203,13 +203,13 @@ public: // field access
    *  @return A reference to this SignatureInfo, to allow chaining.
    */
   SignatureInfo&
-  setSeqNum(optional<uint64_t> seqNum);
+  setSeqNum(std::optional<uint64_t> seqNum);
 
   /** @brief Get first custom TLV element with the specified TLV-TYPE
    *  @param type TLV-TYPE of element to get
    *  @retval nullopt No custom TLV elements with the specified TLV-TYPE exist
    */
-  optional<Block>
+  std::optional<Block>
   getCustomTlv(uint32_t type) const;
 
   /** @brief Append an arbitrary TLV element to this SignatureInfo
@@ -231,7 +231,7 @@ private:
 
 private:
   int32_t m_type = -1;
-  optional<KeyLocator> m_keyLocator;
+  std::optional<KeyLocator> m_keyLocator;
   std::vector<Block> m_otherTlvs;
 
   mutable Block m_wire;

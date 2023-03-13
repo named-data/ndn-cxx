@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -63,7 +63,7 @@ MetaInfo::setFreshnessPeriod(time::milliseconds freshnessPeriod)
 }
 
 MetaInfo&
-MetaInfo::setFinalBlock(optional<name::Component> finalBlockId)
+MetaInfo::setFinalBlock(std::optional<name::Component> finalBlockId)
 {
   m_wire.reset();
   m_finalBlockId = std::move(finalBlockId);
@@ -215,7 +215,7 @@ MetaInfo::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    m_finalBlockId = nullopt;
+    m_finalBlockId = std::nullopt;
   }
 
   // AppMetaInfo (if any)

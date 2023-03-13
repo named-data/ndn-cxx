@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -227,13 +227,13 @@ Name::set(ssize_t i, Component&& component)
 }
 
 Name&
-Name::appendVersion(const optional<uint64_t>& version)
+Name::appendVersion(const std::optional<uint64_t>& version)
 {
   return append(Component::fromVersion(version.value_or(time::toUnixTimestamp(time::system_clock::now()).count())));
 }
 
 Name&
-Name::appendTimestamp(const optional<time::system_clock::time_point>& timestamp)
+Name::appendTimestamp(const std::optional<time::system_clock::time_point>& timestamp)
 {
   return append(Component::fromTimestamp(timestamp.value_or(time::system_clock::now())));
 }
