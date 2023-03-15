@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California,
+ * Copyright (c) 2013-2023 Regents of the University of California,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University.
  *
@@ -35,8 +35,6 @@
 
 namespace ndn {
 namespace util {
-
-constexpr double SegmentFetcher::MIN_SSTHRESH;
 
 void
 SegmentFetcher::Options::validate()

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,14 +42,14 @@ KeyParams::~KeyParams() = default;
 
 namespace detail {
 
-const uint32_t MIN_RSA_KEY_SIZE = 2048;
-const uint32_t MAX_RSA_KEY_SIZE = 16384;
-const uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
-const uint32_t EC_KEY_SIZES[] = {224, 256, 384, 521};
-const uint32_t DEFAULT_EC_KEY_SIZE = 256;
-const uint32_t AES_KEY_SIZES[] = {128, 192, 256};
-const uint32_t DEFAULT_AES_KEY_SIZE = 128;
-const uint32_t DEFAULT_HMAC_KEY_SIZE = 256;
+constexpr uint32_t MIN_RSA_KEY_SIZE = 2048;
+constexpr uint32_t MAX_RSA_KEY_SIZE = 16384;
+constexpr uint32_t DEFAULT_RSA_KEY_SIZE = 2048;
+constexpr uint32_t EC_KEY_SIZES[] = {224, 256, 384, 521};
+constexpr uint32_t DEFAULT_EC_KEY_SIZE = 256;
+constexpr uint32_t AES_KEY_SIZES[] = {128, 192, 256};
+constexpr uint32_t DEFAULT_AES_KEY_SIZE = 128;
+constexpr uint32_t DEFAULT_HMAC_KEY_SIZE = 256;
 
 uint32_t
 RsaKeyParamsInfo::checkKeySize(uint32_t size)

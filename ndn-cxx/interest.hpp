@@ -40,7 +40,7 @@ class Data;
 /**
  * @brief Default value of `InterestLifetime`.
  */
-const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
+inline constexpr time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 
 /**
  * @brief Represents an %Interest packet.

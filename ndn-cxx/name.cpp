@@ -47,8 +47,6 @@ BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<Name>));
 static_assert(std::is_base_of<tlv::Error, Name::Error>::value,
               "Name::Error must inherit from tlv::Error");
 
-const size_t Name::npos = std::numeric_limits<size_t>::max();
-
 // ---- constructors, encoding, decoding ----
 
 Name::Name()

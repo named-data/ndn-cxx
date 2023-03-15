@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,16 +35,6 @@ BOOST_CONCEPT_ASSERT((WireEncodable<Certificate>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Certificate>));
 static_assert(std::is_base_of<Data::Error, Certificate::Error>::value,
               "Certificate::Error must inherit from Data::Error");
-
-// /<IdentityName>/KEY/<KeyId>/<IssuerId>/<Version>
-const ssize_t Certificate::VERSION_OFFSET = -1;
-const ssize_t Certificate::ISSUER_ID_OFFSET = -2;
-const ssize_t Certificate::KEY_ID_OFFSET = -3;
-const ssize_t Certificate::KEY_COMPONENT_OFFSET = -4;
-const size_t Certificate::MIN_CERT_NAME_LENGTH = 4;
-const size_t Certificate::MIN_KEY_NAME_LENGTH = 2;
-const name::Component Certificate::KEY_COMPONENT("KEY");
-const name::Component Certificate::DEFAULT_ISSUER_ID("NA");
 
 Certificate::Certificate()
 {

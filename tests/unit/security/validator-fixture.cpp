@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,9 +27,6 @@ namespace ndn {
 namespace security {
 inline namespace v2 {
 namespace tests {
-
-const time::milliseconds ValidatorFixtureBase::s_mockPeriod{250};
-const int ValidatorFixtureBase::s_mockTimes = 200;
 
 ValidatorFixtureBase::ValidatorFixtureBase()
 {

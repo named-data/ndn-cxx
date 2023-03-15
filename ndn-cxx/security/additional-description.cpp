@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,8 +35,8 @@ BOOST_CONCEPT_ASSERT((WireDecodable<AdditionalDescription>));
 static_assert(std::is_base_of<tlv::Error, AdditionalDescription::Error>::value,
               "AdditionalDescription::Error must inherit from tlv::Error");
 
-static const size_t KEY_OFFSET = 0;
-static const size_t VALUE_OFFSET = 1;
+constexpr size_t KEY_OFFSET = 0;
+constexpr size_t VALUE_OFFSET = 1;
 
 AdditionalDescription::AdditionalDescription(const Block& block)
 {

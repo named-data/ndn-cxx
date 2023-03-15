@@ -35,7 +35,7 @@ namespace ndn {
 /**
  * @brief Default value of `FreshnessPeriod`.
  */
-const time::milliseconds DEFAULT_FRESHNESS_PERIOD{0};
+inline constexpr time::milliseconds DEFAULT_FRESHNESS_PERIOD = 0_ms;
 
 /**
  * @brief A MetaInfo holds the meta info which is signed inside the Data packet.

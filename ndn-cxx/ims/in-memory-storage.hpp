@@ -326,17 +326,12 @@ private:
   init();
 
 public:
-  static const time::milliseconds INFINITE_WINDOW;
-
-private:
-  static const time::milliseconds ZERO_WINDOW;
+  static constexpr time::milliseconds INFINITE_WINDOW = -1_ms;
 
 private:
   Cache m_cache;
   /// user defined maximum capacity of the in-memory storage in packets
   size_t m_limit;
-  /// initial capacity, used as minimum capacity
-  const size_t m_initCapacity = 16;
   /// current capacity of the in-memory storage in packets
   size_t m_capacity;
   /// current number of packets in in-memory storage

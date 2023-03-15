@@ -39,7 +39,7 @@ namespace ndn {
  *
  * If a packet is longer than this size, library and application MAY drop it.
  */
-const size_t MAX_NDN_PACKET_SIZE = 8800;
+inline constexpr size_t MAX_NDN_PACKET_SIZE = 8800;
 
 /**
  * @brief Contains constants and low-level functions related to the NDN packet format.

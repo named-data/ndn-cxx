@@ -25,6 +25,7 @@
 #include "ndn-cxx/name-component.hpp"
 
 #include <iterator>
+#include <limits>
 #include <optional>
 
 namespace ndn {
@@ -704,7 +705,7 @@ public:
   /**
    * @brief Indicates "until the end" in getSubName() and compare().
    */
-  static const size_t npos;
+  static constexpr size_t npos = std::numeric_limits<size_t>::max();
 
 private:
   mutable Block m_wire;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,7 @@
 namespace ndn {
 namespace mgmt {
 
-const size_t MAX_PAYLOAD_LENGTH = MAX_NDN_PACKET_SIZE - 800;
+constexpr size_t MAX_PAYLOAD_LENGTH = MAX_NDN_PACKET_SIZE - 800;
 
 StatusDatasetContext::StatusDatasetContext(const Interest& interest,
                                            DataSender dataSender, NackSender nackSender)

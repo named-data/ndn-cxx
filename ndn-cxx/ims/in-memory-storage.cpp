@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,8 @@
 
 namespace ndn {
 
-const time::milliseconds InMemoryStorage::INFINITE_WINDOW(-1);
-const time::milliseconds InMemoryStorage::ZERO_WINDOW(0);
+constexpr size_t MIN_CAPACITY = 16;
+constexpr time::milliseconds ZERO_WINDOW = 0_ms;
 
 InMemoryStorage::const_iterator::const_iterator(const Data* ptr, const Cache* cache,
                                                 Cache::index<byFullName>::type::iterator it)
@@ -100,7 +100,7 @@ void
 InMemoryStorage::init()
 {
   // TODO consider a more suitable initial value
-  m_capacity = m_initCapacity;
+  m_capacity = MIN_CAPACITY;
 
   if (m_limit != std::numeric_limits<size_t>::max() && m_capacity > m_limit) {
     m_capacity = m_limit;
@@ -131,7 +131,7 @@ void
 InMemoryStorage::setCapacity(size_t capacity)
 {
   size_t oldCapacity = m_capacity;
-  m_capacity = std::max(capacity, m_initCapacity);
+  m_capacity = std::max(capacity, MIN_CAPACITY);
 
   if (size() > m_capacity) {
     ssize_t nAllowedFailures = size() - m_capacity;
@@ -367,17 +367,17 @@ InMemoryStorage::end() const
 }
 
 void
-InMemoryStorage::afterInsert(InMemoryStorageEntry* entry)
+InMemoryStorage::afterInsert(InMemoryStorageEntry*)
 {
 }
 
 void
-InMemoryStorage::beforeErase(InMemoryStorageEntry* entry)
+InMemoryStorage::beforeErase(InMemoryStorageEntry*)
 {
 }
 
 void
-InMemoryStorage::afterAccess(InMemoryStorageEntry* entry)
+InMemoryStorage::afterAccess(InMemoryStorageEntry*)
 {
 }
 

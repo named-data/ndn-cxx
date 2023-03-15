@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,9 +33,9 @@ BOOST_CONCEPT_ASSERT((WireDecodable<ValidityPeriod>));
 static_assert(std::is_base_of<tlv::Error, ValidityPeriod::Error>::value,
               "ValidityPeriod::Error must inherit from tlv::Error");
 
-static const size_t ISO_DATETIME_SIZE = 15;
-static const size_t NOT_BEFORE_OFFSET = 0;
-static const size_t NOT_AFTER_OFFSET = 1;
+constexpr size_t ISO_DATETIME_SIZE = 15;
+constexpr size_t NOT_BEFORE_OFFSET = 0;
+constexpr size_t NOT_AFTER_OFFSET = 1;
 
 using boost::chrono::time_point_cast;
 

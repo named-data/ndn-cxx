@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2022 Regents of the University of California,
+ * Copyright (c) 2014-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -36,15 +36,15 @@
 namespace ndn {
 namespace ethernet {
 
-const uint16_t ETHERTYPE_NDN = 0x8624;
+inline constexpr uint16_t ETHERTYPE_NDN = 0x8624; ///< The NDN Ethertype
 
-const size_t ADDR_LEN     = 6;      ///< Octets in one Ethernet address
-const size_t TYPE_LEN     = 2;      ///< Octets in Ethertype field
-const size_t HDR_LEN      = 14;     ///< Total octets in Ethernet header (without 802.1Q tag)
-const size_t TAG_LEN      = 4;      ///< Octets in 802.1Q tag (TPID + priority + VLAN)
-const size_t MIN_DATA_LEN = 46;     ///< Min octets in Ethernet payload (assuming no 802.1Q tag)
-const size_t MAX_DATA_LEN = 1500;   ///< Max octets in Ethernet payload
-const size_t CRC_LEN      = 4;      ///< Octets in Ethernet frame check sequence
+inline constexpr size_t ADDR_LEN     = 6;    ///< Octets in one Ethernet address
+inline constexpr size_t TYPE_LEN     = 2;    ///< Octets in Ethertype field
+inline constexpr size_t HDR_LEN      = 14;   ///< Total octets in Ethernet header (without 802.1Q tag)
+inline constexpr size_t TAG_LEN      = 4;    ///< Octets in 802.1Q tag (TPID + priority + VLAN)
+inline constexpr size_t MIN_DATA_LEN = 46;   ///< Min octets in Ethernet payload (assuming no 802.1Q tag)
+inline constexpr size_t MAX_DATA_LEN = 1500; ///< Max octets in Ethernet payload
+inline constexpr size_t CRC_LEN      = 4;    ///< Octets in Ethernet frame check sequence
 
 /**
  * \brief Represents an Ethernet hardware address.

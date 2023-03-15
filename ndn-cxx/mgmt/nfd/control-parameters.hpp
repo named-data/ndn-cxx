@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,7 +53,7 @@ enum ControlParameterField {
   CONTROL_PARAMETER_UBOUND
 };
 
-const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
+inline const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
   "Name",
   "FaceId",
   "Uri",

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #ifndef NDN_CXX_UTIL_SHA256_HPP
 #define NDN_CXX_UTIL_SHA256_HPP
 
-#include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/transform/step-source.hpp"
 
@@ -53,7 +52,7 @@ public:
   /**
    * @brief Length in bytes of a SHA-256 digest.
    */
-  static const size_t DIGEST_SIZE = 32;
+  static constexpr size_t DIGEST_SIZE = 32;
 
   /**
    * @brief Create an empty SHA-256 digest.

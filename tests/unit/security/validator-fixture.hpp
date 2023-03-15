@@ -69,8 +69,8 @@ protected:
   ValidationError lastError{ValidationError::NO_ERROR};
 
 private:
-  static const time::milliseconds s_mockPeriod;
-  static const int s_mockTimes;
+  static constexpr time::milliseconds s_mockPeriod{250};
+  static constexpr int s_mockTimes{200};
 };
 
 template<class ValidationPolicyT, class CertificateFetcherT = CertificateFetcherFromNetwork>

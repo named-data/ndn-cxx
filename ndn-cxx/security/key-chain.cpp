@@ -70,7 +70,7 @@ inline namespace v2 {
 
 NDN_LOG_INIT(ndn.security.KeyChain);
 
-const name::Component SELF("self");
+const name::Component SELF{"self"};
 
 KeyChain::PibFactories&
 KeyChain::getPibFactories()

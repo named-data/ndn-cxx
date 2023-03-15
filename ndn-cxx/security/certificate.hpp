@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -141,23 +141,24 @@ public:
   Block
   getExtension(uint32_t type) const;
 
-  // @TODO Implement extension enumeration (Issue #3907)
-public:
+  // TODO: Implement extension enumeration (Issue #3907)
+
   /**
-   * @brief Check if the specified name follows the naming convention for the certificate
+   * @brief Check if the specified name respects the naming conventions for certificates.
    */
   static bool
   isValidName(const Name& certName);
 
 public:
-  static const ssize_t VERSION_OFFSET;
-  static const ssize_t ISSUER_ID_OFFSET;
-  static const ssize_t KEY_COMPONENT_OFFSET;
-  static const ssize_t KEY_ID_OFFSET;
-  static const size_t MIN_CERT_NAME_LENGTH;
-  static const size_t MIN_KEY_NAME_LENGTH;
-  static const name::Component KEY_COMPONENT;
-  static const name::Component DEFAULT_ISSUER_ID;
+  // Certificate name structure: /<IdentityName>/KEY/<KeyId>/<IssuerId>/<Version>
+  static constexpr ssize_t VERSION_OFFSET = -1;
+  static constexpr ssize_t ISSUER_ID_OFFSET = -2;
+  static constexpr ssize_t KEY_ID_OFFSET = -3;
+  static constexpr ssize_t KEY_COMPONENT_OFFSET = -4;
+  static constexpr size_t MIN_CERT_NAME_LENGTH = 4;
+  static constexpr size_t MIN_KEY_NAME_LENGTH = 2;
+  static inline const name::Component KEY_COMPONENT{"KEY"};
+  static inline const name::Component DEFAULT_ISSUER_ID{"NA"};
 };
 
 std::ostream&

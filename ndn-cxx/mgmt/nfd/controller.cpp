@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,12 +29,6 @@ namespace ndn {
 namespace nfd {
 
 using ndn::util::SegmentFetcher;
-
-const uint32_t Controller::ERROR_TIMEOUT = 10060; // WinSock ESAETIMEDOUT
-const uint32_t Controller::ERROR_NACK = 10800; // 10000 + TLV-TYPE of Nack header
-const uint32_t Controller::ERROR_VALIDATION = 10021; // 10000 + TLS1_ALERT_DECRYPTION_FAILED
-const uint32_t Controller::ERROR_SERVER = 500;
-const uint32_t Controller::ERROR_LBOUND = 400;
 
 Controller::Controller(Face& face, KeyChain& keyChain, security::Validator& validator)
   : m_face(face)

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,6 @@
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
 #include "ndn-cxx/mgmt/nfd/control-command.hpp"
 #include "ndn-cxx/mgmt/nfd/control-response.hpp"
-#include "ndn-cxx/mgmt/nfd/status-dataset.hpp"
 #include "ndn-cxx/security/interest-signer.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
 #include "ndn-cxx/security/validator-null.hpp"
@@ -74,7 +73,8 @@ public:
 
   ~Controller();
 
-  /** \brief Start command execution.
+  /**
+   * \brief Start command execution.
    */
   template<typename Command>
   void
@@ -86,7 +86,8 @@ public:
     startCommand(make_shared<Command>(), parameters, onSuccess, onFailure, options);
   }
 
-  /** \brief Start dataset fetching.
+  /**
+   * \brief Start dataset fetching.
    */
   template<typename Dataset>
   std::enable_if_t<std::is_default_constructible<Dataset>::value>
@@ -97,7 +98,8 @@ public:
     fetchDataset(make_shared<Dataset>(), onSuccess, onFailure, options);
   }
 
-  /** \brief Start dataset fetching.
+  /**
+   * \brief Start dataset fetching.
    */
   template<typename Dataset, typename ParamType = typename Dataset::ParamType>
   void
@@ -154,19 +156,19 @@ private:
 
 public:
   /// Error code for timeout.
-  static const uint32_t ERROR_TIMEOUT;
+  static constexpr uint32_t ERROR_TIMEOUT = 10060;
 
   /// Error code for network %Nack.
-  static const uint32_t ERROR_NACK;
+  static constexpr uint32_t ERROR_NACK = 10800;
 
   /// Error code for response validation failure.
-  static const uint32_t ERROR_VALIDATION;
+  static constexpr uint32_t ERROR_VALIDATION = 10021;
 
   /// Error code for server error.
-  static const uint32_t ERROR_SERVER;
+  static constexpr uint32_t ERROR_SERVER = 500;
 
   /// Inclusive lower bound of error codes.
-  static const uint32_t ERROR_LBOUND;
+  static constexpr uint32_t ERROR_LBOUND = 400;
 
 protected:
   Face& m_face;

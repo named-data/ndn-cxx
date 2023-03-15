@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,6 @@
 namespace ndn {
 namespace security {
 namespace transform {
-
-const std::size_t StreamSource::DEFAULT_BUFFER_LEN = 1024;
 
 StreamSource::StreamSource(std::istream& is, size_t bufferSize)
   : Source()

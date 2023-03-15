@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,8 +54,6 @@ struct RsaKeyTestData
       "9rH58ynaAix0tcR/nBMRLUX+e3rURHg6UbSjJbdb9qmKM1fTGHKUzL/5pMG6uBU0\n"
       "ywIDAQAB\n";
 };
-constexpr KeyType RsaKeyTestData::type;
-constexpr size_t RsaKeyTestData::size;
 
 struct EcKeyTestData
 {
@@ -70,8 +68,6 @@ struct EcKeyTestData
       "//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABGhuFibgwLdEJBDOLdvSg1Hc\n"
       "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
 };
-constexpr KeyType EcKeyTestData::type;
-constexpr size_t EcKeyTestData::size;
 
 using KeyTestDataSets = boost::mpl::vector<RsaKeyTestData, EcKeyTestData>;
 
