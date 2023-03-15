@@ -28,28 +28,9 @@
 #include <boost/predef/compiler/gcc.h>
 #include <boost/predef/compiler/visualc.h>
 
-#ifndef NDN_CXX_HAVE_STD_TO_STRING
-#include <boost/lexical_cast.hpp>
-#endif
-
 #include <utility>
 
 namespace ndn {
-
-//
-// https://redmine.named-data.net/issues/2743
-// std::to_string() (C++11)
-//
-#ifdef NDN_CXX_HAVE_STD_TO_STRING
-using std::to_string;
-#else
-template<typename T>
-std::string
-to_string(const T& val)
-{
-  return boost::lexical_cast<std::string>(val);
-}
-#endif // NDN_CXX_HAVE_STD_TO_STRING
 
 //
 // https://wg21.link/P1682

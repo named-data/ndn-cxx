@@ -9,8 +9,8 @@ GIT_TAG_PREFIX = 'ndn-cxx-'
 
 def options(opt):
     opt.load(['compiler_cxx', 'gnu_dirs', 'c_osx'])
-    opt.load(['cross', 'default-compiler-flags', 'compiler-features',
-              'coverage', 'pch', 'sanitizers', 'osx-frameworks',
+    opt.load(['cross', 'default-compiler-flags', 'pch',
+              'coverage', 'sanitizers', 'osx-frameworks',
               'boost', 'openssl', 'sqlite3',
               'doxygen', 'sphinx_build'],
              tooldir=['.waf-tools'])
@@ -69,9 +69,9 @@ def configure(conf):
     if not conf.options.enable_shared and not conf.options.enable_static:
         conf.fatal('Either static library or shared library must be enabled')
 
-    conf.load(['cross', 'compiler_cxx', 'gnu_dirs', 'c_osx',
-               'default-compiler-flags', 'compiler-features',
-               'pch', 'osx-frameworks', 'boost', 'openssl', 'sqlite3',
+    conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
+               'cross', 'default-compiler-flags', 'pch',
+               'osx-frameworks', 'boost', 'openssl', 'sqlite3',
                'doxygen', 'sphinx_build'])
 
     conf.env.WITH_TESTS = conf.options.with_tests
