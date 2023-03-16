@@ -22,6 +22,7 @@
 #include "ndn-cxx/meta-info.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 
+#include <algorithm>
 #include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {

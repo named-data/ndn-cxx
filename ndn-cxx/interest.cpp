@@ -29,6 +29,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
+#include <algorithm>
 #include <cstring>
 #include <sstream>
 

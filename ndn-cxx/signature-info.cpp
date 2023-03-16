@@ -24,6 +24,7 @@
 #include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
+#include <algorithm>
 #include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {

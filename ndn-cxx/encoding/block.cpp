@@ -31,6 +31,8 @@
 
 #include <boost/asio/buffer.hpp>
 #include <boost/range/adaptor/reversed.hpp>
+
+#include <algorithm>
 #include <cstring>
 
 namespace ndn {

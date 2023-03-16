@@ -152,8 +152,8 @@ public: // canonical FaceUri
   bool
   isCanonical() const;
 
-  typedef function<void(const FaceUri&)> CanonizeSuccessCallback;
-  typedef function<void(const std::string& reason)> CanonizeFailureCallback;
+  using CanonizeSuccessCallback = std::function<void(const FaceUri&)>;
+  using CanonizeFailureCallback = std::function<void(const std::string& reason)>;
 
   /** \brief Asynchronously convert this FaceUri to canonical form.
    *  \param onSuccess function to call after this FaceUri is converted to canonical form

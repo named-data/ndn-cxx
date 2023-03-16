@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,8 +30,8 @@
 namespace ndn {
 namespace dns {
 
-typedef boost::asio::ip::address IpAddress;
-typedef function<bool (const IpAddress& address)> AddressSelector;
+using IpAddress = boost::asio::ip::address;
+using AddressSelector = std::function<bool(const IpAddress&)>;
 
 struct AnyAddress
 {
@@ -66,8 +66,8 @@ public:
   using std::runtime_error::runtime_error;
 };
 
-typedef function<void (const IpAddress& address)> SuccessCallback;
-typedef function<void (const std::string& reason)> ErrorCallback;
+using SuccessCallback = std::function<void(const IpAddress& address)>;
+using ErrorCallback = std::function<void(const std::string& reason)>;
 
 /** \brief Asynchronously resolve host
  *

@@ -49,7 +49,6 @@
 #define NDN_CXX_PROTECTED_WITH_TESTS_ELSE_PRIVATE private
 #endif
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -72,7 +71,6 @@ using std::static_pointer_cast;
 using std::dynamic_pointer_cast;
 using std::const_pointer_cast;
 
-using std::function;
 using std::to_string;
 
 using namespace std::string_literals;

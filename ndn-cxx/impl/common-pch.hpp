@@ -28,6 +28,7 @@
 #include "ndn-cxx/detail/common.hpp"
 
 // STL headers to precompile
+#include <algorithm>
 #include <atomic>
 #include <iterator>
 #include <limits>

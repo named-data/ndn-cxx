@@ -35,6 +35,7 @@
 #include <linux/rtnetlink.h>
 #include <string.h>
 
+#include <algorithm>
 #include <cstring>
 #include <map>
 #include <optional>

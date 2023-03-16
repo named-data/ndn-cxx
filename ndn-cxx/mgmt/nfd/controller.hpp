@@ -53,17 +53,17 @@ public:
   /**
    * \brief Callback on command success.
    */
-  using CommandSucceedCallback = function<void(const ControlParameters&)>;
+  using CommandSucceedCallback = std::function<void(const ControlParameters&)>;
 
   /**
    * \brief Callback on command failure.
    */
-  using CommandFailCallback = function<void(const ControlResponse&)>;
+  using CommandFailCallback = std::function<void(const ControlResponse&)>;
 
   /**
    * \brief Callback on dataset retrieval failure.
    */
-  using DatasetFailCallback = function<void(uint32_t code, const std::string& reason)>;
+  using DatasetFailCallback = std::function<void(uint32_t code, const std::string& reason)>;
 
   /**
    * \brief Construct a Controller that uses \p face as transport and \p keyChain to sign commands.

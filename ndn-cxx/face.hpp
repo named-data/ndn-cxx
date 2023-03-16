@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,42 +47,42 @@ using RecordId = uint64_t;
 /**
  * @brief Callback invoked when an expressed Interest is satisfied by a Data packet
  */
-typedef function<void(const Interest&, const Data&)> DataCallback;
+using DataCallback = std::function<void(const Interest&, const Data&)>;
 
 /**
  * @brief Callback invoked when a Nack is received in response to an expressed Interest
  */
-typedef function<void(const Interest&, const lp::Nack&)> NackCallback;
+using NackCallback = std::function<void(const Interest&, const lp::Nack&)>;
 
 /**
  * @brief Callback invoked when an expressed Interest times out
  */
-typedef function<void(const Interest&)> TimeoutCallback;
+using TimeoutCallback = std::function<void(const Interest&)>;
 
 /**
  * @brief Callback invoked when an incoming Interest matches the specified InterestFilter
  */
-typedef function<void(const InterestFilter&, const Interest&)> InterestCallback;
+using InterestCallback = std::function<void(const InterestFilter&, const Interest&)>;
 
 /**
  * @brief Callback invoked when registerPrefix or setInterestFilter command succeeds
  */
-typedef function<void(const Name&)> RegisterPrefixSuccessCallback;
+using RegisterPrefixSuccessCallback = std::function<void(const Name&)>;
 
 /**
  * @brief Callback invoked when registerPrefix or setInterestFilter command fails
  */
-typedef function<void(const Name&, const std::string&)> RegisterPrefixFailureCallback;
+using RegisterPrefixFailureCallback = std::function<void(const Name&, const std::string&)>;
 
 /**
  * @brief Callback invoked when unregistering a prefix succeeds
  */
-typedef function<void()> UnregisterPrefixSuccessCallback;
+using UnregisterPrefixSuccessCallback = std::function<void()>;
 
 /**
  * @brief Callback invoked when unregistering a prefix fails
  */
-typedef function<void(const std::string&)> UnregisterPrefixFailureCallback;
+using UnregisterPrefixFailureCallback = std::function<void(const std::string&)>;
 
 /**
  * @brief Provide a communication channel with local or remote NDN forwarder

@@ -56,8 +56,8 @@ protected:
    *  \return whether the prefix registration succeeded.
    */
   bool
-  runPrefixReg(function<void(const RegisterPrefixSuccessCallback& success,
-                             const RegisterPrefixFailureCallback& failure)> f)
+  runPrefixReg(std::function<void(const RegisterPrefixSuccessCallback&,
+                                  const RegisterPrefixFailureCallback&)> f)
   {
     boost::logic::tribool result = boost::logic::indeterminate;
     f([&] (auto) { result = true; },
@@ -72,8 +72,8 @@ protected:
    *  \return whether the prefix unregistration succeeded.
    */
   bool
-  runPrefixUnreg(function<void(const UnregisterPrefixSuccessCallback& success,
-                               const UnregisterPrefixFailureCallback& failure)> f)
+  runPrefixUnreg(std::function<void(const UnregisterPrefixSuccessCallback&,
+                                    const UnregisterPrefixFailureCallback&)> f)
   {
     boost::logic::tribool result = boost::logic::indeterminate;
     f([&] { result = true; },

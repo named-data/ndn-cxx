@@ -31,6 +31,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptor/map.hpp>
 
+#include <algorithm>
 #include <cmath>
 
 namespace ndn {
