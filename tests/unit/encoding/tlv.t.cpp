@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,10 +59,10 @@ using ArrayStream = boost::iostreams::stream<boost::iostreams::array_source>;
 using StreamIterator = std::istream_iterator<uint8_t>;
 
 #define ASSERT_READ_NUMBER_IS_FAST(T) \
-  static_assert(std::is_base_of<detail::ReadNumberFast<T>, detail::ReadNumber<T>>::value, \
+  static_assert(std::is_base_of_v<detail::ReadNumberFast<T>, detail::ReadNumber<T>>, \
                 # T " should use ReadNumberFast")
 #define ASSERT_READ_NUMBER_IS_SLOW(T) \
-  static_assert(std::is_base_of<detail::ReadNumberSlow<T>, detail::ReadNumber<T>>::value, \
+  static_assert(std::is_base_of_v<detail::ReadNumberSlow<T>, detail::ReadNumber<T>>, \
                 # T " should use ReadNumberSlow")
 
 ASSERT_READ_NUMBER_IS_FAST(const uint8_t*);

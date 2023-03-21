@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -196,10 +196,10 @@ private:
 };
 
 /// @brief RsaKeyParams carries parameters for RSA key.
-typedef SimplePublicKeyParams<detail::RsaKeyParamsInfo> RsaKeyParams;
+using RsaKeyParams = SimplePublicKeyParams<detail::RsaKeyParamsInfo>;
 
 /// @brief EcKeyParams carries parameters for EC key.
-typedef SimplePublicKeyParams<detail::EcKeyParamsInfo> EcKeyParams;
+using EcKeyParams = SimplePublicKeyParams<detail::EcKeyParamsInfo>;
 
 
 namespace detail {
@@ -303,10 +303,10 @@ private:
 };
 
 /// @brief AesKeyParams carries parameters for AES key.
-typedef SimpleSymmetricKeyParams<detail::AesKeyParamsInfo> AesKeyParams;
+using AesKeyParams = SimpleSymmetricKeyParams<detail::AesKeyParamsInfo>;
 
 /// @brief HmacKeyParams carries parameters for HMAC key.
-typedef SimpleSymmetricKeyParams<detail::HmacKeyParamsInfo> HmacKeyParams;
+using HmacKeyParams = SimpleSymmetricKeyParams<detail::HmacKeyParamsInfo>;
 
 } // namespace ndn
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,7 +29,7 @@ namespace mgmt {
 // BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ControlResponse>));
 BOOST_CONCEPT_ASSERT((WireEncodable<ControlResponse>));
 BOOST_CONCEPT_ASSERT((WireDecodable<ControlResponse>));
-static_assert(std::is_base_of<tlv::Error, ControlResponse::Error>::value,
+static_assert(std::is_convertible_v<ControlResponse::Error*, tlv::Error*>,
               "ControlResponse::Error must inherit from tlv::Error");
 
 ControlResponse::ControlResponse()

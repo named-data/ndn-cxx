@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,7 +69,7 @@ public: // internal
   addInterface(shared_ptr<NetworkInterface> netif)
   {
     BOOST_ASSERT(netif != nullptr);
-    bool isNew = m_interfaces.emplace(netif->getName(), netif).second;
+    bool isNew = m_interfaces.try_emplace(netif->getName(), netif).second;
     if (!isNew) {
       NDN_THROW(std::invalid_argument("duplicate ifname"));
     }

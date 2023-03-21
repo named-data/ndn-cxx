@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,7 +57,7 @@ CancelHandle::CancelHandle() noexcept = default;
 template<typename HandleT>
 class ScopedCancelHandle
 {
-  static_assert(std::is_convertible<HandleT*, CancelHandle*>::value,
+  static_assert(std::is_convertible_v<HandleT*, CancelHandle*>,
                 "HandleT must publicly derive from CancelHandle");
 
 public:

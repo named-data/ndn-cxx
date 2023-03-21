@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -182,11 +182,7 @@ operator<<(std::ostream& os, RouteFlags routeFlags)
   };
 
   auto join = make_ostream_joiner(os, '|');
-  for (const auto& pair : knownBits) {
-    RouteFlags bit = ROUTE_FLAGS_NONE;
-    std::string token;
-    std::tie(bit, token) = pair;
-
+  for (const auto& [bit, token] : knownBits) {
     if ((routeFlags & bit) != 0) {
       join = token;
       routeFlags = static_cast<RouteFlags>(routeFlags & ~bit);

@@ -34,26 +34,26 @@ namespace ndn {
 namespace security {
 
 /**
- * @brief Options to KeyChain::makeCertificate() .
+ * @brief Options to KeyChain::makeCertificate().
  */
 struct MakeCertificateOptions
 {
   /**
-   * @brief Certificate name IssuerId component.
+   * @brief %Certificate name IssuerId component.
    *
    * Default is "NA".
    */
   name::Component issuerId = Certificate::DEFAULT_ISSUER_ID;
 
   /**
-   * @brief Certificate name version component.
+   * @brief %Certificate name version component.
    *
-   * Default is deriving from current timestamp using the logic of Name::appendVersion() .
+   * Default is deriving from current timestamp using the logic of Name::appendVersion().
    */
   std::optional<uint64_t> version;
 
   /**
-   * @brief Certificate packet FreshnessPeriod.
+   * @brief %Certificate packet FreshnessPeriod.
    *
    * As required by the certificate format, this must be positive.
    * Setting this to zero or negative causes @c std::invalid_argument exception.
@@ -63,7 +63,7 @@ struct MakeCertificateOptions
   time::milliseconds freshnessPeriod = 1_h;
 
   /**
-   * @brief Certificate ValidityPeriod.
+   * @brief %Certificate ValidityPeriod.
    *
    * It isn't an error to specify a ValidityPeriod that does not include the current time
    * or has zero duration, but the certificate won't be valid.

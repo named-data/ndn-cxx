@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -106,8 +106,7 @@ IdentityContainer::remove(const Name& identityName)
 Identity
 IdentityContainer::get(const Name& identityName) const
 {
-  auto it = m_identities.find(identityName);
-  if (it != m_identities.end()) {
+  if (auto it = m_identities.find(identityName); it != m_identities.end()) {
     return Identity(it->second);
   }
 

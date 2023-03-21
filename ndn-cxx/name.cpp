@@ -44,7 +44,7 @@ BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_iterator>));
 BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::reverse_iterator>));
 BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_reverse_iterator>));
 BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<Name>));
-static_assert(std::is_base_of<tlv::Error, Name::Error>::value,
+static_assert(std::is_convertible_v<Name::Error*, tlv::Error*>,
               "Name::Error must inherit from tlv::Error");
 
 // ---- constructors, encoding, decoding ----
@@ -70,8 +70,7 @@ Name::Name(std::string uri)
   if (uri.empty())
     return;
 
-  size_t iColon = uri.find(':');
-  if (iColon != std::string::npos) {
+  if (size_t iColon = uri.find(':'); iColon != std::string::npos) {
     // Make sure the colon came before a '/'.
     size_t iFirstSlash = uri.find('/');
     if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {

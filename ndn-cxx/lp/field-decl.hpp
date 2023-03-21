@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,8 @@
 namespace ndn {
 namespace lp {
 
-/** \brief Indicate a uint64_t field shall be decoded and encoded as a non-negative integer.
+/**
+ * \brief Indicates that a `uint64_t` field shall be decoded and encoded as a non-negative integer.
  */
 struct NonNegativeIntegerTag;
 
@@ -176,10 +177,10 @@ template<typename LOCATION, typename VALUE, uint64_t TYPE, bool REPEATABLE = fal
 class FieldDecl
 {
 public:
-  typedef LOCATION FieldLocation;
-  typedef VALUE ValueType;
-  typedef std::integral_constant<uint64_t, TYPE> TlvType;
-  typedef std::integral_constant<bool, REPEATABLE> IsRepeatable;
+  using FieldLocation = LOCATION;
+  using ValueType = VALUE;
+  using TlvType = std::integral_constant<uint64_t, TYPE>;
+  using IsRepeatable = std::bool_constant<REPEATABLE>;
 
   /** \brief Decode a field.
    *  \param wire an element with top-level TLV-TYPE \c TlvType::value.

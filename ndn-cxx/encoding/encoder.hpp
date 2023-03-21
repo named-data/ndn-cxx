@@ -253,7 +253,7 @@ size_t
 Encoder::prependRange(Iterator first, Iterator last)
 {
   using ValueType = typename std::iterator_traits<Iterator>::value_type;
-  static_assert(sizeof(ValueType) == 1 && !std::is_same<ValueType, bool>::value, "");
+  static_assert(sizeof(ValueType) == 1 && !std::is_same_v<ValueType, bool>, "");
 
   size_t length = std::distance(first, last);
   reserveFront(length);
@@ -268,7 +268,7 @@ size_t
 Encoder::appendRange(Iterator first, Iterator last)
 {
   using ValueType = typename std::iterator_traits<Iterator>::value_type;
-  static_assert(sizeof(ValueType) == 1 && !std::is_same<ValueType, bool>::value, "");
+  static_assert(sizeof(ValueType) == 1 && !std::is_same_v<ValueType, bool>, "");
 
   size_t length = std::distance(first, last);
   reserveBack(length);

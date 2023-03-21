@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,31 +46,17 @@ public:
   virtual
   ~StatusDataset();
 
-#ifdef DOXYGEN
-  /**
-   * \brief If defined, specifies constructor argument type;
-   *        otherwise, the constructor has no arguments.
-   */
-  using ParamType = int;
-#endif
-
   /**
    * \brief Constructs a name prefix for the dataset.
-   * \param prefix top-level prefix, such as ndn:/localhost/nfd
+   * \param prefix Top-level prefix, such as `/localhost/nfd`.
    * \return %Name prefix without version and segment components.
    */
   Name
   getDatasetPrefix(const Name& prefix) const;
 
-#ifdef DOXYGEN
   /**
-   * \brief Specifies the result type, usually a vector.
-   */
-  using ResultType = std::vector<int>;
-#endif
-
-  /**
-   * \brief Indicates reassembled payload cannot be parsed as ResultType.
+   * \brief Indicates the reassembled payload cannot be parsed successfully.
+   * \sa parseResult()
    */
   class ParseResultError : public tlv::Error
   {
@@ -80,9 +66,10 @@ public:
 
 #ifdef DOXYGEN
   /**
-   * \brief Parses a result from reassembled payload.
-   * \param payload reassembled payload
-   * \throw tlv::Error cannot parse payload
+   * \brief Parses a result from a reassembled payload.
+   * \param payload The reassembled payload.
+   * \return The parsed result, usually a vector.
+   * \throw tlv::Error Cannot parse the payload.
    */
   ResultType
   parseResult(ConstBufferPtr payload) const;
@@ -90,8 +77,8 @@ public:
 
 protected:
   /**
-   * \brief Constructs a StatusDataset instance with given sub-prefix.
-   * \param datasetName dataset name after top-level prefix, such as faces/list
+   * \brief Constructs a StatusDataset instance with the given sub-prefix.
+   * \param datasetName Dataset name after top-level prefix, such as `faces/list`.
    */
   explicit
   StatusDataset(const PartialName& datasetName);
@@ -99,7 +86,7 @@ protected:
 private:
   /**
    * \brief Appends parameters to the dataset name prefix.
-   * \param[in,out] the dataset name prefix onto which parameter components can be appended
+   * \param[in,out] name The dataset name prefix onto which parameter components can be appended.
    */
   virtual void
   addParameters(Name& name) const;
@@ -118,9 +105,7 @@ class ForwarderGeneralStatusDataset : public StatusDataset
 public:
   ForwarderGeneralStatusDataset();
 
-  using ResultType = ForwarderStatus;
-
-  ResultType
+  ForwarderStatus
   parseResult(ConstBufferPtr payload) const;
 };
 
@@ -131,9 +116,7 @@ public:
 class FaceDatasetBase : public StatusDataset
 {
 public:
-  using ResultType = std::vector<FaceStatus>;
-
-  ResultType
+  std::vector<FaceStatus>
   parseResult(ConstBufferPtr payload) const;
 
 protected:
@@ -160,8 +143,6 @@ public:
 class FaceQueryDataset : public FaceDatasetBase
 {
 public:
-  using ParamType = FaceQueryFilter;
-
   explicit
   FaceQueryDataset(const FaceQueryFilter& filter);
 
@@ -183,9 +164,7 @@ class ChannelDataset : public StatusDataset
 public:
   ChannelDataset();
 
-  using ResultType = std::vector<ChannelStatus>;
-
-  ResultType
+  std::vector<ChannelStatus>
   parseResult(ConstBufferPtr payload) const;
 };
 
@@ -199,9 +178,7 @@ class FibDataset : public StatusDataset
 public:
   FibDataset();
 
-  using ResultType = std::vector<FibEntry>;
-
-  ResultType
+  std::vector<FibEntry>
   parseResult(ConstBufferPtr payload) const;
 };
 
@@ -215,9 +192,7 @@ class CsInfoDataset : public StatusDataset
 public:
   CsInfoDataset();
 
-  using ResultType = CsInfo;
-
-  ResultType
+  CsInfo
   parseResult(ConstBufferPtr payload) const;
 };
 
@@ -231,9 +206,7 @@ class StrategyChoiceDataset : public StatusDataset
 public:
   StrategyChoiceDataset();
 
-  using ResultType = std::vector<StrategyChoice>;
-
-  ResultType
+  std::vector<StrategyChoice>
   parseResult(ConstBufferPtr payload) const;
 };
 
@@ -247,9 +220,7 @@ class RibDataset : public StatusDataset
 public:
   RibDataset();
 
-  using ResultType = std::vector<RibEntry>;
-
-  ResultType
+  std::vector<RibEntry>
   parseResult(ConstBufferPtr payload) const;
 };
 

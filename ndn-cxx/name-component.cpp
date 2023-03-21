@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,7 +39,7 @@ BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Component>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Component>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Component>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
-static_assert(std::is_base_of<tlv::Error, Component::Error>::value,
+static_assert(std::is_convertible_v<Component::Error*, tlv::Error*>,
               "name::Component::Error must inherit from tlv::Error");
 
 static Convention g_conventionEncoding = Convention::TYPED;
@@ -498,9 +498,7 @@ Component::compare(const Component& other) const
 Component
 Component::getSuccessor() const
 {
-  bool isOverflow = false;
-  Component successor;
-  std::tie(isOverflow, successor) = getComponentTypeTable().get(type()).getSuccessor(*this);
+  auto [isOverflow, successor] = getComponentTypeTable().get(type()).getSuccessor(*this);
   if (!isOverflow) {
     return successor;
   }

@@ -66,13 +66,13 @@ public:
   typedef void reference;
 
   ostream_joiner(ostream_type& os, const DelimT& delimiter)
-  noexcept(std::is_nothrow_copy_constructible<DelimT>::value)
+  noexcept(std::is_nothrow_copy_constructible_v<DelimT>)
     : m_os(std::addressof(os)), m_delim(delimiter)
   {
   }
 
   ostream_joiner(ostream_type& os, DelimT&& delimiter)
-  noexcept(std::is_nothrow_move_constructible<DelimT>::value)
+  noexcept(std::is_nothrow_move_constructible_v<DelimT>)
     : m_os(std::addressof(os)), m_delim(std::move(delimiter))
   {
   }

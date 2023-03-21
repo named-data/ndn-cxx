@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2022 Regents of the University of California,
+ * Copyright (c) 2014-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -98,11 +98,12 @@ class NfdMgmtProtocolStruct : public WireEncodable<X>
 public:
   BOOST_CONCEPT_USAGE(NfdMgmtProtocolStruct)
   {
-    static_assert(std::is_default_constructible<X>::value, "");
+    static_assert(std::is_default_constructible_v<X>, "");
     static_assert(boost::has_equal_to<X, X, bool>::value, "");
     static_assert(boost::has_not_equal_to<X, X, bool>::value, "");
     static_assert(boost::has_left_shift<std::ostream, X, std::ostream&>::value, "");
-    static_assert(std::is_base_of<tlv::Error, typename X::Error>::value, "");
+    static_assert(std::is_convertible_v<typename X::Error*, tlv::Error*>,
+                  "ndn::tlv::Error must be a public base of X::Error");
   }
 };
 
@@ -145,8 +146,7 @@ class StlForwardIteratorConcept : public boost::ForwardIterator<T>
  *        SGI standard which doesn't require DefaultConstructible, so a separate check is needed.
  */
 #define NDN_CXX_ASSERT_FORWARD_ITERATOR(T) \
-  static_assert(std::is_default_constructible<T>::value, \
-                #T " must be default-constructible"); \
+  static_assert(std::is_default_constructible_v<T>, #T " must be default-constructible"); \
   BOOST_CONCEPT_ASSERT((::ndn::detail::StlForwardIteratorConcept<T>))
 
 #endif // NDN_CXX_UTIL_CONCEPTS_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -85,7 +85,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorSetter, ClockFixture)
   BOOST_CHECK_EQUAL(validity2.isValid(), false);
 
   validity2.setPeriod(notBefore, notAfter);
-  BOOST_CHECK(validity2.getPeriod() != std::make_pair(time::getUnixEpoch(), time::getUnixEpoch()));
+  BOOST_CHECK(validity2.getPeriod() != std::pair(time::getUnixEpoch(), time::getUnixEpoch()));
   BOOST_CHECK_EQUAL(validity2, validity1);
 
   validity1.setPeriod(time::getUnixEpoch(), time::getUnixEpoch() + 10 * 365_days);

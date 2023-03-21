@@ -147,9 +147,7 @@ ValidationPolicySignedInterest::insertRecord(const Name& keyName,
                                              std::optional<SigNonce> nonce)
 {
   // If key record exists, update last refreshed time. Otherwise, create new record.
-  Container::nth_index<0>::type::iterator it;
-  bool isOk;
-  std::tie(it, isOk) = m_byKeyName.emplace(keyName, timestamp, seqNum);
+  auto [it, isOk] = m_byKeyName.emplace(keyName, timestamp, seqNum);
   if (!isOk) {
     // There was already a record for this key, we just need to update it
     isOk = m_byKeyName.modify(it, [&] (LastInterestRecord& record) {

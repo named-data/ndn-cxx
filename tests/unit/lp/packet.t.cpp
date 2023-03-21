@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -213,8 +213,7 @@ BOOST_AUTO_TEST_CASE(DecodeNormal)
   BOOST_CHECK_EQUAL(packet.get<AckField>(2), 2);
 
   BOOST_CHECK_EQUAL(packet.count<FragmentField>(), 1);
-  Buffer::const_iterator first, last;
-  std::tie(first, last) = packet.get<FragmentField>(0);
+  auto [first, last] = packet.get<FragmentField>(0);
   BOOST_CHECK_EQUAL(2, last - first);
   BOOST_CHECK_EQUAL(0x03, *first);
   BOOST_CHECK_EQUAL(0xe8, *(last - 1));
@@ -253,8 +252,7 @@ BOOST_AUTO_TEST_CASE(DecodeFragment)
   packet.wireDecode(wire);
   BOOST_CHECK_EQUAL(1, packet.count<FragmentField>());
   BOOST_CHECK_EQUAL(0, packet.count<FragIndexField>());
-  Buffer::const_iterator first, last;
-  std::tie(first, last) = packet.get<FragmentField>(0);
+  auto [first, last] = packet.get<FragmentField>(0);
   BOOST_CHECK_EQUAL(2, last - first);
   BOOST_CHECK_EQUAL(0x03, *first);
   BOOST_CHECK_EQUAL(0xe8, *(last - 1));

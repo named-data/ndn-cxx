@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -198,7 +198,7 @@ NetlinkSocket::registerRequestCallback(uint32_t seq, MessageCallback cb)
   }
   else {
     bool wasEmpty = m_pendingRequests.empty();
-    m_pendingRequests.emplace(seq, std::move(cb));
+    m_pendingRequests.try_emplace(seq, std::move(cb));
     if (wasEmpty)
       asyncWait();
   }
@@ -445,11 +445,9 @@ GenlSocket::sendRequest(const std::string& familyName, uint8_t command,
     return;
   }
 
-  auto ret = m_familyResolvers.emplace(std::piecewise_construct,
-                                       std::forward_as_tuple(familyName),
-                                       std::forward_as_tuple(familyName, *this));
-  auto& resolver = ret.first->second;
-  if (ret.second) {
+  auto [resIt, isNew] = m_familyResolvers.try_emplace(familyName, familyName, *this);
+  auto& resolver = resIt->second;
+  if (isNew) {
     // cache the result
     resolver.onResolved.connectSingleShot([=] (uint16_t familyId) {
       m_cachedFamilyIds[familyName] = familyId;

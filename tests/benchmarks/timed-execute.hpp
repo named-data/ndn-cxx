@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,10 +29,10 @@ namespace tests {
 
 template<typename F>
 time::nanoseconds
-timedExecute(const F& f)
+timedExecute(F&& f)
 {
   auto before = time::steady_clock::now();
-  f();
+  std::invoke(std::forward<F>(f));
   auto after = time::steady_clock::now();
   return after - before;
 }

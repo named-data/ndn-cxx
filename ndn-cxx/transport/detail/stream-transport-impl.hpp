@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -221,12 +221,10 @@ protected:
   processAllReceived(uint8_t* buffer, size_t& offset, size_t nBytesAvailable)
   {
     while (offset < nBytesAvailable) {
-      bool isOk = false;
-      Block element;
-      std::tie(isOk, element) = Block::fromBuffer({buffer + offset, nBytesAvailable - offset});
-      if (!isOk)
+      auto [isOk, element] = Block::fromBuffer({buffer + offset, nBytesAvailable - offset});
+      if (!isOk) {
         return false;
-
+      }
       m_transport.m_receiveCallback(element);
       offset += element.size();
     }

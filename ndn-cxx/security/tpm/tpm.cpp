@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,7 +21,7 @@
 
 #include "ndn-cxx/security/tpm/tpm.hpp"
 #include "ndn-cxx/security/tpm/back-end.hpp"
-#include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/encoding/buffer.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -55,8 +55,7 @@ Tpm::createKey(const Name& identityName, const KeyParams& params)
 void
 Tpm::deleteKey(const Name& keyName)
 {
-  auto it = m_keys.find(keyName);
-  if (it != m_keys.end())
+  if (auto it = m_keys.find(keyName); it != m_keys.end())
     m_keys.erase(it);
 
   m_backEnd->deleteKey(keyName);
@@ -139,8 +138,7 @@ Tpm::importPrivateKey(const Name& keyName, shared_ptr<transform::PrivateKey> key
 const KeyHandle*
 Tpm::findKey(const Name& keyName) const
 {
-  auto it = m_keys.find(keyName);
-  if (it != m_keys.end())
+  if (auto it = m_keys.find(keyName); it != m_keys.end())
     return it->second.get();
 
   auto handle = m_backEnd->getKeyHandle(keyName);

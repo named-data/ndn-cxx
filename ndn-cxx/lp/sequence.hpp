@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,7 @@
 #ifndef NDN_CXX_LP_SEQUENCE_HPP
 #define NDN_CXX_LP_SEQUENCE_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#include <cstdint>
 
 namespace ndn {
 namespace lp {
@@ -32,7 +32,7 @@ namespace lp {
 /**
  * \brief Represents a sequence number.
  */
-typedef uint64_t Sequence;
+using Sequence = uint64_t;
 
 } // namespace lp
 } // namespace ndn

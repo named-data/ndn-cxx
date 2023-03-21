@@ -29,7 +29,7 @@ BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Link>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Link>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Link>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Link>));
-static_assert(std::is_base_of<Data::Error, Link::Error>::value,
+static_assert(std::is_convertible_v<Link::Error*, Data::Error*>,
               "Link::Error should inherit from Data::Error");
 
 Link::Link() = default;

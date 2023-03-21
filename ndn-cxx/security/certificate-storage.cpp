@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,21 +34,18 @@ CertificateStorage::CertificateStorage()
 const Certificate*
 CertificateStorage::findTrustedCert(const Interest& interestForCert) const
 {
-  auto cert = m_trustAnchors.find(interestForCert);
-  if (cert != nullptr) {
+  if (auto cert = m_trustAnchors.find(interestForCert); cert != nullptr) {
     return cert;
   }
-
-  cert = m_verifiedCertCache.find(interestForCert);
-  return cert;
+  return m_verifiedCertCache.find(interestForCert);
 }
 
 bool
 CertificateStorage::isCertKnown(const Name& certName) const
 {
-  return (m_trustAnchors.find(certName) != nullptr ||
-          m_verifiedCertCache.find(certName) != nullptr ||
-          m_unverifiedCertCache.find(certName) != nullptr);
+  return m_trustAnchors.find(certName) != nullptr ||
+         m_verifiedCertCache.find(certName) != nullptr ||
+         m_unverifiedCertCache.find(certName) != nullptr;
 }
 
 void

@@ -32,7 +32,7 @@ BOOST_CONCEPT_ASSERT((boost::EqualityComparable<AdditionalDescription>));
 BOOST_CONCEPT_ASSERT((WireEncodable<AdditionalDescription>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<AdditionalDescription>));
 BOOST_CONCEPT_ASSERT((WireDecodable<AdditionalDescription>));
-static_assert(std::is_base_of<tlv::Error, AdditionalDescription::Error>::value,
+static_assert(std::is_convertible_v<AdditionalDescription::Error*, tlv::Error*>,
               "AdditionalDescription::Error must inherit from tlv::Error");
 
 constexpr size_t KEY_OFFSET = 0;
@@ -46,11 +46,11 @@ AdditionalDescription::AdditionalDescription(const Block& block)
 const std::string&
 AdditionalDescription::get(const std::string& key) const
 {
-  auto it = m_info.find(key);
-  if (it == m_info.end())
-    NDN_THROW(Error("Entry does not exist for key (" + key + ")"));
+  if (auto it = m_info.find(key); it != m_info.end()) {
+    return it->second;
+  }
 
-  return it->second;
+  NDN_THROW(Error("Entry does not exist for key (" + key + ")"));
 }
 
 void
@@ -62,7 +62,7 @@ AdditionalDescription::set(const std::string& key, const std::string& value)
 bool
 AdditionalDescription::has(const std::string& key) const
 {
-  return (m_info.find(key) != m_info.end());
+  return m_info.find(key) != m_info.end();
 }
 
 AdditionalDescription::iterator

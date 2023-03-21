@@ -25,7 +25,7 @@
 
 namespace ndn {
 
-static_assert(std::is_base_of<tlv::Error, MetadataObject::Error>::value,
+static_assert(std::is_convertible_v<MetadataObject::Error*, tlv::Error*>,
               "MetadataObject::Error must inherit from tlv::Error");
 
 MetadataObject::MetadataObject() = default;

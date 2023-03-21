@@ -30,7 +30,7 @@ namespace nfd {
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceQueryFilter>));
 BOOST_CONCEPT_ASSERT((WireEncodable<FaceQueryFilter>));
 BOOST_CONCEPT_ASSERT((WireDecodable<FaceQueryFilter>));
-static_assert(std::is_base_of<tlv::Error, FaceQueryFilter::Error>::value,
+static_assert(std::is_convertible_v<FaceQueryFilter::Error*, tlv::Error*>,
               "FaceQueryFilter::Error must inherit from tlv::Error");
 
 FaceQueryFilter::FaceQueryFilter() = default;

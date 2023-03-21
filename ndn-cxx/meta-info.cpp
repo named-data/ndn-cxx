@@ -30,7 +30,7 @@ namespace ndn {
 BOOST_CONCEPT_ASSERT((WireEncodable<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireDecodable<MetaInfo>));
-static_assert(std::is_base_of<tlv::Error, MetaInfo::Error>::value,
+static_assert(std::is_convertible_v<MetaInfo::Error*, tlv::Error*>,
               "MetaInfo::Error must inherit from tlv::Error");
 
 MetaInfo::MetaInfo()

@@ -198,7 +198,7 @@ SegmentFetcher::sendInterest(uint64_t segNum, const Interest& interest, bool isR
 
   PendingSegment pendingSegment{SegmentState::FirstInterest, time::steady_clock::now(),
                                 pendingInterest, timeoutEvent};
-  bool isNew = m_pendingSegments.emplace(segNum, std::move(pendingSegment)).second;
+  bool isNew = m_pendingSegments.try_emplace(segNum, std::move(pendingSegment)).second;
   BOOST_VERIFY(isNew);
   m_highInterest = segNum;
 }
@@ -271,11 +271,10 @@ SegmentFetcher::afterValidationSuccess(const Data& data, const Interest& origInt
   m_pendingSegments.erase(pendingSegmentIt);
 
   // Copy data in segment to temporary buffer
-  auto receivedSegmentIt = m_segmentBuffer.emplace(std::piecewise_construct,
-                                                   std::forward_as_tuple(currentSegment),
-                                                   std::forward_as_tuple(data.getContent().value_size()));
+  auto receivedSegmentIt = m_segmentBuffer.try_emplace(currentSegment, data.getContent().value_size())
+                           .first;
   std::copy(data.getContent().value_begin(), data.getContent().value_end(),
-            receivedSegmentIt.first->second.begin());
+            receivedSegmentIt->second.begin());
   m_nBytesReceived += data.getContent().value_size();
   afterSegmentValidated(data);
 

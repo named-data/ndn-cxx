@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -63,9 +63,7 @@ parseDatasetVector(const ConstBufferPtr& payload)
 
   size_t offset = 0;
   while (offset < payload->size()) {
-    bool isOk = false;
-    Block block;
-    std::tie(isOk, block) = Block::fromBuffer(payload, offset);
+    auto [isOk, block] = Block::fromBuffer(payload, offset);
     if (!isOk) {
       NDN_THROW(StatusDataset::ParseResultError("cannot decode Block"));
     }
@@ -82,7 +80,7 @@ ForwarderGeneralStatusDataset::ForwarderGeneralStatusDataset()
 {
 }
 
-ForwarderGeneralStatusDataset::ResultType
+ForwarderStatus
 ForwarderGeneralStatusDataset::parseResult(ConstBufferPtr payload) const
 {
   return ForwarderStatus(Block(tlv::Content, std::move(payload)));
@@ -93,7 +91,7 @@ FaceDatasetBase::FaceDatasetBase(const PartialName& datasetName)
 {
 }
 
-FaceDatasetBase::ResultType
+std::vector<FaceStatus>
 FaceDatasetBase::parseResult(ConstBufferPtr payload) const
 {
   return parseDatasetVector<FaceStatus>(payload);
@@ -121,7 +119,7 @@ ChannelDataset::ChannelDataset()
 {
 }
 
-ChannelDataset::ResultType
+std::vector<ChannelStatus>
 ChannelDataset::parseResult(ConstBufferPtr payload) const
 {
   return parseDatasetVector<ChannelStatus>(payload);
@@ -132,7 +130,7 @@ FibDataset::FibDataset()
 {
 }
 
-FibDataset::ResultType
+std::vector<FibEntry>
 FibDataset::parseResult(ConstBufferPtr payload) const
 {
   return parseDatasetVector<FibEntry>(payload);
@@ -143,7 +141,7 @@ CsInfoDataset::CsInfoDataset()
 {
 }
 
-CsInfoDataset::ResultType
+CsInfo
 CsInfoDataset::parseResult(ConstBufferPtr payload) const
 {
   return CsInfo(Block(payload));
@@ -154,7 +152,7 @@ StrategyChoiceDataset::StrategyChoiceDataset()
 {
 }
 
-StrategyChoiceDataset::ResultType
+std::vector<StrategyChoice>
 StrategyChoiceDataset::parseResult(ConstBufferPtr payload) const
 {
   return parseDatasetVector<StrategyChoice>(payload);
@@ -165,7 +163,7 @@ RibDataset::RibDataset()
 {
 }
 
-RibDataset::ResultType
+std::vector<RibEntry>
 RibDataset::parseResult(ConstBufferPtr payload) const
 {
   return parseDatasetVector<RibEntry>(payload);

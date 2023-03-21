@@ -25,7 +25,6 @@
 #include "ndn-cxx/transport/unix-transport.hpp"
 #include "ndn-cxx/util/config-file.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
-#include "ndn-cxx/util/scheduler.hpp"
 
 #include "tests/test-common.hpp"
 #include "tests/unit/io-key-chain-fixture.hpp"
@@ -46,10 +45,10 @@ class FaceFixture : public IoKeyChainFixture
 {
 protected:
   FaceFixture()
-    : face(m_io, m_keyChain, {true, !std::is_same<PrefixRegReply, NoPrefixRegReply>::value})
+    : face(m_io, m_keyChain, {true, !std::is_same_v<PrefixRegReply, NoPrefixRegReply>})
   {
-    static_assert(std::is_same<PrefixRegReply, WantPrefixRegReply>::value ||
-                  std::is_same<PrefixRegReply, NoPrefixRegReply>::value, "");
+    static_assert(std::is_same_v<PrefixRegReply, WantPrefixRegReply> ||
+                  std::is_same_v<PrefixRegReply, NoPrefixRegReply>, "");
   }
 
   /** \brief Execute a prefix registration, and optionally check the name in callback.

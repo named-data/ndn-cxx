@@ -48,8 +48,8 @@ Controller::~Controller()
 void
 Controller::startCommand(const shared_ptr<ControlCommand>& command,
                          const ControlParameters& parameters,
-                         const CommandSucceedCallback& onSuccess,
-                         const CommandFailCallback& onFailure,
+                         const CommandSuccessCallback& onSuccess,
+                         const CommandFailureCallback& onFailure,
                          const CommandOptions& options)
 {
   Interest interest;
@@ -75,8 +75,8 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
 void
 Controller::processCommandResponse(const Data& data,
                                    const shared_ptr<ControlCommand>& command,
-                                   const CommandSucceedCallback& onSuccess,
-                                   const CommandFailCallback& onFailure)
+                                   const CommandSuccessCallback& onSuccess,
+                                   const CommandFailureCallback& onFailure)
 {
   m_validator.validate(data,
     [=] (const Data& data) {
@@ -92,8 +92,8 @@ Controller::processCommandResponse(const Data& data,
 void
 Controller::processValidatedCommandResponse(const Data& data,
                                             const shared_ptr<ControlCommand>& command,
-                                            const CommandSucceedCallback& onSuccess,
-                                            const CommandFailCallback& onFailure)
+                                            const CommandSuccessCallback& onSuccess,
+                                            const CommandFailureCallback& onFailure)
 {
   ControlResponse response;
   try {
@@ -138,7 +138,7 @@ Controller::processValidatedCommandResponse(const Data& data,
 void
 Controller::fetchDataset(const Name& prefix,
                          const std::function<void(ConstBufferPtr)>& processResponse,
-                         const DatasetFailCallback& onFailure,
+                         const DatasetFailureCallback& onFailure,
                          const CommandOptions& options)
 {
   SegmentFetcher::Options fetcherOptions;
@@ -160,7 +160,7 @@ Controller::fetchDataset(const Name& prefix,
 }
 
 void
-Controller::processDatasetFetchError(const DatasetFailCallback& onFailure,
+Controller::processDatasetFetchError(const DatasetFailureCallback& onFailure,
                                      uint32_t code, std::string msg)
 {
   BOOST_ASSERT(onFailure);

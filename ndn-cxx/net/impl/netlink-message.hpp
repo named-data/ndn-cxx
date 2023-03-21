@@ -262,7 +262,7 @@ private:
   }
 
   template<typename Integral>
-  static std::enable_if_t<std::is_integral<Integral>::value, std::optional<Integral>>
+  static std::enable_if_t<std::is_integral_v<Integral>, std::optional<Integral>>
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<Integral>)
   {
     if (len < sizeof(Integral))
@@ -293,8 +293,8 @@ private:
   }
 
   template<typename IpAddress>
-  static std::enable_if_t<std::is_same<IpAddress, boost::asio::ip::address_v4>::value ||
-                          std::is_same<IpAddress, boost::asio::ip::address_v6>::value,
+  static std::enable_if_t<std::is_same_v<IpAddress, boost::asio::ip::address_v4> ||
+                          std::is_same_v<IpAddress, boost::asio::ip::address_v6>,
                           std::optional<IpAddress>>
   convertAttrValue(const uint8_t* val, size_t len, AttrValueTypeTag<IpAddress>)
   {

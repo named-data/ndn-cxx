@@ -23,7 +23,7 @@
 #define NDN_CXX_IMPL_RECORD_CONTAINER_HPP
 
 #include "ndn-cxx/detail/common.hpp"
-#include "ndn-cxx/util/signal.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 
 #include <atomic>
 
@@ -77,30 +77,30 @@ public:
   using Record = T;
   using Container = std::map<RecordId, Record>;
 
-  /** \brief Retrieve record by ID.
+  /**
+   * \brief Retrieve record by ID.
    */
   Record*
   get(RecordId id)
   {
-    auto i = m_container.find(id);
-    if (i == m_container.end()) {
-      return nullptr;
+    if (auto it = m_container.find(id); it != m_container.end()) {
+      return &it->second;
     }
-    return &i->second;
+    return nullptr;
   }
 
-  /** \brief Insert a record with given ID.
+  /**
+   * \brief Insert a record with given ID.
    */
   template<typename ...TArgs>
   Record&
   put(RecordId id, TArgs&&... args)
   {
     BOOST_ASSERT(id != 0);
-    auto it = m_container.emplace(std::piecewise_construct, std::forward_as_tuple(id),
-                                  std::forward_as_tuple(std::forward<decltype(args)>(args)...));
-    BOOST_ASSERT(it.second);
+    auto [it, isNew] = m_container.try_emplace(id, std::forward<decltype(args)>(args)...);
+    BOOST_VERIFY(isNew);
 
-    Record& record = it.first->second;
+    Record& record = it->second;
     record.m_container = this;
     record.m_id = id;
     return record;
@@ -112,7 +112,8 @@ public:
     return ++m_lastId;
   }
 
-  /** \brief Insert a record with newly assigned ID.
+  /**
+   * \brief Insert a record with newly assigned ID.
    */
   template<typename ...TArgs>
   Record&

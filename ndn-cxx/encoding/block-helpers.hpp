@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,7 +68,7 @@ readNonNegativeInteger(const Block& block);
  *                    represented in R
  */
 template<typename R>
-std::enable_if_t<std::is_integral<R>::value, R>
+std::enable_if_t<std::is_integral_v<R>, R>
 readNonNegativeIntegerAs(const Block& block)
 {
   uint64_t value = readNonNegativeInteger(block);
@@ -87,7 +87,7 @@ readNonNegativeIntegerAs(const Block& block)
  *           function may trigger unspecified behavior.
  */
 template<typename R>
-std::enable_if_t<std::is_enum<R>::value, R>
+std::enable_if_t<std::is_enum_v<R>, R>
 readNonNegativeIntegerAs(const Block& block)
 {
   return static_cast<R>(readNonNegativeIntegerAs<std::underlying_type_t<R>>(block));
@@ -286,8 +286,8 @@ Block
 makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 {
   using BinaryBlockHelper = std::conditional_t<
-    std::is_base_of<std::random_access_iterator_tag,
-                    typename std::iterator_traits<Iterator>::iterator_category>::value,
+    std::is_base_of_v<std::random_access_iterator_tag,
+                      typename std::iterator_traits<Iterator>::iterator_category>,
     detail::BinaryBlockFast<Iterator>,
     detail::BinaryBlockSlow<Iterator>>;
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,7 +33,8 @@ namespace ndn {
 namespace name {
 namespace {
 
-/** \brief Declare rules for a NameComponent type.
+/**
+ * \brief Declare rules for a NameComponent type.
  */
 class ComponentType : noncopyable
 {
@@ -43,7 +44,8 @@ public:
   virtual
   ~ComponentType() = default;
 
-  /** \brief Throw Component::Error if \p comp is invalid.
+  /**
+   * \brief Throw Component::Error if \p comp is invalid.
    */
   virtual void
   check(const Component& comp) const
@@ -91,7 +93,7 @@ public:
    *  \pre getAltUriPrefix() != nullptr
    */
   virtual Component
-  parseAltUriValue(const std::string&) const
+  parseAltUriValue(const std::string& input) const
   {
     NDN_CXX_UNREACHABLE;
   }
@@ -153,10 +155,11 @@ protected:
   }
 };
 
-/** \brief Rules for GenericNameComponent.
+/**
+ * \brief Rules for GenericNameComponent.
  *
- *  GenericNameComponent has an alternate URI representation that omits the `<type-number>` prefix.
- *  This must be special-cased in the caller, and is not handled by this class.
+ * GenericNameComponent has an alternate URI representation that omits the `<type-number>` prefix.
+ * This must be special-cased in the caller, and is not handled by this class.
  */
 class GenericNameComponentType final : public ComponentType
 {
@@ -168,8 +171,9 @@ public:
   }
 };
 
-/** \brief Rules for a component type holding a SHA256 digest value, written as
- *         a hex string in URI representation.
+/**
+ * \brief Rules for a component type holding a SHA256 digest value, written as
+ *        a hex string in URI representation.
  */
 class Sha256ComponentType final : public ComponentType
 {
@@ -193,9 +197,7 @@ public:
   std::tuple<bool, Component>
   getSuccessor(const Component& comp) const final
   {
-    bool isExtended = false;
-    Block successor;
-    std::tie(isExtended, successor) = getSuccessorImpl(comp);
+    auto [isExtended, successor] = getSuccessorImpl(comp);
     return {isExtended, isExtended ? comp : Component(successor)};
   }
 
@@ -238,8 +240,9 @@ private:
   const std::string m_uriPrefix;
 };
 
-/** \brief Rules for a component type holding a NonNegativeInteger value, written as
- *         a decimal number in URI representation.
+/**
+ * \brief Rules for a component type holding a NonNegativeInteger value, written as
+ *        a decimal number in URI representation.
  */
 class DecimalComponentType final : public ComponentType
 {
@@ -324,11 +327,10 @@ public:
   const ComponentType*
   findByUriPrefix(const std::string& prefix) const
   {
-    auto it = m_uriPrefixes.find(prefix);
-    if (it == m_uriPrefixes.end()) {
-      return nullptr;
+    if (auto it = m_uriPrefixes.find(prefix); it != m_uriPrefixes.end()) {
+      return it->second;
     }
-    return it->second;
+    return nullptr;
   }
 
 private:

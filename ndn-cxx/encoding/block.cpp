@@ -170,22 +170,22 @@ Block::fromBuffer(ConstBufferPtr buffer, size_t offset)
   uint32_t type = 0;
   bool isOk = tlv::readType(pos, end, type);
   if (!isOk) {
-    return std::make_tuple(false, Block());
+    return {false, {}};
   }
 
   uint64_t length = 0;
   isOk = tlv::readVarNumber(pos, end, length);
   if (!isOk) {
-    return std::make_tuple(false, Block());
+    return {false, {}};
   }
   // pos now points to TLV-VALUE
 
   BOOST_ASSERT(pos <= end);
   if (length > static_cast<uint64_t>(std::distance(pos, end))) {
-    return std::make_tuple(false, Block());
+    return {false, {}};
   }
 
-  return std::make_tuple(true, Block(std::move(buffer), type, begin, pos + length, pos, pos + length));
+  return {true, Block(std::move(buffer), type, begin, pos + length, pos, pos + length)};
 }
 
 std::tuple<bool, Block>
@@ -197,25 +197,24 @@ Block::fromBuffer(span<const uint8_t> buffer)
   uint32_t type = 0;
   bool isOk = tlv::readType(pos, end, type);
   if (!isOk) {
-    return std::make_tuple(false, Block());
+    return {false, {}};
   }
   uint64_t length = 0;
   isOk = tlv::readVarNumber(pos, end, length);
   if (!isOk) {
-    return std::make_tuple(false, Block());
+    return {false, {}};
   }
   // pos now points to TLV-VALUE
 
   BOOST_ASSERT(pos <= end);
   if (length > static_cast<uint64_t>(std::distance(pos, end))) {
-    return std::make_tuple(false, Block());
+    return {false, {}};
   }
   std::advance(pos, length);
   // pos now points to the end of the TLV
 
   auto b = std::make_shared<Buffer>(buffer.begin(), pos);
-  return std::make_tuple(true, Block(b, type, b->begin(), b->end(),
-                                     std::prev(b->end(), length), b->end()));
+  return {true, Block(b, type, b->begin(), b->end(), std::prev(b->end(), length), b->end())};
 }
 
 Block
@@ -413,13 +412,12 @@ Block::encode(EncodingBuffer& encoder)
 const Block&
 Block::get(uint32_t type) const
 {
-  auto it = this->find(type);
-  if (it != m_elements.end()) {
+  if (auto it = find(type); it != m_elements.end()) {
     return *it;
   }
 
-  NDN_THROW(Error("No sub-element of type " + to_string(type) +
-                  " found in block of type " + to_string(m_type)));
+  NDN_THROW(Error("No sub-element of type " + std::to_string(type) +
+                  " found in block of type " + std::to_string(m_type)));
 }
 
 Block::element_const_iterator

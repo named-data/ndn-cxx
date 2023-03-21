@@ -101,7 +101,7 @@ private: // API for owner
   friend Owner;
 
 private: // internal implementation
-  typedef Signal<Owner, TArgs...> Self;
+  using Self = Signal<Owner, TArgs...>;
 
   /** \brief Stores a handler function, and a function to disconnect this handler.
    */
@@ -128,7 +128,7 @@ private: // internal implementation
    *  \note std::list is used because iterators must not be invalidated
    *        when other slots are added or removed
    */
-  typedef std::list<Slot> SlotList;
+  using SlotList = std::list<Slot>;
   SlotList m_slots;
 
   /** \brief Is a signal handler executing?

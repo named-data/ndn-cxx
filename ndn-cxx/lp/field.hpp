@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -60,11 +60,11 @@ class Fragment : public Base
 template<class X>
 struct Field
 {
-  static_assert(std::is_base_of<field_location_tags::Base, typename X::FieldLocation>::value, "");
-  static_assert(std::is_same<typename X::TlvType::value_type, uint64_t>::value, "");
-  static_assert(std::is_same<typename X::IsRepeatable::value_type, bool>::value, "");
-  static_assert(std::is_default_constructible<typename X::ValueType>::value, "");
-  static_assert(std::is_copy_constructible<typename X::ValueType>::value, "");
+  static_assert(std::is_base_of_v<field_location_tags::Base, typename X::FieldLocation>, "");
+  static_assert(std::is_same_v<typename X::TlvType::value_type, uint64_t>, "");
+  static_assert(std::is_same_v<typename X::IsRepeatable::value_type, bool>, "");
+  static_assert(std::is_default_constructible_v<typename X::ValueType>, "");
+  static_assert(std::is_copy_constructible_v<typename X::ValueType>, "");
   BOOST_CONCEPT_USAGE(Field)
   {
     Block wire;

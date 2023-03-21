@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,6 @@
 #define NDN_CXX_TESTS_UNIT_MGMT_NFD_CONTROLLER_FIXTURE_HPP
 
 #include "ndn-cxx/mgmt/nfd/controller.hpp"
-#include "ndn-cxx/security/certificate-fetcher-offline.hpp"
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
 #include "tests/unit/dummy-validator.hpp"
@@ -63,8 +62,8 @@ protected:
   ndn::util::DummyClientFace face;
   DummyValidator m_validator;
   Controller controller;
-  Controller::CommandFailCallback commandFailCallback;
-  Controller::DatasetFailCallback datasetFailCallback;
+  Controller::CommandFailureCallback commandFailCallback;
+  Controller::DatasetFailureCallback datasetFailCallback;
   std::vector<uint32_t> failCodes;
 };
 

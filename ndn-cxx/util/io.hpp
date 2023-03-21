@@ -63,7 +63,7 @@ template<typename T>
 static void
 checkNestedError(typename T::Error*)
 {
-  static_assert(std::is_convertible<typename T::Error*, tlv::Error*>::value,
+  static_assert(std::is_convertible_v<typename T::Error*, tlv::Error*>,
                 "T::Error, if defined, must be a subclass of ndn::tlv::Error");
 }
 

@@ -402,12 +402,9 @@ KeyChain::importPrivateKey(const Name& keyName, shared_ptr<transform::PrivateKey
 void
 KeyChain::sign(Data& data, const SigningInfo& params)
 {
-  Name keyName;
-  SignatureInfo sigInfo;
-  std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
+  auto [keyName, sigInfo] = prepareSignatureInfo(params);
 
   data.setSignatureInfo(sigInfo);
-
   EncodingBuffer encoder;
   data.wireEncode(encoder, true);
 
@@ -418,9 +415,7 @@ KeyChain::sign(Data& data, const SigningInfo& params)
 void
 KeyChain::sign(Interest& interest, const SigningInfo& params)
 {
-  Name keyName;
-  SignatureInfo sigInfo;
-  std::tie(keyName, sigInfo) = prepareSignatureInfo(params);
+  auto [keyName, sigInfo] = prepareSignatureInfo(params);
 
   if (params.getSignedInterestFormat() == SignedInterestFormat::V03) {
     interest.setSignatureInfo(sigInfo);
@@ -473,8 +468,7 @@ KeyChain::makeCertificate(const Certificate& certRequest, const SigningInfo& par
 static std::tuple<std::string/*scheme*/, std::string/*location*/>
 parseLocatorUri(const std::string& uri)
 {
-  auto pos = uri.find(':');
-  if (pos != std::string::npos) {
+  if (auto pos = uri.find(':'); pos != std::string::npos) {
     return {uri.substr(0, pos), uri.substr(pos + 1)};
   }
   else {
@@ -485,9 +479,7 @@ parseLocatorUri(const std::string& uri)
 KeyChain::Locator
 KeyChain::parseAndCheckPibLocator(const std::string& pibLocator)
 {
-  std::string pibScheme, pibLocation;
-  std::tie(pibScheme, pibLocation) = parseLocatorUri(pibLocator);
-
+  auto [pibScheme, pibLocation] = parseLocatorUri(pibLocator);
   if (pibScheme.empty()) {
     pibScheme = getDefaultPibScheme();
   }
@@ -503,9 +495,7 @@ KeyChain::parseAndCheckPibLocator(const std::string& pibLocator)
 KeyChain::Locator
 KeyChain::parseAndCheckTpmLocator(const std::string& tpmLocator)
 {
-  std::string tpmScheme, tpmLocation;
-  std::tie(tpmScheme, tpmLocation) = parseLocatorUri(tpmLocator);
-
+  auto [tpmScheme, tpmLocation] = parseLocatorUri(tpmLocator);
   if (tpmScheme.empty()) {
     tpmScheme = getDefaultTpmScheme();
   }

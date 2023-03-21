@@ -33,7 +33,7 @@ inline namespace v2 {
 
 BOOST_CONCEPT_ASSERT((WireEncodable<Certificate>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Certificate>));
-static_assert(std::is_base_of<Data::Error, Certificate::Error>::value,
+static_assert(std::is_convertible_v<Certificate::Error*, Data::Error*>,
               "Certificate::Error must inherit from Data::Error");
 
 Certificate::Certificate()

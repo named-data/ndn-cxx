@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   auto joiner1 = ostream_joiner<char>(os, ' ');
   auto joiner2 = make_ostream_joiner(os, ' ');
-  static_assert(std::is_same<decltype(joiner1), decltype(joiner2)>::value, "");
+  static_assert(std::is_same_v<decltype(joiner1), decltype(joiner2)>, "");
 
   std::vector<int> v(5);
   std::iota(v.begin(), v.end(), 1);

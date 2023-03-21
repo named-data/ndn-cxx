@@ -24,7 +24,7 @@
 
 namespace ndn {
 
-static_assert(std::is_base_of<tlv::Error, PrefixAnnouncement::Error>::value,
+static_assert(std::is_convertible_v<PrefixAnnouncement::Error*, tlv::Error*>,
               "PrefixAnnouncement::Error must inherit from tlv::Error");
 
 PrefixAnnouncement::PrefixAnnouncement() = default;

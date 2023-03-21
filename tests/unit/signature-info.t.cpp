@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(ValidityPeriod)
 
   info2.setValidityPeriod(security::ValidityPeriod(notBefore, notBefore + 42_days));
   BOOST_CHECK_NE(info2.getValidityPeriod(), vp1);
-  BOOST_CHECK(info2.getValidityPeriod().getPeriod() == std::make_pair(notBefore, notBefore + 42_days));
+  BOOST_CHECK(info2.getValidityPeriod().getPeriod() == std::pair(notBefore, notBefore + 42_days));
   BOOST_CHECK_EQUAL(info2.hasWire(), false);
 
   info2.wireEncode();

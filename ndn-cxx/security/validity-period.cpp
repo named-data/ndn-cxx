@@ -30,7 +30,7 @@ BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ValidityPeriod>));
 BOOST_CONCEPT_ASSERT((WireEncodable<ValidityPeriod>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<ValidityPeriod>));
 BOOST_CONCEPT_ASSERT((WireDecodable<ValidityPeriod>));
-static_assert(std::is_base_of<tlv::Error, ValidityPeriod::Error>::value,
+static_assert(std::is_convertible_v<ValidityPeriod::Error*, tlv::Error*>,
               "ValidityPeriod::Error must inherit from tlv::Error");
 
 constexpr size_t ISO_DATETIME_SIZE = 15;

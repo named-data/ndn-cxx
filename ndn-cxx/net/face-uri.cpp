@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California,
+ * Copyright (c) 2013-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -356,9 +356,7 @@ private:
                const FaceUri::CanonizeFailureCallback& onFailure,
                const dns::IpAddress& ipAddress) const
   {
-    bool isOk = false;
-    std::string reason;
-    std::tie(isOk, reason) = this->checkAddress(ipAddress);
+    auto [isOk, reason] = this->checkAddress(ipAddress);
     if (!isOk) {
       return onFailure(reason);
     }

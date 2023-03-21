@@ -33,7 +33,7 @@ BOOST_CONCEPT_ASSERT((boost::EqualityComparable<SignatureInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodable<SignatureInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<SignatureInfo>));
 BOOST_CONCEPT_ASSERT((WireDecodable<SignatureInfo>));
-static_assert(std::is_base_of<tlv::Error, SignatureInfo::Error>::value,
+static_assert(std::is_convertible_v<SignatureInfo::Error*, tlv::Error*>,
               "SignatureInfo::Error must inherit from tlv::Error");
 
 SignatureInfo::SignatureInfo() = default;

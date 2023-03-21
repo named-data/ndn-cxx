@@ -358,11 +358,11 @@ template<typename Iterator,
 constexpr bool
 shouldSelectContiguousReadNumber()
 {
-  return (std::is_convertible<DecayedIterator, const ValueType*>::value ||
-          std::is_convertible<DecayedIterator, typename std::basic_string<ValueType>::const_iterator>::value ||
-          std::is_convertible<DecayedIterator, typename std::vector<ValueType>::const_iterator>::value) &&
+  return (std::is_convertible_v<DecayedIterator, const ValueType*> ||
+          std::is_convertible_v<DecayedIterator, typename std::basic_string<ValueType>::const_iterator> ||
+          std::is_convertible_v<DecayedIterator, typename std::vector<ValueType>::const_iterator>) &&
          sizeof(ValueType) == 1 &&
-         !std::is_same<ValueType, bool>::value;
+         !std::is_same_v<ValueType, bool>;
 }
 
 template<typename Iterator>

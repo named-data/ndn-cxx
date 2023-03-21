@@ -61,7 +61,7 @@ makeTimestamp()
   std::string buffer(10 + 1 + 6 + 1, '\0'); // note 1 extra byte still needed for snprintf
   BOOST_ASSERT_MSG(usecs / usecsPerSec <= 9999999999, "whole seconds cannot fit in 10 characters");
 
-  static_assert(std::is_same<microseconds::rep, int_least64_t>::value,
+  static_assert(std::is_same_v<microseconds::rep, int_least64_t>,
                 "PRIdLEAST64 is incompatible with microseconds::rep");
   std::snprintf(&buffer.front(), buffer.size(), "%" PRIdLEAST64 ".%06" PRIdLEAST64,
                 usecs / usecsPerSec, usecs % usecsPerSec);
@@ -140,8 +140,7 @@ LogLevel
 Logging::findLevel(std::string mn) const
 {
   while (!mn.empty()) {
-    auto it = m_enabledLevel.find(mn);
-    if (it != m_enabledLevel.end()) {
+    if (auto it = m_enabledLevel.find(mn); it != m_enabledLevel.end()) {
       return it->second;
     }
     size_t pos = mn.find_last_of('.');
