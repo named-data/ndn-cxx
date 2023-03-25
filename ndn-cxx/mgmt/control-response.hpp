@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,8 @@
 namespace ndn {
 namespace mgmt {
 
-/** \brief ControlCommand response
+/**
+ * \brief ControlCommand response.
  */
 class ControlResponse
 {
@@ -46,19 +47,28 @@ public:
   ControlResponse(const Block& block);
 
   uint32_t
-  getCode() const;
+  getCode() const
+  {
+    return m_code;
+  }
 
   ControlResponse&
   setCode(uint32_t code);
 
   const std::string&
-  getText() const;
+  getText() const
+  {
+    return m_text;
+  }
 
   ControlResponse&
   setText(const std::string& text);
 
   const Block&
-  getBody() const;
+  getBody() const
+  {
+    return m_body;
+  }
 
   ControlResponse&
   setBody(const Block& body);
@@ -70,58 +80,22 @@ public:
   wireDecode(const Block& block);
 
 protected:
-  uint32_t m_code;
+  uint32_t m_code = 200;
   std::string m_text;
   Block m_body;
 
   mutable Block m_wire;
+
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const ControlResponse& response)
+  {
+    return os << response.getCode() << ' ' << response.getText();
+  }
 };
-
-inline uint32_t
-ControlResponse::getCode() const
-{
-  return m_code;
-}
-
-inline ControlResponse&
-ControlResponse::setCode(uint32_t code)
-{
-  m_code = code;
-  m_wire.reset();
-  return *this;
-}
-
-inline const std::string&
-ControlResponse::getText() const
-{
-  return m_text;
-}
-
-inline ControlResponse&
-ControlResponse::setText(const std::string& text)
-{
-  m_text = text;
-  m_wire.reset();
-  return *this;
-}
-
-inline const Block&
-ControlResponse::getBody() const
-{
-  return m_body;
-}
-
-inline ControlResponse&
-ControlResponse::setBody(const Block& body)
-{
-  m_body = body;
-  m_body.encode(); // will do nothing if already encoded
-  m_wire.reset();
-  return *this;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const ControlResponse& response);
 
 } // namespace mgmt
 } // namespace ndn

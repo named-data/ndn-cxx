@@ -79,8 +79,8 @@ Controller::processCommandResponse(const Data& data,
                                    const CommandFailureCallback& onFailure)
 {
   m_validator.validate(data,
-    [=] (const Data& data) {
-      processValidatedCommandResponse(data, command, onSuccess, onFailure);
+    [=] (const Data& d) {
+      processValidatedCommandResponse(d, command, onSuccess, onFailure);
     },
     [=] (const Data&, const auto& error) {
       if (onFailure)
@@ -101,12 +101,11 @@ Controller::processValidatedCommandResponse(const Data& data,
   }
   catch (const tlv::Error& e) {
     if (onFailure)
-      onFailure(ControlResponse(ERROR_SERVER, e.what()));
+      onFailure(ControlResponse(ERROR_SERVER, "ControlResponse decoding failure: "s + e.what()));
     return;
   }
 
-  uint32_t code = response.getCode();
-  if (code >= ERROR_LBOUND) {
+  if (response.getCode() >= ERROR_LBOUND) {
     if (onFailure)
       onFailure(response);
     return;
@@ -118,7 +117,7 @@ Controller::processValidatedCommandResponse(const Data& data,
   }
   catch (const tlv::Error& e) {
     if (onFailure)
-      onFailure(ControlResponse(ERROR_SERVER, e.what()));
+      onFailure(ControlResponse(ERROR_SERVER, "ControlParameters decoding failure: "s + e.what()));
     return;
   }
 
@@ -127,7 +126,7 @@ Controller::processValidatedCommandResponse(const Data& data,
   }
   catch (const ControlCommand::ArgumentError& e) {
     if (onFailure)
-      onFailure(ControlResponse(ERROR_SERVER, e.what()));
+      onFailure(ControlResponse(ERROR_SERVER, "Invalid response: "s + e.what()));
     return;
   }
 
@@ -145,11 +144,9 @@ Controller::fetchDataset(const Name& prefix,
   fetcherOptions.maxTimeout = options.getTimeout();
 
   auto fetcher = SegmentFetcher::start(m_face, Interest(prefix), m_validator, fetcherOptions);
-  if (processResponse) {
-    fetcher->onComplete.connect(processResponse);
-  }
+  fetcher->onComplete.connect(processResponse);
   if (onFailure) {
-    fetcher->onError.connect([=] (uint32_t code, const std::string& msg) {
+    fetcher->onError.connect([onFailure] (uint32_t code, const std::string& msg) {
       processDatasetFetchError(onFailure, code, msg);
     });
   }

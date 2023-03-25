@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,10 +31,7 @@ namespace nfd {
 
 BOOST_CONCEPT_ASSERT((NotificationStreamItem<FaceEventNotification>));
 
-FaceEventNotification::FaceEventNotification()
-  : m_kind(FACE_EVENT_NONE)
-{
-}
+FaceEventNotification::FaceEventNotification() = default;
 
 FaceEventNotification::FaceEventNotification(const Block& block)
 {

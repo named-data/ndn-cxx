@@ -32,10 +32,7 @@ BOOST_CONCEPT_ASSERT((WireDecodable<ControlResponse>));
 static_assert(std::is_convertible_v<ControlResponse::Error*, tlv::Error*>,
               "ControlResponse::Error must inherit from tlv::Error");
 
-ControlResponse::ControlResponse()
-  : m_code(200)
-{
-}
+ControlResponse::ControlResponse() = default;
 
 ControlResponse::ControlResponse(uint32_t code, const std::string& text)
   : m_code(code)
@@ -48,16 +45,41 @@ ControlResponse::ControlResponse(const Block& block)
   wireDecode(block);
 }
 
+ControlResponse&
+ControlResponse::setCode(uint32_t code)
+{
+  m_code = code;
+  m_wire.reset();
+  return *this;
+}
+
+ControlResponse&
+ControlResponse::setText(const std::string& text)
+{
+  m_text = text;
+  m_wire.reset();
+  return *this;
+}
+
+ControlResponse&
+ControlResponse::setBody(const Block& body)
+{
+  m_body = body;
+  m_body.encode(); // will do nothing if already encoded
+  m_wire.reset();
+  return *this;
+}
+
 const Block&
 ControlResponse::wireEncode() const
 {
-  if (m_wire.hasWire())
+  if (m_wire.hasWire()) {
     return m_wire;
+  }
 
   m_wire = Block(tlv::nfd::ControlResponse);
   m_wire.push_back(makeNonNegativeIntegerBlock(tlv::nfd::StatusCode, m_code));
   m_wire.push_back(makeStringBlock(tlv::nfd::StatusText, m_text));
-
   if (m_body.hasWire()) {
     m_wire.push_back(m_body);
   }
@@ -69,11 +91,11 @@ ControlResponse::wireEncode() const
 void
 ControlResponse::wireDecode(const Block& wire)
 {
+  if (wire.type() != tlv::nfd::ControlResponse) {
+    NDN_THROW(Error("ControlResponse", wire.type()));
+  }
   m_wire = wire;
   m_wire.parse();
-
-  if (m_wire.type() != tlv::nfd::ControlResponse)
-    NDN_THROW(Error("ControlResponse", m_wire.type()));
 
   auto val = m_wire.elements_begin();
   if (val == m_wire.elements_end() || val->type() != tlv::nfd::StatusCode) {
@@ -92,13 +114,6 @@ ControlResponse::wireDecode(const Block& wire)
     m_body = *val;
   else
     m_body = {};
-}
-
-std::ostream&
-operator<<(std::ostream& os, const ControlResponse& response)
-{
-  os << response.getCode() << " " << response.getText();
-  return os;
 }
 
 } // namespace mgmt

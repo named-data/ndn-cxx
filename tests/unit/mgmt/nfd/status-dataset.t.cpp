@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,8 +46,6 @@ protected:
   void
   sendDataset(const Name& prefix, const T& payload)
   {
-    BOOST_CONCEPT_ASSERT((WireEncodable<T>));
-
     auto data = this->prepareDatasetReply(prefix);
     data->setContent(payload.wireEncode());
     face.receive(*signData(data));
@@ -67,9 +65,6 @@ protected:
     // because this test suite focuses on Controller::fetch<StatusDataset>,
     // and is not intended to cover SegmentFetcher behavior.
 
-    BOOST_CONCEPT_ASSERT((WireEncodable<T1>));
-    BOOST_CONCEPT_ASSERT((WireEncodable<T2>));
-
     EncodingBuffer buffer;
     payload2.wireEncode(buffer);
     payload1.wireEncode(buffer);
@@ -80,7 +75,7 @@ protected:
   }
 
 private:
-  shared_ptr<Data>
+  std::shared_ptr<Data>
   prepareDatasetReply(const Name& prefix)
   {
     Name name = prefix;
@@ -97,7 +92,7 @@ private:
                          " cannot be satisfied by this Data " << name);
     }
 
-    auto data = make_shared<Data>(name);
+    auto data = std::make_shared<Data>(name);
     data->setFreshnessPeriod(1_s);
     data->setFinalBlock(name[-1]);
     return data;

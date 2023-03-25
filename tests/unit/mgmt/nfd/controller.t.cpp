@@ -47,7 +47,7 @@ protected:
   }
 
 protected:
-  Controller::CommandSuccessCallback succeedCallback = [this] (const auto& params) {
+  CommandSuccessCallback succeedCallback = [this] (const auto& params) {
     succeeds.push_back(params);
   };
   std::vector<ControlParameters> succeeds;

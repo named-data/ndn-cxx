@@ -36,16 +36,23 @@ namespace ndn {
 namespace nfd {
 
 /**
- * \ingroup management
- * \brief Base class of NFD `%StatusDataset`.
- * \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
+ * \brief Exception raised when the fetched payload cannot be parsed as a StatusDataset.
+ * \sa StatusDatasetBase::parseResult()
  */
-class StatusDataset : noncopyable
+class StatusDatasetParseError : public tlv::Error
 {
 public:
-  virtual
-  ~StatusDataset();
+  using tlv::Error::Error;
+};
 
+/**
+ * \ingroup management
+ * \brief Base class of NFD `StatusDataset`.
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/StatusDataset
+ */
+class StatusDatasetBase
+{
+public:
   /**
    * \brief Constructs a name prefix for the dataset.
    * \param prefix Top-level prefix, such as `/localhost/nfd`.
@@ -54,22 +61,13 @@ public:
   Name
   getDatasetPrefix(const Name& prefix) const;
 
-  /**
-   * \brief Indicates the reassembled payload cannot be parsed successfully.
-   * \sa parseResult()
-   */
-  class ParseResultError : public tlv::Error
-  {
-  public:
-    using tlv::Error::Error;
-  };
-
 #ifdef DOXYGEN
   /**
    * \brief Parses a result from a reassembled payload.
    * \param payload The reassembled payload.
    * \return The parsed result, usually a vector.
    * \throw tlv::Error Cannot parse the payload.
+   * \sa StatusDatasetParseError
    */
   ResultType
   parseResult(ConstBufferPtr payload) const;
@@ -77,30 +75,29 @@ public:
 
 protected:
   /**
-   * \brief Constructs a StatusDataset instance with the given sub-prefix.
+   * \brief Protected constructor.
    * \param datasetName Dataset name after top-level prefix, such as `faces/list`.
    */
   explicit
-  StatusDataset(const PartialName& datasetName);
+  StatusDatasetBase(PartialName datasetName)
+    : m_datasetName(std::move(datasetName))
+  {
+  }
 
-private:
-  /**
-   * \brief Appends parameters to the dataset name prefix.
-   * \param[in,out] name The dataset name prefix onto which parameter components can be appended.
-   */
-  virtual void
-  addParameters(Name& name) const;
+  ~StatusDatasetBase() = default;
 
-private:
+protected:
   PartialName m_datasetName;
 };
+
+using StatusDataset [[deprecated("use StatusDatasetBase")]] = StatusDatasetBase;
 
 /**
  * \ingroup management
  * \brief Represents a `status/general` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/ForwarderStatus#General-Status-Dataset
  */
-class ForwarderGeneralStatusDataset : public StatusDataset
+class ForwarderGeneralStatusDataset : public StatusDatasetBase
 {
 public:
   ForwarderGeneralStatusDataset();
@@ -111,28 +108,16 @@ public:
 
 /**
  * \ingroup management
- * \brief Provides common functionality among FaceDataset and FaceQueryDataset.
- */
-class FaceDatasetBase : public StatusDataset
-{
-public:
-  std::vector<FaceStatus>
-  parseResult(ConstBufferPtr payload) const;
-
-protected:
-  explicit
-  FaceDatasetBase(const PartialName& datasetName);
-};
-
-/**
- * \ingroup management
  * \brief Represents a `faces/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Face-Dataset
  */
-class FaceDataset : public FaceDatasetBase
+class FaceDataset : public StatusDatasetBase
 {
 public:
   FaceDataset();
+
+  std::vector<FaceStatus>
+  parseResult(ConstBufferPtr payload) const;
 };
 
 /**
@@ -140,15 +125,17 @@ public:
  * \brief Represents a `faces/query` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Query-Operation
  */
-class FaceQueryDataset : public FaceDatasetBase
+class FaceQueryDataset : public StatusDatasetBase
 {
 public:
   explicit
   FaceQueryDataset(const FaceQueryFilter& filter);
 
-private:
-  void
-  addParameters(Name& name) const override;
+  Name
+  getDatasetPrefix(const Name& prefix) const;
+
+  std::vector<FaceStatus>
+  parseResult(ConstBufferPtr payload) const;
 
 private:
   FaceQueryFilter m_filter;
@@ -159,7 +146,7 @@ private:
  * \brief Represents a `faces/channels` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#Channel-Dataset
  */
-class ChannelDataset : public StatusDataset
+class ChannelDataset : public StatusDatasetBase
 {
 public:
   ChannelDataset();
@@ -173,7 +160,7 @@ public:
  * \brief Represents a `fib/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#FIB-Dataset
  */
-class FibDataset : public StatusDataset
+class FibDataset : public StatusDatasetBase
 {
 public:
   FibDataset();
@@ -187,7 +174,7 @@ public:
  * \brief Represents a `cs/info` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/CsMgmt#CS-Information-Dataset
  */
-class CsInfoDataset : public StatusDataset
+class CsInfoDataset : public StatusDatasetBase
 {
 public:
   CsInfoDataset();
@@ -201,7 +188,7 @@ public:
  * \brief Represents a `strategy-choice/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/StrategyChoice#Strategy-Choice-Dataset
  */
-class StrategyChoiceDataset : public StatusDataset
+class StrategyChoiceDataset : public StatusDatasetBase
 {
 public:
   StrategyChoiceDataset();
@@ -215,7 +202,7 @@ public:
  * \brief Represents a `rib/list` dataset.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#RIB-Dataset
  */
-class RibDataset : public StatusDataset
+class RibDataset : public StatusDatasetBase
 {
 public:
   RibDataset();

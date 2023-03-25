@@ -62,8 +62,8 @@ protected:
   ndn::util::DummyClientFace face;
   DummyValidator m_validator;
   Controller controller;
-  Controller::CommandFailureCallback commandFailCallback;
-  Controller::DatasetFailureCallback datasetFailCallback;
+  CommandFailureCallback commandFailCallback;
+  DatasetFailureCallback datasetFailCallback;
   std::vector<uint32_t> failCodes;
 };
 
