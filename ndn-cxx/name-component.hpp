@@ -162,37 +162,16 @@ public: // constructors
   Component(uint32_t type, span<const uint8_t> value);
 
   /**
-   * @brief Construct a GenericNameComponent, copying the TLV-VALUE from @p buffer.
+   * @brief Construct a GenericNameComponent, copying the TLV-VALUE from @p value.
    */
   explicit
-  Component(span<const uint8_t> buffer)
-    : Component(tlv::GenericNameComponent, buffer)
+  Component(span<const uint8_t> value)
+    : Component(tlv::GenericNameComponent, value)
   {
   }
 
   /**
-   * @brief Construct a NameComponent of TLV-TYPE @p type, copying @p count bytes at @p value as
-   *        TLV-VALUE.
-   * @deprecated Use Component(uint32_t, span<const uint8_t>)
-   */
-  [[deprecated("use the constructor that takes a span<>")]]
-  Component(uint32_t type, const uint8_t* value, size_t count)
-    : Component(type, {value, count})
-  {
-  }
-
-  /**
-   * @brief Construct a GenericNameComponent, copying @p count bytes at @p value as TLV-VALUE.
-   * @deprecated Use Component(span<const uint8_t>)
-   */
-  [[deprecated("use the constructor that takes a span<>")]]
-  Component(const uint8_t* value, size_t count)
-    : Component(tlv::GenericNameComponent, {value, count})
-  {
-  }
-
-  /**
-   * @brief Construct a NameComponent of TLV-TYPE @p type, copying TLV-VALUE from a range.
+   * @brief Construct a NameComponent of TLV-TYPE @p type, copying the TLV-VALUE from a range.
    * @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
    *                  implementation is available when it is a @c RandomAccessIterator.
    * @param type      the TLV-TYPE.
@@ -206,7 +185,7 @@ public: // constructors
   }
 
   /**
-   * @brief Construct a GenericNameComponent, copying TLV-VALUE from a range.
+   * @brief Construct a GenericNameComponent, copying the TLV-VALUE from a range.
    */
   template<class Iterator>
   Component(Iterator first, Iterator last)
@@ -215,7 +194,7 @@ public: // constructors
   }
 
   /**
-   * @brief Construct a GenericNameComponent, copying TLV-VALUE from a null-terminated string.
+   * @brief Construct a GenericNameComponent, copying the TLV-VALUE from a null-terminated string.
    *
    * Bytes from the string are copied as is, and not interpreted as URI component.
    */
@@ -223,7 +202,7 @@ public: // constructors
   Component(const char* str);
 
   /**
-   * @brief Construct a GenericNameComponent, copying TLV-VALUE from a string.
+   * @brief Construct a GenericNameComponent, copying the TLV-VALUE from a string.
    *
    * Bytes from the string are copied as is, and not interpreted as URI component.
    */
@@ -493,44 +472,12 @@ public: // commonly used TLV-TYPEs
   isImplicitSha256Digest() const noexcept;
 
   /**
-   * @brief Create ImplicitSha256DigestComponent component
-   * @deprecated Use Component(uint32_t, ConstBufferPtr)
-   */
-  [[deprecated("use one of the name::Component constructors")]]
-  static Component
-  fromImplicitSha256Digest(ConstBufferPtr digest);
-
-  /**
-   * @brief Create ImplicitSha256DigestComponent component
-   * @deprecated Use Component(uint32_t, span<const uint8_t>)
-   */
-  [[deprecated("use one of the name::Component constructors")]]
-  static Component
-  fromImplicitSha256Digest(span<const uint8_t> digest);
-
-  /**
    * @brief Check if the component is a ParametersSha256DigestComponent
    * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/NameComponentType
    * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#parameters-digest-component
    */
   bool
   isParametersSha256Digest() const noexcept;
-
-  /**
-   * @brief Create ParametersSha256DigestComponent component
-   * @deprecated Use Component(uint32_t, ConstBufferPtr)
-   */
-  [[deprecated("use one of the name::Component constructors")]]
-  static Component
-  fromParametersSha256Digest(ConstBufferPtr digest);
-
-  /**
-   * @brief Create ParametersSha256DigestComponent component
-   * @deprecated Use Component(uint32_t, span<const uint8_t>)
-   */
-  [[deprecated("use one of the name::Component constructors")]]
-  static Component
-  fromParametersSha256Digest(span<const uint8_t> digest);
 
   /**
    * @brief Check if the component is a KeywordNameComponent

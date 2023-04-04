@@ -318,30 +318,6 @@ public: // modifiers
     return append(Component(tlv::GenericNameComponent, value));
   }
 
-  /**
-   * @brief Append a `NameComponent` of TLV-TYPE @p type, copying @p count bytes at @p value as TLV-VALUE.
-   * @return A reference to this Name, to allow chaining.
-   * @deprecated Use append(uint32_t, span<const uint8_t>)
-   */
-  [[deprecated("use the overload that takes a span<>")]]
-  Name&
-  append(uint32_t type, const uint8_t* value, size_t count)
-  {
-    return append(type, make_span(value, count));
-  }
-
-  /**
-   * @brief Append a `GenericNameComponent`, copying @p count bytes at @p value as TLV-VALUE.
-   * @return A reference to this Name, to allow chaining.
-   * @deprecated Use append(span<const uint8_t>)
-   */
-  [[deprecated("use the overload that takes a span<>")]]
-  Name&
-  append(const uint8_t* value, size_t count)
-  {
-    return append(make_span(value, count));
-  }
-
   /** @brief Append a `NameComponent` of TLV-TYPE @p type, copying TLV-VALUE from a range.
    *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
    *                   implementation is available when it is a @c RandomAccessIterator.

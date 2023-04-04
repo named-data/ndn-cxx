@@ -88,42 +88,7 @@ canDecodeTypedConvention() noexcept
   return (to_underlying(g_conventionDecoding) & to_underlying(Convention::TYPED)) != 0;
 }
 
-static bool
-wantAltUri(UriFormat format)
-{
-  static const auto wantAltEnv = []() -> boost::tribool {
-    const char* env = std::getenv("NDN_NAME_ALT_URI");
-    if (env == nullptr)
-      return boost::indeterminate;
-    else if (env[0] == '0')
-      return false;
-    else if (env[0] == '1')
-      return true;
-    else
-      return boost::indeterminate;
-  }();
-
-  if (format == UriFormat::ENV_OR_CANONICAL) {
-    static const bool wantAlt = boost::indeterminate(wantAltEnv) ? false : bool(wantAltEnv);
-    return wantAlt;
-  }
-  else if (format == UriFormat::ENV_OR_ALTERNATE) {
-    static const bool wantAlt = boost::indeterminate(wantAltEnv) ? true : bool(wantAltEnv);
-    return wantAlt;
-  }
-  else {
-    return format == UriFormat::ALTERNATE;
-  }
-}
-
-void
-Component::ensureValid() const
-{
-  if (type() < tlv::NameComponentMin || type() > tlv::NameComponentMax) {
-    NDN_THROW(Error("TLV-TYPE " + to_string(type()) + " is not a valid NameComponent"));
-  }
-  getComponentTypeTable().get(type()).check(*this);
-}
+////////////////////////////////////////////////////////////////////////////////
 
 Component::Component(uint32_t type)
   : Block(type)
@@ -159,6 +124,15 @@ Component::Component(const std::string& str)
 {
 }
 
+void
+Component::ensureValid() const
+{
+  if (type() < tlv::NameComponentMin || type() > tlv::NameComponentMax) {
+    NDN_THROW(Error("TLV-TYPE " + std::to_string(type()) + " is not a valid NameComponent"));
+  }
+  getComponentTypeTable().get(type()).check(*this);
+}
+
 static Component
 parseUriEscapedValue(uint32_t type, const char* input, size_t len)
 {
@@ -185,7 +159,7 @@ Component::fromEscapedString(const std::string& input)
   auto typePrefix = input.substr(0, equalPos);
   auto type = std::strtoul(typePrefix.data(), nullptr, 10);
   if (type >= tlv::NameComponentMin && type <= tlv::NameComponentMax &&
-      to_string(type) == typePrefix) {
+      std::to_string(type) == typePrefix) {
     size_t valuePos = equalPos + 1;
     return parseUriEscapedValue(static_cast<uint32_t>(type),
                                 input.data() + valuePos, input.size() - valuePos);
@@ -196,6 +170,34 @@ Component::fromEscapedString(const std::string& input)
     NDN_THROW(Error("Unknown TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
   }
   return ct->parseAltUriValue(input.substr(equalPos + 1));
+}
+
+static bool
+wantAltUri(UriFormat format)
+{
+  static const auto wantAltEnv = []() -> boost::tribool {
+    const char* env = std::getenv("NDN_NAME_ALT_URI");
+    if (env == nullptr)
+      return boost::indeterminate;
+    else if (env[0] == '0')
+      return false;
+    else if (env[0] == '1')
+      return true;
+    else
+      return boost::indeterminate;
+  }();
+
+  if (format == UriFormat::ENV_OR_CANONICAL) {
+    static const bool wantAlt = boost::indeterminate(wantAltEnv) ? false : bool(wantAltEnv);
+    return wantAlt;
+  }
+  else if (format == UriFormat::ENV_OR_ALTERNATE) {
+    static const bool wantAlt = boost::indeterminate(wantAltEnv) ? true : bool(wantAltEnv);
+    return wantAlt;
+  }
+  else {
+    return format == UriFormat::ALTERNATE;
+  }
 }
 
 void
@@ -430,34 +432,10 @@ Component::isImplicitSha256Digest() const noexcept
   return type() == tlv::ImplicitSha256DigestComponent && value_size() == util::Sha256::DIGEST_SIZE;
 }
 
-Component
-Component::fromImplicitSha256Digest(ConstBufferPtr digest)
-{
-  return {tlv::ImplicitSha256DigestComponent, std::move(digest)};
-}
-
-Component
-Component::fromImplicitSha256Digest(span<const uint8_t> digest)
-{
-  return {tlv::ImplicitSha256DigestComponent, digest};
-}
-
 bool
 Component::isParametersSha256Digest() const noexcept
 {
   return type() == tlv::ParametersSha256DigestComponent && value_size() == util::Sha256::DIGEST_SIZE;
-}
-
-Component
-Component::fromParametersSha256Digest(ConstBufferPtr digest)
-{
-  return {tlv::ParametersSha256DigestComponent, std::move(digest)};
-}
-
-Component
-Component::fromParametersSha256Digest(span<const uint8_t> digest)
-{
-  return {tlv::ParametersSha256DigestComponent, digest};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
