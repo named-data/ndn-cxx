@@ -17,8 +17,5 @@ def build(bld):
     # create convenience symlinks
     for cmd in ('list', 'get-default', 'set-default', 'delete',
                 'key-gen', 'sign-req', 'cert-gen', 'cert-install',
-                'cert-dump', 'export', 'import', 'unlock-tpm',
-                # deprecated aliases
-                'certgen', 'dump-certificate', 'install-cert',
-                'keygen', 'ls-identity'):
+                'cert-dump', 'export', 'import', 'unlock-tpm'):
         bld.symlink_as('${BINDIR}/ndnsec-%s' % cmd, 'ndnsec')

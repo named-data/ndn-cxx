@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,14 +51,6 @@ Available commands:
 
 Try 'ndnsec COMMAND --help' for more information on each command.)STR";
 
-const std::map<std::string, std::string> deprecatedCommands{
-  {"certgen",           "cert-gen"},
-  {"dump-certificate",  "cert-dump"},
-  {"install-cert",      "cert-install"},
-  {"keygen",            "key-gen"},
-  {"ls-identity",       "list"},
-};
-
 int
 main(int argc, char* argv[])
 {
@@ -67,12 +59,6 @@ main(int argc, char* argv[])
   std::string command;
   if (basename.rfind("ndnsec-", 0) == 0) {
     command = basename.substr(std::strlen("ndnsec-"));
-    auto it = deprecatedCommands.find(command);
-    if (it != deprecatedCommands.end()) {
-      std::cerr << "DEPRECATION NOTICE: ndnsec-" << it->first << " is deprecated. "
-                << "Please use 'ndnsec " << it->second << "' instead.\n";
-      command = it->second;
-    }
   }
   else if (argc >= 2) {
     command = argv[1];
