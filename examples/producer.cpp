@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -56,10 +56,10 @@ private:
   {
     std::cout << ">> I: " << interest << std::endl;
 
-    static const std::string content("Hello, world!");
+    constexpr std::string_view content{"Hello, world!"};
 
     // Create Data packet
-    auto data = make_shared<Data>(interest.getName());
+    auto data = std::make_shared<Data>(interest.getName());
     data->setFreshnessPeriod(10_s);
     data->setContent(make_span(reinterpret_cast<const uint8_t*>(content.data()), content.size()));
 

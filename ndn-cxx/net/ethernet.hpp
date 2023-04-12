@@ -89,8 +89,7 @@ public:
    *        in hexadecimal notation, with colons or hyphens as separators.
    *
    * \param str The string to be parsed
-   * \return Always an instance of Address, which will be null
-   *         if the parsing fails
+   * \return Always an instance of Address, which will be null if parsing fails
    */
   static Address
   fromString(const std::string& str);

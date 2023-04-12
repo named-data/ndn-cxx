@@ -50,26 +50,26 @@ enum ControlParameterField {
   CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL,
   CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD,
   CONTROL_PARAMETER_MTU,
-  CONTROL_PARAMETER_UBOUND
+  CONTROL_PARAMETER_UBOUND,
 };
 
-inline const std::string CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
-  "Name",
-  "FaceId",
-  "Uri",
-  "LocalUri",
-  "Origin",
-  "Cost",
-  "Capacity",
-  "Count",
-  "Flags",
-  "Mask",
-  "Strategy",
-  "ExpirationPeriod",
-  "FacePersistency",
-  "BaseCongestionMarkingInterval",
-  "DefaultCongestionThreshold",
-  "Mtu"
+inline constexpr std::string_view CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOUND] = {
+  "Name"sv,
+  "FaceId"sv,
+  "Uri"sv,
+  "LocalUri"sv,
+  "Origin"sv,
+  "Cost"sv,
+  "Capacity"sv,
+  "Count"sv,
+  "Flags"sv,
+  "Mask"sv,
+  "Strategy"sv,
+  "ExpirationPeriod"sv,
+  "FacePersistency"sv,
+  "BaseCongestionMarkingInterval"sv,
+  "DefaultCongestionThreshold"sv,
+  "Mtu"sv,
 };
 
 /**

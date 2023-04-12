@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,6 @@
 #include "ndn-cxx/transport/unix-transport.hpp"
 #include "ndn-cxx/transport/detail/stream-transport-impl.hpp"
 
-#include "ndn-cxx/face.hpp"
 #include "ndn-cxx/net/face-uri.hpp"
 #include "ndn-cxx/util/logger.hpp"
 

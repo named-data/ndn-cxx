@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -162,7 +162,7 @@ NDN_LOG_MEMBER_DECL_SPECIALIZED((ClassTemplateWithLogger<int, double>));
 NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, double>), ndn.util.tests.Specialized1);
 NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, std::string>), ndn.util.tests.Specialized2);
 
-const time::microseconds LOG_SYSTIME(1468108800311239LL);
+constexpr time::microseconds LOG_SYSTIME{1468108800311239LL};
 const std::string LOG_SYSTIME_STR("1468108800.311239");
 
 class LoggingFixture : public ndn::tests::ClockFixture
@@ -177,7 +177,7 @@ protected:
     Logging::setDestination(os, true);
   }
 
-  ~LoggingFixture()
+  ~LoggingFixture() override
   {
     Logging::get().setLevelImpl(m_oldEnabledLevel);
     Logging::setDestination(m_oldDestination);

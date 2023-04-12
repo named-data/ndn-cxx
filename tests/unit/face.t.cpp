@@ -854,11 +854,6 @@ BOOST_AUTO_TEST_SUITE(Transport)
 
 using ndn::Transport;
 
-struct PibDirWithDefaultTpm
-{
-  const std::string PATH = "build/keys-with-default-tpm";
-};
-
 BOOST_FIXTURE_TEST_CASE(FaceTransport, IoKeyChainFixture)
 {
   BOOST_CHECK(Face().getTransport() != nullptr);

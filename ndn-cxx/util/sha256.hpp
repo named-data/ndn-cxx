@@ -122,7 +122,7 @@ public:
    * @throw Error the digest has already been finalized
    */
   Sha256&
-  operator<<(const std::string& str);
+  operator<<(std::string_view str);
 
   /**
    * @brief Add a uint64_t value to the digest calculation.

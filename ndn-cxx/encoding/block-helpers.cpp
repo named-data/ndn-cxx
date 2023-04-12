@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,36 @@ namespace ndn {
 namespace encoding {
 
 namespace endian = boost::endian;
+
+// ---- empty ----
+
+template<Tag TAG>
+size_t
+prependEmptyBlock(EncodingImpl<TAG>& encoder, uint32_t type)
+{
+  size_t length = encoder.prependVarNumber(0);
+  length += encoder.prependVarNumber(type);
+
+  return length;
+}
+
+template size_t
+prependEmptyBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t);
+
+template size_t
+prependEmptyBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t);
+
+Block
+makeEmptyBlock(uint32_t type)
+{
+  EncodingEstimator estimator;
+  size_t totalLength = prependEmptyBlock(estimator, type);
+
+  EncodingBuffer encoder(totalLength, 0);
+  prependEmptyBlock(encoder, type);
+
+  return encoder.block();
+}
 
 // ---- non-negative integer ----
 
@@ -64,63 +94,6 @@ readNonNegativeInteger(const Block& block)
 {
   auto begin = block.value_begin();
   return tlv::readNonNegativeInteger(block.value_size(), begin, block.value_end());
-}
-
-// ---- empty ----
-
-template<Tag TAG>
-size_t
-prependEmptyBlock(EncodingImpl<TAG>& encoder, uint32_t type)
-{
-  size_t length = encoder.prependVarNumber(0);
-  length += encoder.prependVarNumber(type);
-
-  return length;
-}
-
-template size_t
-prependEmptyBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t);
-
-template size_t
-prependEmptyBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t);
-
-Block
-makeEmptyBlock(uint32_t type)
-{
-  EncodingEstimator estimator;
-  size_t totalLength = prependEmptyBlock(estimator, type);
-
-  EncodingBuffer encoder(totalLength, 0);
-  prependEmptyBlock(encoder, type);
-
-  return encoder.block();
-}
-
-// ---- string ----
-
-template<Tag TAG>
-size_t
-prependStringBlock(EncodingImpl<TAG>& encoder, uint32_t type, const std::string& value)
-{
-  return prependBinaryBlock(encoder, type, {reinterpret_cast<const uint8_t*>(value.data()), value.size()});
-}
-
-template size_t
-prependStringBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, const std::string&);
-
-template size_t
-prependStringBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, const std::string&);
-
-Block
-makeStringBlock(uint32_t type, const std::string& value)
-{
-  return makeBinaryBlock(type, value.data(), value.size());
-}
-
-std::string
-readString(const Block& block)
-{
-  return std::string(reinterpret_cast<const char*>(block.value()), block.value_size());
 }
 
 // ---- double ----
@@ -203,6 +176,27 @@ makeBinaryBlock(uint32_t type, span<const uint8_t> value)
   prependBinaryBlock(encoder, type, value);
 
   return encoder.block();
+}
+
+// ---- string ----
+
+template<Tag TAG>
+size_t
+prependStringBlock(EncodingImpl<TAG>& encoder, uint32_t type, std::string_view value)
+{
+  return prependBinaryBlock(encoder, type, {reinterpret_cast<const uint8_t*>(value.data()), value.size()});
+}
+
+template size_t
+prependStringBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, std::string_view);
+
+template size_t
+prependStringBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, std::string_view);
+
+std::string
+readString(const Block& block)
+{
+  return std::string(reinterpret_cast<const char*>(block.value()), block.value_size());
 }
 
 // ---- block ----

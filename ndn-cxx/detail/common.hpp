@@ -56,6 +56,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -72,8 +73,8 @@ using std::dynamic_pointer_cast;
 using std::const_pointer_cast;
 
 using std::to_string;
-
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 } // namespace ndn
 

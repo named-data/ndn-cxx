@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@
 namespace ndn {
 namespace util {
 
-IndentedStream::IndentedStream(std::ostream& os, const std::string& indent)
+IndentedStream::IndentedStream(std::ostream& os, std::string_view indent)
   : std::ostream(&m_buffer)
   , m_buffer(os, indent)
 {
@@ -41,7 +41,7 @@ IndentedStream::~IndentedStream()
   flush();
 }
 
-IndentedStream::StreamBuf::StreamBuf(std::ostream& os, const std::string& indent)
+IndentedStream::StreamBuf::StreamBuf(std::ostream& os, std::string_view indent)
   : m_output(os)
   , m_indent(indent)
 {
@@ -50,9 +50,9 @@ IndentedStream::StreamBuf::StreamBuf(std::ostream& os, const std::string& indent
 int
 IndentedStream::StreamBuf::sync()
 {
-  typedef boost::iterator_range<std::string::const_iterator> StringView;
+  using StringView = boost::iterator_range<std::string::const_iterator>;
 
-  const std::string& output = str();
+  std::string output = str();
   std::vector<StringView> splitOutput;
   boost::split(splitOutput, output, boost::is_any_of("\n"));
 

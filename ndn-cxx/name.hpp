@@ -64,34 +64,51 @@ public: // nested types
   using size_type              = component_container::size_type;
 
 public: // constructors, encoding, decoding
-  /** @brief Create an empty name.
-   *  @post empty() == true
+  /**
+   * @brief Create an empty name.
+   * @post empty() == true
    */
   Name();
 
-  /** @brief Decode Name from wire encoding.
-   *  @throw tlv::Error wire encoding is invalid
+  /**
+   * @brief Decode Name from wire encoding.
+   * @throw tlv::Error wire encoding is invalid
    *
-   *  This is a more efficient equivalent for
-   *  @code
-   *    Name name;
-   *    name.wireDecode(wire);
-   *  @endcode
+   * This is a more efficient equivalent for:
+   * @code
+   * Name name;
+   * name.wireDecode(wire);
+   * @endcode
    */
   explicit
   Name(const Block& wire);
 
-  /** @brief Parse name from NDN URI.
-   *  @param uri a null-terminated URI string
-   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+  /**
+   * @brief Create name from NDN URI.
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
-  Name(const char* uri);
+  explicit
+  Name(std::string_view uri);
 
-  /** @brief Create name from NDN URI.
-   *  @param uri a URI string
-   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+  /**
+   * @brief Create name from NDN URI.
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   * @note This constructor enables implicit conversion from a string literal
    */
-  Name(std::string uri);
+  Name(const char* uri)
+    : Name(std::string_view(uri))
+  {
+  }
+
+  /**
+   * @brief Create name from NDN URI.
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+   * @note This constructor enables implicit conversion from `std::string`
+   */
+  Name(const std::string& uri)
+    : Name(std::string_view(uri))
+  {
+  }
 
   /** @brief Write URI representation of the name to the output stream.
    *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
@@ -510,10 +527,10 @@ public: // modifiers
    * @return A reference to this Name, to allow chaining.
    */
   Name&
-  appendKeyword(const char* keyword)
+  appendKeyword(std::string_view keyword)
   {
-    return append(Component(tlv::KeywordNameComponent, {reinterpret_cast<const uint8_t*>(keyword),
-                                                        std::char_traits<char>::length(keyword)}));
+    return append(Component(tlv::KeywordNameComponent,
+                            {reinterpret_cast<const uint8_t*>(keyword.data()), keyword.size()}));
   }
 
   /**

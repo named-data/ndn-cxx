@@ -59,7 +59,7 @@ public:
 
 struct PibPathConfigFileHome
 {
-  const std::string PATH = "build/config-file-home/";
+  static constexpr std::string_view PATH = "build/config-file-home/";
 };
 
 BOOST_FIXTURE_TEST_CASE(ConstructorNormalConfig, TestHomeAndPibFixture<PibPathConfigFileHome>)
@@ -74,7 +74,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorNormalConfig, TestHomeAndPibFixture<PibPathCo
 
 struct PibPathConfigFileEmptyHome
 {
-  const std::string PATH = "build/config-file-empty-home/";
+  static constexpr std::string_view PATH = "build/config-file-empty-home/";
 };
 
 BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathConfigFileEmptyHome>)
@@ -122,7 +122,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathCon
 
 struct PibPathConfigFileEmpty2Home
 {
-  const std::string PATH = "build/config-file-empty2-home/";
+  static constexpr std::string_view PATH = "build/config-file-empty2-home/";
 };
 
 BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig2, TestHomeAndPibFixture<PibPathConfigFileEmpty2Home>)
@@ -137,7 +137,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig2, TestHomeAndPibFixture<PibPathCo
 
 struct PibPathConfigFileMalformedHome
 {
-  const std::string PATH = "build/config-file-malformed-home/";
+  static constexpr std::string_view PATH = "build/config-file-malformed-home/";
 };
 
 BOOST_FIXTURE_TEST_CASE(ConstructorBadConfig, TestHomeAndPibFixture<PibPathConfigFileMalformedHome>)
@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorBadConfig, TestHomeAndPibFixture<PibPathConfi
 
 struct PibPathConfigFileMalformed2Home
 {
-  const std::string PATH = "build/config-file-malformed2-home/";
+  static constexpr std::string_view PATH = "build/config-file-malformed2-home/";
 };
 
 BOOST_FIXTURE_TEST_CASE(ConstructorBadConfig2, TestHomeAndPibFixture<PibPathConfigFileMalformed2Home>)
@@ -159,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorBadConfig2, TestHomeAndPibFixture<PibPathConf
 
 struct PibPathConfigFileNonCanonicalTpm
 {
-  const std::string PATH = "build/config-file-non-canonical-tpm/";
+  static constexpr std::string_view PATH = "build/config-file-non-canonical-tpm/";
 };
 
 BOOST_FIXTURE_TEST_CASE(ConstructorNonCanonicalTpm, TestHomeAndPibFixture<PibPathConfigFileNonCanonicalTpm>) // Bug 4297

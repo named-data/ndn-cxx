@@ -114,12 +114,7 @@ Component::Component(uint32_t type, span<const uint8_t> value)
   ensureValid();
 }
 
-Component::Component(const char* str)
-  : Block(makeBinaryBlock(tlv::GenericNameComponent, str, std::char_traits<char>::length(str)))
-{
-}
-
-Component::Component(const std::string& str)
+Component::Component(std::string_view str)
   : Block(makeStringBlock(tlv::GenericNameComponent, str))
 {
 }
@@ -134,10 +129,10 @@ Component::ensureValid() const
 }
 
 static Component
-parseUriEscapedValue(uint32_t type, const char* input, size_t len)
+parseUriEscapedValue(uint32_t type, std::string_view input)
 {
   std::ostringstream oss;
-  unescape(oss, input, len);
+  unescape(oss, input);
   std::string value = oss.str();
   if (value.find_first_not_of('.') == std::string::npos) { // all periods
     if (value.size() < 3) {
@@ -149,25 +144,23 @@ parseUriEscapedValue(uint32_t type, const char* input, size_t len)
 }
 
 Component
-Component::fromEscapedString(const std::string& input)
+Component::fromEscapedString(std::string_view input)
 {
   size_t equalPos = input.find('=');
-  if (equalPos == std::string::npos) {
-    return parseUriEscapedValue(tlv::GenericNameComponent, input.data(), input.size());
+  if (equalPos == std::string_view::npos) {
+    return parseUriEscapedValue(tlv::GenericNameComponent, input);
   }
 
   auto typePrefix = input.substr(0, equalPos);
   auto type = std::strtoul(typePrefix.data(), nullptr, 10);
   if (type >= tlv::NameComponentMin && type <= tlv::NameComponentMax &&
       std::to_string(type) == typePrefix) {
-    size_t valuePos = equalPos + 1;
-    return parseUriEscapedValue(static_cast<uint32_t>(type),
-                                input.data() + valuePos, input.size() - valuePos);
+    return parseUriEscapedValue(static_cast<uint32_t>(type), input.substr(equalPos + 1));
   }
 
   auto ct = getComponentTypeTable().findByUriPrefix(typePrefix);
   if (ct == nullptr) {
-    NDN_THROW(Error("Unknown TLV-TYPE '" + typePrefix + "' in NameComponent URI"));
+    NDN_THROW(Error("Unknown TLV-TYPE '" + std::string(typePrefix) + "' in NameComponent URI"));
   }
   return ct->parseAltUriValue(input.substr(equalPos + 1));
 }

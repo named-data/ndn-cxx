@@ -47,8 +47,8 @@ namespace ndn {
 
 Face::OversizedPacketError::OversizedPacketError(char pktType, const Name& name, size_t wireSize)
   : Error((pktType == 'I' ? "Interest " : pktType == 'D' ? "Data " : "Nack ") +
-          name.toUri() + " encodes into " + to_string(wireSize) + " octets, "
-          "exceeding the implementation limit of " + to_string(MAX_NDN_PACKET_SIZE) + " octets")
+          name.toUri() + " encodes into " + std::to_string(wireSize) + " octets, "
+          "exceeding the implementation limit of " + std::to_string(MAX_NDN_PACKET_SIZE) + " octets")
   , pktType(pktType)
   , name(name)
   , wireSize(wireSize)

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,7 +30,7 @@ BufferSource::BufferSource(span<const uint8_t> buffer)
 {
 }
 
-BufferSource::BufferSource(const std::string& string)
+BufferSource::BufferSource(std::string_view string)
   : m_bufs({{reinterpret_cast<const uint8_t*>(string.data()), string.size()}})
 {
 }

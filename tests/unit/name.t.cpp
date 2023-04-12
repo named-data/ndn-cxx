@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,13 +68,19 @@ BOOST_AUTO_TEST_CASE(ParseUri)
 
   // URI with correct scheme
   BOOST_CHECK_EQUAL(Name("ndn:/hello/world").toUri(), "/hello/world");
+  BOOST_CHECK_EQUAL(Name("ndn:/").toUri(), "/");
+  BOOST_CHECK_EQUAL(Name("ndn:").toUri(), "/");
 
   // URI with incorrect scheme: auto-corrected
   BOOST_CHECK_EQUAL(Name("ncc:/hello/world").toUri(), "/hello/world");
+  BOOST_CHECK_EQUAL(Name(":/").toUri(), "/");
+  BOOST_CHECK_EQUAL(Name(":").toUri(), "/");
 
   // URI with authority: authority ignored
   BOOST_CHECK_EQUAL(Name("//authority/hello/world").toUri(), "/hello/world");
   BOOST_CHECK_EQUAL(Name("ndn://authority/hello/world").toUri(), "/hello/world");
+  BOOST_CHECK_EQUAL(Name("//authority").toUri(), "/");
+  BOOST_CHECK_EQUAL(Name("ndn://").toUri(), "/");
 
   // URI containing unescaped characters: auto-corrected
   BOOST_CHECK_EQUAL(Name("/ hello\t/\tworld \r\n").toUri(), "/%20hello%09/%09world%20%0D%0A");
@@ -84,8 +90,12 @@ BOOST_AUTO_TEST_CASE(ParseUri)
   // URI not starting with '/': accepted as PartialName
   BOOST_CHECK_EQUAL(Name("").toUri(), "/");
   BOOST_CHECK_EQUAL(Name(" ").toUri(), "/%20");
+  BOOST_CHECK_EQUAL(Name("ndn: ").toUri(), "/%20");
+  BOOST_CHECK_EQUAL(Name("ndn: /").toUri(), "/%20");
   BOOST_CHECK_EQUAL(Name("  /hello/world").toUri(), "/%20%20/hello/world");
   BOOST_CHECK_EQUAL(Name("hello/world").toUri(), "/hello/world");
+  BOOST_CHECK_EQUAL(Name("hello").toUri(), "/hello");
+  BOOST_CHECK_EQUAL(Name("ndn:hello").toUri(), "/hello");
 
   // URI ending with '/': auto-corrected
   BOOST_CHECK_EQUAL(Name("/hello/world/").toUri(), "/hello/world");

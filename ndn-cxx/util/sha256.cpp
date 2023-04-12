@@ -92,7 +92,7 @@ Sha256::operator<<(Sha256& src)
 }
 
 Sha256&
-Sha256::operator<<(const std::string& str)
+Sha256::operator<<(std::string_view str)
 {
   update({reinterpret_cast<const uint8_t*>(str.data()), str.size()});
   return *this;

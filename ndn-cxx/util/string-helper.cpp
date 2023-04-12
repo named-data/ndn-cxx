@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -57,7 +57,7 @@ toHex(span<const uint8_t> buffer, bool wantUpperCase)
 }
 
 shared_ptr<Buffer>
-fromHex(const std::string& hexString)
+fromHex(std::string_view hexString)
 {
   namespace tr = security::transform;
 
@@ -73,18 +73,17 @@ fromHex(const std::string& hexString)
 }
 
 std::string
-escape(const std::string& str)
+escape(std::string_view str)
 {
   std::ostringstream os;
-  escape(os, str.data(), str.size());
+  escape(os, str);
   return os.str();
 }
 
 void
-escape(std::ostream& os, const char* str, size_t len)
+escape(std::ostream& os, std::string_view str)
 {
-  for (size_t i = 0; i < len; ++i) {
-    auto c = str[i];
+  for (auto c : str) {
     // Unreserved characters don't need to be escaped.
     if ((c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
@@ -102,18 +101,18 @@ escape(std::ostream& os, const char* str, size_t len)
 }
 
 std::string
-unescape(const std::string& str)
+unescape(std::string_view str)
 {
   std::ostringstream os;
-  unescape(os, str.data(), str.size());
+  unescape(os, str);
   return os.str();
 }
 
 void
-unescape(std::ostream& os, const char* str, size_t len)
+unescape(std::ostream& os, std::string_view str)
 {
-  for (size_t i = 0; i < len; ++i) {
-    if (str[i] == '%' && i + 2 < len) {
+  for (size_t i = 0; i < str.size(); ++i) {
+    if (str[i] == '%' && i + 2 < str.size()) {
       int hi = fromHexChar(str[i + 1]);
       int lo = fromHexChar(str[i + 2]);
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,7 +37,8 @@
 namespace ndn {
 namespace util {
 
-/** \brief Indicates the severity level of a log message.
+/**
+ * \brief Indicates the severity level of a log message.
  */
 enum class LogLevel {
   FATAL   = -1,   ///< fatal (will be logged unconditionally)
@@ -50,17 +51,19 @@ enum class LogLevel {
   ALL     = 255   ///< all messages
 };
 
-/** \brief Output LogLevel as a string.
- *  \throw std::invalid_argument unknown \p level
+/**
+ * \brief Output LogLevel as a string.
+ * \throw std::invalid_argument Unknown \p level
  */
 std::ostream&
 operator<<(std::ostream& os, LogLevel level);
 
-/** \brief Parse LogLevel from a string.
- *  \throw std::invalid_argument unknown level name
+/**
+ * \brief Parse LogLevel from a string.
+ * \throw std::invalid_argument Unknown level name
  */
 LogLevel
-parseLogLevel(const std::string& s);
+parseLogLevel(std::string_view s);
 
 namespace log {
 
@@ -69,10 +72,11 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", LogLevel)
 
 } // namespace log
 
-/** \brief Represents a log module in the logging facility.
+/**
+ * \brief Represents a log module in the logging facility.
  *
- *  \note Normally, loggers should be defined using #NDN_LOG_INIT, #NDN_LOG_MEMBER_INIT,
- *        or #NDN_LOG_MEMBER_INIT_SPECIALIZED.
+ * \note Normally, loggers should be defined using #NDN_LOG_INIT, #NDN_LOG_MEMBER_INIT,
+ *       or #NDN_LOG_MEMBER_INIT_SPECIALIZED.
  */
 class Logger : public boost::log::sources::severity_logger_mt<LogLevel>
 {

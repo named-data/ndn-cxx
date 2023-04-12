@@ -176,13 +176,13 @@ operator<<(std::ostream& os, RouteFlags routeFlags)
     return os << "none";
   }
 
-  static const std::map<RouteFlags, std::string> knownBits = {
-    {ROUTE_FLAG_CHILD_INHERIT, "child-inherit"},
-    {ROUTE_FLAG_CAPTURE, "capture"}
+  static const std::map<RouteFlags, std::string_view> knownBits = {
+    {ROUTE_FLAG_CHILD_INHERIT, "child-inherit"sv},
+    {ROUTE_FLAG_CAPTURE, "capture"sv}
   };
 
   auto join = make_ostream_joiner(os, '|');
-  for (const auto& [bit, token] : knownBits) {
+  for (auto [bit, token] : knownBits) {
     if ((routeFlags & bit) != 0) {
       join = token;
       routeFlags = static_cast<RouteFlags>(routeFlags & ~bit);

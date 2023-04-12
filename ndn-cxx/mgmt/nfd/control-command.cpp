@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,7 +39,7 @@ ControlCommand::validateRequest(const ControlParameters& parameters) const
 }
 
 void
-ControlCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+ControlCommand::applyDefaultsToRequest(ControlParameters&) const
 {
 }
 
@@ -50,7 +50,7 @@ ControlCommand::validateResponse(const ControlParameters& parameters) const
 }
 
 void
-ControlCommand::applyDefaultsToResponse(ControlParameters& parameters) const
+ControlCommand::applyDefaultsToResponse(ControlParameters&) const
 {
 }
 
@@ -81,11 +81,11 @@ ControlCommand::FieldValidator::validate(const ControlParameters& parameters) co
     bool isPresent = presentFields[i];
     if (m_required[i]) {
       if (!isPresent) {
-        NDN_THROW(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is required but missing"));
+        NDN_THROW(ArgumentError(std::string(CONTROL_PARAMETER_FIELD[i]) + " is required but missing"));
       }
     }
     else if (isPresent && !m_optional[i]) {
-      NDN_THROW(ArgumentError(CONTROL_PARAMETER_FIELD[i] + " is forbidden but present"));
+      NDN_THROW(ArgumentError(std::string(CONTROL_PARAMETER_FIELD[i]) + " is forbidden but present"));
     }
   }
 

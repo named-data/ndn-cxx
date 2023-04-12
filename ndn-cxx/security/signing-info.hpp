@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -114,7 +114,7 @@ public:
    * - sign with SHA-256 (digest only): `id:/localhost/identity/digest-sha256`
    */
   explicit
-  SigningInfo(const std::string& signingStr);
+  SigningInfo(std::string_view signingStr);
 
   /**
    * @brief Set signer as an identity with name @p identity
@@ -142,7 +142,7 @@ public:
    * @post Change the signerType to SIGNER_TYPE_HMAC
    */
   SigningInfo&
-  setSigningHmacKey(const std::string& hmacKey);
+  setSigningHmacKey(std::string_view hmacKey);
 
   /**
    * @brief Set SHA-256 as the signing method

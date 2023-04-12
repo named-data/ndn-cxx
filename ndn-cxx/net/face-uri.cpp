@@ -43,35 +43,30 @@ namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceUri>));
 
-FaceUri::FaceUri()
-  : m_isV6(false)
-{
-}
+FaceUri::FaceUri() = default;
 
 FaceUri::FaceUri(const std::string& uri)
 {
   if (!parse(uri)) {
-    NDN_THROW(Error("Malformed URI: " + uri));
+    NDN_THROW(Error("Malformed URI: "s + uri));
   }
 }
 
 FaceUri::FaceUri(const char* uri)
-  : FaceUri(std::string(uri))
 {
+  if (!parse(uri)) {
+    NDN_THROW(Error("Malformed URI: "s + uri));
+  }
 }
 
 bool
-FaceUri::parse(const std::string& uri)
+FaceUri::parse(std::string_view uri)
 {
-  m_scheme.clear();
-  m_host.clear();
-  m_port.clear();
-  m_path.clear();
-  m_isV6 = false;
+  *this = {};
 
   static const std::regex protocolExp("(\\w+\\d?(\\+\\w+)?)://([^/]*)(\\/[^?]*)?");
-  std::smatch protocolMatch;
-  if (!std::regex_match(uri, protocolMatch, protocolExp)) {
+  std::match_results<std::string_view::const_iterator> protocolMatch;
+  if (!std::regex_match(uri.begin(), uri.end(), protocolMatch, protocolExp)) {
     return false;
   }
   m_scheme = protocolMatch[1];
@@ -133,7 +128,7 @@ FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint)
   m_port = to_string(endpoint.port());
 }
 
-FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::string& scheme)
+FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, std::string_view scheme)
 {
   m_isV6 = endpoint.address().is_v6();
   m_scheme = scheme;
@@ -145,10 +140,16 @@ FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::stri
 FaceUri::FaceUri(const boost::asio::local::stream_protocol::endpoint& endpoint)
   : m_scheme("unix")
   , m_path(endpoint.path())
-  , m_isV6(false)
 {
 }
 #endif // BOOST_ASIO_HAS_LOCAL_SOCKETS
+
+FaceUri::FaceUri(const ethernet::Address& address)
+  : m_scheme("ether")
+  , m_host(address.toString())
+  , m_isV6(true)
+{
+}
 
 FaceUri
 FaceUri::fromFd(int fd)
@@ -159,15 +160,8 @@ FaceUri::fromFd(int fd)
   return uri;
 }
 
-FaceUri::FaceUri(const ethernet::Address& address)
-  : m_scheme("ether")
-  , m_host(address.toString())
-  , m_isV6(true)
-{
-}
-
 FaceUri
-FaceUri::fromDev(const std::string& ifname)
+FaceUri::fromDev(std::string_view ifname)
 {
   FaceUri uri;
   uri.m_scheme = "dev";
@@ -176,7 +170,7 @@ FaceUri::fromDev(const std::string& ifname)
 }
 
 FaceUri
-FaceUri::fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, const std::string& ifname)
+FaceUri::fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, std::string_view ifname)
 {
   FaceUri uri;
   uri.m_scheme = endpoint.address().is_v6() ? "udp6+dev" : "udp4+dev";

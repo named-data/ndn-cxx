@@ -109,7 +109,7 @@ toHex(span<const uint8_t> buffer, bool wantUpperCase = true);
  * @throw StringHelperError Input string is invalid
  */
 shared_ptr<Buffer>
-fromHex(const std::string& hexString);
+fromHex(std::string_view hexString);
 
 /**
  * @brief Convert (the least significant nibble of) @p n to the corresponding hex character.
@@ -152,10 +152,17 @@ fromHexChar(char c) noexcept
  * @see RFC 3986 section 2
  */
 [[nodiscard]] std::string
-escape(const std::string& str);
+escape(std::string_view str);
 
 void
-escape(std::ostream& os, const char* str, size_t len);
+escape(std::ostream& os, std::string_view str);
+
+[[deprecated("use the string_view overload")]]
+inline void
+escape(std::ostream& os, const char* str, size_t len)
+{
+  escape(os, {str, len});
+}
 
 /**
  * @brief Decode a percent-encoded string.
@@ -172,10 +179,17 @@ escape(std::ostream& os, const char* str, size_t len);
  * @see RFC 3986 section 2
  */
 [[nodiscard]] std::string
-unescape(const std::string& str);
+unescape(std::string_view str);
 
 void
-unescape(std::ostream& os, const char* str, size_t len);
+unescape(std::ostream& os, std::string_view str);
+
+[[deprecated("use the string_view overload")]]
+inline void
+unescape(std::ostream& os, const char* str, size_t len)
+{
+  unescape(os, {str, len});
+}
 
 } // namespace ndn
 

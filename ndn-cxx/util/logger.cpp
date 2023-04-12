@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,6 @@
 
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/logging.hpp"
-
-#include <cstring> // for std::strspn()
 
 namespace ndn {
 namespace util {
@@ -49,11 +47,11 @@ operator<<(std::ostream& os, LogLevel level)
     return os << "ALL";
   }
 
-  NDN_THROW(std::invalid_argument("unknown log level " + to_string(to_underlying(level))));
+  NDN_THROW(std::invalid_argument("unknown log level " + std::to_string(to_underlying(level))));
 }
 
 LogLevel
-parseLogLevel(const std::string& s)
+parseLogLevel(std::string_view s)
 {
   if (s == "FATAL")
     return LogLevel::FATAL;
@@ -72,24 +70,19 @@ parseLogLevel(const std::string& s)
   else if (s == "ALL")
     return LogLevel::ALL;
 
-  NDN_THROW(std::invalid_argument("unrecognized log level '" + s + "'"));
+  NDN_THROW(std::invalid_argument("unrecognized log level '" + std::string(s) + "'"));
 }
 
-static bool
-isValidLoggerName(const std::string& name)
+static constexpr bool
+isValidLoggerName(std::string_view name)
 {
+  if (name.empty() || name.front() == '.' || name.back() == '.' ||
+      name.find("..") != std::string_view::npos) {
+    return false;
+  }
   // acceptable characters for Logger name
-  const char* okChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~#%_<>.-";
-  if (std::strspn(name.c_str(), okChars) != name.size()) {
-    return false;
-  }
-  if (name.empty() || name.front() == '.' || name.back() == '.') {
-    return false;
-  }
-  if (name.find("..") != std::string::npos) {
-    return false;
-  }
-  return true;
+  constexpr std::string_view okChars{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~#%_<>.-"sv};
+  return name.find_first_not_of(okChars) == std::string_view::npos;
 }
 
 Logger::Logger(const char* name)
@@ -99,18 +92,17 @@ Logger::Logger(const char* name)
     NDN_THROW(std::invalid_argument("Logger name '" + m_moduleName + "' is invalid"));
   }
   this->setLevel(LogLevel::NONE);
-  this->add_attribute(log::module.get_name(), boost::log::attributes::constant<std::string>(m_moduleName));
+  this->add_attribute(log::module.get_name(), boost::log::attributes::constant(m_moduleName));
   Logging::get().addLoggerImpl(*this);
 }
 
 void
 Logger::registerModuleName(const char* name)
 {
-  std::string moduleName(name);
-  if (!isValidLoggerName(moduleName)) {
-    NDN_THROW(std::invalid_argument("Logger name '" + moduleName + "' is invalid"));
+  if (!isValidLoggerName(name)) {
+    NDN_THROW(std::invalid_argument("Logger name '"s + name + "' is invalid"));
   }
-  Logging::get().registerLoggerNameImpl(std::move(moduleName));
+  Logging::get().registerLoggerNameImpl(name);
 }
 
 } // namespace util

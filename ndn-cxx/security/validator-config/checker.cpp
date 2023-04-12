@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,6 @@
 #include "ndn-cxx/security/validator-config/checker.hpp"
 #include "ndn-cxx/security/validation-policy.hpp"
 #include "ndn-cxx/security/validation-state.hpp"
-#include "ndn-cxx/security/verification-helpers.hpp"
-#include "ndn-cxx/security/pib/key.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -147,8 +145,8 @@ RegexChecker::checkNames(const Name& pktName, const Name& klName)
 }
 
 HyperRelationChecker::HyperRelationChecker(tlv::SignatureTypeValue sigType,
-                                           const std::string& pktNameExpr, const std::string pktNameExpand,
-                                           const std::string& klNameExpr, const std::string klNameExpand,
+                                           const std::string& pktNameExpr, const std::string& pktNameExpand,
+                                           const std::string& klNameExpr, const std::string& klNameExpand,
                                            const NameRelation& hyperRelation)
   : Checker(sigType)
   , m_hyperPRegex(pktNameExpr, pktNameExpand)

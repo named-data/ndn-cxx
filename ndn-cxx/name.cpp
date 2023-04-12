@@ -60,52 +60,47 @@ Name::Name(const Block& wire)
   m_wire.parse();
 }
 
-Name::Name(const char* uri)
-  : Name(std::string(uri))
-{
-}
-
-Name::Name(std::string uri)
+Name::Name(std::string_view uri)
 {
   if (uri.empty())
     return;
 
-  if (size_t iColon = uri.find(':'); iColon != std::string::npos) {
-    // Make sure the colon came before a '/'.
+  if (size_t iColon = uri.find(':'); iColon != std::string_view::npos) {
+    // Make sure the colon came before a '/', if any.
     size_t iFirstSlash = uri.find('/');
-    if (iFirstSlash == std::string::npos || iColon < iFirstSlash) {
-      // Omit the leading protocol such as ndn:
-      uri.erase(0, iColon + 1);
+    if (iFirstSlash == std::string_view::npos || iColon < iFirstSlash) {
+      // Strip the leading protocol such as "ndn:".
+      uri.remove_prefix(iColon + 1);
     }
   }
 
   // Trim the leading slash and possibly the authority.
-  if (uri[0] == '/') {
+  if (uri.size() >= 1 && uri[0] == '/') {
     if (uri.size() >= 2 && uri[1] == '/') {
       // Strip the authority following "//".
       size_t iAfterAuthority = uri.find('/', 2);
-      if (iAfterAuthority == std::string::npos)
+      if (iAfterAuthority == std::string_view::npos) {
         // Unusual case: there was only an authority.
         return;
+      }
       else {
-        uri.erase(0, iAfterAuthority + 1);
+        uri.remove_prefix(iAfterAuthority + 1);
       }
     }
     else {
-      uri.erase(0, 1);
+      uri.remove_prefix(1);
     }
   }
 
-  size_t iComponentStart = 0;
-
   // Unescape the components.
-  while (iComponentStart < uri.size()) {
-    size_t iComponentEnd = uri.find('/', iComponentStart);
-    if (iComponentEnd == std::string::npos)
-      iComponentEnd = uri.size();
-
-    append(Component::fromEscapedString(&uri[0], iComponentStart, iComponentEnd));
-    iComponentStart = iComponentEnd + 1;
+  while (!uri.empty()) {
+    auto component = uri.substr(0, uri.find('/'));
+    append(Component::fromEscapedString(component));
+    if (component.size() + 1 >= uri.size()) {
+      // We reached the end of the string.
+      return;
+    }
+    uri.remove_prefix(component.size() + 1);
   }
 }
 

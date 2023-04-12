@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -182,8 +182,7 @@ BOOST_AUTO_TEST_CASE(Escape)
   BOOST_CHECK_EQUAL(escape(":/?#[]@"), "%3A%2F%3F%23%5B%5D%40");
 
   output_test_stream os;
-  const char str[] = "\x01\x2a\x3b\xc4\xde\xfa\xb5\xcd\xef";
-  escape(os, str, std::strlen(str));
+  escape(os, "\x01\x2a\x3b\xc4\xde\xfa\xb5\xcd\xef");
   BOOST_CHECK(os.is_equal("%01%2A%3B%C4%DE%FA%B5%CD%EF"));
 }
 
@@ -196,8 +195,7 @@ BOOST_AUTO_TEST_CASE(Unescape)
   BOOST_CHECK_EQUAL(unescape("Bad %a"), "Bad %a");
 
   output_test_stream os;
-  const char str[] = "%01%2a%3B%c4%de%fA%B5%Cd%EF";
-  unescape(os, str, std::strlen(str));
+  unescape(os, "%01%2a%3B%c4%de%fA%B5%Cd%EF");
   BOOST_CHECK(os.is_equal("\x01\x2a\x3b\xc4\xde\xfa\xb5\xcd\xef"));
 }
 

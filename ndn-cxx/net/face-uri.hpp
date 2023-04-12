@@ -51,24 +51,30 @@ public:
     using std::invalid_argument::invalid_argument;
   };
 
+  /// Construct an empty FaceUri.
   FaceUri();
 
   /**
-   * \brief Construct by parsing.
-   * \param uri scheme://host[:port]/path
-   * \throw FaceUri::Error if URI cannot be parsed
+   * \brief Construct by parsing from a string.
+   * \param uri `scheme://host[:port]/path`
+   * \throw Error URI cannot be parsed
    */
   explicit
   FaceUri(const std::string& uri);
 
-  // This overload is needed so that calls with string literal won't be
-  // resolved to boost::asio::local::stream_protocol::endpoint overload.
+  /**
+   * \brief Construct by parsing from a null-terminated string.
+   * \param uri `scheme://host[:port]/path`
+   * \throw Error URI cannot be parsed
+   * \note This overload is needed so that calls with a string literal won't be
+   *       resolved to the boost::asio::local::stream_protocol::endpoint overload.
+   */
   explicit
   FaceUri(const char* uri);
 
   /// Exception-safe parsing.
   [[nodiscard]] bool
-  parse(const std::string& uri);
+  parse(std::string_view uri);
 
 public: // scheme-specific construction
   /// Construct a udp4 or udp6 canonical FaceUri.
@@ -80,7 +86,7 @@ public: // scheme-specific construction
   FaceUri(const boost::asio::ip::tcp::endpoint& endpoint);
 
   /// Construct a tcp canonical FaceUri with custom scheme.
-  FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, const std::string& scheme);
+  FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, std::string_view scheme);
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
   /// Construct a unix canonical FaceUri.
@@ -88,21 +94,21 @@ public: // scheme-specific construction
   FaceUri(const boost::asio::local::stream_protocol::endpoint& endpoint);
 #endif // BOOST_ASIO_HAS_LOCAL_SOCKETS
 
-  /// Construct an fd FaceUri from a file descriptor.
-  static FaceUri
-  fromFd(int fd);
-
   /// Construct an ether canonical FaceUri.
   explicit
   FaceUri(const ethernet::Address& address);
 
+  /// Construct an fd FaceUri from a file descriptor.
+  static FaceUri
+  fromFd(int fd);
+
   /// Construct a dev FaceUri from a network device name.
   static FaceUri
-  fromDev(const std::string& ifname);
+  fromDev(std::string_view ifname);
 
   /// Construct a udp4 or udp6 NIC-associated FaceUri from endpoint and network device name.
   static FaceUri
-  fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, const std::string& ifname);
+  fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, std::string_view ifname);
 
 public: // getters
   /// Get scheme (protocol)
@@ -112,7 +118,7 @@ public: // getters
     return m_scheme;
   }
 
-  /// Get host (domain)
+  /// Get host (domain or address)
   const std::string&
   getHost() const
   {
@@ -133,7 +139,7 @@ public: // getters
     return m_path;
   }
 
-  /// Serialize as a string
+  /// Return string representation
   std::string
   toString() const;
 
@@ -156,8 +162,9 @@ public: // canonical FaceUri
   using CanonizeFailureCallback = std::function<void(const std::string& reason)>;
 
   /** \brief Asynchronously convert this FaceUri to canonical form.
-   *  \param onSuccess function to call after this FaceUri is converted to canonical form
    *  \note A new FaceUri in canonical form will be created; this FaceUri is unchanged.
+   *
+   *  \param onSuccess function to call after this FaceUri is converted to canonical form
    *  \param onFailure function to call if this FaceUri cannot be converted to canonical form
    *  \param io        reference to `boost::asio::io_service` instance
    *  \param timeout   maximum allowable duration of the operations.
@@ -195,8 +202,7 @@ private:
   std::string m_host;
   std::string m_port;
   std::string m_path;
-  /// whether to add [] around host when writing string
-  bool m_isV6;
+  bool m_isV6 = false; ///< whether to add [] around host when converting to string representation
 
   friend std::ostream& operator<<(std::ostream& os, const FaceUri& uri);
 };

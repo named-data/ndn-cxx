@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,6 +30,13 @@ namespace tests {
 
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestBlockHelpers)
+
+BOOST_AUTO_TEST_CASE(Empty)
+{
+  Block b = makeEmptyBlock(200);
+  BOOST_CHECK_EQUAL(b.type(), 200);
+  BOOST_CHECK_EQUAL(b.value_size(), 0);
+}
 
 enum E8 : uint8_t
 {
@@ -69,21 +76,6 @@ BOOST_AUTO_TEST_CASE(NonNegativeInteger)
   BOOST_CHECK_EQUAL(static_cast<uint16_t>(readNonNegativeIntegerAs<EC16>(b)), 1000);
 }
 
-BOOST_AUTO_TEST_CASE(Empty)
-{
-  Block b = makeEmptyBlock(200);
-  BOOST_CHECK_EQUAL(b.type(), 200);
-  BOOST_CHECK_EQUAL(b.value_size(), 0);
-}
-
-BOOST_AUTO_TEST_CASE(String)
-{
-  Block b = makeStringBlock(100, "Hello, world!");
-  BOOST_CHECK_EQUAL(b.type(), 100);
-  BOOST_CHECK_GT(b.value_size(), 0);
-  BOOST_CHECK_EQUAL(readString(b), "Hello, world!");
-}
-
 BOOST_AUTO_TEST_CASE(Double)
 {
   const double f = 0.25;
@@ -103,29 +95,41 @@ BOOST_AUTO_TEST_CASE(Double)
 
 BOOST_AUTO_TEST_CASE(Binary)
 {
-  std::string buf1{1, 1, 1, 1};
+  const std::string buf1{1, 1, 1, 1};
   const uint8_t buf2[]{1, 1, 1, 1};
-  std::list<uint8_t> buf3{1, 1, 1, 1};
+  const std::list<uint8_t> buf3{1, 1, 1, 1};
 
-  Block b1 = makeBinaryBlock(100, buf1.data(), buf1.size()); // char* overload
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+  Block b1 = makeBinaryBlock(100, buf1.data(), buf1.size()); // char* overload (deprecated)
+#pragma GCC diagnostic pop
   Block b2 = makeBinaryBlock(100, buf2);                     // span overload
   Block b3 = makeBinaryBlock(100, buf1.begin(), buf1.end()); // fast encoding (random access iterator)
   Block b4 = makeBinaryBlock(100, buf3.begin(), buf3.end()); // slow encoding (general iterator)
 
-  BOOST_CHECK_EQUAL(b1, b2);
-  BOOST_CHECK_EQUAL(b1, b3);
-  BOOST_CHECK_EQUAL(b1, b4);
-  BOOST_CHECK_EQUAL(b1.type(), 100);
-  BOOST_CHECK_EQUAL(b1.value_size(), buf1.size());
-  BOOST_CHECK_EQUAL_COLLECTIONS(b1.value_begin(), b1.value_end(), buf2, buf2 + sizeof(buf2));
+  BOOST_TEST(b1 == b2);
+  BOOST_TEST(b1 == b3);
+  BOOST_TEST(b1 == b4);
+  BOOST_TEST(b1.type() == 100);
+  BOOST_TEST(b1.value_size() == sizeof(buf2));
+  BOOST_TEST(b1.value_bytes() == buf2, boost::test_tools::per_element());
 
   EncodingEstimator estimator;
   size_t length = prependBinaryBlock(estimator, 100, buf2);
-  BOOST_CHECK_EQUAL(length, 6);
+  BOOST_TEST(length == 6);
 
   EncodingBuffer encoder(length, 0);
-  BOOST_CHECK_EQUAL(prependBinaryBlock(encoder, 100, buf2), 6);
-  BOOST_CHECK_EQUAL(encoder.block(), b1);
+  BOOST_TEST(prependBinaryBlock(encoder, 100, buf2) == 6);
+  BOOST_TEST(encoder.block() == b1);
+}
+
+BOOST_AUTO_TEST_CASE(String)
+{
+  constexpr std::string_view sv{"Hello, world!"sv};
+  Block b = makeStringBlock(100, sv);
+  BOOST_TEST(b.type() == 100);
+  BOOST_TEST(b.value_size() == sv.size());
+  BOOST_TEST(readString(b) == sv);
 }
 
 BOOST_AUTO_TEST_CASE(PrependBlock)

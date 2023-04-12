@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,7 +46,6 @@ class PibDirFixture
 {
 public:
   PibDirFixture()
-    : m_pibDir(Path().PATH)
   {
     if (std::getenv("NDN_CLIENT_PIB") != nullptr) {
       m_oldPib = std::getenv("NDN_CLIENT_PIB");
@@ -81,7 +80,7 @@ public:
   }
 
 protected:
-  const std::string m_pibDir;
+  const std::string m_pibDir{Path::PATH};
 
 private:
   std::string m_oldPib;
@@ -119,7 +118,7 @@ public:
 
 struct DefaultPibDir
 {
-  const std::string PATH = "build/keys";
+  static constexpr std::string_view PATH{"build/keys"};
 };
 
 } // namespace tests

@@ -194,20 +194,12 @@ public: // constructors
   }
 
   /**
-   * @brief Construct a GenericNameComponent, copying the TLV-VALUE from a null-terminated string.
-   *
-   * Bytes from the string are copied as is, and not interpreted as URI component.
-   */
-  explicit
-  Component(const char* str);
-
-  /**
    * @brief Construct a GenericNameComponent, copying the TLV-VALUE from a string.
    *
    * Bytes from the string are copied as is, and not interpreted as URI component.
    */
   explicit
-  Component(const std::string& str);
+  Component(std::string_view str);
 
 public: // encoding and URI
   /**
@@ -235,11 +227,13 @@ public: // encoding and URI
    * The URI component is read from `[input+beginOffset, input+endOffset)` range.
    *
    * @throw Error URI component does not represent a valid NameComponent.
+   * @deprecated Use fromEscapedString(std::string_view)
    */
+  [[deprecated("use the string_view overload")]]
   static Component
   fromEscapedString(const char* input, size_t beginOffset, size_t endOffset)
   {
-    return fromEscapedString(std::string(input + beginOffset, input + endOffset));
+    return fromEscapedString(std::string_view(input + beginOffset, endOffset - beginOffset));
   }
 
   /**
@@ -247,17 +241,7 @@ public: // encoding and URI
    * @throw Error URI component does not represent a valid NameComponent.
    */
   static Component
-  fromEscapedString(const char* input)
-  {
-    return fromEscapedString(std::string(input));
-  }
-
-  /**
-   * @brief Decode NameComponent from a URI component.
-   * @throw Error URI component does not represent a valid NameComponent.
-   */
-  static Component
-  fromEscapedString(const std::string& input);
+  fromEscapedString(std::string_view input);
 
   /**
    * @brief Write `*this` to the output stream, escaping characters according to the NDN URI format.

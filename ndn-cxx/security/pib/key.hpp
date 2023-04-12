@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -195,7 +195,10 @@ private:
   friend std::ostream&
   operator<<(std::ostream& os, const Key& key)
   {
-    return os << (key ? key.getName() : "(empty)");
+    if (key)
+      return os << key.getName();
+    else
+      return os << "(empty)";
   }
 
 private:

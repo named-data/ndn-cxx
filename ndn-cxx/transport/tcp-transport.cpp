@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,6 +21,7 @@
 
 #include "ndn-cxx/transport/tcp-transport.hpp"
 #include "ndn-cxx/transport/detail/stream-transport-with-resolver-impl.hpp"
+
 #include "ndn-cxx/net/face-uri.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
@@ -29,7 +30,7 @@ NDN_LOG_INIT(ndn.TcpTransport);
 
 namespace ndn {
 
-TcpTransport::TcpTransport(const std::string& host, const std::string& port/* = "6363"*/)
+TcpTransport::TcpTransport(const std::string& host, const std::string& port)
   : m_host(host)
   , m_port(port)
 {
@@ -40,8 +41,8 @@ TcpTransport::~TcpTransport() = default;
 shared_ptr<TcpTransport>
 TcpTransport::create(const std::string& uri)
 {
-  const auto hostAndPort(getSocketHostAndPortFromUri(uri));
-  return make_shared<TcpTransport>(hostAndPort.first, hostAndPort.second);
+  auto [host, port] = getSocketHostAndPortFromUri(uri);
+  return make_shared<TcpTransport>(host, port);
 }
 
 std::pair<std::string, std::string>
@@ -57,7 +58,7 @@ TcpTransport::getSocketHostAndPortFromUri(const std::string& uriString)
   try {
     const FaceUri uri(uriString);
 
-    const std::string scheme = uri.getScheme();
+    const auto& scheme = uri.getScheme();
     if (scheme != "tcp" && scheme != "tcp4" && scheme != "tcp6") {
       NDN_THROW(Error("Cannot create TcpTransport from \"" + scheme + "\" URI"));
     }
@@ -65,7 +66,6 @@ TcpTransport::getSocketHostAndPortFromUri(const std::string& uriString)
     if (!uri.getHost().empty()) {
       host = uri.getHost();
     }
-
     if (!uri.getPort().empty()) {
       port = uri.getPort();
     }

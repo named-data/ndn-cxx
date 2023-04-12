@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -170,8 +170,8 @@ class HyperRelationChecker : public Checker
 {
 public:
   HyperRelationChecker(tlv::SignatureTypeValue sigType,
-                       const std::string& pktNameExpr, const std::string pktNameExpand,
-                       const std::string& klNameExpr, const std::string klNameExpand,
+                       const std::string& pktNameExpr, const std::string& pktNameExpand,
+                       const std::string& klNameExpr, const std::string& klNameExpand,
                        const NameRelation& hyperRelation);
 
 protected:

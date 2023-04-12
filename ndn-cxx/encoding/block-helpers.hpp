@@ -29,6 +29,30 @@
 namespace ndn {
 namespace encoding {
 
+/** @brief Prepend an empty TLV element.
+ *  @param encoder an EncodingBuffer or EncodingEstimator
+ *  @param type TLV-TYPE number
+ *  @details The TLV element has zero-length TLV-VALUE.
+ *  @sa makeEmptyBlock
+ */
+template<Tag TAG>
+size_t
+prependEmptyBlock(EncodingImpl<TAG>& encoder, uint32_t type);
+
+extern template size_t
+prependEmptyBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t);
+
+extern template size_t
+prependEmptyBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t);
+
+/** @brief Create an empty TLV block.
+ *  @param type TLV-TYPE number
+ *  @return A TLV block with zero-length TLV-VALUE
+ *  @sa prependEmptyBlock
+ */
+Block
+makeEmptyBlock(uint32_t type);
+
 /** @brief Prepend a TLV element containing a non-negative integer.
  *  @param encoder an EncodingBuffer or EncodingEstimator
  *  @param type TLV-TYPE number
@@ -93,62 +117,6 @@ readNonNegativeIntegerAs(const Block& block)
   return static_cast<R>(readNonNegativeIntegerAs<std::underlying_type_t<R>>(block));
 }
 
-/** @brief Prepend an empty TLV element.
- *  @param encoder an EncodingBuffer or EncodingEstimator
- *  @param type TLV-TYPE number
- *  @details The TLV element has zero-length TLV-VALUE.
- *  @sa makeEmptyBlock
- */
-template<Tag TAG>
-size_t
-prependEmptyBlock(EncodingImpl<TAG>& encoder, uint32_t type);
-
-extern template size_t
-prependEmptyBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t);
-
-extern template size_t
-prependEmptyBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t);
-
-/** @brief Create an empty TLV block.
- *  @param type TLV-TYPE number
- *  @return A TLV block with zero-length TLV-VALUE
- *  @sa prependEmptyBlock
- */
-Block
-makeEmptyBlock(uint32_t type);
-
-/** @brief Prepend a TLV element containing a string.
- *  @param encoder an EncodingBuffer or EncodingEstimator
- *  @param type TLV-TYPE number
- *  @param value string value, may contain NUL octets
- *  @sa makeStringBlock, readString
- */
-template<Tag TAG>
-size_t
-prependStringBlock(EncodingImpl<TAG>& encoder, uint32_t type, const std::string& value);
-
-extern template size_t
-prependStringBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, const std::string&);
-
-extern template size_t
-prependStringBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, const std::string&);
-
-/** @brief Create a TLV block containing a string.
- *  @param type TLV-TYPE number
- *  @param value string value, may contain NUL octets
- *  @sa prependStringBlock, readString
- */
-Block
-makeStringBlock(uint32_t type, const std::string& value);
-
-/** @brief Read TLV-VALUE of a TLV element as a string.
- *  @param block the TLV element
- *  @return a string, may contain NUL octets
- *  @sa prependStringBlock, makeStringBlock
- */
-std::string
-readString(const Block& block);
-
 /** @brief Prepend a TLV element containing an IEEE 754 double-precision floating-point number.
  *  @param encoder an EncodingBuffer or EncodingEstimator
  *  @param type TLV-TYPE number
@@ -206,18 +174,6 @@ prependBinaryBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, span<const u
  */
 Block
 makeBinaryBlock(uint32_t type, span<const uint8_t> value);
-
-/** @brief Create a TLV block copying the TLV-VALUE from a raw buffer.
- *  @param type TLV-TYPE number
- *  @param value raw buffer as TLV-VALUE
- *  @param length length of value buffer
- *  @deprecated
- */
-inline Block
-makeBinaryBlock(uint32_t type, const char* value, size_t length)
-{
-  return makeBinaryBlock(type, {reinterpret_cast<const uint8_t*>(value), length});
-}
 
 namespace detail {
 
@@ -293,6 +249,58 @@ makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 
   return BinaryBlockHelper::makeBlock(type, first, last);
 }
+
+/**
+ * @brief Create a TLV block copying the TLV-VALUE from a char buffer.
+ * @param type TLV-TYPE number
+ * @param value raw buffer as TLV-VALUE
+ * @param length length of value buffer
+ * @deprecated Use makeStringBlock()
+ */
+[[deprecated("use makeStringBlock")]]
+inline Block
+makeBinaryBlock(uint32_t type, const char* value, size_t length)
+{
+  return makeBinaryBlock(type, {reinterpret_cast<const uint8_t*>(value), length});
+}
+
+/**
+ * @brief Prepend a TLV element containing a string.
+ * @param encoder an EncodingBuffer or EncodingEstimator
+ * @param type TLV-TYPE number
+ * @param value string value, may contain NUL octets
+ * @sa makeStringBlock, readString
+ */
+template<Tag TAG>
+size_t
+prependStringBlock(EncodingImpl<TAG>& encoder, uint32_t type, std::string_view value);
+
+extern template size_t
+prependStringBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, uint32_t, std::string_view);
+
+extern template size_t
+prependStringBlock<EncoderTag>(EncodingImpl<EncoderTag>&, uint32_t, std::string_view);
+
+/**
+ * @brief Create a TLV block containing a string.
+ * @param type TLV-TYPE number
+ * @param value string value, may contain NUL octets
+ * @sa prependStringBlock, readString
+ */
+inline Block
+makeStringBlock(uint32_t type, std::string_view value)
+{
+  return makeBinaryBlock(type, {reinterpret_cast<const uint8_t*>(value.data()), value.size()});
+}
+
+/**
+ * @brief Read the TLV-VALUE of a TLV element as a string.
+ * @param block the TLV element
+ * @return a string, may contain NUL octets
+ * @sa prependStringBlock, makeStringBlock
+ */
+std::string
+readString(const Block& block);
 
 /**
  * @brief Prepend a TLV element.
@@ -394,13 +402,13 @@ makeNestedBlock(uint32_t type, I first, I last)
 
 } // namespace encoding
 
+using encoding::makeEmptyBlock;
 using encoding::makeNonNegativeIntegerBlock;
 using encoding::readNonNegativeInteger;
 using encoding::readNonNegativeIntegerAs;
-using encoding::makeEmptyBlock;
+using encoding::makeBinaryBlock;
 using encoding::makeStringBlock;
 using encoding::readString;
-using encoding::makeBinaryBlock;
 using encoding::makeNestedBlock;
 
 } // namespace ndn
