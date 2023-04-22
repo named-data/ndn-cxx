@@ -27,13 +27,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<KeyLocator>));
-BOOST_CONCEPT_ASSERT((WireEncodable<KeyLocator>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<KeyLocator>));
-BOOST_CONCEPT_ASSERT((WireDecodable<KeyLocator>));
-static_assert(std::is_convertible_v<KeyLocator::Error*, tlv::Error*>,
-              "KeyLocator::Error must inherit from tlv::Error");
-
 constexpr size_t MAX_KEY_DIGEST_OCTETS_TO_SHOW = 8;
 
 KeyLocator::KeyLocator() = default;

@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/security/validity-period.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/clock-fixture.hpp"
@@ -31,6 +32,13 @@ namespace security {
 namespace tests {
 
 using namespace ndn::tests;
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ValidityPeriod>));
+BOOST_CONCEPT_ASSERT((WireEncodable<ValidityPeriod>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<ValidityPeriod>));
+BOOST_CONCEPT_ASSERT((WireDecodable<ValidityPeriod>));
+static_assert(std::is_convertible_v<ValidityPeriod::Error*, tlv::Error*>,
+              "ValidityPeriod::Error must inherit from tlv::Error");
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestValidityPeriod)

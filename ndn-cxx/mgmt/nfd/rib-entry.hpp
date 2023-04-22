@@ -22,9 +22,9 @@
 #ifndef NDN_CXX_MGMT_NFD_RIB_ENTRY_HPP
 #define NDN_CXX_MGMT_NFD_RIB_ENTRY_HPP
 
-#include "ndn-cxx/name.hpp"
-#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/nfd-constants.hpp"
 #include "ndn-cxx/mgmt/nfd/route-flags-traits.hpp"
+#include "ndn-cxx/name.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 namespace ndn {
@@ -118,10 +118,10 @@ public:
   wireDecode(const Block& block);
 
 private:
-  uint64_t m_faceId;
-  RouteOrigin m_origin;
-  uint64_t m_cost;
-  uint64_t m_flags;
+  uint64_t m_faceId = INVALID_FACE_ID;
+  RouteOrigin m_origin = ROUTE_ORIGIN_APP;
+  uint64_t m_cost = 0;
+  uint64_t m_flags = ROUTE_FLAG_CHILD_INHERIT;
   std::optional<time::milliseconds> m_expirationPeriod;
 
   mutable Block m_wire;

@@ -23,13 +23,10 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 namespace ndn {
 namespace nfd {
-
-BOOST_CONCEPT_ASSERT((NotificationStreamItem<FaceEventNotification>));
 
 FaceEventNotification::FaceEventNotification() = default;
 

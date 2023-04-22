@@ -41,8 +41,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceUri>));
-
 FaceUri::FaceUri() = default;
 
 FaceUri::FaceUri(const std::string& uri)

@@ -45,6 +45,7 @@
 #include <boost/asio/basic_socket.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/chrono.hpp>
+#include <boost/concept_check.hpp>
 #include <boost/endian/conversion.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/lexical_cast.hpp>

@@ -701,7 +701,7 @@ public:
   static constexpr size_t npos = std::numeric_limits<size_t>::max();
 
 private:
-  mutable Block m_wire;
+  mutable Block m_wire{tlv::Name};
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Name);

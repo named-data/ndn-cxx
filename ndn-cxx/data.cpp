@@ -24,13 +24,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
-BOOST_CONCEPT_ASSERT((WireEncodable<Data>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Data>));
-BOOST_CONCEPT_ASSERT((WireDecodable<Data>));
-static_assert(std::is_convertible_v<Data::Error*, tlv::Error*>,
-              "Data::Error must inherit from tlv::Error");
-
 Data::Data(const Name& name)
   : m_name(name)
 {

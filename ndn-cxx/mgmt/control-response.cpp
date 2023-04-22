@@ -26,12 +26,6 @@
 namespace ndn {
 namespace mgmt {
 
-// BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ControlResponse>));
-BOOST_CONCEPT_ASSERT((WireEncodable<ControlResponse>));
-BOOST_CONCEPT_ASSERT((WireDecodable<ControlResponse>));
-static_assert(std::is_convertible_v<ControlResponse::Error*, tlv::Error*>,
-              "ControlResponse::Error must inherit from tlv::Error");
-
 ControlResponse::ControlResponse() = default;
 
 ControlResponse::ControlResponse(uint32_t code, const std::string& text)

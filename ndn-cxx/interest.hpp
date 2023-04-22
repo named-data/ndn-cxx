@@ -490,8 +490,6 @@ private:
   findFirstParameter(uint32_t type) const;
 
 private:
-  static bool s_autoCheckParametersDigest;
-
   Name m_name;
   std::vector<Name> m_forwardingHint;
   mutable std::optional<Nonce> m_nonce;
@@ -509,6 +507,8 @@ private:
   std::vector<Block> m_parameters;
 
   mutable Block m_wire;
+
+  static inline bool s_autoCheckParametersDigest = true;
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Interest);

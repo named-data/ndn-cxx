@@ -22,9 +22,9 @@
 #ifndef NDN_CXX_LP_FIELD_HPP
 #define NDN_CXX_LP_FIELD_HPP
 
-#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
-#include "ndn-cxx/util/concepts.hpp"
+
+#include <boost/concept/usage.hpp>
 
 namespace ndn {
 namespace lp {
@@ -65,6 +65,7 @@ struct Field
   static_assert(std::is_same_v<typename X::IsRepeatable::value_type, bool>, "");
   static_assert(std::is_default_constructible_v<typename X::ValueType>, "");
   static_assert(std::is_copy_constructible_v<typename X::ValueType>, "");
+
   BOOST_CONCEPT_USAGE(Field)
   {
     Block wire;

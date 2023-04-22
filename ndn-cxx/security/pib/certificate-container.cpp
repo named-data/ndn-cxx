@@ -21,7 +21,6 @@
 
 #include "ndn-cxx/security/pib/certificate-container.hpp"
 #include "ndn-cxx/security/pib/pib-impl.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
@@ -29,8 +28,6 @@ namespace security {
 namespace pib {
 
 NDN_LOG_INIT(ndn.security.CertificateContainer);
-
-NDN_CXX_ASSERT_FORWARD_ITERATOR(CertificateContainer::const_iterator);
 
 CertificateContainer::const_iterator::const_iterator(NameSet::const_iterator it,
                                                      const CertificateContainer& container) noexcept

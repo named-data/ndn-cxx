@@ -21,23 +21,15 @@
 
 #include "ndn-cxx/security/validity-period.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace security {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ValidityPeriod>));
-BOOST_CONCEPT_ASSERT((WireEncodable<ValidityPeriod>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<ValidityPeriod>));
-BOOST_CONCEPT_ASSERT((WireDecodable<ValidityPeriod>));
-static_assert(std::is_convertible_v<ValidityPeriod::Error*, tlv::Error*>,
-              "ValidityPeriod::Error must inherit from tlv::Error");
+using boost::chrono::time_point_cast;
 
 constexpr size_t ISO_DATETIME_SIZE = 15;
 constexpr size_t NOT_BEFORE_OFFSET = 0;
 constexpr size_t NOT_AFTER_OFFSET = 1;
-
-using boost::chrono::time_point_cast;
 
 ValidityPeriod
 ValidityPeriod::makeRelative(time::seconds validFrom, time::seconds validUntil,

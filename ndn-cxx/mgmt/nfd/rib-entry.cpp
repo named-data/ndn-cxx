@@ -23,7 +23,6 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/ostream-joiner.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
@@ -32,16 +31,7 @@
 namespace ndn {
 namespace nfd {
 
-BOOST_CONCEPT_ASSERT((StatusDatasetItem<Route>));
-BOOST_CONCEPT_ASSERT((StatusDatasetItem<RibEntry>));
-
-Route::Route()
-  : m_faceId(INVALID_FACE_ID)
-  , m_origin(ROUTE_ORIGIN_APP)
-  , m_cost(0)
-  , m_flags(ROUTE_FLAG_CHILD_INHERIT)
-{
-}
+Route::Route() = default;
 
 Route::Route(const Block& block)
 {

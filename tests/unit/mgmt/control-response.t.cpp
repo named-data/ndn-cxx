@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,12 +20,18 @@
  */
 
 #include "ndn-cxx/mgmt/control-response.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 #include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace mgmt {
 namespace tests {
+
+BOOST_CONCEPT_ASSERT((WireEncodable<ControlResponse>));
+BOOST_CONCEPT_ASSERT((WireDecodable<ControlResponse>));
+static_assert(std::is_convertible_v<ControlResponse::Error*, tlv::Error*>,
+              "ControlResponse::Error must inherit from tlv::Error");
 
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(TestControlResponse)

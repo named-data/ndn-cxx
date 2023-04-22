@@ -202,7 +202,7 @@ Dispatcher::processAuthorizedControlCommandInterest(const std::string& requester
 {
   if (validateParams(*parameters)) {
     handler(prefix, interest, *parameters,
-            [=] (const auto& resp) { this->sendControlResponse(resp, interest); });
+            [=] (const auto& resp) { sendControlResponse(resp, interest); });
   }
   else {
     sendControlResponse(ControlResponse(400, "failed in validating parameters"), interest);
@@ -223,8 +223,8 @@ Dispatcher::sendControlResponse(const ControlResponse& resp, const Interest& int
 
 void
 Dispatcher::addStatusDataset(const PartialName& relPrefix,
-                             Authorization authorize,
-                             StatusDatasetHandler handle)
+                             Authorization auth,
+                             StatusDatasetHandler handler)
 {
   if (!m_topLevelPrefixes.empty()) {
     NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
@@ -234,18 +234,22 @@ Dispatcher::addStatusDataset(const PartialName& relPrefix,
     NDN_THROW(std::out_of_range("status dataset name overlaps"));
   }
 
-  AuthorizationAcceptedCallback accepted =
-    std::bind(&Dispatcher::processAuthorizedStatusDatasetInterest, this, _2, _3, std::move(handle));
-  AuthorizationRejectedCallback rejected = [this] (auto&&... args) {
-    afterAuthorizationRejected(std::forward<decltype(args)>(args)...);
-  };
-
+  AuthorizationAcceptedCallback accept =
+    [this, handler = std::move(handler)] (auto&&, const auto& prefix, const auto& interest, auto&&) {
+      processAuthorizedStatusDatasetInterest(prefix, interest, handler);
+    };
+  AuthorizationRejectedCallback reject =
+    [this] (auto&&... args) {
+      afterAuthorizationRejected(std::forward<decltype(args)>(args)...);
+    };
   // follow the general path if storage is a miss
-  InterestHandler missContinuation = std::bind(&Dispatcher::processStatusDatasetInterest, this, _1, _2,
-                                               std::move(authorize), std::move(accepted), std::move(rejected));
+  InterestHandler missContinuation =
+    [this, auth = std::move(auth), accept = std::move(accept), reject = std::move(reject)] (auto&&... args) {
+      processStatusDatasetInterest(std::forward<decltype(args)>(args)..., auth, accept, reject);
+    };
 
   m_handlers[relPrefix] = [this, miss = std::move(missContinuation)] (auto&&... args) {
-    this->queryStorage(std::forward<decltype(args)>(args)..., miss);
+    queryStorage(std::forward<decltype(args)>(args)..., miss);
   };
 }
 
@@ -315,7 +319,7 @@ Dispatcher::addNotificationStream(const PartialName& relPrefix)
   // register a handler for the subscriber of this notification stream
   // keep silent if Interest does not match a stored notification
   m_handlers[relPrefix] = [this] (auto&&... args) {
-    this->queryStorage(std::forward<decltype(args)>(args)..., nullptr);
+    queryStorage(std::forward<decltype(args)>(args)..., nullptr);
   };
   m_streams[relPrefix] = 0;
 

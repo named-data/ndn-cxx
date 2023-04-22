@@ -35,14 +35,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((WireEncodable<Interest>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Interest>));
-BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
-static_assert(std::is_convertible_v<Interest::Error*, tlv::Error*>,
-              "Interest::Error must inherit from tlv::Error");
-
-bool Interest::s_autoCheckParametersDigest = true;
-
 Interest::Interest(const Name& name, time::milliseconds lifetime)
 {
   setName(name);

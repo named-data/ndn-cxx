@@ -22,7 +22,6 @@
 #include "ndn-cxx/security/pib/identity-container.hpp"
 #include "ndn-cxx/security/pib/impl/identity-impl.hpp"
 #include "ndn-cxx/security/pib/pib-impl.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
 namespace ndn {
@@ -30,8 +29,6 @@ namespace security {
 namespace pib {
 
 NDN_LOG_INIT(ndn.security.IdentityContainer);
-
-NDN_CXX_ASSERT_FORWARD_ITERATOR(IdentityContainer::const_iterator);
 
 IdentityContainer::const_iterator::const_iterator(NameSet::const_iterator it,
                                                   const IdentityContainer& container) noexcept

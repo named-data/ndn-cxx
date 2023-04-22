@@ -37,33 +37,34 @@ public:
   run()
   {
     m_face.setInterestFilter("/example/testApp/randomData",
-                             std::bind(&Producer::onInterest, this, _1, _2),
+                             std::bind(&Producer::onInterest, this, _2),
                              nullptr, // RegisterPrefixSuccessCallback is optional
                              std::bind(&Producer::onRegisterFailed, this, _1, _2));
 
     auto cert = m_keyChain.getPib().getDefaultIdentity().getDefaultKey().getDefaultCertificate();
     m_certServeHandle = m_face.setInterestFilter(security::extractIdentityFromCertName(cert.getName()),
-                             [this, cert] (auto&&...) {
-                               m_face.put(cert);
-                             },
-                             std::bind(&Producer::onRegisterFailed, this, _1, _2));
+                                                 [this, cert] (auto&&...) {
+                                                   m_face.put(cert);
+                                                 },
+                                                 std::bind(&Producer::onRegisterFailed, this, _1, _2));
     m_face.processEvents();
   }
 
 private:
   void
-  onInterest(const InterestFilter&, const Interest& interest)
+  onInterest(const Interest& interest)
   {
     std::cout << ">> I: " << interest << std::endl;
 
-    constexpr std::string_view content{"Hello, world!"};
-
     // Create Data packet
-    auto data = std::make_shared<Data>(interest.getName());
+    auto data = std::make_shared<Data>();
+    data->setName(interest.getName());
     data->setFreshnessPeriod(10_s);
-    data->setContent(make_span(reinterpret_cast<const uint8_t*>(content.data()), content.size()));
 
-    // in order for the consumer application to be able to validate the packet, you need to setup
+    constexpr std::string_view content{"Hello, world!"};
+    data->setContent({reinterpret_cast<const uint8_t*>(content.data()), content.size()});
+
+    // In order for the consumer application to be able to validate the packet, you need to setup
     // the following keys:
     // 1. Generate example trust anchor
     //
@@ -91,7 +92,7 @@ private:
   onRegisterFailed(const Name& prefix, const std::string& reason)
   {
     std::cerr << "ERROR: Failed to register prefix '" << prefix
-              << "' with the local forwarder (" << reason << ")" << std::endl;
+              << "' with the local forwarder (" << reason << ")\n";
     m_face.shutdown();
   }
 

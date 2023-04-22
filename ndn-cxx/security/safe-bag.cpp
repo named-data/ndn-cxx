@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,13 +24,9 @@
 #include "ndn-cxx/security/safe-bag.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-security.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace security {
-
-BOOST_CONCEPT_ASSERT((WireEncodable<SafeBag>));
-BOOST_CONCEPT_ASSERT((WireDecodable<SafeBag>));
 
 SafeBag::SafeBag() = default;
 

@@ -35,13 +35,6 @@
 namespace ndn {
 namespace name {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Component>));
-BOOST_CONCEPT_ASSERT((WireEncodable<Component>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Component>));
-BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
-static_assert(std::is_convertible_v<Component::Error*, tlv::Error*>,
-              "name::Component::Error must inherit from tlv::Error");
-
 static Convention g_conventionEncoding = Convention::TYPED;
 static Convention g_conventionDecoding = Convention::EITHER;
 

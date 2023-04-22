@@ -19,26 +19,27 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#include "ndn-cxx/util/signal/connection.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 
 namespace ndn {
-namespace util {
-namespace signal {
+namespace lp {
+namespace tests {
 
-Connection::Connection(weak_ptr<DisconnectFunction> disconnect) noexcept
-  : m_disconnect(std::move(disconnect))
-{
-}
+BOOST_CONCEPT_ASSERT((Field<FragmentField>));
+BOOST_CONCEPT_ASSERT((Field<SequenceField>));
+BOOST_CONCEPT_ASSERT((Field<FragIndexField>));
+BOOST_CONCEPT_ASSERT((Field<FragCountField>));
+BOOST_CONCEPT_ASSERT((Field<PitTokenField>));
+BOOST_CONCEPT_ASSERT((Field<NackField>));
+BOOST_CONCEPT_ASSERT((Field<IncomingFaceIdField>));
+BOOST_CONCEPT_ASSERT((Field<NextHopFaceIdField>));
+BOOST_CONCEPT_ASSERT((Field<CachePolicyField>));
+BOOST_CONCEPT_ASSERT((Field<CongestionMarkField>));
+BOOST_CONCEPT_ASSERT((Field<AckField>));
+BOOST_CONCEPT_ASSERT((Field<TxSequenceField>));
+BOOST_CONCEPT_ASSERT((Field<NonDiscoveryField>));
+BOOST_CONCEPT_ASSERT((Field<PrefixAnnouncementField>));
 
-void
-Connection::disconnect()
-{
-  auto f = m_disconnect.lock();
-  if (f != nullptr) {
-    (*f)();
-  }
-}
-
-} // namespace signal
-} // namespace util
+} // namespace tests
+} // namespace lp
 } // namespace ndn

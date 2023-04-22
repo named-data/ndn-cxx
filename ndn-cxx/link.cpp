@@ -25,13 +25,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Link>));
-BOOST_CONCEPT_ASSERT((WireEncodable<Link>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Link>));
-BOOST_CONCEPT_ASSERT((WireDecodable<Link>));
-static_assert(std::is_convertible_v<Link::Error*, Data::Error*>,
-              "Link::Error should inherit from Data::Error");
-
 Link::Link() = default;
 
 Link::Link(const Block& wire)

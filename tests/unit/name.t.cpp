@@ -24,12 +24,25 @@
 #include "tests/boost-test.hpp"
 
 #include <unordered_map>
+#include <boost/range/concepts.hpp>
 
 namespace ndn {
 namespace tests {
 
 using Component = name::Component;
 using UriFormat = name::UriFormat;
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Name>));
+BOOST_CONCEPT_ASSERT((WireEncodable<Name>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Name>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Name>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::reverse_iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_reverse_iterator>));
+BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<Name>));
+static_assert(std::is_convertible_v<Name::Error*, tlv::Error*>,
+              "Name::Error must inherit from tlv::Error");
 
 BOOST_AUTO_TEST_SUITE(TestName)
 

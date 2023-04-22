@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,12 +20,18 @@
  */
 
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 #include "tests/boost-test.hpp"
 
 namespace ndn {
 namespace nfd {
 namespace tests {
+
+BOOST_CONCEPT_ASSERT((WireEncodable<ControlParameters>));
+BOOST_CONCEPT_ASSERT((WireDecodable<ControlParameters>));
+static_assert(std::is_convertible_v<ControlParameters::Error*, tlv::Error*>,
+              "ControlParameters::Error must inherit from tlv::Error");
 
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(Nfd)

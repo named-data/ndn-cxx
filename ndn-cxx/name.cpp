@@ -31,28 +31,12 @@
 #include <sstream>
 #include <boost/functional/hash.hpp>
 #include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/concepts.hpp>
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Name>));
-BOOST_CONCEPT_ASSERT((WireEncodable<Name>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Name>));
-BOOST_CONCEPT_ASSERT((WireDecodable<Name>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::iterator>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_iterator>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::reverse_iterator>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Name::const_reverse_iterator>));
-BOOST_CONCEPT_ASSERT((boost::RandomAccessRangeConcept<Name>));
-static_assert(std::is_convertible_v<Name::Error*, tlv::Error*>,
-              "Name::Error must inherit from tlv::Error");
-
 // ---- constructors, encoding, decoding ----
 
-Name::Name()
-  : m_wire(tlv::Name)
-{
-}
+Name::Name() = default;
 
 Name::Name(const Block& wire)
   : m_wire(wire)

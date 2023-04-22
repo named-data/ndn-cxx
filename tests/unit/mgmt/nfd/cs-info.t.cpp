@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,13 +20,17 @@
  */
 
 #include "ndn-cxx/mgmt/nfd/cs-info.hpp"
+#include "ndn-cxx/util/concepts.hpp"
 
 #include "tests/boost-test.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace nfd {
 namespace tests {
+
+BOOST_CONCEPT_ASSERT((StatusDatasetItem<CsInfo>));
 
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(Nfd)

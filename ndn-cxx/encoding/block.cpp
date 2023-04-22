@@ -37,8 +37,6 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Block>));
-
 constexpr size_t MAX_SIZE_OF_BLOCK_FROM_STREAM = MAX_NDN_PACKET_SIZE;
 
 // ---- constructor, creation, assignment ----

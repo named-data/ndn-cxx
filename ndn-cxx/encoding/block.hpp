@@ -246,6 +246,7 @@ public: // wire format
   /**
    * @deprecated Use data()
    */
+  [[deprecated("use data()")]]
   const uint8_t*
   wire() const
   {

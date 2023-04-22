@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,6 @@ namespace util {
 namespace tests {
 
 using namespace ndn::tests;
-using std::bind;
 
 class SegmentFetcherFixture : public IoKeyChainFixture
 {
@@ -93,10 +92,10 @@ public:
   void
   connectSignals(const shared_ptr<SegmentFetcher>& fetcher)
   {
-    fetcher->onInOrderData.connect(bind(&SegmentFetcherFixture::onInOrderData, this, _1));
-    fetcher->onInOrderComplete.connect(bind(&SegmentFetcherFixture::onInOrderComplete, this));
-    fetcher->onComplete.connect(bind(&SegmentFetcherFixture::onComplete, this, _1));
-    fetcher->onError.connect(bind(&SegmentFetcherFixture::onError, this, _1));
+    fetcher->onInOrderData.connect(std::bind(&SegmentFetcherFixture::onInOrderData, this, _1));
+    fetcher->onInOrderComplete.connect(std::bind(&SegmentFetcherFixture::onInOrderComplete, this));
+    fetcher->onComplete.connect(std::bind(&SegmentFetcherFixture::onComplete, this, _1));
+    fetcher->onError.connect(std::bind(&SegmentFetcherFixture::onError, this, _1));
 
     fetcher->afterSegmentReceived.connect([this] (const auto&) { ++this->nAfterSegmentReceived; });
     fetcher->afterSegmentValidated.connect([this] (const auto &) { ++this->nAfterSegmentValidated; });
@@ -190,7 +189,7 @@ BOOST_AUTO_TEST_CASE(ExceedMaxTimeout)
   shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
                                                              acceptValidator, options);
   connectSignals(fetcher);
-  fetcher->afterSegmentTimedOut.connect(bind([&nAfterSegmentTimedOut] { ++nAfterSegmentTimedOut; }));
+  fetcher->afterSegmentTimedOut.connect([&nAfterSegmentTimedOut] { ++nAfterSegmentTimedOut; });
 
   advanceClocks(1_ms);
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
@@ -310,7 +309,7 @@ BOOST_AUTO_TEST_CASE(BasicMultipleSegments)
 
   shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
                                                              acceptValidator);
-  face.onSendInterest.connect(bind(&SegmentFetcherFixture::onInterest, this, _1));
+  face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
   face.processEvents(1_s);
@@ -333,7 +332,7 @@ BOOST_AUTO_TEST_CASE(BasicInOrder)
   sendNackInsteadOfDropping = false;
 
   auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator, options);
-  face.onSendInterest.connect(bind(&SegmentFetcherFixture::onInterest, this, _1));
+  face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
   face.processEvents(1_s);
@@ -358,7 +357,7 @@ BOOST_AUTO_TEST_CASE(FirstSegmentNotZero)
 
   shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
                                                              acceptValidator);
-  face.onSendInterest.connect(bind(&SegmentFetcherFixture::onInterest, this, _1));
+  face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
   face.processEvents(1_s);
@@ -382,7 +381,7 @@ BOOST_AUTO_TEST_CASE(FirstSegmentNotZeroInOrder)
   defaultSegmentToSend = 47;
 
   auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator, options);
-  face.onSendInterest.connect(bind(&SegmentFetcherFixture::onInterest, this, _1));
+  face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
   face.processEvents(1_s);
@@ -627,7 +626,7 @@ BOOST_AUTO_TEST_CASE(DuplicateNack)
 
   shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
                                                              acceptValidator);
-  face.onSendInterest.connect(bind(&SegmentFetcherFixture::onInterest, this, _1));
+  face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
   face.processEvents(1_s);
@@ -652,7 +651,7 @@ BOOST_AUTO_TEST_CASE(CongestionNack)
 
   shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
                                                              acceptValidator);
-  face.onSendInterest.connect(bind(&SegmentFetcherFixture::onInterest, this, _1));
+  face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
   face.processEvents(1_s);
@@ -672,7 +671,7 @@ BOOST_AUTO_TEST_CASE(OtherNackReason)
   segmentsToDropOrNack.push(0);
   sendNackInsteadOfDropping = true;
   nackReason = lp::NackReason::NO_ROUTE;
-  face.onSendInterest.connect(bind(&SegmentFetcherFixture::onInterest, this, _1));
+  face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
 
   shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
                                                              acceptValidator);

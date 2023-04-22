@@ -28,6 +28,13 @@
 namespace ndn {
 namespace tests {
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<SignatureInfo>));
+BOOST_CONCEPT_ASSERT((WireEncodable<SignatureInfo>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<SignatureInfo>));
+BOOST_CONCEPT_ASSERT((WireDecodable<SignatureInfo>));
+static_assert(std::is_convertible_v<SignatureInfo::Error*, tlv::Error*>,
+              "SignatureInfo::Error must inherit from tlv::Error");
+
 BOOST_AUTO_TEST_SUITE(TestSignatureInfo)
 
 BOOST_AUTO_TEST_CASE(Constructor)

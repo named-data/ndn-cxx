@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,29 +23,11 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
 
-BOOST_CONCEPT_ASSERT((StatusDatasetItem<ForwarderStatus>));
-
-ForwarderStatus::ForwarderStatus()
-  : m_nNameTreeEntries(0)
-  , m_nFibEntries(0)
-  , m_nPitEntries(0)
-  , m_nMeasurementsEntries(0)
-  , m_nCsEntries(0)
-  , m_nInInterests(0)
-  , m_nInData(0)
-  , m_nInNacks(0)
-  , m_nOutInterests(0)
-  , m_nOutData(0)
-  , m_nOutNacks(0)
-  , m_nSatisfiedInterests(0)
-  , m_nUnsatisfiedInterests(0)
-{
-}
+ForwarderStatus::ForwarderStatus() = default;
 
 ForwarderStatus::ForwarderStatus(const Block& payload)
 {

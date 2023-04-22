@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,18 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 
 #include "tests/boost-test.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 namespace ndn {
 namespace tests {
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<KeyLocator>));
+BOOST_CONCEPT_ASSERT((WireEncodable<KeyLocator>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<KeyLocator>));
+BOOST_CONCEPT_ASSERT((WireDecodable<KeyLocator>));
+static_assert(std::is_convertible_v<KeyLocator::Error*, tlv::Error*>,
+              "KeyLocator::Error must inherit from tlv::Error");
 
 BOOST_AUTO_TEST_SUITE(TestKeyLocator)
 

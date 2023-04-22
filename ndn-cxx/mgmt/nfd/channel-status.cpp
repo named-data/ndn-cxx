@@ -22,12 +22,9 @@
 #include "ndn-cxx/mgmt/nfd/channel-status.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
-
-BOOST_CONCEPT_ASSERT((StatusDatasetItem<ChannelStatus>));
 
 ChannelStatus::ChannelStatus() = default;
 

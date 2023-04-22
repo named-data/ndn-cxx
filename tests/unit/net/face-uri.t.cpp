@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California,
+ * Copyright (c) 2013-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -32,8 +32,12 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/net/network-configuration-detector.hpp"
 
+#include <boost/concept_check.hpp>
+
 namespace ndn {
 namespace tests {
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceUri>));
 
 BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestFaceUri)

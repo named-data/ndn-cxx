@@ -21,20 +21,12 @@
 
 #include "ndn-cxx/signature-info.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 #include <algorithm>
 #include <boost/range/adaptor/reversed.hpp>
 
 namespace ndn {
-
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<SignatureInfo>));
-BOOST_CONCEPT_ASSERT((WireEncodable<SignatureInfo>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<SignatureInfo>));
-BOOST_CONCEPT_ASSERT((WireDecodable<SignatureInfo>));
-static_assert(std::is_convertible_v<SignatureInfo::Error*, tlv::Error*>,
-              "SignatureInfo::Error must inherit from tlv::Error");
 
 SignatureInfo::SignatureInfo() = default;
 

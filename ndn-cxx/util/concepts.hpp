@@ -31,6 +31,7 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 
+#include <boost/concept_check.hpp>
 #include <boost/concept/usage.hpp>
 #include <boost/type_traits/has_equal_to.hpp>
 #include <boost/type_traits/has_not_equal_to.hpp>

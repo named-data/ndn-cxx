@@ -257,7 +257,7 @@ makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
  * @param length length of value buffer
  * @deprecated Use makeStringBlock()
  */
-[[deprecated("use makeStringBlock")]]
+[[deprecated("use makeStringBlock()")]]
 inline Block
 makeBinaryBlock(uint32_t type, const char* value, size_t length)
 {

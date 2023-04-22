@@ -23,25 +23,12 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 namespace ndn {
 namespace nfd {
 
-BOOST_CONCEPT_ASSERT((StatusDatasetItem<FaceStatus>));
-
-FaceStatus::FaceStatus()
-  : m_nInInterests(0)
-  , m_nInData(0)
-  , m_nInNacks(0)
-  , m_nOutInterests(0)
-  , m_nOutData(0)
-  , m_nOutNacks(0)
-  , m_nInBytes(0)
-  , m_nOutBytes(0)
-{
-}
+FaceStatus::FaceStatus() = default;
 
 FaceStatus::FaceStatus(const Block& block)
 {

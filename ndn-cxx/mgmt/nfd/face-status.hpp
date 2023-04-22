@@ -225,14 +225,14 @@ private:
   std::optional<time::nanoseconds> m_baseCongestionMarkingInterval;
   std::optional<uint64_t> m_defaultCongestionThreshold;
   std::optional<uint64_t> m_mtu;
-  uint64_t m_nInInterests;
-  uint64_t m_nInData;
-  uint64_t m_nInNacks;
-  uint64_t m_nOutInterests;
-  uint64_t m_nOutData;
-  uint64_t m_nOutNacks;
-  uint64_t m_nInBytes;
-  uint64_t m_nOutBytes;
+  uint64_t m_nInInterests = 0;
+  uint64_t m_nInData = 0;
+  uint64_t m_nInNacks = 0;
+  uint64_t m_nOutInterests = 0;
+  uint64_t m_nOutData = 0;
+  uint64_t m_nOutNacks = 0;
+  uint64_t m_nInBytes = 0;
+  uint64_t m_nOutBytes = 0;
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(FaceStatus);

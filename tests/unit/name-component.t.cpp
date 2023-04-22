@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,6 +33,13 @@
 namespace ndn {
 namespace name {
 namespace tests {
+
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Component>));
+BOOST_CONCEPT_ASSERT((WireEncodable<Component>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Component>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Component>));
+static_assert(std::is_convertible_v<Component::Error*, tlv::Error*>,
+              "name::Component::Error must inherit from tlv::Error");
 
 BOOST_AUTO_TEST_SUITE(TestNameComponent)
 

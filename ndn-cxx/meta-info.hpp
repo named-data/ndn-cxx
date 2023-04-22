@@ -195,8 +195,8 @@ public: // app-defined MetaInfo items
   findAppMetaInfo(uint32_t tlvType) const;
 
 private:
-  uint32_t m_type;
-  time::milliseconds m_freshnessPeriod;
+  uint32_t m_type = tlv::ContentType_Blob;
+  time::milliseconds m_freshnessPeriod = DEFAULT_FRESHNESS_PERIOD;
   std::optional<name::Component> m_finalBlockId;
   std::list<Block> m_appMetaInfo;
 

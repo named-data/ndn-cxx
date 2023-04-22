@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -79,23 +79,23 @@ public: // getters & setters
   ForwarderStatus&
   setNfdVersion(const std::string& nfdVersion);
 
-  const time::system_clock::TimePoint&
+  const time::system_clock::time_point&
   getStartTimestamp() const
   {
     return m_startTimestamp;
   }
 
   ForwarderStatus&
-  setStartTimestamp(const time::system_clock::TimePoint& startTimestamp);
+  setStartTimestamp(const time::system_clock::time_point& startTimestamp);
 
-  const time::system_clock::TimePoint&
+  const time::system_clock::time_point&
   getCurrentTimestamp() const
   {
     return m_currentTimestamp;
   }
 
   ForwarderStatus&
-  setCurrentTimestamp(const time::system_clock::TimePoint& currentTimestamp);
+  setCurrentTimestamp(const time::system_clock::time_point& currentTimestamp);
 
   uint64_t
   getNNameTreeEntries() const
@@ -216,21 +216,21 @@ public: // getters & setters
 
 private:
   std::string m_nfdVersion;
-  time::system_clock::TimePoint m_startTimestamp;
-  time::system_clock::TimePoint m_currentTimestamp;
-  uint64_t m_nNameTreeEntries;
-  uint64_t m_nFibEntries;
-  uint64_t m_nPitEntries;
-  uint64_t m_nMeasurementsEntries;
-  uint64_t m_nCsEntries;
-  uint64_t m_nInInterests;
-  uint64_t m_nInData;
-  uint64_t m_nInNacks;
-  uint64_t m_nOutInterests;
-  uint64_t m_nOutData;
-  uint64_t m_nOutNacks;
-  uint64_t m_nSatisfiedInterests;
-  uint64_t m_nUnsatisfiedInterests;
+  time::system_clock::time_point m_startTimestamp;
+  time::system_clock::time_point m_currentTimestamp;
+  uint64_t m_nNameTreeEntries = 0;
+  uint64_t m_nFibEntries = 0;
+  uint64_t m_nPitEntries = 0;
+  uint64_t m_nMeasurementsEntries = 0;
+  uint64_t m_nCsEntries = 0;
+  uint64_t m_nInInterests = 0;
+  uint64_t m_nInData = 0;
+  uint64_t m_nInNacks = 0;
+  uint64_t m_nOutInterests = 0;
+  uint64_t m_nOutData = 0;
+  uint64_t m_nOutNacks = 0;
+  uint64_t m_nSatisfiedInterests = 0;
+  uint64_t m_nUnsatisfiedInterests = 0;
 
   mutable Block m_wire;
 };

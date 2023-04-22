@@ -22,16 +22,9 @@
 #include "ndn-cxx/mgmt/nfd/face-query-filter.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 
 namespace ndn {
 namespace nfd {
-
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceQueryFilter>));
-BOOST_CONCEPT_ASSERT((WireEncodable<FaceQueryFilter>));
-BOOST_CONCEPT_ASSERT((WireDecodable<FaceQueryFilter>));
-static_assert(std::is_convertible_v<FaceQueryFilter::Error*, tlv::Error*>,
-              "FaceQueryFilter::Error must inherit from tlv::Error");
 
 FaceQueryFilter::FaceQueryFilter() = default;
 

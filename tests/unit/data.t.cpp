@@ -37,6 +37,13 @@
 namespace ndn {
 namespace tests {
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
+BOOST_CONCEPT_ASSERT((WireEncodable<Data>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Data>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Data>));
+static_assert(std::is_convertible_v<Data::Error*, tlv::Error*>,
+              "Data::Error must inherit from tlv::Error");
+
 BOOST_AUTO_TEST_SUITE(TestData)
 
 const uint8_t CONTENT1[] = {0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x21};

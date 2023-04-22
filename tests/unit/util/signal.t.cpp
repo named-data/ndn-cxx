@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,8 @@
 #include "ndn-cxx/util/signal.hpp"
 
 #include "tests/boost-test.hpp"
+
+#include <boost/concept_check.hpp>
 
 namespace ndn {
 namespace util {
@@ -117,19 +119,16 @@ BOOST_AUTO_TEST_CASE(TwoArguments)
 class RefObject
 {
 public:
-  RefObject()
-  {
-  }
+  RefObject() = default;
 
-  RefObject(const RefObject& other)
+  RefObject(const RefObject&)
   {
     ++s_copyCount;
   }
 
 public:
-  static int s_copyCount;
+  static inline int s_copyCount = 0;
 };
-int RefObject::s_copyCount = 0;
 
 // Signal passes arguments by reference,
 // but it also allows a handler that accept arguments by value
@@ -446,6 +445,8 @@ BOOST_AUTO_TEST_CASE(ThrowInHandler)
 
 BOOST_AUTO_TEST_CASE(ConnectionEquality)
 {
+  BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Connection>));
+
   SignalOwner0 so;
 
   Connection conn1, conn2;

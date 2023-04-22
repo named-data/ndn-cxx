@@ -22,11 +22,8 @@
 #ifndef NDN_CXX_LP_FIELD_DECL_HPP
 #define NDN_CXX_LP_FIELD_DECL_HPP
 
-#include "ndn-cxx/lp/empty-value.hpp"
-#include "ndn-cxx/lp/field.hpp"
-#include "ndn-cxx/lp/sequence.hpp"
-#include "ndn-cxx/lp/tlv.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
+#include "ndn-cxx/lp/empty-value.hpp"
 #include "ndn-cxx/util/concepts.hpp"
 
 #include <boost/concept/requires.hpp>

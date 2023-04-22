@@ -27,6 +27,12 @@
 namespace ndn {
 namespace tests {
 
+BOOST_CONCEPT_ASSERT((WireEncodable<Interest>));
+BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Interest>));
+BOOST_CONCEPT_ASSERT((WireDecodable<Interest>));
+static_assert(std::is_convertible_v<Interest::Error*, tlv::Error*>,
+              "Interest::Error must inherit from tlv::Error");
+
 BOOST_AUTO_TEST_SUITE(TestInterest)
 
 class DisableAutoCheckParametersDigest

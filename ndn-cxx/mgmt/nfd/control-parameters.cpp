@@ -22,17 +22,10 @@
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 namespace ndn {
 namespace nfd {
-
-//BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ControlParameters>));
-BOOST_CONCEPT_ASSERT((WireEncodable<ControlParameters>));
-BOOST_CONCEPT_ASSERT((WireDecodable<ControlParameters>));
-static_assert(std::is_convertible_v<ControlParameters::Error*, tlv::Error*>,
-              "ControlParameters::Error must inherit from tlv::Error");
 
 ControlParameters::ControlParameters()
   : m_hasFields(CONTROL_PARAMETER_UBOUND)

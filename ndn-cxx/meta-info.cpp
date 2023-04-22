@@ -27,17 +27,7 @@
 
 namespace ndn {
 
-BOOST_CONCEPT_ASSERT((WireEncodable<MetaInfo>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<MetaInfo>));
-BOOST_CONCEPT_ASSERT((WireDecodable<MetaInfo>));
-static_assert(std::is_convertible_v<MetaInfo::Error*, tlv::Error*>,
-              "MetaInfo::Error must inherit from tlv::Error");
-
-MetaInfo::MetaInfo()
-  : m_type(tlv::ContentType_Blob)
-  , m_freshnessPeriod(DEFAULT_FRESHNESS_PERIOD)
-{
-}
+MetaInfo::MetaInfo() = default;
 
 MetaInfo::MetaInfo(const Block& block)
 {

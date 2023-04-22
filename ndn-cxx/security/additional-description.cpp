@@ -21,19 +21,11 @@
 
 #include "ndn-cxx/security/additional-description.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
-#include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/ostream-joiner.hpp"
 
 namespace ndn {
 namespace security {
 inline namespace v2 {
-
-BOOST_CONCEPT_ASSERT((boost::EqualityComparable<AdditionalDescription>));
-BOOST_CONCEPT_ASSERT((WireEncodable<AdditionalDescription>));
-BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<AdditionalDescription>));
-BOOST_CONCEPT_ASSERT((WireDecodable<AdditionalDescription>));
-static_assert(std::is_convertible_v<AdditionalDescription::Error*, tlv::Error*>,
-              "AdditionalDescription::Error must inherit from tlv::Error");
 
 constexpr size_t KEY_OFFSET = 0;
 constexpr size_t VALUE_OFFSET = 1;
