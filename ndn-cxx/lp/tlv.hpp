@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,8 @@
 #ifndef NDN_CXX_LP_TLV_HPP
 #define NDN_CXX_LP_TLV_HPP
 
+#include <cstdint>
+
 namespace ndn {
 namespace lp {
 /**
@@ -30,9 +32,10 @@ namespace lp {
 namespace tlv {
 
 /**
- * \brief TLV-TYPE numbers for NDNLPv2.
+ * @brief TLV-TYPE numbers for NDNLPv2.
+ * @sa https://redmine.named-data.net/projects/nfd/wiki/NDNLPv2#TLV-TYPE-Number-Assignments
  */
-enum {
+enum : uint32_t {
   LpPacket = 100,
   Fragment = 80,
   Sequence = 81,
@@ -50,28 +53,23 @@ enum {
   TxSequence = 840,
   NonDiscovery = 844,
   PrefixAnnouncement = 848,
-};
 
-enum {
   /**
    * \brief Lower bound of 1-octet header field.
    */
   HEADER1_MIN = 81,
-
   /**
    * \brief Upper bound of 1-octet header field.
    */
   HEADER1_MAX = 99,
-
   /**
    * \brief Lower bound of 3-octet header field.
    */
   HEADER3_MIN = 800,
-
   /**
    * \brief Upper bound of 3-octet header field.
    */
-  HEADER3_MAX = 959
+  HEADER3_MAX = 959,
 };
 
 } // namespace tlv

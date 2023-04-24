@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,14 +22,14 @@
 #ifndef NDN_CXX_ENCODING_TLV_SECURITY_HPP
 #define NDN_CXX_ENCODING_TLV_SECURITY_HPP
 
-#include "ndn-cxx/encoding/tlv.hpp"
+#include <cstdint>
 
 namespace ndn {
 namespace tlv {
 namespace security {
 
 /**
- * @brief TLV-TYPE numbers for SafeBag and related elements
+ * @brief TLV-TYPE numbers for SafeBag and related elements.
  * @sa <a href="../specs/safe-bag.html">SafeBag Format</a>
  */
 enum : uint32_t {

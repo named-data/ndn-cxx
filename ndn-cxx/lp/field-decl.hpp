@@ -169,14 +169,14 @@ struct EncodeHelper<TAG, TlvType, std::pair<Buffer::const_iterator, Buffer::cons
  *  \tparam DECODER_TAG selects a specialization of DecodeHelper.
  *  \tparam ENCODER_TAG selects a specialization of EncodeHelper.
  */
-template<typename LOCATION, typename VALUE, uint64_t TYPE, bool REPEATABLE = false,
+template<typename LOCATION, typename VALUE, uint32_t TYPE, bool REPEATABLE = false,
          typename DECODER_TAG = VALUE, typename ENCODER_TAG = VALUE>
 class FieldDecl
 {
 public:
   using FieldLocation = LOCATION;
   using ValueType = VALUE;
-  using TlvType = std::integral_constant<uint64_t, TYPE>;
+  using TlvType = std::integral_constant<uint32_t, TYPE>;
   using IsRepeatable = std::bool_constant<REPEATABLE>;
 
   /** \brief Decode a field.

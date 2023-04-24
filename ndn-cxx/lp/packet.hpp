@@ -202,10 +202,10 @@ public: // field access
 
 private:
   static bool
-  comparePos(uint64_t first, const Block& second) noexcept;
+  comparePos(uint32_t first, const Block& second) noexcept;
 
 private:
-  mutable Block m_wire;
+  mutable Block m_wire{tlv::LpPacket};
 };
 
 } // namespace lp

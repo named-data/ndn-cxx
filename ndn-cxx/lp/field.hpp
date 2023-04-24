@@ -55,13 +55,13 @@ class Fragment : public Base
 } // namespace field_location_tags
 
 /**
- * \brief Concept check for fields.
+ * \brief Concept check for NDNLPv2 fields.
  */
 template<class X>
 struct Field
 {
   static_assert(std::is_base_of_v<field_location_tags::Base, typename X::FieldLocation>, "");
-  static_assert(std::is_same_v<typename X::TlvType::value_type, uint64_t>, "");
+  static_assert(std::is_same_v<typename X::TlvType::value_type, uint32_t>, "");
   static_assert(std::is_same_v<typename X::IsRepeatable::value_type, bool>, "");
   static_assert(std::is_default_constructible_v<typename X::ValueType>, "");
   static_assert(std::is_copy_constructible_v<typename X::ValueType>, "");

@@ -55,10 +55,10 @@ public:
   FieldInfo() noexcept = default;
 
   explicit
-  FieldInfo(uint64_t tlv) noexcept;
+  FieldInfo(uint32_t type) noexcept;
 
 public:
-  uint64_t tlvType = 0;       ///< TLV-TYPE of the field; 0 if field does not exist
+  uint32_t tlvType = 0;       ///< TLV-TYPE of the field; 0 if field does not exist
   bool isRecognized = false;  ///< is this field known
   bool canIgnore = false;     ///< can this unknown field be ignored
   bool isRepeatable = false;  ///< is the field repeatable
@@ -84,8 +84,8 @@ public:
   }
 };
 
-FieldInfo::FieldInfo(uint64_t tlv) noexcept
-  : tlvType(tlv)
+FieldInfo::FieldInfo(uint32_t type) noexcept
+  : tlvType(type)
 {
   boost::mpl::for_each<FieldSet>(boost::bind(ExtractFieldInfo(), this, _1));
   if (!isRecognized) {
@@ -104,10 +104,7 @@ compareFieldSortOrder(const FieldInfo& first, const FieldInfo& second) noexcept
 
 } // namespace
 
-Packet::Packet()
-  : m_wire(Block(tlv::LpPacket))
-{
-}
+Packet::Packet() = default;
 
 Packet::Packet(const Block& wire)
 {
@@ -170,7 +167,7 @@ Packet::wireDecode(const Block& wire)
 }
 
 bool
-Packet::comparePos(uint64_t first, const Block& second) noexcept
+Packet::comparePos(uint32_t first, const Block& second) noexcept
 {
   FieldInfo firstInfo(first);
   FieldInfo secondInfo(second.type());

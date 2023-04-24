@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,15 +22,17 @@
 #ifndef NDN_CXX_ENCODING_TLV_NFD_HPP
 #define NDN_CXX_ENCODING_TLV_NFD_HPP
 
-#include "ndn-cxx/encoding/tlv.hpp"
-#include "ndn-cxx/encoding/nfd-constants.hpp"
+#include <cstdint>
 
 namespace ndn {
 namespace tlv {
 namespace nfd {
 
-// NFD Management protocol
-enum {
+/**
+ * @brief TLV-TYPE numbers defined by the NFD Management protocol.
+ * @sa https://redmine.named-data.net/projects/nfd/wiki/Management
+ */
+enum : uint32_t {
   // ControlParameters
   ControlParameters   = 104,
   FaceId              = 105,
@@ -100,7 +102,7 @@ enum {
 
   // RIB Management
   RibEntry = 128,
-  Route    = 129
+  Route    = 129,
 };
 
 } // namespace nfd
