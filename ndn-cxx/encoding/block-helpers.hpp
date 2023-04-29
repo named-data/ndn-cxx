@@ -181,73 +181,64 @@ namespace detail {
  * @brief Create a binary block copying from RandomAccessIterator.
  */
 template<class Iterator>
-class BinaryBlockFast
+Block
+makeBinaryBlockFast(uint32_t type, Iterator first, Iterator last)
 {
-public:
   BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<Iterator>));
 
-  static Block
-  makeBlock(uint32_t type, Iterator first, Iterator last)
-  {
-    EncodingEstimator estimator;
-    size_t valueLength = last - first;
-    size_t totalLength = valueLength;
-    totalLength += estimator.prependVarNumber(valueLength);
-    totalLength += estimator.prependVarNumber(type);
+  EncodingEstimator estimator;
+  size_t valueLength = last - first;
+  size_t totalLength = valueLength;
+  totalLength += estimator.prependVarNumber(valueLength);
+  totalLength += estimator.prependVarNumber(type);
 
-    EncodingBuffer encoder(totalLength, 0);
-    encoder.prependRange(first, last);
-    encoder.prependVarNumber(valueLength);
-    encoder.prependVarNumber(type);
+  EncodingBuffer encoder(totalLength, 0);
+  encoder.prependRange(first, last);
+  encoder.prependVarNumber(valueLength);
+  encoder.prependVarNumber(type);
 
-    return encoder.block();
-  }
-};
+  return encoder.block();
+}
 
 /**
  * @brief Create a binary block copying from generic InputIterator.
  */
 template<class Iterator>
-class BinaryBlockSlow
+Block
+makeBinaryBlockSlow(uint32_t type, Iterator first, Iterator last)
 {
-public:
   BOOST_CONCEPT_ASSERT((boost::InputIterator<Iterator>));
 
-  static Block
-  makeBlock(uint32_t type, Iterator first, Iterator last)
-  {
-    // reserve 4 bytes in front (common for 1(type)-3(length) encoding
-    // Actual size will be adjusted as necessary by the encoder
-    EncodingBuffer encoder(4, 4);
-    size_t valueLength = encoder.appendRange(first, last);
-    encoder.prependVarNumber(valueLength);
-    encoder.prependVarNumber(type);
+  // Reserve 4 bytes in front, common for 1(type)-3(length) encoding.
+  // Actual size will be adjusted as necessary by the encoder.
+  EncodingBuffer encoder(4, 4);
+  size_t valueLength = encoder.appendRange(first, last);
+  encoder.prependVarNumber(valueLength);
+  encoder.prependVarNumber(type);
 
-    return encoder.block();
-  }
-};
+  return encoder.block();
+}
 
 } // namespace detail
 
-/** @brief Create a TLV block copying TLV-VALUE from iterators.
- *  @tparam Iterator an InputIterator dereferenceable to a 1-octet type; a faster implementation is
- *                   automatically selected for RandomAccessIterator
- *  @param type TLV-TYPE number
- *  @param first begin iterator
- *  @param last past-the-end iterator
- *  @sa prependBinaryBlock
+/**
+ * @brief Create a TLV block copying TLV-VALUE from iterators.
+ * @tparam Iterator an InputIterator dereferenceable to a 1-octet type; a faster implementation is
+ *                  automatically selected for RandomAccessIterator
+ * @param type TLV-TYPE number
+ * @param first begin iterator
+ * @param last past-the-end iterator
+ * @sa prependBinaryBlock
  */
 template<class Iterator>
 Block
 makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 {
-  using BinaryBlockHelper = std::conditional_t<
-    std::is_base_of_v<std::random_access_iterator_tag,
-                      typename std::iterator_traits<Iterator>::iterator_category>,
-    detail::BinaryBlockFast<Iterator>,
-    detail::BinaryBlockSlow<Iterator>>;
-
-  return BinaryBlockHelper::makeBlock(type, first, last);
+  if constexpr (std::is_base_of_v<std::random_access_iterator_tag,
+                                  typename std::iterator_traits<Iterator>::iterator_category>)
+    return detail::makeBinaryBlockFast(type, first, last);
+  else
+    return detail::makeBinaryBlockSlow(type, first, last);
 }
 
 /**

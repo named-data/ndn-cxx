@@ -47,92 +47,52 @@ namespace net {
 
 template<typename T>
 constexpr size_t
-getAttributeLength(const T* attr);
-
-template<>
-constexpr size_t
-getAttributeLength(const nlattr* attr)
+getAttributeLength(const T* attr)
 {
-  return attr->nla_len;
-}
-
-template<>
-constexpr size_t
-getAttributeLength(const rtattr* attr)
-{
-  return attr->rta_len;
+  if constexpr (std::is_same_v<T, nlattr>)
+    return attr->nla_len;
+  if constexpr (std::is_same_v<T, rtattr>)
+    return attr->rta_len;
 }
 
 template<typename T>
 constexpr size_t
-getAttributeLengthAligned(const T* attr);
-
-template<>
-constexpr size_t
-getAttributeLengthAligned(const nlattr* attr)
+getAttributeLengthAligned(const T* attr)
 {
-  return NLA_ALIGN(attr->nla_len);
-}
-
-template<>
-constexpr size_t
-getAttributeLengthAligned(const rtattr* attr)
-{
-  return RTA_ALIGN(attr->rta_len);
+  if constexpr (std::is_same_v<T, nlattr>)
+    return NLA_ALIGN(attr->nla_len);
+  if constexpr (std::is_same_v<T, rtattr>)
+    return RTA_ALIGN(attr->rta_len);
 }
 
 template<typename T>
-constexpr uint16_t
-getAttributeType(const T* attr);
-
-template<>
-constexpr uint16_t
-getAttributeType(const nlattr* attr)
+uint16_t
+getAttributeType(const T* attr)
 {
-  return attr->nla_type & NLA_TYPE_MASK;
-}
-
-template<>
-constexpr uint16_t
-getAttributeType(const rtattr* attr)
-{
-  return attr->rta_type;
+  if constexpr (std::is_same_v<T, nlattr>)
+    return attr->nla_type & NLA_TYPE_MASK;
+  if constexpr (std::is_same_v<T, rtattr>)
+    return attr->rta_type;
 }
 
 template<typename T>
 const uint8_t*
-getAttributeValue(const T* attr);
-
-template<>
-inline const uint8_t*
-getAttributeValue(const nlattr* attr)
+getAttributeValue(const T* attr)
 {
-  return reinterpret_cast<const uint8_t*>(attr) + NLA_HDRLEN;
-}
-
-template<>
-inline const uint8_t*
-getAttributeValue(const rtattr* attr)
-{
-  return reinterpret_cast<const uint8_t*>(RTA_DATA(const_cast<rtattr*>(attr)));
+  if constexpr (std::is_same_v<T, nlattr>)
+    return reinterpret_cast<const uint8_t*>(attr) + NLA_HDRLEN;
+  if constexpr (std::is_same_v<T, rtattr>)
+    return reinterpret_cast<const uint8_t*>(RTA_DATA(const_cast<rtattr*>(attr)));
 }
 
 template<typename T>
 constexpr size_t
-getAttributeValueLength(const T* attr);
-
-template<>
-constexpr size_t
-getAttributeValueLength(const nlattr* attr)
+getAttributeValueLength(const T* attr)
 {
-  return attr->nla_len - NLA_HDRLEN;
-}
-
-template<>
-constexpr size_t
-getAttributeValueLength(const rtattr* attr)
-{
-  return RTA_PAYLOAD(attr);
+  if constexpr (std::is_same_v<T, nlattr>)
+    return attr->nla_len - NLA_HDRLEN;
+  if constexpr (std::is_same_v<T, rtattr>)
+    return RTA_PAYLOAD(attr);
 }
 
 template<typename T>

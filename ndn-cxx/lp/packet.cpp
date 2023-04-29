@@ -30,44 +30,33 @@ namespace lp {
 
 namespace {
 
-template<typename TAG>
-int
-getLocationSortOrder() noexcept;
-
-template<>
-constexpr int
-getLocationSortOrder<field_location_tags::Header>() noexcept
+template<typename Tag>
+constexpr int8_t
+getLocationSortOrder() noexcept
 {
-  return 1;
+  if constexpr (std::is_same_v<Tag, field_location_tags::Header>)
+    return 1;
+  if constexpr (std::is_same_v<Tag, field_location_tags::Fragment>)
+    return 2;
 }
 
-template<>
-constexpr int
-getLocationSortOrder<field_location_tags::Fragment>() noexcept
+struct FieldInfo
 {
-  return 2;
-}
-
-class FieldInfo
-{
-public:
   constexpr
   FieldInfo() noexcept = default;
 
   explicit
   FieldInfo(uint32_t type) noexcept;
 
-public:
   uint32_t tlvType = 0;       ///< TLV-TYPE of the field; 0 if field does not exist
   bool isRecognized = false;  ///< is this field known
   bool canIgnore = false;     ///< can this unknown field be ignored
   bool isRepeatable = false;  ///< is the field repeatable
-  int locationSortOrder = getLocationSortOrder<field_location_tags::Header>(); ///< sort order of field_location_tag
+  int8_t locationSortOrder = getLocationSortOrder<field_location_tags::Header>(); ///< sort order of field_location_tag
 };
 
-class ExtractFieldInfo
+struct ExtractFieldInfo
 {
-public:
   using result_type = void;
 
   template<typename T>
@@ -115,7 +104,7 @@ Block
 Packet::wireEncode() const
 {
   // If no header or trailer, return bare network packet
-  Block::element_container elements = m_wire.elements();
+  auto elements = m_wire.elements();
   if (elements.size() == 1 && elements.front().type() == FragmentField::TlvType::value) {
     elements.front().parse();
     return elements.front().elements().front();
@@ -169,9 +158,7 @@ Packet::wireDecode(const Block& wire)
 bool
 Packet::comparePos(uint32_t first, const Block& second) noexcept
 {
-  FieldInfo firstInfo(first);
-  FieldInfo secondInfo(second.type());
-  return compareFieldSortOrder(firstInfo, secondInfo);
+  return compareFieldSortOrder(FieldInfo(first), FieldInfo(second.type()));
 }
 
 } // namespace lp

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,34 +42,30 @@ struct ReadVarNumberTest;
 template<>
 struct ReadVarNumberTest<1>
 {
-  static const uint8_t WIRE[];
-  static const uint64_t VALUE = 252;
+  static constexpr uint8_t WIRE[] = {0xfc};
+  static constexpr uint64_t VALUE = 252;
 };
-const uint8_t ReadVarNumberTest<1>::WIRE[] = {0xfc};
 
 template<>
 struct ReadVarNumberTest<3>
 {
-  static const uint8_t WIRE[];
-  static const uint64_t VALUE = 253;
+  static constexpr uint8_t WIRE[] = {0xfd, 0x00, 0xfd};
+  static constexpr uint64_t VALUE = 253;
 };
-const uint8_t ReadVarNumberTest<3>::WIRE[] = {0xfd, 0x00, 0xfd};
 
 template<>
 struct ReadVarNumberTest<5>
 {
-  static const uint8_t WIRE[];
-  static const uint64_t VALUE = 65536;
+  static constexpr uint8_t WIRE[] = {0xfe, 0x00, 0x01, 0x00, 0x00};
+  static constexpr uint64_t VALUE = 65536;
 };
-const uint8_t ReadVarNumberTest<5>::WIRE[] = {0xfe, 0x00, 0x01, 0x00, 0x00};
 
 template<>
 struct ReadVarNumberTest<9>
 {
-  static const uint8_t WIRE[];
-  static const uint64_t VALUE = 4294967296;
+  static constexpr uint8_t WIRE[] = {0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00};
+  static constexpr uint64_t VALUE = 4294967296;
 };
-const uint8_t ReadVarNumberTest<9>::WIRE[] = {0xff, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00};
 
 template<size_t WIRE_SIZE, size_t ALIGNMENT_OFFSET>
 struct ReadVarNumberAlignTest : public ReadVarNumberTest<WIRE_SIZE>
@@ -102,7 +98,7 @@ using ReadVarNumberTests = boost::mpl::vector<
 // It is recommended to run the benchmark multiple times and take the average.
 BOOST_AUTO_TEST_CASE_TEMPLATE(ReadVarNumber, Test, ReadVarNumberTests)
 {
-  const int N_ITERATIONS = 100000000;
+  constexpr int N_ITERATIONS = 100000000;
 
   alignas(8) uint8_t buffer[16];
   static_assert(Test::AlignmentOffset::value + sizeof(Test::WIRE) <= sizeof(buffer), "");

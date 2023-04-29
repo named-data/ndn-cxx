@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(FromType)
   BOOST_CHECK_EQUAL(b3.isValid(), false);
   BOOST_CHECK_EQUAL(b3.type(), tlv::Invalid);
   BOOST_CHECK_EXCEPTION(b3.size(), Block::Error, [] (const auto& e) {
-    return e.what() == "Cannot determine size of invalid block"s;
+    return e.what() == "Cannot determine size of invalid block"sv;
   });
   BOOST_CHECK_EQUAL(b3.hasValue(), false);
   BOOST_CHECK_EQUAL(b3.value_size(), 0);
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(FromStream)
 
   BOOST_CHECK(stream.eof());
   BOOST_CHECK_EXCEPTION(Block::fromStream(stream), tlv::Error, [] (const auto& e) {
-    return e.what() == "Empty buffer during TLV parsing"s;
+    return e.what() == "Insufficient data during TLV parsing"sv;
   });
 }
 
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(FromStreamZeroLength)
   BOOST_CHECK(b3.value() == nullptr);
 
   BOOST_CHECK_EXCEPTION(Block::fromStream(stream), tlv::Error, [] (const auto& e) {
-    return e.what() == "Empty buffer during TLV parsing"s;
+    return e.what() == "Insufficient data during TLV parsing"sv;
   });
 }
 
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(FromStreamPacketTooLarge)
   stream.seekg(0);
 
   BOOST_CHECK_EXCEPTION(Block::fromStream(stream), tlv::Error, [] (const auto& e) {
-    return e.what() == "TLV-LENGTH from stream exceeds limit"s;
+    return e.what() == "TLV-LENGTH from stream exceeds limit"sv;
   });
 }
 
@@ -447,12 +447,12 @@ BOOST_AUTO_TEST_CASE(BlockFromValue)
 {
   Block b1(301);
   BOOST_CHECK_EXCEPTION(b1.blockFromValue(), Block::Error, [] (const auto& e) {
-    return e.what() == "Cannot construct block from empty TLV-VALUE"s;
+    return e.what() == "Cannot construct block from empty TLV-VALUE"sv;
   });
 
   Block b2(302, std::make_shared<Buffer>());
   BOOST_CHECK_EXCEPTION(b2.blockFromValue(), Block::Error, [] (const auto& e) {
-    return e.what() == "Cannot construct block from empty TLV-VALUE"s;
+    return e.what() == "Cannot construct block from empty TLV-VALUE"sv;
   });
 
   b1.encode();
@@ -491,7 +491,7 @@ BOOST_AUTO_TEST_CASE(Parse)
 
   BOOST_CHECK(data.get(0x15) == data.elements().at(2));
   BOOST_CHECK_EXCEPTION(data.get(0x01), Block::Error, [] (const auto& e) {
-    return e.what() == "No sub-element of type 1 found in block of type 6"s;
+    return e.what() == "No sub-element of type 1 found in block of type 6"sv;
   });
 
   BOOST_CHECK(data.find(0x15) == data.elements_begin() + 2);
@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE(Parse)
   };
   Block bad(MALFORMED);
   BOOST_CHECK_EXCEPTION(bad.parse(), Block::Error, [] (const auto& e) {
-    return e.what() == "TLV-LENGTH of sub-element of type 7 exceeds TLV-VALUE boundary of parent block"s;
+    return e.what() == "TLV-LENGTH of sub-element of type 7 exceeds TLV-VALUE boundary of parent block"sv;
   });
 }
 

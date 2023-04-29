@@ -59,11 +59,9 @@ using ArrayStream = boost::iostreams::stream<boost::iostreams::array_source>;
 using StreamIterator = std::istream_iterator<uint8_t>;
 
 #define ASSERT_READ_NUMBER_IS_FAST(T) \
-  static_assert(std::is_base_of_v<detail::ReadNumberFast<T>, detail::ReadNumber<T>>, \
-                # T " should use ReadNumberFast")
+  static_assert(detail::IsContiguousIterator<T>, #T " is not fast")
 #define ASSERT_READ_NUMBER_IS_SLOW(T) \
-  static_assert(std::is_base_of_v<detail::ReadNumberSlow<T>, detail::ReadNumber<T>>, \
-                # T " should use ReadNumberSlow")
+  static_assert(!detail::IsContiguousIterator<T>, #T " is not slow")
 
 ASSERT_READ_NUMBER_IS_FAST(const uint8_t*);
 ASSERT_READ_NUMBER_IS_FAST(uint8_t*);
@@ -80,6 +78,8 @@ ASSERT_READ_NUMBER_IS_FAST(Uint8Array::const_iterator);
 ASSERT_READ_NUMBER_IS_FAST(Uint8Array::iterator);
 using CharArray = std::array<char, 87>;
 ASSERT_READ_NUMBER_IS_FAST(CharArray::iterator);
+ASSERT_READ_NUMBER_IS_FAST(span<const uint8_t>::iterator);
+ASSERT_READ_NUMBER_IS_FAST(span<uint8_t>::iterator);
 ASSERT_READ_NUMBER_IS_FAST(std::string::const_iterator);
 ASSERT_READ_NUMBER_IS_FAST(std::string::iterator);
 ASSERT_READ_NUMBER_IS_FAST(Buffer::const_iterator);

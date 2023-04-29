@@ -34,33 +34,24 @@ namespace lp {
  */
 namespace field_location_tags {
 
-class Base
-{
-};
-
 /**
  * \brief A header field.
  */
-class Header : public Base
-{
-};
+struct Header {};
 
 /**
  * \brief The Fragment field.
  */
-class Fragment : public Base
-{
-};
+struct Fragment {};
 
 } // namespace field_location_tags
 
 /**
  * \brief Concept check for NDNLPv2 fields.
  */
-template<class X>
+template<typename X>
 struct Field
 {
-  static_assert(std::is_base_of_v<field_location_tags::Base, typename X::FieldLocation>, "");
   static_assert(std::is_same_v<typename X::TlvType::value_type, uint32_t>, "");
   static_assert(std::is_same_v<typename X::IsRepeatable::value_type, bool>, "");
   static_assert(std::is_default_constructible_v<typename X::ValueType>, "");
