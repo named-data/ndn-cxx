@@ -43,13 +43,7 @@ void
 Link::encodeContent()
 {
   setContentType(tlv::ContentType_Link);
-
-  if (m_delegations.empty()) {
-    setContent(span<uint8_t>{});
-  }
-  else {
-    setContent(makeNestedBlock(tlv::Content, m_delegations.begin(), m_delegations.end()));
-  }
+  setContent(makeNestedBlock(tlv::Content, m_delegations.begin(), m_delegations.end()));
 }
 
 void

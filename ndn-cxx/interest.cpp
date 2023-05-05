@@ -377,6 +377,26 @@ Interest::setName(const Name& name)
 }
 
 Interest&
+Interest::setCanBePrefix(bool canBePrefix)
+{
+  if (canBePrefix != m_canBePrefix) {
+    m_canBePrefix = canBePrefix;
+    m_wire.reset();
+  }
+  return *this;
+}
+
+Interest&
+Interest::setMustBeFresh(bool mustBeFresh)
+{
+  if (mustBeFresh != m_mustBeFresh) {
+    m_mustBeFresh = mustBeFresh;
+    m_wire.reset();
+  }
+  return *this;
+}
+
+Interest&
 Interest::setForwardingHint(std::vector<Name> value)
 {
   m_forwardingHint = std::move(value);
@@ -384,7 +404,7 @@ Interest::setForwardingHint(std::vector<Name> value)
   return *this;
 }
 
-static auto
+[[nodiscard]] static auto
 generateNonce()
 {
   uint32_t r = random::generateWord32();
@@ -489,10 +509,16 @@ Interest::setApplicationParameters(span<const uint8_t> value)
 }
 
 Interest&
+Interest::setApplicationParameters(std::string_view value)
+{
+  return setApplicationParametersInternal(makeStringBlock(tlv::ApplicationParameters, value));
+}
+
+Interest&
 Interest::setApplicationParameters(ConstBufferPtr value)
 {
-  if (value == nullptr) {
-    NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be nullptr"));
+  if (!value) {
+    NDN_THROW(std::invalid_argument("ApplicationParameters buffer cannot be null"));
   }
 
   return setApplicationParametersInternal({tlv::ApplicationParameters, std::move(value)});
@@ -618,8 +644,8 @@ Interest::setSignatureValue(span<const uint8_t> value)
 Interest&
 Interest::setSignatureValue(ConstBufferPtr value)
 {
-  if (value == nullptr) {
-    NDN_THROW(std::invalid_argument("InterestSignatureValue buffer cannot be nullptr"));
+  if (!value) {
+    NDN_THROW(std::invalid_argument("InterestSignatureValue buffer cannot be null"));
   }
 
   return setSignatureValueInternal({tlv::InterestSignatureValue, std::move(value)});

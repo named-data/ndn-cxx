@@ -315,8 +315,8 @@ IQCz3DHoRtKl7uZoJOgQsZP1/CGkNjlGZE3EQ+Ylwiprrw==)BASE64");
 R"TXT(Certificate Name:
   /ndn/test/identity/KEY/%C7G%3A%D6%12P%B5%F0/self/v=1650251820652
 Public Key:
-  Key Type: Unknown (23 bytes)
-  bm90IGEgdmFsaWQgcHVibGljIGtleQA=
+  Key Type: Unknown (22 bytes)
+  bm90IGEgdmFsaWQgcHVibGljIGtleQ==
 Validity:
   Not Before: 1970-01-01T00:00:00
   Not After: 2042-04-13T03:17:00
@@ -326,9 +326,8 @@ Signature Information:
   Self-Signed: yes
 )TXT");
 
-  const uint8_t notAKey[] = "not a valid public key";
   Certificate cert4(cert3);
-  cert4.setContent(notAKey);
+  cert4.setContent("not a valid public key"sv);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(cert4), expected4);
 
   const std::string expected5(

@@ -262,10 +262,18 @@ Data::setContent(span<const uint8_t> value)
 }
 
 Data&
+Data::setContent(std::string_view value)
+{
+  m_content = makeStringBlock(tlv::Content, value);
+  resetWire();
+  return *this;
+}
+
+Data&
 Data::setContent(ConstBufferPtr value)
 {
-  if (value == nullptr) {
-    NDN_THROW(std::invalid_argument("Content buffer cannot be nullptr"));
+  if (!value) {
+    NDN_THROW(std::invalid_argument("Content buffer cannot be null"));
   }
 
   m_content = Block(tlv::Content, std::move(value));
@@ -276,8 +284,10 @@ Data::setContent(ConstBufferPtr value)
 Data&
 Data::unsetContent()
 {
-  m_content = {};
-  resetWire();
+  if (m_content.isValid()) {
+    m_content = {};
+    resetWire();
+  }
   return *this;
 }
 
@@ -300,8 +310,8 @@ Data::setSignatureValue(span<const uint8_t> value)
 Data&
 Data::setSignatureValue(ConstBufferPtr value)
 {
-  if (value == nullptr) {
-    NDN_THROW(std::invalid_argument("SignatureValue buffer cannot be nullptr"));
+  if (!value) {
+    NDN_THROW(std::invalid_argument("SignatureValue buffer cannot be null"));
   }
 
   m_signatureValue = Block(tlv::SignatureValue, std::move(value));

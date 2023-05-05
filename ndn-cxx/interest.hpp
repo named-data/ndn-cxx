@@ -71,10 +71,10 @@ public:
 
     Nonce(uint8_t n1, uint8_t n2, uint8_t n3, uint8_t n4) noexcept
     {
-      data()[0] = n1;
-      data()[1] = n2;
-      data()[2] = n3;
-      data()[3] = n4;
+      (*this)[0] = n1;
+      (*this)[1] = n2;
+      (*this)[2] = n3;
+      (*this)[3] = n4;
     }
 
   private: // non-member operators
@@ -153,22 +153,27 @@ public:
   toUri() const;
 
 public: // matching
-  /** @brief Check if Interest can be satisfied by @p data.
+  /**
+   * @brief Check if this Interest can be satisfied by @p data.
    *
-   *  This method considers Name, CanBePrefix, and MustBeFresh. However, MustBeFresh processing
-   *  is limited to rejecting Data with zero/omitted FreshnessPeriod.
+   * This method considers `Name`, `CanBePrefix`, and `MustBeFresh`. However, `MustBeFresh`
+   * evaluation is limited to rejecting Data with zero/omitted `FreshnessPeriod`.
    */
-  bool
+  [[nodiscard]] bool
   matchesData(const Data& data) const;
 
-  /** @brief Check if this Interest matches @p other
+  /**
+   * @brief Check if this Interest matches @p other.
    *
-   *  Two Interests match if both have the same Name, CanBePrefix, and MustBeFresh.
+   * Two Interests match if they have the same `Name`, `CanBePrefix`, and `MustBeFresh`.
    */
-  bool
+  [[nodiscard]] bool
   matchesInterest(const Interest& other) const;
 
-public: // element access
+public: // Interest fields
+  /**
+   * @brief Get the %Interest name.
+   */
   const Name&
   getName() const noexcept
   {
@@ -176,8 +181,8 @@ public: // element access
   }
 
   /**
-   * @brief Set the %Interest's name.
-   * @throw std::invalid_argument @p name is invalid
+   * @brief Set the %Interest name.
+   * @throw std::invalid_argument @p name is not a valid %Interest name
    */
   Interest&
   setName(const Name& name);
@@ -196,12 +201,7 @@ public: // element access
    * @param canBePrefix Whether the element should be present.
    */
   Interest&
-  setCanBePrefix(bool canBePrefix)
-  {
-    m_canBePrefix = canBePrefix;
-    m_wire.reset();
-    return *this;
-  }
+  setCanBePrefix(bool canBePrefix);
 
   /**
    * @brief Check whether the `MustBeFresh` element is present.
@@ -217,19 +217,22 @@ public: // element access
    * @param mustBeFresh Whether the element should be present.
    */
   Interest&
-  setMustBeFresh(bool mustBeFresh)
-  {
-    m_mustBeFresh = mustBeFresh;
-    m_wire.reset();
-    return *this;
-  }
+  setMustBeFresh(bool mustBeFresh);
 
+  /**
+   * @brief Get the delegations (names) in the `ForwardingHint`.
+   */
   span<const Name>
   getForwardingHint() const noexcept
   {
     return m_forwardingHint;
   }
 
+  /**
+   * @brief Set the `ForwardingHint` delegations (names).
+   *
+   * To completely remove the `ForwardingHint` element from the Interest, pass an empty vector.
+   */
   Interest&
   setForwardingHint(std::vector<Name> value);
 
@@ -253,7 +256,7 @@ public: // element access
   /**
    * @brief Set the %Interest's nonce.
    *
-   * Use `setNonce(nullopt)` to remove any nonce from the Interest.
+   * Use `setNonce(std::nullopt)` to remove any nonce from the Interest.
    */
   Interest&
   setNonce(std::optional<Nonce> nonce);
@@ -295,7 +298,7 @@ public: // element access
   /**
    * @brief Set the %Interest's hop limit.
    *
-   * Use `setHopLimit(nullopt)` to remove any hop limit from the Interest.
+   * Use `setHopLimit(std::nullopt)` to remove any hop limit from the Interest.
    */
   Interest&
   setHopLimit(std::optional<uint8_t> hopLimit);
@@ -354,8 +357,20 @@ public: // element access
   setApplicationParameters(span<const uint8_t> value);
 
   /**
+   * @brief Set `ApplicationParameters` by copying from a string.
+   * @param value string from which the TLV-VALUE of the parameters will be copied
+   * @return A reference to this Interest.
+   *
+   * This function will also recompute the value of the ParametersSha256DigestComponent in the
+   * Interest's name. If the name does not contain a ParametersSha256DigestComponent, one will
+   * be appended to it.
+   */
+  Interest&
+  setApplicationParameters(std::string_view value);
+
+  /**
    * @brief Set `ApplicationParameters` from a shared buffer.
-   * @param value buffer containing the TLV-VALUE of the parameters; must not be nullptr
+   * @param value buffer containing the TLV-VALUE of the parameters; must not be null
    * @return A reference to this Interest.
    *
    * This function will also recompute the value of the ParametersSha256DigestComponent in the
@@ -364,6 +379,9 @@ public: // element access
    */
   Interest&
   setApplicationParameters(ConstBufferPtr value);
+
+  Interest&
+  setApplicationParameters(std::nullptr_t) = delete;
 
   /**
    * @brief Remove the `ApplicationParameters` element from this Interest.
@@ -386,7 +404,6 @@ public: // element access
 
   /**
    * @brief Get the `InterestSignatureInfo` element.
-   * @retval nullopt The element is not present.
    */
   std::optional<SignatureInfo>
   getSignatureInfo() const;
@@ -418,7 +435,7 @@ public: // element access
 
   /**
    * @brief Set `InterestSignatureValue` from a shared buffer.
-   * @param value buffer containing the TLV-VALUE of the InterestSignatureValue; must not be nullptr
+   * @param value buffer containing the TLV-VALUE of the InterestSignatureValue; must not be null
    * @return A reference to this Interest.
    * @throw Error InterestSignatureInfo is unset
    *
@@ -427,11 +444,15 @@ public: // element access
   Interest&
   setSignatureValue(ConstBufferPtr value);
 
-  /** @brief Extract ranges of Interest covered by the signature in Packet Specification v0.3
-   *  @throw Error Interest cannot be encoded or is missing ranges necessary for signing
-   *  @warning The returned pointers will be invalidated if wireDecode() or wireEncode() are called.
+  Interest&
+  setSignatureValue(std::nullptr_t) = delete;
+
+  /**
+   * @brief Extract ranges of Interest covered by the signature.
+   * @throw Error Interest cannot be encoded or is missing ranges necessary for signing
+   * @warning The returned pointers will be invalidated if wireDecode() or wireEncode() are called.
    */
-  InputBuffers
+  [[nodiscard]] InputBuffers
   extractSignedRanges() const;
 
 public: // ParametersSha256DigestComponent support
@@ -447,12 +468,13 @@ public: // ParametersSha256DigestComponent support
     s_autoCheckParametersDigest = b;
   }
 
-  /** @brief Check if the ParametersSha256DigestComponent in the name is valid.
+  /**
+   * @brief Check if the ParametersSha256DigestComponent in the name is valid.
    *
-   *  Returns true if there is a single ParametersSha256DigestComponent in the name and the digest
-   *  value is correct, or if there is no ParametersSha256DigestComponent in the name and the
-   *  Interest does not contain any parameters.
-   *  Returns false otherwise.
+   * Returns true if there is a single ParametersSha256DigestComponent in the name and the digest
+   * value is correct, or if there is no ParametersSha256DigestComponent in the name and the
+   * Interest does not contain any parameters.
+   * Returns false otherwise.
    */
   bool
   isParametersDigestValid() const;

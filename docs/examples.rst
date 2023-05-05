@@ -41,7 +41,7 @@ using :ndn-cxx:`Face::put` method.
 .. literalinclude:: ../examples/producer.cpp
    :language: c++
    :linenos:
-   :emphasize-lines: 39-42,55,62-64,79,87,91
+   :emphasize-lines: 39-42,55,60-63,78,86,90
 
 Consumer that uses Scheduler
 ----------------------------

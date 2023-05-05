@@ -60,9 +60,7 @@ private:
     auto data = std::make_shared<Data>();
     data->setName(interest.getName());
     data->setFreshnessPeriod(10_s);
-
-    constexpr std::string_view content{"Hello, world!"};
-    data->setContent({reinterpret_cast<const uint8_t*>(content.data()), content.size()});
+    data->setContent("Hello, world!");
 
     // In order for the consumer application to be able to validate the packet, you need to setup
     // the following keys:

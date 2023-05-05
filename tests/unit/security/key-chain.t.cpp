@@ -711,7 +711,7 @@ BOOST_AUTO_TEST_CASE(ErrContent)
   BOOST_CHECK_THROW(signerKeyChain.makeCertificate(request, signerParams), std::invalid_argument);
 
   // empty content
-  request.setContent(span<uint8_t>{});
+  request.setContent("");
   BOOST_CHECK_THROW(signerKeyChain.makeCertificate(request, signerParams), std::invalid_argument);
 }
 

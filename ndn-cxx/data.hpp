@@ -95,18 +95,21 @@ public:
   const Block&
   wireEncode(EncodingBuffer& encoder, span<const uint8_t> signature) const;
 
-  /** @brief Encode into a Block.
-   *  @pre Data must be signed.
+  /**
+   * @brief Encode into a Block.
+   * @pre Data must be signed.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode from @p wire.
+  /**
+   * @brief Decode from @p wire.
    */
   void
   wireDecode(const Block& wire);
 
-  /** @brief Check if this instance has cached wire encoding.
+  /**
+   * @brief Check if this instance has cached wire encoding.
    */
   bool
   hasWire() const noexcept
@@ -114,16 +117,17 @@ public:
     return m_wire.hasWire();
   }
 
-  /** @brief Get full name including implicit digest
-   *  @pre hasWire() == true; i.e. wireEncode() must have been called
-   *  @throw Error Data has no wire encoding
+  /**
+   * @brief Get the full name (including implicit digest).
+   * @pre hasWire() == true, i.e., wireEncode() must have been called.
+   * @throw Error Data has no wire encoding
    */
   const Name&
   getFullName() const;
 
 public: // Data fields
   /**
-   * @brief Get the data name.
+   * @brief Get the %Data name.
    */
   const Name&
   getName() const noexcept
@@ -132,7 +136,7 @@ public: // Data fields
   }
 
   /**
-   * @brief Set the data name.
+   * @brief Set the %Data name.
    * @return A reference to this Data, to allow chaining.
    */
   Data&
@@ -202,12 +206,23 @@ public: // Data fields
   setContent(span<const uint8_t> value);
 
   /**
+   * @brief Set `Content` by copying from a string.
+   * @param value string with the TLV-VALUE of the content
+   * @return A reference to this Data, to allow chaining.
+   */
+  Data&
+  setContent(std::string_view value);
+
+  /**
    * @brief Set `Content` from a shared buffer.
-   * @param value buffer with the TLV-VALUE of the content; must not be nullptr
+   * @param value buffer with the TLV-VALUE of the content; must not be null
    * @return A reference to this Data, to allow chaining.
    */
   Data&
   setContent(ConstBufferPtr value);
+
+  Data&
+  setContent(std::nullptr_t) = delete;
 
   /**
    * @brief Remove the `Content` element.
@@ -226,14 +241,15 @@ public: // Data fields
     return m_signatureInfo;
   }
 
-  /** @brief Set the `SignatureInfo` element.
+  /**
+   * @brief Set the `SignatureInfo` element.
    *
-   *  This is a low-level function that should not normally be called directly by applications.
-   *  Instead, provide a SignatureInfo to the SigningInfo object passed to KeyChain::sign().
+   * This is a low-level function that should not normally be called directly by applications.
+   * Instead, provide a SignatureInfo to the SigningInfo object passed to KeyChain::sign().
    *
-   *  @return A reference to this Data, to allow chaining.
-   *  @warning SignatureInfo is overwritten when the packet is signed via KeyChain::sign().
-   *  @sa SigningInfo
+   * @return A reference to this Data, to allow chaining.
+   * @warning SignatureInfo is overwritten when the packet is signed via KeyChain::sign().
+   * @sa SigningInfo
    */
   Data&
   setSignatureInfo(const SignatureInfo& info);
@@ -262,7 +278,7 @@ public: // Data fields
 
   /**
    * @brief Set `SignatureValue` from a shared buffer.
-   * @param value buffer containing the TLV-VALUE of the SignatureValue; must not be nullptr
+   * @param value buffer containing the TLV-VALUE of the SignatureValue; must not be null
    * @return A reference to this Data, to allow chaining.
    *
    * This is a low-level function that should not normally be called directly by applications.
@@ -273,11 +289,15 @@ public: // Data fields
   Data&
   setSignatureValue(ConstBufferPtr value);
 
-  /** @brief Extract ranges of Data covered by the signature.
-   *  @throw Error Data cannot be encoded or is missing ranges necessary for signing
-   *  @warning The returned pointers will be invalidated if wireDecode() or wireEncode() are called.
+  Data&
+  setSignatureValue(std::nullptr_t) = delete;
+
+  /**
+   * @brief Extract ranges of Data covered by the signature.
+   * @throw Error Data cannot be encoded or is missing ranges necessary for signing
+   * @warning The returned pointers will be invalidated if wireDecode() or wireEncode() are called.
    */
-  InputBuffers
+  [[nodiscard]] InputBuffers
   extractSignedRanges() const;
 
 public: // MetaInfo fields
@@ -332,8 +352,9 @@ public: // SignatureInfo fields
   }
 
 protected:
-  /** @brief Clear wire encoding and cached FullName
-   *  @note This does not clear the SignatureValue.
+  /**
+   * @brief Clear wire encoding and cached FullName.
+   * @note This does not clear the SignatureValue.
    */
   void
   resetWire();

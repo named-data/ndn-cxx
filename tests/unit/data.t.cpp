@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(NotSigned)
 {
   Data d;
   BOOST_CHECK_EXCEPTION(d.wireEncode(), tlv::Error, [] (const auto& e) {
-    return e.what() == "Requested wire format, but Data has not been signed"s;
+    return e.what() == "Requested wire format, but Data has not been signed"sv;
   });
 }
 
@@ -239,7 +239,7 @@ BOOST_FIXTURE_TEST_SUITE(Decode, DecodeFixture)
 BOOST_AUTO_TEST_CASE(NotData)
 {
   BOOST_CHECK_EXCEPTION(d.wireDecode("4202CAFE"_block), tlv::Error, [] (const auto& e) {
-    return e.what() == "Expecting Data element, but TLV has type 66"s;
+    return e.what() == "Expecting Data element, but TLV has type 66"sv;
   });
 }
 
@@ -330,46 +330,46 @@ BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
     "0630 1400 0703080145 1500 16031B0100 "
     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
     tlv::Error,
-    [] (const auto& e) { return e.what() == "Name element is missing or out of order"s; });
+    [] (const auto& e) { return e.what() == "Name element is missing or out of order"sv; });
   BOOST_CHECK_EXCEPTION(d.wireDecode(
     "0630 0703080145 1500 1400 16031B0100 "
     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
     tlv::Error,
-    [] (const auto& e) { return e.what() == "MetaInfo element is out of order"s; });
+    [] (const auto& e) { return e.what() == "MetaInfo element is out of order"sv; });
   BOOST_CHECK_EXCEPTION(d.wireDecode(
     "0630 0703080145 1400 16031B0100 1500 "
     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
     tlv::Error,
-    [] (const auto& e) { return e.what() == "Content element is out of order"s; });
+    [] (const auto& e) { return e.what() == "Content element is out of order"sv; });
   BOOST_CHECK_EXCEPTION(d.wireDecode(
     "0630 0703080145 1400 1500 "
     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76 16031B0100"_block),
     tlv::Error,
-    [] (const auto& e) { return e.what() == "SignatureInfo element is out of order"s; });
+    [] (const auto& e) { return e.what() == "SignatureInfo element is out of order"sv; });
   BOOST_CHECK_EXCEPTION(d.wireDecode(
     "0652 0703080145 1400 1500 16031B0100 "
     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"
     "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
     tlv::Error,
-    [] (const auto& e) { return e.what() == "SignatureValue element is out of order"s; });
+    [] (const auto& e) { return e.what() == "SignatureValue element is out of order"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(MissingName)
 {
   BOOST_CHECK_EXCEPTION(d.wireDecode("0607 16031B0100 1700"_block), tlv::Error,
-                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"s; });
+                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(MissingSignatureInfo)
 {
   BOOST_CHECK_EXCEPTION(d.wireDecode("0607 0703080144 1700"_block), tlv::Error,
-                        [] (const auto& e) { return e.what() == "SignatureInfo element is missing"s; });
+                        [] (const auto& e) { return e.what() == "SignatureInfo element is missing"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(MissingSignatureValue)
 {
   BOOST_CHECK_EXCEPTION(d.wireDecode("0607 0700 16031B0100"_block), tlv::Error,
-                        [] (const auto& e) { return e.what() == "SignatureValue element is missing"s; });
+                        [] (const auto& e) { return e.what() == "SignatureValue element is missing"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
@@ -378,7 +378,7 @@ BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
                           "062E FC00 0703080144 16031B0100 "
                           "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
                         tlv::Error,
-                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"s; });
+                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
                           "0632 0703080145 FB00 1400 1500 16031B0100 "
                           "1720612A79399E60304A9F701C1ECAC7956BF2F1B046E6C6F0D6C29B3FE3A29BAD76"_block),
                         tlv::Error,
-                        [] (const auto& e) { return e.what() == "Unrecognized element of critical type 251"s; });
+                        [] (const auto& e) { return e.what() == "Unrecognized element of critical type 251"sv; });
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Decode
@@ -523,7 +523,9 @@ BOOST_AUTO_TEST_CASE(SetContent)
   BOOST_TEST(d.getContent().value_bytes() == nested, boost::test_tools::per_element());
 
   // Block overload, default constructed (invalid)
-  BOOST_CHECK_THROW(d.setContent(Block{}), std::invalid_argument);
+  BOOST_CHECK_EXCEPTION(d.setContent(Block{}), std::invalid_argument, [] (const auto& e) {
+    return e.what() == "Content block must be valid"sv;
+  });
 
   // span overload
   d.setContent(nested);
@@ -532,8 +534,15 @@ BOOST_AUTO_TEST_CASE(SetContent)
   BOOST_TEST(d.getContent().value_bytes() == nested, boost::test_tools::per_element());
   d.setContent(span<uint8_t>{});
   BOOST_CHECK_EQUAL(d.hasContent(), true);
-  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
-  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
+  BOOST_CHECK_EQUAL(d.getContent(), "1500"_block);
+
+  // string_view overload
+  d.setContent("hi"sv);
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
+  BOOST_CHECK_EQUAL(d.getContent(), "15026869"_block);
+  d.setContent("");
+  BOOST_CHECK_EQUAL(d.hasContent(), true);
+  BOOST_CHECK_EQUAL(d.getContent(), "1500"_block);
 
   // ConstBufferPtr overload
   d.setContent(std::make_shared<Buffer>(direct, sizeof(direct)));
@@ -542,9 +551,12 @@ BOOST_AUTO_TEST_CASE(SetContent)
   BOOST_TEST(d.getContent().value_bytes() == direct, boost::test_tools::per_element());
   d.setContent(std::make_shared<Buffer>());
   BOOST_CHECK_EQUAL(d.hasContent(), true);
-  BOOST_CHECK_EQUAL(d.getContent().type(), tlv::Content);
-  BOOST_CHECK_EQUAL(d.getContent().value_size(), 0);
-  BOOST_CHECK_THROW(d.setContent(nullptr), std::invalid_argument);
+  BOOST_CHECK_EQUAL(d.getContent(), "1500"_block);
+
+  // ConstBufferPtr overload, null/empty pointer (invalid)
+  BOOST_CHECK_EXCEPTION(d.setContent(ConstBufferPtr{}), std::invalid_argument, [] (const auto& e) {
+    return e.what() == "Content buffer cannot be null"sv;
+  });
 
   // unset
   d.unsetContent();
@@ -573,7 +585,10 @@ BOOST_AUTO_TEST_CASE(SetSignatureValue)
   BOOST_CHECK_EQUAL(d.getSignatureValue().type(), tlv::SignatureValue);
   BOOST_CHECK_EQUAL(d.getSignatureValue().value_size(), 0);
 
-  BOOST_CHECK_THROW(d.setSignatureValue(nullptr), std::invalid_argument);
+  // ConstBufferPtr overload, null/empty pointer (invalid)
+  BOOST_CHECK_EXCEPTION(d.setSignatureValue(ConstBufferPtr{}), std::invalid_argument, [] (const auto& e) {
+    return e.what() == "SignatureValue buffer cannot be null"sv;
+  });
 }
 
 BOOST_FIXTURE_TEST_CASE(ExtractSignedRanges, KeyChainFixture)
