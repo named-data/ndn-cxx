@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,12 +26,11 @@
 
 #include "ndn-cxx/net/ethernet.hpp"
 #include "ndn-cxx/net/network-address.hpp"
-#include "ndn-cxx/util/signal.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 
 #include <set>
 
-namespace ndn {
-namespace net {
+namespace ndn::net {
 
 /** @brief Indicates the hardware type of a network interface
  */
@@ -71,19 +70,19 @@ class NetworkInterface
 public: // signals, marked 'mutable' so they can be connected on 'const NetworkInterface'
   /** @brief Fires when interface state changes
    */
-  mutable util::Signal<NetworkInterface, InterfaceState /*old*/, InterfaceState /*new*/> onStateChanged;
+  mutable signal::Signal<NetworkInterface, InterfaceState /*old*/, InterfaceState /*new*/> onStateChanged;
 
   /** @brief Fires when interface mtu changes
    */
-  mutable util::Signal<NetworkInterface, uint32_t /*old*/, uint32_t /*new*/> onMtuChanged;
+  mutable signal::Signal<NetworkInterface, uint32_t /*old*/, uint32_t /*new*/> onMtuChanged;
 
   /** @brief Fires when a network-layer address is added to the interface
    */
-  mutable util::Signal<NetworkInterface, NetworkAddress> onAddressAdded;
+  mutable signal::Signal<NetworkInterface, NetworkAddress> onAddressAdded;
 
   /** @brief Fires when a network-layer address is removed from the interface
    */
-  mutable util::Signal<NetworkInterface, NetworkAddress> onAddressRemoved;
+  mutable signal::Signal<NetworkInterface, NetworkAddress> onAddressRemoved;
 
 public: // getters
   /** @brief Returns an opaque ID that uniquely identifies the interface on the system
@@ -249,7 +248,6 @@ private:
 std::ostream&
 operator<<(std::ostream& os, const NetworkInterface& interface);
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net
 
 #endif // NDN_CXX_NET_NETWORK_INTERFACE_HPP

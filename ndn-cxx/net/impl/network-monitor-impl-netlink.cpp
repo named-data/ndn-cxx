@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,10 +39,9 @@
 #define RTEXT_FILTER_SKIP_STATS (1 << 3)
 #endif
 
-NDN_LOG_INIT(ndn.NetworkMonitor);
+namespace ndn::net {
 
-namespace ndn {
-namespace net {
+NDN_LOG_INIT(ndn.NetworkMonitor);
 
 NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io)
   : m_rtnlSocket(io)
@@ -451,5 +450,4 @@ NetworkMonitorImplNetlink::parseErrorMessage(const NetlinkMessage& nlmsg)
 #endif // NDN_CXX_HAVE_NETLINK_EXT_ACK
 }
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net

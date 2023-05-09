@@ -23,9 +23,7 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/util/ostream-joiner.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 constexpr size_t KEY_OFFSET = 0;
 constexpr size_t VALUE_OFFSET = 1;
@@ -168,6 +166,4 @@ operator<<(std::ostream& os, const AdditionalDescription& desc)
   return os << "]";
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/encoding/block.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -86,7 +85,6 @@ operator!=(const ChannelStatus& a, const ChannelStatus& b)
 std::ostream&
 operator<<(std::ostream& os, const ChannelStatus& status);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_CHANNEL_STATUS_HPP

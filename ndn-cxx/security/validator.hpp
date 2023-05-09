@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,7 +34,6 @@ namespace ndn {
 class Face;
 
 namespace security {
-inline namespace v2 {
 
 /**
  * @brief Interface for validating data and interest packets.
@@ -204,7 +203,6 @@ private:
   size_t m_maxDepth{25};
 };
 
-} // inline namespace v2
 } // namespace security
 } // namespace ndn
 

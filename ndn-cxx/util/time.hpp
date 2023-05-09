@@ -33,9 +33,9 @@ namespace ndn {
 namespace time {
 
 template<typename Rep, typename Period>
-using duration = boost::chrono::duration<Rep, Period>;
+using duration = ::boost::chrono::duration<Rep, Period>;
 
-using boost::chrono::duration_cast;
+using ::boost::chrono::duration_cast;
 
 // C++20
 using days   = duration<int_fast32_t, boost::ratio<86400>>;
@@ -44,16 +44,17 @@ using months = duration<int_fast32_t, boost::ratio<2629746>>;
 using years  = duration<int_fast32_t, boost::ratio<31556952>>;
 
 // C++11
-using hours        = boost::chrono::hours;
-using minutes      = boost::chrono::minutes;
-using seconds      = boost::chrono::seconds;
-using milliseconds = boost::chrono::milliseconds;
-using microseconds = boost::chrono::microseconds;
-using nanoseconds  = boost::chrono::nanoseconds;
+using hours        = ::boost::chrono::hours;
+using minutes      = ::boost::chrono::minutes;
+using seconds      = ::boost::chrono::seconds;
+using milliseconds = ::boost::chrono::milliseconds;
+using microseconds = ::boost::chrono::microseconds;
+using nanoseconds  = ::boost::chrono::nanoseconds;
 
-/** \return The absolute value of the duration \p d.
- *  \note The function does not participate in the overload resolution
- *        unless std::numeric_limits<Rep>::is_signed is true.
+/**
+ * \brief Returns the absolute value of the duration \p d.
+ * \note This function does not participate in overload resolution
+ *       unless \c std::numeric_limits<Rep>::is_signed is true.
  */
 template<typename Rep, typename Period, typename = std::enable_if_t<std::numeric_limits<Rep>::is_signed>>
 constexpr duration<Rep, Period>
@@ -68,97 +69,97 @@ inline namespace literals {
 inline namespace time_literals {
 
 constexpr time::days
-operator "" _day(unsigned long long days)
+operator ""_day(unsigned long long days)
 {
   return time::days{days};
 }
 
 constexpr time::duration<long double, time::days::period>
-operator "" _day(long double days)
+operator ""_day(long double days)
 {
   return time::duration<long double, time::days::period>{days};
 }
 
 constexpr time::days
-operator "" _days(unsigned long long days)
+operator ""_days(unsigned long long days)
 {
   return time::days{days};
 }
 
 constexpr time::duration<long double, time::days::period>
-operator "" _days(long double days)
+operator ""_days(long double days)
 {
   return time::duration<long double, time::days::period>{days};
 }
 
 constexpr time::hours
-operator "" _h(unsigned long long hrs)
+operator ""_h(unsigned long long hrs)
 {
   return time::hours{hrs};
 }
 
 constexpr time::duration<long double, time::hours::period>
-operator "" _h(long double hrs)
+operator ""_h(long double hrs)
 {
   return time::duration<long double, time::hours::period>{hrs};
 }
 
 constexpr time::minutes
-operator "" _min(unsigned long long mins)
+operator ""_min(unsigned long long mins)
 {
   return time::minutes{mins};
 }
 
 constexpr time::duration<long double, time::minutes::period>
-operator "" _min(long double mins)
+operator ""_min(long double mins)
 {
   return time::duration<long double, time::minutes::period>{mins};
 }
 
 constexpr time::seconds
-operator "" _s(unsigned long long secs)
+operator ""_s(unsigned long long secs)
 {
   return time::seconds{secs};
 }
 
 constexpr time::duration<long double, time::seconds::period>
-operator "" _s(long double secs)
+operator ""_s(long double secs)
 {
   return time::duration<long double, time::seconds::period>{secs};
 }
 
 constexpr time::milliseconds
-operator "" _ms(unsigned long long msecs)
+operator ""_ms(unsigned long long msecs)
 {
   return time::milliseconds{msecs};
 }
 
 constexpr time::duration<long double, time::milliseconds::period>
-operator "" _ms(long double msecs)
+operator ""_ms(long double msecs)
 {
   return time::duration<long double, time::milliseconds::period>{msecs};
 }
 
 constexpr time::microseconds
-operator "" _us(unsigned long long usecs)
+operator ""_us(unsigned long long usecs)
 {
   return time::microseconds{usecs};
 }
 
 constexpr time::duration<long double, time::microseconds::period>
-operator "" _us(long double usecs)
+operator ""_us(long double usecs)
 {
   return time::duration<long double, time::microseconds::period>{usecs};
 }
 
 constexpr time::nanoseconds
-operator "" _ns(unsigned long long nsecs)
+operator ""_ns(unsigned long long nsecs)
 {
   return time::nanoseconds{nsecs};
 }
 
 constexpr time::duration<long double, time::nanoseconds::period>
-operator "" _ns(long double nsecs)
+operator ""_ns(long double nsecs)
 {
   return time::duration<long double, time::nanoseconds::period>{nsecs};
 }
@@ -168,10 +169,10 @@ operator "" _ns(long double nsecs)
 
 namespace time {
 
-using namespace literals::time_literals;
+using namespace ::ndn::literals::time_literals;
 
 /**
- * \brief System clock
+ * \brief System clock.
  *
  * System clock represents the system-wide real time wall clock.
  *
@@ -181,28 +182,30 @@ using namespace literals::time_literals;
  *
  * To get the current time:
  *
- * <code>
- *     const auto now = system_clock::now();
- * </code>
+ * \code
+ * const auto now = ndn::time::system_clock::now();
+ * \endcode
  *
  * To convert a time_point to/from UNIX timestamp:
  *
- * <code>
- *     system_clock::time_point time = ...;
- *     uint64_t timestampInMilliseconds = toUnixTimestamp(time).count();
- *     system_clock::time_point time2 = fromUnixTimestamp(milliseconds(timestampInMilliseconds));
- * </code>
+ * \code
+ * time::system_clock::time_point t1 = ...;
+ * auto timeInMilliseconds = time::toUnixTimestamp(t1).count();
+ * time::system_clock::time_point t2 = time::fromUnixTimestamp(time::milliseconds(timeInMilliseconds));
+ * \endcode
  */
 class system_clock
 {
 public:
-  using duration   = boost::chrono::system_clock::duration;
+  using duration   = ::boost::chrono::system_clock::duration;
   using rep        = duration::rep;
   using period     = duration::period;
-  using time_point = boost::chrono::time_point<system_clock>;
-  static constexpr bool is_steady = boost::chrono::system_clock::is_steady;
+  using time_point = ::boost::chrono::time_point<system_clock>;
+  static constexpr bool is_steady = ::boost::chrono::system_clock::is_steady;
 
+  /// \deprecated Use time_point
   using TimePoint = time_point;
+  /// \deprecated Use duration
   using Duration = duration;
 
   static time_point
@@ -216,7 +219,7 @@ public:
 };
 
 /**
- * \brief Steady clock
+ * \brief Steady clock.
  *
  * Steady clock represents a monotonic clock. The time points of this
  * clock cannot decrease as physical time moves forward. This clock is
@@ -226,13 +229,15 @@ public:
 class steady_clock
 {
 public:
-  using duration   = boost::chrono::steady_clock::duration;
+  using duration   = ::boost::chrono::steady_clock::duration;
   using rep        = duration::rep;
   using period     = duration::period;
-  using time_point = boost::chrono::time_point<steady_clock>;
+  using time_point = ::boost::chrono::time_point<steady_clock>;
   static constexpr bool is_steady = true;
 
+  /// \deprecated Use time_point
   using TimePoint = time_point;
+  /// \deprecated Use duration
   using Duration = duration;
 
   static time_point
@@ -353,8 +358,7 @@ fromString(const std::string& timePointStr,
 } // namespace time
 } // namespace ndn
 
-namespace boost {
-namespace chrono {
+namespace boost::chrono {
 
 template<typename CharT>
 struct clock_string<ndn::time::system_clock, CharT>
@@ -373,7 +377,6 @@ struct clock_string<ndn::time::steady_clock, CharT>
 extern template struct clock_string<ndn::time::system_clock, char>;
 extern template struct clock_string<ndn::time::steady_clock, char>;
 
-} // namespace chrono
-} // namespace boost
+} // namespace boost::chrono
 
 #endif // NDN_CXX_UTIL_TIME_HPP

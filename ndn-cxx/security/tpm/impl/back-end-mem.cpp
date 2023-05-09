@@ -28,11 +28,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
-using transform::PrivateKey;
+using ndn::security::transform::PrivateKey;
 
 class BackEndMem::Impl
 {
@@ -131,6 +129,4 @@ BackEndMem::doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> k
   m_impl->keys[keyName] = std::move(key);
 }
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm

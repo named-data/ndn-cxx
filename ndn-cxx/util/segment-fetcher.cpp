@@ -35,7 +35,6 @@
 #include <cmath>
 
 namespace ndn {
-namespace util {
 
 void
 SegmentFetcher::Options::validate()
@@ -64,7 +63,7 @@ SegmentFetcher::SegmentFetcher(Face& face,
   , m_face(face)
   , m_scheduler(m_face.getIoService())
   , m_validator(validator)
-  , m_rttEstimator(make_shared<RttEstimator::Options>(options.rttOptions))
+  , m_rttEstimator(make_shared<util::RttEstimator::Options>(options.rttOptions))
   , m_timeLastSegmentReceived(time::steady_clock::now())
   , m_cwnd(options.initCwnd)
   , m_ssthresh(options.initSsthresh)
@@ -520,5 +519,4 @@ SegmentFetcher::getEstimatedRto()
                   time::duration_cast<time::milliseconds>(m_rttEstimator.getEstimatedRto()));
 }
 
-} // namespace util
 } // namespace ndn

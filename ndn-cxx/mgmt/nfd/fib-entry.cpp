@@ -27,8 +27,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 NextHopRecord::NextHopRecord() = default;
 
@@ -264,5 +263,4 @@ operator<<(std::ostream& os, const FibEntry& entry)
   return os << "         )";
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

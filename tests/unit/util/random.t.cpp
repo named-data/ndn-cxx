@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,8 +28,7 @@
 #include <array>
 #include <thread>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestRandom)
@@ -125,5 +124,4 @@ BOOST_FIXTURE_TEST_CASE(Error, FailRandMethodFixture)
 BOOST_AUTO_TEST_SUITE_END() // TestRandom
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

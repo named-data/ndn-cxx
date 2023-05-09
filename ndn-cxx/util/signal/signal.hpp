@@ -27,9 +27,7 @@
 
 #include <list>
 
-namespace ndn {
-namespace util {
-namespace signal {
+namespace ndn::signal {
 
 class DummyExtraArg;
 
@@ -48,18 +46,21 @@ class DummyExtraArg;
  *  \tparam TArgs types of signal arguments
  *  \sa signal-emit.hpp allows owner's derived classes to emit signals
  */
-template<typename Owner, typename ...TArgs>
+template<typename Owner, typename... TArgs>
 class Signal : noncopyable
 {
 public: // API for anyone
+#ifndef BOOST_ASSERT_IS_VOID
+  ~Signal() noexcept
+  {
+    BOOST_ASSERT(!m_isExecuting);
+  }
+#endif
+
   /**
    * \brief Represents a function that can connect to the signal.
    */
   using Handler = std::function<void(const TArgs&...)>;
-
-  Signal();
-
-  ~Signal();
 
   /** \brief Connects a handler to the signal.
    *  \note If invoked from a handler, the new handler won't receive the current emitted signal.
@@ -133,7 +134,7 @@ private: // internal implementation
 
   /** \brief Is a signal handler executing?
    */
-  bool m_isExecuting;
+  bool m_isExecuting = false;
 
   /** \brief Iterator to current executing slot.
    *  \note This field is meaningful when isExecuting==true
@@ -146,19 +147,7 @@ private: // internal implementation
   disconnect(typename SlotList::iterator it);
 };
 
-template<typename Owner, typename ...TArgs>
-Signal<Owner, TArgs...>::Signal()
-  : m_isExecuting(false)
-{
-}
-
-template<typename Owner, typename ...TArgs>
-Signal<Owner, TArgs...>::~Signal()
-{
-  BOOST_ASSERT(!m_isExecuting);
-}
-
-template<typename Owner, typename ...TArgs>
+template<typename Owner, typename... TArgs>
 Connection
 Signal<Owner, TArgs...>::connect(Handler handler)
 {
@@ -168,7 +157,7 @@ Signal<Owner, TArgs...>::connect(Handler handler)
   return signal::Connection(it->disconnect);
 }
 
-template<typename Owner, typename ...TArgs>
+template<typename Owner, typename... TArgs>
 Connection
 Signal<Owner, TArgs...>::connectSingleShot(Handler handler)
 {
@@ -184,7 +173,7 @@ Signal<Owner, TArgs...>::connectSingleShot(Handler handler)
   return conn;
 }
 
-template<typename Owner, typename ...TArgs>
+template<typename Owner, typename... TArgs>
 void
 Signal<Owner, TArgs...>::disconnect(typename SlotList::iterator it)
 {
@@ -204,14 +193,14 @@ Signal<Owner, TArgs...>::disconnect(typename SlotList::iterator it)
   }
 }
 
-template<typename Owner, typename ...TArgs>
+template<typename Owner, typename... TArgs>
 bool
 Signal<Owner, TArgs...>::isEmpty() const
 {
   return !m_isExecuting && m_slots.empty();
 }
 
-template<typename Owner, typename ...TArgs>
+template<typename Owner, typename... TArgs>
 void
 Signal<Owner, TArgs...>::operator()(const TArgs&... args)
 {
@@ -240,19 +229,19 @@ Signal<Owner, TArgs...>::operator()(const TArgs&... args)
   }
 }
 
-template<typename Owner, typename ...TArgs>
+template<typename Owner, typename... TArgs>
 void
 Signal<Owner, TArgs...>::operator()(const TArgs&... args, const DummyExtraArg&)
 {
   this->operator()(args...);
 }
 
-} // namespace signal
+} // namespace ndn::signal
 
-// expose as ndn::util::Signal
-using signal::Signal;
-
-} // namespace util
-} // namespace ndn
+namespace ndn::util {
+/// \deprecated Use ndn::signal::Signal
+template<typename Owner, typename... TArgs>
+using Signal = ::ndn::signal::Signal<Owner, TArgs...>;
+} // namespace ndn::util
 
 #endif // NDN_CXX_UTIL_SIGNAL_SIGNAL_HPP

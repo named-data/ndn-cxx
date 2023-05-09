@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/security/tpm/back-end.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 namespace transform {
 class PrivateKey;
@@ -96,7 +95,6 @@ private:
 };
 
 } // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_TPM_IMPL_BACK_END_FILE_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,9 +27,7 @@
 
 #include <cstdint>
 
-namespace ndn {
-namespace net {
-namespace linux_if {
+namespace ndn::net::linux_if {
 
 // linux/if.h and net/if.h cannot be (directly or indirectly) included in the
 // same translation unit because they contain duplicate declarations, therefore
@@ -50,9 +48,7 @@ extern const uint8_t OPER_STATE_TESTING;
 extern const uint8_t OPER_STATE_DORMANT;
 extern const uint8_t OPER_STATE_UP;
 
-} // namespace linux_if
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net::linux_if
 
 #endif // __linux__
 #endif // NDN_CXX_NET_LINUX_IF_CONSTANTS_HPP

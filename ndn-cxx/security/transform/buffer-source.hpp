@@ -25,9 +25,7 @@
 #include "ndn-cxx/security/transform/transform-base.hpp"
 #include "ndn-cxx/security/security-common.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 /**
  * @brief A source taking one or more memory buffers as input
@@ -72,8 +70,6 @@ private:
 
 using bufferSource = BufferSource;
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_BUFFER_SOURCE_HPP

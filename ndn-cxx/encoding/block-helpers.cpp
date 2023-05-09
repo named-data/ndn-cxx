@@ -23,8 +23,7 @@
 
 #include <boost/endian/conversion.hpp>
 
-namespace ndn {
-namespace encoding {
+namespace ndn::encoding {
 
 namespace endian = boost::endian;
 
@@ -220,5 +219,4 @@ prependBlock<EstimatorTag>(EncodingImpl<EstimatorTag>&, const Block&);
 template size_t
 prependBlock<EncoderTag>(EncodingImpl<EncoderTag>&, const Block&);
 
-} // namespace encoding
-} // namespace ndn
+} // namespace ndn::encoding

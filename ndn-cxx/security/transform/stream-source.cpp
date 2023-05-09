@@ -24,9 +24,7 @@
 #include <istream>
 #include <vector>
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 StreamSource::StreamSource(std::istream& is, size_t bufferSize)
   : Source()
@@ -65,6 +63,4 @@ StreamSource::doPump()
   m_next->end();
 }
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform

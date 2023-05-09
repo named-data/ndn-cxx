@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,9 +28,7 @@
 #include "ndn-cxx/security/validator-config/name-relation.hpp"
 #include "ndn-cxx/util/regex.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 class ValidationState;
 
@@ -138,8 +136,6 @@ private:
 };
 
 } // namespace validator_config
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_VALIDATOR_CONFIG_FILTER_HPP

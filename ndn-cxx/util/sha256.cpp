@@ -27,8 +27,7 @@
 
 #include <openssl/crypto.h>
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 Sha256::Sha256()
 {
@@ -146,5 +145,4 @@ operator<<(std::ostream& os, Sha256& digest)
   return os;
 }
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util

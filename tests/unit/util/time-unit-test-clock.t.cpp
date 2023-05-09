@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,8 +28,7 @@
 #include <boost/lexical_cast.hpp>
 #include <thread>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_FIXTURE_TEST_SUITE(TestTimeUnitTestClock, ClockFixture)
@@ -51,8 +50,7 @@ BOOST_AUTO_TEST_CASE(SystemClock)
   BOOST_CHECK_GT(time::system_clock::now().time_since_epoch(),
                  time::UnitTestClockTraits<time::system_clock>::getDefaultStartTime());
 
-  time::system_clock::TimePoint referenceTime =
-    time::fromUnixTimestamp(time::milliseconds(1390966967032LL));
+  auto referenceTime = time::fromUnixTimestamp(time::milliseconds(1390966967032LL));
   BOOST_CHECK_GT(time::system_clock::now(), referenceTime);
 
   m_systemClock->setNow(referenceTime.time_since_epoch());
@@ -134,5 +132,4 @@ BOOST_FIXTURE_TEST_CASE(Scheduler, IoFixture)
 BOOST_AUTO_TEST_SUITE_END() // TestTimeUnitTestClock
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

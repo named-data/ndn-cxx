@@ -24,12 +24,12 @@
 #include "tests/boost-test.hpp"
 #include "tests/key-chain-fixture.hpp"
 
-namespace ndn {
-namespace security {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::security::ValidatorNull;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestValidatorNull, ndn::tests::KeyChainFixture)
+BOOST_FIXTURE_TEST_SUITE(TestValidatorNull, KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(ValidateData)
 {
@@ -58,6 +58,4 @@ BOOST_AUTO_TEST_CASE(ValidateInterest)
 BOOST_AUTO_TEST_SUITE_END() // TestValidatorNull
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

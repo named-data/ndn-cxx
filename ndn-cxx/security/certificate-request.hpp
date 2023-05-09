@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,7 @@
 
 #include "ndn-cxx/interest.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 /**
  * @brief Request for a certificate, associated with the number of attempts.
@@ -58,8 +56,6 @@ public:
   time::milliseconds waitAfterNack = 500_ms;
 };
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_CERTIFICATE_REQUEST_HPP

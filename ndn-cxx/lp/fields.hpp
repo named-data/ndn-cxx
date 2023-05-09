@@ -33,8 +33,7 @@
 
 #include <boost/mpl/set.hpp>
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 /**
  * \brief Declare the Fragment field.
@@ -134,7 +133,6 @@ using FieldSet = boost::mpl::set<
   PrefixAnnouncementField
 >;
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp
 
 #endif // NDN_CXX_LP_FIELDS_HPP

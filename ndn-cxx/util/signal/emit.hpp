@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,9 +33,7 @@
 #ifndef NDN_CXX_UTIL_SIGNAL_EMIT_HPP
 #define NDN_CXX_UTIL_SIGNAL_EMIT_HPP
 
-namespace ndn {
-namespace util {
-namespace signal {
+namespace ndn::signal {
 
 /** \brief (implementation detail) a filler for extra argument
  */
@@ -43,9 +41,7 @@ class DummyExtraArg
 {
 };
 
-} // namespace signal
-} // namespace util
-} // namespace ndn
+} // namespace ndn::signal
 
 /** \brief (implementation detail) declares a 'emit_signalName' method
  *  \note This macro should be used in 'protected' section so that it's accessible
@@ -57,7 +53,7 @@ class DummyExtraArg
  *        But only argument types that are compatible with Signal declaration will work.
  */
 #define DECLARE_SIGNAL_EMIT(signalName) \
-  template<typename ...TArgs> \
+  template<typename... TArgs> \
   void emit_##signalName(const TArgs&... args) \
   { \
     signalName(args...); \
@@ -74,6 +70,6 @@ class DummyExtraArg
 /** \brief (implementation detail)
  */
 #define emitSignal(...) \
-  NDN_CXX_SIGNAL_EMIT(__VA_ARGS__, ::ndn::util::signal::DummyExtraArg())
+  NDN_CXX_SIGNAL_EMIT(__VA_ARGS__, ::ndn::signal::DummyExtraArg())
 
 #endif // NDN_CXX_UTIL_SIGNAL_EMIT_HPP

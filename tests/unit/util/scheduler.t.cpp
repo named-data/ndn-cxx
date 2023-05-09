@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,11 +26,11 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace scheduler {
-namespace tests {
+namespace ndn::tests {
 
-class SchedulerFixture : public ndn::tests::IoFixture
+using namespace ndn::scheduler;
+
+class SchedulerFixture : public IoFixture
 {
 protected:
   Scheduler scheduler{m_io};
@@ -383,6 +383,4 @@ BOOST_AUTO_TEST_SUITE_END() // ScopedEventId
 BOOST_AUTO_TEST_SUITE_END() // TestScheduler
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace scheduler
-} // namespace ndn
+} // namespace ndn::tests

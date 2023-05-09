@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 FaceEventNotification::FaceEventNotification() = default;
 
@@ -185,5 +184,4 @@ operator<<(std::ostream& os, const FaceEventNotification& notification)
   return os << "          )";
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

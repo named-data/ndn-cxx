@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 
 #include <boost/version.hpp>
 
-namespace boost {
-namespace asio {
+namespace boost::asio {
 
 #if BOOST_VERSION >= 106600
 class io_context;
@@ -34,7 +33,6 @@ using io_service = io_context;
 class io_service;
 #endif // BOOST_VERSION >= 106600
 
-} // namespace asio
-} // namespace boost
+} // namespace boost::asio
 
 #endif // NDN_CXX_DETAIL_ASIO_FWD_HPP

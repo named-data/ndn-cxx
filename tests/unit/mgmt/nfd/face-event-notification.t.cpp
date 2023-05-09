@@ -26,9 +26,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace nfd {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::nfd;
 
 BOOST_CONCEPT_ASSERT((NotificationStreamItem<FaceEventNotification>));
 
@@ -268,6 +268,4 @@ BOOST_AUTO_TEST_SUITE_END() // TestFaceEventNotification
 BOOST_AUTO_TEST_SUITE_END() // Nfd
 BOOST_AUTO_TEST_SUITE_END() // Mgmt
 
-} // namespace tests
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::tests

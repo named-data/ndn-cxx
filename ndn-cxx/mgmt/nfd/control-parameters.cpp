@@ -24,8 +24,7 @@
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 ControlParameters::ControlParameters()
   : m_hasFields(CONTROL_PARAMETER_UBOUND)
@@ -379,5 +378,4 @@ operator<<(std::ostream& os, const ControlParameters& parameters)
   return os;
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

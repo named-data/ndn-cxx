@@ -24,9 +24,7 @@
 #include "ndn-cxx/security/pib/pib-impl.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 NDN_LOG_INIT(ndn.security.KeyContainer);
 
@@ -80,7 +78,7 @@ KeyContainer::add(span<const uint8_t> keyBits, const Name& keyName)
   NDN_LOG_DEBUG((isNew ? "Adding " : "Replacing ") << keyName);
   m_pib->addKey(m_identity, keyName, keyBits);
 
-  auto key = std::make_shared<detail::KeyImpl>(keyName, Buffer(keyBits.begin(), keyBits.end()), m_pib);
+  auto key = std::make_shared<KeyImpl>(keyName, Buffer(keyBits.begin(), keyBits.end()), m_pib);
   m_keys[keyName] = key; // use insert_or_assign in C++17
   return Key(key);
 }
@@ -120,7 +118,7 @@ KeyContainer::get(const Name& keyName) const
   // because getKeyBits will throw if it doesn't
   auto keyBits = m_pib->getKeyBits(keyName);
 
-  auto key = std::make_shared<detail::KeyImpl>(keyName, std::move(keyBits), m_pib);
+  auto key = std::make_shared<KeyImpl>(keyName, std::move(keyBits), m_pib);
   m_keys[keyName] = key;
   return Key(key);
 }
@@ -131,6 +129,4 @@ KeyContainer::isConsistent() const
   return m_keyNames == m_pib->getKeysOfIdentity(m_identity);
 }
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib

@@ -31,10 +31,7 @@
 
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Ims)
 BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
@@ -601,5 +598,4 @@ BOOST_AUTO_TEST_SUITE_END() // Find
 BOOST_AUTO_TEST_SUITE_END() // TestInMemoryStorage
 BOOST_AUTO_TEST_SUITE_END() // Ims
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

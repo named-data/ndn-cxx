@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,14 +27,9 @@
 #include "tests/unit/security/validator-fixture.hpp"
 #include "tests/unit/security/validator-config/common.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace validator_config {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
-using namespace ndn::security::tests;
+using namespace ndn::security::validator_config;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(ValidatorConfig)
@@ -343,8 +338,4 @@ BOOST_AUTO_TEST_SUITE_END() // TestChecker
 BOOST_AUTO_TEST_SUITE_END() // ValidatorConfig
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace validator_config
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

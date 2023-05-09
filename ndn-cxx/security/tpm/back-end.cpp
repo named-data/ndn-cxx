@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,9 +31,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
 BackEnd::~BackEnd() = default;
 
@@ -170,6 +168,4 @@ BackEnd::unlockTpm(const char* pw, size_t pwLen) const
   return !isTpmLocked();
 }
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm

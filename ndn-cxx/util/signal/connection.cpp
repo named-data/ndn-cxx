@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/util/signal/connection.hpp"
 
-namespace ndn {
-namespace util {
-namespace signal {
+namespace ndn::signal {
 
 Connection::Connection(weak_ptr<DisconnectFunction> disconnect) noexcept
   : m_disconnect(std::move(disconnect))
@@ -39,6 +37,4 @@ Connection::disconnect()
   }
 }
 
-} // namespace signal
-} // namespace util
-} // namespace ndn
+} // namespace ndn::signal

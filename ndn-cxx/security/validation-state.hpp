@@ -26,15 +26,13 @@
 #include "ndn-cxx/security/certificate.hpp"
 #include "ndn-cxx/security/signing-info.hpp"
 #include "ndn-cxx/security/validation-callback.hpp"
-#include "ndn-cxx/util/signal.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 
 #include <list>
 #include <unordered_set>
 #include <boost/logic/tribool.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 class Validator;
 
@@ -239,7 +237,7 @@ public:
   }
 
 public:
-  util::Signal<InterestValidationState, Interest> afterSuccess;
+  signal::Signal<InterestValidationState, Interest> afterSuccess;
 
 private:
   void
@@ -256,8 +254,6 @@ private:
 
 using SignedInterestFormatTag = SimpleTag<SignedInterestFormat, 1002>;
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_VALIDATION_STATE_HPP

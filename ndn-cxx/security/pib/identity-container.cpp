@@ -24,9 +24,7 @@
 #include "ndn-cxx/security/pib/pib-impl.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 NDN_LOG_INIT(ndn.security.IdentityContainer);
 
@@ -79,7 +77,7 @@ IdentityContainer::add(const Name& identityName)
   NDN_LOG_DEBUG("Adding " << identityName);
   m_pib->addIdentity(identityName);
   auto ret = m_identities.emplace(identityName,
-                                  std::make_shared<detail::IdentityImpl>(identityName, m_pib));
+                                  std::make_shared<IdentityImpl>(identityName, m_pib));
   // consistency check
   BOOST_ASSERT(ret.second);
 
@@ -112,7 +110,7 @@ IdentityContainer::get(const Name& identityName) const
     NDN_THROW(Pib::Error("Identity `" + identityName.toUri() + "` does not exist"));
   }
 
-  auto id = std::make_shared<detail::IdentityImpl>(identityName, m_pib);
+  auto id = std::make_shared<IdentityImpl>(identityName, m_pib);
   m_identities[identityName] = id;
   return Identity(id);
 }
@@ -131,6 +129,4 @@ IdentityContainer::isConsistent() const
   return m_identityNames == m_pib->getIdentities();
 }
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib

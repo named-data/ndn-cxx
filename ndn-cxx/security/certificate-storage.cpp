@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/security/certificate-storage.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 CertificateStorage::CertificateStorage()
   : m_verifiedCertCache(1_h)
@@ -103,6 +101,4 @@ CertificateStorage::getUnverifiedCertCache() const
   return m_unverifiedCertCache;
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/prefix-announcement.hpp"
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 /** \brief Represents a PrefixAnnouncement header field in NDNLP.
  */
@@ -73,7 +72,6 @@ private:
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(PrefixAnnouncementHeader);
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp
 
 #endif // NDN_CXX_LP_PREFIX_ANNOUNCEMENT_HEADER_HPP

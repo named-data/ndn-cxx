@@ -26,11 +26,9 @@
 #include <unordered_map>
 #include <boost/range/concepts.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
-using Component = name::Component;
-using UriFormat = name::UriFormat;
+using ndn::name::Component;
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Name>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Name>));
@@ -61,7 +59,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   BOOST_CHECK_EQUAL(name[4], Component("\x1C\x9F"));
   BOOST_CHECK(name[5].isImplicitSha256Digest());
 
-  BOOST_CHECK_EQUAL(name.toUri(UriFormat::CANONICAL),
+  BOOST_CHECK_EQUAL(name.toUri(name::UriFormat::CANONICAL),
                     "/8=Emid/25042=P3/8=.../8=..../8=%1C%9F/"
                     "1=%04%15%E3bJ%15%18P%AChl%84%F1U%F2%98%08%C0%DDs%81%9A%A4%A4%C2%0B%E7%3AM%8A%87L");
 
@@ -349,7 +347,7 @@ BOOST_AUTO_TEST_CASE(AppendTypedComponent)
   BOOST_TEST(number == 25912);
 
   const auto tp = time::system_clock::now();
-  time::system_clock::TimePoint tp2;
+  time::system_clock::time_point tp2;
   BOOST_CHECK_NO_THROW(tp2 = name.appendTimestamp(tp).at(-1).toTimestamp());
   BOOST_TEST(time::abs(tp2 - tp) <= 1_us);
 
@@ -561,5 +559,4 @@ BOOST_AUTO_TEST_CASE(UnorderedMap)
 
 BOOST_AUTO_TEST_SUITE_END() // TestName
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

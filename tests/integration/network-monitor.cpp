@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,9 +33,9 @@
 #include <boost/asio/io_service.hpp>
 #include <iostream>
 
-namespace ndn {
-namespace net {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::net;
 
 static std::ostream&
 logEvent(const shared_ptr<const NetworkInterface>& ni = nullptr, std::ostream& os = std::cout)
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(Signals)
 
   monitor.onInterfaceAdded.connect([] (const shared_ptr<const NetworkInterface>& ni) {
     logEvent(ni) << "onInterfaceAdded\n" << *ni;
-    logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << std::endl;
+    logEvent(ni) << "link-type: " << net::detail::getLinkType(ni->getName()) << std::endl;
 
     ni->onAddressAdded.connect([ni] (const NetworkAddress& address) {
       logEvent(ni) << "onAddressAdded " << address << std::endl;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(Signals)
 
     ni->onStateChanged.connect([ni] (InterfaceState oldState, InterfaceState newState) {
       logEvent(ni) << "onStateChanged " << oldState << " -> " << newState << std::endl;
-      logEvent(ni) << "link-type: " << detail::getLinkType(ni->getName()) << std::endl;
+      logEvent(ni) << "link-type: " << net::detail::getLinkType(ni->getName()) << std::endl;
     });
 
     ni->onMtuChanged.connect([ni] (uint32_t oldMtu, uint32_t newMtu) {
@@ -93,6 +93,4 @@ BOOST_AUTO_TEST_CASE(Signals)
   io.run();
 }
 
-} // namespace tests
-} // namespace net
-} // namespace ndn
+} // namespace ndn::tests

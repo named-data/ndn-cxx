@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/security/transform/hex-decode.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 // hex decoding pad
 static const int8_t C2H[] = {
@@ -117,6 +115,4 @@ hexDecode()
   return make_unique<HexDecode>();
 }
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform

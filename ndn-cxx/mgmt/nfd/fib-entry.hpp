@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/nfd-constants.hpp"
 #include "ndn-cxx/name.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /** \ingroup management
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/FibMgmt#FIB-Dataset
@@ -173,7 +172,6 @@ operator!=(const FibEntry& a, const FibEntry& b)
 std::ostream&
 operator<<(std::ostream& os, const FibEntry& entry);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_FIB_ENTRY_HPP

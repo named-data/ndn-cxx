@@ -27,8 +27,7 @@
 
 #include <boost/asio/ip/address.hpp>
 
-namespace ndn {
-namespace dns {
+namespace ndn::dns {
 
 using IpAddress = boost::asio::ip::address;
 using AddressSelector = std::function<bool(const IpAddress&)>;
@@ -109,7 +108,6 @@ syncResolve(const std::string& host,
             boost::asio::io_service& ioService,
             const AddressSelector& addressSelector = AnyAddress());
 
-} // namespace dns
-} // namespace ndn
+} // namespace ndn::dns
 
 #endif // NDN_CXX_NET_DNS_HPP

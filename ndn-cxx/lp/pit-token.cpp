@@ -23,8 +23,7 @@
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 constexpr size_t LENGTH_MIN = 1;
 constexpr size_t LENGTH_MAX = 32;
@@ -45,5 +44,4 @@ operator<<(std::ostream& os, const PitToken& pitToken)
   return os;
 }
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp

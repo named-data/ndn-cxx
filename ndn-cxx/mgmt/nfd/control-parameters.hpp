@@ -27,8 +27,7 @@
 #include "ndn-cxx/mgmt/control-parameters.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -662,7 +661,6 @@ NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(ControlParameters);
 std::ostream&
 operator<<(std::ostream& os, const ControlParameters& parameters);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_CONTROL_PARAMETERS_HPP

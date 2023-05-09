@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2016-2019, Regents of the University of California,
+ * Copyright (c) 2016-2023, Regents of the University of California,
  *                          Colorado State University,
  *                          University Pierre & Marie Curie, Sorbonne University.
  *
@@ -27,9 +27,10 @@
 
 #include <cmath>
 
-namespace ndn {
-namespace util {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::util::RttEstimator;
+using ndn::util::RttEstimatorWithStats;
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestRttEstimator)
@@ -168,6 +169,4 @@ BOOST_AUTO_TEST_CASE(Stats)
 BOOST_AUTO_TEST_SUITE_END() // TestRttEstimator
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

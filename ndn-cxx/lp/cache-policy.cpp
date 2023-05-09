@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 #include "ndn-cxx/lp/cache-policy.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 std::ostream&
 operator<<(std::ostream& os, CachePolicyType policy)
@@ -132,5 +131,4 @@ CachePolicy::setPolicy(CachePolicyType policy)
   return *this;
 }
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp

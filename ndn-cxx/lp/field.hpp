@@ -26,8 +26,7 @@
 
 #include <boost/concept/usage.hpp>
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 /**
  * \brief Indicates where a field may occur.
@@ -67,7 +66,6 @@ struct Field
   }
 };
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp
 
 #endif // NDN_CXX_LP_FIELD_HPP

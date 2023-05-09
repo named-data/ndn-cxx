@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 BufferSource::BufferSource(span<const uint8_t> buffer)
   : m_bufs({buffer})
@@ -55,6 +53,4 @@ BufferSource::doPump()
   m_next->end();
 }
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform

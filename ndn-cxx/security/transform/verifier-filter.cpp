@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,9 +26,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 class VerifierFilter::Impl
 {
@@ -135,6 +133,4 @@ verifierFilter(DigestAlgorithm algo, const PrivateKey& key, span<const uint8_t> 
   return make_unique<VerifierFilter>(algo, key, sig);
 }
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform

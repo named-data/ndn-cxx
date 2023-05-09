@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2018 Regents of the University of California,
+ * Copyright (c) 2014-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -29,8 +29,7 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestEthernet)
@@ -113,5 +112,4 @@ BOOST_AUTO_TEST_CASE(StdHash)
 BOOST_AUTO_TEST_SUITE_END() // TestEthernet
 BOOST_AUTO_TEST_SUITE_END() // Net
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

@@ -24,9 +24,7 @@
 
 #include <cstdint>
 
-namespace ndn {
-namespace tlv {
-namespace security {
+namespace ndn::tlv::security {
 
 /**
  * @brief TLV-TYPE numbers for SafeBag and related elements.
@@ -37,8 +35,6 @@ enum : uint32_t {
   EncryptedKey = 129,
 };
 
-} // namespace security
-} // namespace tlv
-} // namespace ndn
+} // namespace ndn::tlv::security
 
 #endif // NDN_CXX_ENCODING_TLV_SECURITY_HPP

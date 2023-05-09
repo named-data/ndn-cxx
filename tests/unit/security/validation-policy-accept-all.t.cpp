@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,16 +26,11 @@
 
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
 
-class ValidationPolicyAcceptAllFixture : public ValidatorFixture<ValidationPolicyAcceptAll>
+class ValidationPolicyAcceptAllFixture : public ValidatorFixture<security::ValidationPolicyAcceptAll>
 {
 public:
   ValidationPolicyAcceptAllFixture()
@@ -50,7 +45,7 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE(TestValidationPolicyAcceptAll, ValidationPolicyAcceptAllFixture)
 
-typedef boost::mpl::vector<Interest, Data> Packets;
+using Packets = boost::mpl::vector<Interest, Data>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 {
@@ -71,7 +66,4 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 BOOST_AUTO_TEST_SUITE_END() // TestValidationPolicyAcceptAll
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

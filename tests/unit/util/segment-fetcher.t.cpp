@@ -31,11 +31,7 @@
 
 #include <set>
 
-namespace ndn {
-namespace util {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 class SegmentFetcherFixture : public IoKeyChainFixture
 {
@@ -853,6 +849,4 @@ BOOST_AUTO_TEST_CASE(UncanceledPendingInterestBug) // Bug #4770
 BOOST_AUTO_TEST_SUITE_END() // TestSegmentFetcher
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

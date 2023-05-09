@@ -39,10 +39,9 @@
 #define NETLINK_GET_STRICT_CHK 12
 #endif
 
-NDN_LOG_INIT(ndn.NetworkMonitor);
+namespace ndn::net {
 
-namespace ndn {
-namespace net {
+NDN_LOG_INIT(ndn.NetworkMonitor);
 
 // satisfies Asio's SettableSocketOption type requirements
 template<int OptName>
@@ -607,5 +606,4 @@ GenlSocket::nlmsgTypeToString(uint16_t type) const
   return NetlinkSocket::nlmsgTypeToString(type);
 }
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net

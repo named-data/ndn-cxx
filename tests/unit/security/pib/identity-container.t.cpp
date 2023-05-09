@@ -26,15 +26,13 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::pib;
 
 NDN_CXX_ASSERT_FORWARD_ITERATOR(IdentityContainer::const_iterator);
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestIdentityContainer, PibDataFixture)
 
 BOOST_AUTO_TEST_CASE(AddGetRemove)
@@ -74,7 +72,7 @@ BOOST_AUTO_TEST_CASE(AddGetRemove)
     Identity identity2 = container.get(id2);
     BOOST_CHECK_EQUAL(identity1.getName(), id1);
     BOOST_CHECK_EQUAL(identity2.getName(), id2);
-    BOOST_CHECK_THROW(container.get(Name("/non-existing")), pib::Pib::Error);
+    BOOST_CHECK_THROW(container.get(Name("/non-existing")), Pib::Error);
   }
 
   {
@@ -150,10 +148,6 @@ BOOST_AUTO_TEST_CASE(Iterator)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIdentityContainer
-BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

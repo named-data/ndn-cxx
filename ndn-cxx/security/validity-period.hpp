@@ -26,8 +26,7 @@
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 /**
  * @brief Represents a %ValidityPeriod TLV element.
@@ -52,7 +51,7 @@ public:
    */
   static ValidityPeriod
   makeRelative(time::seconds validFrom, time::seconds validUntil,
-               const time::system_clock::TimePoint& now = time::system_clock::now());
+               const time::system_clock::time_point& now = time::system_clock::now());
 
   /** @brief Set validity period [UNIX epoch + 1 nanosecond, UNIX epoch] that is always invalid
    */
@@ -71,15 +70,15 @@ public:
    *        - @p notBefore is rounded up the next whole second
    *        - @p notAfter is truncated to the previous whole second
    */
-  ValidityPeriod(const time::system_clock::TimePoint& notBefore,
-                 const time::system_clock::TimePoint& notAfter);
+  ValidityPeriod(const time::system_clock::time_point& notBefore,
+                 const time::system_clock::time_point& notAfter);
 
   /** @brief Check if @p now falls within the validity period
    *  @param now Time point to check if it falls within the period
    *  @return periodBegin <= @p now and @p now <= periodEnd
    */
   bool
-  isValid(const time::system_clock::TimePoint& now = time::system_clock::now()) const;
+  isValid(const time::system_clock::time_point& now = time::system_clock::now()) const;
 
   /** @brief Set validity period [@p notBefore, @p notAfter]
    *  @param notBefore exclusive beginning of the validity period range
@@ -90,12 +89,12 @@ public:
    *        - @p notAfter is truncated to the previous whole second
    */
   ValidityPeriod&
-  setPeriod(const time::system_clock::TimePoint& notBefore,
-            const time::system_clock::TimePoint& notAfter);
+  setPeriod(const time::system_clock::time_point& notBefore,
+            const time::system_clock::time_point& notAfter);
 
   /** @brief Get the stored validity period
    */
-  std::pair<time::system_clock::TimePoint, time::system_clock::TimePoint>
+  std::pair<time::system_clock::time_point, time::system_clock::time_point>
   getPeriod() const;
 
   /** @brief Fast encoding or block size estimation
@@ -146,7 +145,6 @@ NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(ValidityPeriod);
 std::ostream&
 operator<<(std::ostream& os, const ValidityPeriod& period);
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_VALIDITY_PERIOD_HPP

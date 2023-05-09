@@ -30,9 +30,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace name {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::name::Component;
+using ndn::name::UriFormat;
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Component>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Component>));
@@ -616,6 +617,4 @@ BOOST_AUTO_TEST_CASE(Compare)
 
 BOOST_AUTO_TEST_SUITE_END() // TestNameComponent
 
-} // namespace tests
-} // namespace name
-} // namespace ndn
+} // namespace ndn::tests

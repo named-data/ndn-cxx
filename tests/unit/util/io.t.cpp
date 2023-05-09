@@ -27,8 +27,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestIo)
@@ -398,5 +397,4 @@ BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
 BOOST_AUTO_TEST_SUITE_END() // TestIo
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,11 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace util {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::util::Logger;
+using ndn::util::Logging;
+using ndn::util::LogLevel;
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestLogger)
@@ -77,6 +79,4 @@ BOOST_AUTO_TEST_CASE(ConsecutivePeriods)
 BOOST_AUTO_TEST_SUITE_END() // TestLogger
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,11 +25,7 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/io-key-chain-fixture.hpp"
 
-namespace ndn {
-namespace util {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_FIXTURE_TEST_SUITE(TestDummyClientFace, IoKeyChainFixture)
@@ -107,13 +103,13 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
                           [&] (const InterestFilter&, const Interest& interest) {
                             BOOST_CHECK_EQUAL(interest.getName(), "/face1/data");
                             nFace1Interest++;
-                            face1.put(ndn::tests::makeNack(interest, lp::NackReason::NO_ROUTE));
+                            face1.put(makeNack(interest, lp::NackReason::NO_ROUTE));
                           }, nullptr, nullptr);
   face2.setInterestFilter("/face2",
                           [&] (const InterestFilter&, const Interest& interest) {
                             BOOST_CHECK_EQUAL(interest.getName(), "/face2/data");
                             nFace2Interest++;
-                            face2.put(*ndn::tests::makeData("/face2/data"));
+                            face2.put(*makeData("/face2/data"));
                             return;
                           }, nullptr, nullptr);
 
@@ -175,6 +171,4 @@ BOOST_AUTO_TEST_CASE(AlreadyLinkException)
 BOOST_AUTO_TEST_SUITE_END() // TestDummyClientFace
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

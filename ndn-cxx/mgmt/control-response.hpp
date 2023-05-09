@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/encoding/block.hpp"
 
-namespace ndn {
-namespace mgmt {
+namespace ndn::mgmt {
 
 /**
  * \brief ControlCommand response.
@@ -97,7 +96,6 @@ private: // non-member operators
   }
 };
 
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::mgmt
 
 #endif // NDN_CXX_MGMT_CONTROL_RESPONSE_HPP

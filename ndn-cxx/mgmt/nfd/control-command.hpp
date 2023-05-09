@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -319,7 +318,6 @@ public:
   validateResponse(const ControlParameters& parameters) const override;
 };
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_CONTROL_COMMAND_HPP

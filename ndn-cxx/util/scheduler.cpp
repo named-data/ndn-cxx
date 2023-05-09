@@ -23,8 +23,7 @@
 #include "ndn-cxx/util/impl/steady-timer.hpp"
 #include "ndn-cxx/util/scope.hpp"
 
-namespace ndn {
-namespace scheduler {
+namespace ndn::scheduler {
 
 /** \brief Stores internal information about a scheduled event
  */
@@ -46,7 +45,7 @@ public:
 public:
   EventCallback callback;
   Scheduler::EventQueue::const_iterator queueIt;
-  time::steady_clock::TimePoint expireTime;
+  time::steady_clock::time_point expireTime;
   bool isExpired = false;
 };
 
@@ -82,7 +81,7 @@ Scheduler::EventQueueCompare::operator()(const shared_ptr<EventInfo>& a,
 }
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_timer(make_unique<util::detail::SteadyTimer>(ioService))
+  : m_timer(make_unique<detail::SteadyTimer>(ioService))
 {
 }
 
@@ -165,5 +164,4 @@ Scheduler::executeEvent(const boost::system::error_code& error)
   }
 }
 
-} // namespace scheduler
-} // namespace ndn
+} // namespace ndn::scheduler

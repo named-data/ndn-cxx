@@ -23,8 +23,7 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 FaceQueryFilter::FaceQueryFilter() = default;
 
@@ -336,5 +335,4 @@ operator<<(std::ostream& os, const FaceQueryFilter& filter)
   return os;
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

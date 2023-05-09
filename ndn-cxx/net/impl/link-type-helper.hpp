@@ -26,9 +26,7 @@
 
 #include <string>
 
-namespace ndn {
-namespace net {
-namespace detail {
+namespace ndn::net::detail {
 
 /**
  * @brief Obtain information about WiFi link type
@@ -36,8 +34,6 @@ namespace detail {
 ndn::nfd::LinkType
 getLinkType(const std::string& ifName);
 
-} // namespace detail
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net::detail
 
 #endif // NDN_CXX_NET_IMPL_LINK_TYPE_HELPER_HPP

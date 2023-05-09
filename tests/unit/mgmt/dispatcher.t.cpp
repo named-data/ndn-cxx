@@ -26,11 +26,9 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/io-key-chain-fixture.hpp"
 
-namespace ndn {
-namespace mgmt {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using namespace ndn::mgmt;
 
 class DispatcherFixture : public IoKeyChainFixture
 {
@@ -43,7 +41,7 @@ public:
   }
 
 public:
-  util::DummyClientFace face;
+  DummyClientFace face;
   mgmt::Dispatcher dispatcher;
   InMemoryStorageFifo& storage;
 };
@@ -473,6 +471,4 @@ BOOST_AUTO_TEST_CASE(NotificationStream)
 BOOST_AUTO_TEST_SUITE_END() // TestDispatcher
 BOOST_AUTO_TEST_SUITE_END() // Mgmt
 
-} // namespace tests
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::tests

@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 FaceStatus::FaceStatus() = default;
 
@@ -460,5 +459,4 @@ operator<<(std::ostream& os, const FaceStatus& status)
   return os << "     )";
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

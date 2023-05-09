@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,8 +23,7 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestBufferStream)
@@ -84,5 +83,4 @@ BOOST_AUTO_TEST_CASE(Close) // Bug 5240
 BOOST_AUTO_TEST_SUITE_END() // TestBufferStream
 BOOST_AUTO_TEST_SUITE_END() // Encoding
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

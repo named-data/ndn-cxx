@@ -27,11 +27,13 @@
 
 #include <boost/test/tools/output_test_stream.hpp>
 
-namespace ndn {
-namespace util {
-namespace tests {
+namespace ndn::tests {
 
-NDN_LOG_INIT(ndn.util.tests.Logging);
+using ndn::util::Logger;
+using ndn::util::Logging;
+using ndn::util::LogLevel;
+
+NDN_LOG_INIT(ndn.tests.Logging);
 
 void
 logFromModule1();
@@ -60,7 +62,7 @@ logFromNewLogger(const char* moduleName)
 
 namespace ns1 {
 
-NDN_LOG_INIT(ndn.util.tests.ns1);
+NDN_LOG_INIT(ndn.tests.ns1);
 
 static void
 logFromNamespace1()
@@ -72,7 +74,7 @@ logFromNamespace1()
 
 namespace ns2 {
 
-NDN_LOG_INIT(ndn.util.tests.ns2);
+NDN_LOG_INIT(ndn.tests.ns2);
 
 static void
 logFromNamespace2()
@@ -101,7 +103,7 @@ private:
   NDN_LOG_MEMBER_DECL();
 };
 
-NDN_LOG_MEMBER_INIT(ClassWithLogger, ndn.util.tests.ClassWithLogger);
+NDN_LOG_MEMBER_INIT(ClassWithLogger, ndn.tests.ClassWithLogger);
 
 class AbstractClassWithLogger
 {
@@ -123,7 +125,7 @@ protected:
 };
 
 // Check that the macro can cope with abstract types
-NDN_LOG_MEMBER_INIT(AbstractClassWithLogger, ndn.util.tests.AbstractClassWithLogger);
+NDN_LOG_MEMBER_INIT(AbstractClassWithLogger, ndn.tests.AbstractClassWithLogger);
 
 class DerivedClass : public AbstractClassWithLogger
 {
@@ -159,13 +161,13 @@ private:
 // but we want to test that the macro expands to well-formed code
 NDN_LOG_MEMBER_DECL_SPECIALIZED((ClassTemplateWithLogger<int, double>));
 
-NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, double>), ndn.util.tests.Specialized1);
-NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, std::string>), ndn.util.tests.Specialized2);
+NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, double>), ndn.tests.Specialized1);
+NDN_LOG_MEMBER_INIT_SPECIALIZED((ClassTemplateWithLogger<int, std::string>), ndn.tests.Specialized2);
 
 constexpr time::microseconds LOG_SYSTIME{1468108800311239LL};
 const std::string LOG_SYSTIME_STR("1468108800.311239");
 
-class LoggingFixture : public ndn::tests::ClockFixture
+class LoggingFixture : public ClockFixture
 {
 protected:
   LoggingFixture()
@@ -202,7 +204,7 @@ BOOST_AUTO_TEST_CASE(GetLoggerNames)
   NDN_LOG_TRACE("GetLoggerNames");
   auto names = Logging::getLoggerNames();
   BOOST_CHECK_EQUAL(names.size(), n);
-  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Logging"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.tests.Logging"), 1);
 }
 
 BOOST_AUTO_TEST_SUITE(Severity)
@@ -308,48 +310,48 @@ BOOST_AUTO_TEST_SUITE_END() // Severity
 
 BOOST_AUTO_TEST_CASE(NamespaceLogger)
 {
-  Logging::setLevel("ndn.util.tests.ns1", LogLevel::INFO);
-  Logging::setLevel("ndn.util.tests.ns2", LogLevel::DEBUG);
+  Logging::setLevel("ndn.tests.ns1", LogLevel::INFO);
+  Logging::setLevel("ndn.tests.ns2", LogLevel::DEBUG);
 
   const auto& levels = Logging::get().getLevels();
   BOOST_CHECK_EQUAL(levels.size(), 2);
-  BOOST_CHECK_EQUAL(levels.at("ndn.util.tests.ns1"), LogLevel::INFO);
-  BOOST_CHECK_EQUAL(levels.at("ndn.util.tests.ns2"), LogLevel::DEBUG);
+  BOOST_CHECK_EQUAL(levels.at("ndn.tests.ns1"), LogLevel::INFO);
+  BOOST_CHECK_EQUAL(levels.at("ndn.tests.ns2"), LogLevel::DEBUG);
 
   const auto& names = Logging::getLoggerNames();
-  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.ns1"), 1);
-  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.ns2"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.tests.ns1"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.tests.ns2"), 1);
 
   ns1::logFromNamespace1();
   ns2::logFromNamespace2();
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ns1] hello world from ns1\n" +
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ns2] hi there from ns2\n"
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.ns1] hello world from ns1\n" +
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.ns2] hi there from ns2\n"
     ));
 }
 
 BOOST_AUTO_TEST_CASE(MemberLogger)
 {
-  Logging::setLevel("ndn.util.tests.ClassWithLogger", LogLevel::INFO);
-  Logging::setLevel("ndn.util.tests.AbstractClassWithLogger", LogLevel::INFO);
-  Logging::setLevel("ndn.util.tests.Specialized1", LogLevel::INFO);
-  // ndn.util.tests.Specialized2 is not enabled
+  Logging::setLevel("ndn.tests.ClassWithLogger", LogLevel::INFO);
+  Logging::setLevel("ndn.tests.AbstractClassWithLogger", LogLevel::INFO);
+  Logging::setLevel("ndn.tests.Specialized1", LogLevel::INFO);
+  // ndn.tests.Specialized2 is not enabled
 
   const auto& names = Logging::getLoggerNames();
-  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.ClassWithLogger"), 1);
-  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.AbstractClassWithLogger"), 1);
-  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Specialized1"), 1);
-  BOOST_CHECK_EQUAL(names.count("ndn.util.tests.Specialized2"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.tests.ClassWithLogger"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.tests.AbstractClassWithLogger"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.tests.Specialized1"), 1);
+  BOOST_CHECK_EQUAL(names.count("ndn.tests.Specialized2"), 1);
 
   ClassWithLogger::logFromStaticMemberFunction();
   ClassWithLogger{}.logFromConstMemberFunction();
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ClassWithLogger] static member function\n" +
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.ClassWithLogger] const member function\n"
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.ClassWithLogger] static member function\n" +
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.ClassWithLogger] const member function\n"
     ));
 
   DerivedClass{}.logFromConstMemberFunction();
@@ -357,8 +359,8 @@ BOOST_AUTO_TEST_CASE(MemberLogger)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.AbstractClassWithLogger] const member function\n" +
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.AbstractClassWithLogger] overridden virtual function\n"
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.AbstractClassWithLogger] const member function\n" +
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.AbstractClassWithLogger] overridden virtual function\n"
     ));
 
   ClassTemplateWithLogger<int, double>::logFromStaticMemberFunction();
@@ -368,8 +370,8 @@ BOOST_AUTO_TEST_CASE(MemberLogger)
 
   Logging::flush();
   BOOST_CHECK(os.is_equal(
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.Specialized1] class template static member function\n" +
-    LOG_SYSTIME_STR + "  INFO: [ndn.util.tests.Specialized1] class template non-static member function\n"
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.Specialized1] class template static member function\n" +
+    LOG_SYSTIME_STR + "  INFO: [ndn.tests.Specialized1] class template non-static member function\n"
     ));
 }
 
@@ -702,6 +704,4 @@ BOOST_AUTO_TEST_CASE(NullDestination)
 BOOST_AUTO_TEST_SUITE_END() // TestLogging
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

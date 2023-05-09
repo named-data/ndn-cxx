@@ -27,11 +27,12 @@
 
 #include "ndn-cxx/detail/asio-fwd.hpp"
 #include "ndn-cxx/net/network-interface.hpp"
+#include "ndn-cxx/util/signal/emit.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 
 #include <vector>
 
-namespace ndn {
-namespace net {
+namespace ndn::net {
 
 class NetworkMonitorImpl;
 
@@ -112,20 +113,20 @@ private:
 
 public: // signals
   /// Fires when the enumeration of all network interfaces on the system is complete.
-  util::Signal<NetworkMonitorImpl>& onEnumerationCompleted;
+  signal::Signal<NetworkMonitorImpl>& onEnumerationCompleted;
 
   /// Fires whenever a new interface is detected on the system.
-  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceAdded;
+  signal::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceAdded;
 
   /**
    * @brief Fires whenever an interface disappears from the system.
    * @note The NetworkInterface object has already been removed from the list
    *       returned by listNetworkInterfaces() when this signal is emitted.
    */
-  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceRemoved;
+  signal::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>>& onInterfaceRemoved;
 
   /// @deprecated Only for backward compatibility
-  util::Signal<NetworkMonitorImpl>& onNetworkStateChanged;
+  signal::Signal<NetworkMonitorImpl>& onNetworkStateChanged;
 };
 
 class NetworkMonitorImpl : noncopyable
@@ -150,10 +151,10 @@ protected:
   makeNetworkInterface();
 
 public:
-  util::Signal<NetworkMonitorImpl> onEnumerationCompleted;
-  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>> onInterfaceAdded;
-  util::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>> onInterfaceRemoved;
-  util::Signal<NetworkMonitorImpl> onNetworkStateChanged;
+  signal::Signal<NetworkMonitorImpl> onEnumerationCompleted;
+  signal::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>> onInterfaceAdded;
+  signal::Signal<NetworkMonitorImpl, shared_ptr<const NetworkInterface>> onInterfaceRemoved;
+  signal::Signal<NetworkMonitorImpl> onNetworkStateChanged;
 
 protected:
   DECLARE_SIGNAL_EMIT(onEnumerationCompleted)
@@ -162,7 +163,6 @@ protected:
   DECLARE_SIGNAL_EMIT(onNetworkStateChanged)
 };
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net
 
 #endif // NDN_CXX_NET_NETWORK_MONITOR_HPP

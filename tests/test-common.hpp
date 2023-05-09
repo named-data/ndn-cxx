@@ -27,8 +27,7 @@
 #include "ndn-cxx/lp/nack.hpp"
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 /**
  * \brief Create an Interest
@@ -74,16 +73,15 @@ makeNack(Interest interest, lp::NackReason reason);
  * \param index the index of the name component to replace
  * \param args arguments to name::Component constructor
  */
-template<typename Packet, typename ...Args>
+template<typename Packet, typename... Args>
 void
-setNameComponent(Packet& pkt, ssize_t index, Args&& ...args)
+setNameComponent(Packet& pkt, ssize_t index, Args&&... args)
 {
   Name name = pkt.getName();
   name.set(index, name::Component(std::forward<Args>(args)...));
   pkt.setName(name);
 }
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_TEST_COMMON_HPP

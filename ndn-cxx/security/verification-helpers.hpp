@@ -44,9 +44,7 @@ namespace transform {
 class PublicKey;
 } // namespace transform
 
-inline namespace v2 {
 class Certificate;
-} // inline namespace v2
 
 /**
  * @brief Verify @p blobs using @p key against @p sig.

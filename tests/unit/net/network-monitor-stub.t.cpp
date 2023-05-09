@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace net {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::net;
 
 BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestNetworkMonitorStub)
@@ -120,6 +120,4 @@ BOOST_FIXTURE_TEST_CASE(RemoveInterface, StubFixture)
 BOOST_AUTO_TEST_SUITE_END() // TestNetworkMonitorStub
 BOOST_AUTO_TEST_SUITE_END() // Net
 
-} // namespace tests
-} // namespace net
-} // namespace ndn
+} // namespace ndn::tests

@@ -29,8 +29,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 
-namespace ndn {
-namespace net {
+namespace ndn::net {
 
 class NetworkMonitorImplStub : public NetworkMonitorImpl
 {
@@ -134,5 +133,4 @@ NetworkMonitorStub::emitEnumerationCompleted()
   this->getImpl().emitEnumerationCompleted();
 }
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net

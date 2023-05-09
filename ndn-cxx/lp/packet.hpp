@@ -24,11 +24,10 @@
 
 #include "ndn-cxx/lp/fields.hpp"
 
-namespace ndn {
 /**
  * @brief Contains classes and functions related to NDNLPv2.
  */
-namespace lp {
+namespace ndn::lp {
 
 class Packet
 {
@@ -208,7 +207,6 @@ private:
   mutable Block m_wire{tlv::LpPacket};
 };
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp
 
 #endif // NDN_CXX_LP_PACKET_HPP

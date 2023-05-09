@@ -24,8 +24,7 @@
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 CsInfo::CsInfo() = default;
 
@@ -190,5 +189,4 @@ operator<<(std::ostream& os, const CsInfo& csi)
             << csi.getNMisses() << (csi.getNMisses() == 1 ? " miss" : " misses");
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

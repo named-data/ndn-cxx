@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,27 +30,16 @@
 #include <boost/range/adaptor/sliced.hpp>
 #include <boost/range/adaptor/strided.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using namespace ndn::security;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestCertificateFetcherDirectFetch)
 
-class Cert
-{
-};
-
-class Timeout
-{
-};
-
-class Nack
-{
-};
+struct Cert {};
+struct Timeout {};
+struct Nack {};
 
 template<class Response>
 class CertificateFetcherDirectFetchFixture : public HierarchicalValidatorFixture<ValidationPolicySimpleHierarchy,
@@ -260,7 +249,4 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureInterest, T, Failures, Certifica
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateFetcherDirectFetch
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

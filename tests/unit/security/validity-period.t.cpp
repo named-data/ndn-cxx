@@ -27,11 +27,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using ndn::security::ValidityPeriod;
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<ValidityPeriod>));
 BOOST_CONCEPT_ASSERT((WireEncodable<ValidityPeriod>));
@@ -121,8 +119,8 @@ const uint8_t VP1[] = {
 
 BOOST_AUTO_TEST_CASE(EncodingDecoding)
 {
-  time::system_clock::TimePoint notBefore = time::getUnixEpoch();
-  time::system_clock::TimePoint notAfter = notBefore + 1_day;
+  time::system_clock::time_point notBefore = time::getUnixEpoch();
+  time::system_clock::time_point notAfter = notBefore + 1_day;
   ValidityPeriod v1(notBefore, notAfter);
   BOOST_CHECK_EQUAL_COLLECTIONS(v1.wireEncode().begin(), v1.wireEncode().end(),
                                 VP1, VP1 + sizeof(VP1));
@@ -206,9 +204,9 @@ BOOST_AUTO_TEST_CASE(DecodingError)
 
 BOOST_AUTO_TEST_CASE(Comparison)
 {
-  time::system_clock::TimePoint notBefore = time::getUnixEpoch();
-  time::system_clock::TimePoint notAfter = notBefore + 1_day;
-  time::system_clock::TimePoint notAfter2 = notBefore + 2_days;
+  auto notBefore = time::getUnixEpoch();
+  auto notAfter = notBefore + 1_day;
+  auto notAfter2 = notBefore + 2_days;
 
   ValidityPeriod validity1(notBefore, notAfter);
   ValidityPeriod validity2(notBefore, notAfter);
@@ -221,6 +219,4 @@ BOOST_AUTO_TEST_CASE(Comparison)
 BOOST_AUTO_TEST_SUITE_END() // TestValidityPeriod
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

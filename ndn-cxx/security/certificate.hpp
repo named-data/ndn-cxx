@@ -27,9 +27,7 @@
 
 #include "ndn-cxx/data.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 /**
  * @brief Represents an NDN certificate.
@@ -132,7 +130,7 @@ public:
    * @brief Check if the certificate is valid at @p ts.
    */
   bool
-  isValid(const time::system_clock::TimePoint& ts = time::system_clock::now()) const;
+  isValid(const time::system_clock::time_point& ts = time::system_clock::now()) const;
 
   /**
    * @brief Get extension with TLV @p type
@@ -176,8 +174,6 @@ extractIdentityFromCertName(const Name& certName);
 Name
 extractKeyNameFromCertName(const Name& certName);
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_CERTIFICATE_HPP

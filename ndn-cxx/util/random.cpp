@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 
-namespace ndn {
-namespace random {
+namespace ndn::random {
 
 uint32_t
 generateSecureWord32()
@@ -78,5 +77,4 @@ generateWord64()
   return distribution(getRandomNumberEngine());
 }
 
-} // namespace random
-} // namespace ndn
+} // namespace ndn::random

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,8 +29,7 @@ namespace ndn {
 
 class KeyParams;
 
-namespace security {
-namespace transform {
+namespace security::transform {
 
 /**
  * @brief Abstraction of private key in crypto transformation
@@ -290,8 +289,7 @@ private:
 unique_ptr<PrivateKey>
 generatePrivateKey(const KeyParams& keyParams);
 
-} // namespace transform
-} // namespace security
+} // namespace security::transform
 } // namespace ndn
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_PRIVATE_KEY_HPP

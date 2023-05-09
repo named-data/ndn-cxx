@@ -22,8 +22,7 @@
 #include "ndn-cxx/security/validity-period.hpp"
 #include "ndn-cxx/encoding/block-helpers.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 using boost::chrono::time_point_cast;
 
@@ -33,21 +32,21 @@ constexpr size_t NOT_AFTER_OFFSET = 1;
 
 ValidityPeriod
 ValidityPeriod::makeRelative(time::seconds validFrom, time::seconds validUntil,
-                             const time::system_clock::TimePoint& now)
+                             const time::system_clock::time_point& now)
 {
   return ValidityPeriod(now + validFrom, now + validUntil);
 }
 
 ValidityPeriod::ValidityPeriod()
-  : ValidityPeriod(time::system_clock::TimePoint() + 1_ns,
-                   time::system_clock::TimePoint())
+  : ValidityPeriod(time::system_clock::time_point() + 1_ns,
+                   time::system_clock::time_point())
 {
 }
 
-ValidityPeriod::ValidityPeriod(const time::system_clock::TimePoint& notBefore,
-                               const time::system_clock::TimePoint& notAfter)
+ValidityPeriod::ValidityPeriod(const time::system_clock::time_point& notBefore,
+                               const time::system_clock::time_point& notAfter)
   : m_notBefore(time_point_cast<TimePoint::duration>(notBefore + TimePoint::duration(1) -
-                                                     time::system_clock::TimePoint::duration(1)))
+                                                     time::system_clock::time_point::duration(1)))
   , m_notAfter(time_point_cast<TimePoint::duration>(notAfter))
 {
 }
@@ -126,24 +125,24 @@ ValidityPeriod::wireDecode(const Block& wire)
 }
 
 ValidityPeriod&
-ValidityPeriod::setPeriod(const time::system_clock::TimePoint& notBefore,
-                          const time::system_clock::TimePoint& notAfter)
+ValidityPeriod::setPeriod(const time::system_clock::time_point& notBefore,
+                          const time::system_clock::time_point& notAfter)
 {
   m_wire.reset();
   m_notBefore = time_point_cast<TimePoint::duration>(notBefore + TimePoint::duration(1) -
-                                                     time::system_clock::TimePoint::duration(1));
+                                                     time::system_clock::time_point::duration(1));
   m_notAfter = time_point_cast<TimePoint::duration>(notAfter);
   return *this;
 }
 
-std::pair<time::system_clock::TimePoint, time::system_clock::TimePoint>
+std::pair<time::system_clock::time_point, time::system_clock::time_point>
 ValidityPeriod::getPeriod() const
 {
   return {m_notBefore, m_notAfter};
 }
 
 bool
-ValidityPeriod::isValid(const time::system_clock::TimePoint& now) const
+ValidityPeriod::isValid(const time::system_clock::time_point& now) const
 {
   return m_notBefore <= now && now <= m_notAfter;
 }
@@ -156,5 +155,4 @@ operator<<(std::ostream& os, const ValidityPeriod& period)
   return os;
 }
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

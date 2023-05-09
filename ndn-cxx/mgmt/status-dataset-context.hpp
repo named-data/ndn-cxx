@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,7 @@
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/mgmt/control-response.hpp"
 
-namespace ndn {
-namespace mgmt {
+namespace ndn::mgmt {
 
 /**
  * \brief Provides a context for generating the response to a StatusDataset request.
@@ -109,7 +108,6 @@ private:
   State m_state = State::INITIAL;
 };
 
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::mgmt
 
 #endif // NDN_CXX_MGMT_STATUS_DATASET_CONTEXT_HPP

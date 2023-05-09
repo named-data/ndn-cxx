@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/util/time.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 template<typename F>
 time::nanoseconds
@@ -37,7 +36,6 @@ timedExecute(F&& f)
   return after - before;
 }
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_BENCHMARKS_TIMED_EXECUTE_HPP

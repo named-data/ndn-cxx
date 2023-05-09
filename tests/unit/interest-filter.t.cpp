@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,8 +26,7 @@
 
 #include "tests/test-common.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(TestInterestFilter)
 
@@ -52,7 +51,7 @@ BOOST_AUTO_TEST_CASE(Matching)
 
 BOOST_AUTO_TEST_CASE(RegexConvertToName)
 {
-  util::DummyClientFace face;
+  DummyClientFace face;
   face.setInterestFilter(InterestFilter("/Hello/World", "<><b><c>?"),
     [] (const Name&, const Interest&) { BOOST_ERROR("unexpected Interest"); });
   face.processEvents(1_ms);
@@ -69,5 +68,4 @@ BOOST_AUTO_TEST_CASE(AllowLoopback)
 
 BOOST_AUTO_TEST_SUITE_END() // TestInterestFilter
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

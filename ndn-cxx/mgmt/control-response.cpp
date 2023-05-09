@@ -23,8 +23,7 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-namespace ndn {
-namespace mgmt {
+namespace ndn::mgmt {
 
 ControlResponse::ControlResponse() = default;
 
@@ -110,5 +109,4 @@ ControlResponse::wireDecode(const Block& wire)
     m_body = {};
 }
 
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::mgmt

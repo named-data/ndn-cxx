@@ -24,9 +24,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace encoding {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::encoding;
 
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestBlockHelpers)
@@ -181,6 +181,4 @@ BOOST_AUTO_TEST_CASE(NestedSequence)
 BOOST_AUTO_TEST_SUITE_END() // TestBlockHelpers
 BOOST_AUTO_TEST_SUITE_END() // Encoding
 
-} // namespace tests
-} // namespace encoding
-} // namespace ndn
+} // namespace ndn::tests

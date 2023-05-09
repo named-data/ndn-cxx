@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,9 +27,7 @@
 
 #include <map>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 /**
  * @brief Represents an %AdditionalDescription TLV element.
@@ -136,9 +134,6 @@ NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(AdditionalDescription);
 std::ostream&
 operator<<(std::ostream& os, const AdditionalDescription& desc);
 
-} // inline namespace v2
-
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_ADDITIONAL_DESCRIPTION_HPP

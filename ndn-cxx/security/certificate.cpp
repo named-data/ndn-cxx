@@ -27,9 +27,7 @@
 #include "ndn-cxx/security/transform.hpp"
 #include "ndn-cxx/util/indented-stream.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 Certificate::Certificate()
 {
@@ -92,7 +90,7 @@ Certificate::getValidityPeriod() const
 }
 
 bool
-Certificate::isValid(const time::system_clock::TimePoint& ts) const
+Certificate::isValid(const time::system_clock::time_point& ts) const
 {
   return getSignatureInfo().getValidityPeriod().isValid(ts);
 }
@@ -204,6 +202,4 @@ extractKeyNameFromCertName(const Name& certName)
   return certName.getPrefix(Certificate::KEY_ID_OFFSET + 1); // trim everything after key id
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

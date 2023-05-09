@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -64,23 +64,20 @@ private:
   class byArrival;
   class byEntity;
 
-  typedef boost::multi_index_container<
+  using CleanupIndex = boost::multi_index_container<
     InMemoryStorageEntry*,
     boost::multi_index::indexed_by<
-
       // by Entry itself
       boost::multi_index::hashed_unique<
         boost::multi_index::tag<byEntity>,
         boost::multi_index::identity<InMemoryStorageEntry*>
       >,
-
       // by arrival (FIFO)
       boost::multi_index::sequenced<
         boost::multi_index::tag<byArrival>
       >
-
     >
-  > CleanupIndex;
+  >;
 
   CleanupIndex m_cleanupIndex;
 };

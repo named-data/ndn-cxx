@@ -25,12 +25,7 @@
 #include "tests/key-chain-fixture.hpp"
 #include "tests/unit/clock-fixture.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 class CertificateCacheFixture : public ClockFixture, public KeyChainFixture
 {
@@ -60,7 +55,7 @@ public:
   }
 
 public:
-  CertificateCache certCache;
+  security::CertificateCache certCache;
   Identity identity;
   Certificate cert;
 };
@@ -104,7 +99,4 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateCache
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

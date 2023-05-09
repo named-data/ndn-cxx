@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,9 +31,7 @@
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 /**
  * @brief A container for trust anchors.
@@ -172,8 +170,6 @@ private:
   AnchorContainer m_anchors;
 };
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_TRUST_ANCHOR_CONTAINER_HPP

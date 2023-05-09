@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,18 +23,19 @@
 #define NDN_CXX_UTIL_DUMMY_CLIENT_FACE_HPP
 
 #include "ndn-cxx/face.hpp"
-#include "ndn-cxx/util/signal.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 
 namespace ndn {
-namespace util {
 
-/** \brief A client-side face for unit testing.
+/**
+ * \brief A client-side face for unit testing.
  */
-class DummyClientFace : public ndn::Face
+class DummyClientFace : public Face
 {
 public:
-  /** \brief %Options for DummyClientFace.
+  /**
+   * \brief %Options for DummyClientFace.
    */
   class Options
   {
@@ -176,19 +177,19 @@ public:
    *
    *  After .expressInterest, .processEvents must be called before this signal would be emitted.
    */
-  Signal<DummyClientFace, Interest> onSendInterest;
+  signal::Signal<DummyClientFace, Interest> onSendInterest;
 
   /** \brief Emits whenever a Data packet is sent.
    *
    *  After .put, .processEvents must be called before this signal would be emitted.
    */
-  Signal<DummyClientFace, Data> onSendData;
+  signal::Signal<DummyClientFace, Data> onSendData;
 
   /** \brief Emits whenever a Nack is sent.
    *
    *  After .put, .processEvents must be called before this signal would be emitted.
    */
-  Signal<DummyClientFace, lp::Nack> onSendNack;
+  signal::Signal<DummyClientFace, lp::Nack> onSendNack;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   struct BroadcastLink;
@@ -198,7 +199,11 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   std::function<void(time::milliseconds)> m_processEventsOverride;
 };
 
+namespace util {
+/// \deprecated Use ndn::DummyClientFace
+using DummyClientFace = ::ndn::DummyClientFace;
 } // namespace util
+
 } // namespace ndn
 
 #endif // NDN_CXX_UTIL_DUMMY_CLIENT_FACE_HPP

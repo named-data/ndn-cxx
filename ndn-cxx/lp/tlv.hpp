@@ -24,12 +24,10 @@
 
 #include <cstdint>
 
-namespace ndn {
-namespace lp {
 /**
  * @brief Contains constants related to the NDNLPv2 packet format.
  */
-namespace tlv {
+namespace ndn::lp::tlv {
 
 /**
  * @brief TLV-TYPE numbers for NDNLPv2.
@@ -72,8 +70,6 @@ enum : uint32_t {
   HEADER3_MAX = 959,
 };
 
-} // namespace tlv
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp::tlv
 
 #endif // NDN_CXX_LP_TLV_HPP

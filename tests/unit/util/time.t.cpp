@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,9 +26,9 @@
 #include <boost/lexical_cast.hpp>
 #include <thread>
 
-namespace ndn {
-namespace time {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::time;
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestTime)
@@ -170,6 +170,4 @@ BOOST_AUTO_TEST_CASE(Year2038)
 BOOST_AUTO_TEST_SUITE_END() // TestTime
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace time
-} // namespace ndn
+} // namespace ndn::tests

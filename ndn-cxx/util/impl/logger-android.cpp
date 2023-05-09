@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,9 +25,7 @@
 
 #include <android/log.h>
 
-namespace ndn {
-namespace util {
-namespace detail {
+namespace ndn::util::detail {
 
 class AndroidSinkBackend : public boost::log::sinks::basic_sink_backend<boost::log::sinks::concurrent_feeding>
 {
@@ -72,6 +70,4 @@ makeAndroidLogger()
   return boost::make_shared<boost::log::sinks::synchronous_sink<AndroidSinkBackend>>();
 }
 
-} // namespace detail
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util::detail

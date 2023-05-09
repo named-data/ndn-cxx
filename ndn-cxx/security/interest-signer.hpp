@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/security/key-chain.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 /**
  * @brief Helper class to create signed Interests
@@ -78,16 +77,15 @@ private:
   /**
    * @brief Get current timestamp, but ensure it is unique by increasing by 1 ms if already used
    */
-  time::system_clock::TimePoint
+  time::system_clock::time_point
   getFreshTimestamp();
 
 private:
   KeyChain& m_keyChain;
-  time::system_clock::TimePoint m_lastUsedTimestamp;
+  time::system_clock::time_point m_lastUsedTimestamp;
   uint64_t m_lastUsedSeqNum;
 };
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_INTEREST_SIGNER_HPP

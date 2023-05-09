@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,8 +23,7 @@
 
 #include <sqlite3.h>
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 Sqlite3Statement::~Sqlite3Statement()
 {
@@ -111,5 +110,4 @@ Sqlite3Statement::operator sqlite3_stmt*()
   return m_stmt;
 }
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util

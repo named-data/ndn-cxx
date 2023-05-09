@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,9 +26,7 @@
 
 struct sqlite3;
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 /**
  * @brief Pib backend implementation based on SQLite3 database
@@ -149,8 +147,6 @@ private:
   sqlite3* m_database;
 };
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib
 
 #endif // NDN_CXX_SECURITTY_PIB_IMPL_PIB_SQLITE3_HPP

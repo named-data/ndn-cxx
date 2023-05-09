@@ -28,9 +28,7 @@
 #include <cstring>
 #include <boost/test/tools/output_test_stream.hpp>
 
-namespace ndn {
-namespace util {
-namespace tests {
+namespace ndn::tests {
 
 using boost::test_tools::output_test_stream;
 
@@ -202,6 +200,4 @@ BOOST_AUTO_TEST_CASE(Unescape)
 BOOST_AUTO_TEST_SUITE_END() // TestStringHelper
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

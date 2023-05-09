@@ -30,11 +30,7 @@
 
 #include <iostream>
 
-namespace ndn {
-namespace tlv {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 template<size_t WIRE_SIZE>
 struct ReadVarNumberTest;
@@ -112,7 +108,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadVarNumber, Test, ReadVarNumberTests)
     uint64_t number = 0;
     for (int i = 0; i < N_ITERATIONS; ++i) {
       const uint8_t* begin2 = begin; // make a copy because readVarNumber increments the pointer
-      nOks += readVarNumber(begin2, end, number);
+      nOks += tlv::readVarNumber(begin2, end, number);
       nCorrects += number == Test::VALUE;
       // use the number and the return value, so compiler won't optimize out their computation
     }
@@ -124,6 +120,4 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadVarNumber, Test, ReadVarNumberTests)
             << " " << d << std::endl;
 }
 
-} // namespace tests
-} // namespace tlv
-} // namespace ndn
+} // namespace ndn::tests

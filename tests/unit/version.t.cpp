@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,7 @@
 
 #include <cstdio>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(TestVersion)
 
@@ -58,5 +57,4 @@ BOOST_AUTO_TEST_CASE(VersionString)
 
 BOOST_AUTO_TEST_SUITE_END() // TestVersion
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

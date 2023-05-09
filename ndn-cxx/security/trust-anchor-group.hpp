@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,9 +28,7 @@
 #include <boost/filesystem/path.hpp>
 #include <set>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 class CertContainerInterface
 {
@@ -160,11 +158,9 @@ private:
   bool m_isDir;
   boost::filesystem::path m_path;
   time::nanoseconds m_refreshPeriod;
-  time::steady_clock::TimePoint m_expireTime;
+  time::steady_clock::time_point m_expireTime;
 };
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_TRUST_ANCHOR_GROUP_HPP

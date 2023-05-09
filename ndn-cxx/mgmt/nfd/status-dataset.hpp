@@ -32,8 +32,7 @@
 #include "ndn-cxx/mgmt/nfd/strategy-choice.hpp"
 #include "ndn-cxx/mgmt/nfd/rib-entry.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \brief Exception raised when the fetched payload cannot be parsed as a StatusDataset.
@@ -211,7 +210,6 @@ public:
   parseResult(ConstBufferPtr payload) const;
 };
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_STATUS_DATASET_HPP

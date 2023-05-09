@@ -30,8 +30,7 @@
 #include <list>
 #include <queue>
 
-namespace ndn {
-namespace detail {
+namespace ndn::detail {
 
 /** \brief Implementation detail of a Boost.Asio-based stream-oriented transport.
  *  \tparam BaseTransport a subclass of Transport
@@ -241,7 +240,6 @@ protected:
   boost::asio::steady_timer m_connectTimer;
 };
 
-} // namespace detail
-} // namespace ndn
+} // namespace ndn::detail
 
 #endif // NDN_CXX_TRANSPORT_DETAIL_STREAM_TRANSPORT_IMPL_HPP

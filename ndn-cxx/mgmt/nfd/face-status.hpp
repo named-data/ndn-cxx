@@ -27,8 +27,7 @@
 
 #include <optional>
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -249,7 +248,6 @@ operator!=(const FaceStatus& a, const FaceStatus& b)
 std::ostream&
 operator<<(std::ostream& os, const FaceStatus& status);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_FACE_STATUS_HPP

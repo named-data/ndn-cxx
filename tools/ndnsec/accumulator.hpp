@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 
 #include <boost/program_options/value_semantic.hpp>
 
-namespace ndn {
-namespace ndnsec {
+namespace ndn::ndnsec {
 
 /**
  * @brief An accumulating option value to handle multiple incrementing options.
@@ -154,7 +153,6 @@ accumulator(T* store)
   return new AccumulatorType<T>(store);
 }
 
-} // namespace ndnsec
-} // namespace ndn
+} // namespace ndn::ndnsec
 
 #endif // NDN_CXX_TOOLS_NDNSEC_ACCUMULATOR_HPP

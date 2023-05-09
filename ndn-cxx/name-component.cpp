@@ -32,8 +32,7 @@
 
 #include <boost/logic/tribool.hpp>
 
-namespace ndn {
-namespace name {
+namespace ndn::name {
 
 static Convention g_conventionEncoding = Convention::TYPED;
 static Convention g_conventionDecoding = Convention::EITHER;
@@ -510,5 +509,4 @@ Component::wireDecode(const Block& wire)
   // validity check is done within Component(const Block& wire)
 }
 
-} // namespace name
-} // namespace ndn
+} // namespace ndn::name

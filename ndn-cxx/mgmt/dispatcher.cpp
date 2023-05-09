@@ -25,10 +25,9 @@
 
 #include <algorithm>
 
-NDN_LOG_INIT(ndn.mgmt.Dispatcher);
+namespace ndn::mgmt {
 
-namespace ndn {
-namespace mgmt {
+NDN_LOG_INIT(ndn.mgmt.Dispatcher);
 
 Authorization
 makeAcceptAllAuthorization()
@@ -343,5 +342,4 @@ Dispatcher::postNotification(const Block& notification, const PartialName& relPr
   sendData(streamName, notification, {}, SendDestination::FACE_AND_IMS);
 }
 
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::mgmt

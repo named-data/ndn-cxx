@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -249,7 +248,6 @@ operator!=(const ForwarderStatus& a, const ForwarderStatus& b)
 std::ostream&
 operator<<(std::ostream& os, const ForwarderStatus& status);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_FORWARDER_STATUS_HPP

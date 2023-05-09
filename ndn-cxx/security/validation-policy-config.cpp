@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,10 +31,7 @@
 
 #include <fstream>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace validator_config {
+namespace ndn::security::validator_config {
 
 void
 ValidationPolicyConfig::load(const std::string& filename)
@@ -298,7 +295,4 @@ ValidationPolicyConfig::checkPolicy(const Interest& interest, const shared_ptr<V
                       "No rule matched for interest `" + interest.getName().toUri() + "`"});
 }
 
-} // namespace validator_config
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::validator_config

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,7 @@
 #include "ndn-cxx/security/key-chain.hpp"
 #include "ndn-cxx/util/concepts.hpp"
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 /** \brief Provides a publisher of Notification Stream.
  *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
@@ -73,7 +72,6 @@ private:
   uint64_t m_sequenceNo;
 };
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // NDN_CXX_UTIL_NOTIFICATION_STREAM_HPP

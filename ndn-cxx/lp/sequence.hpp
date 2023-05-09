@@ -26,15 +26,13 @@
 
 #include <cstdint>
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 /**
  * \brief Represents a sequence number.
  */
 using Sequence = uint64_t;
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp
 
 #endif // NDN_CXX_LP_SEQUENCE_HPP

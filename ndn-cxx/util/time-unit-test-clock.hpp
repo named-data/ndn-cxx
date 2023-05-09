@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/util/time-custom-clock.hpp"
 
-namespace ndn {
-namespace time {
+namespace ndn::time {
 
 /**
  * @brief Traits for UnitTestClock, defining default behavior for different clocks
@@ -108,7 +107,6 @@ extern template class UnitTestClock<steady_clock>;
 using UnitTestSystemClock = UnitTestClock<system_clock>;
 using UnitTestSteadyClock = UnitTestClock<steady_clock>;
 
-} // namespace time
-} // namespace ndn
+} // namespace ndn::time
 
 #endif // NDN_CXX_UTIL_TIME_UNIT_TEST_CLOCK_HPP

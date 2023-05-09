@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,8 +31,7 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 
-namespace ndn {
-namespace ndnsec {
+namespace ndn::ndnsec {
 
 /**
  * @brief Get certificate of given name from PIB.
@@ -77,7 +76,6 @@ loadFromFile(const std::string& filename)
 bool
 getPassword(std::string& password, const std::string& prompt, bool shouldConfirm = true);
 
-} // namespace ndnsec
-} // namespace ndn
+} // namespace ndn::ndnsec
 
 #endif // NDN_CXX_TOOLS_NDNSEC_UTIL_HPP

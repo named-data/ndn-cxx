@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,9 +25,7 @@
 #include "ndn-cxx/name.hpp"
 #include "ndn-cxx/security/security-common.hpp"
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
 /**
  * @brief Abstraction of TPM key handle.
@@ -100,8 +98,6 @@ private:
   Name m_keyName;
 };
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm
 
 #endif // NDN_CXX_SECURITY_TPM_KEY_HANDLE_HPP

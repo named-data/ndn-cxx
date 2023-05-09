@@ -30,12 +30,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using ndn::security::Certificate;
+using ndn::security::ValidityPeriod;
 
 BOOST_CONCEPT_ASSERT((WireEncodable<Certificate>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Certificate>));
@@ -379,6 +377,9 @@ Signature Information:
 
 BOOST_AUTO_TEST_CASE(Helpers)
 {
+  using ndn::security::extractIdentityFromCertName;
+  using ndn::security::extractKeyNameFromCertName;
+
   BOOST_CHECK_EQUAL(extractIdentityFromCertName("/KEY/hello/world/v=1"), "/");
   BOOST_CHECK_EQUAL(extractIdentityFromCertName("/hello/world/KEY/!/self/v=42"), "/hello/world");
 
@@ -399,7 +400,4 @@ BOOST_AUTO_TEST_CASE(Helpers)
 BOOST_AUTO_TEST_SUITE_END() // TestCertificate
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

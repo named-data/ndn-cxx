@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,13 +26,12 @@
 #include "ndn-cxx/security/validator.hpp"
 #include "ndn-cxx/util/rtt-estimator.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
-#include "ndn-cxx/util/signal.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 
 #include <queue>
 #include <set>
 
 namespace ndn {
-namespace util {
 
 /**
  * @brief Utility class to fetch the latest version of a segmented object.
@@ -72,9 +71,9 @@ namespace util {
  *
  * Example:
  * @code
- *   auto fetcher = SegmentFetcher::start(face, Interest("/data/prefix"), validator);
- *   fetcher->onComplete.connect([] (ConstBufferPtr data) {...});
- *   fetcher->onError.connect([] (uint32_t errorCode, const std::string& errorMsg) {...});
+ * auto fetcher = SegmentFetcher::start(face, Interest("/data/prefix"), validator);
+ * fetcher->onComplete.connect([] (ConstBufferPtr data) {...});
+ * fetcher->onError.connect([] (uint32_t errorCode, const std::string& errorMsg) {...});
  * @endcode
  */
 class SegmentFetcher : noncopyable
@@ -119,7 +118,7 @@ public:
     double initSsthresh = std::numeric_limits<double>::max(); ///< initial slow start threshold
     double aiStep = 1.0; ///< additive increase step (in segments)
     double mdCoef = 0.5; ///< multiplicative decrease coefficient
-    RttEstimator::Options rttOptions; ///< options for RTT estimator
+    util::RttEstimator::Options rttOptions; ///< options for RTT estimator
     size_t flowControlWindow = 25000; ///< maximum number of segments stored in the reorder buffer
   };
 
@@ -232,46 +231,46 @@ public:
    * @brief Emitted upon successful retrieval of the complete object (all segments).
    * @note Emitted only if SegmentFetcher is operating in 'block' mode.
    */
-  Signal<SegmentFetcher, ConstBufferPtr> onComplete;
+  signal::Signal<SegmentFetcher, ConstBufferPtr> onComplete;
 
   /**
    * @brief Emitted when the retrieval could not be completed due to an error.
    *
    * Handlers are provided with an error code and a string error message.
    */
-  Signal<SegmentFetcher, uint32_t, std::string> onError;
+  signal::Signal<SegmentFetcher, uint32_t, std::string> onError;
 
   /**
    * @brief Emitted whenever a data segment received.
    */
-  Signal<SegmentFetcher, Data> afterSegmentReceived;
+  signal::Signal<SegmentFetcher, Data> afterSegmentReceived;
 
   /**
    * @brief Emitted whenever a received data segment has been successfully validated.
    */
-  Signal<SegmentFetcher, Data> afterSegmentValidated;
+  signal::Signal<SegmentFetcher, Data> afterSegmentValidated;
 
   /**
    * @brief Emitted whenever an Interest for a data segment is nacked.
    */
-  Signal<SegmentFetcher> afterSegmentNacked;
+  signal::Signal<SegmentFetcher> afterSegmentNacked;
 
   /**
    * @brief Emitted whenever an Interest for a data segment times out.
    */
-  Signal<SegmentFetcher> afterSegmentTimedOut;
+  signal::Signal<SegmentFetcher> afterSegmentTimedOut;
 
   /**
    * @brief Emitted after each data segment in segment order has been validated.
    * @note Emitted only if SegmentFetcher is operating in 'in order' mode.
    */
-  Signal<SegmentFetcher, ConstBufferPtr> onInOrderData;
+  signal::Signal<SegmentFetcher, ConstBufferPtr> onInOrderData;
 
   /**
    * @brief Emitted on successful retrieval of all segments in 'in order' mode.
    * @note Emitted only if SegmentFetcher is operating in 'in order' mode.
    */
-  Signal<SegmentFetcher> onInOrderComplete;
+  signal::Signal<SegmentFetcher> onInOrderComplete;
 
 private:
   enum class SegmentState {
@@ -284,7 +283,7 @@ private:
   {
   public:
     SegmentState state;
-    time::steady_clock::TimePoint sendTime;
+    time::steady_clock::time_point sendTime;
     ScopedPendingInterestHandle hdl;
     scheduler::ScopedEventId timeoutEvent;
   };
@@ -298,9 +297,9 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   Face& m_face;
   Scheduler m_scheduler;
   security::Validator& m_validator;
-  RttEstimator m_rttEstimator;
+  util::RttEstimator m_rttEstimator;
 
-  time::steady_clock::TimePoint m_timeLastSegmentReceived;
+  time::steady_clock::time_point m_timeLastSegmentReceived;
   std::queue<uint64_t> m_retxQueue;
   Name m_versionedDataName;
   uint64_t m_nextSegmentNum = 0;
@@ -320,7 +319,11 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   std::set<uint64_t> m_receivedSegments;
 };
 
+namespace util {
+/// \deprecated Use ndn::SegmentFetcher
+using SegmentFetcher = ::ndn::SegmentFetcher;
 } // namespace util
+
 } // namespace ndn
 
 #endif // NDN_CXX_UTIL_SEGMENT_FETCHER_HPP

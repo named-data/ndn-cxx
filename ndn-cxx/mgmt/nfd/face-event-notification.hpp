@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/mgmt/nfd/face-traits.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -84,7 +83,6 @@ operator!=(const FaceEventNotification& a, const FaceEventNotification& b)
 std::ostream&
 operator<<(std::ostream& os, const FaceEventNotification& notification);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_FACE_EVENT_NOTIFICATION_HPP

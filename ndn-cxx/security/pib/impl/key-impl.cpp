@@ -24,10 +24,7 @@
 #include "ndn-cxx/security/transform/public-key.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
-namespace detail {
+namespace ndn::security::pib {
 
 NDN_LOG_INIT(ndn.security.Key);
 
@@ -103,7 +100,4 @@ KeyImpl::getDefaultCertificate() const
   return *m_defaultCert;
 }
 
-} // namespace detail
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib

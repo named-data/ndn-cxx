@@ -102,23 +102,23 @@ Removed
 
 - Old security framework.
 
-  * ``v1::KeyChain``, use :ndn-cxx:`v2::KeyChain` instead
+  * ``v1::KeyChain``; use :ndn-cxx:`KeyChain` instead.
 
   * ``v1::Validator`` interface and ``ValidatorRegex`` implementation of this
     interface. ``ValidatorConfig``, ``ValidatorNull`` implementation refactored to be based on
     the new validation framework.
 
   * ``v1::SecPublicInfo`` and its implementation (``SecPublicInfoSqlite``), ``SecTpm`` and its
-    implementations (``SecTpmFile``, ``SecTpmOsx``).  These classes are internal implementation
-    and not intended to be used without ``v1::KeyChain``.  :ndn-cxx:`v2::KeyChain` internally
+    implementations (``SecTpmFile``, ``SecTpmOsx``). These classes are internal implementation
+    and not intended to be used without ``v1::KeyChain``. The new :ndn-cxx:`KeyChain` internally
     uses the newly introduced :ndn-cxx:`Pib` and :ndn-cxx:`Tpm` interfaces with their
     corresponding implementations.
 
   * ``v1::Certificate``, ``v1::IdentityCertificate``, ``v1::CertificateExtension``,
-    ``v1::CertificateSubjectDescription``, use :ndn-cxx:`v2::Certificate` and
-    :ndn-cxx:`AdditionalDescription`
+    ``v1::CertificateSubjectDescription``; use the new :ndn-cxx:`Certificate` and
+    :ndn-cxx:`AdditionalDescription` instead.
 
-  * ``v1::SecuredBag``, use ``v2::SafeBag`` instead
+  * ``v1::SecuredBag``; use :ndn-cxx:`SafeBag` instead.
 
 - Constant ``io::BASE_64``, use ``io::BASE64`` instead (:issue:`3741`)
 

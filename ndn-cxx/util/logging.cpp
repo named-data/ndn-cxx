@@ -42,8 +42,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 namespace log {
 
 static std::string
@@ -339,5 +338,4 @@ Logging::flushImpl()
   }
 }
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util

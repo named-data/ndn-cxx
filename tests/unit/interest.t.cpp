@@ -24,8 +24,7 @@
 
 #include "tests/test-common.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((WireEncodable<Interest>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Interest>));
@@ -1172,5 +1171,4 @@ BOOST_AUTO_TEST_CASE(ToUri)
 
 BOOST_AUTO_TEST_SUITE_END() // TestInterest
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

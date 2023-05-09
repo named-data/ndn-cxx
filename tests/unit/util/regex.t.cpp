@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -32,8 +32,7 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 using std::string;
 
@@ -490,5 +489,4 @@ BOOST_AUTO_TEST_CASE(RegexBackrefManagerMemoryLeak)
 BOOST_AUTO_TEST_SUITE_END() // TestRegex
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

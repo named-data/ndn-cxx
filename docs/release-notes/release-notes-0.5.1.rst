@@ -63,27 +63,27 @@ Improvements and bug fixes
 Deprecated
 ^^^^^^^^^^
 
-- Old security framework.  All old security framework classes are moved to
+- Old security framework.  All old security framework classes are moved to the
   ``ndn::security::v1`` namespace in this release and will be removed in the next release.
 
-  * ``v1::KeyChain``, use :ndn-cxx:`v2::KeyChain` instead
+  * ``v1::KeyChain``; use ``v2::KeyChain`` instead.
 
   * ``v1::Validator`` interface and all implementations of this interface (``ValidatorRegex``,
-    ``ValidatorConfig``, ``ValidatorNull``).  Use :ndn-cxx:`v2::Validator` and the
-    corresponding implementations of :ndn-cxx:`ValidationPolicy` interfaces (will be introduced
-    before 0.6.0 release).
+    ``ValidatorConfig``, ``ValidatorNull``).  Use ``v2::Validator`` and the corresponding
+    implementations of :ndn-cxx:`ValidationPolicy` interfaces (will be introduced before
+    the 0.6.0 release).
 
   * ``v1::SecPublicInfo`` and its implementation (``SecPublicInfoSqlite``), ``SecTpm`` and its
     implementations (``SecTpmFile``, ``SecTpmOsx``).  These classes are internal implementation
-    and not intended to be used without ``v1::KeyChain``.  :ndn-cxx:`v2::KeyChain` internally
-    uses the newly introduced :ndn-cxx:`Pib` and :ndn-cxx:`Tpm` interfaces with their
-    corresponding implementations.
+    and not intended to be used without ``v1::KeyChain``.  ``v2::KeyChain`` internally uses
+    the newly introduced :ndn-cxx:`Pib` and :ndn-cxx:`Tpm` interfaces with their corresponding
+    implementations.
 
   * ``v1::Certificate``, ``v1::IdentityCertificate``, ``v1::CertificateExtension``,
-    ``v1::CertificateSubjectDescription``, use :ndn-cxx:`v2::Certificate` and
-    :ndn-cxx:`AdditionalDescription`
+    ``v1::CertificateSubjectDescription``; use ``v2::Certificate`` and ``AdditionalDescription``
+    instead.
 
-  * ``v1::SecuredBag``, use ``v2::SafeBag`` instead
+  * ``v1::SecuredBag``; use :ndn-cxx:`SafeBag` instead.
 
 - Constant ``io::BASE_64``, use ``io::BASE64`` instead (:issue:`3741`)
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,14 +25,12 @@
 #include "tests/key-chain-fixture.hpp"
 #include "tests/unit/io-fixture.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 class IoKeyChainFixture : public IoFixture, public KeyChainFixture
 {
 };
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_UNIT_IO_KEY_CHAIN_FIXTURE_HPP

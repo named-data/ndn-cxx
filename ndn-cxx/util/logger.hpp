@@ -34,8 +34,7 @@
 
 #include <atomic>
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 /**
  * \brief Indicates the severity level of a log message.
@@ -277,8 +276,7 @@ using ArgumentType = typename ExtractArgument<T>::type;
  */
 #define NDN_LOG_FATAL(expression) NDN_LOG_INTERNAL(FATAL, expression)
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // HAVE_NDN_CXX_CUSTOM_LOGGER
 

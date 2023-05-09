@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,9 +27,7 @@
 
 #include <set>
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 /**
  * @brief PIB backend interface.
@@ -276,8 +274,6 @@ public: // Certificate Management
   getDefaultCertificateOfKey(const Name& keyName) const = 0;
 };
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib
 
 #endif // NDN_CXX_SECURITY_PIB_PIB_IMPL_HPP

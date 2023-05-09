@@ -26,8 +26,7 @@
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 const Name&
 SigningInfo::getDigestSha256Identity()
@@ -215,5 +214,4 @@ operator<<(std::ostream& os, const SignedInterestFormat& format)
   return os << "Unknown signed Interest format " << to_underlying(format);
 }
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

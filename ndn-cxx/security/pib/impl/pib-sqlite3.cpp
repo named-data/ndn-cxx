@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,11 +27,9 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
-using util::Sqlite3Statement;
+using ndn::util::Sqlite3Statement;
 
 static const char DB_INIT[] = R"SQL(
 CREATE TABLE IF NOT EXISTS
@@ -575,6 +573,4 @@ PibSqlite3::hasDefaultCertificateOfKey(const Name& keyName) const
   return statement.step() == SQLITE_ROW;
 }
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib

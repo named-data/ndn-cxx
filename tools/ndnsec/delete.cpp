@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,7 @@
 #include "ndnsec.hpp"
 #include "util.hpp"
 
-namespace ndn {
-namespace ndnsec {
+namespace ndn::ndnsec {
 
 int
 ndnsec_delete(int argc, char** argv)
@@ -112,5 +111,4 @@ ndnsec_delete(int argc, char** argv)
   return 0;
 }
 
-} // namespace ndnsec
-} // namespace ndn
+} // namespace ndn::ndnsec

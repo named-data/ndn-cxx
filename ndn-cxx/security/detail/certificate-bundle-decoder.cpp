@@ -22,9 +22,7 @@
 #include "ndn-cxx/security/detail/certificate-bundle-decoder.hpp"
 #include "ndn-cxx/util/scope.hpp"
 
-namespace ndn {
-namespace security {
-namespace detail {
+namespace ndn::security::detail {
 
 void
 CertificateBundleDecoder::append(const Block& segment)
@@ -60,6 +58,4 @@ CertificateBundleDecoder::decode()
   }
 }
 
-} // namespace detail
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::detail

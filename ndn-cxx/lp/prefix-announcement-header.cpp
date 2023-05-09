@@ -22,8 +22,7 @@
 #include "ndn-cxx/lp/prefix-announcement-header.hpp"
 #include "ndn-cxx/lp/tlv.hpp"
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 PrefixAnnouncementHeader::PrefixAnnouncementHeader() = default;
 
@@ -67,5 +66,4 @@ PrefixAnnouncementHeader::wireDecode(const Block& wire)
   wire.parse();
   m_prefixAnn.emplace(Data(wire.get(ndn::tlv::Data)));
 }
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp

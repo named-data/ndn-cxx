@@ -22,8 +22,7 @@
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/logging.hpp"
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 std::ostream&
 operator<<(std::ostream& os, LogLevel level)
@@ -105,5 +104,4 @@ Logger::registerModuleName(const char* name)
   Logging::get().registerLoggerNameImpl(name);
 }
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util

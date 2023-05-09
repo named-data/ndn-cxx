@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,16 +24,15 @@
 #include "tests/boost-test.hpp"
 #include "tests/key-chain-fixture.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_FIXTURE_TEST_SUITE(TestValidationPolicy, ndn::tests::KeyChainFixture)
+BOOST_FIXTURE_TEST_SUITE(TestValidationPolicy, KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(ExtractIdentityNameFromKeyLocator)
 {
+  using ndn::security::extractIdentityNameFromKeyLocator;
+
   auto id = m_keyChain.createIdentity("/random/identity");
   auto keyName = id.getDefaultKey().getName();
   auto certName = id.getDefaultKey().getDefaultCertificate().getName();
@@ -55,7 +54,4 @@ BOOST_AUTO_TEST_CASE(ExtractIdentityNameFromKeyLocator)
 BOOST_AUTO_TEST_SUITE_END() // TestValidationPolicy
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

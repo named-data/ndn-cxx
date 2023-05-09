@@ -29,8 +29,7 @@
 #include <boost/concept/requires.hpp>
 #include <boost/endian/conversion.hpp>
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 /**
  * \brief Indicates that a `uint64_t` field shall be decoded and encoded as a non-negative integer.
@@ -206,7 +205,6 @@ public:
   }
 };
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp
 
 #endif // NDN_CXX_LP_FIELD_DECL_HPP

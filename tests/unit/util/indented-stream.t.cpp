@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,11 +25,10 @@
 
 #include <boost/test/tools/output_test_stream.hpp>
 
-namespace ndn {
-namespace util {
-namespace tests {
+namespace ndn::tests {
 
 using boost::test_tools::output_test_stream;
+using ndn::util::IndentedStream;
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestIndentedStream)
@@ -77,6 +76,4 @@ BOOST_AUTO_TEST_CASE(BasicWithFlushes) // Bug #2723
 BOOST_AUTO_TEST_SUITE_END() // TestIndentedStream
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

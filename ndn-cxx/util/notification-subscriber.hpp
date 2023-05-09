@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2022 Regents of the University of California,
+ * Copyright (c) 2014-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -31,11 +31,10 @@
 #include "ndn-cxx/face.hpp"
 #include "ndn-cxx/util/concepts.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
-#include "ndn-cxx/util/signal.hpp"
+#include "ndn-cxx/util/signal/signal.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 class NotificationSubscriberBase : noncopyable
 {
@@ -120,15 +119,15 @@ private:
 public:
   /** \brief Fires when a Nack is received.
    */
-  signal::Signal<NotificationSubscriberBase, lp::Nack> onNack;
+  Signal<NotificationSubscriberBase, lp::Nack> onNack;
 
   /** \brief Fires when no Notification is received within getInterestLifetime() period.
    */
-  signal::Signal<NotificationSubscriberBase> onTimeout;
+  Signal<NotificationSubscriberBase> onTimeout;
 
   /** \brief Fires when a Data packet in the Notification Stream cannot be decoded as Notification.
    */
-  signal::Signal<NotificationSubscriberBase, Data> onDecodeError;
+  Signal<NotificationSubscriberBase, Data> onDecodeError;
 
 private:
   Face& m_face;
@@ -168,7 +167,7 @@ public:
   /** \brief Fires when a Notification is received.
    *  \note Removing all handlers will cause the subscriber to stop.
    */
-  signal::Signal<NotificationSubscriber, Notification> onNotification;
+  Signal<NotificationSubscriber, Notification> onNotification;
 
 private:
   bool
@@ -187,13 +186,11 @@ private:
     catch (const tlv::Error&) {
       return false;
     }
-
     onNotification(notification);
     return true;
   }
 };
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // NDN_CXX_UTIL_NOTIFICATION_SUBSCRIBER_HPP

@@ -24,8 +24,7 @@
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 StrategyChoice::StrategyChoice() = default;
 
@@ -131,5 +130,4 @@ operator<<(std::ostream& os, const StrategyChoice& sc)
             << ")";
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

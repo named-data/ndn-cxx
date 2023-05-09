@@ -32,8 +32,7 @@
 
 #include <unordered_map>
 
-namespace ndn {
-namespace mgmt {
+namespace ndn::mgmt {
 
 // ---- AUTHORIZATION ----
 
@@ -488,7 +487,6 @@ Dispatcher::addControlCommand(const PartialName& relPrefix,
   };
 }
 
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::mgmt
 
 #endif // NDN_CXX_MGMT_DISPATCHER_HPP

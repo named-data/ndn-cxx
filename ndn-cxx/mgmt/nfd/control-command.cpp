@@ -21,8 +21,7 @@
 
 #include "ndn-cxx/mgmt/nfd/control-command.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 ControlCommand::ControlCommand(const std::string& module, const std::string& verb)
   : m_module(module)
@@ -419,5 +418,4 @@ RibUnregisterCommand::validateResponse(const ControlParameters& parameters) cons
   }
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

@@ -25,20 +25,14 @@
 #include "ndn-cxx/security/pib/certificate-container.hpp"
 #include "ndn-cxx/security/security-common.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
-inline namespace v2 {
 class KeyChain;
-} // inline namespace v2
 
 namespace pib {
 
 class KeyContainer;
-
-namespace detail {
 class KeyImpl;
-} // namespace detail
 
 /**
  * @brief Frontend handle for a key in the PIB.
@@ -162,7 +156,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // write operations are accessible only 
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // private interface for KeyContainer
   explicit
-  Key(weak_ptr<detail::KeyImpl> impl) noexcept;
+  Key(weak_ptr<KeyImpl> impl) noexcept;
 
 private:
   /**
@@ -170,7 +164,7 @@ private:
    * @return a shared_ptr when the instance is valid
    * @throw std::domain_error the instance is invalid
    */
-  shared_ptr<detail::KeyImpl>
+  shared_ptr<KeyImpl>
   lock() const;
 
   bool
@@ -202,7 +196,7 @@ private:
   }
 
 private:
-  weak_ptr<detail::KeyImpl> m_impl;
+  weak_ptr<KeyImpl> m_impl;
 
   friend KeyChain;
   friend KeyContainer;
@@ -211,8 +205,6 @@ private:
 } // namespace pib
 
 using pib::Key;
-
-inline namespace v2 {
 
 /**
  * @brief Construct key name based on the appropriate naming conventions
@@ -232,8 +224,6 @@ isValidKeyName(const Name& keyName);
 Name
 extractIdentityFromKeyName(const Name& keyName);
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_PIB_KEY_HPP

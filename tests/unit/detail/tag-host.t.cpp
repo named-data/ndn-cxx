@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,7 @@
 
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Detail)
 BOOST_AUTO_TEST_SUITE(TestTagHost)
@@ -53,7 +52,7 @@ public:
   }
 };
 
-typedef boost::mpl::vector<TagHost, Interest, Data> Fixtures;
+using Fixtures = boost::mpl::vector<TagHost, Interest, Data>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Basic, T, Fixtures, T)
 {
@@ -84,5 +83,4 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Basic, T, Fixtures, T)
 BOOST_AUTO_TEST_SUITE_END() // TestTagHost
 BOOST_AUTO_TEST_SUITE_END() // Detail
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

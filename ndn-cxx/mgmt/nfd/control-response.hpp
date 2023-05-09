@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,12 +24,10 @@
 
 #include "ndn-cxx/mgmt/control-response.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 using ControlResponse = mgmt::ControlResponse;
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_CONTROL_RESPONSE_HPP

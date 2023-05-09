@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,8 +30,7 @@
 #include "ndn-cxx/security/transform/stream-source.hpp"
 #include "ndn-cxx/security/transform/strip-space.hpp"
 
-namespace ndn {
-namespace io {
+namespace ndn::io {
 
 shared_ptr<Buffer>
 loadBuffer(std::istream& is, IoEncoding encoding)
@@ -84,5 +83,4 @@ saveBuffer(span<const uint8_t> buf, std::ostream& os, IoEncoding encoding)
   NDN_THROW(std::invalid_argument("Unknown IoEncoding " + to_string(encoding)));
 }
 
-} // namespace io
-} // namespace ndn
+} // namespace ndn::io

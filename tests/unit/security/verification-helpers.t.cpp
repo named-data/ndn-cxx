@@ -29,11 +29,9 @@
 #include <openssl/opensslv.h>
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace security {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using namespace ndn::security;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
@@ -680,6 +678,4 @@ BOOST_AUTO_TEST_CASE(VerifyWithUnrecognizedElements) // Bug #4583
 BOOST_AUTO_TEST_SUITE_END() // TestVerificationHelpers
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

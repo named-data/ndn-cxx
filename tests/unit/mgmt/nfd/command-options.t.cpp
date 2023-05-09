@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace nfd {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::nfd;
 
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(Nfd)
@@ -74,6 +74,4 @@ BOOST_AUTO_TEST_SUITE_END() // TestCommandOptions
 BOOST_AUTO_TEST_SUITE_END() // Nfd
 BOOST_AUTO_TEST_SUITE_END() // Mgmt
 
-} // namespace tests
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::tests

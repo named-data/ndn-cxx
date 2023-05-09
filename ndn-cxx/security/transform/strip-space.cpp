@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/security/transform/strip-space.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 const char* const StripSpace::DEFAULT_WHITESPACES = " \f\n\r\t\v";
 
@@ -56,6 +54,4 @@ stripSpace(const char* whitespaces)
   return make_unique<StripSpace>(whitespaces);
 }
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform

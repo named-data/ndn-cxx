@@ -31,12 +31,13 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
-class ValidatorFixtureBase : public ndn::tests::IoKeyChainFixture
+using ndn::security::Certificate;
+using ndn::security::Identity;
+using ndn::security::ValidationError;
+
+class ValidatorFixtureBase : public IoKeyChainFixture
 {
 protected:
   ValidatorFixtureBase();
@@ -63,9 +64,9 @@ protected:
   addSubCertificate(const Name& subIdentityName, const Identity& issuer);
 
 protected:
-  util::DummyClientFace face{m_io, {true, true}};
+  DummyClientFace face{m_io, {true, true}};
   std::function<void(const Interest&)> processInterest;
-  CertificateCache cache{100_days};
+  security::CertificateCache cache{100_days};
   ValidationError lastError{ValidationError::NO_ERROR};
 
 private:
@@ -73,7 +74,7 @@ private:
   static constexpr int s_mockTimes{200};
 };
 
-template<class ValidationPolicyT, class CertificateFetcherT = CertificateFetcherFromNetwork>
+template<class ValidationPolicyT, class CertificateFetcherT = security::CertificateFetcherFromNetwork>
 class ValidatorFixture : public ValidatorFixtureBase
 {
 protected:
@@ -109,11 +110,11 @@ protected:
   }
 
 protected:
-  Validator validator;
+  security::Validator validator;
   ValidationPolicyT& policy;
 };
 
-template<class ValidationPolicyT, class CertificateFetcherT = CertificateFetcherFromNetwork>
+template<class ValidationPolicyT, class CertificateFetcherT = security::CertificateFetcherFromNetwork>
 class HierarchicalValidatorFixture : public ValidatorFixture<ValidationPolicyT, CertificateFetcherT>
 {
 protected:
@@ -142,7 +143,7 @@ protected:
 #define VALIDATE_SUCCESS(packet, message) this->validate(packet, message, true, __LINE__)
 #define VALIDATE_FAILURE(packet, message) this->validate(packet, message, false, __LINE__)
 
-class DummyValidationState : public ValidationState
+class DummyValidationState : public security::ValidationState
 {
 public:
   ~DummyValidationState() override
@@ -190,7 +191,7 @@ struct DataPkt
     return Data(name);
   }
 
-  static shared_ptr<ValidationState>
+  static shared_ptr<security::ValidationState>
   makeState()
   {
     return make_shared<DummyValidationState>();
@@ -214,11 +215,11 @@ struct InterestV02Pkt
     return Interest(name);
   }
 
-  static shared_ptr<ValidationState>
+  static shared_ptr<security::ValidationState>
   makeState()
   {
     auto state = make_shared<DummyValidationState>();
-    state->setTag(make_shared<SignedInterestFormatTag>(SignedInterestFormat::V02));
+    state->setTag(make_shared<security::SignedInterestFormatTag>(security::SignedInterestFormat::V02));
     return state;
   }
 };
@@ -240,18 +241,15 @@ struct InterestV03Pkt
     return Interest(name);
   }
 
-  static shared_ptr<ValidationState>
+  static shared_ptr<security::ValidationState>
   makeState()
   {
     auto state = make_shared<DummyValidationState>();
-    state->setTag(make_shared<SignedInterestFormatTag>(SignedInterestFormat::V03));
+    state->setTag(make_shared<security::SignedInterestFormatTag>(security::SignedInterestFormat::V03));
     return state;
   }
 };
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_UNIT_SECURITY_VALIDATOR_FIXTURE_HPP

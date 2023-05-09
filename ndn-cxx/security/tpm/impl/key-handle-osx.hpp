@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,9 +30,7 @@
 
 #include "ndn-cxx/security/tpm/impl/key-ref-osx.hpp"
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
 /**
  * @brief Abstraction of TPM key handle used by the TPM based on macOS Keychain Services.
@@ -61,8 +59,6 @@ private:
   KeyRefOsx m_key;
 };
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm
 
 #endif // NDN_CXX_SECURITY_TPM_IMPL_KEY_HANDLE_OSX_HPP

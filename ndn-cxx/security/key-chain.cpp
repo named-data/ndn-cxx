@@ -46,8 +46,9 @@
 #include <boost/lexical_cast.hpp>
 #include <cstdlib>  // for std::getenv()
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
+
+NDN_LOG_INIT(ndn.security.KeyChain);
 
 // When static library is used, not everything is compiled into the resulting binary.
 // Therefore, the following standard PIB and TPMs need to be registered here.
@@ -65,10 +66,6 @@ NDN_CXX_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndOsx);
 NDN_CXX_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndFile);
 NDN_CXX_KEYCHAIN_REGISTER_TPM_BACKEND(BackEndMem);
 } // namespace tpm
-
-inline namespace v2 {
-
-NDN_LOG_INIT(ndn.security.KeyChain);
 
 const name::Component SELF{"self"};
 
@@ -782,6 +779,4 @@ KeyChain::getSignatureType(KeyType keyType, DigestAlgorithm)
   }
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

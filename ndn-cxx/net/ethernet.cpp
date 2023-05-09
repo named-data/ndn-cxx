@@ -34,8 +34,7 @@
 #include <cstdio>
 #include <ostream>
 
-namespace ndn {
-namespace ethernet {
+namespace ndn::ethernet {
 
 Address::Address()
 {
@@ -130,8 +129,7 @@ operator<<(std::ostream& o, const Address& a)
   return o << a.toString();
 }
 
-} // namespace ethernet
-} // namespace ndn
+} // namespace ndn::ethernet
 
 std::size_t
 std::hash<ndn::ethernet::Address>::operator()(const ndn::ethernet::Address& a) const noexcept

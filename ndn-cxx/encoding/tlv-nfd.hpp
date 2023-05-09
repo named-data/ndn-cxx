@@ -24,9 +24,7 @@
 
 #include <cstdint>
 
-namespace ndn {
-namespace tlv {
-namespace nfd {
+namespace ndn::tlv::nfd {
 
 /**
  * @brief TLV-TYPE numbers defined by the NFD Management protocol.
@@ -105,8 +103,6 @@ enum : uint32_t {
   Route    = 129,
 };
 
-} // namespace nfd
-} // namespace tlv
-} // namespace ndn
+} // namespace ndn::tlv::nfd
 
 #endif // NDN_CXX_ENCODING_TLV_NFD_HPP

@@ -34,6 +34,9 @@ namespace ndn {
 
 class Face;
 
+/**
+ * @brief Contains classes and functions related to the NFD Management protocol.
+ */
 namespace nfd {
 
 /**
@@ -178,7 +181,7 @@ protected:
   security::InterestSigner m_signer;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
-  std::set<shared_ptr<util::SegmentFetcher>> m_fetchers;
+  std::set<shared_ptr<SegmentFetcher>> m_fetchers;
 };
 
 template<typename Dataset>

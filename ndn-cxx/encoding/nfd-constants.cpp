@@ -29,8 +29,7 @@
 #include <map>
 #include <ostream>
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 std::ostream&
 operator<<(std::ostream& os, FaceScope faceScope)
@@ -196,5 +195,4 @@ operator<<(std::ostream& os, RouteFlags routeFlags)
   return os;
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -41,16 +41,14 @@
 #include <boost/mpl/vector.hpp>
 #include <set>
 
-namespace ndn {
-namespace security {
-namespace tpm {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security;
+using ndn::security::tpm::BackEnd;
+using ndn::security::tpm::KeyHandle;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(Tpm)
-BOOST_AUTO_TEST_SUITE(TestBackEnd)
-
-using tpm::Tpm;
+BOOST_AUTO_TEST_SUITE(TestTpmBackEnd)
 
 using TestBackEnds = boost::mpl::vector<
 #if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
@@ -354,11 +352,7 @@ BOOST_AUTO_TEST_CASE(RandomKeyId)
   }
 }
 
-BOOST_AUTO_TEST_SUITE_END() // TestBackEnd
-BOOST_AUTO_TEST_SUITE_END() // Tpm
+BOOST_AUTO_TEST_SUITE_END() // TestTpmBackEnd
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

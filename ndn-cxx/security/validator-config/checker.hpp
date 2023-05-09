@@ -27,9 +27,7 @@
 #include "ndn-cxx/security/validator-config/name-relation.hpp"
 #include "ndn-cxx/util/regex.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 class ValidationState;
 
@@ -185,8 +183,6 @@ private:
 };
 
 } // namespace validator_config
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_VALIDATOR_CONFIG_CHECKER_HPP

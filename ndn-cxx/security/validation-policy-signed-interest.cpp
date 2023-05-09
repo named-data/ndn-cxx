@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/security/validation-policy-signed-interest.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 ValidationPolicySignedInterest::ValidationPolicySignedInterest(unique_ptr<ValidationPolicy> inner,
                                                                const Options& options)
@@ -142,7 +140,7 @@ ValidationPolicySignedInterest::checkIncomingInterest(const shared_ptr<Validatio
 
 void
 ValidationPolicySignedInterest::insertRecord(const Name& keyName,
-                                             std::optional<time::system_clock::TimePoint> timestamp,
+                                             std::optional<time::system_clock::time_point> timestamp,
                                              std::optional<uint64_t> seqNum,
                                              std::optional<SigNonce> nonce)
 {
@@ -185,6 +183,4 @@ ValidationPolicySignedInterest::insertRecord(const Name& keyName,
   }
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

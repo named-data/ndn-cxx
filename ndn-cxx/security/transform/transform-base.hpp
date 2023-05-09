@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,9 +27,7 @@
 
 #include <vector>
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 /**
  * @file
@@ -318,8 +316,6 @@ private:
   size_t m_nModules = 1; // count of modules in the chain starting from (and including) this Source
 };
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_BASE_HPP

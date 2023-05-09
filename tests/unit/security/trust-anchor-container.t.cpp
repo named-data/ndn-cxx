@@ -27,17 +27,12 @@
 
 #include <boost/filesystem/operations.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using namespace ndn::security;
 
-/**
- * This fixture creates a directory and prepares two certificates.
- * cert1 is written to a file under the directory, while cert2 is not.
- */
+// This fixture creates a directory and prepares two certificates.
+// cert1 is written to a file under the directory, while cert2 is not.
 class TrustAnchorContainerFixture : public ClockFixture, public KeyChainFixture
 {
 public:
@@ -196,7 +191,4 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
 BOOST_AUTO_TEST_SUITE_END() // TestTrustAnchorContainer
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

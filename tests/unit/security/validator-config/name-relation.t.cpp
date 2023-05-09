@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,11 +25,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace validator_config {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::validator_config;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(ValidatorConfig)
@@ -49,7 +47,7 @@ BOOST_AUTO_TEST_CASE(FromString)
   BOOST_CHECK_EQUAL(getNameRelationFromString("equal"), NameRelation::EQUAL);
   BOOST_CHECK_EQUAL(getNameRelationFromString("is-prefix-of"), NameRelation::IS_PREFIX_OF);
   BOOST_CHECK_EQUAL(getNameRelationFromString("is-strict-prefix-of"), NameRelation::IS_STRICT_PREFIX_OF);
-  BOOST_CHECK_THROW(getNameRelationFromString("unknown"), validator_config::Error);
+  BOOST_CHECK_THROW(getNameRelationFromString("unknown"), Error);
 }
 
 BOOST_AUTO_TEST_CASE(CheckRelation)
@@ -70,8 +68,4 @@ BOOST_AUTO_TEST_SUITE_END() // TestNameRelation
 BOOST_AUTO_TEST_SUITE_END() // ValidatorConfig
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace validator_config
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

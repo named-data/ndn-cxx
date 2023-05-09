@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,8 +21,9 @@
 
 #include "ndn-cxx/encoding/tlv.hpp"
 
-namespace ndn {
-namespace tlv {
+#include <ostream>
+
+namespace ndn::tlv {
 
 Error::Error(const char* expectedType, uint32_t actualType)
   : Error("Expecting "s + expectedType + " element, but TLV has type " + to_string(actualType))
@@ -81,5 +82,55 @@ operator<<(std::ostream& os, ContentTypeValue ct)
   return os << static_cast<uint32_t>(ct) << ')';
 }
 
-} // namespace tlv
-} // namespace ndn
+size_t
+writeVarNumber(std::ostream& os, uint64_t number)
+{
+  if (number < 253) {
+    os.put(static_cast<char>(number));
+    return 1;
+  }
+  else if (number <= std::numeric_limits<uint16_t>::max()) {
+    os.put(static_cast<char>(253));
+    uint16_t value = boost::endian::native_to_big(static_cast<uint16_t>(number));
+    os.write(reinterpret_cast<const char*>(&value), 2);
+    return 3;
+  }
+  else if (number <= std::numeric_limits<uint32_t>::max()) {
+    os.put(static_cast<char>(254));
+    uint32_t value = boost::endian::native_to_big(static_cast<uint32_t>(number));
+    os.write(reinterpret_cast<const char*>(&value), 4);
+    return 5;
+  }
+  else {
+    os.put(static_cast<char>(255));
+    uint64_t value = boost::endian::native_to_big(number);
+    os.write(reinterpret_cast<const char*>(&value), 8);
+    return 9;
+  }
+}
+
+size_t
+writeNonNegativeInteger(std::ostream& os, uint64_t integer)
+{
+  if (integer <= std::numeric_limits<uint8_t>::max()) {
+    os.put(static_cast<char>(integer));
+    return 1;
+  }
+  else if (integer <= std::numeric_limits<uint16_t>::max()) {
+    uint16_t value = boost::endian::native_to_big(static_cast<uint16_t>(integer));
+    os.write(reinterpret_cast<const char*>(&value), 2);
+    return 2;
+  }
+  else if (integer <= std::numeric_limits<uint32_t>::max()) {
+    uint32_t value = boost::endian::native_to_big(static_cast<uint32_t>(integer));
+    os.write(reinterpret_cast<const char*>(&value), 4);
+    return 4;
+  }
+  else {
+    uint64_t value = boost::endian::native_to_big(integer);
+    os.write(reinterpret_cast<const char*>(&value), 8);
+    return 8;
+  }
+}
+
+} // namespace ndn::tlv

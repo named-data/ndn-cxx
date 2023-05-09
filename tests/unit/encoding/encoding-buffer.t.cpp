@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,15 +24,7 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace tests {
-
-class BufferEstimatorFixture
-{
-public:
-  EncodingBuffer buffer;
-  EncodingEstimator estimator;
-};
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestEncodingBuffer)
@@ -60,6 +52,13 @@ BOOST_AUTO_TEST_CASE(ConstructFromBlock)
     BOOST_CHECK_EQUAL(buffer.capacity(), 10);
   }
 }
+
+class BufferEstimatorFixture
+{
+public:
+  EncodingBuffer buffer;
+  EncodingEstimator estimator;
+};
 
 BOOST_FIXTURE_TEST_SUITE(PrependVarNumber, BufferEstimatorFixture)
 
@@ -198,5 +197,4 @@ BOOST_AUTO_TEST_SUITE_END() // PrependNonNegativeNumber
 BOOST_AUTO_TEST_SUITE_END() // TestEncodingBuffer
 BOOST_AUTO_TEST_SUITE_END() // Encoding
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

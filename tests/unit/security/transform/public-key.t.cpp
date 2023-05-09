@@ -32,10 +32,9 @@
 
 #include <sstream>
 
-namespace ndn {
-namespace security {
-namespace transform {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::transform;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
@@ -151,7 +150,4 @@ BOOST_AUTO_TEST_SUITE_END() // TestPublicKey
 BOOST_AUTO_TEST_SUITE_END() // Transform
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

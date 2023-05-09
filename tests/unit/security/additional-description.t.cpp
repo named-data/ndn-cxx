@@ -24,9 +24,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace security {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::security::AdditionalDescription;
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<AdditionalDescription>));
 BOOST_CONCEPT_ASSERT((WireEncodable<AdditionalDescription>));
@@ -99,6 +99,4 @@ BOOST_AUTO_TEST_CASE(Basic)
 BOOST_AUTO_TEST_SUITE_END() // TestAdditionalDescription
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

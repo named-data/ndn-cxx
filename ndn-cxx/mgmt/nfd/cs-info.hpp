@@ -27,8 +27,7 @@
 
 #include <bitset>
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /** \ingroup management
  *  \brief Represents the CS Information dataset.
@@ -150,7 +149,6 @@ operator!=(const CsInfo& a, const CsInfo& b)
 std::ostream&
 operator<<(std::ostream& os, const CsInfo& csi);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_CS_INFO_HPP

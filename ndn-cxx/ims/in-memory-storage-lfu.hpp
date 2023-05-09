@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -91,25 +91,22 @@ private:
   class byFrequency;
   class byEntity;
 
-  typedef boost::multi_index_container<
+  using CleanupIndex = boost::multi_index_container<
     CleanupEntry,
     boost::multi_index::indexed_by<
-
       // by Entry itself
       boost::multi_index::hashed_unique<
         boost::multi_index::tag<byEntity>,
         boost::multi_index::member<CleanupEntry, InMemoryStorageEntry*, &CleanupEntry::entry>
       >,
-
       // by frequency (LFU)
       boost::multi_index::ordered_non_unique<
         boost::multi_index::tag<byFrequency>,
         boost::multi_index::member<CleanupEntry, uint64_t, &CleanupEntry::frequency>,
         std::less<uint64_t>
       >
-
     >
-  > CleanupIndex;
+  >;
 
   CleanupIndex m_cleanupIndex;
 };

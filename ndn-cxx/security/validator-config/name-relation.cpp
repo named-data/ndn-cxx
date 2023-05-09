@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,7 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace validator_config {
+namespace ndn::security::validator_config {
 
 std::ostream&
 operator<<(std::ostream& os, NameRelation relation)
@@ -73,7 +70,4 @@ getNameRelationFromString(const std::string& relationString)
   }
 }
 
-} // namespace validator_config
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::validator_config

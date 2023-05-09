@@ -31,9 +31,7 @@
 #import <CoreWLAN/CWInterface.h>
 #import <CoreWLAN/CWWiFiClient.h>
 
-namespace ndn {
-namespace net {
-namespace detail {
+namespace ndn::net::detail {
 
 ndn::nfd::LinkType
 getLinkType(const std::string& ifName)
@@ -61,6 +59,4 @@ getLinkType(const std::string& ifName)
   }
 }
 
-} // namespace detail
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net::detail

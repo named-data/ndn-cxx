@@ -26,8 +26,7 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-namespace ndn {
-namespace name {
+namespace ndn::name {
 
 /**
  * @brief Format used for the URI representation of a name.
@@ -592,7 +591,6 @@ private: // non-member operators
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Component);
 
-} // namespace name
-} // namespace ndn
+} // namespace ndn::name
 
 #endif // NDN_CXX_NAME_COMPONENT_HPP

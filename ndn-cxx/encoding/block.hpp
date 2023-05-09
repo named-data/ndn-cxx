@@ -29,11 +29,9 @@
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/util/span.hpp"
 
-namespace boost {
-namespace asio {
+namespace boost::asio {
 class const_buffer;
-} // namespace asio
-} // namespace boost
+} // namespace boost::asio
 
 namespace ndn {
 

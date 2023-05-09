@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,7 @@
 
 #include "ndn-cxx/security/transform/transform-base.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 /**
  * @brief The module to perform hexadecimal encoding transformation.
@@ -67,8 +65,6 @@ private:
 unique_ptr<Transform>
 hexEncode(bool useUpperCase = false);
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_HEX_ENCODE_HPP

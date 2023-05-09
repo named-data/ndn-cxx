@@ -25,10 +25,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace nfd {
-
-using ndn::util::SegmentFetcher;
+namespace ndn::nfd {
 
 Controller::Controller(Face& face, KeyChain& keyChain, security::Validator& validator)
   : m_face(face)
@@ -184,5 +181,4 @@ Controller::processDatasetFetchError(const DatasetFailureCallback& onFailure,
   }
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

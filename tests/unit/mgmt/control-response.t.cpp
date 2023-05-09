@@ -24,9 +24,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace mgmt {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::mgmt;
 
 BOOST_CONCEPT_ASSERT((WireEncodable<ControlResponse>));
 BOOST_CONCEPT_ASSERT((WireDecodable<ControlResponse>));
@@ -62,6 +62,4 @@ BOOST_AUTO_TEST_CASE(Decode)
 BOOST_AUTO_TEST_SUITE_END() // TestControlResponse
 BOOST_AUTO_TEST_SUITE_END() // Mgmt
 
-} // namespace tests
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::tests

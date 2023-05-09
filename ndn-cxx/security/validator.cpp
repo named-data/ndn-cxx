@@ -24,9 +24,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 NDN_LOG_INIT(ndn.security.Validator);
 
@@ -198,6 +196,4 @@ Validator::resetVerifiedCertificates()
   CertificateStorage::resetVerifiedCerts();
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

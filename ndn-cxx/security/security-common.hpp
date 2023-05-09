@@ -31,11 +31,15 @@ namespace ndn {
 
 namespace signed_interest {
 
+/// \deprecated The old Signed %Interest format is deprecated.
 inline constexpr ssize_t POS_SIG_VALUE = -1;
+/// \deprecated The old Signed %Interest format is deprecated.
 inline constexpr ssize_t POS_SIG_INFO = -2;
 
-/** \brief Minimum number of name components for an old-style Signed %Interest.
- *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/SignedInterest
+/**
+ * \brief Minimum number of name components for an old-style Signed %Interest.
+ * \deprecated The old Signed %Interest format is deprecated.
+ * \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/SignedInterest
  */
 inline constexpr size_t MIN_SIZE = 2;
 
@@ -43,13 +47,19 @@ inline constexpr size_t MIN_SIZE = 2;
 
 namespace command_interest {
 
-using signed_interest::POS_SIG_VALUE;
-using signed_interest::POS_SIG_INFO;
+/// \deprecated The Command %Interest format is deprecated.
+inline constexpr ssize_t POS_SIG_VALUE = -1;
+/// \deprecated The Command %Interest format is deprecated.
+inline constexpr ssize_t POS_SIG_INFO = -2;
+/// \deprecated The Command %Interest format is deprecated.
 inline constexpr ssize_t POS_RANDOM_VAL = -3;
+/// \deprecated The Command %Interest format is deprecated.
 inline constexpr ssize_t POS_TIMESTAMP = -4;
 
-/** \brief Minimum number of name components for a Command %Interest.
- *  \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
+/**
+ * \brief Minimum number of name components for a Command %Interest.
+ * \deprecated The Command %Interest format is deprecated.
+ * \sa https://redmine.named-data.net/projects/ndn-cxx/wiki/CommandInterest
  */
 inline constexpr size_t MIN_SIZE = 4;
 

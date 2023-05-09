@@ -23,8 +23,7 @@
 
 #include "tests/test-common.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Link>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Link>));
@@ -175,5 +174,4 @@ BOOST_AUTO_TEST_SUITE_END() // Modify
 
 BOOST_AUTO_TEST_SUITE_END() // TestLink
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,10 +37,9 @@
 #define NETWORK_MONITOR_IMPL_TYPE NetworkMonitorImplNoop
 #endif
 
-NDN_LOG_INIT(ndn.NetworkMonitor);
+namespace ndn::net {
 
-namespace ndn {
-namespace net {
+NDN_LOG_INIT(ndn.NetworkMonitor);
 
 static unique_ptr<NetworkMonitorImpl>
 makeNetworkMonitorImpl(boost::asio::io_service& io)
@@ -94,5 +93,4 @@ NetworkMonitorImpl::makeNetworkInterface()
   return shared_ptr<NetworkInterface>(new NetworkInterface);
 }
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net

@@ -30,7 +30,6 @@
 #include <boost/asio/io_service.hpp>
 
 namespace ndn {
-namespace util {
 
 class DummyClientFace::Transport final : public ndn::Transport
 {
@@ -66,7 +65,7 @@ public:
   }
 
 public:
-  Signal<Transport, Block> onSendBlock;
+  signal::Signal<Transport, Block> onSendBlock;
 };
 
 struct DummyClientFace::BroadcastLink
@@ -324,5 +323,4 @@ DummyClientFace::doProcessEvents(time::milliseconds timeout, bool keepThread)
   }
 }
 
-} // namespace util
 } // namespace ndn

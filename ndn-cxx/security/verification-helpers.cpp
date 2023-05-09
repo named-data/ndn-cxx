@@ -36,8 +36,7 @@
 
 #include <openssl/crypto.h>
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 namespace {
 
@@ -261,5 +260,4 @@ verifySignature(const Interest& interest, const tpm::Tpm& tpm,
   return verifySignature(parse(interest), tpm, keyName, digestAlgorithm);
 }
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

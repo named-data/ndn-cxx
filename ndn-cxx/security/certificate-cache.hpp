@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,9 +30,7 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/member.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 /**
  * @brief Represents a container for verified certificates.
@@ -92,7 +90,8 @@ private:
   class Entry
   {
   public:
-    Entry(const Certificate& cert, const time::system_clock::TimePoint& removalTime)
+    explicit
+    Entry(const Certificate& cert, const time::system_clock::time_point& removalTime)
       : cert(cert)
       , removalTime(removalTime)
     {
@@ -106,7 +105,7 @@ private:
 
   public:
     Certificate cert;
-    time::system_clock::TimePoint removalTime;
+    time::system_clock::time_point removalTime;
   };
 
   /**
@@ -116,33 +115,34 @@ private:
   refresh();
 
 public:
-  static time::nanoseconds
-  getDefaultLifetime();
+  static constexpr time::nanoseconds
+  getDefaultLifetime() noexcept
+  {
+    return 1_h;
+  }
 
 private:
-  /// @todo Switch to InMemoryStorateTimeout after it is available (task #3917)
-  typedef boost::multi_index::multi_index_container<
+  /// @todo Switch to InMemoryStorageTimeout after it is available (task #3917)
+  using CertIndex = boost::multi_index::multi_index_container<
     Entry,
     boost::multi_index::indexed_by<
       boost::multi_index::ordered_non_unique<
-        boost::multi_index::member<Entry, const time::system_clock::TimePoint, &Entry::removalTime>
+        boost::multi_index::member<Entry, const time::system_clock::time_point, &Entry::removalTime>
       >,
       boost::multi_index::ordered_unique<
         boost::multi_index::const_mem_fun<Entry, const Name&, &Entry::getCertName>
       >
     >
-  > CertIndex;
+  >;
+  using CertIndexByTime = CertIndex::nth_index<0>::type;
+  using CertIndexByName = CertIndex::nth_index<1>::type;
 
-  typedef CertIndex::nth_index<0>::type CertIndexByTime;
-  typedef CertIndex::nth_index<1>::type CertIndexByName;
   CertIndex m_certs;
   CertIndexByTime& m_certsByTime;
   CertIndexByName& m_certsByName;
   time::nanoseconds m_maxLifetime;
 };
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_CERTIFICATE_CACHE_HPP

@@ -28,15 +28,9 @@
 #include <set>
 #include <unordered_map>
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 class PibImpl;
-
-namespace detail {
-class KeyImpl;
-} // namespace detail
 
 /**
  * @brief Container of certificates of a key.
@@ -181,11 +175,9 @@ private:
   const Name m_keyName;
   const shared_ptr<PibImpl> m_pib;
 
-  friend detail::KeyImpl;
+  friend class KeyImpl;
 };
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib
 
 #endif // NDN_CXX_SECURITY_PIB_CERTIFICATE_CONTAINER_HPP

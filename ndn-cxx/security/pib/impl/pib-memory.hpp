@@ -24,9 +24,7 @@
 
 #include "ndn-cxx/security/pib/pib-impl.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 /**
  * @brief An in-memory PIB implementation.
@@ -142,8 +140,6 @@ private:
   std::map<Name, Certificate> m_certs;
 };
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib
 
 #endif // NDN_CXX_SECURITY_PIB_IMPL_PIB_MEMORY_HPP

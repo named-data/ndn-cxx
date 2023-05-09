@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,12 +26,9 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using namespace ndn::security;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestCertificateBundleFetcher)
@@ -45,21 +42,10 @@ public:
   }
 };
 
-class BundleWithFinalBlockId
-{
-};
-
-class BundleWithoutFinalBlockId
-{
-};
-
-class Timeout
-{
-};
-
-class Nack
-{
-};
+struct BundleWithFinalBlockId {};
+struct BundleWithoutFinalBlockId {};
+struct Timeout {};
+struct Nack {};
 
 template<class Response>
 class CertificateBundleFetcherFixture : public HierarchicalValidatorFixture<ValidationPolicySimpleHierarchy,
@@ -198,7 +184,4 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateSuccessWithoutBundle, T, SuccessWithout
 BOOST_AUTO_TEST_SUITE_END() // TestCertificateBundleFetcher
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

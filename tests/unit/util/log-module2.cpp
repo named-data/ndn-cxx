@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,7 @@
 
 NDN_LOG_INIT(Module2);
 
-namespace ndn {
-namespace util {
-namespace tests {
+namespace ndn::tests {
 
 void
 logFromModule2()
@@ -38,6 +36,4 @@ logFromModule2()
   NDN_LOG_FATAL("fatal" << 2);
 }
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

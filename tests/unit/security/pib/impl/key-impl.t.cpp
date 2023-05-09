@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,18 +25,13 @@
 #include "tests/key-chain-fixture.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
-namespace detail {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::pib;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(Pib)
 
-using pib::Pib;
-
-class KeyImplFixture : public pib::tests::PibDataFixture
+class KeyImplFixture : public PibDataFixture
 {
 protected:
   const shared_ptr<PibImpl> pibImpl = makePibWithKey(id1Key1Name, id1Key1);
@@ -114,8 +109,7 @@ BOOST_AUTO_TEST_CASE(CertificateOperations)
   BOOST_CHECK_THROW(key11.getDefaultCertificate(), Pib::Error);
 }
 
-class ReplaceFixture : public ndn::tests::KeyChainFixture,
-                       public KeyImplFixture
+class ReplaceFixture : public KeyChainFixture, public KeyImplFixture
 {
 };
 
@@ -126,8 +120,8 @@ BOOST_FIXTURE_TEST_CASE(ReplaceCertificate, ReplaceFixture)
 
   auto otherCert = id1Key1Cert1;
   SignatureInfo info;
-  info.setValidityPeriod(ValidityPeriod::makeRelative(-1_s, 10_s));
-  m_keyChain.sign(otherCert, SigningInfo().setSignatureInfo(info));
+  info.setValidityPeriod(security::ValidityPeriod::makeRelative(-1_s, 10_s));
+  m_keyChain.sign(otherCert, security::SigningInfo().setSignatureInfo(info));
   BOOST_TEST(otherCert.getName() == id1Key1Cert1.getName());
   BOOST_TEST(otherCert.getContent() == id1Key1Cert1.getContent());
   BOOST_TEST(otherCert != id1Key1Cert1);
@@ -162,11 +156,6 @@ BOOST_AUTO_TEST_CASE(UnknownKeyType)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyImpl
-BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace detail
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

@@ -3,11 +3,11 @@ ndn-cxx Code Style and Coding Guidelines
 
 Based on
 
-* "C++ Programming Style Guidelines" by Geotechnical Software Services, Copyright © 1996 – 2011.
-  The original document is available at `<http://geosoft.no/development/cppstyle.html>`_
+* "C++ Programming Style Guidelines" by Geotechnical Software Services, Copyright © 1996-2011.
+  The original document is available at `<http://geosoft.no/development/cppstyle.html>`__
 
 * NDN Platform "C++, C, C#, Java and JavaScript Code Guidelines".
-  The original document is available at `<https://named-data.net/codebase/platform/documentation/ndn-platform-development-guidelines/cpp-code-guidelines/>`_
+  The original document is available at `<https://named-data.net/codebase/platform/documentation/ndn-platform-development-guidelines/cpp-code-guidelines/>`__
 
 1. Code layout
 --------------
@@ -52,11 +52,11 @@ extended it to C++.
 
         } // namespace example
 
-    Note that code inside namespace is **not** indented. Avoid the following:
+    Note that code inside the namespace is **not** indented. Avoid the following:
 
     .. code-block:: c++
 
-        // NOT
+        // WRONG
         //
         // namespace example {
         //
@@ -479,13 +479,11 @@ written in mixed case starting with lower case.
 
     .. code-block:: c++
 
-        namespace model {
-        namespace analyzer {
+        namespace model::analyzer {
 
         ...
 
-        } // namespace analyzer
-        } // namespace model
+        } // namespace model::analyzer
 
 2.7. Names representing generic template types should be a single uppercase letter.
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,6 @@ class Nack;
 } // namespace lp
 
 namespace security {
-inline namespace v2 {
 
 /**
  * @brief Fetch missing keys from the network
@@ -83,7 +82,6 @@ protected:
   Scheduler m_scheduler;
 };
 
-} // inline namespace v2
 } // namespace security
 } // namespace ndn
 

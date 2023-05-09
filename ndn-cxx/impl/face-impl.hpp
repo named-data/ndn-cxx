@@ -35,7 +35,6 @@
 #include "ndn-cxx/transport/unix-transport.hpp"
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
-#include "ndn-cxx/util/signal.hpp"
 
 NDN_LOG_INIT(ndn.Face);
 // INFO level: prefix registration, etc.

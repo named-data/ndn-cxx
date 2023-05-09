@@ -27,8 +27,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 IndentedStream::IndentedStream(std::ostream& os, std::string_view indent)
   : std::ostream(&m_buffer)
@@ -66,5 +65,4 @@ IndentedStream::StreamBuf::sync()
   return 0; // success
 }
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util

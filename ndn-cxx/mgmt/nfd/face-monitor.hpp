@@ -31,8 +31,7 @@
 #include "ndn-cxx/mgmt/nfd/face-event-notification.hpp"
 #include "ndn-cxx/util/notification-subscriber.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \brief A subscriber for the %Face status change notification stream.
@@ -48,7 +47,6 @@ public:
   }
 };
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_FACE_MONITOR_HPP

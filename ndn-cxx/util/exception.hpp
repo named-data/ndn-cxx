@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,8 +36,7 @@
 #include <boost/stacktrace/stacktrace.hpp>
 #endif
 
-namespace ndn {
-namespace exception {
+namespace ndn::exception {
 
 #ifdef NDN_CXX_HAVE_STACKTRACE
 using errinfo_stacktrace = boost::error_info<struct stacktrace, boost::stacktrace::stacktrace>;
@@ -46,8 +45,7 @@ std::string
 to_string(const errinfo_stacktrace&);
 #endif
 
-} // namespace exception
-} // namespace ndn
+} // namespace ndn::exception
 
 /** \cond */
 #ifdef NDN_CXX_HAVE_STACKTRACE

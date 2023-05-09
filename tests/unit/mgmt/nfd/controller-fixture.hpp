@@ -28,11 +28,7 @@
 #include "tests/unit/dummy-validator.hpp"
 #include "tests/unit/io-key-chain-fixture.hpp"
 
-namespace ndn {
-namespace nfd {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 class ControllerFixture : public IoKeyChainFixture
 {
@@ -59,16 +55,14 @@ protected:
   }
 
 protected:
-  ndn::util::DummyClientFace face;
+  DummyClientFace face;
   DummyValidator m_validator;
-  Controller controller;
-  CommandFailureCallback commandFailCallback;
-  DatasetFailureCallback datasetFailCallback;
+  nfd::Controller controller;
+  nfd::CommandFailureCallback commandFailCallback;
+  nfd::DatasetFailureCallback datasetFailCallback;
   std::vector<uint32_t> failCodes;
 };
 
-} // namespace tests
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_UNIT_MGMT_NFD_CONTROLLER_FIXTURE_HPP

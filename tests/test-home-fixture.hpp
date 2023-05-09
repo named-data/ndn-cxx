@@ -32,8 +32,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 /**
  * @brief Fixture to adjust/restore NDN_CLIENT_PIB and NDN_CLIENT_TPM paths
@@ -121,7 +120,6 @@ struct DefaultPibDir
   static constexpr std::string_view PATH{"build/keys"};
 };
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_TEST_HOME_FIXTURE_HPP

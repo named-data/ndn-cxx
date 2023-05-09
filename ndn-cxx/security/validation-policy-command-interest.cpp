@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/security/validation-policy-command-interest.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 ValidationPolicyCommandInterest::ValidationPolicyCommandInterest(unique_ptr<ValidationPolicy> inner,
                                                                  const Options& options)
@@ -171,6 +169,4 @@ ValidationPolicyCommandInterest::insertNewRecord(const Name& keyName, time::syst
   }
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

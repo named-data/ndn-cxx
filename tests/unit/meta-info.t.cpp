@@ -23,8 +23,7 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((WireEncodable<MetaInfo>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<MetaInfo>));
@@ -161,5 +160,4 @@ BOOST_AUTO_TEST_CASE(AppMetaInfoTypeRange)
 
 BOOST_AUTO_TEST_SUITE_END() // TestMetaInfo
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

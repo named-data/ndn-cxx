@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,8 +35,7 @@
 #error "This file should not be included ..."
 #endif
 
-namespace ndn {
-namespace net {
+namespace ndn::net {
 
 class NetlinkMessage;
 
@@ -110,8 +109,8 @@ class GenlFamilyResolver : noncopyable
 public:
   GenlFamilyResolver(std::string familyName, GenlSocket& socket);
 
-  util::Signal<GenlFamilyResolver, uint16_t> onResolved;
-  util::Signal<GenlFamilyResolver> onError;
+  signal::Signal<GenlFamilyResolver, uint16_t> onResolved;
+  signal::Signal<GenlFamilyResolver> onError;
 
 private:
   void
@@ -153,7 +152,6 @@ private:
   std::map<std::string, GenlFamilyResolver> m_familyResolvers; ///< family name => resolver instance
 };
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net
 
 #endif // NDN_CXX_NET_NETLINK_SOCKET_HPP

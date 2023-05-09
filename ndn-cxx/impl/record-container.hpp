@@ -27,8 +27,7 @@
 
 #include <atomic>
 
-namespace ndn {
-namespace detail {
+namespace ndn::detail {
 
 using RecordId = uint64_t;
 
@@ -92,7 +91,7 @@ public:
   /**
    * \brief Insert a record with given ID.
    */
-  template<typename ...TArgs>
+  template<typename... TArgs>
   Record&
   put(RecordId id, TArgs&&... args)
   {
@@ -115,7 +114,7 @@ public:
   /**
    * \brief Insert a record with newly assigned ID.
    */
-  template<typename ...TArgs>
+  template<typename... TArgs>
   Record&
   insert(TArgs&&... args)
   {
@@ -189,14 +188,13 @@ public:
 public:
   /** \brief Signals when container becomes empty
    */
-  util::Signal<RecordContainer<T>> onEmpty;
+  signal::Signal<RecordContainer<T>> onEmpty;
 
 private:
   Container m_container;
   std::atomic<RecordId> m_lastId{0};
 };
 
-} // namespace detail
-} // namespace ndn
+} // namespace ndn::detail
 
 #endif // NDN_CXX_IMPL_RECORD_CONTAINER_HPP

@@ -26,8 +26,7 @@
 #include <sstream>
 #include <string>
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 /**
  * @brief Output to stream with specified indent or prefix
@@ -76,7 +75,6 @@ private:
   StreamBuf m_buffer;
 };
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // NDN_CXX_UTIL_INDENTED_STREAM_HPP

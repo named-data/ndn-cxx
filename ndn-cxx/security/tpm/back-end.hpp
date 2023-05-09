@@ -24,9 +24,7 @@
 
 #include "ndn-cxx/security/tpm/tpm.hpp"
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
 /**
  * @brief Abstract interface for a TPM backend implementation.
@@ -196,8 +194,6 @@ private: // pure virtual methods
   doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key) = 0;
 };
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm
 
 #endif // NDN_CXX_SECURITY_TPM_BACK_END_HPP

@@ -26,8 +26,7 @@
 #include <iosfwd>
 #include <limits>
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 inline constexpr uint64_t INVALID_FACE_ID = 0;
 
@@ -131,7 +130,6 @@ enum RouteFlags : uint64_t {
 std::ostream&
 operator<<(std::ostream& os, RouteFlags routeFlags);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_ENCODING_NFD_CONSTANTS_HPP

@@ -29,16 +29,13 @@
 #include <unordered_map>
 #include <boost/logic/tribool.hpp>
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 namespace transform {
 class PrivateKey;
 } // namespace transform
 
-inline namespace v2 {
 class KeyChain;
-} // inline namespace v2
 
 namespace tpm {
 
@@ -256,7 +253,6 @@ private:
 
 using tpm::Tpm;
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_TPM_TPM_HPP

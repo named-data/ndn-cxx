@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,11 +28,7 @@
 #include <boost/asio/io_service.hpp>
 #include <iostream>
 
-namespace ndn {
-namespace scheduler {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_CASE(ScheduleCancel)
 {
@@ -40,7 +36,7 @@ BOOST_AUTO_TEST_CASE(ScheduleCancel)
   Scheduler sched(io);
 
   const size_t nEvents = 1000000;
-  std::vector<EventId> eventIds(nEvents);
+  std::vector<scheduler::EventId> eventIds(nEvents);
 
   auto d1 = timedExecute([&] {
     for (size_t i = 0; i < nEvents; ++i) {
@@ -67,8 +63,8 @@ BOOST_AUTO_TEST_CASE(Execute)
   size_t nExpired = 0;
 
   // Events should expire at t1, but execution finishes at t2. The difference is the overhead.
-  time::steady_clock::TimePoint t1 = time::steady_clock::now() + 5_s;
-  time::steady_clock::TimePoint t2;
+  time::steady_clock::time_point t1 = time::steady_clock::now() + 5_s;
+  time::steady_clock::time_point t2;
   // +1ms ensures this extra event is executed last. In case the overhead is less than 1ms,
   // it will be reported as 1ms.
   sched.schedule(t1 - time::steady_clock::now() + 1_ms, [&] {
@@ -86,6 +82,4 @@ BOOST_AUTO_TEST_CASE(Execute)
   std::cout << "execute " << nEvents << " events: " << (t2 - t1) << std::endl;
 }
 
-} // namespace tests
-} // namespace scheduler
-} // namespace ndn
+} // namespace ndn::tests

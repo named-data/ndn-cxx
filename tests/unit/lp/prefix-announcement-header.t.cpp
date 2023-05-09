@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,12 +25,12 @@
 #include "tests/boost-test.hpp"
 #include "tests/key-chain-fixture.hpp"
 
-namespace ndn {
-namespace lp {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::lp;
 
 BOOST_AUTO_TEST_SUITE(Lp)
-BOOST_FIXTURE_TEST_SUITE(TestPrefixAnnouncementHeader, ndn::tests::KeyChainFixture)
+BOOST_FIXTURE_TEST_SUITE(TestPrefixAnnouncementHeader, KeyChainFixture)
 
 BOOST_AUTO_TEST_CASE(EncodeDecode)
 {
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   const Data& data = pa.toData(m_keyChain, signingWithSha256(), 1);
   Block encodedData = data.wireEncode();
 
-  Block expectedBlock(tlv::PrefixAnnouncement);
+  Block expectedBlock(ndn::lp::tlv::PrefixAnnouncement);
   expectedBlock.push_back(encodedData);
   expectedBlock.encode();
 
@@ -64,6 +64,4 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
 BOOST_AUTO_TEST_SUITE_END() // TestPrefixAnnouncementHeader
 BOOST_AUTO_TEST_SUITE_END() // Lp
 
-} // namespace tests
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::tests

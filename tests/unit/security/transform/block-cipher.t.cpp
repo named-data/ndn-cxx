@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,10 +27,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::transform;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
@@ -106,7 +105,4 @@ BOOST_AUTO_TEST_SUITE_END() // TestBlockCipher
 BOOST_AUTO_TEST_SUITE_END() // Transform
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

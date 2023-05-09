@@ -23,9 +23,7 @@
 #include "ndn-cxx/security/pib/pib-impl.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 NDN_LOG_INIT(ndn.security.CertificateContainer);
 
@@ -124,6 +122,4 @@ CertificateContainer::isConsistent() const
   return m_certNames == m_pib->getCertificatesOfKey(m_keyName);
 }
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib

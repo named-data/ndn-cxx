@@ -25,9 +25,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace security {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::security::SafeBag;
 
 BOOST_CONCEPT_ASSERT((WireEncodable<SafeBag>));
 BOOST_CONCEPT_ASSERT((WireDecodable<SafeBag>));
@@ -162,6 +162,4 @@ BOOST_AUTO_TEST_CASE(EncoderAndDecoder)
 BOOST_AUTO_TEST_SUITE_END() // TestSafeBag
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,8 +28,7 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/encoding/buffer.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 /**
  * @brief A secured container for sensitive information (certificate, private key)
@@ -104,7 +103,6 @@ private:
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(SafeBag);
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_SAFE_BAG_HPP

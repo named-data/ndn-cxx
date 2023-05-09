@@ -26,15 +26,13 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::pib;
 
 NDN_CXX_ASSERT_FORWARD_ITERATOR(KeyContainer::const_iterator);
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestKeyContainer, PibDataFixture)
 
 BOOST_AUTO_TEST_CASE(AddGetRemove)
@@ -79,8 +77,8 @@ BOOST_AUTO_TEST_CASE(AddGetRemove)
     BOOST_TEST(key1.getPublicKey() == id1Key1, boost::test_tools::per_element());
     BOOST_CHECK_EQUAL(key2.getName(), id1Key2Name);
     BOOST_TEST(key2.getPublicKey() == id1Key2, boost::test_tools::per_element());
-    Name id1Key3Name = constructKeyName(id1, name::Component("non-existing-id"));
-    BOOST_CHECK_THROW(container.get(id1Key3Name), pib::Pib::Error);
+    Name id1Key3Name = security::constructKeyName(id1, name::Component("non-existing-id"));
+    BOOST_CHECK_THROW(container.get(id1Key3Name), Pib::Error);
   }
 
   {
@@ -167,10 +165,6 @@ BOOST_AUTO_TEST_CASE(Iterator)
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyContainer
-BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

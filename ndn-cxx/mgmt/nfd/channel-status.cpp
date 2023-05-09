@@ -23,8 +23,7 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 ChannelStatus::ChannelStatus() = default;
 
@@ -102,5 +101,4 @@ operator<<(std::ostream& os, const ChannelStatus& status)
   return os << "Channel(LocalUri: " << status.getLocalUri() << ")";
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

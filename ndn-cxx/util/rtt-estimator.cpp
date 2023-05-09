@@ -26,8 +26,7 @@
 
 #include "ndn-cxx/util/rtt-estimator.hpp"
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 RttEstimator::RttEstimator(shared_ptr<const Options> options)
   : m_options(options ? std::move(options) : make_shared<const Options>())
@@ -81,5 +80,4 @@ RttEstimatorWithStats::addMeasurement(time::nanoseconds rtt, size_t nExpectedSam
   m_nRttSamples++;
 }
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util

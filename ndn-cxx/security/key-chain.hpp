@@ -30,8 +30,10 @@
 #include "ndn-cxx/security/signing-info.hpp"
 #include "ndn-cxx/security/tpm/tpm.hpp"
 
-namespace ndn {
-namespace security {
+/**
+ * @brief Contains the ndn-cxx security framework.
+ */
+namespace ndn::security {
 
 /**
  * @brief Options to KeyChain::makeCertificate().
@@ -72,8 +74,6 @@ struct MakeCertificateOptions
    */
   std::optional<ValidityPeriod> validity;
 };
-
-inline namespace v2 {
 
 /**
  * @brief The main interface for signing key management.
@@ -515,6 +515,12 @@ private:
   static Locator s_defaultTpmLocator;
 };
 
+} // namespace ndn::security
+
+namespace ndn {
+using security::KeyChain;
+} // namespace ndn
+
 /**
  * @brief Register Pib backend class in KeyChain
  *
@@ -546,12 +552,5 @@ public:                                                       \
     ::ndn::security::KeyChain::registerTpmBackend<TpmType>(TpmType::getScheme()); \
   }                                                           \
 } ndnCxxAuto ## TpmType ## TpmRegistrationVariable
-
-} // inline namespace v2
-} // namespace security
-
-using security::KeyChain;
-
-} // namespace ndn
 
 #endif // NDN_CXX_SECURITY_KEY_CHAIN_HPP

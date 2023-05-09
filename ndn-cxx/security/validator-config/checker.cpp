@@ -25,10 +25,7 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace validator_config {
+namespace ndn::security::validator_config {
 
 Checker::Checker(tlv::SignatureTypeValue sigType)
   : m_sigType(sigType)
@@ -402,7 +399,4 @@ Checker::createKeyLocatorNameChecker(tlv::SignatureTypeValue sigType,
   }
 }
 
-} // namespace validator_config
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::validator_config

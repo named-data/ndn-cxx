@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,11 +31,9 @@
 
 namespace ndn {
 
-namespace util {
 namespace detail {
 class SteadyTimer;
 } // namespace detail
-} // namespace util
 
 namespace scheduler {
 
@@ -178,7 +176,7 @@ private:
   using EventQueue = std::multiset<shared_ptr<EventInfo>, EventQueueCompare>;
   EventQueue m_queue;
 
-  unique_ptr<util::detail::SteadyTimer> m_timer;
+  unique_ptr<detail::SteadyTimer> m_timer;
   bool m_isEventExecuting = false;
 
   friend EventId;

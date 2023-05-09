@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,7 @@
 struct sqlite3;
 struct sqlite3_stmt;
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 /**
  * @brief Wrap an SQLite3 prepared statement.
@@ -151,7 +150,6 @@ private:
   sqlite3_stmt* m_stmt;
 };
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // NDN_CXX_UTIL_SQLITE3_STATEMENT_HPP

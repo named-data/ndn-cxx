@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,11 +24,10 @@
 
 #include "ndn-cxx/util/signal/connection.hpp"
 
-namespace ndn {
-namespace util {
-namespace signal {
+namespace ndn::signal {
 
-/** \brief Disconnects a Connection automatically upon destruction.
+/**
+ * \brief Disconnects a Connection automatically upon destruction.
  */
 class ScopedConnection
 {
@@ -95,8 +94,11 @@ ScopedConnection::ScopedConnection(ScopedConnection&&) noexcept = default;
 inline ScopedConnection&
 ScopedConnection::operator=(ScopedConnection&&) noexcept = default;
 
-} // namespace signal
-} // namespace util
-} // namespace ndn
+} // namespace ndn::signal
+
+namespace ndn::util::signal {
+/// \deprecated Use ndn::signal::ScopedConnection
+using ScopedConnection = ::ndn::signal::ScopedConnection;
+} // namespace ndn::util::signal
 
 #endif // NDN_CXX_UTIL_SIGNAL_SCOPED_CONNECTION_HPP

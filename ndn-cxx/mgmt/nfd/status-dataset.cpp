@@ -21,8 +21,7 @@
 
 #include "ndn-cxx/mgmt/nfd/status-dataset.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 Name
 StatusDatasetBase::getDatasetPrefix(const Name& prefix) const
@@ -158,5 +157,4 @@ RibDataset::parseResult(ConstBufferPtr payload) const
   return parseDatasetVector<RibEntry>(payload);
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

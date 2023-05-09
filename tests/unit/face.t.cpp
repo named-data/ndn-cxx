@@ -31,10 +31,7 @@
 
 #include <boost/logic/tribool.hpp>
 
-namespace ndn {
-namespace tests {
-
-using ndn::util::DummyClientFace;
+namespace ndn::tests {
 
 struct WantPrefixRegReply;
 struct NoPrefixRegReply;
@@ -912,7 +909,7 @@ class WithEnvAndConfig : public WithEnv, public WithConfig
 {
 };
 
-typedef boost::mpl::vector<WithEnv, WithConfig> ConfigOptions;
+using ConfigOptions = boost::mpl::vector<WithEnv, WithConfig>;
 
 BOOST_FIXTURE_TEST_CASE(NoConfig, WithEnvAndConfig) // fixture configures test HOME and PIB/TPM path
 {
@@ -978,5 +975,4 @@ BOOST_AUTO_TEST_SUITE_END() // Transport
 
 BOOST_AUTO_TEST_SUITE_END() // TestFace
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

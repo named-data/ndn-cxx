@@ -27,8 +27,7 @@
 
 #include <fstream>
 
-namespace ndn {
-namespace io {
+namespace ndn::io {
 
 class Error : public std::runtime_error
 {
@@ -201,7 +200,6 @@ save(const T& obj, const std::string& filename, IoEncoding encoding = BASE64)
   save(obj, os, encoding);
 }
 
-} // namespace io
-} // namespace ndn
+} // namespace ndn::io
 
 #endif // NDN_CXX_UTIL_IO_HPP

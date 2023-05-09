@@ -24,9 +24,7 @@
 
 #include "ndn-cxx/security/transform/transform-base.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 /**
  * @brief A source taking an std::istream as input
@@ -59,10 +57,8 @@ private:
   size_t m_bufferSize;
 };
 
-typedef StreamSource streamSource;
+using streamSource = StreamSource;
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform
 
 #endif // NDN_CXX_SECURITY_TRANSFORM_STREAM_SOURCE_HPP

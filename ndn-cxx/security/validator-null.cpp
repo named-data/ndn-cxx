@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,7 @@
 #include "ndn-cxx/security/validation-policy-accept-all.hpp"
 #include "ndn-cxx/security/certificate-fetcher-offline.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 ValidatorNull::ValidatorNull()
   : Validator(make_unique<ValidationPolicyAcceptAll>(), make_unique<CertificateFetcherOffline>())
@@ -39,6 +37,4 @@ getAcceptAllValidator()
   return validator;
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

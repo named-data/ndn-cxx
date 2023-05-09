@@ -29,8 +29,7 @@
 #include <array>
 #include <unordered_map>
 
-namespace ndn {
-namespace name {
+namespace ndn::name {
 namespace {
 
 /**
@@ -398,7 +397,6 @@ getComponentTypeTable()
 }
 
 } // namespace
-} // namespace name
-} // namespace ndn
+} // namespace ndn::name
 
 #endif // NDN_CXX_IMPL_NAME_COMPONENT_TYPES_HPP

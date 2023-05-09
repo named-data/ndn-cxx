@@ -25,20 +25,19 @@
 #include "ndn-cxx/security/certificate.hpp"
 #include "ndn-cxx/security/pib/pib-impl.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::security::Certificate;
 
 class PibDataFixture
 {
 public:
   PibDataFixture();
 
-  [[nodiscard]] static shared_ptr<PibImpl>
+  [[nodiscard]] static shared_ptr<security::pib::PibImpl>
   makePibWithIdentity(const Name& idName);
 
-  [[nodiscard]] static shared_ptr<PibImpl>
+  [[nodiscard]] static shared_ptr<security::pib::PibImpl>
   makePibWithKey(const Name& keyName, span<const uint8_t> key);
 
 public:
@@ -65,9 +64,6 @@ public:
   Buffer id2Key2;
 };
 
-} // namespace tests
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_UNIT_SECURITY_PIB_PIB_DATA_FIXTURE_HPP

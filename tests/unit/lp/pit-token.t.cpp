@@ -26,9 +26,9 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace lp {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::lp;
 
 BOOST_AUTO_TEST_SUITE(Lp)
 BOOST_AUTO_TEST_SUITE(TestPitToken)
@@ -76,6 +76,4 @@ BOOST_AUTO_TEST_CASE(Decode)
 BOOST_AUTO_TEST_SUITE_END() // TestPitToken
 BOOST_AUTO_TEST_SUITE_END() // Lp
 
-} // namespace tests
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::tests

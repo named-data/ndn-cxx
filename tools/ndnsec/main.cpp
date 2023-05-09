@@ -31,7 +31,7 @@
 
 NDN_LOG_INIT(ndnsec);
 
-const char NDNSEC_HELP_TEXT[] = R"STR(Usage: ndnsec COMMAND [OPTION]...
+constexpr std::string_view NDNSEC_HELP_TEXT = R"STR(Usage: ndnsec COMMAND [OPTION]...
 
 Available commands:
   help           Print this help text
@@ -49,7 +49,8 @@ Available commands:
   import         Import an identity from a SafeBag
   unlock-tpm     Unlock the TPM
 
-Try 'ndnsec COMMAND --help' for more information on each command.)STR";
+Try 'ndnsec COMMAND --help' for more information on a command.
+)STR";
 
 int
 main(int argc, char* argv[])
@@ -66,7 +67,7 @@ main(int argc, char* argv[])
     argv++;
   }
   else {
-    std::cerr << NDNSEC_HELP_TEXT << std::endl;
+    std::cerr << NDNSEC_HELP_TEXT;
     return 2;
   }
 
@@ -74,7 +75,7 @@ main(int argc, char* argv[])
 
   try {
     using namespace ndn::ndnsec;
-    if (command == "help")              { std::cout << NDNSEC_HELP_TEXT << std::endl; }
+    if (command == "help")              { std::cout << NDNSEC_HELP_TEXT; }
     else if (command == "version")      { std::cout << NDN_CXX_VERSION_BUILD_STRING << std::endl; }
     else if (command == "list")         { return ndnsec_list(argc, argv); }
     else if (command == "get-default")  { return ndnsec_get_default(argc, argv); }
@@ -89,9 +90,7 @@ main(int argc, char* argv[])
     else if (command == "import")       { return ndnsec_import(argc, argv); }
     else if (command == "unlock-tpm")   { return ndnsec_unlock_tpm(argc, argv); }
     else {
-      std::cerr << "ERROR: Unknown command '" << command << "'\n"
-                << "\n"
-                << NDNSEC_HELP_TEXT << std::endl;
+      std::cerr << "ERROR: Unknown command '" << command << "'\n\n" << NDNSEC_HELP_TEXT;
       return 2;
     }
   }

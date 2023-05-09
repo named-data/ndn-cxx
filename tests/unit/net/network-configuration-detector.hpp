@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -47,8 +47,7 @@
     } \
   } while (false)
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 class NetworkConfigurationDetector
 {
@@ -64,12 +63,11 @@ private:
   detect();
 
 private:
-  static bool m_isInitialized;
-  static bool m_hasIpv4;
-  static bool m_hasIpv6;
+  static inline bool s_isInitialized = false;
+  static inline bool s_hasIpv4 = false;
+  static inline bool s_hasIpv6 = false;
 };
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
 
 #endif // NDN_CXX_TESTS_UNIT_NET_NETWORK_CONFIGURATION_DETECTOR_HPP

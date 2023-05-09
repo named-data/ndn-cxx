@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,14 +24,13 @@
 
 #include "ndn-cxx/detail/common.hpp"
 
-namespace ndn {
-namespace util {
-namespace signal {
+namespace ndn::signal {
 
 using DisconnectFunction = std::function<void()>;
 
-/** \brief Represents a connection to a signal.
- *  \note This type is copyable. Any copy can be used to disconnect.
+/**
+ * \brief Represents a connection to a signal.
+ * \note This type is copyable. Any copy can be used to disconnect.
  */
 class Connection
 {
@@ -62,7 +61,7 @@ private:
   explicit
   Connection(weak_ptr<DisconnectFunction> disconnect) noexcept;
 
-  template<typename Owner, typename ...TArgs>
+  template<typename Owner, typename... TArgs>
   friend class Signal;
 
 private:
@@ -99,8 +98,11 @@ private:
   weak_ptr<DisconnectFunction> m_disconnect;
 };
 
-} // namespace signal
-} // namespace util
-} // namespace ndn
+} // namespace ndn::signal
+
+namespace ndn::util::signal {
+/// \deprecated Use ndn::signal::Connection
+using Connection = ::ndn::signal::Connection;
+} // namespace ndn::util::signal
 
 #endif // NDN_CXX_UTIL_SIGNAL_CONNECTION_HPP

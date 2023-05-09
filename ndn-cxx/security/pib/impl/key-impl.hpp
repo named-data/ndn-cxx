@@ -25,13 +25,9 @@
 #include "ndn-cxx/security/security-common.hpp"
 #include "ndn-cxx/security/pib/certificate-container.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
 class PibImpl;
-
-namespace detail {
 
 /**
  * @brief Backend instance of Key.
@@ -134,9 +130,6 @@ private:
   mutable std::optional<Certificate> m_defaultCert;
 };
 
-} // namespace detail
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib
 
 #endif // NDN_CXX_SECURITY_PIB_IMPL_KEY_IMPL_HPP

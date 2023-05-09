@@ -34,9 +34,9 @@
 #include <boost/iostreams/device/array.hpp>
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace tlv {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::tlv;
 
 BOOST_AUTO_TEST_SUITE(Encoding)
 BOOST_AUTO_TEST_SUITE(TestTlv)
@@ -59,9 +59,9 @@ using ArrayStream = boost::iostreams::stream<boost::iostreams::array_source>;
 using StreamIterator = std::istream_iterator<uint8_t>;
 
 #define ASSERT_READ_NUMBER_IS_FAST(T) \
-  static_assert(detail::IsContiguousIterator<T>, #T " is not fast")
+  static_assert(ndn::tlv::detail::IsContiguousIterator<T>, #T " is not fast")
 #define ASSERT_READ_NUMBER_IS_SLOW(T) \
-  static_assert(!detail::IsContiguousIterator<T>, #T " is not slow")
+  static_assert(!ndn::tlv::detail::IsContiguousIterator<T>, #T " is not slow")
 
 ASSERT_READ_NUMBER_IS_FAST(const uint8_t*);
 ASSERT_READ_NUMBER_IS_FAST(uint8_t*);
@@ -605,6 +605,4 @@ BOOST_AUTO_TEST_SUITE_END() // OutputOperators
 BOOST_AUTO_TEST_SUITE_END() // TestTlv
 BOOST_AUTO_TEST_SUITE_END() // Encoding
 
-} // namespace tests
-} // namespace tlv
-} // namespace ndn
+} // namespace ndn::tests

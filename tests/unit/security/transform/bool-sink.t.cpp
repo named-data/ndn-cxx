@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::transform;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(Transform)
@@ -41,7 +40,7 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(sink1.write({in1 + 1, 1}), 1);
   sink1.end();
   BOOST_CHECK_EQUAL(value1, false);
-  BOOST_CHECK_THROW(sink1.write({in1 + 1, 1}), transform::Error);
+  BOOST_CHECK_THROW(sink1.write({in1 + 1, 1}), Error);
 
   const uint8_t in2[] = {0x01, 0x00};
   bool value2 = false;
@@ -50,14 +49,11 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(sink2.write({in2 + 1, 1}), 1);
   sink2.end();
   BOOST_CHECK_EQUAL(value2, true);
-  BOOST_CHECK_THROW(sink2.write({in2 + 1, 1}), transform::Error);
+  BOOST_CHECK_THROW(sink2.write({in2 + 1, 1}), Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestBoolSink
 BOOST_AUTO_TEST_SUITE_END() // Transform
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

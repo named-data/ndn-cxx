@@ -25,9 +25,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
 Tpm::Tpm(const std::string& locator, unique_ptr<BackEnd> backEnd)
   : m_locator(locator)
@@ -150,6 +148,4 @@ Tpm::findKey(const Name& keyName) const
   return key;
 }
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm

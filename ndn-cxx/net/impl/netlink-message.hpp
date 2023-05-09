@@ -42,8 +42,7 @@
 
 #include <boost/asio/ip/address.hpp>
 
-namespace ndn {
-namespace net {
+namespace ndn::net {
 
 template<typename T>
 constexpr size_t
@@ -270,7 +269,6 @@ private:
   std::map<uint16_t, const T*> m_attrs;
 };
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net
 
 #endif // NDN_CXX_NET_NETLINK_MESSAGE_HPP

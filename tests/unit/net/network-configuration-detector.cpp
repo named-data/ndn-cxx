@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,35 +27,30 @@
 #include <boost/asio/ip/udp.hpp>
 #include <boost/range/iterator_range_core.hpp>
 
-namespace ndn {
-namespace tests {
-
-bool NetworkConfigurationDetector::m_isInitialized = false;
-bool NetworkConfigurationDetector::m_hasIpv4 = false;
-bool NetworkConfigurationDetector::m_hasIpv6 = false;
+namespace ndn::tests {
 
 bool
 NetworkConfigurationDetector::hasIpv4()
 {
-  if (!m_isInitialized) {
+  if (!s_isInitialized) {
     detect();
   }
-  return m_hasIpv4;
+  return s_hasIpv4;
 }
 
 bool
 NetworkConfigurationDetector::hasIpv6()
 {
-  if (!m_isInitialized) {
+  if (!s_isInitialized) {
     detect();
   }
-  return m_hasIpv6;
+  return s_hasIpv6;
 }
 
 void
 NetworkConfigurationDetector::detect()
 {
-  typedef boost::asio::ip::basic_resolver<boost::asio::ip::udp> BoostResolver;
+  using BoostResolver = boost::asio::ip::basic_resolver<boost::asio::ip::udp>;
 
   boost::asio::io_service ioService;
   BoostResolver resolver(ioService);
@@ -66,22 +61,21 @@ NetworkConfigurationDetector::detect()
   boost::system::error_code errorCode;
   BoostResolver::iterator begin = resolver.resolve(query, errorCode);
   if (errorCode) {
-    m_isInitialized = true;
+    s_isInitialized = true;
     return;
   }
   BoostResolver::iterator end;
 
   for (const auto& i : boost::make_iterator_range(begin, end)) {
     if (i.endpoint().address().is_v4()) {
-      m_hasIpv4 = true;
+      s_hasIpv4 = true;
     }
     else if (i.endpoint().address().is_v6()) {
-      m_hasIpv6 = true;
+      s_hasIpv6 = true;
     }
   }
 
-  m_isInitialized = true;
+  s_isInitialized = true;
 }
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

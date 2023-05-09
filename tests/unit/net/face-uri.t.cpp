@@ -34,8 +34,7 @@
 
 #include <boost/concept_check.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceUri>));
 
@@ -614,5 +613,4 @@ BOOST_AUTO_TEST_CASE(Bug1635)
 BOOST_AUTO_TEST_SUITE_END() // TestFaceUri
 BOOST_AUTO_TEST_SUITE_END() // Net
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,8 +37,7 @@
 
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 static Name
 makeVeryLongName(Name prefix = Name())
@@ -377,5 +376,4 @@ BOOST_AUTO_TEST_CASE(ProcessEventsBlocksForeverWhenNothingScheduled) // Bug #395
 
 BOOST_AUTO_TEST_SUITE_END() // IoRoutine
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

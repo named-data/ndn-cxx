@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/transform/step-source.hpp"
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 /**
  * @brief Provides stateful SHA-256 digest calculation.
@@ -169,7 +168,6 @@ private:
 std::ostream&
 operator<<(std::ostream& os, Sha256& digest);
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // NDN_CXX_UTIL_SHA256_HPP

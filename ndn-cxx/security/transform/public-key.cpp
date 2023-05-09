@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,9 +43,7 @@
       NDN_THROW(Error("Public key has already been loaded")); \
   } while (false)
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 class PublicKey::Impl : noncopyable
 {
@@ -207,6 +205,4 @@ PublicKey::rsaEncrypt(span<const uint8_t> plainText) const
   return out;
 }
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform

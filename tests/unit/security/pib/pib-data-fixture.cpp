@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,10 +30,10 @@
 
 // #include <iostream>
 
-namespace ndn {
-namespace security {
-namespace pib {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security;
+using namespace ndn::security::pib;
 
 // class TestCertDataGenerator
 // {
@@ -95,8 +95,8 @@ namespace tests {
 //   }
 
 // private:
-//   pib::PibMemory pib;
-//   Tpm tpm{"test", "test", make_unique<tpm::BackEndMem>()};
+//   PibMemory pib;
+//   Tpm tpm{"test:test", make_unique<tpm::BackEndMem>()};
 // };
 
 // // The test data can be generated using this test case
@@ -414,7 +414,4 @@ PibDataFixture::makePibWithKey(const Name& keyName, span<const uint8_t> key)
   return pib;
 }
 
-} // namespace tests
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

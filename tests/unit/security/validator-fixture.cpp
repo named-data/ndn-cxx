@@ -22,11 +22,11 @@
 #include "tests/unit/security/validator-fixture.hpp"
 
 #include "ndn-cxx/security/additional-description.hpp"
+#include "ndn-cxx/util/signal/scoped-connection.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security;
 
 ValidatorFixtureBase::ValidatorFixtureBase()
 {
@@ -45,7 +45,7 @@ ValidatorFixtureBase::ValidatorFixtureBase()
 void
 ValidatorFixtureBase::mockNetworkOperations()
 {
-  util::signal::ScopedConnection conn = face.onSendInterest.connect([this] (const Interest& interest) {
+  signal::ScopedConnection conn = face.onSendInterest.connect([this] (const Interest& interest) {
     if (processInterest) {
       m_io.post([=] { processInterest(interest); });
     }
@@ -102,7 +102,4 @@ InterestV03Pkt::makeName(Name name, KeyChain& keyChain)
   return interest.getName();
 }
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2022 Regents of the University of California,
+ * Copyright (c) 2014-2023 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -32,11 +32,7 @@
 #include "tests/unit/io-key-chain-fixture.hpp"
 #include "tests/unit/util/simple-notification.hpp"
 
-namespace ndn {
-namespace util {
-namespace tests {
-
-using namespace ndn::tests;
+namespace ndn::tests {
 
 class NotificationSubscriberFixture : public IoKeyChainFixture
 {
@@ -131,8 +127,8 @@ protected:
   Name streamPrefix;
   DummyClientFace subscriberFace;
   util::NotificationSubscriber<SimpleNotification> subscriber;
-  util::signal::Connection notificationConn;
-  util::signal::Connection nackConn;
+  signal::Connection notificationConn;
+  signal::Connection nackConn;
   uint64_t nextSendNotificationNo;
   uint64_t lastDeliveredSeqNum;
   SimpleNotification lastNotification;
@@ -285,6 +281,4 @@ BOOST_AUTO_TEST_CASE(PayloadError)
 BOOST_AUTO_TEST_SUITE_END() // TestNotificationSubscriber
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace util
-} // namespace ndn
+} // namespace ndn::tests

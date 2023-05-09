@@ -25,8 +25,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 namespace {
 
@@ -161,5 +160,4 @@ Packet::comparePos(uint32_t first, const Block& second) noexcept
   return compareFieldSortOrder(FieldInfo(first), FieldInfo(second.type()));
 }
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp

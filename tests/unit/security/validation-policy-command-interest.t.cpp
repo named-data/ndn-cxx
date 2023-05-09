@@ -30,12 +30,9 @@
 
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using namespace ndn::security;
 
 BOOST_AUTO_TEST_SUITE(Security)
 
@@ -535,7 +532,4 @@ BOOST_AUTO_TEST_SUITE_END() // Options
 BOOST_AUTO_TEST_SUITE_END() // TestValidationPolicyCommandInterest
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

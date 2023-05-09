@@ -27,7 +27,6 @@
 #include <cstring>
 #include <iterator>
 #include <limits>
-#include <ostream>
 #include <vector>
 
 #include <boost/endian/conversion.hpp>
@@ -411,33 +410,6 @@ sizeOfVarNumber(uint64_t number) noexcept
          number <= std::numeric_limits<uint32_t>::max() ? 5 : 9;
 }
 
-inline size_t
-writeVarNumber(std::ostream& os, uint64_t number)
-{
-  if (number < 253) {
-    os.put(static_cast<char>(number));
-    return 1;
-  }
-  else if (number <= std::numeric_limits<uint16_t>::max()) {
-    os.put(static_cast<char>(253));
-    uint16_t value = boost::endian::native_to_big(static_cast<uint16_t>(number));
-    os.write(reinterpret_cast<const char*>(&value), 2);
-    return 3;
-  }
-  else if (number <= std::numeric_limits<uint32_t>::max()) {
-    os.put(static_cast<char>(254));
-    uint32_t value = boost::endian::native_to_big(static_cast<uint32_t>(number));
-    os.write(reinterpret_cast<const char*>(&value), 4);
-    return 5;
-  }
-  else {
-    os.put(static_cast<char>(255));
-    uint64_t value = boost::endian::native_to_big(number);
-    os.write(reinterpret_cast<const char*>(&value), 8);
-    return 9;
-  }
-}
-
 template<typename Iterator>
 constexpr uint64_t
 readNonNegativeInteger(size_t len, Iterator& begin, Iterator end)
@@ -461,30 +433,6 @@ sizeOfNonNegativeInteger(uint64_t integer) noexcept
   return integer <= std::numeric_limits<uint8_t>::max() ? 1 :
          integer <= std::numeric_limits<uint16_t>::max() ? 2 :
          integer <= std::numeric_limits<uint32_t>::max() ? 4 : 8;
-}
-
-inline size_t
-writeNonNegativeInteger(std::ostream& os, uint64_t integer)
-{
-  if (integer <= std::numeric_limits<uint8_t>::max()) {
-    os.put(static_cast<char>(integer));
-    return 1;
-  }
-  else if (integer <= std::numeric_limits<uint16_t>::max()) {
-    uint16_t value = boost::endian::native_to_big(static_cast<uint16_t>(integer));
-    os.write(reinterpret_cast<const char*>(&value), 2);
-    return 2;
-  }
-  else if (integer <= std::numeric_limits<uint32_t>::max()) {
-    uint32_t value = boost::endian::native_to_big(static_cast<uint32_t>(integer));
-    os.write(reinterpret_cast<const char*>(&value), 4);
-    return 4;
-  }
-  else {
-    uint64_t value = boost::endian::native_to_big(integer);
-    os.write(reinterpret_cast<const char*>(&value), 8);
-    return 8;
-  }
 }
 
 } // namespace tlv

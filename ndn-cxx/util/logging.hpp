@@ -33,8 +33,7 @@
 #include <set>
 #include <unordered_map>
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 enum class LogLevel;
 class Logger;
@@ -221,8 +220,7 @@ Logging::flush()
   get().flushImpl();
 }
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // HAVE_NDN_CXX_CUSTOM_LOGGER
 

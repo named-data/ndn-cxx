@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,8 +23,7 @@
 
 #include <boost/endian/conversion.hpp>
 
-namespace ndn {
-namespace encoding {
+namespace ndn::encoding {
 
 namespace endian = boost::endian;
 
@@ -200,5 +199,4 @@ Encoder::appendNonNegativeInteger(uint64_t varNumber)
   }
 }
 
-} // namespace encoding
-} // namespace ndn
+} // namespace ndn::encoding

@@ -31,12 +31,9 @@
 #include <openssl/opensslv.h>
 #include <boost/mpl/vector.hpp>
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
-namespace tests {
+namespace ndn::tests {
 
-using namespace ndn::tests;
+using namespace ndn::security;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestKeyChain, TestHomeEnvSaver)
@@ -800,7 +797,4 @@ BOOST_FIXTURE_TEST_CASE(SelfSignedCertValidity, KeyChainFixture)
 BOOST_AUTO_TEST_SUITE_END() // TestKeyChain
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

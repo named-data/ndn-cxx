@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,8 +22,7 @@
 #include "ndn-cxx/security/validator-config.hpp"
 #include "ndn-cxx/security/certificate-fetcher-from-network.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 ValidatorConfig::ValidatorConfig(std::unique_ptr<CertificateFetcher> fetcher,
                                  const CommandInterestOptions& ciOptions,
@@ -70,5 +69,4 @@ ValidatorConfig::load(const validator_config::ConfigSection& configSection,
   m_policyConfig.load(configSection, filename);
 }
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

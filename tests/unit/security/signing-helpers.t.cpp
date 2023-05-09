@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace security {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::security::SigningInfo;
 
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestSigningHelpers)
@@ -64,6 +64,4 @@ BOOST_AUTO_TEST_CASE(Sha256)
 BOOST_AUTO_TEST_SUITE_END() // TestSigningHelpers
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-security.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 SafeBag::SafeBag() = default;
 
@@ -108,5 +107,4 @@ SafeBag::wireDecode(const Block& wire)
   }
 }
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

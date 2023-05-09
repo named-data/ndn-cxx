@@ -45,10 +45,9 @@ public:
   // multi_index_container to implement storage
   class byFullName;
 
-  typedef boost::multi_index_container<
+  using Cache = boost::multi_index_container<
     InMemoryStorageEntry*,
     boost::multi_index::indexed_by<
-
       // by Full Name
       boost::multi_index::ordered_unique<
         boost::multi_index::tag<byFullName>,
@@ -56,9 +55,8 @@ public:
                                           &InMemoryStorageEntry::getFullName>,
         std::less<Name>
       >
-
     >
-  > Cache;
+  >;
 
   /** @brief Represents a self-defined const_iterator for the in-memory storage.
    *

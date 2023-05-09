@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <sstream>
 
-namespace ndn {
-namespace time {
+namespace ndn::time {
 
 static shared_ptr<CustomSystemClock> g_systemClock;
 static shared_ptr<CustomSteadyClock> g_steadyClock;
@@ -71,9 +70,9 @@ system_clock::from_time_t(std::time_t t) noexcept
 #ifdef __APPLE__
 // Note that on macOS platform boost::steady_clock is not truly monotonic, so we use
 // system_clock instead.  Refer to https://svn.boost.org/trac/boost/ticket/7719)
-typedef boost::chrono::system_clock base_steady_clock;
+using base_steady_clock = boost::chrono::system_clock;
 #else
-typedef boost::chrono::steady_clock base_steady_clock;
+using base_steady_clock = boost::chrono::steady_clock;
 #endif
 
 steady_clock::time_point
@@ -207,11 +206,9 @@ fromString(const std::string& timePointStr,
   return convertToTimePoint(ptime);
 }
 
-} // namespace time
-} // namespace ndn
+} // namespace ndn::time
 
-namespace boost {
-namespace chrono {
+namespace boost::chrono {
 
 template<class CharT>
 std::basic_string<CharT>
@@ -242,5 +239,4 @@ clock_string<ndn::time::steady_clock, CharT>::since()
 template struct clock_string<ndn::time::system_clock, char>;
 template struct clock_string<ndn::time::steady_clock, char>;
 
-} // namespace chrono
-} // namespace boost
+} // namespace boost::chrono

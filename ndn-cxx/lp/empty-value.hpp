@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 #ifndef NDN_CXX_LP_TLV_EMPTY_VALUE_HPP
 #define NDN_CXX_LP_TLV_EMPTY_VALUE_HPP
 
-namespace ndn {
-namespace lp {
+namespace ndn::lp {
 
 /**
  * \brief Represents a zero-length TLV-VALUE.
@@ -34,7 +33,6 @@ struct EmptyValue
 {
 };
 
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::lp
 
 #endif // NDN_CXX_LP_TLV_EMPTY_VALUE_HPP

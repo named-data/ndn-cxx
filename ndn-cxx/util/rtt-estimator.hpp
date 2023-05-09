@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (C) 2016-2019, Arizona Board of Regents.
+ * Copyright (C) 2016-2023, Arizona Board of Regents.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,8 +29,7 @@
 
 #include "ndn-cxx/util/time.hpp"
 
-namespace ndn {
-namespace util {
+namespace ndn::util {
 
 /**
  * @brief RTT/RTO estimator.
@@ -180,7 +179,6 @@ private:
   int64_t m_nRttSamples = 0;
 };
 
-} // namespace util
-} // namespace ndn
+} // namespace ndn::util
 
 #endif // NDN_CXX_UTIL_RTT_ESTIMATOR_HPP

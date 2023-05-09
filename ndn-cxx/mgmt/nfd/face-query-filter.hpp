@@ -27,8 +27,7 @@
 
 #include <optional>
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -230,7 +229,6 @@ operator!=(const FaceQueryFilter& a, const FaceQueryFilter& b)
 std::ostream&
 operator<<(std::ostream& os, const FaceQueryFilter& filter);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_FACE_QUERY_FILTER_HPP

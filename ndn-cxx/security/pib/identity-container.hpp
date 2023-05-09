@@ -28,16 +28,9 @@
 #include <set>
 #include <unordered_map>
 
-namespace ndn {
-namespace security {
-namespace pib {
+namespace ndn::security::pib {
 
-class Pib;
 class PibImpl;
-
-namespace detail {
-class IdentityImpl;
-} // namespace detail
 
 /**
  * @brief Container of identities of a PIB.
@@ -181,17 +174,15 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // private interface for Pib
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   // cache of loaded IdentityImpl
-  mutable std::unordered_map<Name, shared_ptr<detail::IdentityImpl>> m_identities;
+  mutable std::unordered_map<Name, shared_ptr<IdentityImpl>> m_identities;
 
 private:
   NameSet m_identityNames;
   const shared_ptr<PibImpl> m_pib;
 
-  friend Pib;
+  friend class Pib;
 };
 
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::pib
 
 #endif // NDN_CXX_SECURITY_PIB_IDENTITY_CONTAINER_HPP

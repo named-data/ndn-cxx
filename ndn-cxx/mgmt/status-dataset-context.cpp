@@ -21,8 +21,7 @@
 
 #include "ndn-cxx/mgmt/status-dataset-context.hpp"
 
-namespace ndn {
-namespace mgmt {
+namespace ndn::mgmt {
 
 constexpr size_t MAX_PAYLOAD_LENGTH = MAX_NDN_PACKET_SIZE - 800;
 
@@ -106,5 +105,4 @@ StatusDatasetContext::reject(const ControlResponse& resp)
   m_nackSender(resp);
 }
 
-} // namespace mgmt
-} // namespace ndn
+} // namespace ndn::mgmt

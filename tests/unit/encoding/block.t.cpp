@@ -31,8 +31,7 @@
 #include <cstring>
 #include <sstream>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Block>));
 
@@ -751,5 +750,4 @@ BOOST_AUTO_TEST_SUITE_END() // BlockLiteral
 BOOST_AUTO_TEST_SUITE_END() // TestBlock
 BOOST_AUTO_TEST_SUITE_END() // Encoding
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

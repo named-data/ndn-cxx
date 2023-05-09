@@ -21,8 +21,7 @@
 
 #include "tests/test-common.hpp"
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 shared_ptr<Interest>
 makeInterest(const Name& name, bool canBePrefix, std::optional<time::milliseconds> lifetime,
@@ -61,5 +60,4 @@ makeNack(Interest interest, lp::NackReason reason)
   return nack;
 }
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

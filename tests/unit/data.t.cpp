@@ -34,8 +34,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Data>));
@@ -668,5 +667,4 @@ BOOST_AUTO_TEST_CASE(Print)
 
 BOOST_AUTO_TEST_SUITE_END() // TestData
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,9 +23,9 @@
 
 #include "tests/boost-test.hpp"
 
-namespace ndn {
-namespace detail {
-namespace tests {
+namespace ndn::tests {
+
+using ndn::detail::CancelHandle;
 
 BOOST_AUTO_TEST_SUITE(Detail)
 BOOST_AUTO_TEST_SUITE(TestCancelHandle)
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE_END() // PlainHandle
 
 BOOST_AUTO_TEST_SUITE(ScopedHandle)
 
-using ScopedTestHandle = ScopedCancelHandle<CancelHandle>;
+using ScopedTestHandle = detail::ScopedCancelHandle<CancelHandle>;
 
 BOOST_AUTO_TEST_CASE(ManualCancel)
 {
@@ -134,6 +134,4 @@ BOOST_AUTO_TEST_SUITE_END() // ScopedHandle
 BOOST_AUTO_TEST_SUITE_END() // TestCancelHandle
 BOOST_AUTO_TEST_SUITE_END() // Detail
 
-} // namespace tests
-} // namespace detail
-} // namespace ndn
+} // namespace ndn::tests

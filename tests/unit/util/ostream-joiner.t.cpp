@@ -26,8 +26,7 @@
 #include <numeric>
 #include <boost/test/tools/output_test_stream.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Util)
 BOOST_AUTO_TEST_SUITE(TestOstreamJoiner)
@@ -69,5 +68,4 @@ BOOST_AUTO_TEST_CASE(Basic)
 BOOST_AUTO_TEST_SUITE_END() // TestOstreamJoiner
 BOOST_AUTO_TEST_SUITE_END() // Util
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,7 @@
 
 #include "ndn-cxx/security/certificate-fetcher-from-network.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 /**
  * @brief Extends CertificateFetcherFromNetwork to fetch certificates from the incoming face of
@@ -58,8 +56,6 @@ private:
   bool m_wantDirectInterestOnly = false;
 };
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_CERTIFICATE_FETCHER_DIRECT_FETCH_HPP

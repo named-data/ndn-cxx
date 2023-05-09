@@ -33,8 +33,7 @@
 #include <functional>
 #include <string>
 
-namespace ndn {
-namespace ethernet {
+namespace ndn::ethernet {
 
 inline constexpr uint16_t ETHERTYPE_NDN = 0x8624; ///< The NDN Ethertype
 
@@ -110,8 +109,7 @@ getDefaultMulticastAddress();
 std::ostream&
 operator<<(std::ostream& o, const Address& a);
 
-} // namespace ethernet
-} // namespace ndn
+} // namespace ndn::ethernet
 
 namespace std {
 

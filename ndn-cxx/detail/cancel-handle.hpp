@@ -24,10 +24,13 @@
 
 #include "ndn-cxx/detail/common.hpp"
 
-namespace ndn {
-namespace detail {
+/**
+ * \brief Contains implementation details that are not part of the ndn-cxx public API.
+ */
+namespace ndn::detail {
 
-/** \brief Handle to cancel an operation.
+/**
+ * \brief Handle to cancel an operation.
  */
 class CancelHandle
 {
@@ -52,7 +55,8 @@ private:
 inline
 CancelHandle::CancelHandle() noexcept = default;
 
-/** \brief Cancels an operation automatically upon destruction.
+/**
+ * \brief Cancels an operation automatically upon destruction.
  */
 template<typename HandleT>
 class ScopedCancelHandle
@@ -133,7 +137,6 @@ private:
 template<typename T>
 ScopedCancelHandle<T>::ScopedCancelHandle() noexcept = default;
 
-} // namespace detail
-} // namespace ndn
+} // namespace ndn::detail
 
 #endif // NDN_CXX_DETAIL_CANCEL_HANDLE_HPP

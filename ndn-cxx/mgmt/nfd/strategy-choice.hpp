@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/name.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -97,7 +96,6 @@ operator!=(const StrategyChoice& a, const StrategyChoice& b)
 std::ostream&
 operator<<(std::ostream& os, const StrategyChoice& sc);
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_STRATEGY_CHOICE_HPP

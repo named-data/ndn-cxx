@@ -23,9 +23,7 @@
 
 #include <limits>
 
-namespace ndn {
-namespace security {
-namespace detail {
+namespace ndn::security::detail {
 
 const EVP_MD*
 digestAlgorithmToEvpMd(DigestAlgorithm algo)
@@ -123,6 +121,4 @@ Bio::write(span<const uint8_t> buf) noexcept
   return n >= 0 && static_cast<size_t>(n) == buf.size();
 }
 
-} // namespace detail
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::detail

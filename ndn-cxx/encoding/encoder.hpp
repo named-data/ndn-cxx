@@ -26,8 +26,7 @@
 
 #include <algorithm>
 
-namespace ndn {
-namespace encoding {
+namespace ndn::encoding {
 
 /**
  * @brief Helper class to perform TLV encoding.
@@ -278,7 +277,6 @@ Encoder::appendRange(Iterator first, Iterator last)
   return length;
 }
 
-} // namespace encoding
-} // namespace ndn
+} // namespace ndn::encoding
 
 #endif // NDN_CXX_ENCODING_ENCODER_HPP

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/transport/detail/stream-transport-impl.hpp"
 
-namespace ndn {
-namespace detail {
+namespace ndn::detail {
 
 /** \brief Implementation detail of a Boost.Asio-based stream-oriented transport
  *         with resolver support.
@@ -100,7 +99,6 @@ private:
   }
 };
 
-} // namespace detail
-} // namespace ndn
+} // namespace ndn::detail
 
 #endif // NDN_CXX_TRANSPORT_DETAIL_STREAM_TRANSPORT_WITH_RESOLVER_IMPL_HPP

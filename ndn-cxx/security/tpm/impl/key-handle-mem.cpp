@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,9 +28,7 @@
 #include "ndn-cxx/security/transform/verifier-filter.hpp"
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
 KeyHandleMem::KeyHandleMem(shared_ptr<transform::PrivateKey> key)
   : m_key(std::move(key))
@@ -72,6 +70,4 @@ KeyHandleMem::doDerivePublicKey() const
   return m_key->derivePublicKey();
 }
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm

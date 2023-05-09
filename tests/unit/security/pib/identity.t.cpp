@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,13 +25,11 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
-namespace ndn {
-namespace security {
-namespace pib {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::security::pib;
 
 BOOST_AUTO_TEST_SUITE(Security)
-BOOST_AUTO_TEST_SUITE(Pib)
 BOOST_FIXTURE_TEST_SUITE(TestIdentity, PibDataFixture)
 
 BOOST_AUTO_TEST_CASE(ValidityChecking)
@@ -41,7 +39,7 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   BOOST_TEST(id == Identity());
   BOOST_CHECK_THROW(id.getName(), std::domain_error);
 
-  auto impl = std::make_shared<detail::IdentityImpl>(id1, makePibWithIdentity(id1));
+  auto impl = std::make_shared<IdentityImpl>(id1, makePibWithIdentity(id1));
   id = Identity(impl);
   BOOST_TEST(id);
   BOOST_TEST(id != Identity());
@@ -52,12 +50,12 @@ BOOST_AUTO_TEST_CASE(ValidityChecking)
   BOOST_CHECK_THROW(id.getName(), std::domain_error);
 }
 
-// pib::Identity is a wrapper of pib::detail::IdentityImpl. Since the functionality
-// of IdentityImpl is already tested in identity-impl.t.cpp, we only test the shared
-// property of pib::Identity in this test case.
+// pib::Identity is a wrapper of pib::IdentityImpl. Since the functionality
+// of IdentityImpl is already tested in identity-impl.t.cpp, we only test
+// the shared property of pib::Identity in this test case.
 BOOST_AUTO_TEST_CASE(SharedImpl)
 {
-  auto impl = std::make_shared<detail::IdentityImpl>(id1, makePibWithIdentity(id1));
+  auto impl = std::make_shared<IdentityImpl>(id1, makePibWithIdentity(id1));
   Identity identity1(impl);
   Identity identity2(impl);
 
@@ -66,22 +64,18 @@ BOOST_AUTO_TEST_CASE(SharedImpl)
   BOOST_TEST(Identity() != identity2);
   BOOST_TEST(Identity() == Identity());
 
-  BOOST_CHECK_THROW(identity2.getKey(id1Key1Name), pib::Pib::Error);
+  BOOST_CHECK_THROW(identity2.getKey(id1Key1Name), Pib::Error);
   identity1.addKey(id1Key1, id1Key1Name);
   BOOST_TEST(identity2.getKey(id1Key1Name));
 
   identity2.removeKey(id1Key1Name);
-  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), pib::Pib::Error);
+  BOOST_CHECK_THROW(identity1.getKey(id1Key1Name), Pib::Error);
 
   identity1.setDefaultKey(id1Key1, id1Key1Name);
   BOOST_TEST(identity2.getDefaultKey().getName() == id1Key1Name);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIdentity
-BOOST_AUTO_TEST_SUITE_END() // Pib
 BOOST_AUTO_TEST_SUITE_END() // Security
 
-} // namespace tests
-} // namespace pib
-} // namespace security
-} // namespace ndn
+} // namespace ndn::tests

@@ -27,9 +27,7 @@
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 
-namespace ndn {
-namespace security {
-namespace detail {
+namespace ndn::security::detail {
 
 [[nodiscard]] const EVP_MD*
 digestAlgorithmToEvpMd(DigestAlgorithm algo);
@@ -96,8 +94,6 @@ private:
   BIO* m_bio;
 };
 
-} // namespace detail
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::detail
 
 #endif // NDN_CXX_SECURITY_IMPL_OPENSSL_HELPER_HPP

@@ -27,8 +27,7 @@
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
 
-namespace ndn {
-namespace ndnsec {
+namespace ndn::ndnsec {
 
 int
 ndnsec_cert_gen(int argc, char** argv)
@@ -157,5 +156,4 @@ ndnsec_cert_gen(int argc, char** argv)
   return 0;
 }
 
-} // namespace ndnsec
-} // namespace ndn
+} // namespace ndn::ndnsec

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2019 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -68,12 +68,11 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm_ext/push_back.hpp>
 
+namespace ndn::net {
+
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
-namespace ndn {
-namespace net {
-
-using detail::CFReleaser;
+using ndn::detail::CFReleaser;
 
 class IfAddrs : noncopyable
 {
@@ -461,5 +460,4 @@ NetworkMonitorImplOsx::onConfigChanged(CFArrayRef changedKeys)
   }
 }
 
-} // namespace net
-} // namespace ndn
+} // namespace ndn::net

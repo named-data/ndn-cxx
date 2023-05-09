@@ -21,8 +21,7 @@
 
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 CommandOptions&
 CommandOptions::setTimeout(time::milliseconds timeout)
@@ -48,5 +47,4 @@ CommandOptions::setSigningInfo(security::SigningInfo signingInfo)
   return *this;
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

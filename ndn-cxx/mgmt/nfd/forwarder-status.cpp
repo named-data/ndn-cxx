@@ -24,8 +24,7 @@
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv-nfd.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 ForwarderStatus::ForwarderStatus() = default;
 
@@ -231,7 +230,7 @@ ForwarderStatus::setNfdVersion(const std::string& nfdVersion)
 }
 
 ForwarderStatus&
-ForwarderStatus::setStartTimestamp(const time::system_clock::TimePoint& startTimestamp)
+ForwarderStatus::setStartTimestamp(const time::system_clock::time_point& startTimestamp)
 {
   m_wire.reset();
   m_startTimestamp = startTimestamp;
@@ -239,7 +238,7 @@ ForwarderStatus::setStartTimestamp(const time::system_clock::TimePoint& startTim
 }
 
 ForwarderStatus&
-ForwarderStatus::setCurrentTimestamp(const time::system_clock::TimePoint& currentTimestamp)
+ForwarderStatus::setCurrentTimestamp(const time::system_clock::time_point& currentTimestamp)
 {
   m_wire.reset();
   m_currentTimestamp = currentTimestamp;
@@ -395,5 +394,4 @@ operator<<(std::ostream& os, const ForwarderStatus& status)
   return os;
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

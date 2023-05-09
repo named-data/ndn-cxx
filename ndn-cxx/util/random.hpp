@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,7 @@
 
 #include <random>
 
-namespace ndn {
-namespace random {
+namespace ndn::random {
 
 /**
  * @brief Generate a cryptographically secure random integer from the range [0, 2^32)
@@ -85,7 +84,6 @@ generateWord32();
 uint64_t
 generateWord64();
 
-} // namespace random
-} // namespace ndn
+} // namespace ndn::random
 
 #endif // NDN_CXX_UTIL_RANDOM_HPP

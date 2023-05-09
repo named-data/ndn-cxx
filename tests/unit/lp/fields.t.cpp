@@ -21,9 +21,9 @@
 
 #include "ndn-cxx/lp/fields.hpp"
 
-namespace ndn {
-namespace lp {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::lp;
 
 BOOST_CONCEPT_ASSERT((Field<FragmentField>));
 BOOST_CONCEPT_ASSERT((Field<SequenceField>));
@@ -40,6 +40,4 @@ BOOST_CONCEPT_ASSERT((Field<TxSequenceField>));
 BOOST_CONCEPT_ASSERT((Field<NonDiscoveryField>));
 BOOST_CONCEPT_ASSERT((Field<PrefixAnnouncementField>));
 
-} // namespace tests
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::tests

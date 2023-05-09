@@ -26,7 +26,6 @@
 #include "ndn-cxx/util/span.hpp"
 
 namespace ndn {
-namespace util {
 
 /**
  * @brief Utility class to segment an object into multiple Data packets.
@@ -78,7 +77,11 @@ private:
   security::SigningInfo m_signingInfo;
 };
 
+namespace util {
+/// \deprecated Use ndn::Segmenter
+using Segmenter = ::ndn::Segmenter;
 } // namespace util
+
 } // namespace ndn
 
 #endif // NDN_CXX_UTIL_SEGMENTER_HPP

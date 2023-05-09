@@ -29,8 +29,7 @@
 #include "ndn-cxx/security/security-common.hpp"
 #include "ndn-cxx/security/transform/private-key.hpp"
 
-namespace ndn {
-namespace security {
+namespace ndn::security {
 
 /**
  * @note This is a transitional API to handle the change in signed Interest format and will
@@ -320,7 +319,6 @@ operator<<(std::ostream& os, const SigningInfo& si);
 std::ostream&
 operator<<(std::ostream& os, const SignedInterestFormat& format);
 
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security
 
 #endif // NDN_CXX_SECURITY_SIGNING_INFO_HPP

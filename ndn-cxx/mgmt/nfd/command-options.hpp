@@ -24,8 +24,7 @@
 
 #include "ndn-cxx/security/signing-info.hpp"
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 /**
  * \ingroup management
@@ -106,7 +105,6 @@ private:
   security::SigningInfo m_signingInfo;
 };
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd
 
 #endif // NDN_CXX_MGMT_NFD_COMMAND_OPTIONS_HPP

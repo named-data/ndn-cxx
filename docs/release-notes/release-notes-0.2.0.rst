@@ -66,7 +66,7 @@ New features
   + Introduce ``util::EventEmitter``, :ndn-cxx:`util::NotificationSubscriber`,
     :ndn-cxx:`util::NotificationStream`, and :ndn-cxx:`nfd::FaceMonitor` utility classes
 
-  + Introduce :ndn-cxx:`util::SegmentFetcher` helper class to fetch multi-segmented data
+  + Introduce :ndn-cxx:`SegmentFetcher` helper class to fetch multi-segmented data
     (:issue:`1879`)
 
 - **Build**

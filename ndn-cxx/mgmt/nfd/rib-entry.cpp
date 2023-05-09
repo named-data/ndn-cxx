@@ -28,8 +28,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
-namespace ndn {
-namespace nfd {
+namespace ndn::nfd {
 
 Route::Route() = default;
 
@@ -341,5 +340,4 @@ operator<<(std::ostream& os, const RibEntry& entry)
   return os << "         )";
 }
 
-} // namespace nfd
-} // namespace ndn
+} // namespace ndn::nfd

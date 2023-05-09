@@ -21,9 +21,7 @@
 
 #include "ndn-cxx/security/transform/hex-encode.hpp"
 
-namespace ndn {
-namespace security {
-namespace transform {
+namespace ndn::security::transform {
 
 static const uint8_t H2CL[] = {
   '0', '1', '2', '3', '4', '5', '6', '7',
@@ -72,6 +70,4 @@ hexEncode(bool useUpperCase)
   return make_unique<HexEncode>(useUpperCase);
 }
 
-} // namespace transform
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::transform

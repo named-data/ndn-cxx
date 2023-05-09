@@ -24,9 +24,7 @@
 #include "ndn-cxx/security/verification-helpers.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-namespace ndn {
-namespace security {
-inline namespace v2 {
+namespace ndn::security {
 
 NDN_LOG_INIT(ndn.security.ValidationState);
 
@@ -176,6 +174,4 @@ InterestValidationState::fail(const ValidationError& error)
   m_outcome = false;
 }
 
-} // inline namespace v2
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security

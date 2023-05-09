@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,7 @@
 
 #include "ndn-cxx/security/tpm/back-end.hpp"
 
-namespace ndn {
-namespace security {
-namespace tpm {
+namespace ndn::security::tpm {
 
 /**
  * @brief The back-end implementation of an in-memory TPM.
@@ -74,8 +72,6 @@ private:
   const unique_ptr<Impl> m_impl;
 };
 
-} // namespace tpm
-} // namespace security
-} // namespace ndn
+} // namespace ndn::security::tpm
 
 #endif // NDN_CXX_SECURITY_TPM_IMPL_BACK_END_MEM_HPP

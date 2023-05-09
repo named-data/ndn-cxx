@@ -25,9 +25,9 @@
 #include "tests/key-chain-fixture.hpp"
 #include "tests/test-common.hpp"
 
-namespace ndn {
-namespace lp {
-namespace tests {
+namespace ndn::tests {
+
+using namespace ndn::lp;
 
 BOOST_AUTO_TEST_SUITE(Lp)
 BOOST_AUTO_TEST_SUITE(TestPacket)
@@ -425,10 +425,10 @@ BOOST_AUTO_TEST_CASE(DecodeUnrecognizedTlvType)
   BOOST_CHECK_THROW(packet.wireDecode(wire), Packet::Error);
 }
 
-BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, ndn::tests::KeyChainFixture)
+BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, KeyChainFixture)
 {
   // Construct Data which prefix announcement is attached to
-  auto data0 = ndn::tests::makeData("/edu/ua/cs/news/index.html");
+  auto data0 = makeData("/edu/ua/cs/news/index.html");
 
   Packet packet0;
   packet0.wireDecode(data0->wireEncode());
@@ -455,6 +455,4 @@ BOOST_FIXTURE_TEST_CASE(DecodePrefixAnnouncement, ndn::tests::KeyChainFixture)
 BOOST_AUTO_TEST_SUITE_END() // TestPacket
 BOOST_AUTO_TEST_SUITE_END() // Lp
 
-} // namespace tests
-} // namespace lp
-} // namespace ndn
+} // namespace ndn::tests

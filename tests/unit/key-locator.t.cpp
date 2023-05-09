@@ -26,8 +26,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace ndn {
-namespace tests {
+namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<KeyLocator>));
 BOOST_CONCEPT_ASSERT((WireEncodable<KeyLocator>));
@@ -200,5 +199,4 @@ BOOST_AUTO_TEST_CASE(Equality)
 
 BOOST_AUTO_TEST_SUITE_END() // TestKeyLocator
 
-} // namespace tests
-} // namespace ndn
+} // namespace ndn::tests
