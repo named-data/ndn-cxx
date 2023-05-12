@@ -20,10 +20,14 @@
  */
 
 #include "ndn-cxx/security/tpm/impl/back-end-file.hpp"
-#include "ndn-cxx/security/tpm/impl/key-handle-mem.hpp"
-#include "ndn-cxx/security/transform.hpp"
-#include "ndn-cxx/security/transform/private-key.hpp"
+
 #include "ndn-cxx/encoding/buffer-stream.hpp"
+#include "ndn-cxx/security/tpm/impl/key-handle-mem.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/digest-filter.hpp"
+#include "ndn-cxx/security/transform/hex-encode.hpp"
+#include "ndn-cxx/security/transform/private-key.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 
 #include <cstdlib>
 #include <fstream>

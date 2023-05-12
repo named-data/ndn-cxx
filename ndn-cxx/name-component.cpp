@@ -425,14 +425,6 @@ Component::isParametersSha256Digest() const noexcept
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool
-Component::equals(const Component& other) const noexcept
-{
-  return type() == other.type() &&
-         value_size() == other.value_size() &&
-         std::equal(value_begin(), value_end(), other.value_begin());
-}
-
 int
 Component::compare(const Component& other) const
 {

@@ -24,7 +24,10 @@
 
 #include "ndn-cxx/security/certificate.hpp"
 #include "ndn-cxx/security/additional-description.hpp"
-#include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/security/transform/base64-encode.hpp"
+#include "ndn-cxx/security/transform/buffer-source.hpp"
+#include "ndn-cxx/security/transform/public-key.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/util/indented-stream.hpp"
 
 namespace ndn::security {

@@ -20,11 +20,13 @@
  */
 
 #include "ndn-cxx/util/string-helper.hpp"
+
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/security/transform/buffer-source.hpp"
 #include "ndn-cxx/security/transform/hex-decode.hpp"
 #include "ndn-cxx/security/transform/hex-encode.hpp"
 #include "ndn-cxx/security/transform/stream-sink.hpp"
+#include "ndn-cxx/util/scope.hpp"
 
 #include <sstream>
 
@@ -33,12 +35,15 @@ namespace ndn {
 void
 printHex(std::ostream& os, uint64_t num, bool wantUpperCase)
 {
-  auto osFlags = os.flags();
+  auto oldFlags = os.flags();
+  auto restoreFlags = make_scope_exit([&] {
+    os.flags(oldFlags);
+  });
+
   // std::showbase doesn't work with number 0
   os << "0x" << std::noshowbase << std::noshowpos
      << (wantUpperCase ? std::uppercase : std::nouppercase)
      << std::hex << num;
-  os.flags(osFlags);
 }
 
 void

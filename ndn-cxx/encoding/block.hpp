@@ -221,20 +221,30 @@ public: // wire format
     return m_buffer != nullptr && m_begin != m_end;
   }
 
-  /** @brief Get begin iterator of encoded wire
-   *  @pre `hasWire() == true`
+  /**
+   * @brief Returns an iterator to the beginning of the encoded wire.
+   * @pre `hasWire() == true`
    */
   const_iterator
   begin() const;
 
-  /** @brief Get end iterator of encoded wire
-   *  @pre `hasWire() == true`
+  /**
+   * @brief Returns an iterator past-the-end of the encoded wire.
+   * @pre `hasWire() == true`
    */
   const_iterator
   end() const;
 
   /**
-   * @brief Return a raw pointer to the beginning of the encoded wire
+   * @brief Returns the size of the encoded wire, i.e., of the whole TLV.
+   * @pre `isValid() == true`
+   * @sa value_size()
+   */
+  size_t
+  size() const;
+
+  /**
+   * @brief Returns a raw pointer to the beginning of the encoded wire, i.e., the whole TLV.
    * @pre `hasWire() == true`
    * @sa value()
    */
@@ -252,14 +262,7 @@ public: // wire format
   }
 
   /**
-   * @brief Return the size of the encoded wire, i.e., of the whole TLV
-   * @pre `isValid() == true`
-   * @sa value_size()
-   */
-  size_t
-  size() const;
-
-  /** @brief Get underlying buffer
+   * @brief Returns the underlying buffer.
    */
   ConstBufferPtr
   getBuffer() const
@@ -269,7 +272,7 @@ public: // wire format
 
 public: // type and value
   /**
-   * @brief Return the TLV-TYPE of the Block
+   * @brief Return the TLV-TYPE of the Block.
    * @note This will return tlv::Invalid if isValid() is false.
    */
   uint32_t
@@ -279,7 +282,7 @@ public: // type and value
   }
 
   /**
-   * @brief Check if the Block has a non-empty TLV-VALUE
+   * @brief Check if the Block has a non-empty TLV-VALUE.
    *
    * This property reflects whether the underlying buffer contains a TLV-VALUE. If this is false,
    * TLV-VALUE has zero-length. If this is true, TLV-VALUE may be zero-length.
@@ -293,7 +296,7 @@ public: // type and value
   }
 
   /**
-   * @brief Get begin iterator of TLV-VALUE
+   * @brief Get begin iterator of TLV-VALUE.
    * @pre `hasValue() == true`
    */
   const_iterator
@@ -303,7 +306,7 @@ public: // type and value
   }
 
   /**
-   * @brief Get end iterator of TLV-VALUE
+   * @brief Get end iterator of TLV-VALUE.
    * @pre `hasValue() == true`
    */
   const_iterator
@@ -313,7 +316,7 @@ public: // type and value
   }
 
   /**
-   * @brief Return the size of TLV-VALUE, i.e., the TLV-LENGTH
+   * @brief Return the size of TLV-VALUE, i.e., the TLV-LENGTH.
    * @sa size()
    */
   size_t
@@ -323,7 +326,7 @@ public: // type and value
   }
 
   /**
-   * @brief Return a read-only view of TLV-VALUE as a contiguous range of bytes
+   * @brief Return a read-only view of TLV-VALUE as a contiguous range of bytes.
    */
   span<const uint8_t>
   value_bytes() const noexcept
@@ -335,14 +338,14 @@ public: // type and value
   }
 
   /**
-   * @brief Return a raw pointer to the beginning of TLV-VALUE
+   * @brief Return a raw pointer to the beginning of TLV-VALUE.
    * @sa value_bytes(), data()
    */
   const uint8_t*
   value() const noexcept;
 
   /**
-   * @brief Return a new Block constructed from the TLV-VALUE of this Block
+   * @brief Return a new Block constructed from the TLV-VALUE of this Block.
    * @pre `value_size() > 0`
    */
   Block
@@ -460,23 +463,72 @@ public: // misc
    */
   operator boost::asio::const_buffer() const;
 
+protected:
+  /**
+   * @brief Returns whether this Block has the same TLV-TYPE/TLV-LENGTH/TLV-VALUE as @p other.
+   */
+  bool
+  equals(const Block& other) const noexcept;
+
 private:
-  /** @brief Estimate Block size as if sub-elements are encoded into TLV-VALUE
+  /**
+   * @brief Estimate Block size as if sub-elements are encoded into TLV-VALUE.
    */
   size_t
   encode(EncodingEstimator& estimator) const;
 
-  /** @brief Estimate TLV-LENGTH as if sub-elements are encoded into TLV-VALUE
+  /**
+   * @brief Estimate TLV-LENGTH as if sub-elements are encoded into TLV-VALUE.
    */
   size_t
   encodeValue(EncodingEstimator& estimator) const;
 
-  /** @brief Encode sub-elements into TLV-VALUE and prepend Block to encoder
-   *  @post TLV-VALUE contains sub-elements from elements()
-   *  @post internal buffer and iterators point to Encoder's buffer
+  /**
+   * @brief Encode sub-elements into TLV-VALUE and prepend Block to encoder.
+   * @post TLV-VALUE contains sub-elements from elements()
+   * @post internal buffer and iterators point to Encoder's buffer
    */
   size_t
   encode(EncodingBuffer& encoder);
+
+  void
+  print(std::ostream& os) const;
+
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+
+  /**
+   * @brief Compare whether two Blocks have the same TLV-TYPE, TLV-LENGTH, and TLV-VALUE.
+   */
+  friend bool
+  operator==(const Block& lhs, const Block& rhs) noexcept
+  {
+    return lhs.equals(rhs);
+  }
+
+  friend bool
+  operator!=(const Block& lhs, const Block& rhs) noexcept
+  {
+    return !lhs.equals(rhs);
+  }
+
+  /**
+   * @brief Print @p block to @p os.
+   *
+   * Default-constructed Block is printed as: `[invalid]`.
+   * Zero-length Block is printed as: `TT[empty]`, where TT is TLV-TYPE in decimal.
+   * Non-zero-length Block on which parse() has not been called is printed as: `TT[LL]=VVVV`,
+   * where LL is TLV-LENGTH in decimal, and VVVV is TLV-VALUE in hexadecimal.
+   * Block on which parse() has been called is printed as: `TT[LL]={SUB,SUB}`,
+   * where each SUB is a sub-element printed using this format.
+   */
+  friend std::ostream&
+  operator<<(std::ostream& os, const Block& block)
+  {
+    block.print(os);
+    return os;
+  }
 
 protected:
   /** @brief Underlying buffer storing TLV-VALUE and possibly TLV-TYPE and TLV-LENGTH fields
@@ -509,19 +561,6 @@ protected:
    * This field is valid only if parse() has been called on the Block instance.
    */
   mutable element_container m_elements;
-
-  /**
-   * @brief Print @p block to @p os.
-   *
-   * Default-constructed Block is printed as: `[invalid]`.
-   * Zero-length Block is printed as: `TT[empty]`, where TT is TLV-TYPE in decimal.
-   * Non-zero-length Block on which parse() has not been called is printed as: `TT[LL]=VVVV`,
-   * where LL is TLV-LENGTH in decimal, and VVVV is TLV-VALUE in hexadecimal.
-   * Block on which parse() has been called is printed as: `TT[LL]={SUB,SUB}`,
-   * where each SUB is a sub-element printed using this format.
-   */
-  friend std::ostream&
-  operator<<(std::ostream& os, const Block& block);
 };
 
 inline
@@ -530,17 +569,8 @@ Block::Block(Block&&) noexcept = default;
 inline Block&
 Block::operator=(Block&&) noexcept = default;
 
-/**
- * @brief Compare whether two Blocks have the same TLV-TYPE, TLV-LENGTH, and TLV-VALUE.
- */
-bool
-operator==(const Block& lhs, const Block& rhs) noexcept;
-
-inline bool
-operator!=(const Block& lhs, const Block& rhs) noexcept
-{
-  return !(lhs == rhs);
-}
+inline namespace literals {
+inline namespace block_literals {
 
 /** @brief Construct a Block from hexadecimal @p input.
  *  @param input a string containing hexadecimal bytes and comments.
@@ -558,6 +588,8 @@ operator!=(const Block& lhs, const Block& rhs) noexcept
 Block
 operator ""_block(const char* input, std::size_t len);
 
+} // inline namespace block_literals
+} // inline namespace literals
 } // namespace ndn
 
 #endif // NDN_CXX_ENCODING_BLOCK_HPP

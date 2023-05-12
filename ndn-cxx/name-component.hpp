@@ -135,19 +135,21 @@ public: // constructors
 
   /**
    * @brief Construct a NameComponent of TLV-TYPE @p type, using TLV-VALUE from @p buffer.
-   * @throw Error the NameComponent is invalid.
    *
    * This constructor does not copy the underlying buffer, but retains a pointer to it.
    * Therefore, the caller must not change the underlying buffer.
+   *
+   * @throw Error the NameComponent is invalid.
    */
   Component(uint32_t type, ConstBufferPtr buffer);
 
   /**
    * @brief Construct a GenericNameComponent, using TLV-VALUE from @p buffer.
-   * @throw Error the NameComponent is invalid.
    *
    * This constructor does not copy the underlying buffer, but retains a pointer to it.
    * Therefore, the caller must not change the underlying buffer.
+   *
+   * @throw Error the NameComponent is invalid.
    */
   explicit
   Component(ConstBufferPtr buffer)
@@ -480,16 +482,18 @@ public: // comparison
   }
 
   /**
-   * @brief Check if this is the same component as other
-   *
-   * @param other The other Component to compare with
-   * @return true if the components are equal, otherwise false.
+   * @brief Check whether this is the same component as @p other.
+   * @param other The name component to compare with
+   * @return true if the components are equal, false otherwise.
    */
   bool
-  equals(const Component& other) const noexcept;
+  equals(const Component& other) const noexcept
+  {
+    return Block::equals(other);
+  }
 
   /**
-   * @brief Compare this to the other Component using NDN canonical ordering
+   * @brief Compare this to the other Component using NDN canonical ordering.
    *
    * @param other The other Component to compare with.
    * @retval negative this comes before other in canonical ordering

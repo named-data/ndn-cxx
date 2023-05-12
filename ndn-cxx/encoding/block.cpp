@@ -25,8 +25,11 @@
 #include "ndn-cxx/encoding/buffer-stream.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/encoding/tlv.hpp"
-#include "ndn-cxx/security/transform.hpp"
+#include "ndn-cxx/security/transform/hex-decode.hpp"
+#include "ndn-cxx/security/transform/step-source.hpp"
+#include "ndn-cxx/security/transform/stream-sink.hpp"
 #include "ndn-cxx/util/ostream-joiner.hpp"
+#include "ndn-cxx/util/scope.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
 #include <boost/asio/buffer.hpp>
@@ -478,40 +481,43 @@ Block::operator boost::asio::const_buffer() const
 }
 
 bool
-operator==(const Block& lhs, const Block& rhs) noexcept
+Block::equals(const Block& other) const noexcept
 {
-  return lhs.type() == rhs.type() &&
-         lhs.value_size() == rhs.value_size() &&
-         (lhs.value_size() == 0 ||
-          std::memcmp(lhs.value(), rhs.value(), lhs.value_size()) == 0);
+  return type() == other.type() &&
+         value_size() == other.value_size() &&
+         (value_size() == 0 ||
+          std::equal(value_begin(), value_end(), other.value_begin()));
 }
 
-std::ostream&
-operator<<(std::ostream& os, const Block& block)
+void
+Block::print(std::ostream& os) const
 {
-  auto oldFmt = os.flags(std::ios_base::dec);
+  auto oldFlags = os.flags(std::ios_base::dec);
+  auto restoreFlags = make_scope_exit([&] {
+    os.flags(oldFlags);
+  });
 
-  if (!block.isValid()) {
+  if (!isValid()) {
     os << "[invalid]";
   }
-  else if (!block.m_elements.empty()) {
+  else if (!m_elements.empty()) {
     EncodingEstimator estimator;
-    size_t tlvLength = block.encodeValue(estimator);
-    os << block.type() << '[' << tlvLength << "]={";
-    std::copy(block.elements_begin(), block.elements_end(), make_ostream_joiner(os, ','));
+    size_t tlvLength = encodeValue(estimator);
+    os << type() << '[' << tlvLength << "]={";
+    std::copy(elements_begin(), elements_end(), make_ostream_joiner(os, ','));
     os << '}';
   }
-  else if (block.value_size() > 0) {
-    os << block.type() << '[' << block.value_size() << "]=";
-    printHex(os, block.value_bytes(), true);
+  else if (value_size() > 0) {
+    os << type() << '[' << value_size() << "]=";
+    printHex(os, value_bytes(), true);
   }
   else {
-    os << block.type() << "[empty]";
+    os << type() << "[empty]";
   }
-
-  os.flags(oldFmt);
-  return os;
 }
+
+inline namespace literals {
+inline namespace block_literals {
 
 Block
 operator ""_block(const char* input, std::size_t len)
@@ -537,4 +543,6 @@ operator ""_block(const char* input, std::size_t len)
   return Block(os.buf());
 }
 
+} // inline namespace block_literals
+} // inline namespace literals
 } // namespace ndn
