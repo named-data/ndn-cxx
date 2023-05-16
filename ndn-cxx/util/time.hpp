@@ -266,16 +266,23 @@ const system_clock::time_point&
 getUnixEpoch();
 
 /**
- * \brief Convert system_clock::time_point to UNIX timestamp
+ * \brief Convert system_clock::time_point to UNIX timestamp.
  */
-milliseconds
-toUnixTimestamp(const system_clock::time_point& point);
+template<typename Duration = milliseconds>
+constexpr Duration
+toUnixTimestamp(const system_clock::time_point& tp)
+{
+  return duration_cast<Duration>(tp.time_since_epoch());
+}
 
 /**
- * \brief Convert UNIX timestamp to system_clock::time_point
+ * \brief Convert UNIX timestamp to system_clock::time_point.
  */
-system_clock::time_point
-fromUnixTimestamp(milliseconds duration);
+constexpr system_clock::time_point
+fromUnixTimestamp(system_clock::duration d)
+{
+  return system_clock::time_point{d};
+}
 
 /**
  * \brief Convert to the ISO 8601 string representation, basic format (`YYYYMMDDTHHMMSS,fffffffff`).

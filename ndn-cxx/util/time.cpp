@@ -104,20 +104,8 @@ steady_clock::to_wait_duration(steady_clock::duration d)
 const system_clock::time_point&
 getUnixEpoch()
 {
-  static constexpr system_clock::time_point epoch(seconds::zero());
+  static constexpr system_clock::time_point epoch;
   return epoch;
-}
-
-milliseconds
-toUnixTimestamp(const system_clock::time_point& point)
-{
-  return duration_cast<milliseconds>(point - getUnixEpoch());
-}
-
-system_clock::time_point
-fromUnixTimestamp(milliseconds duration)
-{
-  return getUnixEpoch() + duration;
 }
 
 static boost::posix_time::ptime
