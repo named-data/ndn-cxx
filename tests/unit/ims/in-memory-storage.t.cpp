@@ -562,8 +562,8 @@ BOOST_AUTO_TEST_CASE(PrefixName_NoCanBePrefix)
 
 BOOST_AUTO_TEST_CASE(MustBeFresh)
 {
-  insert(1, "/A/1"); // omitted FreshnessPeriod means FreshnessPeriod = 0 ms
-  insert(2, "/A/2", [] (Data& data) { data.setFreshnessPeriod(0_s); });
+  insert(1, "/A/1", nullptr, 0_ms); // omitted FreshnessPeriod means FreshnessPeriod = 0 ms
+  insert(2, "/A/2", [] (Data& data) { data.setFreshnessPeriod(0_s); }, 0_ms);
   insert(3, "/A/3", [] (Data& data) { data.setFreshnessPeriod(1_s); }, 1_s);
   insert(4, "/A/4", [] (Data& data) { data.setFreshnessPeriod(1_h); }, 1_h);
 

@@ -134,8 +134,14 @@ public:
   /** @brief Inserts a Data packet.
    *
    *  @param data the packet to insert, must be signed and have wire encoding
-   *  @param mustBeFreshProcessingWindow Beyond this time period after the data is inserted, the
-   *         data can only be used to answer interest without MustBeFresh selector.
+   *  @param mustBeFreshProcessingWindow Beyond this time period, the inserted data can
+   *         only be used to answer interest without MustBeFresh.  The value of
+   *         mustBeFreshProcessingWindow is an application decision and it may or may not
+   *         correspond to FreshnessPeriod.
+   *
+   *  @note InMemoryStorage does not use the inserted data packet's FreshnessPeriod value.
+   *        If the packet needs to be marked "stale" after application-defined period of time,
+   *        the application must supply proper @p mustBeFreshProcessingWindow value.
    *
    *  @note Packets are considered duplicate if the name with implicit digest matches.
    *  The new Data packet with the identical name, but a different payload

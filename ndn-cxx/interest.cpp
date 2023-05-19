@@ -340,11 +340,6 @@ Interest::matchesData(const Data& data) const
     return false;
   }
 
-  // check MustBeFresh
-  if (getMustBeFresh() && data.getFreshnessPeriod() <= 0_ms) {
-    return false;
-  }
-
   return true;
 }
 

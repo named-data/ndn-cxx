@@ -659,7 +659,7 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
   interest->setMustBeFresh(true);
-  BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates MustBeFresh
+  BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
   data->setFreshnessPeriod(1_s);
   BOOST_CHECK_EQUAL(interest->matchesData(*data), true);

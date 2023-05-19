@@ -185,7 +185,7 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
   m_freeEntries.pop();
   m_nPackets++;
   entry->setData(data);
-  if (m_scheduler != nullptr && mustBeFreshProcessingWindow > ZERO_WINDOW) {
+  if (m_scheduler != nullptr && mustBeFreshProcessingWindow >= ZERO_WINDOW) {
     entry->scheduleMarkStale(*m_scheduler, mustBeFreshProcessingWindow);
   }
   m_cache.insert(entry);
