@@ -53,66 +53,87 @@ public:
   makeRelative(time::seconds validFrom, time::seconds validUntil,
                const time::system_clock::time_point& now = time::system_clock::now());
 
-  /** @brief Set validity period [UNIX epoch + 1 nanosecond, UNIX epoch] that is always invalid
+  /**
+   * @brief Create a validity period that is invalid for any timepoint.
    */
   ValidityPeriod();
 
-  /** @brief Create validity period from @p block
+  /**
+   * @brief Decode validity period from @p block .
    */
   explicit
   ValidityPeriod(const Block& block);
 
-  /** @brief Create validity period [@p notBefore, @p notAfter]
-   *  @param notBefore exclusive beginning of the validity period range
-   *  @param notAfter exclusive end of the validity period range
-   *
-   *  @note The supplied time points will be rounded up to the whole seconds:
-   *        - @p notBefore is rounded up the next whole second
-   *        - @p notAfter is truncated to the previous whole second
+  /**
+   * @brief Create validity period [@p notBefore, @p notAfter].
+   * @param notBefore exclusive beginning of the validity period range,
+   *                  to be rounded up to the next whole second.
+   * @param notAfter exclusive end of the validity period range,
+   *                  to be rounded down to the previous whole second.
    */
   ValidityPeriod(const time::system_clock::time_point& notBefore,
                  const time::system_clock::time_point& notAfter);
 
-  /** @brief Check if @p now falls within the validity period
-   *  @param now Time point to check if it falls within the period
-   *  @return periodBegin <= @p now and @p now <= periodEnd
+  /**
+   * @brief Check if @p now falls within the validity period.
+   * @param now Time point to check if it falls within the period
+   * @return notBefore <= @p now and @p now <= notAfter.
    */
   bool
   isValid(const time::system_clock::time_point& now = time::system_clock::now()) const;
 
-  /** @brief Set validity period [@p notBefore, @p notAfter]
-   *  @param notBefore exclusive beginning of the validity period range
-   *  @param notAfter exclusive end of the validity period range
-   *
-   *  @note The supplied time points will be rounded up to the whole seconds:
-   *        - @p notBefore is rounded up the next whole second
-   *        - @p notAfter is truncated to the previous whole second
+  /**
+   * @brief Set validity period [@p notBefore, @p notAfter].
+   * @param notBefore exclusive beginning of the validity period range,
+   *                  to be rounded up to the next whole second.
+   * @param notAfter exclusive end of the validity period range,
+   *                  to be rounded down to the previous whole second.
    */
   ValidityPeriod&
   setPeriod(const time::system_clock::time_point& notBefore,
             const time::system_clock::time_point& notAfter);
 
-  /** @brief Get the stored validity period
+  /**
+   * @brief Get the stored validity period.
    */
   std::pair<time::system_clock::time_point, time::system_clock::time_point>
   getPeriod() const;
 
-  /** @brief Fast encoding or block size estimation
+  /**
+   * @brief Fast encoding or block size estimation.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** @brief Encode ValidityPeriod into TLV block
+  /**
+   * @brief Encode ValidityPeriod into TLV block.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode ValidityPeriod from TLV block
-   *  @throw Error when an invalid TLV block supplied
+  /**
+   * @brief Decode ValidityPeriod from TLV block.
+   * @throw Error when an invalid TLV block supplied.
+   *
+   * @note If either timestamp in @p wire is earlier than 1677-09-21 or later than 2262-04-11,
+   *       it will be adjusted to these dates so that they are representable as
+   *       @c time::system_clock::time_point type returned by getPeriod() method.
    */
   void
   wireDecode(const Block& wire);
+
+private:
+  using TimePoint = boost::chrono::time_point<time::system_clock, time::seconds>;
+
+  static TimePoint
+  toTimePointFloor(const time::system_clock::time_point& t);
+
+  static TimePoint
+  toTimePointCeil(const time::system_clock::time_point& t);
+
+  static TimePoint
+  decodeTimePoint(const Block& element);
 
 private: // EqualityComparable concept
   // NOTE: the following "hidden friend" operators are available via
@@ -132,8 +153,6 @@ private: // EqualityComparable concept
   }
 
 private:
-  using TimePoint = boost::chrono::time_point<time::system_clock, time::seconds>;
-
   TimePoint m_notBefore;
   TimePoint m_notAfter;
 

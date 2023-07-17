@@ -45,9 +45,8 @@ ValidityPeriod::ValidityPeriod()
 
 ValidityPeriod::ValidityPeriod(const time::system_clock::time_point& notBefore,
                                const time::system_clock::time_point& notAfter)
-  : m_notBefore(time_point_cast<TimePoint::duration>(notBefore + TimePoint::duration(1) -
-                                                     time::system_clock::time_point::duration(1)))
-  , m_notAfter(time_point_cast<TimePoint::duration>(notAfter))
+  : m_notBefore(toTimePointCeil(notBefore))
+  , m_notAfter(toTimePointFloor(notAfter))
 {
 }
 
@@ -114,14 +113,47 @@ ValidityPeriod::wireDecode(const Block& wire)
   }
 
   try {
-    m_notBefore = time_point_cast<TimePoint::duration>(
-                    time::fromIsoString(readString(m_wire.elements()[NOT_BEFORE_OFFSET])));
-    m_notAfter = time_point_cast<TimePoint::duration>(
-                   time::fromIsoString(readString(m_wire.elements()[NOT_AFTER_OFFSET])));
+    m_notBefore = decodeTimePoint(m_wire.elements()[NOT_BEFORE_OFFSET]);
+    m_notAfter = decodeTimePoint(m_wire.elements()[NOT_AFTER_OFFSET]);
   }
   catch (const std::bad_cast&) {
     NDN_THROW(Error("Invalid date format in NOT-BEFORE or NOT-AFTER field"));
   }
+}
+
+ValidityPeriod::TimePoint
+ValidityPeriod::toTimePointFloor(const time::system_clock::time_point& t)
+{
+  return TimePoint(boost::chrono::floor<TimePoint::duration>(t.time_since_epoch()));
+}
+
+ValidityPeriod::TimePoint
+ValidityPeriod::toTimePointCeil(const time::system_clock::time_point& t)
+{
+  return TimePoint(boost::chrono::ceil<TimePoint::duration>(t.time_since_epoch()));
+}
+
+ValidityPeriod::TimePoint
+ValidityPeriod::decodeTimePoint(const Block& element)
+{
+  // Bug #5176, prevent time::system_clock::time_point under/overflow
+  static const auto minTime = toTimePointCeil(time::system_clock::time_point::min());
+  static const auto maxTime = toTimePointFloor(time::system_clock::time_point::max());
+  static const auto minValue = time::toIsoString(minTime);
+  static const auto maxValue = time::toIsoString(maxTime);
+  BOOST_ASSERT(minValue.size() == ISO_DATETIME_SIZE);
+  BOOST_ASSERT(maxValue.size() == ISO_DATETIME_SIZE);
+
+  auto value = readString(element);
+  BOOST_ASSERT(value.size() == ISO_DATETIME_SIZE);
+
+  if (value < minValue) {
+    return minTime;
+  }
+  if (value > maxValue) {
+    return maxTime;
+  }
+  return time_point_cast<TimePoint::duration>(time::fromIsoString(value));
 }
 
 ValidityPeriod&
@@ -129,9 +161,8 @@ ValidityPeriod::setPeriod(const time::system_clock::time_point& notBefore,
                           const time::system_clock::time_point& notAfter)
 {
   m_wire.reset();
-  m_notBefore = time_point_cast<TimePoint::duration>(notBefore + TimePoint::duration(1) -
-                                                     time::system_clock::time_point::duration(1));
-  m_notAfter = time_point_cast<TimePoint::duration>(notAfter);
+  m_notBefore = toTimePointCeil(notBefore);
+  m_notAfter = toTimePointFloor(notAfter);
   return *this;
 }
 
