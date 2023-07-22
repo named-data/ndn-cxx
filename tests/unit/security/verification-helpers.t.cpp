@@ -592,7 +592,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   // - pib::Key version is tested as part of key-chain.t.cpp (Security/TestKeyChain)
 }
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
 BOOST_FIXTURE_TEST_CASE(VerifyHmac, KeyChainFixture)
 {
   const Tpm& tpm = m_keyChain.getTpm();
@@ -616,7 +615,6 @@ BOOST_FIXTURE_TEST_CASE(VerifyHmac, KeyChainFixture)
   BOOST_CHECK(verifySignature(interest, tpm, signingInfo.getSignerName(), DigestAlgorithm::SHA256));
   BOOST_CHECK(verifySignature(interestOldFormat, tpm, signingInfo.getSignerName(), DigestAlgorithm::SHA256));
 }
-#endif
 
 using DigestDatasets = boost::mpl::vector<Sha256Dataset>;
 

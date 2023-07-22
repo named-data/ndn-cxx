@@ -99,14 +99,12 @@ BOOST_AUTO_TEST_CASE(Basic)
   BOOST_CHECK_EQUAL(infoSha.getDigestAlgorithm(), DigestAlgorithm::SHA256);
   BOOST_CHECK_EQUAL(infoSha.getSignedInterestFormat(), SignedInterestFormat::V02);
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   std::string encodedKey("QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENUI0OTdGRE"
                          "ZGMUE4RUE2RkYxMkY2RkI2NUFGMjcyMEI1OUNDRg==");
   info.setSigningHmacKey(encodedKey);
   BOOST_CHECK_EQUAL(info.getSignerType(), SigningInfo::SIGNER_TYPE_HMAC);
   BOOST_CHECK_EQUAL(info.getDigestAlgorithm(), DigestAlgorithm::SHA256);
   BOOST_CHECK_EQUAL(info.getSignedInterestFormat(), SignedInterestFormat::V02);
-#endif
 
   SigningInfo infoHmac(SigningInfo::SIGNER_TYPE_HMAC, info.getSignerName());
   BOOST_CHECK_EQUAL(infoHmac.getSignerType(), SigningInfo::SIGNER_TYPE_HMAC);
@@ -151,13 +149,11 @@ BOOST_AUTO_TEST_CASE(FromString)
   BOOST_CHECK_EQUAL(infoCert.getSignerName(), "/my-cert");
   BOOST_CHECK_EQUAL(infoCert.getDigestAlgorithm(), DigestAlgorithm::SHA256);
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   SigningInfo infoHmac("hmac-sha256:QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENU"
                        "I0OTdGREZGMUE4RUE2RkYxMkY2RkI2NUFGMjcyMEI1OUNDRg==");
   BOOST_CHECK_EQUAL(infoHmac.getSignerType(), SigningInfo::SIGNER_TYPE_HMAC);
   BOOST_CHECK_EQUAL(infoHmac.getSignerName().getPrefix(3), SigningInfo::getHmacIdentity());
   BOOST_CHECK_EQUAL(infoHmac.getDigestAlgorithm(), DigestAlgorithm::SHA256);
-#endif
 
   SigningInfo infoSha("id:/localhost/identity/digest-sha256");
   BOOST_CHECK_EQUAL(infoSha.getSignerType(), SigningInfo::SIGNER_TYPE_SHA256);

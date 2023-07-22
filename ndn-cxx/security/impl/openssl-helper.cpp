@@ -23,6 +23,10 @@
 
 #include <limits>
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/core_names.h>
+#endif
+
 namespace ndn::security::detail {
 
 const EVP_MD*
@@ -59,7 +63,16 @@ digestAlgorithmToEvpMd(DigestAlgorithm algo)
 int
 getEvpPkeyType(const EVP_PKEY* key)
 {
-  return EVP_PKEY_base_id(key);
+  int keyType = EVP_PKEY_base_id(key);
+  if (keyType > 0)
+    return keyType;
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  if (EVP_PKEY_is_a(key, OSSL_MAC_NAME_HMAC))
+    return EVP_PKEY_HMAC;
+#endif
+
+  return keyType;
 }
 
 EvpMdCtx::EvpMdCtx()

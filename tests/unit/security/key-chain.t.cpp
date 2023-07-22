@@ -537,11 +537,9 @@ using SigningTests = boost::mpl::vector<
   EcdsaSigning<DataPkt>,
   EcdsaSigning<InterestV02Pkt>,
   EcdsaSigning<InterestV03Pkt>,
-#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   HmacSigning<DataPkt>,
   HmacSigning<InterestV02Pkt>,
   HmacSigning<InterestV03Pkt>,
-#endif
   Sha256Signing<DataPkt>,
   Sha256Signing<InterestV02Pkt>,
   Sha256Signing<InterestV03Pkt>,

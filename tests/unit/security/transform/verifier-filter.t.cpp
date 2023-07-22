@@ -165,14 +165,12 @@ BOOST_AUTO_TEST_CASE(Hmac)
 
   BOOST_CHECK_THROW(VerifierFilter(DigestAlgorithm::NONE, *sKey, *sig), Error);
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L // FIXME #5154
   bool result = false;
   bufferSource(DATA) >>
     verifierFilter(DigestAlgorithm::SHA256, *sKey, *sig) >>
     boolSink(result);
 
   BOOST_CHECK_EQUAL(result, true);
-#endif
 }
 
 BOOST_AUTO_TEST_CASE(InvalidKey)

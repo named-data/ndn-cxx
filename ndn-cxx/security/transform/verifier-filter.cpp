@@ -103,7 +103,7 @@ VerifierFilter::finalize()
   bool ok = false;
   if (m_keyType == KeyType::HMAC) {
     auto hmacBuf = make_unique<OBuffer>(EVP_MAX_MD_SIZE);
-    size_t hmacLen = 0;
+    size_t hmacLen = EVP_MAX_MD_SIZE;
 
     if (EVP_DigestSignFinal(m_impl->ctx, hmacBuf->data(), &hmacLen) != 1)
       NDN_THROW(Error(getIndex(), "Failed to finalize HMAC"));

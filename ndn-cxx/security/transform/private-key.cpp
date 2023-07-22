@@ -118,14 +118,14 @@ PrivateKey::getKeyDigest(DigestAlgorithm algo) const
                     boost::lexical_cast<std::string>(getKeyType())));
 
   size_t len = 0;
-  const uint8_t* buf = EVP_PKEY_get0_hmac(m_impl->key, &len);
-  if (buf == nullptr)
-    NDN_THROW(Error("Failed to obtain raw key pointer"));
-  if (len * 8 != getKeySize())
-    NDN_THROW(Error("Key length mismatch"));
+  if (EVP_PKEY_get_raw_private_key(m_impl->key, nullptr, &len) != 1)
+    NDN_THROW(Error("Failed to get raw key length"));
+  Buffer digest(len);
+  if (EVP_PKEY_get_raw_private_key(m_impl->key, digest.data(), &len) != 1)
+    NDN_THROW(Error("Failed to get raw key"));
 
   OBufferStream os;
-  bufferSource(make_span(buf, len)) >> digestFilter(algo) >> streamSink(os);
+  bufferSource(digest) >> digestFilter(algo) >> streamSink(os);
   return os.buf();
 }
 
