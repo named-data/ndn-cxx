@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California,
+ * Copyright (c) 2013-2024 Regents of the University of California,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University.
  *
@@ -107,7 +107,12 @@ SegmentFetcher::fetchFirstSegment(const Interest& baseInterest, bool isRetransmi
 {
   Interest interest(baseInterest);
   interest.setCanBePrefix(true);
-  interest.setMustBeFresh(true);
+  if (!interest.getName().empty() && interest.getName()[-1].isVersion()) {
+    interest.setMustBeFresh(false);
+  }
+  else {
+    interest.setMustBeFresh(m_options.probeLatestVersion);
+  }
   interest.setInterestLifetime(m_options.interestLifetime);
   if (isRetransmission) {
     interest.refreshNonce();
@@ -375,15 +380,15 @@ SegmentFetcher::afterNackOrTimeout(const Interest& origInterest)
     return signalError(INTEREST_TIMEOUT, "Timeout exceeded");
   }
 
-  name::Component lastNameComponent = origInterest.getName().get(-1);
+  BOOST_ASSERT(!m_pendingSegments.empty());
+
+  const auto& origName = origInterest.getName();
   std::map<uint64_t, PendingSegment>::iterator pendingSegmentIt;
-  BOOST_ASSERT(m_pendingSegments.size() > 0);
-  if (lastNameComponent.isSegment()) {
-    BOOST_ASSERT(m_pendingSegments.count(lastNameComponent.toSegment()) > 0);
-    pendingSegmentIt = m_pendingSegments.find(lastNameComponent.toSegment());
+  if (!origName.empty() && origName[-1].isSegment()) {
+    pendingSegmentIt = m_pendingSegments.find(origName[-1].toSegment());
+    BOOST_ASSERT(pendingSegmentIt != m_pendingSegments.end());
   }
   else { // First Interest
-    BOOST_ASSERT(m_pendingSegments.size() > 0);
     pendingSegmentIt = m_pendingSegments.begin();
   }
 
@@ -393,7 +398,7 @@ SegmentFetcher::afterNackOrTimeout(const Interest& origInterest)
 
   m_rttEstimator.backoffRto();
 
-  if (m_receivedSegments.size() == 0) {
+  if (m_receivedSegments.empty()) {
     // Resend first Interest (until maximum receive timeout exceeded)
     fetchFirstSegment(origInterest, true);
   }

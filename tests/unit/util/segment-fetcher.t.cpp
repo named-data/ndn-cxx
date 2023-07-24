@@ -39,9 +39,8 @@ public:
   static shared_ptr<Data>
   makeDataSegment(const Name& baseName, uint64_t segment, bool isFinal)
   {
-    const uint8_t buffer[] = "Hello, world!";
     auto data = makeData(Name(baseName).appendSegment(segment));
-    data->setContent(buffer);
+    data->setContent("Hello, world!\0"sv);
     data->setFreshnessPeriod(1_s);
     if (isFinal) {
       data->setFinalBlock(data->getName()[-1]);
@@ -176,6 +175,32 @@ BOOST_AUTO_TEST_CASE(InvalidOptions)
                     std::invalid_argument);
 }
 
+BOOST_AUTO_TEST_CASE(BasicSingleSegment)
+{
+  DummyValidator acceptValidator;
+  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
+                                                             acceptValidator);
+  connectSignals(fetcher);
+
+  advanceClocks(10_ms);
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+
+  const Interest& interest = face.sentInterests[0];
+  BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
+  BOOST_CHECK_EQUAL(interest.getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(interest.getCanBePrefix(), true);
+
+  face.receive(*makeDataSegment("/hello/world/version0", 0, true));
+  advanceClocks(10_ms);
+
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nCompletions, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentReceived, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentValidated, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentNacked, 0);
+  BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 0);
+}
+
 BOOST_AUTO_TEST_CASE(ExceedMaxTimeout)
 {
   DummyValidator acceptValidator;
@@ -209,27 +234,6 @@ BOOST_AUTO_TEST_CASE(ExceedMaxTimeout)
   BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 1);
 }
 
-BOOST_AUTO_TEST_CASE(BasicSingleSegment)
-{
-  DummyValidator acceptValidator;
-  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
-                                                             acceptValidator);
-  connectSignals(fetcher);
-
-  advanceClocks(10_ms);
-
-  face.receive(*makeDataSegment("/hello/world/version0", 0, true));
-
-  advanceClocks(10_ms);
-
-  BOOST_CHECK_EQUAL(nErrors, 0);
-  BOOST_CHECK_EQUAL(nCompletions, 1);
-  BOOST_CHECK_EQUAL(nAfterSegmentReceived, 1);
-  BOOST_CHECK_EQUAL(nAfterSegmentValidated, 1);
-  BOOST_CHECK_EQUAL(nAfterSegmentNacked, 0);
-  BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 0);
-}
-
 BOOST_AUTO_TEST_CASE(ConstantCwnd)
 {
   SegmentFetcher::Options options;
@@ -245,31 +249,30 @@ BOOST_AUTO_TEST_CASE(ConstantCwnd)
   BOOST_CHECK_EQUAL(fetcher->m_nSegmentsInFlight, 1);
 
   face.receive(*makeDataSegment("/hello/world/version0", 0, false));
-
   advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(fetcher->m_cwnd, 1.0);
   BOOST_CHECK_EQUAL(fetcher->m_nSegmentsInFlight, 1);
   BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 2);
   BOOST_CHECK_EQUAL(face.sentInterests.back().getName().get(-1).toSegment(), 1);
-  face.receive(*makeDataSegment("/hello/world/version0", 1, false));
 
+  face.receive(*makeDataSegment("/hello/world/version0", 1, false));
   advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(fetcher->m_cwnd, 1.0);
   BOOST_CHECK_EQUAL(fetcher->m_nSegmentsInFlight, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 3);
   BOOST_CHECK_EQUAL(face.sentInterests.back().getName().get(-1).toSegment(), 2);
-  face.receive(*makeDataSegment("/hello/world/version0", 2, false));
 
+  face.receive(*makeDataSegment("/hello/world/version0", 2, false));
   advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(fetcher->m_cwnd, 1.0);
   BOOST_CHECK_EQUAL(fetcher->m_nSegmentsInFlight, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 4);
   BOOST_CHECK_EQUAL(face.sentInterests.back().getName().get(-1).toSegment(), 3);
-  face.receive(*makeDataSegment("/hello/world/version0", 3, false));
 
+  face.receive(*makeDataSegment("/hello/world/version0", 3, false));
   advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(fetcher->m_cwnd, 1.0);
@@ -284,8 +287,8 @@ BOOST_AUTO_TEST_CASE(ConstantCwnd)
   BOOST_CHECK_EQUAL(fetcher->m_nSegmentsInFlight, 1);
   BOOST_CHECK_EQUAL(face.sentInterests.size(), 6);
   BOOST_CHECK_EQUAL(face.sentInterests.back().getName().get(-1).toSegment(), 4);
-  face.receive(*makeDataSegment("/hello/world/version0", 4, true));
 
+  face.receive(*makeDataSegment("/hello/world/version0", 4, true));
   advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(nErrors, 0);
@@ -303,12 +306,20 @@ BOOST_AUTO_TEST_CASE(BasicMultipleSegments)
   nSegments = 401;
   sendNackInsteadOfDropping = false;
 
-  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
-                                                             acceptValidator);
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator);
   face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
   face.processEvents(1_s);
+  BOOST_REQUIRE_GE(face.sentInterests.size(), 2);
+
+  BOOST_CHECK_EQUAL(face.sentInterests[0].getName(), "/hello/world");
+  BOOST_CHECK_EQUAL(face.sentInterests[0].getMustBeFresh(), true);
+  BOOST_CHECK_EQUAL(face.sentInterests[0].getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(face.sentInterests[1].getName().size(), 4);
+  BOOST_CHECK(face.sentInterests[1].getName().at(-1).isSegment());
+  BOOST_CHECK_EQUAL(face.sentInterests[1].getMustBeFresh(), false);
+  BOOST_CHECK_EQUAL(face.sentInterests[1].getCanBePrefix(), false);
 
   BOOST_CHECK_EQUAL(nErrors, 0);
   BOOST_CHECK_EQUAL(nCompletions, 1);
@@ -340,6 +351,58 @@ BOOST_AUTO_TEST_CASE(BasicInOrder)
   BOOST_CHECK_EQUAL(nAfterSegmentValidated, 401);
   BOOST_CHECK_EQUAL(nOnInOrderData, 401);
   BOOST_CHECK_EQUAL(nOnInOrderComplete, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentNacked, 0);
+  BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 0);
+}
+
+BOOST_AUTO_TEST_CASE(VersionedPrefix)
+{
+  DummyValidator acceptValidator;
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world/v=42"), acceptValidator);
+  connectSignals(fetcher);
+
+  advanceClocks(1_ms);
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+
+  const Interest& interest = face.sentInterests[0];
+  BOOST_CHECK_EQUAL(interest.getName(), "/hello/world/v=42");
+  BOOST_CHECK_EQUAL(interest.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
+
+  face.receive(*makeDataSegment("/hello/world/v=42", 0, true));
+  advanceClocks(10_ms);
+
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nCompletions, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentReceived, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentValidated, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentNacked, 0);
+  BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 0);
+}
+
+BOOST_AUTO_TEST_CASE(ProbeLatestVersionDisabled)
+{
+  DummyValidator acceptValidator;
+  SegmentFetcher::Options options;
+  options.probeLatestVersion = false;
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator, options);
+  connectSignals(fetcher);
+
+  advanceClocks(1_ms);
+  BOOST_REQUIRE_EQUAL(face.sentInterests.size(), 1);
+
+  const Interest& interest = face.sentInterests[0];
+  BOOST_CHECK_EQUAL(interest.getName(), "/hello/world");
+  BOOST_CHECK_EQUAL(interest.getCanBePrefix(), true);
+  BOOST_CHECK_EQUAL(interest.getMustBeFresh(), false);
+
+  face.receive(*makeDataSegment("/hello/world/v=0", 0, true));
+  advanceClocks(10_ms);
+
+  BOOST_CHECK_EQUAL(nErrors, 0);
+  BOOST_CHECK_EQUAL(nCompletions, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentReceived, 1);
+  BOOST_CHECK_EQUAL(nAfterSegmentValidated, 1);
   BOOST_CHECK_EQUAL(nAfterSegmentNacked, 0);
   BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 0);
 }
@@ -620,8 +683,7 @@ BOOST_AUTO_TEST_CASE(DuplicateNack)
   sendNackInsteadOfDropping = true;
   nackReason = lp::NackReason::DUPLICATE;
 
-  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
-                                                             acceptValidator);
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator);
   face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
@@ -645,8 +707,7 @@ BOOST_AUTO_TEST_CASE(CongestionNack)
   sendNackInsteadOfDropping = true;
   nackReason = lp::NackReason::CONGESTION;
 
-  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
-                                                             acceptValidator);
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator);
   face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
   connectSignals(fetcher);
 
@@ -669,8 +730,7 @@ BOOST_AUTO_TEST_CASE(OtherNackReason)
   nackReason = lp::NackReason::NO_ROUTE;
   face.onSendInterest.connect(std::bind(&SegmentFetcherFixture::onInterest, this, _1));
 
-  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
-                                                             acceptValidator);
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator);
   connectSignals(fetcher);
 
   face.processEvents(1_s);
@@ -690,8 +750,7 @@ BOOST_AUTO_TEST_CASE(ValidationFailure)
   validator.getPolicy().setResultCallback([] (const Name& name) {
     return name.at(-1).toSegment() % 2 == 0;
   });
-  shared_ptr<SegmentFetcher> fetcher = SegmentFetcher::start(face, Interest("/hello/world"),
-                                                             validator);
+  auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), validator);
   connectSignals(fetcher);
 
   auto data1 = makeDataSegment("/hello/world", 0, false);
@@ -787,7 +846,6 @@ BOOST_AUTO_TEST_CASE(Lifetime)
   BOOST_CHECK_EQUAL(weakFetcher.expired(), false);
 
   face.receive(*makeDataSegment("/hello/world/version0", 0, true));
-
   advanceClocks(10_ms);
 
   BOOST_CHECK_EQUAL(nErrors, 0);

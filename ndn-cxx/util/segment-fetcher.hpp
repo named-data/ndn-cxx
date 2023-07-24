@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,22 +34,29 @@
 namespace ndn {
 
 /**
- * @brief Utility class to fetch the latest version of a segmented object.
+ * @brief Utility class to fetch a versioned and segmented object.
  *
  * SegmentFetcher assumes that segments in the object are named `/<prefix>/<version>/<segment>`,
  * where:
- * - `<prefix>` is the specified prefix,
- * - `<version>` is an unknown version that needs to be discovered, and
- * - `<segment>` is a segment number (the number of segments in the object is unknown until a Data
- *   packet containing the `FinalBlockId` field is received).
+ * - `<prefix>` is an arbitrary name prefix;
+ * - `<version>` is the version number (VersionNameComponent);
+ * - `<segment>` is the segment number (SegmentNameComponent).
+ *
+ * The number of segments in the object is generally unknown until a Data packet containing
+ * a `FinalBlockId` field is received and validated.
+ *
+ * The version can either be provided by the application or be discovered at the beginning
+ * of the fetching process. By default, SegmentFetcher will attempt to probe the latest
+ * version of the object by requesting only "fresh" segments during the initial discovery
+ * phase. This behavior can be turned off by setting Options::probeLatestVersion to false.
  *
  * SegmentFetcher implements the following logic:
  *
- * 1. Express an Interest to discover the latest version of the object:
+ * 1. If the application does not provide a `<version>` component and requires probing the
+ *    latest version of the object, an Interest with CanBePrefix and MustBeFresh is sent to
+ *    discover a fresh version. Otherwise, only CanBePrefix is set.
  *
- *    Interest: `/<prefix>?CanBePrefix&MustBeFresh`
- *
- * 2. Infer the latest version of the object: `<version> = Data.getName().get(-2)`.
+ * 2. Infer the version of the object: `version = data.getName().get(-2).toVersion()`.
  *
  * 3. Keep sending Interests for future segments until an error occurs or the number of segments
  *    indicated by the FinalBlockId in a received Data packet is reached. This retrieval will start
@@ -108,6 +115,7 @@ public:
   public:
     time::milliseconds interestLifetime = 4_s; ///< lifetime of sent Interests - independent of Interest timeout
     time::milliseconds maxTimeout = 60_s; ///< maximum allowed time between successful receipt of segments
+    bool probeLatestVersion = true; ///< use the first Interest to probe the latest version of the object
     bool inOrder = false; ///< true for 'in order' mode, false for 'block' mode
     bool useConstantInterestTimeout = false; ///< if true, Interest timeout is kept at `maxTimeout`
     bool useConstantCwnd = false; ///< if true, window size is kept at `initCwnd`
@@ -129,11 +137,13 @@ public:
    *
    * @param face         Reference to the Face that should be used to fetch data.
    * @param baseInterest Interest for the initial segment of requested data.
-   *                     This interest may include a custom InterestLifetime and parameters that
-   *                     will propagate to all subsequent Interests. The only exception is that the
-   *                     initial Interest will be forced to include the "CanBePrefix=true" and
-   *                     "MustBeFresh=true" parameters, which will not be included in subsequent
-   *                     Interests.
+   *                     This Interest may include certain fields, such as ForwardingHint, that
+   *                     will propagate to all subsequent Interests sent by this SegmentFetcher.
+   *                     As a special case, the initial Interest will be forced to include the
+   *                     CanBePrefix field, which will not be included in subsequent Interests.
+   *                     If Options::probeLatestVersion is true, the initial Interest will also
+   *                     be forced to include the MustBeFresh field, while all subsequent Interests
+   *                     will not include it.
    * @param validator    Reference to the Validator the fetcher will use to validate data.
    *                     The caller must ensure the validator remains valid until either #onComplete
    *                     or #onError has been signaled.
