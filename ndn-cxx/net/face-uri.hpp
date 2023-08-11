@@ -35,6 +35,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/local/stream_protocol.hpp>
+#include <boost/operators.hpp>
 
 namespace ndn {
 
@@ -42,7 +43,7 @@ namespace ndn {
  * \brief The underlying protocol and address used by a Face.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/FaceMgmt#FaceUri
  */
-class FaceUri
+class FaceUri : private boost::totally_ordered<FaceUri>
 {
 public:
   class Error : public std::invalid_argument
@@ -180,21 +181,23 @@ public: // canonical FaceUri
 private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
+  // boost::totally_ordered provides !=, <=, >=, and > operators.
 
   friend bool
   operator==(const FaceUri& lhs, const FaceUri& rhs)
   {
-    return !(lhs != rhs);
+    return lhs.m_isV6 == rhs.m_isV6 &&
+           lhs.m_scheme == rhs.m_scheme &&
+           lhs.m_host == rhs.m_host &&
+           lhs.m_port == rhs.m_port &&
+           lhs.m_path == rhs.m_path;
   }
 
   friend bool
-  operator!=(const FaceUri& lhs, const FaceUri& rhs)
+  operator<(const FaceUri& lhs, const FaceUri& rhs)
   {
-    return lhs.m_isV6 != rhs.m_isV6 ||
-           lhs.m_scheme != rhs.m_scheme ||
-           lhs.m_host != rhs.m_host ||
-           lhs.m_port != rhs.m_port ||
-           lhs.m_path != rhs.m_path;
+    return std::tie(lhs.m_scheme, lhs.m_isV6, lhs.m_host, lhs.m_port, lhs.m_path) <
+           std::tie(rhs.m_scheme, rhs.m_isV6, rhs.m_host, rhs.m_port, rhs.m_path);
   }
 
 private:

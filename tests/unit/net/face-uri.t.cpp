@@ -37,6 +37,7 @@
 namespace ndn::tests {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<FaceUri>));
+BOOST_CONCEPT_ASSERT((boost::Comparable<FaceUri>));
 
 BOOST_AUTO_TEST_SUITE(Net)
 BOOST_AUTO_TEST_SUITE(TestFaceUri)
@@ -608,6 +609,42 @@ BOOST_AUTO_TEST_CASE(Bug1635)
   BOOST_CHECK_EQUAL(uri.getPort(), "56366");
   BOOST_CHECK_EQUAL(uri.getPath(), "");
   BOOST_CHECK_EQUAL(uri.toString(), "wsclient://76.90.11.239:56366");
+}
+
+BOOST_AUTO_TEST_CASE(Compare)
+{
+  FaceUri uri0("udp://[::1]:6363");
+  FaceUri uri1("tcp://[::1]:6363");
+  FaceUri uri2("tcp://127.0.0.1:6363");
+  FaceUri uri3("unix:///run/ndn/nfd.sock");
+
+  BOOST_CHECK_EQUAL(uri0, uri0);
+  BOOST_CHECK_LE(uri0, uri0);
+  BOOST_CHECK_GE(uri0, uri0);
+
+  BOOST_CHECK_GT(uri0, uri1);
+  BOOST_CHECK_GE(uri0, uri1);
+  BOOST_CHECK_NE(uri0, uri1);
+
+  BOOST_CHECK_LT(uri1, uri0);
+  BOOST_CHECK_LE(uri1, uri0);
+  BOOST_CHECK_NE(uri1, uri0);
+
+  BOOST_CHECK_GT(uri0, uri2);
+  BOOST_CHECK_GE(uri0, uri2);
+  BOOST_CHECK_NE(uri0, uri2);
+
+  BOOST_CHECK_LT(uri2, uri0);
+  BOOST_CHECK_LE(uri2, uri0);
+  BOOST_CHECK_NE(uri2, uri0);
+
+  BOOST_CHECK_LT(uri0, uri3);
+  BOOST_CHECK_LE(uri0, uri3);
+  BOOST_CHECK_NE(uri0, uri3);
+
+  BOOST_CHECK_GT(uri3, uri0);
+  BOOST_CHECK_GE(uri3, uri0);
+  BOOST_CHECK_NE(uri3, uri0);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestFaceUri
