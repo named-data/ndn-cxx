@@ -502,6 +502,9 @@ BOOST_AUTO_TEST_CASE(FullWithParameters)
 
 BOOST_AUTO_TEST_CASE(CriticalElementOutOfOrder)
 {
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0507 FC00 0703080149"_block),
+    tlv::Error,
+    [] (const auto& e) { return e.what() == "Name element is missing or out of order"sv; });
   BOOST_CHECK_EXCEPTION(i.wireDecode(
     "0529 2100 0703080149 1200 1E0B(1F09 1E023E15 0703080148) "
     "0A044ACB1E4C 0C0276A1 2201D6 2404C0C1C2C3"_block),
@@ -578,13 +581,23 @@ BOOST_AUTO_TEST_CASE(BadName)
 BOOST_AUTO_TEST_CASE(BadCanBePrefix)
 {
   BOOST_CHECK_EXCEPTION(i.wireDecode("0508 0703080149 210102"_block), tlv::Error,
-                        [] (const auto& e) { return e.what() == "CanBePrefix element has non-zero TLV-LENGTH"sv; });
+    [] (const auto& e) { return e.what() == "CanBePrefix element has non-zero TLV-LENGTH"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(BadMustBeFresh)
 {
   BOOST_CHECK_EXCEPTION(i.wireDecode("0508 0703080149 120102"_block), tlv::Error,
-                        [] (const auto& e) { return e.what() == "MustBeFresh element has non-zero TLV-LENGTH"sv; });
+    [] (const auto& e) { return e.what() == "MustBeFresh element has non-zero TLV-LENGTH"sv; });
+}
+
+BOOST_AUTO_TEST_CASE(BadForwardingHint)
+{
+  BOOST_CHECK_EXCEPTION(i.wireDecode("050C 0703080149 1E05(0703080248)"_block), tlv::Error,
+    [] (const auto& e) { return e.what() == "Invalid Name in ForwardingHint"sv; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode("050E 0703080149 1E07(1F05(0703080248))"_block), tlv::Error,
+    [] (const auto& e) { return e.what() == "Invalid Name in ForwardingHint.Delegation"sv; });
+  BOOST_CHECK_EXCEPTION(i.wireDecode("0509 0703080149 1E02(2100)"_block), tlv::Error,
+    [] (const auto& e) { return e.what() == "Unexpected TLV-TYPE 33 while decoding ForwardingHint"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(BadNonce)
@@ -626,12 +639,6 @@ BOOST_AUTO_TEST_CASE(BadParametersDigest)
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
   BOOST_CHECK_NO_THROW(i.wireDecode(b3));
   BOOST_CHECK_EQUAL(i.isParametersDigestValid(), false);
-}
-
-BOOST_AUTO_TEST_CASE(UnrecognizedNonCriticalElementBeforeName)
-{
-  BOOST_CHECK_EXCEPTION(i.wireDecode("0507 FC00 0703080149"_block), tlv::Error,
-                        [] (const auto& e) { return e.what() == "Name element is missing or out of order"sv; });
 }
 
 BOOST_AUTO_TEST_CASE(UnrecognizedCriticalElement)
@@ -677,8 +684,8 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates implicit digest
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(MatchesInterest, 1)
-BOOST_AUTO_TEST_CASE(MatchesInterest)
+BOOST_AUTO_TEST_CASE(MatchesInterest,
+  * boost::unit_test::expected_failures(1))
 {
   Interest interest;
   interest.setName("/A")

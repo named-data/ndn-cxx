@@ -215,8 +215,8 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
   }
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeUdpV4, 1)
-BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture,
+  * boost::unit_test::expected_failures(1))
 {
   SKIP_IF_IPV4_UNAVAILABLE();
 
@@ -243,8 +243,8 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture)
   runTest("udp4://[2001:db8::1]:6363", false);
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeUdpV6, 1)
-BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture,
+  * boost::unit_test::expected_failures(1))
 {
   SKIP_IF_IPV6_UNAVAILABLE();
 
@@ -345,8 +345,8 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
   }
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeTcpV4, 1)
-BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture,
+  * boost::unit_test::expected_failures(1))
 {
   SKIP_IF_IPV4_UNAVAILABLE();
 
@@ -384,8 +384,8 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture)
   }
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(CanonizeTcpV6, 1)
-BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
+BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture,
+  * boost::unit_test::expected_failures(1))
 {
   SKIP_IF_IPV6_UNAVAILABLE();
 
@@ -408,8 +408,8 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture)
   runTest("tcp6://192.0.2.1:6363", false);
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(ParseUnix, 1)
-BOOST_AUTO_TEST_CASE(ParseUnix)
+BOOST_AUTO_TEST_CASE(ParseUnix,
+  * boost::unit_test::expected_failures(1))
 {
   FaceUri uri;
 
@@ -477,8 +477,8 @@ BOOST_FIXTURE_TEST_CASE(CanonizeEther, CanonizeFixture)
   runTest("ether://[33:33:01:01:01:01]", true, "ether://[33:33:01:01:01:01]");
 }
 
-BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(ParseDev, 1)
-BOOST_AUTO_TEST_CASE(ParseDev)
+BOOST_AUTO_TEST_CASE(ParseDev,
+  * boost::unit_test::expected_failures(1))
 {
   FaceUri uri;
 

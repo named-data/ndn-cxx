@@ -319,28 +319,26 @@ Interest::toUri() const
 bool
 Interest::matchesData(const Data& data) const
 {
-  size_t interestNameLength = m_name.size();
   const Name& dataName = data.getName();
   size_t fullNameLength = dataName.size() + 1;
 
   // check Name and CanBePrefix
-  if (interestNameLength == fullNameLength) {
+  if (m_name.size() == fullNameLength) {
     if (m_name.get(-1).isImplicitSha256Digest()) {
-      if (m_name != data.getFullName()) {
-        return false;
-      }
+      return m_name == data.getFullName();
     }
     else {
-      // Interest Name is same length as Data full Name, but last component isn't digest
-      // so there's no possibility of matching
+      // the Interest name has the same length as the Data full name, but the last
+      // component is not a digest, so there is no possibility of matching
       return false;
     }
   }
-  else if (getCanBePrefix() ? !m_name.isPrefixOf(dataName) : (m_name != dataName)) {
-    return false;
+  else if (m_canBePrefix) {
+    return m_name.isPrefixOf(dataName);
   }
-
-  return true;
+  else {
+    return m_name == dataName;
+  }
 }
 
 bool
