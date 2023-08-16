@@ -204,9 +204,9 @@ public:
   static constexpr bool is_steady = ::boost::chrono::system_clock::is_steady;
 
   /// \deprecated Use time_point
-  using TimePoint = time_point;
+  using TimePoint [[deprecated("use system_clock::time_point")]] = time_point;
   /// \deprecated Use duration
-  using Duration = duration;
+  using Duration [[deprecated("use system_clock::duration")]] = duration;
 
   static time_point
   now() noexcept;
@@ -236,9 +236,9 @@ public:
   static constexpr bool is_steady = true;
 
   /// \deprecated Use time_point
-  using TimePoint = time_point;
+  using TimePoint [[deprecated("use steady_clock::time_point")]] = time_point;
   /// \deprecated Use duration
-  using Duration = duration;
+  using Duration [[deprecated("use steady_clock::duration")]] = duration;
 
   static time_point
   now() noexcept;

@@ -79,7 +79,7 @@ private:
 
 namespace util {
 /// \deprecated Use ndn::Segmenter
-using Segmenter = ::ndn::Segmenter;
+using Segmenter [[deprecated("use ndn::Segmenter")]] = ::ndn::Segmenter;
 } // namespace util
 
 } // namespace ndn

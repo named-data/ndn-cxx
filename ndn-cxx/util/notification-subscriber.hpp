@@ -117,17 +117,20 @@ private:
   exponentialBackoff(lp::Nack nack);
 
 public:
-  /** \brief Fires when a Nack is received.
+  /**
+   * \brief Fires when a Nack is received.
    */
-  Signal<NotificationSubscriberBase, lp::Nack> onNack;
+  ndn::signal::Signal<NotificationSubscriberBase, lp::Nack> onNack;
 
-  /** \brief Fires when no Notification is received within getInterestLifetime() period.
+  /**
+   * \brief Fires when no Notification is received within getInterestLifetime() period.
    */
-  Signal<NotificationSubscriberBase> onTimeout;
+  ndn::signal::Signal<NotificationSubscriberBase> onTimeout;
 
-  /** \brief Fires when a Data packet in the Notification Stream cannot be decoded as Notification.
+  /**
+   * \brief Fires when a Data packet in the notification stream cannot be decoded as a Notification.
    */
-  Signal<NotificationSubscriberBase, Data> onDecodeError;
+  ndn::signal::Signal<NotificationSubscriberBase, Data> onDecodeError;
 
 private:
   Face& m_face;
@@ -164,10 +167,11 @@ public:
   }
 
 public:
-  /** \brief Fires when a Notification is received.
-   *  \note Removing all handlers will cause the subscriber to stop.
+  /**
+   * \brief Fires when a Notification is received.
+   * \note Removing all handlers will cause the subscriber to stop.
    */
-  Signal<NotificationSubscriber, Notification> onNotification;
+  ndn::signal::Signal<NotificationSubscriber, Notification> onNotification;
 
 private:
   bool

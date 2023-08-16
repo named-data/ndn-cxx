@@ -201,7 +201,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 
 namespace util {
 /// \deprecated Use ndn::DummyClientFace
-using DummyClientFace = ::ndn::DummyClientFace;
+using DummyClientFace [[deprecated("use ndn::DummyClientFace")]] = ::ndn::DummyClientFace;
 } // namespace util
 
 } // namespace ndn

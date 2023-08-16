@@ -98,7 +98,7 @@ ScopedConnection::operator=(ScopedConnection&&) noexcept = default;
 
 namespace ndn::util::signal {
 /// \deprecated Use ndn::signal::ScopedConnection
-using ScopedConnection = ::ndn::signal::ScopedConnection;
+using ScopedConnection [[deprecated("use ndn::signal::ScopedConnection")]] = ::ndn::signal::ScopedConnection;
 } // namespace ndn::util::signal
 
 #endif // NDN_CXX_UTIL_SIGNAL_SCOPED_CONNECTION_HPP

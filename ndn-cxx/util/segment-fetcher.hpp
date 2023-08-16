@@ -321,7 +321,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 
 namespace util {
 /// \deprecated Use ndn::SegmentFetcher
-using SegmentFetcher = ::ndn::SegmentFetcher;
+using SegmentFetcher [[deprecated("use ndn::SegmentFetcher")]] = ::ndn::SegmentFetcher;
 } // namespace util
 
 } // namespace ndn
