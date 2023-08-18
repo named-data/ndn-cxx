@@ -102,15 +102,15 @@ public: // getter/setter
   MetaInfo&
   setType(uint32_t type);
 
-  /** @brief Return the value of `FreshnessPeriod`.
+  /**
+   * @brief Return the value of `FreshnessPeriod`.
    *
-   *  If the `FreshnessPeriod` element is not present, returns #DEFAULT_FRESHNESS_PERIOD.
+   * If the `FreshnessPeriod` element is not present, returns #DEFAULT_FRESHNESS_PERIOD.
+   * If the `FreshnessPeriod` value is not representable in the return type, it's clamped to
+   * the nearest representable value.
    */
   time::milliseconds
-  getFreshnessPeriod() const
-  {
-    return m_freshnessPeriod;
-  }
+  getFreshnessPeriod() const;
 
   /** @brief Set `FreshnessPeriod`.
    *  @throw std::invalid_argument specified FreshnessPeriod is negative
@@ -196,7 +196,7 @@ public: // app-defined MetaInfo items
 
 private:
   uint32_t m_type = tlv::ContentType_Blob;
-  time::milliseconds m_freshnessPeriod = DEFAULT_FRESHNESS_PERIOD;
+  uint64_t m_freshnessPeriod = static_cast<uint64_t>(DEFAULT_FRESHNESS_PERIOD.count());
   std::optional<name::Component> m_finalBlockId;
   std::list<Block> m_appMetaInfo;
 

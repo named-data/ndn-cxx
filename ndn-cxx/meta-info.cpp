@@ -42,14 +42,23 @@ MetaInfo::setType(uint32_t type)
   return *this;
 }
 
+time::milliseconds
+MetaInfo::getFreshnessPeriod() const
+{
+  if (m_freshnessPeriod > static_cast<uint64_t>(time::milliseconds::max().count())) {
+    return time::milliseconds::max();
+  }
+  return time::milliseconds(m_freshnessPeriod);
+}
+
 MetaInfo&
 MetaInfo::setFreshnessPeriod(time::milliseconds freshnessPeriod)
 {
-  if (freshnessPeriod < time::milliseconds::zero()) {
+  if (freshnessPeriod < 0_ms) {
     NDN_THROW(std::invalid_argument("FreshnessPeriod must be >= 0"));
   }
   m_wire.reset();
-  m_freshnessPeriod = freshnessPeriod;
+  m_freshnessPeriod = static_cast<uint64_t>(freshnessPeriod.count());
   return *this;
 }
 
@@ -135,9 +144,8 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // FreshnessPeriod
-  if (m_freshnessPeriod != DEFAULT_FRESHNESS_PERIOD) {
-    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod,
-                                                  static_cast<uint64_t>(m_freshnessPeriod.count()));
+  if (m_freshnessPeriod != static_cast<uint64_t>(DEFAULT_FRESHNESS_PERIOD.count())) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod, m_freshnessPeriod);
   }
 
   // ContentType
@@ -193,11 +201,11 @@ MetaInfo::wireDecode(const Block& wire)
 
   // FreshnessPeriod
   if (val != m_wire.elements_end() && val->type() == tlv::FreshnessPeriod) {
-    m_freshnessPeriod = time::milliseconds(readNonNegativeInteger(*val));
+    m_freshnessPeriod = readNonNegativeInteger(*val);
     ++val;
   }
   else {
-    m_freshnessPeriod = DEFAULT_FRESHNESS_PERIOD;
+    m_freshnessPeriod = static_cast<uint64_t>(DEFAULT_FRESHNESS_PERIOD.count());
   }
 
   // FinalBlockId
