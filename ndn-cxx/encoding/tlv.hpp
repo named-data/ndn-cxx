@@ -358,8 +358,7 @@ readVarNumber(Iterator& begin, Iterator end, uint64_t& number) noexcept
     return true;
   }
 
-  size_t len = firstOctet == 253 ? 2 :
-               firstOctet == 254 ? 4 : 8;
+  size_t len = 1U << (firstOctet & 0b11);
   return detail::readNumber(len, begin, end, number);
 }
 
