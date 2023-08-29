@@ -41,7 +41,7 @@ using PartialName = Name;
  * @brief Represents an absolute name.
  * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html
  */
-class Name
+class Name : private boost::totally_ordered<Name>
 {
 public: // nested types
   using Error = name::Component::Error;
@@ -646,6 +646,7 @@ public: // algorithms
 private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
+  // boost::totally_ordered provides !=, <=, >=, and > operators.
 
   friend bool
   operator==(const Name& lhs, const Name& rhs) noexcept
@@ -654,33 +655,9 @@ private: // non-member operators
   }
 
   friend bool
-  operator!=(const Name& lhs, const Name& rhs) noexcept
-  {
-    return !lhs.equals(rhs);
-  }
-
-  friend bool
   operator<(const Name& lhs, const Name& rhs)
   {
     return lhs.compare(rhs) < 0;
-  }
-
-  friend bool
-  operator<=(const Name& lhs, const Name& rhs)
-  {
-    return lhs.compare(rhs) <= 0;
-  }
-
-  friend bool
-  operator>(const Name& lhs, const Name& rhs)
-  {
-    return lhs.compare(rhs) > 0;
-  }
-
-  friend bool
-  operator>=(const Name& lhs, const Name& rhs)
-  {
-    return lhs.compare(rhs) >= 0;
   }
 
   /**

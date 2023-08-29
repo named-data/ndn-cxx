@@ -112,7 +112,7 @@ class KeyChain::Locator
 {
 public:
   [[nodiscard]] bool
-  empty() const
+  empty() const noexcept
   {
     return scheme.empty();
   }
@@ -124,7 +124,7 @@ public:
   }
 
   friend bool
-  operator==(const Locator& lhs, const Locator& rhs)
+  operator==(const Locator& lhs, const Locator& rhs) noexcept
   {
     return lhs.scheme == rhs.scheme && lhs.location == rhs.location;
   }

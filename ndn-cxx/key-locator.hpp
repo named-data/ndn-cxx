@@ -28,7 +28,7 @@
 
 namespace ndn {
 
-class KeyLocator
+class KeyLocator : private boost::equality_comparable<KeyLocator>
 {
 public:
   class Error : public tlv::Error
@@ -124,9 +124,14 @@ public: // attributes
   KeyLocator&
   setKeyDigest(const ConstBufferPtr& keyDigest);
 
+private:
+  void
+  print(std::ostream& os) const;
+
 private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
 
   friend bool
   operator==(const KeyLocator& lhs, const KeyLocator& rhs)
@@ -134,10 +139,11 @@ private: // non-member operators
     return lhs.m_locator == rhs.m_locator;
   }
 
-  friend bool
-  operator!=(const KeyLocator& lhs, const KeyLocator& rhs)
+  friend std::ostream&
+  operator<<(std::ostream& os, const KeyLocator& kl)
   {
-    return lhs.m_locator != rhs.m_locator;
+    kl.print(os);
+    return os;
   }
 
 private:
@@ -148,14 +154,9 @@ private:
   std::variant<std::monostate, Name, Block, uint32_t> m_locator;
 
   mutable Block m_wire;
-
-  friend std::ostream& operator<<(std::ostream&, const KeyLocator&);
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(KeyLocator);
-
-std::ostream&
-operator<<(std::ostream& os, const KeyLocator& keyLocator);
 
 } // namespace ndn
 

@@ -40,7 +40,7 @@ class IdentityImpl;
  * name, and contains zero or more keys, at most one of which is set as the default key of that
  * identity.  The properties of a key can be accessed after obtaining a Key object.
  */
-class Identity
+class Identity : private boost::equality_comparable<Identity>
 {
 public:
   /**
@@ -154,17 +154,12 @@ private:
   // NOTE
   // The following "hidden friend" non-member operators are available
   // via argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
 
   friend bool
-  operator==(const Identity& lhs, const Identity& rhs)
+  operator==(const Identity& lhs, const Identity& rhs) noexcept
   {
     return lhs.equals(rhs);
-  }
-
-  friend bool
-  operator!=(const Identity& lhs, const Identity& rhs)
-  {
-    return !lhs.equals(rhs);
   }
 
   friend std::ostream&

@@ -24,7 +24,6 @@
 
 #include "ndn-cxx/security/pib/key.hpp"
 
-#include <iterator>
 #include <set>
 #include <unordered_map>
 
@@ -46,19 +45,17 @@ private:
   using NameSet = std::set<Name>;
 
 public:
-  class const_iterator
+  class const_iterator : public boost::forward_iterator_helper<const_iterator, const Key>
   {
   public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type        = const Key;
-    using difference_type   = std::ptrdiff_t;
-    using pointer           = value_type*;
-    using reference         = value_type&;
-
     const_iterator() = default;
 
     Key
-    operator*();
+    operator*() const
+    {
+      BOOST_ASSERT(m_container != nullptr);
+      return m_container->get(*m_it);
+    }
 
     const_iterator&
     operator++()
@@ -67,25 +64,21 @@ public:
       return *this;
     }
 
-    const_iterator
-    operator++(int)
+    friend bool
+    operator==(const const_iterator& lhs, const const_iterator& rhs) noexcept
     {
-      const_iterator it(*this);
-      ++m_it;
-      return it;
-    }
-
-    bool
-    operator==(const const_iterator& other) const;
-
-    bool
-    operator!=(const const_iterator& other) const
-    {
-      return !this->operator==(other);
+      return lhs.equals(rhs);
     }
 
   private:
-    const_iterator(NameSet::const_iterator it, const KeyContainer& container) noexcept;
+    const_iterator(NameSet::const_iterator it, const KeyContainer& container) noexcept
+      : m_it(it)
+      , m_container(&container)
+    {
+    }
+
+    bool
+    equals(const const_iterator& other) const noexcept;
 
   private:
     NameSet::const_iterator m_it;

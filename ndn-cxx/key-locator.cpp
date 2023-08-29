@@ -50,12 +50,12 @@ KeyLocator::wireEncode(EncodingImpl<TAG>& encoder) const
 
   size_t totalLength = 0;
 
-  auto visitor = boost::hana::overload(
+  std::visit(boost::hana::overload(
     []  (std::monostate)      {}, // nothing to encode, TLV-VALUE is empty
     [&] (const Name& name)    { totalLength += name.wireEncode(encoder); },
     [&] (const Block& digest) { totalLength += prependBlock(encoder, digest); },
-    []  (uint32_t type)       { NDN_THROW(Error("Unsupported KeyLocator type " + to_string(type))); });
-  visit(visitor, m_locator);
+    []  (uint32_t type)       { NDN_THROW(Error("Unsupported KeyLocator type " + to_string(type))); }),
+    m_locator);
 
   totalLength += encoder.prependVarNumber(totalLength);
   totalLength += encoder.prependVarNumber(tlv::KeyLocator);
@@ -183,10 +183,10 @@ KeyLocator::setKeyDigest(const ConstBufferPtr& keyDigest)
   return *this;
 }
 
-std::ostream&
-operator<<(std::ostream& os, const KeyLocator& keyLocator)
+void
+KeyLocator::print(std::ostream& os) const
 {
-  auto visitor = boost::hana::overload(
+  std::visit(boost::hana::overload(
     [&] (std::monostate) {
       os << "None";
     },
@@ -202,9 +202,8 @@ operator<<(std::ostream& os, const KeyLocator& keyLocator)
     },
     [&] (uint32_t type) {
       os << "Unknown(" << type << ")";
-    });
-  visit(visitor, keyLocator.m_locator);
-  return os;
+    }),
+    m_locator);
 }
 
 } // namespace ndn

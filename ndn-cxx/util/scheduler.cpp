@@ -67,12 +67,6 @@ EventId::reset() noexcept
   *this = {};
 }
 
-std::ostream&
-operator<<(std::ostream& os, const EventId& eventId)
-{
-  return os << eventId.m_info.lock();
-}
-
 bool
 Scheduler::EventQueueCompare::operator()(const shared_ptr<EventInfo>& a,
                                          const shared_ptr<EventInfo>& b) const noexcept

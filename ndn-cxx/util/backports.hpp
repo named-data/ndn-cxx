@@ -44,7 +44,7 @@ template<typename T>
 to_underlying(T val) noexcept
 {
   // instantiating underlying_type with a non-enum type is UB before C++20
-  static_assert(std::is_enum_v<T>, "");
+  static_assert(std::is_enum_v<T>);
   return static_cast<std::underlying_type_t<T>>(val);
 }
 #endif // __cpp_lib_to_underlying

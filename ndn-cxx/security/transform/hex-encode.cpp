@@ -27,13 +27,13 @@ static const uint8_t H2CL[] = {
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 };
-static_assert(std::extent_v<decltype(H2CL)> == 16, "");
+static_assert(std::extent_v<decltype(H2CL)> == 16);
 
 static const uint8_t H2CU[] = {
   '0', '1', '2', '3', '4', '5', '6', '7',
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
-static_assert(std::extent_v<decltype(H2CU)> == 16, "");
+static_assert(std::extent_v<decltype(H2CU)> == 16);
 
 
 HexEncode::HexEncode(bool useUpperCase)

@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(Basic)
 
   auto joiner1 = ostream_joiner<char>(os, ' ');
   auto joiner2 = make_ostream_joiner(os, ' ');
-  static_assert(std::is_same_v<decltype(joiner1), decltype(joiner2)>, "");
+  static_assert(std::is_same_v<decltype(joiner1), decltype(joiner2)>);
 
   std::vector<int> v(5);
   std::iota(v.begin(), v.end(), 1);

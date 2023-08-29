@@ -68,7 +68,7 @@ struct ReadVarNumberAlignTest : public ReadVarNumberTest<WIRE_SIZE>
 {
   using AlignmentOffset = std::integral_constant<size_t, ALIGNMENT_OFFSET>;
 
-  static_assert(sizeof(ReadVarNumberTest<WIRE_SIZE>::WIRE) == WIRE_SIZE, "");
+  static_assert(sizeof(ReadVarNumberTest<WIRE_SIZE>::WIRE) == WIRE_SIZE);
 };
 
 using ReadVarNumberTests = boost::mpl::vector<
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(ReadVarNumber, Test, ReadVarNumberTests)
   constexpr int N_ITERATIONS = 100000000;
 
   alignas(8) uint8_t buffer[16];
-  static_assert(Test::AlignmentOffset::value + sizeof(Test::WIRE) <= sizeof(buffer), "");
+  static_assert(Test::AlignmentOffset::value + sizeof(Test::WIRE) <= sizeof(buffer));
   uint8_t* const begin = buffer + Test::AlignmentOffset::value;
   std::memcpy(begin, Test::WIRE, sizeof(Test::WIRE));
   const uint8_t* const end = begin + sizeof(Test::WIRE);

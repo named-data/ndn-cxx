@@ -32,7 +32,7 @@ namespace ndn::security {
  * @brief Represents a %ValidityPeriod TLV element.
  * @sa https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html
  */
-class ValidityPeriod
+class ValidityPeriod : private boost::equality_comparable<ValidityPeriod>
 {
 public:
   class Error : public tlv::Error
@@ -135,21 +135,16 @@ private:
   static TimePoint
   decodeTimePoint(const Block& element);
 
-private: // EqualityComparable concept
+private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
 
   friend bool
   operator==(const ValidityPeriod& lhs, const ValidityPeriod& rhs)
   {
-    return !(lhs != rhs);
-  }
-
-  friend bool
-  operator!=(const ValidityPeriod& lhs, const ValidityPeriod& rhs)
-  {
-    return lhs.m_notBefore != rhs.m_notBefore ||
-           lhs.m_notAfter != rhs.m_notAfter;
+    return lhs.m_notBefore == rhs.m_notBefore &&
+           lhs.m_notAfter == rhs.m_notAfter;
   }
 
 private:

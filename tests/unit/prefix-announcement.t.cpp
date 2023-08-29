@@ -27,6 +27,10 @@
 
 namespace ndn::tests {
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<PrefixAnnouncement>));
+static_assert(std::is_convertible_v<PrefixAnnouncement::Error*, tlv::Error*>,
+              "PrefixAnnouncement::Error must inherit from tlv::Error");
+
 BOOST_AUTO_TEST_SUITE(TestPrefixAnnouncement)
 
 static Data

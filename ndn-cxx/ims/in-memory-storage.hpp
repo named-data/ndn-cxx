@@ -24,7 +24,6 @@
 
 #include "ndn-cxx/ims/in-memory-storage-entry.hpp"
 
-#include <iterator>
 #include <limits>
 #include <stack>
 
@@ -58,39 +57,35 @@ public:
     >
   >;
 
-  /** @brief Represents a self-defined const_iterator for the in-memory storage.
-   *
-   *  @note Don't try to instantiate this class directly, use InMemoryStorage::begin() instead.
+  /**
+   * @brief Represents a const_iterator for the in-memory storage.
+   * @note Do not instantiate this class directly, use InMemoryStorage::begin() instead.
    */
-  class const_iterator
+  class const_iterator : public boost::forward_iterator_helper<const_iterator, const Data>
   {
   public:
-    using iterator_category = std::input_iterator_tag;
-    using value_type        = const Data;
-    using difference_type   = std::ptrdiff_t;
-    using pointer           = value_type*;
-    using reference         = value_type&;
-
     const_iterator(const Data* ptr, const Cache* cache,
-                   Cache::index<byFullName>::type::iterator it);
+                   Cache::index<byFullName>::type::iterator it) noexcept
+      : m_ptr(ptr)
+      , m_cache(cache)
+      , m_it(it)
+    {
+    }
+
+    reference
+    operator*() const noexcept
+    {
+      return *m_ptr;
+    }
 
     const_iterator&
     operator++();
 
-    const_iterator
-    operator++(int);
-
-    reference
-    operator*();
-
-    pointer
-    operator->();
-
-    bool
-    operator==(const const_iterator& rhs);
-
-    bool
-    operator!=(const const_iterator& rhs);
+    friend bool
+    operator==(const const_iterator& lhs, const const_iterator& rhs) noexcept
+    {
+      return lhs.m_it == rhs.m_it;
+    }
 
   private:
     const Data* m_ptr;

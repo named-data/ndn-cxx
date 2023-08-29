@@ -99,10 +99,10 @@ class NfdMgmtProtocolStruct : public WireEncodable<X>
 public:
   BOOST_CONCEPT_USAGE(NfdMgmtProtocolStruct)
   {
-    static_assert(std::is_default_constructible_v<X>, "");
-    static_assert(boost::has_equal_to<X, X, bool>::value, "");
-    static_assert(boost::has_not_equal_to<X, X, bool>::value, "");
-    static_assert(boost::has_left_shift<std::ostream, X, std::ostream&>::value, "");
+    static_assert(std::is_default_constructible_v<X>);
+    static_assert(boost::has_equal_to<X, X, bool>::value);
+    static_assert(boost::has_not_equal_to<X, X, bool>::value);
+    static_assert(boost::has_left_shift<std::ostream, X, std::ostream&>::value);
     static_assert(std::is_convertible_v<typename X::Error*, tlv::Error*>,
                   "ndn::tlv::Error must be a public base of X::Error");
   }

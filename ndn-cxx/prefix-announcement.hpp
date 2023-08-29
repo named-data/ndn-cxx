@@ -33,7 +33,7 @@ namespace ndn {
  *
  * \sa https://redmine.named-data.net/projects/nfd/wiki/PrefixAnnouncement
  */
-class PrefixAnnouncement
+class PrefixAnnouncement : private boost::equality_comparable<PrefixAnnouncement>
 {
 public:
   class Error : public tlv::Error
@@ -126,25 +126,30 @@ public: // static methods
   static const name::Component&
   getKeywordComponent();
 
+private: // non-member operators
+  // NOTE: the following "hidden friend" operators are available via
+  //       argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
+
+  /**
+   * \brief Test whether two prefix announcements have the same name, expiration period,
+   *        and validity period.
+   */
+  friend bool
+  operator==(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs)
+  {
+    return lhs.m_announcedName == rhs.m_announcedName &&
+           lhs.m_expiration == rhs.m_expiration &&
+           lhs.m_validity == rhs.m_validity;
+  }
+
 private:
-  mutable std::optional<Data> m_data;
   Name m_announcedName;
   time::milliseconds m_expiration = 0_ms;
   std::optional<security::ValidityPeriod> m_validity;
+
+  mutable std::optional<Data> m_data;
 };
-
-/**
- * \brief Test whether two prefix announcements have the same name, expiration period,
- *        and validity period.
- */
-bool
-operator==(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs);
-
-inline bool
-operator!=(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs)
-{
-  return !(lhs == rhs);
-}
 
 /**
  * \brief Print prefix announcement to a stream.

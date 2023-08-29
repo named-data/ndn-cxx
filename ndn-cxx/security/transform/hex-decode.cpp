@@ -43,7 +43,7 @@ static const int8_t C2H[] = {
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 224-239
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, // 240-255
 };
-static_assert(std::extent_v<decltype(C2H)> == 256, "");
+static_assert(std::extent_v<decltype(C2H)> == 256);
 
 
 HexDecode::HexDecode()

@@ -28,22 +28,8 @@ namespace ndn::security::pib {
 
 NDN_LOG_INIT(ndn.security.IdentityContainer);
 
-IdentityContainer::const_iterator::const_iterator(NameSet::const_iterator it,
-                                                  const IdentityContainer& container) noexcept
-  : m_it(it)
-  , m_container(&container)
-{
-}
-
-Identity
-IdentityContainer::const_iterator::operator*()
-{
-  BOOST_ASSERT(m_container != nullptr);
-  return m_container->get(*m_it);
-}
-
 bool
-IdentityContainer::const_iterator::operator==(const const_iterator& other) const
+IdentityContainer::const_iterator::equals(const const_iterator& other) const noexcept
 {
   bool isThisEnd = m_container == nullptr || m_it == m_container->m_identityNames.end();
   bool isOtherEnd = other.m_container == nullptr || other.m_it == other.m_container->m_identityNames.end();

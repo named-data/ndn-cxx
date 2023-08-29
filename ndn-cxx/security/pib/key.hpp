@@ -41,7 +41,7 @@ class KeyImpl;
  * `/<Identity>/KEY/<KeyId>`, and contains one or more certificates, one of which is set as
  * default certificate of that key. Certificates can be directly accessed from a Key object.
  */
-class Key
+class Key : private boost::equality_comparable<Key>
 {
 public:
   /**
@@ -173,17 +173,12 @@ private:
   // NOTE
   // The following "hidden friend" non-member operators are available
   // via argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
 
   friend bool
-  operator==(const Key& lhs, const Key& rhs)
+  operator==(const Key& lhs, const Key& rhs) noexcept
   {
     return lhs.equals(rhs);
-  }
-
-  friend bool
-  operator!=(const Key& lhs, const Key& rhs)
-  {
-    return !lhs.equals(rhs);
   }
 
   friend std::ostream&

@@ -26,7 +26,9 @@
 #include "ndn-cxx/detail/cancel-handle.hpp"
 #include "ndn-cxx/util/time.hpp"
 
+#include <boost/operators.hpp>
 #include <boost/system/error_code.hpp>
+
 #include <set>
 
 namespace ndn {
@@ -55,32 +57,40 @@ using EventCallback = std::function<void()>;
  *  \warning Canceling an event after the scheduler has been destructed may trigger undefined
  *           behavior.
  */
-class EventId : public detail::CancelHandle
+class EventId : public detail::CancelHandle, private boost::equality_comparable<EventId>
 {
 public:
-  /** \brief Constructs an empty EventId
+  /**
+   * \brief Constructs an empty EventId.
    */
   EventId() noexcept = default;
 
-  /** \brief Determine whether the event is valid.
-   *  \retval true The event is valid.
-   *  \retval false This EventId is empty, or the event is expired or cancelled.
+  /**
+   * \brief Determine whether the associated event is valid.
+   * \retval true The event is valid.
+   * \retval false This EventId is empty, or the event is expired or cancelled.
    */
   explicit
   operator bool() const noexcept;
 
-  /** \brief Clear this EventId without canceling.
-   *  \post !(*this)
+  /**
+   * \brief Clear this EventId without canceling the associated event.
+   * \post !(*this)
    */
   void
   reset() noexcept;
 
 private:
+  EventId(Scheduler& sched, weak_ptr<EventInfo> info);
+
+private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
 
-  /** \brief Determine whether this and other refer to the same event, or are both
-   *         empty/expired/cancelled.
+  /**
+   * \brief Determine whether \p lhs and \p rhs refer to the same event, or are both
+   *        empty/expired/cancelled.
    */
   friend bool
   operator==(const EventId& lhs, const EventId& rhs) noexcept
@@ -90,24 +100,17 @@ private:
          !rhs.m_info.owner_before(lhs.m_info));
   }
 
-  friend bool
-  operator!=(const EventId& lhs, const EventId& rhs) noexcept
+  friend std::ostream&
+  operator<<(std::ostream& os, const EventId& eventId)
   {
-    return !(lhs == rhs);
+    return os << eventId.m_info.lock();
   }
-
-private:
-  EventId(Scheduler& sched, weak_ptr<EventInfo> info);
 
 private:
   weak_ptr<EventInfo> m_info;
 
   friend Scheduler;
-  friend std::ostream& operator<<(std::ostream& os, const EventId& eventId);
 };
-
-std::ostream&
-operator<<(std::ostream& os, const EventId& eventId);
 
 /** \brief A scoped handle for a scheduled event.
  *

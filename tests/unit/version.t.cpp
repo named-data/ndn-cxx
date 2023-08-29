@@ -37,9 +37,9 @@ BOOST_AUTO_TEST_CASE(VersionNumber)
                                 NDN_CXX_VERSION_MINOR * 1000 +
                                 NDN_CXX_VERSION_PATCH);
 
-  static_assert(NDN_CXX_VERSION_MAJOR < 1000, "");
-  static_assert(NDN_CXX_VERSION_MINOR < 1000, "");
-  static_assert(NDN_CXX_VERSION_PATCH < 1000, "");
+  static_assert(NDN_CXX_VERSION_MAJOR < 1000);
+  static_assert(NDN_CXX_VERSION_MINOR < 1000);
+  static_assert(NDN_CXX_VERSION_PATCH < 1000);
 }
 
 BOOST_AUTO_TEST_CASE(VersionString)

@@ -26,6 +26,9 @@
 
 namespace ndn::tests {
 
+static_assert(std::is_convertible_v<MetadataObject::Error*, tlv::Error*>,
+              "MetadataObject::Error must inherit from tlv::Error");
+
 class MetadataObjectFixture : public KeyChainFixture
 {
 public:

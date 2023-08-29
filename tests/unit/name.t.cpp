@@ -31,6 +31,7 @@ namespace ndn::tests {
 using ndn::name::Component;
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Name>));
+BOOST_CONCEPT_ASSERT((boost::Comparable<Name>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Name>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Name>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Name>));

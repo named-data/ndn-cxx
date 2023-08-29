@@ -366,7 +366,7 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, const void* payload, size_t payl
   {
     alignas(NLMSG_ALIGNTO) nlmsghdr nlh;
   };
-  static_assert(sizeof(RtnlMessageHeader) == NLMSG_HDRLEN, "");
+  static_assert(sizeof(RtnlMessageHeader) == NLMSG_HDRLEN);
 
   auto hdr = make_shared<RtnlMessageHeader>();
   hdr->nlh.nlmsg_len = sizeof(RtnlMessageHeader) + payloadLen;
@@ -472,7 +472,7 @@ GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
     alignas(NLMSG_ALIGNTO) nlmsghdr nlh;
     alignas(NLMSG_ALIGNTO) genlmsghdr genlh;
   };
-  static_assert(sizeof(GenlMessageHeader) == NLMSG_SPACE(GENL_HDRLEN), "");
+  static_assert(sizeof(GenlMessageHeader) == NLMSG_SPACE(GENL_HDRLEN));
 
   auto hdr = make_shared<GenlMessageHeader>();
   hdr->nlh.nlmsg_len = sizeof(GenlMessageHeader) + payloadLen;

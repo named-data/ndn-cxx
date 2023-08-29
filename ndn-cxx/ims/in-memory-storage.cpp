@@ -27,14 +27,6 @@ namespace ndn {
 constexpr size_t MIN_CAPACITY = 16;
 constexpr time::milliseconds ZERO_WINDOW = 0_ms;
 
-InMemoryStorage::const_iterator::const_iterator(const Data* ptr, const Cache* cache,
-                                                Cache::index<byFullName>::type::iterator it)
-  : m_ptr(ptr)
-  , m_cache(cache)
-  , m_it(it)
-{
-}
-
 InMemoryStorage::const_iterator&
 InMemoryStorage::const_iterator::operator++()
 {
@@ -45,40 +37,7 @@ InMemoryStorage::const_iterator::operator++()
   else {
     m_ptr = nullptr;
   }
-
   return *this;
-}
-
-InMemoryStorage::const_iterator
-InMemoryStorage::const_iterator::operator++(int)
-{
-  InMemoryStorage::const_iterator i(*this);
-  this->operator++();
-  return i;
-}
-
-InMemoryStorage::const_iterator::reference
-InMemoryStorage::const_iterator::operator*()
-{
-  return *m_ptr;
-}
-
-InMemoryStorage::const_iterator::pointer
-InMemoryStorage::const_iterator::operator->()
-{
-  return m_ptr;
-}
-
-bool
-InMemoryStorage::const_iterator::operator==(const const_iterator& rhs)
-{
-  return m_it == rhs.m_it;
-}
-
-bool
-InMemoryStorage::const_iterator::operator!=(const const_iterator& rhs)
-{
-  return m_it != rhs.m_it;
 }
 
 InMemoryStorage::InMemoryStorage(size_t limit)

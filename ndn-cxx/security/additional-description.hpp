@@ -33,7 +33,7 @@ namespace ndn::security {
  * @brief Represents an %AdditionalDescription TLV element.
  * @sa https://docs.named-data.net/NDN-packet-spec/0.3/certificate.html
  */
-class AdditionalDescription
+class AdditionalDescription : private boost::equality_comparable<AdditionalDescription>
 {
 public:
   class Error : public tlv::Error
@@ -107,20 +107,15 @@ public:
   void
   wireDecode(const Block& wire);
 
-private: // EqualityComparable concept
+private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
 
   friend bool
   operator==(const AdditionalDescription& lhs, const AdditionalDescription& rhs)
   {
     return lhs.m_info == rhs.m_info;
-  }
-
-  friend bool
-  operator!=(const AdditionalDescription& lhs, const AdditionalDescription& rhs)
-  {
-    return lhs.m_info != rhs.m_info;
   }
 
 private:

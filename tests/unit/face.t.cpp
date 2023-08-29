@@ -44,7 +44,7 @@ protected:
     : face(m_io, m_keyChain, {true, !std::is_same_v<PrefixRegReply, NoPrefixRegReply>})
   {
     static_assert(std::is_same_v<PrefixRegReply, WantPrefixRegReply> ||
-                  std::is_same_v<PrefixRegReply, NoPrefixRegReply>, "");
+                  std::is_same_v<PrefixRegReply, NoPrefixRegReply>);
   }
 
   /** \brief Execute a prefix registration, and optionally check the name in callback.

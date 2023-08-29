@@ -51,10 +51,10 @@ struct Fragment {};
 template<typename X>
 struct Field
 {
-  static_assert(std::is_same_v<typename X::TlvType::value_type, uint32_t>, "");
-  static_assert(std::is_same_v<typename X::IsRepeatable::value_type, bool>, "");
-  static_assert(std::is_default_constructible_v<typename X::ValueType>, "");
-  static_assert(std::is_copy_constructible_v<typename X::ValueType>, "");
+  static_assert(std::is_same_v<typename X::TlvType::value_type, uint32_t>);
+  static_assert(std::is_same_v<typename X::IsRepeatable::value_type, bool>);
+  static_assert(std::is_default_constructible_v<typename X::ValueType>);
+  static_assert(std::is_copy_constructible_v<typename X::ValueType>);
 
   BOOST_CONCEPT_USAGE(Field)
   {

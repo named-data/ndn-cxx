@@ -178,13 +178,17 @@ public: // canonical FaceUri
            boost::asio::io_service& io,
            time::nanoseconds timeout) const;
 
+private:
+  void
+  print(std::ostream& os) const;
+
 private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
   // boost::totally_ordered provides !=, <=, >=, and > operators.
 
   friend bool
-  operator==(const FaceUri& lhs, const FaceUri& rhs)
+  operator==(const FaceUri& lhs, const FaceUri& rhs) noexcept
   {
     return lhs.m_isV6 == rhs.m_isV6 &&
            lhs.m_scheme == rhs.m_scheme &&
@@ -194,10 +198,17 @@ private: // non-member operators
   }
 
   friend bool
-  operator<(const FaceUri& lhs, const FaceUri& rhs)
+  operator<(const FaceUri& lhs, const FaceUri& rhs) noexcept
   {
     return std::tie(lhs.m_scheme, lhs.m_isV6, lhs.m_host, lhs.m_port, lhs.m_path) <
            std::tie(rhs.m_scheme, rhs.m_isV6, rhs.m_host, rhs.m_port, rhs.m_path);
+  }
+
+  friend std::ostream&
+  operator<<(std::ostream& os, const FaceUri& uri)
+  {
+    uri.print(os);
+    return os;
   }
 
 private:
@@ -206,12 +217,7 @@ private:
   std::string m_port;
   std::string m_path;
   bool m_isV6 = false; ///< whether to add [] around host when converting to string representation
-
-  friend std::ostream& operator<<(std::ostream& os, const FaceUri& uri);
 };
-
-std::ostream&
-operator<<(std::ostream& os, const FaceUri& uri);
 
 } // namespace ndn
 

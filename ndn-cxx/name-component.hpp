@@ -109,7 +109,7 @@ setConventionDecoding(Convention convention);
  * or, if it is an `ImplicitSha256DigestComponent` or a `ParametersSha256DigestComponent`,
  * its TLV-LENGTH is not 32.
  */
-class Component : public Block
+class Component : public Block, private boost::less_than_comparable<Component>
 {
 public:
   class Error : public Block::Error
@@ -482,23 +482,12 @@ public: // comparison
   }
 
   /**
-   * @brief Check whether this is the same component as @p other.
-   * @param other The name component to compare with
-   * @return true if the components are equal, false otherwise.
-   */
-  bool
-  equals(const Component& other) const noexcept
-  {
-    return Block::equals(other);
-  }
-
-  /**
-   * @brief Compare this to the other Component using NDN canonical ordering.
+   * @brief Compare this component to @p other using NDN canonical ordering.
    *
-   * @param other The other Component to compare with.
-   * @retval negative this comes before other in canonical ordering
-   * @retval zero this equals other
-   * @retval positive this comes after other in canonical ordering
+   * @param other The name component to compare with.
+   * @retval negative This component comes before @p other in canonical ordering
+   * @retval zero This component equals @p other
+   * @retval positive This component comes after @p other in canonical ordering
    *
    * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#canonical-order
    */
@@ -543,41 +532,13 @@ private:
 private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
-
-  friend bool
-  operator==(const Component& lhs, const Component& rhs) noexcept
-  {
-    return lhs.equals(rhs);
-  }
-
-  friend bool
-  operator!=(const Component& lhs, const Component& rhs) noexcept
-  {
-    return !lhs.equals(rhs);
-  }
+  // Block provides == and != operators.
+  // boost::less_than_comparable provides <=, >=, and > operators.
 
   friend bool
   operator<(const Component& lhs, const Component& rhs)
   {
     return lhs.compare(rhs) < 0;
-  }
-
-  friend bool
-  operator<=(const Component& lhs, const Component& rhs)
-  {
-    return lhs.compare(rhs) <= 0;
-  }
-
-  friend bool
-  operator>(const Component& lhs, const Component& rhs)
-  {
-    return lhs.compare(rhs) > 0;
-  }
-
-  friend bool
-  operator>=(const Component& lhs, const Component& rhs)
-  {
-    return lhs.compare(rhs) >= 0;
   }
 
   friend std::ostream&
@@ -589,7 +550,7 @@ private: // non-member operators
 
   // !!! NOTE TO IMPLEMENTOR !!!
   //
-  // This class MUST NOT contain any data fields.
+  // This class MUST NOT contain any non-static data members.
   // Block can be reinterpret_cast'ed as Component type.
 };
 

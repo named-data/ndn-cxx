@@ -35,7 +35,9 @@ namespace ndn::tests {
 using ndn::name::Component;
 using ndn::name::UriFormat;
 
+static_assert(sizeof(Component) == sizeof(Block));
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Component>));
+BOOST_CONCEPT_ASSERT((boost::Comparable<Component>));
 BOOST_CONCEPT_ASSERT((WireEncodable<Component>));
 BOOST_CONCEPT_ASSERT((WireEncodableWithEncodingBuffer<Component>));
 BOOST_CONCEPT_ASSERT((WireDecodable<Component>));

@@ -29,6 +29,8 @@ namespace ndn::tests {
 
 using namespace ndn::security::pib;
 
+BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Key>));
+
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestKey, PibDataFixture)
 

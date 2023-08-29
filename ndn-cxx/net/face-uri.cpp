@@ -181,25 +181,24 @@ std::string
 FaceUri::toString() const
 {
   std::ostringstream os;
-  os << *this;
+  print(os);
   return os.str();
 }
 
-std::ostream&
-operator<<(std::ostream& os, const FaceUri& uri)
+void
+FaceUri::print(std::ostream& os) const
 {
-  os << uri.m_scheme << "://";
-  if (uri.m_isV6) {
-    os << "[" << uri.m_host << "]";
+  os << m_scheme << "://";
+  if (m_isV6) {
+    os << "[" << m_host << "]";
   }
   else {
-    os << uri.m_host;
+    os << m_host;
   }
-  if (!uri.m_port.empty()) {
-    os << ":" << uri.m_port;
+  if (!m_port.empty()) {
+    os << ":" << m_port;
   }
-  os << uri.m_path;
-  return os;
+  os << m_path;
 }
 
 

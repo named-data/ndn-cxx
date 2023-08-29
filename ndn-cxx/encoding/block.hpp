@@ -29,6 +29,8 @@
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/util/span.hpp"
 
+#include <boost/operators.hpp>
+
 namespace boost::asio {
 class const_buffer;
 } // namespace boost::asio
@@ -39,7 +41,7 @@ namespace ndn {
  * @brief Represents a TLV element of the NDN packet format.
  * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html
  */
-class Block
+class Block : private boost::equality_comparable<Block>
 {
 public:
   using value_type             = Buffer::value_type;
@@ -463,13 +465,6 @@ public: // misc
    */
   operator boost::asio::const_buffer() const;
 
-protected:
-  /**
-   * @brief Returns whether this Block has the same TLV-TYPE/TLV-LENGTH/TLV-VALUE as @p other.
-   */
-  bool
-  equals(const Block& other) const noexcept;
-
 private:
   /**
    * @brief Estimate Block size as if sub-elements are encoded into TLV-VALUE.
@@ -491,12 +486,19 @@ private:
   size_t
   encode(EncodingBuffer& encoder);
 
+  /**
+   * @brief Returns whether this Block has the same TLV-TYPE/TLV-LENGTH/TLV-VALUE as @p other.
+   */
+  bool
+  equals(const Block& other) const noexcept;
+
   void
   print(std::ostream& os) const;
 
 private: // non-member operators
   // NOTE: the following "hidden friend" operators are available via
   //       argument-dependent lookup only and must be defined inline.
+  // boost::equality_comparable provides != operator.
 
   /**
    * @brief Compare whether two Blocks have the same TLV-TYPE, TLV-LENGTH, and TLV-VALUE.
@@ -505,12 +507,6 @@ private: // non-member operators
   operator==(const Block& lhs, const Block& rhs) noexcept
   {
     return lhs.equals(rhs);
-  }
-
-  friend bool
-  operator!=(const Block& lhs, const Block& rhs) noexcept
-  {
-    return !lhs.equals(rhs);
   }
 
   /**

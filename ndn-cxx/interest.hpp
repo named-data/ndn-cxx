@@ -55,10 +55,8 @@ public:
     using tlv::Error::Error;
   };
 
-  class Nonce final : public std::array<uint8_t, 4>
+  class Nonce final : public std::array<uint8_t, 4>, private boost::equality_comparable<Nonce>
   {
-    using Base = std::array<uint8_t, 4>;
-
   public:
     Nonce() = default;
 
@@ -80,17 +78,12 @@ public:
   private: // non-member operators
     // NOTE: the following "hidden friend" operators are available via
     //       argument-dependent lookup only and must be defined inline.
+    // boost::equality_comparable provides != operator.
 
     friend bool
     operator==(const Nonce& lhs, const Nonce& rhs) noexcept
     {
-      return static_cast<const Base&>(lhs) == static_cast<const Base&>(rhs);
-    }
-
-    friend bool
-    operator!=(const Nonce& lhs, const Nonce& rhs) noexcept
-    {
-      return static_cast<const Base&>(lhs) != static_cast<const Base&>(rhs);
+      return std::equal(lhs.begin(), lhs.end(), rhs.begin());
     }
 
     friend std::ostream&

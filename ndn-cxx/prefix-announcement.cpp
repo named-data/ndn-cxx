@@ -24,9 +24,6 @@
 
 namespace ndn {
 
-static_assert(std::is_convertible_v<PrefixAnnouncement::Error*, tlv::Error*>,
-              "PrefixAnnouncement::Error must inherit from tlv::Error");
-
 PrefixAnnouncement::PrefixAnnouncement() = default;
 
 PrefixAnnouncement::PrefixAnnouncement(Data data)
@@ -124,14 +121,6 @@ PrefixAnnouncement::getKeywordComponent()
 {
   static const name::Component nc(tlv::KeywordNameComponent, {'P', 'A'});
   return nc;
-}
-
-bool
-operator==(const PrefixAnnouncement& lhs, const PrefixAnnouncement& rhs)
-{
-  return lhs.getAnnouncedName() == rhs.getAnnouncedName() &&
-         lhs.getExpiration() == rhs.getExpiration() &&
-         lhs.getValidityPeriod() == rhs.getValidityPeriod();
 }
 
 std::ostream&
