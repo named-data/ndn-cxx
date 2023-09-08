@@ -103,7 +103,7 @@ def configure(conf):
     conf.check_sqlite3()
     conf.check_openssl(lib='crypto', atleast_version='1.1.1')
 
-    boost_libs = ['system', 'program_options', 'chrono', 'date_time', 'filesystem', 'thread', 'log']
+    boost_libs = ['system', 'chrono', 'date_time', 'filesystem', 'thread', 'log']
 
     stacktrace_backend = conf.options.with_stacktrace
     if stacktrace_backend is None:
@@ -120,9 +120,6 @@ def configure(conf):
         conf.env.append_unique('DEFINES_BOOST', ['BOOST_STACKTRACE_DYN_LINK'])
         boost_libs.append(f'stacktrace_{stacktrace_backend}')
 
-    if conf.env.WITH_TESTS:
-        boost_libs.append('unit_test_framework')
-
     conf.check_boost(lib=boost_libs, mt=True)
     if conf.env.BOOST_VERSION_NUMBER < 106501:
         conf.fatal('The minimum supported version of Boost is 1.65.1.\n'
@@ -134,6 +131,12 @@ def configure(conf):
         conf.env.append_unique('DEFINES_BOOST', ['BOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW'])
 
     conf.env.append_unique('DEFINES_BOOST', ['BOOST_FILESYSTEM_NO_DEPRECATED'])
+
+    if conf.env.WITH_TESTS:
+        conf.check_boost(lib='unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
+
+    if conf.env.WITH_TOOLS:
+        conf.check_boost(lib='program_options', mt=True, uselib_store='BOOST_TOOLS')
 
     conf.check_compiler_flags()
 

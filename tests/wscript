@@ -8,7 +8,7 @@ def build(bld):
                 source=bld.path.ant_glob('*.cpp'),
                 features='pch',
                 headers='tests-pch.hpp',
-                use='ndn-cxx BOOST')
+                use='BOOST_TESTS ndn-cxx')
 
     bld.recurse('benchmarks')
     bld.recurse('integration')

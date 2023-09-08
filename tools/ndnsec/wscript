@@ -7,7 +7,7 @@ def build(bld):
                 source=bld.path.ant_glob('*.cpp', excl=['main.cpp']),
                 features='pch',
                 headers='ndnsec-pch.hpp',
-                use='ndn-cxx')
+                use='BOOST_TOOLS ndn-cxx')
 
     bld.program(name='tool-ndnsec',
                 target=top + 'bin/ndnsec',
