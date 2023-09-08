@@ -2,7 +2,7 @@
 
 from waflib import Utils
 
-top = '../'
+top = '..'
 
 def build(bld):
     # Single object tools:
@@ -10,8 +10,8 @@ def build(bld):
     # and is built as build/bin/foo. These tools cannot be unit-tested.
     for tool in bld.path.ant_glob('*.cpp'):
         name = tool.change_ext('').path_from(bld.path.get_bld())
-        bld.program(name='tool-%s' % name,
-                    target=top + 'bin/%s' % name,
+        bld.program(name=f'tool-{name}',
+                    target=f'{top}/bin/{name}',
                     source=[tool],
                     use='ndn-cxx')
 
@@ -35,11 +35,11 @@ def build(bld):
         srcFiles = subdir.ant_glob('**/*.cpp', excl=['main.cpp'])
         srcObjects = ''
         if srcFiles:
-            srcObjects = 'tool-%s-objects' % name
+            srcObjects = f'tool-{name}-objects'
             bld.objects(target=srcObjects,
                         source=srcFiles,
                         use='ndn-cxx')
-        bld.program(name='tool-%s' % name,
-                    target=top + 'bin/%s' % name,
+        bld.program(name=f'tool-{name}',
+                    target=f'{top}/bin/{name}',
                     source=[mainFile],
                     use='ndn-cxx ' + srcObjects)

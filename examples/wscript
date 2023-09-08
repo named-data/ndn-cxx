@@ -6,7 +6,7 @@ def build(bld):
     # List all .cpp files (whole example in one .cpp)
     for ex in bld.path.ant_glob('*.cpp'):
         name = ex.change_ext('').path_from(bld.path.get_bld())
-        bld.program(name='example-%s' % name,
+        bld.program(name=f'example-{name}',
                     target=name,
                     source=[ex],
                     use='ndn-cxx',
@@ -15,7 +15,7 @@ def build(bld):
     # List all directories (example can have multiple .cpp in the directory)
     for subdir in bld.path.ant_glob('*', dir=True, src=False):
         name = subdir.path_from(bld.path)
-        bld.program(name='example-%s' % name,
+        bld.program(name=f'example-{name}',
                     target=name,
                     source=subdir.ant_glob('**/*.cpp'),
                     use='ndn-cxx',

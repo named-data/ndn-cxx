@@ -110,7 +110,7 @@ def configure(conf):
         # auto-detect
         for candidate in ('backtrace', 'basic'):
             try:
-                conf.check_boost(lib='stacktrace_%s' % candidate, mt=True)
+                conf.check_boost(lib=f'stacktrace_{candidate}', mt=True)
             except conf.errors.ConfigurationError:
                 continue
             stacktrace_backend = candidate
@@ -118,7 +118,7 @@ def configure(conf):
     if stacktrace_backend:
         conf.env.HAVE_STACKTRACE = True
         conf.env.append_unique('DEFINES_BOOST', ['BOOST_STACKTRACE_DYN_LINK'])
-        boost_libs.append('stacktrace_%s' % stacktrace_backend)
+        boost_libs.append(f'stacktrace_{stacktrace_backend}')
 
     if conf.env.WITH_TESTS:
         boost_libs.append('unit_test_framework')
@@ -228,41 +228,39 @@ def build(bld):
     pkgconfig_cxxflags = []
     pkgconfig_defines = []
     for lib in Utils.to_list(libndn_cxx['use']):
-        if bld.env['LIB_%s' % lib]:
-            pkgconfig_libs += Utils.to_list(bld.env['LIB_%s' % lib])
-        if bld.env['LIBPATH_%s' % lib]:
-            pkgconfig_ldflags += Utils.to_list(bld.env['LIBPATH_%s' % lib])
-        if bld.env['INCLUDES_%s' % lib]:
-            pkgconfig_includes += Utils.to_list(bld.env['INCLUDES_%s' % lib])
-        if bld.env['LINKFLAGS_%s' % lib]:
-            pkgconfig_linkflags += Utils.to_list(bld.env['LINKFLAGS_%s' % lib])
-        if bld.env['CXXFLAGS_%s' % lib]:
-            pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
-        if bld.env['DEFINES_%s' % lib]:
-            pkgconfig_defines += Utils.to_list(bld.env['DEFINES_%s' % lib])
+        if bld.env[f'LIB_{lib}']:
+            pkgconfig_libs += Utils.to_list(bld.env[f'LIB_{lib}'])
+        if bld.env[f'LIBPATH_{lib}']:
+            pkgconfig_ldflags += Utils.to_list(bld.env[f'LIBPATH_{lib}'])
+        if bld.env[f'INCLUDES_{lib}']:
+            pkgconfig_includes += Utils.to_list(bld.env[f'INCLUDES_{lib}'])
+        if bld.env[f'LINKFLAGS_{lib}']:
+            pkgconfig_linkflags += Utils.to_list(bld.env[f'LINKFLAGS_{lib}'])
+        if bld.env[f'CXXFLAGS_{lib}']:
+            pkgconfig_cxxflags += Utils.to_list(bld.env[f'CXXFLAGS_{lib}'])
+        if bld.env[f'DEFINES_{lib}']:
+            pkgconfig_defines += Utils.to_list(bld.env[f'DEFINES_{lib}'])
 
     EXTRA_FRAMEWORKS = ''
     if bld.env.HAVE_OSX_FRAMEWORKS:
         EXTRA_FRAMEWORKS = '-framework CoreFoundation -framework Security -framework SystemConfiguration -framework Foundation -framework CoreWLAN'
 
     def uniq(alist):
-        seen = set()
-        return [x for x in alist if x not in seen and not seen.add(x)]
+        return list(dict.fromkeys(alist))
 
-    pkconfig = bld(features='subst',
-         source='libndn-cxx.pc.in',
-         target='libndn-cxx.pc',
-         install_path='${LIBDIR}/pkgconfig',
-         VERSION=VERSION_BASE,
-
-         # This probably not the right thing to do, but to simplify life of apps
-         # that use the library
-         EXTRA_LIBS=' '.join([('-l%s' % i) for i in uniq(pkgconfig_libs)]),
-         EXTRA_LDFLAGS=' '.join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
-         EXTRA_LINKFLAGS=' '.join(uniq(pkgconfig_linkflags)),
-         EXTRA_INCLUDES=' '.join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
-         EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags) + [('-D%s' % i) for i in uniq(pkgconfig_defines)]),
-         EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS)
+    bld(features='subst',
+        source='libndn-cxx.pc.in',
+        target='libndn-cxx.pc',
+        install_path='${LIBDIR}/pkgconfig',
+        VERSION=VERSION_BASE,
+        # This probably not the right thing to do, but to simplify life of apps
+        # that use the library
+        EXTRA_LIBS=' '.join([f'-l{i}' for i in uniq(pkgconfig_libs)]),
+        EXTRA_LDFLAGS=' '.join([f'-L{i}' for i in uniq(pkgconfig_ldflags)]),
+        EXTRA_LINKFLAGS=' '.join(uniq(pkgconfig_linkflags)),
+        EXTRA_INCLUDES=' '.join([f'-I{i}' for i in uniq(pkgconfig_includes)]),
+        EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags) + [f'-D{i}' for i in uniq(pkgconfig_defines)]),
+        EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS)
 
     if bld.env.WITH_TESTS:
         bld.recurse('tests')
@@ -363,16 +361,16 @@ def version(ctx):
     # first, try to get a version string from git
     gotVersionFromGit = False
     try:
-        cmd = ['git', 'describe', '--always', '--match', '%s*' % GIT_TAG_PREFIX]
-        out = subprocess.check_output(cmd, universal_newlines=True).strip()
+        cmd = ['git', 'describe', '--always', '--match', f'{GIT_TAG_PREFIX}*']
+        out = subprocess.run(cmd, capture_output=True, check=True, text=True).stdout.strip()
         if out:
             gotVersionFromGit = True
             if out.startswith(GIT_TAG_PREFIX):
                 Context.g_module.VERSION = out.lstrip(GIT_TAG_PREFIX)
             else:
                 # no tags matched
-                Context.g_module.VERSION = '%s-commit-%s' % (VERSION_BASE, out)
-    except (OSError, subprocess.CalledProcessError):
+                Context.g_module.VERSION = f'{VERSION_BASE}-commit-{out}'
+    except (OSError, subprocess.SubprocessError):
         pass
 
     versionFile = ctx.path.find_node('VERSION.info')
@@ -390,14 +388,14 @@ def version(ctx):
                 # already up-to-date
                 return
         except EnvironmentError as e:
-            Logs.warn('%s exists but is not readable (%s)' % (versionFile, e.strerror))
+            Logs.warn(f'{versionFile} exists but is not readable ({e.strerror})')
     else:
         versionFile = ctx.path.make_node('VERSION.info')
 
     try:
         versionFile.write(Context.g_module.VERSION)
     except EnvironmentError as e:
-        Logs.warn('%s is not writable (%s)' % (versionFile, e.strerror))
+        Logs.warn(f'{versionFile} is not writable ({e.strerror})')
 
 def dist(ctx):
     ctx.algo = 'tar.xz'

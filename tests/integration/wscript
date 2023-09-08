@@ -5,7 +5,7 @@ top = '../..'
 def build(bld):
     for test in bld.path.ant_glob('*.cpp'):
         name = test.change_ext('').path_from(bld.path.get_bld())
-        bld.program(name='test-%s' % name,
+        bld.program(name=f'test-{name}',
                     target=name,
                     source=[test],
                     use='tests-common',
