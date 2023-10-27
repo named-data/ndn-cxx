@@ -226,7 +226,13 @@ NetworkMonitorImplOsx::getInterfaceNames() const
 void
 NetworkMonitorImplOsx::addNewInterface(const std::string& ifName, const IfAddrs& ifaList)
 {
-  shared_ptr<NetworkInterface> interface = makeNetworkInterface();
+  // ignore AWDL interfaces (name starting with "awdl" or "llw"), see bug #5074
+  if (ifName.rfind("awdl", 0) == 0 || ifName.rfind("llw", 0) == 0) {
+    NDN_LOG_DEBUG("ignoring " << ifName);
+    return;
+  }
+
+  auto interface = makeNetworkInterface();
   interface->setName(ifName);
   interface->setState(getInterfaceState(*interface));
   updateInterfaceInfo(*interface, ifaList);
@@ -314,12 +320,12 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif, const IfAddr
       case AF_INET: {
         addrFamily = AddressFamily::V4;
 
-        const sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
+        const auto* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_addr);
         ip::address_v4::bytes_type bytes;
         std::copy_n(reinterpret_cast<const unsigned char*>(&sin->sin_addr), bytes.size(), bytes.begin());
         ipAddr = ip::address_v4(bytes);
 
-        const sockaddr_in* sinMask = reinterpret_cast<sockaddr_in*>(ifa->ifa_netmask);
+        const auto* sinMask = reinterpret_cast<sockaddr_in*>(ifa->ifa_netmask);
         std::copy_n(reinterpret_cast<const unsigned char*>(&sinMask->sin_addr), bytes.size(), bytes.begin());
         prefixLength = computePrefixLength(bytes);
         break;
@@ -328,7 +334,7 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif, const IfAddr
       case AF_INET6: {
         addrFamily = AddressFamily::V6;
 
-        const sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
+        const auto* sin6 = reinterpret_cast<sockaddr_in6*>(ifa->ifa_addr);
         ip::address_v6::bytes_type bytes;
         std::copy_n(reinterpret_cast<const unsigned char*>(&sin6->sin6_addr), bytes.size(), bytes.begin());
         ip::address_v6 v6Addr(bytes);
@@ -336,14 +342,14 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif, const IfAddr
           v6Addr.scope_id(if_nametoindex(netif.getName().data()));
         ipAddr = v6Addr;
 
-        const sockaddr_in6* sinMask = reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask);
+        const auto* sinMask = reinterpret_cast<sockaddr_in6*>(ifa->ifa_netmask);
         std::copy_n(reinterpret_cast<const unsigned char*>(&sinMask->sin6_addr), bytes.size(), bytes.begin());
         prefixLength = computePrefixLength(bytes);
         break;
       }
 
       case AF_LINK: {
-        const sockaddr_dl* sdl = reinterpret_cast<sockaddr_dl*>(ifa->ifa_addr);
+        const auto* sdl = reinterpret_cast<sockaddr_dl*>(ifa->ifa_addr);
         netif.setIndex(sdl->sdl_index);
 
         if (sdl->sdl_type == IFT_ETHER && sdl->sdl_alen == ethernet::ADDR_LEN) {
@@ -356,6 +362,7 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif, const IfAddr
         }
         else {
           netif.setType(InterfaceType::UNKNOWN);
+          NDN_LOG_TRACE(netif.getName() << " has unknown type " << sdl->sdl_type);
         }
         break;
       }
@@ -365,7 +372,7 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif, const IfAddr
       netif.setEthernetBroadcastAddress(ethernet::getBroadcastAddress());
 
       if (addrFamily == AddressFamily::V4 && ifa->ifa_broadaddr != nullptr) {
-        const sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_broadaddr);
+        const auto* sin = reinterpret_cast<sockaddr_in*>(ifa->ifa_broadaddr);
         ip::address_v4::bytes_type bytes;
         std::copy_n(reinterpret_cast<const unsigned char*>(&sin->sin_addr), bytes.size(), bytes.begin());
         broadcastAddr = ip::address_v4(bytes);

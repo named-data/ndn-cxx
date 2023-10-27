@@ -31,7 +31,7 @@
 
 namespace ndn::net {
 
-class NetworkMonitorImplStub : public NetworkMonitorImpl
+class NetworkMonitorImplStub final : public NetworkMonitorImpl
 {
 public:
   explicit

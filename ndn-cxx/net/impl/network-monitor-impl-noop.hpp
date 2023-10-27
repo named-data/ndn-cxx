@@ -28,7 +28,7 @@
 
 namespace ndn::net {
 
-class NetworkMonitorImplNoop : public NetworkMonitorImpl
+class NetworkMonitorImplNoop final : public NetworkMonitorImpl
 {
 public:
   explicit

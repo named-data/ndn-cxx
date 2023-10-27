@@ -37,10 +37,11 @@
 
 namespace ndn::net {
 
-class NetworkMonitorImplNetlink : public NetworkMonitorImpl
+class NetworkMonitorImplNetlink final : public NetworkMonitorImpl
 {
 public:
-  /** \brief Initialize netlink socket and start enumerating interfaces.
+  /**
+   * \brief Initialize netlink socket and start enumerating interfaces.
    */
   explicit
   NetworkMonitorImplNetlink(boost::asio::io_service& io);

@@ -42,12 +42,12 @@ namespace ndn::net {
 
 class IfAddrs;
 
-class NetworkMonitorImplOsx : public NetworkMonitorImpl
+class NetworkMonitorImplOsx final : public NetworkMonitorImpl
 {
 public:
   NetworkMonitorImplOsx(boost::asio::io_service& io);
 
-  ~NetworkMonitorImplOsx();
+  ~NetworkMonitorImplOsx() final;
 
   uint32_t
   getCapabilities() const final
