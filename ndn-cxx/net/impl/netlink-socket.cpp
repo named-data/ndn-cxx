@@ -141,10 +141,10 @@ NetlinkSocket::open(int protocol)
     NDN_THROW_ERRNO(Error("Cannot obtain netlink socket address"));
   }
   if (len != sizeof(addr)) {
-    NDN_THROW(Error("Wrong address length (" + to_string(len) + ")"));
+    NDN_THROW(Error("Wrong address length (" + std::to_string(len) + ")"));
   }
   if (addr.nl_family != AF_NETLINK) {
-    NDN_THROW(Error("Wrong address family (" + to_string(addr.nl_family) + ")"));
+    NDN_THROW(Error("Wrong address family (" + std::to_string(addr.nl_family) + ")"));
   }
   m_pid = addr.nl_pid;
   NDN_LOG_TRACE("our pid is " << m_pid);
@@ -179,7 +179,7 @@ NetlinkSocket::joinGroup(int group)
   boost::system::error_code ec;
   m_sock->set_option(NetlinkSocketOption<NETLINK_ADD_MEMBERSHIP>(group), ec);
   if (ec) {
-    NDN_THROW(Error("Cannot join netlink group " + to_string(group) + ": " + ec.message()));
+    NDN_THROW(Error("Cannot join netlink group " + std::to_string(group) + ": " + ec.message()));
   }
 }
 
@@ -206,14 +206,14 @@ NetlinkSocket::registerRequestCallback(uint32_t seq, MessageCallback cb)
 std::string
 NetlinkSocket::nlmsgTypeToString(uint16_t type) const
 {
-#define NLMSG_STRINGIFY(x) case NLMSG_##x: return to_string(type) + "<" #x ">"
+#define NLMSG_STRINGIFY(x) case NLMSG_##x: return std::to_string(type) + "<" #x ">"
   switch (type) {
     NLMSG_STRINGIFY(NOOP);
     NLMSG_STRINGIFY(ERROR);
     NLMSG_STRINGIFY(DONE);
     NLMSG_STRINGIFY(OVERRUN);
     default:
-      return to_string(type);
+      return std::to_string(type);
   }
 #undef NLMSG_STRINGIFY
 }
@@ -221,29 +221,23 @@ NetlinkSocket::nlmsgTypeToString(uint16_t type) const
 void
 NetlinkSocket::asyncWait()
 {
-  // capture a copy of 'm_sock' to prevent its deallocation while the handler is still pending
-  auto handler = [this, sock = m_sock] (const boost::system::error_code& ec) {
-    if (!sock->is_open() || ec == boost::asio::error::operation_aborted) {
-      // socket was closed, ignore the error
-      NDN_LOG_DEBUG("netlink socket closed or operation aborted");
-    }
-    else if (ec) {
-      NDN_LOG_ERROR("read failed: " << ec.message());
-      NDN_THROW(Error("Netlink socket read error (" + ec.message() + ")"));
-    }
-    else {
-      receiveAndValidate();
-      if (!m_pendingRequests.empty())
-        asyncWait();
-    }
-  };
-
-#if BOOST_VERSION >= 106600
-  m_sock->async_wait(boost::asio::socket_base::wait_read, std::move(handler));
-#else
-  m_sock->async_receive(boost::asio::null_buffers(),
-                        [h = std::move(handler)] (const boost::system::error_code& ec, size_t) { h(ec); });
-#endif
+  m_sock->async_wait(boost::asio::socket_base::wait_read,
+    // capture a copy of 'm_sock' to prevent its deallocation while the handler is still pending
+    [this, sock = m_sock] (const auto& ec) {
+      if (!sock->is_open() || ec == boost::asio::error::operation_aborted) {
+        // socket was closed, ignore the error
+        NDN_LOG_DEBUG("netlink socket closed or operation aborted");
+      }
+      else if (ec) {
+        NDN_LOG_ERROR("read failed: " << ec.message());
+        NDN_THROW(Error("Netlink socket read error (" + ec.message() + ")"));
+      }
+      else {
+        receiveAndValidate();
+        if (!m_pendingRequests.empty())
+          asyncWait();
+      }
+  });
 }
 
 void
@@ -383,7 +377,7 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, const void* payload, size_t payl
   };
   m_sock->async_send(bufs,
     // capture 'hdr' to prevent its premature deallocation
-    [this, hdr] (const boost::system::error_code& ec, size_t) {
+    [this, hdr] (const auto& ec, size_t) {
       if (!ec) {
         NDN_LOG_TRACE("sent dump request type=" << nlmsgTypeToString(hdr->nlh.nlmsg_type)
                       << " seq=" << hdr->nlh.nlmsg_seq);
@@ -398,7 +392,7 @@ RtnlSocket::sendDumpRequest(uint16_t nlmsgType, const void* payload, size_t payl
 std::string
 RtnlSocket::nlmsgTypeToString(uint16_t type) const
 {
-#define RTM_STRINGIFY(x) case RTM_##x: return to_string(type) + "<" #x ">"
+#define RTM_STRINGIFY(x) case RTM_##x: return std::to_string(type) + "<" #x ">"
   switch (type) {
     RTM_STRINGIFY(NEWLINK);
     RTM_STRINGIFY(DELLINK);
@@ -491,7 +485,7 @@ GenlSocket::sendRequest(uint16_t familyId, uint8_t command,
   };
   m_sock->async_send(bufs,
     // capture 'hdr' to prevent its premature deallocation
-    [this, hdr] (const boost::system::error_code& ec, size_t) {
+    [this, hdr] (const auto& ec, size_t) {
       if (!ec) {
         NDN_LOG_TRACE("sent genl request type=" << nlmsgTypeToString(hdr->nlh.nlmsg_type) <<
                       " cmd=" << static_cast<unsigned>(hdr->genlh.cmd) <<
@@ -598,7 +592,7 @@ GenlSocket::nlmsgTypeToString(uint16_t type) const
   if (type >= GENL_MIN_ID) {
     for (const auto& p : m_cachedFamilyIds) {
       if (p.second == type) {
-        return to_string(type) + "<" + p.first + ">";
+        return std::to_string(type) + "<" + p.first + ">";
       }
     }
   }

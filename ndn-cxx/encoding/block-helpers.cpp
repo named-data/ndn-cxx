@@ -25,8 +25,6 @@
 
 namespace ndn::encoding {
 
-namespace endian = boost::endian;
-
 // ---- empty ----
 
 template<Tag TAG>
@@ -105,7 +103,7 @@ prependDoubleBlock(EncodingImpl<TAG>& encoder, uint32_t type, double value)
 {
   uint64_t temp = 0;
   std::memcpy(&temp, &value, 8);
-  endian::native_to_big_inplace(temp);
+  boost::endian::native_to_big_inplace(temp);
   return prependBinaryBlock(encoder, type, {reinterpret_cast<const uint8_t*>(&temp), 8});
 }
 
@@ -133,17 +131,7 @@ readDouble(const Block& block)
   if (block.value_size() != 8) {
     NDN_THROW(tlv::Error("Invalid length for double (must be 8)"));
   }
-
-#if BOOST_VERSION >= 107100
-  return endian::endian_load<double, 8, endian::order::big>(block.value());
-#else
-  uint64_t temp = 0;
-  std::memcpy(&temp, block.value(), 8);
-  endian::big_to_native_inplace(temp);
-  double d = 0;
-  std::memcpy(&d, &temp, 8);
-  return d;
-#endif
+  return boost::endian::endian_load<double, 8, boost::endian::order::big>(block.value());
 }
 
 // ---- binary ----

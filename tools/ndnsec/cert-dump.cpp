@@ -23,9 +23,6 @@
 #include "util.hpp"
 
 #include <boost/asio/ip/tcp.hpp>
-#if BOOST_VERSION < 106700
-#include <boost/date_time/posix_time/posix_time_duration.hpp>
-#endif // BOOST_VERSION < 106700
 
 namespace ndn::ndnsec {
 
@@ -121,11 +118,7 @@ ndnsec_cert_dump(int argc, char** argv)
 
   if (isRepoOut) {
     boost::asio::ip::tcp::iostream requestStream;
-#if BOOST_VERSION >= 106700
     requestStream.expires_after(std::chrono::seconds(10));
-#else
-    requestStream.expires_from_now(boost::posix_time::seconds(10));
-#endif // BOOST_VERSION >= 106700
     requestStream.connect(repoHost, repoPort);
     if (!requestStream) {
       std::cerr << "ERROR: Failed to connect to repo instance" << std::endl;

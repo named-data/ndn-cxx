@@ -53,13 +53,7 @@ public:
       self->connectTimeoutHandler(ec);
     });
 
-    auto resolver = make_shared<typename Protocol::resolver>(this->m_socket
-#if BOOST_VERSION >= 107000
-                                                             .get_executor()
-#else
-                                                             .get_io_service()
-#endif
-                                                             );
+    auto resolver = make_shared<typename Protocol::resolver>(this->m_socket.get_executor());
     resolver->async_resolve(query, [self = this->shared_from_base(), resolver] (auto&&... args) {
       self->resolveHandler(std::forward<decltype(args)>(args)..., resolver);
     });

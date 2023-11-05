@@ -336,7 +336,7 @@ fromIsoExtendedString(const std::string& isoString);
  * \param format desired output format (default: `%Y-%m-%d %H:%M:%S`)
  * \param locale desired locale (default: "C" locale)
  *
- * \sa https://www.boost.org/doc/libs/1_65_1/doc/html/date_time/date_time_io.html#date_time.format_flags
+ * \sa https://www.boost.org/doc/libs/1_71_0/doc/html/date_time/date_time_io.html#date_time.format_flags
  *     describes possible formatting flags
  **/
 std::string
@@ -354,7 +354,7 @@ toString(const system_clock::time_point& timePoint,
  * \param format input output format (default: `%Y-%m-%d %H:%M:%S`)
  * \param locale input locale (default: "C" locale)
  *
- * \sa https://www.boost.org/doc/libs/1_65_1/doc/html/date_time/date_time_io.html#date_time.format_flags
+ * \sa https://www.boost.org/doc/libs/1_71_0/doc/html/date_time/date_time_io.html#date_time.format_flags
  *     describes possible formatting flags
  */
 system_clock::time_point

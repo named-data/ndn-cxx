@@ -26,12 +26,8 @@
 
 namespace boost::asio {
 
-#if BOOST_VERSION >= 106600
 class io_context;
 using io_service = io_context;
-#else
-class io_service;
-#endif // BOOST_VERSION >= 106600
 
 } // namespace boost::asio
 

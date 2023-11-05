@@ -52,11 +52,7 @@ protected:
       if (netmon.getCapabilities() & net::NetworkMonitor::CAP_ENUM) {
         netmon.onEnumerationCompleted.connect([this] { m_io.stop(); });
         m_io.run();
-#if BOOST_VERSION >= 106600
         m_io.restart();
-#else
-        m_io.reset();
-#endif
       }
       return netmon.listNetworkInterfaces();
     }();
@@ -90,11 +86,7 @@ protected:
 
       m_io.run();
       BOOST_CHECK_EQUAL(didInvokeCb, true);
-#if BOOST_VERSION >= 106600
       m_io.restart();
-#else
-      m_io.reset();
-#endif
     }
   }
 

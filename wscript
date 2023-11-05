@@ -1,7 +1,8 @@
 # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
+import os
+import subprocess
 from waflib import Context, Logs, Utils
-import os, subprocess
 
 VERSION = '0.8.1'
 APPNAME = 'ndn-cxx'
@@ -74,9 +75,9 @@ def configure(conf):
                'osx-frameworks', 'boost', 'openssl', 'sqlite3',
                'doxygen', 'sphinx_build'])
 
+    conf.env.WITH_EXAMPLES = conf.options.with_examples
     conf.env.WITH_TESTS = conf.options.with_tests
     conf.env.WITH_TOOLS = conf.options.with_tools
-    conf.env.WITH_EXAMPLES = conf.options.with_examples
 
     conf.find_program('dot', mandatory=False)
 
@@ -103,7 +104,18 @@ def configure(conf):
     conf.check_sqlite3()
     conf.check_openssl(lib='crypto', atleast_version='1.1.1')
 
-    boost_libs = ['system', 'chrono', 'date_time', 'filesystem', 'thread', 'log']
+    conf.check_boost()
+    if conf.env.BOOST_VERSION_NUMBER < 107100:
+        conf.fatal('The minimum supported version of Boost is 1.71.0.\n'
+                   'Please upgrade your distribution or manually install a newer version of Boost.\n'
+                   'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
+
+    # Boost.Log requires Boost.Thread
+    boost_libs = ['chrono', 'filesystem', 'log', 'thread']
+
+    # Boost.Date_Time is header-only since 1.73
+    if conf.env.BOOST_VERSION_NUMBER < 107300:
+        boost_libs.append('date_time')
 
     stacktrace_backend = conf.options.with_stacktrace
     if stacktrace_backend is None:
@@ -121,22 +133,14 @@ def configure(conf):
         boost_libs.append(f'stacktrace_{stacktrace_backend}')
 
     conf.check_boost(lib=boost_libs, mt=True)
-    if conf.env.BOOST_VERSION_NUMBER < 106501:
-        conf.fatal('The minimum supported version of Boost is 1.65.1.\n'
-                   'Please upgrade your distribution or manually install a newer version of Boost.\n'
-                   'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
-
-    # Workaround for bug 4860
-    if conf.env.BOOST_VERSION_NUMBER < 106900 and conf.env.CXX_NAME == 'clang':
-        conf.env.append_unique('DEFINES_BOOST', ['BOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW'])
-
-    conf.env.append_unique('DEFINES_BOOST', ['BOOST_FILESYSTEM_NO_DEPRECATED'])
 
     if conf.env.WITH_TESTS:
         conf.check_boost(lib='unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
 
     if conf.env.WITH_TOOLS:
         conf.check_boost(lib='program_options', mt=True, uselib_store='BOOST_TOOLS')
+
+    conf.env.append_unique('DEFINES_BOOST', ['BOOST_FILESYSTEM_NO_DEPRECATED'])
 
     conf.check_compiler_flags()
 
@@ -168,7 +172,7 @@ def build(bld):
         name='version.hpp',
         source='ndn-cxx/version.hpp.in',
         target='ndn-cxx/version.hpp',
-        install_path=None,
+        install_path='${INCLUDEDIR}/ndn-cxx',
         VERSION_STRING=VERSION_BASE,
         VERSION_BUILD=VERSION,
         VERSION=int(VERSION_SPLIT[0]) * 1000000 +
@@ -214,56 +218,16 @@ def build(bld):
         libndn_cxx['source'] += bld.path.ant_glob('ndn-cxx/**/*netlink*.cpp')
 
     if bld.env.enable_shared:
-        bld.shlib(name='ndn-cxx',
-                  vnum=VERSION_BASE,
-                  cnum=VERSION_BASE,
-                  **libndn_cxx)
+        bld.shlib(
+            name='ndn-cxx',
+            vnum=VERSION_BASE,
+            cnum=VERSION_BASE,
+            **libndn_cxx)
 
     if bld.env.enable_static:
-        bld.stlib(name='ndn-cxx-static' if bld.env.enable_shared else 'ndn-cxx',
-                  **libndn_cxx)
-
-    # Prepare flags that should go to pkgconfig file
-    pkgconfig_libs = []
-    pkgconfig_ldflags = []
-    pkgconfig_linkflags = []
-    pkgconfig_includes = []
-    pkgconfig_cxxflags = []
-    pkgconfig_defines = []
-    for lib in Utils.to_list(libndn_cxx['use']):
-        if bld.env[f'LIB_{lib}']:
-            pkgconfig_libs += Utils.to_list(bld.env[f'LIB_{lib}'])
-        if bld.env[f'LIBPATH_{lib}']:
-            pkgconfig_ldflags += Utils.to_list(bld.env[f'LIBPATH_{lib}'])
-        if bld.env[f'INCLUDES_{lib}']:
-            pkgconfig_includes += Utils.to_list(bld.env[f'INCLUDES_{lib}'])
-        if bld.env[f'LINKFLAGS_{lib}']:
-            pkgconfig_linkflags += Utils.to_list(bld.env[f'LINKFLAGS_{lib}'])
-        if bld.env[f'CXXFLAGS_{lib}']:
-            pkgconfig_cxxflags += Utils.to_list(bld.env[f'CXXFLAGS_{lib}'])
-        if bld.env[f'DEFINES_{lib}']:
-            pkgconfig_defines += Utils.to_list(bld.env[f'DEFINES_{lib}'])
-
-    EXTRA_FRAMEWORKS = ''
-    if bld.env.HAVE_OSX_FRAMEWORKS:
-        EXTRA_FRAMEWORKS = '-framework CoreFoundation -framework Security -framework SystemConfiguration -framework Foundation -framework CoreWLAN'
-
-    def uniq(alist):
-        return list(dict.fromkeys(alist))
-
-    bld(features='subst',
-        source='libndn-cxx.pc.in',
-        target='libndn-cxx.pc',
-        install_path='${LIBDIR}/pkgconfig',
-        VERSION=VERSION_BASE,
-        # This probably not the right thing to do, but to simplify life of apps
-        # that use the library
-        EXTRA_LIBS=' '.join([f'-l{i}' for i in uniq(pkgconfig_libs)]),
-        EXTRA_LDFLAGS=' '.join([f'-L{i}' for i in uniq(pkgconfig_ldflags)]),
-        EXTRA_LINKFLAGS=' '.join(uniq(pkgconfig_linkflags)),
-        EXTRA_INCLUDES=' '.join([f'-I{i}' for i in uniq(pkgconfig_includes)]),
-        EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags) + [f'-D{i}' for i in uniq(pkgconfig_defines)]),
-        EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS)
+        bld.stlib(
+            name='ndn-cxx-static' if bld.env.enable_shared else 'ndn-cxx',
+            **libndn_cxx)
 
     if bld.env.WITH_TESTS:
         bld.recurse('tests')
@@ -274,6 +238,7 @@ def build(bld):
     if bld.env.WITH_EXAMPLES:
         bld.recurse('examples')
 
+    # Install header files
     headers = bld.path.ant_glob('ndn-cxx/**/*.hpp',
                                 excl=['ndn-cxx/**/*-android.hpp',
                                       'ndn-cxx/**/*-osx.hpp',
@@ -294,12 +259,49 @@ def build(bld):
         headers += bld.path.ant_glob('ndn-cxx/**/*netlink*.hpp', excl='ndn-cxx/**/impl/**/*')
 
     bld.install_files('${INCLUDEDIR}', headers, relative_trick=True)
+    bld.install_files('${INCLUDEDIR}/ndn-cxx/detail', 'ndn-cxx/detail/config.hpp')
 
-    # Install generated headers
-    for filename in ('ndn-cxx/detail/config.hpp', 'ndn-cxx/version.hpp'):
-        bld.install_files('${INCLUDEDIR}/%s' % os.path.dirname(filename),
-                          bld.path.find_resource(filename))
+    # Prepare flags that should go into pkgconfig file
+    pkgconfig_libs = []
+    pkgconfig_ldflags = []
+    pkgconfig_linkflags = []
+    pkgconfig_includes = []
+    pkgconfig_cxxflags = []
+    pkgconfig_defines = []
+    for lib in Utils.to_list(libndn_cxx['use']):
+        if bld.env[f'LIB_{lib}']:
+            pkgconfig_libs += Utils.to_list(bld.env[f'LIB_{lib}'])
+        if bld.env[f'LIBPATH_{lib}']:
+            pkgconfig_ldflags += Utils.to_list(bld.env[f'LIBPATH_{lib}'])
+        if bld.env[f'LINKFLAGS_{lib}']:
+            pkgconfig_linkflags += Utils.to_list(bld.env[f'LINKFLAGS_{lib}'])
+        if bld.env[f'INCLUDES_{lib}']:
+            pkgconfig_includes += Utils.to_list(bld.env[f'INCLUDES_{lib}'])
+        if bld.env[f'CXXFLAGS_{lib}']:
+            pkgconfig_cxxflags += Utils.to_list(bld.env[f'CXXFLAGS_{lib}'])
+        if bld.env[f'DEFINES_{lib}']:
+            pkgconfig_defines += Utils.to_list(bld.env[f'DEFINES_{lib}'])
 
+    EXTRA_FRAMEWORKS = '-framework CoreFoundation -framework Security -framework SystemConfiguration -framework Foundation -framework CoreWLAN'
+
+    def uniq(alist):
+        return list(dict.fromkeys(alist))
+
+    bld(features='subst',
+        source='libndn-cxx.pc.in',
+        target='libndn-cxx.pc',
+        install_path='${LIBDIR}/pkgconfig',
+        VERSION=VERSION_BASE,
+        # This probably not the right thing to do, but to simplify life of apps
+        # that use the library
+        EXTRA_LIBS=' '.join([f'-l{i}' for i in uniq(pkgconfig_libs)]),
+        EXTRA_LDFLAGS=' '.join([f'-L{i}' for i in uniq(pkgconfig_ldflags)]),
+        EXTRA_LINKFLAGS=' '.join(uniq(pkgconfig_linkflags)),
+        EXTRA_INCLUDES=' '.join([f'-I{i}' for i in uniq(pkgconfig_includes)]),
+        EXTRA_CXXFLAGS=' '.join(uniq(pkgconfig_cxxflags) + [f'-D{i}' for i in uniq(pkgconfig_defines)]),
+        EXTRA_FRAMEWORKS=EXTRA_FRAMEWORKS if bld.env.HAVE_OSX_FRAMEWORKS else '')
+
+    # Install sample config
     bld.install_files('${SYSCONFDIR}/ndn', 'client.conf.sample')
 
     if bld.env.SPHINX_BUILD:

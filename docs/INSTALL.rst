@@ -34,7 +34,7 @@ Required
 - Xcode >= 12.4 or corresponding version of Command Line Tools (if you are on macOS)
 - Python >= 3.8
 - pkg-config
-- Boost >= 1.65.1
+- Boost >= 1.71.0
 - OpenSSL >= 1.1.1
 - SQLite 3.x
 

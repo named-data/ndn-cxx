@@ -35,11 +35,7 @@ private:
   afterTick() final
   {
     if (m_io.stopped()) {
-#if BOOST_VERSION >= 106600
       m_io.restart();
-#else
-      m_io.reset();
-#endif
     }
     m_io.poll();
   }
