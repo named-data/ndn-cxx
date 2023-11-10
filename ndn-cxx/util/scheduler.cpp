@@ -25,27 +25,20 @@
 
 namespace ndn::scheduler {
 
-/** \brief Stores internal information about a scheduled event
+/**
+ * \brief Stores internal information about a scheduled event.
  */
-class EventInfo : noncopyable
+struct EventInfo : noncopyable
 {
-public:
   EventInfo(time::nanoseconds after, EventCallback&& cb)
-    : callback(std::move(cb))
-    , expireTime(time::steady_clock::now() + after)
+    : expiry(time::steady_clock::now() + after)
+    , callback(std::move(cb))
   {
   }
 
-  [[nodiscard]] time::nanoseconds
-  expiresFromNow() const
-  {
-    return std::max(expireTime - time::steady_clock::now(), 0_ns);
-  }
-
-public:
+  time::steady_clock::time_point expiry;
   EventCallback callback;
   Scheduler::EventQueue::const_iterator queueIt;
-  time::steady_clock::time_point expireTime;
   bool isExpired = false;
 };
 
@@ -71,11 +64,11 @@ bool
 Scheduler::EventQueueCompare::operator()(const shared_ptr<EventInfo>& a,
                                          const shared_ptr<EventInfo>& b) const noexcept
 {
-  return a->expireTime < b->expireTime;
+  return a->expiry < b->expiry;
 }
 
-Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_timer(make_unique<detail::SteadyTimer>(ioService))
+Scheduler::Scheduler(boost::asio::io_context& ioCtx)
+  : m_timer(make_unique<detail::SteadyTimer>(ioCtx))
 {
 }
 
@@ -125,8 +118,8 @@ void
 Scheduler::scheduleNext()
 {
   if (!m_queue.empty()) {
-    m_timer->expires_from_now((*m_queue.begin())->expiresFromNow());
-    m_timer->async_wait([this] (const auto& error) { this->executeEvent(error); });
+    m_timer->expires_at((*m_queue.begin())->expiry);
+    m_timer->async_wait([this] (const auto& error) { executeEvent(error); });
   }
 }
 
@@ -148,7 +141,7 @@ Scheduler::executeEvent(const boost::system::error_code& error)
   while (!m_queue.empty()) {
     auto head = m_queue.begin();
     shared_ptr<EventInfo> info = *head;
-    if (info->expireTime > now) {
+    if (info->expiry > now) {
       break;
     }
 

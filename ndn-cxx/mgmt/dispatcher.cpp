@@ -47,7 +47,7 @@ Dispatcher::Dispatcher(Face& face, KeyChain& keyChain,
   : m_face(face)
   , m_keyChain(keyChain)
   , m_signingInfo(signingInfo)
-  , m_storage(m_face.getIoService(), imsCapacity)
+  , m_storage(m_face.getIoContext(), imsCapacity)
 {
 }
 

@@ -47,11 +47,11 @@ InMemoryStorage::InMemoryStorage(size_t limit)
   init();
 }
 
-InMemoryStorage::InMemoryStorage(boost::asio::io_service& ioService, size_t limit)
+InMemoryStorage::InMemoryStorage(boost::asio::io_context& ioCtx, size_t limit)
   : m_limit(limit)
   , m_nPackets(0)
 {
-  m_scheduler = make_unique<Scheduler>(ioService);
+  m_scheduler = make_unique<Scheduler>(ioCtx);
   init();
 }
 

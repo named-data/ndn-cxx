@@ -32,7 +32,8 @@
 
 namespace ndn {
 
-/** @brief Provides in-memory storage employing Least Recently Used (LRU) replacement policy.
+/**
+ * @brief Provides in-memory storage employing Least Recently Used (LRU) replacement policy.
  */
 class InMemoryStorageLru : public InMemoryStorage
 {
@@ -41,7 +42,7 @@ public:
   InMemoryStorageLru(size_t limit = 16);
 
   explicit
-  InMemoryStorageLru(boost::asio::io_service& ioService, size_t limit = 16);
+  InMemoryStorageLru(boost::asio::io_context& ioCtx, size_t limit = 16);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on LRU, i.e. evict the least

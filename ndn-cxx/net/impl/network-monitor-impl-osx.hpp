@@ -45,7 +45,7 @@ class IfAddrs;
 class NetworkMonitorImplOsx final : public NetworkMonitorImpl
 {
 public:
-  NetworkMonitorImplOsx(boost::asio::io_service& io);
+  NetworkMonitorImplOsx(boost::asio::io_context& io);
 
   ~NetworkMonitorImplOsx() final;
 

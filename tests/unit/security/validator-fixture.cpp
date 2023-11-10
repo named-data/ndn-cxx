@@ -24,6 +24,8 @@
 #include "ndn-cxx/security/additional-description.hpp"
 #include "ndn-cxx/util/signal/scoped-connection.hpp"
 
+#include <boost/asio/post.hpp>
+
 namespace ndn::tests {
 
 using namespace ndn::security;
@@ -47,7 +49,7 @@ ValidatorFixtureBase::mockNetworkOperations()
 {
   signal::ScopedConnection conn = face.onSendInterest.connect([this] (const Interest& interest) {
     if (processInterest) {
-      m_io.post([=] { processInterest(interest); });
+      boost::asio::post(m_io, [=] { processInterest(interest); });
     }
   });
   advanceClocks(s_mockPeriod, s_mockTimes);
@@ -69,8 +71,7 @@ ValidatorFixtureBase::addSubCertificate(const Name& subIdentityName, const Ident
                .appendVersion());
 
   SignatureInfo info;
-  auto now = time::system_clock::now();
-  info.setValidityPeriod(ValidityPeriod(now, now + 90_days));
+  info.setValidityPeriod(ValidityPeriod::makeRelative(0_s, 90_days));
 
   AdditionalDescription description;
   description.set("type", "sub-certificate");

@@ -30,7 +30,7 @@
 #include "ndn-cxx/util/string-helper.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <iostream>
 
 namespace ndn::tests {
@@ -48,7 +48,7 @@ logEvent(const shared_ptr<const NetworkInterface>& ni = nullptr, std::ostream& o
 
 BOOST_AUTO_TEST_CASE(Signals)
 {
-  boost::asio::io_service io;
+  boost::asio::io_context io;
   NetworkMonitor monitor(io);
 
   std::cout << "capabilities=" << AsHex{monitor.getCapabilities()} << std::endl;

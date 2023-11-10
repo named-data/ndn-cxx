@@ -34,7 +34,7 @@ Encoder::Encoder(size_t totalReserve, size_t reserveFromBack)
 }
 
 Encoder::Encoder(const Block& block)
-  : m_buffer(const_pointer_cast<Buffer>(block.getBuffer()))
+  : m_buffer(std::const_pointer_cast<Buffer>(block.getBuffer()))
   , m_begin(m_buffer->begin() + (block.begin() - m_buffer->begin()))
   , m_end(m_buffer->begin()   + (block.end()   - m_buffer->begin()))
 {

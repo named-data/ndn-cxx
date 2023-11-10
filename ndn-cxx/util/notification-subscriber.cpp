@@ -40,7 +40,7 @@ NotificationSubscriberBase::NotificationSubscriberBase(Face& face, const Name& p
   , m_lastSequenceNum(std::numeric_limits<uint64_t>::max())
   , m_lastNackSequenceNum(std::numeric_limits<uint64_t>::max())
   , m_attempts(1)
-  , m_scheduler(face.getIoService())
+  , m_scheduler(face.getIoContext())
   , m_interestLifetime(interestLifetime)
 {
 }

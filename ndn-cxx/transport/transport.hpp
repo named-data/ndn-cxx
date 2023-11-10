@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,12 +59,12 @@ public:
 
   /**
    * \brief Asynchronously open the connection.
-   * \param ioService io_service to create socket on
+   * \param ioCtx io_context to create socket on
    * \param receiveCallback callback function when a TLV block is received; must not be empty
    * \throw boost::system::system_error connection cannot be established
    */
   virtual void
-  connect(boost::asio::io_service& ioService, ReceiveCallback receiveCallback);
+  connect(boost::asio::io_context& ioCtx, ReceiveCallback receiveCallback);
 
   /**
    * \brief Close the connection.
@@ -113,7 +113,7 @@ protected:
   }
 
 protected:
-  boost::asio::io_service* m_ioService = nullptr;
+  boost::asio::io_context* m_ioCtx = nullptr;
   ReceiveCallback m_receiveCallback;
 
 private:

@@ -24,20 +24,19 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/net/network-configuration-detector.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 
 namespace ndn::tests {
 
 using namespace ndn::dns;
-using boost::asio::ip::address_v4;
-using boost::asio::ip::address_v6;
+namespace ip = boost::asio::ip;
 
 class DnsFixture
 {
 public:
   void
-  onSuccess(const IpAddress& resolvedAddress,
-            const IpAddress& expectedAddress,
+  onSuccess(const boost::asio::ip::address& resolvedAddress,
+            const boost::asio::ip::address& expectedAddress,
             bool isValid,
             bool shouldCheckAddress = false)
   {
@@ -66,103 +65,93 @@ public:
 protected:
   int m_nFailures = 0;
   int m_nSuccesses = 0;
-  boost::asio::io_service m_ioService;
+  boost::asio::io_context m_ioCtx;
 };
 
 BOOST_AUTO_TEST_SUITE(Net)
 BOOST_FIXTURE_TEST_SUITE(TestDns, DnsFixture)
 
-BOOST_AUTO_TEST_CASE(Asynchronous)
+BOOST_AUTO_TEST_CASE(Failure)
 {
   SKIP_IF_IP_UNAVAILABLE();
 
   asyncResolve("nothost.nothost.nothost.arpa",
-               std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v4()), false, false),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v4(), false, false),
                [this] (auto&&...) { onFailure(true); },
-               m_ioService); // should fail
+               m_ioCtx); // should fail
 
-  m_ioService.run();
+  m_ioCtx.run();
   BOOST_CHECK_EQUAL(m_nFailures, 1);
   BOOST_CHECK_EQUAL(m_nSuccesses, 0);
 }
 
-BOOST_AUTO_TEST_CASE(AsynchronousV4)
+BOOST_AUTO_TEST_CASE(Ipv4)
 {
   SKIP_IF_IPV4_UNAVAILABLE();
 
   asyncResolve("192.0.2.1",
-               std::bind(&DnsFixture::onSuccess, this, _1,
-                         IpAddress(address_v4::from_string("192.0.2.1")), true, true),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::make_address_v4("192.0.2.1"), true, true),
                [this] (auto&&...) { onFailure(false); },
-               m_ioService);
+               m_ioCtx);
 
-  m_ioService.run();
+  m_ioCtx.run();
   BOOST_CHECK_EQUAL(m_nFailures, 0);
   BOOST_CHECK_EQUAL(m_nSuccesses, 1);
 }
 
-BOOST_AUTO_TEST_CASE(AsynchronousV6)
+BOOST_AUTO_TEST_CASE(Ipv6)
 {
   SKIP_IF_IPV6_UNAVAILABLE();
 
   asyncResolve("ipv6.google.com", // only IPv6 address should be available
-               std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v6()), true, false),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v6(), true, false),
                [this] (auto&&...) { onFailure(false); },
-               m_ioService);
+               m_ioCtx);
 
   asyncResolve("2001:db8:3f9:0:3025:ccc5:eeeb:86d3",
                std::bind(&DnsFixture::onSuccess, this, _1,
-                         IpAddress(address_v6::from_string("2001:db8:3f9:0:3025:ccc5:eeeb:86d3")),
-                         true, true),
+                         ip::make_address_v6("2001:db8:3f9:0:3025:ccc5:eeeb:86d3"), true, true),
                [this] (auto&&...) { onFailure(false); },
-               m_ioService);
+               m_ioCtx);
 
-  m_ioService.run();
+  m_ioCtx.run();
   BOOST_CHECK_EQUAL(m_nFailures, 0);
   BOOST_CHECK_EQUAL(m_nSuccesses, 2);
 }
 
-BOOST_AUTO_TEST_CASE(AsynchronousV4AndV6)
+BOOST_AUTO_TEST_CASE(WithAddressSelector)
 {
   SKIP_IF_IPV4_UNAVAILABLE();
   SKIP_IF_IPV6_UNAVAILABLE();
 
   asyncResolve("named-data.net",
-               std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v4()), true, false),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v4(), true, false),
                [this] (auto&&...) { onFailure(false); },
-               m_ioService, Ipv4Only());
+               m_ioCtx, Ipv4Only());
 
   asyncResolve("a.root-servers.net",
-               std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v4()), true, false),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v4(), true, false),
                [this] (auto&&...) { onFailure(false); },
-               m_ioService, Ipv4Only()); // request IPv4 address
+               m_ioCtx, Ipv4Only()); // request IPv4 address
 
   asyncResolve("a.root-servers.net",
-               std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v6()), true, false),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v6(), true, false),
                [this] (auto&&...) { onFailure(false); },
-               m_ioService, Ipv6Only()); // request IPv6 address
+               m_ioCtx, Ipv6Only()); // request IPv6 address
 
   asyncResolve("ipv6.google.com", // only IPv6 address should be available
-               std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v6()), true, false),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v6(), true, false),
                [this] (auto&&...) { onFailure(false); },
-               m_ioService, Ipv6Only());
+               m_ioCtx, Ipv6Only());
 
   asyncResolve("ipv6.google.com", // only IPv6 address should be available
-               std::bind(&DnsFixture::onSuccess, this, _1, IpAddress(address_v6()), false, false),
+               std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v6(), false, false),
                [this] (auto&&...) { onFailure(true); },
-               m_ioService, Ipv4Only()); // should fail
+               m_ioCtx, Ipv4Only()); // should fail
 
-  m_ioService.run();
+  m_ioCtx.run();
   BOOST_CHECK_EQUAL(m_nFailures, 1);
   BOOST_CHECK_EQUAL(m_nSuccesses, 4);
-}
-
-BOOST_AUTO_TEST_CASE(Synchronous)
-{
-  SKIP_IF_IP_UNAVAILABLE();
-
-  IpAddress address = syncResolve("named-data.net", m_ioService);
-  BOOST_CHECK(address.is_v4() || address.is_v6());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestDns

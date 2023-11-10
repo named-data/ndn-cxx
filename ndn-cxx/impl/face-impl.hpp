@@ -31,12 +31,16 @@
 #include "ndn-cxx/lp/tags.hpp"
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
 #include "ndn-cxx/mgmt/nfd/controller.hpp"
-#include "ndn-cxx/transport/tcp-transport.hpp"
-#include "ndn-cxx/transport/unix-transport.hpp"
+#include "ndn-cxx/transport/transport.hpp"
 #include "ndn-cxx/util/logger.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 
-NDN_LOG_INIT(ndn.Face);
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
+
+namespace ndn {
+
+//
 // INFO level: prefix registration, etc.
 //
 // DEBUG level: packet logging.
@@ -49,17 +53,18 @@ NDN_LOG_INIT(ndn.Face);
 // DEBUG level.
 //
 // TRACE level: more detailed unstructured messages.
+//
+NDN_LOG_INIT(ndn.Face);
 
-namespace ndn {
-
-/** @brief Implementation detail of Face.
+/**
+ * @brief Implementation detail of Face.
  */
 class Face::Impl : public std::enable_shared_from_this<Face::Impl>
 {
 public:
   Impl(Face& face, KeyChain& keyChain)
     : m_face(face)
-    , m_scheduler(m_face.getIoService())
+    , m_scheduler(m_face.getIoContext())
     , m_nfdController(m_face, keyChain)
   {
     auto onEmptyPitOrNoRegisteredPrefixes = [this] {
@@ -67,10 +72,10 @@ public:
       // (+async_read) from within onInterest/onData callback.  After onInterest/onData
       // finishes, there is another +async_read with the same memory block.  A few of such
       // async_read duplications can cause various effects and result in segfault.
-      m_face.getIoService().post([this] {
+      boost::asio::post(m_face.getIoContext(), [this] {
         if (m_pendingInterestTable.empty() && m_registeredPrefixTable.empty()) {
           m_face.m_transport->pause();
-          if (!m_ioServiceWork) {
+          if (!m_workGuard) {
             m_processEventsTimeoutEvent.cancel();
           }
         }
@@ -108,9 +113,8 @@ public: // consumer
   void
   asyncRemovePendingInterest(detail::RecordId id)
   {
-    m_face.getIoService().post([id, w = weak_from_this()] {
-      auto impl = w.lock();
-      if (impl != nullptr) {
+    boost::asio::post(m_face.getIoContext(), [id, w = weak_from_this()] {
+      if (auto impl = w.lock(); impl != nullptr) {
         impl->m_pendingInterestTable.erase(id);
       }
     });
@@ -194,9 +198,8 @@ public: // producer
   void
   asyncUnsetInterestFilter(detail::RecordId id)
   {
-    m_face.getIoService().post([id, w = weak_from_this()] {
-      auto impl = w.lock();
-      if (impl != nullptr) {
+    boost::asio::post(m_face.getIoContext(), [id, w = weak_from_this()] {
+      if (auto impl = w.lock(); impl != nullptr) {
         impl->unsetInterestFilter(id);
       }
     });
@@ -293,9 +296,8 @@ public: // prefix registration
                         const UnregisterPrefixSuccessCallback& onSuccess,
                         const UnregisterPrefixFailureCallback& onFailure)
   {
-    m_face.getIoService().post([=, w = weak_from_this()] {
-      auto impl = w.lock();
-      if (impl != nullptr) {
+    boost::asio::post(m_face.getIoContext(), [=, w = weak_from_this()] {
+      if (auto impl = w.lock(); impl != nullptr) {
         impl->unregisterPrefix(id, onSuccess, onFailure);
       }
     });
@@ -306,7 +308,7 @@ public: // IO routine
   ensureConnected(bool wantResume)
   {
     if (m_face.m_transport->getState() == Transport::State::CLOSED) {
-      m_face.m_transport->connect(m_face.getIoService(),
+      m_face.m_transport->connect(m_face.getIoContext(),
                                   [this] (const Block& wire) { m_face.onReceiveElement(wire); });
     }
 
@@ -318,7 +320,7 @@ public: // IO routine
   void
   shutdown()
   {
-    m_ioServiceWork.reset();
+    m_workGuard.reset();
     m_pendingInterestTable.clear();
     m_registeredPrefixTable.clear();
   }
@@ -417,7 +419,8 @@ private:
   detail::RecordContainer<InterestFilterRecord> m_interestFilterTable;
   detail::RecordContainer<RegisteredPrefix> m_registeredPrefixTable;
 
-  unique_ptr<boost::asio::io_service::work> m_ioServiceWork; // if thread needs to be preserved
+  using IoContextWorkGuard = boost::asio::executor_work_guard<boost::asio::io_context::executor_type>;
+  unique_ptr<IoContextWorkGuard> m_workGuard;
 
   friend Face;
 };

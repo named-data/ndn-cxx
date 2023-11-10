@@ -140,8 +140,6 @@ def configure(conf):
     if conf.env.WITH_TOOLS:
         conf.check_boost(lib='program_options', mt=True, uselib_store='BOOST_TOOLS')
 
-    conf.env.append_unique('DEFINES_BOOST', ['BOOST_FILESYSTEM_NO_DEPRECATED'])
-
     conf.check_compiler_flags()
 
     # Loading "late" to prevent tests from being compiled with profiling flags

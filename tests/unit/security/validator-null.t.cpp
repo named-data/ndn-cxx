@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_CASE(ValidateData)
 
   ValidatorNull validator;
   validator.validate(data,
-                     std::bind([] { BOOST_CHECK_MESSAGE(true, "Validation should succeed"); }),
-                     std::bind([] { BOOST_CHECK_MESSAGE(false, "Validation should not have failed"); }));
+                     [] (auto&&...) { BOOST_CHECK_MESSAGE(true, "Validation should succeed"); },
+                     [] (auto&&...) { BOOST_CHECK_MESSAGE(false, "Validation should not have failed"); });
 }
 
 BOOST_AUTO_TEST_CASE(ValidateInterest)
@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE(ValidateInterest)
 
   ValidatorNull validator;
   validator.validate(interest,
-                     std::bind([] { BOOST_CHECK_MESSAGE(true, "Validation should succeed"); }),
-                     std::bind([] { BOOST_CHECK_MESSAGE(false, "Validation should not have failed"); }));
+                     [] (auto&&...) { BOOST_CHECK_MESSAGE(true, "Validation should succeed"); },
+                     [] (auto&&...) { BOOST_CHECK_MESSAGE(false, "Validation should not have failed"); });
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestValidatorNull

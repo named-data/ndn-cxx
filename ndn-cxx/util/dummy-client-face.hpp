@@ -83,24 +83,24 @@ public:
     AlreadyLinkedError();
   };
 
-  /** \brief Create a dummy face with internal IO service.
+  /** \brief Create a dummy face with internal I/O context.
    */
   explicit
   DummyClientFace(const Options& options = Options());
 
-  /** \brief Create a dummy face with internal IO service and the specified KeyChain.
+  /** \brief Create a dummy face with internal I/O context and the specified KeyChain.
    */
   explicit
   DummyClientFace(KeyChain& keyChain, const Options& options = Options());
 
-  /** \brief Create a dummy face with the provided IO service.
+  /** \brief Create a dummy face with the provided I/O context.
    */
   explicit
-  DummyClientFace(boost::asio::io_service& ioService, const Options& options = Options());
+  DummyClientFace(boost::asio::io_context& ioCtx, const Options& options = Options());
 
-  /** \brief Create a dummy face with the provided IO service and the specified KeyChain.
+  /** \brief Create a dummy face with the provided I/O context and the specified KeyChain.
    */
-  DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain,
+  DummyClientFace(boost::asio::io_context& ioCtx, KeyChain& keyChain,
                   const Options& options = Options());
 
   ~DummyClientFace() override;
@@ -146,7 +146,7 @@ private:
   enableRegistrationReply(uint64_t faceId);
 
   void
-  doProcessEvents(time::milliseconds timeout, bool keepThread) override;
+  doProcessEvents(time::milliseconds timeout, bool keepRunning) override;
 
 public:
   /** \brief Interests sent out of this DummyClientFace.

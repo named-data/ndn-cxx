@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #include <ndn-cxx/face.hpp>
 #include <ndn-cxx/util/scheduler.hpp>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <iostream>
 
 // Enclosing code in ndn simplifies coding (can also use `using namespace ndn`)
@@ -52,8 +52,8 @@ public:
     // Schedule a new event
     m_scheduler.schedule(3_s, [this] { delayedInterest(); });
 
-    // m_ioService.run() will block until all events finished or m_ioService.stop() is called
-    m_ioService.run();
+    // m_ioCtx.run() will block until all events finished or m_ioCtx.stop() is called
+    m_ioCtx.run();
 
     // Alternatively, m_face.processEvents() can also be called.
     // processEvents will block until the requested data received or timeout occurs.
@@ -100,10 +100,10 @@ private:
   }
 
 private:
-  // Explicitly create io_service object, which will be shared between Face and Scheduler
-  boost::asio::io_service m_ioService;
-  Face m_face{m_ioService};
-  Scheduler m_scheduler{m_ioService};
+  // Explicitly create io_context object, which will be shared between Face and Scheduler
+  boost::asio::io_context m_ioCtx;
+  Face m_face{m_ioCtx};
+  Scheduler m_scheduler{m_ioCtx};
 };
 
 } // namespace examples

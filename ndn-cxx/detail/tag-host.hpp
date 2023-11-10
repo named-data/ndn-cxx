@@ -73,7 +73,7 @@ TagHost::getTag() const
   static_assert(std::is_convertible_v<T*, Tag*>, "T must inherit from ndn::Tag");
 
   if (auto it = m_tags.find(T::getTypeId()); it != m_tags.end()) {
-    return static_pointer_cast<T>(it->second);
+    return std::static_pointer_cast<T>(it->second);
   }
   return nullptr;
 }

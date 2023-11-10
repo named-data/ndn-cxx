@@ -118,7 +118,7 @@ public:
 
 public: // constructors
   /**
-   * @brief Create Face using given transport (or default transport if omitted)
+   * @brief Create Face using the given Transport (or default transport if omitted).
    * @param transport the transport for lower layer communication. If nullptr,
    *                  a default transport will be used. The default transport is
    *                  determined from a FaceUri in NDN_CLIENT_TRANSPORT environ,
@@ -132,38 +132,36 @@ public: // constructors
   Face(shared_ptr<Transport> transport = nullptr);
 
   /**
-   * @brief Create Face using default transport and given io_service
+   * @brief Create Face using default transport and given io_context.
    *
    * Usage examples:
    *
    * @code
    * Face face1;
-   * Face face2(face1.getIoService());
+   * Face face2(face1.getIoContext());
    *
    * // Now the following ensures that events on both faces are processed
    * face1.processEvents();
-   * // or face1.getIoService().run();
+   * // or face1.getIoContext().run();
    * @endcode
    *
    * or
    *
    * @code
-   * boost::asio::io_service ioService;
-   * Face face1(ioService);
-   * Face face2(ioService);
-   *
-   * ioService.run();
+   * boost::asio::io_context ioCtx;
+   * Face face1(ioCtx);
+   * Face face2(ioCtx);
+   * ioCtx.run();
    * @endcode
    *
-   * @param ioService A reference to boost::io_service object that should control all
-   *                  IO operations.
+   * @param ioCtx A reference to the io_context object that should control all I/O operations.
    * @throw ConfigFile::Error the configuration file cannot be parsed or specifies an unsupported protocol
    */
   explicit
-  Face(boost::asio::io_service& ioService);
+  Face(boost::asio::io_context& ioCtx);
 
   /**
-   * @brief Create Face using TcpTransport
+   * @brief Create Face using TcpTransport.
    *
    * @param host IP address or hostname of the NDN forwarder
    * @param port port number or service name of the NDN forwarder (**default**: "6363")
@@ -172,7 +170,7 @@ public: // constructors
   Face(const std::string& host, const std::string& port = "6363");
 
   /**
-   * @brief Create Face using given transport and KeyChain
+   * @brief Create Face using the given Transport and KeyChain.
    * @param transport the transport for lower layer communication. If nullptr,
    *                  a default transport will be used.
    * @param keyChain the KeyChain to sign commands
@@ -186,35 +184,35 @@ public: // constructors
   Face(shared_ptr<Transport> transport, KeyChain& keyChain);
 
   /**
-   * @brief Create Face using given transport and io_service
+   * @brief Create Face using the given Transport and io_context.
    * @param transport the transport for lower layer communication. If nullptr,
    *                  a default transport will be used.
-   * @param ioService the io_service that controls all IO operations
+   * @param ioCtx the io_context that controls all I/O operations
    *
-   * @sa Face(boost::asio::io_service&)
+   * @sa Face(boost::asio::io_context&)
    * @sa Face(shared_ptr<Transport>)
    *
    * @throw ConfigFile::Error @p transport is nullptr, and the configuration file cannot be
    *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
-  Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService);
+  Face(shared_ptr<Transport> transport, boost::asio::io_context& ioCtx);
 
   /**
-   * @brief Create a new Face using given Transport and io_service
+   * @brief Create Face using the given Transport, io_context, and KeyChain.
    * @param transport the transport for lower layer communication. If nullptr,
    *                  a default transport will be used.
-   * @param ioService the io_service that controls all IO operations
+   * @param ioCtx the io_context that controls all I/O operations
    * @param keyChain the KeyChain to sign commands
    *
-   * @sa Face(boost::asio::io_service&)
+   * @sa Face(boost::asio::io_context&)
    * @sa Face(shared_ptr<Transport>, KeyChain&)
    *
    * @throw ConfigFile::Error @p transport is nullptr, and the configuration file cannot be
    *                          parsed or specifies an unsupported protocol
    * @note shared_ptr is passed by value because ownership is shared with this class
    */
-  Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain);
+  Face(shared_ptr<Transport> transport, boost::asio::io_context& ioCtx, KeyChain& keyChain);
 
   virtual
   ~Face();
@@ -228,8 +226,8 @@ public: // consumer
    * @param afterNacked function to be invoked if Network NACK is returned
    * @param afterTimeout function to be invoked if neither Data nor Network NACK
    *                     is returned within InterestLifetime
-   * @throw OversizedPacketError encoded Interest size exceeds MAX_NDN_PACKET_SIZE
    * @return A handle for canceling the pending Interest.
+   * @throw OversizedPacketError Encoded Interest size exceeds #MAX_NDN_PACKET_SIZE.
    */
   PendingInterestHandle
   expressInterest(const Interest& interest,
@@ -343,61 +341,62 @@ public: // producer
 
   /**
    * @brief Publish a Data packet.
-   * @param data the Data; a copy will be made, so that the caller is not required to
-   *             maintain the argument unchanged
+   * @param data The Data packet; a copy will be made, so that the caller is not required to
+   *             maintain the argument unchanged.
    *
    * This method can be called to satisfy incoming Interests, or to add Data packet into the cache
    * of the local NDN forwarder if forwarder is configured to accept unsolicited Data.
    *
-   * @throw OversizedPacketError encoded Data size exceeds MAX_NDN_PACKET_SIZE
+   * @throw OversizedPacketError Encoded Data size exceeds #MAX_NDN_PACKET_SIZE.
    */
   void
-  put(Data data);
+  put(const Data& data);
 
   /**
    * @brief Send a %Network Nack.
-   * @param nack the Nack; a copy will be made, so that the caller is not required to
-   *             maintain the argument unchanged
-   * @throw OversizedPacketError encoded Nack size exceeds MAX_NDN_PACKET_SIZE
+   * @param nack The Nack packet; a copy will be made, so that the caller is not required to
+   *             maintain the argument unchanged.
+   * @throw OversizedPacketError Encoded Nack size exceeds #MAX_NDN_PACKET_SIZE.
    */
   void
-  put(lp::Nack nack);
+  put(const lp::Nack& nack);
 
-public: // IO routine
+public: // event loop routines
   /**
-   * @brief Process any data to receive or call timeout callbacks.
+   * @brief Run the event loop to process any pending work and execute completion handlers.
    *
-   * This call will block forever (with the default timeout of 0) to process I/O on the face.
+   * This call will block forever (with the default @p timeout of 0) to process I/O on the face.
    * To exit cleanly on a producer, clear any Interest filters and wait for processEvents() to
    * return. To exit after an error, one can call shutdown().
    * In consumer applications, processEvents() will return when all expressed Interests have been
    * satisfied, Nacked, or timed out. To terminate earlier, a consumer application should cancel
    * all previously expressed and still-pending Interests.
    *
-   * If a positive timeout is specified, then processEvents() will exit after this timeout, provided
-   * it is not stopped earlier with shutdown() or when all active events finish. processEvents()
-   * can be called repeatedly, if desired.
+   * If @p timeout is a positive value, then processEvents() will return after the specified
+   * duration has elapsed, unless the event loop is stopped earlier with shutdown() or runs
+   * out of work to do.
    *
-   * If a negative timeout is specified, then processEvents will not block and will process only
-   * pending events.
+   * If a negative @p timeout is specified, then processEvents() will not block and will process
+   * only handlers that are ready to run.
    *
-   * @param timeout     maximum time to block the thread
-   * @param keepThread  Keep thread in a blocked state (in event processing), even when
+   * processEvents() can be called repeatedly, if desired.
+   *
+   * @param timeout     Maximum amount of time to block the event loop (see above).
+   * @param keepRunning Keep thread in a blocked state (in event processing), even when
    *                    there are no outstanding events (e.g., no Interest/Data is expected).
-   *                    If timeout is zero and this parameter is true, the only way to stop
-   *                    processEvents() is to call shutdown().
+   *                    Ignored if @p timeout is negative. If @p timeout is 0 and @p keepRunning
+   *                    is true, the only way to stop processEvents() is to call shutdown().
    *
    * @note This may throw an exception for reading data or in the callback for processing
    * the data.  If you call this from an main event loop, you may want to catch and
    * log/disregard all exceptions.
    *
-   * @throw OversizedPacketError encoded packet size exceeds MAX_NDN_PACKET_SIZE
+   * @throw OversizedPacketError Encoded packet size exceeds #MAX_NDN_PACKET_SIZE.
    */
   void
-  processEvents(time::milliseconds timeout = time::milliseconds::zero(),
-                bool keepThread = false)
+  processEvents(time::milliseconds timeout = 0_ms, bool keepRunning = false)
   {
-    this->doProcessEvents(timeout, keepThread);
+    this->doProcessEvents(timeout, keepRunning);
   }
 
   /**
@@ -405,8 +404,8 @@ public: // IO routine
    *
    * This method cancels all pending operations and closes the connection to the NDN forwarder.
    *
-   * Note that this method does not stop the io_service if it is shared between multiple Faces or
-   * with other IO objects (e.g., Scheduler).
+   * Note that this method does not stop the io_context if it is shared between multiple Faces or
+   * with other I/O objects (e.g., Scheduler).
    *
    * @warning Calling this method may cause outgoing packets to be lost. Producers that shut down
    *          immediately after sending a Data packet should instead clear all Interest filters to
@@ -417,35 +416,39 @@ public: // IO routine
   shutdown();
 
   /**
-   * @brief Returns a reference to the io_service used by this face.
+   * @brief Returns a reference to the io_context used by this face.
    */
-  boost::asio::io_service&
-  getIoService()
+  boost::asio::io_context&
+  getIoContext() const noexcept
   {
-    return m_ioService;
+    return m_ioCtx;
+  }
+
+  /**
+   * @deprecated Use getIoContext()
+   */
+  [[deprecated("use getIoContext")]]
+  boost::asio::io_context&
+  getIoService() const noexcept
+  {
+    return m_ioCtx;
   }
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /**
    * @brief Returns the underlying transport.
    */
-  shared_ptr<Transport>
+  Transport&
   getTransport() const
   {
-    return m_transport;
+    return *m_transport;
   }
 
 protected:
   virtual void
-  doProcessEvents(time::milliseconds timeout, bool keepThread);
+  doProcessEvents(time::milliseconds timeout, bool keepRunning);
 
 private:
-  /**
-   * @throw ConfigFile::Error on parse error and unsupported protocols
-   */
-  shared_ptr<Transport>
-  makeDefaultTransport();
-
   /**
    * @throw Face::Error on unsupported protocol
    */
@@ -456,10 +459,10 @@ private:
   onReceiveElement(const Block& blockFromDaemon);
 
 private:
-  /// the io_service owned by this Face, may be null
-  unique_ptr<boost::asio::io_service> m_internalIoService;
-  /// the io_service used by this Face
-  boost::asio::io_service& m_ioService;
+  /// The io_context owned by this Face, may be null if using an externally provided io_context.
+  unique_ptr<boost::asio::io_context> m_internalIoCtx;
+  /// The io_context used by this Face.
+  boost::asio::io_context& m_ioCtx;
 
   shared_ptr<Transport> m_transport;
 

@@ -42,7 +42,7 @@ namespace ndn::net {
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
 static unique_ptr<NetworkMonitorImpl>
-makeNetworkMonitorImpl(boost::asio::io_service& io)
+makeNetworkMonitorImpl(boost::asio::io_context& io)
 {
   try {
     return make_unique<NETWORK_MONITOR_IMPL_TYPE>(io);
@@ -54,7 +54,7 @@ makeNetworkMonitorImpl(boost::asio::io_service& io)
   }
 }
 
-NetworkMonitor::NetworkMonitor(boost::asio::io_service& io)
+NetworkMonitor::NetworkMonitor(boost::asio::io_context& io)
   : NetworkMonitor(makeNetworkMonitorImpl(io))
 {
 }

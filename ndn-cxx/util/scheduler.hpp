@@ -40,7 +40,7 @@ class SteadyTimer;
 namespace scheduler {
 
 class Scheduler;
-class EventInfo;
+struct EventInfo;
 
 /** \brief Function to be invoked when a scheduled event expires
  */
@@ -130,13 +130,14 @@ private:
  */
 using ScopedEventId = detail::ScopedCancelHandle<EventId>;
 
-/** \brief Generic time-based scheduler
+/**
+ * \brief Generic time-based event scheduler.
  */
 class Scheduler : noncopyable
 {
 public:
   explicit
-  Scheduler(boost::asio::io_service& ioService);
+  Scheduler(boost::asio::io_context& ioCtx);
 
   ~Scheduler();
 
@@ -162,7 +163,7 @@ private:
 
   /** \brief Execute expired events
    *
-   *  If an event callback throws, the exception is propagated to the thread running the io_service.
+   *  If an event callback throws, the exception is propagated to the thread running the io_context.
    *  In case there are other expired events, they will be processed in the next invocation.
    */
   void

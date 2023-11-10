@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,26 +26,32 @@
 
 namespace ndn {
 
-/** @brief Provides application cache with persistent storage, of which no replacement policy will
- *  be employed. Entries will only be deleted by explicit application control.
+/**
+ * @brief Provides application cache with persistent storage, of which no replacement policy will
+ *        be employed. Entries will only be deleted by explicit application control.
  */
 class InMemoryStoragePersistent : public InMemoryStorage
 {
 public:
-  InMemoryStoragePersistent();
+  InMemoryStoragePersistent() = default;
 
   explicit
-  InMemoryStoragePersistent(boost::asio::io_service& ioService);
+  InMemoryStoragePersistent(boost::asio::io_context& ioCtx)
+    : InMemoryStorage(ioCtx)
+  {
+  }
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
-  /** @brief Do nothing.
+  /**
+   * @brief Do nothing.
    *
-   *  This storage is persistent, and does not support eviction.
-   *
-   *  @return false
+   * This storage is persistent, and thus does not support eviction.
    */
   bool
-  evictItem() override;
+  evictItem() override
+  {
+    return false;
+  }
 };
 
 } // namespace ndn

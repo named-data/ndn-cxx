@@ -44,10 +44,10 @@ public:
   using Impl = StreamTransportImpl<BaseTransport, Protocol>;
   using TransmissionQueue = std::queue<Block, std::list<Block>>;
 
-  StreamTransportImpl(BaseTransport& transport, boost::asio::io_service& ioService)
+  StreamTransportImpl(BaseTransport& transport, boost::asio::io_context& ioCtx)
     : m_transport(transport)
-    , m_socket(ioService)
-    , m_connectTimer(ioService)
+    , m_socket(ioCtx)
+    , m_connectTimer(ioCtx)
   {
   }
 
@@ -61,7 +61,7 @@ public:
 
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable
-    m_connectTimer.expires_from_now(std::chrono::seconds(4));
+    m_connectTimer.expires_after(std::chrono::seconds(4));
     m_connectTimer.async_wait([self = this->shared_from_this()] (const auto& error) {
       self->connectTimeoutHandler(error);
     });
@@ -77,8 +77,8 @@ public:
   {
     m_transport.setState(Transport::State::CLOSED);
 
+    m_connectTimer.cancel();
     boost::system::error_code error; // to silently ignore all errors
-    m_connectTimer.cancel(error);
     m_socket.cancel(error);
     m_socket.close(error);
 

@@ -53,7 +53,7 @@ public:
 
 protected:
   explicit
-  NetlinkSocket(boost::asio::io_service& io);
+  NetlinkSocket(boost::asio::io_context& io);
 
   ~NetlinkSocket();
 
@@ -87,7 +87,7 @@ class RtnlSocket final : public NetlinkSocket
 {
 public:
   explicit
-  RtnlSocket(boost::asio::io_service& io);
+  RtnlSocket(boost::asio::io_context& io);
 
   void
   open();
@@ -128,7 +128,7 @@ class GenlSocket final : public NetlinkSocket
 {
 public:
   explicit
-  GenlSocket(boost::asio::io_service& io);
+  GenlSocket(boost::asio::io_context& io);
 
   void
   open();

@@ -62,9 +62,9 @@
 #include <net/if_types.h> // for IFT_* constants
 #include <netinet/in.h>   // for struct sockaddr_in{,6}
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/udp.hpp>
+#include <boost/asio/post.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm_ext/push_back.hpp>
 
@@ -101,7 +101,7 @@ private:
   ifaddrs* m_ifaList = nullptr;
 };
 
-NetworkMonitorImplOsx::NetworkMonitorImplOsx(boost::asio::io_service& io)
+NetworkMonitorImplOsx::NetworkMonitorImplOsx(boost::asio::io_context& io)
   : m_scheduler(io)
   , m_context{0, this, nullptr, nullptr, nullptr}
   , m_scStore(SCDynamicStoreCreate(nullptr, CFSTR("net.named-data.ndn-cxx.NetworkMonitor"),
@@ -142,7 +142,7 @@ NetworkMonitorImplOsx::NetworkMonitorImplOsx(boost::asio::io_service& io)
     NDN_THROW(Error("SCDynamicStoreSetNotificationKeys failed"));
   }
 
-  io.post([this] { enumerateInterfaces(); });
+  boost::asio::post(io, [this] { enumerateInterfaces(); });
 }
 
 NetworkMonitorImplOsx::~NetworkMonitorImplOsx()
@@ -386,7 +386,7 @@ NetworkMonitorImplOsx::updateInterfaceInfo(NetworkInterface& netif, const IfAddr
     if (ipAddr.is_loopback()) {
       scope = AddressScope::HOST;
     }
-    else if ((ipAddr.is_v4() && (ipAddr.to_v4().to_ulong() & 0xFFFF0000) == 0xA9FE0000) ||
+    else if ((ipAddr.is_v4() && (ipAddr.to_v4().to_uint() & 0xFFFF0000) == 0xA9FE0000) ||
              (ipAddr.is_v6() && ipAddr.to_v6().is_link_local())) {
       scope = AddressScope::LINK;
     }

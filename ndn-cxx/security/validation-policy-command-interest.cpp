@@ -146,7 +146,7 @@ ValidationPolicyCommandInterest::checkTimestamp(const shared_ptr<ValidationState
     }
   }
 
-  auto interestState = dynamic_pointer_cast<InterestValidationState>(state);
+  auto interestState = std::dynamic_pointer_cast<InterestValidationState>(state);
   BOOST_ASSERT(interestState != nullptr);
   interestState->afterSuccess.connect([=] (const Interest&) { insertNewRecord(keyName, timestamp); });
   return true;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,8 +28,8 @@ InMemoryStorageFifo::InMemoryStorageFifo(size_t limit)
 {
 }
 
-InMemoryStorageFifo::InMemoryStorageFifo(boost::asio::io_service& ioService, size_t limit)
-  : InMemoryStorage(ioService, limit)
+InMemoryStorageFifo::InMemoryStorageFifo(boost::asio::io_context& ioCtx, size_t limit)
+  : InMemoryStorage(ioCtx, limit)
 {
 }
 
@@ -44,7 +44,7 @@ bool
 InMemoryStorageFifo::evictItem()
 {
   if (!m_cleanupIndex.get<byArrival>().empty()) {
-    CleanupIndex::index<byArrival>::type::iterator it = m_cleanupIndex.get<byArrival>().begin();
+    auto it = m_cleanupIndex.get<byArrival>().begin();
     eraseImpl((*it)->getFullName());
     m_cleanupIndex.get<byArrival>().erase(it);
     return true;
@@ -56,7 +56,7 @@ InMemoryStorageFifo::evictItem()
 void
 InMemoryStorageFifo::beforeErase(InMemoryStorageEntry* entry)
 {
-  CleanupIndex::index<byEntity>::type::iterator it = m_cleanupIndex.get<byEntity>().find(entry);
+  auto it = m_cleanupIndex.get<byEntity>().find(entry);
   if (it != m_cleanupIndex.get<byEntity>().end())
     m_cleanupIndex.get<byEntity>().erase(it);
 }

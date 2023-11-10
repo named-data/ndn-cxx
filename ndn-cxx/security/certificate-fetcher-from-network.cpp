@@ -35,7 +35,7 @@ NDN_LOG_INIT(ndn.security.CertificateFetcher);
 
 CertificateFetcherFromNetwork::CertificateFetcherFromNetwork(Face& face)
   : m_face(face)
-  , m_scheduler(face.getIoService())
+  , m_scheduler(face.getIoContext())
 {
 }
 

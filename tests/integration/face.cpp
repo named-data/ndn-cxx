@@ -68,7 +68,7 @@ class FaceFixture : public KeyChainFixture
 protected:
   FaceFixture()
     : face(TransportType::create(""), m_keyChain)
-    , sched(face.getIoService())
+    , sched(face.getIoContext())
   {
   }
 
@@ -82,7 +82,7 @@ protected:
   sendInterest(time::nanoseconds delay, const Interest& interest, char& outcome)
   {
     if (face2 == nullptr) {
-      face2 = make_unique<Face>(TransportType::create(""), face.getIoService(), m_keyChain);
+      face2 = make_unique<Face>(TransportType::create(""), face.getIoContext(), m_keyChain);
     }
 
     outcome = '?';
@@ -101,13 +101,13 @@ protected:
     return sendInterest(delay, interest, ignoredOutcome);
   }
 
-  /** \brief Stop io_service after a delay
+  /** \brief Stop io_context after a delay
    *  \return scheduled event id
    */
   scheduler::EventId
   terminateAfter(time::nanoseconds delay)
   {
-    return sched.schedule(delay, [this] { face.getIoService().stop(); });
+    return sched.schedule(delay, [this] { face.getIoContext().stop(); });
   }
 
 protected:

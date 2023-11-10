@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/util/dummy-client-face.hpp"
+
 #include "ndn-cxx/impl/lp-field-tag.hpp"
 #include "ndn-cxx/lp/packet.hpp"
 #include "ndn-cxx/lp/tags.hpp"
@@ -27,7 +28,8 @@
 #include "ndn-cxx/mgmt/nfd/control-response.hpp"
 #include "ndn-cxx/transport/transport.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 
 namespace ndn {
 
@@ -93,16 +95,16 @@ DummyClientFace::DummyClientFace(KeyChain& keyChain, const Options& options)
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, const Options& options)
-  : Face(make_shared<DummyClientFace::Transport>(), ioService)
+DummyClientFace::DummyClientFace(boost::asio::io_context& ioCtx, const Options& options)
+  : Face(make_shared<DummyClientFace::Transport>(), ioCtx)
   , m_internalKeyChain(make_unique<KeyChain>())
   , m_keyChain(*m_internalKeyChain)
 {
   this->construct(options);
 }
 
-DummyClientFace::DummyClientFace(boost::asio::io_service& ioService, KeyChain& keyChain, const Options& options)
-  : Face(make_shared<DummyClientFace::Transport>(), ioService, keyChain)
+DummyClientFace::DummyClientFace(boost::asio::io_context& ioCtx, KeyChain& keyChain, const Options& options)
+  : Face(make_shared<DummyClientFace::Transport>(), ioCtx, keyChain)
   , m_keyChain(keyChain)
 {
   this->construct(options);
@@ -116,7 +118,7 @@ DummyClientFace::~DummyClientFace()
 void
 DummyClientFace::construct(const Options& options)
 {
-  static_pointer_cast<Transport>(getTransport())->onSendBlock.connect([this] (Block packet) {
+  static_cast<Transport&>(getTransport()).onSendBlock.connect([this] (Block packet) {
     packet.encode();
     lp::Packet lpPacket(packet);
     auto frag = lpPacket.get<lp::FragmentField>();
@@ -145,10 +147,10 @@ DummyClientFace::construct(const Options& options)
   });
 
   if (options.enablePacketLogging)
-    this->enablePacketLogging();
+    enablePacketLogging();
 
   if (options.enableRegistrationReply)
-    this->enableRegistrationReply(options.registrationReplyFaceId);
+    enableRegistrationReply(options.registrationReplyFaceId);
 
   m_processEventsOverride = options.processEventsOverride;
 
@@ -226,10 +228,10 @@ DummyClientFace::enableRegistrationReply(uint64_t faceId)
     resp.setCode(200);
     resp.setBody(params.wireEncode());
 
-    shared_ptr<Data> data = make_shared<Data>(name);
+    auto data = make_shared<Data>(name);
     data->setContent(resp.wireEncode());
     m_keyChain.sign(*data, security::SigningInfo(security::SigningInfo::SIGNER_TYPE_SHA256));
-    this->getIoService().post([this, data] { this->receive(*data); });
+    boost::asio::post(getIoContext(), [this, data] { this->receive(*data); });
   });
 }
 
@@ -242,7 +244,7 @@ DummyClientFace::receive(const Interest& interest)
   addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest);
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, interest);
 
-  static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
+  static_cast<Transport&>(getTransport()).receive(lpPacket.wireEncode());
 }
 
 void
@@ -253,7 +255,7 @@ DummyClientFace::receive(const Data& data)
   addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, data);
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, data);
 
-  static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
+  static_cast<Transport&>(getTransport()).receive(lpPacket.wireEncode());
 }
 
 void
@@ -267,7 +269,7 @@ DummyClientFace::receive(const lp::Nack& nack)
   addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, nack);
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
 
-  static_pointer_cast<Transport>(getTransport())->receive(lpPacket.wireEncode());
+  static_cast<Transport&>(getTransport()).receive(lpPacket.wireEncode());
 }
 
 void
@@ -313,13 +315,13 @@ DummyClientFace::unlink()
 }
 
 void
-DummyClientFace::doProcessEvents(time::milliseconds timeout, bool keepThread)
+DummyClientFace::doProcessEvents(time::milliseconds timeout, bool keepRunning)
 {
   if (m_processEventsOverride != nullptr) {
     m_processEventsOverride(timeout);
   }
   else {
-    this->Face::doProcessEvents(timeout, keepThread);
+    Face::doProcessEvents(timeout, keepRunning);
   }
 }
 

@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(BackrefMatcher)
 {
   auto backRef = make_shared<RegexBackrefManager>();
   auto cm = make_shared<RegexBackrefMatcher>("(<a><b>)", backRef);
-  backRef->pushRef(static_pointer_cast<RegexMatcher>(cm));
+  backRef->pushRef(std::static_pointer_cast<RegexMatcher>(cm));
   cm->compile();
   bool res = cm->match(Name("/a/b/c"), 0, 2);
   BOOST_CHECK_EQUAL(res, true);

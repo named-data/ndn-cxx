@@ -649,8 +649,8 @@ BOOST_AUTO_TEST_CASE(ToAsioConstBuffer)
 {
   Block block = "0101A0"_block;
   boost::asio::const_buffer buffer(block);
-  BOOST_CHECK_EQUAL(boost::asio::buffer_cast<const uint8_t*>(buffer), block.data());
-  BOOST_CHECK_EQUAL(boost::asio::buffer_size(buffer), block.size());
+  BOOST_CHECK_EQUAL(buffer.data(), block.data());
+  BOOST_CHECK_EQUAL(buffer.size(), block.size());
 }
 
 BOOST_AUTO_TEST_CASE(Equality)

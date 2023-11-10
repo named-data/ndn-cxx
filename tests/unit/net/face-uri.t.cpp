@@ -94,7 +94,7 @@ protected:
   shared_ptr<const net::NetworkInterface> m_netif;
 
 private:
-  boost::asio::io_service m_io;
+  boost::asio::io_context m_io;
 };
 
 BOOST_AUTO_TEST_CASE(ParseInternal)
@@ -147,11 +147,11 @@ BOOST_AUTO_TEST_CASE(ParseUdp)
 
   namespace ip = boost::asio::ip;
 
-  ip::udp::endpoint endpoint4(ip::address_v4::from_string("192.0.2.1"), 7777);
+  ip::udp::endpoint endpoint4(ip::make_address_v4("192.0.2.1"), 7777);
   uri = FaceUri(endpoint4);
   BOOST_CHECK_EQUAL(uri.toString(), "udp4://192.0.2.1:7777");
 
-  ip::udp::endpoint endpoint6(ip::address_v6::from_string("2001:DB8::1"), 7777);
+  ip::udp::endpoint endpoint6(ip::make_address_v6("2001:DB8::1"), 7777);
   uri = FaceUri(endpoint6);
   BOOST_CHECK_EQUAL(uri.toString(), "udp6://[2001:db8::1]:7777");
 
@@ -285,14 +285,14 @@ BOOST_AUTO_TEST_CASE(ParseTcp)
 
   namespace ip = boost::asio::ip;
 
-  ip::tcp::endpoint endpoint4(ip::address_v4::from_string("192.0.2.1"), 7777);
+  ip::tcp::endpoint endpoint4(ip::make_address_v4("192.0.2.1"), 7777);
   uri = FaceUri(endpoint4);
   BOOST_CHECK_EQUAL(uri.toString(), "tcp4://192.0.2.1:7777");
 
   uri = FaceUri(endpoint4, "wsclient");
   BOOST_CHECK_EQUAL(uri.toString(), "wsclient://192.0.2.1:7777");
 
-  ip::tcp::endpoint endpoint6(ip::address_v6::from_string("2001:DB8::1"), 7777);
+  ip::tcp::endpoint endpoint6(ip::make_address_v6("2001:DB8::1"), 7777);
   uri = FaceUri(endpoint6);
   BOOST_CHECK_EQUAL(uri.toString(), "tcp6://[2001:db8::1]:7777");
 
@@ -553,7 +553,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpDev, CanonizeFixture)
 
 BOOST_AUTO_TEST_CASE(CanonizeEmptyCallback)
 {
-  boost::asio::io_service io;
+  boost::asio::io_context io;
 
   // unsupported scheme
   FaceUri("null://").canonize(nullptr, nullptr, io, 1_ms);

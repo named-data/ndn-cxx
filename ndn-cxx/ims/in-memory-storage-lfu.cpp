@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2018 Regents of the University of California.
+ * Copyright (c) 2013-2023 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,8 +28,8 @@ InMemoryStorageLfu::InMemoryStorageLfu(size_t limit)
 {
 }
 
-InMemoryStorageLfu::InMemoryStorageLfu(boost::asio::io_service& ioService, size_t limit)
-  : InMemoryStorage(ioService, limit)
+InMemoryStorageLfu::InMemoryStorageLfu(boost::asio::io_context& ioCtx, size_t limit)
+  : InMemoryStorage(ioCtx, limit)
 {
 }
 
@@ -47,7 +47,7 @@ bool
 InMemoryStorageLfu::evictItem()
 {
   if (!m_cleanupIndex.get<byFrequency>().empty()) {
-    CleanupIndex::index<byFrequency>::type::iterator it = m_cleanupIndex.get<byFrequency>().begin();
+    auto it = m_cleanupIndex.get<byFrequency>().begin();
     eraseImpl(((*it).entry)->getFullName());
     m_cleanupIndex.get<byFrequency>().erase(it);
     return true;
@@ -59,7 +59,7 @@ InMemoryStorageLfu::evictItem()
 void
 InMemoryStorageLfu::beforeErase(InMemoryStorageEntry* entry)
 {
-  CleanupIndex::index<byEntity>::type::iterator it = m_cleanupIndex.get<byEntity>().find(entry);
+  auto it = m_cleanupIndex.get<byEntity>().find(entry);
   if (it != m_cleanupIndex.get<byEntity>().end())
     m_cleanupIndex.get<byEntity>().erase(it);
 }
@@ -67,7 +67,7 @@ InMemoryStorageLfu::beforeErase(InMemoryStorageEntry* entry)
 void
 InMemoryStorageLfu::afterAccess(InMemoryStorageEntry* entry)
 {
-  CleanupIndex::index<byEntity>::type::iterator it = m_cleanupIndex.get<byEntity>().find(entry);
+  auto it = m_cleanupIndex.get<byEntity>().find(entry);
   m_cleanupIndex.get<byEntity>().modify(it, &incrementFrequency);
 }
 

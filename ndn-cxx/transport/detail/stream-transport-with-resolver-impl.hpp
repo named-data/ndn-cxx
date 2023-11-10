@@ -33,13 +33,13 @@ template<typename BaseTransport, typename Protocol>
 class StreamTransportWithResolverImpl : public StreamTransportImpl<BaseTransport, Protocol>
 {
 public:
-  StreamTransportWithResolverImpl(BaseTransport& transport, boost::asio::io_service& ioService)
-    : StreamTransportImpl<BaseTransport, Protocol>(transport, ioService)
+  StreamTransportWithResolverImpl(BaseTransport& transport, boost::asio::io_context& ioCtx)
+    : StreamTransportImpl<BaseTransport, Protocol>(transport, ioCtx)
   {
   }
 
   void
-  connect(const typename Protocol::resolver::query& query)
+  connect(std::string_view host, std::string_view port)
   {
     if (this->m_transport.getState() == Transport::State::CONNECTING) {
       return;
@@ -48,13 +48,13 @@ public:
 
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable
-    this->m_connectTimer.expires_from_now(std::chrono::seconds(4));
+    this->m_connectTimer.expires_after(std::chrono::seconds(4));
     this->m_connectTimer.async_wait([self = this->shared_from_base()] (const auto& ec) {
       self->connectTimeoutHandler(ec);
     });
 
     auto resolver = make_shared<typename Protocol::resolver>(this->m_socket.get_executor());
-    resolver->async_resolve(query, [self = this->shared_from_base(), resolver] (auto&&... args) {
+    resolver->async_resolve(host, port, [self = this->shared_from_base(), resolver] (auto&&... args) {
       self->resolveHandler(std::forward<decltype(args)>(args)..., resolver);
     });
   }
@@ -62,23 +62,20 @@ public:
 protected:
   void
   resolveHandler(const boost::system::error_code& error,
-                 typename Protocol::resolver::iterator endpoint,
+                 const typename Protocol::resolver::results_type& endpoints,
                  const shared_ptr<typename Protocol::resolver>&)
   {
     if (error) {
       if (error == boost::system::errc::operation_canceled)
         return;
 
-      NDN_THROW(Transport::Error(error, "Error during resolution of host or port"));
-    }
-
-    typename Protocol::resolver::iterator end;
-    if (endpoint == end) {
       this->m_transport.close();
-      NDN_THROW(Transport::Error(error, "Unable to resolve host or port"));
+      NDN_THROW(Transport::Error(error, "unable to resolve host or port"));
     }
 
-    this->m_socket.async_connect(*endpoint, [self = this->shared_from_base()] (const auto& ec) {
+    BOOST_ASSERT(!endpoints.empty()); // guaranteed by Asio if the resolve operation is successful
+
+    this->m_socket.async_connect(*endpoints.begin(), [self = this->shared_from_base()] (const auto& ec) {
       self->connectHandler(ec);
     });
   }
@@ -89,7 +86,7 @@ private:
   shared_ptr<Impl>
   shared_from_base()
   {
-    return static_pointer_cast<Impl>(this->shared_from_this());
+    return std::static_pointer_cast<Impl>(this->shared_from_this());
   }
 };
 

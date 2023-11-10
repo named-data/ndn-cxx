@@ -23,7 +23,8 @@
 
 #include "tests/boost-test.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 
 namespace ndn::tests {
 
@@ -42,7 +43,7 @@ BOOST_AUTO_TEST_SUITE(TestNetworkMonitor)
 
 BOOST_AUTO_TEST_CASE(DestructWithoutRun)
 {
-  boost::asio::io_service io;
+  boost::asio::io_context io;
   auto nm = make_unique<NetworkMonitor>(io);
   nm.reset();
   BOOST_CHECK(true); // if we got this far, the test passed
@@ -50,16 +51,16 @@ BOOST_AUTO_TEST_CASE(DestructWithoutRun)
 
 BOOST_AUTO_TEST_CASE(DestructWhileEnumerating)
 {
-  boost::asio::io_service io;
+  boost::asio::io_context io;
   auto nm = make_unique<NetworkMonitor>(io);
   NM_REQUIRE_CAP(ENUM);
 
   nm->onInterfaceAdded.connect([&] (const shared_ptr<const NetworkInterface>&) {
-    io.post([&] { nm.reset(); });
+    boost::asio::post(io, [&] { nm.reset(); });
   });
   nm->onEnumerationCompleted.connect([&] {
     // make sure the test case terminates even if we have zero interfaces
-    io.post([&] { nm.reset(); });
+    boost::asio::post(io, [&] { nm.reset(); });
   });
 
   io.run();

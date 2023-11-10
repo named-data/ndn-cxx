@@ -25,14 +25,14 @@
 #include "ndn-cxx/util/scheduler.hpp"
 #include "tests/benchmarks/timed-execute.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <iostream>
 
 namespace ndn::tests {
 
 BOOST_AUTO_TEST_CASE(ScheduleCancel)
 {
-  boost::asio::io_service io;
+  boost::asio::io_context io;
   Scheduler sched(io);
 
   const size_t nEvents = 1000000;
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(ScheduleCancel)
 
 BOOST_AUTO_TEST_CASE(Execute)
 {
-  boost::asio::io_service io;
+  boost::asio::io_context io;
   Scheduler sched(io);
 
   const size_t nEvents = 1000000;

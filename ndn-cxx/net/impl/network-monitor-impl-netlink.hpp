@@ -44,7 +44,7 @@ public:
    * \brief Initialize netlink socket and start enumerating interfaces.
    */
   explicit
-  NetworkMonitorImplNetlink(boost::asio::io_service& io);
+  NetworkMonitorImplNetlink(boost::asio::io_context& io);
 
   uint32_t
   getCapabilities() const final

@@ -27,7 +27,8 @@
 #include "ndn-cxx/lp/nack.hpp"
 #include "ndn-cxx/lp/nack-header.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range/adaptor/map.hpp>
 
@@ -61,7 +62,7 @@ SegmentFetcher::SegmentFetcher(Face& face,
                                const SegmentFetcher::Options& options)
   : m_options(options)
   , m_face(face)
-  , m_scheduler(m_face.getIoService())
+  , m_scheduler(m_face.getIoContext())
   , m_validator(validator)
   , m_rttEstimator(make_shared<util::RttEstimator::Options>(options.rttOptions))
   , m_timeLastSegmentReceived(time::steady_clock::now())
@@ -91,7 +92,7 @@ SegmentFetcher::stop()
   }
 
   m_pendingSegments.clear(); // cancels pending Interests and timeout events
-  m_face.getIoService().post([self = std::move(m_this)] {});
+  boost::asio::post(m_face.getIoContext(), [self = std::move(m_this)] {});
 }
 
 bool

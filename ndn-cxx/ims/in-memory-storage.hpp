@@ -117,7 +117,7 @@ public:
    *  The InMemoryStorage created through this method will handle MustBeFresh in interest processing
    */
   explicit
-  InMemoryStorage(boost::asio::io_service& ioService,
+  InMemoryStorage(boost::asio::io_context& ioCtx,
                   size_t limit = std::numeric_limits<size_t>::max());
 
   /** @note Please make sure to implement it to free m_freeEntries and evict

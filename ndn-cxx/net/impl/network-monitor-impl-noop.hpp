@@ -32,7 +32,7 @@ class NetworkMonitorImplNoop final : public NetworkMonitorImpl
 {
 public:
   explicit
-  NetworkMonitorImplNoop(boost::asio::io_service&)
+  NetworkMonitorImplNoop(boost::asio::io_context&)
   {
   }
 

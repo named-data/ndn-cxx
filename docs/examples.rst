@@ -49,13 +49,13 @@ Consumer that uses Scheduler
 The following example demonstrates how to use :ndn-cxx:`Scheduler` to schedule arbitrary
 events for execution at specific points of time.
 
-The library internally uses `boost::asio::io_service
-<https://www.boost.org/doc/libs/1_65_1/doc/html/boost_asio/reference/io_service.html>`_ to
-implement fully asynchronous NDN operations (i.e., sending and receiving Interests and
-Data).  In addition to network-related operations, ``boost::asio::io_service`` can be used
+The library internally uses `boost::asio::io_context
+<https://www.boost.org/doc/libs/1_71_0/doc/html/boost_asio/reference/io_context.html>`__
+to implement fully asynchronous NDN operations (i.e., sending and receiving Interests and
+Data).  In addition to network-related operations, ``boost::asio::io_context`` can be used
 to execute any arbitrary callback within the processing thread (run either explicitly via
-``io_service::run()`` or implicitly via :ndn-cxx:`Face::processEvents` as in previous
-examples). :ndn-cxx:`Scheduler` is just a wrapper on top of ``io_service``, providing a
+``io_context::run()`` or implicitly via :ndn-cxx:`Face::processEvents` as in previous
+examples). :ndn-cxx:`Scheduler` is just a wrapper on top of ``io_context``, providing a
 simple interface to schedule tasks at specific times.
 
 The highlighted lines in the example demonstrate all that is needed to express a second

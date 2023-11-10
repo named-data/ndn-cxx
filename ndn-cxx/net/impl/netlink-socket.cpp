@@ -86,7 +86,7 @@ private:
   int m_value;
 };
 
-NetlinkSocket::NetlinkSocket(boost::asio::io_service& io)
+NetlinkSocket::NetlinkSocket(boost::asio::io_context& io)
   : m_sock(make_shared<boost::asio::generic::raw_protocol::socket>(io))
   , m_pid(0)
   , m_seqNum(static_cast<uint32_t>(time::system_clock::now().time_since_epoch().count()))
@@ -340,7 +340,7 @@ NetlinkSocket::receiveAndValidate()
   }
 }
 
-RtnlSocket::RtnlSocket(boost::asio::io_service& io)
+RtnlSocket::RtnlSocket(boost::asio::io_context& io)
   : NetlinkSocket(io)
 {
 }
@@ -409,7 +409,7 @@ RtnlSocket::nlmsgTypeToString(uint16_t type) const
 #undef RTM_STRINGIFY
 }
 
-GenlSocket::GenlSocket(boost::asio::io_service& io)
+GenlSocket::GenlSocket(boost::asio::io_context& io)
   : NetlinkSocket(io)
 {
   m_cachedFamilyIds["nlctrl"] = GENL_ID_CTRL;

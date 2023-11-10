@@ -29,13 +29,12 @@
 
 namespace ndn::dns {
 
-using IpAddress = boost::asio::ip::address;
-using AddressSelector = std::function<bool(const IpAddress&)>;
+using AddressSelector = std::function<bool(const boost::asio::ip::address&)>;
 
 struct AnyAddress
 {
   bool
-  operator()(const IpAddress& address) const
+  operator()(const boost::asio::ip::address&) const
   {
     return true;
   }
@@ -44,7 +43,7 @@ struct AnyAddress
 struct Ipv4Only
 {
   bool
-  operator()(const IpAddress& address) const
+  operator()(const boost::asio::ip::address& address) const
   {
     return address.is_v4();
   }
@@ -53,22 +52,17 @@ struct Ipv4Only
 struct Ipv6Only
 {
   bool
-  operator()(const IpAddress& address) const
+  operator()(const boost::asio::ip::address& address) const
   {
     return address.is_v6();
   }
 };
 
-class Error : public std::runtime_error
-{
-public:
-  using std::runtime_error::runtime_error;
-};
-
-using SuccessCallback = std::function<void(const IpAddress& address)>;
+using SuccessCallback = std::function<void(const boost::asio::ip::address& address)>;
 using ErrorCallback = std::function<void(const std::string& reason)>;
 
-/** \brief Asynchronously resolve host
+/**
+ * \brief Asynchronously resolve \p host.
  *
  * If an address selector predicate is specified, then each resolved IP address
  * is checked against the predicate.
@@ -80,33 +74,17 @@ using ErrorCallback = std::function<void(const std::string& reason)>;
  * - dns::Ipv6Address()
  *
  * \warning Even after the DNS resolution has timed out, it's possible that
- *          \p ioService keeps running and \p onSuccess is invoked at a later time.
+ *          \p ioCtx keeps running and \p onSuccess is invoked at a later time.
  *          This could cause segmentation fault if \p onSuccess is deallocated.
- *          To stop the io_service, explicitly invoke \p ioService.stop().
+ *          To stop the io_context, explicitly invoke \p ioCtx.stop().
  */
 void
 asyncResolve(const std::string& host,
              const SuccessCallback& onSuccess,
              const ErrorCallback& onError,
-             boost::asio::io_service& ioService,
+             boost::asio::io_context& ioCtx,
              const AddressSelector& addressSelector = AnyAddress(),
              time::nanoseconds timeout = 4_s);
-
-/** \brief Synchronously resolve host
- *
- * If an address selector predicate is specified, then each resolved IP address
- * is checked against the predicate.
- *
- * Available address selector predicates:
- *
- * - dns::AnyAddress()
- * - dns::Ipv4Address()
- * - dns::Ipv6Address()
- */
-IpAddress
-syncResolve(const std::string& host,
-            boost::asio::io_service& ioService,
-            const AddressSelector& addressSelector = AnyAddress());
 
 } // namespace ndn::dns
 

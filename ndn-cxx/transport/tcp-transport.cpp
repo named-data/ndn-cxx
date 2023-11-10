@@ -78,17 +78,15 @@ TcpTransport::getSocketHostAndPortFromUri(const std::string& uriString)
 }
 
 void
-TcpTransport::connect(boost::asio::io_service& ioService, ReceiveCallback receiveCallback)
+TcpTransport::connect(boost::asio::io_context& ioCtx, ReceiveCallback receiveCallback)
 {
   NDN_LOG_DEBUG("connect host=" << m_host << " port=" << m_port);
 
   if (m_impl == nullptr) {
-    Transport::connect(ioService, std::move(receiveCallback));
-    m_impl = make_shared<Impl>(*this, ioService);
+    Transport::connect(ioCtx, std::move(receiveCallback));
+    m_impl = make_shared<Impl>(*this, ioCtx);
   }
-
-  boost::asio::ip::tcp::resolver::query query(m_host, m_port);
-  m_impl->connect(query);
+  m_impl->connect(m_host, m_port);
 }
 
 void

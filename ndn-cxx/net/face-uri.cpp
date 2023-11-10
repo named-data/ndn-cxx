@@ -220,7 +220,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, time::nanoseconds timeout) const = 0;
+           boost::asio::io_context& io, time::nanoseconds timeout) const = 0;
 };
 
 template<typename Protocol>
@@ -244,7 +244,7 @@ public:
     }
 
     boost::system::error_code ec;
-    auto addr = boost::asio::ip::address::from_string(unescapeHost(faceUri.getHost()), ec);
+    auto addr = boost::asio::ip::make_address(unescapeHost(faceUri.getHost()), ec);
     if (ec) {
       return false;
     }
@@ -287,7 +287,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service& io, time::nanoseconds timeout) const override
+           boost::asio::io_context& io, time::nanoseconds timeout) const override
   {
     if (this->isCanonical(faceUri)) {
       onSuccess(faceUri);
@@ -297,7 +297,7 @@ public:
     // make a copy because caller may modify faceUri
     auto uri = make_shared<FaceUri>(faceUri);
     boost::system::error_code ec;
-    auto ipAddress = boost::asio::ip::address::from_string(unescapeHost(faceUri.getHost()), ec);
+    auto ipAddress = boost::asio::ip::make_address(unescapeHost(faceUri.getHost()), ec);
     if (!ec) {
       // No need to resolve IP address if host is already an IP
       if ((faceUri.getScheme() == m_v4Scheme && !ipAddress.is_v4()) ||
@@ -345,7 +345,7 @@ private:
   onDnsSuccess(const shared_ptr<FaceUri>& faceUri,
                const FaceUri::CanonizeSuccessCallback& onSuccess,
                const FaceUri::CanonizeFailureCallback& onFailure,
-               const dns::IpAddress& ipAddress) const
+               const boost::asio::ip::address& ipAddress) const
   {
     auto [isOk, reason] = this->checkAddress(ipAddress);
     if (!isOk) {
@@ -383,7 +383,7 @@ private:
    *          (false,reason) if the address is not allowable.
    */
   virtual std::pair<bool, std::string>
-  checkAddress(const dns::IpAddress&) const
+  checkAddress(const boost::asio::ip::address&) const
   {
     return {true, ""};
   }
@@ -425,7 +425,7 @@ public:
 
 protected:
   std::pair<bool, std::string>
-  checkAddress(const dns::IpAddress& ipAddress) const override
+  checkAddress(const boost::asio::ip::address& ipAddress) const override
   {
     if (ipAddress.is_multicast()) {
       return {false, "cannot use multicast address"};
@@ -461,7 +461,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service&, time::nanoseconds timeout) const override
+           boost::asio::io_context&, time::nanoseconds timeout) const override
   {
     auto addr = ethernet::Address::fromString(faceUri.getHost());
     if (addr.isNull()) {
@@ -493,7 +493,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service&, time::nanoseconds timeout) const override
+           boost::asio::io_context&, time::nanoseconds timeout) const override
   {
     if (faceUri.getHost().empty()) {
       onFailure("network interface name is missing");
@@ -539,7 +539,7 @@ public:
   canonize(const FaceUri& faceUri,
            const FaceUri::CanonizeSuccessCallback& onSuccess,
            const FaceUri::CanonizeFailureCallback& onFailure,
-           boost::asio::io_service&, time::nanoseconds timeout) const override
+           boost::asio::io_context&, time::nanoseconds timeout) const override
   {
     if (this->isCanonical(faceUri)) {
       onSuccess(faceUri);
@@ -618,7 +618,7 @@ FaceUri::isCanonical() const
 void
 FaceUri::canonize(const CanonizeSuccessCallback& onSuccess,
                   const CanonizeFailureCallback& onFailure,
-                  boost::asio::io_service& io, time::nanoseconds timeout) const
+                  boost::asio::io_context& io, time::nanoseconds timeout) const
 {
   const CanonizeProvider* cp = getCanonizeProvider(this->getScheme());
   if (cp == nullptr) {

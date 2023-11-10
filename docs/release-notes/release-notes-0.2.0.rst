@@ -145,7 +145,7 @@ Deprecated
 
   Use versions that accept reference to ``io_service`` object.
 
-- ``Face::ioService`` method, use :ndn-cxx:`Face::getIoService` instead.
+- ``Face::ioService`` method, use ``Face::getIoService`` instead.
 
 - :ndn-cxx:`Interest` constructor that accepts name, individual selectors, and individual
   guiders as constructor parameters.

@@ -67,7 +67,7 @@ CertificateBundleFetcher::doFetch(const shared_ptr<CertificateRequest>& certRequ
                                   const shared_ptr<ValidationState>& state,
                                   const ValidationContinuation& continueValidation)
 {
-  auto dataValidationState = dynamic_pointer_cast<DataValidationState>(state);
+  auto dataValidationState = std::dynamic_pointer_cast<DataValidationState>(state);
   if (dataValidationState == nullptr) {
     return m_inner->fetch(certRequest, state, continueValidation);
   }

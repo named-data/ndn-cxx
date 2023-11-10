@@ -68,10 +68,6 @@ using std::weak_ptr;
 using std::make_shared;
 using std::make_unique;
 
-using std::static_pointer_cast;
-using std::dynamic_pointer_cast;
-using std::const_pointer_cast;
-
 using std::to_string;
 using namespace std::string_literals;
 using namespace std::string_view_literals;

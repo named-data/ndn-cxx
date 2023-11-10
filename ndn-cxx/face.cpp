@@ -20,30 +20,19 @@
  */
 
 #include "ndn-cxx/face.hpp"
+
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "ndn-cxx/impl/face-impl.hpp"
 #include "ndn-cxx/net/face-uri.hpp"
+#include "ndn-cxx/transport/tcp-transport.hpp"
+#include "ndn-cxx/transport/unix-transport.hpp"
 #include "ndn-cxx/util/config-file.hpp"
 #include "ndn-cxx/util/scope.hpp"
 #include "ndn-cxx/util/time.hpp"
 
-// NDN_LOG_INIT(ndn.Face) is declared in face-impl.hpp
-
-// A callback scheduled through io.post and io.dispatch may be invoked after the face is destructed.
-// To prevent this situation, use these macros to capture Face::m_impl as weak_ptr and skip callback
-// execution if the face has been destructed.
-#define IO_CAPTURE_WEAK_IMPL(OP) \
-  { \
-    weak_ptr<Impl> implWeak(m_impl); \
-    m_ioService.OP([=] { \
-      auto impl = implWeak.lock(); \
-      if (impl != nullptr) {
-#define IO_CAPTURE_WEAK_IMPL_END \
-      } \
-    }); \
-  }
-
 namespace ndn {
+
+// NDN_LOG_INIT(ndn.Face) is declared in face-impl.hpp
 
 Face::OversizedPacketError::OversizedPacketError(char pktType, const Name& name, size_t wireSize)
   : Error((pktType == 'I' ? "Interest " : pktType == 'D' ? "Data " : "Nack ") +
@@ -56,50 +45,50 @@ Face::OversizedPacketError::OversizedPacketError(char pktType, const Name& name,
 }
 
 Face::Face(shared_ptr<Transport> transport)
-  : m_internalIoService(make_unique<boost::asio::io_service>())
-  , m_ioService(*m_internalIoService)
+  : m_internalIoCtx(make_unique<boost::asio::io_context>())
+  , m_ioCtx(*m_internalIoCtx)
   , m_internalKeyChain(make_unique<KeyChain>())
 {
   construct(std::move(transport), *m_internalKeyChain);
 }
 
-Face::Face(boost::asio::io_service& ioService)
-  : m_ioService(ioService)
+Face::Face(boost::asio::io_context& ioCtx)
+  : m_ioCtx(ioCtx)
   , m_internalKeyChain(make_unique<KeyChain>())
 {
   construct(nullptr, *m_internalKeyChain);
 }
 
 Face::Face(const std::string& host, const std::string& port)
-  : m_internalIoService(make_unique<boost::asio::io_service>())
-  , m_ioService(*m_internalIoService)
+  : m_internalIoCtx(make_unique<boost::asio::io_context>())
+  , m_ioCtx(*m_internalIoCtx)
   , m_internalKeyChain(make_unique<KeyChain>())
 {
   construct(make_shared<TcpTransport>(host, port), *m_internalKeyChain);
 }
 
 Face::Face(shared_ptr<Transport> transport, KeyChain& keyChain)
-  : m_internalIoService(make_unique<boost::asio::io_service>())
-  , m_ioService(*m_internalIoService)
+  : m_internalIoCtx(make_unique<boost::asio::io_context>())
+  , m_ioCtx(*m_internalIoCtx)
 {
   construct(std::move(transport), keyChain);
 }
 
-Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService)
-  : m_ioService(ioService)
+Face::Face(shared_ptr<Transport> transport, boost::asio::io_context& ioCtx)
+  : m_ioCtx(ioCtx)
   , m_internalKeyChain(make_unique<KeyChain>())
 {
   construct(std::move(transport), *m_internalKeyChain);
 }
 
-Face::Face(shared_ptr<Transport> transport, boost::asio::io_service& ioService, KeyChain& keyChain)
-  : m_ioService(ioService)
+Face::Face(shared_ptr<Transport> transport, boost::asio::io_context& ioCtx, KeyChain& keyChain)
+  : m_ioCtx(ioCtx)
 {
   construct(std::move(transport), keyChain);
 }
 
-shared_ptr<Transport>
-Face::makeDefaultTransport()
+static shared_ptr<Transport>
+makeDefaultTransport()
 {
   std::string transportUri;
 
@@ -117,11 +106,8 @@ Face::makeDefaultTransport()
     return UnixTransport::create("");
   }
 
-  std::string protocol;
   try {
-    FaceUri uri(transportUri);
-    protocol = uri.getScheme();
-
+    std::string protocol = FaceUri(transportUri).getScheme();
     if (protocol == "unix") {
       return UnixTransport::create(transportUri);
     }
@@ -152,9 +138,11 @@ Face::construct(shared_ptr<Transport> transport, KeyChain& keyChain)
   }
   m_transport = std::move(transport);
 
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->ensureConnected(false);
-  } IO_CAPTURE_WEAK_IMPL_END
+  boost::asio::post(m_ioCtx, [w = m_impl->weak_from_this()] {
+    if (auto impl = w.lock(); impl != nullptr) {
+      impl->ensureConnected(false);
+    }
+  });
 }
 
 Face::~Face() = default;
@@ -166,13 +154,14 @@ Face::expressInterest(const Interest& interest,
                       const TimeoutCallback& afterTimeout)
 {
   auto id = m_impl->m_pendingInterestTable.allocateId();
-
   auto interest2 = make_shared<Interest>(interest);
   interest2->getNonce();
 
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->expressInterest(id, interest2, afterSatisfied, afterNacked, afterTimeout);
-  } IO_CAPTURE_WEAK_IMPL_END
+  boost::asio::post(m_ioCtx, [=, w = m_impl->weak_from_this()] {
+    if (auto impl = w.lock(); impl != nullptr) {
+      impl->expressInterest(id, interest2, afterSatisfied, afterNacked, afterTimeout);
+    }
+  });
 
   return PendingInterestHandle(m_impl, id);
 }
@@ -180,9 +169,11 @@ Face::expressInterest(const Interest& interest,
 void
 Face::removeAllPendingInterests()
 {
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->removeAllPendingInterests();
-  } IO_CAPTURE_WEAK_IMPL_END
+  boost::asio::post(m_ioCtx, [w = m_impl->weak_from_this()] {
+    if (auto impl = w.lock(); impl != nullptr) {
+      impl->removeAllPendingInterests();
+    }
+  });
 }
 
 size_t
@@ -192,19 +183,23 @@ Face::getNPendingInterests() const
 }
 
 void
-Face::put(Data data)
+Face::put(const Data& data)
 {
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->putData(data);
-  } IO_CAPTURE_WEAK_IMPL_END
+  boost::asio::post(m_ioCtx, [data, w = m_impl->weak_from_this()] {
+    if (auto impl = w.lock(); impl != nullptr) {
+      impl->putData(data);
+    }
+  });
 }
 
 void
-Face::put(lp::Nack nack)
+Face::put(const lp::Nack& nack)
 {
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->putNack(nack);
-  } IO_CAPTURE_WEAK_IMPL_END
+  boost::asio::post(m_ioCtx, [nack, w = m_impl->weak_from_this()] {
+    if (auto impl = w.lock(); impl != nullptr) {
+      impl->putNack(nack);
+    }
+  });
 }
 
 RegisteredPrefixHandle
@@ -234,9 +229,11 @@ Face::setInterestFilter(const InterestFilter& filter, const InterestCallback& on
 {
   auto id = m_impl->m_interestFilterTable.allocateId();
 
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->setInterestFilter(id, filter, onInterest);
-  } IO_CAPTURE_WEAK_IMPL_END
+  boost::asio::post(m_ioCtx, [=, w = m_impl->weak_from_this()] {
+    if (auto impl = w.lock(); impl != nullptr) {
+      impl->setInterestFilter(id, filter, onInterest);
+    }
+  });
 
   return InterestFilterHandle(m_impl, id);
 }
@@ -256,44 +253,47 @@ Face::registerPrefix(const Name& prefix,
 }
 
 void
-Face::doProcessEvents(time::milliseconds timeout, bool keepThread)
+Face::doProcessEvents(time::milliseconds timeout, bool keepRunning)
 {
-  if (m_ioService.stopped()) {
-    m_ioService.reset(); // ensure that run()/poll() will do some work
+  if (m_ioCtx.stopped()) {
+    m_ioCtx.restart(); // ensure that run()/poll() will do some work
   }
 
   auto onThrow = make_scope_fail([this] { m_impl->shutdown(); });
 
   if (timeout < 0_ms) {
     // do not block if timeout is negative, but process pending events
-    m_ioService.poll();
+    m_ioCtx.poll();
     return;
   }
 
   if (timeout > 0_ms) {
+    // TODO: consider using m_ioCtx.run_for(timeout) in this case
     m_impl->m_processEventsTimeoutEvent = m_impl->m_scheduler.schedule(timeout,
-      [&io = m_ioService, &work = m_impl->m_ioServiceWork] {
+      [&io = m_ioCtx, &work = m_impl->m_workGuard] {
         io.stop();
         work.reset();
       });
   }
 
-  if (keepThread) {
-    // work will ensure that m_ioService is running until work object exists
-    m_impl->m_ioServiceWork = make_unique<boost::asio::io_service::work>(m_ioService);
+  if (keepRunning) {
+    // m_workGuard ensures that m_ioCtx keeps running even when it runs out of work (events)
+    m_impl->m_workGuard = make_unique<Impl::IoContextWorkGuard>(m_ioCtx.get_executor());
   }
 
-  m_ioService.run();
+  m_ioCtx.run();
 }
 
 void
 Face::shutdown()
 {
-  IO_CAPTURE_WEAK_IMPL(post) {
-    impl->shutdown();
-    if (m_transport->getState() != Transport::State::CLOSED)
-      m_transport->close();
-  } IO_CAPTURE_WEAK_IMPL_END
+  boost::asio::post(m_ioCtx, [this, w = m_impl->weak_from_this()] {
+    if (auto impl = w.lock(); impl != nullptr) {
+      impl->shutdown();
+      if (m_transport->getState() != Transport::State::CLOSED)
+        m_transport->close();
+    }
+  });
 }
 
 /**
@@ -344,8 +344,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
 
 PendingInterestHandle::PendingInterestHandle(weak_ptr<Face::Impl> weakImpl, detail::RecordId id)
   : CancelHandle([w = std::move(weakImpl), id] {
-      auto impl = w.lock();
-      if (impl != nullptr) {
+      if (auto impl = w.lock(); impl != nullptr) {
         impl->asyncRemovePendingInterest(id);
       }
     })
@@ -381,8 +380,7 @@ RegisteredPrefixHandle::unregister(const weak_ptr<Face::Impl>& weakImpl, detail:
                                    const UnregisterPrefixSuccessCallback& onSuccess,
                                    const UnregisterPrefixFailureCallback& onFailure)
 {
-  auto impl = weakImpl.lock();
-  if (impl != nullptr) {
+  if (auto impl = weakImpl.lock(); impl != nullptr) {
     impl->asyncUnregisterPrefix(id, onSuccess, onFailure);
   }
   else if (onFailure) {
@@ -392,8 +390,7 @@ RegisteredPrefixHandle::unregister(const weak_ptr<Face::Impl>& weakImpl, detail:
 
 InterestFilterHandle::InterestFilterHandle(weak_ptr<Face::Impl> weakImpl, detail::RecordId id)
   : CancelHandle([w = std::move(weakImpl), id] {
-      auto impl = w.lock();
-      if (impl != nullptr) {
+      if (auto impl = w.lock(); impl != nullptr) {
         impl->asyncUnsetInterestFilter(id);
       }
     })

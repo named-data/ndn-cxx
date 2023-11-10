@@ -60,10 +60,10 @@ public:
   /**
    * @brief Construct instance, request enumeration of all network interfaces, and start
    *        monitoring for network state changes.
-   * @param io io_service instance that will dispatch events
+   * @param ioCtx io_context instance that will dispatch events
    */
   explicit
-  NetworkMonitor(boost::asio::io_service& io);
+  NetworkMonitor(boost::asio::io_context& ioCtx);
 
   enum Capability : uint32_t {
     /// NetworkMonitor is not supported and is a no-op

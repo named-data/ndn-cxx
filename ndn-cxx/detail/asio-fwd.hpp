@@ -22,13 +22,8 @@
 #ifndef NDN_CXX_DETAIL_ASIO_FWD_HPP
 #define NDN_CXX_DETAIL_ASIO_FWD_HPP
 
-#include <boost/version.hpp>
-
 namespace boost::asio {
-
 class io_context;
-using io_service = io_context;
-
 } // namespace boost::asio
 
 #endif // NDN_CXX_DETAIL_ASIO_FWD_HPP

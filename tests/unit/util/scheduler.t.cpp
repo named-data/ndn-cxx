@@ -51,23 +51,31 @@ BOOST_AUTO_TEST_CASE(Events)
     BOOST_CHECK_EQUAL(count2, 1);
   });
 
-  EventId i = scheduler.schedule(1_s, [] { BOOST_ERROR("This event should not have been fired"); });
-  i.cancel();
+  EventId eid = scheduler.schedule(1_s, [] { BOOST_ERROR("This event should not have been fired"); });
+  eid.cancel();
 
   scheduler.schedule(250_ms, [&] {
     BOOST_CHECK_EQUAL(count1, 0);
     ++count2;
   });
 
-  i = scheduler.schedule(50_ms, [&] { BOOST_ERROR("This event should not have been fired"); });
-  i.cancel();
+  eid = scheduler.schedule(50_ms, [&] { BOOST_ERROR("This event should not have been fired"); });
+  eid.cancel();
 
   advanceClocks(25_ms, 1000_ms);
   BOOST_CHECK_EQUAL(count1, 1);
   BOOST_CHECK_EQUAL(count2, 1);
 }
 
-BOOST_AUTO_TEST_CASE(CallbackException)
+BOOST_AUTO_TEST_CASE(NegativeDelay)
+{
+  bool wasCallbackInvoked = false;
+  scheduler.schedule(-1_s, [&] { wasCallbackInvoked = true; });
+  advanceClocks(1_ns);
+  BOOST_CHECK(wasCallbackInvoked);
+}
+
+BOOST_AUTO_TEST_CASE(ThrowingCallback)
 {
   class MyException : public std::exception
   {
@@ -79,12 +87,12 @@ BOOST_AUTO_TEST_CASE(CallbackException)
     throw MyException{};
   });
 
-  bool isCallbackInvoked = false;
-  scheduler.schedule(20_ms, [&isCallbackInvoked] { isCallbackInvoked = true; });
+  bool wasCallbackInvoked = false;
+  scheduler.schedule(20_ms, [&] { wasCallbackInvoked = true; });
 
   BOOST_CHECK_THROW(this->advanceClocks(6_ms, 2), MyException);
   this->advanceClocks(6_ms, 2);
-  BOOST_CHECK(isCallbackInvoked);
+  BOOST_CHECK(wasCallbackInvoked);
 }
 
 BOOST_AUTO_TEST_CASE(CancelEmptyEvent)
@@ -100,7 +108,7 @@ BOOST_AUTO_TEST_CASE(SelfCancel)
 {
   EventId selfEventId;
   selfEventId = scheduler.schedule(100_ms, [&] { selfEventId.cancel(); });
-  BOOST_REQUIRE_NO_THROW(advanceClocks(100_ms, 10));
+  BOOST_CHECK_NO_THROW(advanceClocks(100_ms, 10));
 }
 
 class SelfRescheduleFixture : public SchedulerFixture
@@ -143,7 +151,7 @@ public:
     scheduler.schedule(100_ms, [&] { ++count; });
   }
 
-public:
+protected:
   EventId selfEventId;
   size_t count = 0;
 };
@@ -151,21 +159,21 @@ public:
 BOOST_FIXTURE_TEST_CASE(Reschedule, SelfRescheduleFixture)
 {
   selfEventId = scheduler.schedule(0_s, [this] { reschedule(); });
-  BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
+  advanceClocks(50_ms, 1000_ms);
   BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule2, SelfRescheduleFixture)
 {
   selfEventId = scheduler.schedule(0_s, [this] { reschedule2(); });
-  BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
+  advanceClocks(50_ms, 1000_ms);
   BOOST_CHECK_EQUAL(count, 5);
 }
 
 BOOST_FIXTURE_TEST_CASE(Reschedule3, SelfRescheduleFixture)
 {
   selfEventId = scheduler.schedule(0_s, [this] { reschedule3(); });
-  BOOST_REQUIRE_NO_THROW(advanceClocks(50_ms, 1000_ms));
+  advanceClocks(50_ms, 1000_ms);
   BOOST_CHECK_EQUAL(count, 6);
 }
 

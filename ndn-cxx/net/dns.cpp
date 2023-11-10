@@ -22,7 +22,6 @@
 #include "ndn-cxx/net/dns.hpp"
 #include "ndn-cxx/util/scheduler.hpp"
 
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/post.hpp>
 
@@ -31,22 +30,17 @@ namespace ndn::dns {
 class Resolver : noncopyable
 {
 public:
-  using protocol = boost::asio::ip::udp;
-  using iterator = protocol::resolver::iterator;
-  using query = protocol::resolver::query;
-
-public:
-  Resolver(boost::asio::io_service& ioService,
+  Resolver(boost::asio::io_context& ioCtx,
            const AddressSelector& addressSelector)
-    : m_resolver(ioService)
+    : m_resolver(ioCtx)
     , m_addressSelector(addressSelector)
-    , m_scheduler(ioService)
+    , m_scheduler(ioCtx)
   {
     BOOST_ASSERT(m_addressSelector != nullptr);
   }
 
   void
-  asyncResolve(const query& q,
+  asyncResolve(const std::string& host,
                const SuccessCallback& onSuccess,
                const ErrorCallback& onError,
                time::nanoseconds timeout,
@@ -55,23 +49,18 @@ public:
     m_onSuccess = onSuccess;
     m_onError = onError;
 
-    m_resolver.async_resolve(q, [=] (auto&&... args) {
+    m_resolver.async_resolve(host, "", [=] (auto&&... args) {
       onResolveResult(std::forward<decltype(args)>(args)..., self);
     });
 
     m_resolveTimeout = m_scheduler.schedule(timeout, [=] { onResolveTimeout(self); });
   }
 
-  iterator
-  syncResolve(const query& q)
-  {
-    return selectAddress(m_resolver.resolve(q));
-  }
-
 private:
   void
   onResolveResult(const boost::system::error_code& error,
-                  iterator it, const shared_ptr<Resolver>& self)
+                  const boost::asio::ip::udp::resolver::results_type& results,
+                  const shared_ptr<Resolver>& self)
   {
     m_resolveTimeout.cancel();
 
@@ -79,21 +68,22 @@ private:
     boost::asio::post(m_resolver.get_executor(), [self] {});
 
     if (error) {
-      if (error == boost::asio::error::operation_aborted)
-        return;
-
-      if (m_onError)
-        m_onError("Hostname cannot be resolved: " + error.message());
-
+      if (m_onError && error != boost::asio::error::operation_aborted) {
+        m_onError("Hostname could not be resolved: " + error.message());
+      }
       return;
     }
 
-    it = selectAddress(it);
-
-    if (it != iterator() && m_onSuccess) {
-      m_onSuccess(it->endpoint().address());
+    for (const auto& entry : results) {
+      if (m_addressSelector(entry.endpoint().address())) {
+        if (m_onSuccess) {
+          m_onSuccess(entry.endpoint().address());
+        }
+        return;
+      }
     }
-    else if (m_onError) {
+
+    if (m_onError) {
       m_onError("No endpoints match the specified address selector");
     }
   }
@@ -106,21 +96,13 @@ private:
     // ensure the Resolver isn't destructed while callbacks are still pending, see #2653
     boost::asio::post(m_resolver.get_executor(), [self] {});
 
-    if (m_onError)
+    if (m_onError) {
       m_onError("Hostname resolution timed out");
-  }
-
-  iterator
-  selectAddress(iterator it) const
-  {
-    while (it != iterator() && !m_addressSelector(it->endpoint().address())) {
-      ++it;
     }
-    return it;
   }
 
 private:
-  protocol::resolver m_resolver;
+  boost::asio::ip::udp::resolver m_resolver;
 
   AddressSelector m_addressSelector;
   SuccessCallback m_onSuccess;
@@ -134,28 +116,13 @@ void
 asyncResolve(const std::string& host,
              const SuccessCallback& onSuccess,
              const ErrorCallback& onError,
-             boost::asio::io_service& ioService,
+             boost::asio::io_context& ioCtx,
              const AddressSelector& addressSelector,
              time::nanoseconds timeout)
 {
-  auto resolver = make_shared<Resolver>(ioService, addressSelector);
-  resolver->asyncResolve(Resolver::query(host, ""), onSuccess, onError, timeout, resolver);
-  // resolver will be destroyed when async operation finishes or ioService stops
-}
-
-IpAddress
-syncResolve(const std::string& host,
-            boost::asio::io_service& ioService,
-            const AddressSelector& addressSelector)
-{
-  Resolver resolver(ioService, addressSelector);
-  auto it = resolver.syncResolve(Resolver::query(host, ""));
-
-  if (it == Resolver::iterator()) {
-    NDN_THROW(Error("No endpoints match the specified address selector"));
-  }
-
-  return it->endpoint().address();
+  auto resolver = make_shared<Resolver>(ioCtx, addressSelector);
+  resolver->asyncResolve(host, onSuccess, onError, timeout, resolver);
+  // resolver will be destroyed when async operation finishes or ioCtx stops
 }
 
 } // namespace ndn::dns

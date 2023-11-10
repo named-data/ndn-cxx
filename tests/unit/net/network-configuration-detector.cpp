@@ -21,11 +21,9 @@
 
 #include "tests/unit/net/network-configuration-detector.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/basic_resolver.hpp>
 #include <boost/asio/ip/udp.hpp>
-#include <boost/range/iterator_range_core.hpp>
 
 namespace ndn::tests {
 
@@ -50,31 +48,23 @@ NetworkConfigurationDetector::hasIpv6()
 void
 NetworkConfigurationDetector::detect()
 {
-  using BoostResolver = boost::asio::ip::basic_resolver<boost::asio::ip::udp>;
+  boost::asio::io_context io;
+  boost::asio::ip::udp::resolver resolver(io);
 
-  boost::asio::io_service ioService;
-  BoostResolver resolver(ioService);
+  boost::system::error_code ec;
+  // The specified hostname must have both A and AAAA records
+  auto results = resolver.resolve("a.root-servers.net", "", ec);
 
-  // The specified hostname must contain both A and AAAA records
-  BoostResolver::query query("a.root-servers.net", "");
-
-  boost::system::error_code errorCode;
-  BoostResolver::iterator begin = resolver.resolve(query, errorCode);
-  if (errorCode) {
-    s_isInitialized = true;
-    return;
-  }
-  BoostResolver::iterator end;
-
-  for (const auto& i : boost::make_iterator_range(begin, end)) {
-    if (i.endpoint().address().is_v4()) {
-      s_hasIpv4 = true;
-    }
-    else if (i.endpoint().address().is_v6()) {
-      s_hasIpv6 = true;
+  if (!ec) {
+    for (const auto& i : results) {
+      if (i.endpoint().address().is_v4()) {
+        s_hasIpv4 = true;
+      }
+      else if (i.endpoint().address().is_v6()) {
+        s_hasIpv6 = true;
+      }
     }
   }
-
   s_isInitialized = true;
 }
 

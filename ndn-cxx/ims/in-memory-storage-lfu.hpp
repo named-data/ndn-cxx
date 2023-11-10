@@ -32,9 +32,9 @@
 
 namespace ndn {
 
-/** @brief Provides an in-memory storage with Least Frequently Used (LFU) replacement policy.
- *  @note The frequency right now is usage count.
- *  @sa https://en.wikipedia.org/w/index.php?title=Least_frequently_used&oldid=604542656
+/**
+ * @brief Provides an in-memory storage with Least Frequently Used (LFU) replacement policy.
+ * @note The frequency right now is usage count.
  */
 class InMemoryStorageLfu : public InMemoryStorage
 {
@@ -43,7 +43,7 @@ public:
   InMemoryStorageLfu(size_t limit = 16);
 
   explicit
-  InMemoryStorageLfu(boost::asio::io_service& ioService, size_t limit = 16);
+  InMemoryStorageLfu(boost::asio::io_context& ioCtx, size_t limit = 16);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on LFU, i.e. evict the least

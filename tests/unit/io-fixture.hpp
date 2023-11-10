@@ -24,7 +24,7 @@
 
 #include "tests/unit/clock-fixture.hpp"
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 
 namespace ndn::tests {
 
@@ -41,7 +41,7 @@ private:
   }
 
 protected:
-  boost::asio::io_service m_io;
+  boost::asio::io_context m_io;
 };
 
 } // namespace ndn::tests

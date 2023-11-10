@@ -129,7 +129,7 @@ ValidationPolicySignedInterest::checkIncomingInterest(const shared_ptr<Validatio
   }
 
   if (m_options.maxRecordCount != 0) {
-    auto interestState = dynamic_pointer_cast<InterestValidationState>(state);
+    auto interestState = std::dynamic_pointer_cast<InterestValidationState>(state);
     BOOST_ASSERT(interestState != nullptr);
     interestState->afterSuccess.connect([=] (const Interest&) {
       insertRecord(keyName, timestamp, seqNum, nonce);

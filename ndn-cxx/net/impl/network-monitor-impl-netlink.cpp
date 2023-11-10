@@ -43,7 +43,7 @@ namespace ndn::net {
 
 NDN_LOG_INIT(ndn.NetworkMonitor);
 
-NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_service& io)
+NetworkMonitorImplNetlink::NetworkMonitorImplNetlink(boost::asio::io_context& io)
   : m_rtnlSocket(io)
   , m_genlSocket(io)
 {

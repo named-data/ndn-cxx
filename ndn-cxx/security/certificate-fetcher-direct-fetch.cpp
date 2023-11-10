@@ -45,7 +45,7 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
                                        const ValidationContinuation& continueValidation)
 {
   uint64_t incomingFaceId = 0;
-  auto interestState = dynamic_pointer_cast<InterestValidationState>(state);
+  auto interestState = std::dynamic_pointer_cast<InterestValidationState>(state);
   if (interestState != nullptr) {
     auto incomingFaceIdTag = interestState->getOriginalInterest().getTag<lp::IncomingFaceIdTag>();
     if (incomingFaceIdTag != nullptr) {
@@ -53,7 +53,7 @@ CertificateFetcherDirectFetch::doFetch(const shared_ptr<CertificateRequest>& key
     }
   }
   else {
-    auto dataState = dynamic_pointer_cast<DataValidationState>(state);
+    auto dataState = std::dynamic_pointer_cast<DataValidationState>(state);
     auto incomingFaceIdTag = dataState->getOriginalData().getTag<lp::IncomingFaceIdTag>();
     if (incomingFaceIdTag != nullptr) {
       incomingFaceId = incomingFaceIdTag->get();
