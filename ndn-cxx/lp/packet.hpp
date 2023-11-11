@@ -22,7 +22,9 @@
 #ifndef NDN_CXX_LP_PACKET_HPP
 #define NDN_CXX_LP_PACKET_HPP
 
-#include "ndn-cxx/lp/fields.hpp"
+#include "ndn-cxx/encoding/block.hpp"
+#include "ndn-cxx/encoding/encoding-buffer.hpp"
+#include "ndn-cxx/lp/tlv.hpp"
 
 /**
  * @brief Contains classes and functions related to NDNLPv2.

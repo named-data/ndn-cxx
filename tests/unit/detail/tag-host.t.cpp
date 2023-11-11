@@ -25,7 +25,7 @@
 
 #include "tests/boost-test.hpp"
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -52,7 +52,7 @@ public:
   }
 };
 
-using Fixtures = boost::mpl::vector<TagHost, Interest, Data>;
+using Fixtures = boost::mp11::mp_list<TagHost, Interest, Data>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Basic, T, Fixtures, T)
 {

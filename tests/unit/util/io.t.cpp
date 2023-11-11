@@ -25,7 +25,7 @@
 #include "tests/key-chain-fixture.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -53,7 +53,7 @@ struct HexEncoding
   std::istringstream stream{"486578456E63", std::ios_base::binary};
 };
 
-using Encodings = boost::mpl::vector<NoEncoding, Base64Encoding, HexEncoding>;
+using Encodings = boost::mp11::mp_list<NoEncoding, Base64Encoding, HexEncoding>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(LoadBuffer, T, Encodings)
 {

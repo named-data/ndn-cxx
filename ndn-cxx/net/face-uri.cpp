@@ -32,8 +32,9 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/mpl/for_each.hpp>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/list.hpp>
+#include <boost/mp11/set.hpp>
 
 #include <regex>
 #include <set>
@@ -550,25 +551,20 @@ public:
   }
 };
 
-using CanonizeProviders = boost::mpl::vector<UdpCanonizeProvider*,
-                                             TcpCanonizeProvider*,
-                                             EtherCanonizeProvider*,
-                                             DevCanonizeProvider*,
-                                             UdpDevCanonizeProvider*>;
+using CanonizeProviders = boost::mp11::mp_list<UdpCanonizeProvider,
+                                               TcpCanonizeProvider,
+                                               EtherCanonizeProvider,
+                                               DevCanonizeProvider,
+                                               UdpDevCanonizeProvider>;
+static_assert(boost::mp11::mp_is_set<CanonizeProviders>());
+
 using CanonizeProviderTable = std::map<std::string, shared_ptr<CanonizeProvider>>;
 
-class CanonizeProviderTableInitializer
+struct CanonizeProviderTableInitializer
 {
-public:
-  explicit
-  CanonizeProviderTableInitializer(CanonizeProviderTable& providerTable)
-    : m_providerTable(providerTable)
-  {
-  }
-
   template<typename CP>
   void
-  operator()(CP*)
+  operator()(boost::mp11::mp_identity<CP>)
   {
     shared_ptr<CanonizeProvider> cp = make_shared<CP>();
     auto schemes = cp->getSchemes();
@@ -580,23 +576,22 @@ public:
     }
   }
 
-private:
   CanonizeProviderTable& m_providerTable;
 };
 
 static const CanonizeProvider*
 getCanonizeProvider(const std::string& scheme)
 {
-  static CanonizeProviderTable providerTable;
-  if (providerTable.empty()) {
-    boost::mpl::for_each<CanonizeProviders>(CanonizeProviderTableInitializer(providerTable));
-    BOOST_ASSERT(!providerTable.empty());
-  }
+  static const auto providerTable = [] {
+    using namespace boost::mp11;
+    CanonizeProviderTable table;
+    mp_for_each<mp_transform<mp_identity, CanonizeProviders>>(CanonizeProviderTableInitializer{table});
+    return table;
+  }();
 
   auto it = providerTable.find(scheme);
   return it == providerTable.end() ? nullptr : it->second.get();
 }
-
 
 bool
 FaceUri::canCanonize(const std::string& scheme)
@@ -607,7 +602,7 @@ FaceUri::canCanonize(const std::string& scheme)
 bool
 FaceUri::isCanonical() const
 {
-  const CanonizeProvider* cp = getCanonizeProvider(this->getScheme());
+  const auto* cp = getCanonizeProvider(getScheme());
   if (cp == nullptr) {
     return false;
   }
@@ -620,7 +615,7 @@ FaceUri::canonize(const CanonizeSuccessCallback& onSuccess,
                   const CanonizeFailureCallback& onFailure,
                   boost::asio::io_context& io, time::nanoseconds timeout) const
 {
-  const CanonizeProvider* cp = getCanonizeProvider(this->getScheme());
+  const auto* cp = getCanonizeProvider(getScheme());
   if (cp == nullptr) {
     if (onFailure) {
       onFailure("scheme not supported");

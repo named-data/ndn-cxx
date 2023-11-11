@@ -29,17 +29,17 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/io-fixture.hpp"
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
 BOOST_AUTO_TEST_SUITE(Ims)
 BOOST_AUTO_TEST_SUITE(TestInMemoryStorage)
 
-using InMemoryStorages = boost::mpl::vector<InMemoryStoragePersistent,
-                                            InMemoryStorageFifo,
-                                            InMemoryStorageLfu,
-                                            InMemoryStorageLru>;
+using InMemoryStorages = boost::mp11::mp_list<InMemoryStoragePersistent,
+                                              InMemoryStorageFifo,
+                                              InMemoryStorageLfu,
+                                              InMemoryStorageLru>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Insertion, T, InMemoryStorages)
 {
@@ -371,9 +371,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(EraseCanonical, T, InMemoryStorages)
   BOOST_CHECK_EQUAL(ims.size(), 6);
 }
 
-using InMemoryStoragesLimited = boost::mpl::vector<InMemoryStorageFifo,
-                                                   InMemoryStorageLfu,
-                                                   InMemoryStorageLru>;
+using InMemoryStoragesLimited = boost::mp11::mp_list<InMemoryStorageFifo,
+                                                     InMemoryStorageLfu,
+                                                     InMemoryStorageLru>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(SetCapacity, T, InMemoryStoragesLimited)
 {

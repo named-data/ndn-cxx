@@ -20,12 +20,12 @@
  */
 
 #include "ndn-cxx/security/validator-config/checker.hpp"
-#include "ndn-cxx/security/validation-policy.hpp"
-#include "ndn-cxx/security/validation-state.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 #include "tests/unit/security/validator-config/common.hpp"
+
+#include <boost/mp11/algorithm.hpp>
 
 namespace ndn::tests {
 
@@ -283,7 +283,7 @@ public:
                                              {false, false, false, true}};
 };
 
-using CheckerFixtures = boost::mpl::vector<
+using CheckerFixtures = boost::mp11::mp_list<
   NameRelationEqual,
   NameRelationIsPrefixOf,
   NameRelationIsStrictPrefixOf,
@@ -300,19 +300,16 @@ using CheckerFixtures = boost::mpl::vector<
 >;
 
 // Cartesian product of [DataPkt, InterestV02Pkt, InterestV03Pkt] and CheckerFixtures.
-// Each element is a boost::mpl::pair<PktType, CheckerFixture>.
-using Tests = boost::mpl::fold<
-  CheckerFixtures,
-  boost::mpl::vector<>,
-  boost::mpl::push_back<boost::mpl::push_back<boost::mpl::push_back<boost::mpl::_1,
-    boost::mpl::pair<DataPkt, boost::mpl::_2>>,
-    boost::mpl::pair<InterestV02Pkt, boost::mpl::_2>>,
-    boost::mpl::pair<InterestV03Pkt, boost::mpl::_2>>
->::type;
+// Each element is an mp_list<PktType, Fixture>.
+using Tests = boost::mp11::mp_product<
+  boost::mp11::mp_list,
+  boost::mp11::mp_list<DataPkt, InterestV02Pkt, InterestV03Pkt>,
+  CheckerFixtures
+>;
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, T::second)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, boost::mp11::mp_second<T>)
 {
-  using PktType = typename T::first;
+  using PktType = boost::mp11::mp_first<T>;
 
   BOOST_REQUIRE_EQUAL(this->outcomes.size(), this->names.size());
   for (size_t i = 0; i < this->names.size(); ++i) {
@@ -325,7 +322,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, T::second)
       auto klName = this->makeKeyLocatorKeyName(this->names[j]);
       this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);
       this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithEcdsa, pktName, klName, false);
-
 
       klName = this->makeKeyLocatorCertName(this->names[j]);
       this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);

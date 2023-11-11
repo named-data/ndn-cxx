@@ -27,6 +27,8 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
+#include <boost/mp11/list.hpp>
+
 namespace ndn::tests {
 
 using namespace ndn::security;
@@ -91,7 +93,7 @@ CertificateFetcherFromNetworkFixture<Nack>::makeResponse(const Interest& interes
   face.receive(nack);
 }
 
-using Failures = boost::mpl::vector<Timeout, Nack>;
+using Failures = boost::mp11::mp_list<Timeout, Nack>;
 
 BOOST_FIXTURE_TEST_CASE(ValidateSuccess, CertificateFetcherFromNetworkFixture<Cert>)
 {

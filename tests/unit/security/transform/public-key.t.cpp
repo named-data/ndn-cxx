@@ -28,7 +28,7 @@
 
 #include "tests/boost-test.hpp"
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 #include <sstream>
 
@@ -68,7 +68,7 @@ struct EcKeyTestData
       "5EJTDxq6ls5FoYLfThp8HOjuwGSz0qw8ocMqyku1y0V5peQ4rEPd0bwcpZd9svA=\n";
 };
 
-using KeyTestDataSets = boost::mpl::vector<RsaKeyTestData, EcKeyTestData>;
+using KeyTestDataSets = boost::mp11::mp_list<RsaKeyTestData, EcKeyTestData>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(LoadAndSave, T, KeyTestDataSets)
 {

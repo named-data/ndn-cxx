@@ -21,13 +21,12 @@
 
 #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
 #include "ndn-cxx/security/pib/impl/pib-sqlite3.hpp"
-#include "ndn-cxx/security/security-common.hpp"
 
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -57,7 +56,7 @@ public:
   PibSqlite3 pib{m_path.string()};
 };
 
-using PibImpls = boost::mpl::vector<PibMemoryFixture, PibSqlite3Fixture>;
+using PibImpls = boost::mp11::mp_list<PibMemoryFixture, PibSqlite3Fixture>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(TpmLocator, T, PibImpls, T)
 {

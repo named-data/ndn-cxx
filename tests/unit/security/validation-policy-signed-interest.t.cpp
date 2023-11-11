@@ -28,7 +28,7 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -322,10 +322,7 @@ BOOST_AUTO_TEST_CASE(TimestampReorderNegative)
   VALIDATE_SUCCESS(i4, "Should succeed");
 }
 
-using NonPositiveGracePeriods = boost::mpl::vector<
-  GracePeriodSeconds<0>,
-  GracePeriodSeconds<-1>
->;
+using NonPositiveGracePeriods = boost::mp11::mp_list<GracePeriodSeconds<0>, GracePeriodSeconds<-1>>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, NonPositiveGracePeriods,
                                  ValidationPolicySignedInterestFixture<GracePeriod>)

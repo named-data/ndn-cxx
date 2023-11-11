@@ -23,7 +23,6 @@
 
 #include "tests/boost-test.hpp"
 
-#include <openssl/opensslv.h>
 #include <boost/lexical_cast.hpp>
 #include <sstream>
 

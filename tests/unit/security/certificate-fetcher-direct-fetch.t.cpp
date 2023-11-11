@@ -27,6 +27,7 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
+#include <boost/mp11/list.hpp>
 #include <boost/range/adaptor/sliced.hpp>
 #include <boost/range/adaptor/strided.hpp>
 
@@ -124,7 +125,7 @@ CertificateFetcherDirectFetchFixture<Nack>::makeResponse(const Interest& interes
   face.receive(makeNack(interest, lp::NackReason::NO_ROUTE));
 }
 
-using Failures = boost::mpl::vector<Timeout, Nack>;
+using Failures = boost::mp11::mp_list<Timeout, Nack>;
 
 BOOST_FIXTURE_TEST_CASE(ValidateSuccessData, CertificateFetcherDirectFetchFixture<Cert>)
 {

@@ -26,6 +26,8 @@
 #include "tests/test-common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
+#include <boost/mp11/list.hpp>
+
 namespace ndn::tests {
 
 using namespace ndn::security;
@@ -147,7 +149,7 @@ CertificateBundleFetcherFixture<Nack>::makeResponse(const Interest& interest)
   face.receive(makeNack(interest, lp::NackReason::NO_ROUTE));
 }
 
-using SuccessWithBundle = boost::mpl::vector<BundleWithFinalBlockId, BundleWithoutFinalBlockId>;
+using SuccessWithBundle = boost::mp11::mp_list<BundleWithFinalBlockId, BundleWithoutFinalBlockId>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateSuccessWithBundle, T, SuccessWithBundle,
                                  CertificateBundleFetcherFixture<T>)
@@ -160,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateSuccessWithBundle, T, SuccessWithBundle
   }
 }
 
-using SuccessWithoutBundle = boost::mpl::vector<Nack, Timeout>;
+using SuccessWithoutBundle = boost::mp11::mp_list<Nack, Timeout>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateSuccessWithoutBundle, T, SuccessWithoutBundle,
                                  CertificateBundleFetcherFixture<T>)

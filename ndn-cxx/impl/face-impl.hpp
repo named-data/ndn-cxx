@@ -27,6 +27,7 @@
 #include "ndn-cxx/impl/lp-field-tag.hpp"
 #include "ndn-cxx/impl/pending-interest.hpp"
 #include "ndn-cxx/impl/registered-prefix.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 #include "ndn-cxx/lp/packet.hpp"
 #include "ndn-cxx/lp/tags.hpp"
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"

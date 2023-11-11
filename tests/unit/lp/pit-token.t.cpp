@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/lp/pit-token.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 #include "ndn-cxx/lp/packet.hpp"
 
 #include "tests/boost-test.hpp"

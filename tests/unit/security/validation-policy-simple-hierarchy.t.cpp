@@ -24,7 +24,7 @@
 #include "tests/boost-test.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_FIXTURE_TEST_SUITE(TestValidationPolicySimpleHierarchy,
                          HierarchicalValidatorFixture<security::ValidationPolicySimpleHierarchy>)
 
-using Packets = boost::mpl::vector<InterestV03Pkt, DataPkt>;
+using Packets = boost::mp11::mp_list<InterestV03Pkt, DataPkt>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(Validate, Packet, Packets)
 {

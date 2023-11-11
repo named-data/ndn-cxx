@@ -31,7 +31,8 @@
 #include "ndn-cxx/lp/sequence.hpp"
 #include "ndn-cxx/lp/tlv.hpp"
 
-#include <boost/mpl/set.hpp>
+#include <boost/mp11/list.hpp>
+#include <boost/mp11/set.hpp>
 
 namespace ndn::lp {
 
@@ -116,7 +117,7 @@ typedef FieldDecl<field_location_tags::Header,
 /**
  * \brief Set of all field declarations.
  */
-using FieldSet = boost::mpl::set<
+using FieldSet = boost::mp11::mp_list<
   FragmentField,
   SequenceField,
   FragIndexField,
@@ -132,6 +133,7 @@ using FieldSet = boost::mpl::set<
   NonDiscoveryField,
   PrefixAnnouncementField
 >;
+static_assert(boost::mp11::mp_is_set<FieldSet>());
 
 } // namespace ndn::lp
 

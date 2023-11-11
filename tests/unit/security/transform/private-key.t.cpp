@@ -35,7 +35,7 @@
 #include "tests/boost-test.hpp"
 
 #include <openssl/opensslv.h>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 #include <sstream>
 
 namespace ndn::tests {
@@ -364,7 +364,7 @@ kAegdE+db4ojchAbcDLRcnzY+TUx5pTBqdBg+STMK7h36ZUn+KcMeizMRA==
 )PEM";
 };
 
-using KeyTestDataSets = boost::mpl::vector<
+using KeyTestDataSets = boost::mp11::mp_list<
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
   // DES-encrypted keys
   // .privateKeyPkcs8 uses either the PBES1 or PBES2 encryption scheme with DES-CBC-Pad (see RFC 8018)
@@ -645,7 +645,7 @@ public:
   }
 };
 
-using KeyGenParams = boost::mpl::vector<
+using KeyGenParams = boost::mp11::mp_list<
   HmacKeyGenParams,
   RsaKeyGenParams,
   EcKeyGenParams

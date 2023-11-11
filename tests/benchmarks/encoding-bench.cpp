@@ -25,8 +25,7 @@
 #include "ndn-cxx/encoding/tlv.hpp"
 #include "tests/benchmarks/timed-execute.hpp"
 
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/vector_c.hpp>
+#include <boost/mp11/list.hpp>
 
 #include <iostream>
 
@@ -71,7 +70,7 @@ struct ReadVarNumberAlignTest : public ReadVarNumberTest<WIRE_SIZE>
   static_assert(sizeof(ReadVarNumberTest<WIRE_SIZE>::WIRE) == WIRE_SIZE);
 };
 
-using ReadVarNumberTests = boost::mpl::vector<
+using ReadVarNumberTests = boost::mp11::mp_list<
   ReadVarNumberAlignTest<1, 0>,
   ReadVarNumberAlignTest<3, 0>,
   ReadVarNumberAlignTest<3, 1>,

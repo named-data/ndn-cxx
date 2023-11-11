@@ -28,8 +28,7 @@
 #include "tests/unit/clock-fixture.hpp"
 #include "tests/unit/test-home-env-saver.hpp"
 
-#include <openssl/opensslv.h>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -530,7 +529,7 @@ struct Sha256Signing : protected KeyChainFixture, protected PacketType
   }
 };
 
-using SigningTests = boost::mpl::vector<
+using SigningTests = boost::mp11::mp_list<
   RsaSigning<DataPkt>,
   RsaSigning<InterestV02Pkt>,
   RsaSigning<InterestV03Pkt>,

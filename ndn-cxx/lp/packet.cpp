@@ -20,10 +20,9 @@
  */
 
 #include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 
-#include <boost/bind/bind.hpp>
-#include <boost/mpl/for_each.hpp>
-#include <boost/range/adaptor/reversed.hpp>
+#include <boost/mp11/algorithm.hpp>
 
 namespace ndn::lp {
 
@@ -54,28 +53,17 @@ struct FieldInfo
   int8_t locationSortOrder = getLocationSortOrder<field_location_tags::Header>(); ///< sort order of field_location_tag
 };
 
-struct ExtractFieldInfo
-{
-  using result_type = void;
-
-  template<typename T>
-  constexpr void
-  operator()(FieldInfo* info, const T&) const noexcept
-  {
-    if (T::TlvType::value != info->tlvType) {
-      return;
-    }
-    info->isRecognized = true;
-    info->canIgnore = false;
-    info->isRepeatable = T::IsRepeatable::value;
-    info->locationSortOrder = getLocationSortOrder<typename T::FieldLocation>();
-  }
-};
-
 FieldInfo::FieldInfo(uint32_t type) noexcept
   : tlvType(type)
 {
-  boost::mpl::for_each<FieldSet>(boost::bind(ExtractFieldInfo(), this, _1));
+  boost::mp11::mp_for_each<FieldSet>([this] (auto fieldDecl) {
+    if (tlvType == decltype(fieldDecl)::TlvType::value) {
+      isRecognized = true;
+      isRepeatable = decltype(fieldDecl)::IsRepeatable::value;
+      locationSortOrder = getLocationSortOrder<typename decltype(fieldDecl)::FieldLocation>();
+    }
+  });
+
   if (!isRecognized) {
     canIgnore = tlv::HEADER3_MIN <= tlvType &&
                 tlvType <= tlv::HEADER3_MAX &&

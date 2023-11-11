@@ -30,6 +30,7 @@
 #include "tests/unit/io-key-chain-fixture.hpp"
 
 #include <boost/logic/tribool.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -911,7 +912,7 @@ class WithEnvAndConfig : public WithEnv, public WithConfig
 {
 };
 
-using ConfigOptions = boost::mpl::vector<WithEnv, WithConfig>;
+using ConfigOptions = boost::mp11::mp_list<WithEnv, WithConfig>;
 
 BOOST_FIXTURE_TEST_CASE(NoConfig, WithEnvAndConfig) // fixture configures test HOME and PIB/TPM path
 {

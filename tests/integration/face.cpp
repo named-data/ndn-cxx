@@ -35,7 +35,7 @@
 #include <mutex>
 #include <thread>
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -116,7 +116,7 @@ protected:
   Scheduler sched;
 };
 
-using Transports = boost::mpl::vector<UnixTransport, TcpTransport>;
+using Transports = boost::mp11::mp_list<UnixTransport, TcpTransport>;
 
 BOOST_AUTO_TEST_SUITE(Consumer)
 

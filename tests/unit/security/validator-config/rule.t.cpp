@@ -25,7 +25,7 @@
 #include "tests/unit/security/validator-fixture.hpp"
 #include "tests/unit/security/validator-config/common.hpp"
 
-#include <boost/mpl/vector_c.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -52,7 +52,7 @@ public:
   shared_ptr<security::ValidationState> state;
 };
 
-using PktTypes = boost::mpl::vector<DataPkt, InterestV02Pkt, InterestV03Pkt>;
+using PktTypes = boost::mp11::mp_list<DataPkt, InterestV02Pkt, InterestV03Pkt>;
 
 BOOST_AUTO_TEST_SUITE(TestRule)
 

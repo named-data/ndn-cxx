@@ -24,8 +24,7 @@
 
 #include "tests/boost-test.hpp"
 
-#include <boost/mpl/integral_c.hpp>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -76,9 +75,9 @@ BOOST_AUTO_TEST_CASE(EmptyStream)
   BOOST_CHECK_EQUAL(os.str(), "");
 }
 
-using BadBits = boost::mpl::vector<
-  boost::mpl::integral_c<std::ios_base::iostate, std::ios_base::badbit>,
-  boost::mpl::integral_c<std::ios_base::iostate, std::ios_base::failbit>
+using BadBits = boost::mp11::mp_list_c<std::ios_base::iostate,
+  std::ios_base::badbit,
+  std::ios_base::failbit
 >;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(BadStream, BadBit, BadBits)

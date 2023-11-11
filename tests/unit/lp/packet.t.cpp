@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/lp/packet.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 #include "ndn-cxx/prefix-announcement.hpp"
 
 #include "tests/key-chain-fixture.hpp"

@@ -28,7 +28,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -305,10 +305,12 @@ BOOST_AUTO_TEST_CASE(ConstructFromSpan)
 
 BOOST_AUTO_TEST_SUITE(ConstructFromIterators) // Bug 2490
 
-using ContainerTypes = boost::mpl::vector<std::vector<uint8_t>,
-                                          std::list<uint8_t>,
-                                          std::vector<int8_t>,
-                                          std::list<int8_t>>;
+using ContainerTypes = boost::mp11::mp_list<
+  std::vector<uint8_t>,
+  std::list<uint8_t>,
+  std::vector<int8_t>,
+  std::list<int8_t>
+>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(ZeroOctets, T, ContainerTypes)
 {
@@ -540,7 +542,7 @@ public:
   }
 };
 
-using ConventionTests = boost::mpl::vector<
+using ConventionTests = boost::mp11::mp_list<
   NumberWithMarker,
   SegmentMarker,
   SegmentTyped,

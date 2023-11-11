@@ -33,8 +33,6 @@
 
 #include "tests/boost-test.hpp"
 
-#include <openssl/opensslv.h>
-
 namespace ndn::tests {
 
 using namespace ndn::security::transform;

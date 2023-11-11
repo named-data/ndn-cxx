@@ -22,6 +22,7 @@
 #include "ndn-cxx/util/dummy-client-face.hpp"
 
 #include "ndn-cxx/impl/lp-field-tag.hpp"
+#include "ndn-cxx/lp/fields.hpp"
 #include "ndn-cxx/lp/packet.hpp"
 #include "ndn-cxx/lp/tags.hpp"
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"

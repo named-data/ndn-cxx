@@ -30,6 +30,8 @@
 #include "tests/unit/security/validator-config/common.hpp"
 #include "tests/unit/security/validator-fixture.hpp"
 
+#include <boost/mp11/list.hpp>
+
 namespace ndn::tests {
 
 using ndn::security::ValidationPolicyConfig;
@@ -341,27 +343,29 @@ public:
   }
 };
 
-using DataPolicies = boost::mpl::vector<LoadStringWithFileAnchor<Data>,
-                                        LoadFileWithFileAnchor<Data>,
-                                        LoadFileWithMultipleFileAnchors<Data>,
-                                        LoadSectionWithFileAnchor<Data>,
-                                        LoadStringWithBase64Anchor<Data>,
-                                        LoadStringWithDirAnchor<Data>,
-                                        LoadStringWithDirAnchor<Data, Refresh1h>,
-                                        LoadStringWithDirAnchor<Data, Refresh1m>,
-                                        LoadStringWithDirAnchor<Data, Refresh1s>
-                                        >;
+using DataPolicies = boost::mp11::mp_list<
+  LoadStringWithFileAnchor<Data>,
+  LoadFileWithFileAnchor<Data>,
+  LoadFileWithMultipleFileAnchors<Data>,
+  LoadSectionWithFileAnchor<Data>,
+  LoadStringWithBase64Anchor<Data>,
+  LoadStringWithDirAnchor<Data>,
+  LoadStringWithDirAnchor<Data, Refresh1h>,
+  LoadStringWithDirAnchor<Data, Refresh1m>,
+  LoadStringWithDirAnchor<Data, Refresh1s>
+>;
 
-using InterestPolicies = boost::mpl::vector<LoadStringWithFileAnchor<Interest>,
-                                            LoadFileWithFileAnchor<Interest>,
-                                            LoadFileWithMultipleFileAnchors<Interest>,
-                                            LoadSectionWithFileAnchor<Interest>,
-                                            LoadStringWithBase64Anchor<Interest>,
-                                            LoadStringWithDirAnchor<Interest>,
-                                            LoadStringWithDirAnchor<Interest, Refresh1h>,
-                                            LoadStringWithDirAnchor<Interest, Refresh1m>,
-                                            LoadStringWithDirAnchor<Interest, Refresh1s>
-                                            >;
+using InterestPolicies = boost::mp11::mp_list<
+  LoadStringWithFileAnchor<Interest>,
+  LoadFileWithFileAnchor<Interest>,
+  LoadFileWithMultipleFileAnchors<Interest>,
+  LoadSectionWithFileAnchor<Interest>,
+  LoadStringWithBase64Anchor<Interest>,
+  LoadStringWithDirAnchor<Interest>,
+  LoadStringWithDirAnchor<Interest, Refresh1h>,
+  LoadStringWithDirAnchor<Interest, Refresh1m>,
+  LoadStringWithDirAnchor<Interest, Refresh1s>
+>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateData, Policy, DataPolicies, Policy)
 {
@@ -687,7 +691,7 @@ BOOST_FIXTURE_TEST_CASE(Reload, HierarchicalValidatorFixture<ValidationPolicyCon
   BOOST_CHECK_EQUAL(this->policy.m_interestRules.size(), 0);
 }
 
-using Packets = boost::mpl::vector<Interest, Data>;
+using Packets = boost::mp11::mp_list<Interest, Data>;
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(TrustAnchorWildcard, Packet, Packets, ValidationPolicyConfigFixture<Packet>)
 {
@@ -729,7 +733,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(TrustAnchorWildcard, Packet, Packets, Validatio
   VALIDATE_SUCCESS(packet, "Policy should accept everything");
 }
 
-using RefreshPolicies = boost::mpl::vector<Refresh1h, Refresh1m, Refresh1s>;
+using RefreshPolicies = boost::mp11::mp_list<Refresh1h, Refresh1m, Refresh1s>;
 
 template<typename RefreshPolicy>
 class RefreshPolicyFixture : public LoadStringWithDirAnchor<Data, RefreshPolicy>

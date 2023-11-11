@@ -26,8 +26,7 @@
 #include "tests/key-chain-fixture.hpp"
 #include "tests/test-common.hpp"
 
-#include <openssl/opensslv.h>
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11/list.hpp>
 
 namespace ndn::tests {
 
@@ -536,7 +535,7 @@ struct Sha256Dataset
 // - .badSigInterestOldFormat is a valid and signed Interest packet that cannot be verified against
 //   .cert (signed using a different private key and in the old signed Interest format)
 
-using SignatureDatasets = boost::mpl::vector<EcdsaDataset, RsaDataset>;
+using SignatureDatasets = boost::mp11::mp_list<EcdsaDataset, RsaDataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
 {
@@ -616,7 +615,7 @@ BOOST_FIXTURE_TEST_CASE(VerifyHmac, KeyChainFixture)
   BOOST_CHECK(verifySignature(interestOldFormat, tpm, signingInfo.getSignerName(), DigestAlgorithm::SHA256));
 }
 
-using DigestDatasets = boost::mpl::vector<Sha256Dataset>;
+using DigestDatasets = boost::mp11::mp_list<Sha256Dataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifyDigest, Dataset, DigestDatasets)
 {
