@@ -24,16 +24,16 @@ if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
     # Cleanup
     ./waf --color=yes distclean
 
-    # Build static and shared library in release mode without tests
-    ./waf --color=yes configure --enable-static --enable-shared $PCH
+    # Build static and shared library in release mode with examples
+    ./waf --color=yes configure --enable-static --enable-shared --with-examples $PCH
     ./waf --color=yes build
 
     # Cleanup
     ./waf --color=yes distclean
 fi
 
-# Build shared library in debug mode with tests and examples
-./waf --color=yes configure --disable-static --enable-shared --debug --with-tests --with-examples $ASAN $COVERAGE $KEYCHAIN $PCH
+# Build shared library in debug mode with tests
+./waf --color=yes configure --disable-static --enable-shared --debug --with-tests $ASAN $COVERAGE $KEYCHAIN $PCH
 ./waf --color=yes build
 
 # (tests will be run against the debug version)
