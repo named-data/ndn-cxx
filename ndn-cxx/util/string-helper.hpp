@@ -157,13 +157,6 @@ escape(std::string_view str);
 void
 escape(std::ostream& os, std::string_view str);
 
-[[deprecated("use the string_view overload")]]
-inline void
-escape(std::ostream& os, const char* str, size_t len)
-{
-  escape(os, {str, len});
-}
-
 /**
  * @brief Decode a percent-encoded string.
  *
@@ -183,13 +176,6 @@ unescape(std::string_view str);
 
 void
 unescape(std::ostream& os, std::string_view str);
-
-[[deprecated("use the string_view overload")]]
-inline void
-unescape(std::ostream& os, const char* str, size_t len)
-{
-  unescape(os, {str, len});
-}
 
 } // namespace ndn
 

@@ -252,17 +252,23 @@ Block::fromStream(std::istream& is)
 
 // ---- wire format ----
 
-void
-Block::reset() noexcept
+const uint8_t*
+Block::data() const
 {
-  *this = {};
+  if (!hasWire())
+    NDN_THROW(Error("Underlying wire buffer is empty"));
+
+  return &*m_begin;
 }
 
-void
-Block::resetWire() noexcept
+size_t
+Block::size() const
 {
-  m_buffer.reset(); // discard underlying buffer by resetting shared_ptr
-  m_begin = m_end = m_valueBegin = m_valueEnd = {};
+  if (!isValid()) {
+    NDN_THROW(Error("Cannot determine size of invalid block"));
+  }
+
+  return m_size;
 }
 
 Block::const_iterator
@@ -283,23 +289,17 @@ Block::end() const
   return m_end;
 }
 
-const uint8_t*
-Block::data() const
+void
+Block::reset() noexcept
 {
-  if (!hasWire())
-    NDN_THROW(Error("Underlying wire buffer is empty"));
-
-  return &*m_begin;
+  *this = {};
 }
 
-size_t
-Block::size() const
+void
+Block::resetWire() noexcept
 {
-  if (!isValid()) {
-    NDN_THROW(Error("Cannot determine size of invalid block"));
-  }
-
-  return m_size;
+  m_buffer.reset(); // discard underlying buffer by resetting shared_ptr
+  m_begin = m_end = m_valueBegin = m_valueEnd = {};
 }
 
 // ---- value ----

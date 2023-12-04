@@ -224,21 +224,6 @@ public: // encoding and URI
 
   /**
    * @brief Decode NameComponent from a URI component.
-   *
-   * The URI component is read from `[input+beginOffset, input+endOffset)` range.
-   *
-   * @throw Error URI component does not represent a valid NameComponent.
-   * @deprecated Use fromEscapedString(std::string_view)
-   */
-  [[deprecated("use the string_view overload")]]
-  static Component
-  fromEscapedString(const char* input, size_t beginOffset, size_t endOffset)
-  {
-    return fromEscapedString(std::string_view(input + beginOffset, endOffset - beginOffset));
-  }
-
-  /**
-   * @brief Decode NameComponent from a URI component.
    * @throw Error URI component does not represent a valid NameComponent.
    */
   static Component

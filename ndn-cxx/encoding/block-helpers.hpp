@@ -242,20 +242,6 @@ makeBinaryBlock(uint32_t type, Iterator first, Iterator last)
 }
 
 /**
- * @brief Create a TLV block copying the TLV-VALUE from a char buffer.
- * @param type TLV-TYPE number
- * @param value raw buffer as TLV-VALUE
- * @param length length of value buffer
- * @deprecated Use makeStringBlock()
- */
-[[deprecated("use makeStringBlock()")]]
-inline Block
-makeBinaryBlock(uint32_t type, const char* value, size_t length)
-{
-  return makeBinaryBlock(type, {reinterpret_cast<const uint8_t*>(value), length});
-}
-
-/**
  * @brief Prepend a TLV element containing a string.
  * @param encoder an EncodingBuffer or EncodingEstimator
  * @param type TLV-TYPE number

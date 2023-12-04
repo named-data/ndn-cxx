@@ -99,17 +99,12 @@ BOOST_AUTO_TEST_CASE(Binary)
   const uint8_t buf2[]{1, 1, 1, 1};
   const std::list<uint8_t> buf3{1, 1, 1, 1};
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  Block b1 = makeBinaryBlock(100, buf1.data(), buf1.size()); // char* overload (deprecated)
-#pragma GCC diagnostic pop
-  Block b2 = makeBinaryBlock(100, buf2);                     // span overload
-  Block b3 = makeBinaryBlock(100, buf1.begin(), buf1.end()); // fast encoding (random access iterator)
-  Block b4 = makeBinaryBlock(100, buf3.begin(), buf3.end()); // slow encoding (general iterator)
+  Block b1 = makeBinaryBlock(100, buf2);                     // span overload
+  Block b2 = makeBinaryBlock(100, buf1.begin(), buf1.end()); // fast encoding (random access iterator)
+  Block b3 = makeBinaryBlock(100, buf3.begin(), buf3.end()); // slow encoding (general iterator)
 
   BOOST_TEST(b1 == b2);
   BOOST_TEST(b1 == b3);
-  BOOST_TEST(b1 == b4);
   BOOST_TEST(b1.type() == 100);
   BOOST_TEST(b1.value_size() == sizeof(buf2));
   BOOST_TEST(b1.value_bytes() == buf2, boost::test_tools::per_element());

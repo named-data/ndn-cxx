@@ -183,10 +183,11 @@ public: // construction, assignment
   fromStream(std::istream& is);
 
 public: // wire format
-  /** @brief Check if the Block is valid
+  /**
+   * @brief Check if the Block is valid.
    *
-   *  A Block is valid unless it has an invalid TLV-TYPE or is default-constructed.
-   *  In particular, a Block with zero-length TLV-VALUE *is valid*.
+   * A Block is valid unless it has an invalid TLV-TYPE or is default-constructed.
+   * In particular, a Block with zero-length TLV-VALUE *is valid*.
    */
   bool
   isValid() const noexcept
@@ -194,34 +195,33 @@ public: // wire format
     return m_type != tlv::Invalid;
   }
 
-  /** @brief Reset the Block to a default-constructed state
+  /**
+   * @brief Check if the Block contains a fully encoded wire representation.
    *
-   *  Equivalent to `*this = Block()`.
-   *
-   *  @post `isValid() == false`
-   *  @sa resetWire()
-   */
-  void
-  reset() noexcept;
-
-  /** @brief Reset wire buffer but keep TLV-TYPE and sub-elements (if any)
-   *  @post `hasWire() == false`
-   *  @post `hasValue() == false`
-   *  @sa reset()
-   */
-  void
-  resetWire() noexcept;
-
-  /** @brief Check if the Block contains a fully encoded wire representation
-   *
-   *  A Block has a fully encoded wire if the underlying buffer exists and contains the full
-   *  Type-Length-Value instead of just the TLV-VALUE field.
+   * A Block has a fully encoded wire if the underlying buffer exists and contains the full
+   * Type-Length-Value instead of just the TLV-VALUE field.
    */
   bool
   hasWire() const noexcept
   {
     return m_buffer != nullptr && m_begin != m_end;
   }
+
+  /**
+   * @brief Returns a raw pointer to the beginning of the encoded wire, i.e., the whole TLV.
+   * @pre `hasWire() == true`
+   * @sa value()
+   */
+  const uint8_t*
+  data() const;
+
+  /**
+   * @brief Returns the size of the encoded wire, i.e., of the whole TLV.
+   * @pre `isValid() == true`
+   * @sa value_size()
+   */
+  size_t
+  size() const;
 
   /**
    * @brief Returns an iterator to the beginning of the encoded wire.
@@ -238,32 +238,6 @@ public: // wire format
   end() const;
 
   /**
-   * @brief Returns the size of the encoded wire, i.e., of the whole TLV.
-   * @pre `isValid() == true`
-   * @sa value_size()
-   */
-  size_t
-  size() const;
-
-  /**
-   * @brief Returns a raw pointer to the beginning of the encoded wire, i.e., the whole TLV.
-   * @pre `hasWire() == true`
-   * @sa value()
-   */
-  const uint8_t*
-  data() const;
-
-  /**
-   * @deprecated Use data()
-   */
-  [[deprecated("use data()")]]
-  const uint8_t*
-  wire() const
-  {
-    return data();
-  }
-
-  /**
    * @brief Returns the underlying buffer.
    */
   ConstBufferPtr
@@ -271,6 +245,26 @@ public: // wire format
   {
     return m_buffer;
   }
+
+  /**
+   * @brief Reset the Block to a default-constructed state.
+   *
+   * Equivalent to `*this = Block()`.
+   *
+   * @post `isValid() == false`
+   * @sa resetWire()
+   */
+  void
+  reset() noexcept;
+
+  /**
+   * @brief Reset wire buffer but keep TLV-TYPE and sub-elements (if any).
+   * @post `hasWire() == false`
+   * @post `hasValue() == false`
+   * @sa reset()
+   */
+  void
+  resetWire() noexcept;
 
 public: // type and value
   /**
@@ -295,26 +289,6 @@ public: // type and value
   hasValue() const noexcept
   {
     return m_buffer != nullptr;
-  }
-
-  /**
-   * @brief Get begin iterator of TLV-VALUE.
-   * @pre `hasValue() == true`
-   */
-  const_iterator
-  value_begin() const noexcept
-  {
-    return m_valueBegin;
-  }
-
-  /**
-   * @brief Get end iterator of TLV-VALUE.
-   * @pre `hasValue() == true`
-   */
-  const_iterator
-  value_end() const noexcept
-  {
-    return m_valueEnd;
   }
 
   /**
@@ -345,6 +319,26 @@ public: // type and value
    */
   const uint8_t*
   value() const noexcept;
+
+  /**
+   * @brief Get begin iterator of TLV-VALUE.
+   * @pre `hasValue() == true`
+   */
+  const_iterator
+  value_begin() const noexcept
+  {
+    return m_valueBegin;
+  }
+
+  /**
+   * @brief Get end iterator of TLV-VALUE.
+   * @pre `hasValue() == true`
+   */
+  const_iterator
+  value_end() const noexcept
+  {
+    return m_valueEnd;
+  }
 
   /**
    * @brief Return a new Block constructed from the TLV-VALUE of this Block.
