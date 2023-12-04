@@ -199,11 +199,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   std::function<void(time::milliseconds)> m_processEventsOverride;
 };
 
-namespace util {
-/// \deprecated Use ndn::DummyClientFace
-using DummyClientFace [[deprecated("use ndn::DummyClientFace")]] = ::ndn::DummyClientFace;
-} // namespace util
-
 } // namespace ndn
 
 #endif // NDN_CXX_UTIL_DUMMY_CLIENT_FACE_HPP

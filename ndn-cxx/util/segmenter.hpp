@@ -77,11 +77,6 @@ private:
   security::SigningInfo m_signingInfo;
 };
 
-namespace util {
-/// \deprecated Use ndn::Segmenter
-using Segmenter [[deprecated("use ndn::Segmenter")]] = ::ndn::Segmenter;
-} // namespace util
-
 } // namespace ndn
 
 #endif // NDN_CXX_UTIL_SEGMENTER_HPP

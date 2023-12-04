@@ -238,10 +238,4 @@ Signal<Owner, TArgs...>::operator()(const TArgs&... args, const DummyExtraArg&)
 
 } // namespace ndn::signal
 
-namespace ndn::util {
-/// \deprecated Use ndn::signal::Signal
-template<typename Owner, typename... TArgs>
-using Signal [[deprecated("use ndn::signal::Signal")]] = ::ndn::signal::Signal<Owner, TArgs...>;
-} // namespace ndn::util
-
 #endif // NDN_CXX_UTIL_SIGNAL_SIGNAL_HPP

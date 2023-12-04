@@ -89,8 +89,6 @@ protected:
   PartialName m_datasetName;
 };
 
-using StatusDataset [[deprecated("use StatusDatasetBase")]] = StatusDatasetBase;
-
 /**
  * \ingroup management
  * \brief Represents a `status/general` dataset.

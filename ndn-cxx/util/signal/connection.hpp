@@ -98,9 +98,4 @@ private:
 
 } // namespace ndn::signal
 
-namespace ndn::util::signal {
-/// \deprecated Use ndn::signal::Connection
-using Connection [[deprecated("use ndn::signal::Connection")]] = ::ndn::signal::Connection;
-} // namespace ndn::util::signal
-
 #endif // NDN_CXX_UTIL_SIGNAL_CONNECTION_HPP

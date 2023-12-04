@@ -319,11 +319,6 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   std::set<uint64_t> m_receivedSegments;
 };
 
-namespace util {
-/// \deprecated Use ndn::SegmentFetcher
-using SegmentFetcher [[deprecated("use ndn::SegmentFetcher")]] = ::ndn::SegmentFetcher;
-} // namespace util
-
 } // namespace ndn
 
 #endif // NDN_CXX_UTIL_SEGMENT_FETCHER_HPP
