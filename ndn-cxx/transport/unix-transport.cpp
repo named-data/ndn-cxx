@@ -40,33 +40,29 @@ UnixTransport::~UnixTransport() = default;
 std::string
 UnixTransport::getSocketNameFromUri(const std::string& uriString)
 {
-  // Assume the default nfd.sock location.
+  // Use path from the provided URI, if valid.
+  if (!uriString.empty()) {
+    try {
+      const FaceUri uri(uriString);
+      if (uri.getScheme() != "unix") {
+        NDN_THROW(Error("Cannot create UnixTransport from \"" + uri.getScheme() + "\" URI"));
+      }
+      if (!uri.getPath().empty()) {
+        return uri.getPath();
+      }
+    }
+    catch (const FaceUri::Error& error) {
+      NDN_THROW_NESTED(Error(error.what()));
+    }
+  }
+
+  // Otherwise, use the default nfd.sock location.
+  return
 #ifdef __linux__
-  std::string path = "/run/nfd.sock";
+    "/run/nfd.sock";
 #else
-  std::string path = "/var/run/nfd.sock";
+    "/var/run/nfd.sock";
 #endif // __linux__
-
-  if (uriString.empty()) {
-    return path;
-  }
-
-  try {
-    const FaceUri uri(uriString);
-
-    if (uri.getScheme() != "unix") {
-      NDN_THROW(Error("Cannot create UnixTransport from \"" + uri.getScheme() + "\" URI"));
-    }
-
-    if (!uri.getPath().empty()) {
-      path = uri.getPath();
-    }
-  }
-  catch (const FaceUri::Error& error) {
-    NDN_THROW_NESTED(Error(error.what()));
-  }
-
-  return path;
 }
 
 shared_ptr<UnixTransport>

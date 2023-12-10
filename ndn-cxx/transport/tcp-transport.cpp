@@ -48,30 +48,30 @@ TcpTransport::create(const std::string& uri)
 std::pair<std::string, std::string>
 TcpTransport::getSocketHostAndPortFromUri(const std::string& uriString)
 {
+  // Default host and port.
   std::string host = "localhost";
   std::string port = "6363";
 
-  if (uriString.empty()) {
-    return {host, port};
-  }
+  // Use host and port from the provided URI, if valid.
+  if (!uriString.empty()) {
+    try {
+      const FaceUri uri(uriString);
 
-  try {
-    const FaceUri uri(uriString);
+      const auto& scheme = uri.getScheme();
+      if (scheme != "tcp" && scheme != "tcp4" && scheme != "tcp6") {
+        NDN_THROW(Error("Cannot create TcpTransport from \"" + scheme + "\" URI"));
+      }
 
-    const auto& scheme = uri.getScheme();
-    if (scheme != "tcp" && scheme != "tcp4" && scheme != "tcp6") {
-      NDN_THROW(Error("Cannot create TcpTransport from \"" + scheme + "\" URI"));
+      if (!uri.getHost().empty()) {
+        host = uri.getHost();
+      }
+      if (!uri.getPort().empty()) {
+        port = uri.getPort();
+      }
     }
-
-    if (!uri.getHost().empty()) {
-      host = uri.getHost();
+    catch (const FaceUri::Error& error) {
+      NDN_THROW_NESTED(Error(error.what()));
     }
-    if (!uri.getPort().empty()) {
-      port = uri.getPort();
-    }
-  }
-  catch (const FaceUri::Error& error) {
-    NDN_THROW_NESTED(Error(error.what()));
   }
 
   return {host, port};
