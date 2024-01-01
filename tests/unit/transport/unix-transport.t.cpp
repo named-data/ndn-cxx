@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,9 +34,9 @@ BOOST_AUTO_TEST_CASE(GetSocketNameFromUri)
 {
   BOOST_CHECK_EQUAL(UnixTransport::getSocketNameFromUri("unix:///tmp/test/nfd.sock"), "/tmp/test/nfd.sock");
 #ifdef __linux__
-  BOOST_CHECK_EQUAL(UnixTransport::getSocketNameFromUri(""), "/run/nfd.sock");
+  BOOST_CHECK_EQUAL(UnixTransport::getSocketNameFromUri(""), "/run/nfd/nfd.sock");
 #else
-  BOOST_CHECK_EQUAL(UnixTransport::getSocketNameFromUri(""), "/var/run/nfd.sock");
+  BOOST_CHECK_EQUAL(UnixTransport::getSocketNameFromUri(""), "/var/run/nfd/nfd.sock");
 #endif // __linux__
   BOOST_CHECK_EXCEPTION(UnixTransport::getSocketNameFromUri("tcp://"),
                         Transport::Error,

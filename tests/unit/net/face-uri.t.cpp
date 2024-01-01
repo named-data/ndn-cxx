@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California,
+ * Copyright (c) 2013-2024 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -582,12 +582,12 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUnsupported, CanonizeFixture)
 
   BOOST_CHECK_EQUAL(FaceUri("internal://").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("null://").isCanonical(), false);
-  BOOST_CHECK_EQUAL(FaceUri("unix:///var/run/nfd.sock").isCanonical(), false);
+  BOOST_CHECK_EQUAL(FaceUri("unix:///run/nfd/nfd.sock").isCanonical(), false);
   BOOST_CHECK_EQUAL(FaceUri("fd://0").isCanonical(), false);
 
   runTest("internal://", false);
   runTest("null://", false);
-  runTest("unix:///var/run/nfd.sock", false);
+  runTest("unix:///run/nfd/nfd.sock", false);
   runTest("fd://0", false);
 }
 
@@ -608,7 +608,7 @@ BOOST_AUTO_TEST_CASE(Compare)
   FaceUri uri0("udp://[::1]:6363");
   FaceUri uri1("tcp://[::1]:6363");
   FaceUri uri2("tcp://127.0.0.1:6363");
-  FaceUri uri3("unix:///run/ndn/nfd.sock");
+  FaceUri uri3("unix:///run/nfd/nfd.sock");
 
   BOOST_CHECK_EQUAL(uri0, uri0);
   BOOST_CHECK_LE(uri0, uri0);
