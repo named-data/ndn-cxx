@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,8 +27,7 @@
 #include <cerrno>
 
 #include <boost/exception_ptr.hpp>
-#include <boost/exception/enable_current_exception.hpp>
-#include <boost/exception/enable_error_info.hpp>
+#include <boost/exception/exception.hpp>
 #include <boost/exception/errinfo_errno.hpp>
 #include <boost/exception/errinfo_nested_exception.hpp>
 
@@ -47,26 +46,23 @@ to_string(const errinfo_stacktrace&);
 
 } // namespace ndn::exception
 
-/** \cond */
-#ifdef NDN_CXX_HAVE_STACKTRACE
-#define NDN_DETAIL_THROW_STACKTRACE \
-  << ndn::exception::errinfo_stacktrace(boost::stacktrace::stacktrace())
-#else
-#define NDN_DETAIL_THROW_STACKTRACE
-#endif
-/** \endcond */
+#define NDN_THROW_NO_STACK(e) \
+  throw ::boost::enable_current_exception(::boost::enable_error_info(e)) \
+     << ::boost::throw_file(__FILE__) \
+     << ::boost::throw_line(__LINE__) \
+     << ::boost::throw_function(__func__)
 
+#ifdef NDN_CXX_HAVE_STACKTRACE
 #define NDN_THROW(e) \
-  throw boost::enable_current_exception(boost::enable_error_info(e)) \
-     << boost::throw_file(__FILE__) \
-     << boost::throw_line(__LINE__) \
-     << boost::throw_function(__func__) \
-     NDN_DETAIL_THROW_STACKTRACE
+  NDN_THROW_NO_STACK(e) << ::ndn::exception::errinfo_stacktrace(::boost::stacktrace::stacktrace())
+#else
+#define NDN_THROW(e) NDN_THROW_NO_STACK(e)
+#endif
 
 #define NDN_THROW_ERRNO(e) \
-  NDN_THROW(e) << boost::errinfo_errno(errno)
+  NDN_THROW(e) << ::boost::errinfo_errno(errno)
 
 #define NDN_THROW_NESTED(e) \
-  NDN_THROW(e) << boost::errinfo_nested_exception(boost::current_exception())
+  NDN_THROW(e) << ::boost::errinfo_nested_exception(::boost::current_exception())
 
 #endif // NDN_CXX_UTIL_EXCEPTION_HPP
