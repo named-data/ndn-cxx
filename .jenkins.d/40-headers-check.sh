@@ -17,7 +17,7 @@ fi
 
 CXX=${CXX:-g++}
 STD=-std=c++17
-CXXFLAGS="-O2 -Wall -Wno-unneeded-internal-declaration -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx $PCFILE)"
+CXXFLAGS="-O2 -Wall -Wno-unknown-warning-option -Wno-enum-constexpr-conversion -Wno-unused-const-variable $(pkg-config --cflags libndn-cxx $PCFILE)"
 INCLUDEDIR="$(pkg-config --variable=includedir $PCFILE)"/$PROJ
 
 echo "Using: $CXX $STD $CXXFLAGS"
