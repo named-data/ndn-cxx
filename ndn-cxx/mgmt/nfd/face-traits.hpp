@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -169,23 +169,16 @@ public:
   }
 
 protected:
-  FaceTraits()
-    : m_faceId(INVALID_FACE_ID)
-    , m_faceScope(FACE_SCOPE_NON_LOCAL)
-    , m_facePersistency(FACE_PERSISTENCY_PERSISTENT)
-    , m_linkType(LINK_TYPE_POINT_TO_POINT)
-    , m_flags(0)
-  {
-  }
+  FaceTraits() = default;
 
 protected:
-  uint64_t m_faceId;
+  uint64_t m_faceId = INVALID_FACE_ID;
   std::string m_remoteUri;
   std::string m_localUri;
-  FaceScope m_faceScope;
-  FacePersistency  m_facePersistency;
-  LinkType m_linkType;
-  uint64_t m_flags;
+  FaceScope m_faceScope = FACE_SCOPE_NON_LOCAL;
+  FacePersistency  m_facePersistency = FACE_PERSISTENCY_PERSISTENT;
+  LinkType m_linkType = LINK_TYPE_POINT_TO_POINT;
+  uint64_t m_flags = 0;
 
   mutable Block m_wire;
 };

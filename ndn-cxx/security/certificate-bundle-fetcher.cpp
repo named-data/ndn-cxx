@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,38 +21,26 @@
 
 #include "ndn-cxx/security/certificate-bundle-fetcher.hpp"
 
-#include "ndn-cxx/face.hpp"
 #include "ndn-cxx/security/certificate-request.hpp"
 #include "ndn-cxx/security/certificate-storage.hpp"
 #include "ndn-cxx/security/validation-state.hpp"
+#include "ndn-cxx/tag.hpp"
 #include "ndn-cxx/util/logger.hpp"
+
+#define NDN_LOG_DEBUG_DEPTH(x) NDN_LOG_DEBUG(std::string(state->getDepth() + 1, '>') << ' ' << x)
 
 namespace ndn::security {
 
 NDN_LOG_INIT(ndn.security.CertificateBundleFetcher);
 
-#define NDN_LOG_DEBUG_DEPTH(x) NDN_LOG_DEBUG(std::string(state->getDepth() + 1, '>') << " " << x)
-#define NDN_LOG_TRACE_DEPTH(x) NDN_LOG_TRACE(std::string(state->getDepth() + 1, '>') << " " << x)
+using BundleNameTag = SimpleTag<Name, 1000>;
+using FinalBlockIdTag = SimpleTag<name::Component, 1001>;
 
-CertificateBundleFetcher::CertificateBundleFetcher(unique_ptr<CertificateFetcher> inner,
-                                                   Face& face)
+CertificateBundleFetcher::CertificateBundleFetcher(unique_ptr<CertificateFetcher> inner, Face& face)
   : m_inner(std::move(inner))
   , m_face(face)
-  , m_bundleInterestLifetime(1000)
 {
   BOOST_ASSERT(m_inner != nullptr);
-}
-
-void
-CertificateBundleFetcher::setBundleInterestLifetime(time::milliseconds time)
-{
-  m_bundleInterestLifetime = time;
-}
-
-time::milliseconds
-CertificateBundleFetcher::getBundleInterestLifetime() const
-{
-  return m_bundleInterestLifetime;
 }
 
 void
@@ -148,7 +136,7 @@ CertificateBundleFetcher::dataCallback(const Data& bundleData,
                                        const shared_ptr<ValidationState>& state,
                                        const ValidationContinuation& continueValidation)
 {
-  NDN_LOG_DEBUG_DEPTH("Fetched certificate bundle from network " << bundleData.getName());
+  NDN_LOG_DEBUG_DEPTH("Fetched certificate bundle " << bundleData.getName());
 
   name::Component currentSegment = bundleData.getName().get(-1);
   if (!currentSegment.isSegment()) {
@@ -188,7 +176,7 @@ CertificateBundleFetcher::nackCallback(const lp::Nack& nack,
                                        const ValidationContinuation& continueValidation,
                                        const Name& bundleName)
 {
-  NDN_LOG_DEBUG_DEPTH("NACK (" << nack.getReason() <<  ") while fetching certificate bundle"
+  NDN_LOG_DEBUG_DEPTH("NACK (" << nack.getReason() << ") while fetching certificate bundle "
                       << bundleName);
 
   m_inner->fetch(certRequest, state, continueValidation);
@@ -200,7 +188,7 @@ CertificateBundleFetcher::timeoutCallback(const shared_ptr<CertificateRequest>& 
                                           const ValidationContinuation& continueValidation,
                                           const Name& bundleName)
 {
-  NDN_LOG_DEBUG_DEPTH("Timeout while fetching certificate bundle" << bundleName);
+  NDN_LOG_DEBUG_DEPTH("Timeout while fetching certificate bundle " << bundleName);
 
   m_inner->fetch(certRequest, state, continueValidation);
 }
@@ -208,9 +196,9 @@ CertificateBundleFetcher::timeoutCallback(const shared_ptr<CertificateRequest>& 
 Name
 CertificateBundleFetcher::deriveBundleName(const Name& name)
 {
-  name::Component lastComponent = name.at(-1);
-
   Name bundleName = name;
+  const auto& lastComponent = name.at(-1);
+
   if (lastComponent.isImplicitSha256Digest()) {
     if (name.size() >= 2 && name.get(-2).isSegment()) {
       bundleName = name.getPrefix(-2);
@@ -222,9 +210,9 @@ CertificateBundleFetcher::deriveBundleName(const Name& name)
   else if (lastComponent.isSegment()) {
     bundleName = name.getPrefix(-1);
   }
+
   bundleName.append("_BUNDLE");
   bundleName.appendNumber(0);
-
   return bundleName;
 }
 

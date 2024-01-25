@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2023 Regents of the University of California,
+ * Copyright (c) 2014-2024 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -80,6 +80,13 @@ protected:
                              time::milliseconds interestLifetime);
 
 private:
+  /**
+   * \brief Check if the subscriber is or should be stopped.
+   * \retval true if the subscriber is stopped.
+   */
+  bool
+  shouldStop();
+
   void
   sendInitialInterest();
 
@@ -91,12 +98,6 @@ private:
 
   virtual bool
   hasSubscriber() const = 0;
-
-  /** \brief Check if the subscriber is or should be stopped.
-   *  \return true if the subscriber is stopped.
-   */
-  bool
-  shouldStop();
 
   void
   afterReceiveData(const Data& data);
@@ -114,40 +115,35 @@ private:
   afterTimeout();
 
   time::milliseconds
-  exponentialBackoff(lp::Nack nack);
+  exponentialBackoff(const lp::Nack& nack);
 
 public:
-  /**
-   * \brief Fires when a Nack is received.
-   */
+  /// Fires when a Nack is received.
   ndn::signal::Signal<NotificationSubscriberBase, lp::Nack> onNack;
 
-  /**
-   * \brief Fires when no Notification is received within getInterestLifetime() period.
-   */
+  /// Fires when no Notification is received within getInterestLifetime() period.
   ndn::signal::Signal<NotificationSubscriberBase> onTimeout;
 
-  /**
-   * \brief Fires when a Data packet in the notification stream cannot be decoded as a Notification.
-   */
+  /// Fires when a Data packet in the notification stream cannot be decoded as a Notification.
   ndn::signal::Signal<NotificationSubscriberBase, Data> onDecodeError;
 
 private:
   Face& m_face;
   Name m_prefix;
-  bool m_isRunning;
-  uint64_t m_lastSequenceNum;
-  uint64_t m_lastNackSequenceNum;
-  uint64_t m_attempts;
+  uint64_t m_lastSequenceNum = std::numeric_limits<uint64_t>::max();
+  uint64_t m_lastNackSequenceNum = std::numeric_limits<uint64_t>::max();
+  uint64_t m_attempts = 1;
   Scheduler m_scheduler;
   scheduler::ScopedEventId m_nackEvent;
   ScopedPendingInterestHandle m_lastInterest;
   time::milliseconds m_interestLifetime;
+  bool m_isRunning = false;
 };
 
-/** \brief Provides a subscriber of Notification Stream.
- *  \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
- *  \tparam Notification type of Notification item, appears in payload of Data packets
+/**
+ * \brief Provides the subscriber side of a Notification Stream.
+ * \tparam Notification type of Notification item, appears in payload of Data packets.
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/Notification
  */
 template<typename Notification>
 class NotificationSubscriber : public NotificationSubscriberBase

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,12 +23,6 @@
 
 namespace ndn::security::transform {
 
-BoolSink::BoolSink(bool& value)
-  : m_hasValue(false)
-  , m_value(value)
-{
-}
-
 size_t
 BoolSink::doWrite(span<const uint8_t> buf)
 {
@@ -37,12 +31,6 @@ BoolSink::doWrite(span<const uint8_t> buf)
     m_hasValue = true;
   }
   return buf.size();
-}
-
-void
-BoolSink::doEnd()
-{
-  // nothing to do.
 }
 
 unique_ptr<Sink>

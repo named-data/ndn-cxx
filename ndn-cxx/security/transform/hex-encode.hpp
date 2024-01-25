@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,12 +36,15 @@ class HexEncode final : public Transform
 {
 public:
   /**
-   * @brief Create a hex encoding module
+   * @brief Create a hex encoding module.
    *
    * @param useUpperCase if true, use upper case letters, otherwise lower case
    */
   explicit
-  HexEncode(bool useUpperCase = false);
+  HexEncode(bool useUpperCase = false)
+    : m_useUpperCase(useUpperCase)
+  {
+  }
 
 private:
   /**
@@ -59,7 +62,7 @@ private:
   toHex(const uint8_t* data, size_t dataLen);
 
 private:
-  bool m_useUpperCase;
+  bool m_useUpperCase = false;
 };
 
 unique_ptr<Transform>

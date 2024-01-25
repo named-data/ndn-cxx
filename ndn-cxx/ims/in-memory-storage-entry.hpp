@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,20 +28,12 @@
 
 namespace ndn {
 
-/** @brief Represents an in-memory storage entry
+/**
+ * @brief Represents an in-memory storage entry.
  */
 class InMemoryStorageEntry : noncopyable
 {
 public:
-  /** @brief Create an entry
-   */
-  InMemoryStorageEntry();
-
-  /** @brief Releases reference counts on shared objects
-   */
-  void
-  release();
-
   /** @brief Returns the name of the Data packet stored in the in-memory storage entry
    */
   const Name&
@@ -72,26 +64,36 @@ public:
    *  This method also allows data to satisfy Interest with MustBeFresh
    */
   void
-  setData(const Data& data);
+  setData(const Data& data)
+  {
+    m_dataPacket = data.shared_from_this();
+    m_isFresh = true;
+  }
 
   /** @brief Schedule an event to mark this entry as non-fresh.
    */
   void
   scheduleMarkStale(Scheduler& sched, time::nanoseconds after);
 
-  /** @brief Check if the data can satisfy an interest with MustBeFresh
+  /**
+   * @brief Check if the data can satisfy an Interest with MustBeFresh.
    */
   bool
-  isFresh()
+  isFresh() const
   {
     return m_isFresh;
   }
 
+  /**
+   * @brief Releases reference counts on shared objects.
+   */
+  void
+  release();
+
 private:
   shared_ptr<const Data> m_dataPacket;
-
-  bool m_isFresh;
   scheduler::ScopedEventId m_markStaleEventId;
+  bool m_isFresh = true;
 };
 
 } // namespace ndn

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2014-2023 Regents of the University of California,
+ * Copyright (c) 2014-2024 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -36,10 +36,6 @@ NotificationSubscriberBase::NotificationSubscriberBase(Face& face, const Name& p
                                                        time::milliseconds interestLifetime)
   : m_face(face)
   , m_prefix(prefix)
-  , m_isRunning(false)
-  , m_lastSequenceNum(std::numeric_limits<uint64_t>::max())
-  , m_lastNackSequenceNum(std::numeric_limits<uint64_t>::max())
-  , m_attempts(1)
   , m_scheduler(face.getIoContext())
   , m_interestLifetime(interestLifetime)
 {
@@ -50,20 +46,20 @@ NotificationSubscriberBase::~NotificationSubscriberBase() = default;
 void
 NotificationSubscriberBase::start()
 {
-  if (m_isRunning) // already running
+  if (m_isRunning)
     return;
-  m_isRunning = true;
 
+  m_isRunning = true;
   sendInitialInterest();
 }
 
 void
 NotificationSubscriberBase::stop()
 {
-  if (!m_isRunning) // not running
+  if (!m_isRunning)
     return;
-  m_isRunning = false;
 
+  m_isRunning = false;
   m_lastInterest.cancel();
 }
 
@@ -98,9 +94,9 @@ void
 NotificationSubscriberBase::sendInterest(const Interest& interest)
 {
   m_lastInterest = m_face.expressInterest(interest,
-                                          [this] (const auto&, const auto& d) { this->afterReceiveData(d); },
-                                          [this] (const auto&, const auto& n) { this->afterReceiveNack(n); },
-                                          [this] (const auto&) { this->afterTimeout(); });
+                                          [this] (const auto&, const auto& d) { afterReceiveData(d); },
+                                          [this] (const auto&, const auto& n) { afterReceiveNack(n); },
+                                          [this] (const auto&) { afterTimeout(); });
 }
 
 bool
@@ -148,7 +144,7 @@ NotificationSubscriberBase::afterReceiveNack(const lp::Nack& nack)
 
   onNack(nack);
 
-  time::milliseconds delay = exponentialBackoff(nack);
+  auto delay = exponentialBackoff(nack);
   m_nackEvent = m_scheduler.schedule(delay, [this] { sendInitialInterest(); });
 }
 
@@ -159,19 +155,18 @@ NotificationSubscriberBase::afterTimeout()
     return;
 
   onTimeout();
-
   sendInitialInterest();
 }
 
 time::milliseconds
-NotificationSubscriberBase::exponentialBackoff(lp::Nack nack)
+NotificationSubscriberBase::exponentialBackoff(const lp::Nack& nack)
 {
-  uint64_t nackSequenceNum;
+  uint64_t nackSequenceNum = 0;
   try {
     nackSequenceNum = nack.getInterest().getName().get(-1).toSequenceNumber();
   }
   catch (const tlv::Error&) {
-    nackSequenceNum = 0;
+    // pass
   }
 
   if (m_lastNackSequenceNum == nackSequenceNum) {

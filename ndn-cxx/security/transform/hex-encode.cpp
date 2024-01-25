@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,12 +34,6 @@ static const uint8_t H2CU[] = {
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
 static_assert(std::extent_v<decltype(H2CU)> == 16);
-
-
-HexEncode::HexEncode(bool useUpperCase)
-  : m_useUpperCase(useUpperCase)
-{
-}
 
 size_t
 HexEncode::convert(span<const uint8_t> data)

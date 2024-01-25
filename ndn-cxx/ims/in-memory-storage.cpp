@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,14 +42,12 @@ InMemoryStorage::const_iterator::operator++()
 
 InMemoryStorage::InMemoryStorage(size_t limit)
   : m_limit(limit)
-  , m_nPackets(0)
 {
   init();
 }
 
 InMemoryStorage::InMemoryStorage(boost::asio::io_context& ioCtx, size_t limit)
   : m_limit(limit)
-  , m_nPackets(0)
 {
   m_scheduler = make_unique<Scheduler>(ioCtx);
   init();
@@ -58,7 +56,7 @@ InMemoryStorage::InMemoryStorage(boost::asio::io_context& ioCtx, size_t limit)
 void
 InMemoryStorage::init()
 {
-  // TODO consider a more suitable initial value
+  // TODO: consider a more suitable initial value
   m_capacity = MIN_CAPACITY;
 
   if (m_limit != std::numeric_limits<size_t>::max() && m_capacity > m_limit) {
@@ -124,7 +122,7 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
   if (it != m_cache.get<byFullName>().end())
     return;
 
-  //if full, double the capacity
+  // if full, double the capacity
   bool doesReachLimit = (getLimit() == getCapacity());
   if (isFull() && !doesReachLimit) {
     // note: This is incorrect if 2*capacity overflows, but memory should run out before that
@@ -132,12 +130,12 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
     setCapacity(newCapacity);
   }
 
-  //if full and reach limitation of the capacity, employ replacement policy
+  // if full and reach limitation of the capacity, employ replacement policy
   if (isFull() && doesReachLimit) {
     evictItem();
   }
 
-  //insert to cache
+  // insert to cache
   BOOST_ASSERT(m_freeEntries.size() > 0);
   // take entry for the memory pool
   InMemoryStorageEntry* entry = m_freeEntries.top();
@@ -149,7 +147,7 @@ InMemoryStorage::insert(const Data& data, const time::milliseconds& mustBeFreshP
   }
   m_cache.insert(entry);
 
-  //let derived class do something with the entry
+  // let derived class do something with the entry
   afterInsert(entry);
 }
 

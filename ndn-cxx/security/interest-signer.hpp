@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,13 +27,19 @@
 namespace ndn::security {
 
 /**
- * @brief Helper class to create signed Interests
+ * @brief Helper class to create signed Interests.
  *
  * The signer generates signature elements for an Interest and signs it with the KeyChain.
  */
 class InterestSigner
 {
 public:
+  explicit
+  InterestSigner(KeyChain& keyChain) noexcept
+    : m_keyChain(keyChain)
+  {
+  }
+
   /**
    * @brief Flags to indicate which elements to include in Interest signatures created with
    *        makeSignedInterest.
@@ -44,10 +50,6 @@ public:
     WantTime = 1 << 1,
     WantSeqNum = 1 << 2,
   };
-
-public:
-  explicit
-  InterestSigner(KeyChain& keyChain);
 
   /**
    * @brief Signs an Interest (following Packet Specification v0.3 or newer)
@@ -83,7 +85,7 @@ private:
 private:
   KeyChain& m_keyChain;
   time::system_clock::time_point m_lastUsedTimestamp;
-  uint64_t m_lastUsedSeqNum;
+  uint64_t m_lastUsedSeqNum = static_cast<uint64_t>(-1); // will wrap around to 0 on next Interest
 };
 
 } // namespace ndn::security

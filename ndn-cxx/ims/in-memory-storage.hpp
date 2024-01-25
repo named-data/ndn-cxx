@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -330,11 +330,11 @@ public:
 private:
   Cache m_cache;
   /// user defined maximum capacity of the in-memory storage in packets
-  size_t m_limit;
+  size_t m_limit = 0;
   /// current capacity of the in-memory storage in packets
-  size_t m_capacity;
+  size_t m_capacity = 0;
   /// current number of packets in in-memory storage
-  size_t m_nPackets;
+  size_t m_nPackets = 0;
   /// memory pool
   std::stack<InMemoryStorageEntry*> m_freeEntries;
   /// scheduler

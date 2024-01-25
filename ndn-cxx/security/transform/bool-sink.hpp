@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,7 +39,10 @@ public:
    * @brief Create a bool sink whose output will be stored in @p value.
    */
   explicit
-  BoolSink(bool& value);
+  BoolSink(bool& value)
+    : m_value(value)
+  {
+  }
 
 private:
   /**
@@ -51,13 +54,16 @@ private:
   doWrite(span<const uint8_t> buf) final;
 
   /**
-   * @brief Finalize sink processing
+   * @brief Finalize sink processing.
    */
   void
-  doEnd() final;
+  doEnd() final
+  {
+    // nothing to do
+  }
 
 private:
-  bool m_hasValue;
+  bool m_hasValue = false;
   bool& m_value;
 };
 

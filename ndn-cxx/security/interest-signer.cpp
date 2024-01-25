@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,12 +23,6 @@
 #include "ndn-cxx/util/random.hpp"
 
 namespace ndn::security {
-
-InterestSigner::InterestSigner(KeyChain& keyChain)
-  : m_keyChain(keyChain)
-  , m_lastUsedSeqNum(-1) // Will wrap around to 0 on next Interest
-{
-}
 
 void
 InterestSigner::makeSignedInterest(Interest& interest, SigningInfo params, uint32_t signingFlags)
