@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,11 @@
 
 #include "ndn-cxx/encoding/buffer.hpp"
 #include "ndn-cxx/util/span.hpp"
+
+#include <ostream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 
 namespace ndn {
 
@@ -108,7 +113,7 @@ toHex(span<const uint8_t> buffer, bool wantUpperCase = true);
  *        without any whitespace separators (e.g., "48656C6C6F2C20776F726C6421")
  * @throw StringHelperError Input string is invalid
  */
-shared_ptr<Buffer>
+std::shared_ptr<Buffer>
 fromHex(std::string_view hexString);
 
 /**

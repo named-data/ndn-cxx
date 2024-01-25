@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,6 +20,7 @@
  */
 
 #include "ndn-cxx/util/random.hpp"
+#include "ndn-cxx/util/exception.hpp"
 
 #include <openssl/err.h>
 #include <openssl/rand.h>
@@ -47,7 +48,7 @@ generateSecureBytes(span<uint8_t> buf)
 {
   if (RAND_bytes(buf.data(), buf.size()) != 1) {
     NDN_THROW(std::runtime_error("Failed to generate random bytes (error code " +
-                                 to_string(ERR_get_error()) + ")"));
+                                 std::to_string(ERR_get_error()) + ")"));
   }
 }
 

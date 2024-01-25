@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,7 +27,7 @@
 namespace ndn::time {
 
 /**
- * @brief Traits for UnitTestClock, defining default behavior for different clocks
+ * @brief Traits for UnitTestClock, defining default behavior for different clocks.
  *
  * The only behavior that is currently controlled by the traits is default start
  * time.  The generic implementation assumes start time to be zero.
@@ -39,12 +39,12 @@ public:
   static nanoseconds
   getDefaultStartTime()
   {
-    return nanoseconds::zero();
+    return 0_ns;
   }
 };
 
 /**
- * @brief Specialization of UnitTestClockTraits for system_clock
+ * @brief Specialization of UnitTestClockTraits for system_clock.
  *
  * This specialization sets the default start time to 1415684132 seconds
  * (equivalent to Tue 11 Nov 2014 05:35:32 UTC, if Unix epoch is assumed).
@@ -56,17 +56,17 @@ public:
   static nanoseconds
   getDefaultStartTime()
   {
-    return seconds(1415684132);
+    return 1415684132_s;
   }
 };
 
 /**
- * @brief Clock that can be used in unit tests for time-dependent tests independent of wall clock
+ * @brief Clock that can be used in unit tests for time-dependent tests independent of wall clock.
  *
  * This clock should be explicitly advanced with UnitTestClock<BaseClock>::advance() or set
  * with UnitTestClock<BaseClock>::setNow() methods.
  *
- * @note Default start time is determined by UnitTestClockTraits
+ * @note Default start time is determined by UnitTestClockTraits.
  */
 template<class BaseClock, class ClockTraits = UnitTestClockTraits<BaseClock>>
 class UnitTestClock : public CustomClock<BaseClock>

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 
 #include "ndn-cxx/detail/asio-fwd.hpp"
 #include "ndn-cxx/detail/cancel-handle.hpp"
+#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 #include <boost/operators.hpp>
@@ -141,13 +142,15 @@ public:
 
   ~Scheduler();
 
-  /** \brief Schedule a one-time event after the specified delay
-   *  \return EventId that can be used to cancel the scheduled event
+  /**
+   * \brief Schedule a one-time event after the specified delay.
+   * \return EventId that can be used to cancel the scheduled event.
    */
   EventId
   schedule(time::nanoseconds after, EventCallback callback);
 
-  /** \brief Cancel all scheduled events
+  /**
+   * \brief Cancel all scheduled events.
    */
   void
   cancelAllEvents();

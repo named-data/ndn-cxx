@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -106,10 +106,10 @@ BOOST_AUTO_TEST_CASE(Release)
 BOOST_AUTO_TEST_CASE(MoveConstruct)
 {
   int nCancels = 0;
-  unique_ptr<ScopedTestHandle> hdl1;
+  std::unique_ptr<ScopedTestHandle> hdl1;
   {
     ScopedTestHandle hdl2 = makeDummyCancelHandle(nCancels);
-    hdl1 = make_unique<ScopedTestHandle>(std::move(hdl2));
+    hdl1 = std::make_unique<ScopedTestHandle>(std::move(hdl2));
   } // hdl2 goes out of scope
   BOOST_CHECK_EQUAL(nCancels, 0);
   hdl1.reset();

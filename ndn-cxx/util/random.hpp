@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,15 +22,15 @@
 #ifndef NDN_CXX_UTIL_RANDOM_HPP
 #define NDN_CXX_UTIL_RANDOM_HPP
 
-#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/util/span.hpp"
 
+#include <cstdint>
 #include <random>
 
 namespace ndn::random {
 
 /**
- * @brief Generate a cryptographically secure random integer from the range [0, 2^32)
+ * @brief Generate a cryptographically secure random integer in the range `[0, 2^32)`.
  *
  * @throw std::runtime_error if generation fails.
  */
@@ -38,7 +38,7 @@ uint32_t
 generateSecureWord32();
 
 /**
- * @brief Generate a cryptographically secure random integer from the range [0, 2^64)
+ * @brief Generate a cryptographically secure random integer in the range `[0, 2^64)`.
  *
  * @throw std::runtime_error if generation fails.
  */
@@ -46,7 +46,7 @@ uint64_t
 generateSecureWord64();
 
 /**
- * @brief Fill @p buffer with cryptographically secure random bytes
+ * @brief Fill @p buffer with cryptographically secure random bytes.
  *
  * @throw std::runtime_error if generation fails.
  */
@@ -56,7 +56,7 @@ generateSecureBytes(span<uint8_t> buffer);
 using RandomNumberEngine = std::mt19937;
 
 /**
- * @brief Returns a reference to a thread-local instance of a properly seeded PRNG
+ * @brief Returns a reference to a thread-local instance of a properly seeded PRNG.
  *
  * @warning The returned RandomNumberEngine MUST NOT be used when cryptographically secure
  *          random numbers are needed.
@@ -65,21 +65,21 @@ RandomNumberEngine&
 getRandomNumberEngine();
 
 /**
- * @brief Generate a non-cryptographically-secure random integer in the range [0, 2^32)
+ * @brief Generate a non-cryptographically-secure random integer in the range `[0, 2^32)`.
  *
- * This version is faster than generateSecureWord32, but it must not be used when
+ * This version is faster than generateSecureWord32(), but it must not be used when
  * cryptographically secure random integers are needed (e.g., when creating signing or
- * encryption keys)
+ * encryption keys).
  */
 uint32_t
 generateWord32();
 
 /**
- * @brief Generate a non-cryptographically-secure random integer in the range [0, 2^64)
+ * @brief Generate a non-cryptographically-secure random integer in the range `[0, 2^64)`.
  *
- * This version is faster than generateSecureWord64, but it must not be used when
+ * This version is faster than generateSecureWord64(), but it must not be used when
  * cryptographically secure random integers are needed (e.g., when creating signing or
- * encryption keys)
+ * encryption keys).
  */
 uint64_t
 generateWord64();

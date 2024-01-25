@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,13 +22,16 @@
 #ifndef NDN_CXX_DETAIL_CF_STRING_OSX_HPP
 #define NDN_CXX_DETAIL_CF_STRING_OSX_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/detail/config.hpp"
 
 #ifndef NDN_CXX_HAVE_OSX_FRAMEWORKS
 #error "This file should not be included ..."
 #endif
 
 #include "ndn-cxx/detail/cf-releaser-osx.hpp"
+
+#include <cstdint>
+#include <string>
 
 /**
  * @file

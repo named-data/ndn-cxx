@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2016-2023, Regents of the University of California,
+ * Copyright (c) 2016-2024, Regents of the University of California,
  *                          Colorado State University,
  *                          University Pierre & Marie Curie, Sorbonne University.
  *
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(CopyAssign)
 
 BOOST_AUTO_TEST_CASE(EstimatedRto)
 {
-  auto opts = make_shared<RttEstimator::Options>();
+  auto opts = std::make_shared<RttEstimator::Options>();
   opts->initialRto = 400_ms;
   opts->maxRto = 2_s;
   RttEstimator rttEstimator(opts);
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(EstimatedRto)
 
 BOOST_AUTO_TEST_CASE(BackoffRto)
 {
-  auto opts = make_shared<RttEstimator::Options>();
+  auto opts = std::make_shared<RttEstimator::Options>();
   opts->initialRto = 500_ms;
   opts->maxRto = 4_s;
   RttEstimator rttEstimator(opts);

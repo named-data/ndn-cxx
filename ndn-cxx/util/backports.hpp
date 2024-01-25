@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,13 +22,13 @@
 #ifndef NDN_CXX_UTIL_BACKPORTS_HPP
 #define NDN_CXX_UTIL_BACKPORTS_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#include <type_traits>
+#include <utility>
 
+#include <boost/assert.hpp>
 #include <boost/predef/compiler/clang.h>
 #include <boost/predef/compiler/gcc.h>
 #include <boost/predef/compiler/visualc.h>
-
-#include <utility>
 
 namespace ndn {
 

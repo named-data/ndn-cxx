@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (C) 2016-2023, Arizona Board of Regents.
+ * Copyright (C) 2016-2024, Arizona Board of Regents.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,8 +28,8 @@
 
 namespace ndn::util {
 
-RttEstimator::RttEstimator(shared_ptr<const Options> options)
-  : m_options(options ? std::move(options) : make_shared<const Options>())
+RttEstimator::RttEstimator(std::shared_ptr<const Options> options)
+  : m_options(options ? std::move(options) : std::make_shared<const Options>())
   , m_rto(m_options->initialRto)
 {
   BOOST_ASSERT(m_options->alpha >= 0 && m_options->alpha <= 1);

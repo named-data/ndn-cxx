@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (C) 2016-2023, Arizona Board of Regents.
+ * Copyright (C) 2016-2024, Arizona Board of Regents.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,6 +29,8 @@
 
 #include "ndn-cxx/util/time.hpp"
 
+#include <memory>
+
 namespace ndn::util {
 
 /**
@@ -56,7 +58,7 @@ public:
    * @param options options for the estimator; if nullptr, a default set of options is used
    */
   explicit
-  RttEstimator(shared_ptr<const Options> options = nullptr);
+  RttEstimator(std::shared_ptr<const Options> options = nullptr);
 
   /**
    * @brief Records a new RTT measurement.
@@ -111,7 +113,7 @@ public:
   backoffRto();
 
 protected:
-  shared_ptr<const Options> m_options;
+  std::shared_ptr<const Options> m_options;
 
 private:
   time::nanoseconds m_sRtt{-1};   ///< smoothed round-trip time

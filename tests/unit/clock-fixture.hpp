@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -74,8 +74,8 @@ private:
   }
 
 protected:
-  shared_ptr<time::UnitTestSteadyClock> m_steadyClock;
-  shared_ptr<time::UnitTestSystemClock> m_systemClock;
+  std::shared_ptr<time::UnitTestSteadyClock> m_steadyClock;
+  std::shared_ptr<time::UnitTestSystemClock> m_systemClock;
 };
 
 } // namespace ndn::tests

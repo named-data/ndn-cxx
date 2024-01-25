@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,7 +22,7 @@
 #ifndef NDN_CXX_UTIL_LOGGER_HPP
 #define NDN_CXX_UTIL_LOGGER_HPP
 
-#include "ndn-cxx/detail/common.hpp"
+#include "ndn-cxx/detail/config.hpp"
 
 #ifdef HAVE_NDN_CXX_CUSTOM_LOGGER
 #include "ndn-cxx/util/custom-logger.hpp"
@@ -33,6 +33,9 @@
 #include <boost/log/sources/severity_logger.hpp>
 
 #include <atomic>
+#include <iosfwd>
+#include <string>
+#include <string_view>
 
 namespace ndn::util {
 

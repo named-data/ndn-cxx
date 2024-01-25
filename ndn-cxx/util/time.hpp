@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,12 +22,14 @@
 #ifndef NDN_CXX_UTIL_TIME_HPP
 #define NDN_CXX_UTIL_TIME_HPP
 
-#include "ndn-cxx/detail/common.hpp"
-
 #include <boost/asio/wait_traits.hpp>
 #include <boost/chrono.hpp>
 
+#include <cstdint>
 #include <limits>
+#include <locale>
+#include <string>
+#include <type_traits>
 
 namespace ndn {
 namespace time {

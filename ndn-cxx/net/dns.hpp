@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,9 @@
 #include "ndn-cxx/util/time.hpp"
 
 #include <boost/asio/ip/address.hpp>
+
+#include <functional>
+#include <string>
 
 namespace ndn::dns {
 

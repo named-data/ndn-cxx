@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,13 +27,13 @@
 
 namespace ndn::time {
 
-static shared_ptr<CustomSystemClock> g_systemClock;
-static shared_ptr<CustomSteadyClock> g_steadyClock;
+static std::shared_ptr<CustomSystemClock> g_systemClock;
+static std::shared_ptr<CustomSteadyClock> g_steadyClock;
 
 // this function is declared in time-custom-clock.hpp
 void
-setCustomClocks(shared_ptr<CustomSteadyClock> steadyClock,
-                shared_ptr<CustomSystemClock> systemClock)
+setCustomClocks(std::shared_ptr<CustomSteadyClock> steadyClock,
+                std::shared_ptr<CustomSystemClock> systemClock)
 {
   g_systemClock = std::move(systemClock);
   g_steadyClock = std::move(steadyClock);

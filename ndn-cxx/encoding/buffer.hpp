@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,15 +24,16 @@
 #ifndef NDN_CXX_ENCODING_BUFFER_HPP
 #define NDN_CXX_ENCODING_BUFFER_HPP
 
-#include "ndn-cxx/detail/common.hpp"
-
+#include <cstdint>
 #include <initializer_list>
+#include <iosfwd>
+#include <memory>
 #include <vector>
 
 namespace ndn {
 
 /**
- * @brief General-purpose automatically managed/resized buffer
+ * @brief General-purpose automatically managed/resized buffer.
  *
  * In most respect, the Buffer class is equivalent to a `std::vector<uint8_t>`, and it in fact
  * uses the latter as a base class. In addition to that, it provides the get<T>() helper method
@@ -135,8 +136,8 @@ std::ostream&
 boost_test_print_type(std::ostream&, const Buffer&);
 /** \endcond */
 
-using BufferPtr = shared_ptr<Buffer>;
-using ConstBufferPtr = shared_ptr<const Buffer>;
+using BufferPtr = std::shared_ptr<Buffer>;
+using ConstBufferPtr = std::shared_ptr<const Buffer>;
 
 } // namespace ndn
 

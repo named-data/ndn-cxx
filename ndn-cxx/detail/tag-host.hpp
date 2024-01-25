@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,10 +22,11 @@
 #ifndef NDN_CXX_DETAIL_TAG_HOST_HPP
 #define NDN_CXX_DETAIL_TAG_HOST_HPP
 
-#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/tag.hpp"
 
 #include <map>
+#include <memory>
+#include <type_traits>
 
 namespace ndn {
 
@@ -41,7 +42,7 @@ public:
    * \retval nullptr if no Tag of type T is stored
    */
   template<typename T>
-  shared_ptr<T>
+  std::shared_ptr<T>
   getTag() const;
 
   /**
@@ -51,7 +52,7 @@ public:
    */
   template<typename T>
   void
-  setTag(shared_ptr<T> tag) const;
+  setTag(std::shared_ptr<T> tag) const;
 
   /**
    * \brief Remove a tag item.
@@ -63,11 +64,11 @@ public:
   removeTag() const;
 
 private:
-  mutable std::map<int, shared_ptr<Tag>> m_tags;
+  mutable std::map<int, std::shared_ptr<Tag>> m_tags;
 };
 
 template<typename T>
-shared_ptr<T>
+std::shared_ptr<T>
 TagHost::getTag() const
 {
   static_assert(std::is_convertible_v<T*, Tag*>, "T must inherit from ndn::Tag");
@@ -80,7 +81,7 @@ TagHost::getTag() const
 
 template<typename T>
 void
-TagHost::setTag(shared_ptr<T> tag) const
+TagHost::setTag(std::shared_ptr<T> tag) const
 {
   static_assert(std::is_convertible_v<T*, Tag*>, "T must inherit from ndn::Tag");
 

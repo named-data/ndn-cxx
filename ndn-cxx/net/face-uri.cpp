@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California,
+ * Copyright (c) 2013-2024 Regents of the University of California,
  *                         Arizona Board of Regents,
  *                         Colorado State University,
  *                         University Pierre & Marie Curie, Sorbonne University,
@@ -26,6 +26,8 @@
  */
 
 #include "ndn-cxx/net/face-uri.hpp"
+
+#include "ndn-cxx/detail/common.hpp"
 #include "ndn-cxx/net/dns.hpp"
 #include "ndn-cxx/util/string-helper.hpp"
 
@@ -116,7 +118,7 @@ FaceUri::FaceUri(const boost::asio::ip::udp::endpoint& endpoint)
   m_isV6 = endpoint.address().is_v6();
   m_scheme = m_isV6 ? "udp6" : "udp4";
   m_host = endpoint.address().to_string();
-  m_port = to_string(endpoint.port());
+  m_port = std::to_string(endpoint.port());
 }
 
 FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint)
@@ -124,7 +126,7 @@ FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint)
   m_isV6 = endpoint.address().is_v6();
   m_scheme = m_isV6 ? "tcp6" : "tcp4";
   m_host = endpoint.address().to_string();
-  m_port = to_string(endpoint.port());
+  m_port = std::to_string(endpoint.port());
 }
 
 FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, std::string_view scheme)
@@ -132,7 +134,7 @@ FaceUri::FaceUri(const boost::asio::ip::tcp::endpoint& endpoint, std::string_vie
   m_isV6 = endpoint.address().is_v6();
   m_scheme = scheme;
   m_host = endpoint.address().to_string();
-  m_port = to_string(endpoint.port());
+  m_port = std::to_string(endpoint.port());
 }
 
 #ifdef BOOST_ASIO_HAS_LOCAL_SOCKETS
@@ -155,7 +157,7 @@ FaceUri::fromFd(int fd)
 {
   FaceUri uri;
   uri.m_scheme = "fd";
-  uri.m_host = to_string(fd);
+  uri.m_host = std::to_string(fd);
   return uri;
 }
 
@@ -174,7 +176,7 @@ FaceUri::fromUdpDev(const boost::asio::ip::udp::endpoint& endpoint, std::string_
   FaceUri uri;
   uri.m_scheme = endpoint.address().is_v6() ? "udp6+dev" : "udp4+dev";
   uri.m_host = ifname;
-  uri.m_port = to_string(endpoint.port());
+  uri.m_port = std::to_string(endpoint.port());
   return uri;
 }
 
@@ -203,7 +205,8 @@ FaceUri::print(std::ostream& os) const
 }
 
 
-/** \brief A CanonizeProvider provides FaceUri canonization functionality for a group of schemes.
+/**
+ * \brief A CanonizeProvider provides FaceUri canonization functionality for a group of schemes.
  */
 class CanonizeProvider : noncopyable
 {
@@ -296,7 +299,7 @@ public:
     }
 
     // make a copy because caller may modify faceUri
-    auto uri = make_shared<FaceUri>(faceUri);
+    auto uri = std::make_shared<FaceUri>(faceUri);
     boost::system::error_code ec;
     auto ipAddress = boost::asio::ip::make_address(unescapeHost(faceUri.getHost()), ec);
     if (!ec) {
@@ -343,7 +346,7 @@ protected:
 
 private:
   void
-  onDnsSuccess(const shared_ptr<FaceUri>& faceUri,
+  onDnsSuccess(const std::shared_ptr<FaceUri>& faceUri,
                const FaceUri::CanonizeSuccessCallback& onSuccess,
                const FaceUri::CanonizeFailureCallback& onFailure,
                const boost::asio::ip::address& ipAddress) const
@@ -372,7 +375,7 @@ private:
   }
 
   void
-  onDnsFailure(const shared_ptr<FaceUri>&,
+  onDnsFailure(const std::shared_ptr<FaceUri>&,
                const FaceUri::CanonizeFailureCallback& onFailure,
                const std::string& reason) const
   {
@@ -558,7 +561,7 @@ using CanonizeProviders = boost::mp11::mp_list<UdpCanonizeProvider,
                                                UdpDevCanonizeProvider>;
 static_assert(boost::mp11::mp_is_set<CanonizeProviders>());
 
-using CanonizeProviderTable = std::map<std::string, shared_ptr<CanonizeProvider>>;
+using CanonizeProviderTable = std::map<std::string, std::shared_ptr<CanonizeProvider>>;
 
 struct CanonizeProviderTableInitializer
 {
@@ -566,7 +569,7 @@ struct CanonizeProviderTableInitializer
   void
   operator()(boost::mp11::mp_identity<CP>)
   {
-    shared_ptr<CanonizeProvider> cp = make_shared<CP>();
+    std::shared_ptr<CanonizeProvider> cp = std::make_shared<CP>();
     auto schemes = cp->getSchemes();
     BOOST_ASSERT(!schemes.empty());
 
