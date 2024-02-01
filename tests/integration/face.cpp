@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -327,7 +327,8 @@ BOOST_AUTO_TEST_SUITE_END() // Producer
 
 BOOST_FIXTURE_TEST_SUITE(IoRoutine, FaceFixture<UnixTransport>)
 
-BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress) // Bug #3136
+BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress,
+  * ut::description("test for bug #3136"))
 {
   this->face.expressInterest(*makeInterest("/Hello/World"), nullptr, nullptr, nullptr);
   this->face.processEvents(1_s);
@@ -341,14 +342,16 @@ BOOST_AUTO_TEST_CASE(ShutdownWhileSendInProgress) // Bug #3136
   BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE(LargeDelayBetweenFaceConstructorAndProcessEvents) // Bug #2742
+BOOST_AUTO_TEST_CASE(LargeDelayBetweenFaceConstructorAndProcessEvents,
+  * ut::description("test for bug #2742"))
 {
   std::this_thread::sleep_for(std::chrono::seconds(5)); // simulate setup workload
   this->face.processEvents(1_s); // should not throw
   BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE(ProcessEventsBlocksForeverWhenNothingScheduled) // Bug #3957
+BOOST_AUTO_TEST_CASE(ProcessEventsBlocksForeverWhenNothingScheduled,
+  * ut::description("test for bug #3957"))
 {
   std::mutex m;
   std::condition_variable cv;

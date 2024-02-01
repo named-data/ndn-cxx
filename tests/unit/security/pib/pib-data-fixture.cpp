@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -20,91 +20,96 @@
  */
 
 #include "tests/unit/security/pib/pib-data-fixture.hpp"
+
 #include "ndn-cxx/security/pib/impl/pib-memory.hpp"
+#include "ndn-cxx/security/tpm/impl/back-end-mem.hpp"
+#include "ndn-cxx/security/tpm/tpm.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
-// #include "ndn-cxx/security/tpm/impl/back-end-mem.hpp"
-// #include "ndn-cxx/security/tpm/tpm.hpp"
-// #include "ndn-cxx/util/string-helper.hpp"
+#include "tests/boost-test.hpp"
 
-// #include "tests/boost-test.hpp"
-
-// #include <iostream>
+#include <iostream>
 
 namespace ndn::tests {
 
 using namespace ndn::security;
-using namespace ndn::security::pib;
 
-// class TestCertDataGenerator
-// {
-// public:
-//   void
-//   printTestDataForId(const std::string& prefix, const Name& id)
-//   {
-//     for (auto keyId : {1u, 2u}) {
-//       Name keyName = tpm.createKey(id, EcKeyParams(name::Component::fromNumber(keyId)));
+BOOST_AUTO_TEST_SUITE(Security)
+BOOST_AUTO_TEST_SUITE(PibData)
 
-//       for (auto certVersion : {1u, 2u}) {
-//         Name certName = keyName;
-//         certName
-//           .append("issuer")
-//           .appendVersion(certVersion);
-//         Certificate cert;
-//         cert.setName(certName);
-//         cert.setFreshnessPeriod(1_h);
-//         cert.setContent(tpm.getPublicKey(keyName));
+class TestCertDataGenerator
+{
+public:
+  void
+  printTestDataForId(const std::string& prefix, const Name& id)
+  {
+    for (auto keyId : {1u, 2u}) {
+      Name keyName = m_tpm.createKey(id, EcKeyParams(name::Component::fromNumber(keyId)));
 
-//         // TODO: sign using KeyChain
-//         SignatureInfo info;
-//         info.setSignatureType(tlv::SignatureSha256WithEcdsa);
-//         info.setKeyLocator(keyName);
-//         info.setValidityPeriod(ValidityPeriod(time::fromIsoString("20170102T000000"),
-//                                               time::fromIsoString("20180102T000000")));
-//         cert.setSignatureInfo(info);
+      for (auto certVersion : {1u, 2u}) {
+        Name certName = keyName;
+        certName.append("issuer");
+        certName.appendVersion(certVersion);
+        Certificate cert;
+        cert.setName(certName);
+        cert.setFreshnessPeriod(1_h);
+        cert.setContent(m_tpm.getPublicKey(keyName));
 
-//         EncodingBuffer buf;
-//         cert.wireEncode(buf, true);
-//         cert.setSignatureValue(tpm.sign({buf}, keyName, DigestAlgorithm::SHA256));
+        // TODO: sign using KeyChain
+        SignatureInfo info;
+        info.setSignatureType(tlv::SignatureSha256WithEcdsa);
+        info.setKeyLocator(keyName);
+        info.setValidityPeriod(ValidityPeriod(time::fromIsoString("20170102T000000"),
+                                              time::fromIsoString("20180102T000000")));
+        cert.setSignatureInfo(info);
 
-//         printBytes(prefix + "_KEY" + to_string(keyId) + "_CERT" + to_string(certVersion),
-//                    cert.wireEncode());
-//       }
-//     }
-//   }
+        EncodingBuffer buf;
+        cert.wireEncode(buf, true);
+        cert.setSignatureValue(m_tpm.sign({buf}, keyName, DigestAlgorithm::SHA256));
 
-//   static void
-//   printBytes(const std::string& name, span<const uint8_t> bytes)
-//   {
-//     std::cout << "\nconst uint8_t " << name << "[] = {\n"
-//               << "  ";
+        printBytes(prefix + "_KEY" + std::to_string(keyId) + "_CERT" + std::to_string(certVersion),
+                   cert.wireEncode());
+      }
+    }
+  }
 
-//     std::string hex = toHex(bytes);
+  static void
+  printBytes(std::string_view name, span<const uint8_t> bytes)
+  {
+    auto hex = toHex(bytes);
+    std::cout << "\nconst uint8_t " << name << "[] = {\n"
+              << "  ";
 
-//     for (size_t i = 0; i < hex.size(); i++) {
-//       if (i > 0 && i % 40 == 0)
-//         std::cout << "\n  ";
+    for (size_t i = 0; i < hex.size(); i++) {
+      if (i > 0 && i % 40 == 0)
+        std::cout << "\n  ";
 
-//       std::cout << "0x" << hex[i];
-//       std::cout << hex[++i];
+      std::cout << "0x" << hex[i];
+      std::cout << hex[++i];
 
-//       if (i + 1 != hex.size())
-//         std::cout << ", ";
-//     }
-//     std::cout << "\n"
-//               << "};" << std::endl;
-//   }
+      if (i + 1 != hex.size())
+        std::cout << ", ";
+    }
+    std::cout << "\n"
+              << "};" << std::endl;
+  }
 
-// private:
-//   PibMemory pib;
-//   Tpm tpm{"test:test", make_unique<tpm::BackEndMem>()};
-// };
+private:
+  pib::PibMemory m_pib;
+  Tpm m_tpm{"test:test", make_unique<tpm::BackEndMem>()};
+};
 
-// // The test data can be generated using this test case
-// BOOST_FIXTURE_TEST_CASE(GenerateTestCertData, TestCertDataGenerator)
-// {
-//   printTestDataForId("ID1", Name("/pib/interface/id/1"));
-//   printTestDataForId("ID2", Name("/pib/interface/id/2"));
-// }
+BOOST_FIXTURE_TEST_CASE(GenerateTestCerts, TestCertDataGenerator,
+  * ut::description("regenerates the test certificates used in PibDataFixture")
+  * ut::disabled()
+  * ut::label("generator"))
+{
+  printTestDataForId("ID1", "/pib/interface/id/1");
+  printTestDataForId("ID2", "/pib/interface/id/2");
+}
+
+BOOST_AUTO_TEST_SUITE_END() // PibData
+BOOST_AUTO_TEST_SUITE_END() // Security
 
 const uint8_t ID1_KEY1_CERT1[] = {
   0x06, 0xFD, 0x02, 0x25, 0x07, 0x2B, 0x08, 0x03, 0x70, 0x69, 0x62, 0x08, 0x09, 0x69, 0x6E, 0x74, 0x65, 0x72, 0x66, 0x61,
@@ -397,18 +402,18 @@ PibDataFixture::PibDataFixture()
   BOOST_ASSERT(id2Key2Cert2.getContent() == id2Key2Cert1.getContent());
 }
 
-shared_ptr<PibImpl>
+shared_ptr<pib::PibImpl>
 PibDataFixture::makePibWithIdentity(const Name& idName)
 {
-  auto pib = std::make_shared<PibMemory>();
+  auto pib = std::make_shared<pib::PibMemory>();
   pib->addIdentity(idName);
   return pib;
 }
 
-shared_ptr<PibImpl>
+shared_ptr<pib::PibImpl>
 PibDataFixture::makePibWithKey(const Name& keyName, span<const uint8_t> key)
 {
-  auto pib = std::make_shared<PibMemory>();
+  auto pib = std::make_shared<pib::PibMemory>();
   pib->addIdentity(extractIdentityFromKeyName(keyName));
   pib->addKey(extractIdentityFromKeyName(keyName), keyName, key);
   return pib;

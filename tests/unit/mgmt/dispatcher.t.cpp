@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -262,7 +262,8 @@ private:
   int m_state = 0;
 };
 
-BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization) // Bug 4059
+BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization,
+  * ut::description("test for bug #4059"))
 {
   AcceptContinuation authorizationAccept;
   auto authorization =

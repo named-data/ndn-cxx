@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -64,14 +64,15 @@ public:
   static void
   testChecker(C& checker, tlv::SignatureTypeValue sigType, const Name& pktName, const Name& klName, bool expectedOutcome)
   {
-    BOOST_TEST_CONTEXT("pkt=" << pktName << " kl=" << klName) {
-      auto state = PktType::makeState();
-      auto result = checker.check(PktType::getType(), sigType, pktName, klName, *state);
-      BOOST_CHECK_EQUAL(bool(result), expectedOutcome);
-      BOOST_CHECK(boost::logic::indeterminate(state->getOutcome()));
-      if (!result) {
-        BOOST_CHECK_NE(result.getErrorMessage(), "");
-      }
+    BOOST_TEST_INFO_SCOPE("Packet = " << pktName);
+    BOOST_TEST_INFO_SCOPE("KeyLocator = " << klName);
+
+    auto state = PktType::makeState();
+    auto result = checker.check(PktType::getType(), sigType, pktName, klName, *state);
+    BOOST_CHECK_EQUAL(bool(result), expectedOutcome);
+    BOOST_CHECK(boost::logic::indeterminate(state->getOutcome()));
+    if (!result) {
+      BOOST_CHECK_NE(result.getErrorMessage(), "");
     }
   }
 

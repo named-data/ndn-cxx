@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -95,20 +95,21 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Filters, PktType, PktTypes, RuleFixture<PktType
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checkers, PktType, PktTypes, RuleFixture<PktType>)
 {
   auto testChecker = [this] (const Name& klName, bool expectedOutcome) {
-    BOOST_TEST_CONTEXT(klName << " expected=" << expectedOutcome) {
-      this->state = PktType::makeState(); // reset state
-      BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), tlv::SignatureSha256WithRsa,
-                                         this->pktName, klName, this->state),
-                        expectedOutcome);
+    BOOST_TEST_INFO_SCOPE("Name = " << klName);
+    BOOST_TEST_INFO_SCOPE("Expected = " << expectedOutcome);
 
-      auto outcome = this->state->getOutcome();
-      if (expectedOutcome) {
-        BOOST_CHECK(boost::logic::indeterminate(outcome));
-      }
-      else {
-        BOOST_CHECK(!boost::logic::indeterminate(outcome));
-        BOOST_CHECK(!bool(outcome));
-      }
+    this->state = PktType::makeState(); // reset state
+    BOOST_CHECK_EQUAL(this->rule.check(PktType::getType(), tlv::SignatureSha256WithRsa,
+                                       this->pktName, klName, this->state),
+                      expectedOutcome);
+
+    auto outcome = this->state->getOutcome();
+    if (expectedOutcome) {
+      BOOST_CHECK(boost::logic::indeterminate(outcome));
+    }
+    else {
+      BOOST_CHECK(!boost::logic::indeterminate(outcome));
+      BOOST_CHECK(!bool(outcome));
     }
   };
 

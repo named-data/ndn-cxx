@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -158,7 +158,8 @@ struct PibPathConfigFileNonCanonicalTpm
   static constexpr std::string_view PATH = "build/config-file-non-canonical-tpm/";
 };
 
-BOOST_FIXTURE_TEST_CASE(ConstructorNonCanonicalTpm, TestHomeAndPibFixture<PibPathConfigFileNonCanonicalTpm>) // Bug 4297
+BOOST_FIXTURE_TEST_CASE(ConstructorNonCanonicalTpm, TestHomeAndPibFixture<PibPathConfigFileNonCanonicalTpm>,
+  * ut::description("test for bug #4297"))
 {
   createClientConf({"pib=pib-sqlite3:", "tpm=tpm-file"});
 
@@ -328,7 +329,7 @@ BOOST_FIXTURE_TEST_CASE(Management, KeyChainFixture)
 struct DataPkt
 {
   Data packet{"/data"};
-  SignedInterestFormat sigFormat = SignedInterestFormat::V02; // irrelevant for Data
+  static constexpr SignedInterestFormat sigFormat = SignedInterestFormat::V02; // irrelevant for Data
 
   SignatureInfo
   getSignatureInfo() const
@@ -340,7 +341,7 @@ struct DataPkt
 struct InterestV02Pkt
 {
   Interest packet{"/interest02"};
-  SignedInterestFormat sigFormat = SignedInterestFormat::V02;
+  static constexpr SignedInterestFormat sigFormat = SignedInterestFormat::V02;
 
   SignatureInfo
   getSignatureInfo() const
@@ -352,7 +353,7 @@ struct InterestV02Pkt
 struct InterestV03Pkt
 {
   Interest packet{"/interest03"};
-  SignedInterestFormat sigFormat = SignedInterestFormat::V03;
+  static constexpr SignedInterestFormat sigFormat = SignedInterestFormat::V03;
 
   SignatureInfo
   getSignatureInfo() const
@@ -421,8 +422,8 @@ struct AsymmetricSigningBase : protected KeyChainFixture, protected PacketType
   const Key key = KeyMaker<AsymmetricKeyParams>()(m_keyChain, id);
   const Certificate cert = key.getDefaultCertificate();
 
-  const uint32_t expectedSigType = SignatureTypeTlvValue;
-  const bool shouldHaveKeyLocator = true;
+  static constexpr uint32_t expectedSigType = SignatureTypeTlvValue;
+  static constexpr bool shouldHaveKeyLocator = true;
   const std::optional<KeyLocator> expectedKeyLocator = cert.getName();
 
   bool
@@ -498,8 +499,8 @@ struct HmacSigning : protected KeyChainFixture, protected PacketType
     SigningInfo("hmac-sha256:QjM3NEEyNkE3MTQ5MDQzN0FBMDI0RTRGQURENUI0OTdGREZGMUE4RUE2RkYxMkY2RkI2NUFGMjcyMEI1OUNDRg=="),
   };
 
-  const uint32_t expectedSigType = SignatureTypeTlvValue;
-  const bool shouldHaveKeyLocator = true;
+  static constexpr uint32_t expectedSigType = SignatureTypeTlvValue;
+  static constexpr bool shouldHaveKeyLocator = true;
   const std::optional<KeyLocator> expectedKeyLocator = std::nullopt; // don't check KeyLocator value
 
   bool
@@ -518,8 +519,8 @@ struct Sha256Signing : protected KeyChainFixture, protected PacketType
     signingWithSha256()
   };
 
-  const uint32_t expectedSigType = tlv::DigestSha256;
-  const bool shouldHaveKeyLocator = false;
+  static constexpr uint32_t expectedSigType = tlv::DigestSha256;
+  static constexpr bool shouldHaveKeyLocator = false;
   const std::optional<KeyLocator> expectedKeyLocator = std::nullopt;
 
   bool
@@ -550,22 +551,21 @@ using SigningTests = boost::mp11::mp_list<
 
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(SigningInterface, T, SigningTests, T)
 {
-  BOOST_TEST_CONTEXT("Packet = " << this->packet.getName()) {
-    for (auto signingInfo : this->signingInfos) {
-      signingInfo.setSignedInterestFormat(this->sigFormat);
+  BOOST_TEST_INFO_SCOPE("Packet = " << this->packet.getName());
 
-      BOOST_TEST_CONTEXT("SigningInfo = " << signingInfo) {
-        this->m_keyChain.sign(this->packet, signingInfo);
+  for (auto signingInfo : this->signingInfos) {
+    signingInfo.setSignedInterestFormat(this->sigFormat);
+    BOOST_TEST_INFO_SCOPE("SigningInfo = " << signingInfo);
 
-        auto sigInfo = this->getSignatureInfo();
-        BOOST_CHECK_EQUAL(sigInfo.getSignatureType(), this->expectedSigType);
-        BOOST_CHECK_EQUAL(sigInfo.hasKeyLocator(), this->shouldHaveKeyLocator);
-        if (this->expectedKeyLocator) {
-          BOOST_CHECK_EQUAL(sigInfo.getKeyLocator(), *this->expectedKeyLocator);
-        }
-        BOOST_CHECK(this->verify(signingInfo));
-      }
+    this->m_keyChain.sign(this->packet, signingInfo);
+
+    auto sigInfo = this->getSignatureInfo();
+    BOOST_CHECK_EQUAL(sigInfo.getSignatureType(), this->expectedSigType);
+    BOOST_CHECK_EQUAL(sigInfo.hasKeyLocator(), this->shouldHaveKeyLocator);
+    if (this->expectedKeyLocator) {
+      BOOST_CHECK_EQUAL(sigInfo.getKeyLocator(), *this->expectedKeyLocator);
     }
+    BOOST_CHECK(this->verify(signingInfo));
   }
 }
 

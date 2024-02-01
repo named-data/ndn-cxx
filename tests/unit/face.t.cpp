@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -255,7 +255,8 @@ BOOST_AUTO_TEST_CASE(EmptyNackCallback)
   } while (false));
 }
 
-BOOST_AUTO_TEST_CASE(PutDataFromDataCallback) // Bug 4596
+BOOST_AUTO_TEST_CASE(PutDataFromDataCallback,
+  * ut::description("test for bug #4596"))
 {
   face.expressInterest(*makeInterest("/localhost/notification/1"),
                        [&] (auto&&...) {
@@ -272,7 +273,8 @@ BOOST_AUTO_TEST_CASE(PutDataFromDataCallback) // Bug 4596
   BOOST_CHECK_EQUAL(face.sentData.back().getName(), "/chronosync/sampleDigest/1");
 }
 
-BOOST_AUTO_TEST_CASE(DestroyWithPendingInterest)
+BOOST_AUTO_TEST_CASE(DestroyWithPendingInterest,
+  * ut::description("test for bug #2518"))
 {
   auto face2 = make_unique<DummyClientFace>(m_io, m_keyChain);
   face2->expressInterest(*makeInterest("/Hello/World", false, 50_ms),
@@ -280,7 +282,7 @@ BOOST_AUTO_TEST_CASE(DestroyWithPendingInterest)
   advanceClocks(50_ms, 2);
   face2.reset();
 
-  advanceClocks(50_ms, 2); // should not crash - Bug 2518
+  advanceClocks(50_ms, 2); // should not crash
 
   // avoid "test case [...] did not check any assertions" message from Boost.Test
   BOOST_CHECK(true);
@@ -779,7 +781,8 @@ BOOST_AUTO_TEST_CASE(RegexFilterAndRegisterPrefix)
   BOOST_CHECK_EQUAL(nInInterests, 2);
 }
 
-BOOST_FIXTURE_TEST_CASE(WithoutRegisterPrefix, FaceFixture<NoPrefixRegReply>) // Bug 2318
+BOOST_FIXTURE_TEST_CASE(WithoutRegisterPrefix, FaceFixture<NoPrefixRegReply>,
+  * ut::description("test for bug #2318"))
 {
   // This behavior is specific to DummyClientFace.
   // Regular Face won't accept incoming packets until something is sent.
@@ -840,7 +843,8 @@ BOOST_AUTO_TEST_CASE(ProcessEvents)
   BOOST_CHECK_EQUAL(nRegSuccesses, 1);
 }
 
-BOOST_AUTO_TEST_CASE(DestroyWithoutProcessEvents) // Bug 3248
+BOOST_AUTO_TEST_CASE(DestroyWithoutProcessEvents,
+  * ut::description("test for bug #3248"))
 {
   auto face2 = make_unique<Face>(m_io);
   face2.reset();

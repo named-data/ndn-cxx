@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -21,12 +21,14 @@
 
 #include "ndn-cxx/security/verification-helpers.hpp"
 #include "ndn-cxx/security/transform/public-key.hpp"
-// #include "ndn-cxx/util/string-helper.hpp"
+#include "ndn-cxx/util/string-helper.hpp"
 
 #include "tests/key-chain-fixture.hpp"
 #include "tests/test-common.hpp"
 
 #include <boost/mp11/list.hpp>
+
+#include <iostream>
 
 namespace ndn::tests {
 
@@ -35,95 +37,108 @@ using namespace ndn::security;
 BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestVerificationHelpers)
 
-// // Use this test case to regenerate the dataset if the signature format changes
-// BOOST_FIXTURE_TEST_CASE(Generator, KeyChainFixture)
-// {
-//   Identity wrongIdentity = m_keyChain.createIdentity("/Security/TestVerificationHelpers/Wrong");
-//   const std::map<std::string, SigningInfo> identities = {
-//     {"Ecdsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/EC", EcKeyParams()))},
-//     {"Rsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/RSA", RsaKeyParams()))},
-//     {"Sha256", signingWithSha256()}
-//   };
+// Use this test case to regenerate the datasets if the signature format changes
+BOOST_FIXTURE_TEST_CASE(GenerateTestData, KeyChainFixture,
+  * ut::description("regenerates the static test data used by other test cases")
+  * ut::disabled()
+  * ut::label("generator"))
+{
+  auto wrongIdentity = m_keyChain.createIdentity("/Security/TestVerificationHelpers/Wrong");
+  const std::map<std::string, SigningInfo> identities = {
+    {"Ecdsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/EC", EcKeyParams()))},
+    {"Rsa", signingByIdentity(m_keyChain.createIdentity("/Security/TestVerificationHelpers/RSA", RsaKeyParams()))},
+    {"Sha256", signingWithSha256()}
+  };
 
-//   auto print = [] (const std::string& name, span<const uint8_t> buf) {
-//     std::cout << "  const Block " + name + "{{\n    ";
+  auto print = [] (std::string_view name, span<const uint8_t> buf) {
+    auto hex = toHex(buf);
+    std::cout << "  const Block " << name << "{{\n    ";
 
-//     std::string hex = toHex(buf);
+    for (size_t i = 0; i < hex.size(); i++) {
+      if (i > 0 && i % 32 == 0)
+        std::cout << "\n    ";
 
-//     for (size_t i = 0; i < hex.size(); i++) {
-//       if (i > 0 && i % 32 == 0)
-//         std::cout << "\n    ";
+      std::cout << "0x" << hex[i];
+      std::cout << hex[++i];
 
-//       std::cout << "0x" << hex[i];
-//       std::cout << hex[++i];
+      if ((i + 1) != hex.size())
+        std::cout << ", ";
+    }
+    std::cout << "\n  }};";
+  };
 
-//       if ((i + 1) != hex.size())
-//         std::cout << ", ";
-//     }
-//     std::cout << "\n  }};";
-//   };
+  for (const auto& i : identities) {
+    const std::string& type = i.first;
+    const SigningInfo& signingInfo = i.second;
 
-//   for (const auto& i : identities) {
-//     const std::string& type = i.first;
-//     const SigningInfo& signingInfo = i.second;
+    std::cout << "struct " << type << "Dataset\n{\n";
 
-//     std::cout << "struct " + type + "Dataset\n{\n";
-//     std::cout << "  const std::string name = \"" << type << "\";\n";
+    if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_ID) {
+      print("cert", signingInfo.getPibIdentity().getDefaultKey().getDefaultCertificate().wireEncode());
+    }
+    else {
+      print("cert", {});
+    }
+    std::cout << "\n";
 
-//     if (signingInfo.getSignerType() == SigningInfo::SIGNER_TYPE_ID) {
-//       print("cert", signingInfo.getPibIdentity().getDefaultKey().getDefaultCertificate().wireEncode());
-//     }
-//     else {
-//       print("cert", {});
-//     }
-//     std::cout << "\n";
+    // Create data that can be verified by cert
+    Data data(Name("/test/data").append(type));
+    m_keyChain.sign(data, signingInfo);
+    print("goodData", data.wireEncode());
+    std::cout << "\n";
 
-//     // Create data that can be verified by cert
-//     Data data(Name("/test/data").append(type));
-//     m_keyChain.sign(data, signingInfo);
-//     print("goodData", data.wireEncode());
-//     std::cout << "\n";
+    // Create data that cannot be verified by cert
+    m_keyChain.sign(data, signingByIdentity(wrongIdentity));
+    print("badSigData", data.wireEncode());
+    std::cout << "\n";
 
-//     // Create data that cannot be verified by cert
-//     m_keyChain.sign(data, signingByIdentity(wrongIdentity));
-//     print("badSigData", data.wireEncode());
-//     std::cout << "\n";
+    // Create interest that can be verified by cert
+    Interest interest1(Name("/test/interest").append(type));
+    SigningInfo signingInfoV03(signingInfo);
+    signingInfoV03.setSignedInterestFormat(SignedInterestFormat::V03);
+    interest1.setNonce(0xF72C8A4B);
+    m_keyChain.sign(interest1, signingInfoV03);
+    print("goodInterest", interest1.wireEncode());
+    std::cout << "\n";
 
-//     // Create interest that can be verified by cert
-//     Interest interest1(Name("/test/interest").append(type));
-//     SigningInfo signingInfoV03(signingInfo);
-//     signingInfoV03.setSignedInterestFormat(SignedInterestFormat::V03);
-//     interest1.setNonce(0xF72C8A4B);
-//     m_keyChain.sign(interest1, signingInfoV03);
-//     print("goodInterest", interest1.wireEncode());
-//     std::cout << "\n";
+    // Create interest that cannot be verified by cert
+    m_keyChain.sign(interest1,
+                    signingByIdentity(wrongIdentity).setSignedInterestFormat(SignedInterestFormat::V03));
+    print("badSigInterest", interest1.wireEncode());
+    std::cout << "\n";
 
-//     // Create interest that cannot be verified by cert
-//     m_keyChain.sign(interest1, signingByIdentity(wrongIdentity)
-//                                  .setSignedInterestFormat(SignedInterestFormat::V03));
-//     print("badSigInterest", interest1.wireEncode());
-//     std::cout << "\n";
+    // Create interest that can be verified by cert (old signed Interest format)
+    Interest interest2(Name("/test/interest").append(type));
+    SigningInfo signingInfoV02(signingInfo);
+    signingInfoV02.setSignedInterestFormat(SignedInterestFormat::V03);
+    interest2.setNonce(0xF72C8A4B);
+    m_keyChain.sign(interest2, signingInfoV02);
+    print("goodInterestOldFormat", interest2.wireEncode());
+    std::cout << "\n";
 
-//     // Create interest that can be verified by cert (old signed Interest format)
-//     Interest interest2(Name("/test/interest").append(type));
-//     SigningInfo signingInfoV02(signingInfo);
-//     signingInfoV02.setSignedInterestFormat(SignedInterestFormat::V03);
-//     interest2.setNonce(0xF72C8A4B);
-//     m_keyChain.sign(interest2, signingInfoV02);
-//     print("goodInterestOldFormat", interest2.wireEncode());
-//     std::cout << "\n";
+    // Create interest that cannot be verified by cert (old signed Interest format)
+    m_keyChain.sign(interest2,
+                    signingByIdentity(wrongIdentity).setSignedInterestFormat(SignedInterestFormat::V02));
+    print("badSigInterestOldFormat", interest2.wireEncode());
+    std::cout << "\n};\n\n";
+  }
+}
 
-//     // Create interest that cannot be verified by cert (old signed Interest format)
-//     m_keyChain.sign(interest2, signingByIdentity(wrongIdentity)
-//                                  .setSignedInterestFormat(SignedInterestFormat::V02));
-//     print("badSigInterestOldFormat", interest2.wireEncode());
-//     std::cout << "\n};\n\n";
-//   }
-// }
+// Note about the datasets below:
+// - .cert a valid certificate
+// - .goodData is a Data packet that can be verified against .cert
+// - .badSigData a valid and signed Data packet that cannot be verified against cert (signed using
+//   a different private key)
+// - .goodInterest is an Interest packet that can be verified against .cert
+// - .badSigInterest is a valid and signed Interest packet that cannot be verified against .cert
+//   (signed using a different private key)
+// - .goodInterestOldFormat is an Interest packet that can be verified against .cert (in the old
+//   signed Interest format)
+// - .badSigInterestOldFormat is a valid and signed Interest packet that cannot be verified against
+//   .cert (signed using a different private key and in the old signed Interest format)
 
 struct EcdsaDataset
 {
-  const std::string name = "Ecdsa";
   const Block cert{{
     0x06, 0xFD, 0x01, 0x62, 0x07, 0x47, 0x08, 0x08, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79,
     0x08, 0x17, 0x54, 0x65, 0x73, 0x74, 0x56, 0x65, 0x72, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69,
@@ -249,7 +264,6 @@ struct EcdsaDataset
 
 struct RsaDataset
 {
-  const std::string name = "Rsa";
   const Block cert{{
     0x06, 0xFD, 0x02, 0xED, 0x07, 0x48, 0x08, 0x08, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79,
     0x08, 0x17, 0x54, 0x65, 0x73, 0x74, 0x56, 0x65, 0x72, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69,
@@ -446,7 +460,6 @@ struct RsaDataset
 
 struct Sha256Dataset
 {
-  const std::string name = "Sha256";
   const Block cert{{
   }};
   const Block goodData{{
@@ -522,19 +535,6 @@ struct Sha256Dataset
   }};
 };
 
-// Note about the datasets:
-// - .cert a valid certificate
-// - .goodData is a Data packet that can be verified against .cert
-// - .badSigData a valid and signed Data packet that cannot be verified against cert (signed using
-//   a different private key)
-// - .goodInterest is an Interest packet that can be verified against .cert
-// - .badSigInterest is a valid and signed Interest packet that cannot be verified against .cert
-//   (signed using a different private key)
-// - .goodInterestOldFormat is an Interest packet that can be verified against .cert (in the old
-//   signed Interest format)
-// - .badSigInterestOldFormat is a valid and signed Interest packet that cannot be verified against
-//   .cert (signed using a different private key and in the old signed Interest format)
-
 using SignatureDatasets = boost::mp11::mp_list<EcdsaDataset, RsaDataset>;
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
@@ -587,8 +587,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(VerifySignature, Dataset, SignatureDatasets)
   BOOST_CHECK(!verifySignature(unsignedData, invalidKey));
   BOOST_CHECK(!verifySignature(unsignedInterest1, invalidKey));
 
-  // - base version of verifySignature is tested transitively
-  // - pib::Key version is tested as part of key-chain.t.cpp (Security/TestKeyChain)
+  // - base version of verifySignature() is tested transitively
+  // - pib::Key version is tested in key-chain.t.cpp (Security/TestKeyChain)
 }
 
 BOOST_FIXTURE_TEST_CASE(VerifyHmac, KeyChainFixture)
@@ -663,7 +663,8 @@ const uint8_t sha256InterestUnrecognizedElements[] = {
   0x02, 0x03, 0x04
 };
 
-BOOST_AUTO_TEST_CASE(VerifyWithUnrecognizedElements) // Bug #4583
+BOOST_AUTO_TEST_CASE(VerifyWithUnrecognizedElements,
+  * ut::description("test for bug #4583"))
 {
   Data data(Block{sha256DataUnrecognizedElements});
   Interest interest(Block{sha256InterestUnrecognizedElements});

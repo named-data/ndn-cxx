@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -341,8 +341,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(FourOctets, T, ContainerTypes)
 
 BOOST_AUTO_TEST_SUITE_END() // ConstructFromIterators
 
-BOOST_AUTO_TEST_SUITE(NamingConvention)
-
 template<typename ArgType>
 struct ConventionTest
 {
@@ -354,9 +352,8 @@ struct ConventionTest
   std::function<bool(const Component&)> isComponent;
 };
 
-class ConventionMarker
+struct ConventionMarker
 {
-public:
   ConventionMarker()
   {
     name::setConventionEncoding(name::Convention::MARKER);
@@ -368,13 +365,12 @@ public:
   }
 };
 
-class ConventionTyped
+struct ConventionTyped
 {
 };
 
-class NumberWithMarker
+struct NumberWithMarker
 {
-public:
   using ConventionRev = ConventionMarker;
 
   ConventionTest<uint64_t>
@@ -389,9 +385,8 @@ public:
   }
 };
 
-class SegmentMarker
+struct SegmentMarker
 {
-public:
   using ConventionRev = ConventionMarker;
 
   ConventionTest<uint64_t>
@@ -406,9 +401,8 @@ public:
   }
 };
 
-class SegmentTyped
+struct SegmentTyped
 {
-public:
   using ConventionRev = ConventionTyped;
 
   ConventionTest<uint64_t>
@@ -423,9 +417,8 @@ public:
   }
 };
 
-class ByteOffsetTyped
+struct ByteOffsetTyped
 {
-public:
   using ConventionRev = ConventionTyped;
 
   ConventionTest<uint64_t>
@@ -440,9 +433,8 @@ public:
   }
 };
 
-class VersionMarker
+struct VersionMarker
 {
-public:
   using ConventionRev = ConventionMarker;
 
   ConventionTest<uint64_t>
@@ -457,9 +449,8 @@ public:
   }
 };
 
-class VersionTyped
+struct VersionTyped
 {
-public:
   using ConventionRev = ConventionTyped;
 
   ConventionTest<uint64_t>
@@ -474,9 +465,8 @@ public:
   }
 };
 
-class TimestampMarker
+struct TimestampMarker
 {
-public:
   using ConventionRev = ConventionMarker;
 
   ConventionTest<time::system_clock::time_point>
@@ -491,9 +481,8 @@ public:
   }
 };
 
-class TimestampTyped
+struct TimestampTyped
 {
-public:
   using ConventionRev = ConventionTyped;
 
   ConventionTest<time::system_clock::time_point>
@@ -508,9 +497,8 @@ public:
   }
 };
 
-class SequenceNumberMarker
+struct SequenceNumberMarker
 {
-public:
   using ConventionRev = ConventionMarker;
 
   ConventionTest<uint64_t>
@@ -525,9 +513,8 @@ public:
   }
 };
 
-class SequenceNumberTyped
+struct SequenceNumberTyped
 {
-public:
   using ConventionRev = ConventionTyped;
 
   ConventionTest<uint64_t>
@@ -542,7 +529,7 @@ public:
   }
 };
 
-using ConventionTests = boost::mp11::mp_list<
+using NamingConventionTests = boost::mp11::mp_list<
   NumberWithMarker,
   SegmentMarker,
   SegmentTyped,
@@ -555,23 +542,22 @@ using ConventionTests = boost::mp11::mp_list<
   SequenceNumberTyped
 >;
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(Convention, T, ConventionTests, T::ConventionRev)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(NamingConvention, T, NamingConventionTests, T::ConventionRev)
 {
-  Component invalidComponent1;
-  Component invalidComponent2("1234567890");
-
   auto test = T()();
-  const Name& expected = test.expected;
 
   Component actualComponent = test.makeComponent(test.value);
-  BOOST_CHECK_EQUAL(actualComponent, expected[0]);
+  BOOST_CHECK_EQUAL(actualComponent, test.expected[0]);
 
   Name actualName;
   test.append(actualName, test.value);
-  BOOST_CHECK_EQUAL(actualName, expected);
+  BOOST_CHECK_EQUAL(actualName, test.expected);
 
-  BOOST_CHECK_EQUAL(test.isComponent(expected[0]), true);
-  BOOST_CHECK_EQUAL(test.getValue(expected[0]), test.value);
+  BOOST_CHECK_EQUAL(test.isComponent(test.expected[0]), true);
+  BOOST_CHECK_EQUAL(test.getValue(test.expected[0]), test.value);
+
+  static const Component invalidComponent1;
+  static const Component invalidComponent2("1234567890");
 
   BOOST_CHECK_EQUAL(test.isComponent(invalidComponent1), false);
   BOOST_CHECK_EQUAL(test.isComponent(invalidComponent2), false);
@@ -579,8 +565,6 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Convention, T, ConventionTests, T::ConventionRe
   BOOST_CHECK_THROW(test.getValue(invalidComponent1), Component::Error);
   BOOST_CHECK_THROW(test.getValue(invalidComponent2), Component::Error);
 }
-
-BOOST_AUTO_TEST_SUITE_END() // NamingConvention
 
 BOOST_AUTO_TEST_CASE(Compare)
 {
@@ -609,6 +593,8 @@ BOOST_AUTO_TEST_CASE(Compare)
     for (size_t j = 0; j < comps.size(); ++j) {
       const auto& lhs = comps[i];
       const auto& rhs = comps[j];
+      BOOST_TEST_INFO_SCOPE("lhs = " << lhs);
+      BOOST_TEST_INFO_SCOPE("rhs = " << rhs);
       BOOST_CHECK_EQUAL(lhs == rhs, i == j);
       BOOST_CHECK_EQUAL(lhs != rhs, i != j);
       BOOST_CHECK_EQUAL(lhs <  rhs, i <  j);

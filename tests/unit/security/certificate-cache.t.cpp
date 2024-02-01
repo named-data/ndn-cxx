@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,31 +31,31 @@ class CertificateCacheFixture : public ClockFixture, public KeyChainFixture
 {
 public:
   CertificateCacheFixture()
-    : certCache(10_s)
   {
     identity = m_keyChain.createIdentity("/TestCertificateCache");
     cert = identity.getDefaultKey().getDefaultCertificate();
   }
 
   void
-  checkFindByInterest(const Name& name, bool canBePrefix, std::optional<Certificate> expected) const
+  checkFindByInterest(const Name& name, bool canBePrefix,
+                      const std::optional<Certificate>& expected) const
   {
     Interest interest(name);
     interest.setCanBePrefix(canBePrefix);
-    BOOST_TEST_CONTEXT(interest) {
-      auto found = certCache.find(interest);
-      if (expected) {
-        BOOST_REQUIRE(found != nullptr);
-        BOOST_CHECK_EQUAL(found->getName(), expected->getName());
-      }
-      else {
-        BOOST_CHECK(found == nullptr);
-      }
+    BOOST_TEST_INFO_SCOPE("Interest = " << interest);
+
+    auto found = certCache.find(interest);
+    if (expected) {
+      BOOST_REQUIRE(found != nullptr);
+      BOOST_CHECK_EQUAL(found->getName(), expected->getName());
+    }
+    else {
+      BOOST_CHECK(found == nullptr);
     }
   }
 
 public:
-  security::CertificateCache certCache;
+  security::CertificateCache certCache{10_s};
   Identity identity;
   Certificate cert;
 };

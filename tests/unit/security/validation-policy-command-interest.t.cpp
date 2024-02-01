@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,26 +38,27 @@ BOOST_AUTO_TEST_SUITE(Security)
 
 struct CommandInterestDefaultOptions
 {
-  static ValidationPolicyCommandInterest::Options
+  static auto
   getOptions()
   {
-    return {};
+    return ValidationPolicyCommandInterest::Options{};
   }
 };
 
-template<class T, class InnerPolicy>
+template<class ValidationOptions, class InnerPolicy>
 class CommandInterestPolicyWrapper : public ValidationPolicyCommandInterest
 {
 public:
   CommandInterestPolicyWrapper()
-    : ValidationPolicyCommandInterest(make_unique<InnerPolicy>(), T::getOptions())
+    : ValidationPolicyCommandInterest(make_unique<InnerPolicy>(), ValidationOptions::getOptions())
   {
   }
 };
 
-template<class T, class InnerPolicy = ValidationPolicySimpleHierarchy>
+template<class ValidationOptions = CommandInterestDefaultOptions,
+         class InnerPolicy = ValidationPolicySimpleHierarchy>
 class ValidationPolicyCommandInterestFixture
-  : public HierarchicalValidatorFixture<CommandInterestPolicyWrapper<T, InnerPolicy>>
+  : public HierarchicalValidatorFixture<CommandInterestPolicyWrapper<ValidationOptions, InnerPolicy>>
 {
 protected:
   Interest
@@ -81,13 +82,12 @@ protected:
   InterestSigner m_signer{this->m_keyChain};
 };
 
-BOOST_FIXTURE_TEST_SUITE(TestValidationPolicyCommandInterest,
-                         ValidationPolicyCommandInterestFixture<CommandInterestDefaultOptions>)
+BOOST_FIXTURE_TEST_SUITE(TestValidationPolicyCommandInterest, ValidationPolicyCommandInterestFixture<>)
 
 template<int secs>
 struct GracePeriodSeconds
 {
-  static ValidationPolicyCommandInterest::Options
+  static auto
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
@@ -141,7 +141,8 @@ BOOST_AUTO_TEST_CASE(DataPassthrough)
 using ValidationPolicyAcceptAllCommands = ValidationPolicyCommandInterestFixture<CommandInterestDefaultOptions,
                                                                                  ValidationPolicyAcceptAll>;
 
-BOOST_FIXTURE_TEST_CASE(SignedWithSha256, ValidationPolicyAcceptAllCommands) // Bug 4635
+BOOST_FIXTURE_TEST_CASE(SignedWithSha256, ValidationPolicyAcceptAllCommands,
+  * ut::description("test for bug #4635"))
 {
   auto i1 = m_signer.makeCommandInterest("/hello/world/CMD", signingWithSha256());
   VALIDATE_SUCCESS(i1, "Should succeed (within grace period)");
@@ -337,6 +338,19 @@ BOOST_AUTO_TEST_CASE(TimestampReorderNegative)
 
 BOOST_AUTO_TEST_SUITE_END() // Rejects
 
+template<ssize_t count>
+struct MaxRecords
+{
+  static auto
+  getOptions()
+  {
+    ValidationPolicyCommandInterest::Options options;
+    options.gracePeriod = 15_s;
+    options.maxRecords = count;
+    return options;
+  }
+};
+
 BOOST_AUTO_TEST_SUITE(Options)
 
 using NonPositiveGracePeriods = boost::mp11::mp_list<GracePeriodSeconds<0>, GracePeriodSeconds<-1>>;
@@ -359,20 +373,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(GraceNonPositive, GracePeriod, NonPositiveGrace
   BOOST_TEST(this->lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
-class LimitedRecordsOptions
-{
-public:
-  static ValidationPolicyCommandInterest::Options
-  getOptions()
-  {
-    ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = 15_s;
-    options.maxRecords = 3;
-    return options;
-  }
-};
-
-BOOST_FIXTURE_TEST_CASE(LimitedRecords, ValidationPolicyCommandInterestFixture<LimitedRecordsOptions>)
+BOOST_FIXTURE_TEST_CASE(LimitedRecords, ValidationPolicyCommandInterestFixture<MaxRecords<3>>)
 {
   Identity id1 = this->addSubCertificate("/Security/ValidatorFixture/Sub1", identity);
   this->cache.insert(id1.getDefaultKey().getDefaultCertificate());
@@ -410,20 +411,7 @@ BOOST_FIXTURE_TEST_CASE(LimitedRecords, ValidationPolicyCommandInterestFixture<L
   VALIDATE_SUCCESS(i01, "Should succeed despite timestamp is reordered, because record has been evicted");
 }
 
-class UnlimitedRecordsOptions
-{
-public:
-  static ValidationPolicyCommandInterest::Options
-  getOptions()
-  {
-    ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = 15_s;
-    options.maxRecords = -1;
-    return options;
-  }
-};
-
-BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicyCommandInterestFixture<UnlimitedRecordsOptions>)
+BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicyCommandInterestFixture<MaxRecords<-1>>)
 {
   std::vector<Identity> identities;
   for (size_t i = 0; i < 20; ++i) {
@@ -444,20 +432,7 @@ BOOST_FIXTURE_TEST_CASE(UnlimitedRecords, ValidationPolicyCommandInterestFixture
   BOOST_TEST(lastError.getCode() == ValidationError::POLICY_ERROR);
 }
 
-class ZeroRecordsOptions
-{
-public:
-  static ValidationPolicyCommandInterest::Options
-  getOptions()
-  {
-    ValidationPolicyCommandInterest::Options options;
-    options.gracePeriod = 15_s;
-    options.maxRecords = 0;
-    return options;
-  }
-};
-
-BOOST_FIXTURE_TEST_CASE(ZeroRecords, ValidationPolicyCommandInterestFixture<ZeroRecordsOptions>)
+BOOST_FIXTURE_TEST_CASE(ZeroRecords, ValidationPolicyCommandInterestFixture<MaxRecords<0>>)
 {
   auto i1 = makeCommandInterest(identity); // signed at 0s
   advanceClocks(1_s);
@@ -468,10 +443,9 @@ BOOST_FIXTURE_TEST_CASE(ZeroRecords, ValidationPolicyCommandInterestFixture<Zero
   VALIDATE_SUCCESS(i1, "Should succeed despite timestamp is reordered, because record isn't kept");
 }
 
-class LimitedRecordLifetimeOptions
+struct LimitedRecordLifetimeOptions
 {
-public:
-  static ValidationPolicyCommandInterest::Options
+  static auto
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
@@ -500,15 +474,14 @@ BOOST_FIXTURE_TEST_CASE(LimitedRecordLifetime, ValidationPolicyCommandInterestFi
   VALIDATE_SUCCESS(i2, "Should succeed despite timestamp is reordered, because record has been expired");
 }
 
-class ZeroRecordLifetimeOptions
+struct ZeroRecordLifetimeOptions
 {
-public:
-  static ValidationPolicyCommandInterest::Options
+  static auto
   getOptions()
   {
     ValidationPolicyCommandInterest::Options options;
     options.gracePeriod = 15_s;
-    options.recordLifetime = time::seconds::zero();
+    options.recordLifetime = 0_s;
     return options;
   }
 };

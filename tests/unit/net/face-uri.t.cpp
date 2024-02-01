@@ -65,29 +65,29 @@ protected:
   void
   runTest(const std::string& request, bool shouldSucceed, const std::string& expectedUri = "")
   {
-    BOOST_TEST_CONTEXT(std::quoted(request) << " should " << (shouldSucceed ? "succeed" : "fail")) {
-      bool didInvokeCb = false;
-      FaceUri uri(request);
-      uri.canonize(
-        [&] (const FaceUri& canonicalUri) {
-          BOOST_CHECK_EQUAL(didInvokeCb, false);
-          didInvokeCb = true;
-          BOOST_CHECK_EQUAL(shouldSucceed, true);
-          if (shouldSucceed) {
-            BOOST_CHECK_EQUAL(canonicalUri.toString(), expectedUri);
-          }
-        },
-        [&] (const std::string&) {
-          BOOST_CHECK_EQUAL(didInvokeCb, false);
-          didInvokeCb = true;
-          BOOST_CHECK_EQUAL(shouldSucceed, false);
-        },
-        m_io, 30_s);
+    BOOST_TEST_INFO_SCOPE(std::quoted(request) << " should " << (shouldSucceed ? "succeed" : "fail"));
 
-      m_io.run();
-      BOOST_CHECK_EQUAL(didInvokeCb, true);
-      m_io.restart();
-    }
+    bool didInvokeCb = false;
+    FaceUri uri(request);
+    uri.canonize(
+      [&] (const FaceUri& canonicalUri) {
+        BOOST_CHECK_EQUAL(didInvokeCb, false);
+        didInvokeCb = true;
+        BOOST_CHECK_EQUAL(shouldSucceed, true);
+        if (shouldSucceed) {
+          BOOST_CHECK_EQUAL(canonicalUri.toString(), expectedUri);
+        }
+      },
+      [&] (const std::string&) {
+        BOOST_CHECK_EQUAL(didInvokeCb, false);
+        didInvokeCb = true;
+        BOOST_CHECK_EQUAL(shouldSucceed, false);
+      },
+      m_io, 30_s);
+
+    m_io.run();
+    BOOST_CHECK_EQUAL(didInvokeCb, true);
+    m_io.restart();
   }
 
 protected:
@@ -208,7 +208,7 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture,
-  * boost::unit_test::expected_failures(1))
+  * ut::expected_failures(1))
 {
   SKIP_IF_IPV4_UNAVAILABLE();
 
@@ -236,7 +236,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture,
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture,
-  * boost::unit_test::expected_failures(1))
+  * ut::expected_failures(1))
 {
   SKIP_IF_IPV6_UNAVAILABLE();
 
@@ -338,7 +338,7 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture,
-  * boost::unit_test::expected_failures(1))
+  * ut::expected_failures(1))
 {
   SKIP_IF_IPV4_UNAVAILABLE();
 
@@ -377,7 +377,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture,
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture,
-  * boost::unit_test::expected_failures(1))
+  * ut::expected_failures(1))
 {
   SKIP_IF_IPV6_UNAVAILABLE();
 
@@ -401,7 +401,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture,
 }
 
 BOOST_AUTO_TEST_CASE(ParseUnix,
-  * boost::unit_test::expected_failures(1))
+  * ut::expected_failures(1))
 {
   FaceUri uri;
 
@@ -470,7 +470,7 @@ BOOST_FIXTURE_TEST_CASE(CanonizeEther, CanonizeFixture)
 }
 
 BOOST_AUTO_TEST_CASE(ParseDev,
-  * boost::unit_test::expected_failures(1))
+  * ut::expected_failures(1))
 {
   FaceUri uri;
 
@@ -591,7 +591,8 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUnsupported, CanonizeFixture)
   runTest("fd://0", false);
 }
 
-BOOST_AUTO_TEST_CASE(Bug1635)
+BOOST_AUTO_TEST_CASE(Ipv4MappedIpv6Address,
+  * ut::description("test for bug #1635"))
 {
   FaceUri uri;
 

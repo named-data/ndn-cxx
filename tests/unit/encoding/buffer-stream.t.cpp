@@ -59,7 +59,8 @@ BOOST_AUTO_TEST_CASE(Write)
   BOOST_CHECK_EQUAL(buf->at(1), 0x22);
 }
 
-BOOST_AUTO_TEST_CASE(Destructor) // Bug 3727
+BOOST_AUTO_TEST_CASE(Destructor,
+  * ut::description("test for bug #3727"))
 {
   auto os = std::make_unique<OBufferStream>();
   auto buf = os->buf();
@@ -70,7 +71,8 @@ BOOST_AUTO_TEST_CASE(Destructor) // Bug 3727
   BOOST_CHECK_EQUAL(buf->size(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(Close) // Bug 5240
+BOOST_AUTO_TEST_CASE(Close,
+  * ut::description("test for bug #5240"))
 {
   OBufferStream os;
   os << "foo";

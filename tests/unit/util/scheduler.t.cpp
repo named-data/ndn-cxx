@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -201,7 +201,8 @@ BOOST_FIXTURE_TEST_CASE(CancelAll, CancelAllFixture)
   BOOST_CHECK_EQUAL(count, 0);
 }
 
-BOOST_AUTO_TEST_CASE(CancelAllWithScopedEventId) // Bug 3691
+BOOST_AUTO_TEST_CASE(CancelAllWithScopedEventId,
+  * ut::description("test for bug #3691"))
 {
   ScopedEventId eid = scheduler.schedule(10_ms, []{});
   scheduler.cancelAllEvents();

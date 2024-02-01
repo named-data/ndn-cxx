@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestCertificateFetcherDirectFetch)
 
 struct Cert {};
-struct Timeout {};
 struct Nack {};
+struct Timeout {};
 
 template<class Response>
 class CertificateFetcherDirectFetchFixture : public HierarchicalValidatorFixture<ValidationPolicySimpleHierarchy,
@@ -53,7 +53,6 @@ public:
     BOTH
   };
 
-public:
   CertificateFetcherDirectFetchFixture()
     : data("/Security/ValidatorFixture/Sub1/Sub3/Data")
     , interest("/Security/ValidatorFixture/Sub1/Sub3/Interest")
@@ -85,7 +84,22 @@ public:
   }
 
   void
-  makeResponse(const Interest& interest);
+  makeResponse(const Interest& interest)
+  {
+    if constexpr (std::is_same_v<Response, Cert>) {
+      auto cert = cache.find(interest);
+      if (cert == nullptr) {
+        return;
+      }
+      face.receive(*cert);
+    }
+    else if constexpr (std::is_same_v<Response, Nack>) {
+      face.receive(makeNack(interest, lp::NackReason::NO_ROUTE));
+    }
+    else {
+      // do nothing
+    }
+  }
 
   void
   setResponseType(ResponseType type)
@@ -100,32 +114,7 @@ public:
   ResponseType responseType = ResponseType::INFRASTRUCTURE;
 };
 
-template<>
-void
-CertificateFetcherDirectFetchFixture<Cert>::makeResponse(const Interest& interest)
-{
-  auto cert = cache.find(interest);
-  if (cert == nullptr) {
-    return;
-  }
-  face.receive(*cert);
-}
-
-template<>
-void
-CertificateFetcherDirectFetchFixture<Timeout>::makeResponse(const Interest& interest)
-{
-  // do nothing
-}
-
-template<>
-void
-CertificateFetcherDirectFetchFixture<Nack>::makeResponse(const Interest& interest)
-{
-  face.receive(makeNack(interest, lp::NackReason::NO_ROUTE));
-}
-
-using Failures = boost::mp11::mp_list<Timeout, Nack>;
+using FailureModes = boost::mp11::mp_list<Nack, Timeout>;
 
 BOOST_FIXTURE_TEST_CASE(ValidateSuccessData, CertificateFetcherDirectFetchFixture<Cert>)
 {
@@ -158,7 +147,8 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccessDataDirectOnly, CertificateFetcherDirectF
   }
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureData, T, Failures, CertificateFetcherDirectFetchFixture<T>)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureData, T, FailureModes,
+                                 CertificateFetcherDirectFetchFixture<T>)
 {
   VALIDATE_FAILURE(this->data, "Should fail, as all interests either NACKed or timeout");
   BOOST_TEST(this->lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);
@@ -179,7 +169,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureData, T, Failures, CertificateFe
   }
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataDirectOnly, T, Failures, CertificateFetcherDirectFetchFixture<T>)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataDirectOnly, T, FailureModes,
+                                 CertificateFetcherDirectFetchFixture<T>)
 {
   this->setResponseType(CertificateFetcherDirectFetchFixture<T>::ResponseType::DIRECT);
   static_cast<CertificateFetcherDirectFetch&>(this->validator.getFetcher()).setSendDirectInterestOnly(true);
@@ -195,7 +186,8 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataDirectOnly, T, Failures, Cer
   }
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataNoTagDirectOnly, T, Failures, CertificateFetcherDirectFetchFixture<T>)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureDataNoTagDirectOnly, T, FailureModes,
+                                 CertificateFetcherDirectFetchFixture<T>)
 {
   this->setResponseType(CertificateFetcherDirectFetchFixture<T>::ResponseType::DIRECT);
   static_cast<CertificateFetcherDirectFetch&>(this->validator.getFetcher()).setSendDirectInterestOnly(true);
@@ -226,7 +218,8 @@ BOOST_FIXTURE_TEST_CASE(ValidateSuccessInterest, CertificateFetcherDirectFetchFi
   }
 }
 
-BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureInterest, T, Failures, CertificateFetcherDirectFetchFixture<T>)
+BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateFailureInterest, T, FailureModes,
+                                 CertificateFetcherDirectFetchFixture<T>)
 {
   VALIDATE_FAILURE(this->interest, "Should fail, as all interests either NACKed or timeout");
   BOOST_TEST(this->lastError.getCode() == ValidationError::CANNOT_RETRIEVE_CERT);

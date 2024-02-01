@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -824,7 +824,8 @@ BOOST_AUTO_TEST_CASE(OutOfScopeTimeout)
   BOOST_CHECK_EQUAL(nAfterSegmentTimedOut, 2);
 }
 
-BOOST_AUTO_TEST_CASE(UncanceledPendingInterestBug) // Bug #4770
+BOOST_AUTO_TEST_CASE(UncanceledPendingInterest,
+  * ut::description("test for bug #4770"))
 {
   DummyValidator acceptValidator;
   auto fetcher = SegmentFetcher::start(face, Interest("/hello/world"), acceptValidator);

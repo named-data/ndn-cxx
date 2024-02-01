@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -483,7 +483,8 @@ BOOST_AUTO_TEST_CASE(CustomTlvs)
   BOOST_CHECK(!info.getCustomTlv(0x81));
 }
 
-BOOST_AUTO_TEST_CASE(CustomTlvsEncoding) // Bug #3914
+BOOST_AUTO_TEST_CASE(CustomTlvsEncoding,
+  * ut::description("test for bug #3914"))
 {
   SignatureInfo info1(tlv::SignatureSha256WithRsa);
   info1.addCustomTlv(makeStringBlock(102, "First"));

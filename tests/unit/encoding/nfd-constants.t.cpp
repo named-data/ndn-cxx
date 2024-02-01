@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -73,25 +73,25 @@ BOOST_AUTO_TEST_CASE(PrintFaceEventKind)
 BOOST_AUTO_TEST_CASE(ParseRouteOrigin)
 {
   auto expectSuccess = [] (const std::string& input, RouteOrigin expected) {
-    BOOST_TEST_CONTEXT("input = " << std::quoted(input)) {
-      std::istringstream is(input);
-      RouteOrigin routeOrigin;
-      is >> routeOrigin;
+    BOOST_TEST_INFO_SCOPE("input = " << std::quoted(input));
 
-      BOOST_CHECK(!is.fail());
-      BOOST_CHECK_EQUAL(routeOrigin, expected);
-    }
+    std::istringstream is(input);
+    RouteOrigin routeOrigin;
+    is >> routeOrigin;
+
+    BOOST_CHECK(!is.fail());
+    BOOST_CHECK_EQUAL(routeOrigin, expected);
   };
 
   auto expectFail = [] (const std::string& input) {
-    BOOST_TEST_CONTEXT("input = " << std::quoted(input)) {
-      std::istringstream is(input);
-      RouteOrigin routeOrigin;
-      is >> routeOrigin;
+    BOOST_TEST_INFO_SCOPE("input = " << std::quoted(input));
 
-      BOOST_CHECK(is.fail());
-      BOOST_CHECK_EQUAL(routeOrigin, ROUTE_ORIGIN_NONE);
-    }
+    std::istringstream is(input);
+    RouteOrigin routeOrigin;
+    is >> routeOrigin;
+
+    BOOST_CHECK(is.fail());
+    BOOST_CHECK_EQUAL(routeOrigin, ROUTE_ORIGIN_NONE);
   };
 
   expectSuccess("none", ROUTE_ORIGIN_NONE);
@@ -133,10 +133,10 @@ BOOST_AUTO_TEST_CASE(PrintRouteFlags)
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAGS_NONE), "none");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAG_CHILD_INHERIT), "child-inherit");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(ROUTE_FLAG_CAPTURE), "capture");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteFlags>(
-                    ROUTE_FLAG_CHILD_INHERIT | ROUTE_FLAG_CAPTURE)), "child-inherit|capture");
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(static_cast<RouteFlags>(
-                    ROUTE_FLAG_CAPTURE | 0x9c)), "capture|0x9c");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(
+                      static_cast<RouteFlags>(ROUTE_FLAG_CHILD_INHERIT | ROUTE_FLAG_CAPTURE)), "child-inherit|capture");
+  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(
+                      static_cast<RouteFlags>(ROUTE_FLAG_CAPTURE | 0x9c)), "capture|0x9c");
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestNfdConstants
