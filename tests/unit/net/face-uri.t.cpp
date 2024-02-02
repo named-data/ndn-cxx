@@ -208,10 +208,9 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalUdp, CanonizeFixture)
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv4)
   * ut::expected_failures(1))
 {
-  SKIP_IF_IPV4_UNAVAILABLE();
-
   // IPv4 unicast
   runTest("udp4://192.0.2.1:6363", true, "udp4://192.0.2.1:6363");
   runTest("udp://192.0.2.2:6363", true, "udp4://192.0.2.2:6363");
@@ -236,10 +235,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeUdpV4, CanonizeFixture,
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeUdpV6, CanonizeFixture,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv6)
   * ut::expected_failures(1))
 {
-  SKIP_IF_IPV6_UNAVAILABLE();
-
   // IPv6 unicast
   runTest("udp6://[2001:db8::1]:6363", true, "udp6://[2001:db8::1]:6363");
   runTest("udp6://[2001:db8::1]", true, "udp6://[2001:db8::1]:6363");
@@ -338,10 +336,9 @@ BOOST_FIXTURE_TEST_CASE(IsCanonicalTcp, CanonizeFixture)
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv4)
   * ut::expected_failures(1))
 {
-  SKIP_IF_IPV4_UNAVAILABLE();
-
   // IPv4 unicast
   runTest("tcp4://192.0.2.1:6363", true, "tcp4://192.0.2.1:6363");
   runTest("tcp://192.0.2.2:6363", true, "tcp4://192.0.2.2:6363");
@@ -377,10 +374,9 @@ BOOST_FIXTURE_TEST_CASE(CanonizeTcpV4, CanonizeFixture,
 }
 
 BOOST_FIXTURE_TEST_CASE(CanonizeTcpV6, CanonizeFixture,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv6)
   * ut::expected_failures(1))
 {
-  SKIP_IF_IPV6_UNAVAILABLE();
-
   // IPv6 unicast
   runTest("tcp6://[2001:db8::1]:6363", true, "tcp6://[2001:db8::1]:6363");
   runTest("tcp6://[2001:db8::1]", true, "tcp6://[2001:db8::1]:6363");

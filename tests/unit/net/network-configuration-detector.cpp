@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,36 +27,23 @@
 
 namespace ndn::tests {
 
-bool
-NetworkConfigurationDetector::hasIpv4()
-{
-  if (!s_isInitialized) {
-    detect();
-  }
-  return s_hasIpv4;
-}
-
-bool
-NetworkConfigurationDetector::hasIpv6()
-{
-  if (!s_isInitialized) {
-    detect();
-  }
-  return s_hasIpv6;
-}
-
 void
 NetworkConfigurationDetector::detect()
 {
+  static bool isInitialized = false;
+  if (isInitialized) {
+    return;
+  }
+
   boost::asio::io_context io;
   boost::asio::ip::udp::resolver resolver(io);
 
   boost::system::error_code ec;
-  // The specified hostname must have both A and AAAA records
+  // Use a hostname known to have both A and AAAA records
   auto results = resolver.resolve("a.root-servers.net", "", ec);
-
   if (!ec) {
     for (const auto& i : results) {
+      s_hasIp = true;
       if (i.endpoint().address().is_v4()) {
         s_hasIpv4 = true;
       }
@@ -65,7 +52,17 @@ NetworkConfigurationDetector::detect()
       }
     }
   }
-  s_isInitialized = true;
+
+  if (!s_hasIp) {
+    s_hasIp.message() << "IP connectivity is unavailable";
+  }
+  if (!s_hasIpv4) {
+    s_hasIpv4.message() << "IPv4 connectivity is unavailable";
+  }
+  if (!s_hasIpv6) {
+    s_hasIpv6.message() << "IPv6 connectivity is unavailable";
+  }
+  isInitialized = true;
 }
 
 } // namespace ndn::tests

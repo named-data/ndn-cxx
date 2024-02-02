@@ -36,10 +36,8 @@ class DnsFixture
 {
 public:
   void
-  onSuccess(const boost::asio::ip::address& resolvedAddress,
-            const boost::asio::ip::address& expectedAddress,
-            bool isValid,
-            bool shouldCheckAddress = false)
+  onSuccess(const ip::address& resolvedAddress, const ip::address& expectedAddress,
+            bool isValid, bool shouldCheckAddress = false)
   {
     ++m_nSuccesses;
 
@@ -72,10 +70,9 @@ protected:
 BOOST_AUTO_TEST_SUITE(Net)
 BOOST_FIXTURE_TEST_SUITE(TestDns, DnsFixture)
 
-BOOST_AUTO_TEST_CASE(Failure)
+BOOST_AUTO_TEST_CASE(Failure,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv4OrIpv6))
 {
-  SKIP_IF_IP_UNAVAILABLE();
-
   asyncResolve("nothost.nothost.nothost.arpa",
                std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v4(), false, false),
                [this] (auto&&...) { onFailure(true); },
@@ -86,10 +83,9 @@ BOOST_AUTO_TEST_CASE(Failure)
   BOOST_CHECK_EQUAL(m_nSuccesses, 0);
 }
 
-BOOST_AUTO_TEST_CASE(Ipv4)
+BOOST_AUTO_TEST_CASE(Ipv4,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv4))
 {
-  SKIP_IF_IPV4_UNAVAILABLE();
-
   asyncResolve("192.0.2.1",
                std::bind(&DnsFixture::onSuccess, this, _1, ip::make_address_v4("192.0.2.1"), true, true),
                [this] (auto&&...) { onFailure(false); },
@@ -100,10 +96,9 @@ BOOST_AUTO_TEST_CASE(Ipv4)
   BOOST_CHECK_EQUAL(m_nSuccesses, 1);
 }
 
-BOOST_AUTO_TEST_CASE(Ipv6)
+BOOST_AUTO_TEST_CASE(Ipv6,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv6))
 {
-  SKIP_IF_IPV6_UNAVAILABLE();
-
   asyncResolve("ipv6.google.com", // only IPv6 address should be available
                std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v6(), true, false),
                [this] (auto&&...) { onFailure(false); },
@@ -120,11 +115,10 @@ BOOST_AUTO_TEST_CASE(Ipv6)
   BOOST_CHECK_EQUAL(m_nSuccesses, 2);
 }
 
-BOOST_AUTO_TEST_CASE(WithAddressSelector)
+BOOST_AUTO_TEST_CASE(WithAddressSelector,
+  * ut::precondition(NetworkConfigurationDetector::hasIpv4)
+  * ut::precondition(NetworkConfigurationDetector::hasIpv6))
 {
-  SKIP_IF_IPV4_UNAVAILABLE();
-  SKIP_IF_IPV6_UNAVAILABLE();
-
   asyncResolve("named-data.net",
                std::bind(&DnsFixture::onSuccess, this, _1, ip::address_v4(), true, false),
                [this] (auto&&...) { onFailure(false); },
