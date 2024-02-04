@@ -329,7 +329,7 @@ namespace nonstd
 # define scope_ENABLE_IF_R_(VA, R)  R
 #endif
 
-// Method enabling (funtion template argument):
+// Method enabling (function template argument):
 
 #if scope_HAVE( TYPE_TRAITS ) && scope_HAVE( DEFAULT_FUNCTION_TEMPLATE_ARG )
 // VS 2013 seems to have trouble with SFINAE for default non-type arguments:
@@ -498,7 +498,7 @@ struct conditional<false, T, F> { typedef F type; };
     template< class T > struct reference_wrapper{ typedef T type; };
 #endif
 
-} // namepsace std11
+} // namespace std11
 
 // C++14 emulation:
 
@@ -574,7 +574,7 @@ struct same_as : std11::integral_constant<bool, std11::is_same<T,U>::value && st
 template< class T >
 struct type_identity { typedef T type; };
 
-} // namepsace std20
+} // namespace std20
 
 namespace detail {
 
@@ -827,7 +827,9 @@ public:
         other.release();
     }
 
-    scope_constexpr_ext ~scope_success() scope_noexcept
+    scope_constexpr_ext ~scope_success() scope_noexcept_op(
+        scope_noexcept_op(this->exit_function())
+    )
     {
         if ( uncaught_on_creation >= detail::uncaught_exceptions() )
             exit_function();
