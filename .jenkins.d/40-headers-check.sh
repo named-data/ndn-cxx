@@ -11,7 +11,7 @@ if [[ -n $DISABLE_HEADERS_CHECK ]]; then
   exit 0
 fi
 
-if [[ $ID_LIKE == *fedora* ]]; then
+if [[ $ID_LIKE == *linux* && -d /usr/local/lib64/pkgconfig ]]; then
   export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
 fi
 

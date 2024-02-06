@@ -161,37 +161,37 @@ been installed:
     sudo ldconfig
 
 .. note::
-  When the library is installed in a non-default location (in general: not in ``/usr/lib``
-  or ``/usr/local/lib``; on some Linux distros like Fedora and its derivatives, including
-  CentOS: not in ``/usr/lib``), the following additional actions may be necessary.
+  On Linux, when the library is installed in a non-default location (generally, not in
+  ``/usr/lib`` or ``/usr/local/lib``), the following additional actions may be necessary.
 
-  The library installation path should be added to ``/etc/ld.so.conf`` or in
-  ``/etc/ld.so.conf.d/*.conf`` **before** running ``ldconfig``. For example:
+  The library installation path should be added to ``/etc/ld.so.conf`` or to
+  ``/etc/ld.so.conf.d/*.conf`` before running ``ldconfig``. For example:
 
   .. code-block:: sh
 
-      echo /usr/local/lib | sudo tee /etc/ld.so.conf.d/ndn-cxx.conf
+      echo /usr/local/lib64 | sudo tee /etc/ld.so.conf.d/ndn-cxx.conf
+      sudo ldconfig
 
   Alternatively, the ``LD_LIBRARY_PATH`` environment variable can be set to point to
   the installation directory of the shared library:
 
   .. code-block:: sh
 
-      export LD_LIBRARY_PATH=/usr/local/lib
+      export LD_LIBRARY_PATH=/usr/local/lib64
 
 The ``./waf install`` command installs the following files:
 
--  ``<LIBPATH>/libndn-cxx.a``: static NDN C++ library (if enabled).
--  ``<LIBPATH>/libndn-cxx.so``, ``<LIBPATH>/libndn-cxx.so.<VERSION>`` (on Linux),
-   ``<LIBPATH>/libndn-cxx.dylib``, ``<LIBPATH>/libndn-cxx.<VERSION>.dylib`` (on macOS):
+-  ``<LIBDIR>/libndn-cxx.a``: static NDN C++ library (if enabled).
+-  ``<LIBDIR>/libndn-cxx.so``, ``<LIBDIR>/libndn-cxx.so.<VERSION>`` (on Linux),
+   ``<LIBDIR>/libndn-cxx.dylib``, ``<LIBDIR>/libndn-cxx.<VERSION>.dylib`` (on macOS):
    shared NDN C++ library (if enabled).
--  ``<LIBPATH>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all necessary flags to
+-  ``<LIBDIR>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all necessary flags to
    build against the library. For example, if the ``pkg-config`` or ``pkgconf-pkg-config``
    package is installed and ``PKG_CONFIG_PATH`` is configured properly (or if
-   ``<LIBPATH>/pkgconfig`` is a default search path), the command ``pkg-config --cflags
+   ``<LIBDIR>/pkgconfig`` is a default search path), the command ``pkg-config --cflags
    --libs libndn-cxx`` will return all necessary compile and link flags for the library.
--  ``<BINPATH>/ndnsec``: command-line tool to manage NDN keys and certificates.
--  ``<BINPATH>/ndnsec-*``: convenience aliases for ``ndnsec`` tools.
+-  ``<BINDIR>/ndnsec``: command-line tool to manage NDN keys and certificates.
+-  ``<BINDIR>/ndnsec-*``: convenience aliases for ``ndnsec`` tools.
 
 If configured with tests (``./waf configure --with-tests``), the above commands
 will also produce:
