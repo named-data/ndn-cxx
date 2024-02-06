@@ -3,16 +3,15 @@ FROM gcc:12-bookworm
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         dpkg-dev \
-        libboost-atomic-dev \
         libboost-chrono-dev \
         libboost-date-time-dev \
+        libboost-dev \
         libboost-filesystem-dev \
         libboost-iostreams-dev \
         libboost-log-dev \
         libboost-program-options-dev \
-        libboost-regex-dev \
         libboost-stacktrace-dev \
-        libboost-system-dev \
+        libboost-thread-dev \
         pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
