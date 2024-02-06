@@ -827,9 +827,10 @@ public:
         other.release();
     }
 
-    scope_constexpr_ext ~scope_success() scope_noexcept_op(
-        scope_noexcept_op(this->exit_function())
-    )
+    scope_constexpr_ext ~scope_success()
+#if !scope_BETWEEN(scope_COMPILER_GNUC_VERSION, 1, 900) // GCC >= 9, issue #12
+        scope_noexcept_op( scope_noexcept_op(this->exit_function()) )
+#endif
     {
         if ( uncaught_on_creation >= detail::uncaught_exceptions() )
             exit_function();
