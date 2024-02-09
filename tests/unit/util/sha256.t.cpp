@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,6 +25,8 @@
 #include "tests/boost-test.hpp"
 
 #include <boost/endian/conversion.hpp>
+
+#include <array>
 #include <sstream>
 
 namespace ndn::tests {
@@ -114,12 +116,12 @@ BOOST_AUTO_TEST_CASE(InsertionOperatorString)
 
 BOOST_AUTO_TEST_CASE(InsertionOperatorUnsignedInt)
 {
-  const uint64_t input[] = {1, 2, 3, 4};
+  const std::array input{1, 2, 3, 4};
   auto expected = fromHex("7236c00c170036c6de133a878210ddd58567aa1d0619a0f70f69e38ae6f916e9");
 
   Sha256 statefulSha256;
-  for (size_t i = 0; i < sizeof(input) / sizeof(uint64_t); ++i) {
-    statefulSha256 << boost::endian::native_to_big(input[i]);
+  for (auto i : input) {
+    statefulSha256 << boost::endian::native_to_big(static_cast<uint64_t>(i));
   }
   ConstBufferPtr digest = statefulSha256.computeDigest();
 

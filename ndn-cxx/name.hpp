@@ -44,12 +44,10 @@ using PartialName = Name;
 class Name : private boost::totally_ordered<Name>
 {
 public: // nested types
-  using Error = name::Component::Error;
-
   using Component = name::Component;
-  using component_container = std::vector<Component>;
+  using Error = Component::Error;
 
-  // Name appears as a container of name components
+  // Name appears as an ordered sequence of name components
   using value_type             = Component;
   using allocator_type         = void;
   using reference              = Component&;
@@ -60,8 +58,8 @@ public: // nested types
   using const_iterator         = const Component*;
   using reverse_iterator       = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-  using difference_type        = component_container::difference_type;
-  using size_type              = component_container::size_type;
+  using difference_type        = std::vector<Component>::difference_type;
+  using size_type              = std::vector<Component>::size_type;
 
 public: // constructors, encoding, decoding
   /**
@@ -344,13 +342,14 @@ public: // modifiers
     return append(Component(tlv::GenericNameComponent, value));
   }
 
-  /** @brief Append a `NameComponent` of TLV-TYPE @p type, copying the TLV-VALUE from a range.
-   *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
-   *                   implementation is available when it is a @c RandomAccessIterator.
-   *  @param type      the TLV-TYPE.
-   *  @param first     beginning of the range.
-   *  @param last      past-end of the range.
-   *  @return A reference to this Name, to allow chaining.
+  /**
+   * @brief Append a `NameComponent` of TLV-TYPE @p type, copying the TLV-VALUE from a range.
+   * @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
+   *                  implementation is available when it is a @c RandomAccessIterator.
+   * @param type      the TLV-TYPE.
+   * @param first     beginning of the range.
+   * @param last      past-end of the range.
+   * @return A reference to this Name, to allow chaining.
    */
   template<class Iterator>
   Name&
@@ -359,12 +358,13 @@ public: // modifiers
     return append(Component(type, first, last));
   }
 
-  /** @brief Append a `GenericNameComponent`, copying the TLV-VALUE from a range.
-   *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
-   *                   implementation is available when it is a @c RandomAccessIterator.
-   *  @param first     beginning of the range.
-   *  @param last      past-end of the range.
-   *  @return A reference to this Name, to allow chaining.
+  /**
+   * @brief Append a `GenericNameComponent`, copying the TLV-VALUE from a range.
+   * @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
+   *                  implementation is available when it is a @c RandomAccessIterator.
+   * @param first     beginning of the range.
+   * @param last      past-end of the range.
+   * @return A reference to this Name, to allow chaining.
    */
   template<class Iterator>
   Name&
@@ -373,10 +373,11 @@ public: // modifiers
     return append(Component(tlv::GenericNameComponent, first, last));
   }
 
-  /** @brief Append a `GenericNameComponent`, copying TLV-VALUE from a null-terminated string.
-   *  @param str a null-terminated string. Bytes from the string are copied as is, and not
-   *             interpreted as URI component.
-   *  @return A reference to this Name, to allow chaining.
+  /**
+   * @brief Append a `GenericNameComponent`, copying the TLV-VALUE from a null-terminated string.
+   * @param str a null-terminated string. Bytes from the string are copied as is, and not
+   *            interpreted as a URI component.
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   append(const char* str)
@@ -384,9 +385,10 @@ public: // modifiers
     return append(Component(str));
   }
 
-  /** @brief Append a PartialName.
-   *  @param name the components to append
-   *  @return A reference to this Name, to allow chaining.
+  /**
+   * @brief Append a PartialName.
+   * @param name the components to append
+   * @return A reference to this Name, to allow chaining.
    */
   Name&
   append(const PartialName& name);
@@ -402,15 +404,16 @@ public: // modifiers
     return append(Component::fromNumber(number));
   }
 
-  /** @brief Append a component with a marked number.
-   *  @param marker 1-octet marker
-   *  @param number the number
+  /**
+   * @brief Append a component with a marked number.
+   * @param marker 1-octet marker
+   * @param number the number
    *
-   *  The component is encoded as a 1-octet marker, followed by a NonNegativeInteger.
+   * The component is encoded as a 1-octet marker, followed by a NonNegativeInteger.
    *
-   *  @return A reference to this Name, to allow chaining.
-   *  @sa NDN Naming Conventions revision 1 (obsolete)
-   *      https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
+   * @return A reference to this Name, to allow chaining.
+   * @sa NDN Naming Conventions revision 1 (obsolete)
+   *     https://named-data.net/wp-content/uploads/2014/08/ndn-tr-22-ndn-memo-naming-conventions.pdf
    */
   Name&
   appendNumberWithMarker(uint8_t marker, uint64_t number)
@@ -541,17 +544,6 @@ public: // modifiers
   {
     return append(Component(tlv::KeywordNameComponent,
                             {reinterpret_cast<const uint8_t*>(keyword.data()), keyword.size()}));
-  }
-
-  /**
-   * @brief Append a name component.
-   * @note This makes push_back() an alias of append(), giving Name a similar API as `std::vector`.
-   */
-  template<class T>
-  void
-  push_back(const T& component)
-  {
-    append(component);
   }
 
   /**

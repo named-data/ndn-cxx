@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE(IsPrefixOf)
 
 BOOST_AUTO_TEST_CASE(CompareOp)
 {
-  std::vector<Name> names = {
+  const std::vector<Name> names = {
     Name("/"),
     Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000000"),
     Name("/sha256digest=0000000000000000000000000000000000000000000000000000000000000001"),
@@ -501,8 +501,10 @@ BOOST_AUTO_TEST_CASE(CompareOp)
 
   for (size_t i = 0; i < names.size(); ++i) {
     for (size_t j = 0; j < names.size(); ++j) {
-      Name lhs = names[i];
-      Name rhs = names[j];
+      const auto& lhs = names[i];
+      const auto& rhs = names[j];
+      BOOST_TEST_INFO_SCOPE("lhs = " << lhs);
+      BOOST_TEST_INFO_SCOPE("rhs = " << rhs);
       BOOST_CHECK_EQUAL(lhs == rhs, i == j);
       BOOST_CHECK_EQUAL(lhs != rhs, i != j);
       BOOST_CHECK_EQUAL(lhs <  rhs, i <  j);

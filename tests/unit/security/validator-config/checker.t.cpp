@@ -40,10 +40,10 @@ class CheckerFixture : public KeyChainFixture
 public:
   CheckerFixture()
   {
-    names.push_back("/foo/bar");
-    names.push_back("/foo/bar/bar");
-    names.push_back("/foo");
-    names.push_back("/other/prefix");
+    names.emplace_back("/foo/bar");
+    names.emplace_back("/foo/bar/bar");
+    names.emplace_back("/foo");
+    names.emplace_back("/other/prefix");
   }
 
   static Name
@@ -58,22 +58,6 @@ public:
   {
     static PartialName suffix("KEY/keyid/issuer/v=1");
     return Name(name).append(suffix);
-  }
-
-  template<typename PktType, typename C>
-  static void
-  testChecker(C& checker, tlv::SignatureTypeValue sigType, const Name& pktName, const Name& klName, bool expectedOutcome)
-  {
-    BOOST_TEST_INFO_SCOPE("Packet = " << pktName);
-    BOOST_TEST_INFO_SCOPE("KeyLocator = " << klName);
-
-    auto state = PktType::makeState();
-    auto result = checker.check(PktType::getType(), sigType, pktName, klName, *state);
-    BOOST_CHECK_EQUAL(bool(result), expectedOutcome);
-    BOOST_CHECK(boost::logic::indeterminate(state->getOutcome()));
-    if (!result) {
-      BOOST_CHECK_NE(result.getErrorMessage(), "");
-    }
   }
 
 public:
@@ -308,6 +292,23 @@ using Tests = boost::mp11::mp_product<
   CheckerFixtures
 >;
 
+template<typename PktType, typename C>
+static void
+testChecker(C& checker, tlv::SignatureTypeValue sigType, const Name& pktName, const Name& klName, bool expectedOutcome)
+{
+  BOOST_TEST_INFO_SCOPE("Packet = " << pktName);
+  BOOST_TEST_INFO_SCOPE("SignatureType = " << sigType);
+  BOOST_TEST_INFO_SCOPE("KeyLocator = " << klName);
+
+  auto state = PktType::makeState();
+  auto result = checker.check(PktType::getType(), sigType, pktName, klName, *state);
+  BOOST_TEST(bool(result) == expectedOutcome);
+  BOOST_TEST(boost::logic::indeterminate(state->getOutcome()));
+  if (!result) {
+    BOOST_TEST(!result.getErrorMessage().empty());
+  }
+}
+
 BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, boost::mp11::mp_second<T>)
 {
   using PktType = boost::mp11::mp_first<T>;
@@ -321,12 +322,12 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(Checks, T, Tests, boost::mp11::mp_second<T>)
       bool expectedOutcome = this->outcomes[i][j];
 
       auto klName = this->makeKeyLocatorKeyName(this->names[j]);
-      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);
-      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithEcdsa, pktName, klName, false);
+      testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);
+      testChecker<PktType>(this->checker, tlv::SignatureSha256WithEcdsa, pktName, klName, false);
 
       klName = this->makeKeyLocatorCertName(this->names[j]);
-      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);
-      this->template testChecker<PktType>(this->checker, tlv::SignatureSha256WithEcdsa, pktName, klName, false);
+      testChecker<PktType>(this->checker, tlv::SignatureSha256WithRsa, pktName, klName, expectedOutcome);
+      testChecker<PktType>(this->checker, tlv::SignatureSha256WithEcdsa, pktName, klName, false);
     }
   }
 }

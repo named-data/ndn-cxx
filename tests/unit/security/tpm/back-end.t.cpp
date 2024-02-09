@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -343,7 +343,8 @@ BOOST_AUTO_TEST_CASE(RandomKeyId)
   for (int i = 0; i < 100; i++) {
     auto key = tpm.createKey(identity, RsaKeyParams());
     Name keyName = key->getKeyName();
-    BOOST_CHECK(keyNames.insert(keyName).second);
+    BOOST_TEST_INFO_SCOPE("KeyName = " << keyName);
+    BOOST_TEST(keyNames.insert(keyName).second);
   }
 }
 
