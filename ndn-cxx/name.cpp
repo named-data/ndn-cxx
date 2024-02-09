@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -39,9 +39,8 @@ namespace ndn {
 Name::Name() = default;
 
 Name::Name(const Block& wire)
-  : m_wire(wire)
 {
-  m_wire.parse();
+  wireDecode(wire);
 }
 
 Name::Name(std::string_view uri)

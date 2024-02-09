@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -49,8 +49,10 @@ BOOST_AUTO_TEST_SUITE(TestName)
 
 BOOST_AUTO_TEST_CASE(EncodeDecode)
 {
-  std::string uri = "/Emid/25042=P3/.../..../%1C%9F/"
-                    "sha256digest=0415e3624a151850ac686c84f155f29808c0dd73819aa4a4c20be73a4d8a874c";
+  constexpr auto uri = "/Emid/25042=P3/.../..../%1C%9F/"
+                       "sha256digest=0415e3624a151850ac686c84f155f29808c0dd73819aa4a4c20be73a4d8a874c"sv;
+
+  // construct from std::string_view
   Name name(uri);
   BOOST_CHECK_EQUAL(name.size(), 6);
   BOOST_CHECK_EQUAL(name[0], Component("Emid"));
@@ -66,11 +68,22 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
 
   Block wire = name.wireEncode();
   BOOST_CHECK_EQUAL(wire,
-    "0737 0804456D6964 FD61D2025033 0800 08012E 08021C9F "
-    "01200415E3624A151850AC686C84F155F29808C0DD73819AA4A4C20BE73A4D8A874C"_block);
+                    "0737 0804456D6964 FD61D2025033 0800 08012E 08021C9F "
+                    "01200415E3624A151850AC686C84F155F29808C0DD73819AA4A4C20BE73A4D8A874C"_block);
 
+  // construct from Block
   Name decoded(wire);
-  BOOST_CHECK_EQUAL(decoded, name);
+  BOOST_TEST(decoded == name);
+  BOOST_CHECK_EXCEPTION(Name("0802CAFE"_block), tlv::Error,
+                        [] (const auto& e) { return e.what() == "Expecting Name element, but TLV has type 8"sv; });
+
+  // implicit conversion from char*
+  name = "/hello";
+  BOOST_TEST(name.toUri(name::UriFormat::CANONICAL) == "/8=hello");
+
+  // implicit conversion from std::string
+  name = "/world"s;
+  BOOST_TEST(name.toUri(name::UriFormat::CANONICAL) == "/8=world");
 }
 
 BOOST_AUTO_TEST_CASE(ParseUri)
@@ -332,34 +345,34 @@ BOOST_AUTO_TEST_CASE(AppendTypedComponent)
   Name name;
   uint64_t number;
 
-  BOOST_CHECK_NO_THROW(number = name.appendSegment(30923).at(-1).toSegment());
+  number = name.appendSegment(30923).at(-1).toSegment();
   BOOST_TEST(number == 30923);
 
-  BOOST_CHECK_NO_THROW(number = name.appendByteOffset(41880).at(-1).toByteOffset());
+  number = name.appendByteOffset(41880).at(-1).toByteOffset();
   BOOST_TEST(number == 41880);
 
   auto before = time::toUnixTimestamp(time::system_clock::now());
-  BOOST_CHECK_NO_THROW(number = name.appendVersion().at(-1).toVersion());
+  number = name.appendVersion().at(-1).toVersion();
   auto after = time::toUnixTimestamp(time::system_clock::now());
   BOOST_TEST(number >= before.count());
   BOOST_TEST(number <= after.count());
 
-  BOOST_CHECK_NO_THROW(number = name.appendVersion(25912).at(-1).toVersion());
+  number = name.appendVersion(25912).at(-1).toVersion();
   BOOST_TEST(number == 25912);
 
   const auto tp = time::system_clock::now();
   time::system_clock::time_point tp2;
-  BOOST_CHECK_NO_THROW(tp2 = name.appendTimestamp(tp).at(-1).toTimestamp());
+  tp2 = name.appendTimestamp(tp).at(-1).toTimestamp();
   BOOST_TEST(time::abs(tp2 - tp) <= 1_us);
 
-  BOOST_CHECK_NO_THROW(number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber());
+  number = name.appendSequenceNumber(11676).at(-1).toSequenceNumber();
   BOOST_TEST(number == 11676);
 
   name.appendKeyword({0xab, 0xcd, 0xef});
-  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=%AB%CD%EF"));
+  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=%AB%CD%EF"sv));
 
   name.appendKeyword("test-keyword");
-  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=test-keyword"));
+  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=test-keyword"sv));
 }
 
 BOOST_AUTO_TEST_CASE(EraseComponent)
@@ -543,7 +556,7 @@ BOOST_AUTO_TEST_CASE(CompareFunc)
   BOOST_CHECK_GT   (Name("/Z/A/C/Y").compare(1, 2, Name("/X/A"),   1), 0);
 }
 
-BOOST_AUTO_TEST_CASE(UnorderedMap)
+BOOST_AUTO_TEST_CASE(UnorderedMapKey)
 {
   std::unordered_map<Name, int> map;
   Name name1("/1");

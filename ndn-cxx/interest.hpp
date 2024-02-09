@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -323,7 +323,7 @@ public: // Interest fields
 
   /**
    * @brief Set `ApplicationParameters` from a Block.
-   * @param block TLV block to be used as ApplicationParameters; must be valid
+   * @param block TLV element to be used as ApplicationParameters; must be valid
    * @return A reference to this Interest.
    *
    * If the block's TLV-TYPE is tlv::ApplicationParameters, it will be used directly as

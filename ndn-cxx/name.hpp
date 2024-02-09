@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -71,14 +71,16 @@ public: // constructors, encoding, decoding
   Name();
 
   /**
-   * @brief Decode Name from wire encoding.
-   * @throw tlv::Error wire encoding is invalid
+   * @brief Create Name from wire encoding.
+   * @param wire TLV element of type tlv::Name
    *
-   * This is a more efficient equivalent for:
+   * This is equivalent to:
    * @code
    * Name name;
    * name.wireDecode(wire);
    * @endcode
+   *
+   * @throw tlv::Error The wire encoding is invalid.
    */
   explicit
   Name(const Block& wire);
@@ -93,7 +95,7 @@ public: // constructors, encoding, decoding
   /**
    * @brief Create name from NDN URI.
    * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
-   * @note This constructor enables implicit conversion from a string literal
+   * @note This constructor enables implicit conversion from a string literal.
    */
   Name(const char* uri)
     : Name(std::string_view(uri))
@@ -103,28 +105,31 @@ public: // constructors, encoding, decoding
   /**
    * @brief Create name from NDN URI.
    * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
-   * @note This constructor enables implicit conversion from `std::string`
+   * @note This constructor enables implicit conversion from `std::string`.
    */
   Name(const std::string& uri)
     : Name(std::string_view(uri))
   {
   }
 
-  /** @brief Write URI representation of the name to the output stream.
-   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+  /**
+   * @brief Write URI representation of the name to the output stream.
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   void
   toUri(std::ostream& os, name::UriFormat format = name::UriFormat::DEFAULT) const;
 
-  /** @brief Get URI representation of the name.
-   *  @return URI representation; the "ndn:" scheme identifier is not included
-   *  @note To print URI representation into a stream, it is more efficient to use `os << name`.
-   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
+  /**
+   * @brief Get URI representation of the name.
+   * @return URI representation; the "ndn:" scheme identifier is not included.
+   * @note To print the URI representation to a stream, it is more efficient to use `os << name`.
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   std::string
   toUri(name::UriFormat format = name::UriFormat::DEFAULT) const;
 
-  /** @brief Check if this instance already has wire encoding.
+  /**
+   * @brief Check if this instance already has wire encoding.
    */
   bool
   hasWire() const noexcept
@@ -132,26 +137,30 @@ public: // constructors, encoding, decoding
     return m_wire.hasWire();
   }
 
-  /** @brief Fast encoding or block size estimation.
+  /**
+   * @brief Prepend wire encoding to @p encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** @brief Perform wire encoding, or return existing wire encoding.
-   *  @post hasWire() == true
+  /**
+   * @brief Perform wire encoding, or return existing (cached) wire encoding.
+   * @post hasWire() == true
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode name from wire encoding.
-   *  @throw tlv::Error wire encoding is invalid
-   *  @post hasWire() == true
+  /**
+   * @brief Decode name from wire encoding.
+   * @throw tlv::Error The wire encoding is invalid.
+   * @post hasWire() == true
    */
   void
   wireDecode(const Block& wire);
 
-  /** @brief Make a deep copy of the name, reallocating the underlying memory buffer.
+  /**
+   * @brief Make a deep copy of the name, reallocating the underlying memory buffer.
    */
   Name
   deepCopy() const;
@@ -335,7 +344,7 @@ public: // modifiers
     return append(Component(tlv::GenericNameComponent, value));
   }
 
-  /** @brief Append a `NameComponent` of TLV-TYPE @p type, copying TLV-VALUE from a range.
+  /** @brief Append a `NameComponent` of TLV-TYPE @p type, copying the TLV-VALUE from a range.
    *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
    *                   implementation is available when it is a @c RandomAccessIterator.
    *  @param type      the TLV-TYPE.
@@ -350,7 +359,7 @@ public: // modifiers
     return append(Component(type, first, last));
   }
 
-  /** @brief Append a `GenericNameComponent`, copying TLV-VALUE from a range.
+  /** @brief Append a `GenericNameComponent`, copying the TLV-VALUE from a range.
    *  @tparam Iterator an @c InputIterator dereferencing to a one-octet value type. More efficient
    *                   implementation is available when it is a @c RandomAccessIterator.
    *  @param first     beginning of the range.
@@ -382,9 +391,10 @@ public: // modifiers
   Name&
   append(const PartialName& name);
 
-  /** @brief Append a component with a NonNegativeInteger.
-   *  @return A reference to this Name, to allow chaining.
-   *  @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
+  /**
+   * @brief Append a component with a NonNegativeInteger.
+   * @return A reference to this Name, to allow chaining.
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/tlv.html#non-negative-integer-encoding
    */
   Name&
   appendNumber(uint64_t number)

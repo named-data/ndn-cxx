@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -53,7 +53,7 @@ public:
   Data(const Name& name = Name());
 
   /** @brief Construct a Data packet by decoding from @p wire.
-   *  @param wire TLV block of type tlv::Data; may be signed or unsigned.
+   *  @param wire TLV element of type tlv::Data; may be signed or unsigned.
    *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created using
    *           `std::make_shared`. Otherwise, `shared_from_this()` may trigger undefined behavior.
    *           One example where this is necessary is storing Data into a subclass of InMemoryStorage.
@@ -188,7 +188,7 @@ public: // Data fields
 
   /**
    * @brief Set `Content` from a Block.
-   * @param block TLV block to be used as Content; must be valid
+   * @param block TLV element to be used as Content; must be valid
    * @return A reference to this Data, to allow chaining.
    *
    * If the block's TLV-TYPE is tlv::Content, it will be used directly as this Data's
