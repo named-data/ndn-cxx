@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(FindByInterest)
   auto makeIdentity1Cert = [=] (const std::string& issuerId) {
     auto key = identity1.getDefaultKey();
     MakeCertificateOptions opts;
-    opts.issuerId = name::Component::fromEscapedString(issuerId);
+    opts.issuerId = name::Component::fromUri(issuerId);
     return m_keyChain.makeCertificate(key, signingByKey(key), opts);
   };
 

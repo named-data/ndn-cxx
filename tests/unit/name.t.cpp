@@ -369,10 +369,10 @@ BOOST_AUTO_TEST_CASE(AppendTypedComponent)
   BOOST_TEST(number == 11676);
 
   name.appendKeyword({0xab, 0xcd, 0xef});
-  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=%AB%CD%EF"sv));
+  BOOST_TEST(name.at(-1) == Component::fromUri("32=%AB%CD%EF"sv));
 
   name.appendKeyword("test-keyword");
-  BOOST_TEST(name.at(-1) == Component::fromEscapedString("32=test-keyword"sv));
+  BOOST_TEST(name.at(-1) == Component::fromUri("32=test-keyword"sv));
 }
 
 BOOST_AUTO_TEST_CASE(EraseComponent)

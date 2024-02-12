@@ -78,7 +78,7 @@ Name::Name(std::string_view uri)
   // Unescape the components.
   while (!uri.empty()) {
     auto component = uri.substr(0, uri.find('/'));
-    append(Component::fromEscapedString(component));
+    append(Component::fromUri(component));
     if (component.size() + 1 >= uri.size()) {
       // We reached the end of the string.
       return;

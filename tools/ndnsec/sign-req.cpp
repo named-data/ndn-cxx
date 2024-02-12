@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -83,7 +83,7 @@ ndnsec_sign_req(int argc, char** argv)
 
   // Create signing request (similar to self-signed certificate)
   security::MakeCertificateOptions opts;
-  opts.issuerId = name::Component::fromEscapedString("cert-request");
+  opts.issuerId = name::Component::fromUri("cert-request");
   opts.validity = security::ValidityPeriod::makeRelative(-1_s, 10_days);
   auto certificate = keyChain.makeCertificate(key, security::signingByKey(key), opts);
 

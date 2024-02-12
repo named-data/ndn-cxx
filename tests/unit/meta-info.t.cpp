@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   BOOST_CHECK_EQUAL(a.getType(), tlv::ContentType_Blob);
   BOOST_CHECK_EQUAL(a.getFreshnessPeriod(), 0_ms);
   BOOST_REQUIRE(a.getFinalBlock().has_value());
-  BOOST_CHECK_EQUAL(*a.getFinalBlock(), name::Component::fromEscapedString("221=A"));
+  BOOST_CHECK_EQUAL(*a.getFinalBlock(), name::Component::fromUri("221=A"));
   BOOST_CHECK_NE(a.wireEncode(), b.wireEncode());
 
   b.setType(a.getType());

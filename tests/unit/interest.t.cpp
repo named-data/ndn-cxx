@@ -679,9 +679,8 @@ BOOST_AUTO_TEST_CASE(MatchesData)
   interest = makeInterest(data->getFullName());
   BOOST_CHECK_EQUAL(interest->matchesData(*data), true);
 
-  setNameComponent(*interest, -1,
-                   name::Component::fromEscapedString("sha256digest=00000000000000000000000000"
-                                                      "00000000000000000000000000000000000000"));
+  setNameComponent(*interest, -1, name::Component::fromUri("sha256digest=00000000000000000000000000"
+                                                           "00000000000000000000000000000000000000"));
   BOOST_CHECK_EQUAL(interest->matchesData(*data), false); // violates implicit digest
 }
 

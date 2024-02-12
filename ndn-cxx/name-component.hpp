@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -204,30 +204,38 @@ public: // constructors
 
 public: // encoding and URI
   /**
-   * @brief Fast encoding or block size estimation
+   * @brief Prepend wire encoding to @p encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
   /**
-   * @brief Encode to a wire format
+   * @brief Encode to TLV wire format.
    */
   const Block&
   wireEncode() const;
 
   /**
-   * @brief Decode from the wire format
+   * @brief Decode from TLV wire format.
    */
   void
   wireDecode(const Block& wire);
 
   /**
-   * @brief Decode NameComponent from a URI component.
-   * @throw Error URI component does not represent a valid NameComponent.
+   * @brief Construct a NameComponent from its string representation in NDN URI format.
+   * @throw Error The input string does not represent a valid NameComponent in NDN URI format.
+   * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   static Component
-  fromEscapedString(std::string_view input);
+  fromUri(std::string_view input);
+
+  [[deprecated("use fromUri")]]
+  static Component
+  fromEscapedString(std::string_view input)
+  {
+    return Component::fromUri(input);
+  }
 
   /**
    * @brief Write `*this` to the output stream, escaping characters according to the NDN URI format.
@@ -237,7 +245,7 @@ public: // encoding and URI
   toUri(std::ostream& os, UriFormat format = UriFormat::DEFAULT) const;
 
   /**
-   * @brief Convert `*this` by escaping characters according to the NDN URI format.
+   * @brief Convert `*this` to a string by escaping characters according to the NDN URI format.
    * @sa https://docs.named-data.net/NDN-packet-spec/0.3/name.html#ndn-uri-scheme
    */
   std::string

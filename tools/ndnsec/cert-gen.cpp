@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -121,7 +121,7 @@ ndnsec_cert_gen(int argc, char** argv)
     }
   }
 
-  auto issuerId = name::Component::fromEscapedString(issuer);
+  auto issuerId = name::Component::fromUri(issuer);
   if (issuerId.isImplicitSha256Digest() ||
       issuerId.isParametersSha256Digest() ||
       issuerId.isKeyword()) {

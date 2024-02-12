@@ -63,45 +63,46 @@ BOOST_AUTO_TEST_CASE(Generic)
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), "8=ndn-cxx");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), "ndn-cxx");
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), "ndn-cxx");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("ndn-cxx"), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("8=ndn-cxx"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("ndn-cxx"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("8=ndn-cxx"sv), comp);
 
   comp.wireDecode("0800"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "...");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("..."), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("8=..."), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString(".%2E."), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("..."), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("8=..."sv), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri(".%2E."sv), comp);
 
   comp.wireDecode("0801 2E"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "....");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("...."), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("%2E..%2E"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("...."), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("%2E..%2E"sv), comp);
 
   comp.wireDecode("0803 2E412E"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), ".A.");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString(".A."), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri(".A."sv), comp);
 
   comp.wireDecode("0807 666F6F25626172"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "foo%25bar");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("foo%25bar"), comp);
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("8=foo%25bar"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("foo%25bar"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("8=foo%25bar"sv), comp);
 
   comp.wireDecode("0804 2D2E5F7E"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "-._~");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("-._~"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("-._~"sv), comp);
 
   comp.wireDecode("0803 393D41"_block);
   BOOST_CHECK_EQUAL(comp.toUri(), "9%3DA");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("9%3DA"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("9%3DA"sv), comp);
 
   comp = Component(":/?#[]@");
   BOOST_CHECK_EQUAL(comp.toUri(), "%3A%2F%3F%23%5B%5D%40");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("%3A%2F%3F%23%5B%5D%40"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("%3A%2F%3F%23%5B%5D%40"sv), comp);
 
-  BOOST_CHECK_THROW(Component::fromEscapedString(""), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("."), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString(".."), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("8="), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri(""), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri(""sv), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("."sv), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri(".."sv), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("8="sv), Component::Error);
 }
 
 static void
@@ -119,21 +120,21 @@ testSha256Component(uint32_t type, const std::string& uriPrefix)
 
   BOOST_CHECK_EQUAL(comp.type(), type);
   BOOST_CHECK_EQUAL(comp.toUri(), uriPrefix + hexLower);
-  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), to_string(type) + "=" + hexPctCanonical);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), std::to_string(type) + "=" + hexPctCanonical);
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), uriPrefix + hexLower);
-  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), to_string(type) + "=" + hexPctCanonical);
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), std::to_string(type) + "=" + hexPctCanonical);
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), uriPrefix + hexLower);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), uriPrefix + hexLower);
-  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexLower));
-  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(uriPrefix + hexUpper));
-  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=" + hexPct));
-  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=" + hexPctCanonical));
+  BOOST_CHECK_EQUAL(comp, Component::fromUri(uriPrefix + hexLower));
+  BOOST_CHECK_EQUAL(comp, Component::fromUri(uriPrefix + hexUpper));
+  BOOST_CHECK_EQUAL(comp, Component::fromUri(std::to_string(type) + "=" + hexPct));
+  BOOST_CHECK_EQUAL(comp, Component::fromUri(std::to_string(type) + "=" + hexPctCanonical));
 
   CHECK_COMP_ERR(comp.wireDecode(Block(type, fromHex("A791806951F25C4D"))), "TLV-LENGTH must be 32");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix), "TLV-LENGTH must be 32");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "a791806951f25c4d"), "TLV-LENGTH must be 32");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "foo"), "invalid hex encoding");
-  CHECK_COMP_ERR(Component::fromEscapedString(boost::to_upper_copy(uriPrefix) + hexLower), "Unknown TLV-TYPE");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix), "TLV-LENGTH must be 32");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "a791806951f25c4d"), "TLV-LENGTH must be 32");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "foo"), "invalid hex encoding");
+  CHECK_COMP_ERR(Component::fromUri(boost::to_upper_copy(uriPrefix) + hexLower), "Unknown TLV-TYPE");
 }
 
 BOOST_AUTO_TEST_CASE(ImplicitDigest)
@@ -154,32 +155,32 @@ testDecimalComponent(uint32_t type, const std::string& uriPrefix)
   BOOST_CHECK_EQUAL(comp.isNumber(), true);
   const auto compUri = uriPrefix + "42";
   BOOST_CHECK_EQUAL(comp.toUri(), compUri);
-  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), to_string(type) + "=%2A");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::CANONICAL), std::to_string(type) + "=%2A");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), compUri);
-  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), to_string(type) + "=%2A");
+  BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), std::to_string(type) + "=%2A");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), compUri);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp), compUri);
-  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(compUri));
-  BOOST_CHECK_EQUAL(comp, Component::fromEscapedString(to_string(type) + "=%2A"));
+  BOOST_CHECK_EQUAL(comp, Component::fromUri(compUri));
+  BOOST_CHECK_EQUAL(comp, Component::fromUri(std::to_string(type) + "=%2A"));
   BOOST_CHECK_EQUAL(comp, Component::fromNumber(42, type));
 
   const Component comp2(type, fromHex("010203")); // TLV-VALUE is *not* a NonNegativeInteger
   BOOST_CHECK_EQUAL(comp2.type(), type);
   BOOST_CHECK_EQUAL(comp2.isNumber(), false);
-  const auto comp2Uri = to_string(type) + "=%01%02%03";
+  const auto comp2Uri = std::to_string(type) + "=%01%02%03";
   BOOST_CHECK_EQUAL(comp2.toUri(), comp2Uri);
   BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(comp2), comp2Uri);
-  BOOST_CHECK_EQUAL(comp2, Component::fromEscapedString(comp2Uri));
+  BOOST_CHECK_EQUAL(comp2, Component::fromUri(comp2Uri));
 
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix), "invalid format");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "foo"), "invalid format");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "00"), "invalid format");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "-1"), "invalid format");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "9.3"), "invalid format");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + " 84"), "invalid format");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "0xAF"), "invalid format");
-  CHECK_COMP_ERR(Component::fromEscapedString(uriPrefix + "18446744073709551616"), "out of range");
-  CHECK_COMP_ERR(Component::fromEscapedString(boost::to_upper_copy(uriPrefix) + "42"), "Unknown TLV-TYPE");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix), "invalid format");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "foo"), "invalid format");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "00"), "invalid format");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "-1"), "invalid format");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "9.3"), "invalid format");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + " 84"), "invalid format");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "0xAF"), "invalid format");
+  CHECK_COMP_ERR(Component::fromUri(uriPrefix + "18446744073709551616"), "out of range");
+  CHECK_COMP_ERR(Component::fromUri(boost::to_upper_copy(uriPrefix) + "42"), "Unknown TLV-TYPE");
 }
 
 BOOST_AUTO_TEST_CASE(Segment)
@@ -217,17 +218,17 @@ BOOST_AUTO_TEST_CASE(Keyword)
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), "32=ndn-cxx");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), "32=ndn-cxx");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), "32=ndn-cxx");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("32=ndn-cxx"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("32=ndn-cxx"sv), comp);
 
   comp.wireDecode("2000"_block);
   BOOST_CHECK_EQUAL(comp.type(), tlv::KeywordNameComponent);
   BOOST_CHECK_EQUAL(comp.isKeyword(), true);
   BOOST_CHECK_EQUAL(comp.toUri(), "32=...");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("32=..."), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("32=..."sv), comp);
 
-  BOOST_CHECK_THROW(Component::fromEscapedString("32="), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("32=."), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("32=.."), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("32="sv), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("32=."sv), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("32=.."sv), Component::Error);
 }
 
 BOOST_AUTO_TEST_CASE(OtherType)
@@ -239,21 +240,21 @@ BOOST_AUTO_TEST_CASE(OtherType)
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ALTERNATE), "9=ndn-cxx");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_CANONICAL), "9=ndn-cxx");
   BOOST_CHECK_EQUAL(comp.toUri(UriFormat::ENV_OR_ALTERNATE), "9=ndn-cxx");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("9=ndn-cxx"), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("9=ndn-cxx"sv), comp);
 
   comp.wireDecode("FDFFFF00"_block);
   BOOST_CHECK_EQUAL(comp.type(), 0xFFFF);
   BOOST_CHECK_EQUAL(comp.toUri(), "65535=...");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("65535=..."), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("65535=..."sv), comp);
 
   comp.wireDecode("FD576501 2E"_block);
   BOOST_CHECK_EQUAL(comp.type(), 0x5765);
   BOOST_CHECK_EQUAL(comp.toUri(), "22373=....");
-  BOOST_CHECK_EQUAL(Component::fromEscapedString("22373=...."), comp);
+  BOOST_CHECK_EQUAL(Component::fromUri("22373=...."sv), comp);
 
-  BOOST_CHECK_THROW(Component::fromEscapedString("3="), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("3=."), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("3=.."), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("3="sv), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("3=."sv), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("3=.."sv), Component::Error);
 }
 
 BOOST_AUTO_TEST_CASE(InvalidType)
@@ -262,21 +263,21 @@ BOOST_AUTO_TEST_CASE(InvalidType)
   BOOST_CHECK_THROW(comp.wireDecode(Block{}), Component::Error);
   BOOST_CHECK_THROW(comp.wireDecode("FE0001000001 80"_block), Component::Error);
 
-  BOOST_CHECK_THROW(Component::fromEscapedString("0=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("65536=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("4294967296=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("-1=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("+=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("0x1=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("Z=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("09=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("0x3=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("+9=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString(" 9=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("9 =A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("9.0=A"), Component::Error);
-  BOOST_CHECK_THROW(Component::fromEscapedString("9E0=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("0=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("65536=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("4294967296=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("-1=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("+=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("0x1=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("Z=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("09=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("0x3=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("+9=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri(" 9=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("9 =A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("9.0=A"), Component::Error);
+  BOOST_CHECK_THROW(Component::fromUri("9E0=A"), Component::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // Decode

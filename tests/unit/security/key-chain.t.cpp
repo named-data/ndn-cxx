@@ -647,7 +647,7 @@ BOOST_AUTO_TEST_CASE(DefaultsFromCert)
 BOOST_AUTO_TEST_CASE(Options)
 {
   MakeCertificateOptions opts;
-  opts.issuerId = name::Component::fromEscapedString("ISSUER");
+  opts.issuerId = name::Component::fromUri("ISSUER");
   opts.version = 41218268;
   opts.freshnessPeriod = 321_s;
   opts.validity.emplace(time::fromIsoString("20060702T150405"),
