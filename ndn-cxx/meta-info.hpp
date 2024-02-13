@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -86,18 +86,20 @@ public:
   wireDecode(const Block& wire);
 
 public: // getter/setter
-  /** @brief Return the value of `ContentType`.
+  /**
+   * @brief Return the value of `ContentType`.
    *
-   *  If the `ContentType` element is not present, returns tlv::ContentType_Blob.
+   * If the `ContentType` element is not present, returns tlv::ContentType_Blob.
    */
   uint32_t
-  getType() const
+  getType() const noexcept
   {
     return m_type;
   }
 
-  /** @brief Set `ContentType`.
-   *  @param type a number defined in tlv::ContentTypeValue
+  /**
+   * @brief Set the `ContentType`.
+   * @param type A number defined in tlv::ContentTypeValue
    */
   MetaInfo&
   setType(uint32_t type);
@@ -110,10 +112,11 @@ public: // getter/setter
    * the nearest representable value.
    */
   time::milliseconds
-  getFreshnessPeriod() const;
+  getFreshnessPeriod() const noexcept;
 
-  /** @brief Set `FreshnessPeriod`.
-   *  @throw std::invalid_argument specified FreshnessPeriod is negative
+  /**
+   * @brief Set the `FreshnessPeriod`.
+   * @throw std::invalid_argument specified FreshnessPeriod is negative.
    */
   MetaInfo&
   setFreshnessPeriod(time::milliseconds freshnessPeriod);
@@ -122,13 +125,13 @@ public: // getter/setter
    * @brief Return the value of `FinalBlockId`.
    */
   const std::optional<name::Component>&
-  getFinalBlock() const
+  getFinalBlock() const noexcept
   {
     return m_finalBlockId;
   }
 
   /**
-   * @brief Set `FinalBlockId`.
+   * @brief Set the `FinalBlockId`.
    */
   MetaInfo&
   setFinalBlock(std::optional<name::Component> finalBlockId);
@@ -196,7 +199,7 @@ public: // app-defined MetaInfo items
 
 private:
   uint32_t m_type = tlv::ContentType_Blob;
-  uint64_t m_freshnessPeriod = static_cast<uint64_t>(DEFAULT_FRESHNESS_PERIOD.count());
+  uint64_t m_freshnessPeriod = DEFAULT_FRESHNESS_PERIOD.count();
   std::optional<name::Component> m_finalBlockId;
   std::list<Block> m_appMetaInfo;
 

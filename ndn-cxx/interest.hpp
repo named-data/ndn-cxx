@@ -94,40 +94,46 @@ public:
     }
   };
 
-  /** @brief Construct an Interest with given @p name and @p lifetime.
+  /**
+   * @brief Construct an Interest with given @p name and @p lifetime.
    *
-   *  @throw std::invalid_argument @p name is invalid or @p lifetime is negative
-   *  @warning In certain contexts that use `Interest::shared_from_this()`, Interest must be created
-   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
+   * @throw std::invalid_argument @p name is invalid or @p lifetime is negative.
+   * @warning In certain contexts that use `Interest::shared_from_this()`, the Interest must be created
+   *          using `std::make_shared`. Otherwise, `shared_from_this()` will throw `std::bad_weak_ptr`.
    */
   explicit
   Interest(const Name& name = {}, time::milliseconds lifetime = DEFAULT_INTEREST_LIFETIME);
 
-  /** @brief Construct an Interest by decoding from @p wire.
+  /**
+   * @brief Construct an Interest by decoding from @p wire.
    *
-   *  @warning In certain contexts that use `Interest::shared_from_this()`, Interest must be created
-   *           using `make_shared`. Otherwise, `shared_from_this()` will trigger undefined behavior.
+   * @warning In certain contexts that use `Interest::shared_from_this()`, the Interest must be created
+   *          using `std::make_shared`. Otherwise, `shared_from_this()` will throw `std::bad_weak_ptr`.
    */
   explicit
   Interest(const Block& wire);
 
-  /** @brief Prepend wire encoding to @p encoder.
+  /**
+   * @brief Prepend wire encoding to @p encoder.
    */
   template<encoding::Tag TAG>
   size_t
   wireEncode(EncodingImpl<TAG>& encoder) const;
 
-  /** @brief Encode into a Block.
+  /**
+   * @brief Encode into a Block.
    */
   const Block&
   wireEncode() const;
 
-  /** @brief Decode from @p wire.
+  /**
+   * @brief Decode from @p wire.
    */
   void
   wireDecode(const Block& wire);
 
-  /** @brief Check if this instance has cached wire encoding.
+  /**
+   * @brief Check if this instance has cached wire encoding.
    */
   bool
   hasWire() const noexcept
@@ -135,12 +141,14 @@ public:
     return m_wire.hasWire();
   }
 
-  /** @brief Return a URI-like string that represents the Interest.
+  /**
+   * @brief Return a URI-like string that represents the Interest.
    *
-   *  The string always starts with `getName().toUri()`. After the name, if any of the
-   *  Interest's CanBePrefix, MustBeFresh, Nonce, InterestLifetime, or HopLimit fields
-   *  are present, their textual representation is appended as a query string.
-   *  Example: "/test/name?MustBeFresh&Nonce=123456"
+   * The string always starts with the Interest's name in URI format. After the name, if any
+   * of the Interest's CanBePrefix, MustBeFresh, Nonce, InterestLifetime, or HopLimit fields
+   * are present, their textual representation is appended as a query string.
+   *
+   * Example: `"/test/name?MustBeFresh&Nonce=123456"`
    */
   std::string
   toUri() const;
@@ -265,12 +273,13 @@ public: // Interest fields
 
   /**
    * @brief Get the %Interest's lifetime.
+   *
+   * If the `InterestLifetime` element is not present, returns #DEFAULT_INTEREST_LIFETIME.
+   * If the `InterestLifetime` value is not representable in the return type, it's clamped to
+   * the nearest representable value.
    */
   time::milliseconds
-  getInterestLifetime() const noexcept
-  {
-    return m_interestLifetime;
-  }
+  getInterestLifetime() const noexcept;
 
   /**
    * @brief Set the %Interest's lifetime.
@@ -508,7 +517,7 @@ private:
   Name m_name;
   std::vector<Name> m_forwardingHint;
   mutable std::optional<Nonce> m_nonce;
-  time::milliseconds m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
+  uint64_t m_interestLifetime = DEFAULT_INTEREST_LIFETIME.count();
   std::optional<uint8_t> m_hopLimit;
   bool m_canBePrefix = false;
   bool m_mustBeFresh = false;

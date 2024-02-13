@@ -611,6 +611,23 @@ BOOST_AUTO_TEST_CASE(BadNonce)
                         [] (const auto& e) { return e.what() == "Nonce element is malformed"sv; });
 }
 
+BOOST_AUTO_TEST_CASE(LargeLifetime,
+  * ut::description("test for bug #4997"))
+{
+  i.wireDecode("050F 0703(080149) 0C087FFFFFFFFFFFFFFF"_block);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), 0x7FFFFFFFFFFFFFFF_ms);
+
+  i.wireDecode("050F 0703(080149) 0C088000000000000000"_block);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds::max());
+
+  i.wireDecode("050F 0703(080149) 0C08FFFFFFFFFFFFFFFF"_block);
+  BOOST_CHECK_EQUAL(i.getInterestLifetime(), time::milliseconds::max());
+
+  // force re-encoding
+  i.setNonce(0x957c6554);
+  BOOST_CHECK_EQUAL(i.wireEncode(), "0515 0703(080149) 0A04957C6554 0C08FFFFFFFFFFFFFFFF"_block);
+}
+
 BOOST_AUTO_TEST_CASE(BadHopLimit)
 {
   BOOST_CHECK_EXCEPTION(i.wireDecode("0507 0703080149 2200"_block), tlv::Error,

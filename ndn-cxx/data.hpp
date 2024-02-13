@@ -44,19 +44,23 @@ public:
     using tlv::Error::Error;
   };
 
-  /** @brief Construct an unsigned Data packet with given @p name and empty Content.
-   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created using
-   *           `std::make_shared`. Otherwise, `shared_from_this()` may trigger undefined behavior.
-   *           One example where this is necessary is storing Data into a subclass of InMemoryStorage.
+  /**
+   * @brief Construct an unsigned Data packet with given @p name and empty Content.
+   *
+   * @warning In certain contexts that use `Data::shared_from_this()`, the Data must be created
+   *          using `std::make_shared`. Otherwise, `shared_from_this()` will throw `std::bad_weak_ptr`.
+   *          One example where this is necessary is storing Data into a subclass of InMemoryStorage.
    */
   explicit
   Data(const Name& name = Name());
 
-  /** @brief Construct a Data packet by decoding from @p wire.
-   *  @param wire TLV element of type tlv::Data; may be signed or unsigned.
-   *  @warning In certain contexts that use `Data::shared_from_this()`, Data must be created using
-   *           `std::make_shared`. Otherwise, `shared_from_this()` may trigger undefined behavior.
-   *           One example where this is necessary is storing Data into a subclass of InMemoryStorage.
+  /**
+   * @brief Construct a Data packet by decoding from @p wire.
+   * @param wire TLV element of type tlv::Data; may be signed or unsigned.
+   *
+   * @warning In certain contexts that use `Data::shared_from_this()`, the Data must be created
+   *          using `std::make_shared`. Otherwise, `shared_from_this()` will throw `std::bad_weak_ptr`.
+   *          One example where this is necessary is storing Data into a subclass of InMemoryStorage.
    */
   explicit
   Data(const Block& wire);
@@ -301,37 +305,54 @@ public: // Data fields
   extractSignedRanges() const;
 
 public: // MetaInfo fields
+  /**
+   * @copydoc MetaInfo::getType()
+   */
   uint32_t
-  getContentType() const
+  getContentType() const noexcept
   {
     return m_metaInfo.getType();
   }
 
+  /**
+   * @copydoc MetaInfo::setType()
+   */
   Data&
   setContentType(uint32_t type);
 
+  /**
+   * @copydoc MetaInfo::getFreshnessPeriod()
+   */
   time::milliseconds
-  getFreshnessPeriod() const
+  getFreshnessPeriod() const noexcept
   {
     return m_metaInfo.getFreshnessPeriod();
   }
 
+  /**
+   * @copydoc MetaInfo::setFreshnessPeriod()
+   */
   Data&
   setFreshnessPeriod(time::milliseconds freshnessPeriod);
 
+  /**
+   * @copydoc MetaInfo::getFinalBlock()
+   */
   const std::optional<name::Component>&
-  getFinalBlock() const
+  getFinalBlock() const noexcept
   {
     return m_metaInfo.getFinalBlock();
   }
 
+  /**
+   * @copydoc MetaInfo::setFinalBlock()
+   */
   Data&
   setFinalBlock(std::optional<name::Component> finalBlockId);
 
 public: // SignatureInfo fields
   /**
-   * @brief Get the `SignatureType`.
-   * @return tlv::SignatureTypeValue, or -1 to indicate the signature is invalid.
+   * @copydoc SignatureInfo::getSignatureType()
    */
   int32_t
   getSignatureType() const noexcept

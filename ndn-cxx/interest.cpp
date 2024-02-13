@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -82,14 +82,13 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // HopLimit
-  if (getHopLimit()) {
+  if (m_hopLimit) {
     totalLength += prependBinaryBlock(encoder, tlv::HopLimit, {*m_hopLimit});
   }
 
   // InterestLifetime
-  if (getInterestLifetime() != DEFAULT_INTEREST_LIFETIME) {
-    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::InterestLifetime,
-                                                  static_cast<uint64_t>(getInterestLifetime().count()));
+  if (m_interestLifetime != DEFAULT_INTEREST_LIFETIME.count()) {
+    totalLength += prependNonNegativeIntegerBlock(encoder, tlv::InterestLifetime, m_interestLifetime);
   }
 
   // Nonce
@@ -177,7 +176,7 @@ Interest::wireDecode(const Block& wire)
   m_canBePrefix = m_mustBeFresh = false;
   m_forwardingHint.clear();
   m_nonce.reset();
-  m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
+  m_interestLifetime = DEFAULT_INTEREST_LIFETIME.count();
   m_hopLimit.reset();
   m_parameters.clear();
 
@@ -262,7 +261,7 @@ Interest::wireDecode(const Block& wire)
         if (lastElement >= 6) {
           NDN_THROW(Error("InterestLifetime element is out of order"));
         }
-        m_interestLifetime = time::milliseconds(readNonNegativeInteger(*element));
+        m_interestLifetime = readNonNegativeInteger(*element);
         lastElement = 6;
         break;
       }
@@ -439,6 +438,15 @@ Interest::refreshNonce()
   m_wire.reset();
 }
 
+time::milliseconds
+Interest::getInterestLifetime() const noexcept
+{
+  if (m_interestLifetime > static_cast<uint64_t>(time::milliseconds::max().count())) {
+    return time::milliseconds::max();
+  }
+  return time::milliseconds(m_interestLifetime);
+}
+
 Interest&
 Interest::setInterestLifetime(time::milliseconds lifetime)
 {
@@ -446,8 +454,9 @@ Interest::setInterestLifetime(time::milliseconds lifetime)
     NDN_THROW(std::invalid_argument("InterestLifetime must be >= 0"));
   }
 
-  if (lifetime != m_interestLifetime) {
-    m_interestLifetime = lifetime;
+  uint64_t lifetimeMillis = static_cast<uint64_t>(lifetime.count());
+  if (lifetimeMillis != m_interestLifetime) {
+    m_interestLifetime = lifetimeMillis;
     m_wire.reset();
   }
   return *this;

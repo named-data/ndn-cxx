@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -43,7 +43,7 @@ MetaInfo::setType(uint32_t type)
 }
 
 time::milliseconds
-MetaInfo::getFreshnessPeriod() const
+MetaInfo::getFreshnessPeriod() const noexcept
 {
   if (m_freshnessPeriod > static_cast<uint64_t>(time::milliseconds::max().count())) {
     return time::milliseconds::max();
@@ -144,7 +144,7 @@ MetaInfo::wireEncode(EncodingImpl<TAG>& encoder) const
   }
 
   // FreshnessPeriod
-  if (m_freshnessPeriod != static_cast<uint64_t>(DEFAULT_FRESHNESS_PERIOD.count())) {
+  if (m_freshnessPeriod != DEFAULT_FRESHNESS_PERIOD.count()) {
     totalLength += prependNonNegativeIntegerBlock(encoder, tlv::FreshnessPeriod, m_freshnessPeriod);
   }
 
@@ -205,7 +205,7 @@ MetaInfo::wireDecode(const Block& wire)
     ++val;
   }
   else {
-    m_freshnessPeriod = static_cast<uint64_t>(DEFAULT_FRESHNESS_PERIOD.count());
+    m_freshnessPeriod = DEFAULT_FRESHNESS_PERIOD.count();
   }
 
   // FinalBlockId

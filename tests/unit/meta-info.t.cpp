@@ -78,9 +78,9 @@ BOOST_AUTO_TEST_CASE(EncodeDecode)
   BOOST_CHECK_EQUAL(b.wireEncode(), wire3);
 }
 
-BOOST_AUTO_TEST_CASE(FreshnessPeriodOverflow)
+BOOST_AUTO_TEST_CASE(FreshnessPeriodOverflow,
+  * ut::description("test for bug #4997"))
 {
-  // Bug #4997
   MetaInfo mi0("140A 19087FFFFFFFFFFFFFFF"_block);
   BOOST_CHECK_EQUAL(mi0.getFreshnessPeriod(), 0x7FFFFFFFFFFFFFFF_ms);
 
@@ -89,6 +89,10 @@ BOOST_AUTO_TEST_CASE(FreshnessPeriodOverflow)
 
   MetaInfo mi2("140A 1908FFFFFFFFFFFFFFFF"_block);
   BOOST_CHECK_EQUAL(mi2.getFreshnessPeriod(), time::milliseconds::max());
+
+  // force re-encoding
+  mi2.setType(tlv::ContentType_Key);
+  BOOST_CHECK_EQUAL(mi2.wireEncode(), "140D 180102 1908FFFFFFFFFFFFFFFF"_block);
 }
 
 BOOST_AUTO_TEST_CASE(AppMetaInfo)
