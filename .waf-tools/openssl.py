@@ -1,6 +1,3 @@
-#! /usr/bin/env python
-# encoding: utf-8
-
 """
 When using this tool, the wscript should look like:
 

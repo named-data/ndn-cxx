@@ -1,12 +1,14 @@
 name: Publish Docker image
-
 on:
   push:
     branches:
       - master
     paths-ignore:
       - '*.md'
+      - '.jenkins'
+      - '.jenkins.d/**'
       - '.mailmap'
+      - 'tests/**'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +17,6 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   publish:
@@ -35,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
           flavor: latest=true
 
       - name: Build and push Docker image
