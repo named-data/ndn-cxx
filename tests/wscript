@@ -3,14 +3,19 @@
 top = '..'
 
 def build(bld):
-    # common objects that can be shared among all tests
-    bld.objects(
-        target='tests-common',
-        source=bld.path.ant_glob('*.cpp'),
-        features='pch',
-        headers='tests-pch.hpp',
-        use='BOOST_TESTS ndn-cxx')
+    if bld.env.WITH_INTEGRATION_TESTS or bld.env.WITH_UNIT_TESTS:
+        bld.objects(
+            target='tests-common',
+            source=bld.path.ant_glob('*.cpp'),
+            features='pch',
+            headers='tests-pch.hpp',
+            use='BOOST_TESTS ndn-cxx')
 
-    bld.recurse('benchmarks')
-    bld.recurse('integration')
-    bld.recurse('unit')
+    if bld.env.WITH_BENCHMARKS:
+        bld.recurse('benchmarks')
+
+    if bld.env.WITH_INTEGRATION_TESTS:
+        bld.recurse('integration')
+
+    if bld.env.WITH_UNIT_TESTS:
+        bld.recurse('unit')

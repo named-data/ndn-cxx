@@ -8,5 +8,5 @@ def build(bld):
         bld.program(name=f'test-{name}',
                     target=name,
                     source=[test],
-                    use='tests-common',
+                    use='BOOST_TESTS ndn-cxx',
                     install_path=None)

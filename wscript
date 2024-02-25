@@ -47,7 +47,13 @@ def options(opt):
                    help='Build examples')
 
     opt.add_option('--with-tests', action='store_true', default=False,
-                   help='Build tests')
+                   help='Build all tests (benchmarks, integration tests, unit tests)')
+    opt.add_option('--with-benchmarks', action='store_true', default=False,
+                   help='Build benchmarks')
+    opt.add_option('--with-integration-tests', action='store_true', default=False,
+                   help='Build integration tests')
+    opt.add_option('--with-unit-tests', action='store_true', default=False,
+                   help='Build unit tests')
 
     opt.add_option('--without-tools', action='store_false', default=True, dest='with_tools',
                    help='Do not build tools')
@@ -76,7 +82,9 @@ def configure(conf):
                'doxygen', 'sphinx_build'])
 
     conf.env.WITH_EXAMPLES = conf.options.with_examples
-    conf.env.WITH_TESTS = conf.options.with_tests
+    conf.env.WITH_BENCHMARKS = conf.options.with_benchmarks or conf.options.with_tests
+    conf.env.WITH_INTEGRATION_TESTS = conf.options.with_integration_tests or conf.options.with_tests
+    conf.env.WITH_UNIT_TESTS = conf.options.with_unit_tests or conf.options.with_tests
     conf.env.WITH_TOOLS = conf.options.with_tools
 
     conf.find_program('dot', mandatory=False)
@@ -134,7 +142,7 @@ def configure(conf):
 
     conf.check_boost(lib=boost_libs, mt=True)
 
-    if conf.env.WITH_TESTS:
+    if any((conf.env.WITH_BENCHMARKS, conf.env.WITH_INTEGRATION_TESTS, conf.env.WITH_UNIT_TESTS)):
         conf.check_boost(lib='unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
 
     if conf.env.WITH_TOOLS:
@@ -153,7 +161,7 @@ def configure(conf):
         conf.env.prepend_value('STLIBPATH', ['.'])
 
     conf.define_cond('HAVE_STACKTRACE', conf.env.HAVE_STACKTRACE)
-    conf.define_cond('HAVE_TESTS', conf.env.WITH_TESTS)
+    conf.define_cond('HAVE_TESTS', conf.env.WITH_INTEGRATION_TESTS or conf.env.WITH_UNIT_TESTS)
     conf.define_cond('WITH_OSX_KEYCHAIN', conf.env.HAVE_OSX_FRAMEWORKS and conf.options.with_osx_keychain)
     conf.define_cond('DISABLE_SQLITE3_FS_LOCKING', not conf.options.with_sqlite_locking)
     conf.define('SYSCONFDIR', conf.env.SYSCONFDIR)
@@ -227,8 +235,7 @@ def build(bld):
             name='ndn-cxx-static' if bld.env.enable_shared else 'ndn-cxx',
             **libndn_cxx)
 
-    if bld.env.WITH_TESTS:
-        bld.recurse('tests')
+    bld.recurse('tests')
 
     if bld.env.WITH_TOOLS:
         bld.recurse('tools')
