@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -163,7 +163,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   static Logging&
   get();
 
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
   bool
   removeLogger(Logger& logger);
 
@@ -178,7 +178,7 @@ NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
 
   const std::unordered_map<std::string, LogLevel>&
   getLevels() const;
-#endif // NDN_CXX_HAVE_TESTS
+#endif // NDN_CXX_WITH_TESTS
 
 private:
   friend Logger;

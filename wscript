@@ -142,7 +142,7 @@ def configure(conf):
 
     conf.check_boost(lib=boost_libs, mt=True)
 
-    if any((conf.env.WITH_BENCHMARKS, conf.env.WITH_INTEGRATION_TESTS, conf.env.WITH_UNIT_TESTS)):
+    if conf.env.WITH_BENCHMARKS or conf.env.WITH_INTEGRATION_TESTS or conf.env.WITH_UNIT_TESTS:
         conf.check_boost(lib='unit_test_framework', mt=True, uselib_store='BOOST_TESTS')
 
     if conf.env.WITH_TOOLS:
@@ -161,7 +161,7 @@ def configure(conf):
         conf.env.prepend_value('STLIBPATH', ['.'])
 
     conf.define_cond('HAVE_STACKTRACE', conf.env.HAVE_STACKTRACE)
-    conf.define_cond('HAVE_TESTS', conf.env.WITH_INTEGRATION_TESTS or conf.env.WITH_UNIT_TESTS)
+    conf.define_cond('WITH_TESTS', conf.env.WITH_INTEGRATION_TESTS or conf.env.WITH_UNIT_TESTS)
     conf.define_cond('WITH_OSX_KEYCHAIN', conf.env.HAVE_OSX_FRAMEWORKS and conf.options.with_osx_keychain)
     conf.define_cond('DISABLE_SQLITE3_FS_LOCKING', not conf.options.with_sqlite_locking)
     conf.define('SYSCONFDIR', conf.env.SYSCONFDIR)

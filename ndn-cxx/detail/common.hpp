@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,10 +19,11 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-/** \file
- *  \brief Common includes and macros used throughout the library.
- *  \warning This file is an implementation detail of the ndn-cxx library.
- *           Aliases imported in this file MUST NOT be used outside of ndn-cxx.
+/**
+ * \file
+ * \brief Common includes and macros used throughout the library.
+ * \warning This file is an implementation detail of the ndn-cxx library.
+ *          Aliases imported in this file MUST NOT be used outside of ndn-cxx.
  */
 
 #ifndef NDN_CXX_DETAIL_COMMON_HPP
@@ -37,7 +38,7 @@
 
 // ndn-cxx specific macros declared in this and other headers must have NDN_CXX_ prefix
 // to avoid conflicts with other projects that include ndn-cxx headers.
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
 #define NDN_CXX_VIRTUAL_WITH_TESTS virtual
 #define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED public
 #define NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE public

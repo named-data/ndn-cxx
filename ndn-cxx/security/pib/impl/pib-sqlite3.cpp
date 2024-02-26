@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -193,11 +193,11 @@ PibSqlite3::PibSqlite3(const std::string& location)
   if (!location.empty()) {
     dbDir = boost::filesystem::path(location);
   }
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
   else if (getenv("TEST_HOME") != nullptr) {
     dbDir = boost::filesystem::path(getenv("TEST_HOME")) / ".ndn";
   }
-#endif // NDN_CXX_HAVE_TESTS
+#endif
   else if (getenv("HOME") != nullptr) {
     dbDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
   }

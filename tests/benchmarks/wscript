@@ -3,10 +3,11 @@
 top = '../..'
 
 def build(bld):
-    for test in bld.path.ant_glob('*.cpp'):
-        name = test.change_ext('').path_from(bld.path.get_bld())
-        bld.program(name=f'test-{name}',
-                    target=name,
-                    source=[test],
-                    use='BOOST_TESTS ndn-cxx',
-                    install_path=None)
+    for file in bld.path.ant_glob('*.cpp'):
+        name = file.change_ext('').path_from(bld.path.get_bld())
+        bld.program(
+            name=f'bench-{name}',
+            target=name,
+            source=[file],
+            use='BOOST_TESTS ndn-cxx',
+            install_path=None)

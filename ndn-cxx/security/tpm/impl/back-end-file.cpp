@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -54,11 +54,11 @@ public:
     if (!dir.empty()) {
       m_keystorePath = fs::path(dir);
     }
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
     else if (std::getenv("TEST_HOME") != nullptr) {
       m_keystorePath = fs::path(std::getenv("TEST_HOME")) / ".ndn";
     }
-#endif // NDN_CXX_HAVE_TESTS
+#endif
     else if (std::getenv("HOME") != nullptr) {
       m_keystorePath = fs::path(std::getenv("HOME")) / ".ndn";
     }

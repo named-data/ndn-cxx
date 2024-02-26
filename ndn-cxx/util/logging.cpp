@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -165,7 +165,7 @@ Logging::findLevel(std::string mn) const
   return it != m_enabledLevel.end() ? it->second : INITIAL_DEFAULT_LEVEL;
 }
 
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
 bool
 Logging::removeLogger(Logger& logger)
 {
@@ -179,7 +179,7 @@ Logging::removeLogger(Logger& logger)
   }
   return false;
 }
-#endif // NDN_CXX_HAVE_TESTS
+#endif // NDN_CXX_WITH_TESTS
 
 void
 Logging::setLevelImpl(const std::string& prefix, LogLevel level)
@@ -236,14 +236,14 @@ Logging::setLevelImpl(const std::string& config)
   }
 }
 
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
 void
 Logging::resetLevels()
 {
   this->setLevelImpl("*", INITIAL_DEFAULT_LEVEL);
   m_enabledLevel.clear();
 }
-#endif // NDN_CXX_HAVE_TESTS
+#endif // NDN_CXX_WITH_TESTS
 
 void
 Logging::setDestination(std::ostream& os, bool wantAutoFlush)
@@ -305,7 +305,7 @@ Logging::setDestinationImpl(boost::shared_ptr<boost::log::sinks::sink> destinati
   }
 }
 
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
 boost::shared_ptr<boost::log::sinks::sink>
 Logging::getDestination() const
 {
@@ -326,7 +326,7 @@ Logging::getLevels() const
 {
   return m_enabledLevel;
 }
-#endif // NDN_CXX_HAVE_TESTS
+#endif // NDN_CXX_WITH_TESTS
 
 void
 Logging::flushImpl()

@@ -16,7 +16,7 @@ def build(bld):
     # Sub-directory tools:
     # tools/foo/**/*.cpp are compiled and linked into build/bin/foo.
     # tools/foo/main.cpp must exist and must contain the main() function.
-    # All other objects are collected into 'tools-foo-objects' and can be unit-tested.
+    # All other objects are collected into 'foo-objects' and can be unit-tested.
     for subdir in bld.path.ant_glob('*', dir=True, src=False):
         name = subdir.path_from(bld.path)
         subWscript = subdir.find_node('wscript')
@@ -33,7 +33,7 @@ def build(bld):
         srcFiles = subdir.ant_glob('**/*.cpp', excl=['main.cpp'])
         srcObjects = ''
         if srcFiles:
-            srcObjects = f'tools-{name}-objects'
+            srcObjects = f'{name}-objects'
             bld.objects(target=srcObjects,
                         source=srcFiles,
                         use='ndn-cxx')

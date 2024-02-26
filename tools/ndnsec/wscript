@@ -3,7 +3,7 @@
 top = '../..'
 
 def build(bld):
-    bld.objects(target='tools-ndnsec-objects',
+    bld.objects(target='ndnsec-objects',
                 source=bld.path.ant_glob('*.cpp', excl=['main.cpp']),
                 features='pch',
                 headers='ndnsec-pch.hpp',
@@ -12,7 +12,7 @@ def build(bld):
     bld.program(name='ndnsec',
                 target=f'{top}/bin/ndnsec',
                 source=['main.cpp'],
-                use='tools-ndnsec-objects')
+                use='ndnsec-objects')
 
     # create convenience symlinks
     for cmd in ('list', 'get-default', 'set-default', 'delete',

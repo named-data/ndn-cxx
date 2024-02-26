@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -45,7 +45,7 @@ ConfigFile::findConfigFile()
 {
   using namespace boost::filesystem;
 
-#ifdef NDN_CXX_HAVE_TESTS
+#ifdef NDN_CXX_WITH_TESTS
   if (std::getenv("TEST_HOME")) {
     path testHome(std::getenv("TEST_HOME"));
     testHome /= ".ndn/client.conf";
@@ -53,7 +53,7 @@ ConfigFile::findConfigFile()
       return absolute(testHome);
     }
   }
-#endif // NDN_CXX_HAVE_TESTS
+#endif
 
   if (std::getenv("HOME")) {
     path home(std::getenv("HOME"));
@@ -69,7 +69,7 @@ ConfigFile::findConfigFile()
   if (exists(sysconfdir)) {
     return absolute(sysconfdir);
   }
-#endif // NDN_CXX_SYSCONFDIR
+#endif
 
   path etc("/etc/ndn/client.conf");
   if (exists(etc)) {
