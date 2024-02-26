@@ -4,10 +4,7 @@ set -eo pipefail
 if [[ -z $DISABLE_ASAN ]]; then
     ASAN="--with-sanitizer=address"
 fi
-if [[ $JOB_NAME == *"code-coverage" ]]; then
-    COVERAGE="--with-coverage"
-fi
-if [[ $ID == macos && ${VERSION_ID%%.*} -ge 12 ]]; then
+if [[ $ID == macos && ${VERSION_ID%%.*} -ge 12 && -z $GITHUB_ACTIONS ]]; then
     KEYCHAIN="--without-osx-keychain"
 fi
 
@@ -21,19 +18,23 @@ if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
     # Cleanup
     ./waf --color=yes distclean
 
-    # Build static and shared library in release mode with examples
-    ./waf --color=yes configure --enable-static --enable-shared --with-examples
+    # Build shared library in release mode with examples and benchmarks
+    ./waf --color=yes configure --disable-static --enable-shared --with-examples --with-benchmarks
     ./waf --color=yes build
 
     # Cleanup
     ./waf --color=yes distclean
 fi
 
-# Build shared library in debug mode with tests
-./waf --color=yes configure --disable-static --enable-shared --debug --with-tests $ASAN $COVERAGE $KEYCHAIN
-./waf --color=yes build
-
-# (tests will be run against the debug version)
+if [[ $JOB_NAME == *"code-coverage" ]]; then
+    # Build for coverage testing: enable instrumentation and unit tests only
+    ./waf --color=yes configure --debug --with-coverage --with-unit-tests --without-tools $KEYCHAIN
+    ./waf --color=yes build
+else
+    # Build shared library in debug mode with tests
+    ./waf --color=yes configure --disable-static --enable-shared --debug --with-tests $ASAN $KEYCHAIN
+    ./waf --color=yes build
+fi
 
 # Install
 sudo ./waf --color=yes install
