@@ -28,8 +28,8 @@ def options(opt):
     opt.add_option('--disable-shared', action='store_false', default=True,
                    dest='enable_shared', help='Do not build shared library (enabled by default)')
 
-    opt.add_option('--without-osx-keychain', action='store_false', default=True,
-                   dest='with_osx_keychain', help='Do not use macOS Keychain as default TPM (macOS only)')
+    opt.add_option('--with-osx-keychain', action='store_true', default=False,
+                   help='Use macOS Keychain as default TPM (macOS only)')
 
     opt.add_option('--without-sqlite-locking', action='store_false', default=True, dest='with_sqlite_locking',
                    help='Disable filesystem locking in sqlite3 database '

@@ -13,16 +13,14 @@
 ;transport=unix:///var/run/nfd/nfd.sock
 
 ; "pib" determines which Public Information Base (PIB) should used by default in applications.
-; If "pib" is not specified, a platform-dependent default will be used.
-; If "pib" is specified, it may have a value of:
-;   - "pib-sqlite3"
+; Currently, the only supported value for "pib" is:
+;   - "pib-sqlite3"     (default if not specified)
 ;
 ;pib=pib-sqlite3
 
 ; "tpm" determines which Trusted Platform Module (TPM) should used by default in applications.
-; If "tpm" is not specified, a platform-dependent default will be used.
-; If "tpm" is specified, it may have a value of:
-;   - "tpm-osxkeychain"  (default on macOS)
-;   - "tpm-file"         (default on all other platforms)
+; The supported values for "tpm" are:
+;   - "tpm-file"         (default if not specified)
+;   - "tpm-osxkeychain"
 ;
 ;tpm=tpm-file

@@ -4,8 +4,8 @@ set -eo pipefail
 if [[ -z $DISABLE_ASAN ]]; then
     ASAN="--with-sanitizer=address"
 fi
-if [[ $ID == macos && ${VERSION_ID%%.*} -ge 12 && -z $GITHUB_ACTIONS ]]; then
-    KEYCHAIN="--without-osx-keychain"
+if [[ -n $GITHUB_ACTIONS && $ID == macos && ${VERSION_ID%%.*} -le 12 ]]; then
+    KEYCHAIN="--with-osx-keychain"
 fi
 
 set -x
@@ -28,7 +28,7 @@ fi
 
 if [[ $JOB_NAME == *"code-coverage" ]]; then
     # Build for coverage testing: enable instrumentation and unit tests only
-    ./waf --color=yes configure --debug --with-coverage --with-unit-tests --without-tools $KEYCHAIN
+    ./waf --color=yes configure --debug --with-coverage --with-unit-tests --without-tools
     ./waf --color=yes build
 else
     # Build shared library in debug mode with tests

@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_SUITE(Security)
 BOOST_AUTO_TEST_SUITE(TestTpmBackEnd)
 
 using TestBackEnds = boost::mp11::mp_list<
-#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#ifdef NDN_CXX_WITH_OSX_KEYCHAIN
   BackEndWrapperOsx,
 #endif
   BackEndWrapperMem,

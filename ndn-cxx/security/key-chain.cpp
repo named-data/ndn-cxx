@@ -92,11 +92,11 @@ getDefaultPibScheme()
 static const auto&
 getDefaultTpmScheme()
 {
-#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#ifdef NDN_CXX_WITH_OSX_KEYCHAIN
   return tpm::BackEndOsx::getScheme();
 #else
   return tpm::BackEndFile::getScheme();
-#endif // defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#endif // NDN_CXX_WITH_OSX_KEYCHAIN
 }
 
 const KeyParams&

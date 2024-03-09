@@ -43,7 +43,7 @@ pib
 
   Possible values for ``[scheme]`` are:
 
-  * ``pib-sqlite3``: local PIB implementation using the SQLite3 storage engine.
+  * ``pib-sqlite3``: local PIB implementation using the SQLite3 storage engine. This is the default.
 
     Possible values for ``[location]``:
 
@@ -53,7 +53,7 @@ pib
 
   When ``[location]`` is empty, the trailing ``:`` can be omitted.  For example::
 
-     pib=pib-sqlite3
+      pib=pib-sqlite3
 
   Changing PIB scheme without changing location is **not** allowed.  If a change like this is
   necessary, the whole backend storage must be destroyed.  For example, when the default location is
@@ -75,26 +75,26 @@ tpm
 
   Possible values for ``[scheme]`` are:
 
-  * ``tpm-osxkeychain`` (default on macOS): secure storage of private keys in the macOS
-    Keychain with OS-provided access restrictions.
+  * ``tpm-osxkeychain``: secure storage of private keys in the macOS Keychain with OS-provided
+    access restrictions.
 
     The ``[location]`` parameter is ignored.
 
     May not work for daemon applications, as user interaction may be required to access the
     macOS Keychain.
 
-  * ``tpm-file`` (default on all other platforms): file-based storage of private keys.
+  * ``tpm-file``: file-based storage of private keys. This is the default.
 
     Possible values for ``[location]``:
 
     * absolute path to directory that will store private/public key files (unencrypted with
       ``0700`` permission)
     * relative path (relative to ``client.conf``)
-    * empty: the default path ``$HOME/.ndn/ndnsec-tpm-file`` will be used
+    * empty: the default path ``$HOME/.ndn/ndnsec-key-file`` will be used
 
   When ``[location]`` is empty, the trailing ``:`` can be omitted.  For example::
 
-     tpm=tpm-file
+      tpm=tpm-file
 
   **Changing the ``tpm`` setting is only possible together with ``pib`` setting. Otherwise,
   an error will be generated during PIB/TPM access.**

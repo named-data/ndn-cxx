@@ -77,7 +77,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathCon
 {
   createClientConf({"pib=pib-memory:"});
 
-#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
   std::string oldHOME;
   if (std::getenv("OLD_HOME"))
     oldHOME = std::getenv("OLD_HOME");
@@ -95,7 +95,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathCon
   KeyChain keyChain;
   BOOST_CHECK_EQUAL(keyChain.getPib().getPibLocator(), "pib-memory:");
 
-#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS) && defined(NDN_CXX_WITH_OSX_KEYCHAIN)
+#ifdef NDN_CXX_WITH_OSX_KEYCHAIN
   BOOST_CHECK_EQUAL(keyChain.getPib().getTpmLocator(), "tpm-osxkeychain:");
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-osxkeychain:");
 #else
@@ -103,7 +103,7 @@ BOOST_FIXTURE_TEST_CASE(ConstructorEmptyConfig, TestHomeAndPibFixture<PibPathCon
   BOOST_CHECK_EQUAL(keyChain.getTpm().getTpmLocator(), "tpm-file:");
 #endif
 
-#if defined(NDN_CXX_HAVE_OSX_FRAMEWORKS)
+#ifdef NDN_CXX_HAVE_OSX_FRAMEWORKS
   if (!HOME.empty())
     setenv("HOME", HOME.c_str(), 1);
   else
