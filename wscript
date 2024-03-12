@@ -13,7 +13,7 @@ def options(opt):
     opt.load(['cross', 'default-compiler-flags', 'pch',
               'coverage', 'sanitizers', 'osx-frameworks',
               'boost', 'openssl', 'sqlite3',
-              'doxygen', 'sphinx_build'],
+              'doxygen', 'sphinx'],
              tooldir=['.waf-tools'])
 
     opt = opt.add_option_group('ndn-cxx Options')
@@ -79,7 +79,7 @@ def configure(conf):
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx',
                'cross', 'default-compiler-flags', 'pch',
                'osx-frameworks', 'boost', 'openssl', 'sqlite3',
-               'doxygen', 'sphinx_build'])
+               'doxygen', 'sphinx'])
 
     conf.env.WITH_EXAMPLES = conf.options.with_examples
     conf.env.WITH_BENCHMARKS = conf.options.with_benchmarks or conf.options.with_tests
