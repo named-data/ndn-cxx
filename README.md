@@ -48,4 +48,12 @@ and [`README-dev.md`](README-dev.md) to get started.
 ## License
 
 ndn-cxx is free software distributed under the GNU Lesser General Public License version 3.
-See [`COPYING.md`](COPYING.md) for details.
+See [`COPYING.md`](COPYING.md) and [`COPYING.lesser`](COPYING.lesser) for details.
+
+ndn-cxx contains third-party software, licensed under the following licenses:
+
+* *scope-lite* by Martin Moene is licensed under the
+  [Boost Software License 1.0](https://github.com/martinmoene/scope-lite/blob/master/LICENSE.txt)
+* *span-lite* by Martin Moene is licensed under the
+  [Boost Software License 1.0](https://github.com/martinmoene/span-lite/blob/master/LICENSE.txt)
+* The *waf* build system is licensed under the [3-clause BSD license](waf)
