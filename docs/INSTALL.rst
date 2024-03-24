@@ -45,13 +45,13 @@ development tools and libraries:
 
     In a terminal, enter::
 
-        sudo apt install build-essential pkg-config python3-minimal libboost-all-dev libssl-dev libsqlite3-dev
+        sudo apt install build-essential libboost-all-dev libssl-dev libsqlite3-dev pkg-config python3
 
 - On **CentOS** and **Fedora**
 
     In a terminal, enter::
 
-        sudo dnf install gcc-c++ pkgconf-pkg-config python3 boost-devel openssl-devel sqlite-devel
+        sudo dnf install gcc-c++ boost-devel openssl-devel sqlite-devel pkgconf-pkg-config python3
 
 - On **macOS**
 
@@ -73,7 +73,7 @@ development tools and libraries:
 
     In a terminal, enter::
 
-        sudo pkg install pkgconf python3 boost-libs openssl sqlite3
+        sudo pkg install boost-libs openssl sqlite3 pkgconf python3
 
 Optional
 ~~~~~~~~
