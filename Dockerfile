@@ -1,25 +1,52 @@
-FROM gcc:12-bookworm
+# syntax=docker/dockerfile:1
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+FROM ubuntu:23.10 AS build
+
+RUN apt-get install -Uy --no-install-recommends \
         dpkg-dev \
+        g++ \
+        git \
         libboost-chrono-dev \
-        libboost-date-time-dev \
         libboost-dev \
         libboost-filesystem-dev \
-        libboost-iostreams-dev \
         libboost-log-dev \
         libboost-program-options-dev \
         libboost-stacktrace-dev \
         libboost-thread-dev \
-        pkg-config \
+        libsqlite3-dev \
+        libssl-dev \
+        pkgconf \
+        python3 \
+    # use 'apt-get distclean' when we upgrade to ubuntu:24.04
     && rm -rf /var/lib/apt/lists/*
 
-COPY . /ndn-cxx
+RUN --mount=type=bind,rw,target=/src <<EOF
+set -eux
+cd /src
+./waf configure \
+    --prefix=/usr \
+    --libdir=/usr/lib \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --sharedstatedir=/var \
+    --disable-static \
+    --enable-shared
+./waf build
+./waf install
 
-RUN cd /ndn-cxx \
-    && ./waf configure --without-pch --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static --enable-shared \
-    && ./waf \
-    && ./waf install \
-    && cd \
-    && rm -rf /ndn-cxx
+mkdir -p /deps/debian
+touch /deps/debian/control
+cd /deps
+dpkg-shlibdeps --ignore-missing-info /usr/lib/libndn-cxx.so.* /usr/bin/ndnsec -O \
+    | sed -n 's|^shlibs:Depends=||p' | sed 's| ([^)]*),\?||g' > ndn-cxx
+EOF
+
+FROM ubuntu:23.10 AS run
+
+RUN --mount=type=bind,from=build,source=/deps,target=/deps \
+    apt-get install -Uy --no-install-recommends $(cat /deps/ndn-cxx) \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=bind,from=build,source=/usr,target=/build \
+    cp -av /build/lib/libndn-cxx.so.* /usr/lib/ \
+    && cp -av /build/bin/ndnsec* /usr/bin/

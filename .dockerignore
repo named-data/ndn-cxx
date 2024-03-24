@@ -1,0 +1,27 @@
+# Waf build system
+build/
+.waf-*-*/
+.waf3-*-*/
+.lock-waf*
+
+# Compiled python code
+**/__pycache__/
+**/*.py[cod]
+
+# Qt Creator
+*.creator
+*.creator.user
+.qtc_clangd/
+
+# Visual Studio Code
+.vscode/
+
+# macOS
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+**/._*
+
+# Other
+Dockerfile
+VERSION.info
