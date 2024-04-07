@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
 FROM ubuntu:23.10 AS build
+ARG SOURCE_DATE_EPOCH
 
 RUN apt-get install -Uy --no-install-recommends \
         dpkg-dev \
@@ -41,7 +42,8 @@ dpkg-shlibdeps --ignore-missing-info /usr/lib/libndn-cxx.so.* /usr/bin/ndnsec -O
     | sed -n 's|^shlibs:Depends=||p' | sed 's| ([^)]*),\?||g' > ndn-cxx
 EOF
 
-FROM ubuntu:23.10 AS run
+FROM ubuntu:23.10 AS runtime
+ARG SOURCE_DATE_EPOCH
 
 RUN --mount=type=bind,from=build,source=/deps,target=/deps \
     apt-get install -Uy --no-install-recommends $(cat /deps/ndn-cxx) \

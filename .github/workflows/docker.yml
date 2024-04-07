@@ -1,4 +1,4 @@
-name: Publish Docker images
+name: Docker
 on:
   push:
     branches:
@@ -14,69 +14,18 @@ on:
 
 permissions:
   packages: write
-
-env:
-  REGISTRY: ghcr.io
+  id-token: write
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to ${{ env.REGISTRY }}
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate metadata for ndn-cxx-build image
-        id: build-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/ndn-cxx-build
-          tags: |
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
-        env:
-          DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
-
-      - name: Build and push ndn-cxx-build image
-        uses: docker/build-push-action@v5
-        with:
-          build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1
-          pull: true
-          push: true
-          target: build
-          tags: ${{ steps.build-meta.outputs.tags }}
-          labels: ${{ steps.build-meta.outputs.labels }}
-          annotations: ${{ steps.build-meta.outputs.annotations }}
-          cache-from: type=gha
-          cache-to: type=gha
-
-      - name: Generate metadata for ndn-cxx-runtime image
-        id: runtime-meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/ndn-cxx-runtime
-          tags: |
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha
-        env:
-          DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
-
-      - name: Build and push ndn-cxx-runtime image
-        uses: docker/build-push-action@v5
-        with:
-          build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1
-          pull: true
-          push: true
-          tags: ${{ steps.runtime-meta.outputs.tags }}
-          labels: ${{ steps.runtime-meta.outputs.labels }}
-          annotations: ${{ steps.runtime-meta.outputs.annotations }}
-          cache-from: type=gha
-          cache-to: type=gha
+  ndn-cxx-build:
+    uses: named-data/actions/.github/workflows/docker-image.yml@v1
+    with:
+      name: ndn-cxx-build
+      target: build
+  ndn-cxx-runtime:
+    needs: ndn-cxx-build
+    uses: named-data/actions/.github/workflows/docker-image.yml@v1
+    with:
+      name: ndn-cxx-runtime
+      target: runtime
+      contexts: build=docker-image://${{ needs.ndn-cxx-build.outputs.image }}
