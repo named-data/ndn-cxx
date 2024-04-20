@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE(RegistrationReply)
 
 BOOST_AUTO_TEST_CASE(BroadcastLink)
 {
-  DummyClientFace face1(m_io, m_keyChain, DummyClientFace::Options{true, true});
-  DummyClientFace face2(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face1(m_io, m_keyChain, {true, true});
+  DummyClientFace face2(m_io, m_keyChain, {true, true});
   face1.linkTo(face2);
 
   int nFace1Interest = 0;
@@ -141,14 +141,14 @@ BOOST_AUTO_TEST_CASE(BroadcastLink)
 
 BOOST_AUTO_TEST_CASE(BroadcastLinkDestroy)
 {
-  DummyClientFace face1(m_io, m_keyChain, DummyClientFace::Options{true, true});
-  DummyClientFace face2(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face1(m_io, m_keyChain, {true, true});
+  DummyClientFace face2(m_io, m_keyChain, {true, true});
 
   face1.linkTo(face2);
   face2.unlink();
   BOOST_CHECK(face1.m_bcastLink == nullptr);
 
-  DummyClientFace face3(m_io, m_keyChain, DummyClientFace::Options{true, true});
+  DummyClientFace face3(m_io, m_keyChain, {true, true});
   face1.linkTo(face2);
   face3.linkTo(face1);
   face2.unlink();

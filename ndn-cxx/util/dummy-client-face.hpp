@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -29,110 +29,103 @@
 namespace ndn {
 
 /**
+ * \brief Options for DummyClientFace.
+ */
+struct DummyClientFaceOptions
+{
+  DummyClientFaceOptions() = default;
+
+  DummyClientFaceOptions(bool enablePacketLogging, bool enableRegistrationReply,
+                         const std::function<void(time::milliseconds)>& processEventsOverride = nullptr)
+    : enablePacketLogging(enablePacketLogging)
+    , enableRegistrationReply(enableRegistrationReply)
+    , processEventsOverride(processEventsOverride)
+  {
+  }
+
+  /// If true, packets sent out of DummyClientFace will be appended to a container.
+  bool enablePacketLogging = true;
+
+  /// If true, prefix registration commands will be automatically replied to with a successful response.
+  bool enableRegistrationReply = false;
+
+  /// FaceId used in prefix registration replies.
+  uint64_t registrationReplyFaceId = 1;
+
+  /// If not empty, `face.processEvents()` will be overridden by this function.
+  std::function<void(time::milliseconds)> processEventsOverride;
+};
+
+/**
  * \brief A client-side face for unit testing.
  */
 class DummyClientFace : public Face
 {
 public:
-  /**
-   * \brief %Options for DummyClientFace.
-   */
-  class Options
-  {
-  public:
-    Options(bool enablePacketLogging, bool enableRegistrationReply,
-            const std::function<void(time::milliseconds)>& processEventsOverride)
-      : enablePacketLogging(enablePacketLogging)
-      , enableRegistrationReply(enableRegistrationReply)
-      , processEventsOverride(processEventsOverride)
-    {
-    }
-
-    Options(bool enablePacketLogging, bool enableRegistrationReply)
-      : Options(enablePacketLogging, enableRegistrationReply, nullptr)
-    {
-    }
-
-    Options()
-      : Options(true, false)
-    {
-    }
-
-  public:
-    /** \brief If true, packets sent out of DummyClientFace will be appended to a container.
-     */
-    bool enablePacketLogging;
-
-    /** \brief If true, prefix registration command will be automatically
-     *         replied with a successful response.
-     */
-    bool enableRegistrationReply;
-
-    /** \brief FaceId used in prefix registration replies.
-     */
-    uint64_t registrationReplyFaceId = 1;
-
-    /** \brief If not empty, `face.processEvents()` will be overridden by this function.
-     */
-    std::function<void(time::milliseconds)> processEventsOverride;
-  };
-
   class AlreadyLinkedError : public Error
   {
   public:
     AlreadyLinkedError();
   };
 
-  /** \brief Create a dummy face with internal I/O context.
+  using Options = DummyClientFaceOptions;
+
+  /**
+   * \brief Create a dummy face with an internal I/O context.
    */
   explicit
-  DummyClientFace(const Options& options = Options());
+  DummyClientFace(const Options& options = {});
 
-  /** \brief Create a dummy face with internal I/O context and the specified KeyChain.
+  /**
+   * \brief Create a dummy face with an internal I/O context and the specified KeyChain.
    */
   explicit
-  DummyClientFace(KeyChain& keyChain, const Options& options = Options());
+  DummyClientFace(KeyChain& keyChain, const Options& options = {});
 
-  /** \brief Create a dummy face with the provided I/O context.
+  /**
+   * \brief Create a dummy face with the provided I/O context.
    */
   explicit
-  DummyClientFace(boost::asio::io_context& ioCtx, const Options& options = Options());
+  DummyClientFace(boost::asio::io_context& ioCtx, const Options& options = {});
 
-  /** \brief Create a dummy face with the provided I/O context and the specified KeyChain.
+  /**
+   * \brief Create a dummy face with the specified I/O context and KeyChain.
    */
-  DummyClientFace(boost::asio::io_context& ioCtx, KeyChain& keyChain,
-                  const Options& options = Options());
+  DummyClientFace(boost::asio::io_context& ioCtx, KeyChain& keyChain, const Options& options = {});
 
   ~DummyClientFace() override;
 
-  /** \brief Cause the Face to receive an Interest packet.
+  /**
+   * \brief Cause the face to receive an Interest packet.
    */
   void
   receive(const Interest& interest);
 
-  /** \brief Cause the Face to receive a Data packet.
+  /**
+   * \brief Cause the face to receive a Data packet.
    */
   void
   receive(const Data& data);
 
-  /** \brief Cause the Face to receive a Nack packet.
+  /**
+   * \brief Cause the face to receive a Nack packet.
    */
   void
   receive(const lp::Nack& nack);
 
-  /** \brief Link another DummyClientFace through a broadcast media.
+  /**
+   * \brief Link another DummyClientFace through a broadcast medium.
    */
   void
   linkTo(DummyClientFace& other);
 
-  /** \brief Unlink the broadcast media if previously linked.
+  /**
+   * \brief Unlink the broadcast medium if previously linked.
    */
   void
   unlink();
 
 private:
-  class Transport;
-
   void
   construct(const Options& options);
 
@@ -149,45 +142,51 @@ private:
   doProcessEvents(time::milliseconds timeout, bool keepRunning) override;
 
 public:
-  /** \brief Interests sent out of this DummyClientFace.
+  /**
+   * \brief Interests sent out of this DummyClientFace.
    *
-   *  Sent Interests are appended to this container if options.enablePacketLogger is true.
-   *  User of this class is responsible for cleaning up the container, if necessary.
-   *  After .expressInterest, .processEvents must be called before the Interest would show up here.
+   * Sent Interests are appended to this container if Options::enablePacketLogging is true.
+   * The user of this class is responsible for cleaning up the container, if necessary.
+   *
+   * \note After expressInterest(), processEvents() must be called before the %Interest shows up here.
    */
   std::vector<Interest> sentInterests;
 
-  /** \brief Data sent out of this DummyClientFace.
+  /**
+   * \brief %Data sent out of this DummyClientFace.
    *
-   *  Sent Data are appended to this container if options.enablePacketLogger is true.
-   *  User of this class is responsible for cleaning up the container, if necessary.
-   *  After .put, .processEvents must be called before the Data would show up here.
+   * Sent %Data are appended to this container if Options::enablePacketLogging is true.
+   * The user of this class is responsible for cleaning up the container, if necessary.
+   *
+   * \note After put(), processEvents() must be called before the %Data shows up here.
    */
   std::vector<Data> sentData;
 
-  /** \brief Nacks sent out of this DummyClientFace.
+  /**
+   * \brief Nacks sent out of this DummyClientFace.
    *
-   *  Sent Nacks are appended to this container if options.enablePacketLogger is true.
-   *  User of this class is responsible for cleaning up the container, if necessary.
-   *  After .put, .processEvents must be called before the NACK would show up here.
+   * Sent Nacks are appended to this container if Options::enablePacketLogging is true.
+   * The user of this class is responsible for cleaning up the container, if necessary.
+   *
+   * \note After put(), processEvents() must be called before the %Nack shows up here.
    */
   std::vector<lp::Nack> sentNacks;
 
-  /** \brief Emits whenever an Interest is sent.
-   *
-   *  After .expressInterest, .processEvents must be called before this signal would be emitted.
+  /**
+   * \brief Emitted whenever an %Interest is sent.
+   * \note After expressInterest(), processEvents() must be called before this signal is emitted.
    */
   signal::Signal<DummyClientFace, Interest> onSendInterest;
 
-  /** \brief Emits whenever a Data packet is sent.
-   *
-   *  After .put, .processEvents must be called before this signal would be emitted.
+  /**
+   * \brief Emitted whenever a %Data packet is sent.
+   * \note After put(), processEvents() must be called before this signal is emitted.
    */
   signal::Signal<DummyClientFace, Data> onSendData;
 
-  /** \brief Emits whenever a Nack is sent.
-   *
-   *  After .put, .processEvents must be called before this signal would be emitted.
+  /**
+   * \brief Emitted whenever a %Nack is sent.
+   * \note After put(), processEvents() must be called before this signal is emitted.
    */
   signal::Signal<DummyClientFace, lp::Nack> onSendNack;
 

@@ -34,6 +34,46 @@
 namespace ndn {
 
 /**
+ * \brief Options for SegmentFetcher.
+ */
+struct SegmentFetcherOptions
+{
+  /// Lifetime of sent Interests (independent of Interest timeout)
+  time::milliseconds interestLifetime = 4_s;
+  /// Maximum allowed time between successful receipt of segments
+  time::milliseconds maxTimeout = 60_s;
+  /// Use the first Interest to probe the latest version of the object
+  bool probeLatestVersion = true;
+  /// Set to true for 'in order' mode, false for 'block' mode
+  bool inOrder = false;
+  /// If true, Interest timeout is kept fixed at #maxTimeout
+  bool useConstantInterestTimeout = false;
+  /// If true, window size is kept fixed at #initCwnd
+  bool useConstantCwnd = false;
+  /// Disable Conservative Window Adaptation
+  bool disableCwa = false;
+  /// Reduce cwnd to #initCwnd when a loss event occurs
+  bool resetCwndToInit = false;
+  /// Disable window decrease after a congestion mark is received
+  bool ignoreCongMarks = false;
+  /// Initial congestion window size
+  double initCwnd = 1.0;
+  /// Initial slow start threshold
+  double initSsthresh = std::numeric_limits<double>::max();
+  /// Additive increase step (in segments)
+  double aiStep = 1.0;
+  /// Multiplicative decrease coefficient
+  double mdCoef = 0.5;
+  /// Options for the RTT estimator
+  util::RttEstimator::Options rttOptions;
+  /// Maximum number of segments stored in the reorder buffer
+  size_t flowControlWindow = 25000;
+
+  void
+  validate();
+};
+
+/**
  * @brief Utility class to fetch a versioned and segmented object.
  *
  * SegmentFetcher assumes that segments in the object are named `/<prefix>/<version>/<segment>`,
@@ -102,33 +142,7 @@ public:
     FINALBLOCKID_NOT_SEGMENT = 5,
   };
 
-  class Options
-  {
-  public:
-    Options()
-    {
-    }
-
-    void
-    validate();
-
-  public:
-    time::milliseconds interestLifetime = 4_s; ///< lifetime of sent Interests - independent of Interest timeout
-    time::milliseconds maxTimeout = 60_s; ///< maximum allowed time between successful receipt of segments
-    bool probeLatestVersion = true; ///< use the first Interest to probe the latest version of the object
-    bool inOrder = false; ///< true for 'in order' mode, false for 'block' mode
-    bool useConstantInterestTimeout = false; ///< if true, Interest timeout is kept at `maxTimeout`
-    bool useConstantCwnd = false; ///< if true, window size is kept at `initCwnd`
-    bool disableCwa = false; ///< disable Conservative Window Adaptation
-    bool resetCwndToInit = false; ///< reduce cwnd to initCwnd when loss event occurs
-    bool ignoreCongMarks = false; ///< disable window decrease after congestion mark received
-    double initCwnd = 1.0; ///< initial congestion window size
-    double initSsthresh = std::numeric_limits<double>::max(); ///< initial slow start threshold
-    double aiStep = 1.0; ///< additive increase step (in segments)
-    double mdCoef = 0.5; ///< multiplicative decrease coefficient
-    util::RttEstimator::Options rttOptions; ///< options for RTT estimator
-    size_t flowControlWindow = 25000; ///< maximum number of segments stored in the reorder buffer
-  };
+  using Options = SegmentFetcherOptions;
 
   /**
    * @brief Initiates segment fetching.
@@ -155,10 +169,8 @@ public:
    *                     SegmentFetcher's signals can be connected to.
    */
   static shared_ptr<SegmentFetcher>
-  start(Face& face,
-        const Interest& baseInterest,
-        security::Validator& validator,
-        const Options& options = Options());
+  start(Face& face, const Interest& baseInterest, security::Validator& validator,
+        const Options& options = {});
 
   /**
    * @brief Stops fetching.

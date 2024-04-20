@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,8 +33,9 @@
 #include <boost/asio/post.hpp>
 
 namespace ndn {
+namespace {
 
-class DummyClientFace::Transport final : public ndn::Transport
+class DummyTransport final : public ndn::Transport
 {
 public:
   void
@@ -68,8 +69,10 @@ public:
   }
 
 public:
-  signal::Signal<Transport, Block> onSendBlock;
+  signal::Signal<DummyTransport, Block> onSendBlock;
 };
+
+} // namespace
 
 struct DummyClientFace::BroadcastLink
 {
@@ -82,7 +85,7 @@ DummyClientFace::AlreadyLinkedError::AlreadyLinkedError()
 }
 
 DummyClientFace::DummyClientFace(const Options& options)
-  : Face(make_shared<DummyClientFace::Transport>())
+  : Face(make_shared<DummyTransport>())
   , m_internalKeyChain(make_unique<KeyChain>())
   , m_keyChain(*m_internalKeyChain)
 {
@@ -90,14 +93,14 @@ DummyClientFace::DummyClientFace(const Options& options)
 }
 
 DummyClientFace::DummyClientFace(KeyChain& keyChain, const Options& options)
-  : Face(make_shared<DummyClientFace::Transport>(), keyChain)
+  : Face(make_shared<DummyTransport>(), keyChain)
   , m_keyChain(keyChain)
 {
   this->construct(options);
 }
 
 DummyClientFace::DummyClientFace(boost::asio::io_context& ioCtx, const Options& options)
-  : Face(make_shared<DummyClientFace::Transport>(), ioCtx)
+  : Face(make_shared<DummyTransport>(), ioCtx)
   , m_internalKeyChain(make_unique<KeyChain>())
   , m_keyChain(*m_internalKeyChain)
 {
@@ -105,7 +108,7 @@ DummyClientFace::DummyClientFace(boost::asio::io_context& ioCtx, const Options& 
 }
 
 DummyClientFace::DummyClientFace(boost::asio::io_context& ioCtx, KeyChain& keyChain, const Options& options)
-  : Face(make_shared<DummyClientFace::Transport>(), ioCtx, keyChain)
+  : Face(make_shared<DummyTransport>(), ioCtx, keyChain)
   , m_keyChain(keyChain)
 {
   this->construct(options);
@@ -119,7 +122,7 @@ DummyClientFace::~DummyClientFace()
 void
 DummyClientFace::construct(const Options& options)
 {
-  static_cast<Transport&>(getTransport()).onSendBlock.connect([this] (Block packet) {
+  static_cast<DummyTransport&>(getTransport()).onSendBlock.connect([this] (Block packet) {
     packet.encode();
     lp::Packet lpPacket(packet);
     auto frag = lpPacket.get<lp::FragmentField>();
@@ -245,7 +248,7 @@ DummyClientFace::receive(const Interest& interest)
   addFieldFromTag<lp::NextHopFaceIdField, lp::NextHopFaceIdTag>(lpPacket, interest);
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, interest);
 
-  static_cast<Transport&>(getTransport()).receive(lpPacket.wireEncode());
+  static_cast<DummyTransport&>(getTransport()).receive(lpPacket.wireEncode());
 }
 
 void
@@ -256,7 +259,7 @@ DummyClientFace::receive(const Data& data)
   addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, data);
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, data);
 
-  static_cast<Transport&>(getTransport()).receive(lpPacket.wireEncode());
+  static_cast<DummyTransport&>(getTransport()).receive(lpPacket.wireEncode());
 }
 
 void
@@ -270,7 +273,7 @@ DummyClientFace::receive(const lp::Nack& nack)
   addFieldFromTag<lp::IncomingFaceIdField, lp::IncomingFaceIdTag>(lpPacket, nack);
   addFieldFromTag<lp::CongestionMarkField, lp::CongestionMarkTag>(lpPacket, nack);
 
-  static_cast<Transport&>(getTransport()).receive(lpPacket.wireEncode());
+  static_cast<DummyTransport&>(getTransport()).receive(lpPacket.wireEncode());
 }
 
 void
