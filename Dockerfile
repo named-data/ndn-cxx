@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:23.10 AS build
-ARG SOURCE_DATE_EPOCH
+FROM ubuntu:24.04 AS build
 
 RUN apt-get install -Uy --no-install-recommends \
         dpkg-dev \
@@ -18,11 +17,11 @@ RUN apt-get install -Uy --no-install-recommends \
         libssl-dev \
         pkgconf \
         python3 \
-    # use 'apt-get distclean' when we upgrade to ubuntu:24.04
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get distclean
 
 ARG JOBS
-RUN --mount=type=bind,rw,target=/src <<EOF
+ARG SOURCE_DATE_EPOCH
+RUN --mount=rw,target=/src <<EOF
 set -eux
 cd /src
 ./waf configure \
@@ -35,7 +34,6 @@ cd /src
     --enable-shared
 ./waf build
 ./waf install
-
 mkdir -p /deps/debian
 touch /deps/debian/control
 cd /deps
@@ -43,13 +41,13 @@ dpkg-shlibdeps --ignore-missing-info /usr/lib/libndn-cxx.so.* /usr/bin/ndnsec -O
     | sed -n 's|^shlibs:Depends=||p' | sed 's| ([^)]*),\?||g' > ndn-cxx
 EOF
 
-FROM ubuntu:23.10 AS runtime
-ARG SOURCE_DATE_EPOCH
 
-RUN --mount=type=bind,from=build,source=/deps,target=/deps \
+FROM ubuntu:24.04 AS runtime
+
+RUN --mount=from=build,source=/deps,target=/deps \
     apt-get install -Uy --no-install-recommends $(cat /deps/ndn-cxx) \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get distclean
 
-RUN --mount=type=bind,from=build,source=/usr,target=/build \
+RUN --mount=from=build,source=/usr,target=/build \
     cp -av /build/lib/libndn-cxx.so.* /usr/lib/ \
     && cp -av /build/bin/ndnsec* /usr/bin/
