@@ -9,8 +9,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  packages: write
+  attestations: write
   id-token: write
+  packages: write
 
 jobs:
   ndn-cxx-build:
