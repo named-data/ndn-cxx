@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,8 +26,9 @@
 
 namespace ndn::detail {
 
-/** \brief Implementation detail of a Boost.Asio-based stream-oriented transport
- *         with resolver support.
+/**
+ * \brief Implementation detail of a Boost.Asio-based stream-oriented transport
+ *        with resolver support.
  */
 template<typename BaseTransport, typename Protocol>
 class StreamTransportWithResolverImpl : public StreamTransportImpl<BaseTransport, Protocol>
@@ -44,38 +45,47 @@ public:
     if (this->m_transport.getState() == Transport::State::CONNECTING) {
       return;
     }
+
     this->m_transport.setState(Transport::State::CONNECTING);
+    auto hostAndPort = std::string(host) + ':' + std::string(port);
 
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable
     this->m_connectTimer.expires_after(std::chrono::seconds(4));
-    this->m_connectTimer.async_wait([self = this->shared_from_base()] (const auto& ec) {
-      self->connectTimeoutHandler(ec);
+    this->m_connectTimer.async_wait([self = this->shared_from_base(), hostAndPort] (const auto& ec) {
+      if (ec) // e.g., cancelled timer
+        return;
+
+      self->m_transport.close();
+      NDN_THROW(Transport::Error(boost::system::errc::make_error_code(boost::system::errc::timed_out),
+                                 "could not connect to NDN forwarder at " + hostAndPort));
     });
 
     auto resolver = make_shared<typename Protocol::resolver>(this->m_socket.get_executor());
-    resolver->async_resolve(host, port, [self = this->shared_from_base(), resolver] (auto&&... args) {
-      self->resolveHandler(std::forward<decltype(args)>(args)..., resolver);
-    });
+    resolver->async_resolve(host, port,
+      [self = this->shared_from_base(), hostAndPort, resolver] (auto&&... args) {
+        self->resolveHandler(hostAndPort, std::forward<decltype(args)>(args)...);
+      });
   }
 
 protected:
   void
-  resolveHandler(const boost::system::error_code& error,
-                 const typename Protocol::resolver::results_type& endpoints,
-                 const shared_ptr<typename Protocol::resolver>&)
+  resolveHandler(const std::string& hostAndPort,
+                 const boost::system::error_code& error,
+                 const typename Protocol::resolver::results_type& endpoints)
   {
     if (error) {
-      if (error == boost::system::errc::operation_canceled)
+      if (error == boost::asio::error::operation_aborted)
         return;
 
       this->m_transport.close();
-      NDN_THROW(Transport::Error(error, "unable to resolve host or port"));
+      NDN_THROW(Transport::Error(error, "could not resolve " + hostAndPort));
     }
 
     BOOST_ASSERT(!endpoints.empty()); // guaranteed by Asio if the resolve operation is successful
 
-    this->m_socket.async_connect(*endpoints.begin(), [self = this->shared_from_base()] (const auto& ec) {
+    this->m_endpoint = *endpoints.begin();
+    this->m_socket.async_connect(this->m_endpoint, [self = this->shared_from_base()] (const auto& ec) {
       self->connectHandler(ec);
     });
   }

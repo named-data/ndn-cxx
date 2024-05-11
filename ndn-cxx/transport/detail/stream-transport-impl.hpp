@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,24 +26,26 @@
 
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio/write.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <list>
 #include <queue>
 
 namespace ndn::detail {
 
-/** \brief Implementation detail of a Boost.Asio-based stream-oriented transport.
- *  \tparam BaseTransport a subclass of Transport
- *  \tparam Protocol a Boost.Asio stream-oriented protocol, e.g. boost::asio::ip::tcp
- *                   or boost::asio::local::stream_protocol
+/**
+ * \brief Implementation detail of a Boost.Asio-based stream-oriented transport.
+ * \tparam BaseTransport a subclass of Transport
+ * \tparam Protocol a Boost.Asio stream-oriented protocol, e.g., `boost::asio::ip::tcp`
+ *                  or `boost::asio::local::stream_protocol`
  */
 template<typename BaseTransport, typename Protocol>
 class StreamTransportImpl : public std::enable_shared_from_this<StreamTransportImpl<BaseTransport, Protocol>>
 {
-public:
-  using Impl = StreamTransportImpl<BaseTransport, Protocol>;
+protected:
   using TransmissionQueue = std::queue<Block, std::list<Block>>;
 
+public:
   StreamTransportImpl(BaseTransport& transport, boost::asio::io_context& ioCtx)
     : m_transport(transport)
     , m_socket(ioCtx)
@@ -57,18 +59,25 @@ public:
     if (m_transport.getState() == Transport::State::CONNECTING) {
       return;
     }
+
+    m_endpoint = endpoint;
     m_transport.setState(Transport::State::CONNECTING);
 
     // Wait at most 4 seconds to connect
     /// @todo Decide whether this number should be configurable
     m_connectTimer.expires_after(std::chrono::seconds(4));
-    m_connectTimer.async_wait([self = this->shared_from_this()] (const auto& error) {
-      self->connectTimeoutHandler(error);
+    m_connectTimer.async_wait([self = this->shared_from_this()] (const auto& ec) {
+      if (ec) // e.g., cancelled timer
+        return;
+
+      self->m_transport.close();
+      NDN_THROW(Transport::Error(boost::system::errc::make_error_code(boost::system::errc::timed_out),
+                                 "could not connect to NDN forwarder at " +
+                                 boost::lexical_cast<std::string>(self->m_endpoint)));
     });
 
-    m_socket.open();
-    m_socket.async_connect(endpoint, [self = this->shared_from_this()] (const auto& error) {
-      self->connectHandler(error);
+    m_socket.async_connect(m_endpoint, [self = this->shared_from_this()] (const auto& ec) {
+      self->connectHandler(ec);
     });
   }
 
@@ -125,8 +134,13 @@ protected:
     m_connectTimer.cancel();
 
     if (error) {
+      if (error == boost::asio::error::operation_aborted) {
+        // async_connect was explicitly cancelled (e.g., socket close)
+        return;
+      }
       m_transport.close();
-      NDN_THROW(Transport::Error(error, "error while connecting to the forwarder"));
+      NDN_THROW(Transport::Error(error, "could not connect to NDN forwarder at " +
+                                 boost::lexical_cast<std::string>(m_endpoint)));
     }
 
     m_transport.setState(Transport::State::PAUSED);
@@ -138,16 +152,6 @@ protected:
   }
 
   void
-  connectTimeoutHandler(const boost::system::error_code& error)
-  {
-    if (error) // e.g., cancelled timer
-      return;
-
-    m_transport.close();
-    NDN_THROW(Transport::Error(error, "error while connecting to the forwarder"));
-  }
-
-  void
   asyncWrite()
   {
     BOOST_ASSERT(!m_transmissionQueue.empty());
@@ -155,12 +159,12 @@ protected:
       // capture a copy of the shared_ptr to "this" to prevent deallocation
       [this, self = this->shared_from_this()] (const auto& error, size_t) {
         if (error) {
-          if (error == boost::system::errc::operation_canceled) {
-            // async receive has been explicitly cancelled (e.g., socket close)
+          if (error == boost::asio::error::operation_aborted) {
+            // async_write was explicitly cancelled (e.g., socket close)
             return;
           }
           m_transport.close();
-          NDN_THROW(Transport::Error(error, "error while writing data to socket"));
+          NDN_THROW(Transport::Error(error, "socket write error"));
         }
 
         if (m_transport.getState() == Transport::State::CLOSED) {
@@ -184,12 +188,12 @@ protected:
       // capture a copy of the shared_ptr to "this" to prevent deallocation
       [this, self = this->shared_from_this()] (const auto& error, size_t nBytesRecvd) {
         if (error) {
-          if (error == boost::system::errc::operation_canceled) {
-            // async receive has been explicitly cancelled (e.g., socket close)
+          if (error == boost::asio::error::operation_aborted) {
+            // async_receive was explicitly cancelled (e.g., socket close)
             return;
           }
           m_transport.close();
-          NDN_THROW(Transport::Error(error, "error while receiving data from socket"));
+          NDN_THROW(Transport::Error(error, "socket read error"));
         }
 
         m_inputBufferSize += nBytesRecvd;
@@ -199,7 +203,7 @@ protected:
         bool hasProcessedSome = processAllReceived(m_inputBuffer, offset, m_inputBufferSize);
         if (!hasProcessedSome && m_inputBufferSize == MAX_NDN_PACKET_SIZE && offset == 0) {
           m_transport.close();
-          NDN_THROW(Transport::Error("input buffer full, but a valid TLV cannot be decoded"));
+          NDN_THROW(Transport::Error("receive buffer full, but a valid TLV cannot be decoded"));
         }
 
         if (offset > 0) {
@@ -232,12 +236,12 @@ protected:
 
 protected:
   BaseTransport& m_transport;
-
+  typename Protocol::endpoint m_endpoint;
   typename Protocol::socket m_socket;
-  uint8_t m_inputBuffer[MAX_NDN_PACKET_SIZE];
-  size_t m_inputBufferSize = 0;
-  TransmissionQueue m_transmissionQueue;
   boost::asio::steady_timer m_connectTimer;
+  TransmissionQueue m_transmissionQueue;
+  size_t m_inputBufferSize = 0;
+  uint8_t m_inputBuffer[MAX_NDN_PACKET_SIZE];
 };
 
 } // namespace ndn::detail

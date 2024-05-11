@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -118,11 +118,11 @@ makeDefaultTransport()
       NDN_THROW(ConfigFile::Error("Unsupported transport protocol \"" + protocol + "\""));
     }
   }
-  catch (const Transport::Error&) {
-    NDN_THROW_NESTED(ConfigFile::Error("Failed to create transport"));
+  catch (const Transport::Error& e) {
+    NDN_THROW_NESTED(ConfigFile::Error("Failed to create transport: "s + e.what()));
   }
-  catch (const FaceUri::Error&) {
-    NDN_THROW_NESTED(ConfigFile::Error("Failed to create transport"));
+  catch (const FaceUri::Error& e) {
+    NDN_THROW_NESTED(ConfigFile::Error("Failed to create transport: "s + e.what()));
   }
 }
 

@@ -2,7 +2,7 @@ name: Docker
 on:
   push:
     tags:
-      - 'ndn-cxx-*'
+      - 'ndn-cxx-[0-9]+*'
   schedule:
     # twice a month
     - cron: '20 4 5,20 * *'
