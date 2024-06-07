@@ -9,10 +9,11 @@ following platforms:
 
 - Ubuntu 20.04 (focal)
 - Ubuntu 22.04 (jammy)
+- Ubuntu 24.04 (noble)
 - Debian 11 (bullseye)
 - Debian 12 (bookworm)
 - CentOS Stream 9
-- macOS 11 / 12 / 13 / 14
+- macOS 12 / 13 / 14
 
 ndn-cxx should also work on the following platforms, although they are not officially
 supported:
@@ -21,7 +22,7 @@ supported:
 - Fedora >= 33
 - Alpine >= 3.12
 - Any version of Raspberry Pi OS based on Debian 11 (bullseye) or later
-- macOS 10.15
+- macOS >= 10.15
 - FreeBSD >= 12.2
 
 Prerequisites
@@ -31,7 +32,7 @@ Required
 ~~~~~~~~
 
 - GCC >= 9.3 or clang >= 7.0 (if you are on Linux or FreeBSD)
-- Xcode >= 12.4 or corresponding version of Command Line Tools (if you are on macOS)
+- Xcode >= 13.0 or corresponding version of Command Line Tools (if you are on macOS)
 - Python >= 3.8
 - pkg-config
 - Boost >= 1.71.0
