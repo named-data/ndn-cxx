@@ -28,6 +28,7 @@
 #include <boost/asio/write.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <array>
 #include <list>
 #include <queue>
 
@@ -108,7 +109,7 @@ public:
   {
     if (m_transport.getState() == Transport::State::PAUSED) {
       m_transport.setState(Transport::State::RUNNING);
-      m_inputBufferSize = 0;
+      m_rxBufferSize = 0;
       asyncReceive();
     }
   }
@@ -183,8 +184,8 @@ protected:
   void
   asyncReceive()
   {
-    m_socket.async_receive(boost::asio::buffer(m_inputBuffer + m_inputBufferSize,
-                                               MAX_NDN_PACKET_SIZE - m_inputBufferSize), 0,
+    m_socket.async_receive(boost::asio::buffer(m_rxBuffer.data() + m_rxBufferSize,
+                                               m_rxBuffer.size() - m_rxBufferSize),
       // capture a copy of the shared_ptr to "this" to prevent deallocation
       [this, self = this->shared_from_this()] (const auto& error, size_t nBytesRecvd) {
         if (error) {
@@ -196,42 +197,33 @@ protected:
           NDN_THROW(Transport::Error(error, "socket read error"));
         }
 
-        m_inputBufferSize += nBytesRecvd;
-        // do magic
+        m_rxBufferSize += nBytesRecvd;
+        auto unparsedBytes = span(m_rxBuffer).first(m_rxBufferSize);
+        while (!unparsedBytes.empty()) {
+          auto [isOk, element] = Block::fromBuffer(unparsedBytes);
+          if (!isOk) {
+            break;
+          }
+          unparsedBytes = unparsedBytes.subspan(element.size());
+          m_transport.m_receiveCallback(element);
+        }
 
-        std::size_t offset = 0;
-        bool hasProcessedSome = processAllReceived(m_inputBuffer, offset, m_inputBufferSize);
-        if (!hasProcessedSome && m_inputBufferSize == MAX_NDN_PACKET_SIZE && offset == 0) {
+        if (unparsedBytes.empty()) {
+          // nothing left in the receive buffer
+          m_rxBufferSize = 0;
+        }
+        else if (unparsedBytes.data() != m_rxBuffer.data()) {
+          // move remaining unparsed bytes to the beginning of the receive buffer
+          std::copy(unparsedBytes.begin(), unparsedBytes.end(), m_rxBuffer.begin());
+          m_rxBufferSize = unparsedBytes.size();
+        }
+        else if (unparsedBytes.size() == m_rxBuffer.size()) {
           m_transport.close();
           NDN_THROW(Transport::Error("receive buffer full, but a valid TLV cannot be decoded"));
         }
 
-        if (offset > 0) {
-          if (offset != m_inputBufferSize) {
-            std::copy(m_inputBuffer + offset, m_inputBuffer + m_inputBufferSize, m_inputBuffer);
-            m_inputBufferSize -= offset;
-          }
-          else {
-            m_inputBufferSize = 0;
-          }
-        }
-
         asyncReceive();
       });
-  }
-
-  bool
-  processAllReceived(uint8_t* buffer, size_t& offset, size_t nBytesAvailable)
-  {
-    while (offset < nBytesAvailable) {
-      auto [isOk, element] = Block::fromBuffer({buffer + offset, nBytesAvailable - offset});
-      if (!isOk) {
-        return false;
-      }
-      m_transport.m_receiveCallback(element);
-      offset += element.size();
-    }
-    return true;
   }
 
 protected:
@@ -240,8 +232,8 @@ protected:
   typename Protocol::socket m_socket;
   boost::asio::steady_timer m_connectTimer;
   TransmissionQueue m_transmissionQueue;
-  size_t m_inputBufferSize = 0;
-  uint8_t m_inputBuffer[MAX_NDN_PACKET_SIZE];
+  size_t m_rxBufferSize = 0;
+  std::array<uint8_t, MAX_NDN_PACKET_SIZE> m_rxBuffer;
 };
 
 } // namespace ndn::detail

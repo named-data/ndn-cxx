@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -28,6 +28,8 @@
 
 #include <linux/genetlink.h>
 #include <sys/socket.h>
+
+#include <array>
 
 #ifndef SOL_NETLINK
 #define SOL_NETLINK 270
@@ -247,14 +249,14 @@ NetlinkSocket::receiveAndValidate()
   iovec iov{};
   iov.iov_base = m_buffer.data();
   iov.iov_len = m_buffer.size();
-  uint8_t cmsgBuffer[CMSG_SPACE(sizeof(nl_pktinfo))];
+  std::array<uint8_t, CMSG_SPACE(sizeof(nl_pktinfo))> cmsgBuffer{};
   msghdr msg{};
   msg.msg_name = &sender;
   msg.msg_namelen = sizeof(sender);
   msg.msg_iov = &iov;
   msg.msg_iovlen = 1;
-  msg.msg_control = cmsgBuffer;
-  msg.msg_controllen = sizeof(cmsgBuffer);
+  msg.msg_control = cmsgBuffer.data();
+  msg.msg_controllen = cmsgBuffer.size();
 
   ssize_t nBytesRead = ::recvmsg(m_sock->native_handle(), &msg, 0);
   if (nBytesRead < 0) {
