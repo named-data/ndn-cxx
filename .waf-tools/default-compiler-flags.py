@@ -133,12 +133,7 @@ class CompilerFlags:
         return {
             'CXXFLAGS': [],
             'LINKFLAGS': [],
-            'DEFINES': [
-                'BOOST_ASIO_NO_DEPRECATED',
-                'BOOST_FILESYSTEM_NO_DEPRECATED',
-                'BOOST_MULTI_INDEX_ENABLE_INVARIANT_CHECKING',
-                'BOOST_MULTI_INDEX_ENABLE_SAFE_MODE',
-            ],
+            'DEFINES': ['BOOST_ASIO_NO_DEPRECATED', 'BOOST_FILESYSTEM_NO_DEPRECATED'],
         }
 
     def getOptimizedFlags(self, conf):
