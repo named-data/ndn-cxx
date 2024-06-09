@@ -198,7 +198,7 @@ protected:
         }
 
         m_rxBufferSize += nBytesRecvd;
-        auto unparsedBytes = span(m_rxBuffer).first(m_rxBufferSize);
+        auto unparsedBytes = make_span(m_rxBuffer).first(m_rxBufferSize);
         while (!unparsedBytes.empty()) {
           auto [isOk, element] = Block::fromBuffer(unparsedBytes);
           if (!isOk) {
