@@ -897,7 +897,7 @@ private:
     );
 
     scope_static_assert(
-          (std11::is_move_constructible<R>::value && std11::is_nothrow_move_constructible<D>::value )
+          (std11::is_move_constructible<D>::value && std11::is_nothrow_move_constructible<D>::value )
         || std11::is_copy_constructible<D>::value
         , "deleter must be nothrow_move_constructible or copy_constructible"
     );
