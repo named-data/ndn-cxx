@@ -1,9 +1,6 @@
 ndnsec
 ======
 
-:program:`ndnsec` is a command-line toolkit to perform various NDN security
-management operations.
-
 Synopsis
 --------
 
@@ -13,6 +10,9 @@ Synopsis
 
 Description
 -----------
+
+:program:`ndnsec` is a command-line toolkit to perform various NDN security
+management operations.
 
 The NDN security data are stored in two places: **Public Information Base**
 (PIB) and **Trusted Platform Module** (TPM). The :program:`ndnsec` toolkit
@@ -58,3 +58,12 @@ The following commands are understood:
 
 :doc:`unlock-tpm <ndnsec-unlock-tpm>`
   Unlock the TPM.
+
+Exit Status
+-----------
+
+Generally, :program:`ndnsec` commands exit with status 0 if the requested
+operation was completed successfully. On error, a nonzero status is returned.
+Individual commands may use certain nonzero exit codes to indicate that a
+more specific error has occurred. Please consult the respective man pages
+for more information.

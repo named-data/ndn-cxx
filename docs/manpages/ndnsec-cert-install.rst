@@ -4,15 +4,14 @@ ndnsec-cert-install
 Synopsis
 --------
 
-**ndnsec-cert-install** [**-h**] [**-I**\|\ **-K**\|\ **-N**] *file*
+**ndnsec cert-install** [**-h**] [**-I**\|\ **-K**\|\ **-N**] *file*
 
 Description
 -----------
 
-:program:`ndnsec-cert-install` allows importing a certificate into the
-**Public Information Base (PIB)**. By default, the installed certificate
-will be set as the default certificate for the corresponding identity and
-the identity will be set as the user's default identity.
+This command allows importing a certificate into the **Public Information Base (PIB)**.
+By default, the installed certificate will be set as the default certificate for the
+corresponding identity and the identity will be set as the user's default identity.
 
 *file* is a path to a file that contains the certificate to install.
 If *file* is "-", the certificate will be read from the standard input.
@@ -35,13 +34,20 @@ Options
 
    Install the certificate but do not change any default settings.
 
-Example
--------
+Examples
+--------
 
 Install a certificate and set it as the default certificate::
 
-    $ ndnsec-cert-install cert_file.cert
+    $ ndnsec cert-install cert_file.cert
 
 Install a certificate but do not change any default settings::
 
-    $ ndnsec-cert-install -N cert_file.cert
+    $ ndnsec cert-install -N cert_file.cert
+
+See Also
+--------
+
+:manpage:`ndnsec-cert-dump(1)`,
+:manpage:`ndnsec-cert-gen(1)`,
+:manpage:`ndnsec-import(1)`

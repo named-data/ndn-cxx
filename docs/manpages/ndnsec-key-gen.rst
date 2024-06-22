@@ -4,18 +4,18 @@ ndnsec-key-gen
 Synopsis
 --------
 
-**ndnsec-key-gen** [**-h**] [**-n**] [**-t** *type*]
+**ndnsec key-gen** [**-h**] [**-n**] [**-t** *type*]
 [**-k** *keyidtype*\|\ **--keyid** *keyid*] *identity*
 
 Description
 -----------
 
-:program:`ndnsec-key-gen` generates a key pair for the specified *identity* and
-sets the generated public key as the identity's default key.
-:program:`ndnsec-key-gen` will also create a signing request for the generated key.
-The signing request will be written to the standard output in base64 encoding.
+Generate a public/private key pair for the specified *identity* and set the newly generated
+public key as the identity's default key.
+Unless :option:`-n` is specified, the identity is also set as the user's default identity.
 
-By default, it will also set the identity as the user's default identity.
+This command will automatically create a signing request for the generated key.
+The signing request will be written to the standard output in Base64 encoding.
 
 Options
 -------
@@ -34,32 +34,28 @@ Options
 .. option:: -k <keyidtype>, --keyid-type <keyidtype>
 
    Type of KeyId for the generated key. "r" for a 64-bit random number (the default
-   unless **--keyid** is specified), "h" for the SHA-256 of the public key.
+   unless :option:`--keyid` is specified), "h" for the SHA-256 of the public key.
 
 .. option:: --keyid <keyid>
 
    User-specified KeyId. Must be a non-empty generic name component.
 
-Example
--------
+Examples
+--------
 
-::
+Generate a new default key for the identity ``/ndn/test/david``::
 
-    $ ndnsec-key-gen /ndn/test/david
-    Bv0DAAc9CANuZG4IBHRlc3QIBWRhdmlkCANLRVkIEWtzay0xMzk2OTEzMDU4MTk2
-    CAdJRC1DRVJUCAgAAAFFPoG0ohQDGAECFf0BeDCCAXQwIhgPMjAxNDA0MDcyMzI0
-    MThaGA8yMDM0MDQwMjIzMjQxOFowKjAoBgNVBCkTIS9uZG4vdGVzdC9kYXZpZC9r
-    c2stMTM5NjkxMzA1ODE5NjCCASAwDQYJKoZIhvcNAQEBBQADggENADCCAQgCggEB
-    ALS6udLacpydecxMRIfZeo74fxzpsITqaa/4UxD2FJ9lU4dtfiSSIOaRwAB/w0K/
-    AauQRq3Q1AiEocUsW2h8LmtcuF4Cj9TGAUD/1s3CISMwf9zwQ3ZhNIzN0IOsrpPA
-    TsHrbdwtOxrcFvXX4GnMLWgtvcSB52Cn68h/4AUiA1CG9/DOyCyA4EHiIkHBxh6B
-    TvAmw7SmNjr1ZBTYMaMAEV5/oLZCHzHRO+2fKdEttaWH3bz7iKVVS8u5ZxXcBs8g
-    ot55m7Xf6/TUk3qQXM1kM8wW04U+8n3jch1i7tD2T3c/OFKTT7AWndwcfbU99Z6C
-    FZ7fMsgRHxFNY8hCFZJvFFUCAREWOhsBARw1BzMIA25kbggEdGVzdAgFZGF2aWQI
-    A0tFWQgRa3NrLTEzOTY5MTMwNTgxOTYIB0lELUNFUlQX/QEAW2yfF8JTgu5okR+n
-    dRlXc3UR/b1REegrpQb3xVzs7fYiiHwFYzQE9RzOuGh/9GSMvQcfejsPw021tJnj
-    oxNx6spGTOK5Bc0QZGeC6YyNoVSaJr9Obc5Uh8eRqxw76r0pCUHP+l38UgUGeBg/
-    aHurtcu5zK0zFYX++SAfUGLUZlG4CqKBUNZC+6w9OGUXlcW411zMzfqQ7V9Gxg+p
-    1IMNJQ6trTFdIwT/4YWHsxR+16r2TRWCNHtJey2GEG84YoqRh8y37jnu7oPhAtTN
-    TgG9O7O39dZLiFg+UP3LpW1LY64fJXsNfZQmnZWcNo5lX6MXfeiPxWFjOQqnno82
-    1hgqgA==
+    $ ndnsec key-gen /ndn/test/david
+    Bv0BNwcxCANuZG4IBHRlc3QIBWRhdmlkCANLRVkICLe4LjaLILlwCARzZWxmNggA
+    AAGQQSVMERQJGAECGQQANu6AFVswWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASc
+    RppJ1qQzCpTyjvsX33fW9/WxopTdoEwfMZENOC960YB7g/LMhWx10ws4benYxIO2
+    ELirW0NZ6Wu5VUuzfyjfFlIbAQMcIwchCANuZG4IBHRlc3QIBWRhdmlkCANLRVkI
+    CLe4LjaLILlw/QD9Jv0A/g8yMDI0MDYyMlQxODExMjH9AP8PMjA0NDA2MTdUMTgx
+    MTIxF0YwRAIgLJWFpcWrmaOuXW5W+im9al+7TinaEqodve+vrJ2VE5sCIHyrWB+5
+    g2bl11aVNycEnMvG8KRSJoHRvNkx7+6RV33s
+
+See Also
+--------
+
+:manpage:`ndnsec-cert-gen(1)`,
+:manpage:`ndnsec-sign-req(1)`

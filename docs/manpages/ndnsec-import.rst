@@ -4,30 +4,36 @@ ndnsec-import
 Synopsis
 --------
 
-**ndnsec-import** [**-h**] [**-P** *passphrase*] *file*
+**ndnsec import** [**-h**] [**-P** *passphrase*] *file*
 
 Description
 -----------
 
-:program:`ndnsec-import` imports a certificate and its private key from a file
-created by :program:`ndnsec-export`. It will ask for the passphrase used to
-encrypt the private key.
+Import a certificate and its private key from a file in **SafeBag** format.
+The command will interactively ask for a passphrase to be used for decrypting the private key.
+If *file* is "-", the **SafeBag** data will be read from the standard input.
 
-If *file* is "-", read from the standard input.
+:program:`ndnsec-export` can be used to create a file in the expected format.
 
 Options
 -------
 
 .. option:: -P <passphrase>, --password <passphrase>
 
-   Passphrase to use for the export. If empty or not specified, the user is
+   Passphrase to use for decryption. If empty or not specified, the user is
    interactively asked to type the passphrase on the terminal. Note that
    specifying the passphrase via this option is insecure, as it can potentially
    end up in the shell's history, be visible in :command:`ps` output, and so on.
 
-Example
--------
+Examples
+--------
 
 Import a certificate and private key from a file::
 
-    $ ndnsec-import alice.ndnkey
+    $ ndnsec import alice.ndnkey
+
+See Also
+--------
+
+:manpage:`ndnsec-cert-install(1)`,
+:manpage:`ndnsec-export(1)`

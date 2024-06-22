@@ -4,23 +4,23 @@ ndnsec-cert-gen
 Synopsis
 --------
 
-**ndnsec-cert-gen** [**-h**] [**-S** *timestamp*] [**-E** *timestamp*]
+**ndnsec cert-gen** [**-h**] [**-S** *timestamp*] [**-E** *timestamp*]
 [**-I** *info*]... [**-s** *signer*] [**-i** *issuer*] *file*
 
 Description
 -----------
 
-:program:`ndnsec-cert-gen` takes a signing request as input and issues an
-identity certificate for the key in the signing request. The signing request
-can be created with :program:`ndnsec-key-gen` and can be re-generated with
-:program:`ndnsec-sign-req`.
+This command takes a signing request as input and issues an identity certificate for
+the key contained in the signing request.
+A signing request is generated automatically by :program:`ndnsec-key-gen` for any new
+key, or it can be manually created for an existing key with :program:`ndnsec-sign-req`.
 
-By default, the default key is used to sign the issued certificate.
+Unless specified otherwise, the default key is used to sign the issued certificate.
 
-*file* is the name of a file that contains the signing request. If *file* is
-"-", the signing request is read from the standard input.
+*file* is the name of a file that contains the signing request.
+If *file* is "-", the signing request is read from the standard input.
 
-The generated certificate is written to the standard output in base64 encoding.
+The generated certificate is written to the standard output in Base64 encoding.
 
 Options
 -------
@@ -33,7 +33,7 @@ Options
 .. option:: -E <timestamp>, --not-after <timestamp>
 
    Date and time when the certificate expires, in "YYYYMMDDhhmmss" format.
-   The default value is 365 days after the **--not-before** timestamp.
+   The default value is 365 days after the :option:`--not-before` timestamp.
 
 .. option:: -I <info>, --info <info>
 
@@ -57,12 +57,12 @@ Options
    Issuer's ID to be included in the issued certificate name. The default
    value is "NA".
 
-Example
--------
+Examples
+--------
 
 ::
 
-    $ ndnsec-cert-gen -S 20200501000000 -E 20210101000000 -I "affiliation Some Organization" -I "foobar Foo Bar" -i "Universe" -s /ndn/test request.cert > signed.cert
+    $ ndnsec cert-gen -S 20200501000000 -E 20210101000000 -I "affiliation Some Organization" -I "foobar Foo Bar" -i "Universe" -s /ndn/test request.cert > signed.cert
 
     $ cat signed.cert
     Bv0BcgctCAdleGFtcGxlCANLRVkICOQUmX8oloLrCAhVbml2ZXJzZQgJ/QAAAXHR
@@ -74,7 +74,7 @@ Example
     YXL9AgIHRm9vIEJhchdHMEUCIQDPT9Hq1kvkE0r9W1aYSBVTnHlTEzgtz+v1DwkC
     ug/vLAIgY3xJITCwf55sqey33q5GIQSk1TRCkNNl58ojvPs5sNU=
 
-    $ ndnsec-cert-dump -p -f signed.cert
+    $ ndnsec cert-dump -p -f signed.cert
     Certificate Name:
       /example/KEY/%E4%14%99%7F%28%96%82%EB/Universe/%FD%00%00%01q%D1%02N%82
     Additional Description:
@@ -90,3 +90,11 @@ Example
     Signature Information:
       Signature Type: SignatureSha256WithEcdsa
       Key Locator: Name=/ndn/test/KEY/I%3FS%9A%28%BB%9A%95
+
+See Also
+--------
+
+:manpage:`ndnsec-cert-dump(1)`,
+:manpage:`ndnsec-cert-install(1)`,
+:manpage:`ndnsec-key-gen(1)`,
+:manpage:`ndnsec-sign-req(1)`
