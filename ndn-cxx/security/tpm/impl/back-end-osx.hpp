@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,19 +51,6 @@ public:
   static const std::string&
   getScheme();
 
-public: // management
-  bool
-  isTerminalMode() const final;
-
-  void
-  setTerminalMode(bool isTerminal) const final;
-
-  bool
-  isTpmLocked() const final;
-
-  bool
-  unlockTpm(const char* pw, size_t pwLen) const final;
-
 public: // crypto transformation
   /**
    * @brief Sign @p bufs with @p key using @p digestAlgorithm.
@@ -103,7 +90,7 @@ private: // inherited from tpm::BackEnd
   doImportKey(const Name& keyName, shared_ptr<transform::PrivateKey> key) final;
 
 private:
-  class Impl;
+  struct Impl;
   const unique_ptr<Impl> m_impl;
 };
 

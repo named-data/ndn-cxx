@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -143,29 +143,6 @@ BackEnd::constructHmacKeyName(const transform::PrivateKey& key, const Name& iden
                               const KeyParams& params) const
 {
   return Name(identity).append(name::Component(key.getKeyDigest(DigestAlgorithm::SHA256)));
-}
-
-bool
-BackEnd::isTerminalMode() const
-{
-  return true;
-}
-
-void
-BackEnd::setTerminalMode(bool isTerminal) const
-{
-}
-
-bool
-BackEnd::isTpmLocked() const
-{
-  return false;
-}
-
-bool
-BackEnd::unlockTpm(const char* pw, size_t pwLen) const
-{
-  return !isTpmLocked();
 }
 
 } // namespace ndn::security::tpm

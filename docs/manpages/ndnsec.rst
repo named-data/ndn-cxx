@@ -56,9 +56,6 @@ The following commands are understood:
 :doc:`import <ndnsec-import>`
   Import an identity from a SafeBag.
 
-:doc:`unlock-tpm <ndnsec-unlock-tpm>`
-  Unlock the TPM.
-
 Exit Status
 -----------
 

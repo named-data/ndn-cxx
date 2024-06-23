@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -33,6 +33,8 @@ namespace ndn::ndnsec {
 int
 ndnsec_unlock_tpm(int argc, char** argv)
 {
+  std::cerr << "DEPRECATION NOTICE: ndnsec-unlock-tpm is deprecated.\n";
+
   namespace po = boost::program_options;
 
   po::options_description description(
@@ -68,7 +70,10 @@ ndnsec_unlock_tpm(int argc, char** argv)
     return 1;
   }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   bool isUnlocked = keyChain.getTpm().unlockTpm(password, std::strlen(password));
+#pragma GCC diagnostic pop
   OPENSSL_cleanse(password, std::strlen(password));
 
   if (isUnlocked) {

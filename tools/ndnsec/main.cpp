@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,7 +35,6 @@ constexpr std::string_view NDNSEC_HELP_TEXT = R"STR(Usage: ndnsec COMMAND [OPTIO
 
 Available commands:
   help           Print this help text
-  version        Print program version
   list           List all known identities/keys/certificates
   get-default    Show the default identity/key/certificate
   set-default    Change the default identity/key/certificate
@@ -47,9 +46,9 @@ Available commands:
   cert-install   Import a certificate from a file
   export         Export an identity as a SafeBag
   import         Import an identity from a SafeBag
-  unlock-tpm     Unlock the TPM
+  version        Print version information
 
-Try 'ndnsec COMMAND --help' for more information on a command.
+Run 'ndnsec COMMAND --help' for more information on a command.
 )STR";
 
 int

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -116,45 +116,59 @@ public: // key management
 
   /**
    * @brief Check if the TPM is in terminal mode.
+   * @deprecated
    *
    * The default implementation always returns true.
-   *
-   * @return True if in terminal mode, false otherwise.
    */
+  [[deprecated]]
   virtual bool
-  isTerminalMode() const;
+  isTerminalMode() const
+  {
+    return true;
+  }
 
   /**
    * @brief Set the terminal mode of the TPM.
+   * @deprecated
    *
    * In terminal mode, the TPM will not ask for a password from the GUI.
    * The default implementation does nothing.
    */
+  [[deprecated]]
   virtual void
-  setTerminalMode(bool isTerminal) const;
+  setTerminalMode(bool isTerminal) const
+  {
+  }
 
   /**
    * @brief Check if the TPM is locked.
+   * @deprecated
    *
    * The default implementation always returns false.
-   *
-   * @return True if locked, false otherwise.
    */
+  [[deprecated]]
   virtual bool
-  isTpmLocked() const;
+  isTpmLocked() const
+  {
+    return false;
+  }
 
   /**
    * @brief Unlock the TPM.
+   * @deprecated
    *
-   * The default implementation does nothing and returns `!isTpmLocked()`.
+   * The default implementation does nothing and always returns true.
    *
    * @param pw The password to unlock the TPM.
    * @param pwLen The length of the password.
-   *
    * @return True if the TPM was unlocked.
    */
+  [[deprecated]]
   [[nodiscard]] virtual bool
-  unlockTpm(const char* pw, size_t pwLen) const;
+  unlockTpm(const char* pw, size_t pwLen) const
+  {
+    return true;
+  }
 
 protected: // helper methods
   /**

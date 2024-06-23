@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -38,11 +38,9 @@ namespace ndn::security::tpm {
 namespace cfstring = ndn::detail::cfstring;
 using ndn::detail::CFReleaser;
 
-class BackEndOsx::Impl
+struct BackEndOsx::Impl
 {
-public:
   SecKeychainRef keyChainRef;
-  bool isTerminalMode = false;
 };
 
 static CFReleaser<CFDataRef>
@@ -187,8 +185,6 @@ exportItem(const KeyRefOsx& keyRef, transform::PrivateKey& outKey)
 BackEndOsx::BackEndOsx(const std::string&)
   : m_impl(make_unique<Impl>())
 {
-  SecKeychainSetUserInteractionAllowed(!m_impl->isTerminalMode);
-
   OSStatus res = SecKeychainCopyDefault(&m_impl->keyChainRef);
   if (res == errSecNoDefaultKeychain) {
     NDN_THROW(Error("No default keychain, create one first"));
@@ -202,49 +198,6 @@ BackEndOsx::getScheme()
 {
   static const std::string scheme("tpm-osxkeychain");
   return scheme;
-}
-
-bool
-BackEndOsx::isTerminalMode() const
-{
-  return m_impl->isTerminalMode;
-}
-
-void
-BackEndOsx::setTerminalMode(bool isTerminal) const
-{
-  m_impl->isTerminalMode = isTerminal;
-  SecKeychainSetUserInteractionAllowed(!isTerminal);
-}
-
-bool
-BackEndOsx::isTpmLocked() const
-{
-  SecKeychainStatus keychainStatus;
-  OSStatus res = SecKeychainGetStatus(m_impl->keyChainRef, &keychainStatus);
-  if (res != errSecSuccess)
-    return true;
-  else
-    return (kSecUnlockStateStatus & keychainStatus) == 0;
-}
-
-bool
-BackEndOsx::unlockTpm(const char* pw, size_t pwLen) const
-{
-  // If the default key chain is already unlocked, return immediately.
-  if (!isTpmLocked())
-    return true;
-
-  if (m_impl->isTerminalMode) {
-    // Use the supplied password.
-    SecKeychainUnlock(m_impl->keyChainRef, pwLen, pw, true);
-  }
-  else {
-    // If inTerminal is not set, get the password from GUI.
-    SecKeychainUnlock(m_impl->keyChainRef, 0, nullptr, false);
-  }
-
-  return !isTpmLocked();
 }
 
 ConstBufferPtr
