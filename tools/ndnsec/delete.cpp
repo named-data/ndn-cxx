@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,6 +35,8 @@ ndnsec_delete(int argc, char** argv)
 
   po::options_description description(
     "Usage: ndnsec delete [-h] [-k|-c] [-n] NAME\n"
+    "\n"
+    "Delete an identity, key, or certificate.\n"
     "\n"
     "Options");
   description.add_options()

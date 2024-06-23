@@ -5,7 +5,7 @@ Synopsis
 --------
 
 **ndnsec key-gen** [**-h**] [**-n**] [**-t** *type*]
-[**-k** *keyidtype*\|\ **--keyid** *keyid*] *identity*
+[**-k** *keyidtype*\|\ **\--keyid** *keyid*] *identity*
 
 Description
 -----------

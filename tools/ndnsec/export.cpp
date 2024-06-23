@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -46,6 +46,8 @@ ndnsec_export(int argc, char** argv)
 
   po::options_description visibleOptDesc(
     "Usage: ndnsec export [-h] [-o FILE] [-P PASSPHRASE] [-i|-k|-c] NAME\n"
+    "\n"
+    "Export a private key and its certificate in SafeBag format.\n"
     "\n"
     "Options");
   visibleOptDesc.add_options()

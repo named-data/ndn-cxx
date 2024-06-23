@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -42,6 +42,8 @@ ndnsec_cert_dump(int argc, char** argv)
 
   po::options_description description(
     "Usage: ndnsec cert-dump [-h] [-p] [-r [-H HOST] [-P PORT]] [-i|-k|-f] [-n] NAME\n"
+    "\n"
+    "Display a certificate from a file or the local PIB.\n"
     "\n"
     "Options");
   description.add_options()

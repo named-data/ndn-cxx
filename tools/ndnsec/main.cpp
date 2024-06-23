@@ -35,14 +35,14 @@ constexpr std::string_view NDNSEC_HELP_TEXT = R"STR(Usage: ndnsec COMMAND [OPTIO
 
 Available commands:
   help           Print this help text
-  list           List all known identities/keys/certificates
-  get-default    Show the default identity/key/certificate
-  set-default    Change the default identity/key/certificate
-  delete         Delete an identity/key/certificate
-  key-gen        Generate a key for an identity
+  list           List all known identities, keys, and certificates
+  get-default    Show the default identity, key, or certificate
+  set-default    Change the default identity, key, or certificate
+  delete         Delete an identity, key, or certificate
+  key-gen        Generate a key pair for an identity
   sign-req       Generate a certificate signing request
-  cert-gen       Create a certificate for an identity
-  cert-dump      Export a certificate
+  cert-gen       Issue a certificate for an identity
+  cert-dump      Display a certificate
   cert-install   Import a certificate from a file
   export         Export an identity as a SafeBag
   import         Import an identity from a SafeBag

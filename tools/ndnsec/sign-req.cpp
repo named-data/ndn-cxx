@@ -37,6 +37,8 @@ ndnsec_sign_req(int argc, char** argv)
   po::options_description description(
     "Usage: ndnsec sign-req [-h] [-k] [-n] NAME\n"
     "\n"
+    "Generate a certificate signing request.\n"
+    "\n"
     "Options");
   description.add_options()
     ("help,h", "produce help message")

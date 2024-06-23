@@ -36,7 +36,10 @@ ndnsec_key_gen(int argc, char** argv)
   std::string userKeyId;
 
   po::options_description description(
-    "Usage: ndnsec key-gen [-h] [-n] [-t TYPE] [-k KEYIDTYPE|--keyid KEYID] [-i] IDENTITY\n"
+    "Usage: ndnsec key-gen [-h] [-n] [-t TYPE] [-k KEYIDTYPE|--keyid KEYID]\n"
+    "                      [-i] IDENTITY\n"
+    "\n"
+    "Generate a public/private key pair for an identity.\n"
     "\n"
     "Options");
   description.add_options()

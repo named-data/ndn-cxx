@@ -46,6 +46,8 @@ ndnsec_cert_gen(int argc, char** argv)
     "Usage: ndnsec cert-gen [-h] [-S TIMESTAMP] [-E TIMESTAMP] [-I INFO]...\n"
     "                       [-s IDENTITY] [-i ISSUER] [-r] FILE\n"
     "\n"
+    "Issue a certificate from a certificate signing request.\n"
+    "\n"
     "Options");
   description.add_options()
     ("help,h", "produce help message")
