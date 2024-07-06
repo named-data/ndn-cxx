@@ -157,8 +157,8 @@ public: // matching
   /**
    * @brief Check if this Interest can be satisfied by @p data.
    *
-   * This method considers `Name`, `CanBePrefix`, and `MustBeFresh`. However, `MustBeFresh`
-   * evaluation is limited to rejecting Data with zero/omitted `FreshnessPeriod`.
+   * This method considers only `Name` (including `ImplicitSha256Digest` if present) and
+   * `CanBePrefix` to determine whether the Data satisfies the Interest.
    */
   [[nodiscard]] bool
   matchesData(const Data& data) const;
