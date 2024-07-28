@@ -4,7 +4,7 @@ import os
 import subprocess
 from waflib import Context, Logs, Utils
 
-VERSION = '0.8.1'
+VERSION = '0.9.0'
 APPNAME = 'ndn-cxx'
 GIT_TAG_PREFIX = 'ndn-cxx-'
 

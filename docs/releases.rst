@@ -1,5 +1,5 @@
-All ndn-cxx Releases
-====================
+Release History
+===============
 
 .. toctree::
    :glob:
@@ -9,17 +9,26 @@ All ndn-cxx Releases
 
    release-notes/*
 
-* **ndn-cxx version 0.8.1**
-  (:doc:`Release Notes <release-notes/release-notes-0.8.1>`, `Documentation <https://docs.named-data.net/ndn-cxx/0.8.1/>`__)
+* **ndn-cxx version 0.9.0**
+  \| :doc:`Release Notes <release-notes/release-notes-0.9.0>`
+  \| `GitHub <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.9.0>`__
+  \| `Source download <https://github.com/named-data/ndn-cxx/releases/download/ndn-cxx-0.9.0/ndn-cxx-0.9.0.tar.xz>`__
+  (`checksum <https://github.com/named-data/ndn-cxx/releases/download/ndn-cxx-0.9.0/ndn-cxx-0.9.0.tar.xz.sha256>`__)
+  \| `Documentation <https://docs.named-data.net/ndn-cxx/0.9.0/>`__
 
-  `src (git) <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.8.1>`__,
-  `src (tarball) <https://named-data.net/downloads/ndn-cxx-0.8.1.tar.bz2>`__ (`checksum <https://named-data.net/downloads/ndn-cxx-0.8.1.tar.bz2.sha256>`__)
+* **ndn-cxx version 0.8.1**
+  \| :doc:`Release Notes <release-notes/release-notes-0.8.1>`
+  \| `GitHub <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.8.1>`__
+  \| `Source download <https://named-data.net/downloads/ndn-cxx-0.8.1.tar.bz2>`__
+  (`checksum <https://named-data.net/downloads/ndn-cxx-0.8.1.tar.bz2.sha256>`__)
+  \| `Documentation <https://docs.named-data.net/ndn-cxx/0.8.1/>`__
 
 * **ndn-cxx version 0.8.0**
-  (:doc:`Release Notes <release-notes/release-notes-0.8.0>`, `Documentation <https://docs.named-data.net/ndn-cxx/0.8.0/>`__)
-
-  `src (git) <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.8.0>`__,
-  `src (tarball) <https://named-data.net/downloads/ndn-cxx-0.8.0.tar.bz2>`__ (`checksum <https://named-data.net/downloads/ndn-cxx-0.8.0.tar.bz2.sha256>`__)
+  \| :doc:`Release Notes <release-notes/release-notes-0.8.0>`
+  \| `GitHub <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.8.0>`__
+  \| `Source download <https://named-data.net/downloads/ndn-cxx-0.8.0.tar.bz2>`__
+  (`checksum <https://named-data.net/downloads/ndn-cxx-0.8.0.tar.bz2.sha256>`__)
+  \| `Documentation <https://docs.named-data.net/ndn-cxx/0.8.0/>`__
 
 * **ndn-cxx version 0.7.1**
   (:doc:`Release Notes <release-notes/release-notes-0.7.1>`, `Documentation <https://docs.named-data.net/ndn-cxx/0.7.1/>`__)
@@ -72,13 +81,13 @@ All ndn-cxx Releases
   `src (tarball) <https://named-data.net/downloads/ndn-cxx-0.6.0.tar.bz2>`__ (`checksum <https://named-data.net/downloads/ndn-cxx-0.6.0.tar.bz2.sha256>`__)
 
 * **ndn-cxx version 0.5.1**
-  (:doc:`Release Notes <release-notes/release-notes-0.5.1>`, `Documentation <https://docs.named-data.net/ndn-cxx/0.5.1/>`__)
+  (:doc:`Release Notes <release-notes/release-notes-0.5.1>`)
 
   `src (git) <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.5.1>`__,
   `src (tarball) <https://named-data.net/downloads/ndn-cxx-0.5.1.tar.bz2>`__ (`checksum <https://named-data.net/downloads/ndn-cxx-0.5.1.tar.bz2.sha256>`__)
 
 * **ndn-cxx version 0.5.0**
-  (:doc:`Release Notes <release-notes/release-notes-0.5.0>`, `Documentation <https://docs.named-data.net/ndn-cxx/0.5.0/>`__)
+  (:doc:`Release Notes <release-notes/release-notes-0.5.0>`)
 
   `src (git) <https://github.com/named-data/ndn-cxx/releases/tag/ndn-cxx-0.5.0>`__,
   `src (tarball) <https://named-data.net/downloads/ndn-cxx-0.5.0.tar.bz2>`__ (`checksum <https://named-data.net/downloads/ndn-cxx-0.5.0.tar.bz2.sha256>`__)
