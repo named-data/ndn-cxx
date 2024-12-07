@@ -886,6 +886,8 @@ make_scope_success( EF && exit_function )
 
 // unique_resource:
 
+#if 0 // https://github.com/martinmoene/scope-lite/issues/15
+
 template< class R, class D >
 class unique_resource
 {
@@ -1130,8 +1132,8 @@ public:
     }
 
 scope_is_delete_access:
-	unique_resource & operator=( unique_resource const & ) scope_is_delete;
-	unique_resource( unique_resource const & ) scope_is_delete;
+        unique_resource & operator=( unique_resource const & ) scope_is_delete;
+        unique_resource( unique_resource const & ) scope_is_delete;
 
 private:
     R1 resource;
@@ -1205,6 +1207,8 @@ scope_noexcept_op
 }
 
 #endif // scope_HAVE_DEFAULT_FUNCTION_TEMPLATE_ARG
+
+#endif // https://github.com/martinmoene/scope-lite/issues/15
 
 #else // #if scope_USE_POST_CPP98_VERSION
 
@@ -1396,7 +1400,7 @@ public:
     try
     {
         reset();
-		resource = r;
+                resource = r;
         execute_on_reset = true;
     }
     catch(...)
@@ -1481,12 +1485,10 @@ namespace nonstd
     using scope::scope_exit;
     using scope::scope_fail;
     using scope::scope_success;
-    using scope::unique_resource;
 
     using scope::make_scope_exit;
     using scope::make_scope_fail;
     using scope::make_scope_success;
-    using scope::make_unique_resource_checked;
 }
 
 #endif // scope_USES_STD_SCOPE

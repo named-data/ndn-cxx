@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -30,12 +30,10 @@ namespace ndn {
 using ::nonstd::scope_exit;
 using ::nonstd::scope_fail;
 using ::nonstd::scope_success;
-using ::nonstd::unique_resource;
 
 using ::nonstd::make_scope_exit;
 using ::nonstd::make_scope_fail;
 using ::nonstd::make_scope_success;
-using ::nonstd::make_unique_resource_checked;
 
 } // namespace ndn
 
