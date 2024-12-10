@@ -13,7 +13,7 @@ following platforms:
 - Debian 11 (bullseye)
 - Debian 12 (bookworm)
 - CentOS Stream 9
-- macOS 12 / 13 / 14
+- macOS 12 / 13 / 14 / 15
 
 ndn-cxx should also work on the following platforms, although they are not officially
 supported:
@@ -63,7 +63,7 @@ development tools and libraries:
 
       .. code-block:: sh
 
-        brew install boost openssl pkg-config
+        brew install boost openssl pkgconf
 
       .. warning::
 
@@ -186,18 +186,18 @@ The ``./waf install`` command installs the following files:
 -  ``<LIBDIR>/libndn-cxx.so``, ``<LIBDIR>/libndn-cxx.so.<VERSION>`` (on Linux),
    ``<LIBDIR>/libndn-cxx.dylib``, ``<LIBDIR>/libndn-cxx.<VERSION>.dylib`` (on macOS):
    shared NDN C++ library (if enabled).
--  ``<LIBDIR>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all necessary flags to
-   build against the library. For example, if the ``pkg-config`` or ``pkgconf-pkg-config``
-   package is installed and ``PKG_CONFIG_PATH`` is configured properly (or if
-   ``<LIBDIR>/pkgconfig`` is a default search path), the command ``pkg-config --cflags
-   --libs libndn-cxx`` will return all necessary compile and link flags for the library.
+-  ``<LIBDIR>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all necessary flags to build
+   against the library. For example, if the ``pkg-config`` or ``pkgconf`` package is installed
+   and ``PKG_CONFIG_PATH`` is configured properly (or if ``<LIBDIR>/pkgconfig`` is a default
+   search path), the command ``pkg-config --cflags --libs libndn-cxx`` will return all
+   necessary compile and link flags for the ndn-cxx library.
 -  ``<BINDIR>/ndnsec``: command-line tool to manage NDN keys and certificates.
 -  ``<BINDIR>/ndnsec-*``: convenience aliases for ``ndnsec`` tools.
 
 If configured with tests (``./waf configure --with-tests``), the above commands
 will also produce:
 
--  ``build/unit-tests``: a unit test binary for the library.
+- ``build/unit-tests``: a unit test binary for the library; it will not be installed.
 
 1.5 GB available memory per CPU core is necessary for efficient compilation. On a
 multi-core machine with less than 1.5 GB available memory per CPU core, limit the
