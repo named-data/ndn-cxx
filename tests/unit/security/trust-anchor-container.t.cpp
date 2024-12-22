@@ -25,8 +25,6 @@
 #include "tests/key-chain-fixture.hpp"
 #include "tests/unit/clock-fixture.hpp"
 
-#include <boost/filesystem/operations.hpp>
-
 namespace ndn::tests {
 
 using namespace ndn::security;
@@ -38,20 +36,20 @@ class TrustAnchorContainerFixture : public ClockFixture, public KeyChainFixture
 public:
   TrustAnchorContainerFixture()
   {
-    boost::filesystem::create_directories(certDirPath);
+    std::filesystem::create_directories(certDirPath);
 
     identity1 = m_keyChain.createIdentity("/TestAnchorContainer/First");
     cert1 = identity1.getDefaultKey().getDefaultCertificate();
-    saveCert(cert1, certPath1.string());
+    saveCert(cert1, certPath1);
 
     identity2 = m_keyChain.createIdentity("/TestAnchorContainer/Second");
     cert2 = identity2.getDefaultKey().getDefaultCertificate();
-    saveCert(cert2, certPath2.string());
+    saveCert(cert2, certPath2);
   }
 
   ~TrustAnchorContainerFixture() override
   {
-    boost::filesystem::remove_all(certDirPath);
+    std::filesystem::remove_all(certDirPath);
   }
 
   void
@@ -73,9 +71,9 @@ public:
   }
 
 public:
-  const boost::filesystem::path certDirPath{boost::filesystem::path(UNIT_TESTS_TMPDIR) / "test-cert-dir"};
-  const boost::filesystem::path certPath1{certDirPath / "trust-anchor-1.cert"};
-  const boost::filesystem::path certPath2{certDirPath / "trust-anchor-2.cert"};
+  const std::filesystem::path certDirPath{std::filesystem::path(UNIT_TESTS_TMPDIR) / "test-cert-dir"};
+  const std::filesystem::path certPath1{certDirPath / "trust-anchor-1.cert"};
+  const std::filesystem::path certPath2{certDirPath / "trust-anchor-2.cert"};
 
   TrustAnchorContainer anchorContainer;
 
@@ -100,20 +98,20 @@ BOOST_AUTO_TEST_CASE(Insert)
   BOOST_CHECK_NO_THROW(anchorContainer.insert("group1", Certificate(cert1)));
   BOOST_CHECK_EQUAL(cert, anchorContainer.find(cert1.getName())); // still the same instance of the certificate
   // cannot add dynamic group when static already exists
-  BOOST_CHECK_THROW(anchorContainer.insert("group1", certPath1.string(), 1_s), TrustAnchorContainer::Error);
+  BOOST_CHECK_THROW(anchorContainer.insert("group1", certPath1, 1_s), TrustAnchorContainer::Error);
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group1").size(), 1);
   BOOST_CHECK_EQUAL(anchorContainer.size(), 1);
 
   // From file
-  anchorContainer.insert("group2", certPath2.string(), 1_s);
+  anchorContainer.insert("group2", certPath2, 1_s);
   BOOST_CHECK(anchorContainer.find(cert2.getName()) != nullptr);
   BOOST_CHECK(anchorContainer.find(identity2.getName()) != nullptr);
   BOOST_CHECK_THROW(anchorContainer.insert("group2", Certificate(cert2)), TrustAnchorContainer::Error);
-  BOOST_CHECK_THROW(anchorContainer.insert("group2", certPath2.string(), 1_s), TrustAnchorContainer::Error);
+  BOOST_CHECK_THROW(anchorContainer.insert("group2", certPath2, 1_s), TrustAnchorContainer::Error);
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group2").size(), 1);
   BOOST_CHECK_EQUAL(anchorContainer.size(), 2);
 
-  boost::filesystem::remove(certPath2);
+  std::filesystem::remove(certPath2);
   advanceClocks(1_s, 11);
 
   BOOST_CHECK(anchorContainer.find(identity2.getName()) == nullptr);
@@ -134,15 +132,15 @@ BOOST_AUTO_TEST_CASE(Insert)
 
 BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 {
-  boost::filesystem::remove(certPath2);
+  std::filesystem::remove(certPath2);
 
-  anchorContainer.insert("group", certDirPath.string(), 1_s, true /* isDir */);
+  anchorContainer.insert("group", certDirPath, 1_s, /*isDir*/ true);
 
   BOOST_CHECK(anchorContainer.find(identity1.getName()) != nullptr);
   BOOST_CHECK(anchorContainer.find(identity2.getName()) == nullptr);
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group").size(), 1);
 
-  saveCert(cert2, certPath2.string());
+  saveCert(cert2, certPath2);
 
   advanceClocks(100_ms, 11);
 
@@ -150,7 +148,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
   BOOST_CHECK(anchorContainer.find(identity2.getName()) != nullptr);
   BOOST_CHECK_EQUAL(anchorContainer.getGroup("group").size(), 2);
 
-  boost::filesystem::remove_all(certDirPath);
+  std::filesystem::remove_all(certDirPath);
 
   advanceClocks(100_ms, 11);
 
@@ -161,7 +159,7 @@ BOOST_AUTO_TEST_CASE(DynamicAnchorFromDir)
 
 BOOST_AUTO_TEST_CASE(FindByInterest)
 {
-  anchorContainer.insert("group1", certPath1.string(), 1_s);
+  anchorContainer.insert("group1", certPath1, 1_s);
 
   checkFindByInterest(identity1.getName(), true, cert1);
   checkFindByInterest(identity1.getName().getPrefix(-1), true, cert1);

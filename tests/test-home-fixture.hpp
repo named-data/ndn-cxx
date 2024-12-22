@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,12 +25,11 @@
 #include "ndn-cxx/security/key-chain.hpp"
 
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <initializer_list>
 
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 
 namespace ndn::tests {
 
@@ -46,11 +45,11 @@ class PibDirFixture
 public:
   PibDirFixture()
   {
-    if (std::getenv("NDN_CLIENT_PIB") != nullptr) {
-      m_oldPib = std::getenv("NDN_CLIENT_PIB");
+    if (const char* envPib = std::getenv("NDN_CLIENT_PIB"); envPib != nullptr) {
+      m_oldPib = envPib;
     }
-    if (std::getenv("NDN_CLIENT_TPM") != nullptr) {
-      m_oldTpm = std::getenv("NDN_CLIENT_TPM");
+    if (const char* envTpm = std::getenv("NDN_CLIENT_TPM"); envTpm != nullptr) {
+      m_oldTpm = envTpm;
     }
 
     /// @todo Consider change to an in-memory PIB/TPM
@@ -74,7 +73,7 @@ public:
       unsetenv("NDN_CLIENT_TPM");
     }
 
-    boost::filesystem::remove_all(m_pibDir);
+    std::filesystem::remove_all(m_pibDir);
     KeyChain::resetDefaultLocators();
   }
 
@@ -106,8 +105,9 @@ public:
   void
   createClientConf(std::initializer_list<std::string> lines) const
   {
-    boost::filesystem::create_directories(boost::filesystem::path(this->m_pibDir) / ".ndn");
-    std::ofstream of((boost::filesystem::path(this->m_pibDir) / ".ndn" / "client.conf").c_str());
+    auto ndnDir = std::filesystem::path(this->m_pibDir) / ".ndn";
+    std::filesystem::create_directories(ndnDir);
+    std::ofstream of(ndnDir / "client.conf");
     for (auto line : lines) {
       boost::replace_all(line, "%PATH%", this->m_pibDir);
       of << line << std::endl;

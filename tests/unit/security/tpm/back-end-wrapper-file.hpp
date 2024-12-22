@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,7 @@
 
 #include "ndn-cxx/security/tpm/impl/back-end-file.hpp"
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace ndn::tests {
 
@@ -35,14 +35,14 @@ class BackEndWrapperFile
 {
 public:
   BackEndWrapperFile()
-    : m_tmpPath(boost::filesystem::path(UNIT_TESTS_TMPDIR) / "TpmBackEndFile")
-    , m_impl(make_unique<security::tpm::BackEndFile>(m_tmpPath.string()))
+    : m_tmpPath(std::filesystem::path(UNIT_TESTS_TMPDIR) / "TpmBackEndFile")
+    , m_impl(make_unique<security::tpm::BackEndFile>(m_tmpPath))
   {
   }
 
   ~BackEndWrapperFile()
   {
-    boost::filesystem::remove_all(m_tmpPath);
+    std::filesystem::remove_all(m_tmpPath);
   }
 
   security::tpm::BackEnd&
@@ -58,7 +58,7 @@ public:
   }
 
 private:
-  const boost::filesystem::path m_tmpPath;
+  const std::filesystem::path m_tmpPath;
   const unique_ptr<security::tpm::BackEnd> m_impl;
 };
 

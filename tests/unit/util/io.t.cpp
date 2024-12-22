@@ -24,8 +24,10 @@
 #include "tests/boost-test.hpp"
 #include "tests/key-chain-fixture.hpp"
 
-#include <boost/filesystem.hpp>
 #include <boost/mp11/list.hpp>
+
+#include <filesystem>
+#include <system_error>
 
 namespace ndn::tests {
 
@@ -100,25 +102,23 @@ class FileIoFixture
 {
 protected:
   FileIoFixture()
-    : filepath(boost::filesystem::path(UNIT_TESTS_TMPDIR) / "TestIo")
-    , filename(filepath.string())
   {
-    boost::filesystem::create_directories(filepath.parent_path());
+    std::filesystem::create_directories(filename.parent_path());
   }
 
   ~FileIoFixture()
   {
-    boost::system::error_code ec;
-    boost::filesystem::remove(filepath, ec); // ignore error
+    std::error_code ec;
+    std::filesystem::remove(filename, ec); // ignore error
   }
 
   /**
-   * \brief Create a directory at `filepath`, so that it's neither readable nor writable as a file.
+   * \brief Create a directory at `filename`, so that it's neither readable nor writable as a file.
    */
   void
   mkdir() const
   {
-    boost::filesystem::create_directory(filepath);
+    std::filesystem::create_directory(filename);
   }
 
   template<typename Container>
@@ -148,8 +148,7 @@ protected:
   }
 
 protected:
-  const boost::filesystem::path filepath;
-  const std::string filename;
+  const std::filesystem::path filename{std::filesystem::path(UNIT_TESTS_TMPDIR) / "TestIo"};
 };
 
 BOOST_FIXTURE_TEST_SUITE(FileIo, FileIoFixture)

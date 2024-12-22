@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -25,7 +25,7 @@
 #include "ndn-cxx/data.hpp"
 #include "ndn-cxx/security/certificate.hpp"
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <set>
 
 namespace ndn::security {
@@ -148,7 +148,7 @@ public:
    * @throw std::invalid_argument @p refreshPeriod is negative
    */
   DynamicTrustAnchorGroup(CertContainerInterface& certContainer, const std::string& id,
-                          const boost::filesystem::path& path, time::nanoseconds refreshPeriod,
+                          const std::filesystem::path& path, time::nanoseconds refreshPeriod,
                           bool isDir = false);
 
   void
@@ -156,7 +156,7 @@ public:
 
 private:
   bool m_isDir;
-  boost::filesystem::path m_path;
+  std::filesystem::path m_path;
   time::nanoseconds m_refreshPeriod;
   time::steady_clock::time_point m_expireTime;
 };

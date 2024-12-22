@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,11 +24,10 @@
 #include "ndn-cxx/util/io.hpp"
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/info_parser.hpp>
 
+#include <filesystem>
 #include <fstream>
 
 namespace ndn::security::validator_config {
@@ -108,8 +107,6 @@ void
 ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSection,
                                                  const std::string& filename)
 {
-  using namespace boost::filesystem;
-
   auto propertyIt = configSection.begin();
 
   // Get trust-anchor.type
@@ -117,6 +114,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     NDN_THROW(Error("Expecting <trust-anchor.type>"));
   }
 
+  auto baseDir = std::filesystem::absolute(filename).parent_path().lexically_normal();
   std::string type = propertyIt->second.data();
   propertyIt++;
 
@@ -133,8 +131,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     if (propertyIt != configSection.end())
       NDN_THROW(Error("Expecting end of <trust-anchor>"));
 
-    m_validator->loadAnchor(file, absolute(file, path(filename).parent_path()).string(),
-                            refresh, false);
+    m_validator->loadAnchor(file, baseDir / file, refresh, false);
   }
   else if (boost::iequals(type, "base64")) {
     // Get trust-anchor.base64-string
@@ -166,8 +163,7 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     if (propertyIt != configSection.end())
       NDN_THROW(Error("Expecting end of <trust-anchor>"));
 
-    path dirPath = absolute(dirString, path(filename).parent_path());
-    m_validator->loadAnchor(dirString, dirPath.string(), refresh, true);
+    m_validator->loadAnchor(dirString, baseDir / dirString, refresh, true);
   }
   else if (boost::iequals(type, "any")) {
     m_shouldBypass = true;

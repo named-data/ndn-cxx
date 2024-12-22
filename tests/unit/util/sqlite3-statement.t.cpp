@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,8 +23,8 @@
 
 #include "tests/boost-test.hpp"
 
-#include <boost/filesystem.hpp>
 #include <cstring>
+#include <filesystem>
 #include <sqlite3.h>
 
 namespace ndn::tests {
@@ -36,9 +36,9 @@ class Sqlite3DbFixture
 public:
   Sqlite3DbFixture()
   {
-    boost::filesystem::create_directories(m_path);
+    std::filesystem::create_directories(m_path);
 
-    int result = sqlite3_open_v2((m_path / "sqlite3-statement.db").string().c_str(), &db,
+    int result = sqlite3_open_v2((m_path / "sqlite3-statement.db").c_str(), &db,
                                  SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
 #ifdef NDN_CXX_DISABLE_SQLITE3_FS_LOCKING
                                  "unix-dotfile"
@@ -48,21 +48,21 @@ public:
                                  );
 
     if (result != SQLITE_OK) {
-      BOOST_FAIL("Sqlite3 database cannot be opened/created: " + m_path.string());
+      BOOST_FAIL("Sqlite3 database cannot be opened/created: " + m_path.native());
     }
   }
 
   ~Sqlite3DbFixture()
   {
     sqlite3_close(db);
-    boost::filesystem::remove_all(m_path);
+    std::filesystem::remove_all(m_path);
   }
 
 protected:
   sqlite3* db = nullptr;
 
 private:
-  const boost::filesystem::path m_path{UNIT_TESTS_TMPDIR};
+  const std::filesystem::path m_path{UNIT_TESTS_TMPDIR};
 };
 
 BOOST_AUTO_TEST_SUITE(Util)

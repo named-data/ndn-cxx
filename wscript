@@ -119,7 +119,7 @@ def configure(conf):
                    'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
 
     # Boost.Log requires Boost.Thread
-    boost_libs = ['chrono', 'filesystem', 'log', 'thread']
+    boost_libs = ['chrono', 'log', 'thread']
 
     # Boost.Date_Time is header-only since 1.73
     if conf.env.BOOST_VERSION_NUMBER < 107300:

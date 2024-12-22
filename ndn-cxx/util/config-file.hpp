@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,9 +24,9 @@
 
 #include "ndn-cxx/detail/common.hpp"
 
+#include <filesystem>
 #include <fstream>
 
-#include <boost/filesystem/path.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 namespace ndn {
@@ -65,11 +65,17 @@ public:
 
   ~ConfigFile();
 
-  const boost::filesystem::path&
-  getPath() const;
+  const std::filesystem::path&
+  getPath() const noexcept
+  {
+    return m_path;
+  }
 
   const Parsed&
-  getParsedConfiguration() const;
+  getParsedConfiguration() const noexcept
+  {
+    return m_config;
+  }
 
 private:
   bool
@@ -102,26 +108,14 @@ private:
    *
    * @return path to preferred configuration (according to above order) or empty path on failure
    */
-  boost::filesystem::path
+  std::filesystem::path
   findConfigFile();
 
 private:
-  boost::filesystem::path m_path; // absolute path to active configuration file (if any)
+  std::filesystem::path m_path; // absolute path to active configuration file (if any)
   std::ifstream m_input;
   Parsed m_config;
 };
-
-inline const boost::filesystem::path&
-ConfigFile::getPath() const
-{
-  return m_path;
-}
-
-inline const ConfigFile::Parsed&
-ConfigFile::getParsedConfiguration() const
-{
-  return m_config;
-}
 
 } // namespace ndn
 

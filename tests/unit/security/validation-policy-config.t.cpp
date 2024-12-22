@@ -62,7 +62,7 @@ class ValidationPolicyConfigFixture : public HierarchicalValidatorFixture<Valida
 public:
   ValidationPolicyConfigFixture()
   {
-    boost::filesystem::create_directories(path);
+    std::filesystem::create_directories(path);
     baseConfig = R"CONF(
         rule
         {
@@ -85,7 +85,7 @@ public:
 
   ~ValidationPolicyConfigFixture()
   {
-    boost::filesystem::remove_all(path);
+    std::filesystem::remove_all(path);
   }
 
 private:
@@ -101,7 +101,7 @@ private:
   }
 
 protected:
-  const boost::filesystem::path path{boost::filesystem::path(UNIT_TESTS_TMPDIR) / "security" / "validation-policy-config"};
+  const std::filesystem::path path{std::filesystem::path(UNIT_TESTS_TMPDIR) / "security" / "validation-policy-config"};
   std::string baseConfig;
 
   using Packet = PacketType;
@@ -115,14 +115,14 @@ public:
   {
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
-    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, this->path / "identity.ndncert");
     this->policy.load(this->baseConfig + R"CONF(
         trust-anchor
         {
           type file
           file-name "trust-anchor.ndncert"
         }
-      )CONF", (this->path / "test-config").string());
+      )CONF", this->path / "test-config");
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
     BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, false);
@@ -135,7 +135,7 @@ class LoadFileWithFileAnchor : public ValidationPolicyConfigFixture<PacketType>
 public:
   LoadFileWithFileAnchor()
   {
-    std::string configFile = (this->path / "config.conf").string();
+    auto configFile = this->path / "config.conf";
     {
       std::ofstream config(configFile);
       config << this->baseConfig << R"CONF(
@@ -147,7 +147,7 @@ public:
         )CONF";
     }
 
-    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, this->path / "identity.ndncert");
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
@@ -164,7 +164,7 @@ class LoadFileWithMultipleFileAnchors : public ValidationPolicyConfigFixture<Pac
 public:
   LoadFileWithMultipleFileAnchors()
   {
-    std::string configFile = (this->path / "config.conf").string();
+    auto configFile = this->path / "config.conf";
     {
       std::ofstream config(configFile);
       config << this->baseConfig << R"CONF(
@@ -181,7 +181,7 @@ public:
         )CONF";
     }
 
-    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, this->path / "identity.ndncert");
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
@@ -206,11 +206,11 @@ public:
         }
       )CONF");
 
-    this->saveIdentityCert(this->identity, (this->path / "identity.ndncert").string());
+    this->saveIdentityCert(this->identity, this->path / "identity.ndncert");
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
-    this->policy.load(section, (this->path / "test-config").string());
+    this->policy.load(section, this->path / "test-config");
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
     BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, false);
@@ -238,7 +238,7 @@ public:
           type base64
           base64-string ")CONF" + os.str() + R"CONF("
         }
-      )CONF", (this->path / "test-config").string());
+      )CONF", this->path / "test-config");
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
     BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, false);
@@ -307,8 +307,8 @@ public:
   {
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, false);
 
-    boost::filesystem::create_directories(this->path / "keys");
-    this->saveIdentityCert(this->identity, (this->path / "keys" / "identity.ndncert").string());
+    std::filesystem::create_directories(this->path / "keys");
+    this->saveIdentityCert(this->identity, this->path / "keys" / "identity.ndncert");
 
     this->policy.load(this->baseConfig + R"CONF(
         trust-anchor
@@ -317,7 +317,7 @@ public:
           dir keys
           )CONF" + Refresh::getRefreshString() + R"CONF(
         }
-      )CONF", (this->path / "test-config").string());
+      )CONF", this->path / "test-config");
 
     BOOST_CHECK_EQUAL(this->policy.m_isConfigured, true);
     BOOST_CHECK_EQUAL(this->policy.m_shouldBypass, false);
@@ -713,7 +713,7 @@ BOOST_FIXTURE_TEST_CASE_TEMPLATE(ValidateRefresh, Refresh, RefreshPolicies, Refr
   using Packet = Data;
   Packet unsignedPacket("/Security/ValidatorFixture/Sub1/Sub2/Packet");
 
-  boost::filesystem::remove(this->path / "keys" / "identity.ndncert");
+  std::filesystem::remove(this->path / "keys" / "identity.ndncert");
   this->advanceClocks(Refresh::getRefreshTime(), 3);
 
   Packet packet = unsignedPacket;

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,10 +23,6 @@
 #include "ndn-cxx/util/io.hpp"
 #include "ndn-cxx/util/logger.hpp"
 
-#if BOOST_VERSION >= 107200
-#include <boost/filesystem/directory.hpp>
-#endif
-#include <boost/filesystem/operations.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -34,8 +30,6 @@
 namespace ndn::security {
 
 NDN_LOG_INIT(ndn.security.TrustAnchorGroup);
-
-namespace fs = boost::filesystem;
 
 TrustAnchorGroup::TrustAnchorGroup(CertContainerInterface& certContainer, const std::string& id)
   : m_certs(certContainer)
@@ -84,8 +78,9 @@ StaticTrustAnchorGroup::remove(const Name& certName)
 
 /////////////
 
-DynamicTrustAnchorGroup::DynamicTrustAnchorGroup(CertContainerInterface& certContainer, const std::string& id,
-                                                 const boost::filesystem::path& path,
+DynamicTrustAnchorGroup::DynamicTrustAnchorGroup(CertContainerInterface& certContainer,
+                                                 const std::string& id,
+                                                 const std::filesystem::path& path,
                                                  time::nanoseconds refreshPeriod, bool isDir)
   : TrustAnchorGroup(certContainer, id)
   , m_isDir(isDir)
@@ -112,8 +107,8 @@ DynamicTrustAnchorGroup::refresh()
 
   std::set<Name> oldAnchorNames = m_anchorNames;
 
-  auto loadCert = [this, &oldAnchorNames] (const fs::path& file) {
-    auto cert = io::load<Certificate>(file.string());
+  auto loadCert = [this, &oldAnchorNames] (const std::filesystem::path& file) {
+    auto cert = io::load<Certificate>(file);
     if (cert != nullptr) {
       if (m_anchorNames.count(cert->getName()) == 0) {
         m_anchorNames.insert(cert->getName());
@@ -128,8 +123,10 @@ DynamicTrustAnchorGroup::refresh()
   if (!m_isDir) {
     loadCert(m_path);
   }
-  else if (fs::exists(m_path)) {
-    std::for_each(fs::directory_iterator(m_path), fs::directory_iterator(), loadCert);
+  else if (std::filesystem::exists(m_path)) {
+    for (const auto& entry : std::filesystem::directory_iterator(m_path)) {
+      loadCert(entry);
+    }
   }
 
   // remove old certs

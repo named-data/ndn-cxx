@@ -22,10 +22,9 @@
 #include "ndn-cxx/security/pib/impl/pib-sqlite3.hpp"
 #include "ndn-cxx/util/sqlite3-statement.hpp"
 
+#include <cstdlib>
+#include <filesystem>
 #include <sqlite3.h>
-
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 
 namespace ndn::security::pib {
 
@@ -189,22 +188,22 @@ CREATE TRIGGER IF NOT EXISTS
 PibSqlite3::PibSqlite3(const std::string& location)
 {
   // Determine the path of PIB DB
-  boost::filesystem::path dbDir;
+  std::filesystem::path dbDir;
   if (!location.empty()) {
-    dbDir = boost::filesystem::path(location);
+    dbDir = std::filesystem::path(location);
   }
 #ifdef NDN_CXX_WITH_TESTS
-  else if (getenv("TEST_HOME") != nullptr) {
-    dbDir = boost::filesystem::path(getenv("TEST_HOME")) / ".ndn";
+  else if (const char* testHome = std::getenv("TEST_HOME"); testHome != nullptr) {
+    dbDir = std::filesystem::path(testHome) / ".ndn";
   }
 #endif
-  else if (getenv("HOME") != nullptr) {
-    dbDir = boost::filesystem::path(getenv("HOME")) / ".ndn";
+  else if (const char* home = std::getenv("HOME"); home != nullptr) {
+    dbDir = std::filesystem::path(home) / ".ndn";
   }
   else {
-    dbDir = boost::filesystem::current_path() / ".ndn";
+    dbDir = std::filesystem::current_path() / ".ndn";
   }
-  boost::filesystem::create_directories(dbDir);
+  std::filesystem::create_directories(dbDir);
 
   // Open PIB
   int result = sqlite3_open_v2((dbDir / "pib.db").c_str(), &m_database,
@@ -217,7 +216,7 @@ PibSqlite3::PibSqlite3(const std::string& location)
                                );
 
   if (result != SQLITE_OK) {
-    NDN_THROW(PibImpl::Error("PIB database cannot be opened/created in " + dbDir.string()));
+    NDN_THROW(PibImpl::Error("PIB database cannot be opened/created in " + dbDir.native()));
   }
 
   // enable foreign key

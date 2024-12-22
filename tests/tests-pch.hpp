@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2020 Regents of the University of California.
+ * Copyright (c) 2013-2024 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,7 +31,7 @@
 
 #include "tests/boost-test.hpp"
 
+#include <filesystem>
 #include <fstream>
-#include <boost/filesystem.hpp>
 
 #endif // NDN_CXX_TESTS_TESTS_PCH_HPP
