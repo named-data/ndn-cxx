@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,7 +23,7 @@
 #define NDN_CXX_MGMT_NFD_CONTROLLER_HPP
 
 #include "ndn-cxx/mgmt/nfd/command-options.hpp"
-#include "ndn-cxx/mgmt/nfd/control-command.hpp"
+#include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 #include "ndn-cxx/mgmt/nfd/control-response.hpp"
 #include "ndn-cxx/security/interest-signer.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
@@ -89,14 +89,19 @@ public:
   /**
    * \brief Start command execution.
    */
-  template<typename Command>
+  template<typename Command,
+           typename CommandParameters = typename Command::RequestParameters>
   void
-  start(const ControlParameters& parameters,
-        const CommandSuccessCallback& onSuccess,
+  start(const CommandParameters& parameters,
+        CommandSuccessCallback onSuccess,
         const CommandFailureCallback& onFailure,
         const CommandOptions& options = {})
   {
-    startCommand(std::make_shared<Command>(), parameters, onSuccess, onFailure, options);
+    auto request = Command::createRequest(options.getPrefix(), parameters);
+    request.setInterestLifetime(options.getTimeout());
+    sendCommandRequest(request, options.getSigningInfo(),
+                       [] (const auto& responseParams) { Command::validateResponse(responseParams); },
+                       std::move(onSuccess), onFailure);
   }
 
   /**
@@ -125,22 +130,24 @@ public:
   }
 
 private:
+  using ResponseParametersValidator = std::function<void(const ControlParameters&)>;
+
   void
-  startCommand(const shared_ptr<ControlCommand>& command,
-               const ControlParameters& parameters,
-               const CommandSuccessCallback& onSuccess,
-               const CommandFailureCallback& onFailure,
-               const CommandOptions& options);
+  sendCommandRequest(Interest& interest,
+                     const security::SigningInfo& signingInfo,
+                     ResponseParametersValidator checkResponse,
+                     CommandSuccessCallback onSuccess,
+                     const CommandFailureCallback& onFailure);
 
   void
   processCommandResponse(const Data& data,
-                         const shared_ptr<ControlCommand>& command,
-                         const CommandSuccessCallback& onSuccess,
+                         ResponseParametersValidator checkResponse,
+                         CommandSuccessCallback onSuccess,
                          const CommandFailureCallback& onFailure);
 
   static void
   processValidatedCommandResponse(const Data& data,
-                                  const shared_ptr<ControlCommand>& command,
+                                  const ResponseParametersValidator& checkResponse,
                                   const CommandSuccessCallback& onSuccess,
                                   const CommandFailureCallback& onFailure);
 

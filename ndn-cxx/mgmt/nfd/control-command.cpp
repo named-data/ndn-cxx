@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -23,56 +23,14 @@
 
 namespace ndn::nfd {
 
-ControlCommand::ControlCommand(const std::string& module, const std::string& verb)
-  : m_module(module)
-  , m_verb(verb)
-{
-}
-
-ControlCommand::~ControlCommand() = default;
-
-void
-ControlCommand::validateRequest(const ControlParameters& parameters) const
-{
-  m_requestValidator.validate(parameters);
-}
-
-void
-ControlCommand::applyDefaultsToRequest(ControlParameters&) const
-{
-}
-
-void
-ControlCommand::validateResponse(const ControlParameters& parameters) const
-{
-  m_responseValidator.validate(parameters);
-}
-
-void
-ControlCommand::applyDefaultsToResponse(ControlParameters&) const
-{
-}
-
-Name
-ControlCommand::getRequestName(const Name& commandPrefix,
-                               const ControlParameters& parameters) const
-{
-  this->validateRequest(parameters);
-
-  return Name(commandPrefix)
-         .append(m_module)
-         .append(m_verb)
-         .append(parameters.wireEncode());
-}
-
-ControlCommand::FieldValidator::FieldValidator()
+ControlParametersCommandFormat::ControlParametersCommandFormat()
   : m_required(CONTROL_PARAMETER_UBOUND)
   , m_optional(CONTROL_PARAMETER_UBOUND)
 {
 }
 
 void
-ControlCommand::FieldValidator::validate(const ControlParameters& parameters) const
+ControlParametersCommandFormat::validate(const ControlParameters& parameters) const
 {
   const auto& presentFields = parameters.getPresentFields();
 
@@ -95,31 +53,37 @@ ControlCommand::FieldValidator::validate(const ControlParameters& parameters) co
   }
 }
 
-FaceCreateCommand::FaceCreateCommand()
-  : ControlCommand("faces", "create")
+void
+ControlParametersCommandFormat::encode(Interest& interest, const ControlParameters& params) const
 {
-  m_requestValidator
+  auto name = interest.getName();
+  name.append(params.wireEncode());
+  interest.setName(name);
+}
+
+const FaceCreateCommand::RequestFormat FaceCreateCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_URI)
     .optional(CONTROL_PARAMETER_LOCAL_URI)
+    .optional(CONTROL_PARAMETER_FLAGS)
+    .optional(CONTROL_PARAMETER_MASK)
     .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
     .optional(CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL)
     .optional(CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD)
-    .optional(CONTROL_PARAMETER_MTU)
-    .optional(CONTROL_PARAMETER_FLAGS)
-    .optional(CONTROL_PARAMETER_MASK);
-  m_responseValidator
+    .optional(CONTROL_PARAMETER_MTU);
+const FaceCreateCommand::ResponseFormat FaceCreateCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_FACE_ID)
     .required(CONTROL_PARAMETER_URI)
     .required(CONTROL_PARAMETER_LOCAL_URI)
+    .required(CONTROL_PARAMETER_FLAGS)
     .required(CONTROL_PARAMETER_FACE_PERSISTENCY)
     .optional(CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL)
     .optional(CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD)
-    .optional(CONTROL_PARAMETER_MTU)
-    .required(CONTROL_PARAMETER_FLAGS);
-}
+    .optional(CONTROL_PARAMETER_MTU);
 
 void
-FaceCreateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+FaceCreateCommand::applyDefaultsToRequestImpl(ControlParameters& parameters)
 {
   if (!parameters.hasFacePersistency()) {
     parameters.setFacePersistency(FacePersistency::FACE_PERSISTENCY_PERSISTENT);
@@ -127,37 +91,33 @@ FaceCreateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 }
 
 void
-FaceCreateCommand::validateResponse(const ControlParameters& parameters) const
+FaceCreateCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateResponse(parameters);
-
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
-FaceUpdateCommand::FaceUpdateCommand()
-  : ControlCommand("faces", "update")
-{
-  m_requestValidator
+const FaceUpdateCommand::RequestFormat FaceUpdateCommand::s_requestFormat =
+    RequestFormat()
     .optional(CONTROL_PARAMETER_FACE_ID)
+    .optional(CONTROL_PARAMETER_FLAGS)
+    .optional(CONTROL_PARAMETER_MASK)
     .optional(CONTROL_PARAMETER_FACE_PERSISTENCY)
     .optional(CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL)
     .optional(CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD)
-    .optional(CONTROL_PARAMETER_MTU)
-    .optional(CONTROL_PARAMETER_FLAGS)
-    .optional(CONTROL_PARAMETER_MASK);
-  m_responseValidator
+    .optional(CONTROL_PARAMETER_MTU);
+const FaceUpdateCommand::ResponseFormat FaceUpdateCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_FACE_ID)
+    .required(CONTROL_PARAMETER_FLAGS)
     .required(CONTROL_PARAMETER_FACE_PERSISTENCY)
     .optional(CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL)
     .optional(CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD)
-    .optional(CONTROL_PARAMETER_MTU)
-    .required(CONTROL_PARAMETER_FLAGS);
-}
+    .optional(CONTROL_PARAMETER_MTU);
 
 void
-FaceUpdateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+FaceUpdateCommand::applyDefaultsToRequestImpl(ControlParameters& parameters)
 {
   if (!parameters.hasFaceId()) {
     parameters.setFaceId(0);
@@ -165,54 +125,47 @@ FaceUpdateCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 }
 
 void
-FaceUpdateCommand::validateResponse(const ControlParameters& parameters) const
+FaceUpdateCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateResponse(parameters);
-
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
-FaceDestroyCommand::FaceDestroyCommand()
-  : ControlCommand("faces", "destroy")
-{
-  m_requestValidator
+const FaceDestroyCommand::RequestFormat FaceDestroyCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_FACE_ID);
-  m_responseValidator = m_requestValidator;
-}
+const FaceDestroyCommand::ResponseFormat FaceDestroyCommand::s_responseFormat =
+    ResponseFormat()
+    .required(CONTROL_PARAMETER_FACE_ID);
 
 void
-FaceDestroyCommand::validateRequest(const ControlParameters& parameters) const
+FaceDestroyCommand::validateRequestImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateRequest(parameters);
-
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
 void
-FaceDestroyCommand::validateResponse(const ControlParameters& parameters) const
+FaceDestroyCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->validateRequest(parameters);
+  validateRequestImpl(parameters);
 }
 
-FibAddNextHopCommand::FibAddNextHopCommand()
-  : ControlCommand("fib", "add-nexthop")
-{
-  m_requestValidator
+const FibAddNextHopCommand::RequestFormat FibAddNextHopCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_NAME)
     .optional(CONTROL_PARAMETER_FACE_ID)
     .optional(CONTROL_PARAMETER_COST);
-  m_responseValidator
+const FibAddNextHopCommand::ResponseFormat FibAddNextHopCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_NAME)
     .required(CONTROL_PARAMETER_FACE_ID)
     .required(CONTROL_PARAMETER_COST);
-}
 
 void
-FibAddNextHopCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+FibAddNextHopCommand::applyDefaultsToRequestImpl(ControlParameters& parameters)
 {
   if (!parameters.hasFaceId()) {
     parameters.setFaceId(0);
@@ -223,28 +176,24 @@ FibAddNextHopCommand::applyDefaultsToRequest(ControlParameters& parameters) cons
 }
 
 void
-FibAddNextHopCommand::validateResponse(const ControlParameters& parameters) const
+FibAddNextHopCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateResponse(parameters);
-
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
-FibRemoveNextHopCommand::FibRemoveNextHopCommand()
-  : ControlCommand("fib", "remove-nexthop")
-{
-  m_requestValidator
+const FibRemoveNextHopCommand::RequestFormat FibRemoveNextHopCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_NAME)
     .optional(CONTROL_PARAMETER_FACE_ID);
-  m_responseValidator
+const FibRemoveNextHopCommand::ResponseFormat FibRemoveNextHopCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_NAME)
     .required(CONTROL_PARAMETER_FACE_ID);
-}
 
 void
-FibRemoveNextHopCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+FibRemoveNextHopCommand::applyDefaultsToRequestImpl(ControlParameters& parameters)
 {
   if (!parameters.hasFaceId()) {
     parameters.setFaceId(0);
@@ -252,113 +201,98 @@ FibRemoveNextHopCommand::applyDefaultsToRequest(ControlParameters& parameters) c
 }
 
 void
-FibRemoveNextHopCommand::validateResponse(const ControlParameters& parameters) const
+FibRemoveNextHopCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateResponse(parameters);
-
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
-CsConfigCommand::CsConfigCommand()
-  : ControlCommand("cs", "config")
-{
-  m_requestValidator
+const CsConfigCommand::RequestFormat CsConfigCommand::s_requestFormat =
+    RequestFormat()
     .optional(CONTROL_PARAMETER_CAPACITY)
     .optional(CONTROL_PARAMETER_FLAGS)
     .optional(CONTROL_PARAMETER_MASK);
-  m_responseValidator
+const CsConfigCommand::ResponseFormat CsConfigCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_CAPACITY)
     .required(CONTROL_PARAMETER_FLAGS);
-}
 
-CsEraseCommand::CsEraseCommand()
-  : ControlCommand("cs", "erase")
-{
-  m_requestValidator
+const CsEraseCommand::RequestFormat CsEraseCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_NAME)
     .optional(CONTROL_PARAMETER_COUNT);
-  m_responseValidator
+const CsEraseCommand::ResponseFormat CsEraseCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_NAME)
     .optional(CONTROL_PARAMETER_CAPACITY)
     .required(CONTROL_PARAMETER_COUNT);
-}
 
 void
-CsEraseCommand::validateRequest(const ControlParameters& parameters) const
+CsEraseCommand::validateRequestImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateRequest(parameters);
-
   if (parameters.hasCount() && parameters.getCount() == 0) {
     NDN_THROW(ArgumentError("Count must be positive"));
   }
 }
 
 void
-CsEraseCommand::validateResponse(const ControlParameters& parameters) const
+CsEraseCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateResponse(parameters);
-
   if (parameters.hasCapacity() && parameters.getCapacity() == 0) {
     NDN_THROW(ArgumentError("Capacity must be positive"));
   }
 }
 
-StrategyChoiceSetCommand::StrategyChoiceSetCommand()
-  : ControlCommand("strategy-choice", "set")
-{
-  m_requestValidator
+const StrategyChoiceSetCommand::RequestFormat StrategyChoiceSetCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_NAME)
     .required(CONTROL_PARAMETER_STRATEGY);
-  m_responseValidator = m_requestValidator;
-}
+const StrategyChoiceSetCommand::ResponseFormat StrategyChoiceSetCommand::s_responseFormat =
+    ResponseFormat()
+    .required(CONTROL_PARAMETER_NAME)
+    .required(CONTROL_PARAMETER_STRATEGY);
 
-StrategyChoiceUnsetCommand::StrategyChoiceUnsetCommand()
-  : ControlCommand("strategy-choice", "unset")
-{
-  m_requestValidator
+const StrategyChoiceUnsetCommand::RequestFormat StrategyChoiceUnsetCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_NAME);
-  m_responseValidator = m_requestValidator;
-}
+const StrategyChoiceUnsetCommand::ResponseFormat StrategyChoiceUnsetCommand::s_responseFormat =
+    ResponseFormat()
+    .required(CONTROL_PARAMETER_NAME);
 
 void
-StrategyChoiceUnsetCommand::validateRequest(const ControlParameters& parameters) const
+StrategyChoiceUnsetCommand::validateRequestImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateRequest(parameters);
-
   if (parameters.getName().empty()) {
     NDN_THROW(ArgumentError("Name must not be ndn:/"));
   }
 }
 
 void
-StrategyChoiceUnsetCommand::validateResponse(const ControlParameters& parameters) const
+StrategyChoiceUnsetCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->validateRequest(parameters);
+  validateRequestImpl(parameters);
 }
 
-RibRegisterCommand::RibRegisterCommand()
-  : ControlCommand("rib", "register")
-{
-  m_requestValidator
+const RibRegisterCommand::RequestFormat RibRegisterCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_NAME)
     .optional(CONTROL_PARAMETER_FACE_ID)
     .optional(CONTROL_PARAMETER_ORIGIN)
     .optional(CONTROL_PARAMETER_COST)
     .optional(CONTROL_PARAMETER_FLAGS)
     .optional(CONTROL_PARAMETER_EXPIRATION_PERIOD);
-  m_responseValidator
+const RibRegisterCommand::ResponseFormat RibRegisterCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_NAME)
     .required(CONTROL_PARAMETER_FACE_ID)
     .required(CONTROL_PARAMETER_ORIGIN)
     .required(CONTROL_PARAMETER_COST)
     .required(CONTROL_PARAMETER_FLAGS)
     .optional(CONTROL_PARAMETER_EXPIRATION_PERIOD);
-}
 
 void
-RibRegisterCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+RibRegisterCommand::applyDefaultsToRequestImpl(ControlParameters& parameters)
 {
   if (!parameters.hasFaceId()) {
     parameters.setFaceId(0);
@@ -375,30 +309,26 @@ RibRegisterCommand::applyDefaultsToRequest(ControlParameters& parameters) const
 }
 
 void
-RibRegisterCommand::validateResponse(const ControlParameters& parameters) const
+RibRegisterCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateResponse(parameters);
-
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     NDN_THROW(ArgumentError("FaceId must be valid"));
   }
 }
 
-RibUnregisterCommand::RibUnregisterCommand()
-  : ControlCommand("rib", "unregister")
-{
-  m_requestValidator
+const RibUnregisterCommand::RequestFormat RibUnregisterCommand::s_requestFormat =
+    RequestFormat()
     .required(CONTROL_PARAMETER_NAME)
     .optional(CONTROL_PARAMETER_FACE_ID)
     .optional(CONTROL_PARAMETER_ORIGIN);
-  m_responseValidator
+const RibUnregisterCommand::ResponseFormat RibUnregisterCommand::s_responseFormat =
+    ResponseFormat()
     .required(CONTROL_PARAMETER_NAME)
     .required(CONTROL_PARAMETER_FACE_ID)
     .required(CONTROL_PARAMETER_ORIGIN);
-}
 
 void
-RibUnregisterCommand::applyDefaultsToRequest(ControlParameters& parameters) const
+RibUnregisterCommand::applyDefaultsToRequestImpl(ControlParameters& parameters)
 {
   if (!parameters.hasFaceId()) {
     parameters.setFaceId(0);
@@ -409,10 +339,8 @@ RibUnregisterCommand::applyDefaultsToRequest(ControlParameters& parameters) cons
 }
 
 void
-RibUnregisterCommand::validateResponse(const ControlParameters& parameters) const
+RibUnregisterCommand::validateResponseImpl(const ControlParameters& parameters)
 {
-  this->ControlCommand::validateResponse(parameters);
-
   if (parameters.getFaceId() == INVALID_FACE_ID) {
     NDN_THROW(ArgumentError("FaceId must be valid"));
   }
