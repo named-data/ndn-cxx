@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -51,18 +51,15 @@ Dispatcher::Dispatcher(Face& face, KeyChain& keyChain,
 {
 }
 
-Dispatcher::~Dispatcher() = default;
-
 void
 Dispatcher::addTopPrefix(const Name& prefix, bool wantRegister,
                          const security::SigningInfo& signingInfo)
 {
-  bool hasOverlap = std::any_of(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(),
-                                [&prefix] (const auto& x) {
-                                  return x.first.isPrefixOf(prefix) || prefix.isPrefixOf(x.first);
-                                });
+  bool hasOverlap = std::any_of(m_topLevelPrefixes.begin(), m_topLevelPrefixes.end(), [&] (const auto& x) {
+    return x.first.isPrefixOf(prefix) || prefix.isPrefixOf(x.first);
+  });
   if (hasOverlap) {
-    NDN_THROW(std::out_of_range("top-level prefix overlaps"));
+    NDN_THROW(std::out_of_range("top-level prefix '" + prefix.toUri() + "' overlaps with another"));
   }
 
   TopPrefixEntry& topPrefixEntry = m_topLevelPrefixes[prefix];
@@ -92,21 +89,19 @@ Dispatcher::removeTopPrefix(const Name& prefix)
   m_topLevelPrefixes.erase(prefix);
 }
 
-bool
-Dispatcher::isOverlappedWithOthers(const PartialName& relPrefix) const
+void
+Dispatcher::checkPrefix(const PartialName& relPrefix) const
 {
-  bool hasOverlapWithHandlers =
-    std::any_of(m_handlers.begin(), m_handlers.end(),
-                [&] (const auto& entry) {
-                  return entry.first.isPrefixOf(relPrefix) || relPrefix.isPrefixOf(entry.first);
-                });
-  bool hasOverlapWithStreams =
-    std::any_of(m_streams.begin(), m_streams.end(),
-                [&] (const auto& entry) {
-                  return entry.first.isPrefixOf(relPrefix) || relPrefix.isPrefixOf(entry.first);
-                });
+  if (!m_topLevelPrefixes.empty()) {
+    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
+  }
 
-  return hasOverlapWithHandlers || hasOverlapWithStreams;
+  bool hasOverlap = std::any_of(m_handlers.begin(), m_handlers.end(), [&] (const auto& entry) {
+    return entry.first.isPrefixOf(relPrefix) || relPrefix.isPrefixOf(entry.first);
+  });
+  if (hasOverlap) {
+    NDN_THROW(std::out_of_range("'" + relPrefix.toUri() + "' overlaps with another handler"));
+  }
 }
 
 void
@@ -166,13 +161,13 @@ Dispatcher::sendOnFace(const Data& data)
 }
 
 void
-Dispatcher::processControlCommandInterest(const Name& prefix,
-                                          const Name& relPrefix,
-                                          const Interest& interest,
-                                          const ControlParametersParser& parser,
-                                          const Authorization& authorization,
-                                          const AuthorizationAcceptedCallback& accepted,
-                                          const AuthorizationRejectedCallback& rejected)
+Dispatcher::processCommand(const Name& prefix,
+                           const Name& relPrefix,
+                           const Interest& interest,
+                           const ControlParametersParser& parse,
+                           const Authorization& authorize,
+                           const ValidateParameters& validateParams,
+                           const ControlCommandHandler& handler)
 {
   // /<prefix>/<relPrefix>/<parameters>
   size_t parametersLoc = prefix.size() + relPrefix.size();
@@ -180,24 +175,28 @@ Dispatcher::processControlCommandInterest(const Name& prefix,
 
   shared_ptr<ControlParameters> parameters;
   try {
-    parameters = parser(pc);
+    parameters = parse(pc);
   }
   catch (const tlv::Error&) {
     return;
   }
 
-  AcceptContinuation accept = [=] (const auto& req) { accepted(req, prefix, interest, parameters); };
-  RejectContinuation reject = [=] (RejectReply reply) { rejected(reply, interest); };
-  authorization(prefix, interest, parameters.get(), accept, reject);
+  AcceptContinuation accept = [=] (const auto& req) {
+    processAuthorizedCommand(req, prefix, interest, parameters, validateParams, handler);
+  };
+  RejectContinuation reject = [=] (RejectReply reply) {
+    afterAuthorizationRejected(reply, interest);
+  };
+  authorize(prefix, interest, parameters.get(), accept, reject);
 }
 
 void
-Dispatcher::processAuthorizedControlCommandInterest(const std::string& requester,
-                                                    const Name& prefix,
-                                                    const Interest& interest,
-                                                    const shared_ptr<ControlParameters>& parameters,
-                                                    const ValidateParameters& validateParams,
-                                                    const ControlCommandHandler& handler)
+Dispatcher::processAuthorizedCommand(const std::string& requester,
+                                     const Name& prefix,
+                                     const Interest& interest,
+                                     const shared_ptr<ControlParameters>& parameters,
+                                     const ValidateParameters& validateParams,
+                                     const ControlCommandHandler& handler)
 {
   if (validateParams(*parameters)) {
     handler(prefix, interest, *parameters,
@@ -225,13 +224,7 @@ Dispatcher::addStatusDataset(const PartialName& relPrefix,
                              Authorization auth,
                              StatusDatasetHandler handler)
 {
-  if (!m_topLevelPrefixes.empty()) {
-    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
-  }
-
-  if (isOverlappedWithOthers(relPrefix)) {
-    NDN_THROW(std::out_of_range("status dataset name overlaps"));
-  }
+  checkPrefix(relPrefix);
 
   AuthorizationAcceptedCallback accept =
     [this, handler = std::move(handler)] (auto&&, const auto& prefix, const auto& interest, auto&&) {
@@ -307,13 +300,7 @@ Dispatcher::sendStatusDatasetSegment(const Name& dataName, const Block& content,
 PostNotification
 Dispatcher::addNotificationStream(const PartialName& relPrefix)
 {
-  if (!m_topLevelPrefixes.empty()) {
-    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
-  }
-
-  if (isOverlappedWithOthers(relPrefix)) {
-    NDN_THROW(std::out_of_range("notification stream name overlaps"));
-  }
+  checkPrefix(relPrefix);
 
   // register a handler for the subscriber of this notification stream
   // keep silent if Interest does not match a stored notification

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -146,9 +146,6 @@ public:
              const security::SigningInfo& signingInfo = security::SigningInfo(),
              size_t imsCapacity = 256);
 
-  virtual
-  ~Dispatcher();
-
   /** \brief Add a top-level prefix.
    *  \param prefix a top-level prefix, e.g., "/localhost/nfd"
    *  \param wantRegister whether prefix registration should be performed through the Face
@@ -184,68 +181,88 @@ public:
   removeTopPrefix(const Name& prefix);
 
 public: // ControlCommand
-  /** \brief Register a ControlCommand.
-   *  \tparam CP subclass of ControlParameters used by this command
-   *  \param relPrefix a prefix for this command, e.g., "faces/create";
-   *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
-   *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
-   *  \param authorize Callback to authorize the incoming commands
-   *  \param validate Callback to validate parameters of the incoming commands
-   *  \param handle Callback to handle the commands
-   *  \pre no top-level prefix has been added
-   *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
-   *  \throw std::domain_error one or more top-level prefix has been added
+  /**
+   * \brief Register a ControlCommand.
+   * \tparam ParametersType Concrete subclass of ControlParameters used by this command.
+   * \param relPrefix The name prefix for this command relative to the top-level prefix,
+   *                  e.g., "faces/create". The prefixes across all ControlCommands,
+   *                  StatusDatasets, and NotificationStreams must not overlap (no relPrefix
+   *                  is a prefix of another relPrefix).
+   * \param authorize Callback to authorize the incoming commands
+   * \param validate Callback to validate parameters of the incoming commands
+   * \param handle Callback to handle the commands
+   * \pre No top-level prefix has been added.
+   * \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix.
+   * \throw std::domain_error One or more top-level prefixes have been added.
    *
-   *  Procedure for processing a ControlCommand:
-   *  1. extract the NameComponent containing ControlParameters (the component after relPrefix),
-   *     and parse ControlParameters into type CP; if parsing fails, abort these steps
-   *  2. perform authorization; if authorization is rejected,
-   *     perform the RejectReply action, and abort these steps
-   *  3. validate ControlParameters; if validation fails,
-   *     make ControlResponse with StatusCode 400, and go to step 5
-   *  4. invoke handler, wait until CommandContinuation is called
-   *  5. encode the ControlResponse into one Data packet
-   *  6. sign the Data packet
-   *  7. if the Data packet is too large, abort these steps and log an error
-   *  8. send the signed Data packet
+   * Procedure for processing a ControlCommand:
+   *  1. Extract the NameComponent containing ControlParameters (the component after relPrefix),
+   *     and parse ControlParameters into ParametersType; if parsing fails, abort these steps.
+   *  2. Perform authorization; if the authorization is rejected, perform the RejectReply action
+   *     and abort these steps.
+   *  3. Validate ControlParameters; if validation fails, create a ControlResponse with
+   *     StatusCode 400 and go to step 5.
+   *  4. Invoke the command handler, wait until CommandContinuation is called.
+   *  5. Encode the ControlResponse into one Data packet.
+   *  6. Sign the Data packet.
+   *  7. If the Data packet is too large, abort these steps and log an error.
+   *  8. Send the signed Data packet.
    */
-  template<typename CP>
+  template<typename ParametersType,
+           std::enable_if_t<std::is_convertible_v<ParametersType*, ControlParameters*>, int> = 0>
   void
   addControlCommand(const PartialName& relPrefix,
                     Authorization authorize,
                     ValidateParameters validate,
-                    ControlCommandHandler handle);
+                    ControlCommandHandler handle)
+  {
+    checkPrefix(relPrefix);
+
+    ControlParametersParser parse = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
+      return make_shared<ParametersType>(comp.blockFromValue());
+    };
+
+    m_handlers[relPrefix] = [this, relPrefix,
+                             parse = std::move(parse),
+                             authorize = std::move(authorize),
+                             validate = std::move(validate),
+                             handle = std::move(handle)] (const auto& prefix, const auto& interest) {
+      processCommand(prefix, relPrefix, interest, parse, authorize, validate, handle);
+    };
+  }
 
 public: // StatusDataset
-  /** \brief Register a StatusDataset or a prefix under which StatusDatasets can be requested.
-   *  \param relPrefix a prefix for this dataset, e.g., "faces/list";
-   *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
-   *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
-   *  \param authorize should set identity to Name() if the dataset is public
-   *  \param handle Callback to process the incoming dataset requests
-   *  \pre no top-level prefix has been added
-   *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
-   *  \throw std::domain_error one or more top-level prefix has been added
+  /**
+   * \brief Register a StatusDataset or a prefix under which StatusDatasets can be requested.
+   * \param relPrefix The name prefix for this dataset relative to the top-level prefix,
+   *                  e.g., "faces/list". The prefixes across all ControlCommands,
+   *                  StatusDatasets, and NotificationStreams must not overlap (no relPrefix
+   *                  is a prefix of another relPrefix).
+   * \param authorize should set identity to Name() if the dataset is public
+   * \param handle Callback to process the incoming dataset requests
+   * \pre No top-level prefix has been added.
+   * \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix.
+   * \throw std::domain_error One or more top-level prefixes have been added.
    *
    * The payload of the returned status dataset data packet is at most half of the maximum
    * data packet size.
    *
-   *  Procedure for processing a StatusDataset request:
-   *  1. if the request Interest contains version or segment components, abort these steps;
-   *     note: the request may contain more components after relPrefix, e.g., a query condition
-   *  2. perform authorization; if authorization is rejected,
-   *     perform the RejectReply action, and abort these steps
-   *  3. invoke handler, store blocks passed to StatusDatasetAppend calls in a buffer,
-   *     wait until StatusDatasetEnd is called
-   *  4. allocate a version
-   *  5. segment the buffer into one or more segments under the allocated version,
-   *     such that the Data packets will not become too large after signing
-   *  6. set FinalBlockId on at least the last segment
-   *  7. sign the Data packets
-   *  8. send the signed Data packets
+   * Procedure for processing a StatusDataset request:
+   *  1. If the request Interest contains version or segment components, abort these steps
+   *     (note: the request may contain more components after relPrefix, e.g., a query condition).
+   *  2. Perform authorization; if the authorization is rejected, perform the RejectReply action
+   *     and abort these steps.
+   *  3. Invoke the handler, store blocks passed to StatusDatasetAppend calls in a buffer,
+   *     wait until StatusDatasetEnd is called.
+   *  4. Allocate a version.
+   *  5. Segment the buffer into one or more segments under the allocated version,
+   *     such that the Data packets will not become too large after signing.
+   *  6. Set FinalBlockId on at least the last segment.
+   *  7. Sign the Data packets.
+   *  8. Send the signed Data packets.
    *
-   *  As an optimization, a Data packet may be sent as soon as enough octets have been collected
-   *  through StatusDatasetAppend calls.
+   * As an optimization, a Data packet may be sent as soon as enough octets have been collected
+   * through StatusDatasetAppend calls.
    */
   void
   addStatusDataset(const PartialName& relPrefix,
@@ -253,24 +270,25 @@ public: // StatusDataset
                    StatusDatasetHandler handle);
 
 public: // NotificationStream
-  /** \brief Register a NotificationStream.
-   *  \param relPrefix a prefix for this notification stream, e.g., "faces/events";
-   *                   relPrefixes in ControlCommands, StatusDatasets, NotificationStreams must be
-   *                   non-overlapping (no relPrefix is a prefix of another relPrefix)
-   *  \return a function into which notifications can be posted
-   *  \pre no top-level prefix has been added
-   *  \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix
-   *  \throw std::domain_error one or more top-level prefix has been added
+  /**
+   * \brief Register a NotificationStream.
+   * \param relPrefix The name prefix for this notification stream relative to the top-level prefix,
+   *                  e.g., "faces/events". The prefixes across all ControlCommands,
+   *                  StatusDatasets, and NotificationStreams must not overlap (no relPrefix
+   *                  is a prefix of another relPrefix).
+   * \return A function into which notifications can be posted.
+   * \pre No top-level prefix has been added.
+   * \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix.
+   * \throw std::domain_error One or more top-level prefixes have been added.
    *
-   *  Procedure for posting a notification:
-   *  1. if no top-level prefix has been added, or more than one top-level prefixes have been
-   *     added,
-   *     abort these steps and log an error
-   *  2. assign the next sequence number to the notification
-   *  3. place the notification block into one Data packet under the sole top-level prefix
-   *  4. sign the Data packet
-   *  5. if the Data packet is too large, abort these steps and log an error
-   *  6. send the signed Data packet
+   * Procedure for posting a notification:
+   *  1. If no top-level prefix has been added, or more than one top-level prefixes have been
+   *     added, abort these steps and log an error.
+   *  2. Assign the next sequence number to the notification.
+   *  3. Place the notification block into one Data packet under the sole top-level prefix.
+   *  4. Sign the Data packet.
+   *  5. If the Data packet is too large, abort these steps and log an error.
+   *  6. Send the signed Data packet.
    */
   PostNotification
   addNotificationStream(const PartialName& relPrefix);
@@ -292,8 +310,8 @@ private:
    */
   using ControlParametersParser = std::function<shared_ptr<ControlParameters>(const name::Component&)>;
 
-  bool
-  isOverlappedWithOthers(const PartialName& relPrefix) const;
+  void
+  checkPrefix(const PartialName& relPrefix) const;
 
   /**
    * @brief Process unauthorized request.
@@ -304,9 +322,9 @@ private:
   afterAuthorizationRejected(RejectReply act, const Interest& interest);
 
   /**
-   * @brief Query Data the in-memory storage by a given Interest.
+   * @brief Query Data in the in-memory storage for a given Interest.
    *
-   * if the query fails, invoke @p missContinuation to process @p interest.
+   * If the query fails, invoke @p missContinuation to process @p interest.
    *
    * @param prefix the top-level prefix
    * @param interest the request
@@ -319,7 +337,7 @@ private:
     NONE = 0,
     FACE = 1,
     IMS  = 2,
-    FACE_AND_IMS = 3
+    FACE_AND_IMS = 3,
   };
 
   /**
@@ -342,72 +360,70 @@ private:
            SendDestination destination);
 
   /**
-   * @brief Send out a data packt through the face.
-   *
-   * @param data the data packet to insert
+   * @brief Send out a Data packet through the face.
    */
   void
   sendOnFace(const Data& data);
 
   /**
-   * @brief Process the control-command Interest before authorization.
+   * @brief Process an incoming control command Interest before authorization.
    *
    * @param prefix the top-level prefix
    * @param relPrefix the relative prefix
    * @param interest the incoming Interest
-   * @param parser to extract control parameters from the \p interest
-   * @param authorization to process validation on this command
-   * @param accepted the callback for successful authorization
-   * @param rejected the callback for failed authorization
+   * @param parse function to extract the control parameters from the command
+   * @param authorize function to determine whether the command is authorized
+   * @param validate function to validate the command parameters
+   * @param handler function to execute the command after authorization and validation
    */
   void
-  processControlCommandInterest(const Name& prefix,
-                                const Name& relPrefix,
-                                const Interest& interest,
-                                const ControlParametersParser& parser,
-                                const Authorization& authorization,
-                                const AuthorizationAcceptedCallback& accepted,
-                                const AuthorizationRejectedCallback& rejected);
+  processCommand(const Name& prefix,
+                 const Name& relPrefix,
+                 const Interest& interest,
+                 const ControlParametersParser& parse,
+                 const Authorization& authorize,
+                 const ValidateParameters& validate,
+                 const ControlCommandHandler& handler);
 
   /**
-   * @brief Process the authorized control-command.
+   * @brief Process an authorized control command.
    *
    * @param requester the requester
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
    * @param parameters control parameters of this command
-   * @param validate to validate control parameters
-   * @param handler to process this command
+   * @param validate function to validate the command parameters
+   * @param handler function to execute the command after authorization and validation
    */
   void
-  processAuthorizedControlCommandInterest(const std::string& requester,
-                                          const Name& prefix,
-                                          const Interest& interest,
-                                          const shared_ptr<ControlParameters>& parameters,
-                                          const ValidateParameters& validate,
-                                          const ControlCommandHandler& handler);
+  processAuthorizedCommand(const std::string& requester,
+                           const Name& prefix,
+                           const Interest& interest,
+                           const shared_ptr<ControlParameters>& parameters,
+                           const ValidateParameters& validate,
+                           const ControlCommandHandler& handler);
 
   void
   sendControlResponse(const ControlResponse& resp, const Interest& interest, bool isNack = false);
 
   /**
-   * @brief Process the status-dataset Interest before authorization.
+   * @brief Process a StatusDataset Interest before authorization.
    *
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
-   * @param authorization to process verification
+   * @param authorize function to process verification
    * @param accepted callback for successful authorization
    * @param rejected callback for failed authorization
    */
   void
   processStatusDatasetInterest(const Name& prefix,
                                const Interest& interest,
-                               const Authorization& authorization,
+                               const Authorization& authorize,
                                const AuthorizationAcceptedCallback& accepted,
                                const AuthorizationRejectedCallback& rejected);
 
   /**
-   * @brief Process the authorized StatusDataset request.
+   * @brief Process an authorized StatusDataset request.
    *
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
@@ -451,41 +467,6 @@ private:
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   InMemoryStorageFifo m_storage;
 };
-
-template<typename CP>
-void
-Dispatcher::addControlCommand(const PartialName& relPrefix,
-                              Authorization authorize,
-                              ValidateParameters validate,
-                              ControlCommandHandler handle)
-{
-  if (!m_topLevelPrefixes.empty()) {
-    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
-  }
-
-  if (isOverlappedWithOthers(relPrefix)) {
-    NDN_THROW(std::out_of_range("relPrefix overlaps with another relPrefix"));
-  }
-
-  ControlParametersParser parser = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
-    return make_shared<CP>(comp.blockFromValue());
-  };
-  AuthorizationAcceptedCallback accepted = [this, validate = std::move(validate),
-                                            handle = std::move(handle)] (auto&&... args) {
-    processAuthorizedControlCommandInterest(std::forward<decltype(args)>(args)..., validate, handle);
-  };
-  AuthorizationRejectedCallback rejected = [this] (auto&&... args) {
-    afterAuthorizationRejected(std::forward<decltype(args)>(args)...);
-  };
-
-  m_handlers[relPrefix] = [this, relPrefix,
-                           parser = std::move(parser),
-                           authorize = std::move(authorize),
-                           accepted = std::move(accepted),
-                           rejected = std::move(rejected)] (const auto& prefix, const auto& interest) {
-    processControlCommandInterest(prefix, relPrefix, interest, parser, authorize, accepted, rejected);
-  };
-}
 
 } // namespace ndn::mgmt
 
