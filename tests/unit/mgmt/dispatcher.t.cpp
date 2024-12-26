@@ -32,18 +32,10 @@ using namespace ndn::mgmt;
 
 class DispatcherFixture : public IoKeyChainFixture
 {
-public:
-  DispatcherFixture()
-    : face(m_io, m_keyChain, {true, true})
-    , dispatcher(face, m_keyChain, security::SigningInfo())
-    , storage(dispatcher.m_storage)
-  {
-  }
-
-public:
-  DummyClientFace face;
-  mgmt::Dispatcher dispatcher;
-  InMemoryStorageFifo& storage;
+protected:
+  DummyClientFace face{m_io, m_keyChain, {true, true}};
+  Dispatcher dispatcher{face, m_keyChain};
+  InMemoryStorageFifo& storage{dispatcher.m_storage};
 };
 
 class VoidParameters : public mgmt::ControlParameters
@@ -266,16 +258,14 @@ BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization,
   * ut::description("test for bug #4059"))
 {
   AcceptContinuation authorizationAccept;
-  auto authorization =
-    [&authorizationAccept] (const Name&, const Interest&, const ControlParameters*,
-                            AcceptContinuation accept, RejectContinuation) {
-      authorizationAccept = std::move(accept);
-    };
+  auto authorization = [&authorizationAccept] (const Name&, const Interest&, const ControlParameters*,
+                                               AcceptContinuation accept, RejectContinuation) {
+    authorizationAccept = std::move(accept);
+  };
 
-  auto validateParameters =
-    [] (const ControlParameters& params) {
-      return dynamic_cast<const StatefulParameters&>(params).check();
-    };
+  auto validateParameters = [] (const ControlParameters& params) {
+    return dynamic_cast<const StatefulParameters&>(params).check();
+  };
 
   size_t nCallbackCalled = 0;
   dispatcher.addControlCommand<StatefulParameters>("test", authorization, validateParameters,

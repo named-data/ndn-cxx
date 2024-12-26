@@ -93,8 +93,9 @@ makeAcceptAllAuthorization();
  */
 using ValidateParameters = std::function<bool(const ControlParameters& params)>;
 
-/** \brief A function to be called after ControlCommandHandler completes.
- *  \param resp the response to be sent to requester
+/**
+ * \brief A function to be called after a ControlCommandHandler completes.
+ * \param resp The response that should be sent back to the requester.
  */
 using CommandContinuation = std::function<void(const ControlResponse& resp)>;
 
@@ -195,17 +196,17 @@ public: // ControlCommand
    * \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix.
    * \throw std::domain_error One or more top-level prefixes have been added.
    *
-   * Procedure for processing a ControlCommand:
+   * Procedure for processing a ControlCommand registered through this function:
    *  1. Extract the NameComponent containing ControlParameters (the component after relPrefix),
    *     and parse ControlParameters into ParametersType; if parsing fails, abort these steps.
    *  2. Perform authorization; if the authorization is rejected, perform the RejectReply action
    *     and abort these steps.
-   *  3. Validate ControlParameters; if validation fails, create a ControlResponse with
+   *  3. Validate the ControlParameters; if validation fails, create a ControlResponse with
    *     StatusCode 400 and go to step 5.
    *  4. Invoke the command handler, wait until CommandContinuation is called.
    *  5. Encode the ControlResponse into one Data packet.
    *  6. Sign the Data packet.
-   *  7. If the Data packet is too large, abort these steps and log an error.
+   *  7. If the Data packet is too large, log an error and abort these steps.
    *  8. Send the signed Data packet.
    */
   template<typename ParametersType,
@@ -227,7 +228,8 @@ public: // ControlCommand
                              authorize = std::move(authorize),
                              validate = std::move(validate),
                              handle = std::move(handle)] (const auto& prefix, const auto& interest) {
-      processCommand(prefix, relPrefix, interest, parse, authorize, validate, handle);
+      processCommand(prefix, relPrefix, interest, parse, authorize,
+                     std::move(validate), std::move(handle));
     };
   }
 
@@ -295,13 +297,6 @@ public: // NotificationStream
 
 private:
   using InterestHandler = std::function<void(const Name& prefix, const Interest&)>;
-
-  using AuthorizationAcceptedCallback = std::function<void(const std::string& requester,
-                                                           const Name& prefix,
-                                                           const Interest&,
-                                                           const shared_ptr<ControlParameters>&)>;
-
-  using AuthorizationRejectedCallback = std::function<void(RejectReply, const Interest&)>;
 
   /**
    * @brief The parser for extracting control parameters from a name component.
@@ -374,7 +369,7 @@ private:
    * @param parse function to extract the control parameters from the command
    * @param authorize function to determine whether the command is authorized
    * @param validate function to validate the command parameters
-   * @param handler function to execute the command after authorization and validation
+   * @param handler function to execute the command after it is authorized and validated
    */
   void
   processCommand(const Name& prefix,
@@ -382,22 +377,20 @@ private:
                  const Interest& interest,
                  const ControlParametersParser& parse,
                  const Authorization& authorize,
-                 const ValidateParameters& validate,
-                 const ControlCommandHandler& handler);
+                 ValidateParameters validate,
+                 ControlCommandHandler handler);
 
   /**
    * @brief Process an authorized control command.
    *
-   * @param requester the requester
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
    * @param parameters control parameters of this command
    * @param validate function to validate the command parameters
-   * @param handler function to execute the command after authorization and validation
+   * @param handler function to execute the command after its parameters are validated
    */
   void
-  processAuthorizedCommand(const std::string& requester,
-                           const Name& prefix,
+  processAuthorizedCommand(const Name& prefix,
                            const Interest& interest,
                            const shared_ptr<ControlParameters>& parameters,
                            const ValidateParameters& validate,
@@ -411,23 +404,21 @@ private:
    *
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
-   * @param authorize function to process verification
-   * @param accepted callback for successful authorization
-   * @param rejected callback for failed authorization
+   * @param authorize function to determine whether the request is authorized
+   * @param handler function to continue processing the request after it is authorized
    */
   void
   processStatusDatasetInterest(const Name& prefix,
                                const Interest& interest,
                                const Authorization& authorize,
-                               const AuthorizationAcceptedCallback& accepted,
-                               const AuthorizationRejectedCallback& rejected);
+                               StatusDatasetHandler handler);
 
   /**
    * @brief Process an authorized StatusDataset request.
    *
    * @param prefix the top-level prefix
    * @param interest the incoming Interest
-   * @param handler function to process this request
+   * @param handler function to process the dataset request
    */
   void
   processAuthorizedStatusDatasetInterest(const Name& prefix,

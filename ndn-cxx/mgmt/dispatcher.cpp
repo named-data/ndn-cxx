@@ -166,8 +166,8 @@ Dispatcher::processCommand(const Name& prefix,
                            const Interest& interest,
                            const ControlParametersParser& parse,
                            const Authorization& authorize,
-                           const ValidateParameters& validateParams,
-                           const ControlCommandHandler& handler)
+                           ValidateParameters validate,
+                           ControlCommandHandler handler)
 {
   // /<prefix>/<relPrefix>/<parameters>
   size_t parametersLoc = prefix.size() + relPrefix.size();
@@ -181,8 +181,8 @@ Dispatcher::processCommand(const Name& prefix,
     return;
   }
 
-  AcceptContinuation accept = [=] (const auto& req) {
-    processAuthorizedCommand(req, prefix, interest, parameters, validateParams, handler);
+  AcceptContinuation accept = [=, v = std::move(validate), h = std::move(handler)] (const auto&) {
+    processAuthorizedCommand(prefix, interest, parameters, v, h);
   };
   RejectContinuation reject = [=] (RejectReply reply) {
     afterAuthorizationRejected(reply, interest);
@@ -191,14 +191,13 @@ Dispatcher::processCommand(const Name& prefix,
 }
 
 void
-Dispatcher::processAuthorizedCommand(const std::string& requester,
-                                     const Name& prefix,
+Dispatcher::processAuthorizedCommand(const Name& prefix,
                                      const Interest& interest,
                                      const shared_ptr<ControlParameters>& parameters,
-                                     const ValidateParameters& validateParams,
+                                     const ValidateParameters& validate,
                                      const ControlCommandHandler& handler)
 {
-  if (validateParams(*parameters)) {
+  if (validate(*parameters)) {
     handler(prefix, interest, *parameters,
             [=] (const auto& resp) { sendControlResponse(resp, interest); });
   }
@@ -221,26 +220,19 @@ Dispatcher::sendControlResponse(const ControlResponse& resp, const Interest& int
 
 void
 Dispatcher::addStatusDataset(const PartialName& relPrefix,
-                             Authorization auth,
-                             StatusDatasetHandler handler)
+                             Authorization authorize,
+                             StatusDatasetHandler handle)
 {
   checkPrefix(relPrefix);
 
-  AuthorizationAcceptedCallback accept =
-    [this, handler = std::move(handler)] (auto&&, const auto& prefix, const auto& interest, auto&&) {
-      processAuthorizedStatusDatasetInterest(prefix, interest, handler);
-    };
-  AuthorizationRejectedCallback reject =
-    [this] (auto&&... args) {
-      afterAuthorizationRejected(std::forward<decltype(args)>(args)...);
-    };
   // follow the general path if storage is a miss
-  InterestHandler missContinuation =
-    [this, auth = std::move(auth), accept = std::move(accept), reject = std::move(reject)] (auto&&... args) {
-      processStatusDatasetInterest(std::forward<decltype(args)>(args)..., auth, accept, reject);
-    };
+  InterestHandler afterMiss = [this,
+                               authorizer = std::move(authorize),
+                               handler = std::move(handle)] (const auto& prefix, const auto& interest) {
+    processStatusDatasetInterest(prefix, interest, authorizer, std::move(handler));
+  };
 
-  m_handlers[relPrefix] = [this, miss = std::move(missContinuation)] (auto&&... args) {
+  m_handlers[relPrefix] = [this, miss = std::move(afterMiss)] (auto&&... args) {
     queryStorage(std::forward<decltype(args)>(args)..., miss);
   };
 }
@@ -248,9 +240,8 @@ Dispatcher::addStatusDataset(const PartialName& relPrefix,
 void
 Dispatcher::processStatusDatasetInterest(const Name& prefix,
                                          const Interest& interest,
-                                         const Authorization& authorization,
-                                         const AuthorizationAcceptedCallback& accepted,
-                                         const AuthorizationRejectedCallback& rejected)
+                                         const Authorization& authorize,
+                                         StatusDatasetHandler handler)
 {
   const Name& interestName = interest.getName();
   bool endsWithVersionOrSegment = interestName.size() >= 1 &&
@@ -259,9 +250,13 @@ Dispatcher::processStatusDatasetInterest(const Name& prefix,
     return;
   }
 
-  AcceptContinuation accept = [=] (const auto& req) { accepted(req, prefix, interest, nullptr); };
-  RejectContinuation reject = [=] (RejectReply reply) { rejected(reply, interest); };
-  authorization(prefix, interest, nullptr, accept, reject);
+  AcceptContinuation accept = [=, h = std::move(handler)] (const auto&) {
+    processAuthorizedStatusDatasetInterest(prefix, interest, h);
+  };
+  RejectContinuation reject = [=] (RejectReply reply) {
+    afterAuthorizationRejected(reply, interest);
+  };
+  authorize(prefix, interest, nullptr, accept, reject);
 }
 
 void
