@@ -23,12 +23,6 @@
 
 namespace ndn::nfd {
 
-ControlParametersCommandFormat::ControlParametersCommandFormat()
-  : m_required(CONTROL_PARAMETER_UBOUND)
-  , m_optional(CONTROL_PARAMETER_UBOUND)
-{
-}
-
 void
 ControlParametersCommandFormat::validate(const ControlParameters& parameters) const
 {

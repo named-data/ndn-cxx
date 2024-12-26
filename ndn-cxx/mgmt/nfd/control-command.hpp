@@ -25,6 +25,8 @@
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
 
+#include <bitset>
+
 namespace ndn::nfd {
 
 /**
@@ -47,15 +49,13 @@ class ControlParametersCommandFormat
 public:
   using ParametersType = ControlParameters;
 
-  ControlParametersCommandFormat();
-
   /**
    * \brief Declare a required field.
    */
   ControlParametersCommandFormat&
   required(ControlParameterField field)
   {
-    m_required[field] = true;
+    m_required.set(field);
     return *this;
   }
 
@@ -65,7 +65,7 @@ public:
   ControlParametersCommandFormat&
   optional(ControlParameterField field)
   {
-    m_optional[field] = true;
+    m_optional.set(field);
     return *this;
   }
 
@@ -85,8 +85,8 @@ public:
   encode(Interest& interest, const ControlParameters& params) const;
 
 private:
-  std::vector<bool> m_required;
-  std::vector<bool> m_optional;
+  std::bitset<CONTROL_PARAMETER_UBOUND> m_required;
+  std::bitset<CONTROL_PARAMETER_UBOUND> m_optional;
 };
 
 
