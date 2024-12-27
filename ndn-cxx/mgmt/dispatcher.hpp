@@ -87,11 +87,12 @@ makeAcceptAllAuthorization();
 
 // ---- CONTROL COMMAND ----
 
-/** \brief A function to validate input ControlParameters.
- *  \param params parsed ControlParameters;
- *                This is guaranteed to have correct type for the command.
+/**
+ * \brief A function to validate and normalize the incoming request parameters.
+ * \param params The parsed ControlParameters; guaranteed to be of the correct (sub-)type
+ *               for the command.
  */
-using ValidateParameters = std::function<bool(const ControlParameters& params)>;
+using ValidateParameters = std::function<bool(ControlParameters& params)>;
 
 /**
  * \brief A function to be called after a ControlCommandHandler completes.
@@ -183,7 +184,7 @@ public:
 
 public: // ControlCommand
   /**
-   * \brief Register a ControlCommand.
+   * \brief Register a ControlCommand (old style).
    * \tparam ParametersType Concrete subclass of ControlParameters used by this command.
    * \param relPrefix The name prefix for this command relative to the top-level prefix,
    *                  e.g., "faces/create". The prefixes across all ControlCommands,
@@ -219,17 +220,69 @@ public: // ControlCommand
   {
     checkPrefix(relPrefix);
 
-    ControlParametersParser parse = [] (const name::Component& comp) -> shared_ptr<ControlParameters> {
+    auto relPrefixLen = relPrefix.size();
+    ParametersParser parse = [relPrefixLen] (const Name& prefix,
+                                             const auto& interest) -> shared_ptr<ControlParameters> {
+      const name::Component& comp = interest.getName().get(prefix.size() + relPrefixLen);
       return make_shared<ParametersType>(comp.blockFromValue());
     };
 
-    m_handlers[relPrefix] = [this, relPrefix,
-                             parse = std::move(parse),
-                             authorize = std::move(authorize),
-                             validate = std::move(validate),
-                             handle = std::move(handle)] (const auto& prefix, const auto& interest) {
-      processCommand(prefix, relPrefix, interest, parse, authorize,
-                     std::move(validate), std::move(handle));
+    m_handlers[relPrefix] = [this,
+                             parser = std::move(parse),
+                             authorizer = std::move(authorize),
+                             validator = std::move(validate),
+                             handler = std::move(handle)] (const auto& prefix, const auto& interest) {
+      processCommand(prefix, interest, parser, authorizer, std::move(validator), std::move(handler));
+    };
+  }
+
+  /**
+   * \brief Register a ControlCommand (new style).
+   * \tparam Command The type of ControlCommand to register.
+   * \param authorize Callback to authorize the incoming commands.
+   * \param handle Callback to handle the commands.
+   * \pre No top-level prefix has been added.
+   * \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix.
+   * \throw std::domain_error One or more top-level prefixes have been added.
+   *
+   * Procedure for processing a ControlCommand registered through this function:
+   *  1. Extract the parameters from the request by invoking `Command::parseRequest` on the
+   *     incoming Interest; if parsing fails, abort these steps.
+   *  2. Perform authorization; if the authorization is rejected, perform the RejectReply action
+   *     and abort these steps.
+   *  3. Validate the parameters with `Command::validateRequest`.
+   *  4. Normalize the parameters with `Command::applyDefaultsToRequest`.
+   *  5. If either step 3 or 4 fails, create a ControlResponse with StatusCode 400 and go to step 7.
+   *  6. Invoke the command handler, wait until CommandContinuation is called.
+   *  7. Encode the ControlResponse into one Data packet.
+   *  8. Sign the Data packet.
+   *  9. If the Data packet is too large, log an error and abort these steps.
+   * 10. Send the signed Data packet.
+   */
+  template<typename Command>
+  void
+  addControlCommand(Authorization authorize, ControlCommandHandler handle)
+  {
+    auto relPrefix = Command::getName();
+    checkPrefix(relPrefix);
+
+    ParametersParser parse = [] (const Name& prefix, const auto& interest) {
+      return Command::parseRequest(interest, prefix.size());
+    };
+    ValidateParameters validate = [] (auto& params) {
+      auto& reqParams = static_cast<typename Command::RequestParameters&>(params);
+      Command::validateRequest(reqParams);
+      Command::applyDefaultsToRequest(reqParams);
+      // for compatibility with ValidateParameters signature; consider refactoring in the future
+      return true;
+    };
+
+    m_handlers[relPrefix] = [this,
+                             parser = std::move(parse),
+                             authorizer = std::move(authorize),
+                             validator = std::move(validate),
+                             handler = std::move(handle)] (const auto& prefix, const auto& interest) {
+      processCommand(prefix, interest, parser, authorizer, std::move(validator), std::move(handler));
     };
   }
 
@@ -299,11 +352,11 @@ private:
   using InterestHandler = std::function<void(const Name& prefix, const Interest&)>;
 
   /**
-   * @brief The parser for extracting control parameters from a name component.
+   * @brief The parser for extracting the parameters from a command request.
    * @return A shared pointer to the extracted ControlParameters.
-   * @throw tlv::Error if the name component cannot be parsed as ControlParameters
+   * @throw tlv::Error The request parameters cannot be parsed.
    */
-  using ControlParametersParser = std::function<shared_ptr<ControlParameters>(const name::Component&)>;
+  using ParametersParser = std::function<shared_ptr<ControlParameters>(const Name& prefix, const Interest&)>;
 
   void
   checkPrefix(const PartialName& relPrefix) const;
@@ -364,7 +417,6 @@ private:
    * @brief Process an incoming control command Interest before authorization.
    *
    * @param prefix the top-level prefix
-   * @param relPrefix the relative prefix
    * @param interest the incoming Interest
    * @param parse function to extract the control parameters from the command
    * @param authorize function to determine whether the command is authorized
@@ -373,9 +425,8 @@ private:
    */
   void
   processCommand(const Name& prefix,
-                 const Name& relPrefix,
                  const Interest& interest,
-                 const ControlParametersParser& parse,
+                 const ParametersParser& parse,
                  const Authorization& authorize,
                  ValidateParameters validate,
                  ControlCommandHandler handler);

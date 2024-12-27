@@ -47,8 +47,15 @@ ControlParametersCommandFormat::validate(const ControlParameters& parameters) co
   }
 }
 
+shared_ptr<ControlParameters>
+ControlParametersCommandFormat::decode(const Interest& interest, size_t prefixLen)
+{
+  auto block = interest.getName().at(prefixLen).blockFromValue();
+  return make_shared<ControlParameters>(block);
+}
+
 void
-ControlParametersCommandFormat::encode(Interest& interest, const ControlParameters& params) const
+ControlParametersCommandFormat::encode(Interest& interest, const ControlParameters& params)
 {
   auto name = interest.getName();
   name.append(params.wireEncode());

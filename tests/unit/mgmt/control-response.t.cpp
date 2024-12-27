@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -36,7 +36,7 @@ static_assert(std::is_convertible_v<ControlResponse::Error*, tlv::Error*>,
 BOOST_AUTO_TEST_SUITE(Mgmt)
 BOOST_AUTO_TEST_SUITE(TestControlResponse)
 
-static const uint8_t WIRE[] = {
+const uint8_t WIRE[] = {
   0x65, 0x17, // ControlResponse
         0x66, 0x02, // StatusCode
               0x01, 0x94,
@@ -46,10 +46,21 @@ static const uint8_t WIRE[] = {
 
 BOOST_AUTO_TEST_CASE(Encode)
 {
-  ControlResponse cr(404, "Nothing not found");
-  const Block& wire = cr.wireEncode();
-  BOOST_CHECK_EQUAL_COLLECTIONS(WIRE, WIRE + sizeof(WIRE),
-                                wire.begin(), wire.end());
+  ControlResponse cr1(404, "Nothing not found");
+  BOOST_TEST(cr1.wireEncode() == WIRE, boost::test_tools::per_element());
+
+  ControlResponse cr2;
+  cr2.setCode(404);
+  cr2.setText("Nothing not found");
+  BOOST_TEST(cr2.wireEncode() == WIRE, boost::test_tools::per_element());
+
+  ControlResponse cr3(cr1);
+  cr3.setCode(405);
+  BOOST_TEST(cr3.wireEncode() != Block{WIRE});
+
+  ControlResponse cr4(cr1);
+  cr4.setText("foo");
+  BOOST_TEST(cr4.wireEncode() != Block{WIRE});
 }
 
 BOOST_AUTO_TEST_CASE(Decode)
@@ -57,6 +68,26 @@ BOOST_AUTO_TEST_CASE(Decode)
   ControlResponse cr(Block{WIRE});
   BOOST_CHECK_EQUAL(cr.getCode(), 404);
   BOOST_CHECK_EQUAL(cr.getText(), "Nothing not found");
+
+  // wrong outer TLV type
+  BOOST_CHECK_EXCEPTION(cr.wireDecode("6406660201946700"_block), tlv::Error, [] (const auto& e) {
+    return e.what() == "Expecting ControlResponse element, but TLV has type 100"sv;
+  });
+
+  // empty TLV
+  BOOST_CHECK_EXCEPTION(cr.wireDecode("6500"_block), tlv::Error, [] (const auto& e) {
+    return e.what() == "missing StatusCode sub-element"sv;
+  });
+
+  // missing StatusCode
+  BOOST_CHECK_EXCEPTION(cr.wireDecode("65026700"_block), tlv::Error, [] (const auto& e) {
+    return e.what() == "missing StatusCode sub-element"sv;
+  });
+
+  // missing StatusText
+  BOOST_CHECK_EXCEPTION(cr.wireDecode("650466020194"_block), tlv::Error, [] (const auto& e) {
+    return e.what() == "missing StatusText sub-element"sv;
+  });
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestControlResponse

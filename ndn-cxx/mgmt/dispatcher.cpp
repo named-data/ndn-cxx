@@ -93,7 +93,7 @@ void
 Dispatcher::checkPrefix(const PartialName& relPrefix) const
 {
   if (!m_topLevelPrefixes.empty()) {
-    NDN_THROW(std::domain_error("one or more top-level prefix has been added"));
+    NDN_THROW(std::domain_error("one or more top-level prefixes have already been added"));
   }
 
   bool hasOverlap = std::any_of(m_handlers.begin(), m_handlers.end(), [&] (const auto& entry) {
@@ -162,22 +162,18 @@ Dispatcher::sendOnFace(const Data& data)
 
 void
 Dispatcher::processCommand(const Name& prefix,
-                           const Name& relPrefix,
                            const Interest& interest,
-                           const ControlParametersParser& parse,
+                           const ParametersParser& parse,
                            const Authorization& authorize,
                            ValidateParameters validate,
                            ControlCommandHandler handler)
 {
-  // /<prefix>/<relPrefix>/<parameters>
-  size_t parametersLoc = prefix.size() + relPrefix.size();
-  const name::Component& pc = interest.getName().get(parametersLoc);
-
   shared_ptr<ControlParameters> parameters;
   try {
-    parameters = parse(pc);
+    parameters = parse(prefix, interest);
   }
-  catch (const tlv::Error&) {
+  catch (const std::exception& e) {
+    NDN_LOG_DEBUG("malformed command " << interest.getName() << ": " << e.what());
     return;
   }
 
@@ -197,9 +193,18 @@ Dispatcher::processAuthorizedCommand(const Name& prefix,
                                      const ValidateParameters& validate,
                                      const ControlCommandHandler& handler)
 {
-  if (validate(*parameters)) {
-    handler(prefix, interest, *parameters,
-            [=] (const auto& resp) { sendControlResponse(resp, interest); });
+  bool ok = false;
+  try {
+    ok = validate(*parameters);
+  }
+  catch (const std::exception& e) {
+    NDN_LOG_DEBUG("invalid parameters for command " << interest.getName() << ": " << e.what());
+  }
+
+  if (ok) {
+    handler(prefix, interest, *parameters, [this, interest] (const auto& resp) {
+      sendControlResponse(resp, interest);
+    });
   }
   else {
     sendControlResponse(ControlResponse(400, "failed in validating parameters"), interest);

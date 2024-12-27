@@ -42,7 +42,12 @@ public:
 
 /**
  * \ingroup management
- * \brief Implements encoding and validation of the ControlParameters format for control commands.
+ * \brief Implements decoding, encoding, and validation of ControlParameters in control commands.
+ *
+ * According to this format, the request parameters are encoded as a single GenericNameComponent
+ * in the Interest name, immediately after the command module and command verb components.
+ *
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/ControlCommand
  */
 class ControlParametersCommandFormat
 {
@@ -78,11 +83,17 @@ public:
   validate(const ControlParameters& params) const;
 
   /**
-   * \brief Serializes the parameters into the request \p interest.
+   * \brief Extract the parameters from the request \p interest.
+   */
+  static shared_ptr<ControlParameters>
+  decode(const Interest& interest, size_t prefixLen);
+
+  /**
+   * \brief Serialize the parameters into the request \p interest.
    * \pre \p params are valid.
    */
-  void
-  encode(Interest& interest, const ControlParameters& params) const;
+  static void
+  encode(Interest& interest, const ControlParameters& params);
 
 private:
   std::bitset<CONTROL_PARAMETER_UBOUND> m_required;
@@ -116,6 +127,15 @@ public:
   ControlCommand() = delete;
 
   /**
+   * \brief Return the command name (module + verb).
+   */
+  static PartialName
+  getName()
+  {
+    return PartialName().append(Derived::s_module).append(Derived::s_verb);
+  }
+
+  /**
    * \brief Construct request Interest.
    * \throw ArgumentError if parameters are invalid
    */
@@ -127,6 +147,16 @@ public:
     Interest request(commandPrefix.append(Derived::s_module).append(Derived::s_verb));
     Derived::s_requestFormat.encode(request, params);
     return request;
+  }
+
+  /**
+   * \brief Extract parameters from request Interest.
+   */
+  static shared_ptr<mgmt::ControlParameters>
+  parseRequest(const Interest& interest, size_t prefixLen)
+  {
+    // /<prefix>/<module>/<verb>
+    return Derived::s_requestFormat.decode(interest, prefixLen + 2);
   }
 
   /**
