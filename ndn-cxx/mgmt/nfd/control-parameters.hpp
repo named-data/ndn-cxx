@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,7 @@
 
 #include "ndn-cxx/name.hpp"
 #include "ndn-cxx/encoding/nfd-constants.hpp"
-#include "ndn-cxx/mgmt/control-parameters.hpp"
+#include "ndn-cxx/mgmt/control-parameters-base.hpp"
 #include "ndn-cxx/util/time.hpp"
 
 namespace ndn::nfd {
@@ -77,7 +77,7 @@ inline constexpr std::string_view CONTROL_PARAMETER_FIELD[CONTROL_PARAMETER_UBOU
  * \sa https://redmine.named-data.net/projects/nfd/wiki/ControlCommand#ControlParameters
  * \details This type is copyable because it's an abstraction of a TLV type.
  */
-class ControlParameters : public mgmt::ControlParameters
+class ControlParameters : public mgmt::ControlParametersBase
 {
 public:
   class Error : public tlv::Error

@@ -23,10 +23,9 @@
 #define NDN_CXX_MGMT_DISPATCHER_HPP
 
 #include "ndn-cxx/face.hpp"
-#include "ndn-cxx/encoding/block.hpp"
 #include "ndn-cxx/ims/in-memory-storage-fifo.hpp"
+#include "ndn-cxx/mgmt/control-parameters-base.hpp"
 #include "ndn-cxx/mgmt/control-response.hpp"
-#include "ndn-cxx/mgmt/control-parameters.hpp"
 #include "ndn-cxx/mgmt/status-dataset-context.hpp"
 #include "ndn-cxx/security/key-chain.hpp"
 
@@ -75,7 +74,7 @@ using RejectContinuation = std::function<void(RejectReply)>;
  *  Either \p accept or \p reject must be called after authorization completes.
  */
 using Authorization = std::function<void(const Name& prefix, const Interest& interest,
-                                         const ControlParameters* params,
+                                         const ControlParametersBase* params,
                                          const AcceptContinuation& accept,
                                          const RejectContinuation& reject)>;
 
@@ -92,7 +91,7 @@ makeAcceptAllAuthorization();
  * \param params The parsed ControlParameters; guaranteed to be of the correct (sub-)type
  *               for the command.
  */
-using ValidateParameters = std::function<bool(ControlParameters& params)>;
+using ValidateParameters = std::function<bool(ControlParametersBase& params)>;
 
 /**
  * \brief A function to be called after a ControlCommandHandler completes.
@@ -100,15 +99,16 @@ using ValidateParameters = std::function<bool(ControlParameters& params)>;
  */
 using CommandContinuation = std::function<void(const ControlResponse& resp)>;
 
-/** \brief A function to handle an authorized ControlCommand.
- *  \param prefix top-level prefix, e.g., "/localhost/nfd";
- *  \param interest incoming Interest
- *  \param params parsed ControlParameters;
- *                This is guaranteed to have correct type for the command,
- *                and is valid (e.g., has all required fields).
+/**
+ * \brief A function to handle an authorized ControlCommand.
+ * \param prefix Top-level prefix, e.g., `/localhost/nfd`.
+ * \param interest Incoming Interest carrying the request.
+ * \param params The parsed ControlParameters; guaranteed to be of the correct (sub-)type
+ *               and to be valid for the command (e.g., has all the required fields).
+ * \param done Function that must be called after command processing is complete.
  */
 using ControlCommandHandler = std::function<void(const Name& prefix, const Interest& interest,
-                                                 const ControlParameters& params,
+                                                 const ControlParametersBase& params,
                                                  const CommandContinuation& done)>;
 
 // ---- STATUS DATASET ----
@@ -211,7 +211,7 @@ public: // ControlCommand
    *  8. Send the signed Data packet.
    */
   template<typename ParametersType,
-           std::enable_if_t<std::is_convertible_v<ParametersType*, ControlParameters*>, int> = 0>
+           std::enable_if_t<std::is_convertible_v<ParametersType*, ControlParametersBase*>, int> = 0>
   void
   addControlCommand(const PartialName& relPrefix,
                     Authorization authorize,
@@ -222,7 +222,7 @@ public: // ControlCommand
 
     auto relPrefixLen = relPrefix.size();
     ParametersParser parse = [relPrefixLen] (const Name& prefix,
-                                             const auto& interest) -> shared_ptr<ControlParameters> {
+                                             const auto& interest) -> ControlParametersPtr {
       const name::Component& comp = interest.getName().get(prefix.size() + relPrefixLen);
       return make_shared<ParametersType>(comp.blockFromValue());
     };
@@ -349,6 +349,7 @@ public: // NotificationStream
   addNotificationStream(const PartialName& relPrefix);
 
 private:
+  using ControlParametersPtr = shared_ptr<ControlParametersBase>;
   using InterestHandler = std::function<void(const Name& prefix, const Interest&)>;
 
   /**
@@ -356,7 +357,7 @@ private:
    * @return A shared pointer to the extracted ControlParameters.
    * @throw tlv::Error The request parameters cannot be parsed.
    */
-  using ParametersParser = std::function<shared_ptr<ControlParameters>(const Name& prefix, const Interest&)>;
+  using ParametersParser = std::function<ControlParametersPtr(const Name& prefix, const Interest&)>;
 
   void
   checkPrefix(const PartialName& relPrefix) const;
@@ -443,7 +444,7 @@ private:
   void
   processAuthorizedCommand(const Name& prefix,
                            const Interest& interest,
-                           const shared_ptr<ControlParameters>& parameters,
+                           const ControlParametersPtr& parameters,
                            const ValidateParameters& validate,
                            const ControlCommandHandler& handler);
 
@@ -490,16 +491,16 @@ private:
   postNotification(const Block& notification, const PartialName& relPrefix);
 
 private:
+  Face& m_face;
+  KeyChain& m_keyChain;
+  security::SigningInfo m_signingInfo;
+
   struct TopPrefixEntry
   {
     ScopedRegisteredPrefixHandle registeredPrefix;
     std::vector<ScopedInterestFilterHandle> interestFilters;
   };
   std::unordered_map<Name, TopPrefixEntry> m_topLevelPrefixes;
-
-  Face& m_face;
-  KeyChain& m_keyChain;
-  security::SigningInfo m_signingInfo;
 
   std::unordered_map<PartialName, InterestHandler> m_handlers;
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -19,21 +19,21 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-#ifndef NDN_CXX_MGMT_CONTROL_PARAMETERS_HPP
-#define NDN_CXX_MGMT_CONTROL_PARAMETERS_HPP
+#ifndef NDN_CXX_MGMT_CONTROL_PARAMETERS_BASE_HPP
+#define NDN_CXX_MGMT_CONTROL_PARAMETERS_BASE_HPP
 
 #include "ndn-cxx/encoding/block.hpp"
 
 namespace ndn::mgmt {
 
 /**
- * \brief Base class for a struct that contains ControlCommand parameters.
+ * \brief Base class for a struct that contains the parameters for a ControlCommand.
  */
-class ControlParameters
+class ControlParametersBase
 {
 public:
   virtual
-  ~ControlParameters() = default;
+  ~ControlParametersBase() = default;
 
   virtual void
   wireDecode(const Block& wire) = 0;
@@ -44,4 +44,4 @@ public:
 
 } // namespace ndn::mgmt
 
-#endif // NDN_CXX_MGMT_CONTROL_PARAMETERS_HPP
+#endif // NDN_CXX_MGMT_CONTROL_PARAMETERS_BASE_HPP

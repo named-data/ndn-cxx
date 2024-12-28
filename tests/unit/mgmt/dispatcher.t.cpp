@@ -38,7 +38,7 @@ protected:
   InMemoryStorageFifo& storage{dispatcher.m_storage};
 };
 
-class VoidParameters : public mgmt::ControlParameters
+class VoidParameters : public ControlParametersBase
 {
 public:
   explicit
@@ -64,7 +64,7 @@ public:
 static Authorization
 makeTestAuthorization()
 {
-  return [] (const Name&, const Interest& interest, const ControlParameters*,
+  return [] (const Name&, const Interest& interest, const ControlParametersBase*,
              AcceptContinuation accept, RejectContinuation reject) {
     if (interest.getName()[-1] == name::Component("valid")) {
       accept("");
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(ControlCommandNew,
 BOOST_AUTO_TEST_CASE(ControlCommandResponse)
 {
   auto handler = [] (const Name& prefix, const Interest& interest,
-                     const ControlParameters&, const CommandContinuation& done) {
+                     const ControlParametersBase&, const CommandContinuation& done) {
     BOOST_CHECK_EQUAL(prefix, "/root");
     BOOST_CHECK_EQUAL(interest.getName().getPrefix(3),
                       Name("/root").append(nfd::CsConfigCommand::getName()));
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(ControlCommandResponse)
   BOOST_CHECK_EQUAL(resp.getText(), "the answer");
 }
 
-class StatefulParameters : public mgmt::ControlParameters
+class StatefulParameters : public ControlParametersBase
 {
 public:
   explicit
@@ -340,12 +340,12 @@ BOOST_AUTO_TEST_CASE(ControlCommandAsyncAuthorization,
   * ut::description("test for bug #4059"))
 {
   AcceptContinuation authorizationAccept;
-  auto authorization = [&authorizationAccept] (const Name&, const Interest&, const ControlParameters*,
+  auto authorization = [&authorizationAccept] (const Name&, const Interest&, const ControlParametersBase*,
                                                AcceptContinuation accept, RejectContinuation) {
     authorizationAccept = std::move(accept);
   };
 
-  auto validateParameters = [] (const ControlParameters& params) {
+  auto validateParameters = [] (const ControlParametersBase& params) {
     return dynamic_cast<const StatefulParameters&>(params).check();
   };
 

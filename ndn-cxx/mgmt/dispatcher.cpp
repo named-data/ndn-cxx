@@ -34,15 +34,14 @@ makeAcceptAllAuthorization()
 {
   return [] (const Name& prefix,
              const Interest& interest,
-             const ControlParameters* params,
+             const ControlParametersBase* params,
              const AcceptContinuation& accept,
              const RejectContinuation& reject) {
     accept("");
   };
 }
 
-Dispatcher::Dispatcher(Face& face, KeyChain& keyChain,
-                       const security::SigningInfo& signingInfo,
+Dispatcher::Dispatcher(Face& face, KeyChain& keyChain, const security::SigningInfo& signingInfo,
                        size_t imsCapacity)
   : m_face(face)
   , m_keyChain(keyChain)
@@ -168,7 +167,7 @@ Dispatcher::processCommand(const Name& prefix,
                            ValidateParameters validate,
                            ControlCommandHandler handler)
 {
-  shared_ptr<ControlParameters> parameters;
+  ControlParametersPtr parameters;
   try {
     parameters = parse(prefix, interest);
   }
@@ -189,7 +188,7 @@ Dispatcher::processCommand(const Name& prefix,
 void
 Dispatcher::processAuthorizedCommand(const Name& prefix,
                                      const Interest& interest,
-                                     const shared_ptr<ControlParameters>& parameters,
+                                     const ControlParametersPtr& parameters,
                                      const ValidateParameters& validate,
                                      const ControlCommandHandler& handler)
 {

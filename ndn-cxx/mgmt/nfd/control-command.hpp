@@ -152,7 +152,7 @@ public:
   /**
    * \brief Extract parameters from request Interest.
    */
-  static shared_ptr<mgmt::ControlParameters>
+  static shared_ptr<mgmt::ControlParametersBase>
   parseRequest(const Interest& interest, size_t prefixLen)
   {
     // /<prefix>/<module>/<verb>
