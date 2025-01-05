@@ -132,7 +132,7 @@ public:
   static PartialName
   getName()
   {
-    return PartialName().append(Derived::s_module).append(Derived::s_verb);
+    return PartialName().append(Derived::module).append(Derived::verb);
   }
 
   /**
@@ -144,7 +144,7 @@ public:
   {
     validateRequest(params);
 
-    Interest request(commandPrefix.append(Derived::s_module).append(Derived::s_verb));
+    Interest request(commandPrefix.append(Derived::module).append(Derived::verb));
     Derived::s_requestFormat.encode(request, params);
     return request;
   }
@@ -155,7 +155,7 @@ public:
   static shared_ptr<mgmt::ControlParametersBase>
   parseRequest(const Interest& interest, size_t prefixLen)
   {
-    // /<prefix>/<module>/<verb>
+    // +2 to account for module and verb components
     return Derived::s_requestFormat.decode(interest, prefixLen + 2);
   }
 
@@ -221,13 +221,14 @@ private:
   }
 };
 
-#define NDN_CXX_CONTROL_COMMAND(cmd, module, verb) \
+#define NDN_CXX_CONTROL_COMMAND(module_, verb_) \
+  public: \
+  static inline const ::ndn::name::Component module{std::string_view(module_)}; \
+  static inline const ::ndn::name::Component verb{std::string_view(verb_)}; \
   private: \
-  friend Base; \
-  static inline const ::ndn::name::Component s_module{module}; \
-  static inline const ::ndn::name::Component s_verb{verb}; \
   static const RequestFormat s_requestFormat; \
-  static const ResponseFormat s_responseFormat
+  static const ResponseFormat s_responseFormat; \
+  friend Base
 
 
 /**
@@ -237,7 +238,7 @@ private:
  */
 class FaceCreateCommand : public ControlCommand<FaceCreateCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(FaceCreateCommand, "faces", "create");
+  NDN_CXX_CONTROL_COMMAND("faces", "create");
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
@@ -254,7 +255,7 @@ class FaceCreateCommand : public ControlCommand<FaceCreateCommand>
  */
 class FaceUpdateCommand : public ControlCommand<FaceUpdateCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(FaceUpdateCommand, "faces", "update");
+  NDN_CXX_CONTROL_COMMAND("faces", "update");
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
@@ -275,7 +276,7 @@ class FaceUpdateCommand : public ControlCommand<FaceUpdateCommand>
  */
 class FaceDestroyCommand : public ControlCommand<FaceDestroyCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(FaceDestroyCommand, "faces", "destroy");
+  NDN_CXX_CONTROL_COMMAND("faces", "destroy");
 
   static void
   validateRequestImpl(const ControlParameters& parameters);
@@ -292,7 +293,7 @@ class FaceDestroyCommand : public ControlCommand<FaceDestroyCommand>
  */
 class FibAddNextHopCommand : public ControlCommand<FibAddNextHopCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(FibAddNextHopCommand, "fib", "add-nexthop");
+  NDN_CXX_CONTROL_COMMAND("fib", "add-nexthop");
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
@@ -309,7 +310,7 @@ class FibAddNextHopCommand : public ControlCommand<FibAddNextHopCommand>
  */
 class FibRemoveNextHopCommand : public ControlCommand<FibRemoveNextHopCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(FibRemoveNextHopCommand, "fib", "remove-nexthop");
+  NDN_CXX_CONTROL_COMMAND("fib", "remove-nexthop");
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
@@ -326,7 +327,7 @@ class FibRemoveNextHopCommand : public ControlCommand<FibRemoveNextHopCommand>
  */
 class CsConfigCommand : public ControlCommand<CsConfigCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(CsConfigCommand, "cs", "config");
+  NDN_CXX_CONTROL_COMMAND("cs", "config");
 };
 
 
@@ -337,7 +338,7 @@ class CsConfigCommand : public ControlCommand<CsConfigCommand>
  */
 class CsEraseCommand : public ControlCommand<CsEraseCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(CsEraseCommand, "cs", "erase");
+  NDN_CXX_CONTROL_COMMAND("cs", "erase");
 
   static void
   validateRequestImpl(const ControlParameters& parameters);
@@ -354,7 +355,7 @@ class CsEraseCommand : public ControlCommand<CsEraseCommand>
  */
 class StrategyChoiceSetCommand : public ControlCommand<StrategyChoiceSetCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(StrategyChoiceSetCommand, "strategy-choice", "set");
+  NDN_CXX_CONTROL_COMMAND("strategy-choice", "set");
 };
 
 
@@ -365,7 +366,7 @@ class StrategyChoiceSetCommand : public ControlCommand<StrategyChoiceSetCommand>
  */
 class StrategyChoiceUnsetCommand : public ControlCommand<StrategyChoiceUnsetCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(StrategyChoiceUnsetCommand, "strategy-choice", "unset");
+  NDN_CXX_CONTROL_COMMAND("strategy-choice", "unset");
 
   static void
   validateRequestImpl(const ControlParameters& parameters);
@@ -382,7 +383,7 @@ class StrategyChoiceUnsetCommand : public ControlCommand<StrategyChoiceUnsetComm
  */
 class RibRegisterCommand : public ControlCommand<RibRegisterCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(RibRegisterCommand, "rib", "register");
+  NDN_CXX_CONTROL_COMMAND("rib", "register");
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
@@ -399,7 +400,7 @@ class RibRegisterCommand : public ControlCommand<RibRegisterCommand>
  */
 class RibUnregisterCommand : public ControlCommand<RibUnregisterCommand>
 {
-  NDN_CXX_CONTROL_COMMAND(RibUnregisterCommand, "rib", "unregister");
+  NDN_CXX_CONTROL_COMMAND("rib", "unregister");
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
