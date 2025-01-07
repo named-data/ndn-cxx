@@ -347,4 +347,42 @@ RibUnregisterCommand::validateResponseImpl(const ControlParameters& parameters)
   }
 }
 
+void
+RibAnnounceParameters::wireDecode(const Block& wire)
+{
+  wire.parse();
+  auto it = wire.find(tlv::Data);
+  if (it == wire.elements_end()) {
+    NDN_THROW(Error("Missing prefix announcement parameter"));
+  }
+  m_prefixAnn = PrefixAnnouncement(Data(*it));
+}
+
+Block
+RibAnnounceParameters::wireEncode() const
+{
+  if (!m_prefixAnn.getData()) {
+    NDN_THROW(Error("Prefix announcement must be signed"));
+  }
+  return m_prefixAnn.getData()->wireEncode();
+}
+
+const RibAnnounceCommand::RequestFormat RibAnnounceCommand::s_requestFormat;
+const RibAnnounceCommand::ResponseFormat RibAnnounceCommand::s_responseFormat =
+    RibRegisterCommand::s_responseFormat;
+
+void
+RibAnnounceCommand::validateRequestImpl(const RibAnnounceParameters& parameters)
+{
+  if (!parameters.getPrefixAnnouncement().getData()) {
+    NDN_THROW(ArgumentError("Prefix announcement must be signed"));
+  }
+}
+
+void
+RibAnnounceCommand::validateResponseImpl(const ControlParameters& parameters)
+{
+  RibRegisterCommand::validateResponseImpl(parameters);
+}
+
 } // namespace ndn::nfd

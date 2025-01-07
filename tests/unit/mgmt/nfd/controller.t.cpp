@@ -140,11 +140,15 @@ BOOST_AUTO_TEST_CASE(OptionsPrefix)
 
 BOOST_AUTO_TEST_CASE(InvalidRequest)
 {
-  ControlParameters parameters;
-  parameters.setName("ndn:/should-not-have-this-field");
+  ControlParameters p1;
+  p1.setName("/should-not-have-this-field");
   // Uri is missing
+  BOOST_CHECK_THROW(controller.start<FaceCreateCommand>(p1, succeedCallback, commandFailCallback),
+                    ArgumentError);
 
-  BOOST_CHECK_THROW(controller.start<FaceCreateCommand>(parameters, succeedCallback, commandFailCallback),
+  RibAnnounceParameters p2;
+  // PrefixAnnouncement not signed
+  BOOST_CHECK_THROW(controller.start<RibAnnounceCommand>(p2, succeedCallback, commandFailCallback),
                     ArgumentError);
 }
 

@@ -22,6 +22,7 @@
 #include "ndn-cxx/mgmt/nfd/control-command.hpp"
 
 #include "tests/boost-test.hpp"
+#include "tests/key-chain-fixture.hpp"
 
 namespace ndn::tests {
 
@@ -490,6 +491,51 @@ BOOST_AUTO_TEST_CASE(RibUnregister)
   p2.unsetFaceId();
   BOOST_CHECK_NO_THROW(Command::validateRequest(p2));
   BOOST_CHECK_THROW(Command::validateResponse(p2), ArgumentError);
+}
+
+BOOST_FIXTURE_TEST_CASE(RibAnnounce, KeyChainFixture)
+{
+  using Command = RibAnnounceCommand;
+
+  // Good request
+  PrefixAnnouncement pa1;
+  pa1.setAnnouncedName("ndn:/");
+  pa1.setExpiration(1_min);
+  pa1.toData(m_keyChain);
+  RibAnnounceParameters p1;
+  p1.setPrefixAnnouncement(pa1);
+  BOOST_CHECK_NO_THROW(Command::validateRequest(p1));
+  Name n1 = Command::createRequest("/PREFIX", p1).getName();
+  BOOST_CHECK(Name("ndn:/PREFIX/rib/announce").isPrefixOf(n1));
+
+  // Good response
+  ControlParameters p2;
+  p2.setName("ndn:/")
+    .setFaceId(22)
+    .setOrigin(ndn::nfd::ROUTE_ORIGIN_PREFIXANN)
+    .setCost(2048)
+    .setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT)
+    .setExpirationPeriod(1_min);
+  BOOST_CHECK_NO_THROW(Command::validateResponse(p2));
+
+  // Bad request (PrefixAnnouncement must be signed)
+  PrefixAnnouncement pa2;
+  pa2.setAnnouncedName("ndn:/");
+  pa2.setExpiration(1_min);
+  RibAnnounceParameters p3;
+  BOOST_CHECK_THROW(Command::validateRequest(p3), ArgumentError);
+  p3.setPrefixAnnouncement(pa2);
+  BOOST_CHECK_THROW(Command::validateRequest(p3), ArgumentError);
+
+  // Bad response (FaceId must be valid)
+  ControlParameters p4;
+  p4.setName("ndn:/")
+    .setFaceId(0)
+    .setOrigin(ndn::nfd::ROUTE_ORIGIN_PREFIXANN)
+    .setCost(2048)
+    .setFlags(ndn::nfd::ROUTE_FLAG_CHILD_INHERIT)
+    .setExpirationPeriod(1_min);
+  BOOST_CHECK_THROW(Command::validateResponse(p4), ArgumentError);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestControlCommand

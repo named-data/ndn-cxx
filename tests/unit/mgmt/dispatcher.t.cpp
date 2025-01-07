@@ -232,6 +232,7 @@ BOOST_AUTO_TEST_CASE(ControlCommandNew,
   dispatcher.addControlCommand<nfd::StrategyChoiceUnsetCommand>(makeAcceptAllAuthorization(), handler);
   dispatcher.addControlCommand<nfd::RibRegisterCommand>(makeAcceptAllAuthorization(), handler);
   dispatcher.addControlCommand<nfd::RibUnregisterCommand>(makeAcceptAllAuthorization(), handler);
+  dispatcher.addControlCommand<nfd::RibAnnounceCommand>(makeAcceptAllAuthorization(), handler);
 
   BOOST_CHECK_THROW(dispatcher.addControlCommand<nfd::CsConfigCommand>(makeAcceptAllAuthorization(),
                                                                        [] (auto&&...) {}),

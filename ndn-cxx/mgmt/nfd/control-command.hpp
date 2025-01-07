@@ -24,6 +24,7 @@
 
 #include "ndn-cxx/interest.hpp"
 #include "ndn-cxx/mgmt/nfd/control-parameters.hpp"
+#include "ndn-cxx/prefix-announcement.hpp"
 
 #include <bitset>
 
@@ -103,9 +104,52 @@ private:
 
 /**
  * \ingroup management
+ * \brief Implements decoding, encoding, and validation of control command parameters carried
+ *        in the ApplicationParameters of the request (Interest packet).
+ * \note This format is applicable to control command requests only.
+ */
+template<typename PT>
+class ApplicationParametersCommandFormat
+{
+public:
+  using ParametersType = PT;
+
+  /**
+   * \brief Does nothing.
+   */
+  void
+  validate(const ParametersType&) const
+  {
+  }
+
+  /**
+   * \brief Extract the parameters from the request \p interest.
+   */
+  static shared_ptr<ParametersType>
+  decode(const Interest& interest, size_t prefixLen = 0)
+  {
+    auto params = make_shared<ParametersType>();
+    params->wireDecode(interest.getApplicationParameters());
+    return params;
+  }
+
+  /**
+   * \brief Serialize the parameters into the request \p interest.
+   */
+  static void
+  encode(Interest& interest, const ParametersType& params)
+  {
+    interest.setApplicationParameters(params.wireEncode());
+  }
+};
+
+
+/**
+ * \ingroup management
  * \brief Base class for all NFD control commands.
  * \tparam RequestFormatType  A class type that will handle the encoding and validation of the request
- *                            parameters. Only ControlParametersCommandFormat is supported for now.
+ *                            parameters. The type can be ApplicationParametersCommandFormat or
+ *                            ControlParametersCommandFormat.
  * \tparam ResponseFormatType A class type that will handle the encoding and validation of the response
  *                            parameters. Only ControlParametersCommandFormat is supported for now.
  * \sa https://redmine.named-data.net/projects/nfd/wiki/ControlCommand
@@ -384,6 +428,7 @@ class StrategyChoiceUnsetCommand : public ControlCommand<StrategyChoiceUnsetComm
 class RibRegisterCommand : public ControlCommand<RibRegisterCommand>
 {
   NDN_CXX_CONTROL_COMMAND("rib", "register");
+  friend class RibAnnounceCommand;
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
@@ -404,6 +449,61 @@ class RibUnregisterCommand : public ControlCommand<RibUnregisterCommand>
 
   static void
   applyDefaultsToRequestImpl(ControlParameters& parameters);
+
+  static void
+  validateResponseImpl(const ControlParameters& parameters);
+};
+
+
+/**
+ * \ingroup management
+ * \brief Request parameters for `rib/announce` command.
+ */
+class RibAnnounceParameters final : public mgmt::ControlParametersBase
+{
+public:
+  class Error : public tlv::Error
+  {
+  public:
+    using tlv::Error::Error;
+  };
+
+  const PrefixAnnouncement&
+  getPrefixAnnouncement() const
+  {
+    return m_prefixAnn;
+  }
+
+  RibAnnounceParameters&
+  setPrefixAnnouncement(const PrefixAnnouncement& pa)
+  {
+    m_prefixAnn = pa;
+    return *this;
+  }
+
+  void
+  wireDecode(const Block& wire) final;
+
+  Block
+  wireEncode() const final;
+
+private:
+  PrefixAnnouncement m_prefixAnn;
+};
+
+
+/**
+ * \ingroup management
+ * \brief Represents a `rib/announce` command.
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/PrefixAnnouncement
+ */
+class RibAnnounceCommand : public ControlCommand<RibAnnounceCommand,
+                                                 ApplicationParametersCommandFormat<RibAnnounceParameters>>
+{
+  NDN_CXX_CONTROL_COMMAND("rib", "announce");
+
+  static void
+  validateRequestImpl(const RibAnnounceParameters& parameters);
 
   static void
   validateResponseImpl(const ControlParameters& parameters);
