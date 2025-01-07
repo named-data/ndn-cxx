@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -229,13 +229,6 @@ public: // encoding and URI
    */
   static Component
   fromUri(std::string_view input);
-
-  [[deprecated("use fromUri")]]
-  static Component
-  fromEscapedString(std::string_view input)
-  {
-    return Component::fromUri(input);
-  }
 
   /**
    * @brief Write `*this` to the output stream, escaping characters according to the NDN URI format.

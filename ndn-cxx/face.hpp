@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -420,16 +420,6 @@ public: // event loop routines
    */
   boost::asio::io_context&
   getIoContext() const noexcept
-  {
-    return m_ioCtx;
-  }
-
-  /**
-   * @deprecated Use getIoContext()
-   */
-  [[deprecated("use getIoContext")]]
-  boost::asio::io_context&
-  getIoService() const noexcept
   {
     return m_ioCtx;
   }
