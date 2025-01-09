@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -125,110 +125,84 @@ ControlParameters::wireDecode(const Block& block)
     NDN_THROW(Error("ControlParameters", block.type()));
   }
 
+  *this = {};
   m_wire = block;
   m_wire.parse();
-  Block::element_const_iterator val;
 
-  val = m_wire.find(tlv::Name);
-  m_hasFields[CONTROL_PARAMETER_NAME] = val != m_wire.elements_end();
-  if (this->hasName()) {
-    m_name.wireDecode(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::FaceId);
-  m_hasFields[CONTROL_PARAMETER_FACE_ID] = val != m_wire.elements_end();
-  if (this->hasFaceId()) {
-    m_faceId = readNonNegativeInteger(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Uri);
-  m_hasFields[CONTROL_PARAMETER_URI] = val != m_wire.elements_end();
-  if (this->hasUri()) {
-    m_uri = readString(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::LocalUri);
-  m_hasFields[CONTROL_PARAMETER_LOCAL_URI] = val != m_wire.elements_end();
-  if (this->hasLocalUri()) {
-    m_localUri = readString(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Origin);
-  m_hasFields[CONTROL_PARAMETER_ORIGIN] = val != m_wire.elements_end();
-  if (this->hasOrigin()) {
-    m_origin = readNonNegativeIntegerAs<RouteOrigin>(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Cost);
-  m_hasFields[CONTROL_PARAMETER_COST] = val != m_wire.elements_end();
-  if (this->hasCost()) {
-    m_cost = readNonNegativeInteger(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Capacity);
-  m_hasFields[CONTROL_PARAMETER_CAPACITY] = val != m_wire.elements_end();
-  if (this->hasCapacity()) {
-    m_capacity = readNonNegativeInteger(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Count);
-  m_hasFields[CONTROL_PARAMETER_COUNT] = val != m_wire.elements_end();
-  if (this->hasCount()) {
-    m_count = readNonNegativeInteger(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Flags);
-  m_hasFields[CONTROL_PARAMETER_FLAGS] = val != m_wire.elements_end();
-  if (this->hasFlags()) {
-    m_flags = readNonNegativeInteger(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Mask);
-  m_hasFields[CONTROL_PARAMETER_MASK] = val != m_wire.elements_end();
-  if (this->hasMask()) {
-    m_mask = readNonNegativeInteger(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Strategy);
-  m_hasFields[CONTROL_PARAMETER_STRATEGY] = val != m_wire.elements_end();
-  if (this->hasStrategy()) {
-    val->parse();
-    if (val->elements().empty()) {
-      NDN_THROW(Error("Expecting Strategy/Name"));
+  for (const auto& e : m_wire.elements()) {
+    switch (e.type()) {
+    case tlv::Name:
+      m_hasFields[CONTROL_PARAMETER_NAME] = true;
+      m_name.wireDecode(e);
+      break;
+    case tlv::nfd::FaceId:
+      m_hasFields[CONTROL_PARAMETER_FACE_ID] = true;
+      m_faceId = readNonNegativeInteger(e);
+      break;
+    case tlv::nfd::Uri:
+      m_hasFields[CONTROL_PARAMETER_URI] = true;
+      m_uri = readString(e);
+      break;
+    case tlv::nfd::LocalUri:
+      m_hasFields[CONTROL_PARAMETER_LOCAL_URI] = true;
+      m_localUri = readString(e);
+      break;
+    case tlv::nfd::Origin:
+      m_hasFields[CONTROL_PARAMETER_ORIGIN] = true;
+      m_origin = readNonNegativeIntegerAs<RouteOrigin>(e);
+      break;
+    case tlv::nfd::Cost:
+      m_hasFields[CONTROL_PARAMETER_COST] = true;
+      m_cost = readNonNegativeInteger(e);
+      break;
+    case tlv::nfd::Capacity:
+      m_hasFields[CONTROL_PARAMETER_CAPACITY] = true;
+      m_capacity = readNonNegativeInteger(e);
+      break;
+    case tlv::nfd::Count:
+      m_hasFields[CONTROL_PARAMETER_COUNT] = true;
+      m_count = readNonNegativeInteger(e);
+      break;
+    case tlv::nfd::Flags:
+      m_hasFields[CONTROL_PARAMETER_FLAGS] = true;
+      m_flags = readNonNegativeInteger(e);
+      break;
+    case tlv::nfd::Mask:
+      m_hasFields[CONTROL_PARAMETER_MASK] = true;
+      m_mask = readNonNegativeInteger(e);
+      break;
+    case tlv::nfd::Strategy:
+      m_hasFields[CONTROL_PARAMETER_STRATEGY] = true;
+      e.parse();
+      if (e.elements().empty()) {
+        NDN_THROW(Error("Expecting Strategy.Name"));
+      }
+      m_strategy.wireDecode(e.elements().front());
+      break;
+    case tlv::nfd::ExpirationPeriod:
+      m_hasFields[CONTROL_PARAMETER_EXPIRATION_PERIOD] = true;
+      m_expirationPeriod = time::milliseconds(readNonNegativeInteger(e));
+      break;
+    case tlv::nfd::FacePersistency:
+      m_hasFields[CONTROL_PARAMETER_FACE_PERSISTENCY] = true;
+      m_facePersistency = readNonNegativeIntegerAs<FacePersistency>(e);
+      break;
+    case tlv::nfd::BaseCongestionMarkingInterval:
+      m_hasFields[CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL] = true;
+      m_baseCongestionMarkingInterval = time::nanoseconds(readNonNegativeInteger(e));
+      break;
+    case tlv::nfd::DefaultCongestionThreshold:
+      m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD] = true;
+      m_defaultCongestionThreshold = readNonNegativeInteger(e);
+      break;
+    case tlv::nfd::Mtu:
+      m_hasFields[CONTROL_PARAMETER_MTU] = true;
+      m_mtu = readNonNegativeInteger(e);
+      break;
+    default:
+      // ignore unrecognized elements
+      break;
     }
-    else {
-      m_strategy.wireDecode(*val->elements_begin());
-    }
-  }
-
-  val = m_wire.find(tlv::nfd::ExpirationPeriod);
-  m_hasFields[CONTROL_PARAMETER_EXPIRATION_PERIOD] = val != m_wire.elements_end();
-  if (this->hasExpirationPeriod()) {
-    m_expirationPeriod = time::milliseconds(readNonNegativeInteger(*val));
-  }
-
-  val = m_wire.find(tlv::nfd::FacePersistency);
-  m_hasFields[CONTROL_PARAMETER_FACE_PERSISTENCY] = val != m_wire.elements_end();
-  if (this->hasFacePersistency()) {
-    m_facePersistency = readNonNegativeIntegerAs<FacePersistency>(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::BaseCongestionMarkingInterval);
-  m_hasFields[CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL] = val != m_wire.elements_end();
-  if (this->hasBaseCongestionMarkingInterval()) {
-    m_baseCongestionMarkingInterval = time::nanoseconds(readNonNegativeInteger(*val));
-  }
-
-  val = m_wire.find(tlv::nfd::DefaultCongestionThreshold);
-  m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD] = val != m_wire.elements_end();
-  if (this->hasDefaultCongestionThreshold()) {
-    m_defaultCongestionThreshold = readNonNegativeInteger(*val);
-  }
-
-  val = m_wire.find(tlv::nfd::Mtu);
-  m_hasFields[CONTROL_PARAMETER_MTU] = val != m_wire.elements_end();
-  if (this->hasMtu()) {
-    m_mtu = readNonNegativeInteger(*val);
   }
 }
 
