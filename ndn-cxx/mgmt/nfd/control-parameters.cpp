@@ -26,13 +26,11 @@
 
 namespace ndn::nfd {
 
-ControlParameters::ControlParameters()
-  : m_hasFields(CONTROL_PARAMETER_UBOUND)
-{
-}
+static_assert(CONTROL_PARAMETER_FIELD.size() == CONTROL_PARAMETER_UBOUND);
+
+ControlParameters::ControlParameters() = default;
 
 ControlParameters::ControlParameters(const Block& block)
-  : m_hasFields(CONTROL_PARAMETER_UBOUND)
 {
   wireDecode(block);
 }
@@ -132,47 +130,47 @@ ControlParameters::wireDecode(const Block& block)
   for (const auto& e : m_wire.elements()) {
     switch (e.type()) {
     case tlv::Name:
-      m_hasFields[CONTROL_PARAMETER_NAME] = true;
+      m_hasFields.set(CONTROL_PARAMETER_NAME);
       m_name.wireDecode(e);
       break;
     case tlv::nfd::FaceId:
-      m_hasFields[CONTROL_PARAMETER_FACE_ID] = true;
+      m_hasFields.set(CONTROL_PARAMETER_FACE_ID);
       m_faceId = readNonNegativeInteger(e);
       break;
     case tlv::nfd::Uri:
-      m_hasFields[CONTROL_PARAMETER_URI] = true;
+      m_hasFields.set(CONTROL_PARAMETER_URI);
       m_uri = readString(e);
       break;
     case tlv::nfd::LocalUri:
-      m_hasFields[CONTROL_PARAMETER_LOCAL_URI] = true;
+      m_hasFields.set(CONTROL_PARAMETER_LOCAL_URI);
       m_localUri = readString(e);
       break;
     case tlv::nfd::Origin:
-      m_hasFields[CONTROL_PARAMETER_ORIGIN] = true;
+      m_hasFields.set(CONTROL_PARAMETER_ORIGIN);
       m_origin = readNonNegativeIntegerAs<RouteOrigin>(e);
       break;
     case tlv::nfd::Cost:
-      m_hasFields[CONTROL_PARAMETER_COST] = true;
+      m_hasFields.set(CONTROL_PARAMETER_COST);
       m_cost = readNonNegativeInteger(e);
       break;
     case tlv::nfd::Capacity:
-      m_hasFields[CONTROL_PARAMETER_CAPACITY] = true;
+      m_hasFields.set(CONTROL_PARAMETER_CAPACITY);
       m_capacity = readNonNegativeInteger(e);
       break;
     case tlv::nfd::Count:
-      m_hasFields[CONTROL_PARAMETER_COUNT] = true;
+      m_hasFields.set(CONTROL_PARAMETER_COUNT);
       m_count = readNonNegativeInteger(e);
       break;
     case tlv::nfd::Flags:
-      m_hasFields[CONTROL_PARAMETER_FLAGS] = true;
+      m_hasFields.set(CONTROL_PARAMETER_FLAGS);
       m_flags = readNonNegativeInteger(e);
       break;
     case tlv::nfd::Mask:
-      m_hasFields[CONTROL_PARAMETER_MASK] = true;
+      m_hasFields.set(CONTROL_PARAMETER_MASK);
       m_mask = readNonNegativeInteger(e);
       break;
     case tlv::nfd::Strategy:
-      m_hasFields[CONTROL_PARAMETER_STRATEGY] = true;
+      m_hasFields.set(CONTROL_PARAMETER_STRATEGY);
       e.parse();
       if (e.elements().empty()) {
         NDN_THROW(Error("Expecting Strategy.Name"));
@@ -180,23 +178,23 @@ ControlParameters::wireDecode(const Block& block)
       m_strategy.wireDecode(e.elements().front());
       break;
     case tlv::nfd::ExpirationPeriod:
-      m_hasFields[CONTROL_PARAMETER_EXPIRATION_PERIOD] = true;
+      m_hasFields.set(CONTROL_PARAMETER_EXPIRATION_PERIOD);
       m_expirationPeriod = time::milliseconds(readNonNegativeInteger(e));
       break;
     case tlv::nfd::FacePersistency:
-      m_hasFields[CONTROL_PARAMETER_FACE_PERSISTENCY] = true;
+      m_hasFields.set(CONTROL_PARAMETER_FACE_PERSISTENCY);
       m_facePersistency = readNonNegativeIntegerAs<FacePersistency>(e);
       break;
     case tlv::nfd::BaseCongestionMarkingInterval:
-      m_hasFields[CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL] = true;
+      m_hasFields.set(CONTROL_PARAMETER_BASE_CONGESTION_MARKING_INTERVAL);
       m_baseCongestionMarkingInterval = time::nanoseconds(readNonNegativeInteger(e));
       break;
     case tlv::nfd::DefaultCongestionThreshold:
-      m_hasFields[CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD] = true;
+      m_hasFields.set(CONTROL_PARAMETER_DEFAULT_CONGESTION_THRESHOLD);
       m_defaultCongestionThreshold = readNonNegativeInteger(e);
       break;
     case tlv::nfd::Mtu:
-      m_hasFields[CONTROL_PARAMETER_MTU] = true;
+      m_hasFields.set(CONTROL_PARAMETER_MTU);
       m_mtu = readNonNegativeInteger(e);
       break;
     default:
@@ -235,7 +233,7 @@ ControlParameters::getFlagBit(size_t bit) const
 }
 
 ControlParameters&
-ControlParameters::setFlagBit(size_t bit, bool value, bool wantMask/* = true*/)
+ControlParameters::setFlagBit(size_t bit, bool value, bool wantMask)
 {
   if (bit >= 64) {
     NDN_THROW(std::out_of_range("bit must be within range [0, 64)"));

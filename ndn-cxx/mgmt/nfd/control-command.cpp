@@ -26,9 +26,11 @@ namespace ndn::nfd {
 void
 ControlParametersCommandFormat::validate(const ControlParameters& parameters) const
 {
-  const auto& presentFields = parameters.getPresentFields();
+  auto presentFields = parameters.getPresentFields();
+  BOOST_ASSERT(presentFields.size() == m_required.size() &&
+               presentFields.size() == m_optional.size());
 
-  for (size_t i = 0; i < CONTROL_PARAMETER_UBOUND; ++i) {
+  for (size_t i = 0; i < presentFields.size(); ++i) {
     bool isPresent = presentFields[i];
     if (m_required[i]) {
       if (!isPresent) {
