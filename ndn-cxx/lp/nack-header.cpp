@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -22,6 +22,7 @@
  */
 
 #include "ndn-cxx/lp/nack-header.hpp"
+#include "ndn-cxx/encoding/block-helpers.hpp"
 
 namespace ndn::lp {
 
@@ -51,11 +52,6 @@ isLessSevere(lp::NackReason x, lp::NackReason y)
   }
 
   return to_underlying(x) < to_underlying(y);
-}
-
-NackHeader::NackHeader()
-  : m_reason(NackReason::NONE)
-{
 }
 
 NackHeader::NackHeader(const Block& block)
@@ -90,7 +86,6 @@ NackHeader::wireEncode() const
   wireEncode(buffer);
 
   m_wire = buffer.block();
-
   return m_wire;
 }
 
@@ -100,13 +95,13 @@ NackHeader::wireDecode(const Block& wire)
   if (wire.type() != tlv::Nack) {
     NDN_THROW(ndn::tlv::Error("Nack", wire.type()));
   }
-
   m_wire = wire;
   m_wire.parse();
+
   m_reason = NackReason::NONE;
 
-  if (m_wire.elements_size() > 0) {
-    auto it = m_wire.elements_begin();
+  auto it = m_wire.elements_begin();
+  if (it != m_wire.elements_end()) {
     if (it->type() == tlv::NackReason) {
       m_reason = readNonNegativeIntegerAs<NackReason>(*it);
     }

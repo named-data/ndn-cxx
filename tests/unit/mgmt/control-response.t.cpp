@@ -74,19 +74,24 @@ BOOST_AUTO_TEST_CASE(Decode)
     return e.what() == "Expecting ControlResponse element, but TLV has type 100"sv;
   });
 
-  // empty TLV
+  // missing StatusCode
   BOOST_CHECK_EXCEPTION(cr.wireDecode("6500"_block), tlv::Error, [] (const auto& e) {
-    return e.what() == "missing StatusCode sub-element"sv;
+    return e.what() == "StatusCode is missing or out of order"sv;
   });
 
-  // missing StatusCode
-  BOOST_CHECK_EXCEPTION(cr.wireDecode("65026700"_block), tlv::Error, [] (const auto& e) {
-    return e.what() == "missing StatusCode sub-element"sv;
+  // out-of-order StatusCode
+  BOOST_CHECK_EXCEPTION(cr.wireDecode("650567006601C8"_block), tlv::Error, [] (const auto& e) {
+    return e.what() == "StatusCode is missing or out of order"sv;
   });
 
   // missing StatusText
   BOOST_CHECK_EXCEPTION(cr.wireDecode("650466020194"_block), tlv::Error, [] (const auto& e) {
-    return e.what() == "missing StatusText sub-element"sv;
+    return e.what() == "StatusText is missing or out of order"sv;
+  });
+
+  // out-of-order StatusText
+  BOOST_CHECK_EXCEPTION(cr.wireDecode("65086602019469006700"_block), tlv::Error, [] (const auto& e) {
+    return e.what() == "StatusText is missing or out of order"sv;
   });
 }
 

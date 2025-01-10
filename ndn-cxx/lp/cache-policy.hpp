@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -34,14 +34,14 @@ namespace ndn::lp {
  */
 enum class CachePolicyType {
   NONE = 0,
-  NO_CACHE = 1
+  NO_CACHE = 1,
 };
 
 std::ostream&
 operator<<(std::ostream& os, CachePolicyType policy);
 
 /**
- * \brief Represents a CachePolicy header field.
+ * \brief Represents a %CachePolicy header field.
  */
 class CachePolicy
 {
@@ -52,7 +52,7 @@ public:
     using ndn::tlv::Error::Error;
   };
 
-  CachePolicy();
+  CachePolicy() = default;
 
   explicit
   CachePolicy(const Block& block);
@@ -81,7 +81,7 @@ public:
 public: // policy type
   /**
    * \brief Get policy type code.
-   * \retval CachePolicyType::NONE if policy type is unset or has an unknown code
+   * \retval CachePolicyType::NONE if policy type is unset or has an unknown code.
    */
   CachePolicyType
   getPolicy() const;
@@ -94,7 +94,7 @@ public: // policy type
   setPolicy(CachePolicyType policy);
 
 private:
-  CachePolicyType m_policy;
+  CachePolicyType m_policy = CachePolicyType::NONE;
   mutable Block m_wire;
 };
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -87,11 +87,9 @@ StrategyChoice::wireDecode(const Block& block)
   if (val != m_wire.elements_end() && val->type() == tlv::nfd::Strategy) {
     val->parse();
     if (val->elements().empty()) {
-      NDN_THROW(Error("expecting Strategy/Name"));
+      NDN_THROW(Error("expecting Strategy.Name"));
     }
-    else {
-      m_strategy.wireDecode(*val->elements_begin());
-    }
+    m_strategy.wireDecode(val->elements().front());
     ++val;
   }
   else {

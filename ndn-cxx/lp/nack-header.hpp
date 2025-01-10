@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,7 +24,6 @@
 #ifndef NDN_CXX_LP_NACK_HEADER_HPP
 #define NDN_CXX_LP_NACK_HEADER_HPP
 
-#include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/encoding/encoding-buffer.hpp"
 #include "ndn-cxx/lp/tlv.hpp"
 
@@ -37,7 +36,7 @@ enum class NackReason {
   NONE = 0,
   CONGESTION = 50,
   DUPLICATE = 100,
-  NO_ROUTE = 150
+  NO_ROUTE = 150,
 };
 
 std::ostream&
@@ -57,7 +56,7 @@ isLessSevere(lp::NackReason x, lp::NackReason y);
 class NackHeader
 {
 public:
-  NackHeader();
+  NackHeader() = default;
 
   explicit
   NackHeader(const Block& block);
@@ -75,7 +74,7 @@ public:
 public: // reason
   /**
    * \brief Get reason code.
-   * \retval NackReason::NONE if NackReason element does not exist or has an unknown code
+   * \retval NackReason::NONE if NackReason element does not exist or has an unknown code.
    */
   NackReason
   getReason() const;
@@ -88,7 +87,7 @@ public: // reason
   setReason(NackReason reason);
 
 private:
-  NackReason m_reason;
+  NackReason m_reason = NackReason::NONE;
   mutable Block m_wire;
 };
 

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -40,7 +40,7 @@ AdditionalDescription::get(const std::string& key) const
     return it->second;
   }
 
-  NDN_THROW(Error("Entry does not exist for key (" + key + ")"));
+  NDN_THROW(Error("Entry does not exist for key '" + key + "'"));
 }
 
 void
@@ -115,41 +115,42 @@ AdditionalDescription::wireEncode() const
   wireEncode(buffer);
 
   m_wire = buffer.block();
-  m_wire.parse();
-
   return m_wire;
 }
 
 void
 AdditionalDescription::wireDecode(const Block& wire)
 {
-   if (!wire.hasWire()) {
-     NDN_THROW(Error("The supplied block does not contain wire format"));
+  if (wire.type() != tlv::AdditionalDescription) {
+    NDN_THROW(Error("AdditionalDescription", wire.type()));
   }
-
   m_wire = wire;
   m_wire.parse();
 
-  if (m_wire.type() != tlv::AdditionalDescription)
-    NDN_THROW(Error("AdditionalDescription", m_wire.type()));
+  m_info.clear();
 
-  auto it = m_wire.elements_begin();
-  while (it != m_wire.elements_end()) {
-    const Block& entry = *it;
-    entry.parse();
-
-    if (entry.type() != tlv::DescriptionEntry)
-      NDN_THROW(Error("DescriptionEntry", entry.type()));
-
-    if (entry.elements_size() != 2)
-      NDN_THROW(Error("DescriptionEntry does not have two sub-TLVs"));
-
-    if (entry.elements()[KEY_OFFSET].type() != tlv::DescriptionKey ||
-        entry.elements()[VALUE_OFFSET].type() != tlv::DescriptionValue)
-      NDN_THROW(Error("Invalid DescriptionKey or DescriptionValue field"));
-
-    m_info[readString(entry.elements()[KEY_OFFSET])] = readString(entry.elements()[VALUE_OFFSET]);
-    it++;
+  for (const auto& e : m_wire.elements()) {
+    switch (e.type()) {
+    case tlv::DescriptionEntry:
+      e.parse();
+      if (e.elements_size() != 2) {
+        NDN_THROW(Error("DescriptionEntry does not have two sub-elements"));
+      }
+      if (e.elements()[KEY_OFFSET].type() != tlv::DescriptionKey ||
+          e.elements()[VALUE_OFFSET].type() != tlv::DescriptionValue) {
+        NDN_THROW(Error("Missing DescriptionKey or DescriptionValue field"));
+      }
+      m_info.insert_or_assign(readString(e.elements()[KEY_OFFSET]),
+                              readString(e.elements()[VALUE_OFFSET]));
+      break;
+    default: // unrecognized element
+      // if the TLV-TYPE is critical, abort decoding
+      if (tlv::isCriticalType(e.type())) {
+        NDN_THROW(Error("Unrecognized element of critical type " + std::to_string(e.type())));
+      }
+      // otherwise, ignore it
+      break;
+    }
   }
 }
 
