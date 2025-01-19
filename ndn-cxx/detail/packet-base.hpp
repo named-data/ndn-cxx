@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2022 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,19 +24,24 @@
 
 #include "ndn-cxx/detail/tag-host.hpp"
 
+#include <cstdint>
+
 namespace ndn {
 
-/** \brief Base class to allow simple management of packet tags.
+/**
+ * \brief Base class to allow simple management of common packet tags.
  */
 class PacketBase : public TagHost
 {
 public:
-  /** \brief Get the value of the CongestionMark tag.
+  /**
+   * \brief Get the value of the CongestionMark tag.
    */
   uint64_t
   getCongestionMark() const;
 
-  /** \brief Set the CongestionMark tag to the specified value.
+  /**
+   * \brief Set the CongestionMark tag to the specified value.
    */
   void
   setCongestionMark(uint64_t mark);
