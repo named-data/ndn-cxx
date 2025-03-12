@@ -14,8 +14,18 @@ APT_PKGS=(
     libboost-thread-dev
     libsqlite3-dev
     libssl-dev
-    pkg-config
+    pkgconf
     python3
+)
+DNF_PKGS=(
+    boost-devel
+    gcc-c++
+    libasan
+    lld
+    openssl-devel
+    pkgconf
+    python3
+    sqlite-devel
 )
 FORMULAE=(boost openssl pkgconf)
 PIP_PKGS=()
@@ -44,8 +54,7 @@ elif [[ $ID_LIKE == *debian* ]]; then
     sudo apt-get update -qq
     sudo apt-get install -qy --no-install-recommends "${APT_PKGS[@]}"
 elif [[ $ID_LIKE == *fedora* ]]; then
-    sudo dnf install -y gcc-c++ libasan lld pkgconf-pkg-config python3 \
-                        boost-devel openssl-devel sqlite-devel
+    sudo dnf install -y "${DNF_PKGS[@]}"
 fi
 
 if (( ${#PIP_PKGS[@]} )); then

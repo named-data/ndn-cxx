@@ -32,11 +32,11 @@ Required
 
 - GCC >= 10.2 or clang >= 10.0 (if you are on Linux or FreeBSD)
 - Xcode >= 13.0 or corresponding version of Command Line Tools (if you are on macOS)
-- Python >= 3.8
-- pkg-config
 - Boost >= 1.71.0
 - OpenSSL >= 1.1.1
-- SQLite 3.x
+- SQLite >= 3.31
+- pkgconf >= 1.6
+- Python >= 3.8
 
 To build ndn-cxx from source, one must first install a C++ compiler and all necessary
 development tools and libraries:
@@ -45,13 +45,13 @@ development tools and libraries:
 
     In a terminal, enter::
 
-        sudo apt install build-essential libboost-all-dev libssl-dev libsqlite3-dev pkg-config python3
+        sudo apt install build-essential libboost-all-dev libssl-dev libsqlite3-dev pkgconf python3
 
 - On **CentOS** and **Fedora**
 
     In a terminal, enter::
 
-        sudo dnf install gcc-c++ boost-devel openssl-devel sqlite-devel pkgconf-pkg-config python3
+        sudo dnf install gcc-c++ boost-devel openssl-devel sqlite-devel pkgconf python3
 
 - On **macOS**
 
@@ -185,10 +185,10 @@ The ``./waf install`` command installs the following files:
 -  ``<LIBDIR>/libndn-cxx.so``, ``<LIBDIR>/libndn-cxx.so.<VERSION>`` (on Linux),
    ``<LIBDIR>/libndn-cxx.dylib``, ``<LIBDIR>/libndn-cxx.<VERSION>.dylib`` (on macOS):
    shared NDN C++ library (if enabled).
--  ``<LIBDIR>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all necessary flags to build
-   against the library. For example, if the ``pkg-config`` or ``pkgconf`` package is installed
-   and ``PKG_CONFIG_PATH`` is configured properly (or if ``<LIBDIR>/pkgconfig`` is a default
-   search path), the command ``pkg-config --cflags --libs libndn-cxx`` will return all
+-  ``<LIBDIR>/pkgconfig/libndn-cxx.pc``: pkgconfig file storing all necessary flags
+   to build against the library. For example, if ``pkgconf`` is installed and
+   ``PKG_CONFIG_PATH`` is configured properly (or if ``<LIBDIR>/pkgconfig`` is a default
+   search path), the command ``pkgconf --cflags --libs libndn-cxx`` will return all
    necessary compile and link flags for the ndn-cxx library.
 -  ``<BINDIR>/ndnsec``: command-line tool to manage NDN keys and certificates.
 -  ``<BINDIR>/ndnsec-*``: convenience aliases for ``ndnsec`` tools.
