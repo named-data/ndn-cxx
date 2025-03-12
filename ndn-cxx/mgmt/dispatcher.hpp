@@ -35,10 +35,11 @@ namespace ndn::mgmt {
 
 // ---- AUTHORIZATION ----
 
-/** \brief A function to be called if authorization is successful.
- *  \param requester a string that indicates the requester, whose semantics is determined by
- *                   the Authorization function; this value is intended for logging only,
- *                   and should not affect how the request is processed
+/**
+ * \brief A function to be called if authorization is successful.
+ * \param requester A string that indicates the requester, whose semantics is determined by
+ *                  the Authorization function; this value is intended for logging only,
+ *                  and should not affect how the request is processed.
  */
 using AcceptContinuation = std::function<void(const std::string& requester)>;
 
@@ -61,17 +62,17 @@ enum class RejectReply {
  */
 using RejectContinuation = std::function<void(RejectReply)>;
 
-/** \brief A function that performs authorization.
- *  \param prefix top-level prefix, e.g., `/localhost/nfd`;
- *                This argument can be inspected to allow Interests only under a subset of
- *                top-level prefixes (e.g., allow "/localhost/nfd" only),
- *                or to use different trust model regarding to the prefix.
- *  \param interest incoming Interest
- *  \param params parsed ControlParameters for ControlCommand, otherwise nullptr;
- *                This is guaranteed to be not-null and have correct type for the command,
- *                but may not be valid (e.g., can have missing fields).
- *
- *  Either \p accept or \p reject must be called after authorization completes.
+/**
+ * \brief A function that performs authorization.
+ * \param prefix Top-level prefix, e.g., `/localhost/nfd`.
+ *               This argument can be inspected to allow Interests only under a subset of
+ *               top-level prefixes (e.g., allow "/localhost/nfd" only),
+ *               or to use different trust model regarding to the prefix.
+ * \param interest Incoming Interest.
+ * \param params The parsed ControlParameters for ControlCommand, otherwise nullptr.
+ *               The object is guaranteed to have the correct type for the command,
+ *               but may not be valid (e.g., can have missing fields).
+ * \note Either \p accept or \p reject must be called after authorization completes.
  */
 using Authorization = std::function<void(const Name& prefix, const Interest& interest,
                                          const ControlParametersBase* params,
@@ -113,12 +114,13 @@ using ControlCommandHandler = std::function<void(const Name& prefix, const Inter
 
 // ---- STATUS DATASET ----
 
-/** \brief A function to handle a StatusDataset request.
- *  \param prefix top-level prefix, e.g., "/localhost/nfd";
- *  \param interest incoming Interest; its Name doesn't contain version and segment components
+/**
+ * \brief A function to handle a StatusDataset request.
+ * \param prefix Top-level prefix, e.g., `/localhost/nfd`.
+ * \param interest Incoming Interest; its Name will not contain version and segment components.
  *
- *  This function can generate zero or more blocks and pass them to \p append,
- *  and must call \p end upon completion.
+ * This function can generate zero or more blocks and pass them to StatusDatasetContext::append,
+ * and must call StatusDatasetContext::end upon completion.
  */
 using StatusDatasetHandler = std::function<void(const Name& prefix, const Interest& interest,
                                                 StatusDatasetContext& context)>;
@@ -138,46 +140,48 @@ using PostNotification = std::function<void(const Block& notification)>;
 class Dispatcher : noncopyable
 {
 public:
-  /** \brief Constructor.
-   *  \param face the Face on which the dispatcher operates
-   *  \param keyChain a KeyChain to sign Data
-   *  \param signingInfo signing parameters to sign Data with \p keyChain
-   *  \param imsCapacity capacity of the internal InMemoryStorage used by dispatcher
+  /**
+   * \brief Constructor.
+   * \param face the Face on which the dispatcher operates
+   * \param keyChain a KeyChain to sign Data
+   * \param signingInfo signing parameters to sign Data with \p keyChain
+   * \param imsCapacity capacity of the internal InMemoryStorage used by dispatcher
    */
   Dispatcher(Face& face, KeyChain& keyChain,
              const security::SigningInfo& signingInfo = security::SigningInfo(),
              size_t imsCapacity = 256);
 
-  /** \brief Add a top-level prefix.
-   *  \param prefix a top-level prefix, e.g., "/localhost/nfd"
-   *  \param wantRegister whether prefix registration should be performed through the Face
-   *  \param signingInfo signing parameters to sign the prefix registration command
-   *  \throw std::out_of_range \p prefix overlaps with an existing top-level prefix
+  /**
+   * \brief Add a top-level prefix.
+   * \param prefix top-level prefix to add, e.g., "/localhost/nfd"
+   * \param wantRegister whether prefix registration should be performed through the Face
+   * \param signingInfo signing parameters to sign the prefix registration command
+   * \throw std::out_of_range \p prefix overlaps with an existing top-level prefix
    *
-   *  Procedure for adding a top-level prefix:
-   *  1. if the new top-level prefix overlaps with an existing top-level prefix
-   *     (one top-level prefix is a prefix of another top-level prefix), throw std::domain_error.
-   *  2. if \p wantRegister is true, invoke Face::registerPrefix for the top-level prefix;
-   *     the returned RegisteredPrefixHandle shall be recorded internally, indexed by the top-level
-   *     prefix.
-   *  3. for each `relPrefix` from ControlCommands and StatusDatasets,
-   *     join the top-level prefix with `relPrefix` to obtain the full prefix,
-   *     and invoke non-registering overload of Face::setInterestFilter,
-   *     with the InterestHandler set to an appropriate private method to handle incoming Interests
-   *     for the ControlCommand or StatusDataset; the returned InterestFilterHandle shall be
-   *     recorded internally, indexed by the top-level prefix.
+   * Procedure for adding a top-level prefix:
+   * 1. If the new top-level prefix overlaps with an existing top-level prefix (one top-level
+   *    prefix is a prefix of another top-level prefix), throw `std::out_of_range`.
+   * 2. If \p wantRegister is true, invoke Face::registerPrefix for the top-level prefix.
+   *    The returned RegisteredPrefixHandle shall be recorded internally, indexed by the top-level
+   *    prefix.
+   * 3. For each `relPrefix` from ControlCommands and StatusDatasets, join the top-level prefix
+   *    with `relPrefix` to obtain the full prefix and invoke the non-registering overload of
+   *    Face::setInterestFilter, with the InterestHandler set to an appropriate function to
+   *    handle incoming Interests for the ControlCommand or StatusDataset. The returned
+   *    InterestFilterHandle shall be recorded internally, indexed by the top-level prefix.
    */
   void
   addTopPrefix(const Name& prefix, bool wantRegister = true,
                const security::SigningInfo& signingInfo = security::SigningInfo());
 
-  /** \brief Remove a top-level prefix.
-   *  \param prefix a top-level prefix, e.g., "/localhost/nfd"
+  /**
+   * \brief Remove a top-level prefix.
+   * \param prefix top-level prefix to remove, e.g., "/localhost/nfd"
    *
-   *  Procedure for removing a top-level prefix:
-   *  1. if the top-level prefix has not been added, abort these steps.
-   *  2. if the top-level prefix has been added with `wantRegister`, unregister the prefix.
-   *  3. clear all Interest filters set during addTopPrefix().
+   * Procedure for removing a top-level prefix:
+   * 1. If the top-level prefix has not been added, abort these steps.
+   * 2. If the top-level prefix has been added with `wantRegister`, unregister the prefix.
+   * 3. Clear all Interest filters previously set by addTopPrefix().
    */
   void
   removeTopPrefix(const Name& prefix);
@@ -198,17 +202,17 @@ public: // ControlCommand
    * \throw std::domain_error One or more top-level prefixes have been added.
    *
    * Procedure for processing a ControlCommand registered through this function:
-   *  1. Extract the NameComponent containing ControlParameters (the component after relPrefix),
-   *     and parse ControlParameters into ParametersType; if parsing fails, abort these steps.
-   *  2. Perform authorization; if the authorization is rejected, perform the RejectReply action
-   *     and abort these steps.
-   *  3. Validate the ControlParameters; if validation fails, create a ControlResponse with
-   *     StatusCode 400 and go to step 5.
-   *  4. Invoke the command handler, wait until CommandContinuation is called.
-   *  5. Encode the ControlResponse into one Data packet.
-   *  6. Sign the Data packet.
-   *  7. If the Data packet is too large, log an error and abort these steps.
-   *  8. Send the signed Data packet.
+   * 1. Extract the NameComponent containing ControlParameters (the component after relPrefix),
+   *    and parse ControlParameters into ParametersType; if parsing fails, abort these steps.
+   * 2. Perform authorization; if the authorization is rejected, perform the RejectReply action
+   *    and abort these steps.
+   * 3. Validate the ControlParameters; if validation fails, create a ControlResponse with
+   *    StatusCode 400 and go to step 5.
+   * 4. Invoke the command handler, wait until CommandContinuation is called.
+   * 5. Encode the ControlResponse into one Data packet.
+   * 6. Sign the Data packet.
+   * 7. If the Data packet is too large, log an error and abort these steps.
+   * 8. Send the signed Data packet.
    */
   template<typename ParametersType,
            std::enable_if_t<std::is_convertible_v<ParametersType*, ControlParametersBase*>, int> = 0>
@@ -246,17 +250,17 @@ public: // ControlCommand
    * \throw std::domain_error One or more top-level prefixes have been added.
    *
    * Procedure for processing a ControlCommand registered through this function:
-   *  1. Extract the parameters from the request by invoking `Command::parseRequest` on the
-   *     incoming Interest; if parsing fails, abort these steps.
-   *  2. Perform authorization; if the authorization is rejected, perform the RejectReply action
-   *     and abort these steps.
-   *  3. Validate the parameters with `Command::validateRequest`.
-   *  4. Normalize the parameters with `Command::applyDefaultsToRequest`.
-   *  5. If either step 3 or 4 fails, create a ControlResponse with StatusCode 400 and go to step 7.
-   *  6. Invoke the command handler, wait until CommandContinuation is called.
-   *  7. Encode the ControlResponse into one Data packet.
-   *  8. Sign the Data packet.
-   *  9. If the Data packet is too large, log an error and abort these steps.
+   * 1. Extract the parameters from the request by invoking `Command::parseRequest` on the
+   *    incoming Interest; if parsing fails, abort these steps.
+   * 2. Perform authorization; if the authorization is rejected, perform the RejectReply action
+   *    and abort these steps.
+   * 3. Validate the parameters with `Command::validateRequest`.
+   * 4. Normalize the parameters with `Command::applyDefaultsToRequest`.
+   * 5. If either step 3 or 4 fails, create a ControlResponse with StatusCode 400 and go to step 7.
+   * 6. Invoke the command handler, wait until CommandContinuation is called.
+   * 7. Encode the ControlResponse into one Data packet.
+   * 8. Sign the Data packet.
+   * 9. If the Data packet is too large, log an error and abort these steps.
    * 10. Send the signed Data packet.
    */
   template<typename Command>
@@ -303,21 +307,21 @@ public: // StatusDataset
    * data packet size.
    *
    * Procedure for processing a StatusDataset request:
-   *  1. If the request Interest contains version or segment components, abort these steps
-   *     (note: the request may contain more components after relPrefix, e.g., a query condition).
-   *  2. Perform authorization; if the authorization is rejected, perform the RejectReply action
-   *     and abort these steps.
-   *  3. Invoke the handler, store blocks passed to StatusDatasetAppend calls in a buffer,
-   *     wait until StatusDatasetEnd is called.
-   *  4. Allocate a version.
-   *  5. Segment the buffer into one or more segments under the allocated version,
-   *     such that the Data packets will not become too large after signing.
-   *  6. Set FinalBlockId on at least the last segment.
-   *  7. Sign the Data packets.
-   *  8. Send the signed Data packets.
+   * 1. If the request Interest contains version or segment components, abort these steps
+   *    (note: the request may contain more components after relPrefix, e.g., a query condition).
+   * 2. Perform authorization; if the authorization is rejected, perform the RejectReply action
+   *    and abort these steps.
+   * 3. Invoke the handler, store blocks passed to StatusDatasetContext::append calls in a buffer,
+   *    wait until StatusDatasetContext::end is called.
+   * 4. Allocate a version.
+   * 5. Segment the buffer into one or more segments under the allocated version,
+   *    such that the Data packets will not become too large after signing.
+   * 6. Set FinalBlockId on at least the last segment.
+   * 7. Sign the Data packets.
+   * 8. Send the signed Data packets.
    *
    * As an optimization, a Data packet may be sent as soon as enough octets have been collected
-   * through StatusDatasetAppend calls.
+   * through StatusDatasetContext::append calls.
    */
   void
   addStatusDataset(const PartialName& relPrefix,
@@ -331,19 +335,19 @@ public: // NotificationStream
    *                  e.g., "faces/events". The prefixes across all ControlCommands,
    *                  StatusDatasets, and NotificationStreams must not overlap (no relPrefix
    *                  is a prefix of another relPrefix).
-   * \return A function into which notifications can be posted.
+   * \return A function object that can be called to post a notification.
    * \pre No top-level prefix has been added.
    * \throw std::out_of_range \p relPrefix overlaps with an existing relPrefix.
    * \throw std::domain_error One or more top-level prefixes have been added.
    *
    * Procedure for posting a notification:
-   *  1. If no top-level prefix has been added, or more than one top-level prefixes have been
-   *     added, abort these steps and log an error.
-   *  2. Assign the next sequence number to the notification.
-   *  3. Place the notification block into one Data packet under the sole top-level prefix.
-   *  4. Sign the Data packet.
-   *  5. If the Data packet is too large, abort these steps and log an error.
-   *  6. Send the signed Data packet.
+   * 1. If no top-level prefix has been added, or more than one top-level prefixes have been
+   *    added, log an error and abort these steps.
+   * 2. Assign the next sequence number to the notification.
+   * 3. Place the notification block into one Data packet under the sole top-level prefix.
+   * 4. Sign the Data packet.
+   * 5. If the Data packet is too large, log an error and abort these steps.
+   * 6. Send the signed Data packet.
    */
   PostNotification
   addNotificationStream(const PartialName& relPrefix);
