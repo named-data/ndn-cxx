@@ -4,13 +4,13 @@ set -eo pipefail
 if [[ -z $DISABLE_ASAN ]]; then
     ASAN="--with-sanitizer=address"
 fi
-if [[ -n $GITHUB_ACTIONS && $ID == macos && ${VERSION_ID%%.*} -le 12 ]]; then
+if [[ -n $GITHUB_ACTIONS && $ID == macos && ${VERSION_ID%%.*} -le 13 ]]; then
     KEYCHAIN="--with-osx-keychain"
 fi
 
 set -x
 
-if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
+if [[ $JOB_NAME != *code-coverage && $JOB_NAME != *limited-build ]]; then
     # Build static library in release mode with tests and without precompiled headers
     ./waf --color=yes configure --enable-static --disable-shared --with-tests --without-pch
     ./waf --color=yes build
@@ -26,7 +26,7 @@ if [[ $JOB_NAME != *"code-coverage" && $JOB_NAME != *"limited-build" ]]; then
     ./waf --color=yes distclean
 fi
 
-if [[ $JOB_NAME == *"code-coverage" ]]; then
+if [[ $JOB_NAME == *code-coverage ]]; then
     # Build for coverage testing: enable instrumentation and unit tests only
     ./waf --color=yes configure --debug --with-coverage --with-unit-tests --without-tools
     ./waf --color=yes build

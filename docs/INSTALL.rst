@@ -83,7 +83,7 @@ need to be installed:
 
 - doxygen
 - graphviz
-- sphinx >= 4.0
+- sphinx
 - sphinxcontrib-doxylink
 
 The following lists the steps to install these prerequisites on various common platforms.
@@ -101,21 +101,21 @@ The following lists the steps to install these prerequisites on various common p
   .. code-block:: sh
 
     sudo apt install doxygen graphviz python3-pip
-    pip3 install --user sphinx sphinxcontrib-doxylink
+    python3 -m pip install --user -r docs/requirements.txt
 
 - On **CentOS** and **Fedora**:
 
   .. code-block:: sh
 
     sudo dnf install doxygen graphviz python3-pip
-    pip3 install --user sphinx sphinxcontrib-doxylink
+    python3 -m pip install --user -r docs/requirements.txt
 
 - On **macOS**:
 
   .. code-block:: sh
 
     brew install doxygen graphviz
-    sudo pip3 install sphinx sphinxcontrib-doxylink
+    python3 -m pip install --user -r docs/requirements.txt
 
 - On **FreeBSD**:
 
