@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -59,9 +59,9 @@ using ArrayStream = boost::iostreams::stream<boost::iostreams::array_source>;
 using StreamIterator = std::istream_iterator<uint8_t>;
 
 #define ASSERT_READ_NUMBER_IS_FAST(T) \
-  static_assert(ndn::tlv::detail::IsContiguousIterator<T>, #T " is not fast")
+  static_assert(ndn::tlv::detail::IsContiguousIterator<T>(), #T " is not fast")
 #define ASSERT_READ_NUMBER_IS_SLOW(T) \
-  static_assert(!ndn::tlv::detail::IsContiguousIterator<T>, #T " is not slow")
+  static_assert(!ndn::tlv::detail::IsContiguousIterator<T>(), #T " is not slow")
 
 ASSERT_READ_NUMBER_IS_FAST(const uint8_t*);
 ASSERT_READ_NUMBER_IS_FAST(uint8_t*);
@@ -80,6 +80,8 @@ using CharArray = std::array<char, 87>;
 ASSERT_READ_NUMBER_IS_FAST(CharArray::iterator);
 ASSERT_READ_NUMBER_IS_FAST(span<const uint8_t>::iterator);
 ASSERT_READ_NUMBER_IS_FAST(span<uint8_t>::iterator);
+ASSERT_READ_NUMBER_IS_FAST(span<int8_t>::iterator);
+ASSERT_READ_NUMBER_IS_FAST(span<char>::iterator);
 ASSERT_READ_NUMBER_IS_FAST(std::string::const_iterator);
 ASSERT_READ_NUMBER_IS_FAST(std::string::iterator);
 ASSERT_READ_NUMBER_IS_FAST(Buffer::const_iterator);
@@ -94,6 +96,7 @@ ASSERT_READ_NUMBER_IS_SLOW(std::vector<bool>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint16_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint32_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::vector<uint64_t>::iterator);
+ASSERT_READ_NUMBER_IS_SLOW(std::vector<std::vector<uint8_t>>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::deque<uint8_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(std::list<uint8_t>::iterator);
 ASSERT_READ_NUMBER_IS_SLOW(StreamIterator);

@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -280,21 +280,36 @@ namespace detail {
  *
  * This is not a full ContiguousIterator detection implementation. It returns true for
  * the most common ContiguousIterator types used with TLV decoding function templates.
+ *
+ * @todo Replace with std::contiguous_iterator concept when we migrate to C++20.
  */
 template<typename Iterator,
          typename DecayedIterator = std::decay_t<Iterator>,
          typename ValueType = typename std::iterator_traits<DecayedIterator>::value_type>
-inline constexpr bool IsContiguousIterator =
-  (std::is_convertible_v<DecayedIterator, const ValueType*> ||
-   std::is_convertible_v<DecayedIterator, typename std::basic_string<ValueType>::const_iterator> ||
-   std::is_convertible_v<DecayedIterator, typename std::vector<ValueType>::const_iterator>) &&
-  sizeof(ValueType) == 1 && !std::is_same_v<ValueType, bool>;
+using IsContiguousIterator =
+#ifndef _LIBCPP_VERSION
+  std::disjunction<
+#endif
+    std::conjunction<
+      std::bool_constant<sizeof(ValueType) == 1>,
+      std::negation<std::is_same<ValueType, bool>>,
+      std::disjunction<
+        std::is_convertible<DecayedIterator, const ValueType*>,
+        std::is_convertible<DecayedIterator, typename std::vector<ValueType>::const_iterator>>>
+// ugly hack to unbreak the build with libc++ >= 19, which doesn't define char_traits<unsigned char>
+#ifndef _LIBCPP_VERSION
+    ,
+    std::conjunction<
+      std::is_same<ValueType, char>,
+      std::is_convertible<DecayedIterator, typename std::basic_string<ValueType>::const_iterator>>>
+#endif
+  ;
 
 template<typename Iterator>
 constexpr bool
 readNumber(size_t size, Iterator& begin, Iterator end, uint64_t& number) noexcept
 {
-  if constexpr (IsContiguousIterator<Iterator>) {
+  if constexpr (IsContiguousIterator<Iterator>()) {
     // fast path
     if (begin + size > end) {
       return false;
