@@ -1,0 +1,14 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find dependencies
+find_dependency(Boost 1.71.0 REQUIRED COMPONENTS chrono log thread program_options)
+find_dependency(OpenSSL 1.1.1 REQUIRED)
+find_dependency(SQLite3 REQUIRED)
+find_dependency(Threads)
+
+# Import targets
+include("${CMAKE_CURRENT_LIST_DIR}/ndn-cxx-targets.cmake")
+
+check_required_components(ndn-cxx) 
