@@ -1,8 +1,8 @@
 <div align="center">
 
-[<img alt height="65" src="docs/named_data_theme/static/ndn-logo.svg"/>](https://named-data.net/)
+[<img alt height="65" src="docs/ndn-logo.svg"/>](https://named-data.net/)
 
-# ndn-cxx: NDN C++ library with eXperimental eXtensions
+# ndn-cxx: NDN C++ Library
 
 </div>
 

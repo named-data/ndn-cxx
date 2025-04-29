@@ -9,8 +9,8 @@ import sys
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'ndn-cxx: NDN C++ library with eXperimental eXtensions'
-copyright = 'Copyright © 2013-2025 Regents of the University of California.'
+project = 'ndn-cxx'
+copyright = '2013-2025, Regents of the University of California'
 author = 'Named Data Networking Project'
 
 # The short X.Y version.
@@ -47,26 +47,41 @@ def addExtensionIfExists(extension: str):
 
 addExtensionIfExists('sphinxcontrib.doxylink')
 
-templates_path = ['_templates']
 exclude_patterns = ['Thumbs.db', '.DS_Store']
+
+# Disable syntax highlighting of code blocks by default.
+highlight_language = 'none'
+
+# Generate warnings for all missing references.
+nitpicky = True
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'named_data_theme'
-html_theme_path = ['.']
-
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-
+html_theme = 'furo'
+html_logo = 'ndn-logo.svg'
+html_last_updated_fmt = ''
 html_copy_source = False
 html_show_sourcelink = False
 
-# Disable syntax highlighting of code blocks by default.
-highlight_language = 'none'
+html_theme_options = {
+    'light_css_variables': {
+        'color-brand-primary': '#bc4010',
+        'color-brand-content': '#c85000',
+        'color-brand-visited': '#c85000',
+    },
+    'dark_css_variables': {
+        'color-brand-primary': '#fd861a',
+        'color-brand-content': '#f87e00',
+        'color-brand-visited': '#f87e00',
+    },
+    'source_repository': 'https://github.com/named-data/ndn-cxx',
+    'source_branch': 'master',
+}
+
+pygments_style = 'tango'
+pygments_dark_style = 'material'
 
 
 # -- Options for manual page output ------------------------------------------

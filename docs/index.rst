@@ -1,5 +1,5 @@
-ndn-cxx: NDN C++ library with eXperimental eXtensions
-=====================================================
+ndn-cxx: NDN C++ Library
+========================
 
 .. toctree::
    :hidden:
@@ -41,8 +41,8 @@ Documentation
 - :doc:`examples`
 - :doc:`tutorials`
 
-   + :doc:`tutorials/utils-ndn-regex`
-   + :doc:`tutorials/security-validator-config`
+  * :doc:`tutorials/utils-ndn-regex`
+  * :doc:`tutorials/security-validator-config`
 
 - :doc:`manpages`
 - :doc:`release-notes`
@@ -56,8 +56,8 @@ For developers
 
 - :doc:`specs`
 
-   + :doc:`specs/safe-bag`
-   + :doc:`specs/signed-interest`
+  * :doc:`specs/safe-bag`
+  * :doc:`specs/signed-interest`
 
 - `API documentation (doxygen) <doxygen/annotated.html>`__
 - :doc:`code-style`
