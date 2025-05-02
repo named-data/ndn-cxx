@@ -1,8 +1,6 @@
 Validator Configuration File Format
 ===================================
 
-.. contents::
-
 You can set up a ``Validator`` via a configuration file. Next, we will show you how to
 write a configuration file.
 
@@ -51,7 +49,7 @@ configuration file containing two rules and a trust anchor.
       file-name "testbed-trust-anchor.cert"
     }
 
-.. attention:: **The order of rules MATTERS!**
+.. important:: The order of rules MATTERS!
 
 A rule can be broken into two parts:
 
@@ -96,7 +94,7 @@ rule. The filter property is not required in a rule; if omitted, the rule will c
 packets passed to it.  A rule may contain multiple filters, in this case, a packet
 is captured by the rule only if all filters are satisfied.
 
-.. attention:: **A packet that satisfies all the filters may not be valid.**
+.. caution:: A packet that satisfies all the filters may not be valid.
 
 The **checker** property defines the conditions that a matched packet must fulfill to be
 treated as a valid packet. A rule must have at least one **checker** property. A packet is
@@ -382,23 +380,17 @@ taken as static trust anchors. For example, if all trust anchors are put into
     }
 
 If certificates under the directory might be changed during runtime, you can set a refresh
-period, such as
-
-::
+period::
 
     trust-anchor
     {
       type dir
       dir /usr/local/etc/ndn/keys
-      refresh 1h ; refresh certificates every hour, other units include m (for minutes) and s (for seconds)
+      refresh 1h ; refresh certs every hour, other supported units are 'm' (for minutes) and 's' (for seconds)
     }
 
-There is also a special trust anchor **any**.  As long as such a trust-anchor is defined
+There is also a special trust anchor: ``any``.  As long as such a trust anchor is defined
 in config file, packet validation will be turned off.
-
-.. danger::
-    This type of trust anchor is dangerous.  You should used it only when you
-    want to disable packet validation temporarily (e.g., debugging code, building a demo).
 
 ::
 
@@ -406,6 +398,10 @@ in config file, packet validation will be turned off.
     {
       type any
     }
+
+.. danger::
+    This type of trust anchor is insecure.  You should used it only when you want
+    to disable packet validation temporarily (e.g., debugging code, building a demo).
 
 
 Example Configuration For NLSR

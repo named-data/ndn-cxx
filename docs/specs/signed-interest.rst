@@ -114,7 +114,7 @@ be signed, it will be treated as invalid in the following three cases:
 
 Recipients of a signed interest may further check the timestamp and the uniqueness of the
 signed interest (e.g., when the signed interest carries a command). In this case, a signed
-interest may be treated as invalid if :
+interest may be treated as invalid if:
 
 -  a valid signed Interest whose timestamp is **equal or later** than the timestamp of the
    received one has been received before.

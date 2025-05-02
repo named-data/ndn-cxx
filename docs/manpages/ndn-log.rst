@@ -28,34 +28,30 @@ few log records may be lost.
 
 ndn-cxx logging facility provides a mechanism to manage the type of log messages
 that are written by classifying log messages by severity levels. Listed below
-are the available log levels.
+are the available log levels:
 
-**Log Levels:**
-
-::
-
-    TRACE
-    DEBUG
-    INFO
-    WARN
-    ERROR
-    FATAL
+* TRACE
+* DEBUG
+* INFO
+* WARN
+* ERROR
+* FATAL
 
 A message's severity level will determine whether the log is written. For instance,
 if an application sets its log severity level to DEBUG, all messages marked with
 DEBUG, or any of those below that level, are written. FATAL level logs are always
 written.
 
-Setting NDN_LOG requires the following syntax with as many prefixes and
+Setting ``NDN_LOG`` requires the following syntax with as many prefixes and
 corresponding loglevels as the user desires:
 
-.. code-block:: sh
+.. code-block:: shell
 
     export NDN_LOG="<prefix1>=<loglevel1>:<prefix2>=<loglevel2>"
 
 *Example:*
 
-.. code-block:: sh
+.. code-block:: shell
 
     export NDN_LOG="ndn.*=DEBUG"
     export NDN_LOG="ndn.UnixTransport=INFO"
@@ -69,14 +65,14 @@ The loglevel assignments in ``NDN_LOG`` are processed left-to-right. Thus, short
 Otherwise, the loglevel setting of a more specific prefix may be overwritten by a
 more general assignment appearing later in the string. For example:
 
-.. code-block:: sh
+.. code-block:: shell
 
     export NDN_LOG="ndn.UnixTransport=TRACE:ndn.*=ERROR:*=INFO"
 
 will set all modules to INFO. To obtain the desired effect, it should instead be
 written as:
 
-.. code-block:: sh
+.. code-block:: shell
 
     export NDN_LOG="*=INFO:ndn.*=ERROR:ndn.UnixTransport=TRACE"
 
@@ -85,7 +81,7 @@ written as:
 Setting the environment variable with sudo requires the application to be run
 in the same command.
 
-.. code-block:: sh
+.. code-block:: shell
 
     # Correct
     sudo env NDN_LOG=logLevel ./ndn-application
