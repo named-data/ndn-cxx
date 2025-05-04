@@ -28,9 +28,9 @@ lcov \
     --directory . \
     --include "$PWD/ndn-cxx/*" \
     --exclude "$PWD/ndn-cxx/detail/nonstd/*" \
-    --ignore-errors count,inconsistent \
     --branch-coverage \
     --rc no_exception_branch=1 \
+    --ignore-errors inconsistent,mismatch,mismatch \
     --output-file build/coverage.info
 
 genhtml \
@@ -41,5 +41,6 @@ genhtml \
     --missed \
     --show-proportion \
     --title "ndn-cxx $(cat VERSION.info)" \
+    --ignore-errors inconsistent,inconsistent \
     --output-directory build/lcov \
     build/coverage.info

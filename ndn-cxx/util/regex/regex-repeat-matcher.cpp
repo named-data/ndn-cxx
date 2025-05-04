@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2021 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -117,7 +117,7 @@ RegexRepeatMatcher::parseRepetition()
     }
     // std::stoul can throw invalid_argument or out_of_range, both are derived from logic_error
     catch (const std::logic_error&) {
-      NDN_THROW_NESTED(Error("Invalid number of repetitions '" + repeatStruct + "' in regex: " + m_expr));
+      NDN_THROW(Error("Invalid number of repetitions '" + repeatStruct + "' in regex: " + m_expr));
     }
   }
 }
