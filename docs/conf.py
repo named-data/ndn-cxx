@@ -47,7 +47,7 @@ def addExtensionIfExists(extension: str):
 
 addExtensionIfExists('sphinxcontrib.doxylink')
 
-exclude_patterns = ['Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # Disable syntax highlighting of code blocks by default.
 highlight_language = 'none'
@@ -61,7 +61,6 @@ nitpicky = True
 
 html_theme = 'furo'
 html_logo = 'ndn-logo.svg'
-html_last_updated_fmt = ''
 html_copy_source = False
 html_show_sourcelink = False
 

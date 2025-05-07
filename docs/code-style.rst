@@ -56,14 +56,14 @@ extended it to C++.
 
     .. code-block:: c++
 
-        // WRONG
-        //
-        // namespace example {
-        //
-        //   code;
-        //   moreCode;
-        //
-        // } // namespace example
+        // WRONG!
+
+        namespace example {
+
+          code;
+          moreCode;
+
+        } // namespace example
 
 1.4. Class declarations should have the following form:
 
@@ -285,10 +285,10 @@ extended it to C++.
 
     * The following is standard practice with ``operator<<``:
 
-        .. code-block:: c++
+      .. code-block:: c++
 
-            std::cout << "Something here "
-                      << "Something there" << std::endl;
+          std::cout << "Something here "
+                    << "Something there" << std::endl;
 
 1.13.  When class variables need to be initialized in the constructor, the initialization
 should take the following form:
@@ -410,16 +410,13 @@ should take the following form:
 ---------------------
 
 2.1. C++ header files should have the extension ``.hpp``. Source files should have the
-extension ``.cpp``
+extension ``.cpp``. File names should be all lower case. If the class name is a composite
+of several words, each word in a file name should be separated with a dash (``-``).
+A class should be declared in a header file and defined in a source file where the name
+of the files match the name of the class. Example file names::
 
-    File names should be all lower case. If the class name
-    is a composite of several words, each word in a file name should be separated with a
-    dash (-). A class should be declared in a header file and defined in a source file
-    where the name of the files match the name of the class.
-
-    ::
-
-        my-class.hpp, my-class.cpp
+    my-class.hpp
+    my-class.cpp
 
 2.2. Names representing types must be written in English in mixed case starting with upper case.
 
@@ -910,7 +907,7 @@ decimal, and without omitting 0 before the decimal point.
     instance, breaking out of deeply nested structures) should ``goto`` be considered,
     and only if the alternative structured counterpart is proven to be less readable.
 
-3.20. ``nullptr`` should be used to represent a null pointer, instead of "0" or "NULL".
+3.20. ``nullptr`` should be used to represent a null pointer, instead of ``0`` or ``NULL``.
 
 3.21. Logical units within a block should be separated by one blank line.
 
