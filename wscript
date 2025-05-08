@@ -331,21 +331,15 @@ def doxygen(bld):
         bld.fatal('Cannot build documentation ("doxygen" not found in PATH)')
 
     bld(features='subst',
-        name='doxygen.conf',
-        source=['docs/doxygen.conf.in',
-                'docs/named_data_theme/named_data_footer-with-analytics.html.in'],
-        target=['docs/doxygen.conf',
-                'docs/named_data_theme/named_data_footer-with-analytics.html'],
-        VERSION=VERSION,
+        name='doxyfile',
+        source='docs/Doxyfile.in',
+        target='docs/Doxyfile',
         HAVE_DOT='YES' if bld.env.DOT else 'NO',
-        HTML_FOOTER='../build/docs/named_data_theme/named_data_footer-with-analytics.html' \
-                        if os.getenv('GOOGLE_ANALYTICS', None) \
-                        else '../docs/named_data_theme/named_data_footer.html',
-        GOOGLE_ANALYTICS=os.getenv('GOOGLE_ANALYTICS', ''))
+        VERSION=VERSION)
 
     bld(features='doxygen',
-        doxyfile='docs/doxygen.conf',
-        use='doxygen.conf')
+        doxyfile='docs/Doxyfile',
+        use='doxyfile')
 
 def sphinx(bld):
     version(bld)
