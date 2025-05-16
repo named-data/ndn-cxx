@@ -495,7 +495,7 @@ private:
 /**
  * \ingroup management
  * \brief Represents a `rib/announce` command.
- * \sa https://redmine.named-data.net/projects/nfd/wiki/PrefixAnnouncement
+ * \sa https://redmine.named-data.net/projects/nfd/wiki/RibMgmt#Register-a-route-with-Prefix-Announcement-object
  */
 class RibAnnounceCommand : public ControlCommand<RibAnnounceCommand,
                                                  ApplicationParametersCommandFormat<RibAnnounceParameters>>
