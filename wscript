@@ -113,17 +113,13 @@ def configure(conf):
     conf.check_openssl(lib='crypto', atleast_version='1.1.1')
 
     conf.check_boost()
-    if conf.env.BOOST_VERSION_NUMBER < 107100:
-        conf.fatal('The minimum supported version of Boost is 1.71.0.\n'
+    if conf.env.BOOST_VERSION_NUMBER < 107400:
+        conf.fatal('The minimum supported version of Boost is 1.74.0.\n'
                    'Please upgrade your distribution or manually install a newer version of Boost.\n'
                    'For more information, see https://redmine.named-data.net/projects/nfd/wiki/Boost')
 
     # Boost.Log requires Boost.Thread
     boost_libs = ['chrono', 'log', 'thread']
-
-    # Boost.Date_Time is header-only since 1.73
-    if conf.env.BOOST_VERSION_NUMBER < 107300:
-        boost_libs.append('date_time')
 
     stacktrace_backend = conf.options.with_stacktrace
     if stacktrace_backend is None:

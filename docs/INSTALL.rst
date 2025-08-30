@@ -32,7 +32,7 @@ Required
 
 - GCC >= 10.2 or clang >= 10.0 (if you are on Linux or FreeBSD)
 - Xcode >= 13.0 or corresponding version of Command Line Tools (if you are on macOS)
-- Boost >= 1.71.0
+- Boost >= 1.74.0
 - OpenSSL >= 1.1.1
 - SQLite >= 3.31
 - pkgconf >= 1.6
