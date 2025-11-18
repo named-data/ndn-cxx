@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -125,44 +125,6 @@ public:
    */
   ConstBufferPtr
   decrypt(span<const uint8_t> buf, const Name& keyName) const;
-
-public: // Management
-  /**
-   * @brief Check if the TPM is in terminal mode.
-   * @deprecated
-   */
-  [[deprecated]]
-  bool
-  isTerminalMode() const;
-
-  /**
-   * @brief Set the terminal mode of the TPM.
-   * @deprecated
-   *
-   * When in terminal mode, the TPM will not ask user permission from GUI.
-   */
-  [[deprecated]]
-  void
-  setTerminalMode(bool isTerminal) const;
-
-  /**
-   * @return true if the TPM is locked, otherwise false.
-   * @deprecated
-   */
-  [[deprecated]]
-  bool
-  isTpmLocked() const;
-
-  /**
-   * @brief Unlock the TPM.
-   * @deprecated
-   *
-   * @param password The password to unlock the TPM.
-   * @param passwordLength The password size.
-   */
-  [[deprecated]]
-  [[nodiscard]] bool
-  unlockTpm(const char* password, size_t passwordLength) const;
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE: // operations accessible only by KeyChain
   /**

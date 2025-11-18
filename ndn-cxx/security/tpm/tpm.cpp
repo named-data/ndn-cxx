@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -90,35 +90,6 @@ Tpm::decrypt(span<const uint8_t> buf, const Name& keyName) const
   const KeyHandle* key = findKey(keyName);
   return key ? key->decrypt(buf) : nullptr;
 }
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
-bool
-Tpm::isTerminalMode() const
-{
-  return m_backEnd->isTerminalMode();
-}
-
-void
-Tpm::setTerminalMode(bool isTerminal) const
-{
-  m_backEnd->setTerminalMode(isTerminal);
-}
-
-bool
-Tpm::isTpmLocked() const
-{
-  return m_backEnd->isTpmLocked();
-}
-
-bool
-Tpm::unlockTpm(const char* password, size_t passwordLength) const
-{
-  return m_backEnd->unlockTpm(password, passwordLength);
-}
-
-#pragma GCC diagnostic pop
 
 ConstBufferPtr
 Tpm::exportPrivateKey(const Name& keyName, const char* pw, size_t pwLen) const

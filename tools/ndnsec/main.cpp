@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2025 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -86,7 +86,6 @@ main(int argc, char* argv[])
     else if (command == "cert-install") { return ndnsec_cert_install(argc, argv); }
     else if (command == "export")       { return ndnsec_export(argc, argv); }
     else if (command == "import")       { return ndnsec_import(argc, argv); }
-    else if (command == "unlock-tpm")   { return ndnsec_unlock_tpm(argc, argv); }
     else {
       std::cerr << "ERROR: Unknown command '" << command << "'\n\n" << NDNSEC_HELP_TEXT;
       return 2;

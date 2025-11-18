@@ -101,7 +101,6 @@ man_pages = [
     ('manpages/ndnsec-list',         'ndnsec-list',         'list all known NDN identities, keys, and certificates', [], 1),
     ('manpages/ndnsec-set-default',  'ndnsec-set-default',  'change the default NDN identity, key, or certificate for the current user', [], 1),
     ('manpages/ndnsec-sign-req',     'ndnsec-sign-req',     'generate an NDN certificate signing request',  [], 1),
-    ('manpages/ndnsec-unlock-tpm',   'ndnsec-unlock-tpm',   'unlock the TPM',                               [], 1),
     ('manpages/ndn-client.conf',     'ndn-client.conf',     'configuration file for NDN applications',      [], 5),
     ('manpages/ndn-log',             'ndn-log',             'ndn-cxx logging',                              [], 7),
 ]
