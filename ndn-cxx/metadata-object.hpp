@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -31,19 +31,19 @@
 namespace ndn {
 
 /**
- * @brief Class for RDR-style metadata encoding/decoding.
+ * @brief Class for metadata encoding and decoding.
  *
- * Realtime %Data Retrieval (RDR) is a protocol for discovering the latest version number
+ * The Metadata Retrieval Protocol is a protocol for discovering the latest version number
  * of a given data collection. The Interest and Data packets dealing with metadata (called
  * "discovery interest" and "metadata object", respectively) follow a specific format.
  *
- * There are two names in an RDR metadata object:
+ * There are two names in a metadata object:
  * @li the **versioned name** is a prefix of the data collection, and generally
  *     contains a version component. It appears in the Content element of the metadata object.
  * @li the **metadata name** is the name of the metadata object itself, and includes
  *     a keyword name component `32=metadata`, as well as version and segment components.
  *
- * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/RDR
+ * @sa https://redmine.named-data.net/projects/ndn-tlv/wiki/Metadata
  */
 class MetadataObject
 {
@@ -55,19 +55,19 @@ public:
   };
 
   /**
-   * @brief Create an empty metadata object
+   * @brief Create an empty metadata object.
    */
   MetadataObject();
 
   /**
-   * @brief Construct a metadata object by decoding of the given Data packet
-   * @throw tlv::Error the Data is not a valid metadata packet
+   * @brief Construct a metadata object by decoding of the given Data packet.
+   * @throw tlv::Error the Data is not a valid metadata packet.
    */
   explicit
   MetadataObject(const Data& data);
 
   /**
-   * @brief Create a Data packet representing this metadata object
+   * @brief Create a signed Data packet representing this metadata object.
    *
    * @param discoveryInterestName the discovery Interest's name, which must end with
    *                              a keyword name component `32=metadata`
@@ -77,7 +77,7 @@ public:
    *                timestamp (in milliseconds) as the version number
    * @param freshnessPeriod freshness period of metadata packet
    *
-   * @throw tlv::Error @p discoveryInterestName is not valid
+   * @throw tlv::Error @p discoveryInterestName is not valid.
    */
   [[nodiscard]] Data
   makeData(Name discoveryInterestName,
@@ -87,7 +87,7 @@ public:
            time::milliseconds freshnessPeriod = 10_ms) const;
 
   /**
-   * @brief Return the versioned name (i.e., the name inside the content)
+   * @brief Return the versioned name (i.e., the name inside the content).
    */
   const Name&
   getVersionedName() const
@@ -96,7 +96,7 @@ public:
   }
 
   /**
-   * @brief Set the versioned name
+   * @brief Set the versioned name.
    *
    * Any metadata packet carries a versioned name in its payload where it shows the name
    * and the latest version of a data stream. For instance, `/ndn/test/v=2538020460` is
@@ -107,19 +107,19 @@ public:
 
 public: // static methods
   /**
-   * @brief Returns the well-known keyword name component used for metadata objects (`32=metadata`)
+   * @brief Returns the well-known keyword name component used for metadata objects (`32=metadata`).
    */
   static const name::Component&
   getKeywordComponent();
 
   /**
-   * @brief Check whether @p name can be a valid metadata name
+   * @brief Check whether @p name can be a valid metadata name.
    */
   static bool
   isValidName(const Name& name);
 
   /**
-   * @brief Generate a discovery interest packet based on @p name
+   * @brief Generate a discovery interest packet based on @p name.
    *
    * @param name prefix of data collection
    */
