@@ -9,6 +9,7 @@ following platforms:
 
 - Ubuntu 22.04 (jammy)
 - Ubuntu 24.04 (noble)
+- Ubuntu 26.04 (resolute)
 - Debian 12 (bookworm)
 - Debian 13 (trixie)
 - CentOS Stream 9
