@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -35,23 +35,27 @@ public:
   using std::runtime_error::runtime_error;
 };
 
-/** \brief Indicates how a file or stream of bytes is encoded.
+/**
+ * \brief Indicates how a file or stream of bytes is encoded.
  */
 enum IoEncoding {
-  /** \brief Raw binary, without encoding
+  /**
+   * \brief Raw binary, without encoding.
    */
   NO_ENCODING,
 
-  /** \brief Base64 encoding
+  /**
+   * \brief Base64 encoding.
    *
-   *  `save()` inserts a newline after every 64 characters,
-   *  `load()` can accept base64 text with or without newlines.
+   * Saving inserts a newline after every 64 characters.
+   * Loading accepts base64 text with or without newlines.
    */
   BASE64,
 
-  /** \brief Hexadecimal encoding
+  /**
+   * \brief Hexadecimal encoding.
    *
-   *  `save()` uses uppercase letters A-F, `load()` can accept mixed-case.
+   * Saving uses uppercase letters A-F. Loading accepts mixed-case.
    */
   HEX,
 };
@@ -59,7 +63,7 @@ enum IoEncoding {
 namespace detail {
 
 template<typename T>
-static void
+constexpr void
 checkNestedError(typename T::Error*)
 {
   static_assert(std::is_convertible_v<typename T::Error*, tlv::Error*>,
@@ -67,7 +71,7 @@ checkNestedError(typename T::Error*)
 }
 
 template<typename T>
-static void
+constexpr void
 checkNestedError(...)
 {
   // T::Error is not defined
@@ -111,9 +115,10 @@ loadTlv(std::istream& is, IoEncoding encoding = BASE64)
  * \tparam T Type of TLV element; `T` must be WireDecodable and the nested type
  *           `T::Error`, if defined, must be a subclass of ndn::tlv::Error.
  * \return The TLV element, or nullptr if an error occurs.
- * \note This function has a peculiar error handling behavior. Consider using loadTlv() instead.
+ * \deprecated Use loadTlv().
  */
 template<typename T>
+[[deprecated("use loadTlv")]]
 shared_ptr<T>
 load(std::istream& is, IoEncoding encoding = BASE64)
 {
@@ -144,9 +149,10 @@ load(std::istream& is, IoEncoding encoding = BASE64)
  * \tparam T Type of TLV element; `T` must be WireDecodable and the nested type
  *           `T::Error`, if defined, must be a subclass of ndn::tlv::Error.
  * \return The TLV element, or nullptr if an error occurs.
- * \note This function has a peculiar error handling behavior. Consider using loadTlv() instead.
+ * \deprecated Use loadTlv() with std::ifstream.
  */
 template<typename T>
+[[deprecated("use loadTlv")]]
 shared_ptr<T>
 load(const std::string& filename, IoEncoding encoding = BASE64)
 {
@@ -156,19 +162,44 @@ load(const std::string& filename, IoEncoding encoding = BASE64)
 
 /**
  * \brief Writes a sequence of bytes to a stream.
- * \throw Error error during saving
- * \throw std::invalid_argument the specified encoding is not supported
+ * \throw Error An error occurred during saving.
+ * \throw std::invalid_argument The specified encoding is not supported.
  */
 void
 saveBuffer(span<const uint8_t> buf, std::ostream& os, IoEncoding encoding = BASE64);
+
+/**
+ * \brief Writes a TLV element of type `T` to a stream.
+ * \tparam T Class type representing the TLV element; must be WireEncodable.
+ * \throw Error An error occurred during encoding or saving.
+ * \throw std::invalid_argument The specified encoding is not supported.
+ */
+template<typename T>
+void
+saveTlv(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
+{
+  BOOST_CONCEPT_ASSERT((WireEncodable<T>));
+
+  Block block;
+  try {
+    block = obj.wireEncode();
+  }
+  catch (const std::exception& e) {
+    NDN_THROW_NESTED(Error("Encode error during save: "s + e.what()));
+  }
+
+  saveBuffer(block, os, encoding);
+}
 
 /** \brief Writes a TLV element to a stream.
  *  \tparam T type of TLV element; `T` must be WireEncodable and the nested type
  *            `T::Error`, if defined, must be a subclass of ndn::tlv::Error
  *  \throw Error error during encoding or saving
  *  \throw std::invalid_argument the specified encoding is not supported
+ *  \deprecated Use saveTlv().
  */
 template<typename T>
+[[deprecated("use saveTlv")]]
 void
 save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
 {
@@ -191,8 +222,10 @@ save(const T& obj, std::ostream& os, IoEncoding encoding = BASE64)
  *            `T::Error`, if defined, must be a subclass of ndn::tlv::Error
  *  \throw Error error during encoding or saving
  *  \throw std::invalid_argument the specified encoding is not supported
+ *  \deprecated Use saveTlv() with std::ofstream.
  */
 template<typename T>
+[[deprecated("use saveTlv")]]
 void
 save(const T& obj, const std::string& filename, IoEncoding encoding = BASE64)
 {

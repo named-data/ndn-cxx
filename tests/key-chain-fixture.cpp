@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -24,6 +24,7 @@
 #include "ndn-cxx/util/io.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <system_error>
 
 namespace ndn::tests {
@@ -48,7 +49,8 @@ KeyChainFixture::saveCert(const Data& cert, const std::string& filename)
 {
   m_certFiles.push_back(filename);
   try {
-    ndn::io::save(cert, filename);
+    std::ofstream file(filename);
+    ndn::io::saveTlv(cert, file, io::BASE64);
     return true;
   }
   catch (const ndn::io::Error&) {

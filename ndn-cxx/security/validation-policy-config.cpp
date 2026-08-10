@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -144,12 +144,11 @@ ValidationPolicyConfig::processConfigTrustAnchor(const ConfigSection& configSect
     if (propertyIt != configSection.end())
       NDN_THROW(Error("Expecting end of <trust-anchor>"));
 
-    auto idCert = io::load<Certificate>(ss);
-    if (idCert != nullptr) {
-      m_validator->loadAnchor("", std::move(*idCert));
+    try {
+      m_validator->loadAnchor("", io::loadTlv<Certificate>(ss, io::BASE64));
     }
-    else {
-      NDN_THROW(Error("Cannot decode certificate from base64-string"));
+    catch (const io::Error& e) {
+      NDN_THROW_NESTED(Error("Cannot load certificate from base64-string: "s + e.what()));
     }
   }
   else if (boost::iequals(type, "dir")) {

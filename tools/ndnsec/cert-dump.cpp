@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -123,7 +123,7 @@ ndnsec_cert_dump(int argc, char** argv)
     requestStream.expires_after(std::chrono::seconds(10));
     requestStream.connect(repoHost, repoPort);
     if (!requestStream) {
-      std::cerr << "ERROR: Failed to connect to repo instance" << std::endl;
+      std::cerr << "ERROR: failed to connect to repo at " << repoHost << ":" << repoPort << std::endl;
       return 1;
     }
     requestStream.write(reinterpret_cast<const char*>(certificate.wireEncode().data()),
@@ -131,7 +131,7 @@ ndnsec_cert_dump(int argc, char** argv)
     return 0;
   }
 
-  io::save(certificate, std::cout);
+  io::saveTlv(certificate, std::cout, io::BASE64);
 
   return 0;
 }

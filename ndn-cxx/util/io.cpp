@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2023 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -37,25 +37,30 @@ loadBuffer(std::istream& is, IoEncoding encoding)
 {
   namespace t = ndn::security::transform;
 
+  if (!is)
+    NDN_THROW(Error("Cannot read from input stream"));
+
   OBufferStream os;
   try {
     switch (encoding) {
       case NO_ENCODING:
         t::streamSource(is) >> t::streamSink(os);
-        return os.buf();
+        break;
       case BASE64:
         t::streamSource(is) >> t::stripSpace("\n") >> t::base64Decode(false) >> t::streamSink(os);
-        return os.buf();
+        break;
       case HEX:
         t::streamSource(is) >> t::hexDecode() >> t::streamSink(os);
-        return os.buf();
+        break;
+      default:
+        NDN_THROW(std::invalid_argument("Unknown IoEncoding " + std::to_string(encoding)));
     }
   }
   catch (const std::runtime_error& e) {
     NDN_THROW_NESTED(Error(e.what()));
   }
 
-  NDN_THROW(std::invalid_argument("Unknown IoEncoding " + to_string(encoding)));
+  return os.buf();
 }
 
 void
@@ -67,20 +72,23 @@ saveBuffer(span<const uint8_t> buf, std::ostream& os, IoEncoding encoding)
     switch (encoding) {
       case NO_ENCODING:
         t::bufferSource(buf) >> t::streamSink(os);
-        return;
+        break;
       case BASE64:
         t::bufferSource(buf) >> t::base64Encode() >> t::streamSink(os);
-        return;
+        break;
       case HEX:
         t::bufferSource(buf) >> t::hexEncode(true) >> t::streamSink(os);
-        return;
+        break;
+      default:
+        NDN_THROW(std::invalid_argument("Unknown IoEncoding " + std::to_string(encoding)));
     }
   }
   catch (const std::runtime_error& e) {
     NDN_THROW_NESTED(Error(e.what()));
   }
 
-  NDN_THROW(std::invalid_argument("Unknown IoEncoding " + to_string(encoding)));
+  if (!os)
+    NDN_THROW(Error("Cannot write to output stream"));
 }
 
 } // namespace ndn::io

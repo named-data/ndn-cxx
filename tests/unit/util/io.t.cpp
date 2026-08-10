@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -27,6 +27,7 @@
 #include <boost/mp11/list.hpp>
 
 #include <filesystem>
+#include <fstream>
 #include <system_error>
 
 namespace ndn::tests {
@@ -72,9 +73,24 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(SaveBuffer, T, Encodings)
   BOOST_CHECK_EQUAL(os.str(), t.stream.str());
 }
 
+BOOST_AUTO_TEST_CASE(LoadBufferBadStream)
+{
+  std::istringstream in("foobar");
+  in.setstate(std::ios_base::badbit);
+  BOOST_CHECK_THROW(io::loadBuffer(in, io::NO_ENCODING), io::Error);
+}
+
+BOOST_AUTO_TEST_CASE(SaveBufferBadStream)
+{
+  std::ostringstream out;
+  out.setstate(std::ios_base::badbit);
+  const Buffer buffer(1);
+  BOOST_CHECK_THROW(io::saveBuffer(buffer, out, io::NO_ENCODING), io::Error);
+}
+
 BOOST_AUTO_TEST_CASE(LoadBufferException)
 {
-  std::ifstream in("this-file-does-not-exist", std::ios_base::binary);
+  std::ifstream in("this-file-does-not-exist");
   BOOST_CHECK_THROW(io::loadBuffer(in, io::NO_ENCODING), io::Error);
 }
 
@@ -93,9 +109,10 @@ BOOST_AUTO_TEST_CASE(SaveBufferException)
 BOOST_AUTO_TEST_CASE(UnknownIoEncoding)
 {
   std::stringstream ss;
-  BOOST_CHECK_THROW(io::loadTlv<Name>(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
   BOOST_CHECK_THROW(io::loadBuffer(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
+  BOOST_CHECK_THROW(io::loadTlv<Name>(ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
   BOOST_CHECK_THROW(io::saveBuffer({}, ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
+  BOOST_CHECK_THROW(io::saveTlv(Name{}, ss, static_cast<io::IoEncoding>(5)), std::invalid_argument);
 }
 
 class FileIoFixture
@@ -210,9 +227,6 @@ public:
 BOOST_AUTO_TEST_CASE(LoadNoEncoding)
 {
   this->writeFile<std::vector<uint8_t>>({0xBB, 0x01, 0xEE});
-  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::NO_ENCODING);
-  BOOST_CHECK(decoded != nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_NO_THROW(io::loadTlv<DecodableType>(ifs, io::NO_ENCODING));
 }
@@ -220,9 +234,6 @@ BOOST_AUTO_TEST_CASE(LoadNoEncoding)
 BOOST_AUTO_TEST_CASE(LoadBase64)
 {
   this->writeFile<std::string>("uwHu\n"); // printf '\xBB\x01\xEE' | base64
-  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::BASE64);
-  BOOST_CHECK(decoded != nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_NO_THROW(io::loadTlv<DecodableType>(ifs, io::BASE64));
 }
@@ -236,9 +247,6 @@ BOOST_AUTO_TEST_CASE(LoadBase64Newline64)
   //         \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
   //         \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
   //         \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' | base64
-  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
-  BOOST_CHECK(decoded != nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
@@ -249,9 +257,6 @@ BOOST_AUTO_TEST_CASE(LoadBase64Newline32)
     "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n"
     "AAAAAAAAAAAA\n");
-  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
-  BOOST_CHECK(decoded != nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
@@ -260,9 +265,6 @@ BOOST_AUTO_TEST_CASE(LoadBase64NewlineEnd)
 {
   this->writeFile<std::string>(
     "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
-  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
-  BOOST_CHECK(decoded != nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
@@ -271,9 +273,6 @@ BOOST_AUTO_TEST_CASE(LoadBase64NoNewline)
 {
   this->writeFile<std::string>(
     "CEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-  shared_ptr<name::Component> decoded = io::load<name::Component>(filename, io::BASE64);
-  BOOST_CHECK(decoded != nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_NO_THROW(io::loadTlv<name::Component>(ifs, io::BASE64));
 }
@@ -281,9 +280,6 @@ BOOST_AUTO_TEST_CASE(LoadBase64NoNewline)
 BOOST_AUTO_TEST_CASE(LoadHex)
 {
   this->writeFile<std::string>("BB01EE");
-  shared_ptr<DecodableType> decoded = io::load<DecodableType>(filename, io::HEX);
-  BOOST_CHECK(decoded != nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_NO_THROW(io::loadTlv<DecodableType>(ifs, io::HEX));
 }
@@ -291,10 +287,6 @@ BOOST_AUTO_TEST_CASE(LoadHex)
 BOOST_AUTO_TEST_CASE(LoadDecodeException)
 {
   this->writeFile<std::vector<uint8_t>>({0xBB, 0x01, 0xEE});
-  shared_ptr<DecodableTypeThrow> decoded;
-  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableTypeThrow>(filename, io::NO_ENCODING));
-  BOOST_CHECK(decoded == nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_THROW(io::loadTlv<DecodableTypeThrow>(ifs, io::NO_ENCODING), io::Error);
 }
@@ -302,10 +294,6 @@ BOOST_AUTO_TEST_CASE(LoadDecodeException)
 BOOST_AUTO_TEST_CASE(LoadNotHex)
 {
   this->writeFile<std::string>("not-hex");
-  shared_ptr<DecodableType> decoded;
-  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::HEX));
-  BOOST_CHECK(decoded == nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_THROW(io::loadTlv<DecodableType>(ifs, io::HEX), io::Error);
 }
@@ -313,25 +301,22 @@ BOOST_AUTO_TEST_CASE(LoadNotHex)
 BOOST_AUTO_TEST_CASE(LoadEmpty)
 {
   this->writeFile<std::vector<uint8_t>>({});
-  shared_ptr<DecodableType> decoded;
-  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::NO_ENCODING));
-  BOOST_CHECK(decoded == nullptr);
-
   std::ifstream ifs(filename);
   BOOST_CHECK_THROW(io::loadTlv<DecodableType>(ifs, io::NO_ENCODING), io::Error);
 }
 
 BOOST_AUTO_TEST_CASE(LoadFileNotReadable)
 {
-  shared_ptr<DecodableType> decoded;
-  BOOST_CHECK_NO_THROW(decoded = io::load<DecodableType>(filename, io::NO_ENCODING));
-  BOOST_CHECK(decoded == nullptr);
+  std::ifstream ifs(filename); // doesn't exist
+  BOOST_REQUIRE(!ifs);
+  BOOST_CHECK_THROW(io::loadTlv<DecodableType>(ifs, io::NO_ENCODING), io::Error);
 }
 
 BOOST_AUTO_TEST_CASE(SaveNoEncoding)
 {
   EncodableType encoded;
-  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::NO_ENCODING));
+  std::ofstream ofs(filename);
+  BOOST_CHECK_NO_THROW(io::saveTlv(encoded, ofs, io::NO_ENCODING));
   auto content = this->readFile<std::vector<uint8_t>>();
   uint8_t expected[] = {0xAA, 0x01, 0xDD};
   BOOST_CHECK_EQUAL_COLLECTIONS(content.begin(), content.end(),
@@ -341,7 +326,8 @@ BOOST_AUTO_TEST_CASE(SaveNoEncoding)
 BOOST_AUTO_TEST_CASE(SaveBase64)
 {
   EncodableType encoded;
-  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::BASE64));
+  std::ofstream ofs(filename);
+  BOOST_CHECK_NO_THROW(io::saveTlv(encoded, ofs, io::BASE64));
   auto content = this->readFile<std::string>();
   BOOST_CHECK_EQUAL(content, "qgHd\n"); // printf '\xAA\x01\xDD' | base64
 }
@@ -349,7 +335,8 @@ BOOST_AUTO_TEST_CASE(SaveBase64)
 BOOST_AUTO_TEST_CASE(SaveHex)
 {
   EncodableType encoded;
-  BOOST_CHECK_NO_THROW(io::save(encoded, filename, io::HEX));
+  std::ofstream ofs(filename);
+  BOOST_CHECK_NO_THROW(io::saveTlv(encoded, ofs, io::HEX));
   auto content = this->readFile<std::string>();
   BOOST_CHECK_EQUAL(content, "AA01DD");
 }
@@ -358,39 +345,42 @@ BOOST_AUTO_TEST_CASE(SaveException)
 {
   EncodableType encoded;
   encoded.shouldThrow = true;
-  BOOST_CHECK_THROW(io::save(encoded, filename, io::NO_ENCODING), io::Error);
+  std::ofstream ofs(filename);
+  BOOST_CHECK_THROW(io::saveTlv(encoded, ofs, io::NO_ENCODING), io::Error);
 }
 
 BOOST_AUTO_TEST_CASE(SaveFileNotWritable)
 {
-  this->mkdir();
   EncodableType encoded;
-  encoded.shouldThrow = true;
-  BOOST_CHECK_THROW(io::save(encoded, filename, io::NO_ENCODING), io::Error);
+  this->mkdir();
+  std::ofstream ofs(filename);
+  BOOST_REQUIRE(!ofs);
+  BOOST_CHECK_THROW(io::saveTlv(encoded, ofs, io::NO_ENCODING), io::Error);
 }
 
 BOOST_AUTO_TEST_SUITE_END() // FileIo
 
-class IdCertFixture : public FileIoFixture
+class CertIoFixture : public FileIoFixture
                     , public KeyChainFixture
 {
 };
 
-BOOST_FIXTURE_TEST_CASE(IdCert, IdCertFixture)
+BOOST_FIXTURE_TEST_CASE(CertificateRoundTrip, CertIoFixture)
 {
-  auto identity = m_keyChain.createIdentity("/TestIo/IdCert", RsaKeyParams());
+  auto identity = m_keyChain.createIdentity("/TestIo/IdCert");
   auto key = identity.getDefaultKey();
   const auto& cert = key.getDefaultCertificate();
-  io::save(cert, filename);
 
-  auto readCert = io::load<security::Certificate>(filename);
+  {
+    std::ofstream file(filename);
+    io::saveTlv(cert, file);
+    BOOST_REQUIRE(file.good());
+  }
 
-  BOOST_REQUIRE(readCert != nullptr);
-  BOOST_CHECK_EQUAL(cert.getName(), readCert->getName());
-
-  this->writeFile<std::string>("");
-  readCert = io::load<security::Certificate>(filename);
-  BOOST_REQUIRE(readCert == nullptr);
+  std::ifstream file(filename);
+  auto readCert = io::loadTlv<security::Certificate>(file);
+  BOOST_TEST(cert.getName() == readCert.getName());
+  BOOST_TEST(cert.getPublicKey() == readCert.getPublicKey(), boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_SUITE_END() // TestIo

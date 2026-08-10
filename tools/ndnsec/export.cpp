@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -124,10 +124,19 @@ ndnsec_export(int argc, char** argv)
 
   auto safeBag = keyChain.exportSafeBag(cert, password.data(), password.size());
 
-  if (output == "-")
-    io::save(*safeBag, std::cout);
-  else
-    io::save(*safeBag, output);
+  try {
+    if (output == "-") {
+      io::saveTlv(*safeBag, std::cout, io::BASE64);
+    }
+    else {
+      std::ofstream file(output);
+      io::saveTlv(*safeBag, file, io::BASE64);
+    }
+  }
+  catch (const io::Error&) {
+    std::cerr << "ERROR: failed to write to '" << output << "'" << std::endl;
+    return 1;
+  }
 
   return 0;
 }

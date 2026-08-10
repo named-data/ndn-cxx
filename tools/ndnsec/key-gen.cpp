@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -155,7 +155,7 @@ ndnsec_key_gen(int argc, char** argv)
     keyChain.setDefaultIdentity(identity);
   }
 
-  io::save(key.getDefaultCertificate(), std::cout);
+  io::saveTlv(key.getDefaultCertificate(), std::cout, io::BASE64);
 
   return 0;
 }

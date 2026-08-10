@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2013-2024 Regents of the University of California.
+ * Copyright (c) 2013-2026 Regents of the University of California.
  *
  * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
  *
@@ -26,6 +26,8 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/range/iterator_range.hpp>
+
+#include <fstream>
 
 namespace ndn::security {
 
@@ -107,16 +109,26 @@ DynamicTrustAnchorGroup::refresh()
 
   std::set<Name> oldAnchorNames = m_anchorNames;
 
-  auto loadCert = [this, &oldAnchorNames] (const std::filesystem::path& file) {
-    auto cert = io::load<Certificate>(file);
-    if (cert != nullptr) {
-      if (m_anchorNames.count(cert->getName()) == 0) {
-        m_anchorNames.insert(cert->getName());
-        m_certs.add(std::move(*cert));
-      }
-      else {
-        oldAnchorNames.erase(cert->getName());
-      }
+  auto loadCert = [this, &oldAnchorNames] (const std::filesystem::path& filename) {
+    std::ifstream file(filename);
+    if (!file)
+      return;
+
+    Certificate cert;
+    try {
+      cert = io::loadTlv<Certificate>(file, io::BASE64);
+    }
+    catch (const io::Error&) {
+      // ignore
+      return;
+    }
+
+    if (m_anchorNames.count(cert.getName()) == 0) {
+      m_anchorNames.insert(cert.getName());
+      m_certs.add(std::move(cert));
+    }
+    else {
+      oldAnchorNames.erase(cert.getName());
     }
   };
 
