@@ -135,6 +135,8 @@ def configure(conf):
         conf.env.HAVE_STACKTRACE = True
         conf.env.append_unique('DEFINES_BOOST', ['BOOST_STACKTRACE_DYN_LINK'])
         boost_libs.append(f'stacktrace_{stacktrace_backend}')
+        if conf.env.BOOST_VERSION_NUMBER >= 109200:
+            boost_libs.append('stacktrace_dump')
 
     conf.check_boost(lib=boost_libs, mt=True)
 
